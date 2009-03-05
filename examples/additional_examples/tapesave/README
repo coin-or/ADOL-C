@@ -1,0 +1,31 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+##               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains example programs to demonstrate how to
+separate tape creation and tape usage into different programs.
+   
+--------------------------------------------------------------
+CONTENTS OF THE DIRECTORY
+
+  createTape   --> C++ program to create a tape of the function
+                   of interest.
+                   
+                   createTape.cpp
+
+  useTape      --> C++ program which uses the tape created with
+                   createTape to compute the gradient.
+
+                   useTape.cpp 
+		  

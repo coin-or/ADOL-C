@@ -1,0 +1,50 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Kowarz, Christo Mitev
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains 
+
+  - an example program that illustrates the drivers for
+    computing sparse Jacobians and Hessians, i.e.
+
+    sparse_jac(..), sparse_hess(..), jac_pat(..), hess_pat(..),
+    generate_seed_jac(..), generate_seed_hess(..)
+
+  - an example program that demonstrate the application of 
+    the special ADOL-C driver jac_pat(..) in different modes 
+    to obtain the sparsity structure of Jacobians.
+
+--------------------------------------------------------------
+CONTENTS OF THE DIRECTORY
+
+  sparse_jacobian  --> Example to illustrate the use of 
+                       sparse_jac(..), jac_pat(..), 
+                       generate_seed_jac(..), 
+
+                       sparse_jacobian.cpp
+
+  sparse_hessian   --> Example to illustrate the use of 
+                       sparse_hess(..), hess_pat(..),
+                       generate_seed_hess(..)
+
+                       sparse_hessian.cpp
+
+  jacpatexam       --> Example to validate jac_pat(..) and the
+                       underlying forward/reverse calls
+
+                       jacpatexam.cpp
+  
+                       NOTE: this example program makes use of the 
+                       clock utility provided in subdirectory 
+                       ../clock. 
+

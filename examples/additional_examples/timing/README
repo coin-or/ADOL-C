@@ -1,0 +1,131 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+##               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+-------------------------------------------------------------
+
+This directory contains example programs that perform user 
+time measurements and checks of nearly all ADOL-C drivers 
+applied to several test problems. 
+
+--------------------------------------------------------------
+CONTENTS OF THE DIRECTORY
+
+(A) SCALAR VALUED TEST FUNCTIONS/PROBLEMS 
+-----------------------------------------
+
+  detexam         --> Computation of determinants            
+                  
+                      sfunc_determinant.cpp detexam.ctrl           
+
+  speelpenning    --> Speelpenning's product
+ 
+                      sfunc_speelpenning.cpp speelpenning.ctrl
+
+  griewankexam    --> Griewank's function [1st ICSC'96] 
+
+                      sfunc_griewank.cpp griewankexam.ctrl
+
+  michalewitzexam --> Michalewitz' function [1st ICSC'96] 
+
+                      sfunc_michalewitz.cpp michalewitzexam.ctrl
+
+  rosenbrockexam  --> Rosenbrock's test function
+  
+                      sfunc_rosenbrock.cpp rosenbrockexam.ctrl
+
+  powexam         --> Computation of n-th power 
+                     
+                      sfunc_power.cpp powexam.ctrl
+
+  helmholtzexam   --> Helmholtz energy function
+
+                      sfunc_helmholtz.cpp helmholtzexam.ctrl
+
+  experimental    --> Generic example to make experiments with
+                      modifications of Speelpennings product
+               
+                      sfunc_experimental.cpp experimental.ctrl
+
+NOTE: all above example programs make use of the "generic" module
+      
+              sgenmain.cpp
+
+      and the clock utility provided in subdirectory
+      ../clock.
+
+(B) VECTOR VALUED TEST FUNCTIONS/PROBLEMS 
+-----------------------------------------
+
+  simplevec       --> A simple vector example 
+                      (scalable dimensions)
+                  
+                      vfunc_simplevec.cpp simplevec.ctrl
+
+  gearexam        --> Virtual Machine Tool  of gearing 
+                      (R^3 --> R^3)
+
+                      vfunc_gear.C gearexam.ctrl
+
+  pargearexam     --> Virtual Machine Tool  of gearing 
+                      (R^3 x R^? --> R^3)
+                      parametrized version
+
+                      vfunc_pargear.cpp pargearexam.ctrl
+                      rotations.cpp
+
+  shuttlexam      --> Another vector example with practical 
+                      background (R^14 --> R^7)
+
+                      vfunc_shuttle.cpp shuttlexam.ctrl
+
+  eutrophexam     --> An ODE example (R^5 --> R^5)
+
+                      ../ode/vfunc_eutroph.cpp eutrophexam.ctrl
+
+  robertsonexam   --> Another ODE example: Robertson test 
+                      problem (R^3 --> R^3)
+
+                      ../ode/vfunc_robertson.cpp 
+                      robertsonexam.ctrl
+
+  ficexam         --> Another ODE example: flow in channel
+                      (scalable dimension)
+   
+                      ../ode/vfunc_fic.cpp ficexam.ctrl
+
+NOTE: all above example programs make use of the "generic" module
+      
+              vgenmain.cpp
+
+      and the clock utility provided in subdirectory
+      ../clock. 
+
+--------------------------------------------------------------
+THE CONTROL FILES
+
+The control files *.ctrl can be used to specify some problem
+parameters and to decide, for which ADOL-C routines/drivers 
+time measurements or checks should be performed. Following 
+flag values are possible 
+
+     0     don't perform anything
+     1     perform timings
+   > 1     perform timings and special tests specified by 
+           the value (check of results etc.)  
+   
+NOTE: Most checks we think of are not implemented up to now!
+      The modification of the "generic" modules 
+
+      sgenmain.cpp and vgenmain.cpp
+
+      in order to make some own tests should be fairly easy. 

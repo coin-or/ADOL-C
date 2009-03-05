@@ -1,0 +1,40 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 300 2009-02-26 10:42:44Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+##               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains example programs using the 
+LU-decomposition of a square matrix. The aim is to show the 
+application of the new elementary operations
+                  
+                     y += x1 * x2;
+                     y -= x1 * x2;    
+
+by the tape_doc output.
+   
+--------------------------------------------------------------
+
+CONTENTS OF THE DIRECTORY
+
+  LUdet        --> Computation of the determinant of a matrix
+                   by LU-decomposition of the system matrix 
+                   without pivoting 
+
+                   LUdet.cpp LU.cpp LU.h 
+
+  LUsolve      --> Solution of a linear equation system
+                   by LU-decomposition of the system matrix 
+                   without pivoting 
+
+                   LUsolve.cpp LU.cpp LU.h
+	  

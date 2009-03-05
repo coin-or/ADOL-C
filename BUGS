@@ -1,0 +1,10 @@
+Not many:
+
+- incorrect results in rare cases if using malloc
+  => default for ADOL-C memory allocation changed to calloc
+
+- operations like adouble=value/adouble, adouble=value*adouble, etc. that
+  overwrite the adouble argument cause either a segmentation fault, an error
+  in seeking/reading the taylor stack or wrong derivatives when applying the
+  reverse mode (only one taylor gets written but two are read back)
+

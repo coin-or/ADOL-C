@@ -1,0 +1,52 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+##               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains example programs that perform user 
+time measurements of the special ADOL-C drivers 
+
+   forode(..) and accode(..)
+
+usually used to solve ordinary differential equations (ODEs). 
+
+For a demonstration how to apply the drivers to solve ODEs 
+have a look at the documented example code
+  
+   ../../odexam.cpp
+
+--------------------------------------------------------------
+CONTENTS OF THE DIRECTORY
+
+  odexam  --> A simple ODE example (R^3 --> R^3) 
+              [based on the Robertson test problem]
+
+              vfunc_robertson.cpp
+
+  od2exam --> Another ODE example (R^5 --> R^5)
+              [based on a eutrophy problem] 
+
+              vfunc_eutroph.cpp
+
+  od3exam --> Another ODE example (scalable dimension)
+              [flow in channel]
+
+              vfunc_fic.cpp
+
+NOTE: all example programs make use of the "generic" module
+      
+              vgenodemain.cpp
+
+      and the clock utility provided in subdirectory
+      ../clock. 
+
