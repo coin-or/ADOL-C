@@ -1030,7 +1030,7 @@ int hov_ti_reverse(
 
                 /* RECOMPUTATION */
                 ASSIGN_T( Tres,  rpp_T[res])
-                deconv(k,Targ1,Targ2,Tres);
+                deconv1(k,Targ1,Targ2,Tres);
 
                 FOR_0_LE_l_LT_p
                 if (0 == ARES) {
@@ -1073,7 +1073,7 @@ int hov_ti_reverse(
 
                 /* RECOMPUTATION */
                 ASSIGN_T( Tres,  rpp_T[res])
-                inconv(k,Targ1,Targ2,Tres);
+                inconv1(k,Targ1,Targ2,Tres);
 
                 FOR_0_LE_l_LT_p
                 if (0 == ARES) {
@@ -1088,8 +1088,8 @@ int hov_ti_reverse(
                     AARG1_INC_O;
                     AARG2_INC_O;
 
-                    deconv(k,Ares,Targ1,Aarg2);
-                    deconv(k,Ares,Targ2,Aarg1);
+                    deconv0(k,Ares,Targ1,Aarg2);
+                    deconv0(k,Ares,Targ2,Aarg1);
 
                     HOV_INC(Ares,  k)
                     HOV_INC(Aarg1, k)
@@ -1167,7 +1167,7 @@ int hov_ti_reverse(
 
                       VEC_COMPUTED_CHECK
                       recipr(k,1.0,Targ2,rp_Ttemp);
-                      conv(k ,rp_Ttemp,
+                      conv0(k ,rp_Ttemp,
                            Tres, dp_Atemp2);
                       VEC_COMPUTED_END
                       copyAndZeroset(k,Ares,dp_Atemp);
@@ -1221,10 +1221,10 @@ int hov_ti_reverse(
 
                       VEC_COMPUTED_CHECK
                       recipr(k,1.0,Targ,rp_Ttemp);
-                      conv(k, rp_Ttemp,
+                      conv0(k, rp_Ttemp,
                            Tres, dp_Atemp);
                       VEC_COMPUTED_END
-                      deconv0(k,Ares,dp_Atemp,Aarg);
+                      deconv(k,Ares,dp_Atemp,Aarg);
 
                       HOV_INC(Ares, k)
                       HOV_INC(Aarg, k)
@@ -2072,7 +2072,8 @@ int hov_ti_reverse(
 #endif /* ADOLC_DEBUG */
 
     /* clean up */
-    myfree2(rpp_T);
+    free((char*)*rpp_T);
+    free((char*) rpp_T);
     myfree2(dpp_A);
     free(rp_Ttemp);
     free(rp_Ttemp2);
