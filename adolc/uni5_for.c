@@ -3807,10 +3807,10 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
 	      k++;
 	  }
 	  ind_dom[res][0] = k-2;
+	  free(temp_array);
+	  free(temp_array1);
     }
 
-    free(temp_array);
-    free(temp_array1);
 }
 
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
