@@ -588,13 +588,20 @@ int inverse_Taylor_prop( short tag, int n, int d,
 			indexA = 1;
                         Xj = X[j]+l;
 			indexX = l-1;
-                        for (q=da; q<l; q++)
-			{
+			if (da == l-1)
+			  {
                             bi += (*(++Aij))*(*(--Xj));
-                            bi += A[i][j][indexA]*X[j][indexX];
-			    indexA++;
-			    indexX--;
-			}
+			  }
+			else
+			  {
+			    for (q=da; q<l; q++)
+			      {
+				bi += (*(++Aij))*(*(--Xj));
+				bi += A[i][j][indexA]*X[j][indexX];
+				indexA++;
+				indexX--;
+			      }
+			  }
                     }
                 b[i] = -bi;
             }
@@ -650,9 +657,12 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
         Y = myalloc2(n,d+1);
         for (i=0; i<n; i++) {
             X[i][0] = x[i];
-            for (j=1; j<d; j++)
-                X[i][j] = 0;
             Y[i][0] = y[i];
+            for (j=1; j<d; j++)
+	      {
+                X[i][j] = 0;
+                Y[i][j] = 0;
+	      }
         }
         if (d == 1) {
             it[0] = 0;
