@@ -272,6 +272,10 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
+#if defined(ADOLC_DEBUG)
+#include <string.h>
+#endif /* ADOLC_DEBUG */
+
 BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
@@ -538,7 +542,6 @@ int hov_ti_reverse(
     /*                                                        REVERSE SWEEP */
 
 #if defined(ADOLC_DEBUG)
-#   include <string.h>
     int v = 0;
     unsigned int countPerOperation[256], taylorPerOperation[256];
     memset(countPerOperation, 0, 1024);
