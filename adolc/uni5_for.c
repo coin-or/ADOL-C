@@ -42,6 +42,8 @@
 #undef _ADOLC_VECTOR_
 #undef _HIGHER_ORDER_
 
+
+
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
 #  define GENERATED_FILENAME "zos_forward"
