@@ -401,8 +401,7 @@ int sparse_hess(
 	  for (l=0;l<sHinfos.p;l++)
             sHinfos.Xppp[i][l][0] = Seed[i][l];
 
-	free((double*) *Seed);
-	free((double*) Seed);
+	delete[] Seed;
 	Seed = NULL;
 
         sHinfos.Yppp = myalloc3(1,sHinfos.p,1);

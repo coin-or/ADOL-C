@@ -112,8 +112,15 @@ doc/Makefile.am -text
 doc/Makefile.in -text
 doc/adolc-20.pdf -text
 doc/adolc-20.ps -text
+doc/adolc-20.tex -text
+doc/multiplexed.eps -text
 doc/short_ref.pdf -text
 doc/short_ref.ps -text
+doc/short_ref.tex -text
+doc/tap_point.eps -text
+doc/tap_point.pdf -text
+doc/tapeadv.eps -text
+doc/tapebasic.eps -text
 examples/Makefile.am -text
 examples/Makefile.in -text
 examples/Makefile.win -text
