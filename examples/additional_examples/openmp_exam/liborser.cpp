@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     liborser.cpp
- Revision: $Id: 267 2008-12-15 11:19:45Z awalther $
+ Revision: $Id$
  Contents: example for differentiation of OpemMP parallel programs
            serial version for comparisons
 

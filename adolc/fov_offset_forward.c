@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     fov_offset_forward.c
- Revision: $Id: fov_forward.c 123 2006-07-18 11:35:12Z kowarz $
+ Revision: $Id$
  Contents: fov_offset_forward (first-order-vector forward mode with
            p-offset in arguments and taylors)
 

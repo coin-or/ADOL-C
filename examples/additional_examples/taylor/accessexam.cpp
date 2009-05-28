@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     accessexam.cpp
- Revision: $Id: accessexam.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: Test driver 'tensor_value(..)' and access of higher order tensors 
            by void pointer strategy
  

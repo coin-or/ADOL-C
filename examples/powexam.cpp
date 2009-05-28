@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     powexam.cpp
- Revision: $Id: powexam.cpp 295 2009-02-25 13:32:25Z awalther $
+ Revision: $Id$
  Contents: computation of n-th power, described in the manual
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 

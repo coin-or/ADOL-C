@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     vfunc_robertson.cpp
- Revision: $Id: vfunc_robertson.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: example for function module containing the Robertson test problem
             (based on odexam.C of version 1.7)
  

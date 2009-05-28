@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     jacpatexam.cpp
- Revision: $Id: jacpatexam.cpp 300 2009-02-26 10:42:44Z awalther $
+ Revision: $Id$
  Contents: example for computation of jacobian sparsity pattern
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 

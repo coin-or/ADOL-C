@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     fos_reverse.c
- Revision: $Id: fos_reverse.c 295 2009-02-25 13:32:25Z awalther $
+ Revision: $Id$
  Contents: fos_reverse (first-order-scalar reverse mode)
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 

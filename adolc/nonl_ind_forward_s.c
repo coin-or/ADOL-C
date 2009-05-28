@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     nonl_ind_forward_s.c
- Revision: $Id: nonl_ind_forward_s.c 278 2008-12-19 09:11:26Z awalther $
+ Revision: $Id$
  Contents: nonl_ind_forward_s (propagation of nonlinear index domains)
  
  Copyright (c) Andrea Walther

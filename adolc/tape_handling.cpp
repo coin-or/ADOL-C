@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     tape_handling.cpp
- Revision: $Id: tape_handling.cpp 295 2009-02-25 13:32:25Z awalther $
+ Revision: $Id$
  Contents: management of tape infos
 
  Copyright (c) Andreas Kowarz
