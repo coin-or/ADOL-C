@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     int_reverse_t.c
- Revision: $Id: int_reverse_t.c 149 2006-11-08 13:19:25Z kowarz $
+ Revision: $Id$
  Contents: int_reverse (integer reverse mode tight for bit pattern propagation)
  
  Copyright (c) Andrea Walther, Christo Mitev

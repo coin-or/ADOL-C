@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     vgenodemain.cpp
- Revision: $Id: vgenodemain.cpp 300 2009-02-26 10:42:44Z awalther $
+ Revision: $Id$
  Contents: example for ODE Generic Main File: 
        for use with function modules containing vector examples 
        (e.g. vgen_eutroph.C)

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     odexam.cpp
- Revision: $Id: odexam.cpp 295 2009-02-25 13:32:25Z awalther $
+ Revision: $Id$
  Contents: Nonlinear ordinary differential equation based on the
            Robertson test problem, described in the manual
 

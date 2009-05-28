@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adolc_openmp.h
- Revision: $Id: adolc_openmp.h 277 2008-12-19 08:02:52Z awalther $
+ Revision: $Id$
  Contents: header file for openmp parallel differentiation
 
  Copyright (c) Andreas Kowarz

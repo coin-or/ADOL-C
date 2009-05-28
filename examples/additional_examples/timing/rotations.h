@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     rotations.h
- Revision: $Id: rotations.h 300 2009-02-26 10:42:44Z awalther $
+ Revision: $Id$
  Contents: 
 
    ... contains elementary rotations used by the machine tool 
