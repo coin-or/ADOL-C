@@ -1,6 +1,6 @@
 ##############################################################################
 # configure.ac -- Process this file with autoconf to produce configure
-# Revision: $Id: configure.ac 289 2009-02-24 09:44:15Z awalther $
+# Revision: $Id$
 #
 # Copyright (C) Andrea Walther, Andreas Kowarz
 #
@@ -12,13 +12,24 @@ define([ADOLC_LVL], [0])
 AC_PREREQ(2.57)
 AC_INIT(adolc,
         ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
-        [adol-c@tu-dresden.de])
-AC_REVISION($Revision: 289 $)
+        [adol-c@list.coin-or.org])
+AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([adolc/adolc.h])
 AC_CONFIG_AUX_DIR(autoconf)
 AC_CONFIG_HEADERS([adolc/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE
+
+if test x$CFLAGS == x ; then
+    ac_shell_cflags="not_set"
+else
+    ac_shell_cflags="$CFLAGS"
+fi
+if test x$CXXFLAGS == x ; then
+    ac_shell_cxxflags="not_set"
+else
+    ac_shell_cxxflags="$CXXFLAGS"
+fi
 
 # checks for programs
 AC_PROG_CXX
@@ -169,7 +180,7 @@ AC_ARG_WITH(openmp-flag,
 AC_MSG_CHECKING(which CFLAGS to use)
 AC_ARG_WITH(cflags,
             [AS_HELP_STRING([--with-cflags=FLAGS],
-                            [use CFLAGS=FLAGS (default: -O3 -Wall -ansi)])],
+                            [use CFLAGS=FLAGS (default: -O2)])],
             [ac_adolc_cflags="$withval"
              if test x${adolc_debug} == xyes ||
                 test x${adolc_harddebug} == xyes ; then
@@ -178,11 +189,11 @@ AC_ARG_WITH(cflags,
              ac_adolc_cflags="$ac_adolc_cflags $ac_adolc_openmpflag"
              AC_SUBST(ac_adolc_cflags)
              AC_MSG_RESULT($ac_adolc_cflags)],
-            [if test x"$CFLAGS" = x; then
-                ac_adolc_cflags="-O3 -Wall -ansi"
+            [if test "$ac_shell_cflags" = "not_set"; then
+                ac_adolc_cflags="-O2"
                 if test x${adolc_debug} == xyes ||
                    test x${adolc_harddebug} == xyes ; then
-                   ac_adolc_cflags="-g -O0 -Wall -ansi"
+                   ac_adolc_cflags="-g -O3 -Wall -ansi"
                 fi
              else
                 ac_adolc_cflags="$CFLAGS"
@@ -194,7 +205,7 @@ AC_ARG_WITH(cflags,
 AC_MSG_CHECKING(which CXXFLAGS to use)
 AC_ARG_WITH(cxxflags,
             [AS_HELP_STRING([--with-cxxflags=FLAGS],
-                            [use CXXFLAGS=FLAGS (default: -O3 -Wall)])],
+                            [use CXXFLAGS=FLAGS (default: -O2)])],
             [ac_adolc_cxxflags="$withval"
              if test x${adolc_debug} == xyes ||
                 test x${adolc_harddebug} == xyes ; then
@@ -203,8 +214,8 @@ AC_ARG_WITH(cxxflags,
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
              AC_SUBST(ac_adolc_cxxflags)
              AC_MSG_RESULT($ac_adolc_cxxflags)],
-            [if test x"$CXXFLAGS" = x; then
-                ac_adolc_cxxflags="-O3 -Wall"
+            [if test "$ac_shell_cxxflags" = "not_set"; then
+                ac_adolc_cxxflags="-O2"
                 if test x${adolc_debug} == xyes ||
                    test x${adolc_harddebug} == xyes ; then
                    ac_adolc_cxxflags="-g -O0 -Wall"
