@@ -10,7 +10,7 @@
 ## 
 ##############################################################################
 
-AUTOMAKE_OPTIONS     = gnu
+AUTOMAKE_OPTIONS     = foreign
 
 EXTRA_DIST           = TODO BUGS Makefile.win make_32 make_64 \
                        comp_win.bat winflags_dll winflags_exa
