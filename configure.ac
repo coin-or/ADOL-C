@@ -14,9 +14,9 @@ AC_INIT(adolc,
         ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
-AC_CONFIG_SRCDIR([adolc/adolc.h])
+AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
 AC_CONFIG_AUX_DIR(autoconf)
-AC_CONFIG_HEADERS([adolc/config.h])
+AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE
 
@@ -229,31 +229,31 @@ AC_ARG_WITH(cxxflags,
 
 # output
 AC_CONFIG_FILES(Makefile
-                adolc/Makefile
-                adolc/drivers/Makefile 
-                adolc/sparse/Makefile
-                adolc/tapedoc/Makefile
-                doc/Makefile
-                examples/Makefile
-                examples/additional_examples/Makefile
-                examples/additional_examples/clock/Makefile
-                examples/additional_examples/checkpointing/Makefile
-                examples/additional_examples/ext_diff_func/Makefile
-                examples/additional_examples/fixpoint_exam/Makefile
-                examples/additional_examples/hessmat/Makefile
-                examples/additional_examples/lufact/Makefile
-                examples/additional_examples/openmp_exam/Makefile
-                examples/additional_examples/scal/Makefile
-                examples/additional_examples/speelpenning/Makefile
-                examples/additional_examples/taylor/Makefile
-                examples/additional_examples/detexam/Makefile
-                examples/additional_examples/helm/Makefile
-                examples/additional_examples/lighthouse/Makefile
-                examples/additional_examples/ode/Makefile
-                examples/additional_examples/sparse/Makefile
-                examples/additional_examples/tapesave/Makefile
-                examples/additional_examples/pow/Makefile
-                examples/additional_examples/timing/Makefile)
+                ADOL-C/Makefile
+                ADOL-C/src/Makefile
+                ADOL-C/src/drivers/Makefile 
+                ADOL-C/src/sparse/Makefile
+                ADOL-C/src/tapedoc/Makefile
+                ADOL-C/examples/Makefile
+                ADOL-C/examples/additional_examples/Makefile
+                ADOL-C/examples/additional_examples/clock/Makefile
+                ADOL-C/examples/additional_examples/checkpointing/Makefile
+                ADOL-C/examples/additional_examples/ext_diff_func/Makefile
+                ADOL-C/examples/additional_examples/fixpoint_exam/Makefile
+                ADOL-C/examples/additional_examples/hessmat/Makefile
+                ADOL-C/examples/additional_examples/lufact/Makefile
+                ADOL-C/examples/additional_examples/openmp_exam/Makefile
+                ADOL-C/examples/additional_examples/scal/Makefile
+                ADOL-C/examples/additional_examples/speelpenning/Makefile
+                ADOL-C/examples/additional_examples/taylor/Makefile
+                ADOL-C/examples/additional_examples/detexam/Makefile
+                ADOL-C/examples/additional_examples/helm/Makefile
+                ADOL-C/examples/additional_examples/lighthouse/Makefile
+                ADOL-C/examples/additional_examples/ode/Makefile
+                ADOL-C/examples/additional_examples/sparse/Makefile
+                ADOL-C/examples/additional_examples/tapesave/Makefile
+                ADOL-C/examples/additional_examples/pow/Makefile
+                ADOL-C/examples/additional_examples/timing/Makefile)
 
 AC_OUTPUT
 
