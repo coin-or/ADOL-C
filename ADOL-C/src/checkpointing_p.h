@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     checkpointing_p.h
- Revision: $Id: checkpointing_p.h 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: private functions for the checkpointing functions.
  
  Copyright (c) Andreas Kowarz

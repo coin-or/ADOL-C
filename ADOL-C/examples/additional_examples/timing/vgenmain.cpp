@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     vgenmain.cpp
- Revision: $Id: vgenmain.cpp 300 2009-02-26 10:42:44Z awalther $
+ Revision: $Id$
  Contents: Vector Generic Main File: 
        for use with function modules containing several vector
        function examples 

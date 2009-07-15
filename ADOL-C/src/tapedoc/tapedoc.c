@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     tapedoc/tapedoc.c
- Revision: $Id: tapedoc.c 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: Routine tape_doc(..) writes the taped operations in LaTeX-code 
            to the file tape_doc.tex
  

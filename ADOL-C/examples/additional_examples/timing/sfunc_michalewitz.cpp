@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sfunc_michalewitz.cpp
- Revision: $Id: sfunc_michalewitz.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: function module containing Michalewitz' function
 
    Each << function module >> contains:

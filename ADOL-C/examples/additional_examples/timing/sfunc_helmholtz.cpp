@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sfunc_helmholtz.cpp
- Revision: $Id: sfunc_helmholtz.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: function module containing Helmholtz energy function
 
    Each << function module >> contains:

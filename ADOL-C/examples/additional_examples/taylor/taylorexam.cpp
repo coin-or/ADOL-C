@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     taylorexam.cpp
- Revision: $Id: taylorexam.cpp 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: Test driver 'tensor_eval(..)' to compute
            higher order derivatives
 

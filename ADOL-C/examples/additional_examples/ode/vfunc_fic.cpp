@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     vfunc_fic.cpp
- Revision: $Id: vfunc_fic.cpp 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: example for function module containing the flow in a channel
  
    Each << function module >> contains:

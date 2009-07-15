@@ -4,7 +4,7 @@
  File:     uni5_for.c
 
 
- Revision: $Id: uni5_for.c 36 2009-05-28 12:41:50Z awalther $
+ Revision: $Id$
 
  Contents: Contains the routines :
            zos_forward (zero-order-scalar forward mode):      define _ZOS_   

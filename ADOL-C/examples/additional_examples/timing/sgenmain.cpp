@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sgenmain.cpp
- Revision: $Id: sgenmain.cpp 300 2009-02-26 10:42:44Z awalther $
+ Revision: $Id$
  Contents: Scalar Generic Main File: 
        for use with function modules containing several scalar
        examples 

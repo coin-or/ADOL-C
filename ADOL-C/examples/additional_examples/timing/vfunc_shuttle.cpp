@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     vfunc_shuttle.cpp
- Revision: $Id: vfunc_shuttle.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: Example of function module containing the shuttle example
             (based on shuttlexam.c of version 1.7) 
  
