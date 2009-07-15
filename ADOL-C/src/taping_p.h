@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     taping_p.h
- Revision: $Id: taping_p.h 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: declarations for used by taping routines
  
  Copyright (c) Andreas Kowarz

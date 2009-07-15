@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sfunc_griewank.cpp
- Revision: $Id: sfunc_griewank.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: function module containing  Griewanks function
 
    Each << function module >> contains:

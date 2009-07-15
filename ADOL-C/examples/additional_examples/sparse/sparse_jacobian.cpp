@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sparse_jacobian.cpp
- Revision: $Id: sparse_jacobian.cpp 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: example for computation of sparse jacobians
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 

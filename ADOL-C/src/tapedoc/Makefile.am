@@ -1,7 +1,7 @@
 ##############################################################################
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## subdirectory tapedoc
-## Revision: $Id: Makefile.am 37 2009-05-28 12:56:44Z awalther $
+## Revision: $Id$
 ##
 ## Copyright (C)  Andrea Walther, Andreas Kowarz
 ##

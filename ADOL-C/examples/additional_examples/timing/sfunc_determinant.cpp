@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sfunc_determinant.cpp
- Revision: $Id: sfunc_determinant.cpp 299 2009-02-26 09:20:11Z awalther $
+ Revision: $Id$
  Contents: function module containing the determinant example
  
    Each << function module >> contains:

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     helm-diff-exam.cpp
- Revision: $Id: helm-diff-exam.cpp 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: example for  Helmholtz energy example 
            Computes gradient using divide differences
 

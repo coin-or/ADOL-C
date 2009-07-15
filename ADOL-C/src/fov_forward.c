@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     fov_forward.c
- Revision: $Id: fov_forward.c 37 2009-05-28 12:56:44Z awalther $
+ Revision: $Id$
  Contents: fov_forward (first-order-vector forward mode)
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
