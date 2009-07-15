@@ -289,7 +289,7 @@ echo \
   Build documented examples:        ${docexa}
   Build additional examples:        ${addexa}
 
-  See adolc/config.h for further configuration information.
+  See ADOL-C/src/config.h for further configuration information.
 -----------------------------------------------------------------------------"
 
 # check for make install problems resulting from missing write permission

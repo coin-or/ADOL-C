@@ -270,6 +270,7 @@ autoconf/depcomp -text
 autoconf/install-sh -text
 autoconf/ltmain.sh -text
 autoconf/missing -text
+autoconf/mkinstalldirs -text
 /comp_win.bat -text
 /configure -text
 /configure.ac -text
