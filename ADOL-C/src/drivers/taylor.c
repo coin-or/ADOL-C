@@ -581,13 +581,15 @@ int inverse_Taylor_prop( short tag, int n, int d,
                 if (l == 0)
                     bi = w[i]-Y[i][0];
                 else
-                    bi = W[i][l-1]-Y[i][l];
+		    bi = W[i][l-1]-Y[i][l];
                 for (j=0; j<n; j++)
                     if (nonzero[i][j]>1) {
                         Aij = A[i][j];
-			indexA = 1;
+			int indj = j;
+			indexA = l-1;
                         Xj = X[j]+l;
-			indexX = l-1;
+			int indX = l;
+			indexX = 1;
 			if (da == l-1)
 			  {
                             bi += (*(++Aij))*(*(--Xj));
@@ -598,20 +600,19 @@ int inverse_Taylor_prop( short tag, int n, int d,
 			      {
 				bi += (*(++Aij))*(*(--Xj));
 				bi += A[i][j][indexA]*X[j][indexX];
-				indexA++;
-				indexX--;
+				indexA--;
+				indexX++;
 			      }
 			  }
                     }
                 b[i] = -bi;
             }
             MINDEC(rc,jac_solv(tag,n,xold,b,2));
-            if (rc == -3)
+           if (rc == -3)
                 return -3;
             for (i=0; i<n; i++) {
-                X[i][l] += b[i];
-                /* 981214 new nl */
-                Xhelp[i][l-1] += b[i];
+	      X[i][l] += b[i];
+	      Xhelp[i][l-1] += b[i];
             }
         }
     }
@@ -698,7 +699,9 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
                 ptr = &coeff_list[i];
                 do {
                     for(j=0;j<n;j++)
+		      {
                         tensor[j][ptr->a] += X[j][ptr->b]*ptr->c;
+		      }
                     ptr = ptr->next;
                 } while (ptr != NULL);
             }
@@ -866,7 +869,6 @@ void tensor_value( int d, int m, double *y, double **tensor, int *multi ) {
 }
 
 END_C_DECLS
-
 
 
 
