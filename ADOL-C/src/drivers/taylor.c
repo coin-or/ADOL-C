@@ -563,12 +563,17 @@ int inverse_Taylor_prop( short tag, int n, int d,
     }
     ii = bd;
     for (i=0; i<n; i++)
+      {
         for (j=0; j<d; j++)
 	{
             Xhelp[i][j] = 0;
             X[i][j+1] = 0;
             W[i][j] = 0;
 	}
+        for (j=0; j<n; j++)
+	  for (l=0; l<=d; l++)
+	    A[i][j][l] = 0;
+      }
 
     while (--ii > 0) {
         di = dd[ii-1]-1;
@@ -869,6 +874,7 @@ void tensor_value( int d, int m, double *y, double **tensor, int *multi ) {
 }
 
 END_C_DECLS
+
 
 
 
