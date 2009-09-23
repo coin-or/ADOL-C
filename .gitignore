@@ -11,3 +11,10 @@ Makefile.in
 Makefile
 autoconf/*
 configure
+aclocal.m4
+stamp-h1
+autom4te.cache
+config.log
+config.guess
+config.status
+libtool
