@@ -1,0 +1,7 @@
+*.o
+*.lo
+*.la
+Makefile.in
+Makefile
+autoconf/*
+configure
