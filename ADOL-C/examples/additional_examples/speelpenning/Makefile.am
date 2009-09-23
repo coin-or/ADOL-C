@@ -30,6 +30,6 @@ EXTRA_DIST           = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS      = speelpenning
+endif
 
 speelpenning_SOURCES = speelpenning.cpp ../clock/myclock.cpp
-endif

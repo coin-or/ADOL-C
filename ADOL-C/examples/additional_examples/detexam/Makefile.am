@@ -30,8 +30,8 @@ EXTRA_DIST           = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS      = detexam detexam-old
+endif
 
 detexam_SOURCES      = detexam.cpp ../clock/myclock.cpp
 
 detexam_old_SOURCES  = detexam-old.cpp ../clock/myclock.cpp
-endif

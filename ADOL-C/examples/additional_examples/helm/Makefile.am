@@ -30,9 +30,9 @@ EXTRA_DIST           = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS      = helm-auto helm-diff
+endif
 
 helm_auto_SOURCES    = helm-auto-exam.cpp
 
 helm_diff_SOURCES    = helm-diff-exam.cpp
 
-endif

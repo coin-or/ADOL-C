@@ -30,6 +30,6 @@ EXTRA_DIST             = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS        = ext_diff_func
+endif
 
 ext_diff_func_SOURCES  = ext_diff_func.cpp 
-endif

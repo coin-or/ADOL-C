@@ -30,6 +30,6 @@ EXTRA_DIST             = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS        = fixpoint_exam
+endif
 
 fixpoint_exam_SOURCES  = fixpoint_exam.cpp 
-endif

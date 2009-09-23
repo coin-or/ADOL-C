@@ -30,6 +30,6 @@ EXTRA_DIST            = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS       = checkpointing
+endif
 
 checkpointing_SOURCES = checkpointing.cpp 
-endif

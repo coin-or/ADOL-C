@@ -34,6 +34,7 @@ noinst_PROGRAMS         = detexam speelpenning griewankexam michalewitzexam \
                           rosenbrockexam powexam helmholtzexam shuttlexam \
                           gearexam pargearexam simplevec eutrophexam \
                           robertsonexam ficexam experimental
+endif
 
 detexam_SOURCES         = sfunc_determinant.cpp sgenmain.cpp \
                           ../clock/myclock.cpp
@@ -79,4 +80,3 @@ ficexam_SOURCES         = ../ode/vfunc_fic.cpp vgenmain.cpp \
 
 experimental_SOURCES    = sfunc_experimental.cpp sgenmain.cpp \
                           ../clock/myclock.cpp
-endif

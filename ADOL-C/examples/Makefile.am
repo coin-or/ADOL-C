@@ -39,6 +39,7 @@ endif
 if DOCEXA
 noinst_PROGRAMS         = detexam speelpenning powexam odexam \
                           tapeless_scalar tapeless_vector
+endif
 
 detexam_SOURCES         = detexam.cpp
 
@@ -51,4 +52,3 @@ odexam_SOURCES          = odexam.cpp
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 
 tapeless_vector_SOURCES = tapeless_vector.cpp
-endif

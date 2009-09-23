@@ -30,6 +30,6 @@ EXTRA_DIST           = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS      = hessmat
+endif
 
 hessmat_SOURCES      = hessmat.cpp
-endif

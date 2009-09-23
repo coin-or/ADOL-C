@@ -30,6 +30,7 @@ EXTRA_DIST           = Makefile.win
 
 if ADDEXA
 noinst_PROGRAMS      = cubic cubic-2 cubic-iter cubic-iter-2
+endif
 
 cubic_SOURCES        = cubic.cpp
 
@@ -38,4 +39,3 @@ cubic_2_SOURCES      = cubic-2.cpp
 cubic_iter_SOURCES   = cubic-iter.cpp
 
 cubic_iter_2_SOURCES = cubic-iter-2.cpp
-endif

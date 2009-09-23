@@ -31,8 +31,8 @@ MAINTAINERCLEANFILES = Makefile.in tape.tex *~ *.orig
 
 if ADDEXA
 noinst_PROGRAMS      = LUsolve LUdet
+endif
 
 LUsolve_SOURCES      = LUsolve.cpp LU.cpp
 
 LUdet_SOURCES        = LUdet.cpp LU.cpp
-endif
