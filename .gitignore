@@ -1,6 +1,12 @@
 *.o
 *.lo
 *.la
+*.a
+*.so
+.deps
+.libs
+*~
+*.bak
 Makefile.in
 Makefile
 autoconf/*
