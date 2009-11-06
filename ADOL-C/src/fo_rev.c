@@ -1783,7 +1783,7 @@ int int_reverse_safe(
 #ifdef _FOS_
     free(dp_A);
 #endif
-#ifdef _HOV_
+#ifdef _FOV_
     myfree2(dpp_A);
 #endif
 #ifdef _INT_REV_
