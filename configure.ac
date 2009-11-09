@@ -49,7 +49,7 @@ AC_CHECK_LIB([m], [pow])
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_STDBOOL
-AC_CHECK_HEADERS([stddef.h stdlib.h stdio.h string.h sys/timeb.h])
+AC_CHECK_HEADERS([stddef.h stdlib.h stdio.h string.h unistd.h sys/timeb.h])
 
 # checks for types
 AC_C_CONST
