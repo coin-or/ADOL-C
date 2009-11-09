@@ -705,7 +705,6 @@ int  hov_forward(
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
-    ADOLC_OPENMP_THREAD_NUMBER;
     unsigned char operation;   /* operation code */
     int ret_c =3;              /* return value */
 
@@ -872,6 +871,8 @@ int  hov_forward(
 #   endif
     int ext_retc;
 #endif
+
+    ADOLC_OPENMP_THREAD_NUMBER;
 
 #if defined(ADOLC_DEBUG)
     /****************************************************************************/

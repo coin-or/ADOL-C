@@ -117,6 +117,8 @@ void freetensor( int m, int n, int d, double** tensor ) {
 
 
 long binomi(int n, int k) {
+    long double accum = 1;
+    unsigned int i;
 
     if (k > n)
         return 0;
@@ -124,8 +126,6 @@ long binomi(int n, int k) {
     if (k > n/2)
         k = n-k;
 
-    long double accum = 1;
-    unsigned int i;
     for (i = 1; i <= k; i++)
          accum = accum * (n-k+i) / i;
 
@@ -589,11 +589,11 @@ int inverse_Taylor_prop( short tag, int n, int d,
 		    bi = W[i][l-1]-Y[i][l];
                 for (j=0; j<n; j++)
                     if (nonzero[i][j]>1) {
-                        Aij = A[i][j];
 			int indj = j;
+			int indX = l;
+                        Aij = A[i][j];
 			indexA = l-1;
                         Xj = X[j]+l;
-			int indX = l;
 			indexX = 1;
 			if (da == l-1)
 			  {
