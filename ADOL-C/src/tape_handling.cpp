@@ -4,7 +4,7 @@
  Revision: $Id$
  Contents: management of tape infos
 
- Copyright (c) Andreas Kowarz
+ Copyright (c) Andreas Kowarz, Andrea Walther
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -149,6 +149,13 @@ int initNewTape(short tapeID) {
     newTapeInfos->inUse=1;
     newTapeInfos->pTapeInfos.inJacSparseUse=0;
     newTapeInfos->pTapeInfos.inHessSparseUse=0;
+    newTapeInfos->pTapeInfos.sJinfos.B=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.y=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
     newTapeInfos->stats[LOC_BUFFER_SIZE] =
@@ -462,6 +469,54 @@ void cleanUp() {
                 free((*tiIter)->tayBuffer);
                 (*tiIter)->tayBuffer = NULL;
             }
+
+
+            if ((*tiIter)->pTapeInfos.sJinfos.B != NULL)
+            {
+                free((char*)  *(*tiIter)->pTapeInfos.sJinfos.B);
+                free((char*)   (*tiIter)->pTapeInfos.sJinfos.B);
+                (*tiIter)->pTapeInfos.sJinfos.B = NULL;
+            }
+            if ((*tiIter)->pTapeInfos.sJinfos.y != NULL)
+            {
+                free((*tiIter)->pTapeInfos.sJinfos.y);
+                (*tiIter)->pTapeInfos.sJinfos.y = NULL;
+            }
+
+            if ((*tiIter)->pTapeInfos.sHinfos.Zppp != NULL)
+            {
+                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Zppp);
+                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Zppp);
+                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Zppp);
+                (*tiIter)->pTapeInfos.sHinfos.Zppp = NULL;
+            }
+            if ((*tiIter)->pTapeInfos.sHinfos.Yppp != NULL)
+            {
+                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Yppp);
+                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Yppp);
+                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Yppp);
+                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
+            }
+            if ((*tiIter)->pTapeInfos.sHinfos.Xppp != NULL)
+            {
+                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Xppp);
+                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Xppp);
+                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Xppp);
+                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
+            }
+            if ((*tiIter)->pTapeInfos.sHinfos.Upp != NULL)
+            {
+                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Upp);
+                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Upp);
+                (*tiIter)->pTapeInfos.sHinfos.Upp = NULL;
+            }
+            if ((*tiIter)->pTapeInfos.sHinfos.Hcomp != NULL)
+            {
+                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Hcomp);
+                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Hcomp);
+                (*tiIter)->pTapeInfos.sHinfos.Hcomp = NULL;
+            }
+
             /* remove "main" tape files if not all three have been written */
             int filesWritten = (*tiIter)->stats[OP_FILE_ACCESS] +
                 (*tiIter)->stats[LOC_FILE_ACCESS] +
