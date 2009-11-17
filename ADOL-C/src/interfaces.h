@@ -319,7 +319,7 @@ ADOLC_DLL_EXPORT int indopro_forward_tight
 /* nonl_ind_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
 
 ADOLC_DLL_EXPORT int nonl_ind_forward_safe
-(short, int, const double*, unsigned int**);
+(short, int, int, const double*, unsigned int**);
 
 
 /*--------------------------------------------------------------------------*/
@@ -327,7 +327,7 @@ ADOLC_DLL_EXPORT int nonl_ind_forward_safe
 /* nonl_ind_forward_tight(tag, m, n,  x[n], *Y[m])                           */
 
 ADOLC_DLL_EXPORT int nonl_ind_forward_tight
-(short, int, const double*, unsigned int**);
+(short, int, int, const double*, unsigned int**);
 
 /****************************************************************************/
 /*                                                             REVERSE MODE */
