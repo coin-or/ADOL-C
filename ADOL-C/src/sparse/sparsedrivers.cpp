@@ -152,9 +152,9 @@ int hess_pat(
       option = 0;   /* default */
 
     if (option == 1)
-      rc = nonl_ind_forward_tight(tag, indep, basepoint, crs);
+      rc = nonl_ind_forward_tight(tag, 1, indep, basepoint, crs);
     else
-      rc = nonl_ind_forward_safe(tag, indep, basepoint, crs);
+      rc = nonl_ind_forward_safe(tag, 1, indep, basepoint, crs);
 
     return(rc);
 }
