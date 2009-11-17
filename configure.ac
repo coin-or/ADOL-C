@@ -3,11 +3,13 @@
 # Revision: $Id$
 #
 # Copyright (C) Andrea Walther, Andreas Kowarz
+#               
+# contains patches from the COIN OR libtool
 #
 ##############################################################################
 define([ADOLC_VER], [2])
-define([ADOLC_SUB], [0])
-define([ADOLC_LVL], [0])
+define([ADOLC_SUB], [1])
+define([ADOLC_LVL], [1])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
@@ -227,6 +229,49 @@ AC_ARG_WITH(cxxflags,
              AC_SUBST(ac_adolc_cxxflags)
              AC_MSG_RESULT($ac_adolc_cxxflags)])
 
+###########################################################################
+#                      COIN_PATCH_LIBTOOL_CYGWIN                          #
+###########################################################################
+
+# Patches to libtool for cygwin. Lots for cl, a few for GCC.
+# For cl:
+# - cygpath is not correctly quoted in fix_srcfile_path
+# - paths generated for .lib files is not run through cygpath -w
+
+
+AC_DEFUN([AC_COIN_PATCH_LIBTOOL_CYGWIN],
+[ case "$CXX" in
+    cl* | */cl* | CL* | */CL* | icl* | */icl* | ICL* | */ICL*) 
+      AC_MSG_NOTICE(Applying patches to libtool for cl compiler)
+      sed -e 's|fix_srcfile_path=\"`cygpath -w \"\$srcfile\"`\"|fix_srcfile_path=\"\\\`'"$CYGPATH_W"' \\\"\\$srcfile\\\"\\\`\"|' \
+	  -e 's|fix_srcfile_path=\"\"|fix_srcfile_path=\"\\\`'"$CYGPATH_W"' \\\"\\$srcfile\\\"\\\`\"|' \
+	  -e 's%compile_deplibs=\"\$dir/\$old_library \$compile_deplibs\"%compile_deplibs="'\`"$CYGPATH_W"' \$dir/\$old_library | sed -e '"'"'sY\\\\\\\\Y/Yg'"'"\`' \$compile_deplibs\"'% \
+	  -e 's%compile_deplibs=\"\$dir/\$linklib \$compile_deplibs\"%compile_deplibs="'\`"$CYGPATH_W"' \$dir/\$linklib | sed -e '"'"'sY\\\\\\\\Y/Yg'"'"\`' \$compile_deplibs\"'% \
+	  -e 's%lib /OUT:%lib -OUT:%' \
+	  -e "s%cygpath -w%$CYGPATH_W%" \
+	  -e 's%$AR x \\$f_ex_an_ar_oldlib%bla=\\`lib -nologo -list \\$f_ex_an_ar_oldlib | xargs echo '"$mydos2unix"'\\`; echo \\$bla; for i in \\$bla; do lib -nologo -extract:\\$i \\$f_ex_an_ar_oldlib; done%' \
+	  -e 's/$AR t/lib -nologo -list/' \
+	  -e 's%f_ex_an_ar_oldlib="\($?*1*\)"%f_ex_an_ar_oldlib='\`"$CYGPATH_W"' \1`%' \ 
+	  -e 's%^archive_cmds=.*%archive_cmds="\\$CC -o \\$lib \\$libobjs \\$compiler_flags \\\\\\`echo \\\\\\"\\$deplibs\\\\\\" | \\$SED -e '"\'"'s/ -lc\\$//'"\'"'\\\\\\` -link -dll~linknames="%' \
+	  -e 's%old_archive_cmds="lib -OUT:\\$oldlib\\$oldobjs\\$old_deplibs"%old_archive_cmds="if test -r \\$oldlib; then bla=\\"\\$oldlib\\"; else bla=; fi; lib -OUT:\\$oldlib \\\\\\$bla\\$oldobjs\\$old_deplibs"%' \
+      libtool > conftest.bla
+
+      mv conftest.bla libtool
+      chmod 755 libtool
+      ;;
+    *)
+      AC_MSG_NOTICE(Applying patches to libtool for GNU compiler)
+      sed -e 's|fix_srcfile_path=\"`cygpath -w \"\$srcfile\"`\"|fix_srcfile_path=\"\\\`'"$CYGPATH_W"' \\\"\\$srcfile\\\"\\\`\"|' \
+	  -e 's|"lib /OUT:\\$oldlib\\$oldobjs\\$old_deplibs"|"\\$AR \\$AR_FLAGS \\$oldlib\\$oldobjs\\$old_deplibs~\\$RANLIB \\$oldlib"|' \
+	  -e 's|libext="lib"|libext="a"|' \
+      libtool > conftest.bla
+
+      mv conftest.bla libtool
+      chmod 755 libtool
+      ;;
+  esac ]) # COIN_PATCH_LIBTOOL_CYGWIN
+
+
 # output
 AC_CONFIG_FILES(Makefile
                 ADOL-C/Makefile
@@ -256,6 +301,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile)
 
 AC_OUTPUT
+
 
 # echo configuration
 echo \
