@@ -44,9 +44,6 @@ AC_PROG_RANLIB
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
-# Checks for libraries
-AC_CHECK_LIB([m], [pow])
-
 # checks for header files
 AC_HEADER_STDC
 AC_HEADER_TIME
@@ -66,6 +63,9 @@ AC_CHECK_FUNCS([floor ftime pow sqrt strchr strtol])
 
 # substitutions
 AC_SUBST(ac_aux_dir)
+
+# Checks for libraries
+AC_CHECK_LIB([m], [pow])
 
 # ADOL-C configuration
 AC_DEFINE(ADOLC_VERSION,ADOLC_VER,[ADOL-C Version])
@@ -301,6 +301,9 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile)
 
 AC_OUTPUT
+
+#call libtool for cygwin
+AC_COIN_PATCH_LIBTOOL_CYGWIN
 
 
 # echo configuration
