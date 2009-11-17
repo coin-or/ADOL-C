@@ -460,14 +460,14 @@ int  zos_forward(
 #else
 int  zos_forward_nk(
 #endif
-    short  tnum,        /* tape id */
-    int    depcheck,    /* consistency chk on # of deps */
-    int    indcheck,    /* consistency chk on # of indeps */
+    short  tnum,              /* tape id */
+    int    depcheck,          /* consistency chk on # of deps */
+    int    indcheck,          /* consistency chk on # of indeps */
 #if defined(_KEEP_)
-    int    keep,        /* flag for reverse sweep */
+    int    keep,              /* flag for reverse sweep */
 #endif
-    double *basepoint,  /* independant variable values */
-    double *valuepoint) /* dependent variable values */
+    const double *basepoint,  /* independant variable values */
+    double       *valuepoint) /* dependent variable values */
 
 #else
 #if defined(_FOS_)
@@ -498,13 +498,13 @@ int  fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short             tnum,     /* tape id                              */
-    int               depcheck, /* consistency chk on # of dependents   */
-    int               indcheck, /* consistency chk on # of independents */
-    int               p,        /* # of taylor series, bit pattern      */
-    double            *basepoint,  /* independent variable values   (in)*/
+    short               tnum,     /* tape id                              */
+    int                 depcheck, /* consistency chk on # of dependents   */
+    int                 indcheck, /* consistency chk on # of independents */
+    int                 p,        /* # of taylor series, bit pattern      */
+    const double       *basepoint,  /* independent variable values   (in)*/
     unsigned long int **argument,  /* Taylor coeff.                 (in)*/
-    double            *valuepoint, /* dependent variable values    (out)*/
+    double             *valuepoint, /* dependent variable values    (out)*/
     unsigned long int **taylors)   /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
@@ -557,8 +557,8 @@ int indopro_forward_tight(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
-    double            *basepoint,  /* independent variable values   (in)   */
-    unsigned int     **crs)        /* returned row index storage (out)     */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
    
@@ -638,14 +638,14 @@ int  fov_offset_forward(
 /* First Order Vector version of the forward mode.                          */
 /****************************************************************************/
 int  fov_forward(
-    short  tnum,        /* tape id */
-    int    depcheck,    /* consistency chk on # of deps */
-    int    indcheck,    /* consistency chk on # of indeps */
-    int    p,           /* # of taylor series */
-    double *basepoint,  /* independent variable values */
-    double **argument,  /* Taylor coefficients (input) */
-    double *valuepoint, /* Taylor coefficients (output) */
-    double **taylors)   /* matrix of coifficient vectors */
+    short         tnum,        /* tape id */
+    int           depcheck,    /* consistency chk on # of deps */
+    int           indcheck,    /* consistency chk on # of indeps */
+    int           p,           /* # of taylor series */
+    const double *basepoint,  /* independent variable values */
+    double      **argument,  /* Taylor coefficients (input) */
+    double       *valuepoint, /* Taylor coefficients (output) */
+    double      **taylors)   /* matrix of coifficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
 #endif
 

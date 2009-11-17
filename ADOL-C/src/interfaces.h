@@ -183,7 +183,7 @@ BEGIN_C_DECLS
 /*                                                                      ZOS */
 /* zos_forward(tag, m, n, keep, x[n], y[m])                                 */
 /* (defined in uni5_for.mc)                                                 */
-ADOLC_DLL_EXPORT int zos_forward(short,int,int,int,double*,double*);
+ADOLC_DLL_EXPORT int zos_forward(short,int,int,int,const double*,double*);
 
 /* zos_forward_nk(tag, m, n, x[n], y[m])                                    */
 /* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
@@ -237,7 +237,7 @@ ADOLC_DLL_EXPORT fint hos_forward_(
 /* fov_forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])                  */
 /* (defined in uni5_for.mc)                                                 */
 ADOLC_DLL_EXPORT int fov_forward(
-    short, int,int,int,double*,double**,double*,double**);
+    short, int,int,int,const double*,double**,double*,double**);
 ADOLC_DLL_EXPORT int fov_offset_forward(
     short, int,int,int,int,double*,double**,double*,double**);
 
@@ -293,7 +293,7 @@ ADOLC_DLL_EXPORT int int_forward_safe
 /* int_forward_tight(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 
 ADOLC_DLL_EXPORT int int_forward_tight
-(short, int, int, int, double*, unsigned long int**, double*, unsigned long int**);
+(short, int, int, int, const double*, unsigned long int**, double*, unsigned long int**);
 
 /****************************************************************************/
 /*                                                   INDEX DOMAIN UTILITIES */
@@ -302,7 +302,7 @@ ADOLC_DLL_EXPORT int int_forward_tight
 /* indopro_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
 
 ADOLC_DLL_EXPORT int indopro_forward_safe
-(short, int, int, double*, unsigned int**);
+(short, int, int, const double*, unsigned int**);
 
 
 /*--------------------------------------------------------------------------*/
@@ -310,7 +310,7 @@ ADOLC_DLL_EXPORT int indopro_forward_safe
 /* indopro_forward_tight(tag, m, n,  x[n], *Y[m])                           */
 
 ADOLC_DLL_EXPORT int indopro_forward_tight
-(short, int, int, double*, unsigned int**);
+(short, int, int, const double*, unsigned int**);
 
 /****************************************************************************/
 /*                                         NONLINEAR INDEX DOMAIN UTILITIES */
@@ -319,7 +319,7 @@ ADOLC_DLL_EXPORT int indopro_forward_tight
 /* nonl_ind_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
 
 ADOLC_DLL_EXPORT int nonl_ind_forward_safe
-(short, int, double*, unsigned int**);
+(short, int, const double*, unsigned int**);
 
 
 /*--------------------------------------------------------------------------*/
@@ -327,7 +327,7 @@ ADOLC_DLL_EXPORT int nonl_ind_forward_safe
 /* nonl_ind_forward_tight(tag, m, n,  x[n], *Y[m])                           */
 
 ADOLC_DLL_EXPORT int nonl_ind_forward_tight
-(short, int, double*, unsigned int**);
+(short, int, const double*, unsigned int**);
 
 /****************************************************************************/
 /*                                                             REVERSE MODE */
