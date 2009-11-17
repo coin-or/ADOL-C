@@ -34,13 +34,13 @@ using namespace std;
 /*--------------------------------------------------------------------------*/
 /*                                                sparsity pattern Jacobian */
 /*--------------------------------------------------------------------------*/
-/*                                                                          */
+/*                                                                         */
 
 int jac_pat(
-    short        tag,        /* tape identification                        */
-    int          depen,      /* number of dependent variables              */
-    int          indep,      /* number of independent variables            */
-    double       *basepoint, /* independant variable values                */
+    short          tag,       /* tape identification                       */
+    int            depen,     /* number of dependent variables             */
+    int            indep,     /* number of independent variables           */
+    const double  *basepoint, /* independant variable values               */
     unsigned int **crs,
     /* returned compressed row block-index storage                         */
     int          *options
@@ -71,7 +71,7 @@ int jac_pat(
         options[0] = 0; /* default */
     if (( options[1] < 0 ) || (options[1] > 1 ))
         options[1] = 0; /* default */
-    if (( options[2] < 0 ) || (options[2] > 2 ))
+    if (( options[2] < -1 ) || (options[2] > 2 ))
         options[2] = 0; /* default */
 
     if (options[0] == 0) {
@@ -193,7 +193,7 @@ int sparse_jac(
     int            depen,      /* number of dependent variables           */
     int            indep,      /* number of independent variables         */
     int            repeat,     /* indicated repeated call with same seed  */
-    double        *basepoint,  /* independant variable values             */
+    const double  *basepoint,  /* independant variable values             */
     int           *nnz,        /* number of nonzeros                      */
     unsigned int **rind,       /* row index                               */
     unsigned int **cind,       /* column index                            */
@@ -230,7 +230,7 @@ int sparse_jac(
         options[0] = 0; /* default */
       if (( options[1] < 0 ) || (options[1] > 1 ))
         options[1] = 0; /* default */
-      if (( options[2] < 0 ) || (options[2] > 2 ))
+      if (( options[2] < -1 ) || (options[2] > 2 ))
         options[2] = 0; /* default */
       if (( options[3] < 0 ) || (options[3] > 1 ))
         options[3] = 0; /* default */
@@ -238,6 +238,7 @@ int sparse_jac(
       sJinfos.JP    = (unsigned int **) malloc(depen*sizeof(unsigned int *));
       ret_val = jac_pat(tag, depen, indep, basepoint, sJinfos.JP, options);
       
+
       if (ret_val < 0) {
 	printf(" ADOL-C error in sparse_jac() \n");
 	return ret_val;
@@ -250,8 +251,20 @@ int sparse_jac(
       }
       
       *nnz = sJinfos.nnz_in;
-      
-      
+
+      if (options[2] == -1)
+	{
+	  (*rind) = new unsigned int[*nnz];
+	  (*cind) = new unsigned int[*nnz];
+	  unsigned int index = 0;
+	  for (i=0;i<depen;i++) 
+            for (j=1;j<=sJinfos.JP[i][0];j++)
+	      {
+ 		(*rind)[index] = i;
+ 		(*cind)[index++] = sJinfos.JP[i][j];
+	      }
+	}
+
       FILE *fp_JP;
 			
       g = new BipartiteGraphPartialColoringInterface;
@@ -295,6 +308,9 @@ int sparse_jac(
         return -3;
     }
 
+    if (options[2] == -1)
+      return ret_val;
+
     /* compute jacobian times matrix product */
 
     if (options[3] == 1)
@@ -307,6 +323,7 @@ int sparse_jac(
     else
       ret_val = fov_forward(tag, depen, indep, sJinfos.p, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
     
+
     /* recover compressed Jacobian => ColPack library */
 
     if (options[3] == 1)
@@ -356,23 +373,33 @@ int sparse_hess(
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* Generate sparsity pattern, determine nnz, allocate memory */
-    if (repeat == 0) {
+    if (repeat <= 0) {
         if (( options[0] < 0 ) || (options[0] > 1 ))
           options[0] = 0; /* default */
         if (( options[1] < 0 ) || (options[1] > 1 ))
           options[1] = 0; /* default */
 
-        sHinfos.HP    = (unsigned int **) malloc(indep*sizeof(unsigned int *));
+	if (repeat == 0)
+	  {
+	    sHinfos.HP    = (unsigned int **) malloc(indep*sizeof(unsigned int *));
 
-        /* generate sparsity pattern */
-        ret_val = hess_pat(tag, indep, basepoint, sHinfos.HP, options[0]);
+	    /* generate sparsity pattern */
+	    ret_val = hess_pat(tag, indep, basepoint, sHinfos.HP, options[0]);
 
-        if (ret_val < 0) {
-            printf(" ADOL-C error in sparse_hess() \n");
-            return ret_val;
-        }
+	    if (ret_val < 0) {
+	      printf(" ADOL-C error in sparse_hess() \n");
+	      return ret_val;
+	    }
+	  }
+	else
+	  {
+	    tapeInfos=getTapeInfos(tag);
+	    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+	    sHinfos.HP     = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
+	  }
 
-        sHinfos.nnz_in = 0;
+	sHinfos.nnz_in = 0;
+
         for (i=0;i<indep;i++) {
             for (j=1;j<=sHinfos.HP[i][0];j++)
 	      if ((int) sHinfos.HP[i][j] >= i)
@@ -446,6 +473,9 @@ int sparse_hess(
         return -3;
     }
 
+    if (repeat == -1)
+      return ret_val;
+
 //     this is the most efficient variant. However, there is somewhere a bug in hos_ov_reverse
 //     ret_val = hov_wk_forward(tag,1,indep,1,2,sHinfos.p,basepoint,sHinfos.Xppp,&y,sHinfos.Yppp);
 //     MINDEC(ret_val,hos_ov_reverse(tag,1,indep,1,sHinfos.p,sHinfos.Upp,sHinfos.Zppp));
@@ -492,15 +522,41 @@ int sparse_hess(
 
 }
 
+
+/****************************************************************************/
+/*******        sparse Hessians, complete driver              ***************/
+/****************************************************************************/
+
+int set_HP(
+    short          tag,        /* tape identification                     */
+    int            indep,      /* number of independent variables         */
+    unsigned int ** HP)
+{
+    SparseHessInfos sHinfos;
+    TapeInfos *tapeInfos;
+
+    tapeInfos=getTapeInfos(tag);
+    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+    sHinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.nnz_in;
+    sHinfos.HP     = HP;
+    sHinfos.Hcomp  = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Hcomp;
+    sHinfos.Xppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Xppp;
+    sHinfos.Yppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Yppp;
+    sHinfos.Zppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Zppp;
+    sHinfos.Upp    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Upp;
+    sHinfos.p      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.p;
+    setTapeInfoHessSparse(tag, sHinfos);
+}
+
 /*****************************************************************************/
 /*                                                    JACOBIAN BLOCK PATTERN */
 
 /* ------------------------------------------------------------------------- */
 int bit_vector_propagation(
-    short  tag,        /* tape identification                        */
-    int    depen,      /* number of dependent variables              */
-    int    indep,      /* number of independent variables            */
-    double *basepoint, /* independant variable values                */
+    short          tag,        /* tape identification                */
+    int            depen,      /* number of dependent variables      */
+    int            indep,      /* number of independent variables    */
+    const double  *basepoint, /* independant variable values         */
     unsigned int **crs,
     /* compressed block row storage                                  */
     int *options       /* control options                            */
