@@ -613,7 +613,6 @@ int nonl_ind_forward_safe(
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
    
   */
-#define depcheck -1
 #endif
 #else
 #if defined(_FOV_)
@@ -922,12 +921,13 @@ int  hov_forward(
                 "Number of dependent(%u) and/or independent(%u) variables passed"
                 " to forward is\ninconsistent with number "
                 "recorded on tape (%d, %d) \n", tnum,
+                1, indcheck,
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
-                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS],
-                1, indcheck);
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
 #endif
+
 
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
@@ -1062,7 +1062,7 @@ int  hov_forward(
     while (operation !=end_of_tape) {
       
       switch (operation) {
-
+    
 
                 /****************************************************************************/
                 /*                                                                  MARKERS */
@@ -3705,6 +3705,7 @@ int  hov_forward(
 
     end_sweep();
 
+
 #if defined(_INDO_)
 
     for(i=0;i<max_ind_dom;i++)
@@ -3719,8 +3720,8 @@ int  hov_forward(
             crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
 	    temp1 = nonl_dom[i];
             temp = nonl_dom[i]->next;
-	    free(temp1);
             crs[i][0] = nonl_dom[i]->entry;
+	    free(temp1);
             for(l=1;l<=crs[i][0];l++) {
                 crs[i][l] = temp->entry;
 		temp1 = temp;
