@@ -44,7 +44,7 @@ int function(short tag,
 /* gradient(tag, n, x[n], g[n])                                             */
 int gradient(short tag,
              int n,
-             double* argument,
+             const double* argument,
              double* result) {
     int rc= -1;
     double one = 1.0;

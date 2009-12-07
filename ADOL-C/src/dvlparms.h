@@ -28,6 +28,8 @@
 /****************************************************************************/
 /* Tells ADOL-C which name space offers the mathematical functions          */
 #define ADOLC_MATH_NSP std
+/* For error function with gcc compiler                                     */
+#define ADOLC_MATH_NSP_ERF std::tr1
 
 /*--------------------------------------------------------------------------*/
 /* TAPE IDENTIFICATION (ADOLC & version check) */
