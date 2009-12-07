@@ -33,6 +33,11 @@ using std::cin;
 using std::cerr;
 using std::ostream;
 using std::istream;
+#ifdef ATRIG_ERF
+#if defined(AD_ERR_FUN)
+#include <tr1/cmath>
+#endif
+#endif
 
 #include <common.h>
 
@@ -1010,7 +1015,7 @@ adouble tanh (const adouble &a) {
 #if defined(ATRIG_ERF)
 adouble asinh (const adouble &a) {
     adouble tmp;
-    tmp.val=ADOLC_MATH_NSP::asinh(a.val);
+    tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val+1);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -1019,7 +1024,7 @@ adouble asinh (const adouble &a) {
 
 adouble acosh (const adouble &a) {
     adouble tmp;
-    tmp.val=ADOLC_MATH_NSP::acosh(a.val);
+    tmp.val=ADOLC_MATH_NSP_ERF::acosh(a.val);
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val-1);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -1028,7 +1033,7 @@ adouble acosh (const adouble &a) {
 
 adouble atanh (const adouble &a) {
     adouble tmp;
-    tmp.val=ADOLC_MATH_NSP::atanh(a.val);
+    tmp.val=ADOLC_MATH_NSP_ERF::atanh(a.val);
     double tmp2=1-a.val*a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -1228,10 +1233,10 @@ double frexp (const adouble &a, int* v) {
 #if defined(ATRIG_ERF)
 adouble erf (const adouble &a) {
     adouble tmp;
-    tmp.val=ADOLC_MATH_NSP::erf(a.val);
+    tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
     double tmp2 = 2.0 /
-        ADOLC_MATH_NSP::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
-        ADOLC_MATH_NSP::exp(-a.val*a.val);
+        ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
+        ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;

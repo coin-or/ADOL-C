@@ -44,7 +44,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
 
 lib_LTLIBRARIES      = libadolc.la
 
-libadolc_la_LDFLAGS  = -version-info 0:0:0
+libadolc_la_LDFLAGS  = -version-info 2:1:1
 
 if SPARSE
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \

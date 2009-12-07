@@ -24,6 +24,8 @@
 #include <oplate.h>
 #include <taping_p.h>
 
+using namespace std;
+
 /****************************************************************************/
 /*                                                        HELPFUL FUNCTIONS */
 
@@ -1551,7 +1553,7 @@ adub asinh ( const badouble& x ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::asinh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
+        ADOLC_MATH_NSP_ERF::asinh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1577,7 +1579,7 @@ adub acosh ( const badouble& x ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::acosh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
+        ADOLC_MATH_NSP_ERF::acosh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1603,7 +1605,7 @@ adub atanh ( const badouble& x ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::atanh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
+        ADOLC_MATH_NSP_ERF::atanh(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1615,7 +1617,8 @@ adub erf( const badouble& x ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
 
-    adouble y = exp(-x*x);
+    adouble y = 2.0 /
+        ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0))*exp(-x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(erf_op,locat,x.location,y.location);
         put_op(erf_op);
@@ -1629,7 +1632,7 @@ adub erf( const badouble& x ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::erf(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
+        ADOLC_MATH_NSP_ERF::erf(ADOLC_GLOBAL_TAPE_VARS.store[x.location]);
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
