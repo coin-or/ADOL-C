@@ -255,7 +255,6 @@ void tape_doc(short tnum,         /* tape id */
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
-    ADOLC_OPENMP_THREAD_NUMBER;
     unsigned char operation;
 
     locint size = 0;
@@ -278,6 +277,7 @@ void tape_doc(short tnum,         /* tape id */
     int loc_a[4];
     double val_a[4], cst_d[2];
 
+    ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /****************************************************************************/

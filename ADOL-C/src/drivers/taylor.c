@@ -117,6 +117,8 @@ void freetensor( int m, int n, int d, double** tensor ) {
 
 
 long binomi(int n, int k) {
+    long double accum = 1;
+    unsigned int i;
 
     if (k > n)
         return 0;
@@ -124,8 +126,6 @@ long binomi(int n, int k) {
     if (k > n/2)
         k = n-k;
 
-    long double accum = 1;
-    unsigned int i;
     for (i = 1; i <= k; i++)
          accum = accum * (n-k+i) / i;
 
@@ -563,12 +563,17 @@ int inverse_Taylor_prop( short tag, int n, int d,
     }
     ii = bd;
     for (i=0; i<n; i++)
+      {
         for (j=0; j<d; j++)
 	{
             Xhelp[i][j] = 0;
             X[i][j+1] = 0;
             W[i][j] = 0;
 	}
+        for (j=0; j<n; j++)
+	  for (l=0; l<=d; l++)
+	    A[i][j][l] = 0;
+      }
 
     while (--ii > 0) {
         di = dd[ii-1]-1;
@@ -581,13 +586,15 @@ int inverse_Taylor_prop( short tag, int n, int d,
                 if (l == 0)
                     bi = w[i]-Y[i][0];
                 else
-                    bi = W[i][l-1]-Y[i][l];
+		    bi = W[i][l-1]-Y[i][l];
                 for (j=0; j<n; j++)
                     if (nonzero[i][j]>1) {
+			int indj = j;
+			int indX = l;
                         Aij = A[i][j];
-			indexA = 1;
+			indexA = l-1;
                         Xj = X[j]+l;
-			indexX = l-1;
+			indexX = 1;
 			if (da == l-1)
 			  {
                             bi += (*(++Aij))*(*(--Xj));
@@ -598,20 +605,19 @@ int inverse_Taylor_prop( short tag, int n, int d,
 			      {
 				bi += (*(++Aij))*(*(--Xj));
 				bi += A[i][j][indexA]*X[j][indexX];
-				indexA++;
-				indexX--;
+				indexA--;
+				indexX++;
 			      }
 			  }
                     }
                 b[i] = -bi;
             }
             MINDEC(rc,jac_solv(tag,n,xold,b,2));
-            if (rc == -3)
+           if (rc == -3)
                 return -3;
             for (i=0; i<n; i++) {
-                X[i][l] += b[i];
-                /* 981214 new nl */
-                Xhelp[i][l-1] += b[i];
+	      X[i][l] += b[i];
+	      Xhelp[i][l-1] += b[i];
             }
         }
     }
@@ -698,7 +704,9 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
                 ptr = &coeff_list[i];
                 do {
                     for(j=0;j<n;j++)
+		      {
                         tensor[j][ptr->a] += X[j][ptr->b]*ptr->c;
+		      }
                     ptr = ptr->next;
                 } while (ptr != NULL);
             }

@@ -33,7 +33,7 @@ ADOLC_DLL_EXPORT fint function_(fint*,fint*,fint*,fdouble*,fdouble*);
 /*--------------------------------------------------------------------------*/
 /*                                                                 gradient */
 /* gradient(tag, n, x[n], g[n])                                             */
-ADOLC_DLL_EXPORT int gradient(short,int,double*,double*);
+ADOLC_DLL_EXPORT int gradient(short,int,const double*,double*);
 ADOLC_DLL_EXPORT fint gradient_(fint*,fint*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/

@@ -460,14 +460,14 @@ int  zos_forward(
 #else
 int  zos_forward_nk(
 #endif
-    short  tnum,        /* tape id */
-    int    depcheck,    /* consistency chk on # of deps */
-    int    indcheck,    /* consistency chk on # of indeps */
+    short  tnum,              /* tape id */
+    int    depcheck,          /* consistency chk on # of deps */
+    int    indcheck,          /* consistency chk on # of indeps */
 #if defined(_KEEP_)
-    int    keep,        /* flag for reverse sweep */
+    int    keep,              /* flag for reverse sweep */
 #endif
-    double *basepoint,  /* independant variable values */
-    double *valuepoint) /* dependent variable values */
+    const double *basepoint,  /* independant variable values */
+    double       *valuepoint) /* dependent variable values */
 
 #else
 #if defined(_FOS_)
@@ -498,13 +498,13 @@ int  fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short             tnum,     /* tape id                              */
-    int               depcheck, /* consistency chk on # of dependents   */
-    int               indcheck, /* consistency chk on # of independents */
-    int               p,        /* # of taylor series, bit pattern      */
-    double            *basepoint,  /* independent variable values   (in)*/
+    short               tnum,     /* tape id                              */
+    int                 depcheck, /* consistency chk on # of dependents   */
+    int                 indcheck, /* consistency chk on # of independents */
+    int                 p,        /* # of taylor series, bit pattern      */
+    const double       *basepoint,  /* independent variable values   (in)*/
     unsigned long int **argument,  /* Taylor coeff.                 (in)*/
-    double            *valuepoint, /* dependent variable values    (out)*/
+    double             *valuepoint, /* dependent variable values    (out)*/
     unsigned long int **taylors)   /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
@@ -557,8 +557,8 @@ int indopro_forward_tight(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
-    double            *basepoint,  /* independent variable values   (in)   */
-    unsigned int     **crs)        /* returned row index storage (out)     */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
    
@@ -574,8 +574,8 @@ int indopro_forward_safe(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
-    double            *basepoint,  /* independent variable values   (in)   */
-    unsigned int     **crs)        /* returned row index storage (out)     */
+    const double     *basepoint,   /* independent variable values   (in)   */
+    unsigned int    **crs)         /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
    
@@ -589,15 +589,14 @@ int indopro_forward_safe(
 /****************************************************************************/
 int nonl_ind_forward_tight(
     short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
-    double            *basepoint,  /* independent variable values   (in)   */
+    const double     *basepoint,  /* independent variable values   (in)   */
     unsigned int     **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
    
   */
-
-#define depcheck -1
 
 #endif
 #if defined (_NTIGHT_)
@@ -606,14 +605,14 @@ int nonl_ind_forward_tight(
 /****************************************************************************/
 int nonl_ind_forward_safe(
     short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
-    double            *basepoint,  /* independent variable values   (in)   */
-    unsigned int     **crs)        /* returned row index storage (out)     */
+    const double      *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
    
   */
-#define depcheck -1
 #endif
 #else
 #if defined(_FOV_)
@@ -638,14 +637,14 @@ int  fov_offset_forward(
 /* First Order Vector version of the forward mode.                          */
 /****************************************************************************/
 int  fov_forward(
-    short  tnum,        /* tape id */
-    int    depcheck,    /* consistency chk on # of deps */
-    int    indcheck,    /* consistency chk on # of indeps */
-    int    p,           /* # of taylor series */
-    double *basepoint,  /* independent variable values */
-    double **argument,  /* Taylor coefficients (input) */
-    double *valuepoint, /* Taylor coefficients (output) */
-    double **taylors)   /* matrix of coifficient vectors */
+    short         tnum,        /* tape id */
+    int           depcheck,    /* consistency chk on # of deps */
+    int           indcheck,    /* consistency chk on # of indeps */
+    int           p,           /* # of taylor series */
+    const double *basepoint,   /* independent variable values */
+    double      **argument,    /* Taylor coefficients (input) */
+    double       *valuepoint,  /* Taylor coefficients (output) */
+    double      **taylors)     /* matrix of coifficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
 #endif
 
@@ -705,7 +704,6 @@ int  hov_forward(
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
-    ADOLC_OPENMP_THREAD_NUMBER;
     unsigned char operation;   /* operation code */
     int ret_c =3;              /* return value */
 
@@ -742,10 +740,12 @@ int  hov_forward(
 #endif
 #if defined (_INDO_)
     int l=0;
+    int max_ind_dom;
 #if defined(_NONLIND_)
     /* nonlinear interaction domains */
     IndexElement** nonl_dom;
     IndexElement*  temp;
+    IndexElement*  temp1;
 #endif
 #endif
 
@@ -873,6 +873,8 @@ int  hov_forward(
     int ext_retc;
 #endif
 
+    ADOLC_OPENMP_THREAD_NUMBER;
+
 #if defined(ADOLC_DEBUG)
     /****************************************************************************/
     /*                                                           DEBUG MESSAGES */
@@ -907,9 +909,9 @@ int  hov_forward(
                 "Number of dependent(%u) and/or independent(%u) variables passed"
                 " to forward is\ninconsistent with number "
                 "recorded on tape (%d, %d) \n", tnum,
+                depcheck, indcheck,
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
-                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS],
-                depcheck, indcheck);
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
 #else
@@ -919,12 +921,13 @@ int  hov_forward(
                 "Number of dependent(%u) and/or independent(%u) variables passed"
                 " to forward is\ninconsistent with number "
                 "recorded on tape (%d, %d) \n", tnum,
+                1, indcheck,
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
-                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS],
-                1, indcheck);
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
 #endif
+
 
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
@@ -989,6 +992,7 @@ int  hov_forward(
         ind_dom[i][1] = NUMNNZ;
     }
 
+    max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #if defined(_NONLIND_)
     nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
     for(i=0;i<indcheck;i++)
@@ -1058,7 +1062,7 @@ int  hov_forward(
     while (operation !=end_of_tape) {
       
       switch (operation) {
-
+    
 
                 /****************************************************************************/
                 /*                                                                  MARKERS */
@@ -3701,27 +3705,35 @@ int  hov_forward(
 
     end_sweep();
 
+
 #if defined(_INDO_)
 
-    for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
-      free(ind_dom[i]);
+    for(i=0;i<max_ind_dom;i++)
+      {
+	free(ind_dom[i]);
+      }
     free(ind_dom);
 
 #if defined(_NONLIND_)
     for(i=0;i<indcheck;i++) {
         if (nonl_dom[i] != NULL) {
             crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
+	    temp1 = nonl_dom[i];
             temp = nonl_dom[i]->next;
             crs[i][0] = nonl_dom[i]->entry;
+	    free(temp1);
             for(l=1;l<=crs[i][0];l++) {
                 crs[i][l] = temp->entry;
+		temp1 = temp;
                 temp = temp->next;
+		free(temp1);
             }
         } else {
             crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
             crs[i][0] = 0;
         }
     }
+    free(nonl_dom);
 
 #endif
 #endif
@@ -3778,9 +3790,9 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
 	if (num1+num > ind_dom[res][1]-2)
 	{
 	  i = 2*(num1+num);
-	    free(ind_dom[res]);
-	    ind_dom[res] = (locint *)  malloc(sizeof(locint) * i);
-	    ind_dom[res][1] = i;
+	  free(ind_dom[res]);
+	  ind_dom[res] = (locint *)  malloc(sizeof(locint) * i);
+          ind_dom[res][1] = i;
 	}
 	i = 0;
         j = 0;

@@ -364,7 +364,6 @@ int hov_ti_reverse(
 {
     /************************************************************************/
     /*                                                       ALL VARIABLES  */
-    ADOLC_OPENMP_THREAD_NUMBER;
     unsigned char operation;   /* operation code */
     int dc, ret_c=3;
 
@@ -422,6 +421,7 @@ int hov_ti_reverse(
     int q = 1;
 #endif
 
+    ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(ADOLC_DEBUG)
