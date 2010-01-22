@@ -10,18 +10,25 @@
 ## 
 ##############################################################################
 
+AUTOMAKE_OPTIONS     = foreign
+
 if DOCEXA
-SUBDIRS              = src examples
+SUBDIRS              = src examples test
 else
 if ADDEXA
-SUBDIRS              = src examples
+SUBDIRS              = src examples test
 else
 if PAREXA
-SUBDIRS              = src examples
+SUBDIRS              = src examples test
 else
-SUBDIRS              = src 
+SUBDIRS              = src test
 endif
 endif
 endif
 
 MAINTAINERCLEANFILES = Makefile.in 
+
+test: all
+	cd test; $(MAKE) test
+
+
