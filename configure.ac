@@ -305,7 +305,8 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/sparse/Makefile
                 ADOL-C/examples/additional_examples/tapesave/Makefile
                 ADOL-C/examples/additional_examples/pow/Makefile
-                ADOL-C/examples/additional_examples/timing/Makefile)
+                ADOL-C/examples/additional_examples/timing/Makefile
+                ADOL-C/test/Makefile)
 
 AC_OUTPUT
 

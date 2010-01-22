@@ -19,3 +19,7 @@ SUBDIRS              = ADOL-C
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure ADOL-C/src/config.h.in \
                        ADOL-C/src/stamp-h.in *~ *.orig
+
+test: all
+	cd ADOL-C; $(MAKE) test
+

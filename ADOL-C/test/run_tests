@@ -1,0 +1,59 @@
+##############################################################################
+## run_unitTest
+## Revision: $Id$
+##
+## Copyright (C) Andrea Walther
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+srcdir="."
+
+retval=0
+
+echo " "
+echo Running tests...
+echo " "
+
+echo Testing  powexam...
+./powexam >tmpfile 2>&1
+grep "TEST PASSED" tmpfile 1>/dev/null 2>&1
+if test $? = 0; then
+  echo " "
+  echo "    Test passed!"
+  echo " "
+else
+  retval=-1
+  echo " "
+  echo " ---- 8< ---- Start of test program output ---- 8< ----"
+  cat tmpfile
+  echo " ---- 8< ----  End of test program output  ---- 8< ----"
+  echo " "
+  echo "    ******** Test FAILED! ********"
+  echo "Output of the test program is above."
+fi
+rm -rf tmpfile
+
+echo Testing speelpenning...
+./speelpenning >tmpfile 2>&1
+grep "TEST PASSED" tmpfile 1>/dev/null 2>&1
+if test $? = 0; then
+  echo " "
+  echo "    Test passed!"
+  echo " "
+else
+  retval=-1
+  echo " "
+  echo " ---- 8< ---- Start of test program output ---- 8< ----"
+  cat tmpfile
+  echo " ---- 8< ----  End of test program output  ---- 8< ----"
+  echo " "
+  echo "    ******** Test FAILED! ********"
+  echo "Output of the test program is above."
+fi
+rm -rf tmpfile 
+
+exit $retval
