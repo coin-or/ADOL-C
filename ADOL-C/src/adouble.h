@@ -33,11 +33,6 @@ using std::cin;
 using std::cerr;
 using std::ostream;
 using std::istream;
-#ifdef ATRIG_ERF
-#if defined(AD_ERR_FUN)
-#include <tr1/cmath>
-#endif
-#endif
 
 #include <common.h>
 
