@@ -201,9 +201,6 @@ AC_ARG_WITH(cflags,
                 ac_adolc_cflags="$CFLAGS"
              fi
              ac_adolc_cflags="$ac_adolc_cflags $ac_adolc_openmpflag"
-	     if test "$GCC" = yes; then
-         	ac_adolc_cflags="$ac_adolc_cflags -DAD_ERR_FUN=1"
-	     fi
 
              AC_SUBST(ac_adolc_cflags)
              AC_MSG_RESULT($ac_adolc_cflags)])
@@ -230,10 +227,7 @@ AC_ARG_WITH(cxxflags,
                 ac_adolc_cxxflags="$CXXFLAGS"
              fi
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
-	     if test "$GCC" = yes; then
-         	ac_adolc_cxxflags="$ac_adolc_cxxflags -DAD_ERR_FUN=1"
-	     fi
-             AC_SUBST(ac_adolc_cxxflags)
+            AC_SUBST(ac_adolc_cxxflags)
              AC_MSG_RESULT($ac_adolc_cxxflags)])
 
 ###########################################################################
