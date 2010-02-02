@@ -164,7 +164,7 @@ powexam_SOURCES = powexam.cpp
 @SPARSE_TRUE@powexam_LDADD = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libColPack.a $(ADDLIBS) $(CXXLIBS)
 @SPARSE_FALSE@powexam_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
 @SPARSE_TRUE@speelpenning_LDADD = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libColPack.a $(ADDLIBS) $(CXXLIBS)
-@SPARSE_FALSE@speelpenning_LDADD = ../src/libadlc.la $(ADDLIBS) $(CXXLIBS)
+@SPARSE_FALSE@speelpenning_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
@@ -195,7 +195,7 @@ am_speelpenning_OBJECTS = speelpenning.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
 @SPARSE_TRUE@speelpenning_DEPENDENCIES = ../src/libadolc.la \
 @SPARSE_TRUE@	../../ThirdParty/ColPack/lib/libColPack.a
-@SPARSE_FALSE@speelpenning_DEPENDENCIES = ../src/libadlc.la
+@SPARSE_FALSE@speelpenning_DEPENDENCIES = ../src/libadolc.la
 speelpenning_LDFLAGS =
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
