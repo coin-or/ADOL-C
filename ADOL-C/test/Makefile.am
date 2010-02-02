@@ -21,7 +21,7 @@ powexam_LDADD           = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libCol
 speelpenning_LDADD = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libColPack.a $(ADDLIBS) $(CXXLIBS)
 else
 powexam_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
-speelpenning_LDADD = ../src/libadlc.la $(ADDLIBS) $(CXXLIBS)
+speelpenning_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
 endif
 
 
