@@ -2,7 +2,7 @@
 # ADOL-C -- Automatic Differentiation by Overloading in C++
 # File:     Makefile
 # Revision: $$
-# Contents: Makefile for class myADOL-C_NPL to interface ADOL-C with Ipopt
+# Contents: Makefile for class myADOLC_NPL to interface ADOL-C with Ipopt
 # 
 # Copyright (c) Andrea Walther
 #   
@@ -16,7 +16,7 @@
 
 ##########################################################################
 #    You can modify this example makefile to fit for your own program.   #
-#    Usually, you only need to change the five CHANGEME entries below.   #
+#    Usually, you only need to change the five CHANGE entries below.     #
 ##########################################################################
 
 # CHANGEME: This should be the name of your executable
