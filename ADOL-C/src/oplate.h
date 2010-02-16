@@ -82,7 +82,7 @@ enum OPCODES {
   ceil_op,
   floor_op,
   ext_diff,
-  ignore_me,
+  ignore_me
 };
 
 /****************************************************************************/

@@ -34,7 +34,7 @@ enum WORKMODES {
     ADOLC_FOS_REVERSE,
     ADOLC_FOV_REVERSE,
     ADOLC_HOS_REVERSE,
-    ADOLC_HOV_REVERSE,
+    ADOLC_HOV_REVERSE
 };
 
 /****************************************************************************/
