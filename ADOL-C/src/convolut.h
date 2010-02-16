@@ -52,6 +52,7 @@ void deconv ( int dim, double* a, double *b, double* c );
 /* Decrements truncated convolution of a and b to c and sets a to zero */
 void deconv0( int dim, double* a, revreal *b, double* c );
 void deconv1( int dim, revreal* a, revreal *b, revreal* c );
+void deconvZeroR( int dim, revreal *a, revreal *b, revreal *c );
 
 
 /****************************************************************************/
