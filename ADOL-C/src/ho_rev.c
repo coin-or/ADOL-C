@@ -1091,8 +1091,8 @@ int hov_ti_reverse(
                     AARG1_INC_O;
                     AARG2_INC_O;
 
-                    deconv0(k,Ares,Targ1,Aarg2);
-                    deconv0(k,Ares,Targ2,Aarg1);
+                    deconv1(k,Ares,Targ1,Aarg2);
+                    deconv1(k,Ares,Targ2,Aarg1);
 
                     HOV_INC(Ares,  k)
                     HOV_INC(Aarg1, k)
@@ -1227,7 +1227,7 @@ int hov_ti_reverse(
                       conv0(k, rp_Ttemp,
                            Tres, dp_Atemp);
                       VEC_COMPUTED_END
-                      deconv(k,Ares,dp_Atemp,Aarg);
+                      deconvZeroR(k,Ares,dp_Atemp,Aarg);
 
                       HOV_INC(Ares, k)
                       HOV_INC(Aarg, k)
@@ -2059,7 +2059,7 @@ int hov_ti_reverse(
                 break;
         } /* endswitch */
 
-        /* Get the next operation */
+        /* Get the next operation */	
         operation=get_op_r();
 #if defined(ADOLC_DEBUG)
         ++countPerOperation[operation];
