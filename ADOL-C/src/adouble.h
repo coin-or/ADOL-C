@@ -861,7 +861,7 @@ adouble log(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::log(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-    if (a.val>0 || a.val==0 && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/a.val;
+      if ((a.val>0 || a.val==0) && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/a.val;
     else tmp.ADVAL_I=makeNaN();
     return tmp;
 }
@@ -870,7 +870,7 @@ adouble sqrt(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-    if (a.val>0 || a.val==0 && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/tmp.val/2;
+      if ((a.val>0 || a.val==0) && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/tmp.val/2;
     else tmp.ADVAL_I=makeNaN();
     return tmp;
 }
