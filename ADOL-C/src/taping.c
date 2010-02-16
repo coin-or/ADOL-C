@@ -1556,8 +1556,8 @@ void end_sweep() {
         fclose(ADOLC_CURRENT_TAPE_INFOS.val_file);
         ADOLC_CURRENT_TAPE_INFOS.val_file = NULL;
     }
-    if (ADOLC_CURRENT_TAPE_INFOS.deg_save > 0) releaseTape(1); /* keep value stack */
-    else releaseTape(0); /* no value stack */
+    if (ADOLC_CURRENT_TAPE_INFOS.deg_save > 0) releaseTape(); /* keep value stack */
+    else releaseTape(); /* no value stack */
 }
 
 /* --- Operations --- */
