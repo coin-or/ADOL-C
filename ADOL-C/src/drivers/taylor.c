@@ -589,8 +589,6 @@ int inverse_Taylor_prop( short tag, int n, int d,
 		    bi = W[i][l-1]-Y[i][l];
                 for (j=0; j<n; j++)
                     if (nonzero[i][j]>1) {
-			int indj = j;
-			int indX = l;
                         Aij = A[i][j];
 			indexA = l-1;
                         Xj = X[j]+l;
