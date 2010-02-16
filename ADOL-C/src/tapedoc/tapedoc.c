@@ -35,8 +35,8 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 static short tag;
 
-static int file_cnt;
-static int read_cnt;
+static int op_cnt;
+static int rev_op_cnt;
 static int pagelength;
 static FILE *fp;
 
@@ -136,12 +136,12 @@ void filewrite_start( int opcode ) {
     fprintf(fp,"\\begin{document}\n");
     fprintf(fp,"\\tiny\n");
 #ifdef computenumbers
-    fprintf(fp,"\\begin{tabular}{|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
-    fprintf(fp," code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
+    fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
+    fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
     fprintf(fp," %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
 #else
-    fprintf(fp,"\\begin{tabular}{|r|l|r|r|r|r||r|r|} \\hline \n");
-    fprintf(fp," code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
+    fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
+    fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
     fprintf(fp," %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
 #endif
     pagelength = 0;
@@ -155,21 +155,24 @@ void filewrite( unsigned short opcode, int nloc, int *loc,
                 double *val,int ncst, double* cst) {
     int i;
 
+    ++op_cnt;
+    --rev_op_cnt;
+
     if (pagelength == 100) { /* 101 lines per page */
         fprintf(fp,"\\end{tabular}\\\\\n");
         fprintf(fp,"\\newpage\n");
 #ifdef computenumbers
-        fprintf(fp,"\\begin{tabular}{|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
-        fprintf(fp," code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
+        fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
+        fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
 #else
-        fprintf(fp,"\\begin{tabular}{|r|l|r|r|r|r||r|r|} \\hline \n");
-        fprintf(fp," code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
+        fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
+        fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
 #endif
         pagelength=-1;
     }
 
-    /* write opcode number */
-    fprintf(fp,"%i & ",opcode);
+    /* write opcode counters and  number */
+    fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, opcode);
 
     /* write opcode name if available */
     i=0;
@@ -234,10 +237,12 @@ void filewrite( unsigned short opcode, int nloc, int *loc,
 
 /*--------------------------------------------------------------------------*/
 void filewrite_end( int opcode ) {
+    ++op_cnt;
+    --rev_op_cnt;
 #ifdef computenumbers
-    fprintf(fp," %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
+  fprintf(fp," %i & %i & %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",op_cnt,rev_op_cnt, opcode);
 #else
-    fprintf(fp," %i & end of tape & & & & & & & \\\\ \\hline \n",opcode);
+    fprintf(fp," %i & %i & %i & end of tape & & & & & & & \\\\ \\hline \n",op_cnt,rev_op_cnt,opcode);
 #endif
     fprintf(fp,"\\end{tabular}");
     fprintf(fp,"\\end{document}");
@@ -286,9 +291,6 @@ void tape_doc(short tnum,         /* tape id */
     init_for_sweep(tnum);
     tag = tnum;
 
-    read_cnt = 0;
-    file_cnt = 80;
-
     if ((depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
             (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]) ) {
         fprintf(DIAG_OUT,"ADOL-C error: Tape_doc on tape %d  aborted!\n",tag);
@@ -299,6 +301,10 @@ void tape_doc(short tnum,         /* tape id */
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
+
+    /* globals */
+    op_cnt=0;
+    rev_op_cnt=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS];
 
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
