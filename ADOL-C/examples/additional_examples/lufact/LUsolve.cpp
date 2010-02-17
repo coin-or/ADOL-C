@@ -86,13 +86,13 @@ int main() { /*-----------------------------------------------------------------
     for (i=0; i<size; i++)
         Abx[i] >>= x[i];
     trace_off();
-    fprintf(stdout," x[0] (original):  %16.4le\n",x[0]);
+    fprintf(stdout," x[0] (original):  %16.4E\n",x[0]);
 
 
     /*------------------------------------------------------------------------*/
     /* Recomputation  */
     function(tag,depen,indep,args,x);
-    fprintf(stdout," x[0] (from tape): %16.4le\n",x[0]);
+    fprintf(stdout," x[0] (from tape): %16.4E\n",x[0]);
 
 
     /*------------------------------------------------------------------------*/
@@ -101,7 +101,7 @@ int main() { /*-----------------------------------------------------------------
     fprintf(stdout," Jacobian:\n");
     for (i=0; i<depen; i++) {
         for (j=0; j<indep; j++)
-            fprintf(stdout," %14.6le",jac[i][j]);
+            fprintf(stdout," %14.6E",jac[i][j]);
         fprintf(stdout,"\n");
     }
 
@@ -111,7 +111,7 @@ int main() { /*-----------------------------------------------------------------
     fprintf(stdout," Part of Lagrange-Hessian-vector product:\n");
     for (i=0; i<size; i++) {
         for (j=0; j<size; j++)
-            fprintf(stdout," %14.6le",laghessvec[i*size+j]);
+            fprintf(stdout," %14.6E",laghessvec[i*size+j]);
         fprintf(stdout,"\n");
     }
 

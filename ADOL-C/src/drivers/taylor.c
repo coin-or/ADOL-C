@@ -349,7 +349,7 @@ int LUFactorization( double** J, int n, int* RI, int* CI ) {
                 }
         if (ZERO > v) {
             fprintf(DIAG_OUT,
-                    "Error:LUFactorisation(..): no Pivot in step %d (%le)\n",k+1,v);
+                    "Error:LUFactorisation(..): no Pivot in step %d (%E)\n",k+1,v);
             return -(k+1);
         }
         /* row and column change resp. */
