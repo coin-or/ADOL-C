@@ -75,7 +75,7 @@ int main() {
     trace_off();
     double t11 = myclock();
 
-    fprintf(stdout,"%le =? %le  function values should be the same \n",yout,yp);
+    fprintf(stdout,"%E =? %E  function values should be the same \n",yout,yp);
 
     /*--------------------------------------------------------------------------*/
     tapestats(TAG,tape_stats);
@@ -123,7 +123,7 @@ int main() {
         ind[i] = xp[i];
     }
 
-    fprintf(stdout,"%le = maximum relative errors in gradient (fw+rv)\n",err);
+    fprintf(stdout,"%E = maximum relative errors in gradient (fw+rv)\n",err);
 
     /*--------------------------------------------------------------------------*/
     double t40 = myclock();                             /* 4. time (gradient) */
@@ -135,7 +135,7 @@ int main() {
     for (i=0; i<n; i++)  // Compare with previous numerical result
         err =  maxabs(err,g[i]/z[i] - 1.0);
 
-    fprintf(stdout,"%le = gradient error should be exactly zero \n",err);
+    fprintf(stdout,"%E = gradient error should be exactly zero \n",err);
 
     /*--------------------------------------------------------------------------*/
     double *tan = new double[n];            /* 5. time (first row of Hessian) */
@@ -152,7 +152,7 @@ int main() {
     for (i=1; i<n; i++) //Compare with doubly deleted product
         err = maxabs(err,xp[0]*h[i]/g[i]-1.0);
 
-    fprintf(stdout,"%le = maximum relative error in Hessian column \n",err);
+    fprintf(stdout,"%E = maximum relative error in Hessian column \n",err);
 
     /*--------------------------------------------------------------------------*/
     double h1n = h[n-1];                                /* Check for symmetry */
@@ -161,30 +161,30 @@ int main() {
     hess_vec(TAG,n,ind,tan,h);   // Computes Hessian times direction tan.
 
     fprintf(stdout,
-            "%le = %le (1,n) and (n,1) entry should be the same\n",h1n,h[0]);
+            "%E = %E (1,n) and (n,1) entry should be the same\n",h1n,h[0]);
 
     /*--------------------------------------------------------------------------*/
     /* output of results */
     if (t01-t00) {
         double rtu = 1.0/(t01-t00);
         fprintf(stdout,"\n\n times for ");
-        fprintf(stdout,"\n unitime          : \t%le  seconds",(t01-t00)/itu);
-        fprintf(stdout,"\n tracing          : \t%le",(t11-t10)*rtu*itu);
-        fprintf(stdout,"   units \t%le seconds",(t11-t10));
+        fprintf(stdout,"\n unitime          : \t%E  seconds",(t01-t00)/itu);
+        fprintf(stdout,"\n tracing          : \t%E",(t11-t10)*rtu*itu);
+        fprintf(stdout,"   units \t%E seconds",(t11-t10));
         fprintf(stdout,
                 "\n----------------------------------------------------------");
-        fprintf(stdout,"\n forward (no keep): \t%le",(t61-t60)*rtu);
-        fprintf(stdout,"   units \t%le seconds",(t61-t60)/itu);
-        fprintf(stdout,"\n forward + keep   : \t%le",(t21-t20)*rtu);
-        fprintf(stdout,"   units \t%le seconds",(t21-t20)/itu);
-        fprintf(stdout,"\n reverse          : \t%le",(t31-t30)*rtu);
-        fprintf(stdout,"   units \t%le seconds",(t31-t30)/itu);
+        fprintf(stdout,"\n forward (no keep): \t%E",(t61-t60)*rtu);
+        fprintf(stdout,"   units \t%E seconds",(t61-t60)/itu);
+        fprintf(stdout,"\n forward + keep   : \t%E",(t21-t20)*rtu);
+        fprintf(stdout,"   units \t%E seconds",(t21-t20)/itu);
+        fprintf(stdout,"\n reverse          : \t%E",(t31-t30)*rtu);
+        fprintf(stdout,"   units \t%E seconds",(t31-t30)/itu);
         fprintf(stdout,
                 "\n----------------------------------------------------------");
-        fprintf(stdout,"\n gradient         : \t%le",(t41-t40)*rtu);
-        fprintf(stdout,"   units \t%le seconds",(t41-t40)/itu);
-        fprintf(stdout,"\n hess*vec         : \t%le",(t51-t50)*rtu);
-        fprintf(stdout,"   units \t%le seconds\n",(t51-t50)/itu);
+        fprintf(stdout,"\n gradient         : \t%E",(t41-t40)*rtu);
+        fprintf(stdout,"   units \t%E seconds",(t41-t40)/itu);
+        fprintf(stdout,"\n hess*vec         : \t%E",(t51-t50)*rtu);
+        fprintf(stdout,"   units \t%E seconds\n",(t51-t50)/itu);
     } else
         fprintf(stdout,"\n-> zero timing due to small problem dimension \n");
 
