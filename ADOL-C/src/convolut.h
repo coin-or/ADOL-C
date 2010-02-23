@@ -25,19 +25,19 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /* Evaluates convolution of a and b to c */
-void conv( int dim, double *a, revreal *b, double *c );
-void conv0( int dim, revreal *a, revreal *b, double *c );
+void conv( int dim, revreal *a, revreal *b, revreal *c );
+void conv0( int dim, revreal *a, revreal *b, revreal *c );
 
 /****************************************************************************/
 /*                                                  INCREMENTAL CONVOLUTION */
 
 /*--------------------------------------------------------------------------*/
 /* Increments truncated convolution of a and b to c */
-void inconv ( int dim, double *a, revreal *b, double* c );
+void inconv ( int dim, revreal *a, revreal *b, revreal* c );
 
 /*--------------------------------------------------------------------------*/
 /* Increments truncated convolution of a and b to c and sets a to zero */
-void inconv0( int dim, double *a, revreal *b, double* c );
+void inconv0( int dim, revreal *a, revreal *b, revreal* c );
 void inconv1( int dim, revreal *a, revreal *b, revreal* c );
 
 
@@ -46,11 +46,11 @@ void inconv1( int dim, revreal *a, revreal *b, revreal* c );
 
 /*--------------------------------------------------------------------------*/
 /* Decrements truncated convolution of a and b to c */
-void deconv ( int dim, double* a, double *b, double* c );
+void deconv ( int dim, revreal* a, revreal *b, revreal* c );
 
 /*--------------------------------------------------------------------------*/
 /* Decrements truncated convolution of a and b to c and sets a to zero */
-void deconv0( int dim, double* a, revreal *b, double* c );
+void deconv0( int dim, revreal* a, revreal *b, revreal* c );
 void deconv1( int dim, revreal* a, revreal *b, revreal* c );
 void deconvZeroR( int dim, revreal *a, revreal *b, revreal *c );
 
@@ -74,7 +74,7 @@ void zeroset(int dim, double* a);
 
 /*--------------------------------------------------------------------------*/
 /* Copies a to tmp and initializes a to zero */
-void copyAndZeroset( int dim, double *a, double* tmp);
+void copyAndZeroset( int dim, revreal *a, revreal* tmp);
 
 
 /****************************************************************************/

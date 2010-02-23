@@ -244,8 +244,8 @@ typedef struct TapeInfos {
     /* evaluation reverse */
     revreal *rp_T;
     revreal **rpp_T;
-    double *dp_A;
-    double **dpp_A;
+    revreal *rp_A;
+    revreal **rpp_A;
     unsigned long int **upp_A;
 
     /* extern diff. fcts */
