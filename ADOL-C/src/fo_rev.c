@@ -290,18 +290,18 @@ int int_reverse_safe(
     /*--------------------------------------------------------------------------*/
     /* Adjoint stuff */
 #ifdef _FOS_
-    double *dp_A;
-    double aTmp;
+    revreal *rp_A;
+    revreal aTmp;
 #endif
 #ifdef _FOV_
-    double **dpp_A;
-    double aTmp;
+    revreal **rpp_A, *Aqo;
+    revreal aTmp;
 #endif
 #if !defined(_NTIGHT_)
     revreal *rp_T;
 #endif /* !_NTIGHT_ */
 #if !defined _INT_REV_
-    double  *Ares, *Aarg, *Aarg1, *Aarg2;
+    revreal  *Ares, *Aarg, *Aarg1, *Aarg2;
 #else
     unsigned long int **upp_A;
     unsigned long int *Ares, *Aarg, *Aarg1, *Aarg2;
@@ -385,28 +385,35 @@ int int_reverse_safe(
 
     /*--------------------------------------------------------------------------*/
 #ifdef _FOS_                                                         /* FOS */
-    dp_A = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
-    ADOLC_CURRENT_TAPE_INFOS.dp_A = dp_A;
+    rp_A = (revreal*) malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * sizeof(revreal));
+    if (rp_A == NULL) fail(ADOLC_MALLOC_FAILED);
+    ADOLC_CURRENT_TAPE_INFOS.rp_A = rp_A;
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
 #if !defined(ADOLC_USE_CALLOC)
-    c_Ptr = (char *) ADOLC_GLOBAL_TAPE_VARS.dp_A;
+    c_Ptr = (char *) ADOLC_GLOBAL_TAPE_VARS.rp_A;
     *c_Ptr = 0;
     memcpy(c_Ptr + 1, c_Ptr, sizeof(double) *
             ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
 #endif
-# define ADJOINT_BUFFER dp_A
-# define ADJOINT_BUFFER_ARG_L dp_A[arg]
-# define ADJOINT_BUFFER_RES_L dp_A[res]
+# define ADJOINT_BUFFER rp_A
+# define ADJOINT_BUFFER_ARG_L rp_A[arg]
+# define ADJOINT_BUFFER_RES_L rp_A[res]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dp_U[loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dp_Z[loop]
 
     /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_                                                          /* FOV */
-    dpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
-    ADOLC_CURRENT_TAPE_INFOS.dpp_A = dpp_A;
+    Aqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p *
+            sizeof(revreal));
+    if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
+    for (j=0; j<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; j++) {
+        rpp_A[j] = Aqo;
+        Aqo += p;
+    }
+    ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
@@ -416,9 +423,9 @@ int int_reverse_safe(
     memcpy(c_Ptr + 1, c_Ptr, sizeof(double) * p *
             ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
 #endif
-# define ADJOINT_BUFFER dpp_A
-# define ADJOINT_BUFFER_ARG_L dpp_A[arg][l]
-# define ADJOINT_BUFFER_RES_L dpp_A[res][l]
+# define ADJOINT_BUFFER rpp_A
+# define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
+# define ADJOINT_BUFFER_RES_L rpp_A[res][l]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dpp_U[l][loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dpp_Z[l][loop]
 #else
@@ -1781,10 +1788,10 @@ int int_reverse_safe(
     free(rp_T);
 #endif
 #ifdef _FOS_
-    free(dp_A);
+    free(rp_A);
 #endif
 #ifdef _FOV_
-    myfree2(dpp_A);
+    myfree2(rpp_A);
 #endif
 #ifdef _INT_REV_
     free(upp_A);

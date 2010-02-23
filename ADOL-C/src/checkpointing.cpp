@@ -312,7 +312,7 @@ int cp_hov_forward (int n, double *dp_x, double ***dppp_X,
 int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    double *A = ADOLC_CURRENT_TAPE_INFOS.dp_A;
+    revreal *A = ADOLC_CURRENT_TAPE_INFOS.rp_A;
     int oldTraceFlag;
     locint arg;
     CpInfos *cpInfos=get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
@@ -410,7 +410,7 @@ int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z) {
 int cp_fov_reverse (int m, double **dpp_U, int n, double **dpp_Z) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    double **A = ADOLC_CURRENT_TAPE_INFOS.dpp_A;
+    revreal **A = ADOLC_CURRENT_TAPE_INFOS.rpp_A;
     int oldTraceFlag, numDirs;
     locint arg;
     CpInfos *cpInfos = get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
