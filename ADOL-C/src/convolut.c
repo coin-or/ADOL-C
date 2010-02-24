@@ -22,7 +22,7 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /* Evaluates convolution of a and b to c */
-void conv( int dim, double *a, revreal *b, double *c ) {
+void conv( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -33,7 +33,7 @@ void conv( int dim, double *a, revreal *b, double *c ) {
     }
 }
 
-void conv0( int dim, revreal *a, revreal *b, double *c ) {
+void conv0( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -49,7 +49,7 @@ void conv0( int dim, revreal *a, revreal *b, double *c ) {
 
 /*--------------------------------------------------------------------------*/
 /* Increments truncated convolution of a and b to c */
-void inconv( int dim, double *a, revreal *b, double *c ) {
+void inconv( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -63,7 +63,7 @@ void inconv( int dim, double *a, revreal *b, double *c ) {
 /*--------------------------------------------------------------------------*/
 /* olvo 980616 nf */
 /* Increments truncated convolution of a and b to c and sets a to zero */
-void inconv0( int dim, double *a, revreal *b, double *c ) {
+void inconv0( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -77,13 +77,12 @@ void inconv0( int dim, double *a, revreal *b, double *c ) {
 
 /*--------------------------------------------------------------------------*/
 /* olvo 980616 nf */
-/* Increments truncated convolution of a and b to c and sets a to zero */
+/* Increments truncated convolution of a and b to c */
 void inconv1( int dim, revreal *a, revreal *b, revreal *c ) {
     revreal tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
         tmpVal = a[i]*b[0];
-        a[i] = 0;
         for (j=1; j<=i; j++)
             tmpVal += a[i-j]*b[j];
         c[i] += tmpVal;
@@ -95,7 +94,7 @@ void inconv1( int dim, revreal *a, revreal *b, revreal *c ) {
 
 /*--------------------------------------------------------------------------*/
 /* Decrements truncated convolution of a and b to c */
-void deconv( int dim, double *a, double *b, double *c ) {
+void deconv( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -109,7 +108,7 @@ void deconv( int dim, double *a, double *b, double *c ) {
 /*--------------------------------------------------------------------------*/
 /* olvo 980616 nf */
 /* Decrements truncated convolution of a and b to c and sets a to zero */
-void deconv0( int dim, double *a, revreal *b, double *c ) {
+void deconv0( int dim, revreal *a, revreal *b, revreal *c ) {
     double tmpVal;
     int i,j;
     for (i=dim-1; i>=0; i--) {
@@ -128,6 +127,20 @@ void deconv1( int dim, revreal *a, revreal *b, revreal *c ) {
     int i,j;
     for (i=dim-1; i>=0; i--) {
         tmpVal = a[i]*b[0];
+        for (j=1; j<=i; j++)
+            tmpVal += a[i-j]*b[j];
+        c[i] -= tmpVal;
+    }
+}
+
+/*--------------------------------------------------------------------------*/
+/* Decrements truncated convolution of a and b to c and sets a to zero */
+void deconvZeroR( int dim, revreal *a, revreal *b, revreal *c ) {
+    double tmpVal;
+    int i,j;
+    for (i=dim-1; i>=0; i--) {
+        tmpVal = a[i]*b[0];
+        a[i] = 0;
         for (j=1; j<=i; j++)
             tmpVal += a[i-j]*b[j];
         c[i] -= tmpVal;
@@ -176,7 +189,7 @@ void zeroset(int dim, double *a) {
 /*--------------------------------------------------------------------------*/
 /* olvo 980616 nf */
 /* Copies a to tmp and initializes a to zero */
-void copyAndZeroset( int dim, double *a, double* tmp ) {
+void copyAndZeroset( int dim, revreal *a, revreal* tmp ) {
     int i;
     for (i=0; i<dim; i++) {
         tmp[i] = a[i];

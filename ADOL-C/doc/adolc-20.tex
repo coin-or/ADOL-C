@@ -1,4 +1,4 @@
-% Latex file containing the documentation of ADOL-C version 2.0.0 
+% Latex file containing the documentation of ADOL-C version 2.1.2
 %
 % Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
 %               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
@@ -47,7 +47,7 @@
 {\Large A Package for the Automatic Differentiation}\vspace{0.1in} \\
 {\Large of Algorithms Written in C/C++}\\
 \vspace{.2in}
-{\large\bf  Version 2.0.0, December 2008} \\
+{\large\bf  Version 2.1.2, December 2009} \\
 \bigskip
  \mbox{Andrea Walther}\footnote{Institute of Mathematics, University
    of Paderborn, 33098 Paderborn, Germany} and
@@ -931,7 +931,7 @@ extended by defining {\sf locint} as {\sf (unsigned) int} or
 {\sf (unsigned) long}, which may nearly double
 the overall mass storage requirement. Sometimes one can avoid exceeding
 the accessible range of {\sf unsigned short}s by using more local variables and deleting
-{\sf adouble}s or {\sf adoublev}s created by the new operator in a
+{\sf adouble}s  created by the new operator in a
 last-in-first-out
 fashion.  When memory for {\sf adouble}s is requested through a call to
 {\sf malloc()} or other related C memory-allocating
@@ -3377,7 +3377,7 @@ available at
 \verb=http://www.cscapes.org/coloringpage/software.htm= is
 located in the path \verb=<\$HOME/adolc_base/lib>=. Furthermore a
 copy of all header files of ColPack is assumed to be found in
-the directory \verb=</SOMEPATH/ADOL-C-2.1.0/ThirdParty/ColPack>=.
+the directory \verb=</SOMEPATH/ADOL-C-2.1.0/ThirdParty/ColPack/include>=.
 % 
 \subsection{Compiling and Linking the Example Programs}
 %

@@ -82,15 +82,15 @@ int main() {
     he = energy(n,x,bv);
     he >>= result;
     trace_off();
-    fprintf(stdout, "%14.6le -- energy\n",result);
+    fprintf(stdout, "%14.6E -- energy\n",result);
 
     /*--------------------------------------------------------------------------*/
     reverse(1,1,n,0,1.0,grad);             /* reverse computation of gradient */
 
     /*--------------------------------------------------------------------------*/
     for (l=0; l<n; l++)                                            /* results */
-        fprintf(stdout,"%3d: %14.6le,  \n",l,grad[l]);
-    fprintf(stdout,"%14.6le -- energy\n",result);
+        fprintf(stdout,"%3d: %14.6E,  \n",l,grad[l]);
+    fprintf(stdout,"%14.6E -- energy\n",result);
 
     delete [] x;
     delete [] bv;

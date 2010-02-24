@@ -1425,12 +1425,12 @@ adouble pow ( const badouble& x, const badouble& y) {
     double vx = x.getValue();
     double vy = y.getValue();
 
-    if (!(vx > 0))
+    if (!(vx > 0)) { 
         if (vx < 0 || vy >= 0)
             fprintf(DIAG_OUT,"\nADOL-C message: exponent of zero/negative basis deactivated\n");
         else
             fprintf(DIAG_OUT,"\nADOL-C message: negative exponent and zero basis deactivated\n");
-
+    }
     condassign(a1,-y, ADOLC_MATH_NSP::pow(vx,vy), pow(x,vy));
     condassign(a2, fabs(x), pow(x, vy),a1);
     condassign(ret,x+0.0, exp(y*log(x)),a2);

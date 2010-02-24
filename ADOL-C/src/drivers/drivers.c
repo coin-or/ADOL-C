@@ -86,7 +86,7 @@ int vec_jac(short tag,
 int jacobian(short tag,
              int depen,
              int indep,
-             double *argument,
+             const double *argument,
              double **jacobian) {
     int rc;
     double *result, **I;
@@ -104,6 +104,9 @@ int jacobian(short tag,
         MINDEC(rc,fov_reverse(tag,depen,indep,depen,I,jacobian));
         myfreeI2(depen, I);
     }
+
+    myfree1(result);
+
     return rc;
 }
 

@@ -349,7 +349,7 @@ int LUFactorization( double** J, int n, int* RI, int* CI ) {
                 }
         if (ZERO > v) {
             fprintf(DIAG_OUT,
-                    "Error:LUFactorisation(..): no Pivot in step %d (%le)\n",k+1,v);
+                    "Error:LUFactorisation(..): no Pivot in step %d (%E)\n",k+1,v);
             return -(k+1);
         }
         /* row and column change resp. */
@@ -589,8 +589,6 @@ int inverse_Taylor_prop( short tag, int n, int d,
 		    bi = W[i][l-1]-Y[i][l];
                 for (j=0; j<n; j++)
                     if (nonzero[i][j]>1) {
-			int indj = j;
-			int indX = l;
                         Aij = A[i][j];
 			indexA = l-1;
                         Xj = X[j]+l;

@@ -136,7 +136,7 @@ int main() {
 
     /*--------------------------------------------------------------------------*/
     if( id < 0 )
-        fprintf(stdout,"Round-off error: %14.6le\n",(y-x).value());
+        fprintf(stdout,"Round-off error: %14.6E\n",(y-x).value());
 
     /*--------------------------------------------------------------------------*/
     int tape_stats[STAT_SIZE];
@@ -175,12 +175,12 @@ int main() {
     for (i=0; i < n+2; i++) {
         xp[i+2]=0;
         forward(tag,1,1,i,i+1,xpoint,respoint);
-        fprintf(stdout,"%d\t%14.6le\t\t%14.6le\n",i,res[i],yp[i]);
+        fprintf(stdout,"%d\t%14.6E\t\t%14.6E\n",i,res[i],yp[i]);
         reverse(tag,1,1,i,u,ypoint); // call higher order scalar reverse
         reverse(tag,1,1,i,1,U,V);
         yp[i+1] = yp[i]/(i+1);
         if (V[0][0][i] != yp[i])
-            fprintf(stdout,"%d-th component in error %14.6le\n",i,V[0][0][i]-yp[i]);
+            fprintf(stdout,"%d-th component in error %14.6E\n",i,V[0][0][i]-yp[i]);
     }
     cout << "\nWhen n<0 all rows except the first two should vanish \n";
 
