@@ -1,9 +1,9 @@
 * text=auto !eol
 ADOL-C/Makefile.am -text
 ADOL-C/Makefile.in -text
-ADOL-C/doc/adolc-20.pdf -text
-ADOL-C/doc/adolc-20.ps -text
-ADOL-C/doc/adolc-20.tex -text
+ADOL-C/doc/adolc-manual.pdf -text
+ADOL-C/doc/adolc-manual.ps -text
+ADOL-C/doc/adolc-manual.tex -text
 ADOL-C/doc/multiplexed.eps -text
 ADOL-C/doc/short_ref.pdf -text
 ADOL-C/doc/short_ref.ps -text
