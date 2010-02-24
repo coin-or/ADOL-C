@@ -39,7 +39,7 @@ ADOLC_DLL_EXPORT fint gradient_(fint*,fint*,fdouble*,fdouble*);
 /*--------------------------------------------------------------------------*/
 /*                                                                 jacobian */
 /* jacobian(tag, m, n, x[n], J[m][n])                                       */
-ADOLC_DLL_EXPORT int jacobian(short,int,int,double*,double**);
+ADOLC_DLL_EXPORT int jacobian(short,int,int,const double*,double**);
 ADOLC_DLL_EXPORT fint jacobian_(fint*,fint*,fint*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/

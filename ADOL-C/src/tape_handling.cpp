@@ -338,6 +338,7 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 		    tapeInfos->pTapeInfos.sJinfos.nnz_in=sJinfos.nnz_in;
 		    tapeInfos->pTapeInfos.sJinfos.p=sJinfos.p;
 		    tapeInfos->pTapeInfos.sJinfos.g=sJinfos.g;
+		    tapeInfos->pTapeInfos.sJinfos.jr1d=sJinfos.jr1d;
             }
         }
     }
@@ -368,6 +369,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
 		    tapeInfos->pTapeInfos.sHinfos.nnz_in=sHinfos.nnz_in;
 		    tapeInfos->pTapeInfos.sHinfos.p=sHinfos.p;
 		    tapeInfos->pTapeInfos.sHinfos.g=sHinfos.g;
+		    tapeInfos->pTapeInfos.sHinfos.hr=sHinfos.hr;
             }
         }
     }

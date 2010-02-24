@@ -1,0 +1,40 @@
+##############################################################################
+## README -- additional information
+## $Id$
+##
+## Copyright (C) Andrea Walther
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+CONTENTS OF THE DIRECTORY
+
+  ipopt  -->  example code for the coupling of ADOL-C and Ipopt
+
+              directories:
+
+	      LuksanVlcek1              
+	      MittelmannDistCntrlNeumA 
+
+	              both examples from Ipopt/Ipopt/examples/ScalableProblems 
+
+	              The directories contain examples for the coupling of Ipopt 
+                      and ADOL-C. The user just has to adapted the evaluation
+      	              of the target function and the constraints everything else
+                      is done automatically.
+
+
+	      LuksanVlcek1_sparse              
+	      MittelmannDistCntrlNeumA_sparse
+
+                      same examples as above but with automatic exploitation
+                      of sparsity, hence the installation of the ColPack 
+                      package is required.
+
+	      The makefiles from the specific Ipopt installation should be used
+	      and extended according to the Makefile examples contained in the
+              directories.
+

@@ -19,7 +19,7 @@
 #include <interfaces.h>
 #include <taping_p.h>
 
-#include <../../ThirdParty/ColPack/ColPackHeaders.h>
+#include <../../ThirdParty/ColPack/include/ColPackHeaders.h>
 
 #include <math.h>
 #include <cstring>
@@ -221,7 +221,8 @@ int sparse_jac(
     int ret_val;
     BipartiteGraphPartialColoringInterface *g;
     TapeInfos *tapeInfos;
-    JacobianRecovery1D jr1d;
+    JacobianRecovery1D *jr1d;
+    JacobianRecovery1D jr1d_loc;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -269,6 +270,7 @@ int sparse_jac(
       FILE *fp_JP;
 			
       g = new BipartiteGraphPartialColoringInterface;
+      jr1d = new JacobianRecovery1D;
 	
       if (options[3] == 1)
 	g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.p), &dummy, 
@@ -285,6 +287,7 @@ int sparse_jac(
       sJinfos.y=myalloc1(depen);
       
       sJinfos.g = (void *) g;
+      sJinfos.jr1d = (void *) jr1d;
       setTapeInfoJacSparse(tag, sJinfos);
       tapeInfos=getTapeInfos(tag);
       memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
@@ -300,6 +303,7 @@ int sparse_jac(
         sJinfos.Seed   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.Seed;
         sJinfos.p      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.p;
         g = (BipartiteGraphPartialColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.g;
+	jr1d = (JacobianRecovery1D *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.jr1d;
       }
 	
     if (sJinfos.nnz_in != *nnz) {
@@ -326,21 +330,15 @@ int sparse_jac(
     
 
     /* recover compressed Jacobian => ColPack library */
+ 
+      if (options[3] == 1)
+       jr1d->RecoverForPD2RowWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+     else
+       jr1d->RecoverForPD2ColumnWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
 
-//     if (options[3] == 1)
-//       JacobianRecovery1D::RecoverForPD2RowWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
-//     else
-//       JacobianRecovery1D::RecoverForPD2ColumnWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
-// 
-     if (options[3] == 1)
-      jr1d.RecoverForPD2RowWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
-    else
-      jr1d.RecoverForPD2ColumnWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
-    
     return ret_val;
 
 }
-
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
@@ -374,7 +372,7 @@ int sparse_hess(
     GraphColoringInterface *g;
     TapeInfos *tapeInfos;
     double *v, *w, **X, yt, lag=1;
-    HessianRecovery hr;
+    HessianRecovery *hr;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -420,6 +418,7 @@ int sparse_hess(
 	Seed = NULL;
 
 	g = new GraphColoringInterface;
+	hr = new HessianRecovery;
 
 	if (options[1] == 0)
 	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
@@ -437,9 +436,9 @@ int sparse_hess(
             sHinfos.Xppp[i][l][0] = Seed[i][l];
 
 	for (i=0; i<indep; i++)
-	  delete Seed[i];
+	  delete[] Seed[i];
 
-	delete Seed;
+	delete[] Seed;
 	Seed = NULL;
 
         sHinfos.Yppp = myalloc3(1,sHinfos.p,1);
@@ -451,6 +450,7 @@ int sparse_hess(
 	sHinfos.Upp[0][1] = 0;
 
 	sHinfos.g = (void *) g;
+	sHinfos.hr = (void *) hr;
 	setTapeInfoHessSparse(tag, sHinfos);
 	tapeInfos=getTapeInfos(tag);
 	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
@@ -468,6 +468,7 @@ int sparse_hess(
     	sHinfos.Upp    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Upp;
         sHinfos.p      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.p;
 	g = (GraphColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.g;
+	hr = (HessianRecovery *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.hr;
       }
 
 
@@ -524,15 +525,15 @@ int sparse_hess(
 
     /* recover compressed Hessian => ColPack library */
 
-//     if (options[1] == 0)
-//       HessianRecovery::IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
-//     else
-//       HessianRecovery::DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+//      if (options[1] == 0)
+//        HessianRecovery::IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+//      else
+//        HessianRecovery::DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
-    if (options[1] == 0)
-      hr.IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
-    else
-      hr.DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+     if (options[1] == 0)
+       hr->IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+     else
+       hr->DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
     return ret_val;
 

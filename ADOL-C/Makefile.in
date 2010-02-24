@@ -154,11 +154,13 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_FALSE@SUBDIRS = src 
-@ADDEXA_TRUE@@DOCEXA_FALSE@SUBDIRS = src examples
 
-@DOCEXA_TRUE@SUBDIRS = src examples
-@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_TRUE@SUBDIRS = src examples
+AUTOMAKE_OPTIONS = foreign
+@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_FALSE@SUBDIRS = src test
+@ADDEXA_TRUE@@DOCEXA_FALSE@SUBDIRS = src examples test
+
+@DOCEXA_TRUE@SUBDIRS = src examples test
+@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_TRUE@SUBDIRS = src examples test
 
 MAINTAINERCLEANFILES = Makefile.in 
 subdir = ADOL-C
@@ -174,13 +176,13 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	installdirs-recursive install-recursive uninstall-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = $(srcdir)/Makefile.in Makefile.am
-DIST_SUBDIRS = src examples
+DIST_SUBDIRS = src test examples
 all: all-recursive
 
 .SUFFIXES:
 $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  ADOL-C/Makefile
+	  $(AUTOMAKE) --foreign  ADOL-C/Makefile
 Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
 
@@ -457,6 +459,9 @@ uninstall-info: uninstall-info-recursive
 	uninstall uninstall-am uninstall-info-am \
 	uninstall-info-recursive uninstall-recursive
 
+
+test: all
+	cd test; $(MAKE) test
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

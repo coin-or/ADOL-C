@@ -59,8 +59,8 @@ int main() {
                                                   calling 'gradient(..)') */
 
     /* print the results */
-    fprintf(stdout,"f  = %le\n",f);
-    fprintf(stdout,"df = (%le, %le, %le)\n",gradf[0],gradf[1],gradf[2]);
+    fprintf(stdout,"f  = %E\n",f);
+    fprintf(stdout,"df = (%E, %E, %E)\n",gradf[0],gradf[1],gradf[2]);
 
     return 0;
 }
