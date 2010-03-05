@@ -32,13 +32,13 @@ using namespace std;
 /*--------------------------------------------------------------------------*/
 void condassign( double &res, const double &cond,
                  const double &arg1, const double &arg2 ) {
-    res = cond ? arg1 : arg2;
+    res = cond > 0 ? arg1 : arg2;
 }
 
 /*--------------------------------------------------------------------------*/
 void condassign( double &res, const double &cond,
                  const double &arg) {
-    res = cond ? arg : res;
+    res = cond > 0 ? arg : res;
 }
 
 /*--------------------------------------------------------------------------*/
