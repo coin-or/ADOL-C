@@ -406,6 +406,9 @@ int int_reverse_safe(
     /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_                                                          /* FOV */
+    rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
+            sizeof(revreal*));
+    if (rpp_A == NULL) fail(ADOLC_MALLOC_FAILED);
     Aqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p *
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
