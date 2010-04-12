@@ -46,11 +46,11 @@
 #if !defined(ADOLC_INTERFACES_H)
 #define ADOLC_INTERFACES_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 #if defined(SPARSE)
-#include <sparse/sparsedrivers.h>
-#include <sparse/sparse_fo_rev.h>
+#include <adolc/sparse/sparsedrivers.h>
+#include <adolc/sparse/sparse_fo_rev.h>
 #endif
 
 /****************************************************************************/

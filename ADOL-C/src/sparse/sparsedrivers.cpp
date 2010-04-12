@@ -13,11 +13,11 @@
 ----------------------------------------------------------------------------*/
 
 
-#include <sparse/sparsedrivers.h>
-#include <oplate.h>
-#include <adalloc.h>
-#include <interfaces.h>
-#include <taping_p.h>
+#include <adolc/sparse/sparsedrivers.h>
+#include <adolc/oplate.h>
+#include <adolc/adalloc.h>
+#include <adolc/interfaces.h>
+#include "taping_p.h"
 
 #include <../../ThirdParty/ColPack/include/ColPackHeaders.h>
 

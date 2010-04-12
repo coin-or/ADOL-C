@@ -16,7 +16,7 @@
 #if !defined(ADOLC_TAPING_H)
 #define ADOLC_TAPING_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 BEGIN_C_DECLS
 

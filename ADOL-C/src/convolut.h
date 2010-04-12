@@ -16,7 +16,7 @@
 #if !defined(ADOLC_CONVOLUT_H)
 #define ADOLC_CONVOLUT_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 BEGIN_C_DECLS
 

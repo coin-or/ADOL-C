@@ -16,7 +16,7 @@
 #if !defined(ADOLC_OPLATE_P_H)
 #define ADOLC_OPLATE_P_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 /****************************************************************************/
 /* opcodes */

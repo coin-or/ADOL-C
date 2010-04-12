@@ -18,7 +18,7 @@
 
 #   if defined(ADOLC_INTERNAL)
 #       if defined(HAVE_CONFIG_H)
-#           include <config.h>
+#           include "config.h"
 
 #           undef ADOLC_NO_MALLOC
 #           undef ADOLC_NO_REALLOC
