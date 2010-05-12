@@ -51,7 +51,7 @@ int main() {
     } // end for
     y >>= yp;
     delete[] x;                        
-    trace_off();
+    trace_off(1);
 
     tapestats(1,tape_stats);             // reading of tape statistics
     cout<<"maxlive "<<tape_stats[NUM_MAX_LIVES]<<"\n";
