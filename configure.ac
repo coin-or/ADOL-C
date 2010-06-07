@@ -40,9 +40,9 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
+DOLT
 
 # checks for header files
 AC_HEADER_STDC
@@ -301,9 +301,12 @@ AC_DEFUN([AC_COIN_PATCH_LIBTOOL_CYGWIN],
   esac ]) # COIN_PATCH_LIBTOOL_CYGWIN
  
 
+SHAVE_INIT([autoconf],[enable])
 
 # output
 AC_CONFIG_FILES(Makefile
+		autoconf/shave-libtool
+		autoconf/shave
                 ADOL-C/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 

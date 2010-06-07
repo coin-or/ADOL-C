@@ -10,6 +10,8 @@
 Makefile.in
 Makefile
 autoconf/*
+!autoconf/*.m4
+!autoconf/*.in
 configure
 aclocal.m4
 stamp-h1
