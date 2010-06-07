@@ -65,6 +65,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
+libadolc_la_LDFLAGS  += @COLPACK_LIBS@
 else
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c\

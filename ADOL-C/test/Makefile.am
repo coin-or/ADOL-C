@@ -17,8 +17,8 @@ speelpenning_SOURCES    = speelpenning.cpp
 powexam_SOURCES         = powexam.cpp
 
 if SPARSE
-powexam_LDADD           = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libColPack.a $(ADDLIBS) $(CXXLIBS)
-speelpenning_LDADD = ../src/libadolc.la ../../ThirdParty/ColPack/lib/libColPack.a $(ADDLIBS) $(CXXLIBS)
+powexam_LDADD           = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
+speelpenning_LDADD = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
 else
 powexam_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
 speelpenning_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)

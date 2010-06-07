@@ -15,8 +15,9 @@ AM_CXXFLAGS             = @ac_adolc_cxxflags@
 AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                   = -ladolc $(libdir)/libColPack.a
-AM_LDFLAGS              = -L../src
+LDADD                   = -ladolc 
+AM_LDFLAGS              = -L../src @COLPACK_LIBS@
+AM_CPPFLAGS             += @COLPACK_CFLAGS@
 else
 LDADD                   = -ladolc 
 AM_LDFLAGS              = -L../src

@@ -135,6 +135,30 @@ AS_HELP_STRING([--with-sparse],[build sparse drivers [default=no]])],
             [sparse="no"
              AC_MSG_RESULT(no)])
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
+AC_ARG_WITH(colpack,
+	[
+AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${PWD}/ThirdParty/ColPack]])],
+		[colpack=$withval],
+		[colpack=${PWD}/ThirdParty/ColPack])
+COLPACK_CFLAGS="-I$colpack/include"
+COLPACK_LIBS="-L$colpack/lib -lColPack -Wl,-rpath,$colpack/lib"
+save_CFLAGS="$CFLAGS"
+save_LDFLAGS="$LDFLAGS"
+CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+CFLAGS=$save_CFLAGS
+LDFLAGS=$save_LDFLAGS
+AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
+
+if test x$sparse = xyes && test x$have_colpack = xyes; then
+	AC_DEFINE(HAVE_LIBCOLPACK,[1],[Define 1 if ColPack is available])
+else
+	COLPACK_CFLAGS=""
+	COLPACK_LIBS=""
+fi
+AC_SUBST(COLPACK_CFLAGS)
+AC_SUBST(COLPACK_LIBS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
@@ -340,8 +364,16 @@ echo \
 "  Use ADOL-C safe extern mode:      ${adolc_safe_extern}
 
   Build sparse drivers:             ${sparse}
+  Build with ColPack:		    ${have_colpack}"
+if test x$sparse = xyes && test x$have_colpack = xno; then
+   echo \
+"  Compressed sparse structures will not be available
+   Only sparsity patterns can be computed"
+fi
+echo
 
-  Build documented examples:        ${docexa}
+echo \
+"  Build documented examples:        ${docexa}
   Build additional examples:        ${addexa}
 
   See ADOL-C/src/config.h for further configuration information.
