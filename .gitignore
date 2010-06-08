@@ -20,3 +20,5 @@ config.log
 config.guess
 config.status
 libtool
+doltcompile
+doltlibtool
