@@ -46,6 +46,7 @@ preserved_args=
 
 # have we seen the --tag option of libtool in the command line ?
 tag_seen=0
+lang=CC
 
 while test "$#" -gt 0; do
     opt="$1"
@@ -64,6 +65,22 @@ while test "$#" -gt 0; do
         tag_seen=1
         preserved_args="$preserved_args $opt"
 	;;
+    cc)
+        lang=CC
+        preserved_args="$preserved_args $opt"
+        ;;
+    cxx)
+        lang=CXX
+        preserved_args="$preserved_args $opt"
+        ;;
+    fc)
+        lang=FC
+        preserved_args="$preserved_args $opt"
+        ;;
+    f77)
+        lang=F77
+        preserved_args="$preserved_args $opt"
+        ;;
     *)
         preserved_args="$preserved_args $opt"
         ;;
@@ -95,7 +112,10 @@ output=$last_result
 # confused. Let's detect these cases and add a --tag=CC option.
 tag=""
 if test $tag_seen -eq 0 -a x"$mode" = xcompile; then
-    tag="--tag=CC"
+    tag="--tag=$lang"
+fi
+if test $tag_seen -eq 0 -a x"$mode" = xlink; then
+    tag="--tag=$lang"
 fi
 
 if test -z $V; then
