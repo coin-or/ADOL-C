@@ -25,7 +25,24 @@ endif
 
 INCLUDES                = -I$(top_builddir) -I$(top_builddir)/examples/additional_examples
 
-EXTRA_DIST              = rotations.h *.ctrl Makefile.win
+CTRLFILES               = detexam.ctrl \
+                          eutrophexam.ctrl \
+                          experimental.ctrl \
+                          ficexam.ctrl \
+                          gearexam.ctrl \
+                          griewankexam.ctrl \
+                          helmholtzexam.ctrl \
+                          michalewitzexam.ctrl \
+                          pargearexam.ctrl \
+                          powexam.ctrl \
+                          robertsonexam.ctrl \
+                          rosenbrockexam.ctrl \
+                          shuttlexam.ctrl \
+                          simplevec.ctrl \
+                          speelpenning.ctrl
+
+
+EXTRA_DIST              = rotations.h $(CTRLFILES) Makefile.win
 
 MAINTAINERCLEANFILES    = Makefile.in in_tape.1 op_tape.1 vs_tape1 *~ *.orig
 

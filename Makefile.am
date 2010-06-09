@@ -18,7 +18,9 @@ EXTRA_DIST           = TODO BUGS Makefile.win make_32 make_64 \
 SUBDIRS              = ADOL-C
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure ADOL-C/src/config.h.in \
-                       ADOL-C/src/stamp-h.in *~ *.orig
+                       ADOL-C/src/stamp-h.in *~ *.orig 
+
+DISTCLEANFILES = doltcompile doltlibtool
 
 test: all
 	cd ADOL-C; $(MAKE) test
