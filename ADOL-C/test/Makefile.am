@@ -16,6 +16,8 @@ speelpenning_SOURCES    = speelpenning.cpp
 
 powexam_SOURCES         = powexam.cpp
 
+INCLUDES                = -I$(top_builddir)/ADOL-C/src
+
 if SPARSE
 powexam_LDADD           = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
 speelpenning_LDADD = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
