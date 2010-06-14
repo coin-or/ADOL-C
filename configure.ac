@@ -44,6 +44,18 @@ AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 DOLT
 
+AC_MSG_CHECKING([sizeof int*])
+AC_COMPUTE_INT(SIZEOF_INT_P,[sizeof(int *)])
+AC_MSG_RESULT([$SIZEOF_INT_P bytes])
+if test "x$SIZEOF_INT_P" = "x8" ; then
+   _lib=lib64
+else
+   _lib=lib
+fi
+libdir='${prefix}/${_lib}'
+AC_SUBST(_lib)
+AC_SUBST(libdir)
+
 # checks for header files
 AC_HEADER_STDC
 AC_HEADER_TIME
@@ -127,10 +139,10 @@ AS_HELP_STRING([--enable-safe-extern],[backup all adoubles before calling an ext
 
 # ADOL-C Sparse facility
 AC_MSG_CHECKING(whether to build sparse drivers)
-AC_ARG_WITH(sparse,
+AC_ARG_ENABLE(sparse,
             [
-AS_HELP_STRING([--with-sparse],[build sparse drivers [default=no]])],
-            [sparse="yes"
+AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
+            [sparse=$enableval
              AC_MSG_RESULT(yes)],
             [sparse="no"
              AC_MSG_RESULT(no)])
@@ -162,30 +174,30 @@ AC_SUBST(COLPACK_LIBS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
-AC_ARG_WITH(docexa,
+AC_ARG_ENABLE(docexa,
             [
-AS_HELP_STRING([--with-docexa],[build documented examples [default=no]])],
-            [docexa="yes"
+AS_HELP_STRING([--enable-docexa],[build documented examples [default=disabled]])],
+            [docexa=$enableval
              AC_MSG_RESULT(yes)],
             [docexa="no"
              AC_MSG_RESULT(no)])
 AM_CONDITIONAL(DOCEXA,[test x${docexa} = xyes])
 
 AC_MSG_CHECKING(whether to build additional examples)
-AC_ARG_WITH(addexa,
-            [AS_HELP_STRING([--with-addexa],
-                            [build additional examples [default=no]])],
-            [addexa="yes"
+AC_ARG_ENABLE(addexa,
+            [AS_HELP_STRING([--enable-addexa],
+                            [build additional examples [default=disabled]])],
+            [addexa=$enableval
              AC_MSG_RESULT(yes)],
             [addexa="no"
              AC_MSG_RESULT(no)])
 AM_CONDITIONAL(ADDEXA,[test x${addexa} = xyes])
 
 AC_MSG_CHECKING(whether to build parallel example)
-AC_ARG_WITH(parexa,
-            [AS_HELP_STRING([--with-parexa],
-                            [build parallel example [default=no], if yes -with-openmp-flag=FLAG required])],
-            [parexa="yes"
+AC_ARG_ENABLE(parexa,
+            [AS_HELP_STRING([--enable-parexa],
+                            [build parallel example [default=disabled], if enabled -with-openmp-flag=FLAG required])],
+            [parexa=$enableval
              AC_MSG_RESULT(yes)],
             [parexa="no"
              AC_MSG_RESULT(no)])
@@ -338,7 +350,7 @@ AC_OUTPUT
 
 #call libtool for cygwin 
 AC_COIN_PATCH_LIBTOOL_CYGWIN 
-
+warn=false
 # echo configuration
 echo \
 "
@@ -369,9 +381,10 @@ echo \
   Build sparse drivers:             ${sparse}
   Build with ColPack:		    ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
-   echo \
-"  Compressed sparse structures will not be available
-   Only sparsity patterns can be computed"
+    echo -e \
+"  \033@<:@1;31mCompressed sparse structures will not be available
+  Only sparsity patterns can be computed\033@<:@0m"
+    warn=true
 fi
 echo
 
@@ -383,7 +396,39 @@ echo \
 -----------------------------------------------------------------------------"
 
 # check for make install problems resulting from missing write permission
-if test x${prefix} == x${HOME}/adolc_base ; then
+pdir=${prefix}
+writable=true
+while test "x${pdir}" != "x/" ; do
+    if test -e ${pdir} && test ! -w ${pdir}; then
+        writable=false
+        break
+    elif test ! -e ${pdir} ; then
+        pdir=`dirname ${pdir}`
+    else
+        break
+    fi
+done
+if test "x${pdir}" == "x/" ; then
+    writable=false
+fi
+if ! ${writable} ; then
+    echo -e \
+"  \033@<:@1;31mPrefix ${prefix} not writable
+  please run ./configure --prefix=DIR
+  with a writable directory path otherwise administrator privilages
+  will be required to run \`make install'\033@<:@0m"
+    warn=true
+fi
+
+case ${prefix} in 
+   ${HOME}|${HOME}/*)
+if test $warn ; then
+    for (( i=5; i>0; i-- )); do
+        echo -ne "\rPlease read the above messages carefully, continuing in ${i} seconds"
+        sleep 1
+    done
+    echo -e "\rPlease read the above messages carefully                                 "
+fi
 echo \
 "
 *****************************************************************************
@@ -391,22 +436,23 @@ echo \
   To successfully compile and run programs using the ADOL-C shared library do
   the following things:
      compiling:
-        * add \"-I\${HOME}/adolc_base/include\" to your compiler call
+        * add \"-I${prefix}/include\" to your compiler call
      linking:
-        * add \"-L\${HOME}/adolc_base/lib -ladolc\" to your linker call
-        * extend your linker call by \"-Wl,--rpath -Wl,\${HOME}/adolc_base/lib\"
+        * add \"-L${prefix}/${_lib} -ladolc\" to your linker call
+        * extend your linker call by \"-Wl,--rpath -Wl,${prefix}/${_lib}\"
           (if you wish to skip the point \"executing\")
      executing (do one of the following things):
-        * add \${HOME}/adolc_base/lib to your LD_LIBRARY_PATH variable
-        * ask your system administrator for adding \${HOME}/adolc_base/lib to
+        * add ${prefix}/${_lib} to your LD_LIBRARY_PATH variable
+        * ask your system administrator for adding ${prefix}/${_lib} to
           the global file containing library search paths (/etc/ld.so.conf)
 
      (or use the static library by replacing
-        \"-L\${HOME}/adolc_base/lib -ladolc\" with
-        \"\${HOME}/adolc_base/lib/libadolc.a\" when linking)
+        \"-L${prefix}/${_lib} -ladolc\" with
+        \"${prefix}/${_lib}/libadolc.a\" when linking)
 
   See README for instructions on how to change to a nonlocal installation!
 
 *****************************************************************************
 "
-fi
+;;
+esac
