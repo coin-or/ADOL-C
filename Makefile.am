@@ -13,7 +13,9 @@
 AUTOMAKE_OPTIONS     = foreign
 
 EXTRA_DIST           = TODO BUGS Makefile.win make_32 make_64 \
-                       comp_win.bat winflags_dll winflags_exa
+                       comp_win.bat winflags_dll winflags_exa \
+                       autoconf/shave.in autoconf/shave-libtool.in \
+                       autoconf/dolt.m4 autoconf/shave.m4
 
 SUBDIRS              = ADOL-C
 
