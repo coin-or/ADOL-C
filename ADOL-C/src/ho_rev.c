@@ -2106,6 +2106,7 @@ int hov_ti_reverse(
     /* clean up */
     free((char*)*rpp_T);
     free((char*) rpp_T);
+    free(*rpp_A);
     free(rpp_A);
     free(rp_Ttemp);
     free(rp_Ttemp2);
