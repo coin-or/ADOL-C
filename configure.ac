@@ -422,7 +422,7 @@ fi
 
 case ${prefix} in 
    ${HOME}|${HOME}/*)
-if test $warn ; then
+if $warn ; then
     for (( i=5; i>0; i-- )); do
         echo -ne "\rPlease read the above messages carefully, continuing in ${i} seconds"
         sleep 1
