@@ -585,7 +585,7 @@ int sparse_hess(
 /*******        sparse Hessians, complete driver              ***************/
 /****************************************************************************/
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP)

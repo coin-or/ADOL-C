@@ -77,7 +77,7 @@ ADOLC_DLL_EXPORT int sparse_hess
 (short, int , int, double*, int *,
  unsigned int **, unsigned int **, double **,int*);
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP);
