@@ -1,0 +1,4 @@
+*
+!*.vcxproj
+!*.patch
+!.gitignore
