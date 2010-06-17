@@ -11,7 +11,7 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-
+#if defined(SPARSE)
 
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/oplate.h>
@@ -944,6 +944,8 @@ int bit_vector_propagation(
 
     return(rc);
 }
+
+#endif /* SPARSE defined */
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 
