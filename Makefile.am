@@ -15,7 +15,13 @@ AUTOMAKE_OPTIONS     = foreign
 EXTRA_DIST           = TODO BUGS Makefile.win make_32 make_64 \
                        comp_win.bat winflags_dll winflags_exa \
                        autoconf/shave.in autoconf/shave-libtool.in \
-                       autoconf/dolt.m4 autoconf/shave.m4
+                       autoconf/dolt.m4 autoconf/shave.m4 \
+                       windows/adolc.sln windows/adolc.vcxproj \
+                       windows/sparse/config.h windows/nosparse/config.h \
+                       windows/Readme_VC++.txt \
+                       ThirdParty/ColPack/ColPack.vcxproj \
+                       ThirdParty/ColPack/colpack_vcxcompile.patch \
+                       ThirdParty/ColPack/Readme_VC++.txt
 
 SUBDIRS              = ADOL-C
 
