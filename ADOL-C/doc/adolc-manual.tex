@@ -9,6 +9,7 @@
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 \documentclass[11pt,twoside]{article}
+\usepackage{hyperref}
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage{epsfig}
 
@@ -188,8 +189,8 @@ members of structures or classes.
 
 The C++ class {\sf adouble}, its member functions, and the overloaded
 versions of all arithmetic operations, comparison operators, and 
-most ANSI C functions are contained in the file \verb=<adouble.cpp>= and its
-header \verb=<adouble.h>=. The latter must be included for compilation
+most ANSI C functions are contained in the file \verb=adouble.cpp= and its
+header \verb=<adolc/adouble.h>=. The latter must be included for compilation
 of all program files containing {\sf adouble}s and corresponding 
 operations. 
 %
@@ -216,14 +217,14 @@ sequence of statements executed between a particular call to
 entered repeatedly, and one can successively generate several traces
 on distinct tapes by changing the value of {\sf tag}. 
 Both functions {\sf trace\_on} and {\sf trace\_off} are prototyped in
-the header file \verb=<taputil.h>=, which is included by the header
-\verb=<adouble.h>= automatically.
+the header file \verb=<adolc/taputil.h>=, which is included by the header
+\verb=<adolc/adouble.h>= automatically.
 
 Active sections may contain nested or even recursive calls to functions
 provided by the user. Naturally, their formal and actual parameters
 must have matching types. In particular, the functions must be 
 compiled with their active variables declared as
-{\sf adouble}s and with the header file \verb=<adouble.h>= included.  
+{\sf adouble}s and with the header file \verb=<adolc/adouble.h>= included.  
 Variables of type {\sf adouble} may be declared outside an active section and need not
 go out of scope before the end of an active section. 
 It is not necessary -- though desirable -- that free-store {\sf adouble}s
@@ -305,7 +306,7 @@ and {\sf y} as vectors of {\sf adouble}s and the other parameters
 passive, then one merely has to change the type declarations of all
 variables that depend on {\sf x} from {\sf double} or {\sf float} to
 {\sf adouble}. Subsequently, the subprogram must be compiled with the
-header file \verb=<adouble.h>= included as described
+header file \verb=<adolc/adouble.h>= included as described
 in Section \ref{DecActVar}. Now let us consider the situation when {\sf eval} is
 still to be called with integer and real arguments, possibly from
 a program written in Fortran77, which  does not allow overloading. 
@@ -641,7 +642,7 @@ the three argument version
 {\sf condassign(a,b,c)}, which 
 is logically equivalent to {\sf condassign(a,b,c,a)} in that
 nothing happens if {\sf b} is non-positive.  
-The header file \verb=<adouble.h>=
+The header file \verb=<adolc/adouble.h>=
 contains also corresponding definitions of
 {\sf condassign(a,b,c,d)} 
 and {\sf condassign(a,b,c)} for
@@ -670,7 +671,7 @@ Select a sequence of dependent variables among the active variables,
 and pass their final values to passive variable or vectors thereof
 by \boldmath $\gg=$ \unboldmath assignments.
 \item 
-Compile the codes after including the header file \verb=<adouble.h>=. 
+Compile the codes after including the header file \verb=<adolc/adouble.h>=. 
 \end{enumerate}
 Typically, the first compilation will detect several type conflicts
 -- usually attempts to convert from active to passive
@@ -709,7 +710,7 @@ Several tape files may be generated and kept simultaneously.
 A tape array is used as a triplet of buffers for a tape file if
 the length of any of the buffers exceeds the array length of 
 {\sf BUFSIZE}. This parameter is 
-defined in the header file \verb=<usrparms.h>=
+defined in the header file \verb=<adolc/usrparms.h>=
 and may be adjusted by the user. 
 For simple usage, {\sf trace\_on} may be called with only the tape
 {\sf tag} as argument, and {\sf trace\_off} may be called 
@@ -724,7 +725,7 @@ This option takes effect if
 gradient evaluation by a call to a routine implementing the reverse mode
 as described in the Sections \ref{forw_rev_ad} and \ref{forw_rev}. 
 The name of the temporary file
-is {\sf FNAME3} found in \verb=<dvlparms.h>=.
+is {\sf FNAME3} found in \verb=<adolc/dvlparms.h>=.
 Alternatively, gradients may be evaluated by a call
 to {\sf gradient}, which includes a preparatory forward sweep
 for the creation of the temporary file. If omitted, the argument 
@@ -746,7 +747,7 @@ saved in the current working directory under the names
 {\sf FNAME2.}$<${\sf tag}$>$,  where {\sf tag} is the mandatory argument 
 to {\sf trace\_on} and {\sf FNAME}, {\sf FNAME1}, and {\sf FNAME2} are 
 the tape file
-names found in \verb=<dvlparms.h>=. Later, all problem-independent routines
+names found in \verb=<adolc/dvlparms.h>=. Later, all problem-independent routines
 like {\sf gradient}, {\sf jacobian}, {\sf forward}, {\sf reverse}, and others
 expect as first argument a {\sf tag} to determine
 the tape on which their respective computational task is to be performed.
@@ -806,10 +807,10 @@ core and, in addition, a sequential data set called the value stack
 of {\sf vssize}$*${\sf keep} {\sf revreal}s if called with the 
 option {\sf keep} $>$ 0. Here
 the type {\sf revreal} is defined as {\sf double} or {\sf float} in
-the header file \verb=<usrparms.h>=. The latter choice halves the storage
+the header file \verb=<adolc/usrparms.h>=. The latter choice halves the storage
 requirement for the sequential data set, which stays in core if
 its length is less than {\sf TBUFSIZE} bytes and is otherwise written
-out to a temporary file. The parameter {\sf TBUFSIZE} is defined in the header file \verb=<usrparms.h>=.
+out to a temporary file. The parameter {\sf TBUFSIZE} is defined in the header file \verb=<adolc/usrparms.h>=.
 The drawback of the economical 
 {\sf revreal} = {\sf float} choice is that subsequent calls to reverse mode implementations
 yield gradients and other adjoint vectors only in single-precision
@@ -827,7 +828,7 @@ the vector length.
 \label{Customizing}
 %
 Based on the information provided by the routine {\sf tapestats}, the user may alter the
-following types and constant dimensions in the header file \verb=<usrparms.h>=
+following types and constant dimensions in the header file \verb=<adolc/usrparms.h>=
 to suit his problem and environment.
 
 \begin{description}
@@ -923,7 +924,7 @@ fashion.
 Whenever an {\sf adouble} is declared, the constructor for the type
 {\sf adouble} assigns it a nominal address, which we will refer to as
 its  {\em location}.  The location is of the type {\sf locint} defined
-in the header file \verb=<usrparms.h>=. Active vectors occupy
+in the header file \verb=<adolc/usrparms.h>=. Active vectors occupy
 a range of contiguous locations. As long as the program execution
 never involves more than 65$\,$536 active variables, the type {\sf locint}
 may be defined as {\sf unsigned short}. Otherwise, the range may be
@@ -1042,8 +1043,8 @@ in the appropriate header files.
 \label{optdrivers}
 %
 The drivers provided for solving optimization problems and nonlinear
-equations are prototyped in the header file \verb=<drivers/drivers.h>=,
-which is included automatically by the global header file \verb=<adolc.h>=
+equations are prototyped in the header file \verb=<adolc/drivers/drivers.h>=,
+which is included automatically by the global header file \verb=<adolc/adolc.h>=
 (see Section \ref{ssec:DesIH}). 
 
 The routine {\sf function} allows to evaluate the desired function from 
@@ -1290,8 +1291,8 @@ loss in computational efficiency if a time-dependent ordinary differential equat
 is rewritten in autonomous form. 
 
 The prototype of the ODE-drivers {\sf forode} and {\sf accode} is contained in the header file
-\verb=<drivers/odedrivers.h>=. The global header file
-\verb=<adolc.h>= 
+\verb=<adolc/drivers/odedrivers.h>=. The global header file
+\verb=<adolc/adolc.h>= 
 includes this file automatically, see Section \ref{ssec:DesIH}.
 
 An example program using the procedures {\sf forode} and {\sf accode} together
@@ -1443,8 +1444,8 @@ component & value &  \\ \hline
 
 The described driver routines for the computation of sparse derivative
 matrices are prototyped in the header file
-\verb=<sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc.h>= (see Section \ref{ssec:DesIH}).
+\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
+global header file \verb=<adolc/adolc.h>= (see Section \ref{ssec:DesIH}).
 Example codes illustrating the usage of {\sf
   sparse\_jac} and {\sf sparse\_hess} can be found in the file 
 \verb=sparse_jacobian.cpp=  and \verb=sparse_hessian.cpp= contained in %the subdirectory
@@ -1529,11 +1530,11 @@ The routine {\sf jac\_pat} may use the propagation of bitpattern to
 determine the sparsity pattern. Therefore, a kind of ``strip-mining'' 
 is used to cope with large matrix dimensions. If the system happens to run out of memory, one may reduce 
 the value of the constant {\sf PQ\_STRIPMINE\_MAX}
-following the instructions in \verb=<sparse/sparse_fo_rev.h>=.
+following the instructions in \verb=<adolc/sparse/sparse_fo_rev.h>=.
 
 The driver routine is prototyped in the header file
-\verb=<sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc.h>= (see Section
+\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
+global header file \verb=<adolc/adolc.h>= (see Section
 \ref{ssec:DesIH}). The determination of sparsity patterns is
 illustrated by the examples \verb=sparse_jacobian.cpp=
 and \verb=jacpatexam.cpp=
@@ -1564,8 +1565,8 @@ the usage of the safe ({\sf option = 0}, default) or tight mode ({\sf
 above.
 
 This driver routine is prototyped in the header file
-\verb=<sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc.h>= (see Section \ref{ssec:DesIH}).
+\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
+global header file \verb=<adolc/adolc.h>= (see Section \ref{ssec:DesIH}).
 An example employing the procedure {\sf hess\_pat}  can be found in the file
 \verb=sparse_hessian.cpp=  contained in 
 \verb=examples/additional_examples/sparse=.
@@ -1637,8 +1638,8 @@ papers \cite{GePoTaWa06} and \cite{GePoWa08}.
 
 
 These driver routines are prototyped in 
-\verb=<sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc.h>= (see Section \ref{ssec:DesIH}). 
+\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
+global header file \verb=<adolc/adolc.h>= (see Section \ref{ssec:DesIH}). 
 An example code illustrating the usage of {\sf
 generate\_seed\_jac} and {\sf generate\_seed\_hess} can be found in the file 
 \verb=sparse_jac_hess_exam.cpp= contained in \verb=examples/additional_examples/sparse=.
@@ -1807,8 +1808,8 @@ When no more derivative evaluations are desired the pointer structure
 that does not deallocate the array {\sf tensor}.
 
 The drivers provided for efficient calculation of higher order
-derivatives are prototyped in the header file \verb=<drivers/taylor.h>=,
-which is included by the global header file \verb=<adolc.h>= automatically
+derivatives are prototyped in the header file \verb=<adolc/drivers/taylor.h>=,
+which is included by the global header file \verb=<adolc/adolc.h>= automatically
 (see Section \ref{ssec:DesIH}).
 Example codes using the above procedures can be found in the files
 \verb=taylorexam.C= and \verb=accessexam.C= contained in the subdirectory
@@ -1936,8 +1937,8 @@ the subset of $z$ components that are to be considered as truly
 independent can be selected and altered with next to no effort at all.
 
 The presented drivers are prototyped in the header file 
-\verb=<drivers/taylor.h>=. As indicated before this header
-is included by the global header file \verb=<adolc.h>= automatically
+\verb=<adolc/drivers/taylor.h>=. As indicated before this header
+is included by the global header file \verb=<adolc/adolc.h>= automatically
 (see Section \ref{ssec:DesIH}). 
 The example programs \verb=inversexam.cpp=, \verb=coordinates.cpp= and 
 \verb=trigger.cpp=  in the directory \verb=examples/additional_examples/taylor= 
@@ -2264,13 +2265,13 @@ In this section, the several versions of the {\sf forward} and
 {\sf reverse} routines, which utilize the overloading capabilities
 of C++, are described in detail. With exception of the bit pattern
 versions all interfaces are prototyped in the header file 
-\verb=<interfaces.h>=, where also some more specialized {\sf forward}
+\verb=<adolc/interfaces.h>=, where also some more specialized {\sf forward}
 and {\sf reverse} routines are explained. Furthermore, \mbox{ADOL-C} provides
 C and Fortran-callable versions prototyped in the same header file.
 The bit pattern versions of {\sf forward} and {\sf reverse} introduced
 in the subsection \ref{ProBit} are prototyped in the header file
-\verb=<sparse/sparsedrivers.h>=, which will be included by the header 
-file \verb=<interfaces.h>= automatically.
+\verb=<adolc/sparse/sparsedrivers.h>=, which will be included by the header 
+file \verb=<adolc/interfaces.h>= automatically.
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{The Scalar Case}
@@ -2769,8 +2770,8 @@ Then, ADOL-C computes derivative information using the optimal checkpointing
 strategy provided by {\sf revolve} internally, i.e., completely hidden from the user.
 
 The presented driver is prototyped in the header file 
-\verb=<checkpointing.h>=. This header
-is included by the global header file \verb=<adolc.h>= automatically. 
+\verb=<adolc/checkpointing.h>=. This header
+is included by the global header file \verb=<adolc/adolc.h>= automatically. 
 An example program \verb=checkpointing.cpp= illustrates the
 checkpointing facilities. It can be found in the directory \verb=examples/additional_examples/checkpointing=.
 %
@@ -2868,8 +2869,8 @@ and {\tt dim\_u} represent the dimensions $n$ and $m$ of the
 corresponding vectors.
 
 The presented driver is prototyped in the header file 
-\verb=<fixpoint.h>=. This header
-is included by the global header file \verb=<adolc.h>= automatically. 
+\verb=<adolc/fixpoint.h>=. This header
+is included by the global header file \verb=<adolc/adolc.h>= automatically. 
 An example \verb=fixpoint_exam.cpp= that shows also the
 expected signature of the function pointers is contained in the directory \verb=examples/additional_examples/fixpoint_exam=.
 %
@@ -2917,7 +2918,7 @@ parallel parts of the function evaluation, where user interaction is
 required for the correct derivative concatenation of the various tapes.
 
 For the usage of the parallel facilities, the \verb=configure=-command
-has to be used with the option \verb=--with-openmp-flag=FLAG=, where 
+has to be used with the option \verb?--with-openmp-flag=FLAG?, where 
 \verb=FLAG= stands for the system dependent OpenMP flag.
 The parallel differentiation of a parallel program is illustrated
 by the example program \verb=openmp_exam.cpp= contained in \verb=examples/additional_examples/openmp_exam=.
@@ -3372,12 +3373,18 @@ but will leave the created directories behind.
 
 The sparse drivers are included in the ADOL-C libraries if the
 \verb=./configure= command is executed with the option
-\verb=--with-sparse=. Then it is assumed that the ColPack library
-available at
-\verb=http://www.cscapes.org/coloringpage/software.htm= is
-located in the path \verb=<\$HOME/adolc_base/lib>=. Furthermore a
-copy of all header files of ColPack is assumed to be found in
-the directory \verb=</SOMEPATH/ADOL-C-2.1.0/ThirdParty/ColPack/include>=.
+\verb=--enable-sparse=. The ColPack library available at 
+\verb=http://www.cscapes.org/coloringpage/software.htm= is required to
+compute the sparse structures, and is searched for in all the default 
+locations as well as in the subdirectory \verb=<ThirdParty/ColPack/>=.
+In case the library and its headers are installed in a nonstandard path
+this may be specified with the \verb?--with-colpack=PATH? option.
+%Then it is assumed that the ColPack library
+%available at
+%\verb=http://www.cscapes.org/coloringpage/software.htm= is
+%located in the path \verb=<\$HOME/adolc_base/lib>=. Furthermore a
+%copy of all header files of ColPack is assumed to be found in
+%the directory \verb=</SOMEPATH/ADOL-C-2.1.0/ThirdParty/ColPack/include>=.
 % 
 \subsection{Compiling and Linking the Example Programs}
 %
@@ -3390,9 +3397,9 @@ one has to execute the
 examples. Available options are: 
 \begin{center}
 \begin{tabular}[t]{ll}
-\verb=--with-docexa=&build all examples discussed in this manual\\
+\verb=--enable-docexa=&build all examples discussed in this manual\\
 &(compare Section \ref{example})\\
-\verb=--with-addexa=&build all additional examples\\
+\verb=--enable-addexa=&build all additional examples\\
 &(See file \verb=README= in the various subdirectories)
 \end{tabular}
 \end{center}
@@ -3414,14 +3421,14 @@ prototyped. The new hierarchy of header files enables the user
 to take one of two possible ways to access the right interfaces.
 The first and easy way is recommended to beginners: As indicated in
 Table \ref{globalHeaders} the provided {\em global} header file 
-\verb=<adolc.h>= can be included by any user code to support all
+\verb=<adolc/adolc.h>= can be included by any user code to support all
 capabilities of ADOL-C depending on the particular programming language
 of the source.    
 
 \begin{table}[h]
 \center \small
 \begin{tabular}{|p{3.6cm}|p{10.5cm}|}\hline
-\verb=<adolc.h>= & 
+\verb=<adolc/adolc.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                  & global header file available for easy use of ADOL-C; \\
@@ -3429,7 +3436,7 @@ of the source.
                    whether the users source is C++ or C code.
 \end{tabular*}
 \\ \hline
-\verb=<usrparms.h>= &
+\verb=<adolc/usrparms.h>= &
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                  & user customization of ADOL-C package (see
@@ -3458,7 +3465,7 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
 \center \small
 \begin{tabular}{|p{3.8cm}|p{10.5cm}|}\hline
 %\multicolumn{2}{|l|}{\bf Tracing/taping}\\ \hline
-\verb=<adouble.h>= & 
+\verb=<adolc/adouble.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides the interface to the basic active 
@@ -3477,14 +3484,14 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
 %  $\bullet$     & is included by the header \verb=<adolc/adouble.h>=.
 %\end{tabular*}
 %\\ \hline
- \verb=<taputil.h>= & 
+ \verb=<adolc/taputil.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides functions to start/stop the tracing of
                   active sections (see Sections \ref{markingActive})
                   as well as utilities to obtain 
                   tape statistics (see Sections \ref{examiningTape}); \\
-  $\bullet$     & is included by the header \verb=<adouble.h>=.
+  $\bullet$     & is included by the header \verb=<adolc/adouble.h>=.
 \end{tabular*}
 \\ \hline
 \end{tabular}
@@ -3496,18 +3503,18 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
 \center \small
 \begin{tabular}{|p{3.8cm}|p{10.5cm}|}\hline
 %\multicolumn{2}{|l|}{\bf Evaluation of derivatives}\\ \hline
-\verb=<interfaces.h>= & 
+\verb=<adolc/interfaces.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides interfaces to the {\sf forward} and
                   {\sf reverse} routines as basic versions of derivative
                   evaluation (see Section \ref{forw_rev}); \\
   $\bullet$     & comprises C++, C, and Fortran-callable versions; \\
-  $\bullet$     & includes the header \verb=<sparse/sparsedrivers.h>=; \\
-  $\bullet$     & is included by the header \verb=<drivers/odedrivers.h>=.
+  $\bullet$     & includes the header \verb=<adolc/sparse/sparsedrivers.h>=; \\
+  $\bullet$     & is included by the header \verb=<adolc/drivers/odedrivers.h>=.
 \end{tabular*}
 \\ \hline
-\verb=<drivers.h>= & 
+\verb=<adolc/drivers.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides ``easy to use'' drivers for solving
@@ -3517,7 +3524,7 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
 \end{tabular*}
 \\ \hline
 \begin{minipage}{3cm}
-\verb=<sparse/=\newline\verb= sparsedrivers.h>=
+\verb=<adolc/sparse/=\newline\verb= sparsedrivers.h>=
 \end{minipage}  & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
@@ -3528,11 +3535,11 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
                   of {\sf forward} and {\sf reverse} routines 
                   propagating bit patterns (see Section \ref{ProBit}); \\
 
-  $\bullet$     & is included by the header \verb=<interfaces.h>=.
+  $\bullet$     & is included by the header \verb=<adolc/interfaces.h>=.
 \end{tabular*}
 \\ \hline
 \begin{minipage}{3cm}
-\verb=<sparse/=\newline\verb= sparse_fo_rev.h>=
+\verb=<adolc/sparse/=\newline\verb= sparse_fo_rev.h>=
 \end{minipage}  & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
@@ -3542,7 +3549,7 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
 \end{tabular*}
 \\ \hline
 \begin{minipage}{3cm}
-\verb=<drivers/=\newline\verb= odedrivers.h>=
+\verb=<adolc/drivers/=\newline\verb= odedrivers.h>=
 \end{minipage}  &
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
@@ -3550,11 +3557,11 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
                   solution of ordinary differential equations
                   (see Section \ref{odedrivers}); \\
   $\bullet$     & comprises C++, C, and Fortran-callable versions; \\
-  $\bullet$     & includes the header \verb=<interfaces.h>=.
+  $\bullet$     & includes the header \verb=<adolc/interfaces.h>=.
 \end{tabular*}
 \\ \hline
 \begin{minipage}{3cm}
-\verb=<drivers/=\newline\verb= taylor.h>=
+\verb=<adolc/drivers/=\newline\verb= taylor.h>=
 \end{minipage}  &
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
@@ -3565,7 +3572,7 @@ in the Tables~\ref{importantHeaders1} and \ref{importantHeaders2}.
   $\bullet$     & comprises C++ and C-callable versions.
 \end{tabular*} 
 \\ \hline
-\verb=<adalloc.h>= &
+\verb=<adolc/adalloc.h>= &
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides C++ and C functions for allocation of
@@ -3636,7 +3643,7 @@ This macro is extended to the definition of
 Then remake the library \verb=libadolc.*= (see Section \ref{genlib}). 
 \item
 In the definition of the class
-{\sf ADOLC\_DLL\_EXPORT adouble} in \verb=<adouble.h>=, add the statement
+{\sf ADOLC\_DLL\_EXPORT adouble} in \verb=<adolc/adouble.h>=, add the statement
 \begin{center}
 {\sf friend adouble myintegral(adouble\&)}.
 \end{center}
@@ -3686,10 +3693,10 @@ y \; = \; f(x)\; =\; \prod_{i=0}^{n-1} x_i
 using the appropriate drivers {\sf gradient} and {\sf hessian}.
 
 \begin{verbatim}
-#include <adouble.h>               // use of active doubles and taping
-#include <drivers/drivers.h>       // use of "Easy to Use" drivers 
+#include <adolc/adouble.h>               // use of active doubles and taping
+#include <adolc/drivers/drivers.h>       // use of "Easy to Use" drivers 
                                    // gradient(.) and hessian(.)
-#include <taping.h>                // use of taping
+#include <adolc/taping.h>                // use of taping
 ...
 void main() {
 int n,i,j,tape_stats[11];
@@ -3741,7 +3748,7 @@ computed by
 using both {\sf forward} and {\sf reverse}, and the
 results are subsequently compared.
 \begin{verbatim}
-#include <adolc.h>                 // use of ALL ADOL-C interfaces
+#include <adolc/adolc.h>                 // use of ALL ADOL-C interfaces
 
 adouble power(adouble x, int n) {
 adouble z=1;
@@ -3824,8 +3831,8 @@ matrix-vector multiplication. The example illustrates the use
 of {\sf adouble} arrays and pointers.  
 
 \begin{verbatim}
-#include <adouble.h>               // use of active doubles and taping
-#include <interfaces.h>            // use of basic forward/reverse
+#include <adolc/adouble.h>               // use of active doubles and taping
+#include <adolc/interfaces.h>            // use of basic forward/reverse
                                    // interfaces of ADOL-C
 adouble** A;                       // A is an n x n matrix
 int i,n;                           // k <= n is the order
@@ -3906,9 +3913,9 @@ given in Hairer and Wanner's book on the numerical solution of
 ODEs \cite{HW}. The following source code computes the corresponding
 values of $y^{\prime} \in \R^3$: 
 \begin{verbatim}
-#include <adouble.h>                  // use of active doubles and taping
-#include <drivers/odedrivers.h>       // use of "Easy To use" ODE drivers
-#include <adalloc.h>                  // use of ADOL-C allocation utilities
+#include <adolc/adouble.h>                  // use of active doubles and taping
+#include <adolc/drivers/odedrivers.h>       // use of "Easy To use" ODE drivers
+#include <adolc/adalloc.h>                  // use of ADOL-C allocation utilities
 
 void tracerhs(short int tag, double* py, double* pyprime) {
 adoublev y(3);                        // this time we left the parameters
