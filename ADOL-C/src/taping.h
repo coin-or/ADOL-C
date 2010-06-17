@@ -45,15 +45,15 @@ enum TapeRemovalType {
 
 /* Returns statistics on the tape "tag". Use enumeration StatEntries for
  * accessing the individual elements of the vector "tape_stats"! */
-void tapestats(short tag, int *tape_stats);
+ADOLC_DLL_EXPORT void tapestats(short tag, int *tape_stats);
 
 /* An all-in-one tape stats printing routine */
-void printTapeStats(FILE *stream, short tag);
+ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
 
-int removeTape(short tapeID, short type);
+ADOLC_DLL_EXPORT int removeTape(short tapeID, short type);
 
-void enableBranchSwitchWarnings();
-void disableBranchSwitchWarnings();
+ADOLC_DLL_EXPORT void enableBranchSwitchWarnings();
+ADOLC_DLL_EXPORT void disableBranchSwitchWarnings();
 
 END_C_DECLS
 
@@ -64,7 +64,7 @@ END_C_DECLS
  * "initADOLC" will not initialize memory, but is only necessary to reference 
  * "theKeeper", such that this static instance is used at least once. :-(
  */
-void initADOLC();
+ADOLC_DLL_EXPORT void initADOLC();
 
 #if defined(__cplusplus)
 
@@ -73,7 +73,7 @@ void initADOLC();
  * This functions return value is different from zero if a tape with with ID
  * tnum is available only in core. The old tape gets overwritten by the new 
  * one in this case. */
-int trace_on(short tnum, int keepTaylors = 0);
+ADOLC_DLL_EXPORT int trace_on(short tnum, int keepTaylors = 0);
 
 /* special version including buffersize customization
  *      obs - size of the operation buffer (number of elements)
@@ -82,14 +82,14 @@ int trace_on(short tnum, int keepTaylors = 0);
  *      tbs - size of the taylor buffer (number of elements)
  * trace_on is the last point in time we want to allow the change of buffer
  * sizes for a given tape */
-int trace_on(short tnum, int keepTaylors,
+ADOLC_DLL_EXPORT int trace_on(short tnum, int keepTaylors,
         uint obs, uint lbs, uint vbs, uint tbs);
 
 /* Stop Tracing. Cleans up, and turns off trace_flag. Flag not equal zero
  * enforces writing of the three main tape files (op+loc+val). */
-void trace_off(int flag = 0);
+ADOLC_DLL_EXPORT void trace_off(int flag = 0);
 
-bool isTaping();
+ADOLC_DLL_EXPORT bool isTaping();
 
 #endif
 
