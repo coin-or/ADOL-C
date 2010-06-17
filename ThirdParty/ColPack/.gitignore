@@ -1,0 +1,5 @@
+*
+!*.vcxproj
+!*.patch
+!*.txt
+!.gitignore

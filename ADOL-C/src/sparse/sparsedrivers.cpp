@@ -11,7 +11,7 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-
+#if defined(SPARSE)
 
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/oplate.h>
@@ -585,7 +585,7 @@ int sparse_hess(
 /*******        sparse Hessians, complete driver              ***************/
 /****************************************************************************/
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP)
@@ -944,6 +944,8 @@ int bit_vector_propagation(
 
     return(rc);
 }
+
+#endif /* SPARSE defined */
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 

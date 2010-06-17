@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColPack", "..\ThirdParty\ColPack\ColPack.vcxproj", "{28A2D8D2-EE47-E3EA-9003-F06045985ECB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "adolc", "adolc.vcxproj", "{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		nosparse|Win32 = nosparse|Win32
+		sparse|Win32 = sparse|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28A2D8D2-EE47-E3EA-9003-F06045985ECB}.nosparse|Win32.ActiveCfg = sparse|Win32
+		{28A2D8D2-EE47-E3EA-9003-F06045985ECB}.nosparse|Win32.Build.0 = sparse|Win32
+		{28A2D8D2-EE47-E3EA-9003-F06045985ECB}.sparse|Win32.ActiveCfg = sparse|Win32
+		{28A2D8D2-EE47-E3EA-9003-F06045985ECB}.sparse|Win32.Build.0 = sparse|Win32
+		{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}.nosparse|Win32.ActiveCfg = nosparse|Win32
+		{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}.nosparse|Win32.Build.0 = nosparse|Win32
+		{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}.sparse|Win32.ActiveCfg = sparse|Win32
+		{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}.sparse|Win32.Build.0 = sparse|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
