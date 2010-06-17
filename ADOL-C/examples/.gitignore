@@ -1,0 +1,5 @@
+sparse/*
+nosparse/*
+*.suo
+*.user
+*.filters
