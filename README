@@ -86,6 +86,13 @@ appropriate example subdirectory.
 
 
 
+Windows Compilation with Visual Studio
+======================================
+
+Please refer to the file windows/Readme_VC++.txt for building the library and 
+ADOL-C/examples/Readme_VC++.txt for the documented examples. 
+
+
 
 Enjoy this new version!
 

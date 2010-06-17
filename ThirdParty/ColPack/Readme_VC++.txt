@@ -15,8 +15,9 @@ patch -p0 <colpack_vcxcompile.patch
 
 windows/adolc.sln
 
-select the solution 'adolc' in the Solution Explorer and from Build menu
-select Build Solution (shortcut key F7).
+select the solution 'adolc' in the Solution Explorer, from the toolbar select
+the build configuration sparse and from Build menu select Build Solution 
+(shortcut key F7).
 
 This will build ColPack and link it with the sparse version of adolc.dll
 
