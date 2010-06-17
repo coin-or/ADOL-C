@@ -2,4 +2,5 @@
 !*.sln
 !*.vcxproj
 !*.h
+!*.txt
 !.gitignore
