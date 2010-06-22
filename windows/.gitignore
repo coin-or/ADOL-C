@@ -1,6 +1,10 @@
-*
-!*.sln
-!*.vcxproj
-!*.h
-!*.txt
-!.gitignore
+*.user
+*.suo
+sparse/*
+nosparse/*
+x64/sparse/*
+x64/nosparse/*
+!sparse/*.h
+!nosparse/*.h
+!x64/sparse/*.h
+!x64/nosparse/*.h
