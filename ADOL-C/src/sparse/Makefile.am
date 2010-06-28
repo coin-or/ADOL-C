@@ -19,8 +19,6 @@ INCLUDES                 = -I$(top_builddir)
 
 MAINTAINERCLEANFILES     = Makefile.in *~ *.orig
 
-EXTRA_DIST               = Makefile.win
-
 noinst_LTLIBRARIES       = libsparse.la
 
 libsparseincludedir      = $(pkgincludedir)/sparse

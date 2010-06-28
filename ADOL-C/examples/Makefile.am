@@ -27,7 +27,7 @@ INCLUDES                = -I$(top_builddir)
 
 MAINTAINERCLEANFILES    = Makefile.in *~ *.orig ADOLC-*.tap
 
-EXTRA_DIST              = Makefile.win adolc_examples.sln \
+EXTRA_DIST              = adolc_examples.sln \
                           detexam.vcxproj speelpenning.vcxproj odexam.vcxproj \
                           tapeless_scalar.vcxproj tapeless_vector.vcxproj \
                           Readme_VC++.txt

@@ -25,7 +25,7 @@ endif
 
 INCLUDES             = -I$(top_builddir) -I$(top_builddir)/examples/additional_examples
 
-EXTRA_DIST           = LU.h Makefile.win
+EXTRA_DIST           = LU.h
 
 MAINTAINERCLEANFILES = Makefile.in tape.tex *~ *.orig
 

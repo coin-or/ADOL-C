@@ -32,8 +32,7 @@ MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
                        taping_p.h malloc.h \
-                       externfcts_p.h checkpointing_p.h buffer_temp.h \
-                       Makefile.win
+                       externfcts_p.h checkpointing_p.h buffer_temp.h 
 
 pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\

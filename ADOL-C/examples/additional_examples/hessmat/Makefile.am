@@ -26,8 +26,6 @@ INCLUDES             = -I$(top_builddir)
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
-EXTRA_DIST           = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS      = hessmat
 endif

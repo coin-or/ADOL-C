@@ -26,8 +26,6 @@ INCLUDES                = -I$(top_builddir) -I$(top_builddir)/examples/additiona
 
 MAINTAINERCLEANFILES    = Makefile.in *~ *.orig
 
-EXTRA_DIST              = Makefile.win
-
 if SPARSE
 if ADDEXA
 noinst_PROGRAMS         = sparse_jacobian sparse_hessian jacpatexam

@@ -42,7 +42,7 @@ CTRLFILES               = detexam.ctrl \
                           speelpenning.ctrl
 
 
-EXTRA_DIST              = rotations.h $(CTRLFILES) Makefile.win
+EXTRA_DIST              = rotations.h $(CTRLFILES)
 
 MAINTAINERCLEANFILES    = Makefile.in in_tape.1 op_tape.1 vs_tape1 *~ *.orig
 

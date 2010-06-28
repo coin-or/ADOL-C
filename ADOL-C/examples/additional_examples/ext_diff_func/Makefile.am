@@ -26,8 +26,6 @@ INCLUDES               = -I$(top_builddir) -I$(top_builddir)/examples/additional
 
 MAINTAINERCLEANFILES   = Makefile.in *~ *.orig
 
-EXTRA_DIST             = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS        = ext_diff_func
 endif
