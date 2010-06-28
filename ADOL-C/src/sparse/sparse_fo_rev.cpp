@@ -11,8 +11,6 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ----------------------------------------------------------------------------*/
-#if defined(SPARSE)
-
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <adolc/interfaces.h>
 
@@ -110,4 +108,3 @@ int reverse( short             tag,
 /****************************************************************************/
 
 #endif
-#endif /* SPARSE defined */

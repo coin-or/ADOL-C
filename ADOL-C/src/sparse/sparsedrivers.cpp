@@ -11,8 +11,6 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-#if defined(SPARSE)
-
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/oplate.h>
 #include <adolc/adalloc.h>
@@ -129,7 +127,7 @@ void generate_seed_jac
 }
 #else
 {
-    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __PRETTY_FUNCTION__);
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     exit(-1);
 }
 #endif
@@ -204,7 +202,7 @@ void generate_seed_hess
 }
 #else
 {
-    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __PRETTY_FUNCTION__);
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     exit(-1);
 }
 #endif
@@ -368,7 +366,7 @@ int sparse_jac(
 }
 #else
 {
-    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __PRETTY_FUNCTION__);
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     exit(-1);
 }
 #endif
@@ -575,7 +573,7 @@ int sparse_hess(
 }
 #else
 {
-    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __PRETTY_FUNCTION__);
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     exit(-1);
 }
 #endif
@@ -945,7 +943,6 @@ int bit_vector_propagation(
     return(rc);
 }
 
-#endif /* SPARSE defined */
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 
