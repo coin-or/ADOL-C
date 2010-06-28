@@ -1,7 +1,0 @@
-CC       =cl
-CXX      =cl
-LD       =link
-
-CFLAGS   =-EHsc -c -O2 -Ot -Ox -nologo -DHAVE_MALLOC=1 -DHAVE_REALLOC=1
-CXXFLAGS =-EHsc -c -O2 -Ot -Ox -nologo -DHAVE_MALLOC=1 -DHAVE_REALLOC=1
-LDFLAGS  =-nologo
