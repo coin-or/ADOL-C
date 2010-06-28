@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColPack", "..\ThirdParty\ColPack\ColPack.vcxproj", "{28A2D8D2-EE47-E3EA-9003-F06045985ECB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "adolc", "adolc.vcxproj", "{AFAFEBB2-F23F-6598-0E88-8FDE80540C04}"
+	ProjectSection(ProjectDependencies) = postProject
+		{28A2D8D2-EE47-E3EA-9003-F06045985ECB} = {28A2D8D2-EE47-E3EA-9003-F06045985ECB}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
