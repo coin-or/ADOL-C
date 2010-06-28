@@ -19,6 +19,8 @@ EXTRA_DIST           = TODO BUGS  make_32 make_64 \
                        windows/sparse/config.h windows/nosparse/config.h \
                        windows/x64/sparse/config.h windows/x64/nosparse/config.h \
                        windows/Readme_VC++.txt \
+                       windows/vcredist_x86.exe windows/x64/vcredist_x64.exe \
+                       windows/installer.sh \
                        ThirdParty/ColPack/ColPack.vcxproj \
                        ThirdParty/ColPack/colpack_vcxcompile.patch \
                        ThirdParty/ColPack/Readme_VC++.txt
