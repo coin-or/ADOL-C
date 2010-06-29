@@ -11,9 +11,9 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ---------------------------------------------------------------------------*/
-#include <taping_p.h>
-#include <checkpointing_p.h>
-#include <revolve.h>
+#include "taping_p.h"
+#include "checkpointing_p.h"
+#include <adolc/revolve.h>
 
 #include <iostream>
 #include <string.h>

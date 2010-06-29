@@ -11,20 +11,29 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
+#include <adolc/sparse/sparsedrivers.h>
+#include <adolc/oplate.h>
+#include <adolc/adalloc.h>
+#include <adolc/interfaces.h>
+#include "taping_p.h"
 
+#if defined(ADOLC_INTERNAL)
+#    if HAVE_CONFIG_H
+#        include "config.h"
+#    endif
+#endif
 
-#include <sparse/sparsedrivers.h>
-#include <oplate.h>
-#include <adalloc.h>
-#include <interfaces.h>
-#include <taping_p.h>
-
-#include <../../ThirdParty/ColPack/include/ColPackHeaders.h>
+#if HAVE_LIBCOLPACK
+#include "ColPackHeaders.h"
+#endif
 
 #include <math.h>
 #include <cstring>
 
+#if HAVE_LIBCOLPACK
 using namespace ColPack;
+#endif
+
 using namespace std;
 
 /****************************************************************************/
@@ -103,6 +112,7 @@ void generate_seed_jac
                                0 - column compression (default)
                                1 - row compression                */
 ) 
+#if HAVE_LIBCOLPACK
 {
   int dummy;
 
@@ -115,6 +125,12 @@ void generate_seed_jac
     g->GenerateSeedJacobian(JP, m, n, Seed, &dummy, p, 
                             "RIGHT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, separate drivers             ***************/
@@ -169,7 +185,8 @@ void generate_seed_hess
                     option : way of compression
                                0 - indirect recovery (default)
                                1 - direct recovery                */
-) 
+)
+#if HAVE_LIBCOLPACK 
 {
   int dummy;
 
@@ -183,6 +200,12 @@ void generate_seed_hess
 			   "STAR", "SMALLEST_LAST"); 
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******       sparse Jacobians, complete driver              ***************/
@@ -213,7 +236,9 @@ int sparse_jac(
                     options[3] : way of compression
                                0 - column compression (default)
                                1 - row compression                         */
-) {
+)
+#if HAVE_LIBCOLPACK
+{
     int i;
     unsigned int j;
     SparseJacInfos sJinfos;
@@ -339,6 +364,12 @@ int sparse_jac(
     return ret_val;
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
@@ -361,7 +392,9 @@ int sparse_hess(
                     options[1] : way of recovery
                                0 - indirect recovery
                                1 - direct recovery                         */
-) {
+)
+#if HAVE_LIBCOLPACK
+{
     int i, l;
     unsigned int j;
     SparseHessInfos sHinfos;
@@ -538,13 +571,19 @@ int sparse_hess(
     return ret_val;
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
 /****************************************************************************/
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP)
@@ -903,6 +942,7 @@ int bit_vector_propagation(
 
     return(rc);
 }
+
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 

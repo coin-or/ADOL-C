@@ -16,8 +16,8 @@
 #if !defined(ADOLC_EXTERNFCTS_P_H)
 #define ADOLC_EXTERNFCTS_P_H 1
 
-#include <common.h>
-#include <externfcts.h>
+#include <adolc/common.h>
+#include <adolc/externfcts.h>
 
 BEGIN_C_DECLS
 /****************************************************************************/

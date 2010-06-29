@@ -13,7 +13,7 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <convolut.h>
+#include <adolc/convolut.h>
 
 BEGIN_C_DECLS
 

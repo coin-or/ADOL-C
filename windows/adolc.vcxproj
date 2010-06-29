@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="nosparse|Win32">
+      <Configuration>nosparse</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="nosparse|x64">
+      <Configuration>nosparse</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="sparse|Win32">
+      <Configuration>sparse</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="sparse|x64">
+      <Configuration>sparse</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;SPARSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../ADOL-C/src;../ADOL-C/src/drivers;../ADOL-C/src/tapedoc;../ADOL-C/src/sparse;../ThirdParty/ColPack/$(IntDir)/include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <AdditionalDependencies>ColPack.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;SPARSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../ADOL-C/src;../ADOL-C/src/drivers;../ADOL-C/src/tapedoc;../ADOL-C/src/sparse;../ThirdParty/ColPack/$(IntDir)/include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <AdditionalDependencies>ColPack.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../ADOL-C/src;../ADOL-C/src/drivers;../ADOL-C/src/tapedoc;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../ADOL-C/src;../ADOL-C/src/drivers;../ADOL-C/src/tapedoc;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\adol-c\src\adalloc.c" />
+    <ClCompile Include="..\adol-c\src\adouble.cpp" />
+    <ClCompile Include="..\adol-c\src\checkpointing.cpp" />
+    <ClCompile Include="..\adol-c\src\convolut.c" />
+    <ClCompile Include="..\adol-c\src\drivers\drivers.c" />
+    <ClCompile Include="..\adol-c\src\drivers\driversf.c" />
+    <ClCompile Include="..\adol-c\src\drivers\odedrivers.c" />
+    <ClCompile Include="..\adol-c\src\drivers\odedriversf.c" />
+    <ClCompile Include="..\adol-c\src\drivers\taylor.c" />
+    <ClCompile Include="..\adol-c\src\externfcts.cpp" />
+    <ClCompile Include="..\adol-c\src\fixpoint.cpp" />
+    <ClCompile Include="..\adol-c\src\fortutils.c" />
+    <ClCompile Include="..\adol-c\src\forward_partx.c" />
+    <ClCompile Include="..\adol-c\src\fos_forward.c" />
+    <ClCompile Include="..\adol-c\src\fos_reverse.c" />
+    <ClCompile Include="..\adol-c\src\fov_forward.c" />
+    <ClCompile Include="..\adol-c\src\fov_offset_forward.c" />
+    <ClCompile Include="..\adol-c\src\fov_reverse.c" />
+    <ClCompile Include="..\adol-c\src\hos_forward.c" />
+    <ClCompile Include="..\adol-c\src\hos_ov_reverse.c" />
+    <ClCompile Include="..\adol-c\src\hos_reverse.c" />
+    <ClCompile Include="..\adol-c\src\hov_forward.c" />
+    <ClCompile Include="..\adol-c\src\hov_reverse.c" />
+    <ClCompile Include="..\adol-c\src\hov_wk_forward.c" />
+    <ClCompile Include="..\adol-c\src\indopro_forward_s.c" />
+    <ClCompile Include="..\adol-c\src\indopro_forward_t.c" />
+    <ClCompile Include="..\adol-c\src\interfaces.cpp" />
+    <ClCompile Include="..\adol-c\src\interfacesf.c" />
+    <ClCompile Include="..\adol-c\src\int_forward_s.c" />
+    <ClCompile Include="..\adol-c\src\int_forward_t.c" />
+    <ClCompile Include="..\adol-c\src\int_reverse_s.c" />
+    <ClCompile Include="..\adol-c\src\int_reverse_t.c" />
+    <ClCompile Include="..\adol-c\src\malloc.c" />
+    <ClCompile Include="..\adol-c\src\nonl_ind_forward_s.c" />
+    <ClCompile Include="..\adol-c\src\nonl_ind_forward_t.c" />
+    <ClCompile Include="..\adol-c\src\revolve.c" />
+    <ClCompile Include="..\adol-c\src\sparse\sparsedrivers.cpp" />
+    <ClCompile Include="..\adol-c\src\sparse\sparse_fo_rev.cpp" />
+    <ClCompile Include="..\adol-c\src\tapedoc\tapedoc.c" />
+    <ClCompile Include="..\adol-c\src\tape_handling.cpp" />
+    <ClCompile Include="..\adol-c\src\taping.c" />
+    <ClCompile Include="..\adol-c\src\zos_forward.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\adol-c\src\adalloc.h" />
+    <ClInclude Include="..\adol-c\src\adolc.h" />
+    <ClInclude Include="..\adol-c\src\adolc_openmp.h" />
+    <ClInclude Include="..\adol-c\src\adolc_sparse.h" />
+    <ClInclude Include="..\adol-c\src\adouble.h" />
+    <ClInclude Include="..\adol-c\src\adutils.h" />
+    <ClInclude Include="..\adol-c\src\adutilsc.h" />
+    <ClInclude Include="..\adol-c\src\checkpointing.h" />
+    <ClInclude Include="..\adol-c\src\common.h" />
+    <ClInclude Include="..\adol-c\src\convolut.h" />
+    <ClInclude Include="..\adol-c\src\drivers\drivers.h" />
+    <ClInclude Include="..\adol-c\src\drivers\odedrivers.h" />
+    <ClInclude Include="..\adol-c\src\drivers\taylor.h" />
+    <ClInclude Include="..\adol-c\src\dvlparms.h" />
+    <ClInclude Include="..\adol-c\src\externfcts.h" />
+    <ClInclude Include="..\adol-c\src\fixpoint.h" />
+    <ClInclude Include="..\adol-c\src\fortutils.h" />
+    <ClInclude Include="..\adol-c\src\interfaces.h" />
+    <ClInclude Include="..\adol-c\src\oplate.h" />
+    <ClInclude Include="..\adol-c\src\revolve.h" />
+    <ClInclude Include="..\adol-c\src\sparse\sparsedrivers.h" />
+    <ClInclude Include="..\adol-c\src\sparse\sparse_fo_rev.h" />
+    <ClInclude Include="..\adol-c\src\tapedoc\tapedoc.h" />
+    <ClInclude Include="..\adol-c\src\taping.h" />
+    <ClInclude Include="..\adol-c\src\usrparms.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

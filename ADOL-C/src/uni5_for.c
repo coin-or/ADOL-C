@@ -27,13 +27,13 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <interfaces.h>
-#include <adalloc.h>
-#include <taping.h>
-#include <taping_p.h>
-#include <oplate.h>
-#include <externfcts.h>
-#include <externfcts_p.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/taping.h>
+#include "taping_p.h"
+#include <adolc/oplate.h>
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 
 #include <math.h>
 

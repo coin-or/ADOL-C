@@ -16,8 +16,8 @@
 #if !defined(ADOLC_EXTERNFCTS_H)
 #define ADOLC_EXTERNFCTS_H 1
 
-#include <common.h>
-#include <adouble.h>
+#include <adolc/common.h>
+#include <adolc/adouble.h>
 
 BEGIN_C_DECLS
 

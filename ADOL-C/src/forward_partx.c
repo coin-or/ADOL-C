@@ -12,8 +12,8 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <adalloc.h>
-#include <interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/interfaces.h>
 
 BEGIN_C_DECLS
 

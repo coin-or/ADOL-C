@@ -16,7 +16,7 @@
 #if !defined(ADOLC_FIXPOINT_H)
 #define ADOLC_FIXPOINT_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 BEGIN_C_DECLS
 

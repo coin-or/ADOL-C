@@ -10,6 +10,6 @@
 ## 
 ##############################################################################
 
-EXTRA_DIST           = myclock.h Makefile.win
+EXTRA_DIST           = myclock.h
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig

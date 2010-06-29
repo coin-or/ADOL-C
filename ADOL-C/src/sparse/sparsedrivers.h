@@ -14,7 +14,7 @@
 #if !defined (ADOLC_SPARSE_SPARSE_H)
 #define ADOLC_SPARSE_SPARSE_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 
 
@@ -77,7 +77,7 @@ ADOLC_DLL_EXPORT int sparse_hess
 (short, int , int, double*, int *,
  unsigned int **, unsigned int **, double **,int*);
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP);

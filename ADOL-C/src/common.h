@@ -41,7 +41,7 @@
 /* system dependend configuration */
 #if defined(ADOLC_INTERNAL)
 #   if HAVE_CONFIG_H
-#       include <config.h>
+#       include "config.h"
 
 /*      malloc/calloc/realloc replacments */
 #       undef ADOLC_NO_MALLOC
@@ -62,12 +62,12 @@
 #       endif /* HAVE_REALLOC */
 
 #       if defined(ADOLC_NO_MALLOC)
-#           include <malloc.h>
+#           include "malloc.h"
 #           define malloc rpl_malloc
 #           define calloc rpl_calloc
 #       endif /* ADOLC_NO_MALLOC */
 #       if defined(ADOLC_NO_REALLOC)
-#           include <malloc.h>
+#           include "malloc.h"
 #           define realloc rpl_realloc
 #       endif /* ADOLC_NO_REALLOC */
 
@@ -76,8 +76,8 @@
 
 /*--------------------------------------------------------------------------*/
 /* developer and user parameters */
-#include <dvlparms.h>
-#include <usrparms.h>
+#include <adolc/dvlparms.h>
+#include <adolc/usrparms.h>
 
 /*--------------------------------------------------------------------------*/
 /* windows dll exports/imports */
