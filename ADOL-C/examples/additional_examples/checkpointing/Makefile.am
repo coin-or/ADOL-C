@@ -26,10 +26,8 @@ INCLUDES              = -I$(top_builddir) -I$(top_builddir)/examples/additional_
 
 MAINTAINERCLEANFILES  = Makefile.in *~ *.orig
 
-EXTRA_DIST            = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS       = checkpointing
+endif
 
 checkpointing_SOURCES = checkpointing.cpp 
-endif

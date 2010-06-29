@@ -14,9 +14,9 @@
   
 ----------------------------------------------------------------------------*/
 
-#include <interfaces.h>
-#include <adalloc.h>
-#include <fortutils.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/fortutils.h>
 
 BEGIN_C_DECLS
 

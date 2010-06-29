@@ -32,8 +32,7 @@ MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
                        taping_p.h malloc.h \
-                       externfcts_p.h checkpointing_p.h buffer_temp.h \
-                       Makefile.win
+                       externfcts_p.h checkpointing_p.h buffer_temp.h 
 
 pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\
@@ -45,6 +44,11 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
 lib_LTLIBRARIES      = libadolc.la
 
 libadolc_la_LDFLAGS  = -version-info 2:1:1
+
+BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
+
+$(top_builddir)/ADOL-C/src/adolc/adolc.h:
+	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
 
 if SPARSE
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
@@ -65,6 +69,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
+libadolc_la_LDFLAGS  += @COLPACK_LIBS@
 else
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c\

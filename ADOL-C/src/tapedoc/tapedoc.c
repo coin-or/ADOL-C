@@ -14,10 +14,10 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <tapedoc/tapedoc.h>
-#include <oplate.h>
-#include <taping_p.h>
-#include <adalloc.h>
+#include <adolc/tapedoc/tapedoc.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
+#include <adolc/adalloc.h>
 
 #include <math.h>
 #include <string.h>

@@ -12,10 +12,10 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ----------------------------------------------------------------------------*/
-#include <drivers/taylor.h>
-#include <interfaces.h>
-#include <adalloc.h>
-#include <taping_p.h>
+#include <adolc/drivers/taylor.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include "taping_p.h"
 
 #include <math.h>
 

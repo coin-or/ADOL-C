@@ -12,14 +12,14 @@
  
 ---------------------------------------------------------------------------*/
 
-#include <oplate.h>
-#include <adalloc.h>
-#include <taping_p.h>
-#include <externfcts.h>
-#include <interfaces.h>
-#include <checkpointing.h>
-#include <checkpointing_p.h>
-#include <revolve.h>
+#include <adolc/oplate.h>
+#include <adolc/adalloc.h>
+#include "taping_p.h"
+#include <adolc/externfcts.h>
+#include <adolc/interfaces.h>
+#include <adolc/checkpointing.h>
+#include "checkpointing_p.h"
+#include <adolc/revolve.h>
 
 #include <cstring>
 

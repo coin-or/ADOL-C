@@ -17,7 +17,7 @@
 #if !defined(ADOLC_DRIVERS_DRIVERS_H)
 #define ADOLC_DRIVERS_DRIVERS_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 BEGIN_C_DECLS
 

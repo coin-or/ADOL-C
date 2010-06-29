@@ -11,10 +11,8 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ----------------------------------------------------------------------------*/
-
-
-#include <sparse/sparse_fo_rev.h>
-#include <interfaces.h>
+#include <adolc/sparse/sparse_fo_rev.h>
+#include <adolc/interfaces.h>
 
 #include <math.h>
 

@@ -26,10 +26,8 @@ INCLUDES             = -I$(top_builddir)
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
-EXTRA_DIST           = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS      = powexam
+endif
 
 powexam_SOURCES      = powexam.cpp
-endif

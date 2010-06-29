@@ -12,8 +12,6 @@
 
 MAINTAINERCLEANFILES = Makefile.in *~
 
-EXTRA_DIST           = Makefile.win
-
 if ADDEXA
 SUBDIRS              = clock hessmat lufact ode sparse tapesave timing \
                        detexam helm lighthouse scal speelpenning taylor pow \

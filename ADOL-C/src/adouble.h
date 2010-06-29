@@ -34,7 +34,7 @@ using std::cerr;
 using std::ostream;
 using std::istream;
 
-#include <common.h>
+#include <adolc/common.h>
 
 /* NOTICE: There are automatic includes at the end of this file! */
 

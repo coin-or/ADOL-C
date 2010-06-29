@@ -12,13 +12,25 @@
 
 AUTOMAKE_OPTIONS     = foreign
 
-EXTRA_DIST           = TODO BUGS Makefile.win make_32 make_64 \
-                       comp_win.bat winflags_dll winflags_exa
+EXTRA_DIST           = TODO BUGS  make_32 make_64 \
+                       autoconf/shave.in autoconf/shave-libtool.in \
+                       autoconf/dolt.m4 autoconf/shave.m4 \
+                       windows/adolc.sln windows/adolc.vcxproj \
+                       windows/sparse/config.h windows/nosparse/config.h \
+                       windows/x64/sparse/config.h windows/x64/nosparse/config.h \
+                       windows/Readme_VC++.txt \
+                       windows/vcredist_x86.exe windows/x64/vcredist_x64.exe \
+                       windows/installer.sh \
+                       ThirdParty/ColPack/ColPack.vcxproj \
+                       ThirdParty/ColPack/colpack_vcxcompile.patch \
+                       ThirdParty/ColPack/Readme_VC++.txt
 
 SUBDIRS              = ADOL-C
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure ADOL-C/src/config.h.in \
-                       ADOL-C/src/stamp-h.in *~ *.orig
+                       ADOL-C/src/stamp-h.in *~ *.orig 
+
+DISTCLEANFILES = doltcompile doltlibtool
 
 test: all
 	cd ADOL-C; $(MAKE) test

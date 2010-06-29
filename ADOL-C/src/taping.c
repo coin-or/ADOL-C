@@ -17,8 +17,8 @@
 #include <math.h>
 #include <string.h>
 
-#include <oplate.h>
-#include <taping_p.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
 
 /*--------------------------------------------------------------------------*/
 /* Tape identification (ADOLC & version check) */

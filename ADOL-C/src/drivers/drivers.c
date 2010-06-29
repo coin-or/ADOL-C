@@ -13,9 +13,9 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ----------------------------------------------------------------------------*/
-#include <drivers/drivers.h>
-#include <interfaces.h>
-#include <adalloc.h>
+#include <adolc/drivers/drivers.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
 
 #include <math.h>
 

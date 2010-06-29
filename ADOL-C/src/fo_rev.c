@@ -186,12 +186,12 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /****************************************************************************/
 /*                                                       NECESSARY INCLUDES */
-#include <interfaces.h>
-#include <adalloc.h>
-#include <oplate.h>
-#include <taping_p.h>
-#include <externfcts.h>
-#include <externfcts_p.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 
 #include <math.h>
 
