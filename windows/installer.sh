@@ -35,7 +35,7 @@ if [[ $# > 1 ]]; then
 else
 	 conf=$1
 	 arch=.
-	 cf=${conf}_win32
+	 cf=$1_win32
 	 suffix=x86
 fi
 
