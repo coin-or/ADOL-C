@@ -11,9 +11,9 @@
 \documentclass[11pt,twoside]{article}
 \usepackage{hyperref}
 \usepackage{amsmath,amsthm,amssymb}
-\usepackage{epsfig}
+\usepackage{graphicx}
 
-\usepackage[dvips]{color}
+\usepackage{color}
 
 \pagestyle{headings} 
 \bibliographystyle{plain}
@@ -577,7 +577,7 @@ from the evaluation point at which the tape was generated.
 \end{table}                            
 
 \begin{figure}[h]
-\centering\epsfig{file=tap_point.eps,width=10.0cm}
+\centering\includegraphics[width=10.0cm]{tap_point}
 \caption{Return values around the taping point}
 \label{fi:tap_point}
 \end{figure}          
@@ -838,7 +838,7 @@ following types and constant dimensions in the header file \verb=<adolc/usrparms
 to suit his problem and environment.
 
 \begin{description}
-\item[{\sf BUFSIZE}{\rm :}] This integer determines the length of
+\item[{\sf OBUFSIZE}, {\sf LBUFSIZE}, {\sf VBUFSIZE}{\rm :}] This integer determines the length of
 in\-ter\-nal buf\-fers (default: 65$\,$536). If the buffers are large enough to accommodate all
 required data, any file access is avoided unless {\sf trace\_off}
 is called with a positive argument. This desirable situation can
@@ -2675,8 +2675,8 @@ taping approach as implemented in ADOL-C so far are shown in the left part of
 \autoref{fig:bas_tap}. 
 \begin{figure}[htbp]  
 \begin{center}
-\hspace*{0.5cm}\includegraphics[width=5.8cm]{tapebasic.eps}\hfill
-\includegraphics[width=5.8cm]{tapeadv.eps} \hspace*{0.5cm}\ 
+\hspace*{0.5cm}\includegraphics[width=5.8cm]{tapebasic}\hfill
+\includegraphics[width=5.8cm]{tapeadv} \hspace*{0.5cm}\ 
 \end{center}
 \hspace*{0.8cm} Basic taping process \hspace*{4.3cm} Advanced taping process
 \caption{Different taping approaches}
@@ -2889,7 +2889,7 @@ typical situation is shown in \autoref{fig:basic_layout},
 \begin{figure}[hbt]
     \vspace{3ex}
     \begin{center}
-        \includegraphics[height=4cm]{multiplexed.eps} \\
+        \includegraphics[height=4cm]{multiplexed} \\
         \begin{picture}(0,0)
             \put(-48,40){\vdots}
             \put(48,40){\vdots}
