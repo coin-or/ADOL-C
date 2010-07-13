@@ -5,13 +5,16 @@ ADOL-C/doc/adolc-manual.pdf -text
 ADOL-C/doc/adolc-manual.ps -text
 ADOL-C/doc/adolc-manual.tex -text
 ADOL-C/doc/multiplexed.eps -text
+ADOL-C/doc/multiplexed.pdf -text svneol=unset#unset
 ADOL-C/doc/short_ref.pdf -text
 ADOL-C/doc/short_ref.ps -text
 ADOL-C/doc/short_ref.tex -text
 ADOL-C/doc/tap_point.eps -text
 ADOL-C/doc/tap_point.pdf -text
 ADOL-C/doc/tapeadv.eps -text
+ADOL-C/doc/tapeadv.pdf -text svneol=unset#unset
 ADOL-C/doc/tapebasic.eps -text
+ADOL-C/doc/tapebasic.pdf -text svneol=unset#unset
 ADOL-C/examples/Makefile.am -text
 ADOL-C/examples/Makefile.in -text
 ADOL-C/examples/README -text
