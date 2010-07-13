@@ -750,7 +750,8 @@ if the length of any of the buffers exceeds {\sf [OLVT]BUFSIZE} elements.
 After the execution of an active section, if a tape file was generated, i.e.,
 if the length of some buffer exceeded {\sf [OLVT]BUFSIZE} elements or if the 
 argument {\sf file} of {\sf trace\_off} was set to 1, the files will be
-saved in the current working directory under filenames formed by 
+saved in the directory defined as {\sf ADOLC\_TAPE\_DIR} (by default
+the current working directory) under filenames formed by 
 the strings {\sf ADOLC\_OPERATIONS\_NAME}, {\sf
   ADOLC\_LOCATIONS\_NAME}, {\sf ADOLC\_VALUES\_NAME} and {\sf
   ADOLC\_TAYLORS\_NAME} defined in
