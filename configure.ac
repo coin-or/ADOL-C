@@ -146,7 +146,6 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(yes)],
             [sparse="no"
              AC_MSG_RESULT(no)])
-AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${PWD}/ThirdParty/ColPack]])],
@@ -162,6 +161,10 @@ AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=y
 CFLAGS=$save_CFLAGS
 LDFLAGS=$save_LDFLAGS
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
+if test x$have_colpack = xyes; then 
+   sparse=yes
+fi
+AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
 if test x$sparse = xyes && test x$have_colpack = xyes; then
 	AC_DEFINE(HAVE_LIBCOLPACK,[1],[Define 1 if ColPack is available])
