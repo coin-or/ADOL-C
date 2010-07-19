@@ -116,14 +116,14 @@ void generate_seed_jac
 {
   int dummy;
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface;
+  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC,JP,m,n);
 
   if (option == 1)
     g->GenerateSeedJacobian(JP, m, n, Seed, p, &dummy, 
-                            "LEFT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
   else
     g->GenerateSeedJacobian(JP, m, n, Seed, &dummy, p, 
-                            "RIGHT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 }
 #else
 {
@@ -190,14 +190,14 @@ void generate_seed_hess
 {
   int dummy;
 
-  GraphColoringInterface *g = new GraphColoringInterface;
+  GraphColoringInterface *g = new GraphColoringInterface(SRC_WAIT);
 
   if (option == 0)
     g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
-		  	         "ACYCLIC_FOR_INDIRECT_RECOVERY", "NATURAL"); 
+		  	   "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
   else
     g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
-			   "STAR", "SMALLEST_LAST"); 
+			   "SMALLEST_LAST","STAR"); 
 
 }
 #else
@@ -294,15 +294,15 @@ int sparse_jac(
 
       FILE *fp_JP;
 			
-      g = new BipartiteGraphPartialColoringInterface;
+      g = new BipartiteGraphPartialColoringInterface(SRC_WAIT);
       jr1d = new JacobianRecovery1D;
 	
       if (options[3] == 1)
 	g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.p), &dummy, 
-				"LEFT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
       else
 	g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &dummy, &(sJinfos.p), 
-				"RIGHT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
       
       if (options[3] == 1)
 	sJinfos.B = myalloc2(sJinfos.p,indep);
@@ -357,9 +357,9 @@ int sparse_jac(
     /* recover compressed Jacobian => ColPack library */
  
       if (options[3] == 1)
-       jr1d->RecoverForPD2RowWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Row_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
-       jr1d->RecoverForPD2ColumnWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Cln_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
 
     return ret_val;
 
@@ -450,15 +450,15 @@ int sparse_hess(
 
 	Seed = NULL;
 
-	g = new GraphColoringInterface;
+	g = new GraphColoringInterface(SRC_WAIT);
 	hr = new HessianRecovery;
 
 	if (options[1] == 0)
 	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
-				 "ACYCLIC_FOR_INDIRECT_RECOVERY", "NATURAL"); 
+				 "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
 	else
 	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
-		  	         "STAR", "SMALLEST_LAST"); 
+		  	         "SMALLEST_LAST","STAR"); 
 
 	
 	sHinfos.Hcomp = myalloc2(indep,sHinfos.p);
