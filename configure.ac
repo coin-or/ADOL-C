@@ -152,7 +152,7 @@ AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [defaul
 		[colpack=$withval],
 		[colpack=${PWD}/ThirdParty/ColPack])
 COLPACK_CFLAGS="-I$colpack/include"
-COLPACK_LIBS="-L$colpack/lib -lColPack -Wl,-rpath,$colpack/lib"
+COLPACK_LIBS="-L$colpack/${_lib} -lColPack -Wl,-rpath,$colpack/${_lib}"
 save_CFLAGS="$CFLAGS"
 save_LDFLAGS="$LDFLAGS"
 CFLAGS="$CFLAGS $COLPACK_CFLAGS"

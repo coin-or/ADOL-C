@@ -3367,7 +3367,14 @@ install triplet
 Executing this three steps from the package base directory
 \verb=</SOMEPATH/ADOL-C-2.1.0>= will compile the static and the dynamic
 ADOL-C library with default options and install the package (libraries
-and headers) into the default installation directory {\tt \verb=<=\$HOME/adolc\_base\verb=>=}.
+and headers) into the default installation directory {\tt
+  \verb=<=\$HOME/adolc\_base\verb=>=}. Inside the install directory
+the subdirectory \verb=include= will contain all the installed header
+files that may be included by the user program, the subdirectory
+\verb=lib= will contain the 32-bit compiled library 
+and the subdirectory \verb=lib64= will contain the 64-bit compiled
+library. Depending on the compiler only one of \verb=lib= or
+\verb=lib64= may be created.
 
 Before doing so the user may modify the header file \verb=usrparms.h=
 in order to tailor the \mbox{ADOL-C} package to the needs in the
@@ -3391,6 +3398,14 @@ compute the sparse structures, and is searched for in all the default
 locations as well as in the subdirectory \verb=<ThirdParty/ColPack/>=.
 In case the library and its headers are installed in a nonstandard path
 this may be specified with the \verb?--with-colpack=PATH? option.
+It is assumed that the library and its header files have the following
+directory structure: \verb?PATH/include? contains all the header
+files,
+\verb?PATH/lib? contains the 32-bit compiled library and 
+\verb?PATH/lib64? contains the 64-bit compiled library. Depending on
+the compiler used to compile {\sf ADOL-C} one of these libraries will
+be used for linking.
+ 
 %Then it is assumed that the ColPack library
 %available at
 %\verb=http://www.cscapes.org/coloringpage/software.htm= is
