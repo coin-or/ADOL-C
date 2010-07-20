@@ -13,7 +13,7 @@ define([ADOLC_LVL], [6])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
