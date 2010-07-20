@@ -26,6 +26,14 @@
 
 using namespace std;
 
+BEGIN_C_DECLS
+ADOLC_DLL_EXPORT void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
+                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen);
+ADOLC_DLL_EXPORT void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
+					  double **Upp, unsigned int **HP,
+					  void *g, void *hr, int p, int indep);
+END_C_DECLS
+
 /* vector of tape infos for all tapes in use */
 vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
@@ -151,6 +159,9 @@ int initNewTape(short tapeID) {
     newTapeInfos->pTapeInfos.inHessSparseUse=0;
     newTapeInfos->pTapeInfos.sJinfos.B=NULL;
     newTapeInfos->pTapeInfos.sJinfos.y=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.g=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
@@ -330,15 +341,27 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
-		    // memory deallocation is missing !!
-		    tapeInfos->pTapeInfos.sJinfos.y=sJinfos.y;
-		    tapeInfos->pTapeInfos.sJinfos.Seed=sJinfos.Seed;
-		    tapeInfos->pTapeInfos.sJinfos.B=sJinfos.B;
-		    tapeInfos->pTapeInfos.sJinfos.JP=sJinfos.JP;
-		    tapeInfos->pTapeInfos.sJinfos.nnz_in=sJinfos.nnz_in;
-		    tapeInfos->pTapeInfos.sJinfos.p=sJinfos.p;
-		    tapeInfos->pTapeInfos.sJinfos.g=sJinfos.g;
-		    tapeInfos->pTapeInfos.sJinfos.jr1d=sJinfos.jr1d;
+		// free memory of tape entry that had been used previously
+		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
+			tapeInfos->pTapeInfos.sJinfos.Seed,
+                        tapeInfos->pTapeInfos.sJinfos.B,
+                        tapeInfos->pTapeInfos.sJinfos.JP,
+                        tapeInfos->pTapeInfos.sJinfos.g,
+			tapeInfos->pTapeInfos.sJinfos.jr1d,
+			tapeInfos->pTapeInfos.sJinfos.seed_rows,
+			tapeInfos->pTapeInfos.sJinfos.seed_clms,
+			tapeInfos->pTapeInfos.sJinfos.depen);
+
+		tapeInfos->pTapeInfos.sJinfos.y=sJinfos.y;
+		tapeInfos->pTapeInfos.sJinfos.Seed=sJinfos.Seed;
+		tapeInfos->pTapeInfos.sJinfos.B=sJinfos.B;
+		tapeInfos->pTapeInfos.sJinfos.JP=sJinfos.JP;
+		tapeInfos->pTapeInfos.sJinfos.depen=sJinfos.depen;
+		tapeInfos->pTapeInfos.sJinfos.nnz_in=sJinfos.nnz_in;
+		tapeInfos->pTapeInfos.sJinfos.seed_clms=sJinfos.seed_clms;
+		tapeInfos->pTapeInfos.sJinfos.seed_rows=sJinfos.seed_rows;
+		tapeInfos->pTapeInfos.sJinfos.g=sJinfos.g;
+		tapeInfos->pTapeInfos.sJinfos.jr1d=sJinfos.jr1d;
             }
         }
     }
@@ -359,13 +382,25 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
-		    // memory deallocation is missing !!
+
+		// free memory of tape entry that had been used previously
+                    freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
+                                        tapeInfos->pTapeInfos.sHinfos.Xppp, 
+                                        tapeInfos->pTapeInfos.sHinfos.Yppp, 
+                                        tapeInfos->pTapeInfos.sHinfos.Zppp, 
+                                        tapeInfos->pTapeInfos.sHinfos.Upp, 
+                                        tapeInfos->pTapeInfos.sHinfos.HP,
+					tapeInfos->pTapeInfos.sHinfos.g, 
+                                        tapeInfos->pTapeInfos.sHinfos.hr, 
+                                        tapeInfos->pTapeInfos.sHinfos.p, 
+                                        tapeInfos->pTapeInfos.sHinfos.indep);	
 		    tapeInfos->pTapeInfos.sHinfos.Hcomp=sHinfos.Hcomp;
 		    tapeInfos->pTapeInfos.sHinfos.Xppp=sHinfos.Xppp;
 		    tapeInfos->pTapeInfos.sHinfos.Yppp=sHinfos.Yppp;
 		    tapeInfos->pTapeInfos.sHinfos.Zppp=sHinfos.Zppp;
 		    tapeInfos->pTapeInfos.sHinfos.Upp=sHinfos.Upp;
 		    tapeInfos->pTapeInfos.sHinfos.HP=sHinfos.HP;
+		    tapeInfos->pTapeInfos.sHinfos.indep=sHinfos.indep;
 		    tapeInfos->pTapeInfos.sHinfos.nnz_in=sHinfos.nnz_in;
 		    tapeInfos->pTapeInfos.sHinfos.p=sHinfos.p;
 		    tapeInfos->pTapeInfos.sHinfos.g=sHinfos.g;

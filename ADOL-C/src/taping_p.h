@@ -122,16 +122,16 @@ extern void *failAdditionalInfo6;
 /****************************************************************************/
 
 typedef struct SparseJacInfos {
-    void *g;
-    void *jr1d;
+  void *g;
+  void *jr1d;
 
-    double *y;
-    double **Seed;
-    double **B;
+  double *y;
+  double **Seed;
+  double **B;
 
-    unsigned int **JP;
+  unsigned int **JP;
 
-    int nnz_in, p;
+  int depen, nnz_in, seed_clms, seed_rows;
 } SparseJacInfos;
 
 typedef struct SparseHessInfos {
@@ -146,7 +146,7 @@ typedef struct SparseHessInfos {
   
     unsigned int **HP;
 
-    int nnz_in, p;
+  int nnz_in, indep, p;
 } SparseHessInfos;
 
 typedef struct PersistantTapeInfos { /* survive tape re-usage */

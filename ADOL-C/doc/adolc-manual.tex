@@ -1,4 +1,4 @@
-% Latex file containing the documentation of ADOL-C version 2.1.2
+% Latex file containing the documentation of ADOL-C version 2.1.6
 %
 % Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
 %               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
@@ -54,7 +54,7 @@
 {\Large A Package for the Automatic Differentiation}\vspace{0.1in} \\
 {\Large of Algorithms Written in C/C++}\\
 \vspace{.2in}
-{\large\bf  Version 2.1.3, February 2010} \\
+{\large\bf  Version 2.1.6, July 2010} \\
 \bigskip
  \mbox{Andrea Walther}\footnote{Institute of Mathematics, University
    of Paderborn, 33098 Paderborn, Germany} and
@@ -2883,7 +2883,7 @@ corresponding vectors.
 The presented driver is prototyped in the header file 
 \verb=<adolc/fixpoint.h>=. This header
 is included by the global header file \verb=<adolc/adolc.h>= automatically. 
-An example \verb=fixpoint_exam.cpp= that shows also the
+An example code that shows also the
 expected signature of the function pointers is contained in the directory \verb=examples/additional_examples/fixpoint_exam=.
 %
 \subsection{Advance algorithmic differentiation of OpenMP parallel programs}
@@ -3365,7 +3365,7 @@ install triplet
 \verb=configure - make - make install= .
 \end{center}
 Executing this three steps from the package base directory
-\verb=</SOMEPATH/ADOL-C-2.1.0>= will compile the static and the dynamic
+\verb=</SOMEPATH/ADOL-C-2.1.6>= will compile the static and the dynamic
 ADOL-C library with default options and install the package (libraries
 and headers) into the default installation directory {\tt
   \verb=<=\$HOME/adolc\_base\verb=>=}. Inside the install directory
@@ -3416,9 +3416,10 @@ be used for linking.
 \subsection{Compiling and Linking the Example Programs}
 %
 The installation procedure described in \autoref{genlib} also
-provides the \verb=Makefile=s  to compile the example
-programs in the directories \verb=<ADOL-C-2.1.0>/ADOL-C/examples= and
-\verb=<ADOL-C-2.1.0>/ADOL-C/examples/additional_examples=. However,
+provides the \verb=Makefile=s  to compile the example programs in the
+directories \verb=<ADOL-C-2.1.6>/ADOL-C/examples= and the
+additional examples in
+\verb=<ADOL-C-2.1.6>/ADOL-C/examples/additional_examples=. However,
 one has to execute the 
 \verb=configure= command with  appropriate options for the ADOL-C package to enable the compilation of
 examples. Available options are: 
@@ -3439,7 +3440,7 @@ have been built previously in that case. Hence, building the library
 is always the first step. 
 
 For Compiling the library and the documented examples on Windows using
-Visual Studio please refer to the \verb=<Readme_VC++.txt>= files under 
+Visual Studio please refer to the \verb=<Readme_VC++.txt>= files in 
 the \verb=<windows/>=, \verb=<ThirdParty/ColPack/>= and 
 \verb=<ADOL-C/examples/>= subdirectories.
 %
@@ -3712,7 +3713,7 @@ iterated integrals.
 %
 The following listings are all simplified versions of codes that
 are contained in the example subdirectory 
-\verb=<ADOL-C-2.1.0>/ADOL-C/examples= of ADOL-C. In particular,
+\verb=<ADOL-C-2.1.6>/ADOL-C/examples= of ADOL-C. In particular,
 we have left out timings, which are included in the complete codes.
 %
 \subsection{Speelpenning's Example ({\tt speelpenning.cpp})}
