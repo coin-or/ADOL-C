@@ -19,12 +19,19 @@
 #define ADOLC_DVLPARMS_H 1
 
 /*--------------------------------------------------------------------------*/
+/* Directory where tapes are created */
+#define ADOLC_TAPE_DIR        "."
 /* File names for the tapes */
 #define ADOLC_TAYLORS_NAME    "ADOLC-Taylors_"
 #define ADOLC_VALUES_NAME     "ADOLC-Values_"
 #define ADOLC_LOCATIONS_NAME  "ADOLC-Locations_"
 #define ADOLC_OPERATIONS_NAME "ADOLC-Operations_"
 
+#ifdef _WINDOWS
+#define PATHSEPARATOR         "\\"
+#else
+#define PATHSEPARATOR         "/"
+#endif
 /****************************************************************************/
 /* Tells ADOL-C which name space offers the mathematical functions          */
 #define ADOLC_MATH_NSP std

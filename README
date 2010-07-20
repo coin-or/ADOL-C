@@ -28,14 +28,14 @@ LOCAL INSTALLATION
   --prefix=PREFIX         install library and header files in PREFIX
                           (default: ${HOME}/adolc_base)
  
-  --with-sparse           build sparse drivers [default=no]
+  --enable-sparse           build sparse drivers [default=no]
 
   --with-openmp-flag=FLAG use FLAG to enable OpenMP at compile time
                           [default=none]
 
-  --with-docexa           build documented examples [default=no]
-  --with-addexa           build additional examples [default=no]
-  --with-parexa           build parallel example [default=no], if yes
+  --enable-docexa           build documented examples [default=no]
+  --enable-addexa           build additional examples [default=no]
+  --enable-parexa           build parallel example [default=no], if yes
                           -with-openmp-flag=FLAG required
 
   --with-cflags=FLAGS     use CFLAGS=FLAGS (default: -O3 -Wall -ansi)
@@ -80,10 +80,17 @@ Examples
 ========
 
 Examples must be configured to build by using the configure switches 
-   --with-docexa or --with-addexa.
+   --enable-docexa or --enable-addexa.
 They will never be installed by make install but can be found in the
 appropriate example subdirectory.
 
+
+
+Windows Compilation with Visual Studio
+======================================
+
+Please refer to the file windows/Readme_VC++.txt for building the library and 
+ADOL-C/examples/Readme_VC++.txt for the documented examples. 
 
 
 

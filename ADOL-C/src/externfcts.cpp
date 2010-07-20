@@ -12,12 +12,12 @@
          
 ----------------------------------------------------------------------------*/
 
-#include <externfcts.h>
-#include <externfcts_p.h>
-#include <taping_p.h>
-#include <adouble.h>
-#include <oplate.h>
-#include <buffer_temp.h>
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
+#include "taping_p.h"
+#include <adolc/adouble.h>
+#include <adolc/oplate.h>
+#include "buffer_temp.h"
 
 #include <cstring>
 

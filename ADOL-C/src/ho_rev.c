@@ -264,11 +264,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /****************************************************************************/
 /*                                                       NECESSARY INCLUDES */
-#include <interfaces.h>
-#include <adalloc.h>
-#include <oplate.h>
-#include <taping_p.h>
-#include <convolut.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
+#include <adolc/convolut.h>
 
 #include <math.h>
 
@@ -2106,6 +2106,7 @@ int hov_ti_reverse(
     /* clean up */
     free((char*)*rpp_T);
     free((char*) rpp_T);
+    free(*rpp_A);
     free(rpp_A);
     free(rp_Ttemp);
     free(rp_Ttemp2);

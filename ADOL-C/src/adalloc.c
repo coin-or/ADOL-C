@@ -13,7 +13,7 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <adalloc.h>
+#include <adolc/adalloc.h>
 
 #if defined(ADOLC_USE_CALLOC)
 #  if defined(HAVE_MALLOC)

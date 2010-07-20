@@ -15,7 +15,7 @@
 #if !defined (ADOLC_ADALLOC_H)
 #define ADOLC_ADALLOC_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 /****************************************************************************/
 /*                                                         Now the C THINGS */

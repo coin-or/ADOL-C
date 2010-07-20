@@ -11,20 +11,29 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
+#include <adolc/sparse/sparsedrivers.h>
+#include <adolc/oplate.h>
+#include <adolc/adalloc.h>
+#include <adolc/interfaces.h>
+#include "taping_p.h"
 
+#if defined(ADOLC_INTERNAL)
+#    if HAVE_CONFIG_H
+#        include "config.h"
+#    endif
+#endif
 
-#include <sparse/sparsedrivers.h>
-#include <oplate.h>
-#include <adalloc.h>
-#include <interfaces.h>
-#include <taping_p.h>
-
-#include <../../ThirdParty/ColPack/include/ColPackHeaders.h>
+#if HAVE_LIBCOLPACK
+#include "ColPackHeaders.h"
+#endif
 
 #include <math.h>
 #include <cstring>
 
+#if HAVE_LIBCOLPACK
 using namespace ColPack;
+#endif
+
 using namespace std;
 
 /****************************************************************************/
@@ -103,18 +112,25 @@ void generate_seed_jac
                                0 - column compression (default)
                                1 - row compression                */
 ) 
+#if HAVE_LIBCOLPACK
 {
   int dummy;
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface;
+  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC,JP,m,n);
 
   if (option == 1)
     g->GenerateSeedJacobian(JP, m, n, Seed, p, &dummy, 
-                            "LEFT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
   else
     g->GenerateSeedJacobian(JP, m, n, Seed, &dummy, p, 
-                            "RIGHT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, separate drivers             ***************/
@@ -169,20 +185,27 @@ void generate_seed_hess
                     option : way of compression
                                0 - indirect recovery (default)
                                1 - direct recovery                */
-) 
+)
+#if HAVE_LIBCOLPACK 
 {
   int dummy;
 
-  GraphColoringInterface *g = new GraphColoringInterface;
+  GraphColoringInterface *g = new GraphColoringInterface(SRC_WAIT);
 
   if (option == 0)
     g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
-		  	         "ACYCLIC_FOR_INDIRECT_RECOVERY", "NATURAL"); 
+		  	   "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
   else
     g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
-			   "STAR", "SMALLEST_LAST"); 
+			   "SMALLEST_LAST","STAR"); 
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******       sparse Jacobians, complete driver              ***************/
@@ -213,7 +236,9 @@ int sparse_jac(
                     options[3] : way of compression
                                0 - column compression (default)
                                1 - row compression                         */
-) {
+)
+#if HAVE_LIBCOLPACK
+{
     int i;
     unsigned int j;
     SparseJacInfos sJinfos;
@@ -246,6 +271,7 @@ int sparse_jac(
 	return ret_val;
       }
       
+      sJinfos.nnz_in = depen;
       sJinfos.nnz_in = 0;
       for (i=0;i<depen;i++) {
             for (j=1;j<=sJinfos.JP[i][0];j++)
@@ -266,25 +292,25 @@ int sparse_jac(
  		(*cind)[index++] = sJinfos.JP[i][j];
 	      }
 	}
-
-      FILE *fp_JP;
 			
-      g = new BipartiteGraphPartialColoringInterface;
+      g = new BipartiteGraphPartialColoringInterface(SRC_WAIT);
       jr1d = new JacobianRecovery1D;
 	
       if (options[3] == 1)
-	g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.p), &dummy, 
-				"LEFT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+	{
+	  g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.seed_rows), 
+				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+	  sJinfos.seed_clms = indep;
+	}  
       else
-	g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &dummy, &(sJinfos.p), 
-				"RIGHT_PARTIAL_DISTANCE_TWO", "SMALLEST_LAST"); 
+	{
+	  g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.seed_rows), 
+                                &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+	  sJinfos.seed_rows = depen;
+	}
       
-      if (options[3] == 1)
-	sJinfos.B = myalloc2(sJinfos.p,indep);
-      else
-	sJinfos.B = myalloc2(depen,sJinfos.p);
-      
-      sJinfos.y=myalloc1(depen);
+      sJinfos.B = myalloc2(sJinfos.seed_rows,sJinfos.seed_clms);
+      sJinfos.y = myalloc1(depen);
       
       sJinfos.g = (void *) g;
       sJinfos.jr1d = (void *) jr1d;
@@ -296,12 +322,14 @@ int sparse_jac(
       {
 	tapeInfos=getTapeInfos(tag);
 	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
-	sJinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.nnz_in;
-	sJinfos.JP     = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.JP;
-    	sJinfos.B      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.B;
-	sJinfos.y      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.y;
-        sJinfos.Seed   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.Seed;
-        sJinfos.p      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.p;
+	sJinfos.depen    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.depen;
+	sJinfos.nnz_in    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.nnz_in;
+	sJinfos.JP        = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.JP;
+    	sJinfos.B         = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.B;
+	sJinfos.y         = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.y;
+        sJinfos.Seed      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.Seed;
+        sJinfos.seed_rows = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_rows;
+        sJinfos.seed_clms = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_clms;
         g = (BipartiteGraphPartialColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.g;
 	jr1d = (JacobianRecovery1D *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.jr1d;
       }
@@ -323,22 +351,28 @@ int sparse_jac(
         ret_val = zos_forward(tag,depen,indep,1,basepoint,sJinfos.y);
         if (ret_val < 0) 
 	  return ret_val;
-        MINDEC(ret_val,fov_reverse(tag,depen,indep,sJinfos.p,sJinfos.Seed,sJinfos.B));
+        MINDEC(ret_val,fov_reverse(tag,depen,indep,sJinfos.seed_rows,sJinfos.Seed,sJinfos.B));
       }
     else
-      ret_val = fov_forward(tag, depen, indep, sJinfos.p, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
+      ret_val = fov_forward(tag, depen, indep, sJinfos.seed_clms, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
     
 
     /* recover compressed Jacobian => ColPack library */
  
       if (options[3] == 1)
-       jr1d->RecoverForPD2RowWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Row_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
-       jr1d->RecoverForPD2ColumnWise_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Cln_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
 
     return ret_val;
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
@@ -361,7 +395,9 @@ int sparse_hess(
                     options[1] : way of recovery
                                0 - indirect recovery
                                1 - direct recovery                         */
-) {
+)
+#if HAVE_LIBCOLPACK
+{
     int i, l;
     unsigned int j;
     SparseHessInfos sHinfos;
@@ -403,6 +439,7 @@ int sparse_hess(
 	    sHinfos.HP     = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
 	  }
 
+	sHinfos.indep = indep;
 	sHinfos.nnz_in = 0;
 
         for (i=0;i<indep;i++) {
@@ -417,15 +454,15 @@ int sparse_hess(
 
 	Seed = NULL;
 
-	g = new GraphColoringInterface;
+	g = new GraphColoringInterface(SRC_WAIT);
 	hr = new HessianRecovery;
 
 	if (options[1] == 0)
 	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
-				 "ACYCLIC_FOR_INDIRECT_RECOVERY", "NATURAL"); 
+				 "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
 	else
 	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
-		  	         "STAR", "SMALLEST_LAST"); 
+		  	         "SMALLEST_LAST","STAR"); 
 
 	
 	sHinfos.Hcomp = myalloc2(indep,sHinfos.p);
@@ -538,13 +575,19 @@ int sparse_hess(
     return ret_val;
 
 }
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
 
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
 /****************************************************************************/
 
-int set_HP(
+void set_HP(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     unsigned int ** HP)
@@ -903,6 +946,86 @@ int bit_vector_propagation(
 
     return(rc);
 }
+
+BEGIN_C_DECLS
+/*****************************************************************************/
+/*                                                FREE SPARSE JACOBIAN INFOS */
+
+/* ------------------------------------------------------------------------- */
+void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
+                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen)
+{
+    int i;
+
+    if(y)
+      myfree1(y);
+
+    if (Seed)
+    {
+	for (i = 0; i < seed_rows; i++)
+	    delete[] Seed[i];
+	delete[] Seed;
+    }
+
+    if(B)
+      myfree2(B);
+
+    for (int i=0;i<depen;i++) {
+      free(JP[i]);
+    }
+
+    free(JP);
+
+    // yields segmentation fault, check again !!
+    // if (g) 
+    //   delete (BipartiteGraphPartialColoringInterface *) g;
+
+    if (jr1d)
+	delete (JacobianRecovery1D*)jr1d;
+
+}
+
+/*****************************************************************************/
+/*                                                 FREE SPARSE HESSIAN INFOS */
+
+/* ------------------------------------------------------------------------- */
+void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
+                         double **Upp, unsigned int **HP,
+                         void *g, void *hr, int p, int indep)
+{
+    int i;
+
+    if(Hcomp)
+      myfree2(Hcomp);
+
+   if(Xppp)
+      myfree3(Xppp);
+
+   if(Yppp)
+      myfree3(Yppp);
+
+   if(Zppp)
+      myfree3(Zppp);
+   if(Upp)
+      myfree2(Upp);
+
+    for (int i=0;i<indep;i++) {
+      free(HP[i]);
+    }
+
+    free(HP);
+
+    // yields segmentation fault, check again !!
+    // // if (g) 
+    // //   delete (BipartiteGraphPartialColoringInterface *) g;
+
+    if (hr)
+	delete (HessianRecovery*) hr;
+
+}
+
+END_C_DECLS
+
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 

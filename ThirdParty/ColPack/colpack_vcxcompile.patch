@@ -1,0 +1,20 @@
+--- Utilities/MatrixDeallocation.h.orig	2010-06-17 11:24:57.123090549 +0200
++++ Utilities/MatrixDeallocation.h	2010-06-17 11:25:29.783015754 +0200
+@@ -45,7 +45,7 @@
+ 
+ 
+ template<typename T>
+-int free_2DMatrix(T **dp2_2DMatrix, unsigned int i_numOfRows) {
++void free_2DMatrix(T **dp2_2DMatrix, unsigned int i_numOfRows) {
+   for(unsigned int i=0; i< i_numOfRows; i++) {
+     delete[] (dp2_2DMatrix)[i];
+   }
+@@ -53,7 +53,7 @@
+ }
+ 
+ template<typename T>
+-int free_2DMatrix(T ***dp3_2DMatrix, unsigned int i_numOfRows) {
++void free_2DMatrix(T ***dp3_2DMatrix, unsigned int i_numOfRows) {
+ 	free_2DMatrix(*dp3_2DMatrix,i_numOfRows);
+ 	delete dp3_2DMatrix;
+ }

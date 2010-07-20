@@ -15,8 +15,8 @@
 #if !defined(ADOLC_CHECKPOINTING_H)
 #define ADOLC_CHECKPOINTING_H 1
 
-#include <common.h>
-#include <adouble.h>
+#include <adolc/common.h>
+#include <adolc/adouble.h>
 
 #if defined(__cplusplus)
 /****************************************************************************/

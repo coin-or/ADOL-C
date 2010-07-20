@@ -16,7 +16,7 @@ AM_CXXFLAGS          = @ac_adolc_cxxflags@
 AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                = -ladolc $(libdir)/libColPack.a
+LDADD                = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS           = -L../../../src
 else
 LDADD                = -ladolc 
@@ -25,14 +25,14 @@ endif
 
 INCLUDES             = -I$(top_builddir) -I$(top_builddir)/examples/additional_examples
 
-EXTRA_DIST           = LU.h Makefile.win
+EXTRA_DIST           = LU.h
 
 MAINTAINERCLEANFILES = Makefile.in tape.tex *~ *.orig
 
 if ADDEXA
 noinst_PROGRAMS      = LUsolve LUdet
+endif
 
 LUsolve_SOURCES      = LUsolve.cpp LU.cpp
 
 LUdet_SOURCES        = LUdet.cpp LU.cpp
-endif

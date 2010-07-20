@@ -15,7 +15,7 @@ AM_CXXFLAGS             = @ac_adolc_cxxflags@
 AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                   = -ladolc $(libdir)/libColPack.a
+LDADD                   = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS              = -L../../../src
 else
 LDADD                   = -ladolc 
@@ -26,16 +26,14 @@ INCLUDES                = -I$(top_builddir) -I$(top_builddir)/examples/additiona
 
 MAINTAINERCLEANFILES    = Makefile.in *~ *.orig
 
-EXTRA_DIST              = Makefile.win
-
-if ADDEXA
 if SPARSE
+if ADDEXA
 noinst_PROGRAMS         = sparse_jacobian sparse_hessian jacpatexam
+endif
 
 sparse_jacobian_SOURCES = sparse_jacobian.cpp
 
 sparse_hessian_SOURCES  = sparse_hessian.cpp
 
 jacpatexam_SOURCES      = jacpatexam.cpp ../clock/myclock.cpp
-endif
 endif
