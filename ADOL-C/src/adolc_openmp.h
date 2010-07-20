@@ -22,7 +22,7 @@
 #error OPENMP NOT ENABLED AT COMPILE TIME !!!
 #else
 
-#include <common.h>
+#include <adolc/common.h>
 
 extern void beginParallel();
 extern void endParallel();

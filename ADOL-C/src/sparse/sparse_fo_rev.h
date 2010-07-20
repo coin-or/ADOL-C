@@ -15,7 +15,7 @@
 #if !defined (ADOLC_SPARSE_SPARSE_H)
 #define ADOLC_SPARSE_SPARSE_H 1
 
-#include <common.h>
+#include <adolc/common.h>
 
 #if defined(__cplusplus)
 /****************************************************************************/

@@ -15,7 +15,7 @@ AM_CXXFLAGS          = @ac_adolc_cxxflags@
 AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                = -ladolc $(libdir)/libColPack.a
+LDADD                = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS           = -L../../../src
 else
 LDADD                = -ladolc 
@@ -26,13 +26,11 @@ INCLUDES             = -I$(top_builddir)
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
-EXTRA_DIST           = Makefile.win
-
 if PAREXA
 noinst_PROGRAMS      = liborser liborpar
+endif
 
 liborser_SOURCES     = liborser.cpp
 
 liborpar_SOURCES     = liborpar.cpp
 
-endif

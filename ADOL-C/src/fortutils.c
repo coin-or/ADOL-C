@@ -13,7 +13,7 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <fortutils.h>
+#include <adolc/fortutils.h>
 
 BEGIN_C_DECLS
 

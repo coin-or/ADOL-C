@@ -12,10 +12,10 @@
  recipient's acceptance of the terms of the accompanying license file.
  
 ----------------------------------------------------------------------------*/
-#include <drivers/taylor.h>
-#include <interfaces.h>
-#include <adalloc.h>
-#include <taping_p.h>
+#include <adolc/drivers/taylor.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include "taping_p.h"
 
 #include <math.h>
 
@@ -642,7 +642,7 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
     for(i=0;i<n;i++)
         for(j=0;j<dimten;j++)
             tensor[i][j] = 0;
-    MINDEC(rc,zos_forward(1,n,n,0,x,y));
+    MINDEC(rc,zos_forward(tag,n,n,0,x,y));
     if (d > 0) {
         if ((d != dold) || (p != pold)) {
             if (pold) { /* olvo 980728 */

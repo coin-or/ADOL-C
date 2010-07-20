@@ -13,10 +13,10 @@ This file is part of ADOL-C. This software is provided as open source.
  recipient's acceptance of the terms of the accompanying license file.
   
 ----------------------------------------------------------------------------*/
-#include <drivers/drivers.h>
-#include <interfaces.h>
-#include <adalloc.h>
-#include <fortutils.h>
+#include <adolc/drivers/drivers.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/fortutils.h>
 
 #include <math.h>
 

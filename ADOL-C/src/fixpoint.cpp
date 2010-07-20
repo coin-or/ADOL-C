@@ -14,9 +14,9 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc.h>
-#include <fixpoint.h>
-#include <taping_p.h>
+#include <adolc/adolc.h>
+#include <adolc/fixpoint.h>
+#include "taping_p.h"
 
 #include <vector>
 

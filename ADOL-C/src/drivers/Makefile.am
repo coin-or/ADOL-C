@@ -17,8 +17,6 @@ AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C/src
 
 MAINTAINERCLEANFILES      = Makefile.in *~ *.orig
 
-EXTRA_DIST                = Makefile.win
-
 INCLUDES                  = -I$(top_builddir)
 
 noinst_LTLIBRARIES        = libdrivers.la

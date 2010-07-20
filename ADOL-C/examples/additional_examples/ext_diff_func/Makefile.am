@@ -15,7 +15,7 @@ AM_CXXFLAGS            = @ac_adolc_cxxflags@
 AM_CPPFLAGS            = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                  = -ladolc $(libdir)/libColPack.a
+LDADD                  = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS             = -L../../../src
 else
 LDADD                  = -ladolc 
@@ -26,10 +26,8 @@ INCLUDES               = -I$(top_builddir) -I$(top_builddir)/examples/additional
 
 MAINTAINERCLEANFILES   = Makefile.in *~ *.orig
 
-EXTRA_DIST             = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS        = ext_diff_func
+endif
 
 ext_diff_func_SOURCES  = ext_diff_func.cpp 
-endif

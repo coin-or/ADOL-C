@@ -20,9 +20,9 @@
    
 ----------------------------------------------------------------------------*/
 
-#include <adouble.h>
-#include <oplate.h>
-#include <taping_p.h>
+#include <adolc/adouble.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
 
 using namespace std;
 
@@ -32,13 +32,13 @@ using namespace std;
 /*--------------------------------------------------------------------------*/
 void condassign( double &res, const double &cond,
                  const double &arg1, const double &arg2 ) {
-    res = cond ? arg1 : arg2;
+    res = cond > 0 ? arg1 : arg2;
 }
 
 /*--------------------------------------------------------------------------*/
 void condassign( double &res, const double &cond,
                  const double &arg) {
-    res = cond ? arg : res;
+    res = cond > 0 ? arg : res;
 }
 
 /*--------------------------------------------------------------------------*/

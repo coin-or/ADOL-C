@@ -15,7 +15,7 @@ AM_CXXFLAGS          = @ac_adolc_cxxflags@
 AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                = -ladolc $(libdir)/libColPack.a
+LDADD                = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS           = -L../../../src
 else
 LDADD                = -ladolc 
@@ -26,13 +26,11 @@ INCLUDES             = -I$(top_builddir)
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
-EXTRA_DIST           = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS      = helm-auto helm-diff
+endif
 
 helm_auto_SOURCES    = helm-auto-exam.cpp
 
 helm_diff_SOURCES    = helm-diff-exam.cpp
 
-endif

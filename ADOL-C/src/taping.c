@@ -17,8 +17,8 @@
 #include <math.h>
 #include <string.h>
 
-#include <oplate.h>
-#include <taping_p.h>
+#include <adolc/oplate.h>
+#include "taping_p.h"
 
 /*--------------------------------------------------------------------------*/
 /* Tape identification (ADOLC & version check) */
@@ -300,10 +300,10 @@ void printError() {
 
 /* the base names of every tape type */
 const char *tapeBaseNames[] = {
-            ADOLC_LOCATIONS_NAME,
-            ADOLC_VALUES_NAME,
-            ADOLC_OPERATIONS_NAME,
-            ADOLC_TAYLORS_NAME
+            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME,
+            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME,
+            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME,
+            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME
         };
 
 /****************************************************************************/

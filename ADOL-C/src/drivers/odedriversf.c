@@ -13,10 +13,10 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include <drivers/odedrivers.h>
-#include <interfaces.h>
-#include <adalloc.h>
-#include <fortutils.h>
+#include <adolc/drivers/odedrivers.h>
+#include <adolc/interfaces.h>
+#include <adolc/adalloc.h>
+#include <adolc/fortutils.h>
 
 #include <math.h>
 

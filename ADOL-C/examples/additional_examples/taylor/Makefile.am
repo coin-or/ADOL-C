@@ -15,7 +15,7 @@ AM_CXXFLAGS          = @ac_adolc_cxxflags@
 AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-LDADD                = -ladolc $(libdir)/libColPack.a
+LDADD                = -ladolc @COLPACK_LIBS@
 AM_LDFLAGS           = -L../../../src
 else
 LDADD                = -ladolc 
@@ -26,10 +26,9 @@ INCLUDES             = -I$(top_builddir)
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
-EXTRA_DIST           = Makefile.win
-
 if ADDEXA
 noinst_PROGRAMS      = taylorexam inversexam accessexam trigger coordinates
+endif
 
 taylorexam_SOURCES   = taylorexam.cpp
 
@@ -40,4 +39,3 @@ accessexam_SOURCES   = accessexam.cpp
 trigger_SOURCES      = trigger.cpp
 
 coordinates_SOURCES  = coordinates.cpp
-endif
