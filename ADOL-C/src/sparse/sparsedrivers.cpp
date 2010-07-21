@@ -976,15 +976,15 @@ void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
 
     free(JP);
 
+#ifdef HAVE_LIBCOLPACK
     // yields segmentation fault, check again !!
     // if (g) 
     //   delete (BipartiteGraphPartialColoringInterface *) g;
 
     if (jr1d)
 	delete (JacobianRecovery1D*)jr1d;
-
+#endif
 }
-
 /*****************************************************************************/
 /*                                                 FREE SPARSE HESSIAN INFOS */
 
@@ -1015,13 +1015,14 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
 
     free(HP);
 
+#ifdef HAVE_LIBCOLPACK
     // yields segmentation fault, check again !!
     // // if (g) 
     // //   delete (BipartiteGraphPartialColoringInterface *) g;
 
     if (hr)
 	delete (HessianRecovery*) hr;
-
+#endif
 }
 
 END_C_DECLS
