@@ -9,11 +9,11 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [6])
+define([ADOLC_LVL], [7])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-stable,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
