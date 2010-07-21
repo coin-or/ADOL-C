@@ -26,6 +26,7 @@
 
 using namespace std;
 
+#ifdef SPARSE
 BEGIN_C_DECLS
 ADOLC_DLL_EXPORT void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
                                          void *g, void *jr1d, int seed_rows, int seed_clms, int depen);
@@ -33,7 +34,7 @@ ADOLC_DLL_EXPORT void freeSparseHessInfos(double **Hcomp, double ***Xppp, double
 					  double **Upp, unsigned int **HP,
 					  void *g, void *hr, int p, int indep);
 END_C_DECLS
-
+#endif
 /* vector of tape infos for all tapes in use */
 vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
@@ -341,6 +342,7 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
+#ifdef SPARSE
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
 			tapeInfos->pTapeInfos.sJinfos.Seed,
@@ -351,6 +353,7 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 			tapeInfos->pTapeInfos.sJinfos.seed_rows,
 			tapeInfos->pTapeInfos.sJinfos.seed_clms,
 			tapeInfos->pTapeInfos.sJinfos.depen);
+#endif
 
 		tapeInfos->pTapeInfos.sJinfos.y=sJinfos.y;
 		tapeInfos->pTapeInfos.sJinfos.Seed=sJinfos.Seed;
@@ -382,7 +385,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
-
+#ifdef SPARSE
 		// free memory of tape entry that had been used previously
                     freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
                                         tapeInfos->pTapeInfos.sHinfos.Xppp, 
@@ -394,6 +397,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
                                         tapeInfos->pTapeInfos.sHinfos.hr, 
                                         tapeInfos->pTapeInfos.sHinfos.p, 
                                         tapeInfos->pTapeInfos.sHinfos.indep);	
+#endif
 		    tapeInfos->pTapeInfos.sHinfos.Hcomp=sHinfos.Hcomp;
 		    tapeInfos->pTapeInfos.sHinfos.Xppp=sHinfos.Xppp;
 		    tapeInfos->pTapeInfos.sHinfos.Yppp=sHinfos.Yppp;
