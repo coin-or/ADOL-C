@@ -12,7 +12,7 @@
 
 AUTOMAKE_OPTIONS     = foreign
 
-EXTRA_DIST           = TODO BUGS  \
+EXTRA_DIST           = TODO BUGS update_versions.sh \
                        ADOL-C/doc/version.tex.in ADOL-C/doc/version.tex \
                        autoconf/shave.in autoconf/shave-libtool.in \
                        autoconf/dolt.m4 autoconf/shave.m4 \
