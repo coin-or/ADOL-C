@@ -9,11 +9,11 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [7])
+define([ADOLC_LVL], [8])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-stable,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
@@ -83,6 +83,12 @@ AC_CHECK_LIB([m], [pow])
 AC_DEFINE(ADOLC_VERSION,ADOLC_VER,[ADOL-C Version])
 AC_DEFINE(ADOLC_SUBVERSION,ADOLC_SUB,[ADOL-C Subversion])
 AC_DEFINE(ADOLC_PATCHLEVEL,ADOLC_LVL,[ADOL-C Patchlevel])
+ADOLC_VERSION=ADOLC_VER
+ADOLC_SUBVERSION=ADOLC_SUB
+ADOLC_PATCHLEVEL=ADOLC_LVL
+AC_SUBST(ADOLC_VERSION)
+AC_SUBST(ADOLC_SUBVERSION)
+AC_SUBST(ADOLC_PATCHLEVEL)
 
 AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
@@ -157,6 +163,7 @@ save_CFLAGS="$CFLAGS"
 save_LDFLAGS="$LDFLAGS"
 CFLAGS="$CFLAGS $COLPACK_CFLAGS"
 LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+echo "will test for linking with -lColPack from $colpack/${_lib}"
 AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
 CFLAGS=$save_CFLAGS
 LDFLAGS=$save_LDFLAGS
@@ -327,6 +334,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/src/drivers/Makefile 
                 ADOL-C/src/sparse/Makefile
                 ADOL-C/src/tapedoc/Makefile
+                ADOL-C/doc/version.tex
                 ADOL-C/examples/Makefile
                 ADOL-C/examples/additional_examples/Makefile
                 ADOL-C/examples/additional_examples/clock/Makefile
@@ -347,7 +355,12 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/tapesave/Makefile
                 ADOL-C/examples/additional_examples/pow/Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile
-                ADOL-C/test/Makefile)
+                ADOL-C/test/Makefile
+                windows/sparse/config.h
+                windows/nosparse/config.h
+                windows/x64/sparse/config.h
+                windows/x64/nosparse/config.h
+)
 
 AC_OUTPUT
 
