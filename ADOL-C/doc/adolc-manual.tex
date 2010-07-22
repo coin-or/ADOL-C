@@ -1,4 +1,4 @@
-% Latex file containing the documentation of ADOL-C version 2.1.6
+% Latex file containing the documentation of ADOL-C
 %
 % Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
 %               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
@@ -12,6 +12,9 @@
 \usepackage{hyperref}
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage{graphicx}
+\usepackage{datetime}
+
+\newdateformat{monthyear}{\monthname\ \THEYEAR}
 
 \usepackage{color}
 
@@ -37,6 +40,7 @@
 
 \setcounter{equation}{0}
 
+\input{version.tex}
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \begin{document}
@@ -54,7 +58,7 @@
 {\Large A Package for the Automatic Differentiation}\vspace{0.1in} \\
 {\Large of Algorithms Written in C/C++}\\
 \vspace{.2in}
-{\large\bf  Version 2.1.6, July 2010} \\
+{\large\bf  Version \packageversion, \monthyear\today} \\
 \bigskip
  \mbox{Andrea Walther}\footnote{Institute of Mathematics, University
    of Paderborn, 33098 Paderborn, Germany} and
@@ -3365,7 +3369,7 @@ install triplet
 \verb=configure - make - make install= .
 \end{center}
 Executing this three steps from the package base directory
-\verb=</SOMEPATH/ADOL-C-2.1.6>= will compile the static and the dynamic
+\verb=</SOMEPATH/=\texttt{\packagetar}\verb=>= will compile the static and the dynamic
 ADOL-C library with default options and install the package (libraries
 and headers) into the default installation directory {\tt
   \verb=<=\$HOME/adolc\_base\verb=>=}. Inside the install directory
@@ -3406,20 +3410,13 @@ files,
 the compiler used to compile {\sf ADOL-C} one of these libraries will
 be used for linking.
  
-%Then it is assumed that the ColPack library
-%available at
-%\verb=http://www.cscapes.org/coloringpage/software.htm= is
-%located in the path \verb=<\$HOME/adolc_base/lib>=. Furthermore a
-%copy of all header files of ColPack is assumed to be found in
-%the directory \verb=</SOMEPATH/ADOL-C-2.1.0/ThirdParty/ColPack/include>=.
-% 
 \subsection{Compiling and Linking the Example Programs}
 %
 The installation procedure described in \autoref{genlib} also
 provides the \verb=Makefile=s  to compile the example programs in the
-directories \verb=<ADOL-C-2.1.6>/ADOL-C/examples= and the
+directories \verb=<=\texttt{\packagetar}\verb=>/ADOL-C/examples= and the
 additional examples in
-\verb=<ADOL-C-2.1.6>/ADOL-C/examples/additional_examples=. However,
+\verb=<=\texttt{\packagetar}\verb=>/ADOL-C/examples/additional_examples=. However,
 one has to execute the 
 \verb=configure= command with  appropriate options for the ADOL-C package to enable the compilation of
 examples. Available options are: 
@@ -3713,7 +3710,7 @@ iterated integrals.
 %
 The following listings are all simplified versions of codes that
 are contained in the example subdirectory 
-\verb=<ADOL-C-2.1.6>/ADOL-C/examples= of ADOL-C. In particular,
+\verb=<=\texttt{\packagetar}\verb=>/ADOL-C/examples= of ADOL-C. In particular,
 we have left out timings, which are included in the complete codes.
 %
 \subsection{Speelpenning's Example ({\tt speelpenning.cpp})}

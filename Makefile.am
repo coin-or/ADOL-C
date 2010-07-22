@@ -12,10 +12,13 @@
 
 AUTOMAKE_OPTIONS     = foreign
 
-EXTRA_DIST           = TODO BUGS  make_32 make_64 \
+EXTRA_DIST           = TODO BUGS  \
+                       ADOL-C/doc/version.tex.in ADOL-C/doc/version.tex \
                        autoconf/shave.in autoconf/shave-libtool.in \
                        autoconf/dolt.m4 autoconf/shave.m4 \
                        windows/adolc.sln windows/adolc.vcxproj \
+                       windows/sparse/config.h.in windows/nosparse/config.h.in \
+                       windows/x64/sparse/config.h.in windows/x64/nosparse/config.h.in \
                        windows/sparse/config.h windows/nosparse/config.h \
                        windows/x64/sparse/config.h windows/x64/nosparse/config.h \
                        windows/Readme_VC++.txt \
