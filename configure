@@ -3250,12 +3250,12 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 
-if test x$CFLAGS == x ; then
+if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
 else
     ac_shell_cflags="$CFLAGS"
 fi
-if test x$CXXFLAGS == x ; then
+if test "x$CXXFLAGS" == x ; then
     ac_shell_cxxflags="not_set"
 else
     ac_shell_cxxflags="$CXXFLAGS"
