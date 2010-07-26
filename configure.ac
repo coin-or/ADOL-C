@@ -22,12 +22,12 @@ AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE
 
-if test x$CFLAGS == x ; then
+if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
 else
     ac_shell_cflags="$CFLAGS"
 fi
-if test x$CXXFLAGS == x ; then
+if test "x$CXXFLAGS" == x ; then
     ac_shell_cxxflags="not_set"
 else
     ac_shell_cxxflags="$CXXFLAGS"
