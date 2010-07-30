@@ -221,6 +221,12 @@ int main() {
     printmat("compressed J:",m,p,Jcomp);
     printf("\n");
 
+    for (i=0;i<m;i++)
+	free(JP[i]);
+    free(JP);
+    myfree2(J);
+    myfree2(Seed);
+    myfree2(Jcomp);
 }
 
 
