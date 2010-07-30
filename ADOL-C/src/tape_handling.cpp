@@ -163,11 +163,23 @@ int initNewTape(short tapeID) {
     newTapeInfos->pTapeInfos.sJinfos.g=NULL;
     newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
     newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.depen=0;
+    newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
+    newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
+    newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
     newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.g=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
+    newTapeInfos->pTapeInfos.sHinfos.indep=0;
+    newTapeInfos->pTapeInfos.sHinfos.p=0;
+
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
     newTapeInfos->stats[LOC_BUFFER_SIZE] =
