@@ -271,6 +271,7 @@ int sparse_jac(
 	return ret_val;
       }
       
+      sJinfos.depen = depen;
       sJinfos.nnz_in = depen;
       sJinfos.nnz_in = 0;
       for (i=0;i<depen;i++) {
