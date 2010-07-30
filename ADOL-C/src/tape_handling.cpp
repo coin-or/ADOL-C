@@ -28,11 +28,11 @@ using namespace std;
 
 #ifdef SPARSE
 BEGIN_C_DECLS
-ADOLC_DLL_EXPORT void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
-                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen);
-ADOLC_DLL_EXPORT void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
-					  double **Upp, unsigned int **HP,
-					  void *g, void *hr, int p, int indep);
+extern void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
+			       void *jr1d, int seed_rows, int seed_clms, int depen);
+extern void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
+				double **Upp, unsigned int **HP,
+				void *g, void *hr, int p, int indep);
 END_C_DECLS
 #endif
 /* vector of tape infos for all tapes in use */
@@ -357,7 +357,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 #ifdef SPARSE
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
-			tapeInfos->pTapeInfos.sJinfos.Seed,
                         tapeInfos->pTapeInfos.sJinfos.B,
                         tapeInfos->pTapeInfos.sJinfos.JP,
                         tapeInfos->pTapeInfos.sJinfos.g,

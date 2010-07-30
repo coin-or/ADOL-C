@@ -327,6 +327,9 @@ int sparse_jac(
 	      }
 	}
 			
+      /* sJinfos.Seed is memory managed by ColPack and will be deleted 
+       * along with g. We only keep it in sJinfos for the repeat != 0 case */
+
       g = new BipartiteGraphPartialColoringInterface(SRC_WAIT);
       jr1d = new JacobianRecovery1D;
 	
@@ -506,12 +509,7 @@ int sparse_hess(
 	  for (l=0;l<sHinfos.p;l++)
             sHinfos.Xppp[i][l][0] = Seed[i][l];
 
-	  /* ERR: The Seed matrix will be freed ColPack
-	for (i=0; i<indep; i++)
-	  delete[] Seed[i];
-
-	delete[] Seed;
-	//*/
+	/* Seed will be freed by ColPack when g is freed */
 	Seed = NULL;
 
         sHinfos.Yppp = myalloc3(1,sHinfos.p,1);
@@ -988,21 +986,12 @@ BEGIN_C_DECLS
 /*                                                FREE SPARSE JACOBIAN INFOS */
 
 /* ------------------------------------------------------------------------- */
-void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
-                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen)
+void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
+			void *jr1d, int seed_rows, int seed_clms, int depen)
 {
     int i;
     if(y)
       myfree1(y);
-
-/*  ERR: The Seed matrix will be freed ColPack
-    if (Seed)
-    {
-	for (i = 0; i < seed_rows; i++)
-	    delete[] Seed[i];
-	delete[] Seed;
-    }
-//*/
 
     if(B)
       myfree2(B);
@@ -1014,7 +1003,6 @@ void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
     free(JP);
 
 #ifdef HAVE_LIBCOLPACK
-    // yields segmentation fault, check again !!
      if (g) 
        delete (BipartiteGraphPartialColoringInterface *) g;
 
@@ -1031,7 +1019,7 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
                          void *g, void *hr, int p, int indep)
 {
     int i;
-//*
+
     if(Hcomp)
       myfree2(Hcomp);
 
@@ -1050,10 +1038,8 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
     }
 
     free(HP);
-//*/
 
 #ifdef HAVE_LIBCOLPACK
-    // yields segmentation fault, check again !!
      if (g) 
        delete (GraphColoringInterface *) g;
 
