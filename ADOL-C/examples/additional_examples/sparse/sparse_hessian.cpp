@@ -195,6 +195,13 @@ int main() {
     printmat("compressed H:",n,p,Hcomp);
     printf("\n");
 
+    for(i=0;i<n;i++)
+       free(HP[i]);
+    free(HP);
+
+    myfree2(H);
+    myfree2(Hcomp);
+    myfree2(Seed);
 }
 
 

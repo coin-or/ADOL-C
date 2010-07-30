@@ -28,11 +28,11 @@ using namespace std;
 
 #ifdef SPARSE
 BEGIN_C_DECLS
-ADOLC_DLL_EXPORT void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
-                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen);
-ADOLC_DLL_EXPORT void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
-					  double **Upp, unsigned int **HP,
-					  void *g, void *hr, int p, int indep);
+extern void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
+			       void *jr1d, int seed_rows, int seed_clms, int depen);
+extern void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
+				double **Upp, unsigned int **HP,
+				void *g, void *hr, int p, int indep);
 END_C_DECLS
 #endif
 /* vector of tape infos for all tapes in use */
@@ -163,11 +163,23 @@ int initNewTape(short tapeID) {
     newTapeInfos->pTapeInfos.sJinfos.g=NULL;
     newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
     newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
+    newTapeInfos->pTapeInfos.sJinfos.depen=0;
+    newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
+    newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
+    newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
     newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
     newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.g=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
+    newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
+    newTapeInfos->pTapeInfos.sHinfos.indep=0;
+    newTapeInfos->pTapeInfos.sHinfos.p=0;
+
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
     newTapeInfos->stats[LOC_BUFFER_SIZE] =
@@ -345,7 +357,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 #ifdef SPARSE
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
-			tapeInfos->pTapeInfos.sJinfos.Seed,
                         tapeInfos->pTapeInfos.sJinfos.B,
                         tapeInfos->pTapeInfos.sJinfos.JP,
                         tapeInfos->pTapeInfos.sJinfos.g,
