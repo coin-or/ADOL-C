@@ -115,13 +115,13 @@ void generate_seed_jac
 #if HAVE_LIBCOLPACK
 {
   int dummy, i, j;
-  double*** Seed_ColPack = new double**;
+  double** Seed_ColPack;
 
   BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_WAIT);
 
   if (option == 1) 
   {
-    g->GenerateSeedJacobian(JP, m, n, Seed_ColPack, p, &dummy, 
+    g->GenerateSeedJacobian(JP, m, n, &Seed_ColPack, p, &dummy, 
 				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
 				
     //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
@@ -129,13 +129,13 @@ void generate_seed_jac
 
     for (i=0; i< (*p) ; i++)
       for (j=0;j<dummy;j++)
-	(*Seed)[i][j] =  (*Seed_ColPack)[i][j];
+	(*Seed)[i][j] =  Seed_ColPack[i][j];
 			
     delete g;
   }
   else 
   {
-    g->GenerateSeedJacobian(JP, m, n, Seed_ColPack, &dummy, p, 
+    g->GenerateSeedJacobian(JP, m, n, &Seed_ColPack, &dummy, p, 
 				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 				
     //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
@@ -143,7 +143,7 @@ void generate_seed_jac
 
     for (i=0; i<dummy; i++)
       for (j=0;j< (*p) ;j++)
-	(*Seed)[i][j] =  (*Seed_ColPack)[i][j];
+	(*Seed)[i][j] =  Seed_ColPack[i][j];
 			
     delete g;
   }
@@ -213,15 +213,15 @@ void generate_seed_hess
 #if HAVE_LIBCOLPACK 
 {
   int seed_rows, i, j;
-  double*** Seed_ColPack = new double**;
+  double** Seed_ColPack;
 
   GraphColoringInterface *g = new GraphColoringInterface(SRC_WAIT);
 
   if (option == 0)
-    g->GenerateSeedHessian(HP, n, Seed_ColPack, &seed_rows, p, 
+    g->GenerateSeedHessian(HP, n, &Seed_ColPack, &seed_rows, p, 
 		  	   "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
   else
-    g->GenerateSeedHessian(HP, n, Seed_ColPack, &seed_rows, p, 
+    g->GenerateSeedHessian(HP, n, &Seed_ColPack, &seed_rows, p, 
 			   "SMALLEST_LAST","STAR"); 
 			   
   //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
@@ -229,7 +229,7 @@ void generate_seed_hess
 
   for (i=0; i<seed_rows; i++)
     for (j=0;j< (*p) ;j++)
-      (*Seed)[i][j] =  (*Seed_ColPack)[i][j];
+      (*Seed)[i][j] =  Seed_ColPack[i][j];
 		      
   delete g;
 }
