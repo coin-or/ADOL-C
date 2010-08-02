@@ -522,52 +522,26 @@ void cleanUp() {
                 (*tiIter)->tayBuffer = NULL;
             }
 
-
-            if ((*tiIter)->pTapeInfos.sJinfos.B != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sJinfos.B);
-                free((char*)   (*tiIter)->pTapeInfos.sJinfos.B);
-                (*tiIter)->pTapeInfos.sJinfos.B = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sJinfos.y != NULL)
-            {
-                free((*tiIter)->pTapeInfos.sJinfos.y);
-                (*tiIter)->pTapeInfos.sJinfos.y = NULL;
-            }
-
-            if ((*tiIter)->pTapeInfos.sHinfos.Zppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Zppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Zppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Zppp);
-                (*tiIter)->pTapeInfos.sHinfos.Zppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Yppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Yppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Yppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Yppp);
-                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Xppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Xppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Xppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Xppp);
-                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Upp != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Upp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Upp);
-                (*tiIter)->pTapeInfos.sHinfos.Upp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Hcomp != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Hcomp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Hcomp);
-                (*tiIter)->pTapeInfos.sHinfos.Hcomp = NULL;
-            }
+#ifdef SPARSE
+	    freeSparseJacInfos((*tiIter)->pTapeInfos.sJinfos.y,
+			       (*tiIter)->pTapeInfos.sJinfos.B,
+			       (*tiIter)->pTapeInfos.sJinfos.JP,
+			       (*tiIter)->pTapeInfos.sJinfos.g,
+			       (*tiIter)->pTapeInfos.sJinfos.jr1d,
+			       (*tiIter)->pTapeInfos.sJinfos.seed_rows,
+			       (*tiIter)->pTapeInfos.sJinfos.seed_clms,
+			       (*tiIter)->pTapeInfos.sJinfos.depen);
+	    freeSparseHessInfos((*tiIter)->pTapeInfos.sHinfos.Hcomp, 
+				(*tiIter)->pTapeInfos.sHinfos.Xppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Yppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Zppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Upp, 
+				(*tiIter)->pTapeInfos.sHinfos.HP,
+				(*tiIter)->pTapeInfos.sHinfos.g, 
+				(*tiIter)->pTapeInfos.sHinfos.hr, 
+				(*tiIter)->pTapeInfos.sHinfos.p, 
+				(*tiIter)->pTapeInfos.sHinfos.indep);	
+#endif
 
             /* remove "main" tape files if not all three have been written */
             int filesWritten = (*tiIter)->stats[OP_FILE_ACCESS] +
@@ -661,6 +635,26 @@ int removeTape(short tapeID, short type) {
     }
 
     freeTapeResources(tapeInfos);
+#ifdef SPARSE
+    freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
+		       tapeInfos->pTapeInfos.sJinfos.B,
+		       tapeInfos->pTapeInfos.sJinfos.JP,
+		       tapeInfos->pTapeInfos.sJinfos.g,
+		       tapeInfos->pTapeInfos.sJinfos.jr1d,
+		       tapeInfos->pTapeInfos.sJinfos.seed_rows,
+		       tapeInfos->pTapeInfos.sJinfos.seed_clms,
+		       tapeInfos->pTapeInfos.sJinfos.depen);
+    freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
+			tapeInfos->pTapeInfos.sHinfos.Xppp, 
+			tapeInfos->pTapeInfos.sHinfos.Yppp, 
+			tapeInfos->pTapeInfos.sHinfos.Zppp, 
+			tapeInfos->pTapeInfos.sHinfos.Upp, 
+			tapeInfos->pTapeInfos.sHinfos.HP,
+			tapeInfos->pTapeInfos.sHinfos.g, 
+			tapeInfos->pTapeInfos.sHinfos.hr, 
+			tapeInfos->pTapeInfos.sHinfos.p, 
+			tapeInfos->pTapeInfos.sHinfos.indep);	
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
     if (type == ADOLC_REMOVE_COMPLETELY) {
