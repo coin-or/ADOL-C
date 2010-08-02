@@ -156,6 +156,7 @@ int initNewTape(short tapeID) {
     }
     newTapeInfos->traceFlag=1;
     newTapeInfos->inUse=1;
+#ifdef SPARSE
     newTapeInfos->pTapeInfos.inJacSparseUse=0;
     newTapeInfos->pTapeInfos.inHessSparseUse=0;
     newTapeInfos->pTapeInfos.sJinfos.B=NULL;
@@ -179,6 +180,7 @@ int initNewTape(short tapeID) {
     newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
     newTapeInfos->pTapeInfos.sHinfos.indep=0;
     newTapeInfos->pTapeInfos.sHinfos.p=0;
+#endif
 
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
@@ -332,13 +334,16 @@ TapeInfos *getTapeInfos(short tapeID) {
     ADOLC_TAPE_INFOS_BUFFER.push_back(tapeInfos);
     tapeInfos->traceFlag=1;
     tapeInfos->inUse=0;
+#ifdef SPARSE
     tapeInfos->pTapeInfos.inJacSparseUse=0;
     tapeInfos->pTapeInfos.inHessSparseUse=0;
+#endif
     tapeInfos->tapingComplete = 1;
     read_tape_stats(tapeInfos);
     return tapeInfos;
 }
 
+#ifdef SPARSE
 /* updates the tape infos on sparse Jac for the given ID  */
 void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
     TapeInfos *tapeInfos;
@@ -354,7 +359,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
-#ifdef SPARSE
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
                         tapeInfos->pTapeInfos.sJinfos.B,
@@ -364,8 +368,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 			tapeInfos->pTapeInfos.sJinfos.seed_rows,
 			tapeInfos->pTapeInfos.sJinfos.seed_clms,
 			tapeInfos->pTapeInfos.sJinfos.depen);
-#endif
-
 		tapeInfos->pTapeInfos.sJinfos.y=sJinfos.y;
 		tapeInfos->pTapeInfos.sJinfos.Seed=sJinfos.Seed;
 		tapeInfos->pTapeInfos.sJinfos.B=sJinfos.B;
@@ -380,7 +382,9 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
         }
     }
 }
+#endif
 
+#ifdef SPARSE
 /* updates the tape infos on sparse Hess for the given ID  */
 void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
     TapeInfos *tapeInfos;
@@ -396,7 +400,6 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
                 tapeInfos=*tiIter;
-#ifdef SPARSE
 		// free memory of tape entry that had been used previously
                     freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
                                         tapeInfos->pTapeInfos.sHinfos.Xppp, 
@@ -408,7 +411,6 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
                                         tapeInfos->pTapeInfos.sHinfos.hr, 
                                         tapeInfos->pTapeInfos.sHinfos.p, 
                                         tapeInfos->pTapeInfos.sHinfos.indep);	
-#endif
 		    tapeInfos->pTapeInfos.sHinfos.Hcomp=sHinfos.Hcomp;
 		    tapeInfos->pTapeInfos.sHinfos.Xppp=sHinfos.Xppp;
 		    tapeInfos->pTapeInfos.sHinfos.Yppp=sHinfos.Yppp;
@@ -424,6 +426,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
         }
     }
 }
+#endif
 
 void init() {
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -522,52 +525,26 @@ void cleanUp() {
                 (*tiIter)->tayBuffer = NULL;
             }
 
-
-            if ((*tiIter)->pTapeInfos.sJinfos.B != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sJinfos.B);
-                free((char*)   (*tiIter)->pTapeInfos.sJinfos.B);
-                (*tiIter)->pTapeInfos.sJinfos.B = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sJinfos.y != NULL)
-            {
-                free((*tiIter)->pTapeInfos.sJinfos.y);
-                (*tiIter)->pTapeInfos.sJinfos.y = NULL;
-            }
-
-            if ((*tiIter)->pTapeInfos.sHinfos.Zppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Zppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Zppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Zppp);
-                (*tiIter)->pTapeInfos.sHinfos.Zppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Yppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Yppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Yppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Yppp);
-                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Xppp != NULL)
-            {
-                free((char*) **(*tiIter)->pTapeInfos.sHinfos.Xppp);
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Xppp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Xppp);
-                (*tiIter)->pTapeInfos.sHinfos.Yppp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Upp != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Upp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Upp);
-                (*tiIter)->pTapeInfos.sHinfos.Upp = NULL;
-            }
-            if ((*tiIter)->pTapeInfos.sHinfos.Hcomp != NULL)
-            {
-                free((char*)  *(*tiIter)->pTapeInfos.sHinfos.Hcomp);
-                free((char*)   (*tiIter)->pTapeInfos.sHinfos.Hcomp);
-                (*tiIter)->pTapeInfos.sHinfos.Hcomp = NULL;
-            }
+#ifdef SPARSE
+	    freeSparseJacInfos((*tiIter)->pTapeInfos.sJinfos.y,
+			       (*tiIter)->pTapeInfos.sJinfos.B,
+			       (*tiIter)->pTapeInfos.sJinfos.JP,
+			       (*tiIter)->pTapeInfos.sJinfos.g,
+			       (*tiIter)->pTapeInfos.sJinfos.jr1d,
+			       (*tiIter)->pTapeInfos.sJinfos.seed_rows,
+			       (*tiIter)->pTapeInfos.sJinfos.seed_clms,
+			       (*tiIter)->pTapeInfos.sJinfos.depen);
+	    freeSparseHessInfos((*tiIter)->pTapeInfos.sHinfos.Hcomp, 
+				(*tiIter)->pTapeInfos.sHinfos.Xppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Yppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Zppp, 
+				(*tiIter)->pTapeInfos.sHinfos.Upp, 
+				(*tiIter)->pTapeInfos.sHinfos.HP,
+				(*tiIter)->pTapeInfos.sHinfos.g, 
+				(*tiIter)->pTapeInfos.sHinfos.hr, 
+				(*tiIter)->pTapeInfos.sHinfos.p, 
+				(*tiIter)->pTapeInfos.sHinfos.indep);	
+#endif
 
             /* remove "main" tape files if not all three have been written */
             int filesWritten = (*tiIter)->stats[OP_FILE_ACCESS] +
@@ -661,6 +638,26 @@ int removeTape(short tapeID, short type) {
     }
 
     freeTapeResources(tapeInfos);
+#ifdef SPARSE
+    freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
+		       tapeInfos->pTapeInfos.sJinfos.B,
+		       tapeInfos->pTapeInfos.sJinfos.JP,
+		       tapeInfos->pTapeInfos.sJinfos.g,
+		       tapeInfos->pTapeInfos.sJinfos.jr1d,
+		       tapeInfos->pTapeInfos.sJinfos.seed_rows,
+		       tapeInfos->pTapeInfos.sJinfos.seed_clms,
+		       tapeInfos->pTapeInfos.sJinfos.depen);
+    freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
+			tapeInfos->pTapeInfos.sHinfos.Xppp, 
+			tapeInfos->pTapeInfos.sHinfos.Yppp, 
+			tapeInfos->pTapeInfos.sHinfos.Zppp, 
+			tapeInfos->pTapeInfos.sHinfos.Upp, 
+			tapeInfos->pTapeInfos.sHinfos.HP,
+			tapeInfos->pTapeInfos.sHinfos.g, 
+			tapeInfos->pTapeInfos.sHinfos.hr, 
+			tapeInfos->pTapeInfos.sHinfos.p, 
+			tapeInfos->pTapeInfos.sHinfos.indep);	
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
     if (type == ADOLC_REMOVE_COMPLETELY) {
