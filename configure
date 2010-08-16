@@ -15956,8 +15956,170 @@ else
   have_colpack=no
 fi
 
-CFLAGS=$save_CFLAGS
-LDFLAGS=$save_LDFLAGS
+CFLAGS="$save_CFLAGS"
+LDFLAGS="$save_LDFLAGS"
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/include"
+   COLPACK_LIBS="-L$colpack/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/lib"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack" >&5
+$as_echo_n "checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack... " >&6; }
+if test "${ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lColPack  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char _ZN7ColPack9GraphCore12GetInputFileEv ();
+int
+main ()
+{
+return _ZN7ColPack9GraphCore12GetInputFileEv ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=yes
+else
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&5
+$as_echo "$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&6; }
+if test "x$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" = x""yes; then :
+  have_colpack=yes
+else
+  have_colpack=no
+fi
+
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/${_lib} -lColPack -Wl,-rpath,$colpack/build/${_lib}"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/${_lib}"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack" >&5
+$as_echo_n "checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack... " >&6; }
+if test "${ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lColPack  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char _ZN7ColPack9GraphCore12GetInputFileEv ();
+int
+main ()
+{
+return _ZN7ColPack9GraphCore12GetInputFileEv ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=yes
+else
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&5
+$as_echo "$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&6; }
+if test "x$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" = x""yes; then :
+  have_colpack=yes
+else
+  have_colpack=no
+fi
+
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/lib"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack" >&5
+$as_echo_n "checking for _ZN7ColPack9GraphCore12GetInputFileEv in -lColPack... " >&6; }
+if test "${ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lColPack  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char _ZN7ColPack9GraphCore12GetInputFileEv ();
+int
+main ()
+{
+return _ZN7ColPack9GraphCore12GetInputFileEv ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=yes
+else
+  ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&5
+$as_echo "$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" >&6; }
+if test "x$ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv" = x""yes; then :
+  have_colpack=yes
+else
+  have_colpack=no
+fi
+
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
  if test x$have_colpack = xyes; then
   HAVE_LIBCOLPACK_TRUE=
   HAVE_LIBCOLPACK_FALSE='#'
@@ -15968,6 +16130,7 @@ fi
 
 if test x$have_colpack = xyes; then
    sparse=yes
+   echo "will build sparse drivers as -lColPack found"
 fi
  if test x${sparse} = xyes; then
   SPARSE_TRUE=
