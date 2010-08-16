@@ -165,11 +165,51 @@ CFLAGS="$CFLAGS $COLPACK_CFLAGS"
 LDFLAGS="$LDFLAGS $COLPACK_LIBS"
 echo "will test for linking with -lColPack from $colpack/${_lib}"
 AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
-CFLAGS=$save_CFLAGS
-LDFLAGS=$save_LDFLAGS
+CFLAGS="$save_CFLAGS"
+LDFLAGS="$save_LDFLAGS"
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/include"
+   COLPACK_LIBS="-L$colpack/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/lib"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/${_lib} -lColPack -Wl,-rpath,$colpack/build/${_lib}"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/${_lib}"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/lib"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
 if test x$have_colpack = xyes; then 
    sparse=yes
+   echo "will build sparse drivers as -lColPack found"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
