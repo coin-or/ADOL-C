@@ -225,7 +225,11 @@ int main() {
 	free(JP[i]);
     free(JP);
     myfree2(J);
-    myfree2(Seed);
+
+    for (i = 0; i < n; i++)
+        delete[] Seed[i];
+    delete[] Seed;
+
     myfree2(Jcomp);
 }
 
