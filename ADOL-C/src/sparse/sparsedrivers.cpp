@@ -125,7 +125,9 @@ void generate_seed_jac
 				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
 				
     //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-    (*Seed) = myalloc2( (*p) , dummy);
+    (*Seed) = new double*[*p];
+    for (i=0; i<(*p); i++)
+	(*Seed)[i] = new double[dummy];
 
     for (i=0; i< (*p) ; i++)
       for (j=0;j<dummy;j++)
@@ -139,7 +141,9 @@ void generate_seed_jac
 				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 				
     //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-    (*Seed) = myalloc2(dummy,  (*p) );
+    (*Seed) = new double*[dummy];
+    for (i=0; i<dummy; i++)
+	(*Seed)[i] = new double[*p];
 
     for (i=0; i<dummy; i++)
       for (j=0;j< (*p) ;j++)
@@ -225,7 +229,9 @@ void generate_seed_hess
 			   "SMALLEST_LAST","STAR"); 
 			   
   //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-  (*Seed) = myalloc2(seed_rows,  (*p) );
+  (*Seed) = new double*[seed_rows];
+  for (i=0; i<seed_rows; i++)
+      (*Seed)[i] = new double[*p];
 
   for (i=0; i<seed_rows; i++)
     for (j=0;j< (*p) ;j++)
