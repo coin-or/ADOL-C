@@ -28,7 +28,7 @@ using namespace std;
 
 #ifdef SPARSE
 BEGIN_C_DECLS
-extern void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP, void *g, 
+extern void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
 			       void *jr1d, int seed_rows, int seed_clms, int depen);
 extern void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double ***Zppp, 
 				double **Upp, unsigned int **HP,
@@ -361,7 +361,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
                 tapeInfos=*tiIter;
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
-                        tapeInfos->pTapeInfos.sJinfos.Seed,
                         tapeInfos->pTapeInfos.sJinfos.B,
                         tapeInfos->pTapeInfos.sJinfos.JP,
                         tapeInfos->pTapeInfos.sJinfos.g,
@@ -528,7 +527,6 @@ void cleanUp() {
 
 #ifdef SPARSE
 	    freeSparseJacInfos((*tiIter)->pTapeInfos.sJinfos.y,
-			       (*tiIter)->pTapeInfos.sJinfos.Seed,
 			       (*tiIter)->pTapeInfos.sJinfos.B,
 			       (*tiIter)->pTapeInfos.sJinfos.JP,
 			       (*tiIter)->pTapeInfos.sJinfos.g,
@@ -642,7 +640,6 @@ int removeTape(short tapeID, short type) {
     freeTapeResources(tapeInfos);
 #ifdef SPARSE
     freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
-		       tapeInfos->pTapeInfos.sJinfos.Seed,
 		       tapeInfos->pTapeInfos.sJinfos.B,
 		       tapeInfos->pTapeInfos.sJinfos.JP,
 		       tapeInfos->pTapeInfos.sJinfos.g,

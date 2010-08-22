@@ -119,19 +119,12 @@ void generate_seed_jac
   BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
   if (option == 1) 
-  {
     g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
 				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
-			
-    delete g;
-  }
   else 
-  {
     g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
 				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
-			
-    delete g;
-  }
+  delete g;
 
 }
 #else
@@ -312,13 +305,15 @@ int sparse_jac(
 	
       if (options[3] == 1)
 	{
-	  g->GenerateSeedJacobian_unmanaged(&(sJinfos.Seed), &(sJinfos.seed_rows), 
+	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
 				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+	  sJinfos.seed_clms = indep;
 	}  
       else
 	{
-	  g->GenerateSeedJacobian_unmanaged(&(sJinfos.Seed), &(sJinfos.seed_rows), 
+	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
                                 &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+	  sJinfos.seed_rows = depen;
 	}
       
       sJinfos.B = myalloc2(sJinfos.seed_rows,sJinfos.seed_clms);
@@ -470,10 +465,10 @@ int sparse_hess(
 	hr = new HessianRecovery;
 
 	if (options[1] == 0)
-	  g->GenerateSeedHessian_unmanaged(&Seed, &dummy, &sHinfos.p, 
+	  g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, 
 				 "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
 	else
-	  g->GenerateSeedHessian_unmanaged(&Seed, &dummy, &sHinfos.p, 
+	  g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, 
 		  	         "SMALLEST_LAST","STAR"); 
 
 	
@@ -484,10 +479,7 @@ int sparse_hess(
 	  for (l=0;l<sHinfos.p;l++)
             sHinfos.Xppp[i][l][0] = Seed[i][l];
 
-	for (i=0; i<indep; i++)
-	  delete[] Seed[i];
-
-	delete[] Seed;
+	/* Seed will be freed by ColPack when g is freed */
 	Seed = NULL;
 
         sHinfos.Yppp = myalloc3(1,sHinfos.p,1);
@@ -964,19 +956,12 @@ BEGIN_C_DECLS
 /*                                                FREE SPARSE JACOBIAN INFOS */
 
 /* ------------------------------------------------------------------------- */
-void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP, void *g, 
+void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
 			void *jr1d, int seed_rows, int seed_clms, int depen)
 {
     int i;
     if(y)
       myfree1(y);
-
-    if (Seed)
-    {
-	for (i = 0; i < seed_rows; i++)
-	    delete[] Seed[i];
-	delete[] Seed;
-    }
 
     if(B)
       myfree2(B);
