@@ -115,42 +115,16 @@ void generate_seed_jac
 #if HAVE_LIBCOLPACK
 {
   int dummy, i, j;
-  double** Seed_ColPack;
 
   BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
   if (option == 1) 
-  {
-    g->GenerateSeedJacobian(&Seed_ColPack, p, &dummy, 
+    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
 				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
-				
-    //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-    (*Seed) = new double*[*p];
-    for (i=0; i<(*p); i++)
-	(*Seed)[i] = new double[dummy];
-
-    for (i=0; i< (*p) ; i++)
-      for (j=0;j<dummy;j++)
-	(*Seed)[i][j] =  Seed_ColPack[i][j];
-			
-    delete g;
-  }
   else 
-  {
-    g->GenerateSeedJacobian(&Seed_ColPack, &dummy, p, 
+    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
 				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
-				
-    //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-    (*Seed) = new double*[dummy];
-    for (i=0; i<dummy; i++)
-	(*Seed)[i] = new double[*p];
-
-    for (i=0; i<dummy; i++)
-      for (j=0;j< (*p) ;j++)
-	(*Seed)[i][j] =  Seed_ColPack[i][j];
-			
-    delete g;
-  }
+  delete g;
 
 }
 #else
@@ -217,26 +191,15 @@ void generate_seed_hess
 #if HAVE_LIBCOLPACK 
 {
   int seed_rows, i, j;
-  double** Seed_ColPack;
 
   GraphColoringInterface *g = new GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
 
   if (option == 0)
-    g->GenerateSeedHessian(&Seed_ColPack, &seed_rows, p, 
+    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, 
 		  	   "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
   else
-    g->GenerateSeedHessian(&Seed_ColPack, &seed_rows, p, 
+    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, 
 			   "SMALLEST_LAST","STAR"); 
-			   
-  //Copy the Seed matrix over because Seed_ColPack will be freed with g is deleted
-  (*Seed) = new double*[seed_rows];
-  for (i=0; i<seed_rows; i++)
-      (*Seed)[i] = new double[*p];
-
-  for (i=0; i<seed_rows; i++)
-    for (j=0;j< (*p) ;j++)
-      (*Seed)[i][j] =  Seed_ColPack[i][j];
-		      
   delete g;
 }
 #else
