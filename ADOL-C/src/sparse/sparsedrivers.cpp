@@ -200,7 +200,6 @@ void generate_seed_hess
   else
     g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, 
 			   "SMALLEST_LAST","STAR"); 
-		      
   delete g;
 }
 #else
