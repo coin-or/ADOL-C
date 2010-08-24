@@ -201,7 +201,11 @@ int main() {
 
     myfree2(H);
     myfree2(Hcomp);
-    myfree2(Seed);
+
+    for (i = 0; i < n; i++)
+        delete[] Seed[i];
+    delete[] Seed;
+
 }
 
 
