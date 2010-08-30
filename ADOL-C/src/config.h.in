@@ -95,6 +95,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define to 1 if typeof works with your compiler. */
+#undef HAVE_TYPEOF
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -155,3 +158,6 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
+
+/* Define to __typeof__ if your compiler spells it that way. */
+#undef typeof
