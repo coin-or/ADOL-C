@@ -44,10 +44,8 @@ AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 DOLT
 
-AC_MSG_CHECKING([sizeof int*])
-AC_COMPUTE_INT(SIZEOF_INT_P,[sizeof(int *)])
-AC_MSG_RESULT([$SIZEOF_INT_P bytes])
-if test "x$SIZEOF_INT_P" = "x8" ; then
+AC_CHECK_SIZEOF([void *])
+if test "x$SIZEOF_VOID_P" = "x8" ; then
    _lib=lib64
 else
    _lib=lib

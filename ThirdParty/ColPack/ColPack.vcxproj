@@ -119,6 +119,7 @@
     <ClCompile Include="utilities\extra.cpp" />
     <ClCompile Include="utilities\File.cpp" />
     <ClCompile Include="utilities\MatrixDeallocation.cpp" />
+    <ClCompile Include="Utilities\mmio.cpp" />
     <ClCompile Include="utilities\Pause.cpp" />
     <ClCompile Include="utilities\StringTokenizer.cpp" />
     <ClCompile Include="utilities\Timer.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="utilities\extra.h" />
     <ClInclude Include="utilities\File.h" />
     <ClInclude Include="utilities\MatrixDeallocation.h" />
+    <ClInclude Include="Utilities\mmio.h" />
     <ClInclude Include="utilities\Pause.h" />
     <ClInclude Include="utilities\StringTokenizer.h" />
     <ClInclude Include="utilities\Timer.h" />
