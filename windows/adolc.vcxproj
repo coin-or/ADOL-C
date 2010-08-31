@@ -85,6 +85,9 @@
       </DelayLoadDLLs>
       <AdditionalDependencies>ColPack.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>del ..\ADOL-C\src\config.h</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'">
     <ClCompile>
