@@ -97,8 +97,10 @@
 #  define END_C_DECLS
 #endif
 
-#define MAXDEC(a,b) do { register typeof(a) __r; if ( __r = (b) > (a) ) (a) = __r; } while (0)
-#define MINDEC(a,b) do { register typeof(a) __r; if ( __r = (b) < (a) ) (a) = __r; } while (0)
+#define MAXDEC(a,b) do { register revreal __r = (b); if ( __r > (a) ) (a) = __r; } while (0)
+#define MAXDECI(a,b) do { register int __r = (b); if ( __r > (a) ) (a) = __r; } while (0)
+#define MINDECR(a,b) do { register revreal __r = (b); if ( __r < (a) ) (a) = __r; } while (0)
+#define MINDEC(a,b) do { register int __r = (b); if ( __r < (a) ) (a) = __r; } while (0)
 
 #define MAX_ADOLC(a,b) ( (a)<(b)? (b):(a) )
 #define MIN_ADOLC(a,b) ( (a)>(b)? (b):(a) )
