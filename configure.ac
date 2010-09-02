@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [8])
+define([ADOLC_LVL], [9])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
@@ -22,12 +22,12 @@ AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE
 
-if test x$CFLAGS == x ; then
+if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
 else
     ac_shell_cflags="$CFLAGS"
 fi
-if test x$CXXFLAGS == x ; then
+if test "x$CXXFLAGS" == x ; then
     ac_shell_cxxflags="not_set"
 else
     ac_shell_cxxflags="$CXXFLAGS"
@@ -44,10 +44,8 @@ AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 DOLT
 
-AC_MSG_CHECKING([sizeof int*])
-AC_COMPUTE_INT(SIZEOF_INT_P,[sizeof(int *)])
-AC_MSG_RESULT([$SIZEOF_INT_P bytes])
-if test "x$SIZEOF_INT_P" = "x8" ; then
+AC_CHECK_SIZEOF([void *])
+if test "x$SIZEOF_VOID_P" = "x8" ; then
    _lib=lib64
 else
    _lib=lib
@@ -165,11 +163,51 @@ CFLAGS="$CFLAGS $COLPACK_CFLAGS"
 LDFLAGS="$LDFLAGS $COLPACK_LIBS"
 echo "will test for linking with -lColPack from $colpack/${_lib}"
 AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
-CFLAGS=$save_CFLAGS
-LDFLAGS=$save_LDFLAGS
+CFLAGS="$save_CFLAGS"
+LDFLAGS="$save_LDFLAGS"
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/include"
+   COLPACK_LIBS="-L$colpack/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/lib"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/${_lib} -lColPack -Wl,-rpath,$colpack/build/${_lib}"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/${_lib}"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
+if test x$have_colpack = xno -a "x${_lib}" != "xlib" ; then
+   unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+   COLPACK_CFLAGS="-I$colpack/build/include"
+   COLPACK_LIBS="-L$colpack/build/lib -lColPack -Wl,-rpath,$colpack/build/lib"
+   save_CFLAGS="$CFLAGS"
+   save_LDFLAGS="$LDFLAGS"
+   CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+   LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+   echo "will test for linking with -lColPack from $colpack/build/lib"
+   AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
+   CFLAGS="$save_CFLAGS"
+   LDFLAGS="$save_LDFLAGS"
+fi
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
 if test x$have_colpack = xyes; then 
    sparse=yes
+   echo "will build sparse drivers as -lColPack found"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
