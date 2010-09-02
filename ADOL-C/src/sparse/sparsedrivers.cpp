@@ -114,16 +114,18 @@ void generate_seed_jac
 ) 
 #if HAVE_LIBCOLPACK
 {
-  int dummy;
+  int dummy, i, j;
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC,JP,m,n);
+  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
-  if (option == 1)
-    g->GenerateSeedJacobian(JP, m, n, Seed, p, &dummy, 
+  if (option == 1) 
+    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
 				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
-  else
-    g->GenerateSeedJacobian(JP, m, n, Seed, &dummy, p, 
+  else 
+    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
 				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+  delete g;
+
 }
 #else
 {
@@ -188,17 +190,17 @@ void generate_seed_hess
 )
 #if HAVE_LIBCOLPACK 
 {
-  int dummy;
+  int seed_rows, i, j;
 
-  GraphColoringInterface *g = new GraphColoringInterface(SRC_WAIT);
+  GraphColoringInterface *g = new GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
 
   if (option == 0)
-    g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
+    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, 
 		  	   "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
   else
-    g->GenerateSeedHessian(HP, n, Seed, &dummy, p, 
+    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, 
 			   "SMALLEST_LAST","STAR"); 
-
+  delete g;
 }
 #else
 {
@@ -271,6 +273,7 @@ int sparse_jac(
 	return ret_val;
       }
       
+      sJinfos.depen = depen;
       sJinfos.nnz_in = depen;
       sJinfos.nnz_in = 0;
       for (i=0;i<depen;i++) {
@@ -293,18 +296,21 @@ int sparse_jac(
 	      }
 	}
 			
-      g = new BipartiteGraphPartialColoringInterface(SRC_WAIT);
+      /* sJinfos.Seed is memory managed by ColPack and will be deleted 
+       * along with g. We only keep it in sJinfos for the repeat != 0 case */
+
+      g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, sJinfos.JP, depen, indep);
       jr1d = new JacobianRecovery1D;
 	
       if (options[3] == 1)
 	{
-	  g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.seed_rows), 
+	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
 				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_clms = indep;
 	}  
       else
 	{
-	  g->GenerateSeedJacobian(sJinfos.JP, depen, indep, &(sJinfos.Seed), &(sJinfos.seed_rows), 
+	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
                                 &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_rows = depen;
 	}
@@ -454,14 +460,14 @@ int sparse_hess(
 
 	Seed = NULL;
 
-	g = new GraphColoringInterface(SRC_WAIT);
+	g = new GraphColoringInterface(SRC_MEM_ADOLC, sHinfos.HP, indep);
 	hr = new HessianRecovery;
 
 	if (options[1] == 0)
-	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
+	  g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, 
 				 "SMALLEST_LAST","ACYCLIC_FOR_INDIRECT_RECOVERY"); 
 	else
-	  g->GenerateSeedHessian(sHinfos.HP, indep, &Seed, &dummy, &sHinfos.p, 
+	  g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, 
 		  	         "SMALLEST_LAST","STAR"); 
 
 	
@@ -472,10 +478,7 @@ int sparse_hess(
 	  for (l=0;l<sHinfos.p;l++)
             sHinfos.Xppp[i][l][0] = Seed[i][l];
 
-	for (i=0; i<indep; i++)
-	  delete[] Seed[i];
-
-	delete[] Seed;
+	/* Seed will be freed by ColPack when g is freed */
 	Seed = NULL;
 
         sHinfos.Yppp = myalloc3(1,sHinfos.p,1);
@@ -952,20 +955,12 @@ BEGIN_C_DECLS
 /*                                                FREE SPARSE JACOBIAN INFOS */
 
 /* ------------------------------------------------------------------------- */
-void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
-                                         void *g, void *jr1d, int seed_rows, int seed_clms, int depen)
+void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
+			void *jr1d, int seed_rows, int seed_clms, int depen)
 {
     int i;
-
     if(y)
       myfree1(y);
-
-    if (Seed)
-    {
-	for (i = 0; i < seed_rows; i++)
-	    delete[] Seed[i];
-	delete[] Seed;
-    }
 
     if(B)
       myfree2(B);
@@ -977,9 +972,8 @@ void freeSparseJacInfos(double *y, double **Seed, double **B, unsigned int **JP,
     free(JP);
 
 #ifdef HAVE_LIBCOLPACK
-    // yields segmentation fault, check again !!
-    // if (g) 
-    //   delete (BipartiteGraphPartialColoringInterface *) g;
+     if (g) 
+       delete (BipartiteGraphPartialColoringInterface *) g;
 
     if (jr1d)
 	delete (JacobianRecovery1D*)jr1d;
@@ -1008,7 +1002,6 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
       myfree3(Zppp);
    if(Upp)
       myfree2(Upp);
-
     for (int i=0;i<indep;i++) {
       free(HP[i]);
     }
@@ -1016,9 +1009,8 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
     free(HP);
 
 #ifdef HAVE_LIBCOLPACK
-    // yields segmentation fault, check again !!
-    // // if (g) 
-    // //   delete (BipartiteGraphPartialColoringInterface *) g;
+     if (g) 
+       delete (GraphColoringInterface *) g;
 
     if (hr)
 	delete (HessianRecovery*) hr;

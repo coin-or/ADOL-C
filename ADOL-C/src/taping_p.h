@@ -121,6 +121,7 @@ extern void *failAdditionalInfo6;
 /* tape information                                                         */
 /****************************************************************************/
 
+#ifdef SPARSE
 typedef struct SparseJacInfos {
   void *g;
   void *jr1d;
@@ -148,6 +149,7 @@ typedef struct SparseHessInfos {
 
   int nnz_in, indep, p;
 } SparseHessInfos;
+#endif
 
 typedef struct PersistantTapeInfos { /* survive tape re-usage */
     int forodec_nax, forodec_dax;
@@ -159,6 +161,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     int *jacSolv_ci;
     int jacSolv_nax, jacSolv_modeold, jacSolv_cgd;
 
+#ifdef SPARSE
     /* sparse derivative matrices */
 
     int inJacSparseUse;
@@ -171,6 +174,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     /* sparse Hessian matrices */
 
     SparseHessInfos sHinfos;
+#endif
 
     /* file names */
 
@@ -362,11 +366,13 @@ TapeInfos *getTapeInfos(short tapeID);
 /* updates the tape infos for the given ID - a tapeInfos struct is created
  * and registered if non is found but its state will remain "not in use" */
 
+#ifdef SPARSE
 void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos);
 /* updates the tape infos on sparse Jac for the given ID */
 
 void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos);
 /* updates the tape infos n sparse Hess for the given ID */
+#endif
 
 void take_stock();
 /* record all existing adoubles on the tape
