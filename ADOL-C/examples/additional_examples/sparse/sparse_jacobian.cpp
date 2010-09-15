@@ -93,6 +93,9 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 /*--------------------------------------------------------------------------*/
 /*  same approach but using row compression                                 */
 /*--------------------------------------------------------------------------*/
@@ -107,6 +110,9 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 /*--------------------------------------------------------------------------*/
 /*  change value of x, but not the sparsity pattern                         */
 /*--------------------------------------------------------------------------*/
@@ -129,7 +135,9 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
-
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 /*--------------------------------------------------------------------------*/
 /*  same approach but using row compression                                 */
 /*--------------------------------------------------------------------------*/
@@ -144,6 +152,9 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 /****************************************************************************/
 /*******       sparse Jacobians, separate drivers             ***************/
 /****************************************************************************/
