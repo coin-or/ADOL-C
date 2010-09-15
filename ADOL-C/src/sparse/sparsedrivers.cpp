@@ -366,9 +366,9 @@ int sparse_jac(
     /* recover compressed Jacobian => ColPack library */
  
       if (options[3] == 1)
-       jr1d->RecoverD2Row_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Row_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
-       jr1d->RecoverD2Cln_CoordinateFormat(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
 
     return ret_val;
 
@@ -571,9 +571,9 @@ int sparse_hess(
 //        HessianRecovery::DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
      if (options[1] == 0)
-       hr->IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+       hr->IndirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
-       hr->DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+       hr->DirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
     return ret_val;
 
