@@ -152,9 +152,9 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(no)])
 AC_ARG_WITH(colpack,
 	[
-AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${PWD}/ThirdParty/ColPack]])],
+AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
 		[colpack=$withval],
-		[colpack=${PWD}/ThirdParty/ColPack])
+		[colpack=${ac_pwd}/${srcdir}/ThirdParty/ColPack])
 COLPACK_CFLAGS="-I$colpack/include"
 COLPACK_LIBS="-L$colpack/${_lib} -lColPack -Wl,-rpath,$colpack/${_lib}"
 save_CFLAGS="$CFLAGS"
