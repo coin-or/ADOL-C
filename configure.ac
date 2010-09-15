@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [8])
+define([ADOLC_LVL], [9])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
@@ -45,7 +45,7 @@ AC_PROG_LIBTOOL
 DOLT
 
 AC_CHECK_SIZEOF([void *])
-if test "x$SIZEOF_VOID_P" = "x8" ; then
+if test "x$ac_cv_sizeof_void_p" = "x8" ; then
    _lib=lib64
 else
    _lib=lib
