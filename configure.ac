@@ -200,7 +200,7 @@ if test x$have_colpack = xyes; then
       if test -n $colpack_incdir ; then
       	 COLPACK_CFLAGS="-I$colpack_incdir"
       fi
-      COLPACK_LIBS="-L$COLPACK_DIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+      COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
    fi
    if echo $COLPACK_LIBDIR | grep -q ^${abs_srcdir} ; then
        echo will link ColPack static as it was found in the source directory
