@@ -150,11 +150,12 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(yes)],
             [sparse="no"
              AC_MSG_RESULT(no)])
+abs_srcdir=`readlink -e ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
 		[colpack=$withval],
-		[colpack=${ac_pwd}/${srcdir}/ThirdParty/ColPack])
+		[colpack=${abs_srcdir}/ThirdParty/ColPack])
 
 if test "x${_lib}" != xlib ; then
    dirlist="${_lib} lib build/${_lib} build/lib"
@@ -162,30 +163,51 @@ else
    dirlist="${_lib} build/${_lib}"
 fi
 
+AC_LANG_PUSH([C++])
 for dir in $dirlist ; do
-    unset ac_cv_lib_ColPack__ZN7ColPack9GraphCore12GetInputFileEv
+    unset ac_cv_header_ColPackHeaders_h
     COLPACK_CFLAGS="-I$colpack/$dir/../include"
     COLPACK_LIBDIR="$colpack/$dir"
     COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
-    save_CFLAGS="$CFLAGS"
+    save_CPPFLAGS="$CPPFLAGS"
     save_LDFLAGS="$LDFLAGS"
-    CFLAGS="$CFLAGS $COLPACK_CFLAGS"
+    CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
     LDFLAGS="$LDFLAGS $COLPACK_LIBS"
-    echo "will test for linking with -lColPack from $COLPACK_LIBDIR"
-    AC_CHECK_LIB([ColPack], [_ZN7ColPack9GraphCore12GetInputFileEv], [have_colpack=yes], [have_colpack=no])
-    CFLAGS="$save_CFLAGS"
+    AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
+    AC_CHECK_HEADER([ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
+    if test x$have_colpackheaders = xyes ; then
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPackHeaders.h>],
+	                  [ColPack::GraphColoring g])],
+                       [have_colpack=yes
+                        AC_MSG_RESULT(linking with -lColPack succeeded)],
+                       [have_colpack=no,
+                        AC_MSG_RESULT(linking with -lColPack failed)])
+    else
+	have_colpack=no
+    fi
+    CPPFLAGS="$save_CPPFLAGS"
     LDFLAGS="$save_LDFLAGS"
     if test x$have_colpack = xyes ; then
 	break
     fi
 done
+AC_LANG_POP([C++])
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
 if test x$have_colpack = xyes; then 
-   if echo $COLPACK_LIBDIR | grep -q ${ac_pwd} ; then
-       echo linking ColPack static as it was found in the source directory
+   COLPACK_LIBDIR=`readlink -e $COLPACK_LIBDIR`
+   if test -n $COLPACK_LIBDIR ; then
+      colpack_incdir=`readlink -e $COLPACK_LIBDIR/../include`
+      if test -n $colpack_incdir ; then
+      	 COLPACK_CFLAGS="-I$colpack_incdir"
+      fi
+      COLPACK_LIBS="-L$COLPACK_DIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+   fi
+   if echo $COLPACK_LIBDIR | grep -q ^${abs_srcdir} ; then
+       echo will link ColPack static as it was found in the source directory
+       test -d $COLPACK_LIBDIR/.tmp && rm -rf $COLPACK_LIBDIR/.tmp
        mkdir -p $COLPACK_LIBDIR/.tmp/
        mkdir -p $COLPACK_LIBDIR/.tmp/.libs
-       ( cd $COLPACK_LIBDIR/.tmp/ ; ar x ../libColPack.a ; cp *.o .libs/ 
+       ( cd $COLPACK_LIBDIR/.tmp/ ; $AR x ../libColPack.a ; cp *.o .libs/ 
 	 for i in *.o ; do j=`echo $i | sed 's/\.o/\.lo/' ` 
 		 cat >$j <<EOF
 # $j - a libtool object file
@@ -198,7 +220,7 @@ EOF
        COLPACK_LIBS=`find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "`
    fi
    sparse=yes
-   echo "will build sparse drivers as -lColPack found"
+   echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
