@@ -194,14 +194,27 @@ done
 AC_LANG_POP([C++])
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
 if test x$have_colpack = xyes; then 
+   # test if the directories exists and what is the real path
+   # if not then we found ColPack in some standard location
+   # and these variables are useless
    COLPACK_LIBDIR=`readlink -e $COLPACK_LIBDIR`
    if test -n $COLPACK_LIBDIR ; then
       colpack_incdir=`readlink -e $COLPACK_LIBDIR/../include`
       if test -n $colpack_incdir ; then
       	 COLPACK_CFLAGS="-I$colpack_incdir"
+      else
+	 COLPACK_CFLAGS=""
       fi
       COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+   else
+      COLPACK_CFLAGS=""
+      COLPACK_LIBS=""
    fi
+   # if the real path to ColPack is inside the ${srcdir}
+   # then we should statically link all ColPack objects inside libadolc
+   # it is likely that the srcdir is not needed anymore after make install
+   # and thus deleted thus no more ColPack to dynamically link to
+   # an external ColPack path is less likely to be removed
    if echo $COLPACK_LIBDIR | grep -q ^${abs_srcdir} ; then
        echo will link ColPack static as it was found in the source directory
        test -d $COLPACK_LIBDIR/.tmp && rm -rf $COLPACK_LIBDIR/.tmp
