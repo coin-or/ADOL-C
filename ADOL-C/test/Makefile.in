@@ -53,12 +53,10 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_powexam_OBJECTS = powexam.$(OBJEXT)
 powexam_OBJECTS = $(am_powexam_OBJECTS)
-@SPARSE_FALSE@powexam_DEPENDENCIES = ../src/libadolc.la
-@SPARSE_TRUE@powexam_DEPENDENCIES = ../src/libadolc.la
+powexam_DEPENDENCIES = ../src/libadolc.la
 am_speelpenning_OBJECTS = speelpenning.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
-@SPARSE_FALSE@speelpenning_DEPENDENCIES = ../src/libadolc.la
-@SPARSE_TRUE@speelpenning_DEPENDENCIES = ../src/libadolc.la
+speelpenning_DEPENDENCIES = ../src/libadolc.la
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -215,10 +213,8 @@ top_srcdir = @top_srcdir@
 speelpenning_SOURCES = speelpenning.cpp
 powexam_SOURCES = powexam.cpp
 INCLUDES = -I$(top_builddir)/ADOL-C/src
-@SPARSE_FALSE@powexam_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
-@SPARSE_TRUE@powexam_LDADD = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
-@SPARSE_FALSE@speelpenning_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
-@SPARSE_TRUE@speelpenning_LDADD = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
+powexam_LDADD = ../src/libadolc.la 
+speelpenning_LDADD = ../src/libadolc.la 
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin

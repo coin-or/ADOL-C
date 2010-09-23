@@ -88,6 +88,10 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
+
     options[0] = 0;          /*                               safe mode (default) */ 
     options[1] = 1;          /*                                   direct recovery */ 
 
@@ -96,6 +100,10 @@ int main() {
     printf("In sparse format:\n");
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
+
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 
 /*--------------------------------------------------------------------------*/
 /*  change value of x, but not the sparsity pattern                         */
@@ -119,6 +127,9 @@ int main() {
     for (i=0;i<nnz;i++)
         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
 
+    delete[] rind;
+    delete[] cind;
+    delete[] values;
 
 /****************************************************************************/
 /*******        sparse Hessians, separate drivers             ***************/

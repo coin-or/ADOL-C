@@ -12,7 +12,6 @@
 
 AM_CFLAGS                = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CXXFLAGS              = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-AM_LDFLAGS               = -no-undefined @COLPACK_LIBS@
 AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C/src  @COLPACK_CFLAGS@
 
 INCLUDES                 = -I$(top_builddir)
