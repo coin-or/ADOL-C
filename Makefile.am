@@ -12,8 +12,15 @@
 
 AUTOMAKE_OPTIONS     = foreign
 
-EXTRA_DIST           = TODO BUGS update_versions.sh \
+EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
                        ADOL-C/doc/version.tex.in ADOL-C/doc/version.tex \
+                       ADOL-C/doc/adolc-manual.pdf ADOL-C/doc/adolc-manual.ps \
+                       ADOL-C/doc/adolc-manual.tex ADOL-C/doc/short_ref.pdf \
+                       ADOL-C/doc/short_ref.ps ADOL-C/doc/short_ref.tex \
+                       ADOL-C/doc/multiplexed.pdf ADOL-C/doc/multiplexed.eps \
+                       ADOL-C/doc/tapeadv.pdf ADOL-C/doc/tapeadv.eps \
+                       ADOL-C/doc/tapebasic.pdf ADOL-C/doc/tapebasic.eps \
+                       ADOL-C/doc/tap_point.pdf ADOL-C/doc/tap_point.eps \
                        autoconf/shave.in autoconf/shave-libtool.in \
                        autoconf/dolt.m4 autoconf/shave.m4 \
                        windows/adolc.sln windows/adolc.vcxproj \
@@ -25,6 +32,7 @@ EXTRA_DIST           = TODO BUGS update_versions.sh \
                        windows/vcredist_x86.exe windows/x64/vcredist_x64.exe \
                        windows/installer.sh \
                        adolc.spec.in adolc.spec \
+                       update_versions.sh \
                        ThirdParty/ColPack/ColPack.vcxproj \
                        ThirdParty/ColPack/colpack_vcxcompile.patch \
                        ThirdParty/ColPack/Readme_VC++.txt
