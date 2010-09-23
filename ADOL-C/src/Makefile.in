@@ -334,7 +334,8 @@ pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        revolve.h
 
 lib_LTLIBRARIES = libadolc.la
-libadolc_la_LDFLAGS = -version-info 2:1:1 $(am__append_1)
+libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
+	$(am__append_1)
 BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 @SPARSE_FALSE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
 @SPARSE_FALSE@                       convolut.c fortutils.c\

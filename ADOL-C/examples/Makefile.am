@@ -16,7 +16,7 @@ AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
 LDADD                   = -ladolc 
-AM_LDFLAGS              = -L../src @COLPACK_LIBS@
+AM_LDFLAGS              = -L../src
 AM_CPPFLAGS             += @COLPACK_CFLAGS@
 else
 LDADD                   = -ladolc 
