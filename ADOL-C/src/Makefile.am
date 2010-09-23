@@ -43,7 +43,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
 
 lib_LTLIBRARIES      = libadolc.la
 
-libadolc_la_LDFLAGS  = -version-info 2:1:1
+libadolc_la_LDFLAGS  = -version-info 2:1:1 -no-undefined
 
 BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 

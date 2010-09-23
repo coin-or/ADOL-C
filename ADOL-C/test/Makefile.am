@@ -18,14 +18,8 @@ powexam_SOURCES         = powexam.cpp
 
 INCLUDES                = -I$(top_builddir)/ADOL-C/src
 
-if SPARSE
-powexam_LDADD           = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
-speelpenning_LDADD = ../src/libadolc.la @COLPACK_LIBS@ $(ADDLIBS) $(CXXLIBS)
-else
-powexam_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
-speelpenning_LDADD = ../src/libadolc.la $(ADDLIBS) $(CXXLIBS)
-endif
-
+powexam_LDADD           = ../src/libadolc.la 
+speelpenning_LDADD = ../src/libadolc.la 
 
 
 # Here list all include flags, relative to this "srcdir" directory.  This

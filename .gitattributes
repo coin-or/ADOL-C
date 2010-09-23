@@ -280,6 +280,8 @@ ThirdParty/ColPack/Readme_VC++.txt -text
 ThirdParty/ColPack/colpack_vcxcompile.patch -text
 /acinclude.m4 -text
 /aclocal.m4 -text
+/adolc.spec -text
+/adolc.spec.in -text
 autoconf/config.guess -text
 autoconf/config.sub -text
 autoconf/depcomp -text
