@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [9])
+define([ADOLC_LVL], [10])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
@@ -170,9 +170,9 @@ for dir in $dirlist ; do
     COLPACK_LIBDIR="$colpack/$dir"
     COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
     save_CPPFLAGS="$CPPFLAGS"
-    save_LDFLAGS="$LDFLAGS"
+    save_LIBS="$LIBS"
     CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-    LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+    LIBS="$COLPACK_LIBS $LIBS" 
     AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
     AC_CHECK_HEADER([ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
     if test x$have_colpackheaders = xyes ; then
@@ -186,7 +186,7 @@ for dir in $dirlist ; do
 	have_colpack=no
     fi
     CPPFLAGS="$save_CPPFLAGS"
-    LDFLAGS="$save_LDFLAGS"
+    LIBS="$save_LIBS"
     if test x$have_colpack = xyes ; then
 	break
     fi
