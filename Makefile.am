@@ -24,6 +24,7 @@ EXTRA_DIST           = TODO BUGS update_versions.sh \
                        windows/Readme_VC++.txt \
                        windows/vcredist_x86.exe windows/x64/vcredist_x64.exe \
                        windows/installer.sh \
+                       adolc.spec.in adolc.spec \
                        ThirdParty/ColPack/ColPack.vcxproj \
                        ThirdParty/ColPack/colpack_vcxcompile.patch \
                        ThirdParty/ColPack/Readme_VC++.txt
