@@ -890,9 +890,6 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 $(top_builddir)/ADOL-C/src/adolc/adolc.h:
 	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
 
-$(top_builddir)/ADOL-C/src/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
-
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

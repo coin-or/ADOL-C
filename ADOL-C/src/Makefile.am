@@ -50,11 +50,6 @@ BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 $(top_builddir)/ADOL-C/src/adolc/adolc.h:
 	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
 
-BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
-
-$(top_builddir)/ADOL-C/src/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
-
 if SPARSE
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c \
