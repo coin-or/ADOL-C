@@ -3,6 +3,7 @@
 *.la
 *.a
 *.so
+*.spec
 .deps
 .libs
 *~
