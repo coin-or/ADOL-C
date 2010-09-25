@@ -150,6 +150,8 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(yes)],
             [sparse="no"
              AC_MSG_RESULT(no)])
+
+test "x${ac_pwd}" = x && ac_pwd=`pwd`
 abs_srcdir=`readlink -e ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
