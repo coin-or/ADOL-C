@@ -152,7 +152,7 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(no)])
 
 test "x${ac_pwd}" = x && ac_pwd=`pwd`
-abs_srcdir=`readlink -e ${ac_pwd}/${srcdir}`
+abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
@@ -199,9 +199,9 @@ if test x$have_colpack = xyes; then
    # test if the directories exists and what is the real path
    # if not then we found ColPack in some standard location
    # and these variables are useless
-   COLPACK_LIBDIR=`readlink -e $COLPACK_LIBDIR`
+   COLPACK_LIBDIR=`readlink -f $COLPACK_LIBDIR`
    if test -n $COLPACK_LIBDIR ; then
-      colpack_incdir=`readlink -e $COLPACK_LIBDIR/../include`
+      colpack_incdir=`readlink -f $COLPACK_LIBDIR/../include`
       if test -n $colpack_incdir ; then
       	 COLPACK_CFLAGS="-I$colpack_incdir"
       else
