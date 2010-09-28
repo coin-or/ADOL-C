@@ -179,7 +179,6 @@ ADOL-C/src/Makefile.am -text
 ADOL-C/src/Makefile.in -text
 ADOL-C/src/adalloc.c -text
 ADOL-C/src/adalloc.h -text
-ADOL-C/src/adolc -text
 ADOL-C/src/adolc.h -text
 ADOL-C/src/adolc_openmp.h -text
 ADOL-C/src/adolc_sparse.h -text
