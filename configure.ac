@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [9])
+define([ADOLC_LVL], [10])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
@@ -150,7 +150,9 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT(yes)],
             [sparse="no"
              AC_MSG_RESULT(no)])
-abs_srcdir=`readlink -e ${ac_pwd}/${srcdir}`
+
+test "x${ac_pwd}" = x && ac_pwd=`pwd`
+abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
@@ -170,9 +172,9 @@ for dir in $dirlist ; do
     COLPACK_LIBDIR="$colpack/$dir"
     COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
     save_CPPFLAGS="$CPPFLAGS"
-    save_LDFLAGS="$LDFLAGS"
+    save_LIBS="$LIBS"
     CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-    LDFLAGS="$LDFLAGS $COLPACK_LIBS"
+    LIBS="$COLPACK_LIBS $LIBS" 
     AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
     AC_CHECK_HEADER([ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
     if test x$have_colpackheaders = xyes ; then
@@ -186,7 +188,7 @@ for dir in $dirlist ; do
 	have_colpack=no
     fi
     CPPFLAGS="$save_CPPFLAGS"
-    LDFLAGS="$save_LDFLAGS"
+    LIBS="$save_LIBS"
     if test x$have_colpack = xyes ; then
 	break
     fi
@@ -197,9 +199,9 @@ if test x$have_colpack = xyes; then
    # test if the directories exists and what is the real path
    # if not then we found ColPack in some standard location
    # and these variables are useless
-   COLPACK_LIBDIR=`readlink -e $COLPACK_LIBDIR`
+   COLPACK_LIBDIR=`readlink -f $COLPACK_LIBDIR`
    if test -n $COLPACK_LIBDIR ; then
-      colpack_incdir=`readlink -e $COLPACK_LIBDIR/../include`
+      colpack_incdir=`readlink -f $COLPACK_LIBDIR/../include`
       if test -n $colpack_incdir ; then
       	 COLPACK_CFLAGS="-I$colpack_incdir"
       else
