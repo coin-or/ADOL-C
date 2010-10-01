@@ -37,7 +37,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = powexam$(EXEEXT) speelpenning$(EXEEXT)
+noinst_PROGRAMS = powexam$(EXEEXT) speelpenning$(EXEEXT) \
+	fminmax$(EXEEXT)
 subdir = ADOL-C/test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -51,6 +52,9 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
+am_fminmax_OBJECTS = fminmax.$(OBJEXT)
+fminmax_OBJECTS = $(am_fminmax_OBJECTS)
+fminmax_DEPENDENCIES = ../src/libadolc.la
 am_powexam_OBJECTS = powexam.$(OBJEXT)
 powexam_OBJECTS = $(am_powexam_OBJECTS)
 powexam_DEPENDENCIES = ../src/libadolc.la
@@ -66,8 +70,10 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(powexam_SOURCES) $(speelpenning_SOURCES)
-DIST_SOURCES = $(powexam_SOURCES) $(speelpenning_SOURCES)
+SOURCES = $(fminmax_SOURCES) $(powexam_SOURCES) \
+	$(speelpenning_SOURCES)
+DIST_SOURCES = $(fminmax_SOURCES) $(powexam_SOURCES) \
+	$(speelpenning_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -212,9 +218,11 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 speelpenning_SOURCES = speelpenning.cpp
 powexam_SOURCES = powexam.cpp
+fminmax_SOURCES = fminmax.cpp
 INCLUDES = -I$(top_builddir)/ADOL-C/src
 powexam_LDADD = ../src/libadolc.la 
 speelpenning_LDADD = ../src/libadolc.la 
+fminmax_LDADD = ../src/libadolc.la
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
@@ -270,6 +278,9 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+fminmax$(EXEEXT): $(fminmax_OBJECTS) $(fminmax_DEPENDENCIES) 
+	@rm -f fminmax$(EXEEXT)
+	$(CXXLINK) $(fminmax_OBJECTS) $(fminmax_LDADD) $(LIBS)
 powexam$(EXEEXT): $(powexam_OBJECTS) $(powexam_DEPENDENCIES) 
 	@rm -f powexam$(EXEEXT)
 	$(CXXLINK) $(powexam_OBJECTS) $(powexam_LDADD) $(LIBS)
@@ -283,6 +294,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fminmax.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/powexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speelpenning.Po@am__quote@
 
