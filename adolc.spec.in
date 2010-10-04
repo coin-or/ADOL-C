@@ -111,9 +111,11 @@ rm -rf %{_builddir}/%{name}-%{packver}
 %postun -n libadolc1 -p /sbin/ldconfig
 
 %files -n libadolc1
+%defattr(-,root,root)
 %{_libdir}/libadolc.so.*
 
 %files devel
+%defattr(-,root,root)
 %dir %{_includedir}/adolc
 %dir %{_includedir}/adolc/drivers
 %dir %{_includedir}/adolc/sparse
@@ -126,6 +128,7 @@ rm -rf %{_builddir}/%{name}-%{packver}
 %{_libdir}/libadolc.a
 
 %files doc
+%defattr(-,root,root)
 %dir %{_datadir}/doc/packages/%{name}
 %{_datadir}/doc/packages/%{name}/*
 

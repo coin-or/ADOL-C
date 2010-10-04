@@ -68,8 +68,10 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
 
+#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
 double ADOLC_DLL_EXPORT fmin( const double &x, const double &y );
 double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
+#endif
 
 
 /****************************************************************************/
@@ -490,6 +492,7 @@ extern int ADOLC_numDir;
 #  define V_I                  v
 #endif
 
+#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
 inline double fmin( const double &x, const double &y ) {
     if (x<y) return x;
     else return y;
@@ -499,6 +502,7 @@ inline double fmax( const double &x, const double &y ) {
     if (x>y) return x;
     else return y;
 }
+#endif
 
 inline double makeNaN() {
 #if defined(non_num)
