@@ -16,15 +16,15 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adouble.h>            // use of active double
-#include <drivers/odedrivers.h> // use of "Easy To Use" ODE drivers
-#include <adalloc.h>            // use of ADOL-C allocation utilities
-#include <taping.h>             // use of taping
+#include <adolc/adouble.h>            // use of active double
+#include <adolc/drivers/odedrivers.h> // use of "Easy To Use" ODE drivers
+#include <adolc/adalloc.h>            // use of ADOL-C allocation utilities
+#include <adolc/taping.h>             // use of taping
 
 // NOTICE: If one wants to include all ADOL-C interfaces without
 //         getting in trouble to find out the right header files
 //
-//         #include "adolc.h"
+//         #include "adolc/adolc.h"
 //
 //         will do the right work.
 

@@ -19,8 +19,8 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc.h>
-#include <../examples/additional_examples/timing/rotations.h>
+#include <adolc/adolc.h>
+#include "rotations.h"
 
 #include <cmath>
 

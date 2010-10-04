@@ -16,8 +16,8 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc.h>
-#include <../examples/additional_examples/clock/myclock.h>
+#include <adolc/adolc.h>
+#include "../clock/myclock.h"
 
 
 /****************************************************************************/

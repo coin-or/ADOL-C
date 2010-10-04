@@ -22,7 +22,7 @@
 using namespace std;
 
 #define ADOLC_TAPELESS
-#include <adouble.h>
+#include <adolc/adouble.h>
 typedef adtl::adouble adouble;
 
 

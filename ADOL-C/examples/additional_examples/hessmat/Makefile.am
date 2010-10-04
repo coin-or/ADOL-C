@@ -12,17 +12,12 @@
 
 AM_CFLAGS            = @ac_adolc_cflags@
 AM_CXXFLAGS          = @ac_adolc_cxxflags@
-AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/src 
+AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C
 
-if SPARSE
 LDADD                = -ladolc 
-AM_LDFLAGS           = -L../../../src
-else
-LDADD                = -ladolc 
-AM_LDFLAGS           = -L../../../src
-endif
+AM_LDFLAGS           = -L$(top_builddir)/ADOL-C/src
 
-INCLUDES             = -I$(top_builddir)
+INCLUDES             = -I$(top_builddir)/ADOL-C
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
