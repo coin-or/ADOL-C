@@ -17,8 +17,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <adolc.h>
-#include <adolc_sparse.h>
+#include <adolc/adolc.h>
+#include <adolc/adolc_sparse.h>
 
 #define tag 1
 

@@ -301,12 +301,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/src
-@SPARSE_FALSE@LDADD = -ladolc 
-@SPARSE_TRUE@LDADD = -ladolc 
-@SPARSE_FALSE@AM_LDFLAGS = -L../../../src
-@SPARSE_TRUE@AM_LDFLAGS = -L../../../src
-INCLUDES = -I$(top_builddir) -I$(top_builddir)/examples/additional_examples
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C
+LDADD = -ladolc 
+AM_LDFLAGS = -L$(top_builddir)/ADOL-C/src
+INCLUDES = -I$(top_builddir)/ADOL-C -I$(top_srcdir)ADOL-C/examples/additional_examples
 CTRLFILES = detexam.ctrl \
                           eutrophexam.ctrl \
                           experimental.ctrl \

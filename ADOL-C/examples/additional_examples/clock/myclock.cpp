@@ -17,7 +17,7 @@
 /*                                                                 INCLUDES */
 #include <sys/timeb.h>
 #include <time.h>
-#include <../examples/additional_examples/clock/myclock.h>
+#include "myclock.h"
 
 
 

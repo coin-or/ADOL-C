@@ -37,7 +37,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@SPARSE_TRUE@am__append_1 = @COLPACK_CFLAGS@
 @DOCEXA_TRUE@noinst_PROGRAMS = detexam$(EXEEXT) speelpenning$(EXEEXT) \
 @DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) \
 @DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT)
@@ -276,12 +275,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/src $(am__append_1)
-@SPARSE_FALSE@LDADD = -ladolc 
-@SPARSE_TRUE@LDADD = -ladolc 
-@SPARSE_FALSE@AM_LDFLAGS = -L../src
-@SPARSE_TRUE@AM_LDFLAGS = -L../src
-INCLUDES = -I$(top_builddir)
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C
+INCLUDES = -I$(top_builddir)/ADOL-C
+LDADD = -ladolc 
+AM_LDFLAGS = -L$(top_builddir)/ADOL-C/src
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig ADOLC-*.tap
 EXTRA_DIST = adolc_examples.sln \
                           detexam.vcxproj speelpenning.vcxproj odexam.vcxproj \
