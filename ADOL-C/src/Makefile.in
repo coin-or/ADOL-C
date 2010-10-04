@@ -85,9 +85,10 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	hos_forward.c hov_forward.c hov_wk_forward.c fos_reverse.c \
 	fov_reverse.c hos_reverse.c hos_ov_reverse.c hov_reverse.c \
 	forward_partx.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
-	fov_offset_forward.c revolve.c int_forward_s.c int_forward_t.c \
-	indopro_forward_s.c indopro_forward_t.c nonl_ind_forward_s.c \
-	nonl_ind_forward_t.c int_reverse_s.c int_reverse_t.c
+	fov_offset_forward.c revolve.c taping_p.h int_forward_s.c \
+	int_forward_t.c indopro_forward_s.c indopro_forward_t.c \
+	nonl_ind_forward_s.c nonl_ind_forward_t.c int_reverse_s.c \
+	int_reverse_t.c
 @SPARSE_FALSE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 @SPARSE_FALSE@	convolut.lo fortutils.lo interfaces.lo \
 @SPARSE_FALSE@	interfacesf.lo taping.lo tape_handling.lo \
@@ -317,8 +318,8 @@ top_srcdir = @top_srcdir@
 @SPARSE_TRUE@AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 @SPARSE_FALSE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 @SPARSE_TRUE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-AM_CPPFLAGS = -I$(top_srcdir) 
-INCLUDES = -I$(top_builddir)
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C 
+INCLUDES = -I$(top_builddir)/ADOL-C
 @SPARSE_FALSE@SUBDIRS = drivers tapedoc
 @SPARSE_TRUE@SUBDIRS = drivers sparse tapedoc
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
@@ -336,7 +337,6 @@ pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
 lib_LTLIBRARIES = libadolc.la
 libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
 	$(am__append_1)
-BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 @SPARSE_FALSE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
 @SPARSE_FALSE@                       convolut.c fortutils.c\
 @SPARSE_FALSE@                       interfaces.cpp interfacesf.c \
@@ -352,7 +352,7 @@ BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 @SPARSE_TRUE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@                       convolut.c fortutils.c \
 @SPARSE_TRUE@                       interfaces.cpp interfacesf.c \
-@SPARSE_TRUE@                       taping.c tape_handling.cpp \
+@SPARSE_TRUE@                       taping_p.h taping.c tape_handling.cpp \
 @SPARSE_TRUE@                       zos_forward.c fos_forward.c fov_forward.c \
 @SPARSE_TRUE@                       hos_forward.c hov_forward.c hov_wk_forward.c \
 @SPARSE_TRUE@                       fos_reverse.c fov_reverse.c \
@@ -369,7 +369,7 @@ BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
 @SPARSE_TRUE@libadolc_la_LIBADD = drivers/libdrivers.la sparse/libsparse.la \
 @SPARSE_TRUE@                       tapedoc/libtapedoc.la
 
-all: $(BUILT_SOURCES) config.h
+all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
@@ -758,16 +758,14 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) check-recursive
+check: check-recursive
 all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(pkgincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) install-recursive
+install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -792,7 +790,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-recursive
 
@@ -865,9 +862,8 @@ ps-am:
 
 uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 
-.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all check \
-	ctags-recursive install install-am install-strip \
-	tags-recursive
+.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
+	ctags-recursive install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am check check-am clean clean-generic \
@@ -886,9 +882,6 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 	tags tags-recursive uninstall uninstall-am \
 	uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 
-
-$(top_builddir)/ADOL-C/src/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
