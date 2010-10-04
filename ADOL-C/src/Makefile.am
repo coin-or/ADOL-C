@@ -18,9 +18,9 @@ AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1
 AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 endif
 
-AM_CPPFLAGS          = -I$(top_srcdir) 
+AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C 
 
-INCLUDES             = -I$(top_builddir)
+INCLUDES             = -I$(top_builddir)/ADOL-C
 
 if SPARSE
 SUBDIRS              = drivers sparse tapedoc
@@ -45,16 +45,11 @@ lib_LTLIBRARIES      = libadolc.la
 
 libadolc_la_LDFLAGS  = -version-info 2:1:1 -no-undefined
 
-BUILT_SOURCES = $(top_builddir)/ADOL-C/src/adolc/adolc.h
-
-$(top_builddir)/ADOL-C/src/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
-
 if SPARSE
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c \
                        interfaces.cpp interfacesf.c \
-                       taping.c tape_handling.cpp \
+                       taping_p.h taping.c tape_handling.cpp \
                        zos_forward.c fos_forward.c fov_forward.c \
                        hos_forward.c hov_forward.c hov_wk_forward.c \
                        fos_reverse.c fov_reverse.c \
