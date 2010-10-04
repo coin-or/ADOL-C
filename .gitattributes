@@ -261,6 +261,7 @@ ADOL-C/src/usrparms.h -text
 ADOL-C/src/zos_forward.c -text
 ADOL-C/test/Makefile.am -text
 ADOL-C/test/Makefile.in -text
+ADOL-C/test/fminmax.cpp -text
 ADOL-C/test/powexam.cpp -text
 ADOL-C/test/run_tests -text
 ADOL-C/test/speelpenning.cpp -text
