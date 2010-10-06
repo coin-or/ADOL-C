@@ -82,6 +82,11 @@ void set_HP(
     int            indep,      /* number of independent variables         */
     unsigned int ** HP);
 
+void get_HP(
+    short          tag,        /* tape identification                     */
+    int            indep,      /* number of independent variables         */
+    unsigned int *** HP);
+
 /*--------------------------------------------------------------------------*/
 /*                                                   JACOBIAN BLOCK PATTERN */
 

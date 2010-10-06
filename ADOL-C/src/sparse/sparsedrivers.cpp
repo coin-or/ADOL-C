@@ -587,7 +587,7 @@ int sparse_hess(
 
 
 /****************************************************************************/
-/*******        sparse Hessians, complete driver              ***************/
+/*******      sparse Hessians, set and get sparsity pattern   ***************/
 /****************************************************************************/
 
 void set_HP(
@@ -617,6 +617,27 @@ void set_HP(
     exit(-1);
 }
 #endif
+
+void get_HP(
+    short          tag,        /* tape identification                     */
+    int            indep,      /* number of independent variables         */
+    unsigned int *** HP)
+#ifdef SPARSE
+{
+    SparseHessInfos sHinfos;
+    TapeInfos *tapeInfos;
+
+    tapeInfos=getTapeInfos(tag);
+    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+    *HP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
+}
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if sparse configuration option was used\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
+
 /*****************************************************************************/
 /*                                                    JACOBIAN BLOCK PATTERN */
 
