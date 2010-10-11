@@ -143,9 +143,9 @@ void generate_seed_jac
 /*                                                                           */
 
 int hess_pat(
-    short        tag,        /* tape identification                        */
-    int          indep,      /* number of independent variables            */
-    double       *basepoint, /* independant variable values                */
+    short          tag,        /* tape identification                        */
+    int            indep,      /* number of independent variables            */
+    const double  *basepoint,  /* independant variable values                */
     unsigned int **crs,
     /* returned compressed row block-index storage                         */
     int          option
@@ -388,7 +388,7 @@ int sparse_hess(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     int            repeat,     /* indicated repeated call with same seed  */
-    double        *basepoint,  /* independant variable values             */
+    const double  *basepoint,  /* independant variable values             */
     int           *nnz,        /* number of nonzeros                      */
     unsigned int **rind,       /* row index                               */
     unsigned int **cind,       /* column index                            */

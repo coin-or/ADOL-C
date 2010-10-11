@@ -59,7 +59,7 @@ ADOLC_DLL_EXPORT int sparse_jac
 /*     crs[i][ crs[i][0] = non-zero entries per row ]                       */
 /*                                                                          */
 
-ADOLC_DLL_EXPORT int hess_pat(short,int,double*,unsigned int**, int);
+ADOLC_DLL_EXPORT int hess_pat(short,int,const double*,unsigned int**, int);
 
 /*--------------------------------------------------------------------------*/
 /*                                          seed matrix for sparse hessian  */
@@ -74,7 +74,7 @@ ADOLC_DLL_EXPORT void generate_seed_hess
 /*                 options[2]);                                             */
 
 ADOLC_DLL_EXPORT int sparse_hess
-(short, int , int, double*, int *,
+(short, int , int, const double*, int *,
  unsigned int **, unsigned int **, double **,int*);
 
 ADOLC_DLL_EXPORT void set_HP(
