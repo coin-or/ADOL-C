@@ -609,6 +609,7 @@ void cleanUp() {
 #endif
 
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+    clearTapeBaseNames();
 }
 
 int removeTape(short tapeID, short type) {
