@@ -20,6 +20,19 @@
 #include <adolc/oplate.h>
 #include "taping_p.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#if defined(_WINDOWS) && !__STDC__
+#define stat _stat
+#define S_IFDIR _S_IFDIR
+#define S_IFMT _S_IFMT
+#endif
+
+#ifndef S_ISDIR
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
 /*--------------------------------------------------------------------------*/
 /* Tape identification (ADOLC & version check) */
 ADOLC_ID adolc_id;
@@ -299,12 +312,13 @@ void printError() {
 }
 
 /* the base names of every tape type */
-const char *tapeBaseNames[] = {
-            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME,
-            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME,
-            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME,
-            ADOLC_TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME
-        };
+char *tapeBaseNames[4];
+
+void clearTapeBaseNames() {
+    int i;
+    for(i=0;i<4;i++)
+	free(tapeBaseNames[i]);
+}
 
 /****************************************************************************/
 /* The subroutine get_fstr appends to the tape base name of type tapeType   */
@@ -393,6 +407,17 @@ void readConfigFile() {
     char inputLine[ADOLC_LINE_LENGTH + 1];
     char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *end = NULL;
     long int number = 0;
+    char *path = NULL;
+    int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
+    tapeBaseNames[0] = strdup(
+	TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);
+    tapeBaseNames[1] = strdup(
+	TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME);
+    tapeBaseNames[2] = strdup(
+	TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME);
+    tapeBaseNames[3] = strdup(
+	TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME);
+
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -430,8 +455,58 @@ void readConfigFile() {
             } else {
                 number = strtol(pos3 + 1, &end, 10);
                 if (end == (pos3 + 1)) {
-                    fprintf(DIAG_OUT, "ADOL-C warning: Unable to parse number in "
-                            ".adolcrc!\n");
+		    *pos2 = 0;
+		    *pos4 = 0;
+		    if (strcmp(pos1 + 1, "TAPE_DIR") == 0) {
+			struct stat st;
+			int err;
+			path = pos3 + 1;
+			err = stat(path,&st);
+			if (err == 0 && S_ISDIR(st.st_mode)) {
+			    int pathlen, pathseplen, namelen[4];
+			    int i;
+			    pathlen=strlen(path);
+			    pathseplen=strlen(PATHSEPARATOR);
+			    for(i = 0; i < 4; i++)
+				namelen[i] = strlen(tapeBaseNames[i]);
+			    clearTapeBaseNames();
+			    for(i = 0; i < 4; i++) {
+				char *currpos;
+				int fnamelen;
+				tapeBaseNames[i] = (char*)calloc(namelen[i] - defdirsize + pathlen + pathseplen + 1, sizeof(char));
+				currpos = tapeBaseNames[i];
+				strncpy(currpos,path,pathlen);
+				currpos += pathlen;
+				strncpy(currpos,PATHSEPARATOR,pathseplen);
+				currpos += pathseplen;
+				switch (i) {
+				case 0:
+				    fnamelen = strlen(ADOLC_LOCATIONS_NAME);
+				    strncpy(currpos,ADOLC_LOCATIONS_NAME,fnamelen);
+				    break;
+				case 1:
+				    fnamelen = strlen(ADOLC_VALUES_NAME);
+				    strncpy(currpos,ADOLC_VALUES_NAME,fnamelen);
+				    break;
+				case 2:
+				    fnamelen = strlen(ADOLC_OPERATIONS_NAME);
+				    strncpy(currpos,ADOLC_OPERATIONS_NAME,fnamelen);
+				    break;
+				case 3:
+				    fnamelen = strlen(ADOLC_TAYLORS_NAME);
+				    strncpy(currpos,ADOLC_TAYLORS_NAME,fnamelen);
+				    break;
+				}
+				currpos += fnamelen;
+				*currpos = '\0';
+			    }
+			    fprintf(DIAG_OUT, "ADOL-C info: using TAPE_DIR %s for all disk bound tapes\n",path);
+			} else
+			    fprintf(DIAG_OUT, "ADOL-C warning: TAPE_DIR %s in .adolcrc is not an existing directory,\n will continue using %s for writing tapes\n", path, TAPE_DIR);
+		    }
+		    else 
+			fprintf(DIAG_OUT, "ADOL-C warning: Unable to parse number in "
+				".adolcrc!\n");
                 } else {
                     *pos2 = 0;
                     *pos4 = 0;
