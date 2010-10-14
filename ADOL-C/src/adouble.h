@@ -468,6 +468,8 @@ inline adub operator / (const badouble& x, double coval) {
 /****************************************************************************/
 #else
 
+#include <limits>
+
 namespace adtl {
 
 #if defined(NUMBER_DIRECTIONS)
@@ -505,14 +507,11 @@ inline double fmax( const double &x, const double &y ) {
 #endif
 
 inline double makeNaN() {
-#if defined(non_num)
-    double a,b;
-    a=non_num;
-    b=non_den;
-    return a/b;
-#else
-#  error Error: non_num undefined!
-#endif
+    return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
+}
+
+inline double makeInf() {
+    return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
 class adouble {
@@ -865,8 +864,11 @@ adouble log(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::log(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-      if ((a.val>0 || a.val==0) && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/a.val;
-    else tmp.ADVAL_I=makeNaN();
+	if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/a.val;
+	else if (a.val==0 && a.ADVAL_I != 0.0) {
+	    int sign = (a.ADVAL_I < 0)  ? -1 : 1;
+	    tmp.ADVAL_I=sign*makeInf();
+	} else tmp.ADVAL_I=makeNaN();
     return tmp;
 }
 
@@ -874,8 +876,11 @@ adouble sqrt(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-      if ((a.val>0 || a.val==0) && a.ADVAL_I>=0) tmp.ADVAL_I=a.ADVAL_I/tmp.val/2;
-    else tmp.ADVAL_I=makeNaN();
+	if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.val*2);
+        else if (a.val==0.0 && a.ADVAL_I != 0.0) {
+	    int sign = (a.ADVAL_I < 0) ? -1 : 1;
+	    tmp.ADVAL_I=sign * makeInf();
+	} else tmp.ADVAL_I=makeNaN();
     return tmp;
 }
 
