@@ -17,7 +17,7 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc.h>           // use of ALL ADOL-C interfaces
+#include <adolc/adolc.h>           // use of ALL ADOL-C interfaces
 
 
 /****************************************************************************/

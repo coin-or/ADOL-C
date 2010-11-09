@@ -12,7 +12,7 @@
  
 ---------------------------------------------------------------------------*/
 #include <math.h>
-#include <adolc.h>
+#include <adolc/adolc.h>
 
 #define imax 100
 #define imax_deriv 100

@@ -18,7 +18,7 @@ powexam_SOURCES         = powexam.cpp
 
 fminmax_SOURCES		= fminmax.cpp
 
-INCLUDES                = -I$(top_builddir)/ADOL-C/src
+INCLUDES                = -I$(top_builddir)/ADOL-C
 
 powexam_LDADD           = ../src/libadolc.la 
 speelpenning_LDADD = ../src/libadolc.la 

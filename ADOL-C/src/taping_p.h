@@ -612,6 +612,9 @@ double get_val_r();
 /* tries to read a local config file containing, e.g., buffer sizes */
 void readConfigFile();
 
+/* clear the tapeBaseNames that were alocated above in readConfigFile() */
+void clearTapeBaseNames();
+
 /****************************************************************************/
 /* This function sets the flag "newTape" if either a taylor buffer has been */
 /* created or a taping process has been performed. Calling the function is  */

@@ -22,7 +22,7 @@ using namespace std;
 
 #define ADOLC_TAPELESS
 #define NUMBER_DIRECTIONS 3
-#include <adouble.h>
+#include <adolc/adouble.h>
 typedef adtl::adouble adouble;
 
 ADOLC_TAPELESS_UNIQUE_INTERNALS

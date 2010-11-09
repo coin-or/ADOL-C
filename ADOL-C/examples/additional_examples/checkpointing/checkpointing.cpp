@@ -12,7 +12,7 @@
  
 ---------------------------------------------------------------------------*/
 #include <math.h>
-#include <adolc.h>
+#include <adolc/adolc.h>
 
 #define h 0.01
 #define steps 100
