@@ -14,11 +14,11 @@
 AM_CFLAGS                 = @ac_adolc_cflags@ -DADOLC_INTERNAL=1
 AM_CXXFLAGS               = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 AM_LDFLAGS                = -no-undefined
-AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C/src 
+AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C -I$(top_srcdir)/ADOL-C/src
 
 MAINTAINERCLEANFILES      = Makefile.in *~ *.orig
 
-INCLUDES                  = -I$(top_builddir)
+INCLUDES                  = -I$(top_builddir)/ADOL-C
 
 noinst_LTLIBRARIES        = libtapedoc.la
 

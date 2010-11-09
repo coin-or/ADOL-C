@@ -143,9 +143,9 @@ void generate_seed_jac
 /*                                                                           */
 
 int hess_pat(
-    short        tag,        /* tape identification                        */
-    int          indep,      /* number of independent variables            */
-    double       *basepoint, /* independant variable values                */
+    short          tag,        /* tape identification                        */
+    int            indep,      /* number of independent variables            */
+    const double  *basepoint,  /* independant variable values                */
     unsigned int **crs,
     /* returned compressed row block-index storage                         */
     int          option
@@ -388,7 +388,7 @@ int sparse_hess(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     int            repeat,     /* indicated repeated call with same seed  */
-    double        *basepoint,  /* independant variable values             */
+    const double  *basepoint,  /* independant variable values             */
     int           *nnz,        /* number of nonzeros                      */
     unsigned int **rind,       /* row index                               */
     unsigned int **cind,       /* column index                            */
@@ -587,7 +587,7 @@ int sparse_hess(
 
 
 /****************************************************************************/
-/*******        sparse Hessians, complete driver              ***************/
+/*******      sparse Hessians, set and get sparsity pattern   ***************/
 /****************************************************************************/
 
 void set_HP(
@@ -617,6 +617,27 @@ void set_HP(
     exit(-1);
 }
 #endif
+
+void get_HP(
+    short          tag,        /* tape identification                     */
+    int            indep,      /* number of independent variables         */
+    unsigned int *** HP)
+#ifdef SPARSE
+{
+    SparseHessInfos sHinfos;
+    TapeInfos *tapeInfos;
+
+    tapeInfos=getTapeInfos(tag);
+    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+    *HP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
+}
+#else
+{
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if sparse configuration option was used\n", __FUNCTION__);
+    exit(-1);
+}
+#endif
+
 /*****************************************************************************/
 /*                                                    JACOBIAN BLOCK PATTERN */
 

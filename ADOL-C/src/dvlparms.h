@@ -20,7 +20,7 @@
 
 /*--------------------------------------------------------------------------*/
 /* Directory where tapes are created */
-#define ADOLC_TAPE_DIR        "."
+#define TAPE_DIR              "."
 /* File names for the tapes */
 #define ADOLC_TAYLORS_NAME    "ADOLC-Taylors_"
 #define ADOLC_VALUES_NAME     "ADOLC-Values_"

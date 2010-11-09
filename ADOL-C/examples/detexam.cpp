@@ -15,10 +15,10 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adouble.h>          // use of active doubles
-#include <interfaces.h>       // use of basic forward/reverse
+#include <adolc/adouble.h>          // use of active doubles
+#include <adolc/interfaces.h>       // use of basic forward/reverse
 // interfaces of ADOL-C
-#include <taping.h>           // use of taping
+#include <adolc/taping.h>           // use of taping
 
 #include <iostream>
 using namespace std;

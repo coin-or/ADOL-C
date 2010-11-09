@@ -15,9 +15,9 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc.h>
-#include <adolc_sparse.h>
-#include <../examples/additional_examples/clock/myclock.h>
+#include <adolc/adolc.h>
+#include <adolc/adolc_sparse.h>
+#include "../clock/myclock.h"
 
 #include <string.h>
 #include <math.h>

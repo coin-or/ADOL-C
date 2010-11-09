@@ -15,10 +15,10 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adouble.h>            // use of active doubles
-#include <drivers/drivers.h>    // use of "Easy to Use" drivers
+#include <adolc/adouble.h>            // use of active doubles
+#include <adolc/drivers/drivers.h>    // use of "Easy to Use" drivers
 // gradient(.) and hessian(.)
-#include <taping.h>             // use of taping
+#include <adolc/taping.h>             // use of taping
 
 #include <iostream>
 using namespace std;

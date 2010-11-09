@@ -199,7 +199,7 @@ ADOLC_DLL_EXPORT int zos_forward_partx(short,int,int,int*,double**,double*);
 /* fos_forward(tag, m, n, keep, x[n], X[n], y[m], Y[m])                     */
 /* (defined in uni5_for.mc)                                                 */
 ADOLC_DLL_EXPORT int fos_forward(
-    short,int,int,int,double*,double*,double*,double*);
+    short,int,int,int,const double*,double*,double*,double*);
 
 /* fos_forward_nk(tag,m,n,x[n],X[n],y[m],Y[m])                              */
 /* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
