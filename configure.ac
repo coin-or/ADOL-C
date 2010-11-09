@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [10])
+define([ADOLC_LVL], [11])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
