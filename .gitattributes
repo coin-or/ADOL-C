@@ -277,7 +277,6 @@ ADOL-C/test/speelpenning.cpp -text
 /TODO -text
 ThirdParty/ColPack/ColPack.vcxproj -text
 ThirdParty/ColPack/Readme_VC++.txt -text
-ThirdParty/ColPack/colpack_vcxcompile.patch -text
 /acinclude.m4 -text
 /aclocal.m4 -text
 /adolc.spec -text
