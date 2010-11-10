@@ -8,8 +8,8 @@ The complete steps are as follows
 1. Go to directory ThirdParty/
 
 tar -xzf ColPack.tar.gz
-cd ColPack
-patch -p0 <colpack_vcxcompile.patch
+
+or use your favourite extraction utility under windows.
 
 2. In Visual Studio open the solution file
 

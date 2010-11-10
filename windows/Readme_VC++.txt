@@ -1,6 +1,19 @@
 The solution and project files were generated on Visual Studio 2010 Ultimate.
 Compatibility with older versions is not guarenteed.
 
+Before adolc may be built using Visual studio the following step must
+be taken:
+- Create a symbolic link ADOL-C\adolc pointing to ADOL-C\src
+   Under Windows Vista/Windows 7/Windows 2008 Server
+   use the mklink command
+     cd ADOL-C
+     mklink /j src adolc
+   Under Windows XP/Windows 2003 Server
+   use the junction command from Windows sysinternals suite:
+   http://technet.microsoft.com/en-us/sysinternals/bb842062.aspx
+     cd ADOL-C
+     junction src adolc
+
 The solution file windows/adolc.sln can build both the sparse as well as
 the nosparse versions of adolc.dll. In visual studio open this solution file
 and select the solution 'adolc' in the Solution Explorer, from the toolbar
