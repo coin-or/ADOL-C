@@ -248,6 +248,24 @@ fi
 AC_SUBST(COLPACK_CFLAGS)
 AC_SUBST(COLPACK_LIBS)
 
+# ADOL-C with mpi
+AC_ARG_ENABLE(mpi,[AS_HELP_STRING([--disable-mpi],[build without mpi support [default=auto]])],
+[mpi=$enableval], [mpi=auto])
+
+if test x$mpi = xauto -o x$mpi = xyes ; then
+AC_CHECK_HEADER(mpi/mpi.h,[
+AC_DEFINE(HAVE_MPI_MPI_H,1,[MPI header file exists])
+if test x = x"$MPILIBS"; then
+AC_CHECK_LIB(mpi, MPI_Init, [MPILIBS="-lmpi"])
+fi
+if test x = x"$MPILIBS"; then
+AC_CHECK_LIB(mpich, MPI_Init, [MPILIBS="-lmpich"])
+fi])
+fi
+
+AC_SUBST(MPILIBS)
+AM_CONDITIONAL(HAVE_MPI,[test x != x"$MPILIBS"])
+
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
 AC_ARG_ENABLE(docexa,

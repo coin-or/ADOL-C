@@ -19,7 +19,8 @@
            with/without "keep" parameter:                     define _KEEP_
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -40,6 +41,10 @@
 #if defined(ADOLC_DEBUG)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
+
+#if defined(HAVE_MPI_MPI_H)
+#include <mpi/mpi.h>
+#endif
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -913,7 +918,12 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
-
+#if defined(HAVE_MPI_MPI_H)
+	double *trade;
+	MPI_Status status_MPI;
+	int mpi_i;
+#endif
+	
 
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
@@ -3636,7 +3646,61 @@ int  hov_forward(
 
                 break;
 #endif
-
+                /*--------------------------------------------------------------------------*/
+#if defined(HAVE_MPI_MPI_H)
+      case send_data:	// MPI-Send-Befehl
+	      arg = get_locint_f(); // first Buffer
+	      arg1 = get_locint_f(); // count
+	      arg2 = get_locint_f(); // dest
+	      res = get_locint_f(); // tag
+#if defined(_FOS_) /* BREAK_FOS */
+	      trade = (double*) myalloc1(2*arg1);
+	      ASSIGN_T(Targ,  TAYLOR_BUFFER[arg]);
+	      for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+		      trade[2*mpi_i] = dp_T0[arg+mpi_i];
+		      trade[2*mpi_i+1]=Targ[mpi_i];
+	      }
+	      MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+	      myfree1(trade);
+#endif /* ALL_TOGETHER_AGAIN */
+#if defined(_ZOS_)
+	      trade = (double*) myalloc1(arg1);
+	      for(mpi_i=0; mpi_i< arg1; mpi_i++)
+		      trade[mpi_i] = dp_T0[arg+mpi_i];
+	      MPI_Send(trade,arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
+	      myfree1(trade);
+#endif
+	      break;
+                /*--------------------------------------------------------------------------*/
+      case receive_data:	// MPI-Receive
+	      arg =get_locint_f(); // Location
+	      arg1 = get_locint_f(); // count
+	      arg2 = get_locint_f(); // dest
+	      res = get_locint_f(); // tag
+#if defined(_FOS_) /* BREAK_FOS */
+	      trade = (double*) myalloc1(arg1*2);
+	      MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+	      
+	      ASSIGN_T(Targ,  TAYLOR_BUFFER[arg]);
+	      for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+/*  have to do  IF_KEEP_WRITE_TAYLOR(res,keep,k,p) */
+		      dp_T0[arg+mpi_i]= trade[2*mpi_i];
+		      Targ[mpi_i] = trade[2*mpi_i+1];
+	      }
+	      myfree1(trade);
+#endif 
+#if defined(_ZOS_)
+	      trade = (double*) myalloc1(arg1);
+	      MPI_Recv(trade, arg1, MPI_DOUBLE, arg2,res, MPI_COMM_WORLD, &status_MPI);
+	      for(mpi_i=arg1-1; mpi_i>=0; mpi_i--)  // recovery in right order
+	      {
+		      IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
+			      dp_T0[arg+mpi_i] = trade[mpi_i];
+	      }
+	      myfree1(trade);
+#endif
+	      break;
+#endif                
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /* Die here, we screwed up */

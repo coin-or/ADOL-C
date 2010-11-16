@@ -38,7 +38,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\
                        interfaces.h oplate.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
-                       adolc_sparse.h adolc_openmp.h \
+                       adolc_sparse.h adolc_openmp.h adolc_mpi.h \
                        revolve.h
 
 lib_LTLIBRARIES      = libadolc.la
@@ -60,11 +60,15 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
-                       int_reverse_s.c int_reverse_t.c 
+                       int_reverse_s.c int_reverse_t.c \
+                       adolc_mpi.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
 libadolc_la_LDFLAGS  += @COLPACK_LIBS@
+if HAVE_MPI
+libadolc_la_LDFLAGS  += @MPILIBS@
+endif
 else
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c\
@@ -76,9 +80,12 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
                        forward_partx.c \
                        externfcts.cpp checkpointing.cpp \
-                       fixpoint.cpp fov_offset_forward.c revolve.c 
+                       fixpoint.cpp fov_offset_forward.c revolve.c \
+                       adolc_mpi.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
-
+if HAVE_MPI
+libadolc_la_LDFLAGS  += @MPILIBS@
+endif
 endif
 

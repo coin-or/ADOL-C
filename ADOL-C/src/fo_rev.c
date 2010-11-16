@@ -16,7 +16,8 @@
                   faster than tight) 
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -195,6 +196,10 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
+#if defined(HAVE_MPI_MPI_H)
+#include <mpi/mpi.h>
+#endif
+
 BEGIN_C_DECLS
 
 /****************************************************************************/
@@ -361,6 +366,11 @@ int int_reverse_safe(
 
 #endif
 
+#if defined(HAVE_MPI_MPI_H)
+	double *trade;
+	MPI_Status status_MPI;
+#endif
+	
     /****************************************************************************/
     /*                                                                    INITs */
 
@@ -1771,6 +1781,46 @@ int int_reverse_safe(
 
                 break;
 #endif /* !_INT_REV_ */
+                /*--------------------------------------------------------------------------*/
+#if defined(HAVE_MPI_MPI_H)
+        case receive_data:	// MPI-Send
+	        res = get_locint_r(); // tag
+	        arg2 = get_locint_r(); // dest
+	        arg1 = get_locint_r(); // count
+	        arg = get_locint_r(); // first Buffer
+#if defined(_FOS_) /* BREAK_FOS */
+	        trade = (double*) myalloc1(2*arg1);
+	        
+	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+	        for (n=0; n< arg1; n++) {
+		        trade[2*n] = rp_T[arg +n];
+		        trade[2*n+1]=Aarg[n];
+		        Aarg[n]=0;
+		        ADOLC_GET_TAYLOR(arg+n);
+	        }
+	        MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+	        myfree1(trade);
+#endif /* ALL_TOGETHER_AGAIN */
+	        break;
+                /*--------------------------------------------------------------------------*/
+        case send_data:	// MPI-Send-Befehl
+	        res = get_locint_r(); // tag
+	        arg2 = get_locint_r(); // dest
+	        arg1 = get_locint_r(); // count
+	        arg = get_locint_r(); // first Buffer
+#if defined(_FOS_) /* BREAK_FOS */
+	        trade = (double*) myalloc1(arg1*2);
+	        MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+	        
+	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+	        for (n=0; n<arg1; n++) {
+		        rp_T[arg+n]= trade[2*n];
+		        Aarg[n] = trade[2*n+1];
+	        }
+	        myfree1(trade);
+#endif 
+	        break;
+#endif                
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */

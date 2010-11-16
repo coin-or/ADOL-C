@@ -5,7 +5,8 @@
  Contents: Numeric values for the various opcodes used by ADOL-C.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -82,7 +83,9 @@ enum OPCODES {
   ceil_op,
   floor_op,
   ext_diff,
-  ignore_me
+  ignore_me,
+  send_data,
+  receive_data
 };
 
 /****************************************************************************/
