@@ -55,18 +55,11 @@ int ADOLC_MPI_Send(adouble *buf,
         ADOLC_PUT_LOCINT(count);
         ADOLC_PUT_LOCINT(dest);
         ADOLC_PUT_LOCINT(tag);
-#if defined(ADOLC_TAPELESS)
-        h *=2;
-#endif
+        
         trade = (double*) myalloc1(h);
-	for(i=0; i< count;i++) {
-#if defined(ADOLC_TAPELESS)
-		trade[2*i] = buf[i].getValue();
-		trade[2*i+1] = buf[i].getADValue();
-#else
+	for(i=0; i< count;i++)
 		trade[i] = buf[i].getValue();
-#endif
-	}
+
         ierr = MPI_Send(trade, h, datatype, dest, tag, comm);
         free(trade);
         return ierr;
@@ -87,21 +80,10 @@ int ADOLC_MPI_Recv(adouble *buf,
         ADOLC_PUT_LOCINT(dest);
 	ADOLC_PUT_LOCINT(tag);
         MPI_Status status;
-#if defined(ADOLC_TAPELESS)
-        h *=2;
-#endif
         trade = (double*) myalloc1(h);
 	ierr = MPI_Recv(trade,h, datatype, dest, tag, comm, &status);
-        for(i=0; i< count;i++) {
-#if defined(ADOLC_TAPELESS)
-	        buf[i].setValue(trade[2*i]);
-// 	        buf[i] = trade[2*i];
-	        buf[i].setADValue(trade[2*i+1]);
-#else
+        for(i=0; i< count;i++) 
 	        buf[i].setValue(trade[i]);
-// 	        buf[i] = trade[i];
-#endif
-        }
         free(trade);
 	return ierr;
 }
