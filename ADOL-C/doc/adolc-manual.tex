@@ -808,17 +808,17 @@ interest. The components of {\sf counts} represent
 {\sf counts[0]}: & the number of independents, i.e.~calls to \boldmath $\ll=$ \unboldmath, \\
 {\sf counts[1]}: & the number of dependents, i.e.~calls to \boldmath $\gg=$ \unboldmath,\\ 
 {\sf counts[2]}: & the maximal number of live active variables,\\
-{\sf counts[3]}: & the size of value stack (number of overwrites),\\
+{\sf counts[3]}: & the size of taylor stack (number of overwrites),\\
 {\sf counts[4]}: & the buffer size (a multiple of eight),
 \end{tabular}
 \]
 \[
 \begin{tabular}{ll}
 {\sf counts[5]}: & the total number of operations recorded,\\
-{\sf counts[6-10]}: & other internal information about the tape.
+{\sf counts[6-13]}: & other internal information about the tape.
 \end{tabular}
 \]
-The values {\sf maxlive} = {\sf counts[2]} and {\sf vssize} = {\sf counts[3]} 
+The values {\sf maxlive} = {\sf counts[2]} and {\sf tssize} = {\sf counts[3]} 
 determine the temporary 
 storage requirements during calls to the routines
 implementing the forward and the reverse mode.
@@ -826,7 +826,7 @@ For a certain degree {\sf deg} $\geq$ 0, the scalar version of the
 forward mode involves apart from the tape buffers an array of 
  $(${\sf deg}$+1)*${\sf maxlive} {\sf double}s in
 core and, in addition, a sequential data set called the value stack 
-of {\sf vssize}$*${\sf keep} {\sf revreal}s if called with the 
+of {\sf tssize}$*${\sf keep} {\sf revreal}s if called with the 
 option {\sf keep} $>$ 0. Here
 the type {\sf revreal} is defined as {\sf double} or {\sf float} in
 the header file \verb=<adolc/usrparms.h>=. The latter choice halves the storage
@@ -3735,7 +3735,7 @@ using the appropriate drivers {\sf gradient} and {\sf hessian}.
 #include <adolc/taping.h>                // use of taping
 ...
 void main() {
-int n,i,j,tape_stats[11];
+int n,i,j,tape_stats[STAT_SIZE];
 cout << "SPEELPENNINGS PRODUCT (ADOL-C Documented Example) \n";
 cout << "number of independent variables = ?  \n";
 cin >> n;
