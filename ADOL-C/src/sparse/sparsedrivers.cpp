@@ -209,6 +209,18 @@ void generate_seed_hess
 }
 #endif
 
+static void deepcopy_HP(unsigned int ***HPnew, unsigned int **HP, int indep)
+{
+    int i,j,s;
+    *HPnew = (unsigned int **)malloc(indep*sizeof(unsigned int *));
+    for (i=0; i<indep; i++) {
+       s=HP[i][0];
+       (*HPnew)[i] = (unsigned int *)malloc((s+1)*(sizeof(unsigned int)));
+       for (j=0; j<=s; j++)
+           (*HPnew)[i][j] = HP[i][j];
+    }
+}
+
 /****************************************************************************/
 /*******       sparse Jacobians, complete driver              ***************/
 /****************************************************************************/
@@ -442,7 +454,11 @@ int sparse_hess(
 	  {
 	    tapeInfos=getTapeInfos(tag);
 	    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
-	    sHinfos.HP     = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
+            if (indep != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.indep) {
+                fprintf(DIAG_OUT,"ADOL-C Error: wrong number of independents stored in hessian pattern.\n");
+                exit(-1);
+            }
+	    deepcopy_HP(&sHinfos.HP,ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,indep);
 	  }
 
 	sHinfos.indep = indep;
@@ -601,14 +617,17 @@ void set_HP(
 
     tapeInfos=getTapeInfos(tag);
     memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
-    sHinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.nnz_in;
-    sHinfos.HP     = HP;
-    sHinfos.Hcomp  = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Hcomp;
-    sHinfos.Xppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Xppp;
-    sHinfos.Yppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Yppp;
-    sHinfos.Zppp   = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Zppp;
-    sHinfos.Upp    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Upp;
-    sHinfos.p      = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.p;
+    sHinfos.nnz_in = 0;
+    deepcopy_HP(&sHinfos.HP,HP,indep);
+    sHinfos.Hcomp  = NULL;
+    sHinfos.Xppp   = NULL;
+    sHinfos.Yppp   = NULL;
+    sHinfos.Zppp   = NULL;
+    sHinfos.Upp    = NULL;
+    sHinfos.p      = 0;
+    sHinfos.g      = NULL;
+    sHinfos.hr     = NULL;
+    sHinfos.indep  = indep;
     setTapeInfoHessSparse(tag, sHinfos);
 }
 #else
@@ -629,7 +648,7 @@ void get_HP(
 
     tapeInfos=getTapeInfos(tag);
     memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
-    *HP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
+    deepcopy_HP(HP,ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,indep);
 }
 #else
 {
