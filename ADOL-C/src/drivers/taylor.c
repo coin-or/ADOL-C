@@ -743,7 +743,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
         for (j=0; j<dimten; j++)
             tensor[i][j] = 0;
     if (d == 0) {
-        MINDEC(rc,zos_forward(1,m,n,0,x,y));
+        MINDEC(rc,zos_forward(tag,m,n,0,x,y));
     } else {
         if ((d != dold) || (p != pold)) {
             if (pold) {
