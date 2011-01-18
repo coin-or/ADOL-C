@@ -1,12 +1,11 @@
-# spec file for package adolc (Version 2.1.11-trunk)
+# spec file for package adolc (Version 2.1.12)
 
 # norootforbuild
 
-%define ver %(echo 2.1.11-trunk | sed s,-,_, ) 
-%define packver 2.1.11-trunk
+%define packver 2.1.12-trunk
 
 Name:           adolc
-Version:        %ver
+Version:        2.1.12
 Release:        0.1
 License:        GPLv2 or CPL
 Summary:        Algorithmic Differentiation Library for C/C++
