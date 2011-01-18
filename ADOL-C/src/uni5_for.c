@@ -935,7 +935,7 @@ int  hov_forward(
 #endif
 #if defined(_KEEP_)
     if (keep) {
-        taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
+      taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
 
         taylor_begin(taylbuf,&dp_T0,keep-1);
     }

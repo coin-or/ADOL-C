@@ -475,7 +475,7 @@ int sparse_hess(
                 fprintf(DIAG_OUT,"ADOL-C Error: wrong number of independents stored in hessian pattern.\n");
                 exit(-1);
             }
-	    deepcopy_HP(&sHinfos.HP,ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,indep);
+	    deepcopy_HP(&sHinfos.HP,ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,indep);	    
 	  }
 
 	sHinfos.indep = indep;
@@ -503,8 +503,7 @@ int sparse_hess(
 	  g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, 
 		  	         "SMALLEST_LAST","STAR"); 
 
-	
-	sHinfos.Hcomp = myalloc2(indep,sHinfos.p);
+       	sHinfos.Hcomp = myalloc2(indep,sHinfos.p);
         sHinfos.Xppp = myalloc3(indep,sHinfos.p,1);
 
 	for (i=0; i<indep; i++)
@@ -524,9 +523,12 @@ int sparse_hess(
 
 	sHinfos.g = (void *) g;
 	sHinfos.hr = (void *) hr;
+
 	setTapeInfoHessSparse(tag, sHinfos);
+
 	tapeInfos=getTapeInfos(tag);
 	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+
     }
     else
       {
@@ -543,7 +545,6 @@ int sparse_hess(
 	g = (GraphColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.g;
 	hr = (HessianRecovery *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.hr;
       }
-
 
     if (sHinfos.Upp == NULL) {
         printf(" ADOL-C error in sparse_hess():"
@@ -1081,16 +1082,18 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
       myfree3(Zppp);
    if(Upp)
       myfree2(Upp);
-    for (int i=0;i<indep;i++) {
-      free(HP[i]);
-    }
 
-    free(HP);
+   if(HP)
+     {
+       for (int i=0;i<indep;i++) {
+   	 free(HP[i]);
+       }
+       free(HP);
+     }
 
 #ifdef HAVE_LIBCOLPACK
      if (g) 
        delete (GraphColoringInterface *) g;
-
     if (hr)
 	delete (HessianRecovery*) hr;
 #endif
