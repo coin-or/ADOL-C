@@ -1,12 +1,11 @@
-# spec file for package adolc (Version @PACKAGE_VERSION@)
+# spec file for package adolc (Version @ADOLC_VERSION@.@ADOLC_SUBVERSION@.@ADOLC_PATCHLEVEL@)
 
 # norootforbuild
 
-%define ver %(echo @PACKAGE_VERSION@ | sed s,-,_, ) 
 %define packver @PACKAGE_VERSION@
 
 Name:           adolc
-Version:        %ver
+Version:        @ADOLC_VERSION@.@ADOLC_SUBVERSION@.@ADOLC_PATCHLEVEL@
 Release:        0.1
 License:        GPLv2 or CPL
 Summary:        Algorithmic Differentiation Library for C/C++
