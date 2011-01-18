@@ -377,7 +377,7 @@ int sparse_jac(
 
     /* recover compressed Jacobian => ColPack library */
  
-    if (values != NULL && rind != NULL && cind != NULL) {
+    if (*values != NULL && *rind != NULL && *cind != NULL) {
       // everything is preallocated, we assume correctly
       // call usermem versions
       if (options[3] == 1)
@@ -387,12 +387,12 @@ int sparse_jac(
     } else {
       // at least one of rind cind values is not allocated, deallocate others
       // and call unmanaged versions
-      if (values != NULL)
-	  free(values);
-      if (rind != NULL)
-	  free(rind);
-      if (cind != NULL)
-	  free(cind);
+      if (*values != NULL)
+	  free(*values);
+      if (*rind != NULL)
+	  free(*rind);
+      if (*cind != NULL)
+	  free(*cind);
       if (options[3] == 1)
        jr1d->RecoverD2Row_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
@@ -604,7 +604,7 @@ int sparse_hess(
 //      else
 //        HessianRecovery::DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
-    if (values != NULL && rind != NULL && cind != NULL) {
+    if (*values != NULL && *rind != NULL && *cind != NULL) {
      // everything is preallocated, we assume correctly
      // call usermem versions
      if (options[1] == 0)
@@ -614,12 +614,12 @@ int sparse_hess(
     } else {
       // at least one of rind cind values is not allocated, deallocate others
       // and call unmanaged versions
-      if (values != NULL)
-	  free(values);
-      if (rind != NULL)
-	  free(rind);
-      if (cind != NULL)
-	  free(cind);
+      if (*values != NULL)
+	  free(*values);
+      if (*rind != NULL)
+	  free(*rind);
+      if (*cind != NULL)
+	  free(*cind);
      if (options[1] == 0)
        hr->IndirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
