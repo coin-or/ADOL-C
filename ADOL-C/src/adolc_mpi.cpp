@@ -112,5 +112,23 @@ int gradient(int id,int size,short tag ,int n, double* x,double* result){
 	return rc;
 }
 
+int hessian(int id,int size,short tag ,int n,double* x ,double** result){
+	int rc =-3,i;
+	int this_tag = tag*size + id;
+	double one = 1.0;
+	if( id == 0)
+		rc = hessian(this_tag,n,x,result);
+	else {
+		for(i=0;i<n;++i){
+			rc = fos_forward(this_tag, 0,0,2,NULL,NULL,NULL,NULL);
+			if(rc <0){
+				printf("Failure by computing parallel hessian, process id %d!\n",id);
+				return rc;
+			}
+			rc = hos_reverse(this_tag,0,0,1, NULL,NULL);
+		}
+	}
+	return rc;
+}
 
 /* That's all*/

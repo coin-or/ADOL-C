@@ -11,7 +11,8 @@
               define _HOV_
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -272,6 +273,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
+#if defined(HAVE_MPI_MPI_H)
+#include <mpi/mpi.h>
+#endif /* ADOLC_Parallel */
+
+
 #if defined(ADOLC_DEBUG)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
@@ -292,14 +298,16 @@ int hos_reverse(short   tnum,        /* tape id */
                 double  *lagrange,   /* range weight vector       */
                 double  **results)   /* matrix of coefficient vectors */
 { int i, j, rc;
-    double** L = myalloc2(depen,degre+1);
+	double** L = NULL;
+	/* if depen==indep==0 then tnum is not main process */
+	if((depen!=0) && (indep != 0)) L = myalloc2(depen,degre+1);
     for ( i = 0; i < depen; ++i ) {
         L[i][0] = lagrange[i];
         for ( j = 1; j <= degre; ++j )
             L[i][j] = 0.0;
     }
     rc = hos_ti_reverse(tnum,depen,indep,degre,L,results);
-    myfree2(L);
+	if((depen!=0) && (indep != 0)) myfree2(L);
     return rc;
 }
 
@@ -583,7 +591,13 @@ int hov_ti_reverse(
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
-
+	
+#if defined(HAVE_MPI_MPI_H)
+	MPI_Status status_MPI;
+	double *trade;
+	int iter_mpi;
+#endif /* is used by Parallelisation */
+	
     while (operation != start_of_tape) { 
         /* Switch statement to execute the operations in Reverse */
         switch (operation) {
@@ -2077,6 +2091,55 @@ int hov_ti_reverse(
 
                 break;
 
+                /*--------------------------------------------------------------------------*/
+
+#if defined(HAVE_MPI_MPI_H)
+	    case receive_data:	// MPI-Send
+		    res = get_locint_r(); // tag
+		    arg2 = get_locint_r(); // dest
+		    arg1 = get_locint_r(); // count
+		    arg = get_locint_r(); // first Buffer
+		    
+#if defined(_HOS_) /* BREAK_HOS */
+		    trade = (double*) myalloc1((k+k1)*arg1);
+		    
+		    /* writing Taylor- and Adjointbuffer in one double array */
+		    for (iter_mpi=0; iter_mpi< arg1*k;iter_mpi++) 
+			    trade[iter_mpi] = rpp_T[arg][iter_mpi];
+		    
+		    for(iter_mpi=arg1*k ,i=0; iter_mpi<arg1*(k+k1) ; iter_mpi++,i++){
+			    trade[iter_mpi] = rpp_A[arg][i];
+			    rpp_A[arg][i] =0;
+		    }
+		    
+	 	        /* loading saved Values of Adjoint- and Taylorbuffer */
+		    for(iter_mpi=0; iter_mpi<arg1; iter_mpi++)
+			    GET_TAYL(arg+iter_mpi,k,p)
+			    
+	    myfree1(trade);
+#endif /* ALL_TOGETHER_AGAIN */
+	    break;
+                /*--------------------------------------------------------------------------*/
+    	case send_data:	// MPI-Send-Befehl
+	    res = get_locint_r(); // tag
+	    arg2 = get_locint_r(); // source
+	    arg1 = get_locint_r(); // count
+	    arg = get_locint_r(); // first Buffer
+#if defined(_HOS_) /* BREAK_HOS */
+	    
+	    trade = (double*) myalloc1(arg1*(k+k1));
+	    MPI_Recv( trade , (k+k1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+	    
+    	    for(iter_mpi=0; iter_mpi<arg1*k; iter_mpi++)
+	    		rpp_T[arg][iter_mpi] = trade[iter_mpi];
+		    
+	    for(iter_mpi=arg1*k, i=0; iter_mpi<arg1*(k+k1); iter_mpi++, i++)
+		    rpp_A[arg][i] += trade[iter_mpi];
+	    
+	    
+	    myfree1(trade);
+#endif 
+#endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */

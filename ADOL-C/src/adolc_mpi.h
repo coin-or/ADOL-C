@@ -50,6 +50,9 @@ int trace_on(int, int, short);
 /* gradient(rank,size,tag, n, x[n], g[n])                                   */
 int gradient(int,int,short,int,double*,double*); // +
 
+/* hessian(rank,size,tag, n, x[n], H[n][n])                                 */
+int hessian(int,int,short,int,double*,double**); // +
+
 #endif /*HAVE_MPI_MPI_H*/
 
 #endif
