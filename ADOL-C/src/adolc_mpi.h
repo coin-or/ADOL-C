@@ -47,11 +47,14 @@ int trace_on(int, int, short);
 /* High level driver functions */
 /* at first parameter this process-ID */
 
-/* gradient(rank,size,tag, n, x[n], g[n])                                   */
-int gradient(int,int,short,int,double*,double*); // +
+/* gradient(rank,size,tag, n, x[n], g[n])          */
+int gradient(int,int,short,int,double*,double*); 
 
-/* hessian(rank,size,tag, n, x[n], H[n][n])                                 */
-int hessian(int,int,short,int,double*,double**); // +
+/* hessian(rank,size,tag, n, x[n], H[n][n])         */
+int hessian(int,int,short,int,double*,double**); 
+
+/* generating tapes by process id, processes count, used tag */
+void tape_doc( int,int,short, int,int, double*, double*);
 
 #endif /*HAVE_MPI_MPI_H*/
 

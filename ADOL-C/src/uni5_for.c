@@ -3675,15 +3675,15 @@ int  hov_forward(
       case receive_data:	// MPI-Receive
 	      arg =get_locint_f(); // Location
 	      arg1 = get_locint_f(); // count
-	      arg2 = get_locint_f(); // dest
+	      arg2 = get_locint_f(); // source
 	      res = get_locint_f(); // tag
 #if defined(_FOS_) /* BREAK_FOS */
 	      trade = (double*) myalloc1(arg1*2);
 	      MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
-	      
+	      /*	Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
 	      ASSIGN_T(Targ,  TAYLOR_BUFFER[arg]);
 	      for (mpi_i=0; mpi_i< arg1; mpi_i++) {
-/*  have to do  IF_KEEP_WRITE_TAYLOR(res,keep,k,p) */
+		IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p) 
 		      dp_T0[arg+mpi_i]= trade[2*mpi_i];
 		      Targ[mpi_i] = trade[2*mpi_i+1];
 	      }
@@ -3699,6 +3699,9 @@ int  hov_forward(
 	      }
 	      myfree1(trade);
 #endif
+	      break;
+      case barrier_op:
+	      MPI_Barrier(MPI_COMM_WORLD);
 	      break;
 #endif                
                 /*--------------------------------------------------------------------------*/

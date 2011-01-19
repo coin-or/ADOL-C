@@ -108,7 +108,8 @@ static char* a[] =  {  "death not",
                        "extern fctn",
                        "ignore_me",
                        "send data",
-                       "receive data"
+                       "receive data",
+		       "barrier Op"
                     };
 
 /****************************************************************************/
@@ -1211,6 +1212,27 @@ void tape_doc(short tnum,         /* tape id */
 	        res = get_locint_f();
 	        filewrite(operation, 3, loc_a, val_a, 0, cst_d);
 	        break; 
+        case barrier_op:
+	        ++op_cnt;
+	        --rev_op_cnt;
+	        fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, barrier_op);
+	        
+    /* write opcode name if available */
+	        res=0;
+	        while (a[barrier_op][res]) {
+		        fprintf(fp,"%c",a[barrier_op][res]);
+		        res++;
+	        }
+	        
+    /* write locations (max 4) right-justified */
+	        fprintf(fp," & & & & & ");
+	        
+#ifdef computenumbers
+	        fprintf(fp," & & & & & \\\\ \\hline \n");
+#else
+	        fprintf(fp," &  \\\\ \\hline \n");
+#endif
+	        break;
 #endif
                 /*--------------------------------------------------------------------------*/
         default:                                                   /* default */

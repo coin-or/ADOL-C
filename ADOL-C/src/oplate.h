@@ -85,7 +85,8 @@ enum OPCODES {
   ext_diff,
   ignore_me,
   send_data,
-  receive_data
+  receive_data,
+  barrier_op
 };
 
 /****************************************************************************/

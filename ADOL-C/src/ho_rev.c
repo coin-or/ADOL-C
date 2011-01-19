@@ -2139,6 +2139,10 @@ int hov_ti_reverse(
 	    
 	    myfree1(trade);
 #endif 
+	    break;
+	    case barrier_op:
+		    MPI_Barrier(MPI_COMM_WORLD);
+		    break;
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */

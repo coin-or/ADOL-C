@@ -44,6 +44,7 @@ int ADOLC_MPI_Get_processor_name(char* a, int* b) {
 }
 	
 int ADOLC_MPI_Barrier(MPI_Comm comm) {
+	put_op(barrier_op);
 	return MPI_Barrier(comm);
 }
 
@@ -129,6 +130,12 @@ int hessian(int id,int size,short tag ,int n,double* x ,double** result){
 		}
 	}
 	return rc;
+}
+
+void tape_doc( int id,int size,short tag, int m,int n, double* x, double* y){
+	int this_tag = tag*size +id;
+	if(id==0) tape_doc(this_tag,m,n,x,y);
+	else tape_doc(this_tag,0,0,x,y);
 }
 
 /* That's all*/
