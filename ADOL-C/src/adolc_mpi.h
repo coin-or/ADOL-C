@@ -19,13 +19,15 @@
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
 
+#define MPI_ADOUBLE MPI_DOUBLE
+#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
+
 #include <adolc/common.h>
 #include <adolc/adouble.h>
 
 #ifdef __cplusplus__
 extern "C" {
 #endif
-extern int myid;
 
 int ADOLC_MPI_Init(int* a, char*** b);
 int ADOLC_MPI_Comm_size(MPI_Comm comm, int* size);
@@ -39,6 +41,15 @@ int ADOLC_MPI_Finalize() ;
 
 int ADOLC_MPI_Send(adouble *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm );
 int ADOLC_MPI_Recv(adouble *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm );
+
+int trace_on(int, int, short);
+
+/* High level driver functions */
+/* at first parameter this process-ID */
+
+/* gradient(rank,size,tag, n, x[n], g[n])                                   */
+int gradient(int,int,short,int,double*,double*); // +
+
 #endif /*HAVE_MPI_MPI_H*/
 
 #endif

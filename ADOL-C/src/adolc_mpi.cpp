@@ -17,8 +17,17 @@
 #include "taping_p.h"
 #include <mpi/mpi.h>
 #include <adolc/adouble.h>
-#include <adolc/common.h>
+#include <adolc/drivers/drivers.h>
+#include <adolc/tapedoc/tapedoc.h>
 #include <adolc/adalloc.h>
+#include <adolc/common.h>
+#include <adolc/interfaces.h>
+#include <adolc/convolut.h>
+
+int trace_on(int id, int size, short tag){
+	int result = size*tag + id;
+	return trace_on( result );
+}
 
 int ADOLC_MPI_Init(int* a, char*** b){
 	return MPI_Init(a,b);
@@ -68,24 +77,40 @@ int ADOLC_MPI_Send(adouble *buf,
 int ADOLC_MPI_Recv(adouble *buf, 
                   int count, 
                   MPI_Datatype datatype, 
-                  int dest, int tag, 
+                  int source, int tag, 
                   MPI_Comm comm ) {
 	int i,h=count;
         double *trade;
         int ierr =0;
-
+	
         put_op(receive_data);
         ADOLC_PUT_LOCINT(buf[0].loc());
         ADOLC_PUT_LOCINT(count);
-        ADOLC_PUT_LOCINT(dest);
+        ADOLC_PUT_LOCINT(source);
 	ADOLC_PUT_LOCINT(tag);
         MPI_Status status;
         trade = (double*) myalloc1(h);
-	ierr = MPI_Recv(trade,h, datatype, dest, tag, comm, &status);
+        ierr = MPI_Recv(trade,h, datatype, source, tag, comm, &status);
+        if(buf==NULL) buf = new adouble[count];
         for(i=0; i< count;i++) 
 	        buf[i].setValue(trade[i]);
         free(trade);
 	return ierr;
 }
+
+int gradient(int id,int size,short tag ,int n, double* x,double* result){
+	int rc=-1;
+	int this_tag = tag*size + id;
+	double one =1.0;
+	if( id == 0)
+		rc = gradient(this_tag , n , x , result);
+	else {
+		rc = zos_forward(this_tag,0,0,1,x,result);
+		if(rc<0) return rc;
+		rc = fos_reverse(this_tag,0,0,&one,result);
+	}
+	return rc;
+}
+
 
 /* That's all*/

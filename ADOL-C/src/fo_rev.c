@@ -1805,17 +1805,17 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
         case send_data:	// MPI-Send-Befehl
 	        res = get_locint_r(); // tag
-	        arg2 = get_locint_r(); // dest
+	        arg2 = get_locint_r(); // source
 	        arg1 = get_locint_r(); // count
 	        arg = get_locint_r(); // first Buffer
 #if defined(_FOS_) /* BREAK_FOS */
 	        trade = (double*) myalloc1(arg1*2);
 	        MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
 	        
-	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+ 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n<arg1; n++) {
 		        rp_T[arg+n]= trade[2*n];
-		        Aarg[n] = trade[2*n+1];
+		        Aarg[n] += trade[2*n+1];
 	        }
 	        myfree1(trade);
 #endif 
