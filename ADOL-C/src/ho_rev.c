@@ -2115,6 +2115,7 @@ int hov_ti_reverse(
 	 	        /* loading saved Values of Adjoint- and Taylorbuffer */
 		    for(iter_mpi=0; iter_mpi<arg1; iter_mpi++)
 			    GET_TAYL(arg+iter_mpi,k,p)
+		    MPI_Send(trade,(k+k1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
 			    
 	    myfree1(trade);
 #endif /* ALL_TOGETHER_AGAIN */
