@@ -3670,6 +3670,16 @@ int  hov_forward(
 	      MPI_Send(trade,arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
 	      myfree1(trade);
 #endif
+#if defined(_FOV_) /* BREAK_FOV */
+	      trade = (double*) myalloc1(p*arg1);
+// 	      ASSIGN_T(Targ,  TAYLOR_BUFFER[arg]);
+	      for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+		      for(i=0;i<p;i++)
+			      trade[p*mpi_i+i] = dpp_T[arg+mpi_i][i];
+	      }
+	      MPI_Send( trade , arg1*p, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+	      myfree1(trade);
+#endif /* ALL_TOGETHER_AGAIN */
 	      break;
                 /*--------------------------------------------------------------------------*/
       case receive_data:	// MPI-Receive
@@ -3699,6 +3709,18 @@ int  hov_forward(
 	      }
 	      myfree1(trade);
 #endif
+#if defined(_FOV_) /* BREAK_FOV */
+	      trade = (double*) myalloc1(arg1*p);
+	      MPI_Recv( trade , p*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+	      /*	Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
+// 	      ASSIGN_T(Targ,  TAYLOR_BUFFER[arg]);
+	      for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+ 		      IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p) 
+		      for(i=0;i<p;i++)
+			      dpp_T[arg+mpi_i][i]= trade[p*mpi_i+i];
+	      }
+	      myfree1(trade);
+#endif 
 	      break;
       case barrier_op:
 	      MPI_Barrier(MPI_COMM_WORLD);

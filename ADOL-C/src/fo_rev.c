@@ -1801,6 +1801,21 @@ int int_reverse_safe(
 	        MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
 	        myfree1(trade);
 #endif /* ALL_TOGETHER_AGAIN */
+#if defined(_FOV_) /* BREAK_FOV */
+	        trade = (double*) myalloc1((1+nrows)*arg1);
+	        
+// 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+	        for (n=0; n< arg1; n++) {
+		        trade[(nrows+1)*n] = rp_T[arg +n];
+		        for(l=0;l<nrows;l++){
+			        trade[(nrows+1)*n+l+1]=rpp_A[arg+n][l];
+			        rpp_A[arg+n][l]=0;
+		        	}
+		        ADOLC_GET_TAYLOR(arg+n);
+	        	}
+	        MPI_Send( trade , arg1*(nrows+1), MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+	        myfree1(trade);
+#endif /* ALL_TOGETHER_AGAIN */
 	        break;
                 /*--------------------------------------------------------------------------*/
         case send_data:	// MPI-Send-Befehl
@@ -1812,10 +1827,22 @@ int int_reverse_safe(
 	        trade = (double*) myalloc1(arg1*2);
 	        MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
 	        
- 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n<arg1; n++) {
 		        rp_T[arg+n]= trade[2*n];
 		        Aarg[n] += trade[2*n+1];
+	        }
+	        myfree1(trade);
+#endif 
+#if defined(_FOV_) /* BREAK_FOV */
+	        trade = (double*) myalloc1(arg1*(1+nrows));
+	        MPI_Recv( trade , (1+nrows)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+	        
+	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
+	        for (n=0; n<arg1; n++) {
+		        rp_T[arg+n]= trade[(nrows+1)*n];
+		        for(l=0;l<nrows;l++)
+			        rpp_A[arg+n][l] += trade[(nrows+1)*n+l+1];
 	        }
 	        myfree1(trade);
 #endif 
