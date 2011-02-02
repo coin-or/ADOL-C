@@ -155,26 +155,17 @@ adouble::adouble( const adub& a ) {
 /****************************************************************************/
 /*                                                              DESTRUCTORS */
 
-#define ADOLC_FREE_LOC(X) \
-    {\
-        ADOLC_OPENMP_THREAD_NUMBER;\
-        ADOLC_OPENMP_GET_THREAD_NUMBER;\
-        ++ADOLC_GLOBAL_TAPE_VARS.numToFree;\
-        if (X < ADOLC_GLOBAL_TAPE_VARS.minLocToFree)\
-            ADOLC_GLOBAL_TAPE_VARS.minLocToFree = X;\
-    }
-
 /*--------------------------------------------------------------------------*/
 adouble::~adouble() {
 #ifdef overwrite
-    ADOLC_FREE_LOC(location);
+    new_free_loc(location);
 #endif
 }
 
 /*--------------------------------------------------------------------------*/
 adub::~adub() {
 #ifdef overwrite
-    ADOLC_FREE_LOC(location);
+    new_free_loc(location);
 #endif
 }
 
@@ -340,10 +331,6 @@ badouble& badouble::operator = ( const adub& a ) {
         revreal tempVal = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_OVERWRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location],&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
-        if (a_loc == ADOLC_GLOBAL_TAPE_VARS.locMinUnused-1) {
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused--;     // The temporary will die in a minute and
-            ADOLC_GLOBAL_TAPE_VARS.numToFree--;         // by reducing dealloc and current_top
-        }                    // we neutralize that effect
         ADOLC_GLOBAL_TAPE_VARS.store[location] = tempVal;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
@@ -588,10 +575,6 @@ badouble& badouble::operator += ( const adub& a ) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
-        if (a_loc == ADOLC_GLOBAL_TAPE_VARS.locMinUnused-1) {
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused--;     // The temporary will die in a minute and
-            ADOLC_GLOBAL_TAPE_VARS.numToFree--;         // by reducing dealloc and current_top
-        }                    // we neutralize that effect
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
@@ -642,10 +625,6 @@ badouble& badouble::operator -= ( const adub& a ) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] -= ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
-        if (a_loc == ADOLC_GLOBAL_TAPE_VARS.locMinUnused-1) {
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused--;     // The temporary will die in a minute and
-            ADOLC_GLOBAL_TAPE_VARS.numToFree--;         // by reducing dealloc and current_top
-        }                    // we neutralize that effect
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
