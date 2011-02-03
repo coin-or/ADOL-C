@@ -130,6 +130,119 @@ int ADOLC_MPI_Recv( adouble *buf,
 
 /****** Differentation functions simple use ****************/
 
+/* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])            */
+int zos_forward( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 int keep,
+                 const double* x,
+                 double* y
+){
+    int this_tag = size*tag + id, rc=-3;
+    if (id==0)
+       rc = zos_forward(this_tag,m,n,keep,x,y);
+    else
+       rc = zos_forward(this_tag,0,0,keep,NULL,NULL);
+    return rc;
+}
+
+/* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
+int fos_forward( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 int keep,
+                 const double* x,
+                 double* a,
+                 double* y,
+                 double* b
+){
+    int this_tag = size*tag + id;
+    int rc=-3;
+    if (id==0)
+       rc = fos_forward(this_tag,m,n,keep,x,a,y,b);
+    else
+       rc = fos_forward(this_tag,0,0,keep,NULL,a,NULL,b);
+    return rc;
+}
+
+/* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
+int fos_reverse( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 double* u,
+                 double* z
+){
+    int this_tag = size*tag + id, rc=-3;
+    if (id==0)
+       rc = fos_reverse(this_tag,m,n,u,z);
+    else
+       rc = fos_reverse(this_tag,0,0,NULL,NULL);
+    return rc;
+}
+
+/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])            */
+int hos_reverse( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 int d,
+                 double* u,
+                 double** z
+){
+    int this_tag = size*tag + id, rc=-3;
+    if (id==0)
+       rc = hos_reverse(this_tag,m,n,d,u,z);
+    else
+       rc = hos_reverse(this_tag,0,0,d,NULL,NULL);
+    return rc;
+}
+
+/* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
+int fov_forward( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 int p,
+                 const double* x,
+                 double** a,
+                 double* y,
+                 double** b
+){
+    int this_tag = size*tag + id;
+    int rc=-3;
+    if (id==0)
+       rc = fov_forward(this_tag,m,n,p,x,a,y,b);
+    else
+       rc = fov_forward(this_tag,0,0,p,NULL,a,NULL,b);
+    return rc;
+}
+/* fov_reverse(process id, procsize, tag, m, n, p, U[p][m], Z[p][n])  */
+int fov_reverse( int id,
+                 int size,
+                 int tag,
+                 int m,
+                 int n,
+                 int p,
+                 double** u,
+                 double** z
+){
+    int this_tag = size*tag + id;
+    int rc=-3;
+    if (id==0)
+       rc = fov_reverse(this_tag,m,n,p,u,z);
+    else
+       rc = fov_reverse(this_tag,0,0,p,NULL,NULL);
+    return rc;
+}
+
 /****************** Now algorithmic functions ****************/
 
 int function(int id, int size,int tag,int m,int n,double* argument ,double* result){

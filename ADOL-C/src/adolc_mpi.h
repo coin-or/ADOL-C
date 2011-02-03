@@ -54,6 +54,25 @@ int trace_on(int, int, int);
 /* High level driver functions */
 /* at first parameter this process-ID */
 
+/* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])*/
+int zos_forward(
+    int,int,short,int,int,int,const double*,double*);
+
+/* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
+int fos_forward(
+    int,int,short,int,int,int,const double*,double*,double*,double*);
+/* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
+int fos_reverse(
+    int, int, short,int,int,double*,double*);
+
+/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])            */
+int hos_reverse(
+    int,int,short,int,int,int,double*,double**);
+
+/* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
+int fov_reverse(
+    int, int, short,int,int,int,double**,double**);
+
 /*********************************************************************/
 /* Algorithmic Differentation Programs                               */
 
