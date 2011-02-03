@@ -1783,7 +1783,7 @@ int int_reverse_safe(
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/
 #if defined(HAVE_MPI_MPI_H)
-        case receive_data:	// MPI-Send
+            case receive_data:	// MPI-Send
 	        res = get_locint_r(); // tag
 	        arg2 = get_locint_r(); // dest
 	        arg1 = get_locint_r(); // count
@@ -1793,10 +1793,10 @@ int int_reverse_safe(
 	        
 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n< arg1; n++) {
-		        trade[2*n] = rp_T[arg +n];
-		        trade[2*n+1]=Aarg[n];
-		        Aarg[n]=0;
-		        ADOLC_GET_TAYLOR(arg+n);
+		    trade[2*n] = rp_T[arg +n];
+		    trade[2*n+1]=Aarg[n];
+		    Aarg[n]=0;
+		    ADOLC_GET_TAYLOR(arg+n);
 	        }
 	        MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
 	        myfree1(trade);
@@ -1804,21 +1804,20 @@ int int_reverse_safe(
 #if defined(_FOV_) /* BREAK_FOV */
 	        trade = (double*) myalloc1((1+nrows)*arg1);
 	        
-// 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n< arg1; n++) {
-		        trade[(nrows+1)*n] = rp_T[arg +n];
-		        for(l=0;l<nrows;l++){
-			        trade[(nrows+1)*n+l+1]=rpp_A[arg+n][l];
-			        rpp_A[arg+n][l]=0;
-		        	}
-		        ADOLC_GET_TAYLOR(arg+n);
-	        	}
+		    trade[(nrows+1)*n] = rp_T[arg +n];
+		    for (l=0;l<nrows;l++){
+			trade[(nrows+1)*n+l+1]=rpp_A[arg+n][l];
+			rpp_A[arg+n][l]=0;
+		    }
+		    ADOLC_GET_TAYLOR(arg+n)
+        	}
 	        MPI_Send( trade , arg1*(nrows+1), MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
 	        myfree1(trade);
 #endif /* ALL_TOGETHER_AGAIN */
 	        break;
                 /*--------------------------------------------------------------------------*/
-        case send_data:	// MPI-Send-Befehl
+            case send_data:	// MPI-Send-Befehl
 	        res = get_locint_r(); // tag
 	        arg2 = get_locint_r(); // source
 	        arg1 = get_locint_r(); // count
@@ -1829,8 +1828,8 @@ int int_reverse_safe(
 	        
 	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n<arg1; n++) {
-		        rp_T[arg+n]= trade[2*n];
-		        Aarg[n] += trade[2*n+1];
+		    rp_T[arg+n]= trade[2*n];
+		    Aarg[n] += trade[2*n+1];
 	        }
 	        myfree1(trade);
 #endif 
@@ -1838,16 +1837,17 @@ int int_reverse_safe(
 	        trade = (double*) myalloc1(arg1*(1+nrows));
 	        MPI_Recv( trade , (1+nrows)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
 	        
-	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
 	        for (n=0; n<arg1; n++) {
-		        rp_T[arg+n]= trade[(nrows+1)*n];
-		        for(l=0;l<nrows;l++)
-			        rpp_A[arg+n][l] += trade[(nrows+1)*n+l+1];
+		    rp_T[arg+n]= trade[(nrows+1)*n];
+		    for (l=0;l<nrows;l++)
+			rpp_A[arg+n][l] += trade[(nrows+1)*n+l+1];
 	        }
 	        myfree1(trade);
 #endif 
 	        break;
-        case barrier_op:
+            
+                /*--------------------------------------------------------------------------*/
+            case barrier_op:
 	        MPI_Barrier(MPI_COMM_WORLD);
 	        break;
 #endif                

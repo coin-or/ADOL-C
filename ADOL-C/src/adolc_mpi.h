@@ -2,12 +2,12 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adolc_mpi.h
  Revision: $Id$
- Contents: C allocation of arrays of doubles in several dimensions 
+ Contents: C allocation of arrays of doubles in several dimensions
 
  Copyright (c) Andrea Walther, Benjamin Letschert
 
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
@@ -19,8 +19,10 @@
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
 
+#define ADOLC_MPI_Datatype MPI_Datatype
 #define MPI_ADOUBLE MPI_DOUBLE
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
+#define ADOLC_MPI_Comm MPI_Comm
 
 #include <adolc/common.h>
 #include <adolc/adouble.h>
@@ -30,31 +32,46 @@ extern "C" {
 #endif
 
 int ADOLC_MPI_Init(int* a, char*** b);
-int ADOLC_MPI_Comm_size(MPI_Comm comm, int* size);
-int ADOLC_MPI_Comm_rank(MPI_Comm comm , int* rank);
+int ADOLC_MPI_Comm_size(ADOLC_MPI_Comm comm, int* size);
+int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
 int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
-int ADOLC_MPI_Barrier(MPI_Comm comm);
+int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 int ADOLC_MPI_Finalize() ;
 #ifdef __cplusplus__
 }
 #endif
 
-int ADOLC_MPI_Send(adouble *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm );
-int ADOLC_MPI_Recv(adouble *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm );
+int ADOLC_MPI_Send(
+    adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
+    int tag, ADOLC_MPI_Comm comm );
+int ADOLC_MPI_Recv(
+    adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
+    int tag, ADOLC_MPI_Comm comm );
 
 int trace_on(int, int, short);
+int trace_on(int, int, int);
 
 /* High level driver functions */
 /* at first parameter this process-ID */
 
+/*********************************************************************/
+/* Algorithmic Differentation Programs                               */
+
 /* gradient(rank,size,tag, n, x[n], g[n])          */
-int gradient(int,int,short,int,double*,double*); 
+int gradient(
+    int,int,int,int,double*,double*);
 
 /* hessian(rank,size,tag, n, x[n], H[n][n])         */
-int hessian(int,int,short,int,double*,double**); 
+int hessian(
+    int,int,int,int,double*,double**);
 
-/* generating tapes by process id, processes count, used tag */
-void tape_doc( int,int,short, int,int, double*, double*);
+/* jacobian(rank,size,tag, m, n, x[n], J[m][n])                 */
+int jacobian(
+    int,int,int,int,int,const double*,double**);
+
+/* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
+void tape_doc(
+    int,int,int, int,int, double*, double*);
 
 #endif /*HAVE_MPI_MPI_H*/
 
