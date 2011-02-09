@@ -75,7 +75,7 @@ int checkpointing (CpInfos *cpInfos) {
     int i;
     ext_diff_fct *edf;
     int oldTraceFlag;
-    locint firstVal, numVals;
+    locint numVals;
     double *vals;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -111,15 +111,9 @@ int checkpointing (CpInfos *cpInfos) {
         ADOLC_CURRENT_TAPE_INFOS.traceFlag=0;
     } else oldTraceFlag=0;
 
-#if defined(ADOLC_SAFE_EXTERN)
-    firstVal = 0;
-#else
-    updateLocs();
-    firstVal = ADOLC_GLOBAL_TAPE_VARS.locMinUnused;
-#endif
-    numVals = ADOLC_GLOBAL_TAPE_VARS.numMaxAlive - firstVal;
+    numVals = ADOLC_GLOBAL_TAPE_VARS.storeSize;
     vals = new double[numVals];
-    memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store + firstVal,
+    memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store,
             numVals * sizeof(double));
 
     cpInfos->dp_internal_for = new double[cpInfos->n];
@@ -134,7 +128,7 @@ int checkpointing (CpInfos *cpInfos) {
         for (i=0; i<cpInfos->steps; ++i)
             cpInfos->function_double(cpInfos->n, cpInfos->dp_internal_for);
 
-    memcpy(ADOLC_GLOBAL_TAPE_VARS.store + firstVal, vals,
+    memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals,
             numVals * sizeof(double));
     delete[] vals;
 

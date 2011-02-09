@@ -255,6 +255,7 @@ public:
 
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
+    adub( adub const &) {}
 protected:
     adub( locint lo ):badouble(lo) {};
     adub( void ):badouble(0) {
