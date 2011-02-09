@@ -18,7 +18,7 @@
 #include <adolc/taping.h>
 #include <errno.h>
 #ifdef __cplusplus
-#include "storemanager.hh"
+#include "storemanager.h"
 #endif
 
 BEGIN_C_DECLS
@@ -271,11 +271,6 @@ typedef struct GlobalTapeVarsCL {
     double* store;              /* double store for calc. while taping */
     size_t storeSize;
     locint maxLoc;
-/*     locint locMinUnused;        /\* largest live location + 1 *\/ */
-/*     locint numMaxAlive;         /\* maximal # of lives so far *\/ */
-/*     locint storeSize;           /\* current size of store *\/ */
-/*     locint numToFree;           /\* # of locations to be freed *\/ */
-/*     locint minLocToFree;        /\* lowest loc to be freed *\/ */
 
     locint operationBufferSize; /* Defaults to the value specified in */
     locint locationBufferSize;  /* usrparms.h. May be overwritten by values */
@@ -290,7 +285,7 @@ typedef struct GlobalTapeVarsCL {
 #ifdef __cplusplus
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
-    StoreManagerInteger *storeManagerPtr;
+    StoreManager *storeManagerPtr;
 #else
     void *storeManagerPtr;
 #endif
@@ -399,11 +394,8 @@ void updateLocs();
 locint next_loc();
 /* returns the next free location in "adouble" memory */
 
-locint new_next_loc();
-void new_free_loc(locint);
-
-/* locint next_loc_v(int size); */
-/* returns the next #size free locations in "adouble" memory */
+void free_loc(locint loc);
+/* frees the specified location in "adouble" memory */
 
 void taylor_begin(uint bufferSize, double **Tg, int degreeSave);
 /* set up statics for writing taylor data */

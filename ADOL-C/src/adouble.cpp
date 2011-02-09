@@ -158,14 +158,14 @@ adouble::adouble( const adub& a ) {
 /*--------------------------------------------------------------------------*/
 adouble::~adouble() {
 #ifdef overwrite
-    new_free_loc(location);
+    free_loc(location);
 #endif
 }
 
 /*--------------------------------------------------------------------------*/
 adub::~adub() {
 #ifdef overwrite
-    new_free_loc(location);
+    free_loc(location);
 #endif
 }
 
