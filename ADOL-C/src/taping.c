@@ -617,24 +617,6 @@ locint keep_stock() {
 }
 
 
-/* void updateLocs() { */
-/* (JW) This function is not needed any more */
-/* } */
-
-/****************************************************************************/
-/* Returns the next free location in "adouble" memory.                      */
-/****************************************************************************/
-locint next_loc() {
-    return new_next_loc();
-}
-
-/****************************************************************************/
-/* Returns the next #size free locations in "adouble" memory.               */
-/****************************************************************************/
-/* locint next_loc_v(int size) { */
-/* (JW) This function cannot be supported by the storemanager */
-/* } */
-
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
 /****************************************************************************/
