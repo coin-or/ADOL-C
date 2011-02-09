@@ -248,6 +248,7 @@ ADOL-C/src/sparse/sparse_fo_rev.cpp -text
 ADOL-C/src/sparse/sparse_fo_rev.h -text
 ADOL-C/src/sparse/sparsedrivers.cpp -text
 ADOL-C/src/sparse/sparsedrivers.h -text
+ADOL-C/src/storemanager.hh -text
 ADOL-C/src/tape_handling.cpp -text
 ADOL-C/src/tapedoc/Makefile.am -text
 ADOL-C/src/tapedoc/Makefile.in -text

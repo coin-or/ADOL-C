@@ -35,6 +35,32 @@ extern void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, 
 				void *g, void *hr, int p, int indep);
 END_C_DECLS
 #endif
+
+GlobalTapeVarsCL::GlobalTapeVarsCL() {
+  store = 0;
+  storeSize = 0;
+  storeManagerPtr = new StoreManagerInteger(store, storeSize);
+}
+
+GlobalTapeVarsCL::~GlobalTapeVarsCL() {
+  if (storeManagerPtr) {
+    delete storeManagerPtr;
+    storeManagerPtr = 0;
+  }
+}
+
+locint new_next_loc() {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  return ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->next_loc();
+}
+
+void new_free_loc(locint loc) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->free_loc(loc);
+}
+
 /* vector of tape infos for all tapes in use */
 vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
@@ -448,17 +474,11 @@ void init() {
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors = 0;
 
-    ADOLC_GLOBAL_TAPE_VARS.store=NULL;
     ADOLC_GLOBAL_TAPE_VARS.maxLoc=1;
     for (uint i=0; i<sizeof(locint)*8-1; ++i) {
         ADOLC_GLOBAL_TAPE_VARS.maxLoc<<=1;
         ++ADOLC_GLOBAL_TAPE_VARS.maxLoc;
     }
-    ADOLC_GLOBAL_TAPE_VARS.locMinUnused = 0;
-    ADOLC_GLOBAL_TAPE_VARS.numMaxAlive = 0;
-    ADOLC_GLOBAL_TAPE_VARS.storeSize = 0;
-    ADOLC_GLOBAL_TAPE_VARS.numToFree = 0;
-    ADOLC_GLOBAL_TAPE_VARS.minLocToFree = 0;
     ADOLC_GLOBAL_TAPE_VARS.inParallelRegion = 0;
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
     ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = 1;
