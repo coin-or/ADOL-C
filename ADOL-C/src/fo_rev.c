@@ -1784,73 +1784,81 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
 #if defined(HAVE_MPI_MPI_H)
             case receive_data:	// MPI-Send
-	        res = get_locint_r(); // tag
-	        arg2 = get_locint_r(); // dest
-	        arg1 = get_locint_r(); // count
-	        arg = get_locint_r(); // first Buffer
-#if defined(_FOS_) /* BREAK_FOS */
-	        trade = (double*) myalloc1(2*arg1);
-	        
-	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
-	        for (n=0; n< arg1; n++) {
-		    trade[2*n] = rp_T[arg +n];
-		    trade[2*n+1]=Aarg[n];
-		    Aarg[n]=0;
-		    ADOLC_GET_TAYLOR(arg+n);
-	        }
-	        MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
-	        myfree1(trade);
+                res = get_locint_r(); // tag
+                arg2 = get_locint_r(); // dest
+                arg1 = get_locint_r(); // count
+                arg = get_locint_r(); // first Buffer
+#if defined(_FOS_)
+                trade = (double*) myalloc1(2*arg1);
+
+                for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+                    trade[2*mpi_i] = rp_T[arg + mpi_i];
+                    trade[2*mpi_i + 1]=rp_A[arg + mpi_i];
+                    rp_A[arg + mpi_i]=0;
+                    ADOLC_GET_TAYLOR(arg+mpi_i);
+	           }
+                MPI_Send( trade , arg1*2, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+                myfree1(trade);
 #endif /* ALL_TOGETHER_AGAIN */
-#if defined(_FOV_) /* BREAK_FOV */
-	        trade = (double*) myalloc1((1+nrows)*arg1);
-	        
-	        for (n=0; n< arg1; n++) {
-		    trade[(nrows+1)*n] = rp_T[arg +n];
-		    for (l=0;l<nrows;l++){
-			trade[(nrows+1)*n+l+1]=rpp_A[arg+n][l];
-			rpp_A[arg+n][l]=0;
-		    }
-		    ADOLC_GET_TAYLOR(arg+n)
-        	}
-	        MPI_Send( trade , arg1*(nrows+1), MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
-	        myfree1(trade);
+#if defined(_FOV_)
+                trade = (double*) myalloc1((1+p)*arg1);
+
+                for (mpi_i=0; mpi_i< arg1; mpi_i++)
+                    trade[mpi_i] = rp_T[arg +mpi_i];
+
+                n = arg1;
+                for (mpi_i=0; mpi_i < arg1; mpi_i++){
+                    FOR_0_LE_l_LT_p
+                    {
+                        trade[n]=rpp_A[arg+mpi_i][l];
+                        rpp_A[arg+mpi_i][l]=0;
+                        n++;
+                    }
+                    ADOLC_GET_TAYLOR(arg+mpi_i);
+                }
+                MPI_Send( trade , arg1*(p+1), MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
+                myfree1(trade);
 #endif /* ALL_TOGETHER_AGAIN */
-	        break;
+                break;
                 /*--------------------------------------------------------------------------*/
             case send_data:	// MPI-Send-Befehl
-	        res = get_locint_r(); // tag
-	        arg2 = get_locint_r(); // source
-	        arg1 = get_locint_r(); // count
-	        arg = get_locint_r(); // first Buffer
-#if defined(_FOS_) /* BREAK_FOS */
-	        trade = (double*) myalloc1(arg1*2);
-	        MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
-	        
-	        ASSIGN_A(Aarg,  ADJOINT_BUFFER[arg]);
-	        for (n=0; n<arg1; n++) {
-		    rp_T[arg+n]= trade[2*n];
-		    Aarg[n] += trade[2*n+1];
-	        }
-	        myfree1(trade);
-#endif 
-#if defined(_FOV_) /* BREAK_FOV */
-	        trade = (double*) myalloc1(arg1*(1+nrows));
-	        MPI_Recv( trade , (1+nrows)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
-	        
-	        for (n=0; n<arg1; n++) {
-		    rp_T[arg+n]= trade[(nrows+1)*n];
-		    for (l=0;l<nrows;l++)
-			rpp_A[arg+n][l] += trade[(nrows+1)*n+l+1];
-	        }
-	        myfree1(trade);
-#endif 
-	        break;
-            
+                res = get_locint_r(); // tag
+                arg2 = get_locint_r(); // source
+                arg1 = get_locint_r(); // count
+                arg = get_locint_r(); // first Buffer
+#if defined(_FOS_)
+                trade = (double*) myalloc1(arg1*2);
+                MPI_Recv( trade , 2*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+
+                for (mpi_i=0; mpi_i < arg1; mpi_i++) {
+                    rp_T[arg + mpi_i] = trade[2*mpi_i];
+                    rp_A[arg + mpi_i] += trade[2*mpi_i + 1];
+                }
+                myfree1(trade);
+#endif
+#if defined(_FOV_)
+                trade = (double*) myalloc1(arg1*(1+p));
+                MPI_Recv( trade , (1+p)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+
+                for ( mpi_i=0; mpi_i < arg1 ; mpi_i++ )
+                    rp_T[arg+mpi_i] = trade[mpi_i];
+
+                n = arg1;
+                for ( mpi_i=0; mpi_i < arg1 ; mpi_i++ )
+                    FOR_0_LE_l_LT_p
+                    {
+                        rpp_A[arg+mpi_i][l] += trade[n];
+                        n++;
+                    }
+
+                myfree1(trade);
+#endif
+	           break;
                 /*--------------------------------------------------------------------------*/
             case barrier_op:
-	        MPI_Barrier(MPI_COMM_WORLD);
-	        break;
-#endif                
+                MPI_Barrier(MPI_COMM_WORLD);
+                break;
+#endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */

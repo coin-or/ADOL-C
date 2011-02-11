@@ -591,11 +591,11 @@ int hov_ti_reverse(
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
-	
+
 #if defined(HAVE_MPI_MPI_H)
 	MPI_Status status_MPI;
 	double *trade;
-	int iter_mpi;
+	int mpi_i;
 #endif /* is used by Parallelisation */
 	
     while (operation != start_of_tape) { 
@@ -2085,7 +2085,7 @@ int hov_ti_reverse(
                     for (i=0; i<k1; i++)
                         AARG1_INC = 0.0;
                 }
-                
+
                 for (j=arg1;j<=arg2;j++)
                     GET_TAYL(j,k,p)
 
@@ -2094,54 +2094,103 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
 
 #if defined(HAVE_MPI_MPI_H)
-	    case receive_data:	// MPI-Send
-	        res = get_locint_r(); // tag
-	        arg2 = get_locint_r(); // dest
+	       case receive_data:	// MPI-Send
+	           res  = get_locint_r(); // tag
+	           arg2 = get_locint_r(); // dest
                 arg1 = get_locint_r(); // count
-		arg = get_locint_r(); // first Buffer
+		      arg  = get_locint_r(); // first Buffer
 
-#if defined(_HOS_) /* BREAK_HOS */
-		trade = (double*) myalloc1((k+k1)*arg1);
-		/* writing Taylor- and Adjointbuffer in one double array */
-		for (iter_mpi=0; iter_mpi< arg1*k;iter_mpi++) 
-		    trade[iter_mpi] = rpp_T[arg][iter_mpi];
-		    
-	    	for (iter_mpi=arg1*k ,i=0; iter_mpi<arg1*(k+k1) ; iter_mpi++,i++){
-	             trade[iter_mpi] = rpp_A[arg][i];
-		     rpp_A[arg][i] =0;
-		}
+#if defined(_HOS_)
+                trade = (double*) myalloc1((k+k1)*arg1);
+                /* writing Taylor- and Adjointbuffer in one double array */
 
-        	/* loading saved Values of Adjoint- and Taylorbuffer */
-		for (iter_mpi=0; iter_mpi<arg1; iter_mpi++)
-		    GET_TAYL(arg+iter_mpi,k,p)
-		MPI_Send(trade,(k+k1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
-	        myfree1(trade);
-#endif /* ALL_TOGETHER_AGAIN */
+                for (mpi_i=0 , i = arg; mpi_i< arg1 ;mpi_i++, i++){
+                    FOR_0_LE_l_LT_pk
+                         trade[mpi_i*(k+k1) + l] = rpp_T[i][l];
+
+                    FOR_0_LE_l_LT_pk1 {
+                         trade[mpi_i*(k+k1) + k + l] = rpp_A[i][l];
+                         rpp_A[i][l] = 0;
+                    }
+                }
+
+               MPI_Send(trade,(k+k1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
+               myfree1(trade);
+
+         /* loading saved Values of Adjoint- and Taylorbuffer */
+                for (mpi_i=0; mpi_i<arg1; mpi_i++)
+                    GET_TAYL(arg+mpi_i,k,p);
+#endif
+#if defined(_HOV_)
+                trade = (double*) myalloc1((k+pk1)*arg1);
+                /* writing Taylor- and Adjointbuffer in one double array */
+                l= 0;
+                for (mpi_i=0; mpi_i< arg1;mpi_i++)
+                    for (i=0; i < k ; i++ )
+                        trade[mpi_i*k+i] = rpp_T[arg+mpi_i][i];
+
+                l =  arg1*k;
+                for (mpi_i=0; mpi_i< arg1;mpi_i++){
+                    for (i=0; i < pk1 ; i++){
+                        trade[l + i] = rpp_A[arg+mpi_i][i];
+                        rpp_A[arg+mpi_i][i] =0;
+                    }
+                    l += pk1;
+                }
+
+               /* loading saved Values of Adjoint- and Taylorbuffer */
+               for (mpi_i=0; mpi_i<arg1; mpi_i++)
+                   GET_TAYL(arg+mpi_i,k,p)
+
+                MPI_Send(trade,(k+pk1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
+                myfree1(trade);
+#endif
 	        break;
 
                 /*--------------------------------------------------------------------------*/
             case send_data:	// MPI-Send-Befehl
 	           res = get_locint_r(); // tag
-		   arg2 = get_locint_r(); // source
-		   arg1 = get_locint_r(); // count
-		   arg = get_locint_r(); // first Buffer
-#if defined(_HOS_) /* BREAK_HOS */
-	    	   trade = (double*) myalloc1(arg1*(k+k1));
-                   MPI_Recv( trade , (k+k1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+		      arg2 = get_locint_r(); // source
+		      arg1 = get_locint_r(); // count
+		      arg = get_locint_r(); // first Buffer
+#if defined(_HOS_)
+                trade = (double*) myalloc1(arg1*(k+k1));
+                MPI_Recv( trade , (k+k1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
 
-	           for (iter_mpi=0; iter_mpi<arg1*k; iter_mpi++)
-	    	       rpp_T[arg][iter_mpi] = trade[iter_mpi];
-		    
-	           for (iter_mpi=arg1*k, i=0; iter_mpi<arg1*(k+k1); iter_mpi++, i++)
-		       rpp_A[arg][i] += trade[iter_mpi];
+                for (mpi_i=0 , i = arg; mpi_i< arg1 ;mpi_i++, i++){
+                    FOR_0_LE_l_LT_pk
+                         rpp_T[i][l] = trade[mpi_i*(k+k1) + l];
+
+                    FOR_0_LE_l_LT_pk1 {
+                         rpp_A[i][l] += trade[mpi_i*(k+k1) + k + l] ;
+                    }
+                }
+
 	           myfree1(trade);
-#endif 
+#endif
+#if defined(_HOV_)
+                trade = (double*) myalloc1(arg1*(k+pk1));
+                MPI_Recv( trade , (k+pk1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+
+                for (mpi_i=0; mpi_i<arg1; mpi_i++)
+                    for (i=0; i < k ; i++ )
+                        rpp_T[arg+mpi_i][i] = trade[mpi_i*k +i];
+
+                l= arg1*k;
+                for (mpi_i=0; mpi_i<arg1; mpi_i++ )
+                    for (i=0; i < pk1 ; i++){
+                        rpp_A[arg+mpi_i][i] += trade[l];
+                        l++;
+                    }
+
+                myfree1(trade);
+#endif
 	           break;
-        
+
                 /*--------------------------------------------------------------------------*/
             case barrier_op:
-	        MPI_Barrier(MPI_COMM_WORLD);
-	        break;
+                MPI_Barrier(MPI_COMM_WORLD);
+                break;
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
