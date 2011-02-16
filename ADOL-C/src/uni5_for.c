@@ -44,6 +44,7 @@
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+extern int mpi_initialized;
 #endif
 
 /****************************************************************************/
@@ -990,6 +991,10 @@ int  hov_forward(
 
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #if defined(_NONLIND_)
+#if defined(HAVE_MPI_MPI_H)
+    if (mpi_initialized) {
+    }
+#endif
     nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
     for(i=0;i<indcheck;i++)
         nonl_dom[i] = NULL;

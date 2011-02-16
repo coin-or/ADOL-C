@@ -29,6 +29,8 @@
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADOLC_MPI_Comm MPI_Comm
 
+int mpi_initialized = 0;
+
 int trace_on( int id,
               int size,
               int tag
@@ -47,6 +49,7 @@ int trace_on( int id,
 int ADOLC_MPI_Init( int* a,
                     char*** b
 ){
+    mpi_initialized = 1;
     return MPI_Init(a,b);
 }
 int ADOLC_MPI_Comm_size( ADOLC_MPI_Comm comm,
