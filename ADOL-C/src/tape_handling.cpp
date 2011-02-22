@@ -107,7 +107,7 @@ void StoreManagerLocint::free_loc(locint loc) {
 }
 
 void StoreManagerLocint::grow() {
-    if (groesse == 0) groesse += initialGroesse;
+    if (groesse == 0) groesse += initialeGroesse;
     size_t const alteGroesse = groesse;
     groesse *= 2;
 
