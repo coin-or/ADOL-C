@@ -271,6 +271,20 @@ ADOL-C/test/speelpenning.cpp -text
 /ChangeLog -text
 /INSTALL -text
 /LICENSE -text
+MSVisualStudio/v10/Readme_VC++.txt -text
+MSVisualStudio/v10/adolc.sln -text
+MSVisualStudio/v10/adolc.vcxproj -text
+MSVisualStudio/v10/installer.sh -text
+MSVisualStudio/v10/nosparse/config.h -text
+MSVisualStudio/v10/nosparse/config.h.in -text
+MSVisualStudio/v10/sparse/config.h -text
+MSVisualStudio/v10/sparse/config.h.in -text
+MSVisualStudio/v10/vcredist_x86.exe -text svneol=unset#unset
+MSVisualStudio/v10/x64/nosparse/config.h -text
+MSVisualStudio/v10/x64/nosparse/config.h.in -text
+MSVisualStudio/v10/x64/sparse/config.h -text
+MSVisualStudio/v10/x64/sparse/config.h.in -text
+MSVisualStudio/v10/x64/vcredist_x64.exe -text svneol=unset#unset
 /Makefile.am -text
 /Makefile.in -text
 /NEWS -text
@@ -295,17 +309,3 @@ autoconf/shave.m4 -text
 /configure -text
 /configure.ac -text
 /update_versions.sh -text
-windows/Readme_VC++.txt -text
-windows/adolc.sln -text
-windows/adolc.vcxproj -text
-windows/installer.sh -text
-windows/nosparse/config.h -text
-windows/nosparse/config.h.in -text
-windows/sparse/config.h -text
-windows/sparse/config.h.in -text
-windows/vcredist_x86.exe -text svneol=unset#unset
-windows/x64/nosparse/config.h -text
-windows/x64/nosparse/config.h.in -text
-windows/x64/sparse/config.h -text
-windows/x64/sparse/config.h.in -text
-windows/x64/vcredist_x64.exe -text svneol=unset#unset
