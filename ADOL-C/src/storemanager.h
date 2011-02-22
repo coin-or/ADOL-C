@@ -85,12 +85,12 @@ protected:
   locint * indexFeld;
   locint head;
   size_t &groesse;
-  size_t anzahl;
+  size_t &anzahl;
 private:
   void grow();
 public:
 
-  StoreManagerLocint(double * &storePtr, size_t &size);
+  StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
 
   virtual ~StoreManagerLocint();
   virtual inline size_t size() const { return anzahl; }
