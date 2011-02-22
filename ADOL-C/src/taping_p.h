@@ -270,6 +270,7 @@ TapeInfos;
 typedef struct GlobalTapeVarsCL {
     double* store;              /* double store for calc. while taping */
     size_t storeSize;
+    size_t numLives;
     locint maxLoc;
 
     locint operationBufferSize; /* Defaults to the value specified in */
@@ -283,9 +284,9 @@ typedef struct GlobalTapeVarsCL {
     char branchSwitchWarning;
     TapeInfos *currentTapeInfosPtr;
 #ifdef __cplusplus
+    StoreManager *storeManagerPtr;
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
-    StoreManager *storeManagerPtr;
 #else
     void *storeManagerPtr;
 #endif
