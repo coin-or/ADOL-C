@@ -554,15 +554,18 @@ static unsigned int numTBuffersInUse = 0;
 /* record all existing adoubles on the tape
  * - intended to be used in start_trace only */
 void take_stock() {
-    locint space_left, vals_left, loc = 0;
+    locint space_left, loc = 0;
     double *vals;
+    size_t vals_left;
     ADOLC_OPENMP_THREAD_NUMBER;
 
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     space_left  = get_val_space(); /* remaining space in const. tape buffer */
     vals_left = ADOLC_GLOBAL_TAPE_VARS.storeSize;
     vals      = ADOLC_GLOBAL_TAPE_VARS.store;
-
+    
+    /* if we have adoubles in use */
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
     /* fill the current values (real) tape buffer and write it to disk
      * - do this as long as buffer can be fully filled */
     while (space_left < vals_left) {
@@ -583,6 +586,7 @@ void take_stock() {
         ADOLC_PUT_LOCINT(loc);
         put_vals_notWriteBlock(vals, vals_left);
     }
+    }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 1;
 }
 
@@ -595,21 +599,21 @@ locint keep_stock() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* if we have adoubles in use */
-    if (ADOLC_GLOBAL_TAPE_VARS.storeSize > 0) {
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
         locint loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
 
         /* special signal -> all alive adoubles recorded on the end of the
          * value stack -> special handling at the beginning of reverse */
         put_op(death_not);
-        ADOLC_PUT_LOCINT(0);    /* lowest loc */
+        ADOLC_PUT_LOCINT(1);    /* lowest loc */
         ADOLC_PUT_LOCINT(loc2); /* highest loc */
 
-        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize;
+        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
         /* now really do it if keepTaylors ist set */
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
             do {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
-            } while (loc2-- > 0);
+            } while (--loc2 > 0);
         }
     }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;

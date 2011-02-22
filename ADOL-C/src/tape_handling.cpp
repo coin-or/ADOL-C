@@ -41,7 +41,8 @@ END_C_DECLS
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = 0;
   storeSize = 0;
-  storeManagerPtr = new StoreManagerLocint(store, storeSize);
+  numLives = 0;
+  storeManagerPtr = new StoreManagerLocint(store, storeSize, numLives);
 }
 
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
@@ -51,16 +52,15 @@ GlobalTapeVarsCL::~GlobalTapeVarsCL() {
   }
 }
 
-StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size) : 
+StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
     indexFeld(0),
     head(0),
-    groesse(size), anzahl(0)
+    groesse(size), anzahl(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
-    groesse = initialeGroesse;
 }
 
 StoreManagerLocint::~StoreManagerLocint() 
@@ -96,16 +96,18 @@ locint StoreManagerLocint::next_loc() {
 }
 
 void StoreManagerLocint::free_loc(locint loc) {
-    assert(loc < groesse);
+    assert(0 < loc && loc < groesse);
     indexFeld[loc] = head;
     head = loc;
     --anzahl;
+    storePtr[loc] = 0.0;
 #ifdef ADOLC_DEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
 }
 
 void StoreManagerLocint::grow() {
+    if (groesse == 0) groesse += initialGroesse;
     size_t const alteGroesse = groesse;
     groesse *= 2;
 
@@ -133,7 +135,7 @@ void StoreManagerLocint::grow() {
 #endif
     storePtr = new double[groesse];
     indexFeld = new locint[groesse];
-
+    memset(storePtr, 0, groesse*sizeof(double));
     // we use index 0 as end-of-list marker
     size_t i = 1;
     //     storePtr[0] = nan(""); not available on solaris
