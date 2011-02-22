@@ -422,10 +422,10 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/pow/Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile
                 ADOL-C/test/Makefile
-                windows/sparse/config.h
-                windows/nosparse/config.h
-                windows/x64/sparse/config.h
-                windows/x64/nosparse/config.h
+                MSVisualStudio/v10/sparse/config.h
+                MSVisualStudio/v10/nosparse/config.h
+                MSVisualStudio/v10/x64/sparse/config.h
+                MSVisualStudio/v10/x64/nosparse/config.h
 		adolc.spec
 )
 

@@ -40,15 +40,15 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/adolc.spec.in \
 	$(top_srcdir)/ADOL-C/doc/version.tex.in \
+	$(top_srcdir)/MSVisualStudio/v10/nosparse/config.h.in \
+	$(top_srcdir)/MSVisualStudio/v10/sparse/config.h.in \
+	$(top_srcdir)/MSVisualStudio/v10/x64/nosparse/config.h.in \
+	$(top_srcdir)/MSVisualStudio/v10/x64/sparse/config.h.in \
 	$(top_srcdir)/autoconf/shave-libtool.in \
 	$(top_srcdir)/autoconf/shave.in $(top_srcdir)/configure \
-	$(top_srcdir)/windows/nosparse/config.h.in \
-	$(top_srcdir)/windows/sparse/config.h.in \
-	$(top_srcdir)/windows/x64/nosparse/config.h.in \
-	$(top_srcdir)/windows/x64/sparse/config.h.in AUTHORS ChangeLog \
-	INSTALL NEWS TODO autoconf/config.guess autoconf/config.sub \
-	autoconf/depcomp autoconf/install-sh autoconf/ltmain.sh \
-	autoconf/missing
+	AUTHORS ChangeLog INSTALL NEWS TODO autoconf/config.guess \
+	autoconf/config.sub autoconf/depcomp autoconf/install-sh \
+	autoconf/ltmain.sh autoconf/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/autoconf/dolt.m4 $(top_srcdir)/autoconf/shave.m4 \
@@ -60,9 +60,10 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES = autoconf/shave-libtool autoconf/shave \
-	ADOL-C/doc/version.tex windows/sparse/config.h \
-	windows/nosparse/config.h windows/x64/sparse/config.h \
-	windows/x64/nosparse/config.h adolc.spec
+	ADOL-C/doc/version.tex MSVisualStudio/v10/sparse/config.h \
+	MSVisualStudio/v10/nosparse/config.h \
+	MSVisualStudio/v10/x64/sparse/config.h \
+	MSVisualStudio/v10/x64/nosparse/config.h adolc.spec
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
@@ -330,13 +331,13 @@ autoconf/shave: $(top_builddir)/config.status $(top_srcdir)/autoconf/shave.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 ADOL-C/doc/version.tex: $(top_builddir)/config.status $(top_srcdir)/ADOL-C/doc/version.tex.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-windows/sparse/config.h: $(top_builddir)/config.status $(top_srcdir)/windows/sparse/config.h.in
+MSVisualStudio/v10/sparse/config.h: $(top_builddir)/config.status $(top_srcdir)/MSVisualStudio/v10/sparse/config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-windows/nosparse/config.h: $(top_builddir)/config.status $(top_srcdir)/windows/nosparse/config.h.in
+MSVisualStudio/v10/nosparse/config.h: $(top_builddir)/config.status $(top_srcdir)/MSVisualStudio/v10/nosparse/config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-windows/x64/sparse/config.h: $(top_builddir)/config.status $(top_srcdir)/windows/x64/sparse/config.h.in
+MSVisualStudio/v10/x64/sparse/config.h: $(top_builddir)/config.status $(top_srcdir)/MSVisualStudio/v10/x64/sparse/config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-windows/x64/nosparse/config.h: $(top_builddir)/config.status $(top_srcdir)/windows/x64/nosparse/config.h.in
+MSVisualStudio/v10/x64/nosparse/config.h: $(top_builddir)/config.status $(top_srcdir)/MSVisualStudio/v10/x64/nosparse/config.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 adolc.spec: $(top_builddir)/config.status $(srcdir)/adolc.spec.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

@@ -16428,7 +16428,7 @@ fi
 
 
 # output
-ac_config_files="$ac_config_files Makefile autoconf/shave-libtool autoconf/shave ADOL-C/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile windows/sparse/config.h windows/nosparse/config.h windows/x64/sparse/config.h windows/x64/nosparse/config.h adolc.spec"
+ac_config_files="$ac_config_files Makefile autoconf/shave-libtool autoconf/shave ADOL-C/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h adolc.spec"
 
 
 cat >confcache <<\_ACEOF
@@ -17554,10 +17554,10 @@ do
     "ADOL-C/examples/additional_examples/pow/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/examples/additional_examples/pow/Makefile" ;;
     "ADOL-C/examples/additional_examples/timing/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/examples/additional_examples/timing/Makefile" ;;
     "ADOL-C/test/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/test/Makefile" ;;
-    "windows/sparse/config.h") CONFIG_FILES="$CONFIG_FILES windows/sparse/config.h" ;;
-    "windows/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES windows/nosparse/config.h" ;;
-    "windows/x64/sparse/config.h") CONFIG_FILES="$CONFIG_FILES windows/x64/sparse/config.h" ;;
-    "windows/x64/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES windows/x64/nosparse/config.h" ;;
+    "MSVisualStudio/v10/sparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/sparse/config.h" ;;
+    "MSVisualStudio/v10/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/nosparse/config.h" ;;
+    "MSVisualStudio/v10/x64/sparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/x64/sparse/config.h" ;;
+    "MSVisualStudio/v10/x64/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/x64/nosparse/config.h" ;;
     "adolc.spec") CONFIG_FILES="$CONFIG_FILES adolc.spec" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
