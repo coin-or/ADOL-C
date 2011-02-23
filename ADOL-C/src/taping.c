@@ -554,15 +554,18 @@ static unsigned int numTBuffersInUse = 0;
 /* record all existing adoubles on the tape
  * - intended to be used in start_trace only */
 void take_stock() {
-    locint space_left, vals_left, loc = 0;
+    locint space_left, loc = 0;
     double *vals;
+    size_t vals_left;
     ADOLC_OPENMP_THREAD_NUMBER;
 
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     space_left  = get_val_space(); /* remaining space in const. tape buffer */
-    vals_left = ADOLC_GLOBAL_TAPE_VARS.locMinUnused;
+    vals_left = ADOLC_GLOBAL_TAPE_VARS.storeSize;
     vals      = ADOLC_GLOBAL_TAPE_VARS.store;
-
+    
+    /* if we have adoubles in use */
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
     /* fill the current values (real) tape buffer and write it to disk
      * - do this as long as buffer can be fully filled */
     while (space_left < vals_left) {
@@ -583,6 +586,7 @@ void take_stock() {
         ADOLC_PUT_LOCINT(loc);
         put_vals_notWriteBlock(vals, vals_left);
     }
+    }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 1;
 }
 
@@ -595,123 +599,27 @@ locint keep_stock() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* if we have adoubles in use */
-    if (ADOLC_GLOBAL_TAPE_VARS.numMaxAlive > 0) {
-        locint loc2 = ADOLC_GLOBAL_TAPE_VARS.numMaxAlive - 1;
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
+        locint loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
 
         /* special signal -> all alive adoubles recorded on the end of the
          * value stack -> special handling at the beginning of reverse */
         put_op(death_not);
-        ADOLC_PUT_LOCINT(0);    /* lowest loc */
+        ADOLC_PUT_LOCINT(1);    /* lowest loc */
         ADOLC_PUT_LOCINT(loc2); /* highest loc */
 
-        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.numMaxAlive;
+        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
         /* now really do it if keepTaylors ist set */
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
             do {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
-            } while (loc2-- > 0);
+            } while (--loc2 > 0);
         }
     }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
-    return ADOLC_GLOBAL_TAPE_VARS.numMaxAlive;
+    return ADOLC_GLOBAL_TAPE_VARS.storeSize;
 }
 
-
-void updateLocs() {
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    /* deallocate dead adoubles if they form a contiguous tail */
-    #ifdef overwrite
-    if (ADOLC_GLOBAL_TAPE_VARS.numToFree &&
-            ADOLC_GLOBAL_TAPE_VARS.minLocToFree + ADOLC_GLOBAL_TAPE_VARS.numToFree ==
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused) {
-        ADOLC_GLOBAL_TAPE_VARS.locMinUnused = ADOLC_GLOBAL_TAPE_VARS.minLocToFree ;
-        ADOLC_GLOBAL_TAPE_VARS.numToFree = 0;
-        ADOLC_GLOBAL_TAPE_VARS.minLocToFree = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-    }
-    #endif
-}
-
-/****************************************************************************/
-/* Returns the next free location in "adouble" memory.                      */
-/****************************************************************************/
-locint next_loc() {
-    locint newStoreSize;
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    updateLocs();
-    if (ADOLC_GLOBAL_TAPE_VARS.locMinUnused == ADOLC_GLOBAL_TAPE_VARS.numMaxAlive)
-        ++ADOLC_GLOBAL_TAPE_VARS.numMaxAlive;
-    if (ADOLC_GLOBAL_TAPE_VARS.numMaxAlive > ADOLC_GLOBAL_TAPE_VARS.storeSize) {
-        /* try to double (plus 2) the available space */
-        ++ADOLC_GLOBAL_TAPE_VARS.storeSize;
-        if (ADOLC_GLOBAL_TAPE_VARS.storeSize == ADOLC_GLOBAL_TAPE_VARS.maxLoc) {
-            failAdditionalInfo1 = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-            fail(ADOLC_TAPING_TO_MANY_LOCINTS);
-        }
-        failAdditionalInfo3 = ADOLC_GLOBAL_TAPE_VARS.storeSize;
-        newStoreSize = ADOLC_GLOBAL_TAPE_VARS.storeSize * 2;
-        ADOLC_GLOBAL_TAPE_VARS.storeSize = newStoreSize;
-        failAdditionalInfo4 = newStoreSize;
-        failAdditionalInfo5 = ADOLC_GLOBAL_TAPE_VARS.store;
-        if (ADOLC_GLOBAL_TAPE_VARS.store == NULL) {
-            ADOLC_GLOBAL_TAPE_VARS.store =
-                (double *)malloc(ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
-            ADOLC_GLOBAL_TAPE_VARS.minLocToFree = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-        } else
-            ADOLC_GLOBAL_TAPE_VARS.store =
-                (double *)realloc((char *)ADOLC_GLOBAL_TAPE_VARS.store,
-                        ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
-        if (ADOLC_GLOBAL_TAPE_VARS.store == NULL)
-            fail(ADOLC_TAPING_STORE_REALLOC_FAILED);
-    }
-    return ADOLC_GLOBAL_TAPE_VARS.locMinUnused++;
-}
-
-/****************************************************************************/
-/* Returns the next #size free locations in "adouble" memory.               */
-/****************************************************************************/
-locint next_loc_v(int size) {
-    locint newStoreSize, retVal;
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    updateLocs();
-    if (ADOLC_GLOBAL_TAPE_VARS.locMinUnused + size > ADOLC_GLOBAL_TAPE_VARS.numMaxAlive)
-        ADOLC_GLOBAL_TAPE_VARS.numMaxAlive = ADOLC_GLOBAL_TAPE_VARS.locMinUnused + size;
-    while (ADOLC_GLOBAL_TAPE_VARS.numMaxAlive > ADOLC_GLOBAL_TAPE_VARS.storeSize) {
-        /* try to double (plus 2) the available space */
-        ++ADOLC_GLOBAL_TAPE_VARS.storeSize;
-        if (ADOLC_GLOBAL_TAPE_VARS.storeSize*2 > ADOLC_GLOBAL_TAPE_VARS.maxLoc)
-            newStoreSize = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-        else newStoreSize = ADOLC_GLOBAL_TAPE_VARS.storeSize * 2;
-        if (newStoreSize == ADOLC_GLOBAL_TAPE_VARS.maxLoc) {
-            failAdditionalInfo3 = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-            fail(ADOLC_TAPING_TO_MANY_LOCINTS);
-        } else {
-            ADOLC_GLOBAL_TAPE_VARS.storeSize = newStoreSize;
-            if (ADOLC_GLOBAL_TAPE_VARS.storeSize == 2) {
-                ADOLC_GLOBAL_TAPE_VARS.store =
-                    (double *)malloc(ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
-                ADOLC_GLOBAL_TAPE_VARS.minLocToFree = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-            } else
-                ADOLC_GLOBAL_TAPE_VARS.store =
-                    (double *)realloc((char *)ADOLC_GLOBAL_TAPE_VARS.store,
-                            ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
-            if (ADOLC_GLOBAL_TAPE_VARS.store == NULL)
-                fail(ADOLC_TAPING_STORE_REALLOC_FAILED);
-        }
-    }
-    #if defined(ADOLC_DEBUG)
-    fprintf (DIAG_OUT, "ADOL-C debug: Top is: %d !\n",
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused + size);
-    #endif
-    retVal = ADOLC_GLOBAL_TAPE_VARS.locMinUnused;
-    ADOLC_GLOBAL_TAPE_VARS.locMinUnused += size;
-    return retVal;
-}
 
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
@@ -1133,16 +1041,6 @@ void start_trace() {
         fail(ADOLC_MORE_STAT_SPACE_REQUIRED);
     for (i = 0; i < statSpace; ++i) ADOLC_PUT_LOCINT(0);
 
-    /* free locations if possible => take_stock may benefit */
-    if (ADOLC_GLOBAL_TAPE_VARS.minLocToFree +
-            ADOLC_GLOBAL_TAPE_VARS.numToFree ==
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused) {
-        ADOLC_GLOBAL_TAPE_VARS.locMinUnused =
-            ADOLC_GLOBAL_TAPE_VARS.minLocToFree ;
-        ADOLC_GLOBAL_TAPE_VARS.numToFree = 0;
-        ADOLC_GLOBAL_TAPE_VARS.minLocToFree = ADOLC_GLOBAL_TAPE_VARS.maxLoc;
-    }
-
     /* initialize value stack if necessary */
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
         taylor_begin(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE], NULL, 0);
@@ -1164,7 +1062,7 @@ void stop_trace(int flag) {
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS] =
         ADOLC_CURRENT_TAPE_INFOS.numDeps;
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] =
-        ADOLC_GLOBAL_TAPE_VARS.numMaxAlive;
+        ADOLC_GLOBAL_TAPE_VARS.storeSize;
 
     taylor_close(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE]);
 
