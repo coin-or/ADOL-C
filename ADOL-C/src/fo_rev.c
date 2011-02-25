@@ -369,6 +369,7 @@ int int_reverse_safe(
 #if defined(HAVE_MPI_MPI_H)
 	double *trade;
 	MPI_Status status_MPI;
+	int mpi_i;
 #endif
 	
     /****************************************************************************/
