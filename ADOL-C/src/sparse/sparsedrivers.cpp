@@ -1399,7 +1399,7 @@ int sparse_hess(
                                0 - indirect recovery
                                1 - direct recovery                         */
 ) {
-     int i, l, tmp,s;
+     int i, l, tmp;
      int this_tag = size*tag + id;
      unsigned int j;
      SparseHessInfos sHinfos;
