@@ -12,20 +12,18 @@
 
 ----------------------------------------------------------------------------*/
 
-
 #if !defined(ADOLC_ADOLC_MPI_H)
 #define ADOLC_ADOLC_MPI_H 1
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+#include <adolc/common.h>
+#include <adolc/adouble.h>
 
 #define ADOLC_MPI_Datatype MPI_Datatype
 #define MPI_ADOUBLE MPI_DOUBLE
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADOLC_MPI_Comm MPI_Comm
-
-#include <adolc/common.h>
-#include <adolc/adouble.h>
 
 #ifdef __cplusplus__
 extern "C" {
@@ -44,12 +42,12 @@ int ADOLC_MPI_Finalize() ;
 int ADOLC_MPI_Send(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
+
 int ADOLC_MPI_Recv(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
 
 int trace_on(int, int, short);
-int trace_on(int, int, int);
 
 /* High level driver functions */
 /* at first parameter this process-ID */
@@ -65,10 +63,16 @@ int fos_forward(
 int fos_reverse(
     int, int, short,int,int,double*,double*);
 
-/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])            */
+/* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
+int hos_forward(
+    int, int, short, int, int, int, int, double*, double**, double*, double**);
+/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])  */
 int hos_reverse(
-    int,int,short,int,int,int,double*,double**);
+    int, int, short, int, int, int, double*, double** );
 
+/* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
+int fov_forward(
+    int,int,short,int,int,int,const double*,double**,double*,double**);
 /* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
 int fov_reverse(
     int, int, short,int,int,int,double**,double**);
@@ -78,19 +82,19 @@ int fov_reverse(
 
 /* gradient(rank,size,tag, n, x[n], g[n])          */
 int gradient(
-    int,int,int,int,double*,double*);
+    int,int,short,int,double*,double*);
 
 /* hessian(rank,size,tag, n, x[n], H[n][n])         */
 int hessian(
-    int,int,int,int,double*,double**);
+    int,int,short,int,double*,double**);
 
 /* jacobian(rank,size,tag, m, n, x[n], J[m][n])                 */
 int jacobian(
-    int,int,int,int,int,const double*,double**);
+    int,int,short,int,int,const double*,double**);
 
 /* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
 void tape_doc(
-    int,int,int, int,int, double*, double*);
+    int,int,short, int,int, double*, double*);
 
 #endif /*HAVE_MPI_MPI_H*/
 

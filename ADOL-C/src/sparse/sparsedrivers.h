@@ -3,8 +3,8 @@
  File:     sparse/sparsedrivers.h
  Revision: $Id$
  Contents: This file containts some "Easy To Use" interfaces of sparse package.
- 
- Copyright (c) Andrea Walther
+
+ Copyright (c) Andrea Walther, Benjamin Letschert
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -103,5 +103,24 @@ ADOLC_DLL_EXPORT int bit_vector_propagation
 
 /****************************************************************************/
 END_C_DECLS
+
+
+/*************************************************************************************************/
+/*****                          Now parallel ColPack-Drivers                                 *****/
+#if defined(__cplusplus) && defined(HAVE_MPI_MPI_H)
+int jac_pat(
+    int id, int size, short tag, int depen, int indep, const double *basepoint, unsigned int **crs, int *options);
+
+int hess_pat
+( int id, int size, short tag, int indep, const double *basepoint, unsigned int **crs, int option);
+
+int sparse_jac(
+    int id,int size ,short tag, int depen, int indep, int repeat, const double *basepoint, int *nnz, unsigned int **rind,
+    unsigned int **cind, double **values,int *options );
+
+int sparse_hess
+( int id, int size ,short tag ,int indep,int repeat, const double *basepoint, int *nnz ,unsigned int **rind, unsigned int **cind, double **values, int *options);
+
+#endif
 
 #endif

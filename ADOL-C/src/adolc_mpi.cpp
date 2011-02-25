@@ -33,14 +33,6 @@ int mpi_initialized = 0;
 
 int trace_on( int id,
               int size,
-              int tag
-){
-    int this_tag = size*tag + id;
-    return trace_on( this_tag );
-}
-
-int trace_on( int id,
-              int size,
               short tag
 ){
     int this_tag = size*tag + id;
@@ -136,7 +128,7 @@ int ADOLC_MPI_Recv( adouble *buf,
 /* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])            */
 int zos_forward( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  int keep,
@@ -154,7 +146,7 @@ int zos_forward( int id,
 /* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
 int fos_forward( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  int keep,
@@ -168,14 +160,14 @@ int fos_forward( int id,
     if (id==0)
        rc = fos_forward(this_tag,m,n,keep,x,a,y,b);
     else
-       rc = fos_forward(this_tag,0,0,keep,NULL,a,NULL,b);
+       rc = fos_forward(this_tag,0,0,keep,NULL,NULL,NULL,NULL);
     return rc;
 }
 
 /* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
 int fos_reverse( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  double* u,
@@ -189,10 +181,32 @@ int fos_reverse( int id,
     return rc;
 }
 
+/* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d])            */
+int hos_forward( int id,
+                 int size,
+                 short tag,
+                 int depen,
+                 int indep,
+                 int d,
+                 int keep,
+                 double* basepoints,
+                 double** argument,
+                 double* valuepoints,
+                 double** taylors)
+{
+    int this_tag = size*tag + id, rc=-3;
+    if (id==0)
+       rc = hos_forward(this_tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
+    else
+       rc = hos_forward(this_tag,0,0,d,keep,NULL,NULL,NULL,NULL);
+    return rc;
+}
+
+
 /*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])            */
 int hos_reverse( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  int d,
@@ -210,7 +224,7 @@ int hos_reverse( int id,
 /* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
 int fov_forward( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  int p,
@@ -230,7 +244,7 @@ int fov_forward( int id,
 /* fov_reverse(process id, procsize, tag, m, n, p, U[p][m], Z[p][n])  */
 int fov_reverse( int id,
                  int size,
-                 int tag,
+                 short tag,
                  int m,
                  int n,
                  int p,
@@ -248,7 +262,7 @@ int fov_reverse( int id,
 
 /****************** Now algorithmic functions ****************/
 
-int function(int id, int size,int tag,int m,int n,double* argument ,double* result){
+int function(int id, int size,short tag,int m,int n,double* argument ,double* result){
 	int rc =-1;
 	int this_tag = tag*size + id;
 	if( id == 0)
@@ -258,7 +272,7 @@ int function(int id, int size,int tag,int m,int n,double* argument ,double* resu
 	return rc;
 }
 
-int gradient(int id,int size,int tag ,int n, double* x,double* result){
+int gradient(int id,int size,short tag ,int n, double* x,double* result){
 	int rc=-1;
 	int this_tag = tag*size + id;
 	double one =1.0;
@@ -275,7 +289,7 @@ int gradient(int id,int size,int tag ,int n, double* x,double* result){
 	return rc;
 }
 
-int jacobian(int id, int size ,int tag ,int m,int n,const double* a,double** result){
+int jacobian(int id, int size ,short tag ,int m,int n,const double* a,double** result){
 	int rc=-1;
 	int this_tag = size*tag + id;
 
@@ -296,28 +310,26 @@ int jacobian(int id, int size ,int tag ,int m,int n,const double* a,double** res
 	return rc;
 }
 
-
-int hessian(int id,int size,int tag ,int n,double* x ,double** result){
+int hessian(int id,int size,short tag ,int n,double* x ,double** result){
 	int rc =-3,i;
 	int this_tag = tag*size + id;
-	double one = 1.0;
-	if( id == 0){
-		rc = hessian(this_tag,n,x,result);
+	if ( id == 0){
+         rc = hessian(this_tag,n,x,result);
 	}
 	else {
-		for(i=0;i<n;++i){
-			rc = fos_forward(this_tag, 0,0,2,NULL,NULL,NULL,NULL);
-			if(rc <0){
-				printf("Failure by computing parallel hessian, process id %d!\n",id);
-				return rc;
-			}
-			rc = hos_reverse(this_tag,0,0,1, NULL,NULL);
-		}
-	}
-	return rc;
+        for (i=0; i<n; i++){
+            rc = fos_forward(this_tag, 0,0,2,NULL,NULL,NULL,NULL);
+            if (rc <0){
+               printf("Failure by computing parallel hessian, process id %d!\n",id);
+               return rc;
+            }
+            rc = hos_reverse(this_tag,0,0,1, NULL,NULL);
+        }
+     }
+     return rc;
 }
 
-void tape_doc( int id,int size,int tag, int m,int n, double* x, double* y){
+void tape_doc( int id,int size,short tag, int m,int n, double* x, double* y){
 	int this_tag = tag*size +id;
 	if(id==0) tape_doc(this_tag,m,n,x,y);
 	else tape_doc(this_tag,0,0,x,y);
