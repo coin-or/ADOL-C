@@ -3705,23 +3705,15 @@ int  hov_forward(
           MPI_Send( trade , arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
           myfree1(trade);
 #endif    /* END NOT _NTIGHT_ */
-// #if defined(_ZOS_)
-//            trade = (double*) myalloc1(arg1);
-//            for(mpi_i=0; mpi_i< arg1; mpi_i++)
-//                 trade[mpi_i] = dp_T0[arg+mpi_i];
-//            MPI_Send(trade,arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
-//            myfree1(trade);
-// #endif /* END ZOS */
 #if defined(_FOS_)
            trade = (double*) myalloc1(arg1);
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
-//                 trade[2*mpi_i] = dp_T0[arg+mpi_i]; // wurde schon verschickt
                 trade[mpi_i]=dp_T[arg+mpi_i];
            }
            MPI_Send( trade , arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
            myfree1(trade);
 #endif /* END FOS */
-#if defined(_FOV_) /* BREAK_FOV */
+#if defined(_FOV_)
            trade = (double*) myalloc1(p*arg1);
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
                 for(i=0;i<p;i++)
@@ -3729,8 +3721,8 @@ int  hov_forward(
            }
            MPI_Send( trade , arg1*p, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
            myfree1(trade);
-#endif /* ALL_TOGETHER_AGAIN */
-#if defined(_HOS_)  /* BREAK_FOS */
+#endif /* END FOV */
+#if defined(_HOS_)
            trade = (double*) myalloc1(arg1 * k);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++)
@@ -3738,8 +3730,8 @@ int  hov_forward(
                    trade[k*mpi_i + i] = dpp_T[arg+mpi_i][i];
            MPI_Send( trade , arg1*k, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
            myfree1(trade);
-#endif
-#if defined(_HOV_)  /* BREAK_FOS */
+#endif /* END HOS */
+#if defined(_HOV_)
            trade = (double*) myalloc1(arg1 * p*k);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++)
@@ -3818,22 +3810,11 @@ int  hov_forward(
           }
           myfree1(trade);
 #endif /* END NOT _NTIGHT_ */
-// #if defined(_ZOS_)
-//            trade = (double*) myalloc1(arg1);
-//            MPI_Recv(trade, arg1, MPI_DOUBLE, arg2,res, MPI_COMM_WORLD, &status_MPI);
-//            for(mpi_i=arg1-1; mpi_i>=0; mpi_i--)  // recovery in right order
-//            {
-//                 IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
-//                      dp_T0[arg+mpi_i] = trade[mpi_i];
-//            }
-//            myfree1(trade);
-// #endif  /* END ZOS */
 #if defined(_FOS_)
            trade = (double*) myalloc1(arg1);
            MPI_Recv( trade , arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++){
-//                 IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
                 dp_T[arg+mpi_i] = trade[mpi_i];
                 }
            myfree1(trade);
@@ -3843,7 +3824,6 @@ int  hov_forward(
            MPI_Recv( trade , p*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
-//                 IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
                 for(i=0;i<p;i++)
                      dpp_T[arg+mpi_i][i] = trade[p*mpi_i+i];
            }
@@ -3854,7 +3834,6 @@ int  hov_forward(
            MPI_Recv( trade , k*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
-//                 IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
                for(i=0; i < k ; i++ )
                 dpp_T[arg+mpi_i][i] = trade[k*mpi_i+i];
            }
@@ -3865,7 +3844,6 @@ int  hov_forward(
            MPI_Recv( trade , p*k*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
            /*  Receiving double Values by MPI and try to save Taylorbuffer before overwriting */
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
-//                 IF_KEEP_WRITE_TAYLOR(arg+mpi_i,keep,k,p)
                for(i=0; i < p*k ; i++ )
                 dpp_T[arg+mpi_i][i] = trade[p*k*mpi_i+i];
            }
