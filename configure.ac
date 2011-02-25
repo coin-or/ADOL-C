@@ -487,6 +487,13 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
 fi
+if test x != x"$MPILIBS" ; then 
+	mpi="yes"
+else
+	mpi="no"
+fi
+echo \
+"  Build with MPI:                   ${mpi}"
 echo
 
 echo \
