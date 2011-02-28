@@ -80,11 +80,6 @@ int ADOLC_MPI_Send( adouble *buf,
     int i,h=count;
     int ierr =0;
     double *trade;
-    put_op(send_data);
-    ADOLC_PUT_LOCINT(buf[0].loc());
-    ADOLC_PUT_LOCINT(count);
-    ADOLC_PUT_LOCINT(dest);
-    ADOLC_PUT_LOCINT(tag);
 
     trade = (double*) myalloc1(h);
     for (i=0; i< count;i++ )
@@ -92,6 +87,13 @@ int ADOLC_MPI_Send( adouble *buf,
 
     ierr = MPI_Send(trade, h, datatype, dest, tag, comm);
     free(trade);
+
+    put_op(send_data);
+    ADOLC_PUT_LOCINT(buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(dest);
+    ADOLC_PUT_LOCINT(tag);
+
     return ierr;
 }
 
@@ -105,11 +107,6 @@ int ADOLC_MPI_Recv( adouble *buf,
     double *trade;
     int ierr =0;
 
-    put_op(receive_data);
-    ADOLC_PUT_LOCINT(buf[0].loc());
-    ADOLC_PUT_LOCINT(count);
-    ADOLC_PUT_LOCINT(source);
-    ADOLC_PUT_LOCINT(tag);
 
     MPI_Status status;
     trade = (double*) myalloc1(h);
@@ -119,7 +116,15 @@ int ADOLC_MPI_Recv( adouble *buf,
        buf = new adouble[count];
     for (i=0; i< count;i++)
         buf[i].setValue(trade[i]);
+
     free(trade);
+
+    put_op(receive_data);
+    ADOLC_PUT_LOCINT(buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(source);
+    ADOLC_PUT_LOCINT(tag);
+
     return ierr;
 }
 
