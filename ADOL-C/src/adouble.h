@@ -59,8 +59,6 @@ using std::istream;
 class adouble;
 class adub;
 class badouble;
-class adubv;
-/* class doublev;  that's history */
 
 /*--------------------------------------------------------------------------*/
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
@@ -86,7 +84,7 @@ double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
    main difference among badoubles, adubs, and adoubles.
 */
 class ADOLC_DLL_EXPORT badouble {
-    friend ADOLC_DLL_EXPORT class badoublev;
+    friend ADOLC_DLL_EXPORT class advector;
 protected:
     locint location;
     badouble( void ) {};
@@ -94,7 +92,7 @@ protected:
     // (see GCC 3.4 Release Series - Changes, New Features, and Fixes)
     //
     // badouble( const badouble& a ) {location = a.location;};
-    badouble( locint lo ) {
+    explicit badouble( locint lo ) {
         location = lo;
     };
 
@@ -116,7 +114,7 @@ public:
     badouble& operator = ( const badouble& );
     badouble& operator = ( const adub& );
     double getValue() const;
-    inline double value() {
+    inline double value() const {
         return getValue();
     }
     void setValue ( const double );
@@ -234,10 +232,10 @@ public:
 
     /*--------------------------------------------------------------------------*/
     /* Conditionals */
-    friend ADOLC_DLL_EXPORT void condassign( adouble &res, const adouble &cond,
-            const adouble &arg1, const adouble &arg2 );
-    friend ADOLC_DLL_EXPORT void condassign( adouble &res, const adouble &cond,
-            const adouble &arg );
+    friend ADOLC_DLL_EXPORT void condassign( adouble &res, const badouble &cond,
+            const badouble &arg1, const badouble &arg2 );
+    friend ADOLC_DLL_EXPORT void condassign( adouble &res, const badouble &cond,
+            const badouble &arg );
 };
 
 
@@ -263,7 +261,7 @@ protected:
                 " variable\n");
         exit(-2);
     };
-    adub( double ):badouble(0) {
+    explicit adub( double ):badouble(0) {
         fprintf(DIAG_OUT,"ADOL-C error: illegal  construction of adub variable"
                 " from double\n");
         exit(-2);
@@ -348,6 +346,7 @@ public:
      address is freed.
 */
 class ADOLC_DLL_EXPORT adouble:public badouble {
+    friend ADOLC_DLL_EXPORT class advector;
 public:
     adouble( const adub& );
     adouble( const adouble& );
