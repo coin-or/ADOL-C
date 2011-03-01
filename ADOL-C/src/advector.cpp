@@ -17,6 +17,7 @@
 #include <cmath>
 
 #include <adolc/advector.h>
+#include "taping_p.h"
 
 using std::vector;
 
