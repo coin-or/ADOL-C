@@ -1,7 +1,7 @@
 #!/bin/bash -x
 INCFILES=(adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
          common.h convolut.h dvlparms.h fortutils.h \
-         interfaces.h oplate.h taping.h usrparms.h \
+         interfaces.h taping.h usrparms.h \
          externfcts.h checkpointing.h fixpoint.h \
          adolc_sparse.h adolc_openmp.h \
          revolve.h)

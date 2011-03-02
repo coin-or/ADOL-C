@@ -31,12 +31,12 @@ endif
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
-                       taping_p.h malloc.h storemanager.h \
+                       oplate.h taping_p.h malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h 
 
 pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\
-                       interfaces.h oplate.h taping.h usrparms.h \
+                       interfaces.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
                        revolve.h advector.h

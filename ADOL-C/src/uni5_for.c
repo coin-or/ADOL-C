@@ -31,7 +31,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/taping.h>
 #include "taping_p.h"
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
 

@@ -266,7 +266,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*                                                       NECESSARY INCLUDES */
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/convolut.h>
 

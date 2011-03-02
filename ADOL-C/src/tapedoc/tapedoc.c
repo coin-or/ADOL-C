@@ -15,7 +15,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/tapedoc/tapedoc.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adalloc.h>
 

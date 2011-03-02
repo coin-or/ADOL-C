@@ -17,6 +17,7 @@
 #include <cmath>
 
 #include <adolc/advector.h>
+#include "oplate.h"
 #include "taping_p.h"
 
 using std::vector;
@@ -32,18 +33,26 @@ bool advector::nondecreasing() const {
     return ret;
 }
 
-const adouble& advector::operator[](const badouble& index) const {
+adub advector::operator[](const badouble& index) const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.location]));
-    return data[idx];
-}
+    locint locat = next_loc();
+    size_t n = data.size();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(subscript);
+	ADOLC_PUT_LOCINT(index.location);
+	ADOLC_PUT_LOCINT(locat);
+	ADOLC_PUT_VAL(n);
+	for (int i = 0; i < n; i++) 
+	    ADOLC_PUT_LOCINT(data[i].location);
 
-adouble& advector::operator[](const badouble& index) {
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-    size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.location]));
-    return data[idx];
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[data[idx].location];
+    return locat;
 }
 
 adouble advector::lookupindex(const badouble& x, const badouble& y) const {
