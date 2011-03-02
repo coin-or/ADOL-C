@@ -100,7 +100,6 @@ void StoreManagerLocint::free_loc(locint loc) {
     indexFeld[loc] = head;
     head = loc;
     --anzahl;
-    storePtr[loc] = 0.0;
 #ifdef ADOLC_DEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
@@ -135,7 +134,6 @@ void StoreManagerLocint::grow() {
 #endif
     storePtr = new double[groesse];
     indexFeld = new locint[groesse];
-    memset(storePtr, 0, groesse*sizeof(double));
     // we use index 0 as end-of-list marker
     size_t i = 1;
     //     storePtr[0] = nan(""); not available on solaris
