@@ -11,8 +11,9 @@
               define _HOV_
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -2039,6 +2040,39 @@ int hov_ti_reverse(
                         }
             break;
 
+                /*--------------------------------------------------------------------------*/
+	    case subscript:
+		coval = get_val_r();
+		{
+		    size_t cnt, idx, numval = trunc(fabs(coval));
+		    locint vectorloc[numval];
+		    for (cnt = numval - 1; cnt >= 0; cnt--)
+			vectorloc[cnt] = get_locint_r();
+		    res = get_locint_r();
+		    arg = get_locint_r();
+		    ASSIGN_T(Targ, rpp_T[arg]);
+		    idx = trunc(fabs(TARG));
+		    arg1 = vectorloc[idx];
+		    ASSIGN_A(Aarg1, rpp_A[arg1])
+		    ASSIGN_A(Ares, rpp_A[res])
+
+		    FOR_0_LE_l_LT_p
+		    if (0 == ARES) {
+			HOV_INC(Aarg1, k1)
+			HOV_INC(Ares, k1)
+		    } else {
+			MAXDEC(AARG1,ARES);
+			AARG1_INC_O;
+			ARES_INC = 0.0;
+			FOR_0_LE_i_LT_k
+			{
+			    AARG1_INC += ARES;
+			    ARES_INC = 0.0;
+			}
+		    }
+		    GET_TAYL(res,k,p)
+		}
+		break;
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
 

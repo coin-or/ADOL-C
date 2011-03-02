@@ -19,7 +19,8 @@
            with/without "keep" parameter:                     define _KEEP_
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -3517,6 +3518,39 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
 
+
+                /*--------------------------------------------------------------------------*/
+            case subscript:
+		arg = get_locint_f();
+		res = get_locint_f();
+		coval = get_val_f();
+		{
+		    size_t cnt, idx, numvar = trunc(fabs(coval));
+		    locint vectorloc[numvar];
+		    for (cnt = 0; cnt < numvar; cnt++)
+			vectorloc[cnt] = get_locint_f();
+#if !defined(_NTIGHT_)
+		    idx = trunc(fabs(dp_T0[arg]));
+		    arg1 = vectorloc[idx];
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		    dp_T0[res] = dp_T0[arg1];
+#if defined(_INDO_)
+		    copy_index_domains(res, arg1, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+		    ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+		    ASSIGN_T(Tres,TAYLOR_BUFFER[res])
+
+		    FOR_0_LE_l_LT_pk
+		    TRES_INC = TARG1_INC;
+#endif
+#endif
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+		break;
 
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */

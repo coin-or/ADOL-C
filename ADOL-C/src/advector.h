@@ -37,8 +37,7 @@ public:
     ~advector() { data.~vector<adouble>(); }
     operator const vector<adouble>&() const { return data; }
     operator vector<adouble>&() { return data; }
-    const adouble& operator[](const badouble& index) const;
-    adouble& operator[](const badouble& index);
+    adub operator[](const badouble& index) const;
     adouble lookupindex(const badouble& x, const badouble& y) const;
 };
 

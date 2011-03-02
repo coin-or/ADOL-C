@@ -16,8 +16,9 @@
                   faster than tight) 
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -1663,6 +1664,39 @@ int int_reverse_safe(
                         }
 #endif /* !_NTIGHT_ */
                 break;
+
+                /*--------------------------------------------------------------------------*/
+            case subscript:
+	        {
+		    double val = get_val_r();
+		    size_t cnt, idx, numval = trunc(fabs(val));
+		    locint vectorloc[numval];
+		    for (cnt = numval - 1; cnt >= 0; cnt--)
+			vectorloc[cnt] = get_locint_r();
+		    res = get_locint_r();
+		    arg = get_locint_r();
+#if !defined(_NTIGHT_)
+		    idx = trunc(fabs(TARG));
+		    arg1 = vectorloc[idx];
+		    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
+		    ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+		    FOR_0_LE_l_LT_p
+		    {
+#if defined(_INT_REV_)
+			AARG1_INC |= ARES;
+			ARES_INC = 0;
+#else
+			AARG1_INC += ARES;
+			ARES = 0.0;
+#endif
+		    }
+		    ADOLC_GET_TAYLOR(res);
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif /* !_NTIGHT_ */
+		}
+		break;
 
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
