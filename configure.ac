@@ -249,22 +249,46 @@ AC_SUBST(COLPACK_CFLAGS)
 AC_SUBST(COLPACK_LIBS)
 
 # ADOL-C with mpi
-AC_ARG_ENABLE(mpi,[AS_HELP_STRING([--disable-mpi],[build without mpi support [default=auto]])],
-[mpi=$enableval], [mpi=auto])
+AC_ARG_WITH(mpi-includedir,[AS_HELP_STRING([--with-mpi-includedir],[path to mpi headers [default=autodetect]])], [mpiinc=$withval], [mpiinc=auto])
+AC_ARG_WITH(mpi-libdir,[AS_HELP_STRING([--with-mpi-libdir],[path to mpi libs [default=autodetect]])], [mpilibdir=$withval], [mpilibdir=auto])
 
-if test x$mpi = xauto -o x$mpi = xyes ; then
-AC_CHECK_HEADER(mpi/mpi.h,[
-AC_DEFINE(HAVE_MPI_MPI_H,1,[MPI header file exists])
-if test x = x"$MPILIBS"; then
-AC_CHECK_LIB(mpi, MPI_Init, [MPILIBS="-lmpi"])
+if test x"$mpiinc" = xauto ; then
+MPICPPFLAGS=""
+else
+MPICPPFLAGS="-I${mpiinc}"
 fi
-if test x = x"$MPILIBS"; then
-AC_CHECK_LIB(mpich, MPI_Init, [MPILIBS="-lmpich"])
-fi])
+if test x"$mpilibdir" = xauto ; then
+MPILIBS=""
+else
+MPILIBS="-L${mpilibdir}"
 fi
 
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $MPICPPFLAGS"
+LIBS="$LIBS $MPILIBS"
+AC_CHECK_HEADERS([mpi/mpi.h mpi.h],[
+AC_DEFINE(HAVE_MPI,1,[MPI is enabled])
+if test x = x"$LIBMPI"; then
+AC_CHECK_LIB(mpich, MPI_Init, [LIBMPI="-lmpich"])
+fi
+if test x = x"$LIBMPI"; then
+AC_CHECK_LIB(mpi, MPI_Init, [LIBMPI="-lmpi"])
+fi
+break
+])
+CPPFLAGS="$save_CPPFLAGS"
+LIBS="$save_LIBS"
+
+AC_SUBST(MPICPPFLAGS)
 AC_SUBST(MPILIBS)
-AM_CONDITIONAL(HAVE_MPI,[test x != x"$MPILIBS"])
+AC_SUBST(LIBMPI)
+AM_CONDITIONAL(HAVE_MPI,[test x != x"$LIBMPI"])
+if test x != x"$LIBMPI" ; then
+mpi=yes
+else
+mpi=no
+fi
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
@@ -486,11 +510,6 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
 "  \033@<:@1;31mCompressed sparse structures will not be available
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
-fi
-if test x != x"$MPILIBS" ; then 
-	mpi="yes"
-else
-	mpi="no"
 fi
 echo \
 "  Build with MPI:                   ${mpi}"

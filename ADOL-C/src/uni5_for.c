@@ -44,6 +44,10 @@
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+#elif defined(HAVE_MPI_H)
+#include <mpi.h>
+#endif
+#if defined(HAVE_MPI)
 extern int mpi_initialized;
 #endif
 
@@ -132,7 +136,7 @@ void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 void combine_index_domain_received_data(int res, int count, locint **ind_dom, locint *trade);
 #endif
 
@@ -167,7 +171,7 @@ void extend_nonlinearity_domain_unary
 void extend_nonlinearity_domain_binary
 (int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom);
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 void extend_nonlinearity_domain_combine_received_trade
 (int arg1, int counts, IndexElement **nonl_dom, locint *trade);
 #endif
@@ -928,7 +932,7 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 #if defined(_NONLIND_)
 	IndexElement *tmp_element;
 	int id, procsize;
@@ -1012,7 +1016,7 @@ int  hov_forward(
 
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #if defined(_NONLIND_)
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
     int s_r_indep =indcheck;
     if (mpi_initialized) {
        MPI_Comm_size(MPI_COMM_WORLD,&procsize);
@@ -3691,7 +3695,7 @@ int  hov_forward(
                 break;
 #endif
                 /*--------------------------------------------------------------------------*/
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
       case send_data:	// MPI-Send-Befehl
 	      arg = get_locint_f(); // first Buffer
 	      arg1 = get_locint_f(); // count
@@ -3964,7 +3968,7 @@ int  hov_forward(
     free(ind_dom);
 
 #if defined(_NONLIND_)
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
     if (mpi_initialized){
           indcheck = s_r_indep;
           if (id == 0 ){
@@ -4154,7 +4158,7 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 }
 
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 void combine_index_domain_received_data(int res, int count, locint **ind_dom, locint *trade) {
 
     int num,num1,i,j,k,l;
@@ -4328,7 +4332,7 @@ void extend_nonlinearity_domain_binary
     extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 void extend_nonlinearity_domain_combine_received_trade(int arg1, int counts, IndexElement **nonl_dom, locint *trade) {
 // fprintf(stderr,"GOING INTO NONL_Trade\n");
     int index;

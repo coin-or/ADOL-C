@@ -17,6 +17,10 @@
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+#elif defined(HAVE_MPI_H)
+#include <mpi.h>
+#endif
+#if defined(HAVE_MPI)
 #include <adolc/common.h>
 #include <adolc/adouble.h>
 
@@ -96,7 +100,7 @@ int jacobian(
 void tape_doc(
     int,int,short, int,int, double*, double*);
 
-#endif /*HAVE_MPI_MPI_H*/
+#endif /*HAVE_MPI*/
 
 #endif
 /* That's all*/

@@ -198,6 +198,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+#elif defined(HAVE_MPI_H)
+#include <mpi.h>
 #endif
 
 BEGIN_C_DECLS
@@ -366,7 +368,7 @@ int int_reverse_safe(
 
 #endif
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 	double *trade;
 	MPI_Status status_MPI;
 	int mpi_i;
@@ -1783,7 +1785,7 @@ int int_reverse_safe(
                 break;
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
             case receive_data:	// MPI-Send
                 res = get_locint_r(); // tag
                 arg2 = get_locint_r(); // dest

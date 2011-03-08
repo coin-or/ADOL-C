@@ -12,15 +12,14 @@
 
 ----------------------------------------------------------------------------*/
 
+#include <adolc/common.h>
 #include <adolc/adolc_mpi.h>
 #include <adolc/oplate.h>
 #include "taping_p.h"
-#include <mpi/mpi.h>
 #include <adolc/adouble.h>
 #include <adolc/drivers/drivers.h>
 #include <adolc/tapedoc/tapedoc.h>
 #include <adolc/adalloc.h>
-#include <adolc/common.h>
 #include <adolc/interfaces.h>
 #include <adolc/convolut.h>
 

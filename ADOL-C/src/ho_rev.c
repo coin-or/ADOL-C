@@ -275,6 +275,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
+#elif defined(HAVE_MPI_H)
+#include <mpi.h>
 #endif /* ADOLC_Parallel */
 
 
@@ -592,7 +594,7 @@ int hov_ti_reverse(
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 	MPI_Status status_MPI;
 	double *trade;
 	int mpi_i;
@@ -2093,7 +2095,7 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
 
-#if defined(HAVE_MPI_MPI_H)
+#if defined(HAVE_MPI)
 	       case receive_data:	// MPI-Send
 	           res  = get_locint_r(); // tag
 	           arg2 = get_locint_r(); // dest
