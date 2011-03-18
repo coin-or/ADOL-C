@@ -1312,6 +1312,10 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
                   exit(rc);
              }
           } // end of sparse_jac doings
+
+	  if (options[2] == -1)
+		  return rc;
+
           MPI_Status status;
           MPI_Recv(&tmp,1,MPI_INT,0,0,MPI_COMM_WORLD, &status);
           MPI_Barrier(MPI_COMM_WORLD);
@@ -1579,6 +1583,9 @@ int sparse_hess(
               }
            }
         }
+
+        if (repeat == -1)
+           return ret_val;
 
         MPI_Status status;
         MPI_Recv(&tmp,1, MPI_INT,i,0,MPI_COMM_WORLD, &status );
