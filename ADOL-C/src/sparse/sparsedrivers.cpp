@@ -1141,8 +1141,8 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
 
      if (options[0] != 0){
         if (id==0)
-           printf("Propagation of bit pattern not yet implemented.\n");
-        return -1;
+           fprintf(DIAG_OUT,"ADOL-C error: Propagation of bit pattern not yet implemented.\n");
+        exit(-1);
      }
      if (id==0){
         int i;
@@ -1171,8 +1171,8 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
            rc = jac_pat(this_tag, depen, indep, basepoint, sJinfos.JP, options);
 
            if (rc < 0) {
-              printf(" ADOL-C error in parallel sparse_jac() \n");
-              return rc;
+              fprintf(DIAG_OUT,"ADOL-C error in parallel sparse_jac() computing jac_pat()\n");
+              exit(rc);
            }
 
            sJinfos.depen = depen;
@@ -1239,10 +1239,10 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
         }
 
         if (sJinfos.nnz_in != *nnz) {
-           printf(" ADOL-C error in parallel sparse_jac():"
+           fprintf(DIAG_OUT," ADOL-C error in parallel sparse_jac():"
                " Number of nonzeros not consistent,"
                " repeat call with repeat = 0 \n");
-           return -3;
+           exit(-3);
         }
 
         if (options[2] == -1)
@@ -1308,8 +1308,8 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
              rc = jac_pat(id,size,tag,depen,indep,NULL,NULL,options);
 
              if (rc < 0) {
-                  printf(" ADOL-C error in parallel sparse_jac()\n");
-                  return rc;
+                  fprintf(DIAG_OUT," ADOL-C error in parallel sparse_jac() computing jac_pat()\n");
+                  exit(rc);
              }
           } // end of sparse_jac doings
           MPI_Status status;
@@ -1320,7 +1320,8 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
           if (options[3] == 1){
              rc = zos_forward(this_tag,0,0,1,NULL,NULL);
              if (rc < 0) {
-                   return rc;
+		   fprintf(DIAG_OUT,"ADOL-C error in parallel sparse_jac() computing zos_forward()\n");
+                   exit(rc);
              }
              rc = fov_reverse(this_tag,0,0,tmp,NULL,NULL);
           }
@@ -1428,8 +1429,8 @@ int sparse_hess(
               /* generate sparsity pattern */
               ret_val = hess_pat(id,size,tag, indep, basepoint, sHinfos.HP, options[0]);
               if (ret_val < 0) {
-                 printf(" ADOL-C error in parallel sparse_hess() \n");
-                 return ret_val;
+                 fprintf(DIAG_OUT," ADOL-C error in parallel sparse_hess() \n");
+                 exit(ret_val);
               }
            }
            else {
@@ -1505,13 +1506,13 @@ int sparse_hess(
         }
 
         if (sHinfos.Upp == NULL) {
-           printf(" ADOL-C error in parallel sparse_hess():\n First call with repeat = 0 \n");
-           return -3;
+           fprintf(DIAG_OUT," ADOL-C error in parallel sparse_hess():\n First call with repeat = 0 \n");
+           exit(-3);
         }
 
         if (sHinfos.nnz_in != *nnz) {
-           printf(" ADOL-C error in parallel sparse_hess():\n Number of nonzeros not consistent,\n new call with repeat = 0 \n");
-           return -3;
+           fprintf(DIAG_OUT," ADOL-C error in parallel sparse_hess():\n Number of nonzeros not consistent,\n new call with repeat = 0 \n");
+           exit(-3);
         }
 
         if (repeat == -1)
@@ -1573,8 +1574,8 @@ int sparse_hess(
               /* generate sparsity pattern */
               ret_val = hess_pat(id,size,tag, indep, basepoint, NULL, options[0]);
               if (ret_val < 0) {
-                 printf(" ADOL-C error in parallel sparse_hess() \n");
-                 return ret_val;
+                 fprintf(DIAG_OUT," ADOL-C error in parallel sparse_hess() \n");
+                 exit(ret_val);
               }
            }
         }
