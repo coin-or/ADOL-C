@@ -1080,14 +1080,14 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
 
    if(Zppp)
       myfree3(Zppp);
+
    if(Upp)
       myfree2(Upp);
 
    if(HP)
      {
-       for (int i=0;i<indep;i++) {
+       for (int i=0;i<indep;i++) 
    	 free(HP[i]);
-       }
        free(HP);
      }
 
