@@ -25,3 +25,6 @@ libsparseincludedir      = $(pkgincludedir)/sparse
 libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h 
 
 libsparse_la_SOURCES     = sparse_fo_rev.cpp sparsedrivers.cpp
+if HAVE_MPI
+AM_CPPFLAGS += @MPICPPFLAGS@
+endif
