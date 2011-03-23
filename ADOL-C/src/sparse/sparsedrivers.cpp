@@ -1593,7 +1593,7 @@ int sparse_hess(
            return ret_val;
 
         MPI_Status status;
-        MPI_Recv(&tmp,1, MPI_INT,i,0,MPI_COMM_WORLD, &status );
+        MPI_Recv(&tmp,1, MPI_INT,0,0,MPI_COMM_WORLD, &status );
         MPI_Barrier(MPI_COMM_WORLD);
 
         for (i = 0; i < tmp; ++i) {
