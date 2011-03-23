@@ -107,7 +107,7 @@ END_C_DECLS
 
 /*************************************************************************************************/
 /*****                          Now parallel ColPack-Drivers                                 *****/
-#if defined(__cplusplus) && defined(HAVE_MPI_MPI_H)
+#if defined(__cplusplus) && defined(HAVE_MPI)
 int jac_pat(
     int id, int size, short tag, int depen, int indep, const double *basepoint, unsigned int **crs, int *options);
 

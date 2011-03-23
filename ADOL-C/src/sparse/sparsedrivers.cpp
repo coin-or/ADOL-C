@@ -1103,8 +1103,7 @@ END_C_DECLS
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */
-#ifdef HAVE_LIBCOLPACK
-#ifdef HAVE_MPI_MPI_H
+#ifdef HAVE_MPI
 #include <adolc/adolc_mpi.h>
 
 int jac_pat(int id, int size, short tag, int depen,int indep, const double *basepoint, unsigned int **crs, int *options ){
@@ -1135,6 +1134,7 @@ int jac_pat(int id, int size, short tag, int depen,int indep, const double *base
 
 int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, const double* basepoint, int *nnz, unsigned int **rind, unsigned int **cind, double **values, int *options)
 {
+#ifdef HAVE_LIBCOLPACK
      int this_tag = size*tag +id;
      int rc =-3, tmp;
      bool forward, tight;
@@ -1335,6 +1335,10 @@ int sparse_jac(int id,int size, short tag, int depen, int indep, int repeat, con
      } // end repeat == 0
 
      return rc;
+#else
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+#endif
 }
 
 int hess_pat(
@@ -1404,6 +1408,7 @@ int sparse_hess(
                                0 - indirect recovery
                                1 - direct recovery                         */
 ) {
+#ifdef HAVE_LIBCOLPACK
      int i, l, tmp;
      int this_tag = size*tag + id;
      unsigned int j;
@@ -1597,6 +1602,9 @@ int sparse_hess(
         }
      } // end id else
      return ret_val;
-}
+#else
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
 #endif
+}
 #endif

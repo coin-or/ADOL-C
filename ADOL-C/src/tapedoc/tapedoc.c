@@ -1187,7 +1187,7 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation, 3, loc_a, val_a, 0, cst_d);
                 break;
                 /*--------------------------------------------------------------------------*/
-#if defined(HAVE_MPI_MPI_H)        
+#if defined(HAVE_MPI)        
         case send_data:
 	        arg1 = get_locint_f();
 	        arg2 = get_locint_f();
