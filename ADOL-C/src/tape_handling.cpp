@@ -138,8 +138,7 @@ void StoreManagerLocint::grow() {
     memset(storePtr, 0, groesse*sizeof(double));
     // we use index 0 as end-of-list marker
     size_t i = 1;
-    //     storePtr[0] = nan(""); not available on solaris
-    storePtr[0] = (non_num/non_den);
+    storePtr[0] =  std::numeric_limits<double>::quiet_NaN();
 
     if (alteGroesse != initialeGroesse) { // not the first time
 #if defined(ADOLC_DEBUG)
@@ -300,6 +299,49 @@ int initNewTape(short tapeID) {
                     rewind((*tiIter)->tay_file);
                 initTapeInfos_keep(*tiIter);
                 (*tiIter)->tapeID = tapeID;
+#ifdef SPARSE
+		freeSparseJacInfos(newTapeInfos->pTapeInfos.sJinfos.y,
+				   newTapeInfos->pTapeInfos.sJinfos.B,
+				   newTapeInfos->pTapeInfos.sJinfos.JP,
+				   newTapeInfos->pTapeInfos.sJinfos.g,
+				   newTapeInfos->pTapeInfos.sJinfos.jr1d,
+				   newTapeInfos->pTapeInfos.sJinfos.seed_rows,
+				   newTapeInfos->pTapeInfos.sJinfos.seed_clms,
+				   newTapeInfos->pTapeInfos.sJinfos.depen);
+		freeSparseHessInfos(newTapeInfos->pTapeInfos.sHinfos.Hcomp, 
+				    newTapeInfos->pTapeInfos.sHinfos.Xppp, 
+				    newTapeInfos->pTapeInfos.sHinfos.Yppp, 
+				    newTapeInfos->pTapeInfos.sHinfos.Zppp, 
+				    newTapeInfos->pTapeInfos.sHinfos.Upp, 
+				    newTapeInfos->pTapeInfos.sHinfos.HP,
+				    newTapeInfos->pTapeInfos.sHinfos.g, 
+				    newTapeInfos->pTapeInfos.sHinfos.hr, 
+				    newTapeInfos->pTapeInfos.sHinfos.p, 
+				    newTapeInfos->pTapeInfos.sHinfos.indep);	
+		newTapeInfos->pTapeInfos.inJacSparseUse=0;
+		newTapeInfos->pTapeInfos.inHessSparseUse=0;
+		newTapeInfos->pTapeInfos.sJinfos.B=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.y=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.g=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
+		newTapeInfos->pTapeInfos.sJinfos.depen=0;
+		newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
+		newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
+		newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
+		newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.g=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
+		newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
+		newTapeInfos->pTapeInfos.sHinfos.indep=0;
+		newTapeInfos->pTapeInfos.sHinfos.p=0;
+#endif
                 break;
             }
         }
