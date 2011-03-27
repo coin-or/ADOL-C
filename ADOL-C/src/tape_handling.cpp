@@ -138,8 +138,7 @@ void StoreManagerLocint::grow() {
     memset(storePtr, 0, groesse*sizeof(double));
     // we use index 0 as end-of-list marker
     size_t i = 1;
-    //     storePtr[0] = nan(""); not available on solaris
-    storePtr[0] = (non_num/non_den);
+    storePtr[0] =  std::numeric_limits<double>::quiet_NaN();
 
     if (alteGroesse != initialeGroesse) { // not the first time
 #if defined(ADOLC_DEBUG)
