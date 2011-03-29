@@ -782,7 +782,7 @@ void cleanUp() {
     cp_clearStack();
 
     if (ADOLC_GLOBAL_TAPE_VARS.store != NULL) {
-        free(ADOLC_GLOBAL_TAPE_VARS.store);
+        delete[] ADOLC_GLOBAL_TAPE_VARS.store;
         ADOLC_GLOBAL_TAPE_VARS.store = NULL;
     }
 
