@@ -305,7 +305,7 @@ void printError() {
             break;
         default:
             fprintf(DIAG_OUT, ">>> ");
-            fprintf(DIAG_OUT, strerror(errno));
+            fprintf(DIAG_OUT, "%s", strerror(errno));
             fprintf(DIAG_OUT, " <<<\n");
             break;
     }
