@@ -75,7 +75,7 @@ PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=2.2.6b
 TIMESTAMP=""
-package_revision=1.3017
+package_revision=1.3018
 
 # Be Bourne compatible
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
@@ -116,15 +116,15 @@ $lt_unset CDPATH
 
 : ${CP="cp -f"}
 : ${ECHO="echo"}
-: ${EGREP="/bin/grep -E"}
-: ${FGREP="/bin/grep -F"}
-: ${GREP="/bin/grep"}
+: ${EGREP="/usr/bin/grep -E"}
+: ${FGREP="/usr/bin/grep -F"}
+: ${GREP="/usr/bin/grep"}
 : ${LN_S="ln -s"}
 : ${MAKE="make"}
 : ${MKDIR="mkdir"}
 : ${MV="mv -f"}
 : ${RM="rm -f"}
-: ${SED="/bin/sed"}
+: ${SED="/usr/bin/sed"}
 : ${SHELL="${CONFIG_SHELL-/bin/sh}"}
 : ${Xsed="$SED -e 1s/^X//"}
 
