@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColPack", "..\ThirdParty\ColPack\ColPack.vcxproj", "{E15FF863-18E9-E567-5F8B-225D07C68E05}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "adolc", "adolc.vcxproj", "{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "adolc", "adolc.vcxproj", "{88779F63-E2E6-6271-B922-86A37128E03A}"
 	ProjectSection(ProjectDependencies) = postProject
-		{E15FF863-18E9-E567-5F8B-225D07C68E05} = {E15FF863-18E9-E567-5F8B-225D07C68E05}
+		{B1CA0278-1333-DA5D-6345-382C8E825B36} = {B1CA0278-1333-DA5D-6345-382C8E825B36}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColPack", "..\..\ThirdParty\ColPack\ColPack.vcxproj", "{B1CA0278-1333-DA5D-6345-382C8E825B36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,22 +16,22 @@ Global
 		sparse|x64 = sparse|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.nosparse|Win32.ActiveCfg = sparse|Win32
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.nosparse|Win32.Build.0 = sparse|Win32
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.nosparse|x64.ActiveCfg = sparse|x64
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.nosparse|x64.Build.0 = sparse|x64
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.sparse|Win32.ActiveCfg = sparse|Win32
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.sparse|Win32.Build.0 = sparse|Win32
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.sparse|x64.ActiveCfg = sparse|x64
-		{E15FF863-18E9-E567-5F8B-225D07C68E05}.sparse|x64.Build.0 = sparse|x64
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.nosparse|Win32.ActiveCfg = nosparse|Win32
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.nosparse|Win32.Build.0 = nosparse|Win32
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.nosparse|x64.ActiveCfg = nosparse|x64
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.nosparse|x64.Build.0 = nosparse|x64
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.sparse|Win32.ActiveCfg = sparse|Win32
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.sparse|Win32.Build.0 = sparse|Win32
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.sparse|x64.ActiveCfg = sparse|x64
-		{8BFBD9F9-2EFE-2966-8961-46A7ED1320FE}.sparse|x64.Build.0 = sparse|x64
+		{88779F63-E2E6-6271-B922-86A37128E03A}.nosparse|Win32.ActiveCfg = nosparse|Win32
+		{88779F63-E2E6-6271-B922-86A37128E03A}.nosparse|Win32.Build.0 = nosparse|Win32
+		{88779F63-E2E6-6271-B922-86A37128E03A}.nosparse|x64.ActiveCfg = nosparse|x64
+		{88779F63-E2E6-6271-B922-86A37128E03A}.nosparse|x64.Build.0 = nosparse|x64
+		{88779F63-E2E6-6271-B922-86A37128E03A}.sparse|Win32.ActiveCfg = sparse|Win32
+		{88779F63-E2E6-6271-B922-86A37128E03A}.sparse|Win32.Build.0 = sparse|Win32
+		{88779F63-E2E6-6271-B922-86A37128E03A}.sparse|x64.ActiveCfg = sparse|x64
+		{88779F63-E2E6-6271-B922-86A37128E03A}.sparse|x64.Build.0 = sparse|x64
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.nosparse|Win32.ActiveCfg = sparse|Win32
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.nosparse|Win32.Build.0 = sparse|Win32
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.nosparse|x64.ActiveCfg = sparse|x64
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.nosparse|x64.Build.0 = sparse|x64
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.sparse|Win32.ActiveCfg = sparse|Win32
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.sparse|Win32.Build.0 = sparse|Win32
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.sparse|x64.ActiveCfg = sparse|x64
+		{B1CA0278-1333-DA5D-6345-382C8E825B36}.sparse|x64.Build.0 = sparse|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

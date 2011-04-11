@@ -50,24 +50,24 @@ mkdir -p tmp/include/adolc/drivers
 mkdir -p tmp/include/adolc/tapedoc
 
 for i in ${INCFILES[*]} ; do
-	cp ../ADOL-C/src/$i tmp/include/adolc
+	cp ../../ADOL-C/src/$i tmp/include/adolc
 done
 
 for i in ${INCFILES_SPARSE[*]} ; do
-	cp ../ADOL-C/src/sparse/$i tmp/include/adolc/sparse
+	cp ../../ADOL-C/src/sparse/$i tmp/include/adolc/sparse
 done
 
 for i in ${INCFILES_DRIVERS[*]} ; do
-	cp ../ADOL-C/src/drivers/$i tmp/include/adolc/drivers
+	cp ../../ADOL-C/src/drivers/$i tmp/include/adolc/drivers
 done
 
 for i in ${INCFILES_TAPEDOC[*]} ; do
-	cp ../ADOL-C/src/tapedoc/$i tmp/include/adolc/tapedoc
+	cp ../../ADOL-C/src/tapedoc/$i tmp/include/adolc/tapedoc
 done
 
 cp $conf/adolc.dll tmp/bin
 cp $conf/adolc.lib tmp/lib
-cp ../ADOL-C/doc/* tmp/doc
+cp ../../ADOL-C/doc/* tmp/doc
 cp $arch/vcredist_$suffix.exe tmp/
 echo "@echo off" > tmp/setup.bat
 echo "vcredist_${suffix}.exe" >> tmp/setup.bat
