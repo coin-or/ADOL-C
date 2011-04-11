@@ -116,7 +116,7 @@
 #define PACKAGE_NAME "adolc"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "adolc 2.2.0-stable"
+#define PACKAGE_STRING "adolc 2.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "adolc"
@@ -125,7 +125,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.2.0-stable"
+#define PACKAGE_VERSION "2.2.0"
 
 /* The size of `void *', as computed by sizeof. */
 #define SIZEOF_VOID_P 8
@@ -140,7 +140,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.2.0-stable"
+#define VERSION "2.2.0"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
