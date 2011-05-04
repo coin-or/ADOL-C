@@ -69,7 +69,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;SPARSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\ADOL-C;$(ProjectDir)..\ADOL-C\src;$(ProjectDir)..\ThirdParty\ColPack\$(IntDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\..\ThirdParty\ColPack\$(IntDir)include;$(ProjectDir)..\..\ADOL-C;$(ProjectDir)..\..\ADOL-C\src;$(ProjectDir)..\ThirdParty\ColPack\$(IntDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -86,13 +86,13 @@
       <AdditionalDependencies>ColPack.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>if exist $(ProjectDir)..\ADOL-C\src\config.h del /q $(ProjectDir)..\ADOL-C\src\config.h</Command>
+      <Command>if exist $(ProjectDir)..\..\ADOL-C\src\config.h del /q $(ProjectDir)..\..\ADOL-C\src\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;SPARSE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\ADOL-C;$(ProjectDir)..\ADOL-C\src;$(ProjectDir)..\ThirdParty\ColPack\$(IntDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\..\ThirdParty\ColPack\$(IntDir)include;$(ProjectDir)..\..\ADOL-C;$(ProjectDir)..\..\ADOL-C\src;$(ProjectDir)..\ThirdParty\ColPack\$(IntDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -108,13 +108,13 @@
       <AdditionalDependencies>ColPack.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>if exist $(ProjectDir)..\ADOL-C\src\config.h del /q $(ProjectDir)..\ADOL-C\src\config.h</Command>
+      <Command>if exist $(ProjectDir)..\..\ADOL-C\src\config.h del /q $(ProjectDir)..\..\ADOL-C\src\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\ADOL-C;$(ProjectDir)..\ADOL-C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\..\ADOL-C;$(ProjectDir)..\..\ADOL-C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -133,13 +133,13 @@
       </AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>if exist $(ProjectDir)..\ADOL-C\src\config.h del /q $(ProjectDir)..\ADOL-C\src\config.h</Command>
+      <Command>if exist $(ProjectDir)..\..\ADOL-C\src\config.h del /q $(ProjectDir)..\..\ADOL-C\src\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN64;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;ADOLC_DLL;ADOLC_INTERNAL=1;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\ADOL-C;$(ProjectDir)..\ADOL-C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir);$(ProjectDir)..\..\ADOL-C;$(ProjectDir)..\..\ADOL-C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -157,79 +157,80 @@
       </AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>if exist $(ProjectDir)..\ADOL-C\src\config.h del /q $(ProjectDir)..\ADOL-C\src\config.h</Command>
+      <Command>if exist $(ProjectDir)..\..\ADOL-C\src\config.h del /q $(ProjectDir)..\..\ADOL-C\src\config.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\adalloc.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\adouble.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\checkpointing.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\convolut.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\drivers\drivers.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\drivers\driversf.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\drivers\odedrivers.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\drivers\odedriversf.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\drivers\taylor.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\externfcts.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fixpoint.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fortutils.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\forward_partx.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fos_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fos_reverse.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fov_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fov_offset_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\fov_reverse.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hos_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hos_ov_reverse.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hos_reverse.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hov_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hov_reverse.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\hov_wk_forward.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\indopro_forward_s.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\indopro_forward_t.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\interfaces.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\interfacesf.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\int_forward_s.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\int_forward_t.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\int_reverse_s.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\int_reverse_t.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\malloc.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\nonl_ind_forward_s.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\nonl_ind_forward_t.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\revolve.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\sparse\sparsedrivers.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\sparse\sparse_fo_rev.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\tapedoc\tapedoc.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\tape_handling.cpp" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\taping.c" />
-    <ClCompile Include="$(ProjectDir)..\ADOL-C\src\zos_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\adalloc.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\adouble.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\checkpointing.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\convolut.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\drivers.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\driversf.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\odedrivers.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\odedriversf.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\taylor.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\externfcts.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fixpoint.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fortutils.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\forward_partx.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fos_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fos_reverse.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fov_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fov_offset_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fov_reverse.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hos_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hos_ov_reverse.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hos_reverse.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hov_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hov_reverse.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\hov_wk_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\indopro_forward_s.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\indopro_forward_t.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\interfaces.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\interfacesf.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_forward_s.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_forward_t.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_s.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_t.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\malloc.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_s.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_t.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\revolve.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\sparse\sparsedrivers.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\sparse\sparse_fo_rev.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\tapedoc\tapedoc.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\tape_handling.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\taping.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_forward.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adalloc.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adolc.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adolc_openmp.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adolc_sparse.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adouble.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adutils.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\adutilsc.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\checkpointing.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\common.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\convolut.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\drivers\drivers.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\drivers\odedrivers.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\drivers\taylor.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\dvlparms.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\externfcts.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\fixpoint.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\fortutils.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\interfaces.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\oplate.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\revolve.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\sparse\sparsedrivers.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\sparse\sparse_fo_rev.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\tapedoc\tapedoc.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\taping.h" />
-    <ClInclude Include="$(ProjectDir)..\ADOL-C\src\usrparms.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adalloc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adolc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adolc_openmp.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adolc_sparse.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adouble.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adutils.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\adutilsc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\checkpointing.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\common.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\convolut.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\drivers\drivers.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\drivers\odedrivers.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\drivers\taylor.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\dvlparms.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\externfcts.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\fixpoint.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\fortutils.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\interfaces.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\oplate.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\revolve.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\sparse\sparsedrivers.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\sparse\sparse_fo_rev.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\storemanager.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\tapedoc\tapedoc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\taping.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\usrparms.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
