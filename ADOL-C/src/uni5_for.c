@@ -3839,13 +3839,11 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 void extend_nonlinearity_domain_binary_step
 (int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
 {
-  int index,num,num1, num2, num3, i,j,k,l,m;
+  int index,num,num1, num2, i,j,k,l,m;
   locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
 
-  arg2_ind_dom = ind_dom[arg2];
-  num = arg2_ind_dom[0];
-  num3 = num+2;
-  
+  num = ind_dom[arg2][0];
+
   for(m=2;m<ind_dom[arg1][0]+2;m++) 
     {
       index = ind_dom[arg1][m];
@@ -3853,64 +3851,56 @@ void extend_nonlinearity_domain_binary_step
 
       if (index_nonl_dom[0] == 0)  /* empty list */
 	{
-          if ( index_nonl_dom[1] < num)
+	  if ( index_nonl_dom[1] < num)
 	    {
 	      free(index_nonl_dom);
 	      index_nonl_dom = (locint*) malloc(sizeof(locint)*2*(num+1) );
 	      index_nonl_dom[1] = 2*num;
 	    }
-          for(i=2;i<num3;i++)      /* append index domain list of "arg" */
-	    index_nonl_dom[i] = arg2_ind_dom[i];
-          index_nonl_dom[0] = num;
+	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+	    index_nonl_dom[i] = ind_dom[arg2][i];
+	  index_nonl_dom[0] = num;
 	} 
       else 
 	{ /* merge lists */
 	  num1 = index_nonl_dom[0];
 	  num2 = index_nonl_dom[1];
-
+	  
 	  if (num1+num > num2)
 	    num2 = num1+num;
-
-          temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
+	  
+	  temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
 	  temp_nonl[1] = num2;
-
-	  num1 += 2;
-
-          i = 2;
-          k = 2;
-          j = 2;
-          while ((i<num1) && (j < num)){
-	    if (arg2_ind_dom[j] < index_nonl_dom[i]) /* < */ 
-	      {
-		temp_nonl[k] = arg2_ind_dom[j];
-		j++; k++;
-	      } 
-	    else 
-	      {
-		if (arg2_ind_dom[j] == index_nonl_dom[i])  /* == */ 
-		  {
-		    temp_nonl[k] = arg2_ind_dom[j];
-		    j++; k++; i++;
-		  } 
-		else 
-		  {
-		    temp_nonl[k] = index_nonl_dom[i];
-		    i++; k++;
-		  }
+	  
+	  i = 2;
+	  k = 2;
+	  j = 2;
+	  num1 +=2;
+	  num2 = num+2;
+	  while ((i<num1) && (j < num2)){
+	    if (ind_dom[arg2][j] < index_nonl_dom[i]) /* < */ {
+	      temp_nonl[k] = ind_dom[arg2][j];
+	      j++; k++;
+	    } else {
+	      if (ind_dom[arg2][j] == index_nonl_dom[i])  /* == */ {
+		temp_nonl[k] = ind_dom[arg2][j];
+		j++; k++; i++;
+	      } else {
+		temp_nonl[k] = index_nonl_dom[i];
+		i++; k++;
 	      }
+	    }
 	  }
-	  for(l = j;l<num3;l++) 
-	    {
-	      temp_nonl[k] = arg2_ind_dom[l];
-	      k++;
-	    }
-	  for(l = i;l<num1;l++) 
-	    {
-	      temp_nonl[k] = index_nonl_dom[l];
-	      k++;
-	    }
-	  temp_nonl[0] = k-2;
-	  free((char*) index_nonl_dom);
+	  for(l = j;l<num2;l++) {
+	    temp_nonl[k] = ind_dom[arg2][l];
+	    k++;
+	  }
+	  for(l = i;l<num1;l++) {
+	    temp_nonl[k] = index_nonl_dom[l];
+	    k++;
+	  }
+	  temp_nonl[0] = k-2; 
+	  free((char*) nonl_dom[index]);
 	  nonl_dom[index] = temp_nonl;
 	}
     }
