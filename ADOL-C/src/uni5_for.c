@@ -42,13 +42,8 @@
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
-#if defined(HAVE_MPI_MPI_H)
-#include <mpi/mpi.h>
-#elif defined(HAVE_MPI_H)
-#include <mpi.h>
-#endif
 #if defined(HAVE_MPI)
-extern int mpi_initialized;
+#include <adolc/adolc_mpi.h>
 #endif
 
 /****************************************************************************/
@@ -158,22 +153,16 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
  * (first element of the NID list) or the index of an independent variable.
  */
 
-typedef struct IndexElement {
-    locint  entry;
-    struct IndexElement* next;
-}
-IndexElement;
-
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom);
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
 void extend_nonlinearity_domain_unary
-(int arg, locint **ind_dom, IndexElement **nonl_dom);
+(int arg, locint **ind_dom, locint **nonl_dom);
 void extend_nonlinearity_domain_binary
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom);
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
 
 #if defined(HAVE_MPI)
 void extend_nonlinearity_domain_combine_received_trade
-(int arg1, int counts, IndexElement **nonl_dom, locint *trade);
+(int arg1, int counts, locint **nonl_dom, locint *trade);
 #endif
 
 
@@ -762,9 +751,9 @@ int  hov_forward(
     int max_ind_dom;
 #if defined(_NONLIND_)
     /* nonlinear interaction domains */
-    IndexElement** nonl_dom;
-    IndexElement*  temp;
-    IndexElement*  temp1;
+    locint** nonl_dom;
+    locint*  temp;
+    locint*  temp1;
 #endif
 #endif
 
@@ -933,21 +922,23 @@ int  hov_forward(
         exit (-1);
     }
 #if defined(HAVE_MPI)
+     double *trade, *rec_buf;
+     MPI_Status status_MPI;
+     int mpi_i , loc_send,loc_recv;
+     MPI_Op mpi_op;
+     int myid,root, count, id;
+     MPI_Comm_rank(MPI_COMM_WORLD, &id);
 #if defined(_NONLIND_)
-	IndexElement *tmp_element;
-	int id, procsize;
+     locint *tmp_element;
 #endif
 #if defined(_INDO_)
-	int *trade_loc;
-	int *counts;
-	int anz;
+     int *trade_loc, *rec_buf_loc;
+     int *counts, *tmp_counts;
+     int anz;
 #endif
 #if defined(_INT_FOR_)
-	unsigned long int *up_mpi;
+     unsigned long int *up_mpi;
 #endif
-	double *trade;
-	MPI_Status status_MPI;
-	int mpi_i;
 #endif
 
 
@@ -1019,27 +1010,31 @@ int  hov_forward(
 #if defined(HAVE_MPI)
     int s_r_indep =indcheck;
     if (mpi_initialized) {
-       MPI_Comm_size(MPI_COMM_WORLD,&procsize);
-       MPI_Comm_rank(MPI_COMM_WORLD, &id);
-       if (id == 0){
-          for (i=1; i < procsize; i++)
-              MPI_Send( &s_r_indep, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-       }else  MPI_Recv( &s_r_indep, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status_MPI);
-    nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * s_r_indep);
-    for(i=0;i<s_r_indep;i++){
-        nonl_dom[i] = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-        nonl_dom[i]->next = NULL;
-        nonl_dom[i]->entry = 0;}
-     }
-     else {
-        nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
-        for (i=0;i<indcheck;i++)
-            nonl_dom[i] = NULL;
-     }
+       MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+       MPI_Bcast(&s_r_indep,1,MPI_INT,0,MPI_COMM_WORLD);
+
+       nonl_dom = (locint**) malloc(sizeof(locint*) * s_r_indep);
+       for(i=0;i<s_r_indep;i++){
+           nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
+           nonl_dom[i][0] = 0;
+           nonl_dom[i][1] = NUMNNZ;
+       }
+    }
+    else {
+       nonl_dom = (locint**) malloc(sizeof(locint*) * s_r_indep);
+       for(i=0;i<indcheck;i++){
+          nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
+          nonl_dom[i][0]=0;
+          nonl_dom[i][1]=NUMNNZ;
+       }
+    }
 #else
-    nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
-    for(i=0;i<indcheck;i++)
-        nonl_dom[i] = NULL;
+    nonl_dom = (locint**) malloc(sizeof(locint*) * indcheck);
+    for(i=0;i<indcheck;i++){
+          nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
+          nonl_dom[i][0]=0;
+          nonl_dom[i][1]=NUMNNZ;
+       }
 #endif
 #endif
 
@@ -3765,16 +3760,16 @@ int  hov_forward(
                   }
               }
               MPI_Send( trade_loc , anz , MPI_INT , arg2, res , MPI_COMM_WORLD);
-              free((char*) trade_loc);
+              free(trade_loc);
            }
-           free((char*) counts);
+           free(counts);
 #endif
 #if defined(_NONLIND_)
            counts = (int*) malloc(s_r_indep*sizeof(int));
            anz=0;
            // Send information about counts of ind_dom and nonl_dom
            for (mpi_i=0; mpi_i< s_r_indep; mpi_i++){
-               counts[mpi_i] = (int) nonl_dom[mpi_i]->entry;
+               counts[mpi_i] = (int) nonl_dom[mpi_i][0];
                anz += counts[mpi_i];
                }
 
@@ -3782,28 +3777,25 @@ int  hov_forward(
 
            // sending index domains
            if (anz >0 ){
-              trade_loc = (int*) calloc(anz,sizeof(int));
+              trade_loc = (int*) malloc(anz*sizeof(int));
               l =0;
-              for (mpi_i=0; mpi_i < s_r_indep ; mpi_i++ ){
-                  tmp_element = nonl_dom[mpi_i];
+              for (mpi_i=0; mpi_i < s_r_indep ; mpi_i++ )
                   for (i=0; i < counts[mpi_i] ; i++ ){
-                      tmp_element = tmp_element->next;
-                      trade_loc[l] = tmp_element->entry;
+                      trade_loc[l] = nonl_dom[mpi_i][i];
                       l++;
                   }
-              }
               MPI_Send( trade_loc , anz , MPI_INT , arg2, res , MPI_COMM_WORLD);
-              free((char*) trade_loc);
+              free( trade_loc);
            }
-           free((char*) counts);
+           free( counts);
 #endif    // end _NONLIND_
 	      break;
                 /*--------------------------------------------------------------------------*/
-      case receive_data:	// MPI-Receive
-	      arg =get_locint_f(); // Location
-	      arg1 = get_locint_f(); // count
-	      arg2 = get_locint_f(); // source
-	      res = get_locint_f(); // tag
+      case receive_data: // MPI-Receive
+           arg =get_locint_f(); // Location
+           arg1 = get_locint_f(); // count
+           arg2 = get_locint_f(); // source
+           res = get_locint_f(); // tag
 #if !defined(_NTIGHT_)
           // receiving values for dp_T0
           trade = (double*) myalloc1( arg1 );
@@ -3872,9 +3864,9 @@ int  hov_forward(
                    combine_index_domain_received_data(arg+mpi_i, counts[mpi_i], ind_dom, &trade_loc[l] );
                    l += counts[mpi_i];
               }
-              free((char*) trade_loc);
+              free(trade_loc);
            }
-           free((char*) counts);
+           free( counts);
 #endif
 #if defined(_NONLIND_)
            counts = ( int*) malloc( s_r_indep*sizeof(int) );
@@ -3895,9 +3887,9 @@ int  hov_forward(
                   l += counts[mpi_i];
               }
 
-              free((char*) trade_loc);
+              free( trade_loc);
            }
-           free((char*) counts);
+           free( counts);
 #endif    // end _NONLIND_
 	      break;
       case barrier_op:
@@ -3970,77 +3962,44 @@ int  hov_forward(
 #if defined(_NONLIND_)
 #if defined(HAVE_MPI)
     if (mpi_initialized){
-          indcheck = s_r_indep;
-          if (id == 0 ){
-             for ( i=0;i<indcheck;i++) {
-                 if (nonl_dom[i] != NULL) {
-                    crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
-                    temp1 = nonl_dom[i];
-                    temp = nonl_dom[i]->next;
-                    crs[i][0] = nonl_dom[i]->entry;
-                    free(temp1);
-                    for (l=1;l<=crs[i][0];l++) {
-                        crs[i][l] = temp->entry;
-                        temp1 = temp;
-                        temp = temp->next;
-                        free(temp1);
-                    }
-                 } else {
-                    crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
-                    crs[i][0] = 0;
-                 }
-             }
-          } else { // now all other processes
-             for ( i=0;i<indcheck;i++){
-                 mpi_i = nonl_dom[i]->entry;
-                 temp1 = nonl_dom[i];
-                 for (l=1; l < mpi_i; l++ ){
-                     temp = temp1->next;
-                     free(temp1);
-                     temp1 = temp;
-                 }
-             }
-          }
-    } else {
+       indcheck = s_r_indep;
+       if (id == 0 ){
           for ( i=0;i<indcheck;i++) {
-              if (nonl_dom[i] != NULL) {
-                 crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
-                 temp1 = nonl_dom[i];
-                 temp = nonl_dom[i]->next;
-                 crs[i][0] = nonl_dom[i]->entry;
-                 free(temp1);
-                 for (l=1;l<=crs[i][0];l++) {
-                     crs[i][l] = temp->entry;
-                     temp1 = temp;
-                     temp = temp->next;
-                     free(temp1);
-                 }
-              } else {
-                 crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
-                crs[i][0] = 0;
+              crs[i] = (unsigned int*) malloc( sizeof(unsigned int)*(nonl_dom[i][0]+1));
+              crs[i][0] = nonl_dom[i][0];
+              for (l=1;l<=crs[i][0];l++) {
+                  crs[i][l] = nonl_dom[i][l+1];
               }
+              free( nonl_dom[i]);
           }
-    }
-    free(nonl_dom);
-#else
-    for(i=0;i<indcheck;i++) {
-        if (nonl_dom[i] != NULL) {
-            crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
-	    temp1 = nonl_dom[i];
-            temp = nonl_dom[i]->next;
-            crs[i][0] = nonl_dom[i]->entry;
-	    free(temp1);
-            for(l=1;l<=crs[i][0];l++) {
-                crs[i][l] = temp->entry;
-		temp1 = temp;
-                temp = temp->next;
-		free(temp1);
-            }
-        } else {
-            crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
-            crs[i][0] = 0;
+          free(nonl_dom);
+       }
+   } else {
+       for ( i=0;i<indcheck;i++) {
+             for ( i=0;i<indcheck;i++) {
+                 crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i][0]+1));
+                 crs[i][0] = nonl_dom[i][0];
+                 for (l=1;l<=crs[i][0];l++)
+                     crs[i][l] = nonl_dom[i][l+1];
+             }
         }
+     for ( i=0;i<indcheck;i++)
+       free( nonl_dom[i]);
+     free(nonl_dom);
     }
+#else
+    for ( i=0;i<indcheck;i++) {
+       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i][0]+1));
+       crs[i][0] = nonl_dom[i][0];
+       for (l=1;l<=crs[i][0];l++)
+          crs[i][l] = nonl_dom[i][l+1];
+
+    } else {
+       crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
+       crs[i][0] = 0;
+    }
+    for ( i=0;i<indcheck;i++)
+       free( nonl_dom[i]);
     free(nonl_dom);
 
 #endif
@@ -4064,11 +4023,11 @@ void copy_index_domain(int res, int arg, locint **ind_dom) {
 
    int i;
 
-   if (ind_dom[arg][0] > ind_dom[res][1]-2)
+   if (ind_dom[arg][0] > ind_dom[res][1])
     {
-	free(ind_dom[res]);
-	ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*ind_dom[arg][0]);
-	ind_dom[res][1] = 2*ind_dom[arg][0];
+     free(ind_dom[res]);
+     ind_dom[res] = (locint *)  malloc(sizeof(locint) *2*(ind_dom[arg][0] + 1) );
+     ind_dom[res][1] = 2*ind_dom[arg][0];
     }
     
     for(i=2;i<ind_dom[arg][0]+2;i++)
@@ -4086,60 +4045,60 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
 	copy_index_domain(res,arg,ind_dom);
     else
     {
-	num = ind_dom[res][0];
-	temp_array = (locint *)  malloc(sizeof(locint)* num);
-	num1 = ind_dom[arg][0];
-	temp_array1 = (locint *)  malloc(sizeof(locint) * num1);
-	
-	for(i=0;i<num;i++)
-	    temp_array[i] = ind_dom[res][i+2];
-	for(i=0;i<num1;i++)
-	    temp_array1[i] = ind_dom[arg][i+2];
+     num = ind_dom[res][0];
+     temp_array = (locint *)  malloc(sizeof(locint)* num);
+     num1 = ind_dom[arg][0];
+     temp_array1 = (locint *)  malloc(sizeof(locint) * num1);
 
-	if (num1+num > ind_dom[res][1]-2)
-	{
-	  i = 2*(num1+num);
-	  free(ind_dom[res]);
-	  ind_dom[res] = (locint *)  malloc(sizeof(locint) * i);
+     for(i=0;i<num;i++)
+         temp_array[i] = ind_dom[res][i+2];
+     for(i=0;i<num1;i++)
+         temp_array1[i] = ind_dom[arg][i+2];
+
+     if (num1+num > ind_dom[res][1])
+     {
+       i = 2*(num1+num);
+       free(ind_dom[res]);
+       ind_dom[res] = (locint *)  malloc(sizeof(locint) * (i+2));
           ind_dom[res][1] = i;
-	}
-	i = 0;
-        j = 0;
-	k = 2;
-	while ((i< num) && (j < num1))
-	    {
-	      if (temp_array[i] < temp_array1[j])
-		{
-		  ind_dom[res][k] = temp_array[i];
-		  i++; k++;
-		}
-	      else
-	      {
-		  if (temp_array[i] == temp_array1[j])
-		    {
-		      ind_dom[res][k] = temp_array1[j];
-		      i++;j++;k++;
-		    }
-		  else
-		    {
-		      ind_dom[res][k] = temp_array1[j];
-		      j++;k++;		      
-		    }
-		}
-	    }
-	  for(l = i;l<num;l++)
-	  {
-	      ind_dom[res][k] = temp_array[l];
-	      k++;
-	  }
-	  for(l = j;l<num1;l++)
-	  {
-	      ind_dom[res][k] = temp_array1[l];
-	      k++;
-	  }
-	  ind_dom[res][0] = k-2;
-	  free(temp_array);
-	  free(temp_array1);
+     }
+     i = 0;
+     j = 0;
+     k = 2;
+     while ((i< num) && (j < num1))
+         {
+           if (temp_array[i] < temp_array1[j])
+          {
+            ind_dom[res][k] = temp_array[i];
+            i++; k++;
+          }
+           else
+           {
+            if (temp_array[i] == temp_array1[j])
+              {
+                ind_dom[res][k] = temp_array1[j];
+                i++;j++;k++;
+              }
+            else
+              {
+                ind_dom[res][k] = temp_array1[j];
+                j++;k++;
+              }
+          }
+         }
+       for(l = i;l<num;l++)
+       {
+           ind_dom[res][k] = temp_array[l];
+           k++;
+       }
+       for(l = j;l<num1;l++)
+       {
+           ind_dom[res][k] = temp_array1[l];
+           k++;
+       }
+       ind_dom[res][0] = k-2;
+       free(temp_array);
+       free(temp_array1);
     }
 
 }
@@ -4165,10 +4124,10 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
     locint *temp_array;
 
     if (ind_dom[res][0] == 0){
-          if (count > ind_dom[res][1]-2)
+          if (count > ind_dom[res][1] )
           {
                free(ind_dom[res]);
-               ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*count);
+               ind_dom[res] = (locint *)  malloc(sizeof(locint) *2*(count+2) );
                ind_dom[res][1] = 2*count;
           }
 
@@ -4186,11 +4145,11 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
      for(i=0;i<num;i++)
          temp_array[i] = ind_dom[res][i+2];
 
-     if (num1+num > ind_dom[res][1]-2)
+     if (num1+num > ind_dom[res][1] )
      {
        i = 2*(num1+num);
        free(ind_dom[res]);
-       ind_dom[res] = (locint *)  malloc(sizeof(locint) * i);
+       ind_dom[res] = (locint *)  malloc(sizeof(locint) *(i+2));
           ind_dom[res][1] = i;
      }
      i = 0;
@@ -4241,176 +4200,133 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) {
 
     int index;
-    int num,num1, i,j,l,m;
-    IndexElement* temp_nonl;
-    IndexElement* nonl_num;
-    IndexElement* temp1;
+    int num,num1, i,j,l,m,k;
+    locint* temp_nonl;
 
     num = ind_dom[arg2][0];
 
     for(m=2;m<ind_dom[arg1][0]+2;m++)
     {
-	index = ind_dom[arg1][m];
-        temp_nonl = nonl_dom[index];
-	if (temp_nonl == NULL) {
-            temp_nonl = (struct IndexElement*)
-                malloc(sizeof(struct IndexElement));
-            nonl_dom[index] = temp_nonl;
-            temp_nonl->entry = 0;
-            temp_nonl->next = NULL;
-        }
-        nonl_num = temp_nonl; /* kept for updating the element count */
-	if (nonl_num->entry == 0) { /* empty list */
-	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
-	    {
-	      temp_nonl->next = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-	      temp_nonl = temp_nonl->next;
-	      temp_nonl->entry = ind_dom[arg2][i];
-	      temp_nonl->next = NULL;
-	      nonl_num->entry++;
-	    }
-	}
-       else /* merge lists */
-	 {
-	   num1 = temp_nonl->entry;
-	   temp_nonl = temp_nonl->next; /* skip counter */
-	   i = 0;
-	   j = 2;
-	   temp_nonl = nonl_num;
-	   temp_nonl = temp_nonl->next;
-	   while ((i<num1) && (j < num+2))
-	     {
-	       if (ind_dom[arg2][j] < temp_nonl->entry) /* < */
-		 {
-		   temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-		   temp1->next = temp_nonl->next;
-		   temp1->entry = temp_nonl->entry;
-		   temp_nonl->entry = ind_dom[arg2][j];
-		   temp_nonl->next = temp1;
-		   temp_nonl=temp_nonl->next;
-		   nonl_num->entry++;
-		   j++; 
-		 }
-	       else
-		 {
-		   if (ind_dom[arg2][j] == temp_nonl->entry)  /* == */
-		     {
-		       j++;
-		     }
-		   else
-		     {
-		       i++;
-		       if (i<num1)
-			 temp_nonl = temp_nonl->next;
-		     }
-		 }
-	     }
-	   for(l = j;l<num+2;l++)
-	     {
-	       temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-	       temp_nonl->next = temp1;
-	       temp_nonl = temp_nonl->next;
-	       temp_nonl->entry = ind_dom[arg2][l];
-	       temp_nonl->next = NULL;
-	       nonl_num->entry++;
-	     }
-	 }
-    }
+       index = ind_dom[arg1][m];
+       if (nonl_dom[index][0] == 0) { /* empty list */
+          if ( nonl_dom[index][1] < num){
+             free(nonl_dom[index]);
+             nonl_dom[index] = (locint*) malloc(sizeof(locint)*2*(num+1) );
+             nonl_dom[index][1] = 2*num;
+          }
+          for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+             nonl_dom[index][i] = ind_dom[arg2][i];
+          nonl_dom[index][0] = num;
+       } else /* merge lists */
+       {
+          i = 0;
+          j = 2;
+          k = 2;
+          temp_nonl = (locint*) malloc(sizeof(locint)*num1);
+          for (i=0 ; i < num1 ; i++)
+             temp_nonl[i]= nonl_dom[index][i+2];
+
+          if ( (nonl_dom[index][1]) < (num+num1) ){
+             free(nonl_dom[index]);
+             nonl_dom[index] = (locint*) malloc(sizeof(locint)*2*(num+num1+1) );
+             nonl_dom[index][1] = 2*(num+num1);
+          }
+
+          while ((i<num1) && (j < num+2)){
+             if (ind_dom[arg2][j] < temp_nonl[i]) /* < */ {
+                nonl_dom[index][k] = ind_dom[arg2][j];
+                j++; k++;
+             } else {
+                if (ind_dom[arg2][j] == temp_nonl[i])  /* == */ {
+                   nonl_dom[index][k] = ind_dom[arg2][j];
+                   j++; k++; i++;
+                } else {
+                   nonl_dom[index][k] = temp_nonl[i];
+                   i++; k++;
+                }
+             }
+          }
+          for(l = j;l<num+2;l++) {
+            nonl_dom[index][k] = ind_dom[arg2][l];
+            k++;
+          }
+          for(l = i;l<num1;l++) {
+            nonl_dom[index][k] = temp_nonl[l];
+            k++;
+          }
+          nonl_dom[index][0] = k-2;
+          free((char*) temp_nonl);
+      } // end merge lists
+    } // end for-loop with 'm'
 }
 
 void extend_nonlinearity_domain_unary
-(int arg, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg, locint **ind_dom, locint **nonl_dom) {
     extend_nonlinearity_domain_binary_step(arg, arg, ind_dom, nonl_dom);
 }
 
 void extend_nonlinearity_domain_binary
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) {
     extend_nonlinearity_domain_binary_step(arg1, arg2, ind_dom, nonl_dom);
     extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }
 
+
 #if defined(HAVE_MPI)
-void extend_nonlinearity_domain_combine_received_trade(int arg1, int counts, IndexElement **nonl_dom, locint *trade) {
-// fprintf(stderr,"GOING INTO NONL_Trade\n");
-    int index;
-    int num,num1, i,j,l,m;
-    IndexElement* temp_nonl;
-    IndexElement* nonl_num;
-    IndexElement* temp1;
-
-    temp_nonl = nonl_dom[arg1];
-
-    // if non element were created, create first
-    if (temp_nonl == NULL) {
-       temp_nonl = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-       nonl_dom[index] = temp_nonl;
-       temp_nonl->entry = 0;
-       temp_nonl->next = NULL;
-    }
-    nonl_num = temp_nonl; /* kept for updating the element count */
-
-    if (nonl_num->entry == 0) { /* empty list */
-
-       for (i=0;i<counts;i++)      /* append index domain list of "arg" */
-       {
-           temp_nonl->next = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-           temp_nonl = temp_nonl->next;
-           temp_nonl->entry = trade[i];
-           temp_nonl->next = NULL;
-           nonl_num->entry++;
+void extend_nonlinearity_domain_combine_received_trade(int index, int counts, locint **nonl_dom, locint *trade) {
+    int num, i,j,k,l,m;
+    locint* temp_nonl;
+    num = nonl_dom[index][0];
+    if ( num == 0) {
+          if ( counts > nonl_dom[index][1]){
+             free( nonl_dom[index]);
+             nonl_dom[index] = (locint*) malloc(sizeof(locint)*(2*counts+2));
+             nonl_dom[index][1] = 2*counts;
+          }
+          for( i=0; i<counts; i++ )
+             nonl_dom[index][i+2] = trade[i];
+          nonl_dom[index][0] = counts;
+       } else { /* merge lists */
+          temp_nonl = (locint*) malloc(sizeof(locint)*num);
+          for(i=0; i<num; i++ )
+             temp_nonl[i] = nonl_dom[index][i+2];
+          if ( counts+num > nonl_dom[index][1]){
+             free( nonl_dom[index]);
+             nonl_dom[index] = (locint*) malloc(sizeof(locint)*2*(counts+num+1));
+             nonl_dom[index][1] = 2*(counts+num);
+          }
+          i = 0; // counts in temp_nonl
+          j = 0; // counts in trade
+          k = 2; // actually adress in nonl_dom[arg1][...]
+          while ((i<num) && (j < counts)) {
+             if (trade[j] < temp_nonl[i]) /* < */  {
+                nonl_dom[index][k] = trade[j];
+                j++; k++;
+             } else {
+                if (trade[j] == temp_nonl[i])  /* == */ {
+                nonl_dom[index][k] = trade[j];
+                j++; k++; i++;
+                } else /* > */ {
+                   nonl_dom[index][k] = temp_nonl[i];
+                   i++; k++;
+                }
+             }
+          }
+          for(l = j ; l<counts;l++) {
+             nonl_dom[index][k] = trade[l];
+             k++;
+          }
+          for (l = i ; l<num;l++) {
+             nonl_dom[index][k] = temp_nonl[l];
+             k++;
+          }
+         nonl_dom[index][0] = k-2;
+         free((char*) temp_nonl);
        }
-    }
-    else /* merge lists */
-    {
-       num1 = temp_nonl->entry;
-       temp_nonl = temp_nonl->next; /* skip counter */
-       i = 0; // counts in nonl_dom
-       j = 0; // counts in trade
-       temp_nonl = nonl_num;
-       temp_nonl = temp_nonl->next;
-       while ((i<num1) && (j < counts))
-       {
-           if (trade[j] < temp_nonl->entry) /* < */
-           {
-               temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-               temp1->next = temp_nonl->next;
-               temp1->entry = temp_nonl->entry;
-               temp_nonl->entry = trade[j];
-               temp_nonl->next = temp1;
-               temp_nonl=temp_nonl->next;
-               nonl_num->entry++;
-               j++;
-           }
-           else
-           {
-               if (trade[j] == temp_nonl->entry)  /* == */
-               {
-                   j++;
-               }
-               else /* > */
-               {
-                   i++;
-                   if (i<num1)
-                      temp_nonl = temp_nonl->next;
-               }
-           }
-       }
-       for (l = j ; l<counts;l++)
-       {
-           temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-           temp_nonl->next = temp1;
-           temp_nonl = temp_nonl->next;
-           temp_nonl->entry = trade[l];
-           temp_nonl->next = NULL;
-           nonl_num->entry++;
-       }
-    }
-// fprintf(stderr,"GOING OUT NONL_Trade\n");
 }
-
 #endif
 #endif
 #endif

@@ -84,7 +84,7 @@ enum OPCODES {
   floor_op,
   ext_diff,
   ignore_me,
-  send_data,
+  send_data=61,
   receive_data,
   barrier_op
 };
