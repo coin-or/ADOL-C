@@ -29,7 +29,7 @@
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADOLC_MPI_Comm MPI_Comm
 
-#ifdef __cplusplus__
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -39,10 +39,12 @@ int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
 int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
 int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 int ADOLC_MPI_Finalize() ;
-#ifdef __cplusplus__
+#ifdef __cplusplus
 }
 #endif
+extern int mpi_initialized;
 
+#ifdef __cplusplus
 int ADOLC_MPI_Send(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
@@ -99,6 +101,7 @@ int jacobian(
 /* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
 void tape_doc(
     int,int,short, int,int, double*, double*);
+#endif /*__cplusplus*/
 
 #endif /*HAVE_MPI*/
 
