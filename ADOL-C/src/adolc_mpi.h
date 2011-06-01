@@ -28,6 +28,19 @@
 #define MPI_ADOUBLE MPI_DOUBLE
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADOLC_MPI_Comm MPI_Comm
+#define ADOLC_MPI_Op MPI_Op
+#define ADOLC_MPI_LAND MPI_LAND
+#define ADOLC_MPI_BAND MPI_BAND
+#define ADOLC_MPI_LOR MPI_LOR
+#define ADOLC_MPI_BOR MPI_BOR
+#define ADOLC_MPI_LXOR MPI_LXOR
+#define ADOLC_MPI_BXOR MPI_BXOR
+#define ADOLC_MPI_MAX MPI_MAX
+#define ADOLC_MPI_MIN MPI_MIN
+#define ADOLC_MPI_SUM MPI_SUM
+#define ADOLC_MPI_PROD MPI_PROD
+#define ADOLC_MPI_MINLOC MPI_MINLOC
+#define ADOLC_MPI_MAXLOC MPI_MAXLOC
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +56,7 @@ int ADOLC_MPI_Finalize() ;
 }
 #endif
 extern int mpi_initialized;
+extern int process_count;
 
 #ifdef __cplusplus
 int ADOLC_MPI_Send(
@@ -52,6 +66,14 @@ int ADOLC_MPI_Send(
 int ADOLC_MPI_Recv(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
+
+int ADOLC_MPI_Bcast(
+    adouble *buf, int count, ADOLC_MPI_Datatype datatype, int root,
+    ADOLC_MPI_Comm comm);
+
+int ADOLC_MPI_Reduce(
+    adouble *sendbuf, adouble* rec_buf, int count, ADOLC_MPI_Datatype type,
+    ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm);
 
 int trace_on(int, int, short);
 

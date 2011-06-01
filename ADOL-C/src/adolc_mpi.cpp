@@ -29,6 +29,7 @@
 #define ADOLC_MPI_Comm MPI_Comm
 
 int mpi_initialized = 0;
+int process_count = 1;
 
 int trace_on( int id,
               int size,
@@ -46,7 +47,9 @@ int ADOLC_MPI_Init( int* a,
 int ADOLC_MPI_Comm_size( ADOLC_MPI_Comm comm,
                          int* size
 ){
-    return MPI_Comm_size(comm,size);
+    int ierr = MPI_Comm_size(comm,size);
+    process_count = size[0];
+    return ierr;
 }
 int ADOLC_MPI_Comm_rank( ADOLC_MPI_Comm comm,
                          int* rank
@@ -123,6 +126,86 @@ int ADOLC_MPI_Recv( adouble *buf,
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(source);
     ADOLC_PUT_LOCINT(tag);
+
+    return ierr;
+}
+int ADOLC_MPI_Bcast( adouble *buf,
+                     int count,
+                     ADOLC_MPI_Datatype datatype,
+                     int root,
+                     ADOLC_MPI_Comm comm )
+
+{
+    int i,id,size, ierr=0;
+    double *trade;
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+
+    trade = (double*) myalloc1(count);
+
+    if ( id == root)
+       for(i= 0; i < count; i++)
+          trade[i] = buf[i].getValue();
+
+    ierr = MPI_Bcast(trade,count,datatype,root, comm);
+
+    if ( id != root){
+       if (buf==NULL)
+          buf = new adouble[count];
+       for(i=0; i< count;i++)
+          buf[i].setValue(trade[i]);
+    }
+
+    free(trade);
+
+    put_op(broadcast);
+    ADOLC_PUT_LOCINT(buf[0].loc()); // send
+    ADOLC_PUT_LOCINT(buf[0].loc()); // recv
+    ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
+
+    return ierr;
+}
+
+int ADOLC_MPI_Reduce(
+    adouble *send_buf, adouble *rec_buf, int count, ADOLC_MPI_Datatype datatype,
+    ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm)
+{
+    int i,id,size, ierr=0;
+    double *trade_s, *trade_r;
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+
+    trade_s = (double*) myalloc1(count);
+    if (id == root)
+      trade_r = (double*) myalloc1(count);
+    else trade_r = NULL;
+
+    for(i= 0; i < count; i++) {
+       trade_s[i] = send_buf[i].getValue();
+     }
+    ierr = MPI_Reduce(trade_s,trade_r ,count,datatype,op,root, comm);
+
+    if ( id == root){
+       if( rec_buf == NULL)
+           rec_buf = new adouble[count];
+       for(i=0; i< count;i++){
+          rec_buf[i].setValue(trade_r[i]);
+          }
+    }
+    free(trade_s);
+    free(trade_r);
+
+    put_op(reduce);
+    ADOLC_PUT_LOCINT(send_buf[0].loc());
+    ADOLC_PUT_LOCINT(rec_buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
+    ADOLC_PUT_LOCINT(op);
 
     return ierr;
 }

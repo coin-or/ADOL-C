@@ -86,7 +86,9 @@ enum OPCODES {
   ignore_me,
   send_data=61,
   receive_data,
-  barrier_op
+  barrier_op,
+  broadcast,
+  reduce
 };
 
 /****************************************************************************/
