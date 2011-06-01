@@ -23,18 +23,16 @@ EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
                        ADOL-C/doc/tap_point.pdf ADOL-C/doc/tap_point.eps \
                        autoconf/shave.in autoconf/shave-libtool.in \
                        autoconf/dolt.m4 autoconf/shave.m4 \
-                       windows/adolc.sln windows/adolc.vcxproj \
-                       windows/sparse/config.h.in windows/nosparse/config.h.in \
-                       windows/x64/sparse/config.h.in windows/x64/nosparse/config.h.in \
-                       windows/sparse/config.h windows/nosparse/config.h \
-                       windows/x64/sparse/config.h windows/x64/nosparse/config.h \
-                       windows/Readme_VC++.txt \
-                       windows/vcredist_x86.exe windows/x64/vcredist_x64.exe \
-                       windows/installer.sh \
+                       MSVisualStudio/v10/adolc.sln MSVisualStudio/v10/adolc.vcxproj \
+                       MSVisualStudio/v10/sparse/config.h.in MSVisualStudio/v10/nosparse/config.h.in \
+                       MSVisualStudio/v10/x64/sparse/config.h.in MSVisualStudio/v10/x64/nosparse/config.h.in \
+                       MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h \
+                       MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h \
+                       MSVisualStudio/v10/Readme_VC++.txt \
+                       MSVisualStudio/v10/installer.sh \
                        adolc.spec.in adolc.spec \
                        update_versions.sh \
                        ThirdParty/ColPack/ColPack.vcxproj \
-                       ThirdParty/ColPack/colpack_vcxcompile.patch \
                        ThirdParty/ColPack/Readme_VC++.txt
 
 SUBDIRS              = ADOL-C
