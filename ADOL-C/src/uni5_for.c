@@ -3753,8 +3753,8 @@ int  hov_forward(
               trade_loc = (int*) malloc( anz*sizeof(int) );
               l =0;
               for (mpi_i=0; mpi_i< arg1; mpi_i++){
-                  for(i=0;i < ind_dom[arg+mpi_i][0] ;i++ ){
-                       trade_loc[l] = (int) ind_dom[arg+mpi_i][i+2];
+                  for(i=2;i < ind_dom[arg+mpi_i][0]+2 ;i++ ){
+                       trade_loc[l] = (int) ind_dom[arg+mpi_i][i];
                        l++;
                   }
               }
@@ -3779,7 +3779,7 @@ int  hov_forward(
               trade_loc = (int*) malloc(anz*sizeof(int));
               l =0;
               for (mpi_i=0; mpi_i < s_r_indep ; mpi_i++ )
-                  for (i=0; i < counts[mpi_i] ; i++ ){
+                  for (i=2; i < counts[mpi_i]+2 ; i++ ){
                       trade_loc[l] = nonl_dom[mpi_i][i];
                       l++;
                   }
