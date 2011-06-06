@@ -1532,9 +1532,8 @@ int sparse_hess(
         X = myalloc2(indep,2);
 
         tmp = sHinfos.p;
-        for (i=1; i < size; i++)
-            MPI_Send(&tmp,1, MPI_INT,i,0,MPI_COMM_WORLD );
-        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Bcast(&tmp,1, MPI_INT,0,MPI_COMM_WORLD);
+
         for (i = 0; i < sHinfos.p; ++i) {
             for (l = 0; l < indep; ++l)
                 v[l] = sHinfos.Xppp[l][i][0];
@@ -1592,8 +1591,7 @@ int sparse_hess(
         if (repeat == -1)
            return ret_val;
 
-        MPI_Status status;
-        MPI_Recv(&tmp,1, MPI_INT,0,0,MPI_COMM_WORLD, &status );
+        MPI_Bcast(&tmp,1, MPI_INT,0,MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
 
         for (i = 0; i < tmp; ++i) {
