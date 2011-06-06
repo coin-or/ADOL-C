@@ -119,6 +119,44 @@ void tape_doc(
     int,int,short, int,int, double*, double*);
 #endif /*__cplusplus*/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* C - functions                                   */
+int trace_on_p(
+    int, int, short);
+
+int gradient_p(
+    int,int,short,int,double*,double*);
+int hessian_p(
+    int,int,short,int,double*,double**);
+
+int jacobian_p(
+    int,int,short,int,int,const double*,double**);
+
+int vec_jac_p(
+    int,int,short,int,int,int,double*,double*,double*);
+
+int jac_vec_p(
+    int,int,short,int,int,double*,double*,double*);
+
+int hess_vec_p(
+    int,int,short,int,double*,double*,double*);
+
+int hess_mat_p(
+    int,int,short,int,int,double*,double**,double**);
+
+int lagra_hess_vec_p(
+    int,int,short,int,int,double*,double*,double*,double*);
+
+void tape_doc_p(
+    int,int,short, int,int, double*, double*);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /*HAVE_MPI*/
 
 #endif

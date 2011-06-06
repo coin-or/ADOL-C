@@ -233,3 +233,133 @@ int nonl_ind_forward_safe(
        rc = indopro_forward_safe(this_tag,0,0,NULL,NULL);
     return rc;
 }
+
+
+/*  for extern "C"           */
+int zos_forward_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 int keep,
+                 const double* x,
+                 double* y
+){
+   return zos_forward(id,size,tag,m,n,keep,x,y);
+}
+
+int fos_forward_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 int keep,
+                 const double* x,
+                 double* a,
+                 double* y,
+                 double* b
+){
+   return fos_forward(id,size,tag,m,n,keep,x,a,y,b);
+}
+
+int fos_reverse_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 double* u,
+                 double* z
+){
+    return fos_reverse(id,size,tag,m,n,u,z);
+}
+
+int hos_forward_p( int id,
+                 int size,
+                 short tag,
+                 int depen,
+                 int indep,
+                 int d,
+                 int keep,
+                 double* basepoints,
+                 double** argument,
+                 double* valuepoints,
+                 double** taylors)
+{
+    return hos_forward(id,size,tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
+}
+
+int hos_reverse_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 int d,
+                 double* u,
+                 double** z
+){
+    return hos_reverse(id,size,tag,m,n,d,u,z);
+}
+
+int fov_forward_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 int p,
+                 const double* x,
+                 double** a,
+                 double* y,
+                 double** b
+){
+    return fov_forward(id,size,tag,m,n,p,x,a,y,b);
+}
+
+int fov_reverse_p( int id,
+                 int size,
+                 short tag,
+                 int m,
+                 int n,
+                 int p,
+                 double** u,
+                 double** z
+){
+    return fov_reverse(id,size,tag,m,n,p,u,z);
+}
+
+int int_forward_tight_p(
+    int id,int size,short tag,
+    int m,int n,int p,double* x,
+    unsigned long int** x_pp,double* y,unsigned long int** y_pp
+){
+    return int_forward_tight(id,size,tag,m,n,p,x,x_pp,y,y_pp);
+}
+
+int int_forward_safe_p(
+    int id,int size,short tag,int m,int n,int p,unsigned long int **x_pp,unsigned long int **y_pp
+){
+    return int_forward_safe(id,size,tag,m,n,p,x_pp,y_pp);
+}
+
+int indopro_forward_tight_p(
+    int id, int size, short tag, int m, int n, double *x, unsigned int **crs
+){
+    return indopro_forward_tight(id,size,tag,m,n,x,crs);
+}
+
+int indopro_forward_safe_p(
+   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
+){
+    return indopro_forward_safe(id,size,tag,m,n,x,crs);
+}
+
+int nonl_ind_forward_tight_p(
+   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
+){
+    return nonl_ind_forward_tight(id,size,tag,m,n,x,crs);
+}
+
+int nonl_ind_forward_safe_p(
+   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
+){
+    return indopro_forward_safe(id,size,tag,m,n,x,crs);
+}

@@ -356,8 +356,63 @@ int lagra_hess_vec(int id, int size, short tag,
 
 void tape_doc( int id,int size,short tag, int m,int n, double* x, double* y){
 	int this_tag = tag*size +id;
-	if(id==0) tape_doc(this_tag,m,n,x,y);
-	else tape_doc(this_tag,0,0,x,y);
+	if(id==0)
+        tape_doc(this_tag,m,n,x,y);
+	else
+        tape_doc(this_tag,0,0,x,y);
 }
+
+
+/* C - functions                                   */
+int trace_on_p(int id, int size , short tag)
+{
+     return trace_on(id,size,tag);
+}
+
+int gradient_p(int id,int size,short tag,int n,double *x,double *y)
+{
+     return gradient(id,size,tag,n,x,y);
+}
+
+int hessian_p(int id,int size,short tag,int n,double *x,double **x_pp)
+{
+     return hessian(id,size,tag,n,x,x_pp);
+}
+
+int jacobian_p(int id,int size,short tag,int m,int n,const double *x,double **x_pp)
+{
+return jacobian(id,size,tag,m,n,x,x_pp);
+}
+
+int vec_jac_p(int id,int size,short tag,int m,int n,int p,double *x,double *y, double *z)
+{
+return vec_jac(id,size,tag,m,n,p,x,y,z);
+}
+
+int jac_vec_p(int id,int size,short tag,int m,int n,double *x,double *y,double *z)
+{
+return jac_vec(id,size,tag,m,n,x,y,z);
+}
+
+int hess_vec_p(int id,int size,short tag,int n,double *x,double *y,double *z)
+{
+return hess_vec(id,size,tag,n,x,y,z);
+}
+
+int hess_mat_p(int id,int size,short tag,int n,int p,double *x,double **y,double **z)
+{
+return hess_mat(id,size,tag,n,p,x,y,z);
+}
+
+int lagra_hess_vec_p(int id,int size,short tag,int n,int p,double *x,double *y,double *t,double *z)
+{
+return lagra_hess_vec(id,size,tag,n,p,x,y,t,z);
+}
+
+void tape_doc_p(int id,int size,short tag, int m,int n, double *x, double *y)
+{
+return tape_doc(id,size,tag,m,n,x,y);
+}
+
 
 /* That's all*/

@@ -82,6 +82,63 @@ int nonl_ind_forward_safe(
 
 #endif /* __cplusplus */
 
+#ifdef __cpluplus
+extern "C" {
+#endif
+
+int zos_forward_p(
+    int,int,short,int,int,int,const double*,double*);
+
+/* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
+int fos_forward_p(
+    int,int,short,int,int,int,const double*,double*,double*,double*);
+/* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
+int fos_reverse_p(
+    int, int, short,int,int,double*,double*);
+
+/* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
+int hos_forward_p(
+    int, int, short, int, int, int, int, double*, double**, double*, double**);
+/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])  */
+int hos_reverse_p(
+    int, int, short, int, int, int, double*, double** );
+
+/* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
+int fov_forward_p(
+    int,int,short,int,int,int,const double*,double**,double*,double**);
+/* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
+int fov_reverse_p(
+    int, int, short,int,int,int,double**,double**);
+
+/* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
+int int_forward_tight_p(
+    int,int,short,int,int,int,double*,unsigned long int**,double*,unsigned long int**);
+
+/* int_forward_safe(rank,size, tag, m, n, p, X[n][p], Y[m][p])                        */
+int int_forward_safe_p(
+    int,int,short,int,int,int,unsigned long int**,unsigned long int**);
+
+/* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
+int indopro_forward_tight_p(
+    int, int, short, int, int, double*, unsigned int** );
+
+/* indopro_forward_safe( tag, m, n, x[n], *crs[m])                                   */
+int indopro_forward_safe_p(
+    int, int, short, int, int, double*,unsigned int**);
+
+/* indopro_forward_tight( tag, m, n, x[n], *crs[m])   */
+int nonl_ind_forward_tight_p(
+    int,int, short, int, int, double*, unsigned int**);
+
+/* indopro_forward_safe( tag, m, n, x[n], *crs[m])   */
+int nonl_ind_forward_safe_p(
+    int, int, short, int, int, double*, unsigned int**);
+
+#ifdef __cpluplus
+}
+#endif
+
+
 #endif /*HAVE_MPI*/
 
 #endif
