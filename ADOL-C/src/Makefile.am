@@ -83,7 +83,7 @@ endif
 
 if HAVE_MPI
 AM_CPPFLAGS += @MPICPPFLAGS@
-libadolc_la_SOURCES +=  adolc_mpi.cpp
+libadolc_la_SOURCES +=  adolc_mpi.cpp interfaces_mpi.cpp
 libadolc_la_LDFLAGS  += @MPILIBS@ @LIBMPI@
-pkginclude_HEADERS += adolc_mpi.h
+pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
 endif

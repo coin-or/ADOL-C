@@ -23,6 +23,7 @@
 #if defined(HAVE_MPI)
 #include <adolc/common.h>
 #include <adolc/adouble.h>
+#include <adolc/interfaces_mpi.h>
 
 #define ADOLC_MPI_Datatype MPI_Datatype
 #define MPI_ADOUBLE MPI_DOUBLE
@@ -77,34 +78,6 @@ int ADOLC_MPI_Reduce(
 
 int trace_on(int, int, short);
 
-/* High level driver functions */
-/* at first parameter this process-ID */
-
-/* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])*/
-int zos_forward(
-    int,int,short,int,int,int,const double*,double*);
-
-/* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
-int fos_forward(
-    int,int,short,int,int,int,const double*,double*,double*,double*);
-/* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
-int fos_reverse(
-    int, int, short,int,int,double*,double*);
-
-/* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
-int hos_forward(
-    int, int, short, int, int, int, int, double*, double**, double*, double**);
-/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])  */
-int hos_reverse(
-    int, int, short, int, int, int, double*, double** );
-
-/* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
-int fov_forward(
-    int,int,short,int,int,int,const double*,double**,double*,double**);
-/* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
-int fov_reverse(
-    int, int, short,int,int,int,double**,double**);
-
 /*********************************************************************/
 /* Algorithmic Differentation Programs                               */
 
@@ -119,6 +92,27 @@ int hessian(
 /* jacobian(rank,size,tag, m, n, x[n], J[m][n])                 */
 int jacobian(
     int,int,short,int,int,const double*,double**);
+
+/* vec_jac(rank,size,tag, m, n, repeat, x[n], u[m], v[n])                             */
+int vec_jac(
+    int,int,short,int,int,int,double*,double*,double*);
+
+/* jac_vec(rank,size,tag, m, n, x[n], v[n], u[m]);                                    */
+int jac_vec(
+    int,int,short,int,int,double*,double*,double*);
+
+/* hess_vec(rank,size,tag, n, x[n], v[n], w[n])                                       */
+int hess_vec(
+    int,int,short,int,double*,double*,double*);
+
+/* hess_mat(rank,size,tag, n, q, x[n], V[n][q], W[n][q])                              */
+int hess_mat(
+    int,int,short,int,int,double*,double**,double**);
+
+
+/* lagra_hess_vec(rank,size, tag, m, n, x[n], v[n], u[m], w[n])                        */
+int lagra_hess_vec(
+    int,int,short,int,int,double*,double*,double*,double*);
 
 /* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
 void tape_doc(

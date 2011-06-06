@@ -210,144 +210,9 @@ int ADOLC_MPI_Reduce(
     return ierr;
 }
 
-/****** Differentation functions simple use ****************/
 
-/* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])            */
-int zos_forward( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int keep,
-                 const double* x,
-                 double* y
-){
-    int this_tag = size*tag + id, rc=-3;
-    if (id==0)
-       rc = zos_forward(this_tag,m,n,keep,x,y);
-    else
-       rc = zos_forward(this_tag,0,0,keep,NULL,NULL);
-    return rc;
-}
-
-/* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
-int fos_forward( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int keep,
-                 const double* x,
-                 double* a,
-                 double* y,
-                 double* b
-){
-    int this_tag = size*tag + id;
-    int rc=-3;
-    if (id==0)
-       rc = fos_forward(this_tag,m,n,keep,x,a,y,b);
-    else
-       rc = fos_forward(this_tag,0,0,keep,NULL,NULL,NULL,NULL);
-    return rc;
-}
-
-/* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
-int fos_reverse( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 double* u,
-                 double* z
-){
-    int this_tag = size*tag + id, rc=-3;
-    if (id==0)
-       rc = fos_reverse(this_tag,m,n,u,z);
-    else
-       rc = fos_reverse(this_tag,0,0,NULL,NULL);
-    return rc;
-}
-
-/* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d])            */
-int hos_forward( int id,
-                 int size,
-                 short tag,
-                 int depen,
-                 int indep,
-                 int d,
-                 int keep,
-                 double* basepoints,
-                 double** argument,
-                 double* valuepoints,
-                 double** taylors)
-{
-    int this_tag = size*tag + id, rc=-3;
-    if (id==0)
-       rc = hos_forward(this_tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
-    else
-       rc = hos_forward(this_tag,0,0,d,keep,NULL,NULL,NULL,NULL);
-    return rc;
-}
-
-
-/*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])            */
-int hos_reverse( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int d,
-                 double* u,
-                 double** z
-){
-    int this_tag = size*tag + id, rc=-3;
-    if (id==0)
-       rc = hos_reverse(this_tag,m,n,d,u,z);
-    else
-       rc = hos_reverse(this_tag,0,0,d,NULL,NULL);
-    return rc;
-}
-
-/* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
-int fov_forward( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int p,
-                 const double* x,
-                 double** a,
-                 double* y,
-                 double** b
-){
-    int this_tag = size*tag + id;
-    int rc=-3;
-    if (id==0)
-       rc = fov_forward(this_tag,m,n,p,x,a,y,b);
-    else
-       rc = fov_forward(this_tag,0,0,p,NULL,a,NULL,b);
-    return rc;
-}
-/* fov_reverse(process id, procsize, tag, m, n, p, U[p][m], Z[p][n])  */
-int fov_reverse( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int p,
-                 double** u,
-                 double** z
-){
-    int this_tag = size*tag + id;
-    int rc=-3;
-    if (id==0)
-       rc = fov_reverse(this_tag,m,n,p,u,z);
-    else
-       rc = fov_reverse(this_tag,0,0,p,NULL,NULL);
-    return rc;
-}
-
-/****************** Now algorithmic functions ****************/
+/*********************************************************************/
+/* Algorithmic Differentation Programs                               */
 
 int function(int id, int size,short tag,int m,int n,double* argument ,double* result){
 	int rc =-1;
@@ -414,6 +279,79 @@ int hessian(int id,int size,short tag ,int n,double* x ,double** result){
         }
      }
      return rc;
+}
+
+/* vec_jac(rank,size,tag, m, n, repeat, x[n], u[m], v[n])                             */
+int vec_jac( int id,int size,short tag,int m,int n,int repeat ,double *x,double *u,double *v){
+     int this_tag = size*tag + id;
+     int rc = -3;
+     if (id == 0)
+        rc = vec_jac(this_tag, m,n,repeat,x,u,v);
+     else{
+        if(!repeat) {
+           rc = zos_forward(this_tag,0,0,1,NULL,NULL);
+        if(rc < 0) return rc;
+        }
+        rc = fos_reverse(this_tag,0,0,NULL,NULL);
+     }
+     return rc;
+}
+
+/* jac_vec(rank,size,tag, m, n, x[n], v[n], u[m]);                                    */
+int jac_vec(int id,int size,short tag,int m,int n,double *x,double *v, double *u){
+     int this_tag = size*tag + id;
+     int rc = -3;
+     if (id == 0)
+        rc = jac_vec(this_tag, m,n,x,u,v);
+     else
+        rc = fos_forward(this_tag, 0, 0, 0, NULL, NULL, NULL,NULL);
+     return rc;
+}
+
+/* hess_vec(rank,size,tag, n, x[n], v[n], w[n])                                       */
+int hess_vec(int id,int size,short tag,int n,double *x,double *v,double *w){
+     double one = 1.0;
+     return lagra_hess_vec(id,size,tag,1,n,x,v,&one,w);
+}
+
+/* hess_mat(rank,size,tag, n, q, x[n], V[n][q], W[n][q])                              */
+int hess_mat(int id,int size,short tag,int n,int q,double *x,double **V, double **W){
+     double one = 1.0;
+     int this_tag = size*tag + id;
+     int rc = -3,i,degree=1, keep=2;
+     if (id == 0)
+        rc = hess_mat(this_tag,n,q,x,V,W);
+     else{
+        rc = hov_wk_forward(this_tag, 0, 0, 1, 2, q, NULL, NULL, &one,NULL);
+        if(rc < 0) return rc;
+        rc = hos_ov_reverse(this_tag, 0, 0, 1, q, NULL, NULL);
+     }
+     return rc;
+}
+
+/* lagra_hess_vec(tag, m, n, x[n], v[n], u[m], w[n])                        */
+int lagra_hess_vec(int id, int size, short tag,
+                   int m,
+                   int n,
+                   double *argument,
+                   double *tangent,
+                   double *lagrange,
+                   double *result) {
+    int rc=-1;
+    int i;
+    int degree = 1;
+    int keep = degree+1;
+    int this_tag = size*tag + id;
+
+     if (id == 0 )
+        rc = lagra_hess_vec(this_tag,m,n,argument,tangent,lagrange,result);
+     else {
+        rc = fos_forward(this_tag, 0, 0, keep, NULL, lagrange , NULL, NULL);
+
+        if(rc < 0) return rc;
+        rc = hos_reverse(this_tag, 0, 0, degree, lagrange, NULL );
+     }
+    return rc;
 }
 
 void tape_doc( int id,int size,short tag, int m,int n, double* x, double* y){
