@@ -41,7 +41,7 @@ END_C_DECLS
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = 0;
   storeSize = 0;
-  numLives = 0;
+  numLives = 1;
   storeManagerPtr = new StoreManagerLocint(store, storeSize, numLives);
 }
 
@@ -100,7 +100,6 @@ void StoreManagerLocint::free_loc(locint loc) {
     indexFeld[loc] = head;
     head = loc;
     --anzahl;
-    storePtr[loc] = 0.0;
 #ifdef ADOLC_DEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
