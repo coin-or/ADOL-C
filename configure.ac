@@ -270,10 +270,10 @@ LIBS="$LIBS $MPILIBS"
 AC_CHECK_HEADERS([mpi/mpi.h mpi.h],[
 AC_DEFINE(HAVE_MPI,1,[MPI is enabled])
 if test x = x"$LIBMPI"; then
-AC_CHECK_LIB(mpich, MPI_Init, [LIBMPI="-lmpich"])
+AC_CHECK_LIB(mpi, MPI_Init, [LIBMPI="-lmpi"])
 fi
 if test x = x"$LIBMPI"; then
-AC_CHECK_LIB(mpi, MPI_Init, [LIBMPI="-lmpi"])
+AC_CHECK_LIB(mpich, MPI_Init, [LIBMPI="-lmpich"])
 fi
 break
 ])
