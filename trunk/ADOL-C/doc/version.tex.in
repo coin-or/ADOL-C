@@ -1,3 +1,0 @@
-\newcommand{\packagename}{@PACKAGE_NAME@}
-\newcommand{\packageversion}{@PACKAGE_VERSION@}
-\newcommand{\packagetar}{\packagename-\packageversion}
