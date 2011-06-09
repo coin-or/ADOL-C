@@ -1592,7 +1592,6 @@ int sparse_hess(
            return ret_val;
 
         MPI_Bcast(&tmp,1, MPI_INT,0,MPI_COMM_WORLD);
-        MPI_Barrier(MPI_COMM_WORLD);
 
         for (i = 0; i < tmp; ++i) {
             ret_val = fos_forward(this_tag, 0, 0, 2, NULL, NULL, NULL, NULL);
