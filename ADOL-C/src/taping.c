@@ -305,7 +305,7 @@ void printError() {
             break;
         default:
             fprintf(DIAG_OUT, ">>> ");
-            fprintf(DIAG_OUT, strerror(errno));
+            fprintf(DIAG_OUT, "%s", strerror(errno));
             fprintf(DIAG_OUT, " <<<\n");
             break;
     }
@@ -405,7 +405,8 @@ char *createFileName(short tapeID, int tapeType) {
 void readConfigFile() {
     FILE *configFile = NULL;
     char inputLine[ADOLC_LINE_LENGTH + 1];
-    char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *end = NULL;
+    char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *start = NULL, *end = NULL;
+    int base;
     long int number = 0;
     char *path = NULL;
     int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
@@ -453,8 +454,18 @@ void readConfigFile() {
                     fprintf(DIAG_OUT, "ADOL-C warning: Malformed input line "
                             "in .adolcrc ignored!\n");
             } else {
-                number = strtol(pos3 + 1, &end, 10);
-                if (end == (pos3 + 1)) {
+		if (*(pos3 + 1) == '0' && (*(pos3 + 2) == 'x' || *(pos3 + 2) == 'X')) {
+		    start = pos3 + 3;
+		    base = 16;
+		} else if (*(pos3 + 1) == '0') {
+		    start = pos3 + 2;
+		    base = 8;
+		} else {
+		    start = pos3 + 1;
+		    base = 10;
+		}
+		number = strtol(start, &end, base);
+                if (end == start) {
 		    *pos2 = 0;
 		    *pos4 = 0;
 		    if (strcmp(pos1 + 1, "TAPE_DIR") == 0) {

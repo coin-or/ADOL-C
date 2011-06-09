@@ -8,8 +8,8 @@
 #
 ##############################################################################
 define([ADOLC_VER], [2])
-define([ADOLC_SUB], [1])
-define([ADOLC_LVL], [12])
+define([ADOLC_SUB], [2])
+define([ADOLC_LVL], [1])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,

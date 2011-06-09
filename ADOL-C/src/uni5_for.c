@@ -7,7 +7,7 @@
  Revision: $Id$
 
  Contents: Contains the routines :
-           zos_forward (zero-order-scalar forward mode):      define _ZOS_   
+           zos_forward (zero-order-scalar forward mode):      define _ZOS_
            fos_forward (first-order-scalar forward mode):     define _FOS_
            hos_forward (higher-order-scalar forward mode):    define _HOS_
            fov_forward (first-order-vector forward mode):     define _FOV_
@@ -17,15 +17,16 @@
 
            Uses the preprocessor to compile the 7 different object files
            with/without "keep" parameter:                     define _KEEP_
- 
- Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Kshitij Kulshreshtha
+               Benjamin Letschert, Kshitij Kulshreshtha
+               
 
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
- 
+
 ----------------------------------------------------------------------------*/
 
 #include <adolc/interfaces.h>
@@ -41,6 +42,7 @@
 #if defined(ADOLC_DEBUG)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
+
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -122,7 +124,6 @@
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_INDO_)
-
 void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
@@ -146,18 +147,13 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
  * (first element of the NID list) or the index of an independent variable.
  */
 
-typedef struct IndexElement {
-    locint  entry;
-    struct IndexElement* next;
-}
-IndexElement;
-
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom);
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
 void extend_nonlinearity_domain_unary
-(int arg, locint **ind_dom, IndexElement **nonl_dom);
+(int arg, locint **ind_dom, locint **nonl_dom);
 void extend_nonlinearity_domain_binary
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom);
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
+
 
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_t"
@@ -509,15 +505,15 @@ int int_forward_tight(
     unsigned long int **taylors)   /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
-   
+
      nBV = number of Boolean Vectors to be packed
                       (see Chapter Dependence Analysis, ADOL-C Documentation)
      bits_per_long = 8*sizeof(unsigned long int)
      p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )
- 
+
      The order of the indices in argument and taylors is [var][taylor]
- 
-     For the full Jacobian matrix set 
+
+     For the full Jacobian matrix set
      p = indep / bits_per_long + ((indep % bits_per_long) != 0)
      and pass a bit pattern version of the identity matrix as an argument   */
 
@@ -562,7 +558,7 @@ int indopro_forward_tight(
     unsigned int    **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
-   
+
   */
 
 
@@ -579,7 +575,7 @@ int indopro_forward_safe(
     unsigned int    **crs)         /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
-   
+
   */
 #endif
 #else
@@ -596,7 +592,7 @@ int nonl_ind_forward_tight(
     unsigned int     **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
-   
+
   */
 
 #endif
@@ -612,7 +608,7 @@ int nonl_ind_forward_safe(
     unsigned int    **crs)        /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
-   
+
   */
 #endif
 #else
@@ -744,9 +740,9 @@ int  hov_forward(
     int max_ind_dom;
 #if defined(_NONLIND_)
     /* nonlinear interaction domains */
-    IndexElement** nonl_dom;
-    IndexElement*  temp;
-    IndexElement*  temp1;
+    locint** nonl_dom;
+    locint*  temp;
+    locint*  temp1;
 #endif
 #endif
 
@@ -981,9 +977,13 @@ int  hov_forward(
 
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #if defined(_NONLIND_)
-    nonl_dom = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
-    for(i=0;i<indcheck;i++)
-        nonl_dom[i] = NULL;
+
+    nonl_dom = (locint**) malloc(sizeof(locint*) * indcheck);
+    for(i=0;i<indcheck;i++){
+          nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
+          nonl_dom[i][0]=0;
+          nonl_dom[i][1]=NUMNNZ;
+       }
 #endif
 
     /*--------------------------------------------------------------------------*/
@@ -1047,9 +1047,9 @@ int  hov_forward(
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
     while (operation !=end_of_tape) {
-      
+
       switch (operation) {
-    
+
 
                 /****************************************************************************/
                 /*                                                                  MARKERS */
@@ -1850,7 +1850,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-                copy_index_domain(res, arg, ind_dom);               
+                copy_index_domain(res, arg, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2832,7 +2832,7 @@ int  hov_forward(
 #ifndef _ZOS_ /* BREAK_ZOS */
 #if !defined(_INT_FOR_)
                 T0arg   = dp_T0[arg];
-#endif 
+#endif
 #endif /* ALL_TOGETHER_AGAIN */
 
                 dp_T0[res] =
@@ -3448,7 +3448,7 @@ int  hov_forward(
                 else
                     FOR_0_LE_l_LT_pk
                     TRES_INC = TARG2_INC;
-#endif 
+#endif
 
                 if (dp_T0[arg] > 0) {
                     if (coval <= 0.0)
@@ -3670,8 +3670,8 @@ int  hov_forward(
 
                 break;
 #endif
-
                 /*--------------------------------------------------------------------------*/
+
             default:                                                   /* default */
                 /* Die here, we screwed up */
 
@@ -3689,7 +3689,6 @@ int  hov_forward(
         ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
     }  /* endwhile */
-
 
 #if defined(ADOLC_DEBUG)
     printf("\nTape contains:\n");
@@ -3735,23 +3734,13 @@ int  hov_forward(
     free(ind_dom);
 
 #if defined(_NONLIND_)
-    for(i=0;i<indcheck;i++) {
-        if (nonl_dom[i] != NULL) {
-            crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i]->entry+1));
-	    temp1 = nonl_dom[i];
-            temp = nonl_dom[i]->next;
-            crs[i][0] = nonl_dom[i]->entry;
-	    free(temp1);
-            for(l=1;l<=crs[i][0];l++) {
-                crs[i][l] = temp->entry;
-		temp1 = temp;
-                temp = temp->next;
-		free(temp1);
-            }
-        } else {
-            crs[i] = (unsigned int *) malloc(sizeof(unsigned int));
-            crs[i][0] = 0;
-        }
+
+    for( i=0; i < indcheck; i++) {
+       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i][0]+1));
+       crs[i][0] = nonl_dom[i][0];
+       for(l=1; l < crs[i][0]+1; l++)
+          crs[i][l] = nonl_dom[i][l+1];
+       free(nonl_dom[i]);
     }
     free(nonl_dom);
 
@@ -3770,95 +3759,99 @@ int  hov_forward(
 /*--------------------------------------------------------------------------*/
 /* operations on index domains                                              */
 
-#ifdef _TIGHT_
+#if defined(_TIGHT_)
 void copy_index_domain(int res, int arg, locint **ind_dom) {
 
    int i;
 
    if (ind_dom[arg][0] > ind_dom[res][1]-2)
-    {
-	free(ind_dom[res]);
-	ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*ind_dom[arg][0]);
-	ind_dom[res][1] = 2*ind_dom[arg][0];
-    }
-    
+     {
+       free(ind_dom[res]);
+       ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*(ind_dom[arg][0])+1);
+       ind_dom[res][1] = 2*ind_dom[arg][0];
+     }
+
+
     for(i=2;i<ind_dom[arg][0]+2;i++)
-	ind_dom[res][i] = ind_dom[arg][i];
+       ind_dom[res][i] = ind_dom[arg][i];
     ind_dom[res][0] = ind_dom[arg][0];
 }
 
 
-void merge_2_index_domains(int res, int arg, locint **ind_dom) {
+void merge_2_index_domains(int res, int arg, locint **ind_dom) 
+{
 
-    int num,num1,i,j,k,l;
-    locint *temp_array, *temp_array1;
+  int num,num1,num2, i,j,k,l;
+  locint *temp_array, *arg_ind_dom, *res_ind_dom;
 
-    if (ind_dom[res][0] == 0)
-	copy_index_domain(res,arg,ind_dom);
-    else
+  if (ind_dom[res][0] == 0)
+    copy_index_domain(res,arg,ind_dom);
+  else
     {
-	num = ind_dom[res][0];
-	temp_array = (locint *)  malloc(sizeof(locint)* num);
-	num1 = ind_dom[arg][0];
-	temp_array1 = (locint *)  malloc(sizeof(locint) * num1);
-	
-	for(i=0;i<num;i++)
-	    temp_array[i] = ind_dom[res][i+2];
-	for(i=0;i<num1;i++)
-	    temp_array1[i] = ind_dom[arg][i+2];
-
-	if (num1+num > ind_dom[res][1]-2)
+      if (res != arg)
 	{
-	  i = 2*(num1+num);
-	  free(ind_dom[res]);
-	  ind_dom[res] = (locint *)  malloc(sizeof(locint) * i);
-          ind_dom[res][1] = i;
-	}
-	i = 0;
-        j = 0;
-	k = 2;
-	while ((i< num) && (j < num1))
+	  arg_ind_dom = ind_dom[arg];
+	  res_ind_dom = ind_dom[res];
+
+	  num  = ind_dom[res][0];
+	  num1 = arg_ind_dom[0];
+	  num2 = ind_dom[res][1];
+
+	  if (num2 < num1+num)
+	    num2 = num1+num;
+	  
+	  temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
+	  temp_array[1] = num2;
+
+	  i = 2;
+	  j = 2;
+	  k = 2;
+	  num += 2;
+	  num1 += 2;
+	  while ((i< num) && (j < num1))
 	    {
-	      if (temp_array[i] < temp_array1[j])
+	      if (res_ind_dom[i] < arg_ind_dom[j])
 		{
-		  ind_dom[res][k] = temp_array[i];
+		  temp_array[k] = res_ind_dom[i];
 		  i++; k++;
 		}
 	      else
-	      {
-		  if (temp_array[i] == temp_array1[j])
+		{
+		  if (res_ind_dom[i] == arg_ind_dom[j])
 		    {
-		      ind_dom[res][k] = temp_array1[j];
+		      temp_array[k] = arg_ind_dom[j];
 		      i++;j++;k++;
 		    }
 		  else
 		    {
-		      ind_dom[res][k] = temp_array1[j];
+		      temp_array[k] = arg_ind_dom[j];
 		      j++;k++;		      
 		    }
 		}
 	    }
 	  for(l = i;l<num;l++)
-	  {
-	      ind_dom[res][k] = temp_array[l];
+	    {
+	      temp_array[k] = res_ind_dom[l];
 	      k++;
-	  }
+	    }
 	  for(l = j;l<num1;l++)
-	  {
-	      ind_dom[res][k] = temp_array1[l];
+	    {
+	      temp_array[k] = arg_ind_dom[l];
 	      k++;
-	  }
-	  ind_dom[res][0] = k-2;
-	  free(temp_array);
-	  free(temp_array1);
+	    }
+	  temp_array[0] = k-2;
+	  free(ind_dom[res]);
+	  ind_dom[res]=temp_array;
+	}
     }
+
 
 }
 
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 
     if (res != arg1)
-	copy_index_domain(res, arg1, ind_dom);
+       copy_index_domain(res, arg1, ind_dom);
 
     merge_2_index_domains(res, arg2, ind_dom);
 }
@@ -3867,6 +3860,9 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
     merge_2_index_domains(res, arg1, ind_dom);
     merge_2_index_domains(res, arg2, ind_dom);
 }
+
+
+
 #endif
 #endif
 
@@ -3875,96 +3871,86 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
+{
+  int index,num,num1, num2, i,j,k,l,m;
+  locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
 
-    int index;
-    int num,num1, i,j,l,m;
-    IndexElement* temp_nonl;
-    IndexElement* nonl_num;
-    IndexElement* temp1;
+  num = ind_dom[arg2][0];
 
-    num = ind_dom[arg2][0];
-
-    for(m=2;m<ind_dom[arg1][0]+2;m++)
+  for(m=2;m<ind_dom[arg1][0]+2;m++) 
     {
-	index = ind_dom[arg1][m];
-        temp_nonl = nonl_dom[index];
-	if (temp_nonl == NULL) {
-            temp_nonl = (struct IndexElement*)
-                malloc(sizeof(struct IndexElement));
-            nonl_dom[index] = temp_nonl;
-            temp_nonl->entry = 0;
-            temp_nonl->next = NULL;
-        }
-        nonl_num = temp_nonl; /* kept for updating the element count */
-	if (nonl_num->entry == 0) { /* empty list */
-	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+      index = ind_dom[arg1][m];
+      index_nonl_dom = nonl_dom[index];
+
+      if (index_nonl_dom[0] == 0)  /* empty list */
+	{
+	  if ( index_nonl_dom[1] < num)
 	    {
-	      temp_nonl->next = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-	      temp_nonl = temp_nonl->next;
-	      temp_nonl->entry = ind_dom[arg2][i];
-	      temp_nonl->next = NULL;
-	      nonl_num->entry++;
+	      free(index_nonl_dom);
+	      index_nonl_dom = (locint*) malloc(sizeof(locint)*2*(num+1) );
+	      index_nonl_dom[1] = 2*num;
 	    }
+	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+	    index_nonl_dom[i] = ind_dom[arg2][i];
+	  index_nonl_dom[0] = num;
+	} 
+      else 
+	{ /* merge lists */
+	  num1 = index_nonl_dom[0];
+	  num2 = index_nonl_dom[1];
+	  
+	  if (num1+num > num2)
+	    num2 = num1+num;
+	  
+	  temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
+	  temp_nonl[1] = num2;
+	  
+	  i = 2;
+	  k = 2;
+	  j = 2;
+	  num1 +=2;
+	  num2 = num+2;
+	  while ((i<num1) && (j < num2)){
+	    if (ind_dom[arg2][j] < index_nonl_dom[i]) /* < */ {
+	      temp_nonl[k] = ind_dom[arg2][j];
+	      j++; k++;
+	    } else {
+	      if (ind_dom[arg2][j] == index_nonl_dom[i])  /* == */ {
+		temp_nonl[k] = ind_dom[arg2][j];
+		j++; k++; i++;
+	      } else {
+		temp_nonl[k] = index_nonl_dom[i];
+		i++; k++;
+	      }
+	    }
+	  }
+	  for(l = j;l<num2;l++) {
+	    temp_nonl[k] = ind_dom[arg2][l];
+	    k++;
+	  }
+	  for(l = i;l<num1;l++) {
+	    temp_nonl[k] = index_nonl_dom[l];
+	    k++;
+	  }
+	  temp_nonl[0] = k-2; 
+	  free((char*) nonl_dom[index]);
+	  nonl_dom[index] = temp_nonl;
 	}
-       else /* merge lists */
-	 {
-	   num1 = temp_nonl->entry;
-	   temp_nonl = temp_nonl->next; /* skip counter */
-	   i = 0;
-	   j = 2;
-	   temp_nonl = nonl_num;
-	   temp_nonl = temp_nonl->next;
-	   while ((i<num1) && (j < num+2))
-	     {
-	       if (ind_dom[arg2][j] < temp_nonl->entry) /* < */
-		 {
-		   temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-		   temp1->next = temp_nonl->next;
-		   temp1->entry = temp_nonl->entry;
-		   temp_nonl->entry = ind_dom[arg2][j];
-		   temp_nonl->next = temp1;
-		   temp_nonl=temp_nonl->next;
-		   nonl_num->entry++;
-		   j++; 
-		 }
-	       else
-		 {
-		   if (ind_dom[arg2][j] == temp_nonl->entry)  /* == */
-		     {
-		       j++;
-		     }
-		   else
-		     {
-		       i++;
-		       if (i<num1)
-			 temp_nonl = temp_nonl->next;
-		     }
-		 }
-	     }
-	   for(l = j;l<num+2;l++)
-	     {
-	       temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-	       temp_nonl->next = temp1;
-	       temp_nonl = temp_nonl->next;
-	       temp_nonl->entry = ind_dom[arg2][l];
-	       temp_nonl->next = NULL;
-	       nonl_num->entry++;
-	     }
-	 }
     }
 }
 
 void extend_nonlinearity_domain_unary
-(int arg, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg, locint **ind_dom, locint **nonl_dom) {
     extend_nonlinearity_domain_binary_step(arg, arg, ind_dom, nonl_dom);
 }
 
 void extend_nonlinearity_domain_binary
-(int arg1, int arg2, locint **ind_dom, IndexElement **nonl_dom) {
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) {
     extend_nonlinearity_domain_binary_step(arg1, arg2, ind_dom, nonl_dom);
     extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }
+
 
 #endif
 #endif

@@ -66,7 +66,7 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
 
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
+#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99) && !defined(__APPLE_CC__)
 double ADOLC_DLL_EXPORT fmin( const double &x, const double &y );
 double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
 #endif
@@ -254,7 +254,9 @@ public:
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
     friend ADOLC_DLL_EXPORT class advector;
+#if GCC_VERSION >= 4003
     adub( adub const &) {}
+#endif
 protected:
     adub( locint lo ):badouble(lo) {};
     adub( void ):badouble(0) {
