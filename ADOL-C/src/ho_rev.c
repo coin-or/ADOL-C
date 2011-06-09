@@ -595,7 +595,7 @@ int hov_ti_reverse(
 	MPI_Status status_MPI;
 	double *trade, *rec_buf;
 	int mpi_i, id, root, count, loc_recv, loc_send;
-     MPI_Op mpi_op;
+     ADOLC_MPI_Op mpi_op;
 #endif /* is used by Parallelisation */
 
     while (operation != start_of_tape) {

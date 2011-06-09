@@ -30,19 +30,21 @@
 #define MPI_ADOUBLE MPI_DOUBLE
 #define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADOLC_MPI_Comm MPI_Comm
-#define ADOLC_MPI_Op MPI_Op
-#define ADOLC_MPI_LAND MPI_LAND
-#define ADOLC_MPI_BAND MPI_BAND
-#define ADOLC_MPI_LOR MPI_LOR
-#define ADOLC_MPI_BOR MPI_BOR
-#define ADOLC_MPI_LXOR MPI_LXOR
-#define ADOLC_MPI_BXOR MPI_BXOR
-#define ADOLC_MPI_MAX MPI_MAX
-#define ADOLC_MPI_MIN MPI_MIN
-#define ADOLC_MPI_SUM MPI_SUM
-#define ADOLC_MPI_PROD MPI_PROD
-#define ADOLC_MPI_MINLOC MPI_MINLOC
-#define ADOLC_MPI_MAXLOC MPI_MAXLOC
+
+typedef enum ADOLC_MPI_Op_t {
+    ADOLC_MPI_MAX=100,
+    ADOLC_MPI_MIN,
+    ADOLC_MPI_SUM,
+    ADOLC_MPI_PROD,
+    ADOLC_MPI_LAND,
+    ADOLC_MPI_BAND,
+    ADOLC_MPI_LOR,
+    ADOLC_MPI_BOR,
+    ADOLC_MPI_LXOR,
+    ADOLC_MPI_BXOR,
+    ADOLC_MPI_MINLOC,
+    ADOLC_MPI_MAXLOC
+} ADOLC_MPI_Op;
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +56,8 @@ int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
 int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
 int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 int ADOLC_MPI_Finalize() ;
+
+MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op);
 #ifdef __cplusplus
 }
 #endif
