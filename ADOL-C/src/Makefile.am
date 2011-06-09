@@ -38,7 +38,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\
                        interfaces.h oplate.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
-                       adolc_sparse.h adolc_openmp.h \
+                       adolc_sparse.h adolc_openmp.h  \
                        revolve.h
 
 lib_LTLIBRARIES      = libadolc.la
@@ -60,7 +60,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
-                       int_reverse_s.c int_reverse_t.c 
+                       int_reverse_s.c int_reverse_t.c
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
@@ -79,6 +79,11 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c 
 
 libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
-
 endif
 
+if HAVE_MPI
+AM_CPPFLAGS += @MPICPPFLAGS@
+libadolc_la_SOURCES +=  adolc_mpi.cpp interfaces_mpi.cpp
+libadolc_la_LDFLAGS  += @MPILIBS@ @LIBMPI@
+pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
+endif

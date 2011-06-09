@@ -180,6 +180,8 @@ ADOL-C/src/Makefile.in -text
 ADOL-C/src/adalloc.c -text
 ADOL-C/src/adalloc.h -text
 ADOL-C/src/adolc.h -text
+ADOL-C/src/adolc_mpi.cpp -text
+ADOL-C/src/adolc_mpi.h -text
 ADOL-C/src/adolc_openmp.h -text
 ADOL-C/src/adolc_sparse.h -text
 ADOL-C/src/adouble.cpp -text
@@ -234,6 +236,8 @@ ADOL-C/src/int_reverse_s.c -text
 ADOL-C/src/int_reverse_t.c -text
 ADOL-C/src/interfaces.cpp -text
 ADOL-C/src/interfaces.h -text
+ADOL-C/src/interfaces_mpi.cpp -text
+ADOL-C/src/interfaces_mpi.h -text
 ADOL-C/src/interfacesf.c -text
 ADOL-C/src/malloc.c -text
 ADOL-C/src/malloc.h -text

@@ -6,7 +6,8 @@
            to the file tape_doc.tex
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -104,8 +105,11 @@ static char* a[] =  {  "death not",
                        "erf op",
                        "ceil op",
                        "floor op",
-                       "extern fctn"
-                       "ignore_me"
+                       "extern fctn",
+                       "ignore_me",
+                       "send data",
+                       "receive data",
+		       "barrier Op"
                     };
 
 /****************************************************************************/
@@ -138,7 +142,7 @@ void filewrite_start( int opcode ) {
 #ifdef computenumbers
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
@@ -1182,9 +1186,56 @@ void tape_doc(short tnum,         /* tape id */
                 loc_a[3] = get_locint_f(); /* dummy */
                 filewrite(operation, 3, loc_a, val_a, 0, cst_d);
                 break;
-
                 /*--------------------------------------------------------------------------*/
-            default:                                                   /* default */
+#if defined(HAVE_MPI)        
+        case send_data:
+	        arg1 = get_locint_f();
+	        arg2 = get_locint_f();
+	        res  = get_locint_f();
+	        loc_a[0]=get_locint_f();
+	        loc_a[0]=arg1;
+	        loc_a[1]=arg2;
+	        loc_a[2]=res;
+#ifdef computenumbers
+	        val_a[0]=dp_T0[arg1];
+	        dp_T0[res] = erf(dp_T0[arg1]);
+	        ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+	        val_a[1]=dp_T0[arg2];
+	        val_a[2]=dp_T0[res];
+#endif
+	        filewrite(operation,3,loc_a,val_a,0,cst_d);
+	        break;
+        case receive_data:
+	        loc_a[0]=get_locint_f(); // adouble location
+	        loc_a[1]=get_locint_f(); // target
+	        loc_a[2]=get_locint_f(); // destination
+	        res = get_locint_f();
+	        filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+	        break; 
+        case barrier_op:
+	        ++op_cnt;
+	        --rev_op_cnt;
+	        fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, barrier_op);
+	        
+    /* write opcode name if available */
+	        res=0;
+	        while (a[barrier_op][res]) {
+		        fprintf(fp,"%c",a[barrier_op][res]);
+		        res++;
+	        }
+	        
+    /* write locations (max 4) right-justified */
+	        fprintf(fp," & & & & & ");
+	        
+#ifdef computenumbers
+	        fprintf(fp," & & & & & \\\\ \\hline \n");
+#else
+	        fprintf(fp," &  \\\\ \\hline \n");
+#endif
+	        break;
+#endif
+                /*--------------------------------------------------------------------------*/
+        default:                                                   /* default */
                 /* Die here, we screwed up */
                 fprintf(DIAG_OUT,"ADOL-C error: Fatal error in tape_doc for op %d\n",
                         operation);

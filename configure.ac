@@ -13,7 +13,7 @@ define([ADOLC_LVL], [0])
 
 AC_PREREQ(2.57)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk-mpi,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
@@ -248,6 +248,48 @@ fi
 AC_SUBST(COLPACK_CFLAGS)
 AC_SUBST(COLPACK_LIBS)
 
+# ADOL-C with mpi
+AC_ARG_WITH(mpi-includedir,[AS_HELP_STRING([--with-mpi-includedir],[path to mpi headers [default=autodetect]])], [mpiinc=$withval], [mpiinc=auto])
+AC_ARG_WITH(mpi-libdir,[AS_HELP_STRING([--with-mpi-libdir],[path to mpi libs [default=autodetect]])], [mpilibdir=$withval], [mpilibdir=auto])
+
+if test x"$mpiinc" = xauto ; then
+MPICPPFLAGS=""
+else
+MPICPPFLAGS="-I${mpiinc}"
+fi
+if test x"$mpilibdir" = xauto ; then
+MPILIBS=""
+else
+MPILIBS="-L${mpilibdir}"
+fi
+
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $MPICPPFLAGS"
+LIBS="$LIBS $MPILIBS"
+AC_CHECK_HEADERS([mpi/mpi.h mpi.h],[
+AC_DEFINE(HAVE_MPI,1,[MPI is enabled])
+if test x = x"$LIBMPI"; then
+AC_CHECK_LIB(mpi, MPI_Init, [LIBMPI="-lmpi"])
+fi
+if test x = x"$LIBMPI"; then
+AC_CHECK_LIB(mpich, MPI_Init, [LIBMPI="-lmpich"])
+fi
+break
+])
+CPPFLAGS="$save_CPPFLAGS"
+LIBS="$save_LIBS"
+
+AC_SUBST(MPICPPFLAGS)
+AC_SUBST(MPILIBS)
+AC_SUBST(LIBMPI)
+AM_CONDITIONAL(HAVE_MPI,[test x != x"$LIBMPI"])
+if test x != x"$LIBMPI" ; then
+mpi=yes
+else
+mpi=no
+fi
+
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
 AC_ARG_ENABLE(docexa,
@@ -469,6 +511,8 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
 fi
+echo \
+"  Build with MPI:                   ${mpi}"
 echo
 
 echo \

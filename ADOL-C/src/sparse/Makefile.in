@@ -38,6 +38,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@HAVE_MPI_TRUE@am__append_1 = @MPICPPFLAGS@
 subdir = ADOL-C/src/sparse
 DIST_COMMON = $(libsparseinclude_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -139,6 +140,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBMPI = @LIBMPI@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -151,6 +153,8 @@ MAKEFLAGS = @MAKEFLAGS@
 MAKEINFO = @MAKEINFO@
 MCS = @MCS@
 MKDIR_P = @MKDIR_P@
+MPICPPFLAGS = @MPICPPFLAGS@
+MPILIBS = @MPILIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJC = @OBJC@
@@ -234,7 +238,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C -I$(top_srcdir)/ADOL-C/src  @COLPACK_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C -I$(top_srcdir)/ADOL-C/src \
+	@COLPACK_CFLAGS@ $(am__append_1)
 INCLUDES = -I$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 noinst_LTLIBRARIES = libsparse.la
