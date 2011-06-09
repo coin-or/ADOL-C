@@ -1,0 +1,544 @@
+% Latex file containing the short reference of ADOL-C version 2.0.0 
+%
+% Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+%               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
+%
+% This file is part of ADOL-C. This software is provided as open source.
+% Any use, reproduction, or distribution of the software constitutes 
+% recipient's acceptance of the terms of the accompanying license file.
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+\documentclass[12pt,oneside,a4paper]{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{fancyhdr}
+
+%\setlength{\hoffset}{2.0cm}
+\setlength{\oddsidemargin}{-0.5cm}
+\setlength{\evensidemargin}{-0.5cm}
+\setlength{\topmargin}{-0.5cm}
+%\setlength{\headheight}{0cm}
+\setlength{\headsep}{1cm}
+\setlength{\textwidth}{17.0cm}
+\setlength{\textheight}{25.0cm}
+%\setlength{\parindent}{0pt}
+%\setlength{\parskip}{2.5ex plus 0.5ex minus 0.5ex}
+%\renewcommand{\baselinestretch}{1.2}
+
+\pagestyle{fancy}
+\lhead{\sc \bf ADOL-C}
+\chead{}
+\rhead{\sc {\bf A}utomatic {\bf D}ifferentiation by {\bf O}ver{\bf L}oading
+       in {\bf C}++}
+\renewcommand{\headrulewidth}{0.02cm}
+\renewcommand{\footrulewidth}{0.02cm}
+
+\newcommand{\R}{{ {\rm I} \kern -.225em {\rm R} }}
+
+\begin{document}
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf The Basic Idea}\\[2ex]
+
+\fbox{\hspace{1mm} 
+  {\bf Vector function} in {\bf C/C++}:\rule[-4mm]{0cm}{12mm}\hspace{0.4cm}
+  $F:\R^n\rightarrow\R^m:x\mapsto y=F\!\left(x\right)$
+}\\[2ex] 
+{\Huge$\Downarrow$} Operator overloading (C++)\\[2ex]
+\fbox{\hspace{2mm} 
+  {\bf Internal representation} of $F$ ($\equiv$\emph{tape})\rule[-4mm]{0cm}{12mm}
+}\\[2ex] 
+{\Huge$\Downarrow$}\hspace{1.5cm}Interpretation\hspace{1.5cm}{\Huge$\Downarrow$}\\[2ex]
+\fbox{\begin{minipage}[h]{80mm}
+{\bf \underline{Forward mode}}
+\begin{align*}
+  x\left(t\right)& =\sum_{j=0}^{d} x_j t^j\\[1ex]
+  & \Downarrow\\[1ex]
+  y\left(t\right)&   = \sum_{j=0}^{d} y_j t^j
+  + O\left(t^{d+1}\right)
+\end{align*}
+{\bf $\Longrightarrow$ Directional derivatives\\[-2.2ex]}
+\end{minipage}}
+\fbox{\begin{minipage}[h]{80mm}
+{\bf \underline{Reverse mode}}
+\begin{align*}
+  y_j & = y_j\left(x_0,x_1,\ldots,x_j\right)\\[1ex]
+  & \Downarrow\\[1ex]
+  \frac{\partial y_j}{\partial x_i} & = 
+  \frac{\partial y_{j-i}}{\partial x_0} \\[1ex]
+    & = A_{j-i}\left(x_0,x_1,\ldots,x_{j-i}\right)
+\end{align*}\\[-0.85ex]
+{\bf $\Longrightarrow$ Gradients (adjoints)}
+\end{minipage}}
+
+\begin{minipage}[h]{160mm}
+\small
+\begin{align*}
+  y_0 & = F\left(x_0\right) \\
+  y_1 & = F'\left(x_0\right) x_1 \\
+  y_2 & = F'\left(x_0\right) x_2 + \frac{1}{2}F''\left(x_0\right)x_1 x_1 \\
+  y_3 & = F'\left(x_0\right) x_3 + F''\left(x_0\right)x_1 x_2
+          + \frac{1}{6}F'''\left(x_0\right)x_1 x_1 x_1\\
+  & \ldots\\
+  \frac{\partial y_0}{\partial x_0} =
+  \frac{\partial y_1}{\partial x_1} =
+  \frac{\partial y_2}{\partial x_2} =
+  \frac{\partial y_3}{\partial x_3} =
+  A_0 & = F'\left(x_0\right) \\
+  \frac{\partial y_1}{\partial x_0} =
+  \frac{\partial y_2}{\partial x_1} =
+  \frac{\partial y_3}{\partial x_2} =
+  A_1 & = F''\left(x_0\right) x_1 \\
+  \frac{\partial y_2}{\partial x_0} =
+  \frac{\partial y_3}{\partial x_1} =
+  A_2 & = F''\left(x_0\right) x_2 + \frac{1}{2}F'''\left(x_0\right)x_1 x_1 \\
+  \frac{\partial y_3}{\partial x_0} =
+  A_3 & = F''\left(x_0\right) x_3 + F'''\left(x_0\right)x_1 x_2
+          + \frac{1}{6}F^{(4)}\left(x_0\right)x_1 x_1 x_1 \\
+  & \ldots
+\end{align*}
+
+
+\end{minipage}
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf Application}\\[2ex]
+{\bf Operator overloading concept $\Rightarrow$ Code modification}\\[2ex]
+\fbox{\parbox{170mm}{
+\begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+\item Inclusion of appropriate ADOL-C headers 
+\item Retyping of all involved variables to active data type {\tt adouble}
+\item Marking active section to be ``taped''  
+      ({\tt trace\_on}/{\tt trace\_off})
+\item Specification of independent and dependent variables
+      ({\tt <<=}/{\tt >>=})
+\item Specification of differentiation task(s)
+\item Recompilation and Linking with ADOL-C library {\tt libad.a}
+\end{itemize}}}\\[5ex]
+%
+\begin{minipage}[h]{160mm}
+\small
+\underline{Example:}
+\begin{verbatim}
+#include "adolc.h"                      // inlusion of ADOL-C headers
+...
+adouble foo ( adouble x )               // some activated function
+{ adouble tmp;
+  tmp = log(x);
+  return 3.0*tmp*tmp + 2.0; 
+}
+...
+int main (int argc, char* argv[])       // main program or other procedure
+{ ...
+  double   x[2],  y;               
+  adouble ax[2], ay;                    // declaration of active variables
+  x[0]=0.3; x[1]=2.3;      
+  trace_on(1);                          // starting active section
+    ax[0]<<=x[0]; ax[1]<<=x[1];         // marking independent variables
+    ay=ax[0]*sin(ax[1])+ foo(ax[1]);    // function evaluation
+    ay>>=y;                             // marking dependend variables
+  trace_off();                          // ending active section
+  ...
+  double g[2];    
+  gradient(1,2,x,g);                    // application of ADOL-C routine
+  ...
+  x[0]+=0.1; x[1]+=0.3;                 // application at different argument
+  gradient(1,2,x,g);
+  ...
+}
+\end{verbatim}
+\end{minipage}
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf Drivers for Optimization and Nonlinear Equations (C/C++)}\\[-0.5ex]
+\begin{align*}
+     \min_{x}f\left(x\right),\qquad & f:\R^n\rightarrow\R\\
+     F\left(x\right)=0_m, \qquad  & F:\R^n\rightarrow\R^m
+\end{align*}\\[0.5ex]
+
+\begin{tabular}{|p{13.3cm}|p{3.3cm}|}
+\hline & \\[-2.0ex]
+{\tt function(tag,m,n,x[n],y[m])} & $F\left(x_0\right)$ \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt gradient(tag,n,x[n],g[n])} & $\nabla f\left(x_0\right)$ \\[0.5ex]
+{\tt hessian(tag,n,x[n],H[n][n])} & $\nabla^2 f\left(x_0\right)$ \\[1.0ex]
+\hline & \\[-2.0ex] 
+{\tt jacobian(tag,m,n,x[n],J[m][n])} & $F'\left(x_0\right)$ \\[0.5ex]
+{\tt vec\_jac(tag,m,n,repeat?,x[n],u[m],z[n])} & $u^TF'\left(x_0\right)$ \\[0.5ex]
+{\tt jac\_vec(tag,m,n,x[n],v[n],z[m])} & $F'\left(x_0\right)v$ \\[1.0ex]
+\hline & \\[-2.0ex] 
+{\tt hess\_vec(tag,n,x[n],v[n],z[n])} & $\nabla^2f\left(x_0\right)v$ \\[0.5ex]
+{\tt lagra\_hess\_vec(tag,m,n,x[n],v[n],u[m],h[n])} & $u^TF''\left(x_0\right)v$ \\[1.0ex]
+\hline & \\[-2.0ex] 
+{\tt jac\_solv(tag,n,x[n],b[n],sparse?,mode?)} & $F'\left(x_0\right)w=b$ \\[1.0ex]
+\hline
+\end{tabular}\\[5ex]
+%
+\begin{minipage}[h]{160mm}
+\small
+\underline{Example:}  \hspace{0.5cm} Solution of $F(x)=0$ by Newton's method
+\begin{verbatim}
+...
+double x[n], r[n];
+int i;
+...
+initialize(x);                         // setting up the initial x
+...
+function(ftag,n,n,x,r);                // compute residuum r
+while (norm(r) > EPSILON)              // terminate if small residuum
+{ jac_solv(ftag,n,x,r,0,2);            // compute r:=F'(x)^(-1)*r
+  for (i=0; i<n; i++)                  // update x
+    x[i] -= r[i]; 
+  function(ftag,n,n,x,r);              // compute residuum r
+}
+...
+\end{verbatim}
+\end{minipage}
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf Lowest-level Differentiation Routines}\\[-0.5ex]
+\begin{align*}
+   & F:\R^n\rightarrow\R^m
+\end{align*}\\[0.5ex]
+{\Large \bf  Forward Mode (C/C++)}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt zos\_forward(tag,m,n,keep,x[n],y[m])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item zero-order scalar forward; computes $y=F\left(x\right)$
+\item $0\leq\text{\tt keep}\leq 1$; 
+      $\text{\tt keep}=1\;\text{prepares for {\tt fos\_reverse} 
+                                          or {\tt fov\_reverse}}$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt fos\_forward(tag,m,n,keep,x0[n],x1[n],y0[m],y1[m])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item first-order scalar forward; computes $y_0=F\left(x_0\right)$,
+      $y_1=F'\left(x_0\right)x_1$
+\item $0\leq\text{\tt keep}\leq 2$; 
+      $\text{\tt keep} = \left\{\begin{array}{cl}
+       1 & \text{prepares for {\tt fos\_reverse} or {\tt fov\_reverse}} \\
+       2 & \text{prepares for {\tt hos\_reverse} or {\tt hov\_reverse}}
+       \end{array}\right.$ 
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt fov\_forward(tag,m,n,p,x[n],X[n][p],y[m],Y[m][p])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item first-order vector forward; computes $y=F\left(x\right)$,
+      $Y=F'\left(x\right)X$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt hos\_forward(tag,m,n,d,keep,x[n],X[n][d],y[m],Y[m][d])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item higher-order scalar forward; computes $y_0=F\left(x_0\right)$,
+      $y_1=F'\left(x_0\right)x_1$, \ldots, where $x=x_0$,
+      $X=[x_1,x_2,\ldots,x_d]$ and  $y=y_0$,
+      $Y=[y_1,y_2,\ldots,y_d]$ 
+\item $0\leq\text{\tt keep}\leq d+1$; 
+      $\text{\tt keep} \left\{\begin{array}{cl}
+       = 1  & \text{prepares for {\tt fos\_reverse} or {\tt fov\_reverse}} \\
+       > 1 & \text{prepares for {\tt hos\_reverse} or {\tt hov\_reverse}}
+       \end{array}\right.$ 
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt hov\_forward(tag,m,n,d,p,x[n],X[n][p][d],y[m],Y[m][p][d])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item higher-order vector forward; computes $y_0=F\left(x_0\right)$,
+      $Y_1=F'\left(x_0\right)X_1$, \ldots, where $x=x_0$,
+      $X=[X_1,X_2,\ldots,X_d]$ and  $y=y_0$,
+      $Y=[Y_1,Y_2,\ldots,Y_d]$ 
+\end{itemize}
+\end{minipage}\\[2ex]
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Large \bf  Reverse Mode (C/C++)}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt fos\_reverse(tag,m,n,u[m],z[n])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item first-order scalar reverse; computes $z^T=u^T F'\left(x\right)$
+\item after calling  {\tt zos\_forward}, {\tt fos\_forward}, or 
+      {\tt hos\_forward} with $\text{\tt keep}=1$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt fov\_reverse(tag,m,n,q,U[q][m],Z[q][n])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item first-order vector reverse; computes $Z=U F'\left(x\right)$
+\item after calling  {\tt zos\_forward}, {\tt fos\_forward}, or 
+      {\tt hos\_forward} with $\text{\tt keep}=1$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt hos\_reverse(tag,m,n,d,u[m],Z[n][d+1])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item higher-order scalar reverse; computes the adjoints
+      \mbox{$z_0^T=u^T F'\left(x_0\right)=u^T A_0$},
+      \mbox{$z_1^T=u^T F''\left(x_0\right)x_1=u^T A_1$}, 
+      \ldots, where $Z=[z_0,z_1,\ldots,z_d]$
+\item after calling  {\tt fos\_forward} or 
+      {\tt hos\_forward} with $\text{\tt keep}=d+1>1$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt hov\_reverse(tag,m,n,d,q,U[q][m],Z[q][n][d+1],nz[q][n])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{14cm}
+\small 
+\begin{itemize}
+\item higher-order vector reverse; computes the adjoints
+      \mbox{$Z_0=U F'\left(x_0\right)=U A_0$},
+      \mbox{$Z_1=U F''\left(x_0\right)x_1=U A_1$}, 
+      \ldots, where $Z=[Z_0,Z_1,\ldots,Z_d]$
+\item after calling  {\tt fos\_forward} or 
+      {\tt hos\_forward} with $\text{\tt keep}=d+1>1$
+\item optional nonzero pattern {\tt nz} ($\Rightarrow$ manual)
+\end{itemize}
+\end{minipage}\\[3ex]
+%
+\begin{minipage}[h]{160mm}
+\small
+\underline{Example:}
+\begin{verbatim}
+...
+double x[n], y[m], **I, **J;
+I=myallocI2(m);                        // allocation of identity matrix
+J=myalloc2(m,n);                       // allocation of Jacobian matrix
+...
+initialize(x);                         // setting up the argument x
+...
+zos_forward(ftag,m,n,1,x,y);           // computing the Jacobian by
+fos_reverse(ftag,m,n,m,I,J);           // reverse mode of AD
+...
+\end{verbatim}
+\end{minipage}
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf Low-level Differentiation Routines}\\[3ex]
+{\Large \bf  Forward Mode (C++ interfaces)}\\[2ex]
+\begin{tabular}{|p{13.6cm}|p{3.0cm}|}
+\hline & \\[-2.0ex]
+{\tt forward(tag,m,n,d,keep,X[n][d+1],Y[m][d+1])} & 
+           {\large {\tt hos}, {\tt fos}, {\tt zos}} \\[0.5ex]
+{\tt forward(tag,m=1,n,d,keep,X[n][d+1],Y[d+1])} & 
+           {\large {\tt hos}, {\tt fos}, {\tt zos}} \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt forward(tag,m,n,d=0,keep,x[n],y[m])} & 
+           {\large {\tt zos}} \\[0.5ex]
+{\tt forward(tag,m,n,keep,x[n],y[m])} & 
+           {\large {\tt zos}} \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt forward(tag,m,n,p,x[n],X[n][p],y[m],Y[m][p])} &
+           {\large {\tt fov}} \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt forward(tag,m,n,d,p,x[n],X[n][p][d],} & {\large {\tt hov}} \\[0.5ex]
+\hspace{8.7cm}{\tt y[m],Y[m][p][d])} & \\[1.0ex]
+\hline
+\end{tabular}\\[4ex]
+%
+{\Large \bf  Reverse Mode (C++ interfaces)}\\[2ex]
+\begin{tabular}{|p{15.6cm}|p{0.8cm}|}
+\hline & \\[-2.0ex]
+{\tt reverse(tag,m,n,d,u[m],Z[n][d+1])} & 
+           {\large {\tt hos}} \\[0.5ex]
+{\tt forward(tag,m=1,n,d,u,Z[n][d+1])} & 
+           {\large {\tt hos}} \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt reverse(tag,m,n,d=0,u[m],z[n])} & 
+           {\large {\tt fos}} \\[0.5ex]
+{\tt reverse(tag,m=1,n,d=0,u,z[n])} & 
+           {\large {\tt fos}} \\[1.0ex]
+\hline& \\[-2.0ex] 
+{\tt reverse(tag,m,n,d,q,U[q][m],Z[q][n][d+1],nz[q][n])} & 
+           {\large {\tt hov}} \\[0.5ex]
+{\tt reverse(tag,m=1,n,d,q,U[q],Z[q][n][d+1],nz[q][n])} & 
+           {\large {\tt hov}} \\[0.5ex]
+{\tt reverse(tag,m=1,n,d,Z[m][n][d+1],nz[m][n])} ($U=I_m$) & 
+           {\large {\tt hov}} \\[0.5ex]
+\hline& \\[-2.0ex] 
+{\tt reverse(tag,m,n,d=0,q,U[q][m],Z[q][n])} & 
+           {\large {\tt fov}} \\[0.5ex]
+{\tt reverse(tag,m,n,q,U[q][m],Z[q][n]} & 
+           {\large {\tt fov}} \\[0.5ex]
+{\tt reverse(tag,m=1,n,d=0,q,U[q],Z[q][n])} & 
+           {\large {\tt fov}} \\[1.0ex]
+\hline
+\end{tabular}
+%
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\Huge \bf Drivers for Ordinary Differential Equations
+           (C/C++)}\\[-0.5ex]
+\begin{align*}
+      \text{{\bf ODE}:}\qquad 
+      x'\left(t\right)=y\left(t\right)=F\left(x\left(t\right)\right),
+      \qquad x\left(0\right) = x_0
+\end{align*}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt  forodec(tag,n,tau,dold,d,X[n][d+1])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{15cm}
+\small 
+\begin{itemize}
+\item recursive forward computation of $x_{d_{old}+1},\ldots,x_d$ from 
+      $x_0,\ldots,x_{d_{old}}$ (by $x_{i+1} = \frac{1}{1+i}y_i$)
+\item application with $d_{old}=0$ delivers truncated Taylor series 
+      $\sum_0^d x_j t^j$ at base point $x_0$
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt   hov\_reverse(tag,n,n,d-1,n,I[n][n],A[n][n][d],nz[n][n])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{15cm}
+\small 
+\begin{itemize}
+\item reverse computation of $A_j=\frac{\partial y_j}{\partial x_0}$,
+  $j=0,\ldots,d$ after calling {\tt forodec} with degree $d$ 
+\item  optional nonzero pattern {\tt nz} ($\Rightarrow$ manual)
+\end{itemize}
+\end{minipage}\\[2ex]
+%
+\fbox{\parbox{17.5cm}{\begin{center}
+  {\tt   accodec(n,tau,d-1,A[n][n][d],B[n][n][d],nz[n][n])}
+\end{center}}}\\[2ex]
+\begin{minipage}[h]{15cm}
+\small 
+\begin{itemize}
+\item accumulation of total derivatives $B_j=\frac{d x_j}{d x_0}$,
+ $j=0,\ldots,d$ from the partial derivatives 
+ $A_j=\frac{\partial y_j}{\partial x_0}$, $j=0,\ldots,d$
+ after calling {\tt hov\_reverse} 
+\item  optional nonzero pattern {\tt nz} ($\Rightarrow$ manual)
+\end{itemize}
+\end{minipage}\\[4ex]
+%
+\begin{minipage}[h]{160mm}
+\small
+\underline{C++:} \hspace{0.5cm} Special C++ interfaces can be found in 
+                 file {\tt SRC/DRIVERS/odedrivers.h}!\\[3ex]
+\underline{Example:}
+\begin{verbatim}
+...
+double x[n], **I, **X, ***A, ***B;
+I=myallocI2(n);                        // allocation of identity matrix
+X=myalloc2(n,5);                       // allocation of matrix X
+A=myalloc3(n,n,4); B=myalloc3(n,n,4);  // allocation of tensors A and B
+...
+initialize(X);                         // setting up the argument x_0
+...
+forodec(ftag,n,1.0,0,4,X);             // compute x_1,...,x_4
+hov_reverse(ftag,n,n,3,n,I,A,NULL);    // compute A_0,...,A_3
+accodec(ftag,n,1.0,3,A,B,NULL);        // accumulate B_0,...,B_3
+...
+\end{verbatim}
+\end{minipage}
+%
+\end{center}
+
+\newpage
+%-----------------------------------------------------------------------
+%-----------------------------------------------------------------------
+\begin{center}\Large
+{\bf ADOL-C provides}\\[1ex]
+\fbox{\parbox{170mm}{
+\begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+\item Low-level~differentiation~routines ({\tt forward}/{\tt reverse})
+\item Easy-to-use driver routines for
+      \begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+      \item the solution of optimization problems and nonlinear equations
+      \item the integration of ordinary differential equations
+      \item the evaluation of higher derivative tensors 
+            ($\Rightarrow$ manual)
+      \end{itemize}
+\item Derivatives of implicit and inverse functions ($\Rightarrow$ manual)
+\item Forward and backward dependence analysis ($\Rightarrow$ manual)
+\end{itemize}}}\\[2ex]
+{\bf Recent developments}\\[1ex]
+\fbox{\parbox{17cm}{
+\begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+\item Efficient detection of Jacobian/Hessian sparsity structure
+\item Exploitation of Jacobian/Hessian sparsity by matrix compression
+\item Integration of checkpointing routines 
+\item Exploitation of fixpoint iterations
+\item Differentiation of OpenMP parallel programs
+\end{itemize}}}\\[2ex]
+{\bf Future developments}\\[1ex]
+\fbox{\parbox{17cm}{
+\begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+\item Internal optimizations to reduce storage needed for reverse mode
+\item Recovery of structure for internal function representation
+\item Differentiation of MPI parallel programs
+\end{itemize}}}\\[2ex]
+{\bf Contact/Resources}\\[1ex]
+\fbox{\parbox{17cm}{
+\begin{itemize}\setlength{\itemsep}{0cm}\setlength{\parsep}{0cm}
+\item E-mail: \hspace{0.6cm}{\tt adol-c@list.coin-or.org}
+\item WWW:    \hspace{0.5cm}{\tt http://www.coin-or.org/projects/ADOL-C.xml}
+\end{itemize}}}
+\end{center}
+
+\end{document}
+
+

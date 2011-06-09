@@ -1,0 +1,50 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains example programs that demonstrate the 
+application of the special ADOL-C drivers
+
+  tensor_eval(..) and inverse_tensor_eval(..)
+
+to compute higher order derivative tensors and how to access
+the derivative values of the compressed tensors.
+
+--------------------------------------------------------------
+CONTENTS OF THE DIRECTORY
+
+  taylorexam  --> Evaluation of higher order tensors
+                
+                  taylorexam.cpp
+
+  accessexam  --> Access to higher order tensors
+
+                  accessexam.cpp
+
+  inversexam  --> Evaluation of derivatives of inverse 
+                  functions 
+
+                  inversexam.cpp
+
+  trigger     --> Evaluation of derivatives of inverse 
+                  functions using a trigger circuit model
+                  as function 
+
+                  trigger.cpp
+
+  coordinates --> Evaluation of derivatives of inverse 
+                  functions using transformation between 
+                  Cartesian and polar coordinates
+
+                  coordinates.cpp
+

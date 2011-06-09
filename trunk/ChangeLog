@@ -1,0 +1,166 @@
+Version 2.1.0
+------->
+
+  20090715 awalther - new directory structure to fit usual COIN project standards
+Version 2.0.0
+	
+	
+Version 1.11.0
+
+  20060503 kowarz:  - new tape handling merged into trunk
+
+  20060428 kowarz:  - bug fixed that caused seg-fault when running standalone
+                      tapedoc
+                    - some additional security checks in tape_handling.cpp
+
+  20060424 kowarz:  - bux fixed that caused a SEG-fault when reading tape
+                      stats for a tape written by a different ADOL-C run
+
+  20060405 kowarz:  - taping code rewritten to "nullify" all pointers that
+                      were object to delete or free
+
+  20060301 kowarz:  - last bugfix for the taylor tape forced the writing of
+                      the corresponding file even if the taylor buffer could
+							 be hold the overall taylor tape => fixed
+						  - buffer sizes in usrparms.h set to default
+
+  20060301 schlenk: - value() function added for compatibility reasons
+  
+  20060228 kowarz:  - bug in taylor tape handling corrected
+						    => last taylor buffer from taping is now available for
+							    multiple reverse sweeps
+
+  20060224 kowarz:  - function 'value' in adouble.* changed to 'getValue'
+                      + corresponding updates in other files
+
+  20060215 schlenk: - code for fixpoint iteration added
+
+  20060215 kowarz:  - bug in extern diff. function code corrected
+                      (cross-over assignment)
+						  - ext_diff_fct_index is now part of TapeInfos
+						    - it is set by forward and reverse sweeps (from tape)
+							   and can be accessed via currentTapeInfos
+
+  20060203 kowarz:  Summary for the last two months:
+                    - taping strategies rewritten => should work with nested
+                      tapes now
+                    - enumeration for tape stats introduced => docs need to
+                      be updated
+                    - "theCleaner" code extended => should now be available in
+                      static versions, too
+                    - extern diff. function capabilities extended to fos_rev.
+                    - checkpointing interface based on extern differentiated
+                      function context and nested taping added
+                      => documentation will follow soon
+                    - configure system updated: --enable-debug and
+                      --enable-harddebug set appropriate compile flags, now
+                    - many minor changes :)
+
+  20051219 kowarz:  - TBUFSIZE (dvlparms.h) is now treated as number of
+                      elements
+						  - tape files (operations, locations, values) are now
+						    deleted at the end of the program for all tapes which
+                      could hold at least one within the main memory
+                    - file removal works for static and dynamic library now
+
+  20051214 kowarz:  - new file names for tapes
+                    - bug fixed that caused the writing of all tapes
+                      (op+loc+val) even if not all exceeded the buffer size
+                    - implemented the usage of different buffer sizes for
+                      different tapes (op, loc, val) => see "usrparms.h"
+
+  20051123 kowarz:  - rpl_malloc/rpl_calloc/rpl_realloc handling corrected
+
+  20050928 kowarz:  - Windows version updated. (Several problems in the sparse
+                      directory fixed) Should compile now!
+                    - PDF version of the documentation added
+
+Version 1.10.0
+
+  20050704 kowarz:  - initial makefile set for Windows
+                    - Windows section added to INSTALL
+
+  20050630 kowarz:  - function value(badouble x) removed from badouble
+                    - function value() added to badouble
+                      => use x.value() instead of value(x)
+                    - minor updates in the documentation
+
+  20050630 walther: - all includes of <malloc.h> changed to <stdlib.h>
+                      <= malloc.h not available in all operation systems
+                         (e.g. MAC OS)
+                    - changed min, max to MIN_ADOLC, MAC_ADOLC
+						  - changed maxinc to MAXDEC
+
+           kowarz:  - some minor style changes, error corrections, comment
+                      updates
+	
+Version 1.9.1
+
+  20050627 walther: - revised documentation
+                    - new coloring algorithms in graph_hess.*
+                      to generate seed matrix
+
+  20050617 kowarz:  - replacement functions for malloc, calloc, realloc added
+	
+  20050419 walther: - partial fix of the pow-function bug
+	                     (pow evaluated at 0):
+                          forward mode: all orders
+                          reverse mode: up to order 1
+                    - log_op corrected for hos_ov_reverse
+                    - hess_mat driver:
+                          change to static variables to reduce runtime
+                    - new drivers for sparse Hessians:
+                      * compute sparsity pattern
+                      * compute seed matrix from sparsity pattern
+                        using 3/2 coloring
+                      * compute Hessians in sparse format
+                    - new drivers for sparse Jacobians
+                      * compute seed matrix from sparsity pattern using CPR
+                      * compute Jacobians in sparse format
+
+  20050115 kowarz:  - two shell scripts added for cross compiling (32-bit and
+	                   64-bit mode)
+
+  20050114 kowarz:  - documentation for tapeless ADOL-C added
+                    - ADOL-C debug mode corrected (configure.ac)
+                      hard debug mode added to configure.ac
+
+  20050103 kowarz:  tapeless tangent corrected
+
+  20041110 kowarz:  tapeless forward version added (scalar / vector)
+                    documentation will follow soon
+
+  20041013 kowarz:  another memory bug in jac_pat fixed => jac_pat seems to
+                    be clean now ( thanks to valgrind ;-) )
+
+  20041007 kowarz:  fixed memory bug in jac_pat (sparsedrivers.c), hopefully
+                    ( memory allocated for NULL rb and cb is freed at the end
+                      of jap_pat now )
+                    thanks to Andreas Potschka
+
+  20041007 walther: partial fix of the pow-function bug (reverse mode)
+
+  20040913 kowarz:  added driver jacobian_partx in drivers/drivers.c and
+                    drivers/drivers.h that was written down earlier but was
+                    not added to the repository
+
+  20040717 kowarz:  bug fixed in tayutil.c (taylor_begin)
+                    ( old temporary files were never closed
+                      => could result in program crash due to too many file
+                         handles -> system dependend )
+                    => old files are closed now before new ones are opened
+                    thanks to Andrej Ponomarenko
+	
+  20040607 kowarz:  bug fixed in tayutil.c (taylor_begin)
+                    (old taylor memory was never freed
+                      => chance to run out of memory if used many times on
+                         same tag -> dependend on memory size )
+                    => moved "free( ... save_taylor)" ahead of
+                       " ... save_taylor = 0"
+                    thanks to Teijo T Arponen
+	
+  20040524 kowarz:  changed include of adolc files from standard notation
+                    (#include <...>) to user file notation (#include "...")
+
+! started with ADOL-C version 1.9.0 !
+

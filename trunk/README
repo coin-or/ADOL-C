@@ -1,0 +1,98 @@
+
+     ADOL-C
+
+This new version of ADOL-C features new library functions for
+
+  - sparse Jacobians and sparse Hessians 
+  - external differentiated functions
+  - optimal checkpointing
+  - adapted differentiation of fixed point iterations
+  - parallel differentiation of OpenMP-parallel loops
+    
+and many bug fixes. 
+
+Furthermore the source code was adapted to allow a compilation with
+WINDOWS compilers. See file "INSTALL" for generic installation 
+instructions and special instructions for the installation on a WINDOWS
+platform.
+ 
+The complete documentation can be found in the subdirectory "doc".
+
+
+
+LOCAL INSTALLATION
+==================
+
+1. Run configure with possibly using one of these options:
+
+  --prefix=PREFIX         install library and header files in PREFIX
+                          (default: ${HOME}/adolc_base)
+ 
+  --enable-sparse           build sparse drivers [default=no]
+
+  --with-openmp-flag=FLAG use FLAG to enable OpenMP at compile time
+                          [default=none]
+
+  --enable-docexa           build documented examples [default=no]
+  --enable-addexa           build additional examples [default=no]
+  --enable-parexa           build parallel example [default=no], if yes
+                          -with-openmp-flag=FLAG required
+
+  --with-cflags=FLAGS     use CFLAGS=FLAGS (default: -O3 -Wall -ansi)
+  --with-cxxflags=FLAGS   use CXXFLAGS=FLAGS (default: -O3 -Wall)
+
+2. Type make 
+
+3. Type make install
+
+   By default, `make install' will install all the files in ${PREFIX}/lib and
+   ${PREFIX}/include. You can specify another installation directory by using
+   the --prefix-option in the configure call.
+
+This procedure provides all makefiles required in the approporate directories.
+Execute 'configure --help' for more details on other available option.
+
+
+
+Nonlocal installation
+=====================
+
+As mentioned in INSTALL one can configure the adolc package to be installed
+in a different directory than "${HOME}/adolc_base" by using the "--prefix=PATH"
+configure option. This is typically used for global installations. Common PATHs
+are "/usr" and "/usr/local/", and others are known to be used. Fine control
+over the installation directories can be gained by supplying additional
+configure options. See "./configure --help" for details.
+
+Completing the installation by executing "make install" requires write
+permissions for all target directories. Make sure to have them or the result
+may be surprising otherwise.
+
+A global installation can be helpfull if many users need the library. By adding
+the library's path to "/etc/ld.so.conf" the usage of LD_LIBRARY_PATH and the
+"-L" link switch becomes unnecessary. In many cases, for instance for
+PATH=/usr/local, the use of the -I directive for compiling sources becomes 
+unnecessary too.
+
+
+
+Examples
+========
+
+Examples must be configured to build by using the configure switches 
+   --enable-docexa or --enable-addexa.
+They will never be installed by make install but can be found in the
+appropriate example subdirectory.
+
+
+
+Windows Compilation with Visual Studio
+======================================
+
+Please refer to the file windows/Readme_VC++.txt for building the library and 
+ADOL-C/examples/Readme_VC++.txt for the documented examples. 
+
+
+
+Enjoy this new version!
+

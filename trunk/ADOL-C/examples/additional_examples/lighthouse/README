@@ -1,0 +1,47 @@
+##############################################################################
+## README -- additional information
+## Revision: $Id: README 299 2009-02-26 09:20:11Z awalther $
+##
+## Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+##               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+##
+## This file is part of ADOL-C. This software is provided as open source.
+## Any use, reproduction, or distribution of the software constitutes 
+## recipient's acceptance of the terms of the accompanying license file.
+## 
+##############################################################################
+
+--------------------------------------------------------------
+
+This directory contains example programs concerning the 
+lighthouse example of Griewank's book 
+
+'Evaluating Derivatives: Principles and Techniques of 
+ Algorithmic Differentiation'
+   
+--------------------------------------------------------------
+
+CONTENTS OF THE DIRECTORY
+
+  cubic        --> Cubic lighthouse example using Cardan's 
+                   formula with two tapes.
+
+                   cubic.cpp
+
+  cubic-2      --> Cubic lighthouse example using Cardan's
+                   formula with one tape and condassign(..).
+
+                   cubic-2.cpp 
+
+  cubic-iter   --> Cubic lighthouse example: iterative
+                   computation of lightpoints including
+                   derivatives.
+         
+                   cubic-iter.cpp
+		  
+  cubic-iter-2 --> Cubic lighthouse example: iterative
+                   computation of one lightpoint including
+                   the derivative.
+         
+                   cubic-iter-2.cpp
+		  

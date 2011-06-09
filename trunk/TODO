@@ -1,0 +1,19 @@
+
+- check variable initialization (to overcome ADOL-C - malloc bug)
+
+- performance tuning for tape handling and in many other ways
+
+- add code for parsing a local config file (if supplied) at startup to be able
+  to change the internal buffer sizes at runtime
+
+- extend the extern differentiated function code to all major forward and
+  reverse routines
+
+- many interesting mathematics stuff ;)
+
+- update the documentation (as always)
+
+- add a ldconfig run for global installations
+
+- set documented examples to be compiled per default
+

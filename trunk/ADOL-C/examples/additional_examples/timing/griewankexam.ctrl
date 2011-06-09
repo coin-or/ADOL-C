@@ -1,0 +1,24 @@
+0   problem dimension (n)
+0   # of evaluations to average over use forward 
+0   optional degree for higher order stuff (--> keep)
+0   # of vectors in vector forward mode (p)
+0   # of vectors in vector reverse mode (p)
+0   # of vectors in tensor_eval (p)
+1   test zos_forward or not 
+1   test fos_forward or not
+1   test hos_forward or not
+1   test fov_forward or not
+1   test hov_forward or not
+1   test fos_reverse or not 
+1   test hos_reverse or not 
+1   test fov_reverse or not 
+1   test hov_reverse or not 
+1   test Function or not
+1   test Gradient/Jacobian or not
+1   test Vector-Gradient/Jacobian-Product or not
+1   test Gradient/Jacobian-Vector-Product or not
+0   test Hessian  or not 
+1   test Hessian-Vector-Product or not
+1   test Lagrange-Hessian-Vector-Product or not
+0   test Tensors or not 
+0   test Inverse tensors or not 
