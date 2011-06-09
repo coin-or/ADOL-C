@@ -15,17 +15,17 @@
 #if !defined(ADOLC_INTERFACES_MPI_H)
 #define ADOLC_INTERFACES_MPI_H 1
 
+#include <adolc/common.h>
+#include <adolc/adouble.h>
+#include <adolc/adolc_mpi.h>
+#include <adolc/interfaces.h>
+
 #if defined(HAVE_MPI_MPI_H)
 #include <mpi/mpi.h>
 #elif defined(HAVE_MPI_H)
 #include <mpi.h>
 #endif
 #if defined(HAVE_MPI)
-#include <adolc/common.h>
-#include <adolc/adouble.h>
-#include <adolc/adolc_mpi.h>
-#include <adolc/interfaces.h>
-
 /* High level driver functions */
 /* at first parameter this process-ID */
 
