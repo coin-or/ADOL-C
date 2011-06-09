@@ -82,10 +82,7 @@ int nonl_ind_forward_safe(
 
 #endif /* __cplusplus */
 
-#ifdef __cpluplus
-extern "C" {
-#endif
-
+BEGIN_C_DECLS
 int zos_forward_p(
     int,int,short,int,int,int,const double*,double*);
 
@@ -134,10 +131,7 @@ int nonl_ind_forward_tight_p(
 int nonl_ind_forward_safe_p(
     int, int, short, int, int, double*, unsigned int**);
 
-#ifdef __cpluplus
-}
-#endif
-
+END_C_DECLS
 
 #endif /*HAVE_MPI*/
 

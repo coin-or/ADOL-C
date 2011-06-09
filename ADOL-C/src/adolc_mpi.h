@@ -46,9 +46,7 @@ typedef enum ADOLC_MPI_Op_t {
     ADOLC_MPI_MAXLOC
 } ADOLC_MPI_Op;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_C_DECLS
 
 int ADOLC_MPI_Init(int* a, char*** b);
 int ADOLC_MPI_Comm_size(ADOLC_MPI_Comm comm, int* size);
@@ -58,9 +56,9 @@ int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 int ADOLC_MPI_Finalize() ;
 
 MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op);
-#ifdef __cplusplus
-}
-#endif
+
+END_C_DECLS
+
 extern int mpi_initialized;
 extern int process_count;
 

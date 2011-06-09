@@ -38,6 +38,9 @@ int trace_on( int id,
     int this_tag = size*tag + id;
     return trace_on( this_tag );
 }
+
+BEGIN_C_DECLS
+
 int ADOLC_MPI_Init( int* a,
                     char*** b
 ){
@@ -88,6 +91,8 @@ MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
 	case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
     }
 }
+
+END_C_DECLS
 
 int ADOLC_MPI_Send( adouble *buf,
                     int count,

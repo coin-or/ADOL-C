@@ -236,6 +236,7 @@ int nonl_ind_forward_safe(
 
 
 /*  for extern "C"           */
+BEGIN_C_DECLS
 int zos_forward_p( int id,
                  int size,
                  short tag,
@@ -363,3 +364,4 @@ int nonl_ind_forward_safe_p(
 ){
     return indopro_forward_safe(id,size,tag,m,n,x,crs);
 }
+END_C_DECLS
