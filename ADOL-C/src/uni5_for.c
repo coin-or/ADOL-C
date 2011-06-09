@@ -924,7 +924,7 @@ int  hov_forward(
      double *trade, *rec_buf;
      MPI_Status status_MPI;
      int mpi_i , loc_send,loc_recv;
-     MPI_Op mpi_op;
+     ADOLC_MPI_Op mpi_op;
      int myid,root, count, id;
      MPI_Comm_rank(MPI_COMM_WORLD, &id);
 #if defined(_NONLIND_)
@@ -933,7 +933,7 @@ int  hov_forward(
 #if defined(_INDO_)
      int *trade_loc, *rec_buf_loc;
      int *counts, *tmp_counts;
-     int anz;
+     int anz, mpi_id;
 #endif
 #if defined(_INT_FOR_)
      unsigned long int *up_mpi;
@@ -4063,7 +4063,7 @@ int  hov_forward(
            for(mpi_i =0; mpi_i < count; mpi_i++)
               trade[mpi_i] = dp_T0[loc_send+mpi_i];
 
-           MPI_Reduce(trade,rec_buf,count, MPI_DOUBLE, mpi_op, root, MPI_COMM_WORLD);
+           MPI_Reduce(trade,rec_buf,count, MPI_DOUBLE, adolc_to_mpi_op(mpi_op), root, MPI_COMM_WORLD);
            if (myid == root){
               for( mpi_i =0; mpi_i < count; mpi_i++){
                  IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
@@ -4082,7 +4082,7 @@ int  hov_forward(
            for(mpi_i =0; mpi_i < count; mpi_i++) {
               trade[mpi_i] = dp_T[loc_recv + mpi_i];
            }
-           MPI_Reduce(trade,rec_buf,count, MPI_DOUBLE, mpi_op, root, MPI_COMM_WORLD);
+           MPI_Reduce(trade,rec_buf,count, MPI_DOUBLE, adolc_to_mpi_op(mpi_op), root, MPI_COMM_WORLD);
            if ( myid == root){
               for( mpi_i =0; mpi_i < count; mpi_i++){
                  dp_T[loc_send+mpi_i] = rec_buf[mpi_i];
@@ -4101,7 +4101,7 @@ int  hov_forward(
               for(i=0; i<p; i++)
                  trade[p*mpi_i+i] = dpp_T[loc_recv+mpi_i][i];
 
-           MPI_Reduce(trade,rec_buf,count*p, MPI_DOUBLE,mpi_op, root, MPI_COMM_WORLD);
+           MPI_Reduce(trade,rec_buf,count*p, MPI_DOUBLE,adolc_to_mpi_op(mpi_op), root, MPI_COMM_WORLD);
            if ( myid == root){
               for(mpi_i =0; mpi_i < count; mpi_i++)
                  for(i=0; i<p; i++)
@@ -4120,7 +4120,7 @@ int  hov_forward(
               for(i=0; i<k; i++)
                  trade[k*mpi_i+i] = dpp_T[loc_recv + mpi_i][i];
 
-           MPI_Reduce(trade,rec_buf,count*k, MPI_DOUBLE,mpi_op, root, MPI_COMM_WORLD);
+           MPI_Reduce(trade,rec_buf,count*k, MPI_DOUBLE,adolc_to_mpi_op(mpi_op), root, MPI_COMM_WORLD);
            if ( myid == root){
               for(mpi_i =0; mpi_i < count; mpi_i++)
                  for(i=0; i<k; i++)
@@ -4139,7 +4139,7 @@ int  hov_forward(
               for(i=0; i<p*k; i++)
                  trade[p*k*mpi_i+i] = dpp_T[loc_recv+mpi_i][i];
 
-           MPI_Reduce(trade,rec_buf,count*p*k, MPI_DOUBLE,mpi_op, root, MPI_COMM_WORLD);
+           MPI_Reduce(trade,rec_buf,count*p*k, MPI_DOUBLE,adolc_to_mpi_op(mpi_op), root, MPI_COMM_WORLD);
            if ( myid == root){
               for(mpi_i =0; mpi_i < count; mpi_i++)
                  for(i=0; i<p*k; i++)
@@ -4200,7 +4200,7 @@ int  hov_forward(
               if(myid == root){
                  // combine each index domain ...
                  l = anz;
-                 for(mpi_op=1; mpi_op < process_count; mpi_op++ ){
+                 for(mpi_id=1; mpi_id < process_count; mpi_id++ ){
 
                     for(mpi_i=0; mpi_i < count; mpi_i++){
                        i = 0;
@@ -4253,11 +4253,11 @@ int  hov_forward(
                  for (i=0; i < process_count ; i++){
                     for (mpi_i=0; mpi_i < s_r_indep; mpi_i++){
                      // nonl_dom settings
-                        mpi_op=0;
-                        while ((rec_buf_loc[l + mpi_op] > -1) && (mpi_op < counts[0]) ) {
-                              mpi_op++;
+                        mpi_id=0;
+                        while ((rec_buf_loc[l + mpi_id] > -1) && (mpi_id < counts[0]) ) {
+                              mpi_id++;
                         }
-                        extend_nonlinearity_domain_combine_received_trade(mpi_i, mpi_op, nonl_dom, &rec_buf_loc[l]);
+                        extend_nonlinearity_domain_combine_received_trade(mpi_i, mpi_id, nonl_dom, &rec_buf_loc[l]);
                         l +=counts[0];
                     }
                  }

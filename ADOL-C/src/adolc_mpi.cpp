@@ -72,6 +72,23 @@ int ADOLC_MPI_Finalize( ){
     return MPI_Finalize();
 }
 
+MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
+    switch (op) {
+	case ADOLC_MPI_MAX: return MPI_MAX;
+	case ADOLC_MPI_MIN: return MPI_MIN;
+	case ADOLC_MPI_SUM: return MPI_SUM;
+	case ADOLC_MPI_PROD: return MPI_PROD;
+	case ADOLC_MPI_LAND: return MPI_LAND;
+	case ADOLC_MPI_BAND: return MPI_BAND;
+	case ADOLC_MPI_LOR: return MPI_LOR;
+	case ADOLC_MPI_BOR: return MPI_BOR;
+	case ADOLC_MPI_LXOR: return MPI_LXOR;
+	case ADOLC_MPI_BXOR: return MPI_BXOR;
+	case ADOLC_MPI_MINLOC: return MPI_MINLOC;
+	case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
+    }
+}
+
 int ADOLC_MPI_Send( adouble *buf,
                     int count,
                     ADOLC_MPI_Datatype datatype,
@@ -187,7 +204,7 @@ int ADOLC_MPI_Reduce(
     for(i= 0; i < count; i++) {
        trade_s[i] = send_buf[i].getValue();
      }
-    ierr = MPI_Reduce(trade_s,trade_r ,count,datatype,op,root, comm);
+    ierr = MPI_Reduce(trade_s,trade_r ,count,datatype,adolc_to_mpi_op(op),root, comm);
 
     if ( id == root){
        if( rec_buf == NULL)
