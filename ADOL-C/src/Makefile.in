@@ -87,8 +87,8 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	forward_partx.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
 	fov_offset_forward.c revolve.c taping_p.h int_forward_s.c \
 	int_forward_t.c indopro_forward_s.c indopro_forward_t.c \
-	nonl_ind_forward_s.c nonl_ind_forward_t.c int_reverse_s.c \
-	int_reverse_t.c
+	nlf_forward_s.c nlf_forward_t.c nonl_ind_forward_s.c \
+	nonl_ind_forward_t.c int_reverse_s.c int_reverse_t.c
 @SPARSE_FALSE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 @SPARSE_FALSE@	convolut.lo fortutils.lo interfaces.lo \
 @SPARSE_FALSE@	interfacesf.lo taping.lo tape_handling.lo \
@@ -108,7 +108,8 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@	externfcts.lo checkpointing.lo fixpoint.lo \
 @SPARSE_TRUE@	fov_offset_forward.lo revolve.lo int_forward_s.lo \
 @SPARSE_TRUE@	int_forward_t.lo indopro_forward_s.lo \
-@SPARSE_TRUE@	indopro_forward_t.lo nonl_ind_forward_s.lo \
+@SPARSE_TRUE@	indopro_forward_t.lo nlf_forward_s.lo \
+@SPARSE_TRUE@	nlf_forward_t.lo nonl_ind_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_forward_t.lo int_reverse_s.lo \
 @SPARSE_TRUE@	int_reverse_t.lo
 libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
@@ -362,6 +363,7 @@ libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
 @SPARSE_TRUE@                       fixpoint.cpp fov_offset_forward.c revolve.c \
 @SPARSE_TRUE@                       int_forward_s.c int_forward_t.c \
 @SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
+@SPARSE_TRUE@                       nlf_forward_s.c nlf_forward_t.c \
 @SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
 @SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c 
 
@@ -383,9 +385,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ADOL-C/src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ADOL-C/src/Makefile
+	  $(AUTOMAKE) --foreign ADOL-C/src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -489,6 +491,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfacesf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nlf_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nlf_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
