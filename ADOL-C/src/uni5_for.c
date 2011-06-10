@@ -139,6 +139,21 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 #define GENERATED_FILENAME "indopro_forward_s"
 #endif
 #endif
+
+#if defined(_NLF_)
+#if defined(_TIGHT_)
+#define GENERATED_FILENAME "nlf_forward_t"
+#endif
+#if defined(_NTIGHT_)
+#define GENERATED_FILENAME "nlf_forward_s"
+#endif
+typedef struct IndexElement {
+    locint  entry;
+    struct IndexElement* next;
+}
+IndexElement;
+#endif
+
 #if defined(_NONLIND_)
 
 /*
@@ -578,6 +593,35 @@ int indopro_forward_safe(
   */
 #endif
 #else
+#if defined(_NLF_)
+#if defined(_TIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode for bit patterns, tight   */
+/****************************************************************************/
+int nlf_forward_tight(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
+
+#endif
+#if defined (_NTIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode, bit pattern, safe        */
+/****************************************************************************/
+int nlf_forward_safe(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double     *basepoint,   /* independent variable values   (in)   */
+    unsigned int    **crs)         /* returned row index storage (out)     */
+
+/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
+
+  */
+#endif
+#else
 #if defined(_NONLIND_)
 #if defined(_TIGHT_)
 /****************************************************************************/
@@ -589,10 +633,6 @@ int nonl_ind_forward_tight(
     int               indcheck,    /* consistency chk on # of independents */
     const double     *basepoint,  /* independent variable values   (in)   */
     unsigned int     **crs)        /* returned row index storage (out)     */
-
-/* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
-
-  */
 
 #endif
 #if defined (_NTIGHT_)
@@ -697,6 +737,7 @@ int  hov_forward(
 #endif
 #endif
 #endif
+#endif
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
@@ -737,6 +778,17 @@ int  hov_forward(
 #if defined (_INDO_)
     int l=0;
     int max_ind_dom;
+#if defined (_NLF_)
+    IndexElement** csod;
+    IndexElement*  temp;
+    IndexElement*  temp1;
+    int index;
+    int index1;
+    int num;
+    locint entry;
+    int ii;
+    int jj;
+#endif
 #if defined(_NONLIND_)
     /* nonlinear interaction domains */
     locint** nonl_dom;
@@ -783,7 +835,9 @@ int  hov_forward(
 
     /* index domains */
     locint** ind_dom;
-
+#if defined(_INDO_)
+    locint** nlf;
+#endif
 #else
     double *dp_T0;
 #if !defined(_ZOS_)
@@ -966,12 +1020,27 @@ int  hov_forward(
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
     ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+#if defined(_NLF_)
+    nlf = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    csod = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
+    for(i=0;i<indcheck;i++)
+      {
+	csod[i] = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+	csod[i]->entry = 0;
+	csod[i]->next = NULL;
+      }  
 
+#endif
     for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
     {
         ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
         ind_dom[i][0] = 0;
         ind_dom[i][1] = NUMNNZ;
+#if defined(_NLF_)
+        nlf[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
+        nlf[i][0] = 0;
+        nlf[i][1] = NUMNNZ;
+#endif
     }
 
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
@@ -1210,6 +1279,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+                copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Targ,TAYLOR_BUFFER[arg])
@@ -1235,6 +1307,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
+#if defined(_NLF_)
+		nlf[res][0]=0;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1258,6 +1333,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
+#if defined(_NLF_)
+		nlf[res][0]=0;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1281,6 +1359,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
+#if defined(_NLF_)
+		nlf[res][0]=0;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1349,6 +1430,59 @@ int  hov_forward(
 		  crs[indexd][0] =0;
 		}
 #endif
+#if defined(_NLF_)
+				
+		for(l=2;l<=nlf[res][0]+1;l++)
+		  {
+		    int index = nlf[res][l];
+		    for(ii=2;ii<=ind_dom[index][0]+1;ii++)
+		      {
+			index1 = ind_dom[index][ii];
+			for(jj=2;jj<=ind_dom[index][0]+1;jj++)
+			  {
+			    temp1 = csod[index1];
+			    temp = csod[index1]->next;
+			    num = csod[index1]->entry;
+			    i=0;
+			    do
+			      {
+				if (temp==NULL)
+				  {
+				    temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+				    temp1->next = temp;
+				    temp->entry = ind_dom[index][jj];
+				    temp->next = NULL;
+				    csod[index1]->entry++;
+				    i = 1;
+				  }
+				else
+				  {
+				    if (temp->entry < ind_dom[index][jj])
+				      {
+					temp1 = temp;
+					temp = temp->next;
+				      }
+				    else
+				      {
+					if (temp->entry == ind_dom[index][jj])
+					  i = 1;
+					else
+					  {
+					    temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+					    temp->entry = ind_dom[index][jj];
+					    csod[index1]->entry++;
+					    temp->next = temp1->next;
+					    temp1->next = temp;
+					    i=1;
+					  }
+				      }
+				  }
+			      }
+			    while (i == 0);
+			  }
+		      }
+		  }
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1399,6 +1533,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1442,6 +1580,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#if defined(_NLF_)
+                merge_2_index_domains(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1494,6 +1635,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
 #endif
@@ -1572,6 +1717,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+                combine_2_index_domains(res, arg1, arg2, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1604,6 +1752,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+                copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1632,6 +1783,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+                combine_2_index_domains(res, arg1, arg2, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1664,6 +1818,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+#endif
+                copy_index_domain(res, arg, nlf);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1690,6 +1847,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
 		extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
@@ -1742,6 +1903,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+                /* copy_index_domain(res, arg1, nlf); */
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
@@ -1793,6 +1957,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+                /* copy_index_domain(res, arg1, nlf); */
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
@@ -1850,6 +2017,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+                copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1886,6 +2056,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
                 extend_nonlinearity_domain_unary(arg2, ind_dom, nonl_dom);
@@ -1947,6 +2121,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
@@ -1999,6 +2177,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+                copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2023,6 +2204,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+                copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2058,6 +2242,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
@@ -2114,6 +2302,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2180,6 +2372,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2243,6 +2439,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2298,6 +2498,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2391,6 +2595,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2486,6 +2694,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2541,6 +2753,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2618,6 +2834,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
@@ -2716,6 +2936,10 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2763,6 +2987,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
@@ -2841,6 +3069,10 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
@@ -2976,6 +3208,10 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		nlf[res][0] = 1;
+		nlf[res][2] = res;
+#endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
@@ -3138,6 +3374,21 @@ int  hov_forward(
 #else
                     combine_2_index_domains(res, arg1, arg2, ind_dom);
 #endif
+#if defined(_NLF_)
+#ifdef _TIGHT_
+                    if (dp_T0[arg1] < dp_T0[arg2])
+                        copy_index_domain(res, arg1, nlf);
+                    else {
+                        if (dp_T0[arg1] > dp_T0[arg2])
+                            copy_index_domain(res, arg2, nlf);
+                        else
+                            combine_2_index_domains(res, arg1, arg2, nlf);
+                    }
+#else
+                    combine_2_index_domains(res, arg1, arg2, nlf);
+#endif
+#endif
+
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
@@ -3156,23 +3407,23 @@ int  hov_forward(
                 FOR_0_LE_l_LT_p
                 { Targ = Tqo;
                   if (Targ == NULL) /* e.g. T0[arg1] == T0[arg2] */
-              { Targ1OP = Targ1;
-                  Targ2OP = Targ2;
-                  if (TARG1 > TARG2)
-                          Targ = Targ2OP;
+		    { Targ1OP = Targ1;
+		      Targ2OP = Targ2;
+		      if (TARG1 > TARG2)
+			Targ = Targ2OP;
                       else
-                          if (TARG1 < TARG2)
-                              Targ = Targ1OP;
+			if (TARG1 < TARG2)
+			  Targ = Targ1OP;
                       Targ1++;
                       Targ2++;
                       if (Targ == NULL) /* e.g. both are equal */
-                          Targ = Targ1OP;
-                  }
+			Targ = Targ1OP;
+		    }
 
                   TRES_INC = TARG_INC;
 
                   if (Tqo)
-                  Tqo++;
+		    Tqo++;
                 }
 
                 dp_T0[res] = MIN_ADOLC(dp_T0[arg1], dp_T0[arg2]);
@@ -3183,17 +3434,17 @@ int  hov_forward(
 #else
                 Tqo = NULL;
                 if (dp_T0[arg1] > dp_T0[arg2])
-                    Tqo = Targ2;
+		  Tqo = Targ2;
                 else
-                    if (dp_T0[arg1] < dp_T0[arg2])
-                        Tqo = Targ1;
+		  if (dp_T0[arg1] < dp_T0[arg2])
+		    Tqo = Targ1;
 
                 FOR_0_LE_l_LT_p
-                { Targ = Tqo;
-                  if (Targ == NULL) /* e.g. dp_T0[arg1] ==
+		  { Targ = Tqo;
+		    if (Targ == NULL) /* e.g. dp_T0[arg1] ==
                                                                                  dp_T0[arg2] */
-              { Targ1OP = Targ1;
-                  Targ2OP = Targ2;
+		      { Targ1OP = Targ1;
+			Targ2OP = Targ2;
                   FOR_0_LE_i_LT_k
                   { if (TARG1 > TARG2) {
                         Targ = Targ2OP;
@@ -3255,6 +3506,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3329,6 +3583,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3356,6 +3613,9 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
+#if defined(_NLF_)
+		copy_index_domain(res, arg, nlf);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3389,8 +3649,14 @@ int  hov_forward(
                     dp_T0[res] = dp_T0[arg1];
 
 		    combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+		    combine_2_index_domains(res, arg1, arg2, nlf);
+#endif
 #else
-                        copy_index_domain(res, arg1, ind_dom);
+		    copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+		    copy_index_domain(res, arg1, nlf);
+#endif
 #endif
 #ifdef _TIGHT_
                 } else {
@@ -3401,9 +3667,15 @@ int  hov_forward(
                     dp_T0[res] = dp_T0[arg2];
 
                         combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_NLF_)
+		    combine_2_index_domains(res, arg1, arg2, nlf);
+#endif
                 }
 #else
                         copy_index_domain(res, arg2, ind_dom);
+#if defined(_NLF_)
+		    copy_index_domain(res, arg1, nlf);
+#endif
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3476,6 +3748,8 @@ int  hov_forward(
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
                     copy_index_domain(res, arg1, ind_dom);
+#if defined(_NLF_)
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -3692,12 +3966,34 @@ int  hov_forward(
 
 
 #if defined(_INDO_)
-
     for(i=0;i<max_ind_dom;i++)
       {
 	free(ind_dom[i]);
       }
     free(ind_dom);
+#if defined(_NLF_)
+
+    for( i=0; i < indcheck; i++) {
+       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (csod[i]->entry+1));
+       crs[i][0] = csod[i]->entry;
+       temp1 = csod[i];
+       temp  = csod[i]->next;
+       for(l=1; l < crs[i][0]+1; l++)
+	 {
+	   crs[i][l] = temp->entry;
+	   free(temp1);
+	   temp1 = temp;
+	   temp = temp->next;
+	 }
+    }
+    free(csod);
+
+    for(i=0;i<max_ind_dom;i++)
+      {
+	free(nlf[i]);
+      }
+    free(nlf);
+#endif
 
 #if defined(_NONLIND_)
 
