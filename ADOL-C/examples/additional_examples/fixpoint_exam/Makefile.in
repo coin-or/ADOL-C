@@ -230,9 +230,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ADOL-C/examples/additional_examples/fixpoint_exam/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/fixpoint_exam/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ADOL-C/examples/additional_examples/fixpoint_exam/Makefile
+	  $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/fixpoint_exam/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
