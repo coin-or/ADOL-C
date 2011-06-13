@@ -457,7 +457,7 @@ int int_reverse_safe(
 
     if (taycheck < 0) {
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
-                " preceeded\nby a forward sweep with degree>0, keep=1!\n");
+                " preceded\nby a forward sweep with degree>0, keep=1!\n");
         exit(-2);
     };
 

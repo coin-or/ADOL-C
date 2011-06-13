@@ -299,7 +299,7 @@ ADOLC_DLL_EXPORT int int_forward_tight
 /*                                                   INDEX DOMAIN UTILITIES */
 /*--------------------------------------------------------------------------*/
 /*                                                            INDOPRO, SAFE */
-/* indopro_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
+/* indopro_forward_safe(tag, m, n, p, x[n], *crs[m])                          */
 
 ADOLC_DLL_EXPORT int indopro_forward_safe
 (short, int, int, const double*, unsigned int**);
@@ -307,9 +307,26 @@ ADOLC_DLL_EXPORT int indopro_forward_safe
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INDOPRO, TIGHT */
-/* indopro_forward_tight(tag, m, n,  x[n], *Y[m])                           */
+/* indopro_forward_tight(tag, m, n,  x[n], *crs[m])                           */
 
 ADOLC_DLL_EXPORT int indopro_forward_tight
+(short, int, int, const double*, unsigned int**);
+
+/****************************************************************************/
+/*                                             NONLINEAR FRONTIER UTILITIES */
+/*--------------------------------------------------------------------------*/
+/*                                                                NLF, SAFE */
+/* nlf_forward_safe(tag, m, n, p, x[n], *crs[m])                            */
+
+ADOLC_DLL_EXPORT int nlf_forward_safe
+(short, int, int, const double*, unsigned int**);
+
+
+/*--------------------------------------------------------------------------*/
+/*                                                           INDOPRO, TIGHT */
+/* nlf_forward_tight(tag, m, n,  x[n], *crs[m])                             */
+
+ADOLC_DLL_EXPORT int nlf_forward_tight
 (short, int, int, const double*, unsigned int**);
 
 /****************************************************************************/
