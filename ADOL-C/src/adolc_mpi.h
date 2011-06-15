@@ -48,12 +48,12 @@ typedef enum ADOLC_MPI_Op_t {
 
 BEGIN_C_DECLS
 
-int ADOLC_MPI_Init(int* a, char*** b);
-int ADOLC_MPI_Comm_size(ADOLC_MPI_Comm comm, int* size);
-int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
-int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
-int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
-int ADOLC_MPI_Finalize() ;
+ADOLC_DLL_EXPORT int ADOLC_MPI_Init(int* a, char*** b);
+ADOLC_DLL_EXPORT int ADOLC_MPI_Comm_size(ADOLC_MPI_Comm comm, int* size);
+ADOLC_DLL_EXPORT int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
+ADOLC_DLL_EXPORT int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
+ADOLC_DLL_EXPORT int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
+ADOLC_DLL_EXPORT int ADOLC_MPI_Finalize() ;
 
 MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op);
 
@@ -63,102 +63,91 @@ extern int mpi_initialized;
 extern int process_count;
 
 #ifdef __cplusplus
-int ADOLC_MPI_Send(
+ADOLC_DLL_EXPORT int ADOLC_MPI_Send(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
 
-int ADOLC_MPI_Recv(
+ADOLC_DLL_EXPORT int ADOLC_MPI_Recv(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
     int tag, ADOLC_MPI_Comm comm );
 
-int ADOLC_MPI_Bcast(
+ADOLC_DLL_EXPORT int ADOLC_MPI_Bcast(
     adouble *buf, int count, ADOLC_MPI_Datatype datatype, int root,
     ADOLC_MPI_Comm comm);
 
-int ADOLC_MPI_Reduce(
+ADOLC_DLL_EXPORT int ADOLC_MPI_Reduce(
     adouble *sendbuf, adouble* rec_buf, int count, ADOLC_MPI_Datatype type,
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm);
 
-int trace_on(int, int, short);
+ADOLC_DLL_EXPORT int trace_on(int, int, short, int keep = 0);
 
 /*********************************************************************/
 /* Algorithmic Differentation Programs                               */
+ADOLC_DLL_EXPORT int function(int, int, short, int , int, double*,double*);
+
 
 /* gradient(rank,size,tag, n, x[n], g[n])          */
-int gradient(
+ADOLC_DLL_EXPORT int gradient(
     int,int,short,int,double*,double*);
 
 /* hessian(rank,size,tag, n, x[n], H[n][n])         */
-int hessian(
+ADOLC_DLL_EXPORT int hessian(
     int,int,short,int,double*,double**);
 
 /* jacobian(rank,size,tag, m, n, x[n], J[m][n])                 */
-int jacobian(
+ADOLC_DLL_EXPORT int jacobian(
     int,int,short,int,int,const double*,double**);
 
 /* vec_jac(rank,size,tag, m, n, repeat, x[n], u[m], v[n])                             */
-int vec_jac(
+ADOLC_DLL_EXPORT int vec_jac(
     int,int,short,int,int,int,double*,double*,double*);
 
 /* jac_vec(rank,size,tag, m, n, x[n], v[n], u[m]);                                    */
-int jac_vec(
+ADOLC_DLL_EXPORT int jac_vec(
     int,int,short,int,int,double*,double*,double*);
 
 /* hess_vec(rank,size,tag, n, x[n], v[n], w[n])                                       */
-int hess_vec(
+ADOLC_DLL_EXPORT int hess_vec(
     int,int,short,int,double*,double*,double*);
 
-/* hess_mat(rank,size,tag, n, q, x[n], V[n][q], W[n][q])                              */
-int hess_mat(
-    int,int,short,int,int,double*,double**,double**);
-
-
 /* lagra_hess_vec(rank,size, tag, m, n, x[n], v[n], u[m], w[n])                        */
-int lagra_hess_vec(
+ADOLC_DLL_EXPORT int lagra_hess_vec(
     int,int,short,int,int,double*,double*,double*,double*);
 
 /* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
-void tape_doc(
+ADOLC_DLL_EXPORT void tape_doc(
     int,int,short, int,int, double*, double*);
 #endif /*__cplusplus*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+BEGIN_C_DECLS
 /* C - functions                                   */
-int trace_on_p(
-    int, int, short);
 
-int gradient_p(
+ADOLC_DLL_EXPORT int function_mpi(int, int, short, int , int, double*,double*);
+
+ADOLC_DLL_EXPORT int gradient_mpi(
     int,int,short,int,double*,double*);
-int hessian_p(
+
+ADOLC_DLL_EXPORT int hessian_mpi(
     int,int,short,int,double*,double**);
 
-int jacobian_p(
+ADOLC_DLL_EXPORT int jacobian_mpi(
     int,int,short,int,int,const double*,double**);
 
-int vec_jac_p(
+ADOLC_DLL_EXPORT int vec_jac_mpi(
     int,int,short,int,int,int,double*,double*,double*);
 
-int jac_vec_p(
+ADOLC_DLL_EXPORT int jac_vec_mpi(
     int,int,short,int,int,double*,double*,double*);
 
-int hess_vec_p(
+ADOLC_DLL_EXPORT int hess_vec_mpi(
     int,int,short,int,double*,double*,double*);
 
-int hess_mat_p(
-    int,int,short,int,int,double*,double**,double**);
-
-int lagra_hess_vec_p(
+ADOLC_DLL_EXPORT int lagra_hess_vec_mpi(
     int,int,short,int,int,double*,double*,double*,double*);
 
-void tape_doc_p(
+ADOLC_DLL_EXPORT void tape_doc_mpi(
     int,int,short, int,int, double*, double*);
-
-#ifdef __cplusplus
-}
-#endif
+END_C_DECLS
 
 #endif /*HAVE_MPI*/
 

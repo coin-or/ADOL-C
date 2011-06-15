@@ -42,7 +42,7 @@
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 #include <adolc/adolc_mpi.h>
 #endif
 
@@ -55,12 +55,19 @@
 
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
+#if defined(_MPI_)
+#  define GENERATED_FILENAME "zos_forward_mpi"
+#else
 #  define GENERATED_FILENAME "zos_forward"
-
+#endif
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_FOS_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fos_forward_mpi"
+#else
 #define GENERATED_FILENAME "fos_forward"
+#endif
 
 #define ARGUMENT(indexi,l,i) argument[indexi]
 #define TAYLORS(indexd,l,i)   taylors[indexd]
@@ -68,7 +75,11 @@
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_FOV_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fov_forward_mpi"
+#else
 #define GENERATED_FILENAME "fov_forward"
+#endif
 
 #define _ADOLC_VECTOR_
 
@@ -83,7 +94,11 @@
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_HOS_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "hos_forward_mpi"
+#else
 #define GENERATED_FILENAME "hos_forward"
+#endif
 
 #define _HIGHER_ORDER_
 
@@ -93,7 +108,11 @@
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_HOV_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "hov_forward_mpi"
+#else
 #define GENERATED_FILENAME "hov_forward"
+#endif
 
 #define _ADOLC_VECTOR_
 #define _HIGHER_ORDER_
@@ -116,10 +135,19 @@
 #else
 #if defined(_INT_FOR_)
 #if defined(_TIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_forward_t_mpi"
+#else
 #define GENERATED_FILENAME "int_forward_t"
 #endif
+#endif
+
 #if defined(_NTIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_forward_s_mpi"
+#else
 #define GENERATED_FILENAME "int_forward_s"
+#endif
 #endif
 #define ARGUMENT(indexi,l,i) argument[indexi][l]
 #define TAYLORS(indexd,l,i)   taylors[indexd][l]
@@ -130,7 +158,7 @@ void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 void combine_index_domain_received_data(int res, int count, locint **ind_dom, locint *trade);
 #endif
 
@@ -139,10 +167,19 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 
 #if defined(_INDOPRO_)
 #if defined(_TIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "indopro_forward_t_mpi"
+#else
 #define GENERATED_FILENAME "indopro_forward_t"
 #endif
+#endif
+
 #if defined(_NTIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "indopro_forward_s_mpi"
+#else
 #define GENERATED_FILENAME "indopro_forward_s"
+#endif
 #endif
 #endif
 #if defined(_NONLIND_)
@@ -159,17 +196,26 @@ void extend_nonlinearity_domain_unary
 void extend_nonlinearity_domain_binary
 (int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 void extend_nonlinearity_domain_combine_received_trade
 (int arg1, int counts, locint **nonl_dom, locint *trade);
 #endif
 
 
 #if defined(_TIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "nonl_ind_forward_t_mpi"
+#else
 #define GENERATED_FILENAME "nonl_ind_forward_t"
 #endif
+#endif
+
 #if defined(_NTIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "nonl_ind_forward_s_mpi"
+#else
 #define GENERATED_FILENAME "nonl_ind_forward_s"
+#endif
 #endif
 #endif
 
@@ -462,10 +508,15 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* Zero Order Scalar version of the forward mode.                           */
 /****************************************************************************/
+#if defined(_MPI_)
+int zos_forward_mpi(
+    int mpi_id, int mpi_size,
+#else
 #if defined(_KEEP_)
 int  zos_forward(
 #else
 int  zos_forward_nk(
+#endif
 #endif
     short  tnum,              /* tape id */
     int    depcheck,          /* consistency chk on # of deps */
@@ -481,10 +532,15 @@ int  zos_forward_nk(
 /****************************************************************************/
 /* First Order Scalar version of the forward mode.                          */
 /****************************************************************************/
+#if defined(_MPI_)
+int  fos_forward_mpi(
+    int mpi_id, int mpi_size,
+#else
 #if defined(_KEEP_)
 int  fos_forward(
 #else
 int  fos_forward_nk(
+#endif
 #endif
     short  tnum,        /* tape id */
     int    depcheck,    /* consistency chk on # of deps */
@@ -504,7 +560,12 @@ int  fos_forward_nk(
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_forward_tight_mpi(
+    int mpi_id, int mpi_size,
+#else
 int int_forward_tight(
+#endif
     short               tnum,     /* tape id                              */
     int                 depcheck, /* consistency chk on # of dependents   */
     int                 indcheck, /* consistency chk on # of independents */
@@ -533,7 +594,12 @@ int int_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_forward_safe_mpi(
+    int mpi_id, int mpi_size,
+#else
 int int_forward_safe(
+#endif
     short             tnum,     /* tape id                              */
     int               depcheck, /* consistency chk on # of dependents   */
     int               indcheck, /* consistency chk on # of independents */
@@ -560,7 +626,12 @@ and pass a bit pattern version of the identity matrix as an argument    */
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
+#if defined(_MPI_)
+int indopro_forward_tight_mpi(
+    int mpi_id, int mpi_size,
+#else
 int indopro_forward_tight(
+#endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -577,7 +648,12 @@ int indopro_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
+#if defined(_MPI_)
+int indopro_forward_safe_mpi(
+    int mpi_id, int mpi_size,
+#else
 int indopro_forward_safe(
+#endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -594,7 +670,12 @@ int indopro_forward_safe(
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
+#if defined(_MPI_)
+int nonl_ind_forward_tight_mpi(
+    int mpi_id, int mpi_size,
+#else
 int nonl_ind_forward_tight(
+#endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -610,7 +691,12 @@ int nonl_ind_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
+#if defined(_MPI_)
+int nonl_ind_forward_safe_mpi(
+    int mpi_id, int mpi_size,
+#else
 int nonl_ind_forward_safe(
+#endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -643,7 +729,12 @@ int  fov_offset_forward(
 /****************************************************************************/
 /* First Order Vector version of the forward mode.                          */
 /****************************************************************************/
+#if defined(_MPI_)
+int  fov_forward_mpi(
+    int mpi_id, int mpi_size,
+#else
 int  fov_forward(
+#endif
     short         tnum,        /* tape id */
     int           depcheck,    /* consistency chk on # of deps */
     int           indcheck,    /* consistency chk on # of indeps */
@@ -661,7 +752,12 @@ int  fov_forward(
 /* Higher Order Scalar version of the forward mode.                         */
 /****************************************************************************/
 #if defined(_KEEP_)
+#if defined(_MPI_)
+int  hos_forward_mpi(
+    int mpi_id, int mpi_size,
+#else
 int  hos_forward(
+#endif
 #else
 int  hos_forward_nk(
 #endif
@@ -685,7 +781,11 @@ int  hos_forward_nk(
 #if defined(_KEEP_)
 int  hov_wk_forward(
 #else
+#if defined(_MPI_)
+int hov_forward_mpi(int mpi_id, int mpi_size,
+#else
 int  hov_forward(
+#endif
 #endif
     short  tnum,        /* tape id */
     int    depcheck,    /* consistency chk on # of deps */
@@ -723,6 +823,9 @@ int  hov_forward(
     double coval = 0, *d = 0;
 
     int indexi = 0,  indexd = 0;
+#if defined(_MPI_)
+    short this_tnum = mpi_size*tnum + mpi_id;
+#endif
 
     /* loop indices */
 #if !defined (_ZOS_)
@@ -886,7 +989,13 @@ int  hov_forward(
     /****************************************************************************/
     /*                                                           DEBUG MESSAGES */
     fprintf(DIAG_OUT,"Call of %s(..) with tag: %d, n: %d, m %d,\n",
-            GENERATED_FILENAME, tnum, indcheck, depcheck);
+            GENERATED_FILENAME,
+#if defined(_MPI_)
+            this_tnum,
+#else
+            tnum,
+#endif
+            indcheck, depcheck);
 #if defined(_KEEP_)
     fprintf(DIAG_OUT,"                    keep: %d\n", keep);
 #endif
@@ -914,26 +1023,30 @@ int  hov_forward(
         fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
                 "Number of dependent(%u) and/or independent(%u) variables passed"
                 " to forward is\ninconsistent with number "
-                "recorded on tape (%d, %d) \n", tnum,
+                "recorded on tape (%d, %d) \n",
+# if defined(_MPI_)
+this_tnum,
+#else
+tnum,
+#endif
                 depcheck, indcheck,
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
      double *trade, *rec_buf;
      MPI_Status status_MPI;
      int mpi_i , loc_send,loc_recv;
      ADOLC_MPI_Op mpi_op;
-     int myid,root, count, id;
-     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+     int myid,root, count, id=mpi_id;
 #if defined(_NONLIND_)
      locint *tmp_element;
 #endif
 #if defined(_INDO_)
      int *trade_loc, *rec_buf_loc;
      int *counts, *tmp_counts;
-     int anz, mpi_id;
+     int anz;
 #endif
 #if defined(_INT_FOR_)
      unsigned long int *up_mpi;
@@ -1006,7 +1119,7 @@ int  hov_forward(
 
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #if defined(_NONLIND_)
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
     int s_r_indep =indcheck;
     if (mpi_initialized) {
        MPI_Comm_rank(MPI_COMM_WORLD, &myid);
@@ -3689,7 +3802,7 @@ int  hov_forward(
                 break;
 #endif
                 /*--------------------------------------------------------------------------*/
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
       case send_data:	// MPI-Send-Befehl
 	      arg = get_locint_f(); // first Buffer
 	      arg1 = get_locint_f(); // count
@@ -4333,7 +4446,7 @@ int  hov_forward(
     free(ind_dom);
 
 #if defined(_NONLIND_)
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
     if (mpi_initialized){
        indcheck = s_r_indep;
        if (id == 0 ){
@@ -4406,7 +4519,7 @@ void copy_index_domain(int res, int arg, locint **ind_dom) {
 }
 
 
-void merge_2_index_domains(int res, int arg, locint **ind_dom) 
+void merge_2_index_domains(int res, int arg, locint **ind_dom)
 {
 
   int num,num1,num2, i,j,k,l;
@@ -4427,7 +4540,7 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom)
 
 	  if (num2 < num1+num)
 	    num2 = num1+num;
-	  
+
 	  temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
 	  temp_array[1] = num2;
 
@@ -4453,7 +4566,7 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom)
 		  else
 		    {
 		      temp_array[k] = arg_ind_dom[j];
-		      j++;k++;		      
+		      j++;k++;
 		    }
 		}
 	    }
@@ -4490,7 +4603,7 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 }
 
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 void combine_index_domain_received_data(int res, int count, locint **ind_dom, locint *trade) {
 
     int num,num1,i,j,k,l;
@@ -4573,14 +4686,14 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom)
 {
   int index,num,num1, num2, i,j,k,l,m;
   locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
 
   num = ind_dom[arg2][0];
 
-  for(m=2;m<ind_dom[arg1][0]+2;m++) 
+  for(m=2;m<ind_dom[arg1][0]+2;m++)
     {
       index = ind_dom[arg1][m];
       index_nonl_dom = nonl_dom[index];
@@ -4596,18 +4709,18 @@ void extend_nonlinearity_domain_binary_step
 	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
 	    index_nonl_dom[i] = ind_dom[arg2][i];
 	  index_nonl_dom[0] = num;
-	} 
-      else 
+	}
+      else
 	{ /* merge lists */
 	  num1 = index_nonl_dom[0];
 	  num2 = index_nonl_dom[1];
-	  
+
 	  if (num1+num > num2)
 	    num2 = num1+num;
-	  
+
 	  temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
 	  temp_nonl[1] = num2;
-	  
+
 	  i = 2;
 	  k = 2;
 	  j = 2;
@@ -4635,7 +4748,7 @@ void extend_nonlinearity_domain_binary_step
 	    temp_nonl[k] = index_nonl_dom[l];
 	    k++;
 	  }
-	  temp_nonl[0] = k-2; 
+	  temp_nonl[0] = k-2;
 	  free((char*) nonl_dom[index]);
 	  nonl_dom[index] = temp_nonl;
 	}
@@ -4654,7 +4767,7 @@ void extend_nonlinearity_domain_binary
 }
 
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 void extend_nonlinearity_domain_combine_received_trade(int index, int counts, locint **nonl_dom, locint *trade) {
     int num, i,j,k,l,m;
     locint* temp_nonl;

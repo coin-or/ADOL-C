@@ -59,8 +59,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _HOS_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "hos_reverse_mpi"
+#else
 #define GENERATED_FILENAME "hos_reverse"
-
+#endif
 #define _HIGHER_ORDER_
 
 #define RESULTS(l,indexi,k) results[indexi][k]
@@ -95,7 +98,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #elif _HOV_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "hov_reverse_mpi"
+#else
 #define GENERATED_FILENAME "hov_reverse"
+#endif
 
 #define _ADOLC_VECTOR_
 #define _HIGHER_ORDER_
@@ -273,7 +280,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 #include <adolc/adolc_mpi.h>
 #endif /* ADOLC_Parallel */
 
@@ -290,7 +297,12 @@ BEGIN_C_DECLS
 /***************************************************************************/
 /* Higher Order Scalar Reverse Pass.                                       */
 /***************************************************************************/
-int hos_reverse(short   tnum,        /* tape id */
+#if defined(_MPI_)
+int hos_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int hos_reverse(
+#endif
+                short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
                 int     degre,       /* highest derivative degre  */
@@ -305,7 +317,11 @@ int hos_reverse(short   tnum,        /* tape id */
         for ( j = 1; j <= degre; ++j )
             L[i][j] = 0.0;
     }
+#if defined(_MPI_)
+    rc = hos_ti_reverse(mpi_id+mpi_size*tnum,depen,indep,degre,L,results);
+#else
     rc = hos_ti_reverse(tnum,depen,indep,degre,L,results);
+#endif
 	if((depen!=0) && (indep != 0)) myfree2(L);
     return rc;
 }
@@ -335,7 +351,12 @@ int hos_ov_reverse(short   tnum,       /* tape id */
 /***************************************************************************/
 /* Higher Order Vector Reverse Pass.                                       */
 /***************************************************************************/
-int hov_reverse(short   tnum,        /* tape id */
+#if defined(_MPI_)
+int hov_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int hov_reverse(
+#endif
+                short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
                 int     degre,       /* highest derivative degre */
@@ -351,7 +372,11 @@ int hov_reverse(short   tnum,        /* tape id */
             for ( j = 1; j <= degre; ++j )
                 L[k][i][j] = 0.0;
         }
+#if defined(_MPI_)
+    rc = hov_ti_reverse(mpi_size*tnum + mpi_id,depen,indep,degre,nrows,L,results,nonzero);
+#else
     rc = hov_ti_reverse(tnum,depen,indep,degre,nrows,L,results,nonzero);
+#endif
     myfree3(L);
     return rc;
 }
@@ -591,7 +616,7 @@ int hov_ti_reverse(
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 	MPI_Status status_MPI;
 	double *trade, *rec_buf;
 	int mpi_i, id, root, count, loc_recv, loc_send;
@@ -2093,7 +2118,7 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 	       case receive_data:	// MPI-Send
 	           res  = get_locint_r(); // tag
 	           arg2 = get_locint_r(); // dest
