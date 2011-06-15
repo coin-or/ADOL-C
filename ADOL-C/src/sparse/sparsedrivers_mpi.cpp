@@ -103,7 +103,7 @@ int jac_pat_mpi(int id, int size, short tag, int depen,int indep,const double *b
      return(rc);
 }
 
-int sparse_jac_mpi(int id,int size, short tag, int depen, int indep, int repeat, double* basepoint, int *nnz, unsigned int **rind, unsigned int **cind, double **values, int *options)
+int sparse_jac_mpi(int id,int size, short tag, int depen, int indep, int repeat,const double* basepoint, int *nnz, unsigned int **rind, unsigned int **cind, double **values, int *options)
 {
 #ifdef HAVE_LIBCOLPACK
      int this_tag = size*tag +id;
@@ -316,7 +316,7 @@ int hess_pat_mpi(
      int size,
      short          tag,        /* tape identification                        */
      int            indep,      /* number of independent variables            */
-     double  *basepoint,  /* independant variable values                */
+     const double  *basepoint,  /* independant variable values                */
      unsigned int **crs,
      /* returned compressed row block-index storage                         */
      int          option
@@ -363,7 +363,7 @@ int sparse_hess_mpi(
      short          tag,        /* tape identification                     */
      int            indep,      /* number of independent variables         */
      int            repeat,     /* indicated repeated call with same seed  */
-     double  *basepoint,  /* independant variable values             */
+     const double  *basepoint,  /* independant variable values             */
      int           *nnz,        /* number of nonzeros                      */
      unsigned int **rind,       /* row index                               */
      unsigned int **cind,       /* column index                            */
@@ -584,12 +584,12 @@ int hess_pat( int id, int size, short tag, int indep, double *basepoint, unsigne
      return hess_pat_mpi( id, size, tag, indep, basepoint, crs, option);
 }
 
-int sparse_jac( int id,int size ,short tag, int depen, int indep, int repeat, double *basepoint, int *nnz, unsigned int **rind,
+int sparse_jac( int id,int size ,short tag, int depen, int indep, int repeat,const double *basepoint, int *nnz, unsigned int **rind,
     unsigned int **cind, double **values,int *options ){
      return sparse_jac_mpi(id,size,tag,depen,indep,repeat,basepoint,nnz,rind,cind,values,options);
 }
 
-int sparse_hess( int id, int size ,short tag ,int indep,int repeat, double *basepoint, int *nnz ,unsigned int **rind, unsigned int **cind, double **values, int *options){
+int sparse_hess( int id, int size ,short tag ,int indep,int repeat,const double *basepoint, int *nnz ,unsigned int **rind, unsigned int **cind, double **values, int *options){
      return sparse_hess_mpi(id,size,tag,indep,repeat,basepoint,nnz,rind,cind,values,options);
 }
 

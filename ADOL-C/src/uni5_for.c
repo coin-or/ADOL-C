@@ -1015,9 +1015,11 @@ int  hov_forward(
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* Initialize the Forward Sweep */
-
+#if defined(_MPI_)
+    init_for_sweep(this_tnum);
+#else
     init_for_sweep(tnum);
-
+#endif
       if ( (depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
             (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]) ) {
         fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
