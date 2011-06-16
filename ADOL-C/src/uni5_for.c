@@ -751,15 +751,15 @@ int  fov_forward(
 /****************************************************************************/
 /* Higher Order Scalar version of the forward mode.                         */
 /****************************************************************************/
-#if defined(_KEEP_)
 #if defined(_MPI_)
 int  hos_forward_mpi(
     int mpi_id, int mpi_size,
 #else
+#if defined(_KEEP_)
 int  hos_forward(
-#endif
 #else
 int  hos_forward_nk(
+#endif
 #endif
     short  tnum,        /* tape id */
     int    depcheck,    /* consistency chk on # of dependents */
@@ -778,11 +778,11 @@ int  hos_forward_nk(
 /****************************************************************************/
 /* Higher Order Vector version of the forward mode.                         */
 /****************************************************************************/
-#if defined(_KEEP_)
-int  hov_wk_forward(
-#else
 #if defined(_MPI_)
 int hov_forward_mpi(int mpi_id, int mpi_size,
+#else
+#if defined(_KEEP_)
+int  hov_wk_forward(
 #else
 int  hov_forward(
 #endif
