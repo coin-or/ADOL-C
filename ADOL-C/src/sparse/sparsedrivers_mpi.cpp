@@ -62,7 +62,7 @@ int jac_pat_mpi(int id, int size, short tag, int depen,int indep,const double *b
      int rc= -1;
      int i, ctrl_options[2];
 
-    if (crs == NULL) {
+    if ((crs == NULL) && (id == 0)) {
         fprintf(DIAG_OUT,"ADOL-C user error in jac_pat(...) : "
                 "parameter crs may not be NULL !\n");
         exit(-1);
@@ -225,10 +225,7 @@ int sparse_jac_mpi(int id,int size, short tag, int depen, int indep, int repeat,
         else
            tmp = sJinfos.seed_clms;
 
-//        for(i=1; i < size ; i++)
-  //           MPI_Send(&tmp,1,MPI_INT,i,0,MPI_COMM_WORLD);
         MPI_Bcast(&tmp,1,MPI_INT,0,MPI_COMM_WORLD);
-        MPI_Barrier(MPI_COMM_WORLD);
 
         /* compute jacobian times matrix product */
         if (options[3] == 1){
@@ -239,7 +236,7 @@ int sparse_jac_mpi(int id,int size, short tag, int depen, int indep, int repeat,
         }
         else
         {
-           rc = fov_forward(this_tag, depen, indep, sJinfos.seed_clms, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
+           rc = fov_forward_mpi(id,size,tag, depen, indep, sJinfos.seed_clms, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
         }
 
         /* recover compressed Jacobian => ColPack library */
@@ -288,8 +285,6 @@ int sparse_jac_mpi(int id,int size, short tag, int depen, int indep, int repeat,
 		  return rc;
 
        MPI_Bcast(&tmp,1,MPI_INT,0,MPI_COMM_WORLD);
-       MPI_Barrier(MPI_COMM_WORLD);
-
 
           if (options[3] == 1){
              rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
@@ -502,7 +497,6 @@ int sparse_hess_mpi(
 
         tmp = sHinfos.p;
         MPI_Bcast(&tmp,1, MPI_INT,0,MPI_COMM_WORLD);
-        MPI_Barrier(MPI_COMM_WORLD);
 
         for (i = 0; i < sHinfos.p; ++i) {
             for (l = 0; l < indep; ++l)
@@ -562,7 +556,6 @@ int sparse_hess_mpi(
            return ret_val;
 
         MPI_Bcast(&tmp,1, MPI_INT,0,MPI_COMM_WORLD);
-        MPI_Barrier(MPI_COMM_WORLD);
 
         for (i = 0; i < tmp; ++i) {
             ret_val = fos_forward_mpi(id,size,tag, 0, 0, 2, NULL, NULL, NULL, NULL);

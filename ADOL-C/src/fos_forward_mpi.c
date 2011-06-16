@@ -13,7 +13,6 @@
 ----------------------------------------------------------------------------*/
 #include <adolc/common.h>
 #ifdef HAVE_MPI
-#define _MPI_FOS_ 1
 #define _MPI_ 1
 #define _FOS_ 1
 #define _KEEP_ 1
@@ -21,5 +20,4 @@
 #undef _KEEP_
 #undef _FOS_
 #undef _MPI_
-#undef _MPI_FOS_
 #endif
