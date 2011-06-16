@@ -336,12 +336,16 @@ int jacobian_mpi(int id, int size ,short tag ,int m,int n,const double* x,double
         }
         myfree1(result);
      } else {
-        rc = fov_forward_mpi(id,size,tag,0,0,n,NULL,NULL,NULL,NULL);
-        if(rc <0){
-           printf("Failure by computing parallel jacobian, process id %d!\n",id);
-           return rc;
-        }
-        rc = fov_reverse_mpi(id,size,tag,0,0,m,NULL,NULL);
+        if (n/2 < m) {
+            rc = fov_forward_mpi(id,size,tag,0,0,n,NULL,NULL,NULL,NULL);
+        } else {
+            rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
+            if(rc <0){
+               printf("Failure by computing parallel jacobian, process id %d!\n",id);
+               return rc;
+            }
+            rc = fov_reverse_mpi(id,size,tag,0,0,m,NULL,NULL);
+           }
      }
      return rc;
 }
