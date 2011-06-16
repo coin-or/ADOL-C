@@ -151,10 +151,35 @@ int fov_reverse( int id,
     return rc;
 }
 
+int hov_reverse(
+      int id, int size, short tag, int m, int n, int degre,
+      int nrows, double **lagrange, double ***results,
+      short **nonzero){
+int rc = -3;
+    if (id==0)
+       rc = hov_reverse_mpi(id,size,tag,m,n,degre,nrows, lagrange,results,nonzero);
+    else
+       rc = hov_reverse_mpi(id,size,tag,0,0,degre,0, NULL,NULL,NULL);
+    return rc;
+}
+
+int hov_forward(
+      int id, int size, short tag, int m, int n, int degre,
+      int p,double *x, double ***a, double *v,
+      double ***taylors){
+int rc = -3;
+    if (id==0)
+       rc = hov_forward_mpi(id,size,tag,m,n,degre, p,x,a,v,taylors);
+    else
+       rc = hov_forward_mpi(id,size,tag,0,0,degre,p,
+       NULL,NULL,NULL,NULL);
+    return rc;
+}
+
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 int int_forward_tight(
     int id,int size,short tag,
-    int m,int n,int p,double* x,
+    int m,int n,int p, const double* x,
     unsigned long int** x_pp,double* y,unsigned long int** y_pp){
 
     int rc=-3;
@@ -179,19 +204,19 @@ int int_forward_safe(
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
 int indopro_forward_tight(
-    int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+    int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
     int rc=-3;
     if (id==0)
        rc = indopro_forward_tight_mpi(id,size,tag,m,n,x,crs);
     else
-       rc = indopro_forward_tight_mpi(id,size,tag,0,0,NULL,NULL);
+       rc = indopro_forward_tight_mpi(id,size,tag,0,0,x,NULL);
     return rc;
 }
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])                                   */
 int indopro_forward_safe(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
     int rc=-3;
     if (id==0)
@@ -203,7 +228,7 @@ int indopro_forward_safe(
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m])   */
 int nonl_ind_forward_tight(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
     int rc=-3;
     if (id==0)
@@ -215,7 +240,7 @@ int nonl_ind_forward_tight(
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])   */
 int nonl_ind_forward_safe(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
     int rc=-3;
     if (id==0)
