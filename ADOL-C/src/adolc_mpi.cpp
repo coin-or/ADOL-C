@@ -20,7 +20,7 @@
 #include <adolc/drivers/drivers.h>
 #include <adolc/tapedoc/tapedoc.h>
 #include <adolc/adalloc.h>
-#include <adolc/interfaces.h>
+#include <adolc/interfaces_mpi.h>
 #include <adolc/convolut.h>
 
 #define ADOLC_MPI_Datatype MPI_Datatype
@@ -33,10 +33,10 @@ int process_count = 1;
 
 int trace_on( int id,
               int size,
-              short tag
+              short tag,
+              int keepTaylors
 ){
-    int this_tag = size*tag + id;
-    return trace_on( this_tag );
+    return trace_on(id+size*tag,keepTaylors);
 }
 
 BEGIN_C_DECLS
@@ -237,122 +237,200 @@ int ADOLC_MPI_Reduce(
 /* Algorithmic Differentation Programs                               */
 
 int function(int id, int size,short tag,int m,int n,double* argument ,double* result){
-	int rc =-1;
-	int this_tag = tag*size + id;
-	if( id == 0)
-		rc = function(this_tag,m,n,argument,result);
-	else
-		rc = function(this_tag,0,0,NULL,NULL);
-	return rc;
+     return function_mpi(id,size,tag,m,n,argument,result);
 }
 
-int gradient(int id,int size,short tag ,int n, double* x,double* result){
-	int rc=-1;
-	int this_tag = tag*size + id;
-	double one =1.0;
-	if( id == 0)
-		rc = gradient(this_tag , n , x , result);
-	else {
-		rc = zos_forward(this_tag,0,0,1,NULL,NULL);
-		if(rc <0){
-			printf("Failure by computing parallel hessian, process id %d!\n",id);
-			return rc;
-		}
-		rc = fos_reverse(this_tag,0,0,&one,result);
-	}
-	return rc;
+int gradient(int id,int size,short tag,int n,double *x,double *y)
+{
+     return gradient_mpi(id,size,tag,n,x,y);
 }
 
-int jacobian(int id, int size ,short tag ,int m,int n,const double* a,double** result){
-	int rc=-1;
-	int this_tag = size*tag + id;
-
-	if(id==0){
-		rc = jacobian(this_tag,m,n,a,result);
-	} else {
-		if (n/2 < m) {
-			rc = fov_forward(this_tag,0,0,n,NULL,NULL,NULL,NULL);
-		} else {
-			rc = zos_forward(this_tag,0,0,1,a,NULL);
-			if(rc <0){
-				printf("Failure by computing parallel jacobian, process id %d!\n",id);
-				return rc;
-			}
-			rc = fov_reverse(this_tag,0,0,m,NULL,result);
-		}
-	}
-	return rc;
+int hessian(int id,int size,short tag,int n,double *x,double **x_pp)
+{
+     return hessian_mpi(id,size,tag,n,x,x_pp);
 }
 
-int hessian(int id,int size,short tag ,int n,double* x ,double** result){
-	int rc =-3,i;
-	int this_tag = tag*size + id;
-	if ( id == 0){
-         rc = hessian(this_tag,n,x,result);
-	}
-	else {
+int jacobian(int id,int size,short tag,int m,int n,const double *x,double **x_pp)
+{
+return jacobian_mpi(id,size,tag,m,n,x,x_pp);
+}
+
+int vec_jac(int id,int size,short tag,int m,int n,int p,double *x,double *y, double *z)
+{
+return vec_jac_mpi(id,size,tag,m,n,p,x,y,z);
+}
+
+int jac_vec(int id,int size,short tag,int m,int n,double *x,double *y,double *z)
+{
+return jac_vec_mpi(id,size,tag,m,n,x,y,z);
+}
+
+int hess_vec(int id,int size,short tag,int n,double *x,double *y,double *z)
+{
+return hess_vec_mpi(id,size,tag,n,x,y,z);
+}
+
+int lagra_hess_vec(int id,int size,short tag,int n,int p,double *x,double *y,double *t,double *z)
+{
+return lagra_hess_vec_mpi(id,size,tag,n,p,x,y,t,z);
+}
+
+void tape_doc(int id,int size,short tag, int m,int n, double *x, double *y)
+{
+return tape_doc_mpi(id,size,tag,m,n,x,y);
+}
+
+BEGIN_C_DECLS
+
+/* C - functions                                   */
+int function_mpi(int id, int size,short tag,int m,int n,double* argument ,double* result){
+     int rc =-1;
+     if( id == 0)
+          rc = zos_forward_mpi(id,size,tag,m,n,0,argument,result);
+     else
+          rc = zos_forward_mpi(id,size,tag,0,0,0,NULL,NULL);
+     return rc;
+}
+
+int gradient_mpi(int id,int size,short tag ,int n, double* x,double* result){
+
+     int rc=-1;
+     double one =1.0;
+     if( id == 0){
+          rc = zos_forward_mpi(id,size,tag,1,n,1,x,result);
+          if(rc <0){
+               printf("Failure by computing parallel hessian, process id %d!\n",id);
+               return rc;
+          }
+          rc = fos_reverse_mpi(id,size,tag,1,n,&one,result);
+     } else {
+          rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
+          if(rc <0){
+               printf("Failure by computing parallel hessian, process id %d!\n",id);
+               return rc;
+          }
+          rc = fos_reverse_mpi(id,size,tag,0,0,&one,result);
+     }
+     return rc;
+}
+
+int jacobian_mpi(int id, int size ,short tag ,int m,int n,const double* x,double** jacobian){
+    int rc=-1;
+    double *result = NULL , **I = NULL;
+
+    if(id == 0){
+        result = myalloc1(m);
+        if (n/2 < m) {
+            I = myallocI2(n);
+            rc = fov_forward_mpi(id,size,tag,m,n,n,x,I,result,jacobian);
+            myfreeI2(n, I);
+        } else {
+            I = myallocI2(m);
+            rc = zos_forward_mpi(id,size,tag,m,n,1,x,result);
+            if(rc <0){
+               printf("Failure by computing parallel jacobian, process id %d!\n",id);
+               return rc;
+            }
+            rc = fov_reverse_mpi(id,size,tag,m,n,m,I,jacobian);
+            myfreeI2(m, I);
+        }
+        myfree1(result);
+     } else {
+        if (n/2 < m) {
+            rc = fov_forward_mpi(id,size,tag,0,0,n,NULL,NULL,NULL,NULL);
+        } else {
+            rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
+            if(rc <0){
+               printf("Failure by computing parallel jacobian, process id %d!\n",id);
+               return rc;
+            }
+            rc = fov_reverse_mpi(id,size,tag,0,0,m,NULL,NULL);
+           }
+     }
+     return rc;
+}
+
+int hessian_mpi(int id,int size,short tag ,int n,double* x ,double** result){
+     int rc =-3,i,j;
+     if ( id == 0){
+        double *v = myalloc1(n);
+        double *w = myalloc1(n);
+        for(i=0;i<n;i++) v[i] = 0;
+        for(i=0;i<n;i++) {
+           v[i] = 1;
+           MINDEC(rc, hess_vec_mpi(id,size,tag, n, x, v, w));
+        if(rc <0){
+           printf("Failure by computing parallel hessian, process id %d!\n",id);
+           free((char *)v);
+           free((char *) w);
+           return rc;
+        }
+        for(j=0;j<=i;j++)
+            result[i][j] = w[j];
+        v[i] = 0;
+        }
+        free((char *)v);
+        free((char *) w);
+     } else {
         for (i=0; i<n; i++){
-            rc = fos_forward(this_tag, 0,0,2,NULL,NULL,NULL,NULL);
+            rc = fos_forward_mpi(id,size,tag, 0,0,2,NULL,NULL,NULL,NULL);
             if (rc <0){
                printf("Failure by computing parallel hessian, process id %d!\n",id);
                return rc;
             }
-            rc = hos_reverse(this_tag,0,0,1, NULL,NULL);
+            rc = hos_reverse_mpi(id,size,tag,0,0,1, NULL,NULL);
         }
      }
      return rc;
 }
 
 /* vec_jac(rank,size,tag, m, n, repeat, x[n], u[m], v[n])                             */
-int vec_jac( int id,int size,short tag,int m,int n,int repeat ,double *x,double *u,double *v){
-     int this_tag = size*tag + id;
+int vec_jac_mpi( int id,int size,short tag,int m,int n,int repeat ,double *x,double *u,double *v){
      int rc = -3;
-     if (id == 0)
-        rc = vec_jac(this_tag, m,n,repeat,x,u,v);
-     else{
+     double *y = NULL;
+     if (id == 0){
         if(!repeat) {
-           rc = zos_forward(this_tag,0,0,1,NULL,NULL);
+            y = myalloc1(m);
+            rc = zos_forward_mpi(id,size,tag,m,n,1, x, y);
+            if (rc <0){
+               printf("Failure by computing parallel vec_jac, process id %d!\n",id);
+               return rc;
+            }
+        }
+       MINDEC(rc, fos_reverse_mpi(id,size,tag,m,n,u,v));
+       if (!repeat) myfree1(y);
+     } else{
+        if(!repeat) {
+           rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
         if(rc < 0) return rc;
         }
-        rc = fos_reverse(this_tag,0,0,NULL,NULL);
+        rc = fos_reverse_mpi(id,size,tag,0,0,NULL,NULL);
      }
      return rc;
 }
 
 /* jac_vec(rank,size,tag, m, n, x[n], v[n], u[m]);                                    */
-int jac_vec(int id,int size,short tag,int m,int n,double *x,double *v, double *u){
-     int this_tag = size*tag + id;
+int jac_vec_mpi(int id,int size,short tag,int m,int n,double *x,double *v, double *u){
      int rc = -3;
-     if (id == 0)
-        rc = jac_vec(this_tag, m,n,x,u,v);
-     else
-        rc = fos_forward(this_tag, 0, 0, 0, NULL, NULL, NULL,NULL);
-     return rc;
-}
-
-/* hess_vec(rank,size,tag, n, x[n], v[n], w[n])                                       */
-int hess_vec(int id,int size,short tag,int n,double *x,double *v,double *w){
-     double one = 1.0;
-     return lagra_hess_vec(id,size,tag,1,n,x,v,&one,w);
-}
-
-/* hess_mat(rank,size,tag, n, q, x[n], V[n][q], W[n][q])                              */
-int hess_mat(int id,int size,short tag,int n,int q,double *x,double **V, double **W){
-     double one = 1.0;
-     int this_tag = size*tag + id;
-     int rc = -3,i,degree=1, keep=2;
-     if (id == 0)
-        rc = hess_mat(this_tag,n,q,x,V,W);
-     else{
-        rc = hov_wk_forward(this_tag, 0, 0, 1, 2, q, NULL, NULL, &one,NULL);
-        if(rc < 0) return rc;
-        rc = hos_ov_reverse(this_tag, 0, 0, 1, q, NULL, NULL);
+     double *y = NULL;
+     if (id == 0){
+         y = myalloc1(m);
+         rc = fos_forward_mpi(id,size,tag, m, n, 0, x, v, y, u);
+         myfree1(y);
+     } else{
+         rc = fos_forward_mpi(id,size,tag, 0, 0, 0, NULL, NULL, NULL,NULL);
      }
      return rc;
 }
 
+/* hess_vec(rank,size,tag, n, x[n], v[n], w[n])                                       */
+int hess_vec_mpi(int id,int size,short tag,int n,double *x,double *v,double *w){
+     double one = 1.0;
+     return lagra_hess_vec_mpi(id,size,tag,1,n,x,v,&one,w);
+}
+
 /* lagra_hess_vec(tag, m, n, x[n], v[n], u[m], w[n])                        */
-int lagra_hess_vec(int id, int size, short tag,
+int lagra_hess_vec_mpi(int id, int size, short tag,
                    int m,
                    int n,
                    double *argument,
@@ -363,78 +441,41 @@ int lagra_hess_vec(int id, int size, short tag,
     int i;
     int degree = 1;
     int keep = degree+1;
-    int this_tag = size*tag + id;
+    double **X, *y, *y_tangent;
 
-     if (id == 0 )
-        rc = lagra_hess_vec(this_tag,m,n,argument,tangent,lagrange,result);
-     else {
-        rc = fos_forward(this_tag, 0, 0, keep, NULL, lagrange , NULL, NULL);
-
-        if(rc < 0) return rc;
-        rc = hos_reverse(this_tag, 0, 0, degree, lagrange, NULL );
+     if (id == 0 ){
+        X = myalloc2(n,2);
+        y = myalloc1(m);
+        y_tangent = myalloc1(m);
+        rc = fos_forward_mpi(id,size,tag, m, n, keep, argument, tangent, y, y_tangent);
+        if (rc <0){
+           printf("Failure by computing parallel lagra_hess_vec, process id %d!\n",id);
+           return rc;
+        }
+        MINDEC(rc, hos_reverse_mpi(id,size,tag, m, n, degree, lagrange, X));
+        for(i = 0; i < n; ++i)
+            result[i] = X[i][1];
+        myfree1(y_tangent);
+        myfree1(y);
+        myfree2(X);
+     } else {
+        rc = fos_forward_mpi(id,size,tag, 0, 0, keep, NULL, lagrange , NULL, NULL);
+        if (rc <0){
+           printf("Failure by computing parallel vec_jac, process id %d!\n",id);
+           return rc;
+        }
+        rc = hos_reverse_mpi(id,size,tag, 0, 0, degree, lagrange, NULL );
      }
-    return rc;
+     return rc;
 }
 
-void tape_doc( int id,int size,short tag, int m,int n, double* x, double* y){
-	int this_tag = tag*size +id;
-	if(id==0)
-        tape_doc(this_tag,m,n,x,y);
-	else
-        tape_doc(this_tag,0,0,x,y);
+void tape_doc_mpi( int id,int size,short tag, int m,int n, double* x, double* y){
+     if(id==0)
+        tape_doc(id+size*tag,m,n,x,y);
+     else
+        tape_doc(id+size*tag,0,0,x,y);
 }
 
-
-/* C - functions                                   */
-int trace_on_p(int id, int size , short tag)
-{
-     return trace_on(id,size,tag);
-}
-
-int gradient_p(int id,int size,short tag,int n,double *x,double *y)
-{
-     return gradient(id,size,tag,n,x,y);
-}
-
-int hessian_p(int id,int size,short tag,int n,double *x,double **x_pp)
-{
-     return hessian(id,size,tag,n,x,x_pp);
-}
-
-int jacobian_p(int id,int size,short tag,int m,int n,const double *x,double **x_pp)
-{
-return jacobian(id,size,tag,m,n,x,x_pp);
-}
-
-int vec_jac_p(int id,int size,short tag,int m,int n,int p,double *x,double *y, double *z)
-{
-return vec_jac(id,size,tag,m,n,p,x,y,z);
-}
-
-int jac_vec_p(int id,int size,short tag,int m,int n,double *x,double *y,double *z)
-{
-return jac_vec(id,size,tag,m,n,x,y,z);
-}
-
-int hess_vec_p(int id,int size,short tag,int n,double *x,double *y,double *z)
-{
-return hess_vec(id,size,tag,n,x,y,z);
-}
-
-int hess_mat_p(int id,int size,short tag,int n,int p,double *x,double **y,double **z)
-{
-return hess_mat(id,size,tag,n,p,x,y,z);
-}
-
-int lagra_hess_vec_p(int id,int size,short tag,int n,int p,double *x,double *y,double *t,double *z)
-{
-return lagra_hess_vec(id,size,tag,n,p,x,y,t,z);
-}
-
-void tape_doc_p(int id,int size,short tag, int m,int n, double *x, double *y)
-{
-return tape_doc(id,size,tag,m,n,x,y);
-}
-
+END_C_DECLS
 
 /* That's all*/

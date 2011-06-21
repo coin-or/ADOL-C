@@ -63,14 +63,22 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _FOS_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fos_reverse_mpi"
+#else
 #define GENERATED_FILENAME "fos_reverse"
+#endif
 
 #define RESULTS(l,indexi)  results[indexi]
 #define LAGRANGE(l,indexd) lagrange[indexd]
 
 /*--------------------------------------------------------------------------*/
 #elif _FOV_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fov_reverse_mpi"
+#else
 #define GENERATED_FILENAME "fov_reverse"
+#endif
 
 #define _ADOLC_VECTOR_
 
@@ -80,10 +88,18 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #else
 #if defined(_INT_REV_)
 #if defined(_TIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_reverse_t_mpi"
+#else
 #define GENERATED_FILENAME "int_reverse_t"
 #endif
+#endif
 #if defined(_NTIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_reverse_s_mpi"
+#else
 #define GENERATED_FILENAME "int_reverse_s"
+#endif
 #endif
 #define RESULTS(l,indexi)  results[l][indexi]
 #define LAGRANGE(l,indexd) lagrange[l][indexd]
@@ -196,10 +212,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
-#if defined(HAVE_MPI_MPI_H)
-#include <mpi/mpi.h>
-#elif defined(HAVE_MPI_H)
-#include <mpi.h>
+#if defined(_MPI_)
+#include <adolc/adolc_mpi.h>
 #endif
 
 BEGIN_C_DECLS
@@ -211,7 +225,12 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* First-Order Scalar Reverse Pass.                                         */
 /****************************************************************************/
-int fos_reverse(short   tnum,       /* tape id */
+#if defined(_MPI_)
+int fos_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int fos_reverse(
+#endif
+                short   tnum,       /* tape id */
                 int     depen,      /* consistency chk on # of deps */
                 int     indep,      /* consistency chk on # of indeps */
                 double  *lagrange,
@@ -222,8 +241,12 @@ int fos_reverse(short   tnum,       /* tape id */
 /****************************************************************************/
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
-
-int fov_reverse(short   tnum,        /* tape id */
+#if defined(_MPI_)
+int fov_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int fov_reverse(
+#endif
+                short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
                 int     nrows,       /* # of Jacobian rows being calculated */
@@ -236,7 +259,11 @@ int fov_reverse(short   tnum,        /* tape id */
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_reverse_tight_mpi( int mpi_id, int mpi_size,
+#else
 int int_reverse_tight(
+#endif
         short             tnum,  /* tape id                               */
         int               depen, /* consistency chk on # of deps          */
         int               indep, /* consistency chk on # of indeps        */
@@ -249,7 +276,11 @@ int int_reverse_tight(
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_reverse_safe_mpi( int mpi_id, int mpi_size,
+#else
 int int_reverse_safe(
+#endif
         short             tnum,  /* tape id                               */
         int               depen, /* consistency chk on # of deps          */
         int               indep, /* consistency chk on # of indeps        */
@@ -271,6 +302,11 @@ int int_reverse_safe(
     locint arg  = 0;
     locint arg1 = 0;
     locint arg2 = 0;
+
+#if defined(_MPI_)
+     short this_tnum = mpi_size*tnum + mpi_id;
+#endif
+
 
 #if !defined (_NTIGHT_)
     double coval = 0, *d = 0;
@@ -361,14 +397,20 @@ int int_reverse_safe(
     /****************************************************************************/
     /*                                                           DEBUG MESSAGES */
     fprintf(DIAG_OUT,"Call of %s(..) with tag: %d, n: %d, m %d,\n",
-            GENERATED_FILENAME, tnum, indep, depen);
+            GENERATED_FILENAME,
+#if defined(_MPI_)
+this_tnum,
+#else
+ tnum,
+#endif
+           indep, depen);
 #ifdef _ADOLC_VECTOR_
     fprintf(DIAG_OUT,"                    p: %d\n\n",nrows);
 #endif
 
 #endif
 
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
 	double *trade, *rec_buf;
 	MPI_Status status_MPI;
 	int mpi_i, id, root, count, loc_recv, loc_send;
@@ -381,7 +423,11 @@ int int_reverse_safe(
     /* Set up stuff for the tape */
 
     /* Initialize the Reverse Sweep */
+#ifdef _MPI_
+    init_rev_sweep(this_tnum);
+#else
     init_rev_sweep(tnum);
+#endif
 
     failAdditionalInfo3 = depen;
     failAdditionalInfo4 = indep;
@@ -465,8 +511,11 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
     ADOLC_CURRENT_TAPE_INFOS.rp_T = rp_T;
-
+#if defined(_MPI_)
+    taylor_back(this_tnum, &numdep, &numind, &taycheck);
+#else
     taylor_back(tnum, &numdep, &numind, &taycheck);
+#endif
 
     if (taycheck < 0) {
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
@@ -929,7 +978,7 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p
-                { 
+                {
 #if defined(_INT_REV_)
                   AARG2_INC |= ARES;
                   AARG1_INC |= ARES_INC;
@@ -1785,7 +1834,7 @@ int int_reverse_safe(
                 break;
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/
-#if defined(HAVE_MPI)
+#if defined(_MPI_)
             case receive_data:	// MPI-Send
                 res = get_locint_r(); // tag
                 arg2 = get_locint_r(); // dest

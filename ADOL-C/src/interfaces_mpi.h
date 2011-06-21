@@ -32,104 +32,119 @@
 #ifdef __cplusplus
 
 /* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])*/
-int zos_forward(
+ADOLC_DLL_EXPORT int zos_forward(
     int,int,short,int,int,int,const double*,double*);
 
 /* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
-int fos_forward(
-    int,int,short,int,int,int,const double*,double*,double*,double*);
+ADOLC_DLL_EXPORT int fos_forward(
+    int,int,short,int,int,int,const double*, double*,double*,double*);
 /* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
-int fos_reverse(
-    int, int, short,int,int,double*,double*);
+ADOLC_DLL_EXPORT int fos_reverse(
+    int, int, short,int,int, double*,double*);
 
 /* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
-int hos_forward(
+ADOLC_DLL_EXPORT int hos_forward(
     int, int, short, int, int, int, int, double*, double**, double*, double**);
+
 /*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])  */
-int hos_reverse(
+ADOLC_DLL_EXPORT int hos_reverse(
     int, int, short, int, int, int, double*, double** );
 
 /* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
-int fov_forward(
-    int,int,short,int,int,int,const double*,double**,double*,double**);
+ADOLC_DLL_EXPORT int fov_forward(
+    int,int,short,int,int,int,const double*, double**,double*,double**);
 /* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
-int fov_reverse(
+ADOLC_DLL_EXPORT int fov_reverse(
     int, int, short,int,int,int,double**,double**);
 
+ADOLC_DLL_EXPORT int hov_forward(
+    int, int, short,int,int,int,int, double*,double***,double*,double***);
+
+ADOLC_DLL_EXPORT int hov_reverse(
+    int, int, short,int,int,int,int, double**,double***,short*);
+
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
-int int_forward_tight(
-    int,int,short,int,int,int,double*,unsigned long int**,double*,unsigned long int**);
+ADOLC_DLL_EXPORT int int_forward_tight(
+    int,int,short,int,int,int,const double*,unsigned long int**,double*,unsigned long int**);
 
 /* int_forward_safe(rank,size, tag, m, n, p, X[n][p], Y[m][p])                        */
-int int_forward_safe(
+ADOLC_DLL_EXPORT int int_forward_safe(
     int,int,short,int,int,int,unsigned long int**,unsigned long int**);
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
-int indopro_forward_tight(
-    int, int, short, int, int, double*, unsigned int** );
+ADOLC_DLL_EXPORT int indopro_forward_tight(
+    int, int, short, int, int,const double*, unsigned int** );
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])                                   */
-int indopro_forward_safe(
-    int, int, short, int, int, double*,unsigned int**);
+ADOLC_DLL_EXPORT int indopro_forward_safe(
+    int, int, short, int, int,const double*,unsigned int**);
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m])   */
-int nonl_ind_forward_tight(
-    int,int, short, int, int, double*, unsigned int**);
+ADOLC_DLL_EXPORT int nonl_ind_forward_tight(
+    int,int, short, int, int,const double*, unsigned int**);
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])   */
-int nonl_ind_forward_safe(
-    int, int, short, int, int, double*, unsigned int**);
+ADOLC_DLL_EXPORT int nonl_ind_forward_safe(
+    int, int, short, int, int,const double*, unsigned int**);
 
 #endif /* __cplusplus */
 
+
 BEGIN_C_DECLS
-int zos_forward_p(
+/* zos_forward(process id,procsize, tag, m, n, keep, x[n], y[m])*/
+ADOLC_DLL_EXPORT int zos_forward_mpi(
     int,int,short,int,int,int,const double*,double*);
 
 /* fos_forward(process id,procsize, tag, m, n, keep, x[n], X[n], y[m], Y[m])*/
-int fos_forward_p(
+ADOLC_DLL_EXPORT int fos_forward_mpi(
     int,int,short,int,int,int,const double*,double*,double*,double*);
 /* fos_reverse(process id, procsize, tag, m, n, u[m], z[n])     */
-int fos_reverse_p(
+ADOLC_DLL_EXPORT int fos_reverse_mpi(
     int, int, short,int,int,double*,double*);
 
 /* hos_forward(process id,procsize, tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
-int hos_forward_p(
+ADOLC_DLL_EXPORT int hos_forward_mpi(
     int, int, short, int, int, int, int, double*, double**, double*, double**);
 /*  hos_reverse(process id,procsize, tag, m, n, d, u[m], Z[n][d+1])  */
-int hos_reverse_p(
+ADOLC_DLL_EXPORT int hos_reverse_mpi(
     int, int, short, int, int, int, double*, double** );
 
+ADOLC_DLL_EXPORT int hov_forward_mpi(
+    int, int, short,int,int,int,int, double*,double***,double*,double***);
+
+ADOLC_DLL_EXPORT int hov_reverse_mpi(
+    int, int, short,int,int,int,int, double**,double***,short**);
+
 /* fov_forward(process id, procsize, tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
-int fov_forward_p(
+ADOLC_DLL_EXPORT int fov_forward_mpi(
     int,int,short,int,int,int,const double*,double**,double*,double**);
 /* fov_reverse(process id, procsize, tag, m, n, d, p, U[p][m], Z[p][n])  */
-int fov_reverse_p(
+ADOLC_DLL_EXPORT int fov_reverse_mpi(
     int, int, short,int,int,int,double**,double**);
 
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
-int int_forward_tight_p(
-    int,int,short,int,int,int,double*,unsigned long int**,double*,unsigned long int**);
+ADOLC_DLL_EXPORT int int_forward_tight_mpi(
+    int,int,short,int,int,int,const double*,unsigned long int**,double*,unsigned long int**);
 
 /* int_forward_safe(rank,size, tag, m, n, p, X[n][p], Y[m][p])                        */
-int int_forward_safe_p(
+ADOLC_DLL_EXPORT int int_forward_safe_mpi(
     int,int,short,int,int,int,unsigned long int**,unsigned long int**);
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
-int indopro_forward_tight_p(
-    int, int, short, int, int, double*, unsigned int** );
+ADOLC_DLL_EXPORT int indopro_forward_tight_mpi(
+    int, int, short, int, int,const double*, unsigned int** );
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])                                   */
-int indopro_forward_safe_p(
-    int, int, short, int, int, double*,unsigned int**);
+ADOLC_DLL_EXPORT int indopro_forward_safe_mpi(
+    int, int, short, int, int,const double*,unsigned int**);
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m])   */
-int nonl_ind_forward_tight_p(
-    int,int, short, int, int, double*, unsigned int**);
+ADOLC_DLL_EXPORT int nonl_ind_forward_tight_mpi(
+    int,int, short, int, int,const double*, unsigned int**);
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])   */
-int nonl_ind_forward_safe_p(
-    int, int, short, int, int, double*, unsigned int**);
+ADOLC_DLL_EXPORT int nonl_ind_forward_safe_mpi(
+    int, int, short, int, int,const double*, unsigned int**);
 
 END_C_DECLS
 

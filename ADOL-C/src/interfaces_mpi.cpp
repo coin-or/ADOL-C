@@ -29,11 +29,11 @@ int zos_forward( int id,
                  const double* x,
                  double* y
 ){
-    int this_tag = size*tag + id, rc=-3;
+    int rc=-3;
     if (id==0)
-       rc = zos_forward(this_tag,m,n,keep,x,y);
+       rc = zos_forward_mpi(id,size,tag,m,n,keep,x,y);
     else
-       rc = zos_forward(this_tag,0,0,keep,NULL,NULL);
+       rc = zos_forward_mpi(id,size,tag,0,0,keep,NULL,NULL);
     return rc;
 }
 
@@ -49,12 +49,11 @@ int fos_forward( int id,
                  double* y,
                  double* b
 ){
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = fos_forward(this_tag,m,n,keep,x,a,y,b);
+       rc = fos_forward_mpi(id,size,tag,m,n,keep,x,a,y,b);
     else
-       rc = fos_forward(this_tag,0,0,keep,NULL,NULL,NULL,NULL);
+       rc = fos_forward_mpi(id,size,tag,0,0,keep,NULL,NULL,NULL,NULL);
     return rc;
 }
 
@@ -67,11 +66,11 @@ int fos_reverse( int id,
                  double* u,
                  double* z
 ){
-    int this_tag = size*tag + id, rc=-3;
+    int rc=-3;
     if (id==0)
-       rc = fos_reverse(this_tag,m,n,u,z);
+       rc = fos_reverse_mpi(id,size,tag,m,n,u,z);
     else
-       rc = fos_reverse(this_tag,0,0,NULL,NULL);
+       rc = fos_reverse_mpi(id,size,tag,0,0,NULL,NULL);
     return rc;
 }
 
@@ -88,11 +87,11 @@ int hos_forward( int id,
                  double* valuepoints,
                  double** taylors)
 {
-    int this_tag = size*tag + id, rc=-3;
+    int rc=-3;
     if (id==0)
-       rc = hos_forward(this_tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
+       rc = hos_forward_mpi(id,size,tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
     else
-       rc = hos_forward(this_tag,0,0,d,keep,NULL,NULL,NULL,NULL);
+       rc = hos_forward_mpi(id,size,tag,0,0,d,keep,NULL,NULL,NULL,NULL);
     return rc;
 }
 
@@ -107,11 +106,11 @@ int hos_reverse( int id,
                  double* u,
                  double** z
 ){
-    int this_tag = size*tag + id, rc=-3;
+    int  rc=-3;
     if (id==0)
-       rc = hos_reverse(this_tag,m,n,d,u,z);
+       rc = hos_reverse_mpi(id,size,tag,m,n,d,u,z);
     else
-       rc = hos_reverse(this_tag,0,0,d,NULL,NULL);
+       rc = hos_reverse_mpi(id,size,tag,0,0,d,NULL,NULL);
     return rc;
 }
 
@@ -127,12 +126,11 @@ int fov_forward( int id,
                  double* y,
                  double** b
 ){
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = fov_forward(this_tag,m,n,p,x,a,y,b);
+       rc = fov_forward_mpi(id,size,tag,m,n,p,x,a,y,b);
     else
-       rc = fov_forward(this_tag,0,0,p,NULL,a,NULL,b);
+       rc = fov_forward_mpi(id,size,tag,0,0,p,NULL,a,NULL,b);
     return rc;
 }
 /* fov_reverse(process id, procsize, tag, m, n, p, U[p][m], Z[p][n])  */
@@ -145,27 +143,50 @@ int fov_reverse( int id,
                  double** u,
                  double** z
 ){
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = fov_reverse(this_tag,m,n,p,u,z);
+       rc = fov_reverse_mpi(id,size,tag,m,n,p,u,z);
     else
-       rc = fov_reverse(this_tag,0,0,p,NULL,NULL);
+       rc = fov_reverse_mpi(id,size,tag,0,0,p,NULL,NULL);
+    return rc;
+}
+
+int hov_reverse(
+      int id, int size, short tag, int m, int n, int degre,
+      int nrows, double **lagrange, double ***results,
+      short **nonzero){
+int rc = -3;
+    if (id==0)
+       rc = hov_reverse_mpi(id,size,tag,m,n,degre,nrows, lagrange,results,nonzero);
+    else
+       rc = hov_reverse_mpi(id,size,tag,0,0,degre,0, NULL,NULL,NULL);
+    return rc;
+}
+
+int hov_forward(
+      int id, int size, short tag, int m, int n, int degre,
+      int p,double *x, double ***a, double *v,
+      double ***taylors){
+int rc = -3;
+    if (id==0)
+       rc = hov_forward_mpi(id,size,tag,m,n,degre, p,x,a,v,taylors);
+    else
+       rc = hov_forward_mpi(id,size,tag,0,0,degre,p,
+       NULL,NULL,NULL,NULL);
     return rc;
 }
 
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 int int_forward_tight(
     int id,int size,short tag,
-    int m,int n,int p,double* x,
+    int m,int n,int p, const double* x,
     unsigned long int** x_pp,double* y,unsigned long int** y_pp){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = int_forward_tight(this_tag,m,n,p,x,x_pp,y,y_pp);
+       rc = int_forward_tight_mpi(id,size,tag,m,n,p,x,x_pp,y,y_pp);
     else
-       rc = int_forward_tight(this_tag,0,0,p,NULL,NULL,NULL,NULL);
+       rc = int_forward_tight_mpi(id,size,tag,0,0,p,NULL,NULL,NULL,NULL);
     return rc;
 }
 
@@ -173,195 +194,60 @@ int int_forward_tight(
 int int_forward_safe(
     int id,int size,short tag,int m,int n,int p,unsigned long int **x_pp,unsigned long int **y_pp){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = int_forward_safe(this_tag,m,n,p,x_pp,y_pp);
+       rc = int_forward_safe_mpi(id,size,tag,m,n,p,x_pp,y_pp);
     else
-       rc = int_forward_safe(this_tag,0,0,p,NULL,NULL);
+       rc = int_forward_safe_mpi(id,size,tag,0,0,p,NULL,NULL);
     return rc;
 }
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
 int indopro_forward_tight(
-    int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+    int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = indopro_forward_tight(this_tag,m,n,x,crs);
+       rc = indopro_forward_tight_mpi(id,size,tag,m,n,x,crs);
     else
-       rc = indopro_forward_tight(this_tag,0,0,NULL,NULL);
+       rc = indopro_forward_tight_mpi(id,size,tag,0,0,x,NULL);
     return rc;
 }
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])                                   */
 int indopro_forward_safe(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = indopro_forward_safe(this_tag,m,n,x,crs);
+       rc = indopro_forward_safe_mpi(id,size,tag,m,n,x,crs);
     else
-       rc = indopro_forward_safe(this_tag,0,0,NULL,NULL);
+       rc = indopro_forward_safe_mpi(id,size,tag,0,0,NULL,NULL);
     return rc;
 }
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m])   */
 int nonl_ind_forward_tight(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = nonl_ind_forward_tight(this_tag,m,n,x,crs);
+       rc = nonl_ind_forward_tight_mpi(id,size,tag,m,n,x,crs);
     else
-       rc = nonl_ind_forward_tight(this_tag,0,0,NULL,NULL);
+       rc = nonl_ind_forward_tight_mpi(id,size,tag,0,0,NULL,NULL);
     return rc;
 }
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m])   */
 int nonl_ind_forward_safe(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs ){
+   int id, int size, short tag, int m, int n,const double *x, unsigned int **crs ){
 
-    int this_tag = size*tag + id;
     int rc=-3;
     if (id==0)
-       rc = indopro_forward_safe(this_tag,m,n,x,crs);
+       rc = indopro_forward_safe_mpi(id,size,tag,m,n,x,crs);
     else
-       rc = indopro_forward_safe(this_tag,0,0,NULL,NULL);
+       rc = indopro_forward_safe_mpi(id,size,tag,0,0,NULL,NULL);
     return rc;
 }
 
 
-/*  for extern "C"           */
-BEGIN_C_DECLS
-int zos_forward_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int keep,
-                 const double* x,
-                 double* y
-){
-   return zos_forward(id,size,tag,m,n,keep,x,y);
-}
-
-int fos_forward_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int keep,
-                 const double* x,
-                 double* a,
-                 double* y,
-                 double* b
-){
-   return fos_forward(id,size,tag,m,n,keep,x,a,y,b);
-}
-
-int fos_reverse_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 double* u,
-                 double* z
-){
-    return fos_reverse(id,size,tag,m,n,u,z);
-}
-
-int hos_forward_p( int id,
-                 int size,
-                 short tag,
-                 int depen,
-                 int indep,
-                 int d,
-                 int keep,
-                 double* basepoints,
-                 double** argument,
-                 double* valuepoints,
-                 double** taylors)
-{
-    return hos_forward(id,size,tag,depen,indep,d,keep,basepoints,argument,valuepoints,taylors);
-}
-
-int hos_reverse_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int d,
-                 double* u,
-                 double** z
-){
-    return hos_reverse(id,size,tag,m,n,d,u,z);
-}
-
-int fov_forward_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int p,
-                 const double* x,
-                 double** a,
-                 double* y,
-                 double** b
-){
-    return fov_forward(id,size,tag,m,n,p,x,a,y,b);
-}
-
-int fov_reverse_p( int id,
-                 int size,
-                 short tag,
-                 int m,
-                 int n,
-                 int p,
-                 double** u,
-                 double** z
-){
-    return fov_reverse(id,size,tag,m,n,p,u,z);
-}
-
-int int_forward_tight_p(
-    int id,int size,short tag,
-    int m,int n,int p,double* x,
-    unsigned long int** x_pp,double* y,unsigned long int** y_pp
-){
-    return int_forward_tight(id,size,tag,m,n,p,x,x_pp,y,y_pp);
-}
-
-int int_forward_safe_p(
-    int id,int size,short tag,int m,int n,int p,unsigned long int **x_pp,unsigned long int **y_pp
-){
-    return int_forward_safe(id,size,tag,m,n,p,x_pp,y_pp);
-}
-
-int indopro_forward_tight_p(
-    int id, int size, short tag, int m, int n, double *x, unsigned int **crs
-){
-    return indopro_forward_tight(id,size,tag,m,n,x,crs);
-}
-
-int indopro_forward_safe_p(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
-){
-    return indopro_forward_safe(id,size,tag,m,n,x,crs);
-}
-
-int nonl_ind_forward_tight_p(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
-){
-    return nonl_ind_forward_tight(id,size,tag,m,n,x,crs);
-}
-
-int nonl_ind_forward_safe_p(
-   int id, int size, short tag, int m, int n, double *x, unsigned int **crs
-){
-    return indopro_forward_safe(id,size,tag,m,n,x,crs);
-}
-END_C_DECLS

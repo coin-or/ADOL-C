@@ -2,8 +2,8 @@
 # configure.ac -- Process this file with autoconf to produce configure
 # Revision: $Id$
 #
-# Copyright (C) Andrea Walther, Andreas Kowarz
-#               
+# Copyright (C) Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
+#
 # contains patches from the COIN OR libtool
 #
 ##############################################################################

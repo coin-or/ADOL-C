@@ -2,7 +2,7 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## Revision: $Id$
 ##
-## Copyright (C) Andrea Walther, Andreas Kowarz
+## Copyright (C) Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
 ##
 ## This file is part of ADOL-C. This software is provided as open source.
 ## Any use, reproduction, or distribution of the software constitutes 
@@ -82,8 +82,22 @@ libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 endif
 
 if HAVE_MPI
+lib_LTLIBRARIES += libadolc_mpi.la
 AM_CPPFLAGS += @MPICPPFLAGS@
-libadolc_la_SOURCES +=  adolc_mpi.cpp interfaces_mpi.cpp
-libadolc_la_LDFLAGS  += @MPILIBS@ @LIBMPI@
+libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
+                           zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+                           hos_forward_mpi.c hov_forward_mpi.c \
+                           fos_reverse_mpi.c fov_reverse_mpi.c \
+                           hos_reverse_mpi.c hov_reverse_mpi.c \
+                           int_forward_s_mpi.c int_forward_t_mpi.c \
+                           indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
+                           nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
+                           int_reverse_s_mpi.c int_reverse_t_mpi.c
+
+libadolc_mpi_la_LIBADD = libadolc.la
+if SPARSE
+libadolc_mpi_la_LIBADD += sparse/libsparse_mpi.la
+endif
+libadolc_mpi_la_LDFLAGS = @MPILIBS@ @LIBMPI@
 pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
 endif
