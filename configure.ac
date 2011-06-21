@@ -20,7 +20,7 @@ AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
 AC_CONFIG_AUX_DIR(autoconf)
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
-AM_INIT_AUTOMAKE([dist-bzip2])
+AM_INIT_AUTOMAKE([dist-bzip2 foreign])
 
 if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"

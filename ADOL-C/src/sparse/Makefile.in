@@ -38,10 +38,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_MPI_TRUE@am__append_1 = @MPICPPFLAGS@
+@HAVE_MPI_TRUE@am__append_1 = libsparse_mpi.la
+@HAVE_MPI_TRUE@am__append_2 = @MPICPPFLAGS@
+@HAVE_MPI_TRUE@am__append_3 = sparsedrivers_mpi.h
 subdir = ADOL-C/src/sparse
-DIST_COMMON = $(libsparseinclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(am__libsparseinclude_HEADERS_DIST) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/autoconf/dolt.m4 $(top_srcdir)/autoconf/shave.m4 \
@@ -56,6 +58,11 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libsparse_la_LIBADD =
 am_libsparse_la_OBJECTS = sparse_fo_rev.lo sparsedrivers.lo
 libsparse_la_OBJECTS = $(am_libsparse_la_OBJECTS)
+libsparse_mpi_la_LIBADD =
+am__libsparse_mpi_la_SOURCES_DIST = sparsedrivers_mpi.cpp
+@HAVE_MPI_TRUE@am_libsparse_mpi_la_OBJECTS = sparsedrivers_mpi.lo
+libsparse_mpi_la_OBJECTS = $(am_libsparse_mpi_la_OBJECTS)
+@HAVE_MPI_TRUE@am_libsparse_mpi_la_rpath =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/ADOL-C/src
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -66,8 +73,11 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libsparse_la_SOURCES)
-DIST_SOURCES = $(libsparse_la_SOURCES)
+SOURCES = $(libsparse_la_SOURCES) $(libsparse_mpi_la_SOURCES)
+DIST_SOURCES = $(libsparse_la_SOURCES) \
+	$(am__libsparse_mpi_la_SOURCES_DIST)
+am__libsparseinclude_HEADERS_DIST = sparsedrivers.h sparse_fo_rev.h \
+	sparsedrivers_mpi.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -239,13 +249,15 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C -I$(top_srcdir)/ADOL-C/src \
-	@COLPACK_CFLAGS@ $(am__append_1)
+	@COLPACK_CFLAGS@ $(am__append_2)
 INCLUDES = -I$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
-noinst_LTLIBRARIES = libsparse.la
+noinst_LTLIBRARIES = libsparse.la $(am__append_1)
 libsparseincludedir = $(pkgincludedir)/sparse
-libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h 
+libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h \
+	$(am__append_3)
 libsparse_la_SOURCES = sparse_fo_rev.cpp sparsedrivers.cpp
+@HAVE_MPI_TRUE@libsparse_mpi_la_SOURCES = sparsedrivers_mpi.cpp
 all: all-am
 
 .SUFFIXES:
@@ -259,9 +271,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ADOL-C/src/sparse/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/src/sparse/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ADOL-C/src/sparse/Makefile
+	  $(AUTOMAKE) --foreign ADOL-C/src/sparse/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -291,6 +303,8 @@ clean-noinstLTLIBRARIES:
 	done
 libsparse.la: $(libsparse_la_OBJECTS) $(libsparse_la_DEPENDENCIES) 
 	$(CXXLINK)  $(libsparse_la_OBJECTS) $(libsparse_la_LIBADD) $(LIBS)
+libsparse_mpi.la: $(libsparse_mpi_la_OBJECTS) $(libsparse_mpi_la_DEPENDENCIES) 
+	$(CXXLINK) $(am_libsparse_mpi_la_rpath) $(libsparse_mpi_la_OBJECTS) $(libsparse_mpi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -300,6 +314,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparse_fo_rev.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparsedrivers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparsedrivers_mpi.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

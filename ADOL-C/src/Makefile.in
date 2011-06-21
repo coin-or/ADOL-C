@@ -39,9 +39,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @SPARSE_TRUE@am__append_1 = @COLPACK_LIBS@
-@HAVE_MPI_TRUE@am__append_2 = @MPICPPFLAGS@
-@HAVE_MPI_TRUE@am__append_3 = adolc_mpi.cpp interfaces_mpi.cpp
-@HAVE_MPI_TRUE@am__append_4 = @MPILIBS@ @LIBMPI@
+@HAVE_MPI_TRUE@am__append_2 = libadolc_mpi.la
+@HAVE_MPI_TRUE@am__append_3 = @MPICPPFLAGS@
+@HAVE_MPI_TRUE@@SPARSE_TRUE@am__append_4 = sparse/libsparse_mpi.la
 @HAVE_MPI_TRUE@am__append_5 = adolc_mpi.h interfaces_mpi.h
 subdir = ADOL-C/src
 DIST_COMMON = $(am__pkginclude_HEADERS_DIST) $(srcdir)/Makefile.am \
@@ -89,11 +89,10 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	hos_forward.c hov_forward.c hov_wk_forward.c fos_reverse.c \
 	fov_reverse.c hos_reverse.c hos_ov_reverse.c hov_reverse.c \
 	forward_partx.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
-	fov_offset_forward.c revolve.c adolc_mpi.cpp \
-	interfaces_mpi.cpp taping_p.h int_forward_s.c int_forward_t.c \
-	indopro_forward_s.c indopro_forward_t.c nonl_ind_forward_s.c \
-	nonl_ind_forward_t.c int_reverse_s.c int_reverse_t.c
-@HAVE_MPI_TRUE@am__objects_1 = adolc_mpi.lo interfaces_mpi.lo
+	fov_offset_forward.c revolve.c taping_p.h int_forward_s.c \
+	int_forward_t.c indopro_forward_s.c indopro_forward_t.c \
+	nonl_ind_forward_s.c nonl_ind_forward_t.c int_reverse_s.c \
+	int_reverse_t.c
 @SPARSE_FALSE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 @SPARSE_FALSE@	convolut.lo fortutils.lo interfaces.lo \
 @SPARSE_FALSE@	interfacesf.lo taping.lo tape_handling.lo \
@@ -102,8 +101,7 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_FALSE@	fos_reverse.lo fov_reverse.lo hos_reverse.lo \
 @SPARSE_FALSE@	hos_ov_reverse.lo hov_reverse.lo \
 @SPARSE_FALSE@	forward_partx.lo externfcts.lo checkpointing.lo \
-@SPARSE_FALSE@	fixpoint.lo fov_offset_forward.lo revolve.lo \
-@SPARSE_FALSE@	$(am__objects_1)
+@SPARSE_FALSE@	fixpoint.lo fov_offset_forward.lo revolve.lo
 @SPARSE_TRUE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 @SPARSE_TRUE@	convolut.lo fortutils.lo interfaces.lo \
 @SPARSE_TRUE@	interfacesf.lo taping.lo tape_handling.lo \
@@ -116,11 +114,38 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@	int_forward_t.lo indopro_forward_s.lo \
 @SPARSE_TRUE@	indopro_forward_t.lo nonl_ind_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_forward_t.lo int_reverse_s.lo \
-@SPARSE_TRUE@	int_reverse_t.lo $(am__objects_1)
+@SPARSE_TRUE@	int_reverse_t.lo
 libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
 libadolc_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(libadolc_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_MPI_TRUE@libadolc_mpi_la_DEPENDENCIES = libadolc.la \
+@HAVE_MPI_TRUE@	$(am__append_4)
+am__libadolc_mpi_la_SOURCES_DIST = adolc_mpi.cpp interfaces_mpi.cpp \
+	zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+	hos_forward_mpi.c hov_forward_mpi.c fos_reverse_mpi.c \
+	fov_reverse_mpi.c hos_reverse_mpi.c hov_reverse_mpi.c \
+	int_forward_s_mpi.c int_forward_t_mpi.c \
+	indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
+	nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
+	int_reverse_s_mpi.c int_reverse_t_mpi.c
+@HAVE_MPI_TRUE@am_libadolc_mpi_la_OBJECTS = adolc_mpi.lo \
+@HAVE_MPI_TRUE@	interfaces_mpi.lo zos_forward_mpi.lo \
+@HAVE_MPI_TRUE@	fos_forward_mpi.lo fov_forward_mpi.lo \
+@HAVE_MPI_TRUE@	hos_forward_mpi.lo hov_forward_mpi.lo \
+@HAVE_MPI_TRUE@	fos_reverse_mpi.lo fov_reverse_mpi.lo \
+@HAVE_MPI_TRUE@	hos_reverse_mpi.lo hov_reverse_mpi.lo \
+@HAVE_MPI_TRUE@	int_forward_s_mpi.lo int_forward_t_mpi.lo \
+@HAVE_MPI_TRUE@	indopro_forward_s_mpi.lo \
+@HAVE_MPI_TRUE@	indopro_forward_t_mpi.lo \
+@HAVE_MPI_TRUE@	nonl_ind_forward_s_mpi.lo \
+@HAVE_MPI_TRUE@	nonl_ind_forward_t_mpi.lo int_reverse_s_mpi.lo \
+@HAVE_MPI_TRUE@	int_reverse_t_mpi.lo
+libadolc_mpi_la_OBJECTS = $(am_libadolc_mpi_la_OBJECTS)
+libadolc_mpi_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libadolc_mpi_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_MPI_TRUE@am_libadolc_mpi_la_rpath = -rpath $(libdir)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -137,8 +162,9 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libadolc_la_SOURCES)
-DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST)
+SOURCES = $(libadolc_la_SOURCES) $(libadolc_mpi_la_SOURCES)
+DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST) \
+	$(am__libadolc_mpi_la_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -332,7 +358,7 @@ top_srcdir = @top_srcdir@
 @SPARSE_TRUE@AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 @SPARSE_FALSE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 @SPARSE_TRUE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C $(am__append_2)
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C $(am__append_3)
 INCLUDES = -I$(top_builddir)/ADOL-C
 @SPARSE_FALSE@SUBDIRS = drivers tapedoc
 @SPARSE_TRUE@SUBDIRS = drivers sparse tapedoc
@@ -346,35 +372,53 @@ pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
 	oplate.h taping.h usrparms.h externfcts.h checkpointing.h \
 	fixpoint.h adolc_sparse.h adolc_openmp.h revolve.h \
 	$(am__append_5)
-lib_LTLIBRARIES = libadolc.la
+lib_LTLIBRARIES = libadolc.la $(am__append_2)
 libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
-	$(am__append_1) $(am__append_4)
+	$(am__append_1)
 @SPARSE_FALSE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
-@SPARSE_FALSE@	convolut.c fortutils.c interfaces.cpp \
-@SPARSE_FALSE@	interfacesf.c taping.c tape_handling.cpp \
-@SPARSE_FALSE@	zos_forward.c fos_forward.c fov_forward.c \
-@SPARSE_FALSE@	hos_forward.c hov_forward.c hov_wk_forward.c \
-@SPARSE_FALSE@	fos_reverse.c fov_reverse.c hos_reverse.c \
-@SPARSE_FALSE@	hos_ov_reverse.c hov_reverse.c forward_partx.c \
-@SPARSE_FALSE@	externfcts.cpp checkpointing.cpp fixpoint.cpp \
-@SPARSE_FALSE@	fov_offset_forward.c revolve.c $(am__append_3)
+@SPARSE_FALSE@                       convolut.c fortutils.c\
+@SPARSE_FALSE@                       interfaces.cpp interfacesf.c \
+@SPARSE_FALSE@                       taping.c tape_handling.cpp \
+@SPARSE_FALSE@                       zos_forward.c fos_forward.c fov_forward.c \
+@SPARSE_FALSE@                       hos_forward.c hov_forward.c hov_wk_forward.c \
+@SPARSE_FALSE@                       fos_reverse.c fov_reverse.c \
+@SPARSE_FALSE@                       hos_reverse.c hos_ov_reverse.c hov_reverse.c \
+@SPARSE_FALSE@                       forward_partx.c \
+@SPARSE_FALSE@                       externfcts.cpp checkpointing.cpp \
+@SPARSE_FALSE@                       fixpoint.cpp fov_offset_forward.c revolve.c 
+
 @SPARSE_TRUE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
-@SPARSE_TRUE@	convolut.c fortutils.c interfaces.cpp \
-@SPARSE_TRUE@	interfacesf.c taping_p.h taping.c \
-@SPARSE_TRUE@	tape_handling.cpp zos_forward.c fos_forward.c \
-@SPARSE_TRUE@	fov_forward.c hos_forward.c hov_forward.c \
-@SPARSE_TRUE@	hov_wk_forward.c fos_reverse.c fov_reverse.c \
-@SPARSE_TRUE@	hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-@SPARSE_TRUE@	forward_partx.c externfcts.cpp checkpointing.cpp \
-@SPARSE_TRUE@	fixpoint.cpp fov_offset_forward.c revolve.c \
-@SPARSE_TRUE@	int_forward_s.c int_forward_t.c \
-@SPARSE_TRUE@	indopro_forward_s.c indopro_forward_t.c \
-@SPARSE_TRUE@	nonl_ind_forward_s.c nonl_ind_forward_t.c \
-@SPARSE_TRUE@	int_reverse_s.c int_reverse_t.c $(am__append_3)
+@SPARSE_TRUE@                       convolut.c fortutils.c \
+@SPARSE_TRUE@                       interfaces.cpp interfacesf.c \
+@SPARSE_TRUE@                       taping_p.h taping.c tape_handling.cpp \
+@SPARSE_TRUE@                       zos_forward.c fos_forward.c fov_forward.c \
+@SPARSE_TRUE@                       hos_forward.c hov_forward.c hov_wk_forward.c \
+@SPARSE_TRUE@                       fos_reverse.c fov_reverse.c \
+@SPARSE_TRUE@                       hos_reverse.c hos_ov_reverse.c hov_reverse.c \
+@SPARSE_TRUE@                       forward_partx.c \
+@SPARSE_TRUE@                       externfcts.cpp checkpointing.cpp \
+@SPARSE_TRUE@                       fixpoint.cpp fov_offset_forward.c revolve.c \
+@SPARSE_TRUE@                       int_forward_s.c int_forward_t.c \
+@SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
+@SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
+@SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c
+
 @SPARSE_FALSE@libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la
 @SPARSE_TRUE@libadolc_la_LIBADD = drivers/libdrivers.la sparse/libsparse.la \
 @SPARSE_TRUE@                       tapedoc/libtapedoc.la
 
+@HAVE_MPI_TRUE@libadolc_mpi_la_SOURCES = adolc_mpi.cpp interfaces_mpi.cpp \
+@HAVE_MPI_TRUE@                           zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+@HAVE_MPI_TRUE@                           hos_forward_mpi.c hov_forward_mpi.c \
+@HAVE_MPI_TRUE@                           fos_reverse_mpi.c fov_reverse_mpi.c \
+@HAVE_MPI_TRUE@                           hos_reverse_mpi.c hov_reverse_mpi.c \
+@HAVE_MPI_TRUE@                           int_forward_s_mpi.c int_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           int_reverse_s_mpi.c int_reverse_t_mpi.c
+
+@HAVE_MPI_TRUE@libadolc_mpi_la_LIBADD = libadolc.la $(am__append_4)
+@HAVE_MPI_TRUE@libadolc_mpi_la_LDFLAGS = @MPILIBS@ @LIBMPI@
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -389,9 +433,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ADOL-C/src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ADOL-C/src/Makefile
+	  $(AUTOMAKE) --foreign ADOL-C/src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -460,6 +504,8 @@ clean-libLTLIBRARIES:
 	done
 libadolc.la: $(libadolc_la_OBJECTS) $(libadolc_la_DEPENDENCIES) 
 	$(libadolc_la_LINK) -rpath $(libdir) $(libadolc_la_OBJECTS) $(libadolc_la_LIBADD) $(LIBS)
+libadolc_mpi.la: $(libadolc_mpi_la_OBJECTS) $(libadolc_mpi_la_DEPENDENCIES) 
+	$(libadolc_mpi_la_LINK) $(am_libadolc_mpi_la_rpath) $(libadolc_mpi_la_OBJECTS) $(libadolc_mpi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -477,32 +523,49 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fortutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/forward_partx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_offset_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_ov_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_wk_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfacesf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tape_handling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taping.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward_mpi.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
