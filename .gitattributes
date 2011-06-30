@@ -194,6 +194,8 @@ ADOL-C/src/common.h -text
 ADOL-C/src/config.h.in -text
 ADOL-C/src/convolut.c -text
 ADOL-C/src/convolut.h -text
+ADOL-C/src/csod_forward_s.c -text
+ADOL-C/src/csod_forward_t.c -text
 ADOL-C/src/drivers/Makefile.am -text
 ADOL-C/src/drivers/Makefile.in -text
 ADOL-C/src/drivers/drivers.c -text
