@@ -35,7 +35,6 @@ enum StatEntries {
     LOC_BUFFER_SIZE,   /* # of locations per buffer == LBUFSIZE (usrparms.h) */
     VAL_BUFFER_SIZE,      /* # of values per buffer == CBUFSIZE (usrparms.h) */
     TAY_BUFFER_SIZE,     /* # of taylors per buffer <= TBUFSIZE (usrparms.h) */
-    NUM_EQ_PROD,                       /* # of eq_prod_* for nlf computation */
     STAT_SIZE                     /* represents the size of the stats vector */
 };
 
