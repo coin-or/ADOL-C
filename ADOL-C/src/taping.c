@@ -1074,8 +1074,6 @@ void stop_trace(int flag) {
         ADOLC_CURRENT_TAPE_INFOS.numDeps;
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] =
         ADOLC_GLOBAL_TAPE_VARS.storeSize;
-    ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD] =
-        ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
 
     taylor_close(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE]);
 
