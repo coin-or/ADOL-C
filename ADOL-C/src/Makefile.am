@@ -59,7 +59,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
                        int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
-                       csod_forward_s.c csod_forward_t.c \
+                       nlf_forward_s.c nlf_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
                        int_reverse_s.c int_reverse_t.c 
 
