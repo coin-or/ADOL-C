@@ -140,17 +140,17 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 #endif
 #endif
 
-#if defined(_CSOD_)
+#if defined(_NLF_)
 void copy_fod(int res, int arg, locint **fod);
 void append_fod(int res, int arg, locint **fod);
 void copy_index_domain_2_fod(int res, locint **fod, locint **ind_dom);
 void append_index_domain_2_fod(int res, int offset, int arg1, int arg2,locint **fod, locint **ind_dom);
 void combine_2_fod(int res, int arg1, int arg2, locint **fod);
 #if defined(_TIGHT_)
-#define GENERATED_FILENAME "csod_forward_t"
+#define GENERATED_FILENAME "nlf_forward_t"
 #endif
 #if defined(_NTIGHT_)
-#define GENERATED_FILENAME "csod_forward_s"
+#define GENERATED_FILENAME "nlf_forward_s"
 #endif
 typedef struct IndexElement {
     locint  entry;
@@ -598,12 +598,12 @@ int indopro_forward_safe(
   */
 #endif
 #else
-#if defined(_CSOD_)
+#if defined(_NLF_)
 #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
-int csod_forward_tight(
+int nlf_forward_tight(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -615,7 +615,7 @@ int csod_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
-int csod_forward_safe(
+int nlf_forward_safe(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -783,7 +783,7 @@ int  hov_forward(
 #if defined (_INDO_)
     int l=0;
     int max_ind_dom;
-#if defined (_CSOD_)
+#if defined (_NLF_)
     IndexElement** csod;
     IndexElement*  temp;
     IndexElement*  temp1;
@@ -842,7 +842,7 @@ int  hov_forward(
 
     /* index domains */
     locint** ind_dom;
-#if defined(_CSOD_)
+#if defined(_NLF_)
     locint** fod;
 #endif
 #else
@@ -1026,7 +1026,7 @@ int  hov_forward(
     /*--------------------------------------------------------------------------*/
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
-#if !defined(_CSOD_)
+#if !defined(_NLF_)
 	ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 	max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 #else
@@ -1050,7 +1050,7 @@ int  hov_forward(
       ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
       ind_dom[i][0] = 0;
       ind_dom[i][1] = NUMNNZ;
-#if defined(_CSOD_)
+#if defined(_NLF_)
       // structure of fod[i]
       // fod[i][0] = number of ind_doms contained in fod[i]
       // fod[i][1] = length of array-3  = place for entries
@@ -1296,7 +1296,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -1324,7 +1324,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
-#if defined(_CSOD_)
+#if defined(_NLF_)
                 fod[res][0] = 0;
                 fod[res][2] = 0;
 #endif
@@ -1351,7 +1351,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
-#if defined(_CSOD_)
+#if defined(_NLF_)
                 fod[res][0] = 0;
                 fod[res][2] = 0;
 #endif
@@ -1378,7 +1378,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		ind_dom[res][0]=0;
-#if defined(_CSOD_)
+#if defined(_NLF_)
                 fod[res][0] = 0;
                 fod[res][2] = 0;
 #endif
@@ -1450,7 +1450,7 @@ int  hov_forward(
 		  crs[indexd][0] =0;
 		}
 #endif
-#if defined(_CSOD_)
+#if defined(_NLF_)
 				
 		int startfod = 3;
 		for(l=0;l<fod[res][0];l++)
@@ -1554,7 +1554,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		append_fod(res,arg,fod);
 #endif
 #else
@@ -1600,7 +1600,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		append_fod(res,arg,fod);
 #endif
 #else
@@ -1655,7 +1655,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_index_domain_2_fod(res,fod,ind_dom);
 #endif
 #if defined(_NONLIND_)
@@ -1735,7 +1735,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)      
+#if defined(_NLF_)      
 		combine_2_fod(res, arg1, arg2, fod);
 #endif
 #else
@@ -1770,7 +1770,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -1801,7 +1801,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		combine_2_fod(res, arg1, arg2, fod);
 #endif
 #else
@@ -1836,7 +1836,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -1865,7 +1865,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_index_domain_2_fod(res,fod,ind_dom);
 #endif
 #if defined(_NONLIND_)
@@ -1920,7 +1920,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		append_index_domain_2_fod(res, offset, arg1, arg2, fod, ind_dom);
 #endif
 #if defined(_NONLIND_)
@@ -1974,7 +1974,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		append_index_domain_2_fod(res, offset, arg1, arg2, fod, ind_dom);
 #endif
 #if defined(_NONLIND_)
@@ -2034,7 +2034,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -2073,7 +2073,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_index_domain_2_fod(res,fod,ind_dom);
 #endif
 #if defined(_NONLIND_)
@@ -2137,7 +2137,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2192,7 +2192,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -2219,7 +2219,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -2257,7 +2257,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2316,7 +2316,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2385,7 +2385,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2451,7 +2451,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2509,7 +2509,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2605,7 +2605,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2703,7 +2703,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2761,7 +2761,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2841,7 +2841,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #if defined(_NONLIND_)
@@ -2942,7 +2942,7 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #else
@@ -2992,7 +2992,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #if defined(_NONLIND_)
@@ -3073,7 +3073,7 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #if defined(_NONLIND_)
@@ -3211,7 +3211,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #if defined(_NONLIND_)
@@ -3376,7 +3376,7 @@ int  hov_forward(
 #else
                     combine_2_index_domains(res, arg1, arg2, ind_dom);
 #endif
-#if defined(_CSOD_)
+#if defined(_NLF_)
 #ifdef _TIGHT_
                     if (dp_T0[arg1] < dp_T0[arg2])
 		      copy_fod(res, arg1, fod);
@@ -3508,7 +3508,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -3585,7 +3585,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -3615,7 +3615,7 @@ int  hov_forward(
 
 #if defined(_INDO_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg, fod);
 #endif
 #else
@@ -3652,7 +3652,7 @@ int  hov_forward(
 
 		    copy_index_domain(res, arg1, ind_dom);
 
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		    copy_fod(res, arg1, fod);
 #endif
                 } else {
@@ -3662,14 +3662,14 @@ int  hov_forward(
                         MINDEC(ret_c,0);
                     dp_T0[res] = dp_T0[arg2];
 		    copy_index_domain(res, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		    copy_fod(res, arg2, fod);
 #endif
                 }
 
 #else
 		    combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		    combine_2_fod(res, arg1, arg2, fod);
 #endif
 #endif
@@ -3744,7 +3744,7 @@ int  hov_forward(
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
 		copy_index_domain(res, arg1, ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 		copy_fod(res, arg1, fod);
 #endif
 #else
@@ -3969,7 +3969,7 @@ int  hov_forward(
 	free(ind_dom[i]);
       }
     free(ind_dom);
-#if defined(_CSOD_)
+#if defined(_NLF_)
 
     for( i=0; i < indcheck; i++) {
        crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (csod[i]->entry+1));
@@ -4217,7 +4217,7 @@ void extend_nonlinearity_domain_binary
 
 /****************************************************************************/
 
-#if defined(_CSOD_)
+#if defined(_NLF_)
 
 /****************************************************************************/
 /* set operations for propagation of fod                                    */
