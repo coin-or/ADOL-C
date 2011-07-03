@@ -316,17 +316,17 @@ ADOLC_DLL_EXPORT int indopro_forward_tight
 /*                                             NONLINEAR FRONTIER UTILITIES */
 /*--------------------------------------------------------------------------*/
 /*                                                               CSOD, SAFE */
-/* csod_forward_safe(tag, m, n, p, x[n], *crs[m])                            */
+/* nlf_forward_safe(tag, m, n, p, x[n], *crs[m])                            */
 
-ADOLC_DLL_EXPORT int csod_forward_safe
+ADOLC_DLL_EXPORT int nlf_forward_safe
 (short, int, int, const double*, unsigned int**);
 
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INDOPRO, TIGHT */
-/* csod_forward_tight(tag, m, n,  x[n], *crs[m])                             */
+/* nlf_forward_tight(tag, m, n,  x[n], *crs[m])                             */
 
-ADOLC_DLL_EXPORT int csod_forward_tight
+ADOLC_DLL_EXPORT int nlf_forward_tight
 (short, int, int, const double*, unsigned int**);
 
 /****************************************************************************/
