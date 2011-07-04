@@ -141,11 +141,9 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 #endif
 
 #if defined(_NLF_)
-void copy_fod(int res, int arg, locint **fod);
-void append_fod(int res, int arg, locint **fod);
-void copy_index_domain_2_fod(int res, locint **fod, locint **ind_dom);
-void append_index_domain_2_fod(int res, int offset, int arg1, int arg2,locint **fod, locint **ind_dom);
-void combine_2_fod(int res, int arg1, int arg2, locint **fod);
+
+void combine_2_domains(int res, int arg1, int arg2, locint **ind_dom);
+
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nlf_forward_t"
 #endif
@@ -787,13 +785,12 @@ int  hov_forward(
     IndexElement** csod;
     IndexElement*  temp;
     IndexElement*  temp1;
+    locint entry;
     int opind;
     int index;
     int index1;
-    int num;
-    int num_eq_op = 0;
     int offset;
-    locint entry;
+    int num;
     int ii;
     int jj;
 #endif
@@ -1031,13 +1028,21 @@ int  hov_forward(
 #if !defined(_NLF_)
 	ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 	max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
+	for(i=0;i<max_ind_dom;i++)
+	  {
+	    // structure of ind_dom[i]:
+	    // ind_dom[i][0] = number of entries
+	    // ind_dom[i][1] = length of array-2  = place for entries
+	    ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
+	    ind_dom[i][0] = 0;
+	    ind_dom[i][1] = NUMNNZ;
+	  }
 #else
-	ind_dom = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]));
-	nlf = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]));    
+	ind_dom = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));
+	nlf = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));    
 	arg_index = (locint *)  malloc(sizeof(locint) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]));    
-
         opind = 0;
-        max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS];
+        max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD];
 	csod = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
 	for(i=0;i<indcheck;i++)
 	  {
@@ -1046,22 +1051,7 @@ int  hov_forward(
 	    csod[i]->next = NULL;
 	  }
 #endif
-    for(i=0;i<max_ind_dom;i++)
-    {
-      // structure of ind_dom[i]:
-      // ind_dom[i][0] = number of entries
-      // ind_dom[i][1] = length of array-2  = place for entries
-      ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
-      ind_dom[i][0] = 0;
-      ind_dom[i][1] = NUMNNZ;
-#if defined(_NLF_)
-      // structure of nlf
-      // same as ind_dom
-      nlf[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ));
-      nlf[i][0] = 0;
-      nlf[i][1] = NUMNNZ;
-#endif
-    }
+
 #if defined(_NONLIND_)
 
     nonl_dom = (locint**) malloc(sizeof(locint*) * indcheck);
@@ -1133,7 +1123,10 @@ int  hov_forward(
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
     while (operation !=end_of_tape) {
-
+  
+#if defined(_NLF_)
+      printf(" op %d \n",operation);
+#endif
       switch (operation) {
 
 
@@ -1299,9 +1292,9 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-                arg_index[res] = opind++;		
-                copy_index_domain(arg_index[res],arg_index[arg], ind_dom);
-                copy_index_domain(arg_index[res],arg_index[arg], nlf);
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1327,9 +1320,11 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		ind_dom[res][0]=0;
-#if defined(_NLF_)
+#else
                 arg_index[res] = opind++;		
+                ind_dom[arg_index[res]][0] = 0;
                 nlf[arg_index[res]][0] = 0;
                 nlf[arg_index[res]][2] = 0;
 #endif
@@ -1355,8 +1350,11 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		ind_dom[res][0]=0;
-#if defined(_NLF_)
+#else
+                arg_index[res] = opind++;		
+                ind_dom[arg_index[res]][0] = 0;
                 nlf[arg_index[res]][0] = 0;
                 nlf[arg_index[res]][2] = 0;
 #endif
@@ -1382,10 +1380,13 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		ind_dom[res][0]=0;
-#if defined(_NLF_)
-                nlf[res][0] = 0;
-                nlf[res][2] = 0;
+#else
+                arg_index[res] = opind++;		
+                ind_dom[arg_index[res]][0] = 0;
+                nlf[arg_index[res]][0] = 0;
+                nlf[arg_index[res]][2] = 0;
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1414,9 +1415,12 @@ int  hov_forward(
 		ind_dom[res][0] = 1;
 		ind_dom[res][2] = indexi;
 #else
+		ind_dom[opind] = (locint *)  malloc(sizeof(locint) * 2);
+		ind_dom[opind][0] = 1;
+		ind_dom[opind][2] = opind;
+		nlf[opind] = (locint *)  malloc(sizeof(locint) * 1);
+		ind_dom[arg_index[res]][0] = 0;
                 arg_index[res] = opind++;		
-		ind_dom[arg_index[res]][0] = 1;
-		ind_dom[arg_index[res]][2] = arg_index[res];
 #endif		
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1563,9 +1567,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* append_fod(res,arg,fod); */
+#else
+                combine_2_index_domains(opind, arg_index[res], arg_index[arg], ind_dom);
+                combine_2_index_domains(opind, arg_index[res], arg_index[arg], nlf);
+                arg_index[res] = opind++;		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1609,9 +1616,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* append_fod(res,arg,fod); */
+#else
+                combine_2_index_domains(opind, arg_index[res], arg_index[arg], ind_dom);
+                combine_2_index_domains(opind, arg_index[res], arg_index[arg], nlf);
+                arg_index[res] = opind++;		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1664,9 +1674,13 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_index_domain_2_fod(res,fod,ind_dom); */
+#else
+                combine_2_index_domains(opind, arg_index[res], arg_index[arg], ind_dom);
+		nlf[opind][0] = 1;
+		nlf[opind][2] = opind;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
@@ -1747,9 +1761,9 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else      
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], nlf);
                 arg_index[res] = opind++;		
-                combine_2_index_domains(arg_index[res], arg_index[arg1], arg_index[arg2], ind_dom);
-                combine_2_index_domains(arg_index[res], arg_index[arg1], arg_index[arg2], nlf);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1785,9 +1799,9 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-                arg_index[res] = opind++;		
-                copy_index_domain(arg_index[res],arg_index[arg], ind_dom);
-                copy_index_domain(arg_index[res],arg_index[arg], nlf);
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1816,9 +1830,12 @@ int  hov_forward(
 
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_NLF_)
-		/* combine_2_fod(res, arg1, arg2, fod); */
+#else
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], nlf);
+                arg_index[res] = opind++;		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1851,9 +1868,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1883,10 +1903,10 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else
+                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		nlf[opind][0] = 1;
+		nlf[opind][2] = opind;
                 arg_index[res] = opind++;		
-                combine_2_index_domains(arg_index[res], arg_index[arg1], arg_index[arg2], ind_dom);
-		nlf[arg_index[res]][0] = 1;
-		nlf[arg_index[res]][2] = arg_index[res];
 #endif
 #if defined(_NONLIND_)
 		extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
@@ -1942,10 +1962,17 @@ int  hov_forward(
 #if !defined(_NLF_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
 #else
-                /* arg_index[res] = opind++;		 */
-                /* combine_2_index_domains(arg_index[res], arg_index[arg1], arg_index[arg2], ind_dom); */
-                /* merge_3_index_domains(res, arg1, arg2, ind_dom); */
-		/* append_index_domain_2_fod(res, offset, arg1, arg2, fod, ind_dom); */
+		// operation: v = v+u*w
+		// first step: z = u*w, index domains
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		// first step: z = u*w, nlf
+		nlf[opind][0] = 1;
+		nlf[opind][2] = opind++;
+		// second step: v = v+z, index domains
+                combine_2_index_domains(opind, arg_index[res], opind-1,ind_dom);
+		// second step: v = v+z, nlf
+                combine_2_index_domains(opind, arg_index[res], opind-1,nlf);
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
@@ -1997,9 +2024,20 @@ int  hov_forward(
                 res  = get_locint_f();
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_NLF_)
-		/* append_index_domain_2_fod(res, offset, arg1, arg2, fod, ind_dom); */
+#else
+		// operation: v = v+u*w
+		// first step: z = u*w, index domains
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		// first step: z = u*w, nlf
+		nlf[opind][0] = 1;
+		nlf[opind][2] = opind;
+		// second step: v = v+z, index domains
+                merge_2_index_domains(opind, arg_index[res], ind_dom);
+		// second step: v = v+z, nlf
+                merge_2_index_domains(opind, arg_index[res], nlf);
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
@@ -2057,9 +2095,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2096,9 +2137,13 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_NLF_)
-		/* copy_index_domain_2_fod(res,fod,ind_dom); */
+#else
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		nlf[opind][0] = 1;
+		nlf[opind][2] = opind;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
@@ -2160,9 +2205,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -2215,9 +2263,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];			    
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2242,9 +2293,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2280,9 +2334,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -2323,7 +2380,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case sin_op:                              /* sine operation    sin_op */
-            arg1 = get_locint_f();
+	        arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2339,9 +2396,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2408,9 +2468,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2474,9 +2537,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2519,7 +2585,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case asin_op:                                              /* asin_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2532,9 +2598,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2615,7 +2684,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case acos_op:                                              /* acos_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2628,9 +2697,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2713,7 +2785,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case asinh_op:                                            /* asinh_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2726,9 +2798,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2771,7 +2846,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case acosh_op:                                           /* acosh_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2784,9 +2859,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2864,9 +2942,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2953,7 +3034,7 @@ int  hov_forward(
 
             /*--------------------------------------------------------------------------*/
         case erf_op:                                                /* erf_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2965,9 +3046,12 @@ int  hov_forward(
 
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3015,9 +3099,12 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3096,9 +3183,12 @@ int  hov_forward(
 
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3234,9 +3324,12 @@ int  hov_forward(
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3388,6 +3481,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 #ifdef _TIGHT_
                     if (dp_T0[arg1] < dp_T0[arg2])
                         copy_index_domain(res, arg1, ind_dom);
@@ -3400,19 +3494,32 @@ int  hov_forward(
 #else
                     combine_2_index_domains(res, arg1, arg2, ind_dom);
 #endif
-#if defined(_NLF_)
+#else
 #ifdef _TIGHT_
-/*                     if (dp_T0[arg1] < dp_T0[arg2]) */
-/* 		      copy_fod(res, arg1, fod); */
-/*                     else { */
-/*                         if (dp_T0[arg1] > dp_T0[arg2]) */
-/* 			  copy_fod(res, arg2, fod); */
-/*                         else  */
-/* 			  combine_2_fod(res, arg1, arg2, fod); */
-/*                     } */
-/* #else */
-/* 		    combine_2_fod(res, arg1, arg2, fod); */
+                    if (dp_T0[arg1] < dp_T0[arg2])
+		      {
+/* 			copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/* 			copy_index_domain(opind,arg_index[arg1], nlf); */
+			arg_index[res] = arg_index[arg1];
+		      }		   
+                    else {
+                        if (dp_T0[arg1] > dp_T0[arg2])
+			  {
+/* 			    copy_index_domain(opind,arg_index[arg2], ind_dom); */
+/* 			    copy_index_domain(opind,arg_index[arg2], nlf); */
+			    arg_index[res] = arg_index[arg2];
+			  }		   
+                        else
+			  {
+			    combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+			    combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], nlf);
+			  }
+                    }
+#else
+			    combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+			    combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], nlf);
 #endif
+                arg_index[res] = opind++;		
 #endif
 
 #else
@@ -3531,9 +3638,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3608,9 +3718,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3638,9 +3751,12 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg], nlf); */
+                arg_index[res] = arg_index[arg];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3668,6 +3784,7 @@ int  hov_forward(
 
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
+#if !defined(_NLF_)
 #ifdef _TIGHT_
                 if (dp_T0[arg] > 0) {
                     if (coval <= 0.0)
@@ -3676,9 +3793,7 @@ int  hov_forward(
 
 		    copy_index_domain(res, arg1, ind_dom);
 
-#if defined(_NLF_)
 		    /* copy_fod(res, arg1, fod); */
-#endif
                 } else {
                     if (coval > 0.0)
                         MINDEC(ret_c,2);
@@ -3686,15 +3801,37 @@ int  hov_forward(
                         MINDEC(ret_c,0);
                     dp_T0[res] = dp_T0[arg2];
 		    copy_index_domain(res, arg2, ind_dom);
-#if defined(_NLF_)
-		    /* copy_fod(res, arg2, fod); */
-#endif
                 }
 
 #else
 		    combine_2_index_domains(res, arg1, arg2, ind_dom);
-#if defined(_NLF_)
-		    /* combine_2_fod(res, arg1, arg2, fod); */
+#endif
+#else
+#ifdef _TIGHT_
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+/* 		    copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/* 		    copy_index_domain(opind,arg_index[arg1], nlf); */
+		    arg_index[res] = arg_index[arg1];		
+
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+/* 		    copy_index_domain(opind,arg_index[arg2], ind_dom); */
+/* 		    copy_index_domain(opind,arg_index[arg2], nlf); */
+		    arg_index[res] = arg_index[arg2];		
+                }
+
+#else
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+                combine_2_index_domains(opind, arg_index[arg1], arg_index[arg2], nlf);
+                arg_index[res] = opind++;		
 #endif
 #endif
 #else
@@ -3767,9 +3904,12 @@ int  hov_forward(
 
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
+#if !defined(_NLF_)
 		copy_index_domain(res, arg1, ind_dom);
-#if defined(_NLF_)
-		/* copy_fod(res, arg1, fod); */
+#else
+/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
+/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
+                arg_index[res] = arg_index[arg1];		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3944,6 +4084,7 @@ int  hov_forward(
 
         } /* endswitch */
 
+
         /* Read the next operation */
         operation=get_op_f();
 #if defined(ADOLC_DEBUG)
@@ -4014,6 +4155,7 @@ int  hov_forward(
 	free(nlf[i]);
       }
     free(nlf);
+    free(arg_index);
 #endif
 
 #if defined(_NONLIND_)
@@ -4240,4 +4382,86 @@ void extend_nonlinearity_domain_binary
 
 /****************************************************************************/
 
+
+/****************************************************************************/
+
+#if defined(_NLF_)
+
+/****************************************************************************/
+/* set operations for propagation of index domains                          */
+
+/*--------------------------------------------------------------------------*/
+/* operations on index domains                                              */
+
+#if defined(_TIGHT_)
+
+void combine_2_domains(int res, int arg1, int arg2, locint **dom) {
+/*   int num,num1,num2, i,j,k,l; */
+/*   locint *temp_array, *arg_ind_dom, *res_ind_dom; */
+
+/*   if (ind_dom[res][0] == 0) */
+/*     copy_index_domain(res,arg,ind_dom); */
+/*   else */
+/*     { */
+/*       if (res != arg) */
+/* 	{ */
+/* 	  arg_ind_dom = ind_dom[arg]; */
+/* 	  res_ind_dom = ind_dom[res]; */
+
+/* 	  num  = ind_dom[res][0]; */
+/* 	  num1 = arg_ind_dom[0]; */
+/* 	  num2 = ind_dom[res][1]; */
+
+/* 	  if (num2 < num1+num) */
+/* 	    num2 = num1+num; */
+	  
+/* 	  temp_array = (locint *)  malloc(sizeof(locint)* (num2+2)); */
+/* 	  temp_array[1] = num2; */
+
+/* 	  i = 2; */
+/* 	  j = 2; */
+/* 	  k = 2; */
+/* 	  num += 2; */
+/* 	  num1 += 2; */
+/* 	  while ((i< num) && (j < num1)) */
+/* 	    { */
+/* 	      if (res_ind_dom[i] < arg_ind_dom[j]) */
+/* 		{ */
+/* 		  temp_array[k] = res_ind_dom[i]; */
+/* 		  i++; k++; */
+/* 		} */
+/* 	      else */
+/* 		{ */
+/* 		  if (res_ind_dom[i] == arg_ind_dom[j]) */
+/* 		    { */
+/* 		      temp_array[k] = arg_ind_dom[j]; */
+/* 		      i++;j++;k++; */
+/* 		    } */
+/* 		  else */
+/* 		    { */
+/* 		      temp_array[k] = arg_ind_dom[j]; */
+/* 		      j++;k++;		       */
+/* 		    } */
+/* 		} */
+/* 	    } */
+/* 	  for(l = i;l<num;l++) */
+/* 	    { */
+/* 	      temp_array[k] = res_ind_dom[l]; */
+/* 	      k++; */
+/* 	    } */
+/* 	  for(l = j;l<num1;l++) */
+/* 	    { */
+/* 	      temp_array[k] = arg_ind_dom[l]; */
+/* 	      k++; */
+/* 	    } */
+/* 	  temp_array[0] = k-2; */
+/* 	  free(ind_dom[res]); */
+/* 	  ind_dom[res]=temp_array; */
+/* 	} */
+/*     } */
+
+}
+
+#endif
+#endif
 END_C_DECLS
