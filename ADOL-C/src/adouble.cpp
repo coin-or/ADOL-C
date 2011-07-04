@@ -572,6 +572,7 @@ badouble& badouble::operator += ( const adub& a ) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
       {
         upd = upd_resloc_inc_prod(a_loc,location,eq_plus_prod);
+	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
       }
     if (upd) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
