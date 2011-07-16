@@ -24,6 +24,8 @@ powexam_LDADD           = ../src/libadolc.la
 speelpenning_LDADD = ../src/libadolc.la 
 fminmax_LDADD		= ../src/libadolc.la
 
+AM_CFLAGS               = @ac_adolc_cflags@
+AM_CXXFLAGS             = @ac_adolc_cxxflags@
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
