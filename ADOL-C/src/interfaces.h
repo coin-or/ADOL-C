@@ -315,7 +315,7 @@ ADOLC_DLL_EXPORT int indopro_forward_tight
 /****************************************************************************/
 /*                                             NONLINEAR FRONTIER UTILITIES */
 /*--------------------------------------------------------------------------*/
-/*                                                                NLF, SAFE */
+/*                                                               CSOD, SAFE */
 /* nlf_forward_safe(tag, m, n, p, x[n], *crs[m])                            */
 
 ADOLC_DLL_EXPORT int nlf_forward_safe
