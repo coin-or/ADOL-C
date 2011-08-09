@@ -111,7 +111,7 @@ int main(){
 
   Nmat = 40;
   N = Nmat+40;
-  npath = 100;
+  npath = 30;
 
   lambda   = new double[N];
   v        = new double[npath];
@@ -139,8 +139,8 @@ int main(){
 	  xp[j][i]=  0.05;
       for (i=0; i<Nmat; i++) 
 	{
-	  z[j][i] = 0.2+j*0.00001;
-	  xp[j][N+i]=  0.2+j*0.00001;
+	  z[j][i] = 0.3;
+	  xp[j][N+i]=  0.3;
 	}
     }
 
@@ -170,7 +170,7 @@ int main(){
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
 	
       va >>= v[i];
-    trace_off();
+    trace_off(1);
 
     for(i=0;i<npath;i++)
       gradient(1,N+Nmat,xp[i],grad[i]);
