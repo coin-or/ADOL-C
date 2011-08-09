@@ -91,6 +91,7 @@ private:
 public:
 
   StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
+  StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, size_t &size, size_t &numLives);
 
   virtual ~StoreManagerLocint();
   virtual inline size_t size() const { return anzahl; }
