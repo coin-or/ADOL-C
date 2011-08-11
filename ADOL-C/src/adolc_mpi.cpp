@@ -158,10 +158,9 @@ int ADOLC_MPI_Bcast( adouble *buf,
                      ADOLC_MPI_Comm comm )
 
 {
-    int i,id,size, ierr=0;
+    int i,id, ierr=0;
     double *trade;
 
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
 
     trade = (double*) myalloc1(count);
@@ -192,42 +191,148 @@ int ADOLC_MPI_Bcast( adouble *buf,
 }
 
 int ADOLC_MPI_Reduce(
-    adouble *send_buf, adouble *rec_buf, int count, ADOLC_MPI_Datatype datatype,
+    adouble *send_buf, adouble *rec_buf, int count, ADOLC_MPI_Datatype type,
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm)
 {
-    int i,id,size, ierr=0;
+    int i,j,id, ierr=0;
+    adouble tmp, *tmp_adoubles = NULL;
     double *trade_s, *trade_r;
 
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
-
+// equal to ADOLC_MPI_Gather -------------------
     trade_s = (double*) myalloc1(count);
     if (id == root)
-      trade_r = (double*) myalloc1(count);
+      trade_r = (double*) myalloc1(count*process_count);
     else trade_r = NULL;
 
     for(i= 0; i < count; i++) {
        trade_s[i] = send_buf[i].getValue();
-     }
-    ierr = MPI_Reduce(trade_s,trade_r ,count,datatype,adolc_to_mpi_op(op),root, comm);
+    }
+    ierr = MPI_Gather(trade_s,count,type,trade_r,count,type, root, comm);
+
+    if ( id == root){
+           tmp_adoubles = new adouble[count*process_count];
+       for(i=0; i< count*process_count;i++){
+          tmp_adoubles[i].setValue(trade_r[i]);
+          }
+    }
+// ------------------------------------------------------
+    put_op(reduce);
+    ADOLC_PUT_LOCINT(send_buf[0].loc());
+    ADOLC_PUT_LOCINT(rec_buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(count*process_count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
 
     if ( id == root){
        if( rec_buf == NULL)
            rec_buf = new adouble[count];
-       for(i=0; i< count;i++){
-          rec_buf[i].setValue(trade_r[i]);
+       for(i=0; i < count; i++ ){
+          tmp = tmp_adoubles[i];
+          switch (adolc_to_mpi_op(op)) {
+               case MPI_MAX:  for(j=1; j< process_count ; j++)
+                                 if( tmp <= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
+                              break;
+               case MPI_MIN:  for(j=1; j< process_count ; j++)
+                                 if( tmp >= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
+                              break;
+               case MPI_SUM:  for(j=1; j< process_count ; j++)
+                                 tmp += tmp_adoubles[j*count+i];
+                              break;
+               case MPI_PROD:  for(j=1; j< process_count ; j++)
+                                 tmp *= tmp_adoubles[j*count+i];
+                              break;
+               default:       printf("Operation %d not yet implemented!\n",op);
+                              break;
+          }
+          rec_buf[i] = tmp;
+       }
+    }
+
+    free(tmp_adoubles);
+    free(trade_s);
+    free(trade_r);
+
+    return ierr;
+}
+
+int ADOLC_MPI_Gather(
+    adouble *sendbuf, adouble *recvbuf, int count, ADOLC_MPI_Datatype type, int root, MPI_Comm comm)
+{
+    int i,id, ierr=0;
+    double *trade_s, *trade_r;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+
+    trade_s = (double*) myalloc1(count);
+    if (id == root)
+      trade_r = (double*) myalloc1(count*process_count);
+    else trade_r = NULL;
+
+    for(i= 0; i < count; i++) {
+       trade_s[i] = sendbuf[i].getValue();
+    }
+    ierr = MPI_Gather(trade_s,count,type,trade_r,count,type, root, comm);
+
+    if ( id == root){
+       if( recvbuf == NULL)
+           recvbuf = new adouble[count*process_count];
+       for(i=0; i< count*process_count;i++){
+          recvbuf[i].setValue(trade_r[i]);
           }
     }
     free(trade_s);
     free(trade_r);
 
-    put_op(reduce);
-    ADOLC_PUT_LOCINT(send_buf[0].loc());
-    ADOLC_PUT_LOCINT(rec_buf[0].loc());
+    put_op(gather);
+    ADOLC_PUT_LOCINT(sendbuf[0].loc());
+    ADOLC_PUT_LOCINT(recvbuf[0].loc());
     ADOLC_PUT_LOCINT(count);
+    ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
-    ADOLC_PUT_LOCINT(op);
+
+    return ierr;
+}
+
+int ADLOC_MPI_Scatter(
+    adouble *sendbuf, int sendcount, adouble *recvbuf,
+    int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm)
+{
+    int i,id, ierr=0;
+    double *trade_s, *trade_r;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+
+    trade_r = (double*) myalloc1(recvcount);
+    if (id == root)
+      trade_s = (double*) myalloc1(sendcount*process_count);
+    else trade_r = NULL;
+
+    if ( id == root){
+       for(i= 0; i < sendcount*process_count; i++)
+          trade_s[i] = sendbuf[i].getValue();
+    }
+
+    ierr = MPI_Scatter(trade_s,sendcount,type,trade_r,recvcount,type, root, comm);
+
+    if( recvbuf == NULL)
+       recvbuf = new adouble[recvcount*process_count];
+
+    for(i=0; i< recvcount;i++)
+         recvbuf[i].setValue(trade_r[i]);
+
+    free(trade_s);
+    free(trade_r);
+
+    put_op(scatter);
+    ADOLC_PUT_LOCINT(sendbuf[0].loc());
+    ADOLC_PUT_LOCINT(recvbuf[0].loc());
+    ADOLC_PUT_LOCINT(sendcount*process_count);
+    ADOLC_PUT_LOCINT(recvcount);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
 
     return ierr;
 }
@@ -299,14 +404,14 @@ int gradient_mpi(int id,int size,short tag ,int n, double* x,double* result){
      if( id == 0){
           rc = zos_forward_mpi(id,size,tag,1,n,1,x,result);
           if(rc <0){
-               printf("Failure by computing parallel hessian, process id %d!\n",id);
+               printf("Failure by computing parallel gradient, process id %d!\n",id);
                return rc;
           }
           rc = fos_reverse_mpi(id,size,tag,1,n,&one,result);
      } else {
           rc = zos_forward_mpi(id,size,tag,0,0,1,NULL,NULL);
           if(rc <0){
-               printf("Failure by computing parallel hessian, process id %d!\n",id);
+               printf("Failure by computing parallel gradient, process id %d!\n",id);
                return rc;
           }
           rc = fos_reverse_mpi(id,size,tag,0,0,&one,result);
@@ -358,19 +463,19 @@ int hessian_mpi(int id,int size,short tag ,int n,double* x ,double** result){
         for(i=0;i<n;i++) v[i] = 0;
         for(i=0;i<n;i++) {
            v[i] = 1;
-           MINDEC(rc, hess_vec_mpi(id,size,tag, n, x, v, w));
-        if(rc <0){
-           printf("Failure by computing parallel hessian, process id %d!\n",id);
-           free((char *)v);
-           free((char *) w);
-           return rc;
-        }
-        for(j=0;j<=i;j++)
+           rc = hess_vec_mpi(id,size,tag, n, x, v, w);
+           if(rc <0){
+             printf("Failure by computing parallel hessian, process id %d!\n",id);
+             free(v);
+             free(w);
+             return rc;
+           }
+           for(j=0;j<=i;j++)
             result[i][j] = w[j];
-        v[i] = 0;
+           v[i] = 0;
         }
-        free((char *)v);
-        free((char *) w);
+        free(v);
+        free(w);
      } else {
         for (i=0; i<n; i++){
             rc = fos_forward_mpi(id,size,tag, 0,0,2,NULL,NULL,NULL,NULL);
@@ -461,11 +566,11 @@ int lagra_hess_vec_mpi(int id, int size, short tag,
      } else {
         rc = fos_forward_mpi(id,size,tag, 0, 0, keep, NULL, lagrange , NULL, NULL);
         if (rc <0){
-           printf("Failure by computing parallel vec_jac, process id %d!\n",id);
+           printf("Failure by computing parallel lagra_hess_vec, process id %d!\n",id);
            return rc;
         }
         rc = hos_reverse_mpi(id,size,tag, 0, 0, degree, lagrange, NULL );
-     }
+    }
      return rc;
 }
 

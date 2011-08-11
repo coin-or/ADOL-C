@@ -79,6 +79,14 @@ ADOLC_DLL_EXPORT int ADOLC_MPI_Reduce(
     adouble *sendbuf, adouble* rec_buf, int count, ADOLC_MPI_Datatype type,
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm);
 
+ADOLC_DLL_EXPORT int ADLOC_MPI_Gather(
+    adouble* *sendbuf, adouble *recvbuf, int count, ADOLC_MPI_Datatype type,
+    int root, MPI_Comm comm);
+
+ADOLC_DLL_EXPORT int ADLOC_MPI_Scatter(
+    adouble* *sendbuf, int sendcount, adouble *recvbuf,
+    int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm);
+
 ADOLC_DLL_EXPORT int trace_on(int, int, short, int keep = 0);
 
 /*********************************************************************/
