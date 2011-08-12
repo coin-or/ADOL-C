@@ -67,7 +67,10 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     currentTapeInfosPtr = gtv.currentTapeInfosPtr;
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
-    storeManagerPtr = new StoreManagerLocint(dynamic_cast<StoreManagerLocint*>(gtv.storeManagerPtr), store, storeSize, numLives);
+    storeManagerPtr = new
+	StoreManagerLocint(
+	    dynamic_cast<StoreManagerLocint*>(gtv.storeManagerPtr),
+	    store, storeSize, numLives);
     return *this;
 }
 
@@ -100,7 +103,8 @@ StoreManagerLocint::~StoreManagerLocint()
     head = 0;
 }
 
-StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, size_t &size, size_t &numlives) : 
+StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
+				       double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
     groesse(size), anzahl(numlives)
 {
@@ -1094,7 +1098,12 @@ void beginParallel() {
                 double[ADOLC_GLOBAL_TAPE_VARS.storeSize];
             memcpy(ADOLC_GLOBAL_TAPE_VARS.store, globalTapeVars_s->store,
                     ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
-	    ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr = new StoreManagerLocint(dynamic_cast<StoreManagerLocint*>(globalTapeVars_s->storeManagerPtr), ADOLC_GLOBAL_TAPE_VARS.store, ADOLC_GLOBAL_TAPE_VARS.storeSize, ADOLC_GLOBAL_TAPE_VARS.numLives); 
+	    ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr = new
+		StoreManagerLocint(
+		    dynamic_cast<StoreManagerLocint*>(globalTapeVars_s->storeManagerPtr),
+		    ADOLC_GLOBAL_TAPE_VARS.store,
+		    ADOLC_GLOBAL_TAPE_VARS.storeSize,
+		    ADOLC_GLOBAL_TAPE_VARS.numLives);
         }
     }
 }
