@@ -219,7 +219,7 @@ int ADOLC_MPI_Reduce(
 // ------------------------------------------------------
     put_op(reduce);
     ADOLC_PUT_LOCINT(send_buf[0].loc());
-    ADOLC_PUT_LOCINT(rec_buf[0].loc());
+    ADOLC_PUT_LOCINT(tmp_adoubles[0].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
@@ -230,17 +230,17 @@ int ADOLC_MPI_Reduce(
            rec_buf = new adouble[count];
        for(i=0; i < count; i++ ){
           tmp = tmp_adoubles[i];
-          switch (adolc_to_mpi_op(op)) {
-               case MPI_MAX:  for(j=1; j< process_count ; j++)
+          switch (op) {
+               case ADOLC_MPI_MAX:  for(j=1; j< process_count ; j++)
                                  if( tmp <= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
                               break;
-               case MPI_MIN:  for(j=1; j< process_count ; j++)
+               case ADOLC_MPI_MIN:  for(j=1; j< process_count ; j++)
                                  if( tmp >= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
                               break;
-               case MPI_SUM:  for(j=1; j< process_count ; j++)
+               case ADOLC_MPI_SUM:  for(j=1; j< process_count ; j++)
                                  tmp += tmp_adoubles[j*count+i];
                               break;
-               case MPI_PROD:  for(j=1; j< process_count ; j++)
+               case ADOLC_MPI_PROD:  for(j=1; j< process_count ; j++)
                                  tmp *= tmp_adoubles[j*count+i];
                               break;
                default:       printf("Operation %d not yet implemented!\n",op);
