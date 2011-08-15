@@ -1042,6 +1042,7 @@ tnum,
      int mpi_i,mpi_ii, loc_send,loc_recv, s_r_c=1;
      ADOLC_MPI_Op mpi_op;
      int myid,root, count, id=mpi_id,count2;
+     int reduce_op = 0;
 #if defined(_NONLIND_)
      locint *tmp_element;
 #endif
@@ -4162,6 +4163,7 @@ tnum,
 #endif    // end _NONLIND_
            break;
       case reduce:
+           reduce_op = 1;
       case gather:
            loc_send = get_locint_f(); // Send Location
            loc_recv = get_locint_f(); // Receive Location
@@ -4203,6 +4205,8 @@ tnum,
            if ( myid == root){
               for( mpi_i =0; mpi_i < count2; mpi_i++){
                  dp_T[loc_recv+mpi_i] = rec_buf[mpi_i];
+                 if(reduce_op==1)
+                      IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
                }
                free(rec_buf);
            }
@@ -4220,10 +4224,13 @@ tnum,
 
            MPI_Gather(trade,count*p, MPI_DOUBLE,rec_buf, count*p,MPI_DOUBLE, root, MPI_COMM_WORLD);
            if ( myid == root){
-              for(mpi_i =0; mpi_i < count2; mpi_i++)
+              for(mpi_i =0; mpi_i < count2; mpi_i++){
                  for(i=0; i<p; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[p*mpi_i+i];
-              free(rec_buf);
+                 if(reduce_op==1)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
+               }
+               free(rec_buf);
            }
            free(trade);
 #endif
@@ -4242,6 +4249,8 @@ tnum,
               for(mpi_i =0; mpi_i < count2; mpi_i++)
                  for(i=0; i<k; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[k*mpi_i+i];
+                 if(reduce_op==1)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
               free(rec_buf);
            }
            free(trade);
@@ -4258,9 +4267,12 @@ tnum,
 
            MPI_Gather(trade,count*p*k, MPI_DOUBLE,rec_buf, count*p*k,MPI_DOUBLE, root, MPI_COMM_WORLD);
            if ( myid == root){
-              for(mpi_i =0; mpi_i < count2; mpi_i++)
+              for(mpi_i =0; mpi_i < count2; mpi_i++){
                  for(i=0; i<p*k; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[p*k*mpi_i+i];
+                 if(reduce_op==1)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
+              }
               free(rec_buf);
            }
            free(trade);
@@ -4395,6 +4407,7 @@ tnum,
            free(tmp_counts);
            free(counts);
 #endif    // end _NONLIND_
+           reduce_op = 0;
            break;
       case scatter:
            loc_send = get_locint_f(); // Send Location
