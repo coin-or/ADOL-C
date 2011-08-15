@@ -4228,7 +4228,7 @@ tnum,
                  for(i=0; i<p; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[p*mpi_i+i];
                  if(reduce_op==1)
-                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p);
                }
                free(rec_buf);
            }
@@ -4250,7 +4250,7 @@ tnum,
                  for(i=0; i<k; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[k*mpi_i+i];
                  if(reduce_op==1)
-                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p);
               free(rec_buf);
            }
            free(trade);
@@ -4271,7 +4271,7 @@ tnum,
                  for(i=0; i<p*k; i++)
                     dpp_T[loc_recv+mpi_i][i] = rec_buf[p*k*mpi_i+i];
                  if(reduce_op==1)
-                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p)
+                    IF_KEEP_WRITE_TAYLOR(loc_recv+mpi_i,keep,k,p);
               }
               free(rec_buf);
            }
