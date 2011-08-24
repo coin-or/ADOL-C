@@ -71,7 +71,7 @@ ADOLC_DLL_EXPORT long binomi(int a, int b);
 /*--------------------------------------------------------------------------*/
 /* jac_solv(tag,n,x,b,mode) */
 ADOLC_DLL_EXPORT int jac_solv
-(unsigned short tag, int n, double* x, double* b,
+(unsigned short tag, int n, const double* x, double* b,
  unsigned short mode);
 
 
