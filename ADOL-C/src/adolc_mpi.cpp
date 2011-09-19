@@ -30,6 +30,7 @@
 
 int mpi_initialized = 0;
 int process_count = 1;
+int all_root = 0;
 
 int trace_on( int id,
               int size,
@@ -45,6 +46,7 @@ int ADOLC_MPI_Init( int* a,
                     char*** b
 ){
     mpi_initialized = 1;
+    all_root = 0;
     return MPI_Init(a,b);
 }
 int ADOLC_MPI_Comm_size( ADOLC_MPI_Comm comm,
@@ -219,15 +221,15 @@ int ADOLC_MPI_Reduce(
 // ------------------------------------------------------
     put_op(reduce);
     ADOLC_PUT_LOCINT(send_buf[0].loc());
-    ADOLC_PUT_LOCINT(tmp_adoubles[0].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
+    if( id==root) ADOLC_PUT_LOCINT(tmp_adoubles[0].loc());
 
     if ( id == root){
        if( rec_buf == NULL)
-           rec_buf = new adouble[count];
+           rec_buf = (adouble*) calloc(count, sizeof(adouble));
        for(i=0; i < count; i++ ){
           tmp = tmp_adoubles[i];
           switch (op) {
@@ -248,9 +250,9 @@ int ADOLC_MPI_Reduce(
           }
           rec_buf[i] = tmp;
        }
+    free(tmp_adoubles);
     }
 
-    free(tmp_adoubles);
     free(trade_s);
     free(trade_r);
 
@@ -287,16 +289,16 @@ int ADOLC_MPI_Gather(
 
     put_op(gather);
     ADOLC_PUT_LOCINT(sendbuf[0].loc());
-    ADOLC_PUT_LOCINT(recvbuf[0].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
+    if( id==root) ADOLC_PUT_LOCINT(recvbuf[0].loc());
 
     return ierr;
 }
 
-int ADLOC_MPI_Scatter(
+int ADOLC_MPI_Scatter(
     adouble *sendbuf, int sendcount, adouble *recvbuf,
     int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm)
 {
@@ -308,7 +310,7 @@ int ADLOC_MPI_Scatter(
     trade_r = (double*) myalloc1(recvcount);
     if (id == root)
       trade_s = (double*) myalloc1(sendcount*process_count);
-    else trade_r = NULL;
+    else trade_s = NULL;
 
     if ( id == root){
        for(i= 0; i < sendcount*process_count; i++)
