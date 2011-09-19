@@ -61,7 +61,7 @@ ADOLC_DLL_EXPORT int hov_forward(
     int, int, short,int,int,int,int, double*,double***,double*,double***);
 
 ADOLC_DLL_EXPORT int hov_reverse(
-    int, int, short,int,int,int,int, double**,double***,short*);
+    int, int, short,int,int,int,int, double**,double***,short**);
 
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 ADOLC_DLL_EXPORT int int_forward_tight(
@@ -70,6 +70,13 @@ ADOLC_DLL_EXPORT int int_forward_tight(
 /* int_forward_safe(rank,size, tag, m, n, p, X[n][p], Y[m][p])                        */
 ADOLC_DLL_EXPORT int int_forward_safe(
     int,int,short,int,int,int,unsigned long int**,unsigned long int**);
+
+/* int_reverse_tight(tag, m, n, q, U[q][m], Z[q][n])                        */
+ADOLC_DLL_EXPORT int int_reverse_tight
+(int,int,short, int, int, int, unsigned long int**, unsigned long int**);
+/* int_reverse_safe(tag, m, n, q, U[q][m], Z[q][n])                         */
+ADOLC_DLL_EXPORT int int_reverse_safe
+(int,int,short, int, int, int, unsigned long int**, unsigned long int**);
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
 ADOLC_DLL_EXPORT int indopro_forward_tight(
@@ -130,6 +137,12 @@ ADOLC_DLL_EXPORT int int_forward_tight_mpi(
 ADOLC_DLL_EXPORT int int_forward_safe_mpi(
     int,int,short,int,int,int,unsigned long int**,unsigned long int**);
 
+/* int_reverse_tight(rank, size,tag, m, n, q, U[q][m], Z[q][n])                        */
+ADOLC_DLL_EXPORT int int_reverse_tight_mpi
+(int,int,short, int, int, int, unsigned long int**, unsigned long int**);
+/* int_reverse_safe(rank, size,tag, m, n, q, U[q][m], Z[q][n])                         */
+ADOLC_DLL_EXPORT int int_reverse_safe_mpi
+(int,int,short, int, int, int, unsigned long int**, unsigned long int**);
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
 ADOLC_DLL_EXPORT int indopro_forward_tight_mpi(
     int, int, short, int, int,const double*, unsigned int** );
@@ -146,6 +159,23 @@ ADOLC_DLL_EXPORT int nonl_ind_forward_tight_mpi(
 ADOLC_DLL_EXPORT int nonl_ind_forward_safe_mpi(
     int, int, short, int, int,const double*, unsigned int**);
 
+ADOLC_DLL_EXPORT int hos_ti_reverse_mpi( int mpi_id, int mpi_size,
+    short   tnum,        /* tape id */
+    int     depen,       /* consistency chk on # of deps */
+    int     indep,       /* consistency chk on # of indeps */
+    int     degre,       /* highest derivative degre  */
+    double  **lagrange,  /* range weight vectors       */
+    double  **results);   /* matrix of coefficient vectors */
+
+ADOLC_DLL_EXPORT int hov_ti_reverse_mpi( int mpi_id, int mpi_size,
+    short   tnum,        /* tape id */
+    int     depen,       /* consistency chk on # of deps */
+    int     indep,       /* consistency chk on # of indeps */
+    int     degre,       /* highest derivative degre */
+    int     nrows,       /* # of Jacobian rows calculated */
+    double  ***lagrange, /* domain weight vectors */
+    double  ***results,  /* matrix of coefficient vectors */
+    short   **nonzero );  /* structural sparsity  pattern  */
 END_C_DECLS
 
 #endif /*HAVE_MPI*/

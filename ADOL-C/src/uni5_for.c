@@ -1045,13 +1045,10 @@ tnum,
 #if defined(_NONLIND_)
      locint *tmp_element;
 #endif
-#if defined(_INDO_)
+#if (defined(_INDO_) | defined(_INT_FOR_))
      int *trade_loc, *rec_buf_loc;
      int *counts, *tmp_counts;
      int anz;
-#endif
-#if defined(_INT_FOR_)
-     unsigned long int *up_mpi;
 #endif
 #endif
 
@@ -3818,6 +3815,15 @@ tnum,
           MPI_Send( trade , arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD);
           free(trade);
 #endif    /* END NOT _NTIGHT_ */
+#if defined(_INT_FOR_)
+           trade_loc = (int*) myalloc1(arg1*p);
+           for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+               FOR_0_LE_l_LT_pk
+                trade_loc[mpi_i*p+l]=up_T[arg+mpi_i][l];
+           }
+           MPI_Send( trade_loc , arg1*p, MPI_INT , arg2, res , MPI_COMM_WORLD);
+           free(trade_loc);
+#endif /* END INT_FOR */
 #if defined(_FOS_)
            trade = (double*) myalloc1(arg1);
            for (mpi_i=0; mpi_i< arg1; mpi_i++) {
@@ -3920,6 +3926,15 @@ tnum,
           }
           free(trade);
 #endif /* END NOT _NTIGHT_ */
+#if defined(_INT_FOR_)
+           trade_loc = (int*) myalloc1(arg1*p);
+           MPI_Recv( trade_loc , arg1*p, MPI_INT , arg2, res , MPI_COMM_WORLD, &status_MPI);
+           for (mpi_i=0; mpi_i< arg1; mpi_i++) {
+               FOR_0_LE_l_LT_pk
+                up_T[arg+mpi_i][l]=trade_loc[mpi_i*p+l];
+           }
+           free(trade_loc);
+#endif /* END INT_FOR */
 #if defined(_FOS_)
            trade = (double*) myalloc1(arg1);
            MPI_Recv( trade , arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
@@ -4029,6 +4044,19 @@ tnum,
            }
            free(trade);
 #endif /* END NOT _NTIGHT_ */
+#if defined(_INT_FOR_)
+           trade_loc = (int*) myalloc1(count*p);
+           for (mpi_i=0; mpi_i< count; mpi_i++) {
+               FOR_0_LE_l_LT_pk
+                trade_loc[mpi_i*p+l]=up_T[loc_send+mpi_i][l];
+           }
+           MPI_Bcast(trade_loc,count*p, MPI_INT, root, MPI_COMM_WORLD);
+           for( mpi_i =0; mpi_i < count; mpi_i++){
+              FOR_0_LE_l_LT_pk
+               up_T[loc_send+mpi_i][l] = trade_loc[mpi_i*p+l];
+           }
+           free(trade_loc);
+#endif /* END INT_FOR */
 #if defined(_FOS_)
            trade = (double*) myalloc1( count );
            if (myid ==root){
@@ -4190,6 +4218,26 @@ tnum,
            }
            free(trade);
 #endif /* END NOT _NTIGHT_ */
+#if defined(_INT_FOR_)
+           trade_loc = (int*) malloc(count*p*sizeof(int));
+           if (myid == root)
+             rec_buf_loc = (int*) malloc(count2*p*sizeof(int));
+           else
+              rec_buf =NULL;
+           for (mpi_i=0; mpi_i< count; mpi_i++) {
+               FOR_0_LE_l_LT_pk
+                trade_loc[mpi_i*p+l]=up_T[loc_send+mpi_i][l];
+           }
+           MPI_Gather(trade_loc,count*p, MPI_INT,rec_buf_loc, count*p,MPI_INT, root, MPI_COMM_WORLD);
+           if (myid == root){
+              for( mpi_i =0; mpi_i < count; mpi_i++){
+                 FOR_0_LE_l_LT_pk
+                  up_T[loc_recv+mpi_i][l] = rec_buf_loc[mpi_i*p+l];
+              }
+              free(rec_buf_loc);
+           }
+           free(trade_loc);
+#endif /* END INT_FOR */
 #if defined(_FOS_)
            trade = (double*) myalloc1( count );
            if (myid ==root)
@@ -4419,6 +4467,25 @@ tnum,
            free(rec_buf);
            if(myid==root) free(trade);
 #endif /* END NOT _NTIGHT_ */
+#if defined(_INT_FOR_)
+           if (myid == root)
+             trade_loc = (int*) malloc(count*p*sizeof(int));
+           else
+             trade_loc =NULL;
+           rec_buf_loc = (int*) malloc(count2*p*sizeof(int));
+           for (mpi_i=0; mpi_i< count; mpi_i++) {
+               FOR_0_LE_l_LT_pk
+                trade_loc[mpi_i*p+l]=up_T[loc_send+mpi_i][l];
+           }
+           MPI_Scatter(trade_loc,count2*p, MPI_INT,rec_buf_loc, count2*p ,MPI_INT, root, MPI_COMM_WORLD);
+
+           for( mpi_i =0; mpi_i < count; mpi_i++){
+              FOR_0_LE_l_LT_pk
+                up_T[loc_recv+mpi_i][l] = rec_buf_loc[mpi_i*p+l];
+           }
+           free(rec_buf_loc);
+           if(myid==root) free(trade_loc);
+#endif /* END INT_FOR */
 #if defined(_FOS_)
            rec_buf = (double*) myalloc1( count2 );
            if (myid ==root)
