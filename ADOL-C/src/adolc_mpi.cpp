@@ -115,7 +115,9 @@ int ADOLC_MPI_Send( adouble *buf,
     free(trade);
 
     put_op(send_data);
-    ADOLC_PUT_LOCINT(buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    for(i=0; i < count; i++)
+       ADOLC_PUT_LOCINT(buf[i].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(dest);
     ADOLC_PUT_LOCINT(tag);
@@ -146,7 +148,9 @@ int ADOLC_MPI_Recv( adouble *buf,
     free(trade);
 
     put_op(receive_data);
-    ADOLC_PUT_LOCINT(buf[0].loc());
+    ADOLC_PUT_LOCINT(count);
+    for (i=0; i< count;i++)
+       ADOLC_PUT_LOCINT(buf[i].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(source);
     ADOLC_PUT_LOCINT(tag);
@@ -183,8 +187,9 @@ int ADOLC_MPI_Bcast( adouble *buf,
     free(trade);
 
     put_op(broadcast);
-    ADOLC_PUT_LOCINT(buf[0].loc()); // send
-    ADOLC_PUT_LOCINT(buf[0].loc()); // recv
+    ADOLC_PUT_LOCINT(count);
+    for (i=0; i< count;i++)
+       ADOLC_PUT_LOCINT(buf[i].loc());
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
@@ -220,12 +225,18 @@ int ADOLC_MPI_Reduce(
     }
 // ------------------------------------------------------
     put_op(reduce);
-    ADOLC_PUT_LOCINT(send_buf[0].loc());
     ADOLC_PUT_LOCINT(count);
-    ADOLC_PUT_LOCINT(count*process_count);
+    for (i=0; i< count;i++)
+       ADOLC_PUT_LOCINT(send_buf[i].loc());
+    ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
-    if( id==root) ADOLC_PUT_LOCINT(tmp_adoubles[0].loc());
+    ADOLC_PUT_LOCINT(count*process_count);
+    if( id==root){
+      for(i=0; i < count*process_count;i++)
+        ADOLC_PUT_LOCINT(tmp_adoubles[i].loc());
+      ADOLC_PUT_LOCINT(count*process_count);
+    }
 
     if ( id == root){
        if( rec_buf == NULL)
@@ -250,7 +261,6 @@ int ADOLC_MPI_Reduce(
           }
           rec_buf[i] = tmp;
        }
-    free(tmp_adoubles);
     }
 
     free(trade_s);
@@ -288,12 +298,16 @@ int ADOLC_MPI_Gather(
     free(trade_r);
 
     put_op(gather);
-    ADOLC_PUT_LOCINT(sendbuf[0].loc());
     ADOLC_PUT_LOCINT(count);
-    ADOLC_PUT_LOCINT(count*process_count);
+    for(i= 0; i < count; i++)
+        ADOLC_PUT_LOCINT(sendbuf[i].loc());
+    ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
-    if( id==root) ADOLC_PUT_LOCINT(recvbuf[0].loc());
+    ADOLC_PUT_LOCINT(count*process_count);
+    if( id==root) for(i=0; i < count*process_count;i++)
+        ADOLC_PUT_LOCINT(recvbuf[i].loc());
+    ADOLC_PUT_LOCINT(count*process_count);
 
     return ierr;
 }
@@ -320,7 +334,7 @@ int ADOLC_MPI_Scatter(
     ierr = MPI_Scatter(trade_s,sendcount,type,trade_r,recvcount,type, root, comm);
 
     if( recvbuf == NULL)
-       recvbuf = new adouble[recvcount*process_count];
+       recvbuf = new adouble[recvcount];
 
     for(i=0; i< recvcount;i++)
          recvbuf[i].setValue(trade_r[i]);
@@ -329,12 +343,18 @@ int ADOLC_MPI_Scatter(
     free(trade_r);
 
     put_op(scatter);
-    ADOLC_PUT_LOCINT(sendbuf[0].loc());
-    ADOLC_PUT_LOCINT(recvbuf[0].loc());
     ADOLC_PUT_LOCINT(sendcount*process_count);
-    ADOLC_PUT_LOCINT(recvcount);
+    if( id == root ) {
+      for(i=0; i< sendcount*process_count ;i++)
+        ADOLC_PUT_LOCINT(sendbuf[0].loc());
+      ADOLC_PUT_LOCINT(sendcount*process_count);
+    }
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
+    ADOLC_PUT_LOCINT(recvcount);
+    for(i=0; i< recvcount;i++)
+      ADOLC_PUT_LOCINT(recvbuf[0].loc());
+      ADOLC_PUT_LOCINT(recvcount);
 
     return ierr;
 }

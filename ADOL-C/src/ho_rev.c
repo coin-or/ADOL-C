@@ -647,7 +647,8 @@ int hov_ti_reverse(
 #if defined(_MPI_)
 	MPI_Status status_MPI;
 	double *trade, *rec_buf;
-	int mpi_i, id, root, count,count2, loc_recv, loc_send;
+	int mpi_i, myid, root, count,count2, *loc_recv, *loc_send;
+     int target, tag;
      ADOLC_MPI_Op mpi_op;
 #endif /* is used by Parallelisation */
 
@@ -2148,96 +2149,102 @@ int hov_ti_reverse(
 
 #if defined(_MPI_)
 	       case receive_data:	// MPI-Send
-	           res  = get_locint_r(); // tag
-	           arg2 = get_locint_r(); // dest
-                arg1 = get_locint_r(); // count
-		      arg  = get_locint_r(); // first Buffer
-
+	           tag  = get_locint_r(); // tag
+	           target = get_locint_r(); // dest
+                count = get_locint_r(); // count
+                loc_recv = (int*) malloc(count*sizeof(int));
+                for(mpi_i=1;mpi_i<count+1;mpi_i++)
+     	         loc_recv[count-mpi_i]  = get_locint_r(); // first Buffer
+                count2 = get_locint_r(); // count
 #if defined(_HOS_)
-                trade = (double*) myalloc1((k+k1)*arg1);
+                trade = (double*) myalloc1((k+k1)*count);
                 /* writing Taylor- and Adjointbuffer in one double array */
 
-                for (mpi_i=0 , i = arg; mpi_i< arg1 ;mpi_i++, i++){
+                for (mpi_i=0; mpi_i< count ;mpi_i++){
                     FOR_0_LE_l_LT_pk
-                         trade[mpi_i*(k+k1) + l] = rpp_T[i][l];
+                         trade[mpi_i*(k+k1) + l] = rpp_T[loc_recv[mpi_i]][l];
 
                     FOR_0_LE_l_LT_pk1 {
-                         trade[mpi_i*(k+k1) + k + l] = rpp_A[i][l];
+                         trade[mpi_i*(k+k1) + k + l] = rpp_A[loc_recv[mpi_i]][l];
                          rpp_A[i][l] = 0;
                     }
                 }
 
-               MPI_Send(trade,(k+k1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
+               MPI_Send(trade,(k+k1)*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
                myfree1(trade);
 
          /* loading saved Values of Adjoint- and Taylorbuffer */
-                for (mpi_i=0; mpi_i<arg1; mpi_i++)
-                    GET_TAYL(arg+mpi_i,k,p);
+                for (mpi_i=0; mpi_i<count; mpi_i++)
+                    GET_TAYL(loc_recv[mpi_i],k,p);
 #endif
 #if defined(_HOV_)
-                trade = (double*) myalloc1((k+pk1)*arg1);
+                trade = (double*) myalloc1((k+pk1)*count);
                 /* writing Taylor- and Adjointbuffer in one double array */
                 l= 0;
-                for (mpi_i=0; mpi_i< arg1;mpi_i++)
+                for (mpi_i=0; mpi_i< count;mpi_i++)
                     for (i=0; i < k ; i++ )
-                        trade[mpi_i*k+i] = rpp_T[arg+mpi_i][i];
+                        trade[mpi_i*k+i] = rpp_T[loc_recv[mpi_i]][i];
 
                 l =  arg1*k;
-                for (mpi_i=0; mpi_i< arg1;mpi_i++){
+                for (mpi_i=0; mpi_i< count;mpi_i++){
                     for (i=0; i < pk1 ; i++){
-                        trade[l + i] = rpp_A[arg+mpi_i][i];
-                        rpp_A[arg+mpi_i][i] =0;
+                        trade[l + i] = rpp_A[loc_recv[mpi_i]][i];
+                        rpp_A[loc_recv[mpi_i]][i] =0;
                     }
                     l += pk1;
                 }
 
                /* loading saved Values of Adjoint- and Taylorbuffer */
-               for (mpi_i=0; mpi_i<arg1; mpi_i++)
-                   GET_TAYL(arg+mpi_i,k,p)
+               for (mpi_i=0; mpi_i<count; mpi_i++)
+                   GET_TAYL(loc_recv[mpi_i],k,p)
 
-                MPI_Send(trade,(k+pk1)*arg1,MPI_DOUBLE,arg2,res,MPI_COMM_WORLD);
+                MPI_Send(trade,(k+pk1)*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
                 myfree1(trade);
 #endif
+                free(loc_recv);
 	        break;
 
                 /*--------------------------------------------------------------------------*/
             case send_data:	// MPI-Send-Befehl
-	           res = get_locint_r(); // tag
-		      arg2 = get_locint_r(); // source
-		      arg1 = get_locint_r(); // count
-		      arg = get_locint_r(); // first Buffer
+               tag = get_locint_r(); // tag
+                target = get_locint_r(); // source
+                count = get_locint_r(); // count
+                loc_recv = (int*) malloc(count*sizeof(int));
+                for(mpi_i=1;mpi_i<count+1;mpi_i++)
+                     loc_recv[count-mpi_i] = get_locint_r();
+                count2 = get_locint_r();
 #if defined(_HOS_)
-                trade = (double*) myalloc1(arg1*(k+k1));
-                MPI_Recv( trade , (k+k1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+                trade = (double*) myalloc1(count*(k+k1));
+                MPI_Recv( trade , (k+k1)*count, MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
 
-                for (mpi_i=0 , i = arg; mpi_i< arg1 ;mpi_i++, i++){
+                for (mpi_i=0;mpi_i< count ;mpi_i++){
                     FOR_0_LE_l_LT_pk
-                         rpp_T[i][l] = trade[mpi_i*(k+k1) + l];
+                         rpp_T[loc_recv[mpi_i]][l] = trade[mpi_i*(k+k1) + l];
 
                     FOR_0_LE_l_LT_pk1 {
-                         rpp_A[i][l] += trade[mpi_i*(k+k1) + k + l] ;
+                         rpp_A[loc_recv[mpi_i]][l] += trade[mpi_i*(k+k1) + k + l] ;
                     }
                 }
 
 	           myfree1(trade);
 #endif
 #if defined(_HOV_)
-                trade = (double*) myalloc1(arg1*(k+pk1));
-                MPI_Recv( trade , (k+pk1)*arg1, MPI_DOUBLE , arg2, res , MPI_COMM_WORLD, &status_MPI);
+                trade = (double*) myalloc1(count*(k+pk1));
+                MPI_Recv( trade , (k+pk1)*count, MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
 
-                for (mpi_i=0; mpi_i<arg1; mpi_i++)
+                for (mpi_i=0; mpi_i<count; mpi_i++)
                     for (i=0; i < k ; i++ )
-                        rpp_T[arg+mpi_i][i] = trade[mpi_i*k +i];
+                        rpp_T[loc_recv[mpi_i]][i] = trade[mpi_i*k +i];
 
-                l= arg1*k;
-                for (mpi_i=0; mpi_i<arg1; mpi_i++ )
+                l= count*k;
+                for (mpi_i=0; mpi_i<count; mpi_i++ )
                     for (i=0; i < pk1 ; i++){
-                        rpp_A[arg+mpi_i][i] += trade[l];
+                        rpp_A[loc_recv[mpi_i]][i] += trade[l];
                         l++;
                     }
-
                 myfree1(trade);
 #endif
+                free(loc_recv);
 	           break;
 
                 /*--------------------------------------------------------------------------*/
@@ -2245,42 +2252,43 @@ int hov_ti_reverse(
                 MPI_Barrier(MPI_COMM_WORLD);
                 break;
             case broadcast:
-                id = get_locint_r(); // process id
+                myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count = get_locint_r(); // count
-                loc_recv = get_locint_r();
-                loc_send = get_locint_r(); // first Buffer
+                loc_recv = (int*) malloc(count*sizeof(int));
+                for(mpi_i=1;mpi_i<count+1;mpi_i++)
+                   loc_recv[count-mpi_i] = get_locint_r();
+                count2 = get_locint_r();
 #if defined(_HOS_)
                 trade = (double*) myalloc1(count*(k+k1));
-                for (mpi_i=0, i = loc_send; mpi_i< count; mpi_i++, i++){
+                for (mpi_i=0; mpi_i< count; mpi_i++){
                     for( l=0; l < k ; l++)
-                        trade[mpi_i*(k+k1) +l] = rpp_T[i][l];
+                        trade[mpi_i*(k+k1) +l] = rpp_T[loc_recv[mpi_i]][l];
                     for( l=0; l < k1 ; l++) {
-                      trade[mpi_i*(k+k1) + k + l] = rpp_A[i][l];
-                        rpp_A[i][l] = 0;
+                      trade[mpi_i*(k+k1) + k + l] = rpp_A[loc_recv[mpi_i]][l];
+                        rpp_A[loc_recv[mpi_i]][l] = 0;
                     }
                 }
             /* loading saved Values of Adjoint- and Taylorbuffer */
-                if (id == root) {
+                if (myid == root) {
                    rec_buf = myalloc1(count*(k+k1));
                 }else{
                    rec_buf = NULL;
                 }
                 for(mpi_i=0; mpi_i<count; mpi_i++)
-                   GET_TAYL(loc_send+mpi_i,k,p);
+                   GET_TAYL(loc_recv[mpi_i],k,p);
 
-//                 MPI_Gather(trade,count*(k+k1),MPI_DOUBLE,rec_buf, count*(k+k1), MPI_DOUBLE, root, MPI_COMM_WORLD);
                 MPI_Reduce( trade , rec_buf ,(k+k1)*count, MPI_DOUBLE , MPI_SUM , root, MPI_COMM_WORLD);
                 myfree1(trade);
-                if (id == root){
+                if (myid == root){
                    for(j=1; j < process_count ; j++){
                       for(mpi_i=0 ; mpi_i< count ;mpi_i++){
                          for( l=0; l < k ; l++){
-                            rpp_T[loc_send+mpi_i][l] = rec_buf[i];
+                            rpp_T[loc_recv[mpi_i]][l] = rec_buf[i];
                             i++;
                          }
                          for( l=0; l < k1 ; l++){
-                            rpp_A[loc_send+mpi_i][l] = rec_buf[i];
+                            rpp_A[loc_recv[mpi_i]][l] = rec_buf[i];
                             i++;
                          }
                       }
@@ -2291,64 +2299,68 @@ int hov_ti_reverse(
 #if defined(_HOV_)
                 trade = (double*) myalloc1(count*(k+pk1));
 
-                for (mpi_i=0 , i = loc_send; mpi_i< count ;mpi_i++, i++){
+                for (mpi_i=0 ; mpi_i< count ;mpi_i++){
                     for( l=0; l < k ; l++)
-                         trade[mpi_i*(k+pk1) +l] = rpp_T[i][l];
+                         trade[mpi_i*(k+pk1) +l] = rpp_T[loc_recv[mpi_i]][l];
 
                     for( l=0; l < pk1 ; l++) {
-                         trade[mpi_i*(k+pk1) + k + l] = rpp_A[i][l];
-//                          rpp_A[i][l] = 0;
+                         trade[mpi_i*(k+pk1) + k + l] = rpp_A[loc_recv[mpi_i]][l];
+                          rpp_A[loc_recv[mpi_i]][l] = 0;
                     }
                 }
-         /* loading saved Values of Adjoint- and Taylorbuffer */
-//                 for (mpi_i=0; mpi_i<count; mpi_i++)
-//                     GET_TAYL(loc_recv+mpi_i,k,p);
-
-                if (id == root)
+                if (myid == root)
                    rec_buf = myalloc1(count*(k+pk1));
                 else rec_buf = NULL;
 
                 MPI_Reduce( trade , rec_buf ,(k+pk1)*count, MPI_DOUBLE , MPI_SUM , root, MPI_COMM_WORLD);
                 myfree1(trade);
-                if (id == root){
-                   for (mpi_i=0 , i = loc_send; mpi_i< count ;mpi_i++, i++){
+                if (myid == root){
+                   for (mpi_i=0; mpi_i< count ;mpi_i++){
                        for( l=0; l < k ; l++)
-                            rpp_T[i+mpi_i][l] = rec_buf[mpi_i*(k+pk1) +l];
+                            rpp_T[loc_recv[mpi_i]][l] = rec_buf[mpi_i*(k+pk1) +l];
                        for( l=0; l < pk1 ; l++)
-                            rpp_A[i+mpi_i][l] = rec_buf[mpi_i*(k+pk1) + k + l];
+                            rpp_A[loc_recv[mpi_i]][l] = rec_buf[mpi_i*(k+pk1) + k + l];
                    }
                    myfree1(rec_buf);
                 }
 #endif
+                free(loc_recv);
                 break;
 
             case reduce:
             case gather:
-                if( all_root == mpi_id)
-                   loc_recv = get_locint_r(); // tmp Buffer
-                id = get_locint_r(); // process id
-                root = get_locint_r(); // root
+               if(all_root == mpi_id){
+                   count2 = get_locint_r(); // count*process_count
+                   loc_recv = (int*) malloc (count2*sizeof(int));
+                   for(mpi_i=1;mpi_i<count2+1;mpi_i++)
+                     loc_recv[count2-mpi_i] = get_locint_r(); // Receive Buffer
+                }
                 count2 = get_locint_r(); // count*process_count
+                myid = get_locint_r(); // process id
+                root = get_locint_r(); // root
                 count = get_locint_r(); // count
-                loc_send = get_locint_r(); // first Buffer
+                loc_send = (int*) malloc(count*sizeof(int));
+                for(mpi_i=1;mpi_i<count+1;mpi_i++)
+                  loc_send[count-mpi_i] = get_locint_r(); // Send Buffer
+                count = get_locint_r(); // count
 #if defined(_HOS_)
                 trade = (double*) myalloc1(count*(k+k1));
 
                 rec_buf = NULL;
-                if(id == root ){
+                if(myid == root ){
                    rec_buf = myalloc1(count2*(k+k1));
                    i=0;
                    for (mpi_i=0 ; mpi_i< count ;mpi_i++ ){
                       for( l=0; l < k ; l++){
-                         rec_buf[i] = rpp_T[mpi_i+loc_recv][l];
+                         rec_buf[i] = rpp_T[loc_recv[mpi_i]][l];
                          i++;
                       }
                       for( l=0; l < k1 ;l++) {
-                         rec_buf[i] = rpp_A[mpi_i+loc_recv][l];
-                         rpp_A[mpi_i+loc_recv][l] = 0;
+                         rec_buf[i] = rpp_A[loc_recv[mpi_i]][l];
+                         rpp_A[loc_recv[mpi_i]][l] = 0;
                          i++;
                       }
-                      GET_TAYL(loc_recv+mpi_i,k,p);
+                      GET_TAYL(loc_recv[mpi_i],k,p);
                    }
                 }
                 MPI_Scatter(rec_buf,(k+k1)*count, MPI_DOUBLE , trade, count*(k+k1),MPI_DOUBLE, root, MPI_COMM_WORLD);
@@ -2356,84 +2368,94 @@ int hov_ti_reverse(
                 i=0;
                 for (mpi_i=0; mpi_i< count ;mpi_i++){
                     for( l=0; l < k ; l++,i++)
-                       rpp_T[loc_send+mpi_i][l] = trade[i];
+                       rpp_T[loc_send[mpi_i]][l] = trade[i];
                     for( l=0; l < k1 ; l++,i++)
-                       rpp_A[loc_send+mpi_i][l] += trade[i];
+                       rpp_A[loc_send[mpi_i]][l] += trade[i];
                 }
-                if(id==root) myfree1(rec_buf);
+                if(myid==root) myfree1(rec_buf);
                 myfree1(trade);
 #endif
 #if defined(_HOV_)
                 trade = myalloc1(count*(k+pk1));
 
                 rec_buf = NULL;
-                if(id == root ){
+                if(myid == root ){
                    rec_buf = myalloc1(count2*(k+pk1));
                    i=0;
                    for (mpi_i=0 ; mpi_i< count2 ;mpi_i++ ){
                       for( l=0; l < k ; l++){
-                         rec_buf[i] = rpp_T[mpi_i+loc_recv][l];
+                         rec_buf[i] = rpp_T[loc_recv[mpi_i]][l];
                          i++;
                       }
                       for( l=0; l < pk1 ;l++) {
-                         rec_buf[i] = rpp_A[mpi_i+loc_recv][l];
-                         rpp_A[mpi_i+loc_recv][l] = 0;
+                         rec_buf[i] = rpp_A[loc_recv[mpi_i]][l];
+                         rpp_A[loc_recv[mpi_i]][l] = 0;
                          i++;
                       }
-                      GET_TAYL(loc_recv+mpi_i,k,p);
+                      GET_TAYL(loc_recv[mpi_i],k,p);
                    }
                 }
                 l = count*(k+pk1);
                 MPI_Scatter(rec_buf, l , MPI_DOUBLE , trade, l ,MPI_DOUBLE, root, MPI_COMM_WORLD);
 
-                if(id==root) myfree1(rec_buf);
+                if(myid==root) myfree1(rec_buf);
                 i=0;
                 for (mpi_i=0; mpi_i< count ;mpi_i++){
                     for( l=0; l < k ; l++){
-                       rpp_T[loc_send+mpi_i][l] = trade[i];
+                       rpp_T[loc_send[mpi_i]][l] = trade[i];
                         i++;
                     }
                     for( l=0; l < pk1 ; l++){
-                       rpp_A[loc_send+mpi_i][l] += trade[i];
+                       rpp_A[loc_send[mpi_i]][l] += trade[i];
                        i++;
                     }
                 }
                 myfree1(trade);
 #endif
+                if(myid==root) free(loc_recv);
+                free(loc_send);
                 break;
             case scatter:
-                id = get_locint_r(); // process id
-                root = get_locint_r(); // root
                 count2 = get_locint_r(); // recvcount (count)
-                count  = get_locint_r(); // sendcount (count*process_count)
-                loc_recv = get_locint_r(); // recv Buffer
-                loc_send= get_locint_r(); // send Buffer
+                loc_recv = (int*) malloc(count2*sizeof(int));
+                for(mpi_i=1; mpi_i < count2+1 ; mpi_i++)
+                  loc_recv[count2-mpi_i] = get_locint_r(); // recv Buffer
+                count2 = get_locint_r(); // recvcount (count)
+                myid = get_locint_r(); // process id
+                root = get_locint_r(); // root
+                if(myid==root){
+                   count = get_locint_r(); // sendcount (count*process_count)
+                   loc_send = (int*) malloc(count*sizeof(int));
+                   for(mpi_i=1;mpi_i<count+1;mpi_i++)
+                     loc_send[count-mpi_i] = get_locint_r();
+                }
+                count = get_locint_r(); // sendcount (count*process_count)
 #if defined(_HOS_)
                 rec_buf = (double*) myalloc1(count2*(k+k1));
                 trade = NULL;
-                if(id == root )
+                if(myid == root )
                    trade = myalloc1(count*(k+k1));
 
                 i=0;
                 for (mpi_i=0 ; mpi_i< count2 ;mpi_i++ ){
                    for( l=0; l < k ; l++,i++)
-                      rec_buf[i] = rpp_T[mpi_i+loc_recv][l];
+                      rec_buf[i] = rpp_T[loc_recv[mpi_i]][l];
                       for( l=0; l < k1 ;l++,i++) {
-                         rec_buf[i] = rpp_A[mpi_i+loc_recv][l];
-                         rpp_A[mpi_i+loc_recv][l] = 0;
+                         rec_buf[i] = rpp_A[loc_recv[mpi_i]][l];
+                         rpp_A[loc_recv[mpi_i]][l] = 0;
                       }
-                      GET_TAYL(loc_recv+mpi_i,k,p);
+                      GET_TAYL(loc_recv[mpi_i],k,p);
                 }
 
                 MPI_Gather(rec_buf,(k+k1)*count2, MPI_DOUBLE, trade, (k+k1)*count2, MPI_DOUBLE, root, MPI_COMM_WORLD);
 
-                if (id == root ){
+                if (myid == root ){
                    i=0;
                    for (mpi_i=0; mpi_i< count ;mpi_i++){
                        for( l=0; l < k ; l++,i++)
-                          rpp_T[loc_send+mpi_i][l] = trade[i];
+                          rpp_T[loc_send[mpi_i]][l] = trade[i];
                        for( l=0; l < k1 ; l++,i++)
-                          rpp_A[loc_send+mpi_i][l] += trade[i];
+                          rpp_A[loc_send[mpi_i]][l] += trade[i];
 
                    }
                    myfree1(trade);
@@ -2443,35 +2465,37 @@ int hov_ti_reverse(
 #if defined(_HOV_)
                 rec_buf = (double*) myalloc1(count2*(k+pk1));
                 trade = NULL;
-                if(id == root )
+                if(myid == root )
                    trade = myalloc1(count*(k+pk1));
 
                 i=0;
                 for (mpi_i=0 ; mpi_i< count2 ;mpi_i++ ){
                    for( l=0; l < k ; l++,i++)
-                      rec_buf[i] = rpp_T[mpi_i+loc_recv][l];
+                      rec_buf[i] = rpp_T[loc_recv[mpi_i]][l];
                       for( l=0; l < pk1 ;l++,i++) {
-                         rec_buf[i] = rpp_A[mpi_i+loc_recv][l];
-                         rpp_A[mpi_i+loc_recv][l] = 0;
+                         rec_buf[i] = rpp_A[loc_recv[mpi_i]][l];
+                         rpp_A[loc_recv[mpi_i]][l] = 0;
                       }
-                      GET_TAYL(loc_recv+mpi_i,k,p);
+                      GET_TAYL(loc_recv[mpi_i],k,p);
                 }
 
                 MPI_Gather(rec_buf,(k+pk1)*count2, MPI_DOUBLE, trade, (k+pk1)*count2, MPI_DOUBLE, root, MPI_COMM_WORLD);
 
-                if (id == root ){
+                if (myid == root ){
                    i=0;
                    for (mpi_i=0; mpi_i< count ;mpi_i++){
                        for( l=0; l < k ; l++,i++)
-                          rpp_T[loc_send+mpi_i][l] = trade[i];
+                          rpp_T[loc_send[mpi_i]][l] = trade[i];
                        for( l=0; l < pk1 ; l++,i++)
-                          rpp_A[loc_send+mpi_i][l] += trade[i];
+                          rpp_A[loc_send[mpi_i]][l] += trade[i];
 
                    }
                    myfree1(trade);
                 }
                 myfree1(rec_buf);
 #endif
+                if( myid == root) free(loc_send);
+                free(loc_recv);
                 break;
 #endif
                 /*--------------------------------------------------------------------------*/
