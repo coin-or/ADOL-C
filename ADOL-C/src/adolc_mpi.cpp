@@ -207,9 +207,9 @@ int ADOLC_MPI_Reduce(
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
 // equal to ADOLC_MPI_Gather -------------------
-    trade_s = (double*) myalloc1(count);
+    trade_s = myalloc1(count);
     if (id == root)
-      trade_r = (double*) myalloc1(count*process_count);
+      trade_r = myalloc1(count*process_count);
     else trade_r = NULL;
 
     for(i= 0; i < count; i++) {
@@ -241,26 +241,42 @@ int ADOLC_MPI_Reduce(
     if ( id == root){
        if( rec_buf == NULL)
            rec_buf = (adouble*) calloc(count, sizeof(adouble));
-       for(i=0; i < count; i++ ){
-          tmp = tmp_adoubles[i];
           switch (op) {
-               case ADOLC_MPI_MAX:  for(j=1; j< process_count ; j++)
-                                 if( tmp <= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
-                              break;
-               case ADOLC_MPI_MIN:  for(j=1; j< process_count ; j++)
-                                 if( tmp >= tmp_adoubles[j*count+i] ) tmp = tmp_adoubles[j*count+i];
-                              break;
-               case ADOLC_MPI_SUM:  for(j=1; j< process_count ; j++)
-                                 tmp += tmp_adoubles[j*count+i];
-                              break;
-               case ADOLC_MPI_PROD:  for(j=1; j< process_count ; j++)
-                                 tmp *= tmp_adoubles[j*count+i];
-                              break;
-               default:       printf("Operation %d not yet implemented!\n",op);
-                              break;
+               case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
+                                       tmp = tmp_adoubles[i];
+                                       for(j=1; j< process_count ; j++)
+                                          if ( tmp <= tmp_adoubles[j*count+i] )
+                                             tmp = tmp_adoubles[j*count+i];
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_MIN: for(i=0; i < count; i++ ) {
+                                      tmp = tmp_adoubles[i];
+                                      for(j=1; j< process_count ; j++)
+                                         if ( tmp >= tmp_adoubles[j*count+i] )
+                                            tmp = tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_SUM: for(i=0; i < count; i++ ) {
+                                      tmp = 0;
+                                      for(j=0; j< process_count ; j++)
+                                         tmp += tmp_adoubles[j*count+i];
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_PROD:for(i=0; i < count; i++ ) {
+                                      tmp = 1;
+                                      for(j=0; j< process_count ; j++)
+                                         tmp *= tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                    }
+                                    break;
+               default:             printf("Operation %d not yet implemented!\n",op);
+                                    break;
           }
-          rec_buf[i] = tmp;
-       }
+
+    delete[] tmp_adoubles;
     }
 
     free(trade_s);
@@ -344,17 +360,19 @@ int ADOLC_MPI_Scatter(
 
     put_op(scatter);
     ADOLC_PUT_LOCINT(sendcount*process_count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
     if( id == root ) {
       for(i=0; i< sendcount*process_count ;i++)
-        ADOLC_PUT_LOCINT(sendbuf[0].loc());
+        ADOLC_PUT_LOCINT(sendbuf[i].loc());
       ADOLC_PUT_LOCINT(sendcount*process_count);
     }
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     ADOLC_PUT_LOCINT(recvcount);
     for(i=0; i< recvcount;i++)
-      ADOLC_PUT_LOCINT(recvbuf[0].loc());
-      ADOLC_PUT_LOCINT(recvcount);
+      ADOLC_PUT_LOCINT(recvbuf[i].loc());
+    ADOLC_PUT_LOCINT(recvcount);
 
     return ierr;
 }
