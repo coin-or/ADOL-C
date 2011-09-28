@@ -159,7 +159,7 @@ int rc = -3;
     if (id==0)
        rc = hov_reverse_mpi(id,size,tag,m,n,degre,nrows, lagrange,results,nonzero);
     else
-       rc = hov_reverse_mpi(id,size,tag,0,0,degre,0, NULL,NULL,NULL);
+       rc = hov_reverse_mpi(id,size,tag,0,0,degre,nrows, NULL,NULL,NULL);
     return rc;
 }
 
