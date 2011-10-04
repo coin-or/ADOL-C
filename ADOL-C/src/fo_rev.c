@@ -414,7 +414,7 @@ this_tnum,
 	MPI_Status status_MPI;
 	int mpi_i,mpi_ii, myid, root, count, count2, *loc_recv, *loc_send;
      double *trade, *rec_buf;
-     int *trade_ulong, *rec_ulong, target, tag;
+     int *trade_ulong, *rec_ulong, target, tag,mpi_op,use_reduce=0;
 #endif
 
     /****************************************************************************/
@@ -2176,7 +2176,7 @@ this_tnum,
                count2 = get_locint_r(); // recvcount (count)
                loc_recv = (int*) malloc(count2*sizeof(int));
                for(mpi_i=0;mpi_i<count2;mpi_i++)
-                 loc_recv[mpi_i] = get_locint_r(); // recv Buffer
+                 loc_recv[count2-1-mpi_i] = get_locint_r(); // recv Buffer
                arg = get_locint_r(); // recvcount (count)
                myid = get_locint_r(); // process id
                root = get_locint_r(); // root
@@ -2184,7 +2184,7 @@ this_tnum,
                   count = get_locint_r(); // sendcount (count*process_count)
                   loc_send = (int*) malloc(count*sizeof(int));
                   for(mpi_i=0;mpi_i<count;mpi_i++)
-                     loc_send[mpi_i]= get_locint_r();
+                     loc_send[count-1-mpi_i]= get_locint_r();
                }
                res = get_locint_r(); // id
                res = get_locint_r(); // root

@@ -2387,7 +2387,7 @@ int hov_ti_reverse(
                 count2 = get_locint_r(); // recvcount (count)
                 loc_recv = (int*) malloc(count2*sizeof(int));
                 for(mpi_i=0; mpi_i < count2 ; mpi_i++)
-                  loc_recv[mpi_i] = get_locint_r(); // recv Buffer
+                  loc_recv[count2-1-mpi_i] = get_locint_r(); // recv Buffer
                 res = get_locint_r(); // recvcount (count)
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
@@ -2395,7 +2395,7 @@ int hov_ti_reverse(
                    count = get_locint_r(); // sendcount (count*process_count)
                    loc_send = (int*) malloc(count*sizeof(int));
                    for(mpi_i=0;mpi_i<count;mpi_i++)
-                     loc_send[mpi_i] = get_locint_r();
+                     loc_send[count-1-mpi_i] = get_locint_r();
                 }
                 res = get_locint_r(); // id
                 res = get_locint_r(); // root
