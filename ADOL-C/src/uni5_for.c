@@ -1039,7 +1039,7 @@ tnum,
 #if defined(_MPI_)
      double *trade, *rec_buf, *mpi_tmp;
      MPI_Status status_MPI;
-     int mpi_i,mpi_ii, *loc_send, *loc_recv, s_r_c=1;
+     int mpi_i,mpi_ii, *loc_send, *loc_recv, s_r_c=1,use_reduce=0;
      ADOLC_MPI_Op mpi_op;
      int myid,root, count, id=mpi_id,count2, target,tag;
 #if defined(_NONLIND_)
@@ -4201,6 +4201,7 @@ tnum,
            free(loc_send);
            break;
       case reduce:
+           use_reduce=1;
       case gather:
            count = get_locint_f(); // count
            loc_send = (int*) malloc(count*sizeof(int));
@@ -4214,8 +4215,10 @@ tnum,
              loc_recv = (int*) malloc(count2*sizeof(int));
              for(mpi_i=0; mpi_i < count2 ; mpi_i++)
                 loc_recv[mpi_i] = get_locint_f(); // Receive Location
-           count2 = get_locint_f(); // count*process_count
+           arg = get_locint_f(); // count*process_count
            }
+           if (use_reduce == 1)
+              mpi_op = get_locint_f();
 #if !defined(_NTIGHT_)
            // receiving values for dp_T0
            trade = (double*) myalloc1( count );
@@ -4456,6 +4459,7 @@ tnum,
 #endif    // end _NONLIND_
            if( myid == root) free(loc_recv);
            free(loc_send);
+           use_reduce=0;
            break;
       case scatter:
            count = get_locint_f(); // count*procsize

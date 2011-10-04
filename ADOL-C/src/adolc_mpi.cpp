@@ -237,6 +237,7 @@ int ADOLC_MPI_Reduce(
         ADOLC_PUT_LOCINT(tmp_adoubles[i].loc());
       ADOLC_PUT_LOCINT(count*process_count);
     }
+    ADOLC_PUT_LOCINT(op);
 
     if ( id == root){
        if( rec_buf == NULL)

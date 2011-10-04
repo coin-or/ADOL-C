@@ -2049,18 +2049,37 @@ this_tnum,
                 free(loc_recv);
                 break;
             case reduce:
+                 use_reduce=1;
             case gather:
+                if(use_reduce==1) mpi_op = get_locint_r();
                 if(all_root == mpi_id){
                    count2 = get_locint_r(); // count*process_count
                    loc_recv = (int*) malloc (count2*sizeof(int));
-                   for(mpi_i=0;mpi_i<count2;mpi_i++)
-                     loc_recv[mpi_i] = get_locint_r(); // Receive Buffer
+                   /* Must use an additional value to send the right locints back */
+                   if (use_reduce==1){
+                         if (mpi_op == ADOLC_MPI_SUM){
+                            for(mpi_i=0;mpi_i<count2;mpi_i++)
+                               loc_recv[mpi_i] = get_locint_r(); // Receive Buffer
+                         } else {
+                            for(mpi_i=0;mpi_i<count2;mpi_i++)
+                               loc_recv[count2-1-mpi_i] = get_locint_r(); // Receive Buffer
+                         }
+                    }
                 }
                 count2 = get_locint_r(); // count*process_count
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count = get_locint_r(); // count
                 loc_send = (int*) calloc(count,sizeof(int));
+                if (use_reduce==1){
+                   if (mpi_op == ADOLC_MPI_SUM){
+                      for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_send[mpi_i] = get_locint_r(); // Send Buffer
+                   } else {
+                      for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_send[count-1-mpi_i] = get_locint_r(); // Send Buffer
+                   }
+                }
                 for(mpi_i=0;mpi_i<count;mpi_i++)
                    loc_send[mpi_i] = get_locint_r(); // Send Buffer
                 arg = get_locint_r(); // count
@@ -2150,6 +2169,7 @@ this_tnum,
 #endif
                 if(myid == root ) free(loc_recv);
                 free(loc_send);
+                use_reduce=0;
                 break;
                 /*--------------------------------------------------------------------------*/
             case scatter:

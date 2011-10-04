@@ -648,7 +648,7 @@ int hov_ti_reverse(
 	MPI_Status status_MPI;
 	double *trade, *rec_buf;
 	int mpi_i, myid, root, count,count2, *loc_recv, *loc_send;
-     int target, tag;
+     int target, tag, use_reduce=0;
      ADOLC_MPI_Op mpi_op;
 #endif /* is used by Parallelisation */
 
@@ -2297,20 +2297,37 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
 
             case reduce:
+                use_reduce=1;
             case gather:
+               if(use_reduce==1) mpi_op=get_locint_r();
                if(all_root == mpi_id){
                    count2 = get_locint_r(); // count*process_count
                    loc_recv = (int*) malloc (count2*sizeof(int));
-                   for(mpi_i=0;mpi_i<count2 ;mpi_i++)
-                     loc_recv[mpi_i] = get_locint_r(); // Receive Buffer
+                   if (use_reduce==1){
+                      if (mpi_op == ADOLC_MPI_SUM){
+                         for(mpi_i=0;mpi_i<count2;mpi_i++)
+                            loc_recv[mpi_i] = get_locint_r(); // Send Buffer
+                      } else {
+                         for(mpi_i=0;mpi_i<count2;mpi_i++)
+                            loc_recv[count2-1-mpi_i] = get_locint_r(); // Send Buffer
+                      }
+                   }
                 }
                 res = get_locint_r(); // count*process_count
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count = get_locint_r(); // count
                 loc_send = (int*) malloc(count*sizeof(int));
-                for(mpi_i=0;mpi_i<count;mpi_i++)
-                  loc_send[mpi_i] = get_locint_r(); // Send Buffer
+                   /* Must use an additional value to send the right locints back */
+                if (use_reduce==1){
+                   if (mpi_op == ADOLC_MPI_SUM){
+                      for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_send[mpi_i] = get_locint_r(); // Send Buffer
+                   } else {
+                      for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_send[count-1-mpi_i] = get_locint_r(); // Send Buffer
+                   }
+                }
                 arg = get_locint_r(); // count
  fprintf(pfile,"\n");
                 trade = myalloc1(count*k);
@@ -2361,6 +2378,7 @@ int hov_ti_reverse(
                 if(myid==root) myfree1(rec_buf);
                 myfree1(trade);
 
+                use_reduce=0;
                 if(myid==root) free(loc_recv);
                 free(loc_send);
                 break;

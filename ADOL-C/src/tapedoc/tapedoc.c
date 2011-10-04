@@ -317,7 +317,7 @@ void tape_doc(short tnum,         /* tape id */
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
 #if defined(HAVE_MPI)
-    int mpi_i,mpi_ii,count,count2,dest,tag,buf;
+    int mpi_i,mpi_ii,count,count2,dest,tag,buf,use_reduce=0;
 #endif
     operation=get_op_f();
     while (operation !=end_of_tape) {
@@ -1260,6 +1260,7 @@ void tape_doc(short tnum,         /* tape id */
              filewrite(operation, 3, loc_a, val_a, 0, cst_d);
              break;
        case reduce:
+             use_reduce=1;
        case gather:
              count  = get_locint_f(); // count
              buf    = get_locint_f(); // first buffer
@@ -1274,6 +1275,7 @@ void tape_doc(short tnum,         /* tape id */
                   mpi_ii = get_locint_f(); // rest buffer
                mpi_ii = get_locint_f();
              }
+             if(use_reduce==1) mpi_ii=get_locint_f();
 
              loc_a[0] = buf;
              loc_a[1] = count;
