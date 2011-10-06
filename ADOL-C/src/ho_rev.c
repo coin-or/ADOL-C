@@ -2329,7 +2329,6 @@ int hov_ti_reverse(
                    }
                 }
                 arg = get_locint_r(); // count
- fprintf(pfile,"\n");
                 trade = myalloc1(count*k);
                 rec_buf = NULL;
                 if(myid == root ){

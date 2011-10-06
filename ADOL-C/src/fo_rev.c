@@ -2092,7 +2092,6 @@ this_tnum,
                        rec_buf[mpi_i] = rp_T[loc_recv[mpi_i]];
                    for (mpi_i=0; mpi_i < count2; mpi_i++)
                        ADOLC_GET_TAYLOR(loc_recv[mpi_i]);
-                    }
                }
                MPI_Scatter(rec_buf,count,MPI_DOUBLE,trade,count,MPI_DOUBLE, root,MPI_COMM_WORLD);
 
