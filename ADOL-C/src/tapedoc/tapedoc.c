@@ -109,7 +109,11 @@ static char* a[] =  {  "death not",
                        "ignore_me",
                        "send data",
                        "receive data",
-		       "barrier Op"
+		             "barrier Op",
+                       "broadcast Op",
+                       "reduce Op",
+                       "gather Op",
+                       "scatter Op"
                     };
 
 /****************************************************************************/
@@ -299,7 +303,7 @@ void tape_doc(short tnum,         /* tape id */
             (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]) ) {
         fprintf(DIAG_OUT,"ADOL-C error: Tape_doc on tape %d  aborted!\n",tag);
         fprintf(DIAG_OUT,"Number of dependent (%d) and/or independent (%d) "
-                "variables passed to Tape_doc is\ninconsistant with "
+                "variables passed to Tape_doc is\ninconsistent with "
                 "number recorded on tape %d (%d:%d)\n", depcheck,
                 indcheck, tag, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
@@ -312,6 +316,9 @@ void tape_doc(short tnum,         /* tape id */
 
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
+#if defined(HAVE_MPI)
+    int mpi_i,mpi_ii,count,count2,dest,tag,buf,use_reduce=0;
+#endif
     operation=get_op_f();
     while (operation !=end_of_tape) {
         switch (operation) {
@@ -1189,51 +1196,115 @@ void tape_doc(short tnum,         /* tape id */
                 /*--------------------------------------------------------------------------*/
 #if defined(HAVE_MPI)        
         case send_data:
-	        arg1 = get_locint_f();
-	        arg2 = get_locint_f();
-	        res  = get_locint_f();
-	        loc_a[0]=get_locint_f();
-	        loc_a[0]=arg1;
-	        loc_a[1]=arg2;
-	        loc_a[2]=res;
+	        count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+	        count2 = get_locint_f();
+	        dest   = get_locint_f();
+             tag    = get_locint_f();
+	        loc_a[0] = buf;
+	        loc_a[1] = count;
+	        loc_a[2] = dest;
 #ifdef computenumbers
-	        val_a[0]=dp_T0[arg1];
-	        dp_T0[res] = erf(dp_T0[arg1]);
-	        ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
-	        val_a[1]=dp_T0[arg2];
-	        val_a[2]=dp_T0[res];
+              val_a[0] = dp_T0[buf];
+              val_a[1] = dp_T0[buf];
 #endif
-	        filewrite(operation,3,loc_a,val_a,0,cst_d);
+	        filewrite(operation,3,loc_a,val_a,1,cst_d);
 	        break;
         case receive_data:
-	        loc_a[0]=get_locint_f(); // adouble location
-	        loc_a[1]=get_locint_f(); // target
-	        loc_a[2]=get_locint_f(); // destination
-	        res = get_locint_f();
-	        filewrite(operation, 3, loc_a, val_a, 0, cst_d);
-	        break; 
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f();
+             tag    = get_locint_f();
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+	        break;
         case barrier_op:
 	        ++op_cnt;
 	        --rev_op_cnt;
 	        fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, barrier_op);
-	        
+
     /* write opcode name if available */
 	        res=0;
 	        while (a[barrier_op][res]) {
 		        fprintf(fp,"%c",a[barrier_op][res]);
 		        res++;
 	        }
-	        
+
     /* write locations (max 4) right-justified */
 	        fprintf(fp," & & & & & ");
-	        
+
 #ifdef computenumbers
 	        fprintf(fp," & & & & & \\\\ \\hline \n");
 #else
 	        fprintf(fp," &  \\\\ \\hline \n");
 #endif
 	        break;
-#endif
+        case broadcast:
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+       case reduce:
+             use_reduce=1;
+       case gather:
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             count2 = get_locint_f(); // 2nd count
+             if(dest == tag){
+               for(mpi_i=0; mpi_i<count2;mpi_i++)
+                  mpi_ii = get_locint_f(); // rest buffer
+               mpi_ii = get_locint_f();
+             }
+             if(use_reduce==1) mpi_ii=get_locint_f();
+
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+       case scatter:
+             count  = get_locint_f(); // sendcount*process_count
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             if(dest == tag){
+               for(mpi_i=0; mpi_i<count;mpi_i++)
+                 mpi_ii = get_locint_f(); // rest buffer
+               count = get_locint_f();
+             }
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             count2 = get_locint_f(); // recvcount
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count2;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             mpi_ii = get_locint_f();
+
+             loc_a[0] = buf;
+             loc_a[1] = count2;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+#endif // end of HAVE_MPI
                 /*--------------------------------------------------------------------------*/
         default:                                                   /* default */
                 /* Die here, we screwed up */

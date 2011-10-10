@@ -396,7 +396,7 @@ void GauszSolve( double** J, int n, int* RI, int* CI, double* b ) {
 
 
 /****************************************************************************/
-int jac_solv( unsigned short tag, int n, double* x, double* b, unsigned short mode ) {
+int jac_solv( unsigned short tag, int n, const double* x, double* b, unsigned short mode ) {
     double *y;
     int i, newX = 0;
     int rc = 3;

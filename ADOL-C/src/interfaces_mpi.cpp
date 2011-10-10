@@ -159,7 +159,7 @@ int rc = -3;
     if (id==0)
        rc = hov_reverse_mpi(id,size,tag,m,n,degre,nrows, lagrange,results,nonzero);
     else
-       rc = hov_reverse_mpi(id,size,tag,0,0,degre,0, NULL,NULL,NULL);
+       rc = hov_reverse_mpi(id,size,tag,0,0,degre,nrows, NULL,NULL,NULL);
     return rc;
 }
 
@@ -201,6 +201,28 @@ int int_forward_safe(
        rc = int_forward_safe_mpi(id,size,tag,0,0,p,NULL,NULL);
     return rc;
 }
+
+int int_reverse_tight(
+    int id,int size,short tag, int m, int n, int p, unsigned long int **seed, unsigned long int **bit_pat){
+
+    int rc=-3;
+    if (id==0)
+       rc = int_reverse_tight_mpi(id,size,tag,m,n,p,seed,bit_pat);
+    else
+       rc = int_reverse_tight_mpi(id,size,tag,0,0,p,NULL,NULL);
+    return rc;
+}
+int int_reverse_safe(
+    int id,int size,short tag, int m, int n, int p, unsigned long int **seed, unsigned long int **bit_pat){
+
+    int rc=-3;
+    if (id==0)
+       rc = int_reverse_safe_mpi(id,size,tag,m,n,p,seed,bit_pat);
+    else
+       rc = int_reverse_safe_mpi(id,size,tag,0,0,p,NULL,NULL);
+    return rc;
+}
+
 
 /* indopro_forward_tight(rank,size, tag, m, n, x[n], *crs[m])                         */
 int indopro_forward_tight(

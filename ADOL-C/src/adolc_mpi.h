@@ -61,6 +61,7 @@ END_C_DECLS
 
 extern int mpi_initialized;
 extern int process_count;
+extern int all_root;
 
 #ifdef __cplusplus
 ADOLC_DLL_EXPORT int ADOLC_MPI_Send(
@@ -78,6 +79,14 @@ ADOLC_DLL_EXPORT int ADOLC_MPI_Bcast(
 ADOLC_DLL_EXPORT int ADOLC_MPI_Reduce(
     adouble *sendbuf, adouble* rec_buf, int count, ADOLC_MPI_Datatype type,
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm);
+
+ADOLC_DLL_EXPORT int ADOLC_MPI_Gather(
+    adouble *sendbuf, adouble *recvbuf, int count, ADOLC_MPI_Datatype type,
+    int root, MPI_Comm comm);
+
+ADOLC_DLL_EXPORT int ADOLC_MPI_Scatter(
+    adouble *sendbuf, int sendcount, adouble *recvbuf,
+    int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm);
 
 ADOLC_DLL_EXPORT int trace_on(int, int, short, int keep = 0);
 
