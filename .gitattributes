@@ -237,8 +237,6 @@ ADOL-C/src/interfaces.h -text
 ADOL-C/src/interfacesf.c -text
 ADOL-C/src/malloc.c -text
 ADOL-C/src/malloc.h -text
-ADOL-C/src/nlf_forward_s.c -text
-ADOL-C/src/nlf_forward_t.c -text
 ADOL-C/src/nonl_ind_forward_s.c -text
 ADOL-C/src/nonl_ind_forward_t.c -text
 ADOL-C/src/oplate.h -text
