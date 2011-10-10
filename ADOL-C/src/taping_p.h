@@ -287,6 +287,7 @@ typedef struct GlobalTapeVarsCL {
     StoreManager *storeManagerPtr;
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
+    const GlobalTapeVarsCL& operator=(const GlobalTapeVarsCL&);
 #else
     void *storeManagerPtr;
 #endif
@@ -294,7 +295,7 @@ typedef struct GlobalTapeVarsCL {
 GlobalTapeVars;
 
 #if defined(_OPENMP)
-#error nicht hier
+
 extern int isParallel();
 
 #define ADOLC_TAPE_INFOS_BUFFER_DECL *tapeInfosBuffer

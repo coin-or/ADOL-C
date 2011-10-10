@@ -212,7 +212,7 @@ void fail( int error ) {
         case ADOLC_EXT_DIFF_WRONG_TAPESTATS:
             fprintf(DIAG_OUT,
                     "ADOL-C error: Number of independents/dependents recorded on"
-                    " tape differ from number suplied by user!\n");
+                    " tape differ from number supplied by user!\n");
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION:
             fprintf(DIAG_OUT,
