@@ -107,7 +107,7 @@ int ADOLC_MPI_Send( adouble *buf,
     int ierr =0;
     double *trade;
 
-    trade = (double*) myalloc1(h);
+    trade = myalloc1(h);
     for (i=0; i< count;i++ )
         trade[i] = buf[i].getValue();
 
@@ -235,8 +235,10 @@ int ADOLC_MPI_Reduce(
     if( id==root){
       for(i=0; i < count*process_count;i++)
         ADOLC_PUT_LOCINT(tmp_adoubles[i].loc());
-      ADOLC_PUT_LOCINT(count*process_count);
     }
+    ADOLC_PUT_LOCINT(count*process_count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
     ADOLC_PUT_LOCINT(op);
 
     if ( id == root){
@@ -325,6 +327,8 @@ int ADOLC_MPI_Gather(
     if( id==root) for(i=0; i < count*process_count;i++)
         ADOLC_PUT_LOCINT(recvbuf[i].loc());
     ADOLC_PUT_LOCINT(count*process_count);
+    ADOLC_PUT_LOCINT(root);
+    ADOLC_PUT_LOCINT(id);
 
     return ierr;
 }
@@ -366,8 +370,8 @@ int ADOLC_MPI_Scatter(
     if( id == root ) {
       for(i=0; i< sendcount*process_count ;i++)
         ADOLC_PUT_LOCINT(sendbuf[i].loc());
-      ADOLC_PUT_LOCINT(sendcount*process_count);
     }
+    ADOLC_PUT_LOCINT(sendcount*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     ADOLC_PUT_LOCINT(recvcount);
