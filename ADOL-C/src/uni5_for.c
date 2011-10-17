@@ -1111,11 +1111,11 @@ tnum,
     /*--------------------------------------------------------------------------*/
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
-    ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    ind_dom = (locint**)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
     {
-        ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
+        ind_dom[i] = (locint*)  malloc(sizeof(locint)*(NUMNNZ+2));
         ind_dom[i][0] = 0;
         ind_dom[i][1] = NUMNNZ;
     }
@@ -5188,15 +5188,16 @@ tnum,
            l=0;
            if(myid == root){
               trade_loc = (int*) calloc(count*anz,sizeof(int));
-              for(mpi_i =0; mpi_i < count; mpi_i++ )
+              for(mpi_i =0; mpi_i < count; mpi_i++ ){
                  for (i=2; i < ind_dom[loc_send[mpi_i]][0]+2; i++){
                     trade_loc[l] = ind_dom[loc_send[mpi_i]][i];
                     l++;
                     }
-              for(i=ind_dom[loc_send[mpi_i]][0]; i < anz ; i++  ){
+                 for(i=ind_dom[loc_send[mpi_i]][0]; i < anz ; i++  ){
                     trade_loc[l] = -10;
                     l++;
                  }
+              }
            }
            rec_buf_loc = ( int*) malloc(anz*count2*sizeof(int) );
            MPI_Scatter(trade_loc,anz*count2, MPI_INT, rec_buf_loc, anz*count2, MPI_INT, root, MPI_COMM_WORLD);
