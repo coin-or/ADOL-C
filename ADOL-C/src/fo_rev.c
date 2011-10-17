@@ -2091,16 +2091,22 @@ this_tnum,
                 break;
             case reduce:
                 use_reduce=0;
-                mpi_op = get_locint_r();
-                if(mpi_op == ADOLC_MPI_SUM) use_reduce=1;
             case gather:
+                mpi_op = get_locint_r();
+                if(mpi_op == ADOLC_MPI_PROD) use_reduce=1;
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count2 = get_locint_r(); // count*process_count
                 if (root == myid){
                    loc_recv = (locint*) malloc (count2*sizeof(locint));
-                   for(mpi_i=0;mpi_i<count2;mpi_i++)
-                      loc_recv[count2-1-mpi_i] = get_locint_r(); // Receive Buffer
+                   switch(use_reduce){
+                       case 1:  for(mpi_i=0;mpi_i<count2;mpi_i++)
+                                  loc_recv[count2-1-mpi_i] = get_locint_r(); // Receive Buffer
+                                break;
+                       default: for(mpi_i=0;mpi_i<count2;mpi_i++)
+                                   loc_recv[mpi_i] = get_locint_r(); // Receive Buffer
+                                break;
+                   }
                 }
                 arg = get_locint_r(); // count*process_count
                 arg = get_locint_r(); // process id
@@ -2108,7 +2114,7 @@ this_tnum,
                 count = get_locint_r(); // count
                 loc_send = (locint*) calloc(count,sizeof(locint));
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                   loc_send[count-1-mpi_i] = get_locint_r(); // Send Buffer
+                   loc_send[mpi_i] = get_locint_r(); // Receive Buffer
                 arg = get_locint_r(); // count
 
 #if defined(_INT_REV_)
@@ -2175,7 +2181,7 @@ this_tnum,
                        rp_A[loc_recv[mpi_i]]=0.;
                     }
                 }
-                MPI_Scatter(rec_buf,count,MPI_DOUBLE,trade,count,MPI_DOUBLE, root,MPI_COMM_WORLD);
+                MPI_Scatter(rec_buf,count*2,MPI_DOUBLE,trade,count*2,MPI_DOUBLE, root,MPI_COMM_WORLD);
                 if (myid == root)
                    free(rec_buf);
                 for (mpi_i=0; mpi_i < count; mpi_i++) {

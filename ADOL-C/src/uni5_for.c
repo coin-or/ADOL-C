@@ -4219,7 +4219,7 @@ tnum,
            free(trade);
 #endif /* END ZOS  */
 #if defined(_FOS_)
-           trade = myalloc1( count+2 );
+           trade = myalloc1( count*2 );
            if (myid ==root){
                for(mpi_i =0; mpi_i < count; mpi_i++){
                  trade[2*mpi_i] = dp_T0[loc_send[mpi_i]];
@@ -4517,8 +4517,7 @@ tnum,
            arg = get_locint_f(); // count*process_count
            arg = get_locint_f(); // root
            arg = get_locint_f(); // myid
-           if (use_reduce == 1)
-              mpi_op = get_locint_f();
+           mpi_op = get_locint_f();
 
 #if defined(_ZOS_)
            // receiving values for dp_T0
@@ -4692,8 +4691,8 @@ tnum,
            if (myid == root){
               for(mpi_i =0; mpi_i < count2; mpi_i++ ){
                  IF_KEEP_WRITE_TAYLOR(loc_recv[mpi_i],keep,k,p)
-                 dp_T0[loc_recv[mpi_i]] = trade[2*mpi_i];
-                 tmp_counts[mpi_i]  = (int) trade[2*mpi_i+1];
+                 dp_T0[loc_recv[mpi_i]] = rec_buf[2*mpi_i];
+                 tmp_counts[mpi_i]  = (int) rec_buf[2*mpi_i+1];
               }
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
                  for(i=1; i < process_count; i++ )

@@ -2301,9 +2301,9 @@ int hov_ti_reverse(
 
             case reduce:
                 use_reduce=0;
-                mpi_op=get_locint_r();
-                if(mpi_op == ADOLC_MPI_SUM) use_reduce=1;
             case gather:
+                mpi_op=get_locint_r();
+                if(mpi_op == ADOLC_MPI_PROD) use_reduce=1;
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count2 = get_locint_r(); // count*process_count

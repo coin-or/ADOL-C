@@ -262,15 +262,15 @@ int ADOLC_MPI_Reduce(
                                    }
                                    break;
                case ADOLC_MPI_SUM: for(i=0; i < count; i++ ) {
-                                      tmp = 0;
-                                      for(j=0; j< process_count ; j++)
+                                      tmp = tmp_adoubles[i];
+                                      for(j=1; j< process_count ; j++)
                                          tmp += tmp_adoubles[j*count+i];
                                        rec_buf[i] = tmp;
                                    }
                                    break;
                case ADOLC_MPI_PROD:for(i=0; i < count; i++ ) {
-                                      tmp = 1;
-                                      for(j=0; j< process_count ; j++)
+                                      tmp = tmp_adoubles[i];
+                                      for(j=1; j< process_count ; j++)
                                          tmp *= tmp_adoubles[j*count+i];
                                       rec_buf[i] = tmp;
                                     }
@@ -329,6 +329,7 @@ int ADOLC_MPI_Gather(
     ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
+    ADOLC_PUT_LOCINT(ADOLC_MPI_SUM);
 
     return ierr;
 }
