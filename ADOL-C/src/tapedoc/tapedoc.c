@@ -1273,9 +1273,12 @@ void tape_doc(short tnum,         /* tape id */
              if(dest == tag){
                for(mpi_i=0; mpi_i<count2;mpi_i++)
                   mpi_ii = get_locint_f(); // rest buffer
-               mpi_ii = get_locint_f();
              }
-             if(use_reduce==1) mpi_ii=get_locint_f();
+             mpi_ii = get_locint_f(); // count2
+             mpi_ii = get_locint_f(); // root
+             mpi_ii = get_locint_f(); // id
+
+             mpi_ii=get_locint_f(); //mpi_op
 
              loc_a[0] = buf;
              loc_a[1] = count;
@@ -1289,8 +1292,8 @@ void tape_doc(short tnum,         /* tape id */
              if(dest == tag){
                for(mpi_i=0; mpi_i<count;mpi_i++)
                  mpi_ii = get_locint_f(); // rest buffer
-               count = get_locint_f();
              }
+             count  = get_locint_f();
              dest   = get_locint_f(); // root
              tag    = get_locint_f(); // id
              count2 = get_locint_f(); // recvcount
