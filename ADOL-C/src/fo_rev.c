@@ -2068,7 +2068,7 @@ this_tnum,
                     trade[mpi_ii] = rp_T[loc_recv[mpi_i]];
                     mpi_ii++;
                     for(l=0;l<p;l++,mpi_ii++){
-                       trade[mpi_i+1] = rpp_A[loc_recv[mpi_i]][l];
+                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
                        rpp_A[loc_recv[mpi_i]][l]=0.;
                     }
                     ADOLC_GET_TAYLOR(loc_recv[mpi_i]);
@@ -2099,14 +2099,8 @@ this_tnum,
                 count2 = get_locint_r(); // count*process_count
                 if (root == myid){
                    loc_recv = (locint*) malloc (count2*sizeof(locint));
-                   switch(use_reduce){
-                       case 1:  for(mpi_i=0;mpi_i<count2;mpi_i++)
-                                  loc_recv[count2-1-mpi_i] = get_locint_r(); // Receive Buffer
-                                break;
-                       default: for(mpi_i=0;mpi_i<count2;mpi_i++)
-                                   loc_recv[mpi_i] = get_locint_r(); // Receive Buffer
-                                break;
-                   }
+                   for(mpi_i=0; mpi_i < count2; mpi_i++)
+                      loc_recv[count2- mpi_i -1 ] = get_locint_r();
                 }
                 arg = get_locint_r(); // count*process_count
                 arg = get_locint_r(); // process id
@@ -2114,7 +2108,7 @@ this_tnum,
                 count = get_locint_r(); // count
                 loc_send = (locint*) calloc(count,sizeof(locint));
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                   loc_send[mpi_i] = get_locint_r(); // Receive Buffer
+                   loc_send[count-1-mpi_i] = get_locint_r(); // Receive Buffer
                 arg = get_locint_r(); // count
 
 #if defined(_INT_REV_)
@@ -2255,7 +2249,7 @@ this_tnum,
                    ADOLC_GET_TAYLOR(loc_recv[mpi_i]);
                    for(l=0;l<p;l++,mpi_ii++){
                       rec_buf[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
-                      upp_A[loc_recv[mpi_i]] = 0;
+                      upp_A[loc_recv[mpi_i]][l] = 0;
                    }
                 }
                 MPI_Gather(rec_buf , count2*(p+1), MPI_DOUBLE,trade,count2*(p+1), MPI_DOUBLE, root, MPI_COMM_WORLD);
@@ -2266,7 +2260,7 @@ this_tnum,
                       rp_T[loc_send[mpi_i]] = trade[mpi_ii];
                       mpi_ii++;
                       for(l=0;l<p;l++,mpi_ii++)
-                         upp_A[loc_send[mpi_i]] += (unsigned long int) trade[mpi_ii];
+                         upp_A[loc_send[mpi_i]][l] += (unsigned long int) trade[mpi_ii];
                    }
                    free(trade);
                 }

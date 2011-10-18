@@ -2393,7 +2393,6 @@ int hov_ti_reverse(
                res = get_locint_r(); // root
                res = get_locint_r(); // sendcount (count*process_count)
 #if defined(_HOS_)
-                rec_buf = myalloc1(count2*(k+k1));
                 trade = NULL;
                 rec_buf = myalloc1(count2*(k+k1));
                 mpi_ii=0;

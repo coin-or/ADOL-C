@@ -460,7 +460,7 @@ int gradient_mpi(int id,int size,short tag ,int n, double* x,double* result){
                printf("Failure by computing parallel gradient, process id %d!\n",id);
                return rc;
           }
-          rc = fos_reverse_mpi(id,size,tag,0,0,&one,result);
+          rc = fos_reverse_mpi(id,size,tag,0,0,&one,NULL);
      }
      return rc;
 }
