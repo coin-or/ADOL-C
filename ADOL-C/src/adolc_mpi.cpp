@@ -206,45 +206,12 @@ int ADOLC_MPI_Reduce(
     double *trade_s, *trade_r;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
-// equal to ADOLC_MPI_Gather -------------------
-    trade_s = myalloc1(count);
-    if (id == root)
-      trade_r = myalloc1(count*process_count);
-    else trade_r = NULL;
-
-    for(i= 0; i < count; i++) {
-       trade_s[i] = send_buf[i].getValue();
-    }
-    ierr = MPI_Gather(trade_s,count,type,trade_r,count,type, root, comm);
-
-    if ( id == root){
-           tmp_adoubles = new adouble[count*process_count];
-       for(i=0; i< count*process_count;i++){
-          tmp_adoubles[i].setValue(trade_r[i]);
-          }
-    }
-// ------------------------------------------------------
-    put_op(reduce);
-    ADOLC_PUT_LOCINT(count);
-    for (i=0; i< count;i++)
-       ADOLC_PUT_LOCINT(send_buf[i].loc());
-    ADOLC_PUT_LOCINT(count);
-    ADOLC_PUT_LOCINT(root);
-    ADOLC_PUT_LOCINT(id);
-    ADOLC_PUT_LOCINT(count*process_count);
-    if( id==root){
-      for(i=0; i < count*process_count;i++)
-        ADOLC_PUT_LOCINT(tmp_adoubles[i].loc());
-    }
-    ADOLC_PUT_LOCINT(count*process_count);
-    ADOLC_PUT_LOCINT(root);
-    ADOLC_PUT_LOCINT(id);
-    ADOLC_PUT_LOCINT(op);
+    ierr = ADOLC_MPI_Gather(send_buf,tmp_adoubles,count,type,root,comm);
 
     if ( id == root){
        if( rec_buf == NULL)
-           rec_buf = (adouble*) calloc(count, sizeof(adouble));
-          switch (op) {
+           rec_buf = new adouble[count];
+       switch (op) {
                case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
                                        tmp = tmp_adoubles[i];
                                        for(j=1; j< process_count ; j++)
@@ -277,13 +244,9 @@ int ADOLC_MPI_Reduce(
                                     break;
                default:             printf("Operation %d not yet implemented!\n",op);
                                     break;
-          }
-
-    delete[] tmp_adoubles;
+       }
+       delete[] tmp_adoubles;
     }
-
-    free(trade_s);
-    free(trade_r);
 
     return ierr;
 }
@@ -329,7 +292,6 @@ int ADOLC_MPI_Gather(
     ADOLC_PUT_LOCINT(count*process_count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
-    ADOLC_PUT_LOCINT(ADOLC_MPI_SUM);
 
     return ierr;
 }

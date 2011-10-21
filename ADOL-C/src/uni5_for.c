@@ -1039,9 +1039,8 @@ tnum,
 #if defined(_MPI_)
      double *trade, *rec_buf, *mpi_tmp;
      MPI_Status status_MPI;
-     int mpi_i,mpi_ii, s_r_c=1,use_reduce=0;
+     int mpi_i,mpi_ii, s_r_c=1;
      locint *loc_send, *loc_recv;
-     ADOLC_MPI_Op mpi_op;
      int myid,root, count, count2, target,tag;
 #if defined(_NONLIND_)
      locint *tmp_element;
@@ -4498,8 +4497,6 @@ tnum,
 #endif
            free(loc_send);
            break;
-      case reduce:
-           use_reduce=1;
       case gather:
            count = get_locint_f(); // count
            loc_send = (locint*) malloc(count*sizeof(locint));
@@ -4972,7 +4969,6 @@ tnum,
            if ( myid == root)
               free(loc_recv);
            free(loc_send);
-           use_reduce=0;
            break;
       case scatter:
            count = get_locint_f(); // count*procsize

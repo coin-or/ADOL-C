@@ -649,8 +649,7 @@ int hov_ti_reverse(
 	double *trade, *rec_buf;
 	int mpi_i,mpi_ii, myid, root, count,count2;
      locint *loc_recv, *loc_send;
-     int target, tag, use_reduce=0;
-     ADOLC_MPI_Op mpi_op;
+     int target, tag;
 #endif /* is used by Parallelisation */
 
     while (operation != start_of_tape) {
@@ -2299,11 +2298,7 @@ int hov_ti_reverse(
                 break;
                 /*--------------------------------------------------------------------------*/
 
-            case reduce:
-                use_reduce=0;
             case gather:
-                mpi_op=get_locint_r();
-                if(mpi_op == ADOLC_MPI_PROD) use_reduce=1;
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count2 = get_locint_r(); // count*process_count

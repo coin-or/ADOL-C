@@ -416,8 +416,7 @@ this_tnum,
      locint *loc_recv, *loc_send;
      double *trade, *rec_buf;
      unsigned long int *trade_ulong, *rec_ulong;
-     int target, tag ,use_reduce=0;
-     ADOLC_MPI_Op mpi_op;
+     int target, tag;
 #endif
 
     /****************************************************************************/
@@ -2089,11 +2088,7 @@ this_tnum,
 #endif
                 free(loc_recv);
                 break;
-            case reduce:
-                use_reduce=0;
             case gather:
-                mpi_op = get_locint_r();
-                if(mpi_op == ADOLC_MPI_PROD) use_reduce=1;
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count2 = get_locint_r(); // count*process_count
@@ -2215,7 +2210,6 @@ this_tnum,
                 if (myid == root )
                    free(loc_recv);
                 free(loc_send);
-                use_reduce=0;
                 break;
                 /*--------------------------------------------------------------------------*/
             case scatter:
