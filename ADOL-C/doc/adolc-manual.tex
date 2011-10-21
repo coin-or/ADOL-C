@@ -4014,90 +4014,6 @@ cout << errh <<" consistency check \n";
 }                                  // end main
 \end{verbatim}
 %
-\subsection{Parallel Speelpenning example codes}
-\label{SpeelPar}
-%
-\begin{verbatim}
-#define HAVE_MPI_MPI_H 1	// using parallel mode
-#include <adolc/adouble.h>	// use of active doubles
-#include <adolc/adouble_mpi.h>	// use of parallel MPI functions
-#include <adolc(adalloc.h>
-...
-using namespace std;
-#define CMMCTR ADOLC_MPI_COMM_WORLD
-#define tag 1
-
-int main(int* argc,char** argv) {
-    int n,i,j, id, size, root=0; // root process has id 0
-    int tape_stats[STAT_SIZE];
-
-    ADOLC_MPI_Init(argc,&argv);                // initialisation
-    ADOLC_MPI_Comm_size(CMMCTR,&size);   // get count of processes
-    ADOLC_MPI_Comm_rank(CMMCTR,&id);     // get id of process
-
-    if(id == root){
-       cout <<"PARALLEL SPEELPENNINGS PRODUCT\n\n"
-	    <<"number of independent variables = ?\n";
-       cin >> n;
-    }
-
-    MPI_Bcast(&n,1, ADOLC_MPI_INT, root, CMMCTR);
-    // every process knows the count independent variables
-
-    int n_tmp = n/size;  // split count to #size arrays of length n_tmp
-    double *xp = new double[n];
-    double  yp = 0.0;
-    adouble *x = new adouble[n], *x_tmp = new adouble[n_tmp];
-    adouble  y , tmp=1;
-
-    if( id == root)     // some initialization
-       for(i=0; i<n; i++) xp[i] = (i+1.0)/(2.0+i); 
-
-    trace_on(id, size, tag);  // tag = 1, keep = 0 by default
-    if(id == root){
-       for(i=0; i<n; i++)  x[i] <<= xp[i];  // or  x <<= xp outside the loop
-       for(i=1; i< size; i++)
-           ADOLC_MPI_Send(&x[i*n_tmp], n_tmp, MPI_ADOUBLE, i, tag, CMMCTR);
-       for(i=0; i< n_tmp;i++) x_tmp[i] = x[i];
-    } else
-       ADOLC_MPI_Recv(x_tmp, n_tmp, MPI_ADOUBLE,root, tag, CMMCTR);
-    /* now all independent variables are sent for computing */
-
-    for(i=0; i < n_tmp ; i++) tmp *= x[i];
-
-    ADOLC_MPI_Barrier(CMMCTR); // synchronise all processes
-    ADOLC_MPI_Reduce( &tmp, &y , 1 , MPI_ADOUBLE, ADOLC_MPI_PROD, root, CMMCTR);
- 
-    if(id == root){
-          y >>= yp;
-          cout << The result is << yp << endl;
-    }
-    trace_off();   // end of tape
-
-    double *grad = NULL;
-    if ( id == root) grad = new double[n]; 
-    gradient(id,size,tag, 1, n, x, grad);
-    if(id == root){
-        cout << "The gradient is "<< endl << "\t";
-        for(i=0; i < n ; i++) cout << "  "<< grad[i];
-        cout << endl;
-        delete[] grad;
-    }
-
-    double **hess = NULL;
-    if ( id == root) hess = myarrayI2(n); 
-
-    hessian(id,size,tag, 1, n, x, hess);
-    if(id == root){
-        print_mat("Hessian",n,n,hess);
-        myfreeI2(n,hess);
-    }
-    delete[] x;
-    delete[] x_tmp;
-    ADOLC_MPI_Finalize();
-}
-\end{verbatim}
-%
 \subsection{Power Example ({\tt powexam.cpp})}
 %
 The second example function evaluates the $n$-th power of a real
@@ -4397,6 +4313,193 @@ except that the negative entry $-1$ was zero.
 %to get the sensitivities of the solution with respect to the
 %system matrix and the right hand side.
 %\vspace*{-4mm}
+%
+\subsection{Parallel Speelpenning example codes}
+\label{SpeelPar}
+%
+Two methods are shown in this example for parallel computing by using different MPI functions to spread the variables and their computing. The first example with \verb=tag1= evaluates the jacobian of the functions
+\[ 
+y \; = \; f(x)\; =\; \left( \sum\limits_{i=0}^{n-1} x_i^2 \ , \  \sum\limits_{i=0}^{n-1} \cos(x_i)+\exp(x_i) \ , \   \sum\limits_{i=0}^{n-1} x_i \right)^T \ :
+\] 
+%
+\begin{verbatim}
+#define HAVE_MPI_MPI_H 1           // using parallel mode
+#include <adolc/adouble.h>         // use of active doubles
+#include <adolc/adouble_mpi.h>     // use of parallel MPI functions
+#include <adolc/interfaces_mpi.h>  // use of parallel driver functions
+#include <adolc/drivers/drivers.h>
+#include <adolc/adalloc.h>
+#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+
+#define tag1 0  // first tag for computing jacobian
+#define tag2 1  // second tag for gradient and hessian
+
+#define CMMCTR ADOLC_MPI_COMM_WORLD  // shortcut
+
+using namespace std;
+
+int main(int* argc,char** argv) {
+    int n, m = 3, i, j, id, size;
+    int root = 0;                      // root process has id 0
+    int tape_stats[STAT_SIZE];
+
+    ADOLC_MPI_Init(argc,&argv);        // initialisation
+    ADOLC_MPI_Comm_size(CMMCTR,&size); // get count of processes
+    ADOLC_MPI_Comm_rank(CMMCTR,&id);   // get id of process
+
+    if(id == root){
+       cout <<"PARALLEL SPEELPENNINGS PRODUCT\n\n"
+	    <<"number of independent variables = ?\n";
+       cin >> n;
+    }
+
+    MPI_Bcast(&n,1, ADOLC_MPI_INT, root, CMMCTR);
+    // every process knows the count of independent variables
+
+    int n_dist = (int) n/size;
+    double x[n];
+    for(i=0;i<n;i++)
+        x[i] =  log(2.0 +i);   // some initialization
+
+    adouble *xad; 
+
+/*************************************************************/
+/********** function evaluation for first example ************/
+/*************************************************************/
+    double *c = new double[m];
+
+    xad = new adouble[n];                 // allocation of
+    adouble *cad = new adouble[m];        // needed arrays
+    for( i = 0; i < m; i++)
+       cad_[i]=0.0;
+
+    trace_on( id, size, tag1);
+    if( id == root ){
+           for (i=0;i<n;i++)
+                  xad[i] <<= x[i];
+          // setting independent variables
+          }
+
+    ADOLC_MPI_Bcast(xad, n, MPI_ADOUBLE, root, CMMCTR);
+
+    for(i = myid*n_dist; i < (myid+1)*n_dist; i++){
+       cad[0] += xad[i]*xad[i];
+       cad[1] += cos(xad[i]) + exp(xad[i]);
+       cad[2] += xad[i];
+    }  // some evaluations 
+
+    ADOLC_MPI_Barrier( CMMCTR );   // optional
+
+    ADOLC_MPI_Reduce( cad, cad,m, MPI_ADOUBLE, ADOLC_MPI_SUM, root, CMMCTR);
+
+    if ( id == root ) {
+       for(i = 0; i < m; i++ )
+          cad[i] >>= c[i];
+    }
+    trace_off();
+    delete[] xad;
+    delete[] cad;
+
+    if ( id == root ){
+        printf("\n c = [ %2.4lf %2.4lf %2.4lf]\n", c[0], c[1], c[2]);
+    }
+
+    tape_doc( id, size, tag1, m, n, x, c);
+
+    double **jac = NULL;
+    if ( id == root )
+       jac = myalloc2(m,n);
+
+    jacobian( id, size, tag1, m, n, x, jac);
+    if ( id == root )
+       printmat("Jacobian ",m,n,jac);
+
+     double **x_pp = NULL;
+     if ( id == root )
+        x_pp = myallocI2(n);
+
+    fov_forward( id, size, tag1, m, n, n, x, x_pp, c, jac);
+    if ( id == root ){
+       printmat("jac output",m, n, jac);
+       myfree2(jac);
+       myfreeI2(n,x_pp);
+    }
+\end{verbatim}
+%
+The second example with \verb=tag2= evaluates the gradient and hessian of the function
+\[ 
+y \; = \; f(x)\; =\; \prod_{i=0}^{n-1} x_i .
+\] 
+%
+\begin{verbatim}
+/*************************************************************/
+/********* function evaluation for second example ************/
+/*************************************************************/
+
+    xad = new adouble[n];
+    adouble* xad_tmp = new adouble[n_dist];
+    adouble res_ad, res_ad_tmp;
+    double res;
+
+    trace_on( id, size, tag2);
+    if ( id == root ){
+       for (i = 0; i < n; i++)
+           xad[i] <<= x[i];
+    }
+    res_ad_tmp = 1.0;
+
+    ADOLC_MPI_Scatter( xad, n_dist, xad_tmp, n_dist,
+                       MPI_ADOUBLE, root, CMMCTR    );
+
+    for(i = 0; i < n_dist; i++)
+       res_ad_tmp *= xad_tmp[i]; // some evaluation 
+
+    ADOLC_MPI_Barrier( CMMCTR );  // optional
+
+    ADOLC_MPI_Reduce( &res_ad_tmp, &res_ad, 1, MPI_ADOUBLE, 
+                      ADOLC_MPI_PROD, root, CMMCTR         );
+
+    if ( id == root )
+          res_ad >>= res;
+
+    trace_off();
+    delete[] xad;
+    delete[] xad_tmp;
+
+    if ( id == root )
+       printf("\n result = %2.4lf \n", res);
+
+    tape_doc( id, size, tag2, 1, n, x, &res);
+
+    double *grad = NULL;
+    if ( id == root ){
+       grad = myalloc1(n);
+       x_pp = myalloc2(n,n);
+    }
+
+    gradient( id, size, tag2, n, x, grad);
+    if (id == root ){  // output of  computed gradient
+       printf("gradient\n");
+       for(i=0; i<n ; i++)
+          printf("\t%2.4lf\n", grad[i]);
+       printf("\n");
+       myfree1(grad);
+    }
+
+    hessian(myid,procsize,tag2,n,x,x_pp);
+    if ( id == root ){ // output of  computed hessian
+       printmat("Hessian", n, n, x_pp);
+       myfree2(x_pp);
+    }
+
+    delete[] x;
+    delete[] c;
+    ADOLC_MPI_Finalize();
+    return 0;
+}
+\end{verbatim}
 %
 \section*{Acknowledgements}
 %
