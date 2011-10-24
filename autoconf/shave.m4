@@ -78,18 +78,28 @@ AC_DEFUN([SHAVE_INIT],
     SHAVE_SAVED_F77=$F77
     SHAVE_SAVED_OBJC=$OBJC
     SHAVE_SAVED_MCS=$MCS
+    if $mpi_found ; then
+    SHAVE_SAVED_MPICC=$MPICC
+    SHAVE_SAVED_MPICXX=$MPICXX
+    fi
     CC="${SHELL} ${shavedir}/shave cc ${SHAVE_SAVED_CC}"
     CXX="${SHELL} ${shavedir}/shave cxx ${SHAVE_SAVED_CXX}"
     FC="${SHELL} ${shavedir}/shave fc ${SHAVE_SAVED_FC}"
     F77="${SHELL} ${shavedir}/shave f77 ${SHAVE_SAVED_F77}"
     OBJC="${SHELL} ${shavedir}/shave objc ${SHAVE_SAVED_OBJC}"
     MCS="${SHELL} ${shavedir}/shave mcs ${SHAVE_SAVED_MCS}"
+    if $mpi_found ; then
+    MPICC="${SHELL} ${shavedir}/shave mpicc ${SHAVE_SAVED_MPICC}"
+    MPICXX="${SHELL} ${shavedir}/shave mpicxx ${SHAVE_SAVED_MPICXX}"
+    fi
     AC_SUBST(CC)
     AC_SUBST(CXX)
     AC_SUBST(FC)
     AC_SUBST(F77)
     AC_SUBST(OBJC)
     AC_SUBST(MCS)
+    AC_SUBST(MPICC)
+    AC_SUBST(MPICXX)
 
     V=@
   else

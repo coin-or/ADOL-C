@@ -89,6 +89,12 @@ link,*)
 *,mcs)
     Q="  MCS   "
     ;;
+*,mpicc)
+    Q="  MPICC  "
+    ;;
+*,mpicxx)
+    Q="  MPICXX  "
+    ;;
 *,*)
     # should not happen
     Q="  CC    "

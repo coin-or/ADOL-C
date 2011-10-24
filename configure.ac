@@ -37,6 +37,20 @@ fi
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+# ADOL-C with mpi
+AC_ARG_ENABLE(mpi, [AS_HELP_STRING([--enable-mpi],[enable mpi please make sure mpicc/mpicxx are in \$PATH [default=no]])], [use_mpi=$enableval], [use_mpi=no])
+mpi_found=false
+AC_LANG_PUSH([C++])
+if test $use_mpi != no; then
+AX_MPI([mpi_found=true],[mpi_found=false])
+fi
+AC_LANG_POP([C++])
+if test $use_mpi != no && $mpi_found ; then
+AX_MPI([mpi_found=true],[mpi_found=false
+MPICXX=
+MPILIBS=
+])
+fi
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
@@ -248,46 +262,33 @@ fi
 AC_SUBST(COLPACK_CFLAGS)
 AC_SUBST(COLPACK_LIBS)
 
-# ADOL-C with mpi
-AC_ARG_WITH(mpi-includedir,[AS_HELP_STRING([--with-mpi-includedir],[path to mpi headers [default=autodetect]])], [mpiinc=$withval], [mpiinc=auto])
-AC_ARG_WITH(mpi-libdir,[AS_HELP_STRING([--with-mpi-libdir],[path to mpi libs [default=autodetect]])], [mpilibdir=$withval], [mpilibdir=auto])
+AM_CONDITIONAL(HAVE_MPI,[$mpi_found])
+if $mpi_found ; then
+AC_DEFINE(HAVE_MPI,[1],[Define 1 if mpi is available])
+MPICOMPILE='$(MPICC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+        $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)'
+MPICXXLD='$(MPICXX)'
+MPICXXCOMPILE='$(MPICXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+        $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)'
 
-if test x"$mpiinc" = xauto ; then
-MPICPPFLAGS=""
-else
-MPICPPFLAGS="-I${mpiinc}"
-fi
-if test x"$mpilibdir" = xauto ; then
-MPILIBS=""
-else
-MPILIBS="-L${mpilibdir}"
-fi
+AC_MSG_CHECKING(which linker flags to use for MPI)
+s="`${MPICXX} -show`"
+MPICXXEXTRALDFLAGS="`echo $s | sed 's/-I\S*//g;s/-D\S*//g;s/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g;s/^\S*//' `"
+AC_MSG_RESULT(${MPICXXEXTRALDFLAGS})
 
-save_CPPFLAGS="$CPPFLAGS"
-save_LIBS="$LIBS"
-CPPFLAGS="$CPPFLAGS $MPICPPFLAGS"
-LIBS="$LIBS $MPILIBS"
-AC_CHECK_HEADERS([mpi/mpi.h mpi.h],[
-AC_DEFINE(HAVE_MPI,1,[MPI is enabled])
-if test x = x"$LIBMPI"; then
-AC_CHECK_LIB(mpi, MPI_Init, [LIBMPI="-lmpi"])
-fi
-if test x = x"$LIBMPI"; then
-AC_CHECK_LIB(mpich, MPI_Init, [LIBMPI="-lmpich"])
-fi
-break
-])
-CPPFLAGS="$save_CPPFLAGS"
-LIBS="$save_LIBS"
-
-AC_SUBST(MPICPPFLAGS)
-AC_SUBST(MPILIBS)
-AC_SUBST(LIBMPI)
-AM_CONDITIONAL(HAVE_MPI,[test x != x"$LIBMPI"])
-if test x != x"$LIBMPI" ; then
-mpi=yes
+if test $dolt_supported = xno ; then
+   LTMPICOMPILE='$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICOMPILE)'
+   LTMPICXXCOMPILE='$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICXXCOMPILE)'
 else
-mpi=no
+   LTMPICOMPILE='$(top_builddir)/doltcompile $(MPICOMPILE)'
+   LTMPICXXCOMPILE='$(top_builddir)/doltcompile $(MPICXXCOMPILE)'
+fi
+AC_SUBST(MPICOMPILE)
+AC_SUBST(MPICXXLD)
+AC_SUBST(MPICXXCOMPILE)
+AC_SUBST(LTMPICOMPILE)
+AC_SUBST(LTMPICXXCOMPILE)
+AC_SUBST(MPICXXEXTRALDFLAGS)
 fi
 
 # ADOL-C Examples
@@ -512,7 +513,7 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
     warn=true
 fi
 echo \
-"  Build with MPI:                   ${mpi}"
+"  Build with MPI:                   ${mpi_found}"
 echo
 
 echo \
