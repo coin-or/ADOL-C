@@ -4514,7 +4514,6 @@ tnum,
            arg = get_locint_f(); // count*process_count
            arg = get_locint_f(); // root
            arg = get_locint_f(); // myid
-           mpi_op = get_locint_f();
 
 #if defined(_ZOS_)
            // receiving values for dp_T0
