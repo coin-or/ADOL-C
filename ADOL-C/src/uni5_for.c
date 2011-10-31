@@ -16,7 +16,7 @@
 	   int_forward_safe:                                  define _INT_FOR_ and _NTIGHT__
 
            Uses the preprocessor to compile the 7 different object files
-           with/without "keep" parameter:                     define _KEEP_
+           with/without "keep" parameter:                   define _KEEP_
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
@@ -142,19 +142,26 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 
 #if defined(_NLF_)
 
-void combine_2_domains(int res, int arg1, int arg2, locint **ind_dom);
+typedef struct IndexElement {
+    locint  entry;
+    struct IndexElement* left;
+    struct IndexElement* right;
+}
+IndexElement;
 
 #if defined(_TIGHT_)
+
+void traverse_nlf(IndexElement* nlf, char* inddomain);
+void traverse_crs(IndexElement* fod2, IndexElement* csod);
+void traverse_fod(IndexElement* tree, IndexElement* fod, int i, IndexElement* fod2);
+void extend_nonlinearity_domain_unary2(char* inddomain, locint **nonl_dom, int num, int indcheck);
+
+
 #define GENERATED_FILENAME "nlf_forward_t"
 #endif
 #if defined(_NTIGHT_)
 #define GENERATED_FILENAME "nlf_forward_s"
 #endif
-typedef struct IndexElement {
-    locint  entry;
-    struct IndexElement* next;
-}
-IndexElement;
 #endif
 
 #if defined(_NONLIND_)
@@ -781,10 +788,19 @@ int  hov_forward(
 #if defined (_INDO_)
     int l=0;
     int max_ind_dom;
-#if defined (_NLF_)
-    IndexElement** csod;
-    IndexElement*  temp;
-    IndexElement*  temp1;
+#if !defined(_NLF_)
+    /* index domains */
+    locint** ind_dom;
+#else
+    char *nlfdomain;
+    char *nlfdomain1;
+    locint* arg_index;
+    IndexElement* csod;
+    IndexElement* fod2;
+    IndexElement* fod;
+    IndexElement* nlf;
+    IndexElement* temp;
+    IndexElement* temp1;
     locint entry;
     int opind;
     int index;
@@ -837,13 +853,6 @@ int  hov_forward(
 #endif /* _TIGHT_ */
 #define T0res  T0temp
 #define T0arg  T0temp
-
-    /* index domains */
-    locint** ind_dom;
-#if defined(_NLF_)
-    locint** nlf;
-    locint* arg_index;
-#endif
 #else
     double *dp_T0;
 #if !defined(_ZOS_)
@@ -1039,17 +1048,23 @@ int  hov_forward(
 	    ind_dom[i][1] = NUMNNZ;
 	  }
 #else
-	ind_dom = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));
-/* 	nlf = (locint **)  malloc(sizeof(locint*) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));     */
+	fod = (struct IndexElement*) malloc(sizeof(struct IndexElement) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));
+	nlf = (struct IndexElement*) malloc(sizeof(struct IndexElement) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD]));
 	arg_index = (locint *)  malloc(sizeof(locint) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]));
         opind = 0;
         max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD];
-	csod = (struct IndexElement**) malloc(sizeof(struct IndexElement*) * indcheck);
+
+	csod = (struct IndexElement*) malloc(sizeof(struct IndexElement) * indcheck);
+	fod2 = (struct IndexElement*) malloc(sizeof(struct IndexElement) * indcheck);
+
 	for(i=0;i<indcheck;i++)
 	  {
-	    csod[i] = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-	    csod[i]->entry = 0;
-	    csod[i]->next = NULL;
+	    csod[i].entry = 0;
+	    csod[i].left = NULL;
+	    csod[i].right = NULL;
+	    fod2[i].entry = -1;
+	    fod2[i].left = NULL;
+	    fod2[i].right = NULL;
 	  }
 #endif
 
@@ -1124,7 +1139,6 @@ int  hov_forward(
 #endif /* ADOLC_DEBUG */
     while (operation !=end_of_tape) {
   
-/*       printf(" op %d \n",operation); */
       switch (operation) {
 
 
@@ -1290,8 +1304,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -1321,10 +1333,12 @@ int  hov_forward(
 #if !defined(_NLF_)
 		ind_dom[res][0]=0;
 #else
-		ind_dom[opind] = (locint *)  malloc(sizeof(locint) * 1);
-		ind_dom[opind][0] = 0;
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 1); */
-/* 		nlf[opind][0] = 0; */
+		fod[opind].entry = -1;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+		nlf[opind].entry = -1;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1352,10 +1366,12 @@ int  hov_forward(
 #if !defined(_NLF_)
 		ind_dom[res][0]=0;
 #else
-		ind_dom[opind] = (locint *)  malloc(sizeof(locint) * 1);
-		ind_dom[opind][0] = 0;
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 1); */
-/* 		nlf[opind][0] = 0; */
+		fod[opind].entry = -1;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+		nlf[opind].entry = -1;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1383,10 +1399,12 @@ int  hov_forward(
 #if !defined(_NLF_)
 		ind_dom[res][0]=0;
 #else
-		ind_dom[opind] = (locint *)  malloc(sizeof(locint) * 1);
-		ind_dom[opind][0] = 0;
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 1); */
-/* 		nlf[opind][0] = 0; */
+		fod[opind].entry = -1;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+		nlf[opind].entry = -1;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1416,11 +1434,12 @@ int  hov_forward(
 		ind_dom[res][0] = 1;
 		ind_dom[res][2] = indexi;
 #else
-		ind_dom[opind] = (locint *)  malloc(sizeof(locint) * 2);
-		ind_dom[opind][0] = 1;
-		ind_dom[opind][1] = opind;
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 1); */
-/* 		nlf[opind][0] = 0; */
+		fod[opind].entry = indexi;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+		nlf[opind].entry = -1;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif		
 #else
@@ -1468,56 +1487,16 @@ int  hov_forward(
 #endif
 #if defined(_NLF_)
 		
-/* 		for(l=1;l<nlf[arg_index[res]][0]+1;l++) */
-/* 		  { */
-/* 		    int index = nlf[arg_index[res]][l]; */
-/* 		    for(ii=1;ii<ind_dom[index][0]+1;ii++) */
-/* 		      { */
-/* 			index1 = ind_dom[index][ii]; */
-/* 			for(jj=1;jj<ind_dom[index][0]+1;jj++) */
-/* 			  { */
-/* 			    temp1 = csod[index1]; */
-/* 			    temp = csod[index1]->next; */
-/* 			    num = csod[index1]->entry; */
-/* 			    i=0; */
-/* 			    do */
-/* 			      { */
-/* 				if (temp==NULL) */
-/* 				  { */
-/* 				    temp = (struct IndexElement*) malloc(sizeof(struct IndexElement)); */
-/* 				    temp1->next = temp; */
-/* 				    temp->entry = ind_dom[index][jj]; */
-/* 				    temp->next = NULL; */
-/* 				    csod[index1]->entry++; */
-/* 				    i = 1; */
-/* 				  } */
-/* 				else */
-/* 				  { */
-/* 				    if (temp->entry < ind_dom[index][jj]) */
-/* 				      { */
-/* 					temp1 = temp; */
-/* 					temp = temp->next; */
-/* 				      } */
-/* 				    else */
-/* 				      { */
-/* 					if (temp->entry == ind_dom[index][jj]) */
-/* 					  i = 1; */
-/* 					else */
-/* 					  { */
-/* 					    temp = (struct IndexElement*) malloc(sizeof(struct IndexElement)); */
-/* 					    temp->entry = ind_dom[index][jj]; */
-/* 					    csod[index1]->entry++; */
-/* 					    temp->next = temp1->next; */
-/* 					    temp1->next = temp; */
-/* 					    i=1; */
-/* 					  } */
-/* 				      } */
-/* 				  } */
-/* 			      } */
-/* 			    while (i == 0); */
-/* 			  } */
-/* 		      } */
-/* 		  } */
+		nlfdomain = (char*) calloc(opind+1,sizeof(char));
+		traverse_nlf(&nlf[arg_index[res]],nlfdomain);
+		for(i=1;i<opind;i++)
+		  {
+		    if (nlfdomain[i])
+		      {
+			traverse_fod(&fod[i-1],fod, i-1,fod2);
+		      }
+		  }
+		free(nlfdomain);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1571,8 +1550,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
 #else
-                combine_2_domains(opind, arg_index[res], arg_index[arg], ind_dom);
-/*                 combine_2_domains(opind, arg_index[res], arg_index[arg], nlf); */
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[res]];
+		nlf[opind].right = &nlf[arg_index[arg]];
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1620,9 +1603,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
 #else
-                combine_2_domains(opind, arg_index[res], arg_index[arg], ind_dom);
-/*                 combine_2_domains(opind, arg_index[res], arg_index[arg], nlf); */
-                arg_index[res] = opind++;		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[res]];
+		nlf[opind].right = &nlf[arg_index[arg]];	
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1678,10 +1664,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 merge_2_index_domains(res, arg, ind_dom);
 #else
-                combine_2_domains(opind, arg_index[res], arg_index[arg], ind_dom);
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 2); */
-/* 		nlf[opind][0] = 1; */
-/* 		nlf[opind][1] = opind; */
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
@@ -1763,8 +1751,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else      
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/*                 combine_2_domains(opind, arg_index[arg1], arg_index[arg2], nlf); */
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[arg1]];
+		nlf[opind].right = &nlf[arg_index[arg2]];
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1801,8 +1793,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];
 #endif
 #else
@@ -1835,8 +1825,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/*                 combine_2_domains(opind, arg_index[arg1], arg_index[arg2], nlf); */
+
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[arg1]];
+		nlf[opind].right = &nlf[arg_index[arg2]];
                 arg_index[res] = opind++;		
 #endif
 #else
@@ -1873,8 +1868,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -1905,10 +1898,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else
-		combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/* 		nlf[opind] =  (locint *)  malloc(sizeof(locint) * 2);  */
-/* 		nlf[opind][0] = 1; */
-/* 		nlf[opind][1] = opind; */
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
 		arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
@@ -1967,19 +1962,22 @@ int  hov_forward(
 #else
 		// operation: v = v+u*w
 		// first step: z = u*w, index domains
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
 		// first step: z = u*w, nlf
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 2); */
-/* 		nlf[opind][0] = 1; */
-/* 		nlf[opind][1] = opind++; */
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+		opind++;
 		// second step: v = v+z, index domains
-                combine_2_domains(opind, arg_index[res], opind-1,ind_dom);
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[opind-1];
 		// second step: v = v+z, nlf
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * (nlf[arg_index[res]][0]+2)); */
-/* 		for(l=0;l<nlf[arg_index[res]][0]+1;l++) */
-/* 		  nlf[opind][l] = nlf[arg_index[res]][l]; */
-/* 		nlf[opind][nlf[arg_index[res]][0]+1] = opind-1; */
-/* 		nlf[opind][0]++; */
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[res]];
+		nlf[opind].right =  &nlf[opind-1];
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
@@ -2035,22 +2033,25 @@ int  hov_forward(
 #if !defined(_NLF_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
 #else
-		// operation: v = v+u*w
+		// operation: v = v-u*w
 		// first step: z = u*w, index domains
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
 		// first step: z = u*w, nlf
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 2); */
-/* 		nlf[opind][0] = 1; */
-/* 		nlf[opind][1] = opind++; */
-		// second step: v = v+z, index domains
-                combine_2_domains(opind, arg_index[res], opind-1,ind_dom);
-		// second step: v = v+z, nlf
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * (nlf[arg_index[res]][0]+2)); */
-/* 		for(l=0;l<nlf[arg_index[res]][0]+1;l++) */
-/* 		  nlf[opind][l] = nlf[arg_index[res]][l]; */
-/* 		nlf[opind][nlf[arg_index[res]][0]+1] = opind-1; */
-/* 		nlf[opind][0]++; */
-                arg_index[res] = opind++;		
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+		opind++;
+		// second step: v = v-z, index domains
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[opind-1];
+		// second step: v = v-z, nlf
+		nlf[opind].entry = -1;
+		nlf[opind].left = &nlf[arg_index[res]];
+		nlf[opind].right =  &nlf[arg_index[opind-1]];
+                arg_index[res] = opind++;	
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
@@ -2111,8 +2112,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -2153,10 +2152,12 @@ int  hov_forward(
 #if !defined(_NLF_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/* 		nlf[opind] = (locint *)  malloc(sizeof(locint) * 2); */
-/* 		nlf[opind][0] = 1; */
-/* 		nlf[opind][1] = opind; */
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
@@ -2222,8 +2223,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #if defined(_NONLIND_)
@@ -2280,8 +2279,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];			    
 #endif
 #else
@@ -2310,8 +2307,6 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -2351,9 +2346,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
-                arg_index[res] = arg_index[arg];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -2413,9 +2412,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2485,9 +2488,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2554,9 +2561,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2615,9 +2626,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2714,9 +2729,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2815,9 +2834,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2876,9 +2899,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -2959,9 +2986,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
@@ -3063,9 +3094,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
-                arg_index[res] = arg_index[arg1];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3116,9 +3151,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
-                arg_index[res] = arg_index[arg];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3200,9 +3239,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
-                arg_index[res] = arg_index[arg];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3341,9 +3384,13 @@ int  hov_forward(
 #if !defined(_NLF_)
                 copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
-                arg_index[res] = arg_index[arg];		
+		fod[opind].entry = -1;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		nlf[opind].entry = opind;
+		nlf[opind].left = NULL;
+		nlf[opind].right = NULL;
+                arg_index[res] = opind++;		
 #endif
 #if defined(_NONLIND_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
@@ -3512,28 +3559,47 @@ int  hov_forward(
 #ifdef _TIGHT_
                     if (dp_T0[arg1] < dp_T0[arg2])
 		      {
-/* 			copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/* 			copy_index_domain(opind,arg_index[arg1], nlf); */
-			arg_index[res] = arg_index[arg1];
+			fod[opind].entry = -1;
+			fod[opind].left = &fod[arg_index[arg1]];
+			fod[opind].right = NULL;
+			nlf[opind].entry = -1;
+			nlf[opind].left = &nlf[arg_index[arg1]];
+			nlf[opind].right = NULL;
+			arg_index[res] = opind++;		
 		      }		   
                     else {
                         if (dp_T0[arg1] > dp_T0[arg2])
 			  {
-/* 			    copy_index_domain(opind,arg_index[arg2], ind_dom); */
-/* 			    copy_index_domain(opind,arg_index[arg2], nlf); */
-			    arg_index[res] = arg_index[arg2];
+			    fod[opind].entry = -1;
+			    fod[opind].left = &fod[arg_index[arg2]];
+			    fod[opind].right = NULL;
+			    nlf[opind].entry = -1;
+			    nlf[opind].left = &nlf[arg_index[arg2]];
+			    nlf[opind].right = NULL;
+			    arg_index[res] = opind++;		
+
 			  }		   
                         else
 			  {
-			    combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/* 			    combine_2_domains(opind, arg_index[arg1], arg_index[arg2], nlf); */
+			    fod[opind].entry = -1;
+			    fod[opind].left = &fod[arg_index[arg1]];
+			    fod[opind].right = &fod[arg_index[arg2]];
+			    nlf[opind].entry = -1;
+			    nlf[opind].left = &nlf[arg_index[arg1]];
+			    nlf[opind].right = &nlf[arg_index[arg2]];
+			    arg_index[res] = opind++;		
 			  }
                     }
 #else
-			    combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/* 			    combine_2_domains(opind, arg_index[arg1], arg_index[arg2], nlf); */
+		    fod[opind].entry = -1;
+		    fod[opind].left = &fod[arg_index[arg1]];
+		    fod[opind].right = &fod[arg_index[arg2]];
+		    nlf[opind].entry = -1;
+		    nlf[opind].left = &nlf[arg_index[arg1]];
+		    nlf[opind].right = &nlf[arg_index[arg2]];
+		    arg_index[res] = opind++;		
+		    arg_index[res] = opind++;		
 #endif
-                arg_index[res] = opind++;		
 #endif
 
 #else
@@ -3655,8 +3721,6 @@ int  hov_forward(
 #if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -3735,8 +3799,6 @@ int  hov_forward(
 #if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -3768,8 +3830,6 @@ int  hov_forward(
 #if !defined(_NLF_)
 		copy_index_domain(res, arg, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg], nlf); */
                 arg_index[res] = arg_index[arg];		
 #endif
 #else
@@ -3827,8 +3887,6 @@ int  hov_forward(
                         MINDEC(ret_c,2);
                     dp_T0[res] = dp_T0[arg1];
 
-/* 		    copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/* 		    copy_index_domain(opind,arg_index[arg1], nlf); */
 		    arg_index[res] = arg_index[arg1];		
 
                 } else {
@@ -3837,15 +3895,11 @@ int  hov_forward(
                     if (dp_T0[arg] == 0)
                         MINDEC(ret_c,0);
                     dp_T0[res] = dp_T0[arg2];
-/* 		    copy_index_domain(opind,arg_index[arg2], ind_dom); */
-/* 		    copy_index_domain(opind,arg_index[arg2], nlf); */
 		    arg_index[res] = arg_index[arg2];		
                 }
 
 #else
-                combine_2_domains(opind, arg_index[arg1], arg_index[arg2], ind_dom);
-/*                 combine_2_domains(opind, arg_index[arg1], arg_index[arg2], nlf); */
-                arg_index[res] = opind++;		
+               arg_index[res] = opind++;		
 #endif
 #endif
 #else
@@ -3921,8 +3975,6 @@ int  hov_forward(
 #if !defined(_NLF_)
 		copy_index_domain(res, arg1, ind_dom);
 #else
-/*                 copy_index_domain(opind,arg_index[arg1], ind_dom); */
-/*                 copy_index_domain(opind,arg_index[arg1], nlf); */
                 arg_index[res] = arg_index[arg1];		
 #endif
 #else
@@ -4098,24 +4150,7 @@ int  hov_forward(
 
         } /* endswitch */
 
-/* #if defined(_NLF_) */
-/*       printf("ind\n"); */
-/*       for(l=0;l<opind;l++) */
-/* 	{ */
-/* 	  printf(" %d : ",l); */
-/* 	  for(i=1;i<ind_dom[l][0]+1;i++) */
-/* 	    printf(" %d ",ind_dom[l][i]); */
-/* 	  printf("\n"); */
-/* 	} */
-/*       printf("nlf\n"); */
-/*       for(l=0;l<opind;l++) */
-/* 	{ */
-/* 	  printf(" %d : ",l); */
-/* 	  for(i=1;i<nlf[l][0]+1;i++) */
-/* 	    printf(" %d ",nlf[l][i]); */
-/* 	  printf("\n"); */
-/* 	} */
-/* #endif */
+
         /* Read the next operation */
         operation=get_op_f();
 #if defined(ADOLC_DEBUG)
@@ -4166,28 +4201,25 @@ int  hov_forward(
       }
     free(ind_dom);
 #else
-    for( i=0; i < indcheck; i++) {
-       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (csod[i]->entry+1));
-       crs[i][0] = csod[i]->entry;
-       temp1 = csod[i];
-       temp  = csod[i]->next;
-       for(l=1; l < crs[i][0]+1; l++)
-	 {
-	   crs[i][l] = temp->entry;
-	   free(temp1);
-	   temp1 = temp;
-	   temp = temp->next;
-	 }
-    }
-    free(csod);
 
-    for(i=0;i<opind;i++)
-      {
-	free(ind_dom[i]);
-/* 	free(nlf[i]); */
-      }
-    free(ind_dom);
-/*     free(nlf); */
+    for( i=0; i < indcheck; i++) {
+      traverse_crs(&fod2[i],&csod[i]);
+      crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (csod[i].entry+1));
+      crs[i][0] = csod[i].entry;
+      temp = csod[i].left;
+      for( ii=1; ii <=csod[i].entry; ii++)
+	{
+	  crs[i][ii] = temp->entry;
+	  temp1 = temp->left;
+	  free(temp);
+	  temp = temp1;
+	}
+    }
+
+    free(fod);
+    free(fod2);
+    free(nlf);
+    free(csod);
     free(arg_index);
 #endif
 
@@ -4413,11 +4445,6 @@ void extend_nonlinearity_domain_binary
 #endif
 #endif
 
-/****************************************************************************/
-
-
-/****************************************************************************/
-
 #if defined(_NLF_)
 
 /****************************************************************************/
@@ -4428,52 +4455,108 @@ void extend_nonlinearity_domain_binary
 
 #if defined(_TIGHT_)
 
-void combine_2_domains(int res, int arg1, int arg2, locint **dom) {
+void traverse_nlf(IndexElement* tree, char * nlfdomain)
+{
 
-  int num1,num2, i,j,k,l;
-
-/*   printf("c2d %d %d %d \n",res,arg1,arg2); */
-  num1 = dom[arg1][0];
-  num2 = dom[arg2][0];
-
-  dom[res] = (locint *)  malloc(sizeof(locint) * (num1+num2+1));
-
-  i = 1;
-  j = 1;
-  k = 1;
-  num1 += 1;
-  num2 += 1;
-
-  while ((i< num1) && (j < num2))
+  if (tree->left != NULL)
     {
-      if (dom[arg1][i] < dom[arg2][j])
+      traverse_nlf(tree->left, nlfdomain);
+      if (tree->right != NULL)
+	traverse_nlf(tree->right, nlfdomain);
+     }
+  else
+    {
+      nlfdomain[tree->entry+1] = 1;
+    }
+}
+
+void traverse_crs(IndexElement* tree,  IndexElement* csod)
+{
+
+  IndexElement *temp, *temp1;
+  int ii;
+
+  if (tree->left != NULL)
+      traverse_crs(tree->left, csod);
+  if (tree->right != NULL)
+	  traverse_crs(tree->right, csod);
+  if (tree->entry+1)
+    {
+      temp = csod->left;
+      if (temp == NULL)
 	{
-	  dom[res][k] = dom[arg1][i];
-	  i++; k++;
+	  temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+	  temp->left = NULL;
+	  temp->entry = tree->entry;
+	  csod->entry++;
+	  csod->left=temp;
 	}
       else
 	{
-	  dom[res][k] = dom[arg2][j];
-	  j++;k++;
-	  if (dom[arg1][i] == dom[arg2][j-1])
-	      i++;
+	  while ((temp->entry < tree->entry) && (temp->left != NULL))
+	    {
+	      temp1 = temp;
+	      temp = temp->left;
+	    }
+	  if (temp->left == NULL)
+	    {
+	      if(temp->entry < tree->entry)
+		{
+		  temp->left = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+		  temp = temp->left;
+		  temp->left = NULL;
+		  temp->entry = tree->entry;
+		  csod->entry++;
+		}
+	      if(temp->entry > tree->entry)
+		{
+		  temp->left = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+		  temp->left->entry = temp->entry;
+		  temp->left->left = NULL;
+		  temp->entry = tree->entry;
+		  csod->entry++;
+		}
+	    }
+	  else
+	    {
+	      if (temp->entry > tree->entry)
+		{
+		  temp1 = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+		  temp1->left = temp->left;
+		  temp1->entry = temp->entry;
+		  temp->entry = tree->entry;
+		  temp->left=temp1;
+		  csod->entry++;
+		}
+	      
+	    }
 	}
     }
+}
 
+void traverse_fod(IndexElement* tree,  IndexElement* fod,  int i, IndexElement* fod2)
+{
+  IndexElement *temp;
 
-  for(l=i;l<num1;l++)
+  if (tree->left != NULL)
     {
-      dom[res][k] = dom[arg1][l];
-      k++;
-    }
-  for(l=j;l<num2;l++)
+      traverse_fod(tree->left, fod, i, fod2);
+      if (tree->right != NULL)
+	{
+	  traverse_fod(tree->right, fod, i, fod2);
+	}
+     }
+  else
     {
-      dom[res][k] = dom[arg2][l];
-      k++;
+      temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+      temp->right = &fod[i];
+      temp->left = fod2[tree->entry].left;
+      temp->entry= -1;
+      fod2[tree->entry].left = temp;
     }
-  dom[res][0] = k-1;
 }
 
 #endif
 #endif
+
 END_C_DECLS
