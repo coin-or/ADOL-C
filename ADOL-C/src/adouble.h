@@ -43,6 +43,8 @@ using std::istream;
 #if defined(ADOLC_TAPELESS)
 #  define TAPELESS
 #  undef SAFE
+#elif defined(ADOLC_TAPELESS_HIGHER_ORDER)
+#  define TAPELESS
 #endif
 
 #if defined(SAFE_ADOLC_TAPELESS)
@@ -467,9 +469,9 @@ inline adub operator / (const badouble& x, double coval) {
 }
 
 /****************************************************************************/
-/* tapeless implementation                                                  */
+/* tapeless implementation first order derivatives                          */
 /****************************************************************************/
-#else
+#elif defined(ADOLC_TAPELESS)
 
 #include <limits>
 
@@ -1477,10 +1479,832 @@ while (c!=')' && !in.eof());
     return in;
 }
 }
+/****************************************************************************/
+/* end tapeless implementation first order derivatives                      */
+/****************************************************************************/
 
 /****************************************************************************/
-#endif /* ADOLC_TAPELESS */
+/* tapeless implementation higher order derivatives                         */
+/****************************************************************************/
 
+#else
+#include <limits>
+
+namespace adhotl {
+
+#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
+inline double fmin( const double &x, const double &y ) {
+    if (x<y) return x;
+    else return y;
+}
+
+inline double fmax( const double &x, const double &y ) {
+    if (x>y) return x;
+    else return y;
+}
+#endif
+
+inline double makeNaN() {
+    return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
+}
+
+inline double makeInf() {
+    return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
+}
+
+//size of derivative array
+int degree=10;
+
+class adouble {
+public:
+    
+    // ctors
+    inline adouble();
+    inline adouble(const double v);
+    inline adouble(const double v, double* adv);
+    inline adouble(const adouble& a);
+
+    inline ~adouble();
+
+
+    /*******************  temporary results  ******************************/
+    // sign
+    inline adouble operator - () const;
+    inline adouble operator + () const;
+
+    // addition
+    inline adouble operator + (const double v) const;
+    inline adouble operator + (const adouble& a) const;
+    inline friend
+    adouble operator + (const double v, const adouble& a);
+
+    // substraction
+    inline adouble operator - (const double v) const;
+    inline adouble operator - (const adouble& a) const;
+    inline friend
+    adouble operator - (const double v, const adouble& a);
+
+    // multiplication
+    inline adouble operator * (const double v) const;
+    inline adouble operator * (const adouble& a) const;
+    inline friend
+    adouble operator * (const double v, const adouble& a);
+
+    // division
+    inline adouble operator / (const double v) const;
+    inline adouble operator / (const adouble& a) const;
+    inline friend
+    adouble operator / (const double v, const adouble& a);
+
+    // inc/dec
+    inline adouble operator ++ ();
+    inline adouble operator ++ (int);
+    inline adouble operator -- ();
+    inline adouble operator -- (int);
+
+    // functions
+    inline friend adouble tan(const adouble &a);
+    inline friend adouble exp(const adouble &a);
+    inline friend adouble log(const adouble &a);
+    inline friend adouble sqrt(const adouble &a);
+    inline friend adouble sin(const adouble &a);
+    inline friend adouble cos(const adouble &a);
+    inline friend adouble asin(const adouble &a);
+    inline friend adouble acos(const adouble &a);
+    inline friend adouble atan(const adouble &a);
+
+    inline friend adouble atan2(const adouble &a, const adouble &b);
+    inline friend adouble pow(const adouble &a, double v);
+    inline friend adouble pow(const adouble &a, const adouble &b);
+    inline friend adouble pow(double v, const adouble &a);
+    inline friend adouble log10(const adouble &a);
+
+    inline friend adouble sinh (const adouble &a);
+    inline friend adouble cosh (const adouble &a);
+    inline friend adouble tanh (const adouble &a);
+#if defined(ATRIG_ERF)
+    inline friend adouble asinh (const adouble &a);
+    inline friend adouble acosh (const adouble &a);
+    inline friend adouble atanh (const adouble &a);
+#endif
+
+    /*******************  nontemporary results  ***************************/
+    // assignment
+    inline void operator = (const double v);
+    inline void operator = (const adouble& a);
+
+    // addition
+    inline void operator += (const double v);
+    inline void operator += (const adouble& a);
+
+    // substraction
+    inline void operator -= (const double v);
+    inline void operator -= (const adouble& a);
+
+    // multiplication
+    inline void operator *= (const double v);
+    inline void operator *= (const adouble& a);
+
+    // division
+    inline void operator /= (const double v);
+    inline void operator /= (const adouble& a);
+
+    // not
+    inline int operator ! () const;
+
+    // comparision
+    inline int operator != (const adouble&) const;
+    inline int operator != (const double) const;
+    inline friend int operator != (const double, const adouble&);
+
+    inline int operator == (const adouble&) const;
+    inline int operator == (const double) const;
+    inline friend int operator == (const double, const adouble&);
+
+    inline int operator <= (const adouble&) const;
+    inline int operator <= (const double) const;
+    inline friend int operator <= (const double, const adouble&);
+
+    inline int operator >= (const adouble&) const;
+    inline int operator >= (const double) const;
+    inline friend int operator >= (const double, const adouble&);
+
+    inline int operator >  (const adouble&) const;
+    inline int operator >  (const double) const;
+    inline friend int operator >  (const double, const adouble&);
+
+    inline int operator <  (const adouble&) const;
+    inline int operator <  (const double) const;
+    inline friend int operator <  (const double, const adouble&);
+
+    /*******************  getter / setter  ********************************/
+    inline double getValue() const;
+    inline void setValue(const double v);
+    inline double* getADValue() const;
+    inline void setADValue(double* v);
+    inline double getOneADValue(int i) const;
+    inline void setOneADValue(int i, double v);
+    inline static void setDegree(int);
+    inline static int getDegree();
+
+    /*******************  i/o operations  *********************************/
+    inline friend ostream& operator << ( ostream&, const adouble& );
+    inline friend istream& operator >> ( istream&, adouble& );
+
+
+private:
+    // internal variables
+    double val;
+    double* derivative;
+
+};
+
+/*******************************  ctors  ************************************/
+adouble::adouble() {
+
+   derivative = new double[degree];
+}
+
+adouble::adouble(const double v) : val(v) {
+
+    derivative = new double[degree];
+
+    for(int i=0;i<degree;i++)
+      derivative[i] = 0.0;
+}
+
+adouble::adouble(const double v, double* adv) {
+    val=v;
+    derivative = new double[degree];
+
+    for(int i=0;i<degree;i++)
+      derivative[i]=adv[i];
+}
+
+adouble::adouble(const adouble& a) : val(a.val) {
+
+    derivative = new double[degree];
+
+    for(int i=0;i<degree;i++)
+      derivative[i]=a.derivative[i];
+}
+
+/*******************************  dtors  ************************************/
+
+adouble::~adouble() {
+    delete[] derivative;
+}
+
+
+/*************************  temporary results  ******************************/
+// sign
+adouble adouble::operator - () const {
+    adouble tmp;
+    tmp.val=-val;
+    for(int i=0;i<degree;i++)
+      tmp.derivative[i]=-derivative[i];
+    return tmp;
+}
+
+adouble adouble::operator + () const {
+    return *this;
+}
+
+
+adouble adouble::operator + (const double v) const {
+    return adouble(val+v, derivative);
+}
+
+adouble adouble::operator + (const adouble& a) const {
+    adouble tmp;
+    tmp.val=val+a.val;
+    for(int i=0;i<degree;i++){
+	tmp.derivative[i]=derivative[i]+a.derivative[i];
+    }
+       return tmp;
+}
+
+adouble operator + (const double v, const adouble& a) {
+    return adouble(v+a.val, a.derivative);
+}
+
+// subtraction
+
+adouble adouble::operator - (const double v) const {
+    return adouble(val-v, derivative);
+}
+
+adouble adouble::operator - (const adouble& a) const {
+    adouble tmp;
+    tmp.val=val-a.val;
+    for(int i=0;i<degree;i++)
+    tmp.derivative[i]=derivative[i]-a.derivative[i];
+    return tmp;
+}
+
+adouble operator - (const double v, const adouble& a) {
+    adouble tmp;
+    tmp.val=v-a.val;
+    for(int i=0;i<degree;i++)
+    tmp.derivative[i]=-a.derivative[i];
+    return tmp;
+}
+
+// multiplication
+adouble adouble::operator * (const double v) const {
+    adouble tmp;
+    tmp.val=val*v;
+    for(int k=0;k<degree;k++)
+    tmp.derivative[k]=derivative[k]*v;
+    return tmp;
+}
+
+adouble adouble::operator * (const adouble& a) const {
+    int i;
+    adouble tmp;
+    double sum=0.0;
+    tmp.val=val*a.val;
+    for(int k=0;k<degree;k++){
+      sum=val*a.derivative[k]+derivative[k]*a.val;
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum=sum+derivative[j]*a.derivative[i-j];
+    tmp.derivative[k]=sum;
+      sum=0.0;
+    }
+    return tmp;
+}
+
+adouble operator * (const double v, const adouble& a) {
+    adouble tmp;
+    tmp.val=v*a.val;
+    for(int k=0;k<degree;k++)
+    tmp.derivative[k]=v*a.derivative[k];
+    return tmp;
+}
+
+// division
+adouble adouble::operator / (const double v) const {
+    adouble tmp;
+    tmp.val=val/v;
+    for(int k=0;k<degree;k++)
+    tmp.derivative[k]=derivative[k]/v;
+    return tmp;
+}
+
+adouble adouble::operator / (const adouble& a) const {
+    int i;
+    adouble tmp;
+    tmp.val=val/a.val;
+    double sum=0.0;
+    for(int k=0;k<degree;k++){
+      sum=tmp.val*a.derivative[k];
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=tmp.derivative[j]*a.derivative[i-j];
+      tmp.derivative[k]=(1.0/a.val)*(derivative[k]-sum);
+      sum=0.0;}
+    return tmp;
+}
+
+adouble operator / (const double v, const adouble& a) {
+    int i;
+    adouble tmp;
+    tmp.val=v/a.val;
+    double sum=0.0;
+    for(int k=0;k<degree;k++){
+      sum=tmp.val*a.derivative[k];
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=tmp.derivative[j]*a.derivative[i-j];
+      tmp.derivative[k]=(1.0/a.val)*(-sum);
+      sum=0.0;}
+    return tmp;
+}
+
+// inc/dec
+adouble adouble::operator ++ () {
+    ++val;
+    return *this;
+}
+
+adouble adouble::operator ++ (int) {
+    adouble tmp;
+    tmp.val=val++;
+    for(int k=0;k<degree;k++)
+      tmp.derivative[k]=derivative[k];
+    return tmp;
+}
+
+adouble adouble::operator -- () {
+    --val;
+    return *this;
+}
+
+adouble adouble::operator -- (int) {
+    adouble tmp;
+    tmp.val=val--;
+    for(int k=0;k<degree;k++)
+      tmp.derivative[k]=derivative[k];
+    return tmp;
+}
+
+// functions
+adouble tan(const adouble& a) {
+    cout<<"error: tan has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble exp(const adouble &a) {
+    int i;
+    adouble tmp;
+    double sum=0;
+    tmp.val=ADOLC_MATH_NSP::exp(a.val);
+    for(int k=0;k<degree;k++){
+      sum=tmp.val*(k+1)*a.derivative[k];
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=tmp.derivative[i-j]*(j+1)*a.derivative[j];
+      tmp.derivative[k]=(1.0/(k+1))*sum;
+      sum=0.0;
+    }
+    return tmp;
+}
+
+adouble log(const adouble &a) {
+    int i;
+    adouble tmp;
+    double sum=0.0;
+    tmp.val=ADOLC_MATH_NSP::log(a.val);
+    for(int k=0;k<degree;k++){
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=a.derivative[i-j]*(j+1)*tmp.derivative[j];
+      tmp.derivative[k]=(1.0/(k+1))*(1.0/a.val)*((k+1)*a.derivative[k]-sum);
+      sum=0.0;
+    }
+    return tmp;
+}
+
+
+adouble sqrt(const adouble &a) {
+    int i;
+    adouble tmp;
+    double sum=0.0;
+    tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
+    for(int k=0;k<degree;k++){
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=tmp.derivative[j]*tmp.derivative[i-j];
+    tmp.derivative[k]=1.0/(2.0*tmp.val)*(a.derivative[k]-sum);
+    sum=0.0;
+    }
+    return tmp;
+}
+
+adouble sin(const adouble &a) {
+    int i,m;
+    adouble tmp, tmp2;
+    tmp.val=ADOLC_MATH_NSP::sin(a.val);
+    tmp2.val=ADOLC_MATH_NSP::cos(a.val);
+    double sum1=0.0, sum2=0.0;
+    for(int k=0;k<degree;k++){
+      m=k+1;
+      sum1=tmp2.val*m*a.derivative[k];
+      sum2=-tmp.val*m*a.derivative[k];
+      i=k-1;
+      for(int j=0; j<k;j++){
+	sum1+=(j+1)*a.derivative[j]*tmp2.derivative[i-j];
+	sum2+=-(j+1)*a.derivative[j]*tmp.derivative[i-j];
+      }
+      tmp.derivative[k]=(1.0/m)*sum1;
+      tmp2.derivative[k]=(1.0/m)*sum2;
+      sum1=0.0;
+      sum2=0.0;
+    }
+  
+    return tmp;
+}
+
+adouble cos(const adouble &a) {
+    int i,m;
+    adouble tmp, tmp2;
+    tmp.val=ADOLC_MATH_NSP::sin(a.val);
+    tmp2.val=ADOLC_MATH_NSP::cos(a.val);
+    double sum1=0.0, sum2=0.0;
+    for(int k=0;k<degree;k++){
+      m=k+1;
+      sum1=tmp2.val*m*a.derivative[k];
+      sum2=-tmp.val*m*a.derivative[k];
+      i=k-1;
+      for(int j=0; j<k;j++){
+	sum1+=(j+1)*a.derivative[j]*tmp2.derivative[i-j];
+	sum2+=-(j+1)*a.derivative[j]*tmp.derivative[i-j];
+      }
+      tmp.derivative[k]=(1.0/m)*sum1;
+      tmp2.derivative[k]=(1.0/m)*sum2;
+      sum1=0.0;
+      sum2=0.0;
+    }
+  
+    return tmp2;
+}
+
+adouble asin(const adouble &a) {
+      cout<<"error: asin has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble acos(const adouble &a) {
+      cout<<"error: acos has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble atan(const adouble &a) {
+      cout<<"error: atan has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble atan2(const adouble &a, const adouble &b) {
+    cout<<"error: atan2 has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+
+adouble pow(const adouble &a, double v) {
+    int i;
+    adouble tmp;
+    tmp.val=ADOLC_MATH_NSP::pow(a.val, v);
+    double sum1=0.0;
+    double sum2=0.0;
+    for(int k=0;k<degree;k++){
+      sum1=tmp.val*(k+1)*a.derivative[k];
+      i=k-1;
+      for(int j=0;j<k;j++){
+	sum1+=tmp.derivative[i-j]*(j+1)*a.derivative[j];
+	sum2+=a.derivative[i-j]*(1+j)*tmp.derivative[j];}
+      tmp.derivative[k]=(1.0/(k+1))*(1.0/a.val)*(v*sum1-sum2);
+      sum1=0.0;
+      sum2=0.0;
+    }
+    return tmp;
+}
+
+adouble pow(const adouble &a, const adouble &b) {
+
+     cout<<"error: pow(adouble,adouble) has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+
+adouble pow(double v, const adouble &a) {
+    int i;
+    adouble tmp;
+    tmp.val=ADOLC_MATH_NSP::pow(v, a.val);
+    double sum=0.0;
+    for(int k=0;k<degree;k++){
+      sum=tmp.val*(k+1)*a.derivative[k];
+      i=k-1;
+      for(int j=0;j<k;j++)
+	sum+=tmp.derivative[i-j]*(j+1)*a.derivative[j];
+      tmp.derivative[k]=(1.0/(k+1))*sum*ADOLC_MATH_NSP::log(v);
+      sum=0.0;
+    }
+    return tmp;
+}
+
+adouble log10(const adouble &a) {
+      cout<<"error: log10 has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble sinh (const adouble &a) {
+    int i,m;
+    adouble tmp, tmp2;
+    tmp.val=ADOLC_MATH_NSP::sinh(a.val);
+    tmp2=ADOLC_MATH_NSP::cosh(a.val);
+    double sum1=0.0, sum2=0.0;
+    for(int k=0;k<degree;k++){
+		m=k+1;
+		sum1=tmp2.val*m*a.derivative[k];
+		sum2=tmp.val*m*a.derivative[k];
+                i=k-1;
+		for(int j=0; j<k;j++){
+			sum1+=(j+1)*a.derivative[j]*tmp2.derivative[i-j];
+			sum2+=(j+1)*a.derivative[j]*tmp.derivative[i-j];
+		}
+		tmp.derivative[k]=(1.0/m)*sum1;
+		tmp2.derivative[k]=(1.0/m)*sum2;
+		sum1=0.0;
+		sum2=0.0;
+    }
+    return tmp;
+}
+
+adouble cosh (const adouble &a) {
+    int i,m;
+    adouble tmp, tmp2;
+    tmp.val=ADOLC_MATH_NSP::cosh(a.val);
+    tmp2=ADOLC_MATH_NSP::sinh(a.val);
+    double sum1=0.0, sum2=0.0;
+    for(int k=0;k<degree;k++){
+		m=k+1;
+		sum1=tmp2.val*m*a.derivative[k];
+		sum2=tmp.val*m*a.derivative[k];
+		i=k-1;
+		for(int j=0; j<k;j++){
+			sum1+=(j+1)*a.derivative[j]*tmp2.derivative[i-j];
+			sum2+=(j+1)*a.derivative[j]*tmp.derivative[i-j];
+		}
+		tmp.derivative[k]=(1.0/m)*sum1;
+		tmp2.derivative[k]=(1.0/m)*sum2;
+		sum1=0.0;
+		sum2=0.0;
+    }
+    return tmp;
+}
+
+
+adouble tanh (const adouble &a) {
+      cout<<"error: tanh has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+#if defined(ATRIG_ERF)
+adouble asinh (const adouble &a) {
+      cout<<"error: asinh has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble acosh (const adouble &a) {
+      cout<<"error: acosh has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+adouble atanh (const adouble &a) {
+      cout<<"error: atanh has not been overloaded!!!"<<endl;
+    exit(1);
+}
+#endif
+
+adouble fabs (const adouble &a) {
+      cout<<"error: fabs has not been overloaded!!!"<<endl;
+    exit(1);
+}
+
+/*******************  nontemporary results  *********************************/
+void adouble::operator = (const double v) {
+    val=v;
+    for(int i=0;i<degree;i++)
+      derivative[i]=0.0;
+}
+
+void adouble::operator = (const adouble& a) {
+    val=a.val;
+    for(int i=0;i<degree;i++)
+      derivative[i]=a.derivative[i];
+}
+
+void adouble::operator += (const double v) {
+    val+=v;
+}
+
+void adouble::operator += (const adouble& a) {
+    val=val+a.val;
+    for(int k=0;k<degree;k++)
+      derivative[k]+=a.derivative[k];
+}
+
+void adouble::operator -= (const double v) {
+    val-=v;
+}
+
+void adouble::operator -= (const adouble& a) {
+    val=val-a.val;
+    for(int k=0;k<degree;k++)
+      derivative[k]-=a.derivative[k];
+}
+
+void adouble::operator *= (const double v) {
+    val=val*v;
+    for(int k=0;k<degree;k++)
+      derivative[k]*=v;
+}
+
+void adouble::operator *= (const adouble& a) {
+     int i;
+     adouble tmp;
+     tmp.val=val*a.val;
+     double sum=0.0;
+     for(int k=0;k<degree;k++){
+       sum=val*a.derivative[k]+derivative[k]*a.val;
+       i=k-1;
+      for(int j=0;j<k;j++)
+	sum=sum+derivative[j]*a.derivative[i-j];
+      tmp.derivative[k]=sum;
+      sum=0.0;}
+      val=tmp.val;
+      for(int k=0; k<degree; k++)
+      	derivative[k]=tmp.derivative[k];
+}
+
+void adouble::operator /= (const double v) {
+    val/=v;
+    for(int k=0;k<degree;k++)
+      derivative[k]/=v;
+}
+
+void adouble::operator /= (const adouble& a) {
+   int i;
+   adouble tmp;
+   tmp.val=val/a.val;
+   double sum=0.0;
+    for(int k=0;k<degree;k++){
+      sum=tmp.val*a.derivative[k];
+      i=k-1;
+    for(int j=0;j<k;j++)
+      sum+=tmp.derivative[j]*a.derivative[i-j];
+    tmp.derivative[k]=(1.0/a.val)*(derivative[k]-sum);
+    sum=0.0;}
+    val=tmp.val;
+    for(int k=0; k<degree; k++)
+       derivative[k]=tmp.derivative[k];
+}
+
+// not
+int adouble::operator ! () const {
+    return val==0.0;
+}
+
+// comparision
+int adouble::operator != (const adouble &a) const {
+    return val!=a.val;
+}
+
+int adouble::operator != (const double v) const {
+    return val!=v;
+}
+
+int operator != (const double v, const adouble &a) {
+    return v!=a.val;
+}
+
+int adouble::operator == (const adouble &a) const {
+    return val==a.val;
+}
+
+int adouble::operator == (const double v) const {
+    return val==v;
+}
+
+int operator == (const double v, const adouble &a) {
+    return v==a.val;
+}
+
+int adouble::operator <= (const adouble &a) const {
+    return val<=a.val;
+}
+
+int adouble::operator <= (const double v) const {
+    return val<=v;
+}
+
+int operator <= (const double v, const adouble &a) {
+    return v<=a.val;
+}
+
+int adouble::operator >= (const adouble &a) const {
+    return val>=a.val;
+}
+
+int adouble::operator >= (const double v) const {
+    return val>=v;
+}
+
+int operator >= (const double v, const adouble &a) {
+    return v>=a.val;
+}
+
+int adouble::operator >  (const adouble &a) const {
+    return val>a.val;
+}
+
+int adouble::operator >  (const double v) const {
+    return val>v;
+}
+
+int operator >  (const double v, const adouble &a) {
+    return v>a.val;
+}
+
+int adouble::operator <  (const adouble &a) const {
+    return val<a.val;
+}
+
+int adouble::operator <  (const double v) const {
+    return val<v;
+}
+
+int operator <  (const double v, const adouble &a) {
+    return v<a.val;
+}
+
+/*******************  getter / setter  **************************************/
+
+void adouble::setDegree(int d)
+{degree=d;}
+
+int adouble::getDegree()
+{return degree;}
+
+double adouble::getValue() const {
+    return val;
+}
+
+void adouble::setValue(const double v) {
+    val=v;
+}
+
+double* adouble::getADValue() const {
+    return derivative;
+}
+
+void adouble::setADValue(double* v) {
+    for(int i=0;i<degree;i++)
+      derivative[i]=v[i];
+}
+
+double adouble::getOneADValue(int i) const{
+  return derivative[i];}
+  
+void adouble::setOneADValue(int i, double v){
+  derivative[i]=v;}
+
+/*******************  i/o operations  ***************************************/
+ostream& operator << ( ostream& out, const adouble& a) {
+    out << "Value: " << a.val <<"\n";
+    out << "Derivatives: ";
+
+    for(int i=0; i<degree; i++)
+      out << a.derivative[i] << " ";
+    return out;
+}
+
+istream& operator >> ( istream& in, adouble& a) {
+	std::cout<<"Value: ";
+	in >> a.val;
+	std::cout<<std::endl;
+	std::cout<<degree<<"Derivatives: ";
+    for(int i=0; i<degree; i++) {
+		in >> a.derivative[i];
+	}
+    return in;
+}
+
+}
+
+/****************************************************************************/
+#endif /* tapeless implementation higher order derivatives		    */
 /****************************************************************************/
 /*                                                                THAT'S ALL*/
 #endif /* __cplusplus */
