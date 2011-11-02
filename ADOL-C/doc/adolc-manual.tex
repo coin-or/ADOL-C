@@ -2963,11 +2963,16 @@ Starting with version 1.10.0, ADOL-C now features a tapeless forward
 mode for computing first order derivatives in scalar mode, i.e.,
 $\dot{y} = F'(x)\dot{x}$, and in vector mode, i.e., $\dot{Y} = F'(x)\dot{X}$. 
 This tapeless variant coexists with the more universal
-tape based mode in the package. The following subsections describe
+tape based mode in the package. Up to version 2.2.1 the tapeless forward differentiation 
+could only be used for the computation of first order derivatives.
+The latest versions also allow the calculation of higher order derivatives in the tapeless mode. 
+The following subsections describe
 the source code modifications required to use the tapeless forward mode of
-ADOL-C.  
+ADOL-C beginning with the mode for first order derivatives.
 %
-\subsection{Modifying the Source Code}
+\subsection{The tapeless mode for first order derivatives}
+%
+\subsubsection{Modifying the Source Code}
 %
 Let us consider the coordinate transformation from Cartesian to spherical
 polar coordinates given by the function $F: \mathbb{R}^3 \to \mathbb{R}^3$, $y
@@ -3010,13 +3015,13 @@ as an example. The corresponding source code is shown in \autoref{fig:tapeless}.
 \end{figure}
 %
 Changes to the source code that are necessary for applying the
-tapeless forward ADOL-C are described in the following two
-subsections, where the vector mode version is described
-as extension of the scalar mode. 
+tapeless forward ADOL-C for first order derivatives are described
+in the following two subsections, where the vector mode version
+is described as extension of the scalar mode.
 %
 \subsubsection*{The scalar mode}
 %
-To use the tapeless forward mode, one has to include one
+To use the tapeless forward mode for first order derivatives, one has to include one
 of the header files \verb#adolc.h# or \verb#adouble.h#
 where the latter should be preferred since it does not include the
 tape based functions defined in other header files. Hence, including
@@ -3025,7 +3030,8 @@ tape based functions defined in other header files. Hence, including
   headers of the ADOL-C package and does not offer own functions. 
 Since the two ADOL-C forward mode variants tape-based and tapeless,
 are prototyped in the same header file, the compiler needs to know if a
-tapeless version is intended. This can be done by defining a
+tapeless version and which one (first order derivatives/higher order derivatives) is intended.
+For first order derivatives this can be done by defining a
 preprocessor macro named {\sf ADOLC\_TAPELESS}. Note that it is 
 important to define this macro before the header file is included.
 Otherwise, the tape-based version of ADOL-C will be used. 
@@ -3044,7 +3050,7 @@ standard switches (optimization) for GNU and Intel C++
 compiler.
 
 To avoid name conflicts
-resulting from the inlining the tapeless version has its own namespace
+resulting from the inlining the tapeless version for first order derivatives has its own namespace
 \verb#adtl#. As a result four possibilities of using the {\sf adouble}
 type are available for the tapeless version: 
 \begin{itemize}
@@ -3090,7 +3096,7 @@ After defining the variables only two things are left to do. First
 one needs to initialize the values of the independent variables for the
 function evaluation. This can be done by assigning the variables a {\sf
 double} value. The {\sf ad}-value is set to zero in this case. 
-Additionally, the tapeless forward mode variant of ADOL-C
+Additionally, the tapeless forward mode variant of ADOL-C for first order derivatives
 offers a function named {\sf setValue} for setting the value without
 changing the {\sf ad}-value. To set the {\sf ad}-values of the independent
 variables ADOL-C offers two possibilities: 
@@ -3213,7 +3219,7 @@ double}s are used as illustrated by the following example:
     {\sf ptr=y.getADValue();}
   \end{tabular}
 \end{center}
-Additionally, the tapeless vector forward mode of ADOL-C offers two
+Additionally, the tapeless vector forward mode of ADOL-C for first order derivatives offers two
 new methods for setting/getting the derivative values. Similar
 to the scalar case, {\sf double} values are used but due to the vector
 mode the position of the desired vector element must be supplied in
@@ -3274,10 +3280,341 @@ shown in \autoref{fig:modcode2}
 \label{fig:modcode2}
 \end{figure}
 %
+\subsection{The tapeless mode for higher order derivatives}
+%
+In addition to the tapeless forward mode for computing first order derivatives
+the latest versions of ADOL-C also include a tapeless variant for the calculation
+of higher order derivatives.The next section specifies which derivatives can
+be computed with ADOL-C in this mode.
+
+As in \autoref{forw_rev_ad}, let $F:\mathbb{R}^n\rightarrow\mathbb{R}^m$,
+where $y=F(x)$, be a $d$ times continously differentiable, analytic function.
+Throughout this section the subscripts represent
+the degree of Taylor coefficients. For a given polynomial
+\begin{eqnarray*}
+ x(t)=x_0+tx_1+t^2x_2+\dots+t^dx_d\in\mathbb{R}^n
+\end{eqnarray*}
+the Taylor coefficients $y_i$, $i\in\{1,\dots,d\}$, of the expansion
+\begin{eqnarray*}
+ y(t)\equiv y_0+ty_1+t^2y_2+\dots+t^dy_d=F(x(t))+\mathcal{O}(t^{d+1})\in\mathbb{R}^m
+\end{eqnarray*}
+can be computed with ADOL-C in the tapeless mode.
+The following sections describe the source code modifications required to use the
+tapeless forward mode of ADOL-C for higher order derivatives.
+%
+\subsubsection{Modifying the Source Code}
+%
+To use the tapeless forward mode for higher order derivatives one of the header
+files \verb#adolc.h# or \verb#adouble.h# has to be included where the latter
+should be preferred as it does not contain the tape based functions defined in
+other header files and hence avoids mode mixtures. The header file \verb#adolc.h#
+is a wrapper for including all public headers of the ADOL-C package and does not
+offer own functions. Consequently all tape based functions will be available after
+including this header file which could lead to mode mixtures. Since the tape based
+version is prototyped in the same header file the compiler still needs to know that
+the tapeless version of ADOL-C will be used. Furthermore the user has to specify
+which tapeless mode will be employed as the version for first order derivatives and the
+one for higher order derivatives lead to different definitions of the class
+{\sf adouble}. Before using the tapeless variant for higher order derivatives
+the preprocessor macro named  {\sf ADOLC\_TAPELESS\_HIGHER\_ORDER}
+has to be defined. Note that it is important to define this macro before the
+header file is included. Otherwise the tape based version of ADOL-C will be used.
+
+Similar to the tape based forward version of ADOL-C all derivative calculations
+are done by calls to overloaded operators in the tapeless mode for higher order
+derivatives. Therefore all independent, intermediate and dependent variables
+must be declared with type {\sf adouble}.
+
+To avoid name conflicts the tapeless version for higher order derivatives has its
+own namespace \verb#adhotl#. As a result four possibilities
+of using the {\sf adouble} type are available for this tapeless version:
+\begin{itemize}
+ \item Defining a new type:
+\begin{center}
+  \begin{tabular}{l}
+    {\sf typedef adhotl::adouble adouble;}\\
+    ...\\
+    {\sf adouble tmp;}
+  \end{tabular}
+\end{center}
+This is the preferred way. Remember, you cannot write an own {\sf adoube} type/class
+with different meaning after doing the typedef.\\
+\item Declaring with namespace prefix:
+\begin{center}
+  \begin{tabular}{l}
+    {\sf adhotl::adouble tmp;}
+  \end{tabular}
+\end{center}
+Using this declaration is not very efficient with respect to coding but it is one of
+the safest possibilities. The identifier {\sf adouble} is still available for user types/classes.\\
+\item Using macros:
+\begin{center}
+  \begin{tabular}{l}
+   {\sf \#define adouble adhotl::adouble}\\
+   ...\\
+   {\sf adouble tmp;}
+  \end{tabular}
+\end{center}
+This approach should be used carefully since standard defines are text replacements.\\
+\item Using the complete namespace:
+\begin{center}
+   \begin{tabular}{l}
+    {\sf \#using namespace adhotl;}\\
+    ...\\
+    {\sf adouble tmp;}
+   \end{tabular}
+\end{center}
+A very clear approach with the disadvantage of uncovering all hidden secrets.
+Name conflicts may arise!
+\end{itemize}
+After defining the variables only two things are left to be done. The amount
+$d$ of Taylor coefficients to be calculated has to be set and the independent
+variables must be initialized. The tapeless version of ADOL-C for higher order
+derivatives offers a function named {\sf setDegree} for setting the number
+of derivatives. The calculation of 15 Taylor coefficients for example can be
+done by the following call
+\begin{center}
+   \begin{tabular}{l}
+    {\sf adouble::setDegree(15);}
+   \end{tabular}
+\end{center}
+By default {\sf degree=10} Taylor coefficients $y_i$ are computed.
+The function {\sf getDegree} allows the user to obtain the value of
+{\sf degree} at any time during the evaluation process.
+
+The next section describes the structure of a variable of type
+{\sf adouble} in the tapeless mode for higher order derivatives
+to facilitate the understanding of how to initialize independent
+variables in a program.
+
+A variable of type {\sf adouble} consists of two components: the value
+({\sf double val}) and the derivative ({\sf double* derivative}).
+The first one corresponds to the value of the zeroth coefficient of $x(t)$
+wheras the second one contains the derivative values that is the remaining
+Taylor coefficients of $x(t)$. Strictly speaking if one is interested in
+the computation of the first $d$ Taylor coefficients $y_i$, $i\in\{1,\dots,d\}$,
+for a given polynomial $x(t)\in\mathbb{R}^n$ one has to initialize the 
+independent variables in the program as follows:
+First of all $n$ {\sf adouble}s are needed for example
+\begin{center}
+   \begin{tabular}{l}
+    {\sf adouble ad\_x[n];}
+   \end{tabular}
+\end{center}
+The entries of $x_0$ should be assigned to the first components 
+of these {\sf adouble}s
+\begin{center}
+  \begin{tabular}{l}
+   {\sf double x0[n];}\\
+   ...\\
+   {\sf for(int s=0; s$<$n; s++)}\\
+   {\sf\rule{0.5cm}{0pt} ad\_x[s].val=x0[s];}
+  \end{tabular}
+\end{center}
+The remaining coefficients have to be saved in the second components
+of the independent {\sf adouble}s. Assume that the Taylor coefficients
+$x_i$, $i\in\{1,\dots,d\}$, have the following structure
+\begin{eqnarray*}
+ x_i=\left(\begin{array}{c} x_{i_1} \\ x_{i_2} \\ \vdots \\ x_{i_n} \end{array}\right)\ \ i=1,\dots,d \enspace .
+\end{eqnarray*}
+Then the derivative array of the {\sf adouble ad\_x[s]},
+$s\in\{0,\dots,n-1\}$ should contain the values $x_{1_{s+1}},x_{2_{s+1}},\dots,x_{d_{s+1}}$.
+Performing the function evaluation with the above described initialization
+and storing the solution in the array {\sf adouble ad\_y[m]} yields
+the desired result. If the Taylor coefficients of $y(t)$ are of the form
+\begin{eqnarray*}
+ y_i=\left(\begin{array}{c} y_{i_1} \\ y_{i_2} \\ \vdots \\ y_{i_m} \end{array}\right) \ \  i=1,\dots,d\enspace,       \end{eqnarray*}
+then the derivative array of the {\sf adouble ad\_y[l]} contains the
+values $y_{1_{l+1}},\dots,y_{d_{l+1}}$.
+
+There are several different ways to initialize {\sf adouble}s like for
+example assigning the variable a {\sf double} value. The derivative
+array is then automatically set to zero. Of course it is also possible
+to assign an {\sf adouble} another {\sf adouble}.
+
+Another possibility is to use a constructor. One can assign the first
+component of an {\sf adouble} a {\sf double} value.
+\begin{center}
+  \begin{tabular}{l}
+   {\sf adouble x(1.0);}
+  \end{tabular}
+\end{center}
+This creates an {\sf adouble} which holds the value one in terms of
+function evaluation. The second component is automatically set to zero.
+Remember, the following command only creates an {\sf adouble} that
+remains uninitialized
+\begin{center}
+  \begin{tabular}{l}
+   {\sf typedef adhotl::adouble adouble;}\\
+   ...\\
+   {\sf adouble x;}
+  \end{tabular}
+\end{center}
+Another approach is to set both components of an {\sf adouble}.
+\begin{center}
+  \begin{tabular}{l}
+   {\sf double *z;}\\
+   {\sf z=new double[degree];}\\
+   \\
+   {\sf for(int i=0, i$<$degree; i++)}\\
+   {\sf\rule{0.5cm}{0pt} z[i]=...}\\
+   \\
+   {\sf adouble x(1.0,z);}
+  \end{tabular}
+\end{center}
+This would create an {\sf adouble} with the first component equal
+to one and the second equal to the array {\sf z}. Of course it is
+as well possible to use a constructor with another {\sf adouble}.
+\begin{center}
+  \begin{tabular}{l}
+   {\sf double *z;}\\
+   {\sf z=...}\\
+   {\sf adouble x(1.0,z);}\\
+   {\sf adouble y(x);}
+  \end{tabular}
+\end{center}
+After using this command all values of the {\sf adouble x} are
+assigned to the {\sf adouble y}.
+
+Another possibility is to set the values of an {\sf adouble} directly.
+The tapeless forward mode of ADOL-C for higher order derivatives
+offers a function named {\sf setValue} for setting the first component
+without changing the derivative array. The first component can be obtained
+at any time during the evaluation process by calling the {\sf getValue}
+method. Similar functions are also availabe for the second component of an
+{\sf adouble}. It is possible to set only one value of the derivative
+array or the whole array by using the methods {\sf setOneADValue} or
+{\sf setADValue}. Assigning the derivative array of an {\sf adouble}
+the first unit vector can be done as shown in the following example:
+\begin{center}
+  \begin{tabular}{l}
+   {\sf adouble x;}\\
+   {\sf double *v;}\\
+   \\
+   {\sf v=new double[adouble::getDegree()];}\\
+   {\sf v[0]=1.0;}\\
+   {\sf for(int i=1; i$<$adouble::getDegree(); i++)}\\
+   {\sf\rule{0.5cm}{0pt} v[i]=0.0;}\\
+   \\
+   {\sf x.setADValue(v);}
+  \end{tabular}
+\end{center}
+To set only one value of the derivative array, the position and the
+value must be supplied, for example:
+\begin{center}
+  \begin{tabular}{l}
+   {\sf adouble x;}\\
+   {\sf x=1.0;}\\
+   {\sf //set the 5th derivative value to 1.0}\\
+   {\sf x.setOneADValue(4,1.0);}\\
+  \end{tabular}
+\end{center}
+
+One can also obtain a pointer to the derivative array of an {\sf adouble}
+by calling {\sf getADValue}. However, it is as well possible to get only
+one value of the derivative array by using the method {\sf getOneADValue}
+and supplying the desired position.
+
+The following example shows all changes which are necessary to apply the tapeless
+forward version of ADOL-C for higher order derivatives. We consider the function
+$F:\mathbb{R}^3\rightarrow\mathbb{R}$
+\begin{eqnarray*}
+ F(z_1,z_2,z_3)=z_1^3+2z_2^3+3z_3^3+z_1z_2+2z_2z_3+3z_1z_3+5z_2z_3^2
+\end{eqnarray*}
+and calculate  $\frac{\partial^2 F}{\partial z_3^2}$ in $(1, 1, 1)^T$.
+The source code for the function evaluation is given in \autoref{fig:hocode}
+and the modified source code is illustrated in \autoref{fig:hocode1}. The initialization
+of the Taylor coefficients $x_i$ results from the equations in \eqref{eq:y_0y_1}.
+\begin{figure}[!h!t!b]
+  \framebox[\textwidth]{\parbox{\textwidth}{
+  \begin{tabbing}
+   \hspace*{-1cm} \= \kill
+   \> {\sf \#include $<$cmath$>$}\\
+   \> {\sf \#include $<$iostream$>$}\\
+   \> {\sf using namespace std;}\\
+   \\
+   \> {\sf double poly (double *z)}\{\\
+   \> {\sf \rule{0.5cm}{0pt}double y;}\\
+   \> {\sf \rule{0.5cm}{0pt}y=pow(z[0],3.0)+2.0*pow(z[1],3.0)+3.0*pow(z[2],3.0)+z[0]*z[1]}\\
+   \> {\sf \rule{0.5cm}{0pt}+2.0*z[1]*z[2]+3.0*z[0]*z[2]+5.0*z[1]*z[2]*z[2];}\\
+   \> {\sf \rule{0.5cm}{0pt}return y;}\\
+   \> {\sf \}}\\
+   \\
+   \> {\sf int main ()\{}\\ 
+   \> {\sf \rule{0.5cm}{0pt}int n=3;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}double* z=new double[n];}\\
+   \> {\sf \rule{0.5cm}{0pt}double y;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//initialization of independent variables:}\\
+   \> {\sf \rule{0.5cm}{0pt}for(int i=0; i$<$n; i++)}\\
+   \> {\sf \rule{1cm}{0pt}z[i]=1.0;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//function evaluation:}\\
+   \> {\sf \rule{0.5cm}{0pt}y=poly(z);}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}cout $<<$ "Value: " $<<$ y $<<$ endl;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}delete []z;}\\
+   \> {\sf \}}
+  \end{tabbing}
+  }}
+  \caption{Example for tapeless forward mode for higher order derivatives}
+  \label{fig:hocode}
+\end{figure}
+
+\begin{figure}[!h!t!b]
+  \framebox[\textwidth]{\parbox{\textwidth}{
+  \begin{tabbing}
+   \hspace*{-1cm} \= \kill
+   \> {\sf \#define ADOLC\_TAPELESS\_HIGHER\_ORDER}\\
+   \> {\sf \#include $<$adolc/adouble.h$>$}\\
+   \> {\sf typedef adhotl::adouble adouble;}\\
+   \> {\sf \#include $<$iostream$>$}\\
+   \> {\sf using namespace std;}\\
+   \\
+   \> {\sf adouble poly (adouble *z)\{}\\
+   \> {\sf \rule{0.5cm}{0pt}adouble y;}\\
+   \> {\sf \rule{0.5cm}{0pt}y=pow(z[0],3.0)+2.0*pow(z[1],3.0)+3.0*pow(z[2],3.0)+z[0]*z[1]}\\
+   \> {\sf \rule{0.5cm}{0pt}+2.0*z[1]*z[2]+3.0*z[0]*z[2]+5.0*z[1]*z[2]*z[2];}\\
+   \> {\sf \rule{0.5cm}{0pt}return y;}\\
+   \> {\sf \}}\\
+   \\
+   \> {\sf int main()\{}\\
+   \> {\sf \rule{0.5cm}{0pt}int d=2, n=3;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//number of Taylor coefficients y\_i}\\
+   \> {\sf \rule{0.5cm}{0pt}adouble::setDegree(d);}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}adouble *z = new adouble[n];}\\
+   \> {\sf \rule{0.5cm}{0pt}adouble y;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//initialization of independent variables}\\
+   \> {\sf \rule{0.5cm}{0pt}for(int i=0; i$<$n; i++)}\\
+   \> {\sf \rule{1cm}{0pt}z[i] = 1.0;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//set Taylor coefficients x\_i}\\
+   \> {\sf \rule{0.5cm}{0pt}z[2].setOneADValue(0,1.0);}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}//function evaluation}\\
+   \> {\sf \rule{0.5cm}{0pt}y = poly(z);}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}cout $<<$ "Value of the derivative:" $<<$ 2.0*y.getOneADValue(1) $<<$ endl;}\\
+   \\
+   \> {\sf \rule{0.5cm}{0pt}delete []z;}\\
+   \> {\sf \}}\\
+  \end{tabbing}
+  }}
+  \caption{Example for tapeless forward mode for higher order derivatives}
+  \label{fig:hocode1}
+\end{figure}
+%
 \subsection{Compiling and Linking the Source Code}
 %
 After incorporating the required changes, one has to compile the
-source code and link the object files to get the executable. 
+source code and link the object files to get the executable. The procedure
+is the same for the tapeless mode for first order derivatives and the 
+tapeless mode for higher order derivatives.
 As long as the ADOL-C header files are not included in the absolute path
 the compile sequence should be similar to the following example:
 \begin{center}
@@ -3299,9 +3636,11 @@ following command:
     {\sf g++ -o tapeless\_scalar tapeless\_scalar.o}
   \end{tabular}
 \end{center}
-The mentioned source codes {\sf tapeless\_scalar.c} and {\sf tapeless\_vector.c} 
-illustrating the use of the for tapeless scalar and vector mode can be found in
-the directory {\sf examples}. 
+The mentioned source codes {\sf tapeless\_scalar.c}, {\sf tapeless\_vector.c}
+and {\sf tapeless\_higher\_order.c} illustrating the use of the tapeless
+scalar and vector mode for first order derivatives and the tapeless mode for higher
+order derivatives can be found in the directory {\sf examples}.
+
 %
 \subsection{Concluding Remarks for the Tapeless Forward Mode Variant}
 %
