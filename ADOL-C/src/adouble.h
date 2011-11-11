@@ -38,21 +38,21 @@ using std::istream;
 
 /* NOTICE: There are automatic includes at the end of this file! */
 
-#undef TAPELESS
+#undef TRACELESS
 #undef SAFE
-#if defined(ADOLC_TAPELESS)
-#  define TAPELESS
+#if defined(ADOLC_TRACELESS)
+#  define TRACELESS
 #  undef SAFE
-#elif defined(ADOLC_TAPELESS_HIGHER_ORDER)
-#  define TAPELESS
+#elif defined(ADOLC_TRACELESS_HIGHER_ORDER)
+#  define TRACELESS
 #endif
 
 #if defined(SAFE_ADOLC_TAPELESS)
-#  define TAPELESS
+#  define TRACELESS
 #  define SAFE
 #endif
 
-#if !defined(TAPELESS)
+#if !defined(TRACELESS)
 
 /****************************************************************************/
 /*                                             FORWARD DECLARATIONS (TAPES) */
@@ -469,9 +469,9 @@ inline adub operator / (const badouble& x, double coval) {
 }
 
 /****************************************************************************/
-/* tapeless implementation first order derivatives                          */
+/* traceless implementation first order derivatives                          */
 /****************************************************************************/
-#elif defined(ADOLC_TAPELESS)
+#elif defined(ADOLC_TRACELESS)
 
 #include <limits>
 
@@ -1480,11 +1480,11 @@ while (c!=')' && !in.eof());
 }
 }
 /****************************************************************************/
-/* end tapeless implementation first order derivatives                      */
+/* end traceless implementation first order derivatives                      */
 /****************************************************************************/
 
 /****************************************************************************/
-/* tapeless implementation higher order derivatives                         */
+/* traceless implementation higher order derivatives                         */
 /****************************************************************************/
 
 #else
@@ -2304,7 +2304,7 @@ istream& operator >> ( istream& in, adouble& a) {
 }
 
 /****************************************************************************/
-#endif /* tapeless implementation higher order derivatives		    */
+#endif /* traceless implementation higher order derivatives		    */
 /****************************************************************************/
 /*                                                                THAT'S ALL*/
 #endif /* __cplusplus */

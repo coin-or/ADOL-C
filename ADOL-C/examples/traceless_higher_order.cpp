@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     tapeless_higher_order.cpp
- Revision: $Id: tapeless_higher_order.cpp ??? $
+ File:     traceless_higher_order.cpp
+ Revision: $Id: traceless_higher_order.cpp ??? $
  Contents: computation of partial derivatives
-           tapeless forward mode for higher order derivatives
+           traceless forward mode for higher order derivatives
            described in the manual
 
  Copyright (c) Andrea Walther, Andreas Kowarz
@@ -18,7 +18,7 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 
-#define ADOLC_TAPELESS_HIGHER_ORDER
+#define ADOLC_TRACELESS_HIGHER_ORDER
 #include <adolc/adouble.h>
 typedef adhotl::adouble adouble;
 #include <iostream>
