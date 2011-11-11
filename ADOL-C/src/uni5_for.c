@@ -5475,10 +5475,8 @@ tnum,
        crs[i][0] = nonl_dom[i][0];
        for(l=1; l < crs[i][0]+1; l++)
           crs[i][l] = nonl_dom[i][l+1];
-       free(nonl_dom[i]);
-    }
-    for ( i=0;i<indcheck;i++)
        free( nonl_dom[i]);
+    }
     free(nonl_dom);
 #endif
 #endif
