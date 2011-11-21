@@ -84,7 +84,6 @@ double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
    main difference among badoubles, adubs, and adoubles.
 */
 class ADOLC_DLL_EXPORT badouble {
-    friend ADOLC_DLL_EXPORT class advector;
 protected:
     locint location;
     badouble( void ) {};
@@ -254,6 +253,7 @@ public:
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
     friend ADOLC_DLL_EXPORT class advector;
+    friend ADOLC_DLL_EXPORT class adubref;
 #if GCC_VERSION >= 4003
     adub( adub const &) {}
 #endif
