@@ -22,6 +22,334 @@
 
 using std::vector;
 
+adubref::adubref( locint lo, locint ref ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    location = lo;
+    refloc = trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[location]));
+    if (ref != refloc) {
+	fprintf(DIAG_OUT,"ADOL-C error: strange construction of an active"
+		" vector subscript reference\n(passed ref = %d, stored refloc = %d)\n",ref,refloc);
+	exit(-2);
+    }
+}
+
+adubref::operator adub() const {
+    locint locat = next_loc();
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(locat,location);
+        put_op(ref_copyout);
+        ADOLC_PUT_LOCINT(location); // = arg
+        ADOLC_PUT_LOCINT(locat);    // = res
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[refloc];
+    return locat;
+}
+
+adub adubref::operator++( int ) {
+    locint locat = next_loc();
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(locat,location);
+        put_op(ref_copyout);
+        ADOLC_PUT_LOCINT(location); // = arg
+        ADOLC_PUT_LOCINT(locat);    // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[refloc];
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,location);
+        put_op(ref_incr_a);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc]++;
+    return locat;
+}
+
+adub adubref::operator--( int ) {
+    locint locat = next_loc();
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(locat,location);
+        put_op(ref_copyout);
+        ADOLC_PUT_LOCINT(location); // = arg
+        ADOLC_PUT_LOCINT(locat);    // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[refloc];
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,location);
+        put_op(ref_decr_a);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc]--;
+    return locat;
+}
+
+adubref& adubref::operator++() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,location);
+        put_op(ref_incr_a);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc]++;
+    return *this;
+}
+
+adubref& adubref::operator--() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,location);
+        put_op(ref_decr_a);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc]--;
+    return *this;
+}
+
+adubref& adubref::operator = ( double coval ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+        if (coval == 0) {
+            put_op(ref_assign_d_zero);
+            ADOLC_PUT_LOCINT(location);   // = res
+        } else
+            if (coval == 1.0) {
+                put_op(ref_assign_d_one);
+                ADOLC_PUT_LOCINT(location); // = res
+            } else {
+                put_op(ref_assign_d);
+                ADOLC_PUT_LOCINT(location); // = res
+                ADOLC_PUT_VAL(coval);       // = coval
+            }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] = coval;
+    return *this;
+}
+
+adubref& adubref::operator = ( const badouble& x ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint x_loc = x.loc();
+    if (location!=x_loc)
+        /* test this to avoid for x=x statements adjoint(x)=0 in reverse mode */
+    { if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old:  write_assign_a(location,x.location);
+            put_op(ref_assign_a);
+            ADOLC_PUT_LOCINT(x_loc);    // = arg
+            ADOLC_PUT_LOCINT(location);   // = res
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+        }
+
+        ADOLC_GLOBAL_TAPE_VARS.store[refloc]=ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+    }
+    return *this;
+}
+
+adubref& adubref::operator <<= ( double coval ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
+        ADOLC_CURRENT_TAPE_INFOS.numInds++;
+
+        put_op(ref_assign_ind);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] = coval;
+    return *this;
+}
+
+void adubref::declareIndependent() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+        ADOLC_CURRENT_TAPE_INFOS.numInds++;
+
+        put_op(ref_assign_ind);
+        ADOLC_PUT_LOCINT(location); // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+    }
+}
+
+adubref& adubref::operator >>= (double& coval) {
+    adub(*this) >>= coval;
+    return *this;
+}
+
+void adubref::declareDependent() {
+    adub(*this).declareDependent();
+}
+
+adubref& adubref::operator += ( double coval ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_plus_d,location,coval);
+        put_op(ref_eq_plus_d);
+        ADOLC_PUT_LOCINT(location); // = res
+        ADOLC_PUT_VAL(coval);       // = coval
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] += coval;
+    return *this;
+}
+
+adubref& adubref::operator += ( const badouble& y ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint y_loc = y.loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_plus_a,location,y.location);
+        put_op(ref_eq_plus_a);
+        ADOLC_PUT_LOCINT(y_loc); // = arg
+        ADOLC_PUT_LOCINT(location);   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] += ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+    return *this;
+}
+
+adubref& adubref::operator -= ( double coval ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_min_d,location,coval);
+        put_op(ref_eq_min_d);
+        ADOLC_PUT_LOCINT(location); // = res
+        ADOLC_PUT_VAL(coval);       // = coval
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] -= coval;
+    return *this;
+}
+
+adubref& adubref::operator -= ( const badouble& y ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint y_loc = y.loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_min_a,location,y.location);
+        put_op(ref_eq_min_a);
+        ADOLC_PUT_LOCINT(y_loc); // = arg
+        ADOLC_PUT_LOCINT(location);   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[location] -= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+    return *this;
+}
+
+adubref& adubref::operator *= ( double coval ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_mult_d,location,coval);
+        put_op(ref_eq_mult_d);
+        ADOLC_PUT_LOCINT(location); // = res
+        ADOLC_PUT_VAL(coval);       // = coval
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] *= coval;
+    return *this;
+}
+
+adubref& adubref::operator *= ( const badouble& y ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint y_loc = y.loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_mult_a,location,y.location);
+        put_op(ref_eq_mult_a);
+        ADOLC_PUT_LOCINT(y_loc); // = arg
+        ADOLC_PUT_LOCINT(location);   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] *= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+    return *this;
+}
+
+adubref& adubref::operator /= (double y) {
+    *this *=  (1.0/y);
+    return *this;
+}
+
+adubref& adubref::operator /= (const badouble& y) {
+    *this *=  (1.0/y);
+    return *this;
+}
+
+
 bool advector::nondecreasing() const {
     bool ret = true;
     double last = - ADOLC_MATH_NSP::numeric_limits<double>::infinity();
@@ -36,23 +364,45 @@ bool advector::nondecreasing() const {
 adub advector::operator[](const badouble& index) const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.location]));
+    size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
     locint locat = next_loc();
     size_t n = data.size();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 	put_op(subscript);
-	ADOLC_PUT_LOCINT(index.location);
+	ADOLC_PUT_LOCINT(index.loc());
 	ADOLC_PUT_LOCINT(locat);
 	ADOLC_PUT_VAL(n);
 	for (int i = 0; i < n; i++) 
-	    ADOLC_PUT_LOCINT(data[i].location);
+	    ADOLC_PUT_LOCINT(data[i].loc());
 
 	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
 	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
     }
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[data[idx].location];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[data[idx].loc()];
     return locat;
+}
+
+adubref advector::operator[](const badouble& index) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
+    locint locat = next_loc();
+    size_t n = data.size();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(subscript_ref);
+	ADOLC_PUT_LOCINT(index.loc());
+	ADOLC_PUT_LOCINT(locat);
+	ADOLC_PUT_VAL(n);
+	for (int i = 0; i < n; i++) 
+	    ADOLC_PUT_LOCINT(data[i].loc());
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = data[idx].loc();
+    return adubref(locat,data[idx].loc());
 }
 
 adouble advector::lookupindex(const badouble& x, const badouble& y) const {

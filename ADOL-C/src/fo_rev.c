@@ -1698,6 +1698,292 @@ int int_reverse_safe(
 		}
 		break;
 
+            case subscript_ref:
+	        {
+		    double val = get_val_r();
+		    size_t cnt, idx, numval = trunc(fabs(val));
+		    locint vectorloc[numval];
+		    for (cnt = numval - 1; cnt >= 0; cnt--)
+			vectorloc[cnt] = get_locint_r();
+		    res = get_locint_r();
+		    arg = get_locint_r();
+#if !defined(_NTIGHT_)
+		    idx = trunc(fabs(TARG));
+		    arg1 = trunc(fabs(TRES));
+		    // This is actually NOP 
+                    // basically all we need is that arg1 == vectorloc[idx]
+                    // so doing a check here is probably good
+		    if (arg1 != vectorloc[idx]) {
+			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc[idx], arg1);
+			exit(-2);
+		    }
+		    ADOLC_GET_TAYLOR(res);
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif /* !_NTIGHT_ */
+		}
+		break;
+
+	    case ref_copyout:
+		res = get_locint_r();
+		arg1 = get_locint_r();
+#if !defined(_NTIGHT_)
+		arg = trunc(fabs(TARG1));
+		ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+		ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg])
+		
+	        FOR_0_LE_l_LT_p
+		{
+#if defined(_INT_REV_)                 
+		  AARG_INC |= ARES;
+                  ARES_INC = 0;
+#else
+                  AARG_INC += ARES;
+                  ARES_INC = 0.0;
+#endif
+		}
+		ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif 
+		break;
+
+
+            case ref_incr_a:                        /* Increment an adouble    incr_a */
+            case ref_decr_a:                        /* Increment an adouble    decr_a */
+                arg1   = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_assign_d:            /* assign an adouble variable a    assign_d */
+                /* double value. (=) */
+                arg1   = get_locint_r();
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)                 
+                ARES_INC = 0;
+#else
+                ARES_INC = 0.0;
+#endif
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_assign_d_zero:  /* assign an adouble variable a    assign_d_zero */
+            case ref_assign_d_one:   /* double value (0 or 1). (=)       assign_d_one */
+                arg1 = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)                 
+                ARES_INC = 0;
+#else
+                ARES_INC = 0.0;
+#endif
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_assign_a:           /* assign an adouble variable an    assign_a */
+                /* adouble value. (=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+                {
+#if defined(_INT_REV_)                 
+		  AARG_INC |= ARES;
+                  ARES_INC = 0;
+#else
+                  AARG_INC += ARES;
+                  ARES_INC = 0.0;
+#endif
+		}
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_assign_ind:       /* assign an adouble variable an    assign_ind */
+                /* independent double value (<<=) */
+                arg1 = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+                    RESULTS(l,indexi) = ARES_INC;
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                indexi--;
+                break;
+
+            case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
+                /* adouble. (+=) */
+                arg1   = get_locint_r();
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_eq_plus_a:             /* Add an adouble to another    eq_plus_a */
+                /* adouble. (+=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg]);
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)
+		AARG_INC |= ARES_INC;
+#else
+                AARG_INC += ARES_INC;
+#endif
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
+                /* adouble. (-=) */
+                arg1   = get_locint_r();
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+               break;
+
+            case ref_eq_min_a:        /* Subtract an adouble from another    eq_min_a */
+                /* adouble. (-=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)
+		AARG_INC |= ARES_INC;
+#else
+                AARG_INC -= ARES_INC;
+#endif
+
+               ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
+                /* flaoting point. (*=) */
+                arg1   = get_locint_r();
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                coval = get_val_r();
+
+#if !defined(_INT_REV_)
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+                ARES_INC *= coval;
+#endif
+
+                ADOLC_GET_TAYLOR(res);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_eq_mult_a:       /* Multiply one adouble by another    eq_mult_a */
+                /* (*=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+#if !defined(_NTIGHT_)
+		res = trunc(fabs(TARG1));
+                ADOLC_GET_TAYLOR(res);
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)
+                AARG_INC |= ARES_INC;
+#else
+                { aTmp = ARES;
+                  /* olvo 980713 nn: ARES = 0.0; */
+                  ARES_INC =  aTmp * TARG;
+                  AARG_INC += aTmp * TRES;
+                }
+#endif      
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+		break;
+
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
 
