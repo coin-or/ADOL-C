@@ -82,7 +82,22 @@ enum OPCODES {
   floor_op,
   ext_diff,
   ignore_me,
-  subscript = 80
+  subscript = 80,
+  subscript_ref,
+  ref_assign_d_zero,
+  ref_assign_d_one,
+  ref_assign_d,
+  ref_assign_a,
+  ref_assign_ind,
+  ref_incr_a,
+  ref_decr_a,
+  ref_eq_plus_d,
+  ref_eq_min_d,
+  ref_eq_plus_a,
+  ref_eq_min_a,
+  ref_eq_mult_d,
+  ref_eq_mult_a,
+  ref_copyout
 };
 
 /****************************************************************************/
