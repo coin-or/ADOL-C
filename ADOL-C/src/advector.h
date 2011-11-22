@@ -103,11 +103,15 @@ private:
 public:
     advector() : data() {}
     explicit advector(size_t n) : data(n) {}
-    ~advector() { data.~vector<adouble>(); }
+    ~advector() {}
+    advector(const advector& x) : data(x.data) {}
+    size_t size() const { return data.size(); }
     operator const vector<adouble>&() const { return data; }
     operator vector<adouble>&() { return data; }
     adub operator[](const badouble& index) const;
     adubref operator[](const badouble& index);
+    adouble& operator[](size_t i) { return data[i]; }
+    const adouble& operator[](size_t i) const { return data[i]; }
     adouble lookupindex(const badouble& x, const badouble& y) const;
 };
 
