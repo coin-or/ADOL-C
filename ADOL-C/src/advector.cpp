@@ -297,10 +297,10 @@ adubref& adubref::operator -= ( const badouble& y ) {
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[location] -= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] -= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
     return *this;
 }
 
