@@ -1984,6 +1984,104 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 		break;
 
+        case ref_cond_assign:                                      /* cond_assign */
+	   {
+                locint ref    = get_locint_r();
+                arg2   = get_locint_r();
+                arg1   = get_locint_r();
+                arg    = get_locint_r();
+#if !defined(_NTIGHT_)
+                coval  = get_val_r();
+		res = trunc(fabs(rp_T[ref]));
+
+                ADOLC_GET_TAYLOR(res);
+
+                ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
+                ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
+                ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
+
+                /* olvo 980924 changed code a little bit */
+                if (TARG > 0.0) {
+                    if (res != arg1)
+                        FOR_0_LE_l_LT_p
+                        { if ((coval <= 0.0) && (ARES))
+                          MINDEC(ret_c,2);
+#if defined(_INT_REV_)
+                              AARG1_INC |= ARES;
+                              ARES_INC = 0;
+#else
+                          AARG1_INC += ARES;
+                          ARES_INC = 0.0;
+#endif
+                        } else
+                            FOR_0_LE_l_LT_p
+                            if ((coval <= 0.0) && (ARES_INC))
+                                    MINDEC(ret_c,2);
+                } else {
+                    if (res != arg2)
+                        FOR_0_LE_l_LT_p
+                        { if ((coval <= 0.0) && (ARES))
+                          MINDEC(ret_c,2);
+#if defined(_INT_REV_)
+                          AARG2_INC |= ARES;
+                          ARES_INC = 0;
+#else
+                          AARG2_INC += ARES;
+                          ARES_INC = 0.0;
+#endif
+                        } else
+                            FOR_0_LE_l_LT_p
+                            if ((coval <= 0.0) && (ARES_INC))
+                                    MINDEC(ret_c,2);
+                }
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+	        }
+                break;
+
+            case ref_cond_assign_s:                                  /* cond_assign_s */
+                arg2   = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+#if !defined(_NTIGHT_)
+                coval = get_val_r();
+		res = trunc(fabs(TARG2));
+                ADOLC_GET_TAYLOR(res);
+
+                ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
+                ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
+
+                /* olvo 980924 changed code a little bit */
+                if (TARG > 0.0) {
+                    if (res != arg1)
+                        FOR_0_LE_l_LT_p
+                        { if ((coval <= 0.0) && (ARES))
+                          MINDEC(ret_c,2);
+#if defined(_INT_REV_)
+                          AARG1_INC |= ARES;
+                          ARES_INC = 0.0;
+#else
+                          AARG1_INC += ARES;
+                          ARES_INC = 0.0;
+#endif
+                        } else
+                            FOR_0_LE_l_LT_p
+                            if ((coval <= 0.0) && (ARES_INC))
+                                    MINDEC(ret_c,2);
+                } else
+                    if (TARG == 0.0) /* we are at the tie */
+                        FOR_0_LE_l_LT_p
+                        if (ARES_INC)
+                            MINDEC(ret_c,0);
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
 

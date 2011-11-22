@@ -92,6 +92,8 @@ public:
     adubref& operator >>= ( double& );
     void declareDependent();
     operator adub() const;
+    friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&, const badouble&);
+    friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
 };
 
 class ADOLC_DLL_EXPORT advector {

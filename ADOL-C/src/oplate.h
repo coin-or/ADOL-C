@@ -97,7 +97,9 @@ enum OPCODES {
   ref_eq_min_a,
   ref_eq_mult_d,
   ref_eq_mult_a,
-  ref_copyout
+  ref_copyout,
+  ref_cond_assign,
+  ref_cond_assign_s
 };
 
 /****************************************************************************/
