@@ -2043,6 +2043,10 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
 	    case subscript:
 		coval = get_val_r();
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
+		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
+			exit(-2);
+		    }
 		{
 		    size_t cnt, idx, numval = trunc(fabs(coval));
 		    locint vectorloc[numval];
@@ -2076,6 +2080,10 @@ int hov_ti_reverse(
 
 	    case subscript_ref:
 		coval = get_val_r();
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
+		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
+		    exit(-2);
+		}
 		{
 		    size_t cnt, idx, numval = trunc(fabs(coval));
 		    locint vectorloc[numval];

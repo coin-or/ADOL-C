@@ -409,7 +409,17 @@ adub advector::operator[](const badouble& index) const {
     size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
     locint locat = next_loc();
     size_t n = data.size();
+    static size_t callcounter  = 0;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= n+2) {
+	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
+	    exit(-2);
+	}
+	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2> ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
+	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
+	    put_op(end_of_int);
+	}
 	put_op(subscript);
 	ADOLC_PUT_LOCINT(index.loc());
 	ADOLC_PUT_LOCINT(locat);
@@ -432,6 +442,15 @@ adubref advector::operator[](const badouble& index) {
     locint locat = next_loc();
     size_t n = data.size();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= n+2) {
+	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
+	    exit(-2);
+	}
+	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
+	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
+	    put_op(end_of_int);
+	}
 	put_op(subscript_ref);
 	ADOLC_PUT_LOCINT(index.loc());
 	ADOLC_PUT_LOCINT(locat);
