@@ -3525,7 +3525,7 @@ int  hov_forward(
 		res = get_locint_f();
 		coval = get_val_f();
 		{
-		    size_t cnt, idx, numvar = trunc(fabs(coval));
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
 		    locint vectorloc[numvar];
 		    for (cnt = 0; cnt < numvar; cnt++)
 			vectorloc[cnt] = get_locint_f();
@@ -3535,7 +3535,7 @@ int  hov_forward(
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
-		    copy_index_domains(res, arg1, ind_dom);
+		    copy_index_domain(res, arg1, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
 		    ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
@@ -3581,7 +3581,7 @@ int  hov_forward(
 		IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
-		copy_index_domains(res, arg1, ind_dom);
+		copy_index_domain(res, arg1, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
 		ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
@@ -3599,9 +3599,9 @@ int  hov_forward(
 
             case ref_incr_a:
 		arg = get_locint_f();
+#if !defined(_NTIGHT_)
 		arg1 = trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
-#if !defined(_NTIGHT_)
 		dp_T0[arg1]++;
 #else
 		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
@@ -3611,9 +3611,9 @@ int  hov_forward(
 
             case ref_decr_a:
 		arg = get_locint_f();
+#if !defined(_NTIGHT_)
 		arg1 = trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
-#if !defined(_NTIGHT_)
 		dp_T0[arg1]--;
 #else
 		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
