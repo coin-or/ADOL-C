@@ -2,7 +2,7 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     luexam.cpp
  Revision: $Id$
- Contents: computation of determinants, described in the manual
+ Contents: computation of LU factorization with pivoting
 
  Copyright (c) Kshitij Kulshreshtha
   
@@ -148,7 +148,7 @@ int main() {
     int n;
     string matrixname, rhsname;
     ifstream matf, rhsf;
-    double *mat, *rhs, *ans, err, normx;
+    double *mat, *rhs, *ans, err, normx, normb;
 
     cout << "COMPUTATION OF LU-Factorization with pivoting (ADOL-C Documented Example)\n\n";
     cout << "order of matrix = ? \n"; // select matrix size
@@ -190,9 +190,11 @@ int main() {
     }
     
     err = normresidue(mat, n, rhs, n, ans);
+    normb = norm2(rhs, n);
     normx = norm2(ans, n);
+    cout << "Norm rhs = " << normb <<"\n"; 
     cout << "Norm solution = " << normx <<"\n"; 
-    cout << "Norm of residue = " << err <<"\t relative error = " << err/normx << "\n";
+    cout << "Norm of residue = " << err <<"\t relative error = " << err/normb << "\n";
 
     cout << "---------------------------------\nNow computing from trace:\n";
     cout << "file name for matrix = ?\n";
@@ -214,9 +216,11 @@ int main() {
     zos_forward(tag, n, n*n + n, keep, mat, ans);
 
     err = normresidue(mat, n, rhs, n, ans);
+    normb = norm2(rhs, n);
     normx = norm2(ans, n);
+    cout << "Norm rhs = " << normb <<"\n"; 
     cout << "Norm solution = " << normx <<"\n"; 
-    cout << "Norm of residue = " << err <<"\t relative error = " << err/normx <<"\n";
+    cout << "Norm of residue = " << err <<"\t relative error = " << err/normb <<"\n";
 
     delete[] mat;
     delete[] ans;
