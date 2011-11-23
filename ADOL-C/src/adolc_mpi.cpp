@@ -29,7 +29,6 @@
 #define ADOLC_MPI_Comm MPI_Comm
 
 int mpi_initialized = 0;
-int process_count = 1;
 int all_root = 0;
 
 int trace_on( int id,
@@ -53,7 +52,6 @@ int ADOLC_MPI_Comm_size( ADOLC_MPI_Comm comm,
                          int* size
 ){
     int ierr = MPI_Comm_size(comm,size);
-    process_count = size[0];
     return ierr;
 }
 int ADOLC_MPI_Comm_rank( ADOLC_MPI_Comm comm,
@@ -201,11 +199,12 @@ int ADOLC_MPI_Reduce(
     adouble *send_buf, adouble *rec_buf, int count, ADOLC_MPI_Datatype type,
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm)
 {
-    int i,j,id, ierr=0;
+    int i,j,id,size, ierr=0;
     adouble tmp, *tmp_adoubles = NULL;
     double *trade_s, *trade_r;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
     ierr = ADOLC_MPI_Gather(send_buf,tmp_adoubles,count,type,root,comm);
 
     if ( id == root){
@@ -214,7 +213,7 @@ int ADOLC_MPI_Reduce(
        switch (op) {
                case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
                                        tmp = tmp_adoubles[i];
-                                       for(j=1; j< process_count ; j++)
+                                       for(j=1; j< size ; j++)
                                           if ( tmp <= tmp_adoubles[j*count+i] )
                                              tmp = tmp_adoubles[j*count+i];
                                        rec_buf[i] = tmp;
@@ -222,22 +221,22 @@ int ADOLC_MPI_Reduce(
                                    break;
                case ADOLC_MPI_MIN: for(i=0; i < count; i++ ) {
                                       tmp = tmp_adoubles[i];
-                                      for(j=1; j< process_count ; j++)
+                                      for(j=1; j< size ; j++)
                                          if ( tmp >= tmp_adoubles[j*count+i] )
                                             tmp = tmp_adoubles[j*count+i];
                                       rec_buf[i] = tmp;
                                    }
                                    break;
                case ADOLC_MPI_SUM: for(i=0; i < count; i++ ) {
-                                      tmp = tmp_adoubles[i];
-                                      for(j=1; j< process_count ; j++)
+                                      tmp =0.;
+                                      for(j=0; j< size ; j++)
                                          tmp += tmp_adoubles[j*count+i];
                                        rec_buf[i] = tmp;
                                    }
                                    break;
                case ADOLC_MPI_PROD:for(i=0; i < count; i++ ) {
-                                      tmp = tmp_adoubles[i];
-                                      for(j=1; j< process_count ; j++)
+                                      tmp = 1.;
+                                      for(j=0; j< size ; j++)
                                          tmp *= tmp_adoubles[j*count+i];
                                       rec_buf[i] = tmp;
                                     }
@@ -254,14 +253,15 @@ int ADOLC_MPI_Reduce(
 int ADOLC_MPI_Gather(
     adouble *sendbuf, adouble *recvbuf, int count, ADOLC_MPI_Datatype type, int root, MPI_Comm comm)
 {
-    int i,id, ierr=0;
+    int i,id,size, ierr=0;
     double *trade_s, *trade_r;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     trade_s = (double*) myalloc1(count);
     if (id == root)
-      trade_r = (double*) myalloc1(count*process_count);
+      trade_r = (double*) myalloc1(count*size);
     else trade_r = NULL;
 
     for(i= 0; i < count; i++) {
@@ -271,8 +271,8 @@ int ADOLC_MPI_Gather(
 
     if ( id == root){
        if( recvbuf == NULL)
-           recvbuf = new adouble[count*process_count];
-       for(i=0; i< count*process_count;i++){
+           recvbuf = new adouble[count*size];
+       for(i=0; i< count*size;i++){
           recvbuf[i].setValue(trade_r[i]);
           }
     }
@@ -286,10 +286,10 @@ int ADOLC_MPI_Gather(
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
-    ADOLC_PUT_LOCINT(count*process_count);
-    if( id==root) for(i=0; i < count*process_count;i++)
+    ADOLC_PUT_LOCINT(count*size);
+    if( id==root) for(i=0; i < count*size;i++)
         ADOLC_PUT_LOCINT(recvbuf[i].loc());
-    ADOLC_PUT_LOCINT(count*process_count);
+    ADOLC_PUT_LOCINT(count*size);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
 
@@ -300,18 +300,19 @@ int ADOLC_MPI_Scatter(
     adouble *sendbuf, int sendcount, adouble *recvbuf,
     int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm)
 {
-    int i,id, ierr=0;
+    int i,id,size, ierr=0;
     double *trade_s, *trade_r;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     trade_r = (double*) myalloc1(recvcount);
     if (id == root)
-      trade_s = (double*) myalloc1(sendcount*process_count);
+      trade_s = (double*) myalloc1(sendcount*size);
     else trade_s = NULL;
 
     if ( id == root){
-       for(i= 0; i < sendcount*process_count; i++)
+       for(i= 0; i < sendcount*size; i++)
           trade_s[i] = sendbuf[i].getValue();
     }
 
@@ -327,14 +328,14 @@ int ADOLC_MPI_Scatter(
     free(trade_r);
 
     put_op(scatter);
-    ADOLC_PUT_LOCINT(sendcount*process_count);
+    ADOLC_PUT_LOCINT(sendcount*size);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     if( id == root ) {
-      for(i=0; i< sendcount*process_count ;i++)
+      for(i=0; i< sendcount*size ;i++)
         ADOLC_PUT_LOCINT(sendbuf[i].loc());
     }
-    ADOLC_PUT_LOCINT(sendcount*process_count);
+    ADOLC_PUT_LOCINT(sendcount*size);
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     ADOLC_PUT_LOCINT(recvcount);

@@ -1915,7 +1915,7 @@ this_tnum,
                    for(l=0; l<p;l++,mpi_ii++)
                       trade[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
                    ADOLC_GET_TAYLOR(loc_recv[mpi_i]);
-                   for(l=0; l<p;l++,mpi_ii++)
+                   for(l=0; l<p;l++)
                       upp_A[loc_recv[mpi_i]][l] = 0;
                 }
                 MPI_Send(trade,(p+1)*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
@@ -1978,7 +1978,7 @@ this_tnum,
                 for(mpi_i=0;mpi_i<count;mpi_i++)
                    loc_recv[mpi_i] = get_locint_r(); // Recv Buffer
                 count2 = get_locint_r(); // count
-                count2 *= process_count;
+                count2 *= mpi_size;
 
 #if defined(_INT_REV_)
 #if defined(_TIGHT_)
@@ -2001,7 +2001,7 @@ this_tnum,
                 free(trade);
                 if (myid == root){
                    mpi_ii=0;
-                   for(arg=0; arg< process_count; arg++)
+                   for(arg=0; arg< mpi_size; arg++)
                       for (mpi_i=0; mpi_i < count; mpi_i++) {
                        rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
                        mpi_ii++;
@@ -2051,7 +2051,7 @@ this_tnum,
                 free(trade);
                 if (myid == root){
                    mpi_ii=0;
-                   for(arg=0; arg< process_count; arg++)
+                   for(arg=0; arg< mpi_size; arg++)
                       for(mpi_i=0; mpi_i < count; mpi_i++) {
                          rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
                          rp_A[loc_recv[mpi_i]]+= rec_buf[mpi_ii+1];
@@ -2080,7 +2080,7 @@ this_tnum,
                 free(trade);
                 if (myid == root){
                    mpi_ii=0;
-                   for(arg=0; arg< process_count; arg++)
+                   for(arg=0; arg< mpi_size; arg++)
                       for(mpi_i=0; mpi_i < count; mpi_i++) {
                          rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
                          mpi_ii++;
