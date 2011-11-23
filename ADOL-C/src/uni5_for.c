@@ -3557,7 +3557,7 @@ int  hov_forward(
 		res = get_locint_f();
 		coval = get_val_f();
 		{
-		    size_t cnt, idx, numvar = trunc(fabs(coval));
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
 		    locint vectorloc[numvar];
 		    for (cnt = 0; cnt < numvar; cnt++)
 			vectorloc[cnt] = get_locint_f();
