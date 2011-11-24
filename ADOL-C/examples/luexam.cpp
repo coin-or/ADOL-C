@@ -62,6 +62,30 @@ void lufactorize(const size_t n, advector& A, advector& p) {
     }
 }
 
+void printL(const size_t n, const advector& A, ostream &outf = std::cout) {
+    for (size_t i = 0; i < n; i++) {
+	for (size_t j = 0; j < n; j++)
+	    if (j < i)
+		outf << setw(8) << A[i*n + j].value() << "  ";
+	    else if (j == i)
+		outf << setw(8) << 1.0 << "  ";
+	    else
+		outf << setw(8) << 0.0 << "  ";
+	outf << "\n";
+    }
+}
+
+void printR(const size_t n, const advector& A, ostream &outf = std::cout) {
+    for (size_t i = 0; i < n; i++) {
+	for (size_t j = 0; j < n; j++)
+	    if (j >= i)
+		outf << setw(8) << A[i*n + j].value() << "  ";
+	    else
+		outf << setw(8) << 0.0 << "  ";
+	outf << "\n";
+    }
+}
+
 void Lsolve(const size_t n, const advector& A, const advector& p, advector& b, advector& x) {
     const advector &cb = b;
     for (size_t j = 0; j < n; j++) {
@@ -98,6 +122,33 @@ double norm2(const double *const v, const size_t n)
 	}
     }
     sum = sqrt(sum)*scale;
+    return sum;
+}
+
+double scalar(double *x, double *y, size_t n)
+{
+    size_t j;
+    int8_t sign;
+    double abs,scale,sum,prod;
+    scale = 0.0;
+    sum = 0.0;
+    for(j=0; j<n; j++) {
+        sign = 1;
+        prod = x[j]*y[j];
+        if( prod != 0.0) {
+            abs = prod;
+            if (abs < 0.0) {
+                sign = -1;
+                abs = -abs;
+            }
+            if( scale <= fabs(abs)) {
+                sum = sign * 1.0 + sum *(scale/abs);
+                scale = abs;
+            } else
+                sum+=sign*(abs/scale);
+        }
+    }
+    sum = sum*scale;
     return sum;
 }
 
