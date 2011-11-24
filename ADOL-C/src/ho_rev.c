@@ -2050,8 +2050,8 @@ int hov_ti_reverse(
 		{
 		    size_t cnt, idx, numval = trunc(fabs(coval));
 		    locint vectorloc[numval];
-		    for (cnt = numval - 1; cnt >= 0; cnt--)
-			vectorloc[cnt] = get_locint_r();
+		    for (cnt = 1; cnt <= numval; cnt++)
+			vectorloc[numval - cnt] = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
@@ -2087,8 +2087,8 @@ int hov_ti_reverse(
 		{
 		    size_t cnt, idx, numval = trunc(fabs(coval));
 		    locint vectorloc[numval];
-		    for (cnt = numval - 1; cnt >= 0; cnt--)
-			vectorloc[cnt] = get_locint_r();
+		    for (cnt = 1; cnt <= numval; cnt++)
+			vectorloc[numval - cnt] = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])

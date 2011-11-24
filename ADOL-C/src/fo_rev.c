@@ -1675,8 +1675,8 @@ int int_reverse_safe(
 			exit(-2);
 		    }
 		    locint vectorloc[numval];
-		    for (cnt = numval - 1; cnt >= 0; cnt--)
-			vectorloc[cnt] = get_locint_r();
+		    for (cnt = 1; cnt <= numval; cnt++)
+			vectorloc[numval - cnt] = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
@@ -1711,8 +1711,8 @@ int int_reverse_safe(
 			exit(-2);
 		    }
 		    locint vectorloc[numval];
-		    for (cnt = numval - 1; cnt >= 0; cnt--)
-			vectorloc[cnt] = get_locint_r();
+		    for (cnt = 1; cnt <= numval; cnt++)
+			vectorloc[numval - cnt] = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
