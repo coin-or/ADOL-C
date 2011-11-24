@@ -22,12 +22,13 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <iomanip>
+#include <sstream>
 
-
-adouble findmaxindex(const size_t n, const advector& col, const adouble& k) {
+adouble findmaxindex(const size_t n, const advector& col, const size_t k) {
     adouble idx = k;
-    for (adouble j = k + 1; j < n; j++ )
-	condassign(idx,(fabs(col[j]) - fabs(col[idx])), j);
+    for (size_t j = k + 1; j < n; j++ )
+	condassign(idx,(fabs(col[j]) - fabs(col[idx])), adouble((double)j));
     return idx;
 }
 
@@ -36,25 +37,26 @@ adouble findmaxindex(const size_t n, const advector& col, const adouble& k) {
 void lufactorize(const size_t n, advector& A, advector& p) {
     const advector &cA = A, &cp = p;
     adouble idx, tmp;
-    for (adouble j = 0; j < n; j++) 
+    for (size_t j = 0; j < n; j++)
 	p[j] = j;
-    for (adouble k = 0; k < n; k++) {
+    for (size_t k = 0; k < n; k++) {
 	advector column(n);
-	for(adouble j = 0; j < n; j++) 
-	    condassign(column[j], (j - k + 1), cA[j*n + k]);
+	for(size_t j = 0; j < n; j++)
+	    condassign(column[j], adouble(double(j - k + 1)), A[j*n + k]);
 	idx = findmaxindex(n, column, k);
-	tmp = cp[k];
+	tmp = p[k];
 	p[k] = cp[idx];
 	p[idx] = tmp;
-	for(adouble j = k; j < n; j++) {
-	    tmp = cA[k*n + j];
+	for(size_t j = 0; j < n; j++) {
+	    tmp = A[k*n + j];
 	    A[k*n + j] = cA[idx*n + j];
 	    A[idx*n + j] = tmp;
 	}
-	for (adouble i = k + 1; i < n; i++) {
-	    A[i*n + k] /= cA[k*n + k];
-	    for (adouble j = k + 1; j < n; j++) {
-		A[i*n + j] -= cA[i*n + k] * cA[k*n+j];
+	tmp = 1.0/A[k*n + k];
+	for (size_t i = k + 1; i < n; i++) {
+	    A[i*n + k] *= tmp;
+	    for (size_t j = k + 1; j < n; j++) {
+		A[i*n + j] -= A[i*n + k] * A[k*n+j];
 	    }
 	}
     }
@@ -62,19 +64,19 @@ void lufactorize(const size_t n, advector& A, advector& p) {
 
 void Lsolve(const size_t n, const advector& A, const advector& p, advector& b, advector& x) {
     const advector &cb = b;
-    for (adouble j = 0; j < n; j++) {
+    for (size_t j = 0; j < n; j++) {
 	x[j] = cb[p[j]];
-	for (adouble k = j+1; k <n; k++) {
+	for (size_t k = j+1; k <n; k++) {
 	    b[p[k]] -= A[k*n+j]*x[j];
 	}
     }
 }
 
 void Rsolve(const size_t n, const advector& A, advector& x) {
-    for (adouble j = n-1; j >= 0; j--) {
-	x[j] /=  A[j*n + j];
-	for (adouble k = j-1; k >= 0; k--) {
-	    x[k] -= A[k*n + j]*x[j];
+    for (size_t j = 1; j <= n; j++) {
+	x[n-j] *=  1.0/A[(n-j)*n + n-j];
+	for (size_t k = 0; k < n-j; k++) {
+	    x[k] -= A[k*n + n-j]*x[n-j];
 	}
     }
 }
@@ -177,15 +179,15 @@ int main() {
     {
 	trace_on(tag,keep);               // tag=1=keep
 	advector A(n*n), b(n), x(n), p(n);
-	for(adouble i = 0; i < n*n; i++)
-	    A[i] <<= mat[(size_t)trunc(i.value())];
-	for(adouble i = 0; i < n; i++)
-	    b[i] <<= rhs[(size_t)trunc(i.value())];
+	for(size_t i = 0; i < n*n; i++)
+	    A[i] <<= mat[i];
+	for(size_t i = 0; i < n; i++)
+	    b[i] <<= rhs[i];
 	lufactorize(n, A, p);
 	Lsolve(n, A, p, b, x);
 	Rsolve(n, A, x);
-	for (adouble i = 0; i < n; i++) 
-	    x[i] >>= ans[(size_t)trunc(i.value())];
+	for(size_t i = 0; i < n; i++)
+	    x[i] >>= ans[i];
 	trace_off();
     }
     
@@ -194,7 +196,7 @@ int main() {
     normx = norm2(ans, n);
     cout << "Norm rhs = " << normb <<"\n"; 
     cout << "Norm solution = " << normx <<"\n"; 
-    cout << "Norm of residue = " << err <<"\t relative error = " << err/normb << "\n";
+    cout << "Norm of residue = " << err <<"\t relative error = " << err/normx << "\n";
 
     cout << "---------------------------------\nNow computing from trace:\n";
     cout << "file name for matrix = ?\n";
@@ -212,7 +214,7 @@ int main() {
     for (size_t i = 0; i < n; i++)
 	rhsf >> rhs[i];
     rhsf.close();
-    
+
     zos_forward(tag, n, n*n + n, keep, mat, ans);
 
     err = normresidue(mat, n, rhs, n, ans);
@@ -220,7 +222,7 @@ int main() {
     normx = norm2(ans, n);
     cout << "Norm rhs = " << normb <<"\n"; 
     cout << "Norm solution = " << normx <<"\n"; 
-    cout << "Norm of residue = " << err <<"\t relative error = " << err/normb <<"\n";
+    cout << "Norm of residue = " << err <<"\t relative error = " << err/normx <<"\n";
 
     delete[] mat;
     delete[] ans;
