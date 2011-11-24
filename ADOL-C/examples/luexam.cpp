@@ -208,8 +208,8 @@ int main() {
     cin >> n;
 
     cout << "---------------------------------\nNow tracing:\n";
-    mat = new double[n*n + n]; 
-    rhs = mat + (n*n);
+    rhs = new double[n*n + n]; 
+    mat = rhs + n;
     ans = new double[n];
     cout << "file name for matrix = ?\n";
     cin >> matrixname;
@@ -230,10 +230,10 @@ int main() {
     {
 	trace_on(tag,keep);               // tag=1=keep
 	advector A(n*n), b(n), x(n), p(n);
-	for(size_t i = 0; i < n*n; i++)
-	    A[i] <<= mat[i];
 	for(size_t i = 0; i < n; i++)
 	    b[i] <<= rhs[i];
+	for(size_t i = 0; i < n*n; i++)
+	    A[i] <<= mat[i];
 	lufactorize(n, A, p);
 	Lsolve(n, A, p, b, x);
 	Rsolve(n, A, x);
@@ -266,7 +266,7 @@ int main() {
 	rhsf >> rhs[i];
     rhsf.close();
 
-    zos_forward(tag, n, n*n + n, keep, mat, ans);
+    zos_forward(tag, n, n*n + n, keep, rhs, ans);
 
     err = normresidue(mat, n, rhs, n, ans);
     normb = norm2(rhs, n);
@@ -274,7 +274,30 @@ int main() {
     cout << "Norm rhs = " << normb <<"\n"; 
     cout << "Norm solution = " << normx <<"\n"; 
     cout << "Norm of residue = " << err <<"\t relative error = " << err/normx <<"\n";
+    double *ansbar = new double[n];
+    double *matcol = new double[n];
+    double *rhsbar = new double[n*n+n];
+    double *matbar = rhsbar + n;
+    double scprod = 0.0;
 
-    delete[] mat;
+    memset(rhsbar, 0, (n*n+n)*sizeof(double));
+    memset(ansbar, 0, n*sizeof(double));
+    for (size_t i = 0; i < n; i++)
+	matcol[i] = mat[i*n + 0];
+    cout << "computing gradient of " << 0 + 1 << " element of solution w.r.t. matrix elements and rhs\n";
+    ansbar[0] = 1.0;
+
+    fos_reverse(tag, n, n*n+n, ansbar, rhsbar);
+
+    for (size_t i = 0; i < n*n + n; i++)
+	cout << "bar[" << i << "] = " <<  rhsbar[i] << "\n";
+
+    scprod = scalar(rhsbar, matcol, n);
+    cout << "gradient w.r.t. rhs times " << 0 + 1 << " column of matrix  = " << scprod << "\n";
+    delete[] ansbar;
+    delete[] matcol;
+    delete[] rhsbar;
+
+    delete[] rhs;
     delete[] ans;
 }
