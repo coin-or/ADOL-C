@@ -649,6 +649,9 @@ void set_HP(
     SparseHessInfos sHinfos;
     TapeInfos *tapeInfos;
 
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
     tapeInfos=getTapeInfos(tag);
     memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
     sHinfos.nnz_in = 0;
@@ -679,6 +682,9 @@ void get_HP(
 {
     SparseHessInfos sHinfos;
     TapeInfos *tapeInfos;
+
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     tapeInfos=getTapeInfos(tag);
     memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));

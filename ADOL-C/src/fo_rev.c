@@ -458,7 +458,7 @@ int int_reverse_safe(
 
     if (taycheck < 0) {
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
-                " preceeded\nby a forward sweep with degree>0, keep=1!\n");
+                " preceded\nby a forward sweep with degree>0, keep=1!\n");
         exit(-2);
     };
 
@@ -470,9 +470,9 @@ int int_reverse_safe(
 
     /****************************************************************************/
     /*                                                            REVERSE SWEEP */
-
     operation=get_op_r();
     while (operation != start_of_tape) { /* Switch statement to execute the operations in Reverse */
+
         switch (operation) {
 
 
@@ -738,8 +738,8 @@ int int_reverse_safe(
 #else
                 { aTmp = ARES;
                   /* olvo 980713 nn: ARES = 0.0; */
-                  ARES_INC =  aTmp * TARG;
-                  AARG_INC += aTmp * TRES;
+                  ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
+                  AARG_INC += (aTmp==0)?0:(aTmp * TRES);
                 }
 #endif      
 		break;
@@ -893,8 +893,8 @@ int int_reverse_safe(
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG2_INC += aTmp * TARG1;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG2_INC += (aTmp==0)?0:(aTmp * TARG1);
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
                 break;
@@ -976,7 +976,7 @@ int int_reverse_safe(
 		  AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += coval * aTmp;
+                  AARG_INC += (aTmp==0)?0:(coval * aTmp);
 #endif
             }
 
@@ -1012,8 +1012,8 @@ int int_reverse_safe(
                   AARG2_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * r0;
-                  AARG2_INC += aTmp * r_0;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * r0);
+                  AARG2_INC += (aTmp==0)?0:(aTmp * r_0);
 #endif
             }
 
@@ -1046,7 +1046,7 @@ int int_reverse_safe(
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * r0;
+                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
                 }
 
@@ -1126,7 +1126,7 @@ int int_reverse_safe(
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * TRES;
+                  AARG_INC += (aTmp==0)?0:(aTmp*TRES);
 #endif
             }
 
@@ -1151,7 +1151,7 @@ int int_reverse_safe(
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 
@@ -1178,7 +1178,7 @@ int int_reverse_safe(
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC -= aTmp * TARG2;
+                  AARG1_INC -= (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 
@@ -1215,7 +1215,7 @@ int int_reverse_safe(
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
                 }
                 break;
@@ -1243,7 +1243,7 @@ int int_reverse_safe(
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * r0;
+                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
             }
                 break;
@@ -1277,7 +1277,7 @@ int int_reverse_safe(
                     AARG_INC |= aTmp;
 #else
                     ARES_INC = 0.0;
-                    AARG_INC += aTmp * r0;
+                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
             }
 
@@ -1308,7 +1308,7 @@ int int_reverse_safe(
                     AARG_INC |= aTmp;
 #else
                     ARES_INC = 0.0;
-                    AARG_INC += aTmp * r0;
+                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
                 }
 
@@ -1337,7 +1337,7 @@ int int_reverse_safe(
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 

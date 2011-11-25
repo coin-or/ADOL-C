@@ -212,7 +212,7 @@ void fail( int error ) {
         case ADOLC_EXT_DIFF_WRONG_TAPESTATS:
             fprintf(DIAG_OUT,
                     "ADOL-C error: Number of independents/dependents recorded on"
-                    " tape differ from number suplied by user!\n");
+                    " tape differ from number supplied by user!\n");
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION:
             fprintf(DIAG_OUT,
@@ -1042,6 +1042,7 @@ void start_trace() {
     ADOLC_CURRENT_TAPE_INFOS.currOp  = ADOLC_CURRENT_TAPE_INFOS.opBuffer;
     ADOLC_CURRENT_TAPE_INFOS.currLoc = ADOLC_CURRENT_TAPE_INFOS.locBuffer;
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+    ADOLC_CURRENT_TAPE_INFOS.num_eq_prod = 0;
 
     /* Put operation denoting the start_of_the tape */
     put_op(start_of_tape);
@@ -1075,6 +1076,8 @@ void stop_trace(int flag) {
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] =
         ADOLC_GLOBAL_TAPE_VARS.storeSize;
 
+    ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD] = 
+        ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
     taylor_close(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE]);
 
     /* The taylor stack size base estimation results in a doubled taylor count

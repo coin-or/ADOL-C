@@ -553,7 +553,7 @@ int hov_ti_reverse(
 
     if(taycheck != degre) {
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
-                " preceeded\nby a forward sweep with degree>%i,"
+                " preceded\nby a forward sweep with degree>%i,"
                 " keep=%i!\n",degre,degre+1);
         exit(-2);
     };

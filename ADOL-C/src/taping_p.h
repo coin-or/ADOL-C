@@ -207,6 +207,7 @@ typedef struct TapeInfos {
     unsigned char *currOp;      /* pointer to the current opcode */
     unsigned char *lastOpP1;    /* pointer to element following the buffer */
     uint numOps_Tape;           /* overall number of opcodes */
+    uint num_eq_prod;           /* overall number of eq_*_prod for nlf */
 
     /* values (real) tape */
     FILE *val_file;
@@ -287,6 +288,7 @@ typedef struct GlobalTapeVarsCL {
     StoreManager *storeManagerPtr;
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
+    const GlobalTapeVarsCL& operator=(const GlobalTapeVarsCL&);
 #else
     void *storeManagerPtr;
 #endif
@@ -294,7 +296,7 @@ typedef struct GlobalTapeVarsCL {
 GlobalTapeVars;
 
 #if defined(_OPENMP)
-#error nicht hier
+
 extern int isParallel();
 
 #define ADOLC_TAPE_INFOS_BUFFER_DECL *tapeInfosBuffer

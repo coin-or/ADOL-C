@@ -52,6 +52,28 @@ GlobalTapeVarsCL::~GlobalTapeVarsCL() {
   }
 }
 
+const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv) {
+    storeSize = gtv.storeSize;
+    numLives = gtv.numLives;
+    maxLoc = gtv.maxLoc;
+    operationBufferSize = gtv.operationBufferSize;
+    locationBufferSize = gtv.locationBufferSize;
+    valueBufferSize = gtv.valueBufferSize;
+    taylorBufferSize = gtv.taylorBufferSize;
+    maxNumberTaylorBuffers = gtv.maxNumberTaylorBuffers;
+    inParallelRegion = gtv.inParallelRegion;
+    newTape = gtv.newTape;
+    branchSwitchWarning = gtv.branchSwitchWarning;
+    currentTapeInfosPtr = gtv.currentTapeInfosPtr;
+    store = new double[storeSize];
+    memcpy(store, gtv.store, storeSize*sizeof(double));
+    storeManagerPtr = new
+	StoreManagerLocint(
+	    dynamic_cast<StoreManagerLocint*>(gtv.storeManagerPtr),
+	    store, storeSize, numLives);
+    return *this;
+}
+
 StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
     indexFeld(0),
@@ -79,6 +101,20 @@ StoreManagerLocint::~StoreManagerLocint()
     groesse = 0;
     anzahl = 0;
     head = 0;
+}
+
+StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
+				       double * &storePtr, size_t &size, size_t &numlives) : 
+    storePtr(storePtr),
+    groesse(size), anzahl(numlives)
+{
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+#endif
+    head = stm->head;
+    indexFeld = new locint[groesse];
+    for (int i = 0; i < groesse; i++)
+	indexFeld[i] = stm->indexFeld[i];
 }
 
 locint StoreManagerLocint::next_loc() {
@@ -1038,27 +1074,35 @@ void beginParallel() {
 
     if (firstParallel) {
         ADOLC_EXT_DIFF_FCTS_BUFFER.init(init_CpInfos);
-        memcpy(&ADOLC_GLOBAL_TAPE_VARS, globalTapeVars_s, sizeof(GlobalTapeVars));
-        ADOLC_GLOBAL_TAPE_VARS.store = (double *)
-            malloc(sizeof(double) * ADOLC_GLOBAL_TAPE_VARS.storeSize);
-        memcpy(ADOLC_GLOBAL_TAPE_VARS.store, globalTapeVars_s->store,
-                ADOLC_GLOBAL_TAPE_VARS.locMinUnused * sizeof(double));
+
+	/* Use assignment operator instead of open coding
+	 * this copies the store and the storemanager too
+	 */
+	ADOLC_GLOBAL_TAPE_VARS = *globalTapeVars_s;
+
         ADOLC_GLOBAL_TAPE_VARS.newTape = 0;
         ADOLC_CURRENT_TAPE_INFOS.tapingComplete = 1;
         ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
     } else {
         if (ADOLC_parallel_doCopy) {
-            ADOLC_GLOBAL_TAPE_VARS.locMinUnused = globalTapeVars_s->locMinUnused;
-            ADOLC_GLOBAL_TAPE_VARS.numMaxAlive = globalTapeVars_s->numMaxAlive;
             ADOLC_GLOBAL_TAPE_VARS.storeSize = globalTapeVars_s->storeSize;
-            ADOLC_GLOBAL_TAPE_VARS.numToFree = globalTapeVars_s->numToFree;
-            ADOLC_GLOBAL_TAPE_VARS.minLocToFree = globalTapeVars_s->minLocToFree;
+            ADOLC_GLOBAL_TAPE_VARS.numLives = globalTapeVars_s->numLives;
+	    
             ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = globalTapeVars_s->branchSwitchWarning;
-            free(ADOLC_GLOBAL_TAPE_VARS.store);
-            ADOLC_GLOBAL_TAPE_VARS.store = (double *)
-                malloc(sizeof(double) * ADOLC_GLOBAL_TAPE_VARS.storeSize);
+
+	    /* deleting the storemanager deletes the store too */
+	    delete ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr;
+
+            ADOLC_GLOBAL_TAPE_VARS.store = new
+                double[ADOLC_GLOBAL_TAPE_VARS.storeSize];
             memcpy(ADOLC_GLOBAL_TAPE_VARS.store, globalTapeVars_s->store,
-                    ADOLC_GLOBAL_TAPE_VARS.locMinUnused * sizeof(double));
+                    ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
+	    ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr = new
+		StoreManagerLocint(
+		    dynamic_cast<StoreManagerLocint*>(globalTapeVars_s->storeManagerPtr),
+		    ADOLC_GLOBAL_TAPE_VARS.store,
+		    ADOLC_GLOBAL_TAPE_VARS.storeSize,
+		    ADOLC_GLOBAL_TAPE_VARS.numLives);
         }
     }
 }
