@@ -1669,7 +1669,7 @@ int int_reverse_safe(
             case subscript:
 	        {
 		    double val = get_val_r();
-		    size_t cnt, idx, numval = trunc(fabs(val));
+		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
 		    if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= numval + 2) {
 			fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],numval);
 			exit(-2);
@@ -1680,7 +1680,7 @@ int int_reverse_safe(
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
-		    idx = trunc(fabs(TARG));
+		    idx = (size_t)trunc(fabs(TARG));
 		    arg1 = vectorloc[idx];
 		    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 		    ASSIGN_A( Ares, ADJOINT_BUFFER[res])
@@ -1705,7 +1705,7 @@ int int_reverse_safe(
             case subscript_ref:
 	        {
 		    double val = get_val_r();
-		    size_t cnt, idx, numval = trunc(fabs(val));
+		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
 		    if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= numval + 2) {
 			fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],numval);
 			exit(-2);
@@ -1716,8 +1716,8 @@ int int_reverse_safe(
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
-		    idx = trunc(fabs(TARG));
-		    arg1 = trunc(fabs(TRES));
+		    idx = (size_t)trunc(fabs(TARG));
+		    arg1 = (size_t)trunc(fabs(TRES));
 		    // This is actually NOP 
                     // basically all we need is that arg1 == vectorloc[idx]
                     // so doing a check here is probably good
@@ -1737,7 +1737,7 @@ int int_reverse_safe(
 		res = get_locint_r();
 		arg1 = get_locint_r();
 #if !defined(_NTIGHT_)
-		arg = trunc(fabs(TARG1));
+		arg = (size_t)trunc(fabs(TARG1));
 		ASSIGN_A( Ares, ADJOINT_BUFFER[res])
 		ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg])
 		
@@ -1764,7 +1764,7 @@ int int_reverse_safe(
                 arg1   = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ADOLC_GET_TAYLOR(res);
 #else
 		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
@@ -1776,7 +1776,7 @@ int int_reverse_safe(
                 /* double value. (=) */
                 arg1   = get_locint_r();
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
@@ -1800,7 +1800,7 @@ int int_reverse_safe(
                 arg1 = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
 
@@ -1823,7 +1823,7 @@ int int_reverse_safe(
                 arg = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
@@ -1851,7 +1851,7 @@ int int_reverse_safe(
                 arg1 = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
 
@@ -1870,7 +1870,7 @@ int int_reverse_safe(
                 /* adouble. (+=) */
                 arg1   = get_locint_r();
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 ADOLC_GET_TAYLOR(res);
@@ -1886,7 +1886,7 @@ int int_reverse_safe(
                 arg = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg]);
@@ -1909,7 +1909,7 @@ int int_reverse_safe(
                 /* adouble. (-=) */
                 arg1   = get_locint_r();
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 ADOLC_GET_TAYLOR(res);
@@ -1925,7 +1925,7 @@ int int_reverse_safe(
                 arg = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
@@ -1947,7 +1947,7 @@ int int_reverse_safe(
                 /* flaoting point. (*=) */
                 arg1   = get_locint_r();
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
 #if !defined(_INT_REV_)
@@ -1970,7 +1970,7 @@ int int_reverse_safe(
                 arg = get_locint_r();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ADOLC_GET_TAYLOR(res);
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
@@ -2000,7 +2000,7 @@ int int_reverse_safe(
                 arg    = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval  = get_val_r();
-		res = trunc(fabs(rp_T[ref]));
+		res = (size_t)trunc(fabs(rp_T[ref]));
 
                 ADOLC_GET_TAYLOR(res);
 
@@ -2055,7 +2055,7 @@ int int_reverse_safe(
                 arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = get_val_r();
-		res = trunc(fabs(TARG2));
+		res = (size_t)trunc(fabs(TARG2));
                 ADOLC_GET_TAYLOR(res);
 
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])

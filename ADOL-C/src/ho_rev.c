@@ -2048,14 +2048,14 @@ int hov_ti_reverse(
 			exit(-2);
 		    }
 		{
-		    size_t cnt, idx, numval = trunc(fabs(coval));
+		    size_t cnt, idx, numval = (size_t)trunc(fabs(coval));
 		    locint vectorloc[numval];
 		    for (cnt = 1; cnt <= numval; cnt++)
 			vectorloc[numval - cnt] = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
-		    idx = trunc(fabs(TARG));
+		    idx = (size_t)trunc(fabs(TARG));
 		    arg1 = vectorloc[idx];
 		    ASSIGN_A(Aarg1, rpp_A[arg1])
 		    ASSIGN_A(Ares, rpp_A[res])
@@ -2085,7 +2085,7 @@ int hov_ti_reverse(
 		    exit(-2);
 		}
 		{
-		    size_t cnt, idx, numval = trunc(fabs(coval));
+		    size_t cnt, idx, numval = (size_t)trunc(fabs(coval));
 		    locint vectorloc[numval];
 		    for (cnt = 1; cnt <= numval; cnt++)
 			vectorloc[numval - cnt] = get_locint_r();
@@ -2093,8 +2093,8 @@ int hov_ti_reverse(
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    ASSIGN_T(Tres, rpp_T[res])
-		    idx = trunc(fabs(TARG));
-		    arg1 = trunc(fabs(TRES));
+		    idx = (size_t)trunc(fabs(TARG));
+		    arg1 = (size_t)trunc(fabs(TRES));
 		    // This is actually NOP 
                     // basically all we need is that arg1 == vectorloc[idx]
                     // so doing a check here is probably good
@@ -2111,7 +2111,7 @@ int hov_ti_reverse(
 		arg1 = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		arg = trunc(fabs(TARG1));
+		arg = (size_t)trunc(fabs(TARG1));
 
 		ASSIGN_A(Ares, rpp_A[res])
 		ASSIGN_A(Aarg, rpp_A[arg])
@@ -2138,7 +2138,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 GET_TAYL(res,k,p)
                 break;
@@ -2152,7 +2152,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A(Ares, rpp_A[res])
 
@@ -2168,7 +2168,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 ASSIGN_A(Aarg, rpp_A[arg])
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2195,7 +2195,7 @@ int hov_ti_reverse(
                 /* independent double value (<<=) */
                 arg1 = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ASSIGN_A(Ares, rpp_A[res])
 
                 FOR_0_LE_l_LT_p
@@ -2217,7 +2217,7 @@ int hov_ti_reverse(
             /* adouble. (+=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 GET_TAYL(res,k,p)
@@ -2229,7 +2229,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -2252,7 +2252,7 @@ int hov_ti_reverse(
                 /* adouble. (-=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 GET_TAYL(res,k,p)
@@ -2264,7 +2264,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 		
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -2287,7 +2287,7 @@ int hov_ti_reverse(
                 /* flaoting point. (*=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2307,7 +2307,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(TARG1));
 
                 GET_TAYL(res,k,p)
 
@@ -2359,7 +2359,7 @@ int hov_ti_reverse(
 #define TREF   rpp_T[ref]
 #endif   
 
-		res = trunc(fabs(TREF));
+		res = (size_t)trunc(fabs(TREF));
 #undef TREF
                 GET_TAYL(res,k,p)
 
@@ -2445,7 +2445,7 @@ int hov_ti_reverse(
                 coval = get_val_r();
 		
 		ASSIGN_T(Targ2, rpp_T[arg2])
-		res = trunc(fabs(TARG2));
+		res = (size_t)trunc(fabs(TARG2));
 
                 GET_TAYL(res,k,p)
 

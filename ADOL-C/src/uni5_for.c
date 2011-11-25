@@ -3534,7 +3534,7 @@ int  hov_forward(
 		    for (cnt = 0; cnt < numvar; cnt++)
 			vectorloc[cnt] = get_locint_f();
 #if !defined(_NTIGHT_)
-		    idx = trunc(fabs(dp_T0[arg]));
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    arg1 = vectorloc[idx];
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = dp_T0[arg1];
@@ -3570,7 +3570,7 @@ int  hov_forward(
 		    for (cnt = 0; cnt < numvar; cnt++)
 			vectorloc[cnt] = get_locint_f();
 #if !defined(_NTIGHT_)
-		    idx = trunc(fabs(dp_T0[arg]));
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    arg1 = vectorloc[idx];
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = arg1;
@@ -3585,7 +3585,7 @@ int  hov_forward(
 		arg = get_locint_f();
 		res = get_locint_f();
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
@@ -3608,7 +3608,7 @@ int  hov_forward(
             case ref_incr_a:
 		arg = get_locint_f();
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
 		dp_T0[arg1]++;
 #else
@@ -3620,7 +3620,7 @@ int  hov_forward(
             case ref_decr_a:
 		arg = get_locint_f();
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
 		dp_T0[arg1]--;
 #else
@@ -3634,7 +3634,7 @@ int  hov_forward(
 		coval = get_val_f();
 		
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = coval;
 #if defined(_INDO_)
@@ -3657,7 +3657,7 @@ int  hov_forward(
 		arg = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = 0.0;
 #if defined(_INDO_)
@@ -3680,7 +3680,7 @@ int  hov_forward(
 		arg = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[arg]));
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = 1.0;
 #if defined(_INDO_)
@@ -3705,7 +3705,7 @@ int  hov_forward(
                 res = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		arg1 = trunc(fabs(dp_T0[res]));
+		arg1 = (size_t)trunc(fabs(dp_T0[res]));
                 IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
                 dp_T0[arg1] = dp_T0[arg];
 #if defined(_INDO_)
@@ -3731,7 +3731,7 @@ int  hov_forward(
 
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg]));
+		res = (size_t)trunc(fabs(dp_T0[arg]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] = basepoint[indexi];
 #if defined(_INDO_)
@@ -3765,7 +3765,7 @@ int  hov_forward(
 
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg]));
+		res = (size_t)trunc(fabs(dp_T0[arg]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] += coval;
 #else
@@ -3781,7 +3781,7 @@ int  hov_forward(
                 arg1 = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg1]));
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] += dp_T0[arg];
 #if defined(_INDO_)
@@ -3812,7 +3812,7 @@ int  hov_forward(
                 coval = get_val_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg]));
+		res = (size_t)trunc(fabs(dp_T0[arg]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] -= coval;
 #else
@@ -3828,7 +3828,7 @@ int  hov_forward(
                 arg1 = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg1]));
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] -= dp_T0[arg];
 #if defined(_INDO_)
@@ -3859,7 +3859,7 @@ int  hov_forward(
                 coval = get_val_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg]));
+		res = (size_t)trunc(fabs(dp_T0[arg]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] *= coval;
 #if !defined(_INDO_)
@@ -3886,7 +3886,7 @@ int  hov_forward(
                 arg1 = get_locint_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg1]));
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 #if defined(_INDO_)
                 merge_2_index_domains(res, arg, ind_dom);
@@ -3937,7 +3937,7 @@ int  hov_forward(
 		    locint ref = get_locint_f();
 		    coval = get_val_f();
 #if !defined(_NTIGHT_)
-		    res   = trunc(fabs(dp_T0[ref]));
+		    res   = (size_t)trunc(fabs(dp_T0[ref]));
 
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -4025,7 +4025,7 @@ int  hov_forward(
                 coval = get_val_f();
 
 #if !defined(_NTIGHT_)
-		res = trunc(fabs(dp_T0[arg2]));
+		res = (size_t)trunc(fabs(dp_T0[arg2]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
                 /* olvo 980924 changed order to allow reflexive ops */

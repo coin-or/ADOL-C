@@ -26,7 +26,7 @@ adubref::adubref( locint lo, locint ref ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     location = lo;
-    refloc = trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[location]));
+    refloc = (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[location]));
     if (ref != refloc) {
 	fprintf(DIAG_OUT,"ADOL-C error: strange construction of an active"
 		" vector subscript reference\n(passed ref = %d, stored refloc = %d)\n",ref,refloc);
@@ -406,7 +406,7 @@ bool advector::nondecreasing() const {
 adub advector::operator[](const badouble& index) const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    size_t idx = (size_t) trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
+    size_t idx = (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
     locint locat = next_loc();
     size_t n = data.size();
     static size_t callcounter  = 0;
