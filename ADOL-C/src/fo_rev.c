@@ -1982,8 +1982,8 @@ int int_reverse_safe(
 #else
                 { aTmp = ARES;
                   /* olvo 980713 nn: ARES = 0.0; */
-                  ARES_INC =  aTmp * TARG;
-                  AARG_INC += aTmp * TRES;
+		    ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
+		    AARG_INC += (aTmp==0)?0:(aTmp * TRES);
                 }
 #endif      
 #else
