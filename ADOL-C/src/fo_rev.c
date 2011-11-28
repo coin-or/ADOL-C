@@ -1739,7 +1739,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
 		arg = (size_t)trunc(fabs(TARG1));
 		ASSIGN_A( Ares, ADJOINT_BUFFER[res])
-		ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg])
+		ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 		
 	        FOR_0_LE_l_LT_p
 		{
