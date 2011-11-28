@@ -191,6 +191,10 @@ adubref& adubref::operator = ( const badouble& x ) {
     return *this;
 }
 
+adubref& adubref::operator = ( const adubref& x ) {
+    *this = adub(x);
+}
+
 adubref& adubref::operator <<= ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;

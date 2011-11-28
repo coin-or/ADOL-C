@@ -79,6 +79,7 @@ public:
     adubref& operator--( void );
     adubref& operator = ( double );
     adubref& operator = ( const badouble& );
+    adubref& operator = ( const adubref& );
     adubref& operator +=  ( double );
     adubref& operator +=  ( const badouble& );
     adubref& operator -=  ( double x );
