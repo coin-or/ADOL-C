@@ -35,7 +35,6 @@ adouble findmaxindex(const size_t n, const advector& col, const size_t k) {
 // Assuming A is stored row-wise in the vector
 
 void lufactorize(const size_t n, advector& A, advector& p) {
-    const advector &cA = A, &cp = p;
     adouble idx, tmp;
     for (size_t j = 0; j < n; j++)
 	p[j] = j;
@@ -45,11 +44,11 @@ void lufactorize(const size_t n, advector& A, advector& p) {
 	    condassign(column[j], adouble(double(j - k + 1)), A[j*n + k]);
 	idx = findmaxindex(n, column, k);
 	tmp = p[k];
-	p[k] = cp[idx];
+	p[k] = p[idx];
 	p[idx] = tmp;
 	for(size_t j = 0; j < n; j++) {
 	    tmp = A[k*n + j];
-	    A[k*n + j] = cA[idx*n + j];
+	    A[k*n + j] = A[idx*n + j];
 	    A[idx*n + j] = tmp;
 	}
 	tmp = 1.0/A[k*n + k];
@@ -87,9 +86,8 @@ void printR(const size_t n, const advector& A, ostream &outf = std::cout) {
 }
 
 void Lsolve(const size_t n, const advector& A, const advector& p, advector& b, advector& x) {
-    const advector &cb = b;
     for (size_t j = 0; j < n; j++) {
-	x[j] = cb[p[j]];
+	x[j] = b[p[j]];
 	for (size_t k = j+1; k <n; k++) {
 	    b[p[k]] -= A[k*n+j]*x[j];
 	}
@@ -282,9 +280,8 @@ int main() {
 
     memset(rhsbar, 0, (n*n+n)*sizeof(double));
     memset(ansbar, 0, n*sizeof(double));
-    for (size_t i = 0; i < n; i++)
-	matcol[i] = mat[i*n + 0];
-    cout << "computing gradient of " << 0 + 1 << " element of solution w.r.t. matrix elements and rhs\n";
+    
+    cout << "computing gradient of element " << 0 + 1 << " of solution w.r.t. matrix elements and rhs\n";
     ansbar[0] = 1.0;
 
     fos_reverse(tag, n, n*n+n, ansbar, rhsbar);
@@ -292,8 +289,12 @@ int main() {
     for (size_t i = 0; i < n*n + n; i++)
 	cout << "bar[" << i << "] = " <<  rhsbar[i] << "\n";
 
-    scprod = scalar(rhsbar, matcol, n);
-    cout << "gradient w.r.t. rhs times " << 0 + 1 << " column of matrix  = " << scprod << "\n";
+    for (size_t j = 0; j < n; j++) {
+	for (size_t i = 0; i < n; i++)
+	    matcol[i] = mat[i*n + j];
+	scprod = scalar(rhsbar, matcol, n);
+	cout << "gradient w.r.t. rhs times column " << j + 1 << " of matrix  = " << scprod << "\n";
+    }
     delete[] ansbar;
     delete[] matcol;
     delete[] rhsbar;
