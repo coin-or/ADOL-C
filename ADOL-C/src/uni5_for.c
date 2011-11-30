@@ -158,6 +158,7 @@ IndexElement_csod;
 
 #if defined(_TIGHT_)
 
+void traverse(IndexElement* tree);
 void free_tree(IndexElement* nlf, int num);
 void traverse_nlf(IndexElement* nlf, char* inddomain);
 void traverse_crs(IndexElement* fod2, IndexElement_csod* csod, int num);
@@ -194,7 +195,7 @@ IndexElement_csod;
 
 #if defined(_TIGHT_)
 
-void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fodi, int num);
+void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind);
 
 #define GENERATED_FILENAME "nonl_ind_forward_t"
 #endif
@@ -1749,8 +1750,8 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[res]];
 		fod[opind].right = &fod[arg_index[arg]];
-		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[opind], indcheck+1);
-		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[arg_index[arg]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2010,10 +2011,28 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = &fod[arg_index[arg2]];
-		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1);
-		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1);
-
+/* 		printf(" arg1 %d \n",arg1); */
+/* 		traverse(&fod[arg_index[arg1]]); */
+/* 		printf("\n"); */
+/* 		printf(" arg2 %d \n",arg2); */
+/* 		traverse(&fod[arg_index[arg2]]); */
+/* 		printf("\n"); */
+/* 		for(i=0;i<indcheck;i++) */
+/* 		  { */
+/* 		    printf(" %d:\n",i); */
+/* 		    traverse(&nonl_dom[i]); */
+/* 		    printf("\n"); */
+/* 		  } */
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[arg_index[arg1]], indcheck+1,maxopind+2);
 		arg_index[res] = opind++;		
+/* 		for(i=0;i<indcheck;i++) */
+/* 		  { */
+/* 		    printf(" %d:\n",i); */
+/* 		    traverse(&nonl_dom[i]); */
+/* 		    printf("\n"); */
+/* 		  } */
+
 #endif
 #if defined(_NLF_)
 		fod[opind].entry = maxopind+2;
@@ -2082,8 +2101,8 @@ int  hov_forward(
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = &fod[arg_index[arg2]];
 		// first step: z = u*w, 
-		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1);
-		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
 		opind++;
 		// second step: v = v+z, index domains
 		fod[opind].entry = maxopind+2;
@@ -2170,8 +2189,8 @@ int  hov_forward(
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = &fod[arg_index[arg2]];
 		// first step: z = u*w,
-		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1);
-		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
 		opind++;
 		// second step: v = v-z, index domains
 		fod[opind].entry = maxopind+2;
@@ -2305,8 +2324,8 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = &fod[arg_index[arg2]];
-		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1);
-		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2381,7 +2400,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2523,7 +2542,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2594,7 +2613,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2675,7 +2694,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2753,7 +2772,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2823,7 +2842,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -2931,7 +2950,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3041,7 +3060,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3111,7 +3130,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3203,7 +3222,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3316,7 +3335,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3381,7 +3400,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3474,7 +3493,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -3624,7 +3643,7 @@ int  hov_forward(
 		fod[opind].entry = maxopind+2;
 		fod[opind].left = &fod[arg_index[arg]];
 		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1);
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
 #if defined(_NLF_)
@@ -4465,7 +4484,6 @@ int  hov_forward(
 
         } /* endswitch */
 
-
         /* Read the next operation */
         operation=get_op_f();
 #if defined(ADOLC_DEBUG)
@@ -4542,7 +4560,7 @@ int  hov_forward(
 
     for( i=0; i < indcheck; i++) {
       traverse_crs(&fod2[i],&csod[i],maxopind+1);
-      free_tree(&fod2[i],maxopind+1);
+/*       free_tree(&fod2[i],maxopind+1); */
       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (csod[i].entry+1));
       crs[i][0] = csod[i].entry;
       temp = csod[i].left;
@@ -4555,11 +4573,11 @@ int  hov_forward(
 	}
     }
 
-    free(fod);
-    free(fod2);
-    free(nlf);
-    free(csod);
-    free(arg_index);
+/*     free(fod); */
+/*     free(fod2); */
+/*     free(nlf); */
+/*     free(csod); */
+/*     free(arg_index); */
 #endif
 #endif
     return ret_c;
@@ -4803,13 +4821,13 @@ void traverse(IndexElement* tree)
   if (tree->left != NULL)
     {
       traverse(tree->left);
-      if (tree->right != NULL)
-	traverse(tree->right);
-     }
-  else
-    {
-      printf(" %d ",tree->entry);
     }
+  if (tree->right != NULL)
+    {
+      traverse(tree->right);
+    }
+  printf(" %ld ",tree->entry);
+  
 }
 
 void traverse_nlf(IndexElement* tree, char* nlfdomain)
@@ -4909,11 +4927,14 @@ void traverse_fod(IndexElement* tree,  IndexElement* fod,  int i, IndexElement* 
      }
   else
     {
-      temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-      temp->right = &fod[i];
-      temp->left = fod2[tree->entry].left;
-      temp->entry= num;
-      fod2[tree->entry].left = temp;
+      if(tree->entry<num)
+	{
+	  temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+	  temp->right = &fod[i];
+	  temp->left = fod2[tree->entry].left;
+	  temp->entry= num;
+	  fod2[tree->entry].left = temp;
+	}
     }
 }
 
@@ -4929,25 +4950,28 @@ void traverse_fod(IndexElement* tree,  IndexElement* fod,  int i, IndexElement* 
 
 #if defined(_TIGHT_)
 
-void traverse_unary(IndexElement* tree,  IndexElement* nonl_dom,  IndexElement* fodi, int num)
+void traverse_unary(IndexElement* tree,  IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind)
 {
   IndexElement *temp;
 
   if (tree->left != NULL)
     {
-      traverse_unary(tree->left, nonl_dom, fodi, num);
+      traverse_unary(tree->left, nonl_dom, fodi, num, maxopind);
       if (tree->right != NULL)
 	{
-	  traverse_unary(tree->right, nonl_dom, fodi, num);
+	  traverse_unary(tree->right, nonl_dom, fodi, num, maxopind);
 	}
      }
   else
     {
-      temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
-      temp->right = fodi;
-      temp->left = nonl_dom[tree->entry].left;
-      temp->entry= num;
-      nonl_dom[tree->entry].left = temp;
+      if(tree->entry<maxopind)
+	{
+	  temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+	  temp->right = fodi;
+	  temp->left = nonl_dom[tree->entry].left;
+	  temp->entry= num;
+	  nonl_dom[tree->entry].left = temp;
+	}
     }
 }
 
