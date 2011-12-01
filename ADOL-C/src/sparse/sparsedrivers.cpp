@@ -381,7 +381,11 @@ int sparse_jac(
       // everything is preallocated, we assume correctly
       // call usermem versions
       if (options[3] == 1)
+#if defined(_OPENMP)
+       jr1d->RecoverD2Row_CoordinateFormat_usermem_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+#else
        jr1d->RecoverD2Row_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+#endif
      else
        jr1d->RecoverD2Cln_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP, rind, cind, values);
     } else {
@@ -394,7 +398,11 @@ int sparse_jac(
       if (*cind != NULL)
 	  free(*cind);
       if (options[3] == 1)
+#if defined(_OPENMP)
+       jr1d->RecoverD2Row_CoordinateFormat_unmanaged_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+#else
        jr1d->RecoverD2Row_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+#endif
      else
        jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
     }
@@ -610,8 +618,12 @@ int sparse_hess(
      if (options[1] == 0)
        hr->IndirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
+#if defined(_OPENMP)
+       hr->DirectRecover_CoordinateFormat_usermem_OMP(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+#else
        hr->DirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
-    } else {
+#endif
+   } else {
       // at least one of rind cind values is not allocated, deallocate others
       // and call unmanaged versions
       if (*values != NULL)
@@ -623,7 +635,11 @@ int sparse_hess(
      if (options[1] == 0)
        hr->IndirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
+#if defined(_OPENMP)
+       hr->DirectRecover_CoordinateFormat_unmanaged_OMP(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+#else
        hr->DirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+#endif
     }
     return ret_val;
 
