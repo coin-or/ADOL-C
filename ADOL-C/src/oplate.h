@@ -88,7 +88,6 @@ enum OPCODES {
   receive_data,
   barrier_op,
   broadcast,
-  reduce,
   gather,
   scatter
 };

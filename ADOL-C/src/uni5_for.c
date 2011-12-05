@@ -1039,9 +1039,8 @@ tnum,
 #if defined(_MPI_)
      double *trade, *rec_buf, *mpi_tmp;
      MPI_Status status_MPI;
-     int mpi_i,mpi_ii, s_r_c=1,use_reduce=0;
+     int mpi_i,mpi_ii, s_r_c=1;
      locint *loc_send, *loc_recv;
-     ADOLC_MPI_Op mpi_op;
      int myid,root, count, count2, target,tag;
 #if defined(_NONLIND_)
      locint *tmp_element;
@@ -1111,11 +1110,11 @@ tnum,
     /*--------------------------------------------------------------------------*/
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
-    ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    ind_dom = (locint**)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
     {
-        ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
+        ind_dom[i] = (locint*)  malloc(sizeof(locint)*(NUMNNZ+2));
         ind_dom[i][0] = 0;
         ind_dom[i][1] = NUMNNZ;
     }
@@ -4219,7 +4218,7 @@ tnum,
            free(trade);
 #endif /* END ZOS  */
 #if defined(_FOS_)
-           trade = myalloc1( count+2 );
+           trade = myalloc1( count*2 );
            if (myid ==root){
                for(mpi_i =0; mpi_i < count; mpi_i++){
                  trade[2*mpi_i] = dp_T0[loc_send[mpi_i]];
@@ -4498,8 +4497,6 @@ tnum,
 #endif
            free(loc_send);
            break;
-      case reduce:
-           use_reduce=1;
       case gather:
            count = get_locint_f(); // count
            loc_send = (locint*) malloc(count*sizeof(locint));
@@ -4517,8 +4514,6 @@ tnum,
            arg = get_locint_f(); // count*process_count
            arg = get_locint_f(); // root
            arg = get_locint_f(); // myid
-           if (use_reduce == 1)
-              mpi_op = get_locint_f();
 
 #if defined(_ZOS_)
            // receiving values for dp_T0
@@ -4692,8 +4687,8 @@ tnum,
            if (myid == root){
               for(mpi_i =0; mpi_i < count2; mpi_i++ ){
                  IF_KEEP_WRITE_TAYLOR(loc_recv[mpi_i],keep,k,p)
-                 dp_T0[loc_recv[mpi_i]] = trade[2*mpi_i];
-                 tmp_counts[mpi_i]  = (int) trade[2*mpi_i+1];
+                 dp_T0[loc_recv[mpi_i]] = rec_buf[2*mpi_i];
+                 tmp_counts[mpi_i]  = (int) rec_buf[2*mpi_i+1];
               }
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
                  for(i=1; i < process_count; i++ )
@@ -4973,7 +4968,6 @@ tnum,
            if ( myid == root)
               free(loc_recv);
            free(loc_send);
-           use_reduce=0;
            break;
       case scatter:
            count = get_locint_f(); // count*procsize
@@ -5189,15 +5183,16 @@ tnum,
            l=0;
            if(myid == root){
               trade_loc = (int*) calloc(count*anz,sizeof(int));
-              for(mpi_i =0; mpi_i < count; mpi_i++ )
+              for(mpi_i =0; mpi_i < count; mpi_i++ ){
                  for (i=2; i < ind_dom[loc_send[mpi_i]][0]+2; i++){
                     trade_loc[l] = ind_dom[loc_send[mpi_i]][i];
                     l++;
                     }
-              for(i=ind_dom[loc_send[mpi_i]][0]; i < anz ; i++  ){
+                 for(i=ind_dom[loc_send[mpi_i]][0]; i < anz ; i++  ){
                     trade_loc[l] = -10;
                     l++;
                  }
+              }
            }
            rec_buf_loc = ( int*) malloc(anz*count2*sizeof(int) );
            MPI_Scatter(trade_loc,anz*count2, MPI_INT, rec_buf_loc, anz*count2, MPI_INT, root, MPI_COMM_WORLD);
@@ -5480,10 +5475,8 @@ tnum,
        crs[i][0] = nonl_dom[i][0];
        for(l=1; l < crs[i][0]+1; l++)
           crs[i][l] = nonl_dom[i][l+1];
-       free(nonl_dom[i]);
-    }
-    for ( i=0;i<indcheck;i++)
        free( nonl_dom[i]);
+    }
     free(nonl_dom);
 #endif
 #endif

@@ -60,7 +60,6 @@ MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op);
 END_C_DECLS
 
 extern int mpi_initialized;
-extern int process_count;
 extern int all_root;
 
 #ifdef __cplusplus
