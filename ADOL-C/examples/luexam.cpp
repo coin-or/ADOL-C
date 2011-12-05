@@ -61,6 +61,24 @@ void lufactorize(const size_t n, advector& A, advector& p) {
     }
 }
 
+void Lsolve(const size_t n, const advector& A, const advector& p, advector& b, advector& x) {
+    for (size_t j = 0; j < n; j++) {
+	x[j] = b[p[j]];
+	for (size_t k = j+1; k <n; k++) {
+	    b[p[k]] -= A[k*n+j]*x[j];
+	}
+    }
+}
+
+void Rsolve(const size_t n, const advector& A, advector& x) {
+    for (size_t j = 1; j <= n; j++) {
+	x[n-j] *=  1.0/A[(n-j)*n + n-j];
+	for (size_t k = 0; k < n-j; k++) {
+	    x[k] -= A[k*n + n-j]*x[n-j];
+	}
+    }
+}
+
 void printL(const size_t n, const advector& A, ostream &outf = std::cout) {
     for (size_t i = 0; i < n; i++) {
 	for (size_t j = 0; j < n; j++)
@@ -82,24 +100,6 @@ void printR(const size_t n, const advector& A, ostream &outf = std::cout) {
 	    else
 		outf << setw(8) << 0.0 << "  ";
 	outf << "\n";
-    }
-}
-
-void Lsolve(const size_t n, const advector& A, const advector& p, advector& b, advector& x) {
-    for (size_t j = 0; j < n; j++) {
-	x[j] = b[p[j]];
-	for (size_t k = j+1; k <n; k++) {
-	    b[p[k]] -= A[k*n+j]*x[j];
-	}
-    }
-}
-
-void Rsolve(const size_t n, const advector& A, advector& x) {
-    for (size_t j = 1; j <= n; j++) {
-	x[n-j] *=  1.0/A[(n-j)*n + n-j];
-	for (size_t k = 0; k < n-j; k++) {
-	    x[k] -= A[k*n + n-j]*x[n-j];
-	}
     }
 }
 
@@ -280,9 +280,9 @@ int main() {
 
     memset(rhsbar, 0, (n*n+n)*sizeof(double));
     memset(ansbar, 0, n*sizeof(double));
-    
-    cout << "computing gradient of element " << 0 + 1 << " of solution w.r.t. matrix elements and rhs\n";
-    ansbar[0] = 1.0;
+    for (size_t k = 0; k < n; k++) {
+    cout << "computing gradient of element " << k + 1 << " of solution w.r.t. matrix elements and rhs\n";
+    ansbar[k] = 1.0;
 
     fos_reverse(tag, n, n*n+n, ansbar, rhsbar);
 
@@ -294,6 +294,8 @@ int main() {
 	    matcol[i] = mat[i*n + j];
 	scprod = scalar(rhsbar, matcol, n);
 	cout << "gradient w.r.t. rhs times column " << j + 1 << " of matrix  = " << scprod << "\n";
+    }
+    ansbar[k] = 0.0;
     }
     delete[] ansbar;
     delete[] matcol;

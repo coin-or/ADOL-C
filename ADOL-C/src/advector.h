@@ -106,6 +106,7 @@ public:
     explicit advector(size_t n) : data(n) {}
     ~advector() {}
     advector(const advector& x) : data(x.data) {}
+    advector(const vector<adouble>& v) : data(v) {}
     size_t size() const { return data.size(); }
     operator const vector<adouble>&() const { return data; }
     operator vector<adouble>&() { return data; }
