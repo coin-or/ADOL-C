@@ -170,7 +170,6 @@ void StoreManagerLocint::grow() {
 #endif
     storePtr = new double[groesse];
     indexFeld = new locint[groesse];
-    memset(storePtr, 0, groesse*sizeof(double));
     // we use index 0 as end-of-list marker
     size_t i = 1;
     storePtr[0] =  std::numeric_limits<double>::quiet_NaN();

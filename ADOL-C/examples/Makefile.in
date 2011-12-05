@@ -38,7 +38,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @DOCEXA_TRUE@noinst_PROGRAMS = detexam$(EXEEXT) speelpenning$(EXEEXT) \
-@DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) \
+@DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) luexam$(EXEEXT) \
 @DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT)
 subdir = ADOL-C/examples
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -57,6 +57,10 @@ am_detexam_OBJECTS = detexam.$(OBJEXT)
 detexam_OBJECTS = $(am_detexam_OBJECTS)
 detexam_LDADD = $(LDADD)
 detexam_DEPENDENCIES =
+am_luexam_OBJECTS = luexam.$(OBJEXT)
+luexam_OBJECTS = $(am_luexam_OBJECTS)
+luexam_LDADD = $(LDADD)
+luexam_DEPENDENCIES =
 am_odexam_OBJECTS = odexam.$(OBJEXT)
 odexam_OBJECTS = $(am_odexam_OBJECTS)
 odexam_LDADD = $(LDADD)
@@ -87,12 +91,12 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(detexam_SOURCES) $(odexam_SOURCES) $(powexam_SOURCES) \
-	$(speelpenning_SOURCES) $(tapeless_scalar_SOURCES) \
-	$(tapeless_vector_SOURCES)
-DIST_SOURCES = $(detexam_SOURCES) $(odexam_SOURCES) $(powexam_SOURCES) \
-	$(speelpenning_SOURCES) $(tapeless_scalar_SOURCES) \
-	$(tapeless_vector_SOURCES)
+SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
+	$(powexam_SOURCES) $(speelpenning_SOURCES) \
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
+DIST_SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
+	$(powexam_SOURCES) $(speelpenning_SOURCES) \
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -291,6 +295,7 @@ detexam_SOURCES = detexam.cpp
 speelpenning_SOURCES = speelpenning.cpp
 powexam_SOURCES = powexam.cpp
 odexam_SOURCES = odexam.cpp 
+luexam_SOURCES = luexam.cpp
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 tapeless_vector_SOURCES = tapeless_vector.cpp
 all: all-recursive
@@ -339,6 +344,9 @@ clean-noinstPROGRAMS:
 detexam$(EXEEXT): $(detexam_OBJECTS) $(detexam_DEPENDENCIES) 
 	@rm -f detexam$(EXEEXT)
 	$(CXXLINK) $(detexam_OBJECTS) $(detexam_LDADD) $(LIBS)
+luexam$(EXEEXT): $(luexam_OBJECTS) $(luexam_DEPENDENCIES) 
+	@rm -f luexam$(EXEEXT)
+	$(CXXLINK) $(luexam_OBJECTS) $(luexam_LDADD) $(LIBS)
 odexam$(EXEEXT): $(odexam_OBJECTS) $(odexam_DEPENDENCIES) 
 	@rm -f odexam$(EXEEXT)
 	$(CXXLINK) $(odexam_OBJECTS) $(odexam_LDADD) $(LIBS)
@@ -362,6 +370,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detexam.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/luexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/powexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speelpenning.Po@am__quote@
