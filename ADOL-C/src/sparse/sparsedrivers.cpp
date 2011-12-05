@@ -12,7 +12,7 @@
   
 ----------------------------------------------------------------------------*/
 #include <adolc/sparse/sparsedrivers.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>
 #include "taping_p.h"

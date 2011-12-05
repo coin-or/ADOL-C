@@ -17,7 +17,7 @@
 #include <math.h>
 #include <string.h>
 
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 
 #include <sys/types.h>
