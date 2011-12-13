@@ -917,12 +917,12 @@ enable_harddebug
 enable_stdczero
 enable_tserrno
 enable_safe_extern
+with_openmp_flag
 enable_sparse
 with_colpack
 enable_docexa
 enable_addexa
 enable_parexa
-with_openmp_flag
 with_cflags
 with_cxxflags
 enable_shave
@@ -1594,11 +1594,11 @@ Optional Packages:
   --with-pic              try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
+  --with-openmp-flag=FLAG use FLAG to enable OpenMP at compile time
+                          [default=none]
 
   --with-colpack          path to the colpack library and headers
                           [default=${srcdir}/ThirdParty/ColPack]
-  --with-openmp-flag=FLAG use FLAG to enable OpenMP at compile time
-                          [default=none]
   --with-cflags=FLAGS     use CFLAGS=FLAGS (default: -O2)
   --with-cxxflags=FLAGS   use CXXFLAGS=FLAGS (default: -O2)
 
@@ -15994,6 +15994,24 @@ $as_echo "no" >&6; }
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking which flag to use to enable OpenMP" >&5
+$as_echo_n "checking which flag to use to enable OpenMP... " >&6; }
+
+# Check whether --with-openmp-flag was given.
+if test "${with_openmp_flag+set}" = set; then :
+  withval=$with_openmp_flag; ac_adolc_openmpflag=$withval
+             msg_result=$withval
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_openmpflag" >&5
+$as_echo "$ac_adolc_openmpflag" >&6; }
+else
+  ac_adolc_openmpflag=""
+             msg_result="none"
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_openmpflag" >&5
+$as_echo "$ac_adolc_openmpflag" >&6; }
+fi
+
+
+
 # ADOL-C Sparse facility
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build sparse drivers" >&5
 $as_echo_n "checking whether to build sparse drivers... " >&6; }
@@ -16034,9 +16052,9 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 for dir in $dirlist ; do
     unset ac_cv_header_ColPackHeaders_h
-    COLPACK_CFLAGS="-I$colpack/$dir/../include"
+    COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/$dir/../include"
     COLPACK_LIBDIR="$colpack/$dir"
-    COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+    COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
     save_CPPFLAGS="$CPPFLAGS"
     save_LIBS="$LIBS"
     CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
@@ -16106,11 +16124,11 @@ if test x$have_colpack = xyes; then
    if test -n $COLPACK_LIBDIR ; then
       colpack_incdir=`readlink -f $COLPACK_LIBDIR/../include`
       if test -n $colpack_incdir ; then
-      	 COLPACK_CFLAGS="-I$colpack_incdir"
+      	 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack_incdir"
       else
 	 COLPACK_CFLAGS=""
       fi
-      COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+      COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
    else
       COLPACK_CFLAGS=""
       COLPACK_LIBS=""
@@ -16135,7 +16153,7 @@ non_pic_object='$i'
 EOF
 	done
        	)
-       COLPACK_LIBS=`find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "`
+       COLPACK_LIBS="$ac_adolc_openmpflag `find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "` "
    fi
    sparse=yes
    echo "will build sparse drivers as linking with -lColPack succeeded"
@@ -16228,23 +16246,6 @@ fi
 
 
 # ADOL-C Compilation flags
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking which flag to use to enable OpenMP" >&5
-$as_echo_n "checking which flag to use to enable OpenMP... " >&6; }
-
-# Check whether --with-openmp-flag was given.
-if test "${with_openmp_flag+set}" = set; then :
-  withval=$with_openmp_flag; ac_adolc_openmpflag=$withval
-             msg_result=$withval
-             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_openmpflag" >&5
-$as_echo "$ac_adolc_openmpflag" >&6; }
-else
-  ac_adolc_openmpflag=""
-             msg_result="none"
-             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_openmpflag" >&5
-$as_echo "$ac_adolc_openmpflag" >&6; }
-fi
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking which CFLAGS to use" >&5
 $as_echo_n "checking which CFLAGS to use... " >&6; }
 
