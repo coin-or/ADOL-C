@@ -141,6 +141,18 @@ AS_HELP_STRING([--enable-safe-extern],[backup all adoubles before calling an ext
   [AC_MSG_RESULT(no)
    adolc_safe_extern="no"])
 
+AC_MSG_CHECKING(which flag to use to enable OpenMP)
+AC_ARG_WITH(openmp-flag,
+            [AS_HELP_STRING([--with-openmp-flag=FLAG],
+                            [use FLAG to enable OpenMP at compile time [default=none]])],
+            [ac_adolc_openmpflag=$withval
+             msg_result=$withval
+             AC_MSG_RESULT($ac_adolc_openmpflag)],
+            [ac_adolc_openmpflag=""
+             msg_result="none"
+             AC_MSG_RESULT($ac_adolc_openmpflag)])
+
+
 # ADOL-C Sparse facility
 AC_MSG_CHECKING(whether to build sparse drivers)
 AC_ARG_ENABLE(sparse,
@@ -168,9 +180,9 @@ fi
 AC_LANG_PUSH([C++])
 for dir in $dirlist ; do
     unset ac_cv_header_ColPackHeaders_h
-    COLPACK_CFLAGS="-I$colpack/$dir/../include"
+    COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/$dir/../include"
     COLPACK_LIBDIR="$colpack/$dir"
-    COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+    COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
     save_CPPFLAGS="$CPPFLAGS"
     save_LIBS="$LIBS"
     CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
@@ -203,11 +215,11 @@ if test x$have_colpack = xyes; then
    if test -n $COLPACK_LIBDIR ; then
       colpack_incdir=`readlink -f $COLPACK_LIBDIR/../include`
       if test -n $colpack_incdir ; then
-      	 COLPACK_CFLAGS="-I$colpack_incdir"
+      	 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack_incdir"
       else
 	 COLPACK_CFLAGS=""
       fi
-      COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
+      COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
    else
       COLPACK_CFLAGS=""
       COLPACK_LIBS=""
@@ -232,7 +244,7 @@ non_pic_object='$i'
 EOF
 	done
        	)
-       COLPACK_LIBS=`find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "`
+       COLPACK_LIBS="$ac_adolc_openmpflag `find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "` "
    fi
    sparse=yes
    echo "will build sparse drivers as linking with -lColPack succeeded"
@@ -280,17 +292,6 @@ AC_ARG_ENABLE(parexa,
 AM_CONDITIONAL(PAREXA,[test x${parexa} = xyes])
 
 # ADOL-C Compilation flags
-AC_MSG_CHECKING(which flag to use to enable OpenMP)
-AC_ARG_WITH(openmp-flag,
-            [AS_HELP_STRING([--with-openmp-flag=FLAG],
-                            [use FLAG to enable OpenMP at compile time [default=none]])],
-            [ac_adolc_openmpflag=$withval
-             msg_result=$withval
-             AC_MSG_RESULT($ac_adolc_openmpflag)],
-            [ac_adolc_openmpflag=""
-             msg_result="none"
-             AC_MSG_RESULT($ac_adolc_openmpflag)])
-
 AC_MSG_CHECKING(which CFLAGS to use)
 AC_ARG_WITH(cflags,
             [AS_HELP_STRING([--with-cflags=FLAGS],
