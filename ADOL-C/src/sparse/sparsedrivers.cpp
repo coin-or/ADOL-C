@@ -319,12 +319,14 @@ int sparse_jac(
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
 				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_clms = indep;
+	  ret_val = sJinfos.seed_rows;
 	}  
       else
 	{
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
                                 &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_rows = depen;
+	  ret_val = sJinfos.seed_clms;
 	}
       
       sJinfos.B = myalloc2(sJinfos.seed_rows,sJinfos.seed_clms);

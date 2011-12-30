@@ -104,9 +104,46 @@ static char* a[] =  {  "death not",
                        "erf op",
                        "ceil op",
                        "floor op",
-                       "extern fctn"
-                       "ignore_me"
-                    };
+                       "extern fctn",
+                       "ignore_me",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "",
+		       "subscript op",
+		       "subscript ref op",
+		       "ref assign d zero",
+		       "ref assign d one",
+		       "ref assign d",
+		       "ref assign a",
+		       "ref assign ind",
+		       "ref incr a",
+		       "ref decr a",
+		       "ref eq plus d",
+		       "ref eq min d",
+		       "ref eq plus a",
+		       "ref eq min a",
+		       "ref eq mult d",
+		       "ref eq mult a",
+		       "ref copyout",
+		       "ref cond assign $\\longrightarrow$",
+		       "ref cond assign s $\\longrightarrow$"
+};
 
 /****************************************************************************/
 /*                                                     LOCAL WRITE ROUTINES */
@@ -368,6 +405,7 @@ void tape_doc(short tnum,         /* tape id */
                 /*                                                              ASSIGNMENTS */
 
                 /*--------------------------------------------------------------------------*/
+	    case ref_assign_a:
             case assign_a:           /* assign an adouble variable an    assign_a */
                 /* adouble value. (=) */
                 arg = get_locint_f();
@@ -383,6 +421,7 @@ void tape_doc(short tnum,         /* tape id */
                 break;
 
                 /*--------------------------------------------------------------------------*/
+	    case ref_assign_d:
             case assign_d:            /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
                 res  = get_locint_f();
