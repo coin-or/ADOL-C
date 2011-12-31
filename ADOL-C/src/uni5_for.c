@@ -4301,10 +4301,10 @@ void copy_index_domain(int res, int arg, locint **ind_dom) {
 
    int i;
 
-   if (ind_dom[arg][0] > ind_dom[res][1]-2)
+   if (ind_dom[arg][0] > ind_dom[res][1])
      {
        free(ind_dom[res]);
-       ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*(ind_dom[arg][0])+1);
+       ind_dom[res] = (locint *)  malloc(sizeof(locint) * 2*(ind_dom[arg][0]+1));
        ind_dom[res][1] = 2*ind_dom[arg][0];
      }
 
