@@ -419,7 +419,7 @@ adub advector::operator[](const badouble& index) const {
 	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
 	    exit(-2);
 	}
-	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2> ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 4 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
 	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
 	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
 	    put_op(end_of_int);
@@ -450,7 +450,7 @@ adubref advector::operator[](const badouble& index) {
 	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
 	    exit(-2);
 	}
-	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 4 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
 	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
 	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
 	    put_op(end_of_int);
