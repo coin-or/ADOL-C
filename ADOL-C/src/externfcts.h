@@ -33,21 +33,21 @@ typedef struct {
                         int m, double *dp_y);
     int (*fos_forward) (int n, double *dp_x, double *dp_X,
                         int m, double *dp_y, double *dp_Y);
-    int (*fov_forward) (int n, double *dp_x, int p, double **dpp_X,
+    int (*fov_forward) (int n, double *dp_x, double **dpp_X,
                         int m, double *dp_y, double **dpp_Y);
-    int (*hos_forward) (int n, double *dp_x, int d, double **dpp_X,
+    int (*hos_forward) (int n, double *dp_x, double **dpp_X,
                         int m, double *dp_y, double **dpp_Y);
-    int (*hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X,
+    int (*hov_forward) (int n, double *dp_x, double ***dppp_X,
                         int m, double *dp_y, double ***dppp_Y);
 
     int (*fos_reverse) (int m, double *dp_U,
                         int n, double *dp_Z);
-    int (*fov_reverse) (int m, int p, double **dpp_U,
+    int (*fov_reverse) (int m, double **dpp_U,
                         int n, double **dpp_Z);
     int (*hos_reverse) (int m, double *dp_U,
-                        int n, int d, double **dpp_Z);
-    int (*hov_reverse) (int m, int p, double **dpp_U,
-                        int n, int d, double ***dppp_Z,
+                        int n, double **dpp_Z);
+    int (*hov_reverse) (int m, double **dpp_U,
+                        int n, double ***dppp_Z,
                         short **spp_nz);
 
     /* This variables must be set before calling the functions above. */
