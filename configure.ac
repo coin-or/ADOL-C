@@ -167,7 +167,7 @@ test "x${ac_pwd}" = x && ac_pwd=`pwd`
 abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
-AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
+AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
 		[colpack=$withval],
 		[colpack=${abs_srcdir}/ThirdParty/ColPack])
 
