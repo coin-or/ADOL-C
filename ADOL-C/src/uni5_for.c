@@ -860,10 +860,6 @@ int  hov_forward(
 #   define ADOLC_EXT_SUBSCRIPT [loop2]
 #endif
 
-#if defined(_INDO_) && defined (_TIGHT_) && !defined(_NONLIND_)
-#   define _EXTERN_ 1
-#endif
-
 #if defined(_EXTERN_)
     locint n, m;
     ext_diff_fct *edfct;
@@ -4128,20 +4124,7 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for = get_locint_f();
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for = get_locint_f();
                 ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_f();
-
                 edfct=get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
-#if defined(_INDO_) && defined(_TIGHT_)
-		res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
-		for (loop = 0; loop < m; loop++) {
-		    locint loop2;
-		    arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
-		    for (loop2 = 0; loop2 < n; loop2++) {
-			merge_2_index_domains(res,arg,ind_dom);
-			arg++;
-		    }
-		    res++;
-		}
-#else
 
                 if (edfct->ADOLC_EXT_FCT_POINTER==NULL)
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
@@ -4204,7 +4187,7 @@ int  hov_forward(
 #endif
                     ++res;
                 }
-#endif
+
                 break;
 #endif
                 /*--------------------------------------------------------------------------*/
