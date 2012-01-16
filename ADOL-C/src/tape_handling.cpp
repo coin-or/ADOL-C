@@ -155,10 +155,9 @@ void StoreManagerLocint::grow() {
     }
 
 #ifdef ADOLC_DEBUG
-    // index 0 is not used, means one slot less
     std::cerr << "StoreManagerInteger::grow(): increase size from " << alteGroesse 
 	 << " to " << groesse << " entries (currently " << size() << " entries used)\n";
-    assert(alteGroesse == initialeGroesse or size() == (alteGroesse-1));
+    assert(alteGroesse == initialeGroesse or size() == alteGroesse);
 #endif
 
     double *const oldStore = storePtr;
