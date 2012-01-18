@@ -297,8 +297,8 @@ int sparse_jac(
 
       if (options[2] == -1)
 	{
-	  (*rind) = new unsigned int[*nnz];
-	  (*cind) = new unsigned int[*nnz];
+	  (*rind) = (unsigned int*)calloc(*nnz,sizeof(unsigned int));
+	  (*cind) = (unsigned int*)calloc(*nnz,sizeof(unsigned int));
 	  unsigned int index = 0;
 	  for (i=0;i<depen;i++) 
             for (j=1;j<=sJinfos.JP[i][0];j++)
