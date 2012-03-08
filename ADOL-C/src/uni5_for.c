@@ -4691,7 +4691,7 @@ tnum,
                  tmp_counts[mpi_i]  = (int) rec_buf[2*mpi_i+1];
               }
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
-                 for(i=1; i < process_count; i++ )
+                 for(i=1; i < mpi_size; i++ )
                    if( counts[mpi_i] < tmp_counts[count*i + mpi_i])
                          counts[mpi_i] = tmp_counts[count*i + mpi_i];
               }
@@ -4718,7 +4718,7 @@ tnum,
                  }
               }
               if (myid == root)
-                 rec_buf_loc = (int*) malloc(process_count * anz * sizeof(int) );
+                 rec_buf_loc = (int*) malloc(mpi_size * anz * sizeof(int) );
               else
                  rec_buf_loc = NULL ;
 
@@ -4727,7 +4727,7 @@ tnum,
 
               if(myid == root){
                 l = 0;
-                for(i=0;i<process_count; i++) {
+                for(i=0;i<mpi_size; i++) {
                    for(mpi_i=0; mpi_i < count; mpi_i++){
                       combine_index_domain_received_data(loc_recv[mpi_i], tmp_counts[i*count+mpi_i], ind_dom, &rec_buf_loc[l] );
                       l += counts[mpi_i];
@@ -4765,7 +4765,7 @@ tnum,
                  tmp_counts[mpi_i]  = (int) trade[2*mpi_i+1];
               }
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
-                 for(i=1; i < process_count; i++ )
+                 for(i=1; i < mpi_size; i++ )
                    if( counts[mpi_i] < tmp_counts[count*i + mpi_i])
                          counts[mpi_i] = tmp_counts[count*i + mpi_i];
               }
@@ -4781,7 +4781,7 @@ tnum,
            if ( anz > 0){
               trade_loc = (int*) malloc( anz*sizeof(int) );
               if (myid == root){
-                 rec_buf_loc = (int*) malloc(process_count * anz * sizeof(int));
+                 rec_buf_loc = (int*) malloc(mpi_size * anz * sizeof(int));
               } else { rec_buf_loc =NULL; }
 
               l=0;
@@ -4855,7 +4855,7 @@ tnum,
            MPI_Gather(counts,count, MPI_INT, tmp_counts, count, MPI_INT, root, MPI_COMM_WORLD);
            if (myid == root){
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
-                 for(i=1; i < process_count; i++ )
+                 for(i=1; i < mpi_size; i++ )
                    if( counts[mpi_i] < tmp_counts[count*i + mpi_i])
                          counts[mpi_i] = tmp_counts[count*i + mpi_i];
               }
@@ -4879,7 +4879,7 @@ tnum,
                     l++;
                  }
               }
-              if (myid == root) rec_buf_loc = (int*) malloc(process_count * anz * sizeof(int) );
+              if (myid == root) rec_buf_loc = (int*) malloc(mpi_size * anz * sizeof(int) );
               else  rec_buf_loc = NULL ;
 
               MPI_Gather(trade_loc, anz, MPI_INT, rec_buf_loc, anz, MPI_INT, root, MPI_COMM_WORLD);
@@ -4887,7 +4887,7 @@ tnum,
 
               if(myid == root){
                 l = 0;
-                for(i=0;i<process_count; i++) {
+                for(i=0;i<mpi_size; i++) {
                    for(mpi_i=0; mpi_i < count; mpi_i++){
                       combine_index_domain_received_data(loc_recv[mpi_i], tmp_counts[i*count+mpi_i], ind_dom, &rec_buf_loc[l] );
                       l += counts[mpi_i];
@@ -4913,7 +4913,7 @@ tnum,
            MPI_Gather(counts,count, MPI_INT, tmp_counts, count, MPI_INT, root, MPI_COMM_WORLD);
            if (myid == root){
               for(mpi_i =0; mpi_i < count; mpi_i++ ){
-                 for(i=1; i < process_count; i++ )
+                 for(i=1; i < mpi_size; i++ )
                    if( counts[mpi_i] < tmp_counts[count*i + mpi_i])
                          counts[mpi_i] = tmp_counts[count*i + mpi_i];
               }
@@ -4927,7 +4927,7 @@ tnum,
            if ( anz > 0){
               trade_loc = (int*) malloc( anz*sizeof(int) );
               if (myid == root){
-                 rec_buf_loc = (int*) malloc(process_count * anz * sizeof(int));
+                 rec_buf_loc = (int*) malloc(mpi_size * anz * sizeof(int));
               } else { rec_buf_loc =NULL; }
 
               l=0;
@@ -5153,7 +5153,7 @@ tnum,
 #if defined(_INDO_)
            rec_buf = myalloc1(count2+1);
            if (myid == root)
-              trade = myalloc1(count+process_count);
+              trade = myalloc1(count+mpi_size);
            else
               trade = NULL;
            if(myid== root){
@@ -5164,7 +5164,7 @@ tnum,
               }
               i=0;
               l=0;
-              for(mpi_ii=0; mpi_ii<process_count; mpi_ii++){
+              for(mpi_ii=0; mpi_ii<mpi_size; mpi_ii++){
                  for(mpi_i=0; mpi_i < count2; mpi_i++,l++,i++)
                     trade[l] = dp_T0[loc_send[i]];
                  trade[l] = (double) anz;
@@ -5218,7 +5218,7 @@ tnum,
 #if defined(_NONLIND_)
            rec_buf = myalloc1(count2+1);
            if (myid == root)
-              trade = myalloc1(count+process_count);
+              trade = myalloc1(count+mpi_size);
            else
               trade = NULL;
            if(myid== root){
@@ -5229,7 +5229,7 @@ tnum,
               }
               i=0;
               l=0;
-              for(mpi_ii=0; mpi_ii<process_count; mpi_ii++){
+              for(mpi_ii=0; mpi_ii<mpi_size; mpi_ii++){
                  for(mpi_i=0; mpi_i < count2; mpi_i++,l++,i++)
                     trade[l] = dp_T0[loc_send[i]];
                  trade[l] = (double) anz;
