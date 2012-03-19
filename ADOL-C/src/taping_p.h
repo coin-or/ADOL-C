@@ -49,6 +49,7 @@ typedef struct {
     short adolc_lvl;
     short locint_size;
     short revreal_size;
+    short address_size;
 }
 ADOLC_ID;
 
@@ -110,7 +111,9 @@ enum ADOLC_ERRORS {
     ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION,
     ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
     ADOLC_CHECKPOINTING_REVOLVE_IRREGULAR_TERMINATED,
-    ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION
+    ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
+    ADOLC_WRONG_PLATFORM_32,
+    ADOLC_WRONG_PLATFORM_64
 };
 /* additional infos fail can work with */
 extern int failAdditionalInfo1;

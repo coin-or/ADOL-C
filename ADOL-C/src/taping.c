@@ -38,8 +38,8 @@
 ADOLC_ID adolc_id;
 /* first version with new tape structure
  * => to work with older tapes use older ADOL-C version */
-#define ADOLC_NEW_TAPE_VERSION 1
-#define ADOLC_NEW_TAPE_SUBVERSION 8
+#define ADOLC_NEW_TAPE_VERSION 2
+#define ADOLC_NEW_TAPE_SUBVERSION 3
 #define ADOLC_NEW_TAPE_PATCHLEVEL 0
 
 /****************************************************************************/
@@ -263,6 +263,16 @@ void fail( int error ) {
                     "ADOL-C error: Unextpected REVOLVE action in forward mode!\n"
                    );
             break;
+	case ADOLC_WRONG_PLATFORM_32:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace was created on a 64-bit platfrom, cannot be opened on 32-bit platform!\n"
+		);
+	    break;
+	case ADOLC_WRONG_PLATFORM_64:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace was created on a 32-bit platform, cannot be opened on 64-bit platform!\n"
+		);
+	    break;
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
@@ -1289,6 +1299,13 @@ void read_tape_stats(TapeInfos *tapeInfos) {
             10 * tape_ADOLC_ID.adolc_sub +
             1  * tape_ADOLC_ID.adolc_lvl ;
     if (tapeVersion < limitVersion) fail(ADOLC_TAPE_TO_OLD);
+
+    if (tape_ADOLC_ID.address_size != adolc_id.address_size) {
+	if (tape_ADOLC_ID.address_size < adolc_id.address_size)
+	    fail(ADOLC_WRONG_PLATFORM_64);
+	else
+	    fail(ADOLC_WRONG_PLATFORM_32);
+    }
 
     if (tape_ADOLC_ID.locint_size != adolc_id.locint_size) {
         failAdditionalInfo1 = tape_ADOLC_ID.locint_size;

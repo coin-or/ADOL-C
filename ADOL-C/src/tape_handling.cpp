@@ -694,6 +694,7 @@ void init() {
     adolc_id.adolc_lvl    = ADOLC_PATCHLEVEL;
     adolc_id.locint_size  = sizeof(locint);
     adolc_id.revreal_size = sizeof(revreal);
+    adolc_id.address_size = sizeof(size_t);
 
     ADOLC_EXT_DIFF_FCTS_BUFFER.init(init_CpInfos);
 }
