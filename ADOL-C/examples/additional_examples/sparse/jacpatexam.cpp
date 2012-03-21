@@ -116,7 +116,7 @@ int main(void) {
     int    ret_c = -1, choice;
     int    oper, op_buf_size, loc_buf_size, con_buf_size, maxlive, deaths;
     unsigned int depen, indep;
-    int    tape_stats[STAT_SIZE];
+    size_t       tape_stats[STAT_SIZE];
     unsigned int    i, j, minnz, maxnz, nz, nzref, nz_rel;
     double z1, z2, t0, t1, t2, t3, t4, t5, t6=0.0, t7=0.0;
     char   outp, full_jac;
