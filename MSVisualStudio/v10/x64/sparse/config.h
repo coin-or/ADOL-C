@@ -11,13 +11,13 @@
 /* #undef ADOLC_HARDDEBUG */
 
 /* ADOL-C Patchlevel */
-#define ADOLC_PATCHLEVEL 1
+#define ADOLC_PATCHLEVEL 0
 
 /* ADOL-C safe extern mode */
 /* #undef ADOLC_SAFE_EXTERN */
 
 /* ADOL-C Subversion */
-#define ADOLC_SUBVERSION 2
+#define ADOLC_SUBVERSION 3
 
 /* ADOL-C thread save errno mode */
 /* #undef ADOLC_THREADSAVE_ERRNO */
@@ -116,7 +116,7 @@
 #define PACKAGE_NAME "adolc"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "adolc 2.2.1-trunk"
+#define PACKAGE_STRING "adolc 2.3.0-trunk"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "adolc"
@@ -125,7 +125,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.2.1-trunk"
+#define PACKAGE_VERSION "2.3.0-trunk"
 
 /* The size of `void *', as computed by sizeof. */
 #define SIZEOF_VOID_P 8
@@ -140,7 +140,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.2.1-trunk"
+#define VERSION "2.3.0-trunk"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
