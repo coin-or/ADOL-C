@@ -44,27 +44,29 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/MSVisualStudio/v10/sparse/config.h.in \
 	$(top_srcdir)/MSVisualStudio/v10/x64/nosparse/config.h.in \
 	$(top_srcdir)/MSVisualStudio/v10/x64/sparse/config.h.in \
-	$(top_srcdir)/autoconf/shave-libtool.in \
-	$(top_srcdir)/autoconf/shave.in $(top_srcdir)/configure \
-	AUTHORS ChangeLog INSTALL NEWS TODO autoconf/config.guess \
-	autoconf/config.sub autoconf/depcomp autoconf/install-sh \
-	autoconf/ltmain.sh autoconf/missing
+	$(top_srcdir)/configure AUTHORS ChangeLog INSTALL NEWS TODO \
+	autoconf/config.guess autoconf/config.sub autoconf/depcomp \
+	autoconf/install-sh autoconf/ltmain.sh autoconf/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/autoconf/dolt.m4 $(top_srcdir)/autoconf/shave.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
-CONFIG_CLEAN_FILES = autoconf/shave-libtool autoconf/shave \
-	ADOL-C/doc/version.tex MSVisualStudio/v10/sparse/config.h \
+CONFIG_CLEAN_FILES = ADOL-C/doc/version.tex \
+	MSVisualStudio/v10/sparse/config.h \
 	MSVisualStudio/v10/nosparse/config.h \
 	MSVisualStudio/v10/x64/sparse/config.h \
 	MSVisualStudio/v10/x64/nosparse/config.h adolc.spec
 CONFIG_CLEAN_VPATH_FILES =
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN   " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -123,7 +125,7 @@ ADOLC_PATCHLEVEL = @ADOLC_PATCHLEVEL@
 ADOLC_SUBVERSION = @ADOLC_SUBVERSION@
 ADOLC_VERSION = @ADOLC_VERSION@
 AMTAR = @AMTAR@
-AM_MAKEFLAGS = @AM_MAKEFLAGS@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -145,7 +147,6 @@ CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
-DOLT_BASH = @DOLT_BASH@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -153,8 +154,6 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-F77 = @F77@
-FC = @FC@
 FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -169,17 +168,12 @@ LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
-LTCOMPILE = @LTCOMPILE@
-LTCXXCOMPILE = @LTCXXCOMPILE@
 LTLIBOBJS = @LTLIBOBJS@
-MAKEFLAGS = @MAKEFLAGS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
-MCS = @MCS@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
-OBJC = @OBJC@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -192,13 +186,11 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-Q = @Q@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-V = @V@
 VERSION = @VERSION@
 _lib = @_lib@
 abs_builddir = @abs_builddir@
@@ -251,7 +243,6 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
-shavedir = @shavedir@
 srcdir = @srcdir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
@@ -324,10 +315,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-autoconf/shave-libtool: $(top_builddir)/config.status $(top_srcdir)/autoconf/shave-libtool.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-autoconf/shave: $(top_builddir)/config.status $(top_srcdir)/autoconf/shave.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 ADOL-C/doc/version.tex: $(top_builddir)/config.status $(top_srcdir)/ADOL-C/doc/version.tex.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 MSVisualStudio/v10/sparse/config.h: $(top_builddir)/config.status $(top_srcdir)/MSVisualStudio/v10/sparse/config.h.in
