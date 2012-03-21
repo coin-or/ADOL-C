@@ -24,7 +24,7 @@
 #endif
 
 #if HAVE_LIBCOLPACK
-#include "ColPackHeaders.h"
+#include <ColPack/ColPackHeaders.h>
 #endif
 
 #include <math.h>
