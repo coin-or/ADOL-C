@@ -25,7 +25,7 @@
 double  feval(double *x);
 adouble feval_ad(adouble *x);
 
-void printmat(char* kette, int n, int m, double** M);
+void printmat(const char* kette, int n, int m, double** M);
 
 int main() {
     int n=6;
@@ -252,7 +252,7 @@ adouble feval_ad(adouble *x) {
 
 /***************************************************************************/
 
-void printmat(char* name, int m, int n, double** M) {
+void printmat(const char* name, int m, int n, double** M) {
     int i,j;
 
     printf("%s \n",name);

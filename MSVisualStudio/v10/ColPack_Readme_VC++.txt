@@ -1,23 +1,22 @@
-In order to compile the ColPack sources from the tarball with VC++ using
-the project file ColPack.vcxproj please apply the following patch:
-
-colpack_vcxcompile.patch
-
 The complete steps are as follows
 
-1. Go to directory ThirdParty/
+1. Unpack the ColPack sources
 
-tar -xzf ColPack.tar.gz
+tar -xzf ColPack-$VERSION.tar.gz
 
-or use your favourite extraction utility under windows.
+or use your favourite extraction utility under windows. Rename the
+subdirectory to be simply ColPack. Then move the file ColPack.vcxproj into 
+this subdirectory
 
 2. In Visual Studio open the solution file
 
-windows/adolc.sln
+adolc.sln
 
-select the solution 'adolc' in the Solution Explorer, from the toolbar select
-the build configuration sparse and from Build menu select Build Solution 
-(shortcut key F7).
+select the solution 'adolc' in the Solution Explorer, rightclick and select
+Add -> Existing project and then choose the ColPack.vcxproj project from the
+ColPack subdirectory. Right click on adolc and select Project Dependencies 
+and tick the check mark on ColPack. Then select from the toolbar select 
+the build onfiguration sparse and from Build menu select Build Solution 
+(shortcut F7).
 
 This will build ColPack and link it with the sparse version of adolc.dll
-
