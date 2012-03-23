@@ -378,7 +378,7 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
 # define ADOLC_EXT_FCT_POINTER fov_reverse
 # define ADOLC_EXT_FCT_COMPLETE \
-  fov_reverse(m, edfct->dpp_U, n, edfct->dpp_Z)
+    fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
 #endif
 #if !defined(_INT_REV_)
@@ -534,9 +534,9 @@ this_tnum,
 
     /****************************************************************************/
     /*                                                            REVERSE SWEEP */
-
     operation=get_op_r();
     while (operation != start_of_tape) { /* Switch statement to execute the operations in Reverse */
+
         switch (operation) {
 
 
@@ -802,8 +802,8 @@ this_tnum,
 #else
                 { aTmp = ARES;
                   /* olvo 980713 nn: ARES = 0.0; */
-                  ARES_INC =  aTmp * TARG;
-                  AARG_INC += aTmp * TRES;
+                  ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
+                  AARG_INC += (aTmp==0)?0:(aTmp * TRES);
                 }
 #endif      
 		break;
@@ -957,8 +957,8 @@ this_tnum,
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG2_INC += aTmp * TARG1;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG2_INC += (aTmp==0)?0:(aTmp * TARG1);
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
                 break;
@@ -1040,7 +1040,7 @@ this_tnum,
 		  AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += coval * aTmp;
+                  AARG_INC += (aTmp==0)?0:(coval * aTmp);
 #endif
             }
 
@@ -1076,8 +1076,8 @@ this_tnum,
                   AARG2_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * r0;
-                  AARG2_INC += aTmp * r_0;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * r0);
+                  AARG2_INC += (aTmp==0)?0:(aTmp * r_0);
 #endif
             }
 
@@ -1110,7 +1110,7 @@ this_tnum,
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * r0;
+                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
                 }
 
@@ -1190,7 +1190,7 @@ this_tnum,
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * TRES;
+                  AARG_INC += (aTmp==0)?0:(aTmp*TRES);
 #endif
             }
 
@@ -1215,7 +1215,7 @@ this_tnum,
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 
@@ -1242,7 +1242,7 @@ this_tnum,
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC -= aTmp * TARG2;
+                  AARG1_INC -= (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 
@@ -1279,7 +1279,7 @@ this_tnum,
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
                 }
                 break;
@@ -1307,7 +1307,7 @@ this_tnum,
                   AARG_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG_INC += aTmp * r0;
+                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
             }
                 break;
@@ -1341,7 +1341,7 @@ this_tnum,
                     AARG_INC |= aTmp;
 #else
                     ARES_INC = 0.0;
-                    AARG_INC += aTmp * r0;
+                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
             }
 
@@ -1372,7 +1372,7 @@ this_tnum,
                     AARG_INC |= aTmp;
 #else
                     ARES_INC = 0.0;
-                    AARG_INC += aTmp * r0;
+                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
                 }
 
@@ -1401,7 +1401,7 @@ this_tnum,
                   AARG1_INC |= aTmp;
 #else
                   ARES_INC = 0.0;
-                  AARG1_INC += aTmp * TARG2;
+                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
             }
 
