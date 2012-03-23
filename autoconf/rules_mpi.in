@@ -1,0 +1,44 @@
+SUFFIXES = _mpi.cpp _mpi.c _mpi.o _mpi.lo _mpi.obj
+
+_mpi.c_mpi.o:
+@am__fastdepCC_TRUE@	$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ $<
+
+_mpi.c_mpi.lo:
+@am__fastdepCC_TRUE@	$(LTMPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LTMPICOMPILE) -c -o $@ $<
+
+_mpi.c_mpi.obj:
+@am__fastdepCC_TRUE@	$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+_mpi.cpp_mpi.o:
+@am__fastdepCXX_TRUE@	$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ $<
+
+_mpi.cpp_mpi.lo:
+@am__fastdepCXX_TRUE@	$(LTMPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LTMPICXXCOMPILE) -c -o $@ $<
+
+_mpi.cpp_mpi.obj:
+@am__fastdepCXX_TRUE@	$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+

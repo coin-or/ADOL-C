@@ -20,11 +20,6 @@
 #include <adolc/adolc_mpi.h>
 #include <adolc/interfaces.h>
 
-#if defined(HAVE_MPI_MPI_H)
-#include <mpi/mpi.h>
-#elif defined(HAVE_MPI_H)
-#include <mpi.h>
-#endif
 #if defined(HAVE_MPI)
 /* High level driver functions */
 /* at first parameter this process-ID */

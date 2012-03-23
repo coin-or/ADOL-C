@@ -18,12 +18,8 @@
 #include <adolc/common.h>
 #include <adolc/adouble.h>
 
-#if defined(HAVE_MPI_MPI_H)
-#include <mpi/mpi.h>
-#elif defined(HAVE_MPI_H)
-#include <mpi.h>
-#endif
 #if defined(HAVE_MPI)
+#include <mpi.h>
 #include <adolc/interfaces_mpi.h>
 
 #define ADOLC_MPI_Datatype MPI_Datatype
