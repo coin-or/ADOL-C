@@ -1,9 +1,9 @@
 AM_V_MPICC = $(am__v_MPICC_$(V))
 am__v_MPICC_ = $(am__v_MPICC_$(AM_DEFAULT_VERBOSITY))
-am__v_MPICC_0 = @echo "  MPICC  " $@;
+am__v_MPICC_0 = @echo "  MPICC " $@;
 AM_V_MPICXX = $(am__v_MPICXX_$(V))
 am__v_MPICXX_ = $(am__v_MPICXX_$(AM_DEFAULT_VERBOSITY))
-am__v_MPICXX_0 = @echo "  MPICXX " $@;
+am__v_MPICXX_0 = @echo "  MPICXX" $@;
 MPICOMPILE=$(MPICC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
         $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 MPICXXLD=$(MPICXX)
