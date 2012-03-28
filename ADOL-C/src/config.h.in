@@ -49,14 +49,8 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* MPI is enabled */
+/* Define 1 if mpi is available */
 #undef HAVE_MPI
-
-/* Define to 1 if you have the <mpi.h> header file. */
-#undef HAVE_MPI_H
-
-/* Define to 1 if you have the <mpi/mpi.h> header file. */
-#undef HAVE_MPI_MPI_H
 
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW

@@ -24,7 +24,7 @@
 #endif
 
 #if HAVE_LIBCOLPACK
-#include "ColPackHeaders.h"
+#include <ColPack/ColPackHeaders.h>
 #endif
 
 #include <math.h>
@@ -297,8 +297,8 @@ int sparse_jac(
 
       if (options[2] == -1)
 	{
-	  (*rind) = new unsigned int[*nnz];
-	  (*cind) = new unsigned int[*nnz];
+	  (*rind) = (unsigned int*)calloc(*nnz,sizeof(unsigned int));
+	  (*cind) = (unsigned int*)calloc(*nnz,sizeof(unsigned int));
 	  unsigned int index = 0;
 	  for (i=0;i<depen;i++) 
             for (j=1;j<=sJinfos.JP[i][0];j++)
@@ -319,12 +319,14 @@ int sparse_jac(
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
 				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_clms = indep;
+	  ret_val = sJinfos.seed_rows;
 	}  
       else
 	{
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
                                 &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
 	  sJinfos.seed_rows = depen;
+	  ret_val = sJinfos.seed_clms;
 	}
       
       sJinfos.B = myalloc2(sJinfos.seed_rows,sJinfos.seed_clms);

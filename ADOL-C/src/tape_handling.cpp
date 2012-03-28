@@ -155,10 +155,9 @@ void StoreManagerLocint::grow() {
     }
 
 #ifdef ADOLC_DEBUG
-    // index 0 is not used, means one slot less
     std::cerr << "StoreManagerInteger::grow(): increase size from " << alteGroesse 
 	 << " to " << groesse << " entries (currently " << size() << " entries used)\n";
-    assert(alteGroesse == initialeGroesse or size() == (alteGroesse-1));
+    assert(alteGroesse == initialeGroesse or size() == alteGroesse);
 #endif
 
     double *const oldStore = storePtr;
@@ -695,6 +694,7 @@ void init() {
     adolc_id.adolc_lvl    = ADOLC_PATCHLEVEL;
     adolc_id.locint_size  = sizeof(locint);
     adolc_id.revreal_size = sizeof(revreal);
+    adolc_id.address_size = sizeof(size_t);
 
     ADOLC_EXT_DIFF_FCTS_BUFFER.init(init_CpInfos);
 }

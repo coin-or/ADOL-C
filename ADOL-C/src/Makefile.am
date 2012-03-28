@@ -82,8 +82,9 @@ libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 endif
 
 if HAVE_MPI
+include $(top_srcdir)/autoconf/rules_mpi.in
+
 lib_LTLIBRARIES += libadolc_mpi.la
-AM_CPPFLAGS += @MPICPPFLAGS@
 libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
                            hos_forward_mpi.c hov_forward_mpi.c \
@@ -98,6 +99,6 @@ libadolc_mpi_la_LIBADD = libadolc.la
 if SPARSE
 libadolc_mpi_la_LIBADD += sparse/libsparse_mpi.la
 endif
-libadolc_mpi_la_LDFLAGS = @MPILIBS@ @LIBMPI@
+libadolc_mpi_la_LDFLAGS = ${MPICXXEXTRALDFLAGS}
 pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
 endif
