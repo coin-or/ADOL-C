@@ -25,7 +25,7 @@
 void   ceval_ad(adouble *x, adouble *c);
 void   ceval(double *x, double *c);
 
-void printmat(char* name, int n, int m, double** M);
+void printmat(const char* name, int n, int m, double** M);
 
 int main() {
     int n=6, m=3;
@@ -264,7 +264,7 @@ void ceval_ad(adouble *x, adouble *c) {
 
 /***************************************************************************/
 
-void printmat(char* name, int m, int n, double** M) {
+void printmat(const char* name, int m, int n, double** M) {
     int i,j;
 
     printf("%s \n",name);

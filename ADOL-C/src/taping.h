@@ -35,7 +35,7 @@ enum StatEntries {
     LOC_BUFFER_SIZE,   /* # of locations per buffer == LBUFSIZE (usrparms.h) */
     VAL_BUFFER_SIZE,      /* # of values per buffer == CBUFSIZE (usrparms.h) */
     TAY_BUFFER_SIZE,     /* # of taylors per buffer <= TBUFSIZE (usrparms.h) */
-    NUM_EQ_PROD,                       /* # of eq_*_prod for nlf computation */
+    NUM_EQ_PROD,                      /* # of eq_*_prod for sparsity pattern */
     STAT_SIZE                     /* represents the size of the stats vector */
 };
 
@@ -46,7 +46,7 @@ enum TapeRemovalType {
 
 /* Returns statistics on the tape "tag". Use enumeration StatEntries for
  * accessing the individual elements of the vector "tape_stats"! */
-ADOLC_DLL_EXPORT void tapestats(short tag, int *tape_stats);
+ADOLC_DLL_EXPORT void tapestats(short tag, size_t *tape_stats);
 
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
