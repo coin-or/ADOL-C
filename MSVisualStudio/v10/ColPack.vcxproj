@@ -62,8 +62,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>mkdir "$(IntDir)\include" &amp; copy "Main\*.h" "$(IntDir)\include" &amp; copy "Utilities\*.h" "$(IntDir)\include" &amp; copy "GraphColoring\*.h" "$(IntDir)\include" &amp; copy "BipartiteGraphBicoloring\*.h" "$(IntDir)\include" &amp; copy "BipartiteGraphPartialColoring\*.h" "$(IntDir)\include" &amp; copy "Recovery\*.h" "$(IntDir)\include"</Command>
-      <Outputs>$(IntDir)\include\ColPackHeaders.h;%(Outputs)</Outputs>
+      <Command>mkdir "$(IntDir)\include" &amp; mkdir "$(IntDir)\include\ColPack" &amp; copy "Main\*.h" "$(IntDir)\include\ColPack" &amp; copy "Utilities\*.h" "$(IntDir)\include\ColPack" &amp; copy "GraphColoring\*.h" "$(IntDir)\include\ColPack" &amp; copy "BipartiteGraphBicoloring\*.h" "$(IntDir)\include\ColPack" &amp; copy "BipartiteGraphPartialColoring\*.h" "$(IntDir)\include\ColPack" &amp; copy "Recovery\*.h" "$(IntDir)\include\ColPack"</Command>
+      <Outputs>$(IntDir)\include\ColPack\ColPackHeaders.h;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'">
@@ -81,8 +81,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>mkdir "$(IntDir)\include" &amp; copy "Main\*.h" "$(IntDir)\include" &amp; copy "Utilities\*.h" "$(IntDir)\include" &amp; copy "GraphColoring\*.h" "$(IntDir)\include" &amp; copy "BipartiteGraphBicoloring\*.h" "$(IntDir)\include" &amp; copy "BipartiteGraphPartialColoring\*.h" "$(IntDir)\include" &amp; copy "Recovery\*.h" "$(IntDir)\include"</Command>
-      <Outputs>$(IntDir)\include\ColPackHeaders.h;%(Outputs)</Outputs>
+      <Command>mkdir "$(IntDir)\include" &amp; mkdir "$(IntDir)\include\ColPack" &amp; copy "Main\*.h" "$(IntDir)\include\ColPack" &amp; copy "Utilities\*.h" "$(IntDir)\include\ColPack" &amp; copy "GraphColoring\*.h" "$(IntDir)\include\ColPack" &amp; copy "BipartiteGraphBicoloring\*.h" "$(IntDir)\include\ColPack" &amp; copy "BipartiteGraphPartialColoring\*.h" "$(IntDir)\include\ColPack" &amp; copy "Recovery\*.h" "$(IntDir)\include\ColPack"</Command>
+      <Outputs>$(IntDir)\include\ColPack\ColPackHeaders.h;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,6 +114,7 @@
     <ClCompile Include="recovery\JacobianRecovery1D.cpp" />
     <ClCompile Include="recovery\JacobianRecovery2D.cpp" />
     <ClCompile Include="recovery\RecoveryCore.cpp" />
+    <ClCompile Include="Utilities\CoutLock.cpp" />
     <ClCompile Include="Utilities\current_time.cpp" />
     <ClCompile Include="utilities\DisjointSets.cpp" />
     <ClCompile Include="utilities\extra.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="recovery\JacobianRecovery2D.h" />
     <ClInclude Include="recovery\RecoveryCore.h" />
     <ClInclude Include="utilities\command_line_parameter_processor.h" />
+    <ClInclude Include="Utilities\CoutLock.h" />
     <ClInclude Include="utilities\current_time.h" />
     <ClInclude Include="utilities\DisjointSets.h" />
     <ClInclude Include="utilities\extra.h" />
