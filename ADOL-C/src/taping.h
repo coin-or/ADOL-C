@@ -46,7 +46,7 @@ enum TapeRemovalType {
 
 /* Returns statistics on the tape "tag". Use enumeration StatEntries for
  * accessing the individual elements of the vector "tape_stats"! */
-ADOLC_DLL_EXPORT void tapestats(short tag, int *tape_stats);
+ADOLC_DLL_EXPORT void tapestats(short tag, size_t *tape_stats);
 
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);

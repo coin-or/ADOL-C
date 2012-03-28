@@ -38,8 +38,8 @@
 ADOLC_ID adolc_id;
 /* first version with new tape structure
  * => to work with older tapes use older ADOL-C version */
-#define ADOLC_NEW_TAPE_VERSION 1
-#define ADOLC_NEW_TAPE_SUBVERSION 8
+#define ADOLC_NEW_TAPE_VERSION 2
+#define ADOLC_NEW_TAPE_SUBVERSION 3
 #define ADOLC_NEW_TAPE_PATCHLEVEL 0
 
 /****************************************************************************/
@@ -263,6 +263,16 @@ void fail( int error ) {
                     "ADOL-C error: Unextpected REVOLVE action in forward mode!\n"
                    );
             break;
+	case ADOLC_WRONG_PLATFORM_32:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace was created on a 64-bit platfrom, cannot be opened on 32-bit platform!\n"
+		);
+	    break;
+	case ADOLC_WRONG_PLATFORM_64:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace was created on a 32-bit platform, cannot be opened on 64-bit platform!\n"
+		);
+	    break;
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
@@ -1048,7 +1058,7 @@ void start_trace() {
     put_op(start_of_tape);
 
     /* Leave space for the stats */
-    space = STAT_SIZE * sizeof(uint) + sizeof(ADOLC_ID);
+    space = STAT_SIZE * sizeof(size_t) + sizeof(ADOLC_ID);
     if (space > statSpace * sizeof(locint))
         fail(ADOLC_MORE_STAT_SPACE_REQUIRED);
     for (i = 0; i < statSpace; ++i) ADOLC_PUT_LOCINT(0);
@@ -1114,8 +1124,10 @@ void close_tape(int flag) {
         ADOLC_CURRENT_TAPE_INFOS.stats[OP_FILE_ACCESS] = 1;
         free(ADOLC_CURRENT_TAPE_INFOS.opBuffer);
         ADOLC_CURRENT_TAPE_INFOS.opBuffer = NULL;
-    } else ADOLC_CURRENT_TAPE_INFOS.numOps_Tape =
-        ADOLC_CURRENT_TAPE_INFOS.currOp - ADOLC_CURRENT_TAPE_INFOS.opBuffer;
+    } else {
+	ADOLC_CURRENT_TAPE_INFOS.numOps_Tape =
+	    ADOLC_CURRENT_TAPE_INFOS.currOp - ADOLC_CURRENT_TAPE_INFOS.opBuffer;
+    }
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS] =
         ADOLC_CURRENT_TAPE_INFOS.numOps_Tape;
 
@@ -1132,8 +1144,10 @@ void close_tape(int flag) {
         ADOLC_CURRENT_TAPE_INFOS.stats[VAL_FILE_ACCESS] = 1;
         free(ADOLC_CURRENT_TAPE_INFOS.valBuffer);
         ADOLC_CURRENT_TAPE_INFOS.valBuffer = NULL;
-    } else ADOLC_CURRENT_TAPE_INFOS.numVals_Tape =
-        ADOLC_CURRENT_TAPE_INFOS.currVal - ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+    } else {
+	ADOLC_CURRENT_TAPE_INFOS.numVals_Tape =
+	    ADOLC_CURRENT_TAPE_INFOS.currVal - ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+    }
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_VALUES] =
         ADOLC_CURRENT_TAPE_INFOS.numVals_Tape;
 
@@ -1151,16 +1165,18 @@ void close_tape(int flag) {
         fseek(ADOLC_CURRENT_TAPE_INFOS.loc_file, 0, 0);
         fwrite(&adolc_id, sizeof(ADOLC_ID), 1,
                 ADOLC_CURRENT_TAPE_INFOS.loc_file);
-        fwrite(ADOLC_CURRENT_TAPE_INFOS.stats, STAT_SIZE * sizeof(uint), 1,
+        fwrite(ADOLC_CURRENT_TAPE_INFOS.stats, STAT_SIZE * sizeof(size_t), 1,
                ADOLC_CURRENT_TAPE_INFOS.loc_file);
         fclose(ADOLC_CURRENT_TAPE_INFOS.loc_file);
         ADOLC_CURRENT_TAPE_INFOS.loc_file = NULL;
         free(ADOLC_CURRENT_TAPE_INFOS.locBuffer);
         ADOLC_CURRENT_TAPE_INFOS.locBuffer = NULL;
-    } else ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape  =
-        ADOLC_CURRENT_TAPE_INFOS.currLoc - ADOLC_CURRENT_TAPE_INFOS.locBuffer;
-    ADOLC_CURRENT_TAPE_INFOS.stats[NUM_LOCATIONS] =
-        ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape;
+    } else {
+	ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape  =
+	    ADOLC_CURRENT_TAPE_INFOS.currLoc - ADOLC_CURRENT_TAPE_INFOS.locBuffer;
+	ADOLC_CURRENT_TAPE_INFOS.stats[NUM_LOCATIONS] =
+	    ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape;
+    }
 }
 
 /****************************************************************************/
@@ -1211,7 +1227,7 @@ void freeTapeResources(TapeInfos *tapeInfos) {
 /* tape_stat[9] = # of saved constant values.                               */
 /* tape_stat[10]= value file access flag (1 = file in use, 0 otherwise)     */
 /****************************************************************************/
-void tapestats(short tag, int *tape_stats) {
+void tapestats(short tag, size_t *tape_stats) {
     int i;
     TapeInfos *tapeInfos;
 
@@ -1226,34 +1242,34 @@ void tapestats(short tag, int *tape_stats) {
 /* An all-in-one tape stats printing routine.                               */
 /****************************************************************************/
 void printTapeStats(FILE *stream, short tag) {
-    int stats[STAT_SIZE];
+    size_t stats[STAT_SIZE];
 
-    tapestats(tag, (int *)&stats);
+    tapestats(tag, (size_t *)&stats);
     fprintf(stream, "\n*** TAPE STATS (tape %d) **********\n", (int)tag);
-    fprintf(stream, "Number of independents: %10d\n", stats[NUM_INDEPENDENTS]);
-    fprintf(stream, "Number of dependents:   %10d\n", stats[NUM_DEPENDENTS]);
+    fprintf(stream, "Number of independents: %10zd\n", stats[NUM_INDEPENDENTS]);
+    fprintf(stream, "Number of dependents:   %10zd\n", stats[NUM_DEPENDENTS]);
     fprintf(stream, "\n");
-    fprintf(stream, "Max # of live adoubles: %10d\n", stats[NUM_MAX_LIVES]);
-    fprintf(stream, "Taylor stack size:      %10d\n", stats[TAY_STACK_SIZE]);
+    fprintf(stream, "Max # of live adoubles: %10zd\n", stats[NUM_MAX_LIVES]);
+    fprintf(stream, "Taylor stack size:      %10zd\n", stats[TAY_STACK_SIZE]);
     fprintf(stream, "\n");
-    fprintf(stream, "Number of operations:   %10d\n", stats[NUM_OPERATIONS]);
-    fprintf(stream, "Number of locations:    %10d\n", stats[NUM_LOCATIONS]);
-    fprintf(stream, "Number of values:       %10d\n", stats[NUM_VALUES]);
+    fprintf(stream, "Number of operations:   %10zd\n", stats[NUM_OPERATIONS]);
+    fprintf(stream, "Number of locations:    %10zd\n", stats[NUM_LOCATIONS]);
+    fprintf(stream, "Number of values:       %10zd\n", stats[NUM_VALUES]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation file written: %10d\n", stats[OP_FILE_ACCESS]);
-    fprintf(stream, "Location file written:  %10d\n", stats[LOC_FILE_ACCESS]);
-    fprintf(stream, "Value file written:     %10d\n", stats[VAL_FILE_ACCESS]);
+    fprintf(stream, "Operation file written: %10zd\n", stats[OP_FILE_ACCESS]);
+    fprintf(stream, "Location file written:  %10zd\n", stats[LOC_FILE_ACCESS]);
+    fprintf(stream, "Value file written:     %10zd\n", stats[VAL_FILE_ACCESS]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation buffer size:  %10d\n", stats[OP_BUFFER_SIZE]);
-    fprintf(stream, "Location buffer size:   %10d\n", stats[LOC_BUFFER_SIZE]);
-    fprintf(stream, "Value buffer size:      %10d\n", stats[VAL_BUFFER_SIZE]);
-    fprintf(stream, "Taylor buffer size:     %10d\n", stats[TAY_BUFFER_SIZE]);
+    fprintf(stream, "Operation buffer size:  %10zd\n", stats[OP_BUFFER_SIZE]);
+    fprintf(stream, "Location buffer size:   %10zd\n", stats[LOC_BUFFER_SIZE]);
+    fprintf(stream, "Value buffer size:      %10zd\n", stats[VAL_BUFFER_SIZE]);
+    fprintf(stream, "Taylor buffer size:     %10zd\n", stats[TAY_BUFFER_SIZE]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation type size:    %10d\n",
-            (int)sizeof(unsigned char));
-    fprintf(stream, "Location type size:     %10d\n", (int)sizeof(locint));
-    fprintf(stream, "Value type size:        %10d\n", (int)sizeof(double));
-    fprintf(stream, "Taylor type size:       %10d\n", (int)sizeof(revreal));
+    fprintf(stream, "Operation type size:    %10zd\n",
+            (size_t)sizeof(unsigned char));
+    fprintf(stream, "Location type size:     %10zd\n", (size_t)sizeof(locint));
+    fprintf(stream, "Value type size:        %10zd\n", (size_t)sizeof(double));
+    fprintf(stream, "Taylor type size:       %10zd\n", (size_t)sizeof(revreal));
     fprintf(stream, "**********************************\n\n");
 }
 
@@ -1275,7 +1291,7 @@ void read_tape_stats(TapeInfos *tapeInfos) {
         fail(ADOLC_INTEGER_TAPE_FOPEN_FAILED);
     if (fread(&tape_ADOLC_ID, sizeof(ADOLC_ID), 1, loc_file) != 1)
         fail(ADOLC_INTEGER_TAPE_FREAD_FAILED);
-    if (fread(tapeInfos->stats, STAT_SIZE * sizeof(uint), 1, loc_file) != 1)
+    if (fread(tapeInfos->stats, STAT_SIZE * sizeof(size_t), 1, loc_file) != 1)
         fail(ADOLC_INTEGER_TAPE_FREAD_FAILED);
 
     failAdditionalInfo1 = tapeInfos->tapeID;
@@ -1283,6 +1299,13 @@ void read_tape_stats(TapeInfos *tapeInfos) {
             10 * tape_ADOLC_ID.adolc_sub +
             1  * tape_ADOLC_ID.adolc_lvl ;
     if (tapeVersion < limitVersion) fail(ADOLC_TAPE_TO_OLD);
+
+    if (tape_ADOLC_ID.address_size != adolc_id.address_size) {
+	if (tape_ADOLC_ID.address_size < adolc_id.address_size)
+	    fail(ADOLC_WRONG_PLATFORM_64);
+	else
+	    fail(ADOLC_WRONG_PLATFORM_32);
+    }
 
     if (tape_ADOLC_ID.locint_size != adolc_id.locint_size) {
         failAdditionalInfo1 = tape_ADOLC_ID.locint_size;
@@ -1601,7 +1624,7 @@ void put_op(unsigned char op) {
 /* removal, ...                                                             */
 /****************************************************************************/
 void put_op_block(unsigned char *lastOpP1) {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1652,7 +1675,7 @@ void put_op_block(unsigned char *lastOpP1) {
 /* Reads the next operations block into the internal buffer.                */
 /****************************************************************************/
 void get_op_block_f() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1680,7 +1703,7 @@ void get_op_block_f() {
 /* Reads the previous block of operations into the internal buffer.         */
 /****************************************************************************/
 void get_op_block_r() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1713,7 +1736,7 @@ void get_op_block_r() {
 /* removal, ...                                                             */
 /****************************************************************************/
 void put_loc_block(locint *lastLocP1) {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1762,7 +1785,7 @@ void put_loc_block(locint *lastLocP1) {
 /* Reads the next block of locations into the internal buffer.              */
 /****************************************************************************/
 void get_loc_block_f() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1790,7 +1813,7 @@ void get_loc_block_f() {
 /* Reads the previous block of locations into the internal buffer.          */
 /****************************************************************************/
 void get_loc_block_r() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1864,7 +1887,7 @@ void put_vals_notWriteBlock(double *vals, locint numVals) {
 /* removal, ...                                                             */
 /****************************************************************************/
 void put_val_block(double *lastValP1) {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1913,7 +1936,7 @@ void put_val_block(double *lastValP1) {
 /* Reads the next block of constants into the internal buffer.              */
 /****************************************************************************/
 void get_val_block_f() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1943,7 +1966,7 @@ void get_val_block_f() {
 /* Reads the previous block of values into the internal buffer.             */
 /****************************************************************************/
 void get_val_block_r() {
-    int i, chunks;
+    size_t i, chunks;
     size_t number, remain, chunkSize;
     locint temp;
     ADOLC_OPENMP_THREAD_NUMBER;

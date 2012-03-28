@@ -130,7 +130,7 @@ int main() {
     fprintf(stdout,"\n %f =? %f should be the same \n",detout,diag);
 
     /*--------------------------------------------------------------------------*/
-    int tape_stats[STAT_SIZE];
+    size_t tape_stats[STAT_SIZE];
     tapestats(tag,tape_stats);
 
     fprintf(stdout,"\n    independents            %d\n",tape_stats[NUM_INDEPENDENTS]);
