@@ -49,6 +49,7 @@ typedef struct {
     short adolc_lvl;
     short locint_size;
     short revreal_size;
+    short address_size;
 }
 ADOLC_ID;
 
@@ -110,7 +111,9 @@ enum ADOLC_ERRORS {
     ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION,
     ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
     ADOLC_CHECKPOINTING_REVOLVE_IRREGULAR_TERMINATED,
-    ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION
+    ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
+    ADOLC_WRONG_PLATFORM_32,
+    ADOLC_WRONG_PLATFORM_64
 };
 /* additional infos fail can work with */
 extern int failAdditionalInfo1;
@@ -197,7 +200,7 @@ typedef struct TapeInfos {
     uint numInds;
     uint numDeps;
     int keepTaylors;             /* == 1 - write taylor stack in taping mode */
-    uint stats[STAT_SIZE];
+    size_t stats[STAT_SIZE];
     int traceFlag;
     char tapingComplete;
 
@@ -206,29 +209,29 @@ typedef struct TapeInfos {
     unsigned char *opBuffer;    /* pointer to the current tape buffer */
     unsigned char *currOp;      /* pointer to the current opcode */
     unsigned char *lastOpP1;    /* pointer to element following the buffer */
-    uint numOps_Tape;           /* overall number of opcodes */
-    uint num_eq_prod;           /* overall number of eq_*_prod for nlf */
+    size_t numOps_Tape;           /* overall number of opcodes */
+    size_t num_eq_prod;           /* overall number of eq_*_prod for nlf */
 
     /* values (real) tape */
     FILE *val_file;
     double *valBuffer;
     double *currVal;
     double *lastValP1;
-    uint numVals_Tape;
+    size_t numVals_Tape;
 
     /* locations tape */
     FILE *loc_file;
     locint *locBuffer;
     locint *currLoc;
     locint *lastLocP1;
-    uint numLocs_Tape;
+    size_t numLocs_Tape;
 
     /* taylor stack tape */
     FILE *tay_file;
     revreal *tayBuffer;
     revreal *currTay;
     revreal *lastTayP1;
-    uint numTays_Tape;
+    size_t numTays_Tape;
     int nextBufferNumber;                   /* the next Buffer to read back */
     char lastTayBlockInCore;      /* == 1 if last taylor buffer is still in
                                             in core (first call of reverse) */
