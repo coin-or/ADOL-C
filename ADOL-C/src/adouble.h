@@ -8,9 +8,10 @@
            both the class adub and the class adouble are derived from a base
            class (badouble).  See below for further explanation.
 
- Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -524,7 +525,7 @@ public:
     inline adouble(const double v);
     inline adouble(const double v, ADVAL_TYPE adv);
     inline adouble(const adouble& a);
-#if defined(DYNAMIC_DIRECTIONS)
+#if (defined( DYNAMIC_DIRECTIONS) | defined(ADOLC_TRACELESS_SPARSE_PATTERN) )
     inline ~adouble();
 #endif
 
@@ -664,6 +665,11 @@ public:
     inline double getADValue(const unsigned int p) const;
     inline void setADValue(const unsigned int p, const double v);
 #endif
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    inline unsigned int* get_pattern() const;
+    inline void add_to_pattern(const unsigned int* v);
+    inline void delete_pattern();
+#endif
 
     /*******************  i/o operations  *********************************/
     inline friend ostream& operator << ( ostream&, const adouble& );
@@ -674,12 +680,20 @@ private:
     // internal variables
     double val;
     double ADVAL;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    unsigned int *pattern;
+#endif
 };
 
 /*******************************  ctors  ************************************/
 adouble::adouble() {
 #if defined(DYNAMIC_DIRECTIONS)
     adval = new double[ADOLC_numDir];
+#endif
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 22 );
+    pattern[1]=20;
+    pattern[0]=0;
 #endif
 }
 
@@ -689,6 +703,11 @@ adouble::adouble(const double v) : val(v) {
 #endif
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I = 0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 22 );
+    pattern[1]=20;
+    pattern[0]=0;
+#endif
 }
 
 adouble::adouble(const double v, ADVAL_TYPE adv) : val(v) {
@@ -697,6 +716,11 @@ adouble::adouble(const double v, ADVAL_TYPE adv) : val(v) {
 #endif
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=ADV_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 22 );
+    pattern[1]=20;
+    pattern[0]=0;
+#endif
 }
 
 adouble::adouble(const adouble& a) : val(a.val) {
@@ -705,15 +729,25 @@ adouble::adouble(const adouble& a) : val(a.val) {
 #endif
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 22 );
+    pattern[1]=20;
+    pattern[0]=0;
+    add_to_pattern(a.get_pattern());
+#endif
 }
 
 /*******************************  dtors  ************************************/
-#if defined(DYNAMIC_DIRECTIONS)
+#if ( defined(DYNAMIC_DIRECTIONS) | defined(ADOLC_TRACELESS_SPARSE_PATTERN) )
 adouble::~adouble() {
-    delete[] adval;
+#if defined(DYNAMIC_DIRECTIONS)
+     delete[] adval;
+#endif
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     free(pattern);
+#endif
 }
 #endif
-
 /*************************  temporary results  ******************************/
 // sign
 adouble adouble::operator - () const {
@@ -721,6 +755,9 @@ adouble adouble::operator - () const {
     tmp.val=-val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=-ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     tmp.add_to_pattern( get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -730,7 +767,16 @@ adouble adouble::operator + () const {
 
 // addition
 adouble adouble::operator + (const double v) const {
-    return adouble(val+v, adval);
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    adouble tmp;
+    tmp.val=val+v;
+    FOR_I_EQ_0_LT_NUMDIR
+      tmp.ADVAL_I=ADVAL_I;
+    tmp.add_to_pattern( get_pattern() ) ;
+    return tmp;
+#else
+     return adouble(val+v, adval);
+#endif
 }
 
 adouble adouble::operator + (const adouble& a) const {
@@ -738,16 +784,38 @@ adouble adouble::operator + (const adouble& a) const {
     tmp.val=val+a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I+a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     tmp.add_to_pattern( get_pattern()  ) ;
+     tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
 adouble operator + (const double v, const adouble& a) {
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    adouble tmp;
+    tmp.val=a.val+v;
+    FOR_I_EQ_0_LT_NUMDIR
+    tmp.ADVAL_I=a.ADVAL_I;
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    return tmp;
+#else
     return adouble(v+a.val, a.adval);
+#endif
 }
 
 // subtraction
 adouble adouble::operator - (const double v) const {
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    adouble tmp;
+    tmp.val=val-v;
+    FOR_I_EQ_0_LT_NUMDIR
+    tmp.ADVAL_I=ADVAL_I;
+    tmp.add_to_pattern( get_pattern() ) ;
+    return tmp;
+#else
     return adouble(val-v, adval);
+#endif
 }
 
 adouble adouble::operator - (const adouble& a) const {
@@ -755,6 +823,10 @@ adouble adouble::operator - (const adouble& a) const {
     tmp.val=val-a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I-a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     tmp.add_to_pattern( get_pattern() ) ;
+     tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -763,6 +835,9 @@ adouble operator - (const double v, const adouble& a) {
     tmp.val=v-a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=-a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -772,6 +847,9 @@ adouble adouble::operator * (const double v) const {
     tmp.val=val*v;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I*v;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     tmp.add_to_pattern( get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -780,6 +858,10 @@ adouble adouble::operator * (const adouble& a) const {
     tmp.val=val*a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I*a.val+val*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     tmp.add_to_pattern(   get_pattern() ) ;
+     tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -788,6 +870,9 @@ adouble operator * (const double v, const adouble& a) {
     tmp.val=v*a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=v*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -797,6 +882,9 @@ adouble adouble::operator / (const double v) const {
     tmp.val=val/v;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I/v;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -805,6 +893,10 @@ adouble adouble::operator / (const adouble& a) const {
     tmp.val=val/a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=(ADVAL_I*a.val-val*a.ADVAL_I)/(a.val*a.val);
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern(   get_pattern() ) ;
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -813,6 +905,9 @@ adouble operator / (const double v, const adouble& a) {
     tmp.val=v/a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=(-v*a.ADVAL_I)/(a.val*a.val);
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -827,6 +922,9 @@ adouble adouble::operator ++ (int) {
     tmp.val=val++;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -840,6 +938,9 @@ adouble adouble::operator -- (int) {
     tmp.val=val--;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -852,6 +953,9 @@ adouble tan(const adouble& a) {
     tmp2*=tmp2;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -860,6 +964,9 @@ adouble exp(const adouble &a) {
     tmp.val=ADOLC_MATH_NSP::exp(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp.val*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -872,6 +979,9 @@ adouble log(const adouble &a) {
 	    int sign = (a.ADVAL_I < 0)  ? -1 : 1;
 	    tmp.ADVAL_I=sign*makeInf();
 	} else tmp.ADVAL_I=makeNaN();
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -884,6 +994,9 @@ adouble sqrt(const adouble &a) {
 	    int sign = (a.ADVAL_I < 0) ? -1 : 1;
 	    tmp.ADVAL_I=sign * makeInf();
 	} else tmp.ADVAL_I=makeNaN();
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -894,6 +1007,9 @@ adouble sin(const adouble &a) {
     tmp2=ADOLC_MATH_NSP::cos(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -904,6 +1020,9 @@ adouble cos(const adouble &a) {
     tmp2=-ADOLC_MATH_NSP::sin(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -913,6 +1032,9 @@ adouble asin(const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -922,6 +1044,9 @@ adouble acos(const adouble &a) {
     double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -936,6 +1061,9 @@ adouble atan(const adouble &a) {
     else
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -951,6 +1079,10 @@ adouble atan2(const adouble &a, const adouble &b) {
     else
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -960,6 +1092,9 @@ adouble pow(const adouble &a, double v) {
     double tmp2=v*ADOLC_MATH_NSP::pow(a.val, v-1);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -970,6 +1105,10 @@ adouble pow(const adouble &a, const adouble &b) {
     double tmp3=ADOLC_MATH_NSP::log(a.val)*tmp.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I+tmp3*b.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -979,6 +1118,9 @@ adouble pow(double v, const adouble &a) {
     double tmp2=tmp.val*ADOLC_MATH_NSP::log(v);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -988,6 +1130,9 @@ adouble log10(const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::log((double)10)*a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -997,6 +1142,9 @@ adouble sinh (const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::cosh(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I*tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1006,6 +1154,9 @@ adouble cosh (const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::sinh(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I*tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1016,6 +1167,9 @@ adouble tanh (const adouble &a) {
     tmp2*=tmp2;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1026,6 +1180,9 @@ adouble asinh (const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val+1);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1035,6 +1192,9 @@ adouble acosh (const adouble &a) {
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val-1);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1044,6 +1204,9 @@ adouble atanh (const adouble &a) {
     double tmp2=1-a.val*a.val;
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 #endif
@@ -1064,7 +1227,10 @@ adouble fabs (const adouble &a) {
             if (a.ADVAL_I<0) as=-1;
                 tmp.ADVAL_I=a.ADVAL_I*as;
             }
-            return tmp;
+ #if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
+           return tmp;
 }
 
 adouble ceil (const adouble &a) {
@@ -1072,6 +1238,9 @@ adouble ceil (const adouble &a) {
     tmp.val=ADOLC_MATH_NSP::ceil(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1080,6 +1249,9 @@ adouble floor (const adouble &a) {
     tmp.val=ADOLC_MATH_NSP::floor(a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 
@@ -1090,17 +1262,27 @@ adouble fmax (const adouble &a, const adouble &b) {
         tmp.val=b.val;
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=b.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
     } else {
         tmp.val=a.val;
         if (tmp2>0) {
             FOR_I_EQ_0_LT_NUMDIR
             tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+            tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
         } else {
             FOR_I_EQ_0_LT_NUMDIR
             {
                 if (a.ADVAL_I<b.ADVAL_I) tmp.ADVAL_I=b.ADVAL_I;
                 else tmp.ADVAL_I=a.ADVAL_I;
                 }
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
             }
 }
 return tmp;
@@ -1113,6 +1295,9 @@ adouble fmax (double v, const adouble &a) {
         tmp.val=a.val;
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     } else {
         tmp.val=v;
         if (tmp2>0) {
@@ -1123,6 +1308,9 @@ adouble fmax (double v, const adouble &a) {
             {
                 if (a.ADVAL_I>0) tmp.ADVAL_I=a.ADVAL_I;
                 else tmp.ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
                 }
             }
 }
@@ -1141,12 +1329,18 @@ adouble fmax (const adouble &a, double v) {
         if (tmp2>0) {
             FOR_I_EQ_0_LT_NUMDIR
             tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
         } else {
             FOR_I_EQ_0_LT_NUMDIR
             {
                 if (a.ADVAL_I>0) tmp.ADVAL_I=a.ADVAL_I;
                 else tmp.ADVAL_I=0.0;
                 }
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
             }
 }
 return tmp;
@@ -1159,17 +1353,27 @@ adouble fmin (const adouble &a, const adouble &b) {
         tmp.val=a.val;
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     } else {
         tmp.val=b.val;
         if (tmp2>0) {
             FOR_I_EQ_0_LT_NUMDIR
             tmp.ADVAL_I=b.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
         } else {
             FOR_I_EQ_0_LT_NUMDIR
             {
                 if (a.ADVAL_I<b.ADVAL_I) tmp.ADVAL_I=a.ADVAL_I;
                 else tmp.ADVAL_I=b.ADVAL_I;
                 }
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    tmp.add_to_pattern( b.get_pattern() ) ;
+#endif
             }
 }
 return tmp;
@@ -1187,12 +1391,18 @@ adouble fmin (double v, const adouble &a) {
         if (tmp2>0) {
             FOR_I_EQ_0_LT_NUMDIR
             tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
         } else {
             FOR_I_EQ_0_LT_NUMDIR
             {
                 if (a.ADVAL_I<0) tmp.ADVAL_I=a.ADVAL_I;
                 else tmp.ADVAL_I=0.0;
                 }
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
             }
 }
 return tmp;
@@ -1205,6 +1415,9 @@ adouble fmin (const adouble &a, double v) {
         tmp.val=a.val;
         FOR_I_EQ_0_LT_NUMDIR
         tmp.ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     } else {
         tmp.val=v;
         if (tmp2>0) {
@@ -1216,13 +1429,23 @@ adouble fmin (const adouble &a, double v) {
                 if (a.ADVAL_I<0) tmp.ADVAL_I=a.ADVAL_I;
                 else tmp.ADVAL_I=0.0;
                 }
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
             }
 }
 return tmp;
 }
 
 adouble ldexp (const adouble &a, const adouble &b) {
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    adouble tmp = a*pow(2.,b);
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    tmp.add_to_pattern( b.get_pattern() ) ;
+    return tmp;
+#else
     return a*pow(2.,b);
+#endif
 }
 
 adouble ldexp (const adouble &a, const double v) {
@@ -1230,7 +1453,13 @@ adouble ldexp (const adouble &a, const double v) {
 }
 
 adouble ldexp (const double v, const adouble &a) {
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    adouble tmp = v*pow(2.,a);
+    tmp.add_to_pattern( a.get_pattern() ) ;
+    return tmp;
+#else
     return v*pow(2.,a);
+#endif
 }
 
 double frexp (const adouble &a, int* v) {
@@ -1246,6 +1475,9 @@ adouble erf (const adouble &a) {
         ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
     FOR_I_EQ_0_LT_NUMDIR
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    tmp.add_to_pattern( a.get_pattern() ) ;
+#endif
     return tmp;
 }
 #endif
@@ -1256,12 +1488,19 @@ void adouble::operator = (const double v) {
     val=v;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=0.0;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    pattern[0]=0;
+#endif
 }
 
 void adouble::operator = (const adouble& a) {
     val=a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+     pattern[0] = 0;
+     add_to_pattern( a.get_pattern() );
+#endif
 }
 
 void adouble::operator += (const double v) {
@@ -1272,6 +1511,9 @@ void adouble::operator += (const adouble& a) {
     val=val+a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I+=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    add_to_pattern( a.get_pattern() ) ;
+#endif
 }
 
 void adouble::operator -= (const double v) {
@@ -1282,6 +1524,9 @@ void adouble::operator -= (const adouble& a) {
     val=val-a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I-=a.ADVAL_I;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    add_to_pattern( a.get_pattern() ) ;
+#endif
 }
 
 void adouble::operator *= (const double v) {
@@ -1294,6 +1539,9 @@ void adouble::operator *= (const adouble& a) {
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=ADVAL_I*a.val+val*a.ADVAL_I;
     val*=a.val;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    add_to_pattern( a.get_pattern() ) ;
+#endif
 }
 
 void adouble::operator /= (const double v) {
@@ -1306,6 +1554,9 @@ void adouble::operator /= (const adouble& a) {
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=(ADVAL_I*a.val-val*a.ADVAL_I)/(a.val*a.val);
     val=val/a.val;
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+    add_to_pattern( a.get_pattern() ) ;
+#endif
 }
 
 // not
@@ -1476,8 +1727,120 @@ while (c!=')' && !in.eof());
     while (c!=')' && !in.eof());
     return in;
 }
+
+/**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
+#if defined(ADOLC_TRACELESS_SPARSE_PATTERN)
+unsigned int* adouble::get_pattern() const {
+    return pattern;
 }
 
+void adouble::add_to_pattern(const unsigned int* v) {
+  if( pattern != v ){
+    int num,num1,num2, i,j,k,l;
+    unsigned int *temp_array;
+    if (pattern == NULL){
+        if ( v[0] < 11 ){
+            pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 22 );
+            pattern[1]=20;
+        } else{
+            pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 2*(v[0]+1));
+            pattern[1]=2*v[0];
+        }
+        for(i=0; i< v[0] ; i++)
+            pattern[i+2] = v[i+2];
+        pattern[0] = v[0];
+    } else {
+    if (pattern[0] == 0){ // Copy_Index_Domain
+        if (pattern[1] < v[0]){
+            free(pattern);
+            pattern = (unsigned int*)  malloc(sizeof(unsigned int) * 2*(v[0]+1));
+            pattern[1] = 2*v[0];
+        }
+        for(i=0; i< v[0] ; i++)
+            pattern[i+2] = v[i+2];
+        pattern[0] = v[0];
+    }
+    else
+    {
+       num  = pattern[0];
+       num1 = v[0];
+       num2 = pattern[1];
+       if (num2 < num1+num)
+           num2 = num1+num;
+       temp_array = (unsigned int*)  malloc(sizeof(unsigned int)* (num2+2));
+       temp_array[1] = num2;
+       i = 2;
+       j = 2;
+       k = 2;
+       num += 2;
+       num1 += 2;
+       while ((i< num) && (j < num1)){
+           if (pattern[i] < v[j]) {
+               temp_array[k] = pattern[i];
+               i++; k++;
+           } else {
+               if (pattern[i] == v[j]) {
+                   temp_array[k] = v[j];
+                   i++;j++;k++;
+               } else {
+                   temp_array[k] = v[j];
+                   j++;k++;
+               }
+           }
+       }
+       for(l = i;l<num;l++) {
+          temp_array[k] = pattern[l];
+          k++;
+       }
+       for(l = j;l<num1;l++) {
+           temp_array[k] = v[l];
+           k++;
+       }
+       temp_array[0] = k-2;
+       free(pattern);
+       pattern=temp_array;
+    }
+}
+}
+}
+
+void adouble::delete_pattern(){
+     free(pattern);
+}
+
+void ADOLC_Init_sparse_pattern(adouble *a, int n ){
+     for(unsigned int i=0; i < n; i++){
+         unsigned int *v = new unsigned int[4];
+         v[0] = 1;
+         v[1] = 2;
+         v[2] = i;
+         v[3] = 0;
+         a[i].add_to_pattern(v);
+         delete[] v;
+     }
+}
+
+unsigned int** ADOLC_get_sparse_pattern(const adouble *b,const int m ){
+     unsigned int ** patt = (unsigned int**) malloc(m*sizeof(unsigned int*));
+     for( int i=0; i < m ; i++){
+         unsigned int *tmp = b[i].get_pattern();
+         if (tmp[0] != 0) {
+            patt[i] = (unsigned int*) malloc(sizeof(unsigned int) * (tmp[0]+1));
+            patt[i][0] = tmp[0];
+            for(int l=1;l<=tmp[0];l++)
+                patt[i][l] = tmp[l+1];
+         } else {
+            patt[i] = (unsigned int*) malloc(sizeof(unsigned int));
+            patt[i][0] =0;
+         }
+       free(tmp);
+     }
+     return patt;
+}
+
+#endif /* ADOLC_TRACELESS_SPARSE_PATTERN */
+
+} // END adtl namespace
 /****************************************************************************/
 #endif /* ADOLC_TAPELESS */
 
