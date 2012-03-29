@@ -8,9 +8,10 @@
            both the class adub and the class adouble are derived from a base
            class (badouble).  See below for further explanation.
 
- Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -1476,7 +1477,419 @@ while (c!=')' && !in.eof());
     while (c!=')' && !in.eof());
     return in;
 }
+
+} // END NAMESPACE adtl
+#if defined( HAVE_MPI )
+#include <mpi.h>
+
+#define ADOLC_MPI_Datatype MPI_Datatype
+#define MPI_ADOUBLE MPI_DOUBLE
+#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
+#define ADOLC_MPI_Comm MPI_Comm
+
+#if defined(NUMBER_DIRECTIONS)
+int ADOLC_MPI_numDir = adtl::ADOLC_numDir;
+#else
+int ADOLC_MPI_numDir = 1;
+#endif
+#define MPI_ND (ADOLC_MPI_numDir+1)
+#define FOR_I_EQ_0_LT_MPI_NUMDIR for(int _i=0; _i < ADOLC_MPI_numDir; _i++)
+
+typedef enum ADOLC_MPI_Op_t {
+    ADOLC_MPI_MAX=100,
+    ADOLC_MPI_MIN,
+    ADOLC_MPI_SUM,
+    ADOLC_MPI_PROD,
+    ADOLC_MPI_LAND,
+    ADOLC_MPI_BAND,
+    ADOLC_MPI_LOR,
+    ADOLC_MPI_BOR,
+    ADOLC_MPI_LXOR,
+    ADOLC_MPI_BXOR,
+    ADOLC_MPI_MINLOC,
+    ADOLC_MPI_MAXLOC
+} ADOLC_MPI_Op;
+
+int ADOLC_MPI_Init( int* a,
+                    char*** b
+){
+    return MPI_Init(a,b);
 }
+int ADOLC_MPI_Comm_size( ADOLC_MPI_Comm comm,
+                         int* size
+){
+    return MPI_Comm_size(comm,size);
+}
+int ADOLC_MPI_Comm_rank( ADOLC_MPI_Comm comm,
+                         int* rank
+){
+    return MPI_Comm_rank(comm, rank);
+}
+
+int ADOLC_MPI_Get_processor_name( char* a,
+                                  int* b
+){
+    return MPI_Get_processor_name(a,b);
+}
+
+int ADOLC_MPI_Barrier( ADOLC_MPI_Comm comm ){
+    return MPI_Barrier(comm);
+}
+
+int ADOLC_MPI_Finalize( ){
+    return MPI_Finalize();
+}
+
+MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
+    switch (op) {
+	case ADOLC_MPI_MAX: return MPI_MAX;
+	case ADOLC_MPI_MIN: return MPI_MIN;
+	case ADOLC_MPI_SUM: return MPI_SUM;
+	case ADOLC_MPI_PROD: return MPI_PROD;
+	case ADOLC_MPI_LAND: return MPI_LAND;
+	case ADOLC_MPI_BAND: return MPI_BAND;
+	case ADOLC_MPI_LOR: return MPI_LOR;
+	case ADOLC_MPI_BOR: return MPI_BOR;
+	case ADOLC_MPI_LXOR: return MPI_LXOR;
+	case ADOLC_MPI_BXOR: return MPI_BXOR;
+	case ADOLC_MPI_MINLOC: return MPI_MINLOC;
+	case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
+    }
+}
+
+int ADOLC_MPI_Send( adtl::adouble *buf,
+                    int count,
+                    ADOLC_MPI_Datatype datatype,
+                    int dest,
+                    int tag,
+                    ADOLC_MPI_Comm comm
+){
+    int l,i,j,h = count*MPI_ND;
+    int ierr =0;
+    double *trade = (double*) malloc(h*sizeof(double));
+
+//     trade = malloc(h);
+    for (i=0; i< count;i++ ){
+        trade[i*MPI_ND] = buf[i].getValue();
+#if defined (NUMBER_DIRECTIONS )
+	FOR_I_EQ_0_LT_MPI_NUMDIR
+	  trade[i*MPI_ND+_i+1] = buf[i].getADValue(_i) ;
+#else
+        trade[i*MPI_ND +1] = buf[i].getADValue();
+#endif
+    }
+    ierr = MPI_Send(trade, h, datatype, dest, tag, comm);
+    free(trade);
+    return ierr;
+}
+
+int ADOLC_MPI_Recv( adtl::adouble *buf,
+                   int count,
+                   ADOLC_MPI_Datatype datatype,
+                   int source, int tag,
+                   ADOLC_MPI_Comm comm
+) {
+    int j, i, h = count*MPI_ND;
+    double *trade = (double*) malloc(h*sizeof(double));
+    int ierr =0;
+
+    MPI_Status status;
+    ierr = MPI_Recv(trade,h, datatype, source, tag, comm, &status);
+    if (buf==NULL)
+       buf = new adtl::adouble[count];
+    for (i=0; i< count;i++){
+        buf[i].setValue(trade[i*MPI_ND]);
+#if defined (NUMBER_DIRECTIONS )
+	FOR_I_EQ_0_LT_MPI_NUMDIR
+	   buf[i].setADValue(_i,trade[i*MPI_ND +1 + _i]);
+#else
+       buf[i].setADValue(trade[i*MPI_ND +1]);
+#endif
+      }
+    free(trade);
+    return ierr;
+}
+int ADOLC_MPI_Bcast( adtl::adouble *buf,
+                     int count,
+                     ADOLC_MPI_Datatype datatype,
+                     int root,
+                     ADOLC_MPI_Comm comm )
+
+{
+    int i,id, ierr=0;
+    int h = count * MPI_ND;
+    double *trade = (double*) malloc(h*sizeof(double));
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+
+    if ( id == root)
+       for(i= 0; i < count; i++){
+          trade[i*MPI_ND] = buf[i].getValue();
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+	         trade[i*MPI_ND+_i+1] = buf[i].getADValue(_i) ;
+#else
+          trade[i*MPI_ND +1] = buf[i].getADValue();
+#endif
+       }
+    ierr = MPI_Bcast(trade,count,datatype,root, comm);
+
+    if ( id != root){
+       if (buf==NULL)
+          buf = new adtl::adouble[count];
+       for(i=0; i< count;i++)
+          buf[i].setValue(trade[i*MPI_ND]);
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+          buf[i].setADValue(_i,trade[i*MPI_ND + _i+1]);
+#else
+          buf[i].setADValue(trade[i*MPI_ND +1]);
+#endif
+    }
+
+    free(trade);
+    return ierr;
+}
+
+int ADOLC_MPI_Gather(
+    adtl::adouble *sendbuf, adtl::adouble *recvbuf, int count, ADOLC_MPI_Datatype type, int root, ADOLC_MPI_Comm comm)
+{
+ 	int h_s = count*MPI_ND;
+ 	int h_r =h_s;
+     int i,id,size, ierr=0;
+     double *trade_s = (double*) malloc(h_s*sizeof(double)), *trade_r = NULL;
+
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (id == root){
+	   h_r *= size;
+	   trade_r = (double*) malloc(h_r*sizeof(double));
+	}
+
+    for(i= 0; i < count; i++) {
+       trade_s[i*MPI_ND] = sendbuf[i].getValue();
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+	         trade_s[i*MPI_ND+_i+1] = sendbuf[i].getADValue(_i) ;
+#else
+          trade_s[i*MPI_ND +1] = sendbuf[i].getADValue();
+#endif
+    }
+
+    ierr = MPI_Gather(trade_s,count,type,trade_r,count,type, root, comm);
+
+    if ( id == root){
+       if( recvbuf == NULL)
+           recvbuf = new adtl::adouble[count*size];
+       for(i=0; i< count*size;i++){
+          recvbuf[i].setValue(trade_r[i*MPI_ND]);
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+          recvbuf[i].setADValue(_i,trade_r[i*MPI_ND + _i+1]);
+#else
+          recvbuf[i].setADValue(trade_r[i*MPI_ND +1]);
+#endif
+          }
+    }
+    free(trade_s);
+    if (id == root)
+	   free(trade_r);
+    return ierr;
+}
+
+
+int ADOLC_MPI_Reduce(
+    adtl::adouble *send_buf, adtl::adouble *rec_buf, int count, ADOLC_MPI_Datatype type,
+    ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm)
+{
+    int i,j,id,size, ierr=0;
+    adtl::adouble tmp, *tmp_adoubles = NULL;
+    ierr = ADOLC_MPI_Gather(send_buf,tmp_adoubles,count,type,root,comm);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if ( id == root){
+       if( rec_buf == NULL)
+           rec_buf = new adtl::adouble[count];
+       switch (op) {
+               case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
+                                       tmp = tmp_adoubles[i];
+                                       for(j=1; j< size ; j++)
+                                          if ( tmp <= tmp_adoubles[j*count+i] )
+                                             tmp = tmp_adoubles[j*count+i];
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_MIN: for(i=0; i < count; i++ ) {
+                                      tmp = tmp_adoubles[i];
+                                      for(j=1; j< size ; j++)
+                                         if ( tmp >= tmp_adoubles[j*count+i] )
+                                            tmp = tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_SUM: for(i=0; i < count; i++ ) {
+                                      tmp =0.;
+                                      for(j=0; j< size ; j++)
+                                         tmp += tmp_adoubles[j*count+i];
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_PROD:for(i=0; i < count; i++ ) {
+                                      tmp = 1.;
+                                      for(j=0; j< size ; j++)
+                                         tmp *= tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                    }
+                                    break;
+               default:             printf("Operation %d not yet implemented!\n",op);
+                                    break;
+       }
+       delete[] tmp_adoubles;
+    }
+
+    return ierr;
+}
+
+int ADOLC_MPI_Scatter(
+    adtl::adouble *sendbuf, int sendcount, adtl::adouble *recvbuf,
+    int recvcount, ADOLC_MPI_Datatype type, int root, ADOLC_MPI_Comm comm)
+{
+    int i,id,size, ierr=0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int h_s = sendcount*MPI_ND*size;
+    int h_r = recvcount*MPI_ND;
+    double *trade_r = (double*) malloc(h_r*sizeof(double)), *trade_s=NULL;
+
+    if (id == root)
+        trade_s = (double*) malloc( h_s*sizeof(double));
+
+    if ( id == root){
+       for(i= 0; i < sendcount*size; i++)
+          trade_s[i*MPI_ND] = sendbuf[i].getValue();
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+	         trade_s[i*MPI_ND+_i+1] = sendbuf[i].getADValue(_i) ;
+#else
+          trade_s[i*MPI_ND +1] = sendbuf[i].getADValue();
+#endif
+    }
+
+    ierr = MPI_Scatter(trade_s,sendcount,type,trade_r,recvcount,type, root, comm);
+
+    if( recvbuf == NULL)
+       recvbuf = new adtl::adouble[recvcount];
+    for(i=0; i< recvcount;i++){
+         recvbuf[i].setValue(trade_r[i*MPI_ND]);
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+          recvbuf[i].setADValue(_i,trade_r[i*MPI_ND + _i+1]);
+#else
+          recvbuf[i].setADValue(trade_r[i*MPI_ND +1]);
+#endif
+	 }
+    free(trade_r);
+    if (id == root)
+      free(trade_s);
+    return ierr;
+}
+
+int ADOLC_MPI_Allgather(
+    adtl::adouble *sendbuf, int sendcount,ADOLC_MPI_Datatype stype, adtl::adouble *recvbuf, int recvcount, ADOLC_MPI_Datatype rtype, ADOLC_MPI_Comm comm)
+{
+     int h_s = sendcount*MPI_ND;
+     int h_r = recvcount*MPI_ND;
+     int i,id,size, ierr=0;
+     MPI_Comm_rank(MPI_COMM_WORLD, &id);
+     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+     double *trade_s = (double*) malloc(h_s*sizeof(double));
+     double *trade_r = (double*) malloc(h_r*sizeof(double)*size);
+
+    for(i= 0; i < sendcount; i++) {
+       trade_s[i*MPI_ND] = sendbuf[i].getValue();
+#if defined (NUMBER_DIRECTIONS )
+          FOR_I_EQ_0_LT_MPI_NUMDIR
+              trade_s[i*MPI_ND+_i+1] = sendbuf[i].getADValue(_i) ;
+#else
+          trade_s[i*MPI_ND +1] = sendbuf[i].getADValue();
+#endif
+    }
+
+    ierr = MPI_Allgather(trade_s,h_s,stype, trade_r, h_r, rtype, comm);
+
+    if( recvbuf == NULL)
+        recvbuf = new adtl::adouble[recvcount*size];
+    for(i=0; i< recvcount*size;i++){
+        recvbuf[i].setValue(trade_r[i*MPI_ND]);
+#if defined (NUMBER_DIRECTIONS )
+        FOR_I_EQ_0_LT_MPI_NUMDIR
+           recvbuf[i].setADValue(_i,trade_r[i*MPI_ND + _i+1]);
+#else
+        recvbuf[i].setADValue(trade_r[i*MPI_ND +1]);
+#endif
+    }
+    free(trade_s);
+    free(trade_r);
+    return ierr;
+}
+
+int ADOLC_MPI_Allreduce(
+    adtl::adouble *send_buf, adtl::adouble *rec_buf, int count, ADOLC_MPI_Datatype type,
+    ADOLC_MPI_Op op, ADOLC_MPI_Comm comm)
+{
+    int i,j,id,size, ierr=0;
+     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    adtl::adouble tmp, *tmp_adoubles = new adtl::adouble[count*size];
+    ierr = ADOLC_MPI_Allgather(send_buf,count,type,tmp_adoubles,count,type,comm);
+
+    if( rec_buf == NULL)
+       rec_buf = new adtl::adouble[count];
+    switch (op) {
+               case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
+                                       tmp = tmp_adoubles[i];
+                                       for(j=1; j< size ; j++)
+                                          if ( tmp <= tmp_adoubles[j*count+i] )
+                                             tmp = tmp_adoubles[j*count+i];
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_MIN: for(i=0; i < count; i++ ) {
+                                      tmp = tmp_adoubles[i];
+                                      for(j=1; j< size ; j++)
+                                         if ( tmp >= tmp_adoubles[j*count+i] )
+                                            tmp = tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_SUM: for(i=0; i < count; i++ ) {
+                                      cout << "i="<<i<<"   count="<< count << endl;
+                                      tmp =0.;
+                                      for(j=0; j< size ; j++){
+                                         cout <<"j="<<j<<" :   "<< tmp_adoubles[j*count+i] << endl;
+                                         tmp += tmp_adoubles[j*count+i];
+                                         }
+                                       rec_buf[i] = tmp;
+                                   }
+                                   break;
+               case ADOLC_MPI_PROD:for(i=0; i < count; i++ ) {
+                                      tmp = 1.;
+                                      for(j=0; j< size ; j++)
+                                         tmp *= tmp_adoubles[j*count+i];
+                                      rec_buf[i] = tmp;
+                                    }
+                                    break;
+               default:             printf("Operation %d not yet implemented!\n",op);
+                                    break;
+    }
+    delete[] tmp_adoubles;
+    return ierr;
+}
+
+#endif // END MPI
 
 /****************************************************************************/
 #endif /* ADOLC_TAPELESS */
