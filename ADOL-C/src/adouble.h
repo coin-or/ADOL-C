@@ -22,8 +22,16 @@
 #define ADOLC_ADOUBLE_H 1
 
 #include <adolc/common.h>
-#if defined( HAVE_MPI )
+#if defined(HAVE_MPI)
+#if defined(ADOLC_ADOLC_MPI_H) || defined(ADOLC_TAPELESS)
+
+#define ADOLC_MPI_Datatype MPI_Datatype
+#define MPI_ADOUBLE MPI_DOUBLE
+#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
+#define ADOLC_MPI_Comm MPI_Comm
+
 BEGIN_C_DECLS
+
 typedef enum ADOLC_MPI_Op_t {
     ADOLC_MPI_MAX=100,
     ADOLC_MPI_MIN,
@@ -38,7 +46,30 @@ typedef enum ADOLC_MPI_Op_t {
     ADOLC_MPI_MINLOC,
     ADOLC_MPI_MAXLOC
 } ADOLC_MPI_Op;
+
+#if 0
+// I am quite sure we don't ever need to call this -KK
+static MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
+    switch (op) {
+     case ADOLC_MPI_MAX: return MPI_MAX;
+     case ADOLC_MPI_MIN: return MPI_MIN;
+     case ADOLC_MPI_SUM: return MPI_SUM;
+     case ADOLC_MPI_PROD: return MPI_PROD;
+     case ADOLC_MPI_LAND: return MPI_LAND;
+     case ADOLC_MPI_BAND: return MPI_BAND;
+     case ADOLC_MPI_LOR: return MPI_LOR;
+     case ADOLC_MPI_BOR: return MPI_BOR;
+     case ADOLC_MPI_LXOR: return MPI_LXOR;
+     case ADOLC_MPI_BXOR: return MPI_BXOR;
+     case ADOLC_MPI_MINLOC: return MPI_MINLOC;
+     case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
+    }
+}
+#endif
+
 END_C_DECLS
+
+#endif
 #endif
 
 /****************************************************************************/
@@ -1501,28 +1532,6 @@ while (c!=')' && !in.eof());
 }
 
 #if defined( HAVE_MPI )
-
-#define ADOLC_MPI_Datatype MPI_Datatype
-#define MPI_ADOUBLE MPI_DOUBLE
-#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
-#define ADOLC_MPI_Comm MPI_Comm
-
-MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
-    switch (op) {
-     case ADOLC_MPI_MAX: return MPI_MAX;
-     case ADOLC_MPI_MIN: return MPI_MIN;
-     case ADOLC_MPI_SUM: return MPI_SUM;
-     case ADOLC_MPI_PROD: return MPI_PROD;
-     case ADOLC_MPI_LAND: return MPI_LAND;
-     case ADOLC_MPI_BAND: return MPI_BAND;
-     case ADOLC_MPI_LOR: return MPI_LOR;
-     case ADOLC_MPI_BOR: return MPI_BOR;
-     case ADOLC_MPI_LXOR: return MPI_LXOR;
-     case ADOLC_MPI_BXOR: return MPI_BXOR;
-     case ADOLC_MPI_MINLOC: return MPI_MINLOC;
-     case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
-    }
-}
 
 #if defined(NUMBER_DIRECTIONS)
 int MPI_ND = ADOLC_numDir+1;

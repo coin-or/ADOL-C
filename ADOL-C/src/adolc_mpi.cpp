@@ -23,11 +23,6 @@
 #include <adolc/interfaces_mpi.h>
 #include <adolc/convolut.h>
 
-#define ADOLC_MPI_Datatype MPI_Datatype
-#define MPI_ADOUBLE MPI_DOUBLE
-#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
-#define ADOLC_MPI_Comm MPI_Comm
-
 int mpi_initialized = 0;
 int all_root = 0;
 
@@ -73,23 +68,6 @@ int ADOLC_MPI_Barrier( ADOLC_MPI_Comm comm ){
 
 int ADOLC_MPI_Finalize( ){
     return MPI_Finalize();
-}
-
-MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op op) {
-    switch (op) {
-	case ADOLC_MPI_MAX: return MPI_MAX;
-	case ADOLC_MPI_MIN: return MPI_MIN;
-	case ADOLC_MPI_SUM: return MPI_SUM;
-	case ADOLC_MPI_PROD: return MPI_PROD;
-	case ADOLC_MPI_LAND: return MPI_LAND;
-	case ADOLC_MPI_BAND: return MPI_BAND;
-	case ADOLC_MPI_LOR: return MPI_LOR;
-	case ADOLC_MPI_BOR: return MPI_BOR;
-	case ADOLC_MPI_LXOR: return MPI_LXOR;
-	case ADOLC_MPI_BXOR: return MPI_BXOR;
-	case ADOLC_MPI_MINLOC: return MPI_MINLOC;
-	case ADOLC_MPI_MAXLOC: return MPI_MAXLOC;
-    }
 }
 
 END_C_DECLS

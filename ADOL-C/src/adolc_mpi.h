@@ -22,11 +22,6 @@
 #include <mpi.h>
 #include <adolc/interfaces_mpi.h>
 
-#define ADOLC_MPI_Datatype MPI_Datatype
-#define MPI_ADOUBLE MPI_DOUBLE
-#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
-#define ADOLC_MPI_Comm MPI_Comm
-
 BEGIN_C_DECLS
 
 ADOLC_DLL_EXPORT int ADOLC_MPI_Init(int* a, char*** b);
@@ -35,8 +30,6 @@ ADOLC_DLL_EXPORT int ADOLC_MPI_Comm_rank(ADOLC_MPI_Comm vomm , int* rank);
 ADOLC_DLL_EXPORT int ADOLC_MPI_Get_processor_name(char* a, int* b) ;
 ADOLC_DLL_EXPORT int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 ADOLC_DLL_EXPORT int ADOLC_MPI_Finalize() ;
-
-MPI_Op adolc_to_mpi_op(ADOLC_MPI_Op);
 
 END_C_DECLS
 
