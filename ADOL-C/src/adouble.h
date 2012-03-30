@@ -1808,12 +1808,12 @@ void adouble::delete_pattern(){
      free(pattern);
 }
 
-void ADOLC_Init_sparse_pattern(adouble *a, int n ){
+void ADOLC_Init_sparse_pattern(adouble *a, int n, int start_cnt){
      for(unsigned int i=0; i < n; i++){
          unsigned int *v = new unsigned int[4];
          v[0] = 1;
          v[1] = 2;
-         v[2] = i;
+         v[2] = start_cnt+i;
          v[3] = 0;
          a[i].add_to_pattern(v);
          delete[] v;
