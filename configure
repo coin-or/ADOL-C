@@ -15689,7 +15689,7 @@ if test "x$ac_cv_sizeof_void_p" = "x8" ; then
 else
    _lib=lib
 fi
-libdir='${prefix}/${_lib}'
+libdir='${exec_prefix}/${_lib}'
 
 
 
@@ -16252,30 +16252,14 @@ $as_echo "#define realloc rpl_realloc" >>confdefs.h
 fi
 
 
-for ac_func in floor ftime pow sqrt strchr strtol
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
 
-fi
-done
-
-
-# substitutions
-
-
-# Checks for libraries
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pow in -lm" >&5
-$as_echo_n "checking for pow in -lm... " >&6; }
-if ${ac_cv_lib_m_pow+:} false; then :
+# Checks for libraries and fuctions
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing pow" >&5
+$as_echo_n "checking for library containing pow... " >&6; }
+if ${ac_cv_search_pow+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lm  $LIBS"
+  ac_func_search_save_LIBS=$LIBS
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -16294,25 +16278,52 @@ return pow ();
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_m_pow=yes
-else
-  ac_cv_lib_m_pow=no
+for ac_lib in '' m; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_pow=$ac_res
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
+    conftest$ac_exeext
+  if ${ac_cv_search_pow+:} false; then :
+  break
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_m_pow" >&5
-$as_echo "$ac_cv_lib_m_pow" >&6; }
-if test "x$ac_cv_lib_m_pow" = xyes; then :
+done
+if ${ac_cv_search_pow+:} false; then :
+
+else
+  ac_cv_search_pow=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_pow" >&5
+$as_echo "$ac_cv_search_pow" >&6; }
+ac_res=$ac_cv_search_pow
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+for ac_func in floor fmax fmin ftime pow sqrt strchr strtol trunc
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBM 1
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
 _ACEOF
 
-  LIBS="-lm $LIBS"
-
 fi
+done
+
+
+# substitutions
 
 
 # ADOL-C configuration
@@ -16453,8 +16464,6 @@ $as_echo "no" >&6; }
 fi
 
 
-test "x${ac_pwd}" = x && ac_pwd=`pwd`
-abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 
 # Check whether --with-colpack was given.
 if test "${with_colpack+set}" = set; then :
