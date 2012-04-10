@@ -68,8 +68,10 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
 
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99) && !defined(__APPLE_CC__)
+#if !defined(HAVE_FMIN)
 double ADOLC_DLL_EXPORT fmin( const double &x, const double &y );
+#endif
+#if !defined(HAVE_FMAX)
 double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
 #endif
 
