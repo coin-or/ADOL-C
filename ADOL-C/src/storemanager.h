@@ -51,6 +51,7 @@
 	   
 
  History:
+          20120427 bl:     add blocking store management
           20110208 kk:     incorporated in ADOL-C; moved some code arround
           20060507 jw:     begin
 
@@ -69,6 +70,7 @@ public:
 
   virtual locint next_loc() = 0;
   virtual void free_loc(locint) = 0;
+  virtual void ensure_Block(size_t n) = 0;
 
 //   // effectively the current size of the store array
   virtual size_t maxSize() const = 0;
@@ -104,6 +106,38 @@ public:
 
   virtual locint next_loc();
   virtual void free_loc(locint loc); 
+  virtual void ensure_Block(size_t n) {
+   };
+};
+
+class StoreManagerLocintBlock : public StoreManager {
+protected:
+  double * storePtr;
+    struct FeldBlock {
+    locint next; // next location
+    size_t size; // number of following free locations
+    FeldBlock(): next(0), size(0) {}
+    FeldBlock(const struct StoreManagerLocintBlock::FeldBlock &block) : next(block.next),size(block.size) {}
+  } FeldBlock_t;
+
+  deque<struct FeldBlock> indexFeld;
+  size_t groesse;
+  size_t anzahl;
+private:
+  void grow( );
+public:
+  StoreManagerLocintBlock();
+  StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
+  StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
+
+  virtual ~StoreManagerLocintBlock();
+  virtual inline size_t size() const { return anzahl; }
+
+  virtual inline size_t maxSize() const { return groesse; }
+
+  virtual locint next_loc();
+  virtual void free_loc(locint loc);
+  virtual void ensure_Block(size_t n);
 };
 
 #if 0
