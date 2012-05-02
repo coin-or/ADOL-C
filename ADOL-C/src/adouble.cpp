@@ -41,24 +41,6 @@ void condassign( double &res, const double &cond,
     res = cond > 0 ? arg : res;
 }
 
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
-/*--------------------------------------------------------------------------*/
-double fmax( const double &x, const double &y ) {
-    if (y > x)
-        return y;
-    else
-        return x;
-}
-
-/*--------------------------------------------------------------------------*/
-double fmin( const double &x, const double &y ) {
-    if (y < x)
-        return y;
-    else
-        return x;
-}
-#endif
-
 /*--------------------------------------------------------------------------*/
 /* The remaining routines define the badouble, adub and adouble routines.   */
 /*--------------------------------------------------------------------------*/
