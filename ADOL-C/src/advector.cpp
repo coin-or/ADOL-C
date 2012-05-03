@@ -420,26 +420,20 @@ adub advector::operator[](const badouble& index) const {
     size_t n = data.size();
     static size_t callcounter  = 0;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-	if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= n+2) {
-	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
-	    exit(-2);
-	}
-	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2> ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
-	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
-	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
-	    put_op(end_of_int);
-	}
 	put_op(subscript);
 	ADOLC_PUT_LOCINT(index.loc());
 	ADOLC_PUT_LOCINT(locat);
 	ADOLC_PUT_VAL(n);
-	for (int i = 0; i < n; i++) 
-	    ADOLC_PUT_LOCINT(data[i].loc());
+	ADOLC_PUT_LOCINT(data[0].loc());
 
 	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
 	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
     }
+
+    if (idx >= n)
+	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", n, idx);
+
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[data[idx].loc()];
     return locat;
 }
@@ -451,26 +445,20 @@ adubref advector::operator[](const badouble& index) {
     locint locat = next_loc();
     size_t n = data.size();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-	if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= n+2) {
-	    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],n);
-	    exit(-2);
-	}
-	if (ADOLC_CURRENT_TAPE_INFOS.currLoc + n + 2 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
-	    *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
-	    put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
-	    put_op(end_of_int);
-	}
 	put_op(subscript_ref);
 	ADOLC_PUT_LOCINT(index.loc());
 	ADOLC_PUT_LOCINT(locat);
 	ADOLC_PUT_VAL(n);
-	for (int i = 0; i < n; i++) 
-	    ADOLC_PUT_LOCINT(data[i].loc());
+	ADOLC_PUT_LOCINT(data[0].loc());
 
 	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
 	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
     }
+
+    if (idx >= n)
+	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", n, idx);
+
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = data[idx].loc();
     return adubref(locat,data[idx].loc());
 }

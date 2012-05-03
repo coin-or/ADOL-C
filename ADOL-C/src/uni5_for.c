@@ -3522,20 +3522,17 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case subscript:
 		coval = get_val_f();
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
-		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
-		    exit(-2);
-		}
 		arg = get_locint_f();
 		res = get_locint_f();
 		{
 		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
-		    locint vectorloc[numvar];
-		    for (cnt = 0; cnt < numvar; cnt++)
-			vectorloc[cnt] = get_locint_f();
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
-		    arg1 = vectorloc[idx];
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
@@ -3558,20 +3555,17 @@ int  hov_forward(
 
             case subscript_ref:
 		coval = get_val_f();
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
-		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
-		    exit(-2);
-		}
 		arg = get_locint_f();
 		res = get_locint_f();
 		{
 		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
-		    locint vectorloc[numvar];
-		    for (cnt = 0; cnt < numvar; cnt++)
-			vectorloc[cnt] = get_locint_f();
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
-		    arg1 = vectorloc[idx];
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = arg1;
 #else
