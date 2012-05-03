@@ -1388,14 +1388,21 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
               iter->size++;
               if (loc + 1 == iter->next)
                    iter->next = loc;
-              break;
+    // bringing the matched element to the front maybe a good idea
+    // in case several contiguous adouble are deallcated right after 
+    // one another, e.g. advector
+	      struct FeldBlock tmp(*iter);
+	      iter = indexFeld.erase(iter);
+	      indexFeld.push_front(tmp);
+	      iter = indexFeld.begin();
+	      break;
          }
     }
     if (iter == indexFeld.end()) {
-         struct FeldBlock* tmp = new FeldBlock;
-         tmp->next = loc;
-         tmp->size = 1;
-         indexFeld.push_front(*tmp);
+         struct FeldBlock tmp;
+         tmp.next = loc;
+         tmp.size = 1;
+         indexFeld.push_front(tmp);
     }
 
     --anzahl;
