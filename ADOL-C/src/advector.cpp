@@ -396,6 +396,11 @@ void condassign( adubref res, const badouble &cond, const badouble &arg ) {
         ADOLC_GLOBAL_TAPE_VARS.store[res.refloc] = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
 }
 
+advector::blocker::blocker(size_t n) {
+    dflt = new adouble;
+    ensureContiguousLocations(n);
+}
+
 bool advector::nondecreasing() const {
     bool ret = true;
     double last = - ADOLC_MATH_NSP::numeric_limits<double>::infinity();

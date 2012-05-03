@@ -99,14 +99,20 @@ public:
 
 class ADOLC_DLL_EXPORT advector {
 private:
+    struct blocker {
+	adouble *dflt;
+	blocker() {}
+	blocker(size_t n);
+	~blocker() {}
+    } blk;
     std::vector<adouble> data;
     bool nondecreasing() const;
 public:
-    advector() : data() {}
-    explicit advector(size_t n) : data(n) {}
+    advector() : blk(), data() {}
+    explicit advector(size_t n) : blk(n), data(n, *blk.dflt) { delete blk.dflt; }
     ~advector() {}
-    advector(const advector& x) : data(x.data) {}
-    advector(const vector<adouble>& v) : data(v) {}
+    advector(const advector& x) : blk(x.data.size()), data(x.data) { delete blk.dflt; }
+    advector(const vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
     size_t size() const { return data.size(); }
     operator const vector<adouble>&() const { return data; }
     operator vector<adouble>&() { return data; }
