@@ -1360,6 +1360,8 @@ void StoreManagerLocintBlock::grow() {
     for (; iter != indexFeld.end() ; iter++ ) {
          if (iter->next + iter->size == alteGroesse ) {
               iter->size += alteGroesse;
+	      // move the block to the end of the list because that is where
+	      // other functions expect the newly grown block to be
 	      struct FeldBlock tmp(*iter);
 	      iter = indexFeld.erase(iter);
 	      indexFeld.push_back(tmp);
