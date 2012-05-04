@@ -4,8 +4,9 @@
  Revision: $Id$
  Contents: management of tape infos
 
- Copyright (c) Andreas Kowarz, Andrea Walther, Benjamin Letschert
-  
+ Copyright (c) Andreas Kowarz, Andrea Walther, Kshitij Kulshreshtha,
+               Benjamin Letschert
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.

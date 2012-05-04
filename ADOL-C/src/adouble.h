@@ -9,7 +9,8 @@
            class (badouble).  See below for further explanation.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 

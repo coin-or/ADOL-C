@@ -8,8 +8,9 @@
            desired functionality.
 
  Copyright (c) 2006 Johannes Willkomm <johannes.willkomm@rwth-aachen.de>
- Written by Johannes Willkomm <johannes.willkomm@rwth-aachen.de>
-  
+               2011-2012 Kshitij Kulshreshtha <kshitij@math.upb.de>
+               2012 Benjamin Letschert <letschi@mail.upb.de>
+
  This file is part of ADOL-C.
 
  The classes StoreManagerXYZ basically takes the global double *store pointer 
