@@ -138,11 +138,11 @@ void filewrite_start( int opcode ) {
 #ifdef computenumbers
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
 #endif
     pagelength = 0;
 }
