@@ -92,65 +92,98 @@ AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
               [
 AS_HELP_STRING([--enable-debug],[enable ADOL-C debug mode [default=no]])],
-  [AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
-   AC_MSG_RESULT(yes)
-   adolc_debug="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_debug="no"])
+  [
+  adolc_debug=$enableval
+   AC_MSG_RESULT($adolc_debug)
+   ],
+  [
+   adolc_debug=no
+   AC_MSG_RESULT(no)
+   ])
 
 AC_MSG_CHECKING(whether to use ADOL-C hard debug mode)
 AC_ARG_ENABLE(harddebug,
               [
 AS_HELP_STRING([--enable-harddebug],[enable ADOL-C hard debug mode
  [default=no]])],
-  [AC_DEFINE(ADOLC_HARDDEBUG,1,[ADOL-C hard debug mode])
-   AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
-   AC_MSG_RESULT(yes)
-   adolc_harddebug="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_harddebug="no"])
+  [
+   adolc_harddebug=$enableval
+   AC_MSG_RESULT($adolc_harddebug)
+   ],
+  [
+   adolc_harddebug=no
+   AC_MSG_RESULT(no)
+   ])
+
+if test x$adolc_harddebug == xyes ; then
+adolc_debug=yes
+AC_DEFINE(ADOLC_HARDDEBUG,1,[ADOL-C hard debug mode])
+fi
+
+if test x$adolc_debug == xyes ; then
+AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
+fi
 
 AC_MSG_CHECKING(whether standard adouble constructor shall zero value)
 AC_ARG_ENABLE(stdczero,
               [
 AS_HELP_STRING([--enable-stdczero],[adouble standard constructor zeros value 
 (at the cost of performance) [default=no]])],
-  [AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
-   AC_MSG_RESULT(yes)
-   adolc_stdczero="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_stdczero="no"])
+  [
+  adolc_stdczero=$enableval
+  AC_MSG_RESULT($adolc_stdczero)
+  ],
+  [
+  adolc_stdczero=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_stdczero == xyes ; then
+AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
+fi
 
 AC_MSG_CHECKING(whether errno is thread save)
 AC_ARG_ENABLE(tserrno,
               [
 AS_HELP_STRING([--enable-tserrno],[use errno as thread number cache [default=no]])],
-  [AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
-   AC_MSG_RESULT(yes)
-   adolc_tserrno="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_tserrno="no"])
+  [
+  adolc_tserrno=$enableval
+  AC_MSG_RESULT($adolc_tserrno)
+   ],
+  [
+  adolc_tserrno=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_tserrno == xyes ; then
+AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
+fi
 
 AC_MSG_CHECKING(whether external function call forces backup of all adoubles)
 AC_ARG_ENABLE(safe_extern,
               [
 AS_HELP_STRING([--enable-safe-extern],[backup all adoubles before calling an external function [default=no]])],
-  [AC_DEFINE(ADOLC_SAFE_EXTERN,1,[ADOL-C safe extern mode])
-   AC_MSG_RESULT(yes)
-   adolc_safe_extern="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_safe_extern="no"])
+  [
+  adolc_safe_extern=$enableval
+  AC_MSG_RESULT($adolc_safe_extern)
+  ],
+  [
+  adolc_safe_extern=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_safe_extern == xyes ; then
+AC_DEFINE(ADOLC_SAFE_EXTERN,1,[ADOL-C safe extern mode])
+fi
 
 AC_MSG_CHECKING(which flag to use to enable OpenMP)
 AC_ARG_WITH(openmp-flag,
             [AS_HELP_STRING([--with-openmp-flag=FLAG],
                             [use FLAG to enable OpenMP at compile time [default=none]])],
             [ac_adolc_openmpflag=$withval
-             msg_result=$withval
              AC_MSG_RESULT($ac_adolc_openmpflag)],
             [ac_adolc_openmpflag=""
-             msg_result="none"
-             AC_MSG_RESULT($ac_adolc_openmpflag)])
+             AC_MSG_RESULT(none)])
 
 
 # ADOL-C Sparse facility
@@ -159,7 +192,7 @@ AC_ARG_ENABLE(sparse,
             [
 AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
             [sparse=$enableval
-             AC_MSG_RESULT(yes)],
+             AC_MSG_RESULT($sparse)],
             [sparse="no"
              AC_MSG_RESULT(no)])
 
