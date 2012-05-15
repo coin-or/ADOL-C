@@ -3954,10 +3954,11 @@ values of $y^{\prime} \in \R^3$:
 #include <adolc/adalloc.h>                  // use of ADOL-C allocation utilities
 
 void tracerhs(short int tag, double* py, double* pyprime) {
-adoublev y(3);                        // this time we left the parameters
-adoublev yprime(3);                   // passive and use the vector types
+adouble y[3];                         // this time we left the parameters
+adouble yprime[3];                    // passive and use the vector types
 trace_on(tag);
-y <<= py;                             // initialize and mark independents
+for (int i=0; i<3; i++)
+     y[i] <<= py[i];                  // initialize and mark independents
 yprime[0] = -sin(y[2]) + 1e8*y[2]*(1-1/y[0]);
 yprime[1] = -10*y[0] + 3e7*y[2]*(1-y[1]);
 yprime[2] = -yprime[0] - yprime[1];
