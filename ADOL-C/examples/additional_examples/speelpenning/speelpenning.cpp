@@ -31,7 +31,7 @@
 /*                                                             MAIN PROGRAM */
 int main() {
     int n,i,it;
-    int tape_stats[STAT_SIZE];
+    size_t tape_stats[STAT_SIZE];
 
     /*--------------------------------------------------------------------------*/
     /* Input */

@@ -8,10 +8,10 @@
 #
 ##############################################################################
 define([ADOLC_VER], [2])
-define([ADOLC_SUB], [2])
-define([ADOLC_LVL], [1])
+define([ADOLC_SUB], [3])
+define([ADOLC_LVL], [0])
 
-AC_PREREQ(2.57)
+AC_PREREQ(2.67)
 AC_INIT(adolc,
         ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
         [adol-c@list.coin-or.org])
@@ -20,7 +20,8 @@ AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
 AC_CONFIG_AUX_DIR(autoconf)
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
-AM_INIT_AUTOMAKE([dist-bzip2 foreign])
+AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign])
+AM_SILENT_RULES([yes])
 
 if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
@@ -42,7 +43,6 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
-DOLT
 
 AC_CHECK_SIZEOF([void *])
 if test "x$ac_cv_sizeof_void_p" = "x8" ; then
@@ -50,7 +50,7 @@ if test "x$ac_cv_sizeof_void_p" = "x8" ; then
 else
    _lib=lib
 fi
-libdir='${prefix}/${_lib}'
+libdir='${exec_prefix}/${_lib}'
 AC_SUBST(_lib)
 AC_SUBST(libdir)
 
@@ -69,13 +69,13 @@ AC_STRUCT_TM
 # Checks for library functions
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([floor ftime pow sqrt strchr strtol])
+
+# Checks for libraries and fuctions
+AC_SEARCH_LIBS([pow], [m])
+AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
 
 # substitutions
 AC_SUBST(ac_aux_dir)
-
-# Checks for libraries
-AC_CHECK_LIB([m], [pow])
 
 # ADOL-C configuration
 AC_DEFINE(ADOLC_VERSION,ADOLC_VER,[ADOL-C Version])
@@ -92,65 +92,98 @@ AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
               [
 AS_HELP_STRING([--enable-debug],[enable ADOL-C debug mode [default=no]])],
-  [AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
-   AC_MSG_RESULT(yes)
-   adolc_debug="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_debug="no"])
+  [
+  adolc_debug=$enableval
+   AC_MSG_RESULT($adolc_debug)
+   ],
+  [
+   adolc_debug=no
+   AC_MSG_RESULT(no)
+   ])
 
 AC_MSG_CHECKING(whether to use ADOL-C hard debug mode)
 AC_ARG_ENABLE(harddebug,
               [
 AS_HELP_STRING([--enable-harddebug],[enable ADOL-C hard debug mode
  [default=no]])],
-  [AC_DEFINE(ADOLC_HARDDEBUG,1,[ADOL-C hard debug mode])
-   AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
-   AC_MSG_RESULT(yes)
-   adolc_harddebug="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_harddebug="no"])
+  [
+   adolc_harddebug=$enableval
+   AC_MSG_RESULT($adolc_harddebug)
+   ],
+  [
+   adolc_harddebug=no
+   AC_MSG_RESULT(no)
+   ])
+
+if test x$adolc_harddebug == xyes ; then
+adolc_debug=yes
+AC_DEFINE(ADOLC_HARDDEBUG,1,[ADOL-C hard debug mode])
+fi
+
+if test x$adolc_debug == xyes ; then
+AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
+fi
 
 AC_MSG_CHECKING(whether standard adouble constructor shall zero value)
 AC_ARG_ENABLE(stdczero,
               [
 AS_HELP_STRING([--enable-stdczero],[adouble standard constructor zeros value 
 (at the cost of performance) [default=no]])],
-  [AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
-   AC_MSG_RESULT(yes)
-   adolc_stdczero="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_stdczero="no"])
+  [
+  adolc_stdczero=$enableval
+  AC_MSG_RESULT($adolc_stdczero)
+  ],
+  [
+  adolc_stdczero=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_stdczero == xyes ; then
+AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
+fi
 
 AC_MSG_CHECKING(whether errno is thread save)
 AC_ARG_ENABLE(tserrno,
               [
 AS_HELP_STRING([--enable-tserrno],[use errno as thread number cache [default=no]])],
-  [AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
-   AC_MSG_RESULT(yes)
-   adolc_tserrno="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_tserrno="no"])
+  [
+  adolc_tserrno=$enableval
+  AC_MSG_RESULT($adolc_tserrno)
+   ],
+  [
+  adolc_tserrno=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_tserrno == xyes ; then
+AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
+fi
 
 AC_MSG_CHECKING(whether external function call forces backup of all adoubles)
 AC_ARG_ENABLE(safe_extern,
               [
 AS_HELP_STRING([--enable-safe-extern],[backup all adoubles before calling an external function [default=no]])],
-  [AC_DEFINE(ADOLC_SAFE_EXTERN,1,[ADOL-C safe extern mode])
-   AC_MSG_RESULT(yes)
-   adolc_safe_extern="yes"],
-  [AC_MSG_RESULT(no)
-   adolc_safe_extern="no"])
+  [
+  adolc_safe_extern=$enableval
+  AC_MSG_RESULT($adolc_safe_extern)
+  ],
+  [
+  adolc_safe_extern=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_safe_extern == xyes ; then
+AC_DEFINE(ADOLC_SAFE_EXTERN,1,[ADOL-C safe extern mode])
+fi
 
 AC_MSG_CHECKING(which flag to use to enable OpenMP)
 AC_ARG_WITH(openmp-flag,
             [AS_HELP_STRING([--with-openmp-flag=FLAG],
                             [use FLAG to enable OpenMP at compile time [default=none]])],
             [ac_adolc_openmpflag=$withval
-             msg_result=$withval
              AC_MSG_RESULT($ac_adolc_openmpflag)],
             [ac_adolc_openmpflag=""
-             msg_result="none"
-             AC_MSG_RESULT($ac_adolc_openmpflag)])
+             AC_MSG_RESULT(none)])
 
 
 # ADOL-C Sparse facility
@@ -159,93 +192,48 @@ AC_ARG_ENABLE(sparse,
             [
 AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
             [sparse=$enableval
-             AC_MSG_RESULT(yes)],
+             AC_MSG_RESULT($sparse)],
             [sparse="no"
              AC_MSG_RESULT(no)])
 
-test "x${ac_pwd}" = x && ac_pwd=`pwd`
-abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
-AS_HELP_STRING([--with-colpack],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
-		[colpack=$withval],
-		[colpack=${abs_srcdir}/ThirdParty/ColPack])
-
-if test "x${_lib}" != xlib ; then
-   dirlist="${_lib} lib build/${_lib} build/lib"
-else
-   dirlist="${_lib} build/${_lib}"
-fi
+AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
+[
+colpack=$withval
+COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
+COLPACK_LIBDIR="$colpack/${_lib}"
+COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+],
+[
+COLPACK_CFLAGS="$ac_adolc_openmpflag"
+COLPACK_LIBDIR=""
+COLPACK_LIBS="-lColPack"
+])
 
 AC_LANG_PUSH([C++])
-for dir in $dirlist ; do
-    unset ac_cv_header_ColPackHeaders_h
-    COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/$dir/../include"
-    COLPACK_LIBDIR="$colpack/$dir"
-    COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
-    save_CPPFLAGS="$CPPFLAGS"
-    save_LIBS="$LIBS"
-    CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-    LIBS="$COLPACK_LIBS $LIBS" 
-    AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
-    AC_CHECK_HEADER([ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
-    if test x$have_colpackheaders = xyes ; then
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPackHeaders.h>],
-	                  [ColPack::GraphColoring g])],
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
+LIBS="$COLPACK_LIBS $LIBS"
+AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
+AC_CHECK_HEADER([ColPack/ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
+if test x$have_colpackheaders = xyes ; then
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPack/ColPackHeaders.h>],
+			[ColPack::GraphColoring g])],
                        [have_colpack=yes
                         AC_MSG_RESULT(linking with -lColPack succeeded)],
                        [have_colpack=no,
                         AC_MSG_RESULT(linking with -lColPack failed)])
-    else
-	have_colpack=no
-    fi
-    CPPFLAGS="$save_CPPFLAGS"
-    LIBS="$save_LIBS"
-    if test x$have_colpack = xyes ; then
-	break
-    fi
-done
+else
+    have_colpack=no
+fi
+CPPFLAGS="$save_CPPFLAGS"
+LIBS="$save_LIBS"
 AC_LANG_POP([C++])
+
 AM_CONDITIONAL(HAVE_LIBCOLPACK,[test x$have_colpack = xyes])
 if test x$have_colpack = xyes; then 
-   # test if the directories exists and what is the real path
-   # if not then we found ColPack in some standard location
-   # and these variables are useless
-   COLPACK_LIBDIR=`readlink -f $COLPACK_LIBDIR`
-   if test -n $COLPACK_LIBDIR ; then
-      colpack_incdir=`readlink -f $COLPACK_LIBDIR/../include`
-      if test -n $colpack_incdir ; then
-      	 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack_incdir"
-      else
-	 COLPACK_CFLAGS=""
-      fi
-      COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
-   else
-      COLPACK_CFLAGS=""
-      COLPACK_LIBS=""
-   fi
-   # if the real path to ColPack is inside the ${srcdir}
-   # then we should statically link all ColPack objects inside libadolc
-   # it is likely that the srcdir is not needed anymore after make install
-   # and thus deleted thus no more ColPack to dynamically link to
-   # an external ColPack path is less likely to be removed
-   if echo $COLPACK_LIBDIR | grep -q ^${abs_srcdir} ; then
-       echo will link ColPack static as it was found in the source directory
-       test -d $COLPACK_LIBDIR/.tmp && rm -rf $COLPACK_LIBDIR/.tmp
-       mkdir -p $COLPACK_LIBDIR/.tmp/
-       mkdir -p $COLPACK_LIBDIR/.tmp/.libs
-       ( cd $COLPACK_LIBDIR/.tmp/ ; $AR x ../libColPack.a ; cp *.o .libs/ 
-	 for i in *.o ; do j=`echo $i | sed 's/\.o/\.lo/' ` 
-		 cat >$j <<EOF
-# $j - a libtool object file
-# Generated by doltcompile, not libtool
-pic_object='.libs/$i'
-non_pic_object='$i'
-EOF
-	done
-       	)
-       COLPACK_LIBS="$ac_adolc_openmpflag `find "$COLPACK_LIBDIR/.tmp" -name \*.lo -printf "%p "` "
-   fi
    sparse=yes
    echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
@@ -390,12 +378,8 @@ AC_DEFUN([AC_COIN_PATCH_LIBTOOL_CYGWIN],
   esac ]) # COIN_PATCH_LIBTOOL_CYGWIN
  
 
-SHAVE_INIT([autoconf],[enable])
-
 # output
 AC_CONFIG_FILES(Makefile
-		autoconf/shave-libtool
-		autoconf/shave
                 ADOL-C/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 

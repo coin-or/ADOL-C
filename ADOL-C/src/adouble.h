@@ -68,11 +68,6 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
 
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99) && !defined(__APPLE_CC__)
-double ADOLC_DLL_EXPORT fmin( const double &x, const double &y );
-double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
-#endif
-
 
 /****************************************************************************/
 /*                                                           CLASS BADOUBLE */
