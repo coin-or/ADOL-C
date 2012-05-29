@@ -54,6 +54,9 @@ libdir='${prefix}/${_lib}'
 AC_SUBST(_lib)
 AC_SUBST(libdir)
 
+# check for builtin
+ACX_C_BUILTIN_EXPECT
+
 # checks for header files
 AC_HEADER_STDC
 AC_HEADER_TIME
