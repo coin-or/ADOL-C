@@ -1115,7 +1115,7 @@ END_C_DECLS
 
 namespace adtl {
 
-int ADOLC_get_sparse_jacobian( func_ad *func,
+int ADOLC_get_sparse_jacobian( func_ad *const fun,
 			       int n, int m, double* basepoints,
 			       int *nnz, unsigned int *rind,
 			       unsigned int *cind, double *values)
@@ -1138,7 +1138,7 @@ int ADOLC_get_sparse_jacobian( func_ad *func,
     }
     ret_val = ADOLC_Init_sparse_pattern(x,n,0);
 
-    ret_val = func(n,x,m,y);
+    ret_val = (*fun)(n,x,m,y);
 
     if (ret_val < 0) {
        printf(" ADOL-C error in tapeless sparse_jac() \n");
@@ -1188,7 +1188,7 @@ int ADOLC_get_sparse_jacobian( func_ad *func,
 	  x[i].setADValue(j,sJinfos.Seed[i][j]);
     }
 
-    ret_val = func(n,x,m,y);
+    ret_val = (*fun)(n,x,m,y);
 
     for (i=0;i<m;i++)
        for (j=0; j< sJinfos.seed_clms;j++)

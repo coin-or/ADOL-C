@@ -22,6 +22,9 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adtl.h>
+#include <cmath>
+#include <iostream>
+#include <limits>
 
 namespace adtl {
 
@@ -64,21 +67,11 @@ bool adouble::_do_indo() {
 size_t adouble::numDir = 1;
 enum Mode adouble::forward_mode = ADTL_FOV;
 
-class refcounter {
-private:
-    static size_t refcnt;
-    friend void setNumDir(const size_t p);
-    friend void setMode(enum Mode newmode);
-public:
-    refcounter() { ++refcnt; }
-    ~refcounter() { --refcnt; }
-};
-
 size_t refcounter::refcnt = 0;
 
 void setNumDir(const size_t p) {
     if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\, directional derivative in existing adoubles and may lead to erronious results\, or memory corruption\n Number of currently existing adoubles = %z\n", refcounter::refcnt);
+	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %z\n", refcounter::refcnt);
     }
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
@@ -94,7 +87,15 @@ void setMode(enum Mode newmode) {
     adouble::forward_mode = newmode;
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (int _i=0; _i < numDir; ++_i)
+double makeNaN() {
+    return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
+}
+
+double makeInf() {
+    return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
+}
+
+#define FOR_I_EQ_0_LT_NUMDIR for (int _i=0; _i < adouble::numDir; ++_i)
 #define ADVAL_I              adval[_i]
 #define ADV_I                adv[_i]
 #define V_I                  v[_i]
@@ -102,7 +103,7 @@ void setMode(enum Mode newmode) {
 /*******************************  ctors  ************************************/
 adouble::adouble() : val(0), adval(NULL), pattern(NULL) {
     if (do_adval())
-	adval = new double[numDir];
+	adval = new double[adouble::numDir];
     if (do_indo()) {
 	pattern = new unsigned int[22];
 	pattern[1]=20;
@@ -112,7 +113,7 @@ adouble::adouble() : val(0), adval(NULL), pattern(NULL) {
 
 adouble::adouble(const double v) : val(v), adval(NULL), pattern(NULL) {
     if (do_adval()) {
-	adval = new double[numDir];
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
@@ -125,7 +126,7 @@ adouble::adouble(const double v) : val(v), adval(NULL), pattern(NULL) {
 
 adouble::adouble(const double v, const double* adv) : val(v), adval(NULL), pattern(NULL) {
     if (do_adval()) {
-	adval = new double[numDir];
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
@@ -138,7 +139,7 @@ adouble::adouble(const double v, const double* adv) : val(v), adval(NULL), patte
 
 adouble::adouble(const adouble& a) : val(a.val), adval(NULL), pattern(NULL) {
     if (do_adval()) {
-	adval = new double[ADOLC_numDir];
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
@@ -254,14 +255,14 @@ adouble adouble::operator * (const double v) const {
 
 adouble adouble::operator * (const adouble& a) const {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val())
 	tmp.val=val*a.val;
-    if (likely(_do_adval() && _do_val()))
-	FOR_I0_EQ_0_LT_NUMDIR
+    if (likely(adouble::_do_adval() && adouble::_do_val()))
+	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=ADVAL_I*a.val+val*a.ADVAL_I;
     if (do_indo()) {
 	tmp.add_to_pattern(   get_pattern() );
@@ -297,13 +298,13 @@ adouble adouble::operator / (const double v) const {
 
 adouble adouble::operator / (const adouble& a) const {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val())
 	tmp.val=val/a.val;
-    if (likely(_do_adval() && _do_val()))
+    if (likely(adouble::_do_adval() && adouble::_do_val()))
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=(ADVAL_I*a.val-val*a.ADVAL_I)/(a.val*a.val);
     if (do_indo()) {
@@ -315,13 +316,13 @@ adouble adouble::operator / (const adouble& a) const {
 
 adouble operator / (const double v, const adouble& a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val())
 	tmp.val=v/a.val;
-    if (likely(_do_adval() && _do_val()))
+    if (likely(adouble::_do_adval() && adouble::_do_val()))
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=(-v*a.ADVAL_I)/(a.val*a.val);
     if (do_indo())
@@ -370,13 +371,13 @@ adouble adouble::operator -- (int) {
 adouble tan(const adouble& a) {
     adouble tmp;
     double tmp2;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::tan(a.val);    
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	tmp2=ADOLC_MATH_NSP::cos(a.val);
 	tmp2*=tmp2;
 	FOR_I_EQ_0_LT_NUMDIR
@@ -389,13 +390,13 @@ adouble tan(const adouble& a) {
 
 adouble exp(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::exp(a.val);
-    if (likely(_do_adval() && _do_val())) 
+    if (likely(adouble::_do_adval() && adouble::_do_val())) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=tmp.val*a.ADVAL_I;
     if (do_indo()) 
@@ -405,13 +406,13 @@ adouble exp(const adouble &a) {
 
 adouble log(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::log(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	FOR_I_EQ_0_LT_NUMDIR
 	    if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/a.val;
 	    else if (a.val==0 && a.ADVAL_I != 0.0) {
@@ -426,13 +427,13 @@ adouble log(const adouble &a) {
 
 adouble sqrt(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	FOR_I_EQ_0_LT_NUMDIR
 	    if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.val*2);
 	    else if (a.val==0.0 && a.ADVAL_I != 0.0) {
@@ -448,13 +449,13 @@ adouble sqrt(const adouble &a) {
 adouble sin(const adouble &a) {
     adouble tmp;
     double tmp2;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sin(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	tmp2=ADOLC_MATH_NSP::cos(a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
@@ -467,13 +468,13 @@ adouble sin(const adouble &a) {
 adouble cos(const adouble &a) {
     adouble tmp;
     double tmp2;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::cos(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	tmp2=-ADOLC_MATH_NSP::sin(a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
@@ -485,13 +486,13 @@ adouble cos(const adouble &a) {
 
 adouble asin(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::asin(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -503,13 +504,13 @@ adouble asin(const adouble &a) {
 
 adouble acos(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::acos(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -521,13 +522,13 @@ adouble acos(const adouble &a) {
 
 adouble atan(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::atan(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=1+a.val*a.val;
 	tmp2=1/tmp2;
 	if (tmp2!=0)
@@ -544,13 +545,13 @@ adouble atan(const adouble &a) {
 
 adouble atan2(const adouble &a, const adouble &b) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::atan2(a.val, b.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=a.val*a.val;
 	double tmp3=b.val*b.val;
 	double tmp4=tmp3/(tmp2+tmp3);
@@ -570,13 +571,13 @@ adouble atan2(const adouble &a, const adouble &b) {
 
 adouble pow(const adouble &a, double v) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(a.val, v);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=v*ADOLC_MATH_NSP::pow(a.val, v-1);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
@@ -588,13 +589,13 @@ adouble pow(const adouble &a, double v) {
 
 adouble pow(const adouble &a, const adouble &b) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(a.val, b.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=b.val*ADOLC_MATH_NSP::pow(a.val, b.val-1);
 	double tmp3=ADOLC_MATH_NSP::log(a.val)*tmp.val;
 	FOR_I_EQ_0_LT_NUMDIR
@@ -609,13 +610,13 @@ adouble pow(const adouble &a, const adouble &b) {
 
 adouble pow(double v, const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(v, a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=tmp.val*ADOLC_MATH_NSP::log(v);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
@@ -627,13 +628,13 @@ adouble pow(double v, const adouble &a) {
 
 adouble log10(const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::log10(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::log((double)10)*a.val;
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -645,13 +646,13 @@ adouble log10(const adouble &a) {
 
 adouble sinh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sinh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::cosh(a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
@@ -663,13 +664,13 @@ adouble sinh (const adouble &a) {
 
 adouble cosh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::cosh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::sinh(a.val);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
@@ -681,13 +682,13 @@ adouble cosh (const adouble &a) {
 
 adouble tanh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::tanh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::cosh(a.val);
 	tmp2*=tmp2;
 	FOR_I_EQ_0_LT_NUMDIR
@@ -701,13 +702,13 @@ adouble tanh (const adouble &a) {
 #if defined(ATRIG_ERF)
 adouble asinh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val+1);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -719,13 +720,13 @@ adouble asinh (const adouble &a) {
 
 adouble acosh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::acosh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val-1);
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -737,13 +738,13 @@ adouble acosh (const adouble &a) {
 
 adouble atanh (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::atanh(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2=1-a.val*a.val;
 	FOR_I_EQ_0_LT_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -756,13 +757,13 @@ adouble atanh (const adouble &a) {
 
 adouble fabs (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::fabs(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	int as=0;
 	if (a.val>0) as=1;
 	if (a.val<0) as=-1;
@@ -804,7 +805,7 @@ adouble floor (const adouble &a) {
 
 adouble fmax (const adouble &a, const adouble &b) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -844,7 +845,7 @@ adouble fmax (const adouble &a, const adouble &b) {
 
 adouble fmax (double v, const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -880,7 +881,7 @@ adouble fmax (double v, const adouble &a) {
 
 adouble fmax (const adouble &a, double v) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -916,7 +917,7 @@ adouble fmax (const adouble &a, double v) {
 
 adouble fmin (const adouble &a, const adouble &b) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -957,7 +958,7 @@ adouble fmin (const adouble &a, const adouble &b) {
 
 adouble fmin (double v, const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -993,7 +994,7 @@ adouble fmin (double v, const adouble &a) {
 
 adouble fmin (const adouble &a, double v) {
     adouble tmp;
-    if (unlikely(!_do_val() && (_do_adval() || _do_indo()))) {
+    if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }    
@@ -1058,13 +1059,13 @@ double frexp (const adouble &a, int* v) {
 #if defined(ATRIG_ERF)
 adouble erf (const adouble &a) {
     adouble tmp;
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
-    if (likely(_do_adval() && _do_val())) {
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2 = 2.0 /
 	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
 	    ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
@@ -1147,11 +1148,11 @@ void adouble::operator *= (const double v) {
 }
 
 void adouble::operator *= (const adouble& a) {
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (likely(_do_adval() && _do_val())) 
+    if (likely(adouble::_do_adval() && adouble::_do_val())) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADVAL_I*a.val+val*a.ADVAL_I;
     if (do_val()) 
@@ -1169,11 +1170,11 @@ void adouble::operator /= (const double v) {
 }
 
 void adouble::operator /= (const adouble& a) {
-    if (unlikely(!_do_val() && _do_adval())) {
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (likely(_do_adval() && _do_val())) 
+    if (likely(adouble::_do_adval() && adouble::_do_val())) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=(ADVAL_I*a.val-val*a.ADVAL_I)/(a.val*a.val);
     if (do_val()) 
@@ -1375,7 +1376,7 @@ double adouble::getADValue(const unsigned int p) const {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (p>=numDir) 
+    if (p>=adouble::numDir) 
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"getADValue(...)\"!!!\n");
@@ -1389,7 +1390,7 @@ void adouble::setADValue(const unsigned int p, const double v) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (p>=numDir) 
+    if (p>=adouble::numDir) 
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"setADValue(...)\"!!!\n");
@@ -1400,9 +1401,9 @@ void adouble::setADValue(const unsigned int p, const double v) {
 
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
-    if (likely(_do_val() && _do_adval())) {
+    if (likely(adouble::_do_val() && adouble::_do_adval())) {
 	out << "Value: " << a.val;
-	out << " ADValues (" << numDir << "): ";
+	out << " ADValues (" << adouble::numDir << "): ";
 	FOR_I_EQ_0_LT_NUMDIR
 	    out << a.ADVAL_I << " ";
 	out << "(a)";
@@ -1411,7 +1412,7 @@ ostream& operator << ( ostream& out, const adouble& a) {
 }
 
 istream& operator >> ( istream& in, adouble& a) {
-    if(likely(_do_val() && _do_adval())) {
+    if(likely(adouble::_do_val() && adouble::_do_adval())) {
 	char c;
 	do in >> c;
 	while (c!=':' && !in.eof());
@@ -1420,7 +1421,7 @@ istream& operator >> ( istream& in, adouble& a) {
 	do in >> c;
 	while (c!='(' && !in.eof());
 	in >> num;
-	if (num>numDir)
+	if (num>adouble::numDir)
 	{
 	    cout << "ADOL-C error: to many directions in input\n";
 	    exit(-1);
@@ -1544,7 +1545,7 @@ int ADOLC_Init_sparse_pattern(adouble *a, int n, int start_cnt) {
 int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **pat) {
     pat = (unsigned int**) malloc(m*sizeof(unsigned int*));
     for( int i=0; i < m ; i++){
-       unsigned int *tmp = a[i].get_pattern();
+       const unsigned int *const tmp = b[i].get_pattern();
        if (tmp[0] != 0) {
           pat[i] = (unsigned int*) malloc(sizeof(unsigned int) * (tmp[0]+1));
           pat[i][0] = tmp[0];
@@ -1554,7 +1555,6 @@ int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **pat) 
           pat[i] = (unsigned int*) malloc(sizeof(unsigned int));
           pat[i][0] =0;
        }
-       free(tmp);
     }
     return 3;
 }

@@ -17,18 +17,16 @@
 #ifndef ADOLC_ADTL_H
 #define ADOLC_ADTL_H
 
-#include <limits>
+#include <ostream>
 #include <adolc/common.h>
+
+using std::ostream;
+using std::istream;
 
 namespace adtl {
 
-double makeNaN() {
-    return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
-}
-
-double makeInf() {
-    return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
-}
+double makeNaN();
+double makeInf();
 
 enum Mode {
     ADTL_ZOS = 0x1,
@@ -37,9 +35,19 @@ enum Mode {
     ADTL_FOV_INDO = 0x7
 };
 
-class refcounter;
+class refcounter {
+private:
+    static size_t refcnt;
+    friend void setNumDir(const size_t p);
+    friend void setMode(enum Mode newmode);
+public:
+    refcounter() { ++refcnt; }
+    ~refcounter() { --refcnt; }
+};
 
-typedef void (*func_ad) (int n, adouble *x, int m, adouble *y);
+class adouble;
+
+typedef int (*func_ad) (int n, adouble *x, int m, adouble *y);
 
 class adouble {
 public:
@@ -178,7 +186,7 @@ public:
     /*******************  getter / setter  ********************************/
     double getValue() const;
     void setValue(const double v);
-    const double* getADValue() const;
+    const double* const getADValue() const;
     void setADValue(const double* v);
 
     double getADValue(const unsigned int p) const;
@@ -209,6 +217,8 @@ private:
     static bool _do_indo();
     static size_t numDir;
     static enum Mode forward_mode;
+    friend void setNumDir(const size_t p);
+    friend void setMode(enum Mode newmode);
 };
 
 void setNumDir(const size_t p);
