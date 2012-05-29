@@ -3328,7 +3328,11 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		copy_index_domain(res, arg, ind_dom);
+#ifdef _TIGHT_
+          ind_dom[res][0] = 0;
+#else
+          copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT */
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3355,7 +3359,11 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		copy_index_domain(res, arg, ind_dom);
+#ifdef _TIGHT_
+          ind_dom[res][0] = 0;
+#else
+          copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT */
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
