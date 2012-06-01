@@ -115,16 +115,38 @@ void generate_seed_jac
 #if HAVE_LIBCOLPACK
 {
   int dummy, i, j;
+    struct timespec allstart ,start, ende, start1, start2, start3, start4,ende1;
+   long double meine_zeit_s,meine_zeit_s1,meine_zeit_s2,meine_zeit_s3,meine_zeit_s4,meine_zeit_e,meine_zeit_e1, real_time;
+    unsigned int duration = 1;
+    FILE *pfile;
+    char myfile[50];
+#if defined(_OPENMP)
+     int aaam;
+     aaam = sprintf(myfile, "CP_OMP_Max%d_ID%d_Threads800.txt", omp_get_num_threads() , omp_get_thread_num()+1 );
+#else
+    myfile = "CP_OMP_Thread_Serial.txt";
+#endif
+    clock_gettime(CLOCK_MONOTONIC, &allstart );
 
   BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
+    clock_gettime(CLOCK_MONOTONIC, &start );
   if (option == 1) 
     g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
-				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO_OMP"); 
   else 
     g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
-				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
-  delete g;
+				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO_OMP"); 
+     clock_gettime(CLOCK_MONOTONIC, &start1 );
+   clock_gettime(CLOCK_MONOTONIC, &start1 );
+    real_time = 1.0e-9*allstart.tv_nsec + allstart.tv_sec;
+    meine_zeit_s = 1.0e-9*start.tv_nsec + start.tv_sec;
+    meine_zeit_s1 = 1.0e-9*start1.tv_nsec + start1.tv_sec;
+
+    pfile = fopen( myfile , "w" );
+    fprintf(pfile, "%.10Le %.10Le YYY\n", meine_zeit_s - real_time, meine_zeit_s1 - meine_zeit_s  );
+ fclose(pfile); 
+delete g;
 
 }
 #else
@@ -317,14 +339,14 @@ int sparse_jac(
       if (options[3] == 1)
 	{
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
-				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+				  &(sJinfos.seed_clms), "SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO_OMP"); 
 	  sJinfos.seed_clms = indep;
 	  ret_val = sJinfos.seed_rows;
 	}  
       else
 	{
 	  g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows), 
-                                &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+                                &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO_OMP"); 
 	  sJinfos.seed_rows = depen;
 	  ret_val = sJinfos.seed_clms;
 	}
@@ -383,9 +405,9 @@ int sparse_jac(
       // everything is preallocated, we assume correctly
       // call usermem versions
       if (options[3] == 1)
-       jr1d->RecoverD2Row_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Row_CoordinateFormat_usermem_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
-       jr1d->RecoverD2Cln_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Cln_CoordinateFormat_usermem_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
     } else {
       // at least one of rind cind values is not allocated, deallocate others
       // and call unmanaged versions
@@ -396,9 +418,9 @@ int sparse_jac(
       if (*cind != NULL)
 	  free(*cind);
       if (options[3] == 1)
-       jr1d->RecoverD2Row_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Row_CoordinateFormat_unmanaged_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
      else
-       jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+       jr1d->RecoverD2Cln_CoordinateFormat_unmanaged_OMP(g, sJinfos.B, sJinfos.JP, rind, cind, values);
     }
 
     return ret_val;
@@ -612,7 +634,7 @@ int sparse_hess(
      if (options[1] == 0)
        hr->IndirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
-       hr->DirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+       hr->DirectRecover_CoordinateFormat_usermem_OMP(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
     } else {
       // at least one of rind cind values is not allocated, deallocate others
       // and call unmanaged versions
@@ -625,7 +647,7 @@ int sparse_hess(
      if (options[1] == 0)
        hr->IndirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
      else
-       hr->DirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+       hr->DirectRecover_CoordinateFormat_unmanaged_OMP(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
     }
     return ret_val;
 

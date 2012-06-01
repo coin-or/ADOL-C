@@ -13,7 +13,7 @@
            fov_forward (first-order-vector forward mode):     define _FOV_
            hov_forward (higher-order-vector forward mode):    define _HOV_
            hov_wk_forward (higher-order-vector forward mode): define _HOV_WK_
-	   int_forward_safe:                                  define _INT_FOR_ and _NTIGHT__
+        int_forward_safe:                                  define _INT_FOR_ and _NTIGHT__
 
            Uses the preprocessor to compile the 7 different object files
            with/without "keep" parameter:                     define _KEEP_
@@ -37,6 +37,12 @@
 #include "externfcts_p.h"
 
 #include <math.h>
+
+#include <time.h>
+#include <sys/time.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #if defined(ADOLC_DEBUG)
 #include <string.h>
@@ -700,6 +706,7 @@ int  hov_forward(
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
+
     unsigned char operation;   /* operation code */
     int ret_c =3;              /* return value */
 
@@ -737,6 +744,8 @@ int  hov_forward(
 #if defined (_INDO_)
     int l=0;
     int max_ind_dom;
+    locint** ind_dom;
+    locint* ind_dom_dum;
 #if defined(_NONLIND_)
     /* nonlinear interaction domains */
     locint** nonl_dom;
@@ -780,9 +789,6 @@ int  hov_forward(
 #endif /* _TIGHT_ */
 #define T0res  T0temp
 #define T0arg  T0temp
-
-    /* index domains */
-    locint** ind_dom;
 
 #else
     double *dp_T0;
@@ -910,7 +916,6 @@ int  hov_forward(
         exit (-1);
     }
 
-
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
     /* olvo 980626 has to be revised for common blocks */
@@ -965,6 +970,7 @@ int  hov_forward(
     /*--------------------------------------------------------------------------*/
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
+    /* index domains */
     ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
@@ -984,6 +990,9 @@ int  hov_forward(
           nonl_dom[i][1]=NUMNNZ;
        }
 #endif
+/* #if defined(_INDOPRO_) */
+/*     clock_gettime(CLOCK_MONOTONIC, &start3 ); */
+/* #endif */
 
     /*--------------------------------------------------------------------------*/
 #else                                                                /* FOV */
@@ -1045,7 +1054,9 @@ int  hov_forward(
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
+
     while (operation !=end_of_tape) {
+
 
       switch (operation) {
 
@@ -1234,7 +1245,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		ind_dom[res][0]=0;
+          ind_dom[res][0]=0;
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1257,7 +1268,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		ind_dom[res][0]=0;
+          ind_dom[res][0]=0;
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1280,7 +1291,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		ind_dom[res][0]=0;
+          ind_dom[res][0]=0;
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1304,8 +1315,8 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		ind_dom[res][0] = 1;
-		ind_dom[res][2] = indexi;
+          ind_dom[res][0] = 1;
+          ind_dom[res][2] = indexi;
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1331,23 +1342,23 @@ int  hov_forward(
 #if !defined(_INDO_)
 #if !defined(_NTIGHT_)
                 if ( valuepoint != NULL )
-		  valuepoint[indexd] = dp_T0[res];
+            valuepoint[indexd] = dp_T0[res];
 #endif /* !_NTIGHT_ */
 #endif
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
-		if (ind_dom[res][0] != 0) {
-		  crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int) * (ind_dom[res][0]+1));
-		  crs[indexd][0] = ind_dom[res][0];
-		  for(l=1;l<=crs[indexd][0];l++) {
-		    crs[indexd][l] = ind_dom[res][l+1];
-		  }
-		}
-		else {
-		  crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int));
-		  crs[indexd][0] =0;
-		}
+          if (ind_dom[res][0] != 0) {
+            crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int) * (ind_dom[res][0]+1));
+            crs[indexd][0] = ind_dom[res][0];
+            for(l=1;l<=crs[indexd][0];l++) {
+              crs[indexd][l] = ind_dom[res][l+1];
+            }
+          }
+          else {
+            crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int));
+            crs[indexd][0] =0;
+          }
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1691,7 +1702,7 @@ int  hov_forward(
 #if defined(_INDO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
 #if defined(_NONLIND_)
-		extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
+          extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3254,7 +3265,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		copy_index_domain(res, arg, ind_dom);
+          copy_index_domain(res, arg, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3328,7 +3339,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		copy_index_domain(res, arg, ind_dom);
+          copy_index_domain(res, arg, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3355,7 +3366,7 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-		copy_index_domain(res, arg, ind_dom);
+          copy_index_domain(res, arg, ind_dom);
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3388,7 +3399,7 @@ int  hov_forward(
                         MINDEC(ret_c,2);
                     dp_T0[res] = dp_T0[arg1];
 
-		    combine_2_index_domains(res, arg1, arg2, ind_dom);
+              combine_2_index_domains(res, arg1, arg2, ind_dom);
 #else
                         copy_index_domain(res, arg1, ind_dom);
 #endif
@@ -3656,6 +3667,7 @@ int  hov_forward(
 #endif /* ADOLC_DEBUG */
     }  /* endwhile */
 
+
 #if defined(ADOLC_DEBUG)
     printf("\nTape contains:\n");
     for (v = 0; v < 256; ++v)
@@ -3695,7 +3707,7 @@ int  hov_forward(
 
     for(i=0;i<max_ind_dom;i++)
       {
-	free(ind_dom[i]);
+     free(ind_dom[i]);
       }
     free(ind_dom);
 
@@ -3744,7 +3756,7 @@ void copy_index_domain(int res, int arg, locint **ind_dom) {
 }
 
 
-void merge_2_index_domains(int res, int arg, locint **ind_dom) 
+void merge_2_index_domains(int res, int arg, locint **ind_dom)
 {
 
   int num,num1,num2, i,j,k,l;
@@ -3755,60 +3767,60 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom)
   else
     {
       if (res != arg)
-	{
-	  arg_ind_dom = ind_dom[arg];
-	  res_ind_dom = ind_dom[res];
+     {
+       arg_ind_dom = ind_dom[arg];
+       res_ind_dom = ind_dom[res];
 
-	  num  = ind_dom[res][0];
-	  num1 = arg_ind_dom[0];
-	  num2 = ind_dom[res][1];
+       num  = ind_dom[res][0];
+       num1 = arg_ind_dom[0];
+       num2 = ind_dom[res][1];
 
-	  if (num2 < num1+num)
-	    num2 = num1+num;
-	  
-	  temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
-	  temp_array[1] = num2;
+       if (num2 < num1+num)
+         num2 = num1+num;
 
-	  i = 2;
-	  j = 2;
-	  k = 2;
-	  num += 2;
-	  num1 += 2;
-	  while ((i< num) && (j < num1))
-	    {
-	      if (res_ind_dom[i] < arg_ind_dom[j])
-		{
-		  temp_array[k] = res_ind_dom[i];
-		  i++; k++;
-		}
-	      else
-		{
-		  if (res_ind_dom[i] == arg_ind_dom[j])
-		    {
-		      temp_array[k] = arg_ind_dom[j];
-		      i++;j++;k++;
-		    }
-		  else
-		    {
-		      temp_array[k] = arg_ind_dom[j];
-		      j++;k++;		      
-		    }
-		}
-	    }
-	  for(l = i;l<num;l++)
-	    {
-	      temp_array[k] = res_ind_dom[l];
-	      k++;
-	    }
-	  for(l = j;l<num1;l++)
-	    {
-	      temp_array[k] = arg_ind_dom[l];
-	      k++;
-	    }
-	  temp_array[0] = k-2;
-	  free(ind_dom[res]);
-	  ind_dom[res]=temp_array;
-	}
+       temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
+       temp_array[1] = num2;
+
+       i = 2;
+       j = 2;
+       k = 2;
+       num += 2;
+       num1 += 2;
+       while ((i< num) && (j < num1))
+         {
+           if (res_ind_dom[i] < arg_ind_dom[j])
+          {
+            temp_array[k] = res_ind_dom[i];
+            i++; k++;
+          }
+           else
+          {
+            if (res_ind_dom[i] == arg_ind_dom[j])
+              {
+                temp_array[k] = arg_ind_dom[j];
+                i++;j++;k++;
+              }
+            else
+              {
+                temp_array[k] = arg_ind_dom[j];
+                j++;k++;
+              }
+          }
+         }
+       for(l = i;l<num;l++)
+         {
+           temp_array[k] = res_ind_dom[l];
+           k++;
+         }
+       for(l = j;l<num1;l++)
+         {
+           temp_array[k] = arg_ind_dom[l];
+           k++;
+         }
+       temp_array[0] = k-2;
+       free(ind_dom[res]);
+       ind_dom[res]=temp_array;
+     }
     }
 
 
@@ -3837,72 +3849,72 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step
-(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom)
 {
   int index,num,num1, num2, i,j,k,l,m;
   locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
 
   num = ind_dom[arg2][0];
 
-  for(m=2;m<ind_dom[arg1][0]+2;m++) 
+  for(m=2;m<ind_dom[arg1][0]+2;m++)
     {
       index = ind_dom[arg1][m];
       index_nonl_dom = nonl_dom[index];
 
       if (index_nonl_dom[0] == 0)  /* empty list */
-	{
-	  if ( index_nonl_dom[1] < num)
-	    {
-	      free(index_nonl_dom);
-	      index_nonl_dom = (locint*) malloc(sizeof(locint)*2*(num+1) );
-	      index_nonl_dom[1] = 2*num;
-	    }
-	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
-	    index_nonl_dom[i] = ind_dom[arg2][i];
-	  index_nonl_dom[0] = num;
-	} 
-      else 
-	{ /* merge lists */
-	  num1 = index_nonl_dom[0];
-	  num2 = index_nonl_dom[1];
-	  
-	  if (num1+num > num2)
-	    num2 = num1+num;
-	  
-	  temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
-	  temp_nonl[1] = num2;
-	  
-	  i = 2;
-	  k = 2;
-	  j = 2;
-	  num1 +=2;
-	  num2 = num+2;
-	  while ((i<num1) && (j < num2)){
-	    if (ind_dom[arg2][j] < index_nonl_dom[i]) /* < */ {
-	      temp_nonl[k] = ind_dom[arg2][j];
-	      j++; k++;
-	    } else {
-	      if (ind_dom[arg2][j] == index_nonl_dom[i])  /* == */ {
-		temp_nonl[k] = ind_dom[arg2][j];
-		j++; k++; i++;
-	      } else {
-		temp_nonl[k] = index_nonl_dom[i];
-		i++; k++;
-	      }
-	    }
-	  }
-	  for(l = j;l<num2;l++) {
-	    temp_nonl[k] = ind_dom[arg2][l];
-	    k++;
-	  }
-	  for(l = i;l<num1;l++) {
-	    temp_nonl[k] = index_nonl_dom[l];
-	    k++;
-	  }
-	  temp_nonl[0] = k-2; 
-	  free((char*) nonl_dom[index]);
-	  nonl_dom[index] = temp_nonl;
-	}
+     {
+       if ( index_nonl_dom[1] < num)
+         {
+           free(index_nonl_dom);
+           index_nonl_dom = (locint*) malloc(sizeof(locint)*2*(num+1) );
+           index_nonl_dom[1] = 2*num;
+         }
+       for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+         index_nonl_dom[i] = ind_dom[arg2][i];
+       index_nonl_dom[0] = num;
+     }
+      else
+     { /* merge lists */
+       num1 = index_nonl_dom[0];
+       num2 = index_nonl_dom[1];
+
+       if (num1+num > num2)
+         num2 = num1+num;
+
+       temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
+       temp_nonl[1] = num2;
+
+       i = 2;
+       k = 2;
+       j = 2;
+       num1 +=2;
+       num2 = num+2;
+       while ((i<num1) && (j < num2)){
+         if (ind_dom[arg2][j] < index_nonl_dom[i]) /* < */ {
+           temp_nonl[k] = ind_dom[arg2][j];
+           j++; k++;
+         } else {
+           if (ind_dom[arg2][j] == index_nonl_dom[i])  /* == */ {
+          temp_nonl[k] = ind_dom[arg2][j];
+          j++; k++; i++;
+           } else {
+          temp_nonl[k] = index_nonl_dom[i];
+          i++; k++;
+           }
+         }
+       }
+       for(l = j;l<num2;l++) {
+         temp_nonl[k] = ind_dom[arg2][l];
+         k++;
+       }
+       for(l = i;l<num1;l++) {
+         temp_nonl[k] = index_nonl_dom[l];
+         k++;
+       }
+       temp_nonl[0] = k-2;
+       free((char*) nonl_dom[index]);
+       nonl_dom[index] = temp_nonl;
+     }
     }
 }
 
