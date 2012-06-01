@@ -115,38 +115,16 @@ void generate_seed_jac
 #if HAVE_LIBCOLPACK
 {
   int dummy, i, j;
-    struct timespec allstart ,start, ende, start1, start2, start3, start4,ende1;
-   long double meine_zeit_s,meine_zeit_s1,meine_zeit_s2,meine_zeit_s3,meine_zeit_s4,meine_zeit_e,meine_zeit_e1, real_time;
-    unsigned int duration = 1;
-    FILE *pfile;
-    char myfile[50];
-#if defined(_OPENMP)
-     int aaam;
-     aaam = sprintf(myfile, "CP_OMP_Max%d_ID%d_Threads800.txt", omp_get_num_threads() , omp_get_thread_num()+1 );
-#else
-    myfile = "CP_OMP_Thread_Serial.txt";
-#endif
-    clock_gettime(CLOCK_MONOTONIC, &allstart );
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
+    BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
-    clock_gettime(CLOCK_MONOTONIC, &start );
-  if (option == 1) 
-    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
-				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO_OMP"); 
-  else 
-    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
-				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO_OMP"); 
-     clock_gettime(CLOCK_MONOTONIC, &start1 );
-   clock_gettime(CLOCK_MONOTONIC, &start1 );
-    real_time = 1.0e-9*allstart.tv_nsec + allstart.tv_sec;
-    meine_zeit_s = 1.0e-9*start.tv_nsec + start.tv_sec;
-    meine_zeit_s1 = 1.0e-9*start1.tv_nsec + start1.tv_sec;
-
-    pfile = fopen( myfile , "w" );
-    fprintf(pfile, "%.10Le %.10Le YYY\n", meine_zeit_s - real_time, meine_zeit_s1 - meine_zeit_s  );
- fclose(pfile); 
-delete g;
+    if (option == 1) 
+      g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
+					"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+    else 
+      g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
+					"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+    delete g;
 
 }
 #else
