@@ -39,7 +39,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        interfaces.h oplate.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
-                       revolve.h
+                       revolve.h adoublecuda.h
 
 lib_LTLIBRARIES      = libadolc.la
 
