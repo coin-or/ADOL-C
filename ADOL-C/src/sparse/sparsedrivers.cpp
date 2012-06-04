@@ -1115,19 +1115,20 @@ END_C_DECLS
 
 namespace adtl {
 
+SparseJacInfos sJinfos = { NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0 };
+
 int ADOLC_get_sparse_jacobian( func_ad *const fun,
-			       int n, int m, double* basepoints,
-			       int *nnz, unsigned int *rind,
-			       unsigned int *cind, double *values)
+			       int n, int m, int repeat, double* basepoints,
+			       int *nnz, unsigned int **rind,
+			       unsigned int **cind, double **values)
 #if HAVE_LIBCOLPACK
 {
     int i;
     unsigned int j;
-    SparseJacInfos sJinfos;
     int dummy;
     int ret_val = -1;
-    BipartiteGraphPartialColoringInterface *g;
-    JacobianRecovery1D *jr1d;
+    if (!repeat) {
+    freeSparseJacInfos(sJinfos.y, sJinfos.B, sJinfos.JP, sJinfos.g, sJinfos.jr1d, sJinfos.seed_rows, sJinfos.seed_clms, sJinfos.depen);
     //setNumDir(n);
     setMode(ADTL_INDO);
     {
@@ -1156,6 +1157,8 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
       *nnz = sJinfos.nnz_in;
       /* sJinfos.Seed is memory managed by ColPack and will be deleted
        * along with g. We only keep it in sJinfos for the repeat != 0 case */
+      BipartiteGraphPartialColoringInterface *g;
+      JacobianRecovery1D *jr1d;
 
       g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, sJinfos.JP, m, n);
       jr1d = new JacobianRecovery1D;
@@ -1177,6 +1180,7 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
         return -3;
     }
 
+    }
 //  ret_val = fov_forward(tag, depen, indep, sJinfos.seed_clms, basepoint, sJinfos.Seed, sJinfos.y, sJinfos.B);
     setNumDir(sJinfos.seed_clms);
     setMode(ADTL_FOV);
@@ -1196,16 +1200,20 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     }
     /* recover compressed Jacobian => ColPack library */
 
-      if (values != NULL)
-       free(values);
-      if (rind != NULL)
-       free(rind);
-      if (cind != NULL)
-       free(cind);
-     jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, &rind, &cind, &values);
+      if (*values != NULL)
+       free(*values);
+      if (*rind != NULL)
+       free(*rind);
+      if (*cind != NULL)
+       free(*cind);
+     BipartiteGraphPartialColoringInterface *g;
+     JacobianRecovery1D *jr1d;
+     g = (BipartiteGraphPartialColoringInterface*)sJinfos.g;
+     jr1d = (JacobianRecovery1D*)sJinfos.jr1d;
+     jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
 
-    delete g;
-    delete jr1d;
+    //delete g;
+    //delete jr1d;
 
     return ret_val;
 

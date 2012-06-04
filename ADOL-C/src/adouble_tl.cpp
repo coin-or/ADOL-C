@@ -101,53 +101,50 @@ double makeInf() {
 #define V_I                  v[_i]
 
 /*******************************  ctors  ************************************/
-adouble::adouble() : val(0), adval(NULL), pattern(NULL) {
+adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
 	adval = new double[adouble::numDir];
     if (do_indo()) {
-	pattern = new unsigned int[22];
-	pattern[1]=20;
-	pattern[0]=0;
+     if (!pattern.empty())
+          pattern.clear();
     }
 }
 
-adouble::adouble(const double v) : val(v), adval(NULL), pattern(NULL) {
+adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
 	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
     if (do_indo()) {
-	pattern = new unsigned int[22];
-	pattern[1]=20;
-	pattern[0]=0;
+     if (!pattern.empty())
+          pattern.clear();
     }
 }
 
-adouble::adouble(const double v, const double* adv) : val(v), adval(NULL), pattern(NULL) {
+adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
 	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
     if (do_indo()) {
-	pattern = new unsigned int[22];
-	pattern[1]=20;
-	pattern[0]=0;
+     if (!pattern.empty())
+          pattern.clear();
     }
 }
 
-adouble::adouble(const adouble& a) : val(a.val), adval(NULL), pattern(NULL) {
+adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
 	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
     if (do_indo()) {
-	pattern = new unsigned int[22];
-	pattern[1]=20;
-	pattern[0]=0;
-	add_to_pattern(a.get_pattern());
+     if (!pattern.empty())
+          pattern.clear();
+
+     add_to_pattern(a.get_pattern());
     }
 }
 
@@ -155,8 +152,8 @@ adouble::adouble(const adouble& a) : val(a.val), adval(NULL), pattern(NULL) {
 adouble::~adouble() {
     if (adval != NULL)
 	delete[] adval;
-    if (pattern != NULL)
-	delete[] pattern;
+    if ( !pattern.empty() )
+	pattern.clear();
 }
 
 /*************************  temporary results  ******************************/
@@ -1078,6 +1075,33 @@ adouble erf (const adouble &a) {
 }
 #endif
 
+void condassign( adouble &res, const adouble &cond,
+		 const adouble &arg1, const adouble &arg2 ) {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	exit(1);
+    }
+    if (do_val()) {
+	if (cond.getValue() > 0) 
+	    res = arg1;
+	else
+	    res = arg2;
+    }
+}
+
+void condassign( adouble &res, const adouble &cond,
+		 const adouble &arg ) {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	exit(1);
+    }
+    if (do_val()) {
+	if (cond.getValue() > 0) 
+	    res = arg;
+    }
+}
+
+
 
 /*******************  nontemporary results  *********************************/
 void adouble::operator = (const double v) {
@@ -1086,12 +1110,8 @@ void adouble::operator = (const double v) {
     if (do_adval()) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=0.0;
-    if (do_indo()) {
-	if (pattern != NULL) delete[] pattern;
-	pattern = new unsigned int[22];
-	pattern[0]=0;
-	pattern[1]=20;
-    }
+    if (do_indo())
+	if (!pattern.empty()) pattern.clear();
 }
 
 void adouble::operator = (const adouble& a) {
@@ -1101,10 +1121,7 @@ void adouble::operator = (const adouble& a) {
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     if (do_indo()) {
-	if (pattern != NULL) delete[] pattern;
-	pattern = new unsigned int[22];
-	pattern[0]=0;
-	pattern[1]=20;
+	if (!pattern.empty()) pattern.clear();
 	add_to_pattern( a.get_pattern() );
     }
 }
@@ -1437,7 +1454,7 @@ istream& operator >> ( istream& in, adouble& a) {
 }
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
-const unsigned int *const adouble::get_pattern() const {
+const list<unsigned int>& adouble::get_pattern() const {
     if (no_do_indo()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
@@ -1450,107 +1467,61 @@ void adouble::delete_pattern() {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (pattern != NULL)
-	delete[ ] pattern;
+    if ( !pattern.empty() )
+	pattern.clear();
 }
-void adouble::add_to_pattern(const unsigned int *const v) {
+
+void adouble::add_to_pattern(const list<unsigned int>& v) {
     if (no_do_indo()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if( likely(pattern != v) ){
-	int num,num1,num2, i,j,k,l;
-	unsigned int *temp_array;
-	if (pattern == NULL){
-	    if ( v[0] < 11 ){
-		pattern = new unsigned int[22];
-		pattern[1]=20;
-	    } else{
-		pattern = new unsigned int[2*(v[0]+1)];
-		pattern[1]=2*v[0];
-	    }
-	    for(i=0; i< v[0] ; i++)
-		pattern[i+2] = v[i+2];
-	    pattern[0] = v[0];
-	} else {
-	    if ( pattern[0] == 0){ // Copy_Index_Domain
-		if ( pattern[1] < v[0]){
-		    delete[] pattern;
-		    pattern = new unsigned int[2*v[0]+2];
-		    pattern[1] = 2*v[0];
-		}
-		for(i=0; i< v[0] ; i++)
-		    pattern[i+2] = v[i+2];
-		pattern[0] = v[0];
-	    }
-	    else
-	    {
-		num  = pattern[0];
-		num1 = v[0];
-		num2 = pattern[1];
-		if (num2 < num1+num)
-		    num2 = num1+num;
-		temp_array = new unsigned int[num+2];
-		for(i=0;i<num+2; i++ )
-		    temp_array[i] = pattern[i];
-		delete[] pattern;
-		pattern = new unsigned int[2*num2 +2];
-		i = 2;
-		j = 2;
-		k = 2;
-		num += 2;
-		num1 += 2;
-		while ((i< num) && (j < num1)){
-		    if (temp_array[i] < v[j]) {
-			pattern[k] = temp_array[i];
-			i++; k++;
-		    } else {
-			if (temp_array[i] == v[j]) {
-			    pattern[k] = v[j];
-			    i++;j++;k++;
-			} else {
-			    pattern[k] = v[j];
-			    j++;k++;
-			}
-		    }
-		}
-		for(l = i;l<num;l++) {
-		    pattern[k] = temp_array[l];
-		    k++;
-		}
-		for(l = j;l<num1;l++) {
-		    pattern[k] = v[l];
-		    k++;
-		}
-		pattern[0] = k-2;
-		delete[] temp_array;
-	    }
+    if (likely( pattern != v)) {
+	if( !v.empty() ){
+	    list<unsigned int> cv = v;
+	    //pattern.splice(pattern.end(), cv);
+	    pattern.merge(cv);
+	    //if (pattern.size() > refcounter::refcnt) {
+	    //pattern.sort();
+	    pattern.unique();
+		//}
 	}
     }
 }
 
-int ADOLC_Init_sparse_pattern(adouble *a, int n, int start_cnt) {
-     for(unsigned int i=0; i < n; i++){
-         unsigned int *v = new unsigned int[4];
-         v[0] = 1;
-         v[1] = 2;
-         v[2] = start_cnt+i;
-         v[3] = 0;
-         a[i].add_to_pattern(v);
-         delete[] v;
-     }
+size_t adouble::get_pattern_size() const {
+    if (no_do_indo()) {
+     fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+     exit(1);
+    }
+    size_t s=0;
+    if( !pattern.empty() )
+      s = pattern.size();
+    return s;
+}
+
+
+int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
+    for(unsigned int i=0; i < n; i++) {
+	a[i].delete_pattern();
+	a[i].pattern.push_back( i+start_cnt );
+    }
     return 3;
 }
 
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **pat) {
+int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat) {
     pat = (unsigned int**) malloc(m*sizeof(unsigned int*));
     for( int i=0; i < m ; i++){
-       const unsigned int *const tmp = b[i].get_pattern();
-       if (tmp[0] != 0) {
-          pat[i] = (unsigned int*) malloc(sizeof(unsigned int) * (tmp[0]+1));
-          pat[i][0] = tmp[0];
-          for(int l=1;l<=tmp[0];l++)
-             pat[i][l] = tmp[l+1];
+	//const_cast<adouble&>(b[i]).pattern.sort();
+	//const_cast<adouble&>(b[i]).pattern.unique();
+      if ( b[i].get_pattern_size() > 0 ) {
+         pat[i] = (unsigned int*) malloc(sizeof(unsigned int) * (b[i].get_pattern_size() +1) );
+         pat[i][0] = b[i].get_pattern_size();
+         const list<unsigned int>& tmp_set = b[i].get_pattern();
+         list<unsigned int>::const_iterator it;
+         unsigned int l=1;
+         for(it = tmp_set.begin() ; it != tmp_set.end() ; it++,l++)
+             pat[i][l] = *it;
        } else {
           pat[i] = (unsigned int*) malloc(sizeof(unsigned int));
           pat[i][0] =0;

@@ -19,9 +19,11 @@
 
 #include <ostream>
 #include <adolc/common.h>
+#include <list>
 
 using std::ostream;
 using std::istream;
+using std::list;
 
 namespace adtl {
 
@@ -35,19 +37,23 @@ enum Mode {
     ADTL_FOV_INDO = 0x7
 };
 
+class adouble;
+
 class refcounter {
 private:
     static size_t refcnt;
     friend void setNumDir(const size_t p);
     friend void setMode(enum Mode newmode);
+    friend class adouble;
 public:
     refcounter() { ++refcnt; }
     ~refcounter() { --refcnt; }
 };
 
-class adouble;
-
-typedef int (*func_ad) (int n, adouble *x, int m, adouble *y);
+class func_ad {
+public:
+    virtual int operator() (int n, adouble *x, int m, adouble *y) = 0;
+};
 
 class adouble {
 public:
@@ -133,6 +139,10 @@ public:
     friend adouble erf (const adouble &a);
 #endif
 
+    friend void condassign( adouble &res, const adouble &cond,
+            const adouble &arg1, const adouble &arg2 );
+    friend void condassign( adouble &res, const adouble &cond,
+            const adouble &arg );
 
     /*******************  nontemporary results  ***************************/
     // assignment
@@ -193,16 +203,18 @@ public:
     void setADValue(const unsigned int p, const double v);
 
 protected:
-    const unsigned int *const get_pattern() const;
-    void add_to_pattern(const unsigned int *const v);
+    const list<unsigned int>& get_pattern() const;
+    void add_to_pattern(const list<unsigned int>& v);
+    size_t get_pattern_size() const;
     void delete_pattern();
 
 public:
-    friend int ADOLC_Init_sparse_pattern(adouble *a, int n, int start_cnt);
-    friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **pat);
-    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, double* basepoints, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+    friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+    friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+#if 0
     friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
-
+#endif
     /*******************  i/o operations  *********************************/
     friend ostream& operator << ( ostream&, const adouble& );
     friend istream& operator >> ( istream&, adouble& );
@@ -210,7 +222,7 @@ public:
 private:
     double val;
     double *adval;
-    unsigned int *pattern;
+    list<unsigned int> pattern;
     refcounter __rcnt;
     static bool _do_val();
     static bool _do_adval();
@@ -224,15 +236,15 @@ private:
 void setNumDir(const size_t p);
 void setMode(enum Mode newmode);
 
-int ADOLC_Init_sparse_pattern(adouble *a, int n, int start_cnt);
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **pat);
+int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt);
+int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
 int ADOLC_get_sparse_jacobian(func_ad *const func,
-			      int n, int m, double* basepoints, int *nnz, 
-			      unsigned int *rind, unsigned int *cind, 
-			      double *values);
+			      int n, int m, int repeat, double* basepoints, int *nnz,
+			      unsigned int **rind, unsigned int **cind,
+			      double **values);
 #if 0
 int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz,
-			      unsigned int *rind, unsigned int *cind, 
+			      unsigned int *rind, unsigned int *cind,
 			      double *values);
 #endif
 }
