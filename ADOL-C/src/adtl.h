@@ -30,6 +30,23 @@ namespace adtl {
 double makeNaN();
 double makeInf();
 
+#ifdef HAVE_MPI
+typedef enum ADOLC_MPI_Op_t {
+    ADOLC_MPI_MAX=100,
+    ADOLC_MPI_MIN,
+    ADOLC_MPI_SUM,
+    ADOLC_MPI_PROD,
+    ADOLC_MPI_LAND,
+    ADOLC_MPI_BAND,
+    ADOLC_MPI_LOR,
+    ADOLC_MPI_BOR,
+    ADOLC_MPI_LXOR,
+    ADOLC_MPI_BXOR,
+    ADOLC_MPI_MINLOC,
+    ADOLC_MPI_MAXLOC
+} ADOLC_MPI_Op;
+#endif
+
 enum Mode {
     ADTL_ZOS = 0x1,
     ADTL_FOV = 0x3,
@@ -211,9 +228,31 @@ protected:
 public:
     friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
     friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
-#if 0
-    friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat,
+           double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+#if defined(HAVE_MPI)
+    friend void ADTL_set_trade(adouble *buf, int count, size_t nd, double *trade);
+    friend void ADTL_get_trade(adouble *buf, int count, size_t nd, double *trade);
+    friend void ADTL_set_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
+    friend void ADTL_get_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
+    friend int ADOLC_MPI_Send(adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
+                              int tag, ADOLC_MPI_Comm comm );
+    friend int ADOLC_MPI_Recv(adouble *buf, int count, ADOLC_MPI_Datatype datatype, int dest,
+                              int tag, ADOLC_MPI_Comm comm );
+    friend int ADOLC_MPI_Bcast(adouble *buf, int count, ADOLC_MPI_Datatype datatype, int root,
+                              ADOLC_MPI_Comm comm);
+    friend int ADOLC_MPI_Reduce(adouble *sendbuf, adouble* rec_buf, int count,
+                              ADOLC_MPI_Datatype type, ADOLC_MPI_Op op, int root,
+                              ADOLC_MPI_Comm comm);
+    friend int ADOLC_MPI_Gather(adouble *sendbuf, adouble *recvbuf, int count,
+                              ADOLC_MPI_Datatype type, int root, MPI_Comm comm);
+    friend int ADOLC_MPI_Scatter(adouble *sendbuf, int sendcount, adouble *recvbuf,
+                              int recvcount, ADOLC_MPI_Datatype type, int root, MPI_Comm comm);
+    friend int ADOLC_MPI_Allgather(adouble *sendbuf, int sendcount,ADOLC_MPI_Datatype stype,
+                              adouble *recvbuf, int recvcount, ADOLC_MPI_Datatype rtype,
+                              MPI_Comm comm);
+    friend int ADOLC_MPI_Allreduce(adouble *send_buf, adouble *rec_buf, int count,
+                              ADOLC_MPI_Datatype type, ADOLC_MPI_Op op, MPI_Comm comm);
 #endif
     /*******************  i/o operations  *********************************/
     friend ostream& operator << ( ostream&, const adouble& );

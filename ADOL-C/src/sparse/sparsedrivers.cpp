@@ -3,7 +3,6 @@
  File:     sparse/sparsedrivers.cpp
  Revision: $Id$
  Contents: "Easy To Use" C++ interfaces of SPARSE package
- 
 
  Copyright (c) Andrea Walther, Benjamin Letschert, Kshitij Kulshreshtha
 
@@ -1109,7 +1108,6 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
 }
 
 END_C_DECLS
-
 
 #include <adolc/adtl.h>
 
