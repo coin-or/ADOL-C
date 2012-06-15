@@ -16,15 +16,6 @@
 
 #include <adolc/adtl_mpi.h>
 
-// #define ADTL_MPI_Datatype MPI_Datatype
-// #define MPI_ADOUBLE MPI_DOUBLE
-// #define ADTL_MPI_COMM_WORLD MPI_COMM_WORLD
-// #define ADTL_MPI_Comm MPI_Comm
-
-
-#define DO_FOV if(  (adouble::forward_mode == ADTL_FOV ) || ( adouble::forward_mode == ADTL_FOV_INDO ) )
-#define DO_INDO if( (adouble::forward_mode == ADTL_INDO) || ( adouble::forward_mode == ADTL_FOV_INDO ) )
-
 namespace adtl{
 
 int ADTL_MPI_Init( int* a,
@@ -81,8 +72,10 @@ void ADTL_MPI_set_trade(adouble *buf, int count, size_t nd, double *trade){
      for (int i=0; i< count; i++ ){
        trade[l] = buf[i].getValue();
        l++;
-       DO_FOV for (unsigned int j=0; j< nd ;j++,l++)
-         trade[l] = buf[i].getADValue(j);
+       if (do_adval()) {
+         for (unsigned int j=0; j< nd ;j++,l++)
+            trade[l] = buf[i].getADValue(j);
+       }
     }
 }
 
@@ -91,8 +84,10 @@ void ADTL_MPI_get_trade(adouble *buf, int count, size_t nd, double *trade){
     for (int i=0; i< count;i++){
        buf[i].setValue(trade[l]);
        l++;
-       DO_FOV for (int j=0; j< nd ;j++,l++)
-         buf[i].setADValue(j,trade[l]);
+       if (do_adval()) {
+         for (unsigned int j=0; j< nd ;j++,l++)
+            buf[i].setADValue(j,trade[l]);
+       }
     }
 }
 void ADTL_MPI_set_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade) {
@@ -140,7 +135,7 @@ int ADTL_MPI_Send( adouble *buf,
     ierr = MPI_Send(trade, h, datatype, dest, tag, comm);
     delete[] trade;
 
-    DO_INDO {
+    if (do_indo()) {
        size_t numd =0;
        for (i=0; i< count; i++ )
           if ( buf[i].get_pattern_size() > numd)
@@ -179,7 +174,7 @@ int ADTL_MPI_Recv( adouble *buf,
     ADTL_MPI_get_trade(buf, count, mpi_numdir, trade);
     delete[] trade;
 
-    DO_INDO {
+    if (do_indo()) {
        size_t numd;
        ierr = MPI_Recv(&numd ,1, MPI_UNSIGNED , source, tag, comm, &status);
        if( numd > 0){
@@ -221,7 +216,7 @@ int ADTL_MPI_Bcast( adouble *buf,
        ADTL_MPI_get_trade(buf,count,mpi_numdir, trade);
 
     delete[] trade;
-    DO_INDO {
+    if (do_indo()) {
        size_t numd;
        if (root==id){
          numd =0;
@@ -328,7 +323,7 @@ int ADTL_MPI_Gather( adouble *sendbuf, adouble *recvbuf, int count,
     }
     delete[] trade_s ;
 
-    DO_INDO {
+    if (do_indo()) {
          size_t numd =0;
          unsigned int tmp_nd =0;
          for (i=0; i< count; i++ )
@@ -386,7 +381,7 @@ int ADTL_MPI_Scatter(
 
     delete[] trade_s,trade_r;
 
-    DO_INDO {
+    if (do_indo()) {
          size_t numd =0;
          size_t tmp_nd =0;
          if ( id == root)
@@ -442,7 +437,7 @@ int ADTL_MPI_Allgather(
 
     delete[] trade_s,trade_r;
 
-    DO_INDO {
+    if (do_indo()) {
          size_t numd =0;
          size_t tmp_nd =0;
          for (i=0; i< sendcount; i++ )
