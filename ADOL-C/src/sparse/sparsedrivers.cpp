@@ -1300,4 +1300,3 @@ int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */
-

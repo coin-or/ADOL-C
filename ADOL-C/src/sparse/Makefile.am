@@ -2,7 +2,7 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## Revision: $Id$
 ##
-## Copyright (C)  Andrea Walther, Andreas Kowarz
+## Copyright (C)  Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
 ##
 ## This file is part of ADOL-C. This software is provided as open source.
 ## Any use, reproduction, or distribution of the software constitutes 
@@ -25,3 +25,10 @@ libsparseincludedir      = $(pkgincludedir)/sparse
 libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h 
 
 libsparse_la_SOURCES     = sparse_fo_rev.cpp sparsedrivers.cpp
+if HAVE_MPI
+include $(top_srcdir)/autoconf/rules_mpi.in
+
+noinst_LTLIBRARIES		+= libsparse_mpi.la
+libsparse_mpi_la_SOURCES = sparsedrivers_mpi.cpp
+libsparseinclude_HEADERS += sparsedrivers_mpi.h
+endif

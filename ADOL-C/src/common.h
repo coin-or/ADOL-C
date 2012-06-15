@@ -74,6 +74,11 @@
 #   endif /* HAVE_CONFIG_H */
 #endif /* ADOLC_INTERNAL */
 
+#ifndef HAVE_MPI
+#   if defined(HAVE_MPI_H) || defined(HAVE_MPI_MPI_H)
+#      define HAVE_MPI 1
+#   endif
+#endif
 /*--------------------------------------------------------------------------*/
 /* developer and user parameters */
 #include <adolc/dvlparms.h>

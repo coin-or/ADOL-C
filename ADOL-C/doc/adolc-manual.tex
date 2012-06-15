@@ -1,7 +1,8 @@
 % Latex file containing the documentation of ADOL-C
 %
 % Copyright (C) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-%               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
+%               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+%               Benjamin Letschert
 %
 % This file is part of ADOL-C. This software is provided as open source.
 % Any use, reproduction, or distribution of the software constitutes 
@@ -3711,6 +3712,245 @@ been defined in file \verb=<adouble.cpp>=, so that one may also introduce
 iterated integrals.
 %
 %
+\section{Parallel ADOL-C by using MPI}
+\label{parallel}
+%
+\subsection{Installation of ADOL-C by using MPI}
+\label{InstPar}
+%
+Before configuring ADOL-C one has to make sure that at least one MPI version is installed. The configuration searches for MPI headers and libraries in the standard directories. If MPI is installed local or the headers and libraries could not be found in the standard directories, the options \verb?--with-mpi-includedir=PATH? and \verb?--with-mpi-libdir=PATH? should be used. At the end of the configuration it is stated whether parallel computation can be used or not.
+\begin{center}
+   \begin{tabular}{l l}
+      \verb=Configuration:= & \ \\
+      \verb=  ....=  & \ \\
+      \verb=  Source code location:= & \verb=/PATH-TO-ADOL-C/adol-c=\\
+      \verb=  Install path:= & \verb=$HOME/adolc_base=\\
+      \verb=  ....=  & \ \\
+      \verb=  Build sparse drivers:= & \verb= yes=\\
+      \verb=  Build with ColPack:= & \verb= yes=\\
+      {\bf \verb=  Build with MPI:= }& {\bf\verb= yes= }\\
+      \verb=  ....= 
+   \end{tabular}
+\end{center}
+%
+\subsection{Header files and definitions}
+\label{HeadDefPar}
+%
+For the parallel computation one has to define which version of MPI is installed. If MPI is located by configuration, the output shows where to find the MPI headers.
+\begin{center}
+By configuring ADOL-C you will see which version is found.\\
+   \begin{tabular}{l l}
+Example: & $\vdots$\\
+ & \verb=checking mpi/mpi.h usability... yes=\\
+ & \verb=checking mpi/mpi.h presence... yes=\\
+ & \verb=checking for mpi/mpi.h... yes=\\ 
+ & \verb=checking for MPI_Init in -lmpich... yes=\\
+ & $\vdots$
+   \end{tabular}
+\end{center}
+In this case the MPI header file is found at \verb=mpi/mpi.h=, so that \verb=HAVE_MPI_MPI_H 1= has to be included. The other option is \verb=mpi.h=, so \verb=#define HAVE_MPI_H 1=.\\
+If a local installation of MPI is used, the path to the header file \verb=mpi.h= must be  given. In this case use \verb=#define HAVE_MPI_H 1=. The header file \verb=<adolc/adolc_mpi.h>= is needed for parallel computing as well as \verb=<adolc/sparsedrivers_mpi.h>= to use Colpack.
+
+\subsubsection{Compiling and Linking}
+Only \verb=C++= programs may use the ADOL-C MPI interface, therefore programs in \verb=C= must be compiled with the \verb=C++= compiler. For compiling and linking the \verb=ladolc_mpi= library is required. A possible Makefile could be the following one
+\begin{center}
+\begin{verbatim}
+  # MPI C++ Compiler
+  CXX = mpicxx
+
+  # flags for compiling
+  CFLAGS = -g -O0
+
+  # Paths and libraries for ADOL-C with MPI - example
+  ADPATH = $(HOME)/adolc_base/include
+  ADLIBDIR = $(HOME)/adolc_base/lib
+  ADCFLAGS = -I$(ADPATH)
+  ADLIBS = -Wl,--rpath -Wl,$(ADLIBDIR) -L$(ADLIBDIR) -ladolc_mpi
+
+  all: example
+  example: example.o
+           $(CXX) $(CFLAGS) $(ADCFLAGS) -o example example.o -lm $(ADLIBS)
+  example.o: example.cpp
+           $(CXX) $(CFLAGS) $(ADCFLAGS) -c -o example.o example.cpp
+
+  clean: 
+           rm -f *.o example
+\end{verbatim}
+\end{center}
+%
+\subsection{MPI communicator in ADOL-C}
+\label{CommPar}
+%
+Communicator objects connect groups of processes in the MPI session. Each communicator gives each contained process an independent identifier (id) and arranges its contained processes in an ordered topology.\\
+The header file \verb=<adolc/adolc_mpi.h>= assumes, that the main/root process has id 0. All other processes have an id $> 0$. The main process must declare the independent and dependent variables.
+%
+\subsubsection{Initialisation calls} 
+\label{InitCallsPar}
+\begin{itemize}
+\item \verb=int ADOLC_MPI_Init(= // Parameter is given from \verb=main(argc,argv)= program\\
+\begin{tabular}{l l}
+\ \ & \verb=int* argc,=\\
+ & \verb=char*** argv)=
+\end{tabular}\\ 
+This function initialises the use of MPI and has to be called before any other \verb=ADOLC_MPI= function. 
+\item \verb=int ADOLC_MPI_Comm_size(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=ADOLC_MPI_Comm comm,= & communicator of process group\\
+ & \verb=int* size)= & pointer to count of processes
+\end{tabular}\\ 
+ The used number of processes is returned by the parameter \verb=size=. This function should be called directly after the initialisation.
+\item \verb=int ADOLC_MPI_Comm_rank(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=ADOLC_MPI_Comm comm,= & communicator of process group\\
+ & \verb=int* id)= & pointer to the identity number of process
+\end{tabular}\\ 
+ This function returns the rank or id of the process, which has called this function. This function should be also called directly  after the initialisation.
+\item \verb=int ADOLC_MPI_Get_processor_name(=\\ 
+\begin{tabular}{l l l}
+\ \ & \verb=char* name,= & pointer to process' name\\
+ & \verb=int* id)= & pointer to identity of process
+\end{tabular}\\ 
+The name of the process with identity \verb=id= is saved temporary in \verb=name=.
+\item \verb=int ADOLC_MPI_Barrier(=\\ 
+\begin{tabular}{l l l}
+\ \ & \verb=ADOLC_MPI_Comm comm)= & communicator of process group\\
+\end{tabular}\\ 
+This functions synchronises all processes.
+\item \verb=int ADOLC_MPI_Finalize()=\\ 
+At the end of the \verb=main= program this function has to be called for the finalisation of all processes.
+\item \verb=int trace_on(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=int id,= & identity of process\\
+ & \verb=int size,= & count of processes \\
+ & \verb=short tag)= & tag of tape
+\end{tabular}\\ 
+ This is the parallel version of \verb=trace_on(short tag)=. The function needs two more parameters in order to generate a tape for each process of the process group.
+\item \verb=void tape_doc(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=int id,= & identity of process\\
+ & \verb=int size,= & count of processes \\
+ & \verb=short tag,= & tag of tape \\
+ & \verb=int depen,= & count of dependend variables \\
+ & \verb=int indep,= & count of independent variables\\
+ & \verb=double* argument,= & pointer of buffer of the arguments\\
+ & \verb=double* result)= & pointer of the buffer of results
+\end{tabular}\\ 
+ This is the parallel version of \verb=tape_doc=. The function needs two more parameters in order to transform the tapes into  \LaTeX source documents.
+\end{itemize}
+%
+\subsubsection{Communication calls} 
+\label{CommParCalls}
+The most basic type of communication takes place between two processes: a sending process transmits information  to a receiving process. In MPI, this information is packed into messages with the describing parameters \verb=buf=, \verb=count=, and \verb=datatype=. For each sending operation there must be a matching receive operation.\\
+Since in parallel applications, the execution order of operations is not always deterministic, MPI provides \verb=tag= parameters - only where the value of \verb=tag= for the send and the receive operation is identical, then these operations fit together.
+\begin{itemize}
+\item \verb=int ADOLC_MPI_Send(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=adouble *buf,=& // pointer to sending buffer\\
+& \verb=int count,= & // number of elements to send\\
+& \verb=ADOLC_MPI_Datatype datatype,= & // datatype of the elements of sending buffer\\
+& \verb=int dest,= & // id of the destination process\\
+& \verb=int tag,= &  // mark of the information\\
+& \verb=ADOLC_MPI_Comm comm)=  & // communicator of the process group 
+\end{tabular} \\
+This call is the standard point-to-point function to send \verb=adoubles= from one process to another. Each sending call needs an receiving call by the other process.\\
+\item \verb=int ADOLC_MPI_Recv(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=adouble *buf,=& // pointer to receiving buffer\\
+& \verb=int count,= & // number of elements to receive\\
+& \verb=ADOLC_MPI_Datatype datatype,= & // datatype of the elements of sending buffer\\
+& \verb=int source,= & // id of the sending process\\
+& \verb=int tag,= &  // mark of the information\\
+& \verb=ADOLC_MPI_Comm comm)=  & // communicator of the process group 
+\end{tabular} \\
+This is the standard point-to-point function to receive \verb=adoubles= from another process. It is the opposite of the sending call.\\
+\item \verb=int ADOLC_MPI_Bcast(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=adouble *buf,=& // pointer to sending/receiving buffer\\
+& \verb=int count,= & // number of elements of buffer\\
+& \verb=ADOLC_MPI_Datatype datatype,= & // datatype of the elements of sending buffer\\
+& \verb=int root,= & // id of the process who have to send\\
+& \verb=ADOLC_MPI_Comm comm)=  & // communicator of the process group 
+\end{tabular} \\
+ This function takes data from one node and sends it to all processes in the process group.
+\item \verb=int ADOLC_MPI_Reduce(=\\
+\begin{tabular}{l l l}
+\ \ & \verb=adouble *sendbuf,=& // pointer to sending buffer\\
+& \verb=adouble *rec_buf,=& // pointer to receiving buffer\\
+& \verb=int count,= & // number of elements of buffer\\
+& \verb=ADOLC_MPI_Datatype datatype,= & // datatype of the elements of both buffers\\
+& \verb=ADOLC_MPI_Op op,= & // operation for all received data (buffers)\\
+& \verb=int root,= & // id of the process who have to receive\\
+& \verb=ADOLC_MPI_Comm comm)=  & // communicator of the process group 
+\end{tabular} \\
+ The function takes data from all processes in a group, performs an operation \verb=op= (such as summing), and stores the results on one node. Reduce is often useful at the beginning or end of a large distributed calculation, where each processor operates on a part of the data and then combines it into a result.
+\end{itemize}
+%
+%
+\subsection{Drivers and Interfaces}
+\label{DrAndIntPar}
+\subsubsection{Basic Drivers for parallel computing}
+\label{BasicDrPar}
+%
+After the tape is generated the appropriate ADOL-C drivers can be called. The only thing to do is to fit in the process' id and the count of all processes of the process group as first and second parameters. The same holds for the parallel version for the sparse drivers, if \verb=ColPack= is used.\\
+Examples with \verb=m= for the number of dependent and \verb=n= for the number of independent variables:
+\begin{itemize}
+\item \verb=int function( int id, int size,= // new parameters \\
+      \verb=              short tag,int m,int n,double* argument ,double* result)=
+\item \verb=int gradient( int id, int size,=\\
+      \verb=              short tag ,int n, const double* x,double* result)=
+\item \verb=int vec_jac(  int id, int size,=\\
+      \verb=              short tag, int m, int n, int repeat, double *argument,=\\
+      \verb=              double *lagrange, double *row)=
+\item \verb=int hess_mat( int id,int size,=\\
+      \verb=              short tag, int n, int q, double *argument,=\\
+      \verb=              double **tangent, double **result)=
+\item \verb=int hessian(  int id, int size,=\\
+      \verb=              short tag ,int n, double* argument, double** hess)=
+\item \verb=int jacobian( int id, int size,=\\
+      \verb=              short tag, int m, int n, const double* argument,=\\
+      \verb=              double** jacobian)=
+\item \verb=int jac_pat(  int id, int size,=\\
+      \verb=              short tag, int depen, int indep, const double *basepoint,=\\
+      \verb=              unsigned int **crs, int *options)=
+\item \verb=int sparse_jac( int id, int size,=\\
+      \verb=              short tag, int depen, int indep, int repeat,=\\
+      \verb=              const double *basepoint, int *nnz, unsigned int **rind,=\\
+      \verb=              unsigned int **cind, double **values,int *options )=
+\item \verb=int sparse_hess( int id, int size,=\\
+      \verb=              short tag, int indep, int repeat, const double *basepoint,=\\
+      \verb=              int *nnz, unsigned int **rind, unsigned int **cind,=\\
+      \verb=              double **values, int *options)=
+\end{itemize}
+%
+%
+\subsubsection{Basic Interfaces for parallel computing}
+\label{BasicIntPar}
+Also all interface functions can be called by adding \verb=id= and \verb=size= to the committed parameters. For example
+\begin{itemize}
+\item \verb=int zos_forward( int id, int size,=\\
+      \verb=              short tag, int m, int n, int keep,=\\
+      \verb=              const double *basepoints, double *valuepoints)=
+\item \verb=int fos_forward( int id, int size,=\\
+      \verb=              short tag, int m, int n, int keep,=\\
+      \verb=              const double *basepoints, double *argument=\\
+      \verb=              double *valuepoints, double *taylors)=
+\item \verb=int hos_reverse( int id, int size,=\\
+      \verb=              short tag, int m, int n, int degre,=\\
+      \verb=              double *lagrange, double **results)=
+\item \verb=int int_forward_tight( int id, int size,=\\
+      \verb=              short tag, int m, int n, int p,=\\
+      \verb=              const double *basepoints,=\\
+      \verb=              unsigned long int **arguments, double *valuepoints,=\\
+      \verb=              unsigned long int **taylors)=
+\item \verb=int nonl_ind_forward_tight( int id, int size,=\\
+      \verb=              short tag, int m, int n, double *basepoints,=\\
+      \verb=              unsigned int **crs )=
+\item \verb=int indopro_forward_safe( int id, int size,=\\
+      \verb=              short tag, int m, int n, double *basepoints,=\\
+      \verb=              unsigned int **crs )=
+\end{itemize}
+%
+
 \section{Example Codes}
 \label{example}
 %
@@ -4073,6 +4313,193 @@ except that the negative entry $-1$ was zero.
 %to get the sensitivities of the solution with respect to the
 %system matrix and the right hand side.
 %\vspace*{-4mm}
+%
+\subsection{Parallel Speelpenning example codes}
+\label{SpeelPar}
+%
+Two methods are shown in this example for parallel computing by using different MPI functions to spread the variables and their computing. The first example with \verb=tag1= evaluates the jacobian of the functions
+\[ 
+y \; = \; f(x)\; =\; \left( \sum\limits_{i=0}^{n-1} x_i^2 \ , \  \sum\limits_{i=0}^{n-1} \cos(x_i)+\exp(x_i) \ , \   \sum\limits_{i=0}^{n-1} x_i \right)^T \ :
+\] 
+%
+\begin{verbatim}
+#define HAVE_MPI_MPI_H 1           // using parallel mode
+#include <adolc/adouble.h>         // use of active doubles
+#include <adolc/adouble_mpi.h>     // use of parallel MPI functions
+#include <adolc/interfaces_mpi.h>  // use of parallel driver functions
+#include <adolc/drivers/drivers.h>
+#include <adolc/adalloc.h>
+#include <math.h>
+#include <cstdlib>
+#include <cstdio>
+
+#define tag1 0  // first tag for computing jacobian
+#define tag2 1  // second tag for gradient and hessian
+
+#define CMMCTR ADOLC_MPI_COMM_WORLD  // shortcut
+
+using namespace std;
+
+int main(int* argc,char** argv) {
+    int n, m = 3, i, j, id, size;
+    int root = 0;                      // root process has id 0
+    int tape_stats[STAT_SIZE];
+
+    ADOLC_MPI_Init(argc,&argv);        // initialisation
+    ADOLC_MPI_Comm_size(CMMCTR,&size); // get count of processes
+    ADOLC_MPI_Comm_rank(CMMCTR,&id);   // get id of process
+
+    if(id == root){
+       cout <<"PARALLEL SPEELPENNINGS PRODUCT\n\n"
+	    <<"number of independent variables = ?\n";
+       cin >> n;
+    }
+
+    MPI_Bcast(&n,1, ADOLC_MPI_INT, root, CMMCTR);
+    // every process knows the count of independent variables
+
+    int n_dist = (int) n/size;
+    double x[n];
+    for(i=0;i<n;i++)
+        x[i] =  log(2.0 +i);   // some initialization
+
+    adouble *xad; 
+
+/*************************************************************/
+/********** function evaluation for first example ************/
+/*************************************************************/
+    double *c = new double[m];
+
+    xad = new adouble[n];                 // allocation of
+    adouble *cad = new adouble[m];        // needed arrays
+    for( i = 0; i < m; i++)
+       cad_[i]=0.0;
+
+    trace_on( id, size, tag1);
+    if( id == root ){
+           for (i=0;i<n;i++)
+                  xad[i] <<= x[i];
+          // setting independent variables
+          }
+
+    ADOLC_MPI_Bcast(xad, n, MPI_ADOUBLE, root, CMMCTR);
+
+    for(i = myid*n_dist; i < (myid+1)*n_dist; i++){
+       cad[0] += xad[i]*xad[i];
+       cad[1] += cos(xad[i]) + exp(xad[i]);
+       cad[2] += xad[i];
+    }  // some evaluations 
+
+    ADOLC_MPI_Barrier( CMMCTR );   // optional
+
+    ADOLC_MPI_Reduce( cad, cad,m, MPI_ADOUBLE, ADOLC_MPI_SUM, root, CMMCTR);
+
+    if ( id == root ) {
+       for(i = 0; i < m; i++ )
+          cad[i] >>= c[i];
+    }
+    trace_off();
+    delete[] xad;
+    delete[] cad;
+
+    if ( id == root ){
+        printf("\n c = [ %2.4lf %2.4lf %2.4lf]\n", c[0], c[1], c[2]);
+    }
+
+    tape_doc( id, size, tag1, m, n, x, c);
+
+    double **jac = NULL;
+    if ( id == root )
+       jac = myalloc2(m,n);
+
+    jacobian( id, size, tag1, m, n, x, jac);
+    if ( id == root )
+       printmat("Jacobian ",m,n,jac);
+
+     double **x_pp = NULL;
+     if ( id == root )
+        x_pp = myallocI2(n);
+
+    fov_forward( id, size, tag1, m, n, n, x, x_pp, c, jac);
+    if ( id == root ){
+       printmat("jac output",m, n, jac);
+       myfree2(jac);
+       myfreeI2(n,x_pp);
+    }
+\end{verbatim}
+%
+The second example with \verb=tag2= evaluates the gradient and hessian of the function
+\[ 
+y \; = \; f(x)\; =\; \prod_{i=0}^{n-1} x_i .
+\] 
+%
+\begin{verbatim}
+/*************************************************************/
+/********* function evaluation for second example ************/
+/*************************************************************/
+
+    xad = new adouble[n];
+    adouble* xad_tmp = new adouble[n_dist];
+    adouble res_ad, res_ad_tmp;
+    double res;
+
+    trace_on( id, size, tag2);
+    if ( id == root ){
+       for (i = 0; i < n; i++)
+           xad[i] <<= x[i];
+    }
+    res_ad_tmp = 1.0;
+
+    ADOLC_MPI_Scatter( xad, n_dist, xad_tmp, n_dist,
+                       MPI_ADOUBLE, root, CMMCTR    );
+
+    for(i = 0; i < n_dist; i++)
+       res_ad_tmp *= xad_tmp[i]; // some evaluation 
+
+    ADOLC_MPI_Barrier( CMMCTR );  // optional
+
+    ADOLC_MPI_Reduce( &res_ad_tmp, &res_ad, 1, MPI_ADOUBLE, 
+                      ADOLC_MPI_PROD, root, CMMCTR         );
+
+    if ( id == root )
+          res_ad >>= res;
+
+    trace_off();
+    delete[] xad;
+    delete[] xad_tmp;
+
+    if ( id == root )
+       printf("\n result = %2.4lf \n", res);
+
+    tape_doc( id, size, tag2, 1, n, x, &res);
+
+    double *grad = NULL;
+    if ( id == root ){
+       grad = myalloc1(n);
+       x_pp = myalloc2(n,n);
+    }
+
+    gradient( id, size, tag2, n, x, grad);
+    if (id == root ){  // output of  computed gradient
+       printf("gradient\n");
+       for(i=0; i<n ; i++)
+          printf("\t%2.4lf\n", grad[i]);
+       printf("\n");
+       myfree1(grad);
+    }
+
+    hessian(myid,procsize,tag2,n,x,x_pp);
+    if ( id == root ){ // output of  computed hessian
+       printmat("Hessian", n, n, x_pp);
+       myfree2(x_pp);
+    }
+
+    delete[] x;
+    delete[] c;
+    ADOLC_MPI_Finalize();
+    return 0;
+}
+\end{verbatim}
 %
 \section*{Acknowledgements}
 %

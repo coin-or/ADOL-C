@@ -6,7 +6,8 @@
            to the file tape_doc.tex
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel 
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Benjamin Letschert
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -104,8 +105,14 @@ static char* a[] =  {  "death not",
                        "erf op",
                        "ceil op",
                        "floor op",
-                       "extern fctn"
-                       "ignore_me"
+                       "extern fctn",
+                       "ignore_me",
+                       "send data",
+                       "receive data",
+		             "barrier Op",
+                       "broadcast Op",
+                       "gather Op",
+                       "scatter Op"
                     };
 
 /****************************************************************************/
@@ -138,7 +145,7 @@ void filewrite_start( int opcode ) {
 #ifdef computenumbers
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
@@ -308,6 +315,9 @@ void tape_doc(short tnum,         /* tape id */
 
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
+#if defined(HAVE_MPI)
+    int mpi_i,mpi_ii,count,count2,dest,tag,buf;
+#endif
     operation=get_op_f();
     while (operation !=end_of_tape) {
         switch (operation) {
@@ -1182,9 +1192,120 @@ void tape_doc(short tnum,         /* tape id */
                 loc_a[3] = get_locint_f(); /* dummy */
                 filewrite(operation, 3, loc_a, val_a, 0, cst_d);
                 break;
-
                 /*--------------------------------------------------------------------------*/
-            default:                                                   /* default */
+#if defined(HAVE_MPI)        
+        case send_data:
+	        count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+	        count2 = get_locint_f();
+	        dest   = get_locint_f();
+             tag    = get_locint_f();
+	        loc_a[0] = buf;
+	        loc_a[1] = count;
+	        loc_a[2] = dest;
+#ifdef computenumbers
+              val_a[0] = dp_T0[buf];
+              val_a[1] = dp_T0[buf];
+#endif
+	        filewrite(operation,3,loc_a,val_a,1,cst_d);
+	        break;
+        case receive_data:
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f();
+             tag    = get_locint_f();
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+	        break;
+        case barrier_op:
+	        ++op_cnt;
+	        --rev_op_cnt;
+	        fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, barrier_op);
+
+    /* write opcode name if available */
+	        res=0;
+	        while (a[barrier_op][res]) {
+		        fprintf(fp,"%c",a[barrier_op][res]);
+		        res++;
+	        }
+
+    /* write locations (max 4) right-justified */
+	        fprintf(fp," & & & & & ");
+
+#ifdef computenumbers
+	        fprintf(fp," & & & & & \\\\ \\hline \n");
+#else
+	        fprintf(fp," &  \\\\ \\hline \n");
+#endif
+	        break;
+        case broadcast:
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+       case gather:
+             count  = get_locint_f(); // count
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             count2 = get_locint_f();
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             count2 = get_locint_f(); // 2nd count
+             if(dest == tag){
+               for(mpi_i=0; mpi_i<count2;mpi_i++)
+                  mpi_ii = get_locint_f(); // rest buffer
+             }
+             mpi_ii = get_locint_f(); // count2
+             mpi_ii = get_locint_f(); // root
+             mpi_ii = get_locint_f(); // id
+
+
+             loc_a[0] = buf;
+             loc_a[1] = count;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+       case scatter:
+             count  = get_locint_f(); // sendcount*process_count
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             if(dest == tag){
+               for(mpi_i=0; mpi_i<count;mpi_i++)
+                 mpi_ii = get_locint_f(); // rest buffer
+             }
+             count  = get_locint_f();
+             dest   = get_locint_f(); // root
+             tag    = get_locint_f(); // id
+             count2 = get_locint_f(); // recvcount
+             buf    = get_locint_f(); // first buffer
+             for(mpi_i=1; mpi_i<count2;mpi_i++)
+                mpi_ii = get_locint_f(); // rest buffer
+             mpi_ii = get_locint_f();
+
+             loc_a[0] = buf;
+             loc_a[1] = count2;
+             loc_a[2] = dest;
+             filewrite(operation, 3, loc_a, val_a, 0, cst_d);
+             break;
+#endif // end of HAVE_MPI
+                /*--------------------------------------------------------------------------*/
+        default:                                                   /* default */
                 /* Die here, we screwed up */
                 fprintf(DIAG_OUT,"ADOL-C error: Fatal error in tape_doc for op %d\n",
                         operation);
