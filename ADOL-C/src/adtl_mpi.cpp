@@ -22,20 +22,10 @@
 // #define ADTL_MPI_Comm MPI_Comm
 
 
-#define DO_FOV(m) if(  (m == ADTL_FOV ) || ( m == ADTL_FOV_INDO ) )
-#define DO_INDO(m) if( (m == ADTL_INDO) || ( m == ADTL_FOV_INDO ) )
+#define DO_FOV if(  (adouble::forward_mode == ADTL_FOV ) || ( adouble::forward_mode == ADTL_FOV_INDO ) )
+#define DO_INDO if( (adouble::forward_mode == ADTL_INDO) || ( adouble::forward_mode == ADTL_FOV_INDO ) )
 
 namespace adtl{
-
-size_t ADTL_MPI_get_pattern_size(adouble x) {
-    return x.get_pattern_size();
-}
-enum Mode ADTL_MPI_get_Mode(adouble x) {
-return x.forward_mode;
-}
-size_t ADTL_MPI_get_numDir(adouble x){
-return x.numDir;
-}
 
 int ADTL_MPI_Init( int* a,
                     char*** b
@@ -88,22 +78,20 @@ MPI_Op adolc_to_mpi_op(ADTL_MPI_Op op) {
 
 void ADTL_MPI_set_trade(adouble *buf, int count, size_t nd, double *trade){
     int l=0;
-    enum Mode mode = ADTL_MPI_get_Mode(buf[0]);
      for (int i=0; i< count; i++ ){
        trade[l] = buf[i].getValue();
        l++;
-       DO_FOV(mode) for (unsigned int j=0; j< nd ;j++,l++)
+       DO_FOV for (unsigned int j=0; j< nd ;j++,l++)
          trade[l] = buf[i].getADValue(j);
     }
 }
 
 void ADTL_MPI_get_trade(adouble *buf, int count, size_t nd, double *trade){
     int l=0;
-    enum Mode mode = ADTL_MPI_get_Mode(buf[0]);
     for (int i=0; i< count;i++){
        buf[i].setValue(trade[l]);
        l++;
-       DO_FOV(mode) for (int j=0; j< nd ;j++,l++)
+       DO_FOV for (int j=0; j< nd ;j++,l++)
          buf[i].setADValue(j,trade[l]);
     }
 }
@@ -112,7 +100,7 @@ void ADTL_MPI_set_trade_uint(adouble *buf, int count, size_t nd, unsigned int *t
          trade = new unsigned int[count * ( nd+1 )];
     unsigned int l =0, k;
     for (int i=0; i< count; i++ ){
-          trade[l] = ADTL_MPI_get_pattern_size(buf[i]);
+          trade[l] = buf[i].get_pattern_size();
        if( trade[l] > 0 ){
           const list<unsigned int>& tmp = buf[i].get_pattern();
           list<unsigned int>::const_iterator it;
@@ -140,7 +128,7 @@ int ADTL_MPI_Send( adouble *buf,
                     int tag,
                     ADTL_MPI_Comm comm
 ){
-    size_t mpi_numdir = ADTL_MPI_get_numDir(buf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=count*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -152,11 +140,11 @@ int ADTL_MPI_Send( adouble *buf,
     ierr = MPI_Send(trade, h, datatype, dest, tag, comm);
     delete[] trade;
 
-    DO_INDO(ADTL_MPI_get_Mode(buf[0])) {
+    DO_INDO {
        size_t numd =0;
        for (i=0; i< count; i++ )
-          if ( ADTL_MPI_get_pattern_size(buf[i]) > numd)
-             numd = ADTL_MPI_get_pattern_size(buf[i]);
+          if ( buf[i].get_pattern_size() > numd)
+             numd = buf[i].get_pattern_size();
        ierr = MPI_Send(&numd, 1, MPI_UNSIGNED, dest, tag, comm);
 
        if( numd > 0){
@@ -179,7 +167,7 @@ int ADTL_MPI_Recv( adouble *buf,
 ) {
     if (buf==NULL)
        buf = new adouble[count];
-    size_t mpi_numdir = ADTL_MPI_get_numDir(buf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=count*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -191,7 +179,7 @@ int ADTL_MPI_Recv( adouble *buf,
     ADTL_MPI_get_trade(buf, count, mpi_numdir, trade);
     delete[] trade;
 
-    DO_INDO(ADTL_MPI_get_Mode(buf[0])) {
+    DO_INDO {
        size_t numd;
        ierr = MPI_Recv(&numd ,1, MPI_UNSIGNED , source, tag, comm, &status);
        if( numd > 0){
@@ -214,7 +202,7 @@ int ADTL_MPI_Bcast( adouble *buf,
 {
     if (buf==NULL)
       buf = new adouble[count];
-    size_t mpi_numdir = ADTL_MPI_get_numDir(buf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=count*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -233,13 +221,13 @@ int ADTL_MPI_Bcast( adouble *buf,
        ADTL_MPI_get_trade(buf,count,mpi_numdir, trade);
 
     delete[] trade;
-    DO_INDO(ADTL_MPI_get_Mode(buf[0])) {
+    DO_INDO {
        size_t numd;
        if (root==id){
          numd =0;
          for (i=0; i< count; i++ )
-          if ( ADTL_MPI_get_pattern_size(buf[i]) > numd)
-             numd = ADTL_MPI_get_pattern_size(buf[i]);
+          if ( buf[i].get_pattern_size() > numd)
+             numd = buf[i].get_pattern_size();
        }
        ierr = MPI_Bcast(&numd,1,MPI_UNSIGNED, root, comm);
        if( numd > 0){
@@ -314,7 +302,7 @@ int ADTL_MPI_Reduce(
 int ADTL_MPI_Gather( adouble *sendbuf, adouble *recvbuf, int count,
                       ADTL_MPI_Datatype type, int root, MPI_Comm comm
 ){
-    size_t mpi_numdir = ADTL_MPI_get_numDir(sendbuf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=count*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -340,12 +328,12 @@ int ADTL_MPI_Gather( adouble *sendbuf, adouble *recvbuf, int count,
     }
     delete[] trade_s ;
 
-    DO_INDO(ADTL_MPI_get_Mode(sendbuf[0])) {
+    DO_INDO {
          size_t numd =0;
          unsigned int tmp_nd =0;
          for (i=0; i< count; i++ )
-          if ( ADTL_MPI_get_pattern_size(sendbuf[i]) > numd)
-             numd = ADTL_MPI_get_pattern_size(sendbuf[i]);
+          if ( sendbuf[i].get_pattern_size() > numd)
+             numd = sendbuf[i].get_pattern_size();
          ierr = MPI_Reduce(&numd,&tmp_nd,1,MPI_UNSIGNED,MPI_MAX, root, comm);
          ierr = MPI_Bcast(&tmp_nd,1,MPI_UNSIGNED, root, comm);
 
@@ -373,7 +361,7 @@ int ADTL_MPI_Scatter(
     adouble *sendbuf, int sendcount, adouble *recvbuf,
     int recvcount, ADTL_MPI_Datatype type, int root, MPI_Comm comm)
 {
-    size_t mpi_numdir = ADTL_MPI_get_numDir(sendbuf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=sendcount*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -398,13 +386,13 @@ int ADTL_MPI_Scatter(
 
     delete[] trade_s,trade_r;
 
-    DO_INDO(ADTL_MPI_get_Mode(sendbuf[0])) {
+    DO_INDO {
          size_t numd =0;
          size_t tmp_nd =0;
          if ( id == root)
            for (i=0; i< sendcount; i++ )
-             if ( ADTL_MPI_get_pattern_size(sendbuf[i]) > numd)
-                numd = ADTL_MPI_get_pattern_size(sendbuf[i]);
+             if ( sendbuf[i].get_pattern_size() > numd)
+                numd = sendbuf[i].get_pattern_size();
 
         ierr = MPI_Bcast(&numd,1,MPI_UNSIGNED, root,comm);
 
@@ -430,7 +418,7 @@ int ADTL_MPI_Allgather(
     adouble *sendbuf, int sendcount,ADTL_MPI_Datatype stype, adouble *recvbuf, int recvcount,
     ADTL_MPI_Datatype rtype, ADTL_MPI_Comm comm)
 {
-    size_t mpi_numdir = ADTL_MPI_get_numDir(sendbuf[0]);
+    size_t mpi_numdir = adouble::numDir;
     unsigned int i,j,h=sendcount*(1+mpi_numdir);
     int ierr =0, l;
 
@@ -454,12 +442,12 @@ int ADTL_MPI_Allgather(
 
     delete[] trade_s,trade_r;
 
-    DO_INDO(ADTL_MPI_get_Mode(sendbuf[0])) {
+    DO_INDO {
          size_t numd =0;
          size_t tmp_nd =0;
          for (i=0; i< sendcount; i++ )
-             if ( ADTL_MPI_get_pattern_size(sendbuf[i]) > numd)
-                numd = ADTL_MPI_get_pattern_size(sendbuf[i]);
+             if ( sendbuf[i].get_pattern_size() > numd)
+                numd = sendbuf[i].get_pattern_size();
        ierr = MPI_Allreduce(&tmp_nd,&numd,1,MPI_UNSIGNED,MPI_MAX, comm);
 
        if( numd > 0){

@@ -24,6 +24,8 @@
 #define ADTL_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADTL_MPI_Comm MPI_Comm
 
+namespace adtl {
+
 typedef enum ADTL_MPI_Op_t {
     ADTL_MPI_MAX=100,
     ADTL_MPI_MIN,
@@ -39,6 +41,8 @@ typedef enum ADTL_MPI_Op_t {
     ADTL_MPI_MAXLOC
 } ADTL_MPI_Op;
 
+}
+
 #include <adolc/adtl.h>
 
 namespace adtl {
@@ -47,9 +51,6 @@ void ADTL_MPI_set_trade(adouble *buf, int count, size_t nd, double *trade);
 void ADTL_MPI_get_trade(adouble *buf, int count, size_t nd, double *trade);
 void ADTL_MPI_set_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
 void ADTL_MPI_get_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
-size_t ADTL_MPI_get_pattern_size(adouble x);
-enum Mode ADTL_MPI_get_Mode(adouble x);
-size_t ADTL_MPI_get_numDir(adouble x);
 
 int ADTL_MPI_Init(int* a, char*** b);
 int ADTL_MPI_Comm_size(ADTL_MPI_Comm comm, int* size);
