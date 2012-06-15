@@ -13,7 +13,7 @@
 ----------------------------------------------------------------------------*/
 
 #ifndef ADOLC_ADTL_MPI_H
-#define ADOLC_ADTL_MPI_H
+#define ADOLC_ADTL_MPI_H 1
 
 #include <adolc/common.h>
 
@@ -23,8 +23,6 @@
 #define MPI_ADOUBLE MPI_DOUBLE
 #define ADTL_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADTL_MPI_Comm MPI_Comm
-
-namespace adtl {
 
 typedef enum ADTL_MPI_Op_t {
     ADTL_MPI_MAX=100,
@@ -40,8 +38,6 @@ typedef enum ADTL_MPI_Op_t {
     ADTL_MPI_MINLOC,
     ADTL_MPI_MAXLOC
 } ADTL_MPI_Op;
-
-}
 
 #include <adolc/adtl.h>
 

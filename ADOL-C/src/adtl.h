@@ -15,7 +15,7 @@
 
 ----------------------------------------------------------------------------*/
 #ifndef ADOLC_ADTL_H
-#define ADOLC_ADTL_H
+#define ADOLC_ADTL_H 1
 
 #include <ostream>
 #include <adolc/common.h>
@@ -29,23 +29,6 @@ namespace adtl {
 
 double makeNaN();
 double makeInf();
-
-#ifdef HAVE_MPI
-typedef enum ADTL_MPI_Op_t {
-    ADTL_MPI_MAX=100,
-    ADTL_MPI_MIN,
-    ADTL_MPI_SUM,
-    ADTL_MPI_PROD,
-    ADTL_MPI_LAND,
-    ADTL_MPI_BAND,
-    ADTL_MPI_LOR,
-    ADTL_MPI_BOR,
-    ADTL_MPI_LXOR,
-    ADTL_MPI_BXOR,
-    ADTL_MPI_MINLOC,
-    ADTL_MPI_MAXLOC
-} ADTL_MPI_Op;
-#endif
 
 enum Mode {
     ADTL_ZOS = 0x1,
@@ -235,24 +218,9 @@ public:
     friend void ADTL_MPI_get_trade(adouble *buf, int count, size_t nd, double *trade);
     friend void ADTL_MPI_set_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
     friend void ADTL_MPI_get_trade_uint(adouble *buf, int count, size_t nd, unsigned int *trade);
-    friend int ADTL_MPI_Send(adouble *buf, int count, ADTL_MPI_Datatype datatype, int dest,
-                              int tag, ADTL_MPI_Comm comm );
-    friend int ADTL_MPI_Recv(adouble *buf, int count, ADTL_MPI_Datatype datatype, int dest,
-                              int tag, ADTL_MPI_Comm comm );
-    friend int ADTL_MPI_Bcast(adouble *buf, int count, ADTL_MPI_Datatype datatype, int root,
-                              ADTL_MPI_Comm comm);
-    friend int ADTL_MPI_Reduce(adouble *sendbuf, adouble* rec_buf, int count,
-                              ADTL_MPI_Datatype type, ADTL_MPI_Op op, int root,
-                              ADTL_MPI_Comm comm);
-    friend int ADTL_MPI_Gather(adouble *sendbuf, adouble *recvbuf, int count,
-                              ADTL_MPI_Datatype type, int root, ADTL_MPI_Comm comm);
-    friend int ADTL_MPI_Scatter(adouble *sendbuf, int sendcount, adouble *recvbuf,
-                              int recvcount, ADTL_MPI_Datatype type, int root, ADTL_MPI_Comm comm);
-    friend int ADTL_MPI_Allgather(adouble *sendbuf, int sendcount,ADTL_MPI_Datatype stype,
-                              adouble *recvbuf, int recvcount, ADTL_MPI_Datatype rtype,
-                              ADTL_MPI_Comm comm);
-    friend int ADTL_MPI_Allreduce(adouble *send_buf, adouble *rec_buf, int count,
-                              ADTL_MPI_Datatype type, ADTL_MPI_Op op, ADTL_MPI_Comm comm);
+    friend size_t ADTL_MPI_get_pattern_size(adouble x);
+    friend enum Mode ADTL_MPI_get_Mode(adouble x);
+    friend size_t ADTL_MPI_get_numDir(adouble x) ;
 #endif
     /*******************  i/o operations  *********************************/
     friend ostream& operator << ( ostream&, const adouble& );
