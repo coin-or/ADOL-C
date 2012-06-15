@@ -93,12 +93,13 @@ libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            int_forward_s_mpi.c int_forward_t_mpi.c \
                            indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
                            nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
-                           int_reverse_s_mpi.c int_reverse_t_mpi.c
+                           int_reverse_s_mpi.c int_reverse_t_mpi.c \
+                           adtl_mpi.cpp
 
 libadolc_mpi_la_LIBADD = libadolc.la
 if SPARSE
 libadolc_mpi_la_LIBADD += sparse/libsparse_mpi.la
 endif
 libadolc_mpi_la_LDFLAGS = ${MPICXXEXTRALDFLAGS}
-pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
+pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h adtl_mpi.h
 endif
