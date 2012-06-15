@@ -20,6 +20,26 @@
 
 #if defined(HAVE_MPI)
 #include <mpi.h>
+#define ADOLC_MPI_Datatype MPI_Datatype
+#define MPI_ADOUBLE MPI_DOUBLE
+#define ADOLC_MPI_COMM_WORLD MPI_COMM_WORLD
+#define ADOLC_MPI_Comm MPI_Comm
+
+typedef enum ADOLC_MPI_Op_t {
+    ADOLC_MPI_MAX=100,
+    ADOLC_MPI_MIN,
+    ADOLC_MPI_SUM,
+    ADOLC_MPI_PROD,
+    ADOLC_MPI_LAND,
+    ADOLC_MPI_BAND,
+    ADOLC_MPI_LOR,
+    ADOLC_MPI_BOR,
+    ADOLC_MPI_LXOR,
+    ADOLC_MPI_BXOR,
+    ADOLC_MPI_MINLOC,
+    ADOLC_MPI_MAXLOC
+} ADOLC_MPI_Op;
+
 #include <adolc/interfaces_mpi.h>
 
 BEGIN_C_DECLS
