@@ -12,7 +12,8 @@
            of automatic differentiation.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -40,24 +41,6 @@ void condassign( double &res, const double &cond,
                  const double &arg) {
     res = cond > 0 ? arg : res;
 }
-
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
-/*--------------------------------------------------------------------------*/
-double fmax( const double &x, const double &y ) {
-    if (y > x)
-        return y;
-    else
-        return x;
-}
-
-/*--------------------------------------------------------------------------*/
-double fmin( const double &x, const double &y ) {
-    if (y < x)
-        return y;
-    else
-        return x;
-}
-#endif
 
 /*--------------------------------------------------------------------------*/
 /* The remaining routines define the badouble, adub and adouble routines.   */

@@ -1670,18 +1670,15 @@ int int_reverse_safe(
 	        {
 		    double val = get_val_r();
 		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
-		    if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= numval + 2) {
-			fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],numval);
-			exit(-2);
-		    }
-		    locint vectorloc[numval];
-		    for (cnt = 1; cnt <= numval; cnt++)
-			vectorloc[numval - cnt] = get_locint_r();
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
-		    arg1 = vectorloc[idx];
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numval, idx);
+		    arg1 = vectorloc+idx;
 		    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 		    ASSIGN_A( Ares, ADJOINT_BUFFER[res])
 		    FOR_0_LE_l_LT_p
@@ -1706,23 +1703,20 @@ int int_reverse_safe(
 	        {
 		    double val = get_val_r();
 		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
-		    if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= numval + 2) {
-			fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],numval);
-			exit(-2);
-		    }
-		    locint vectorloc[numval];
-		    for (cnt = 1; cnt <= numval; cnt++)
-			vectorloc[numval - cnt] = get_locint_r();
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(TRES));
 		    // This is actually NOP 
-                    // basically all we need is that arg1 == vectorloc[idx]
+                    // basically all we need is that arg1 == vectorloc+idx
                     // so doing a check here is probably good
-		    if (arg1 != vectorloc[idx]) {
-			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc[idx], arg1);
+		    if (arg1 != vectorloc+idx) {
+			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc+idx, arg1);
 			exit(-2);
 		    }
 		    ADOLC_GET_TAYLOR(res);
