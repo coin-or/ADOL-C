@@ -9,7 +9,8 @@
            class (badouble).  See below for further explanation.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -65,11 +66,6 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg1, const double &arg2 );
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
-
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99) && !defined(__APPLE_CC__)
-double ADOLC_DLL_EXPORT fmin( const double &x, const double &y );
-double ADOLC_DLL_EXPORT fmax( const double &x, const double &y );
-#endif
 
 
 /****************************************************************************/

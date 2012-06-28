@@ -31,6 +31,12 @@
 /* Define to 1 if you have the `floor' function. */
 #define HAVE_FLOOR 1
 
+/* Define to 1 if you have the `fmax' function. */
+#define HAVE_FMAX 1
+
+/* Define to 1 if you have the `fmin' function. */
+#define HAVE_FMIN 1
+
 /* Define to 1 if you have the `ftime' function. */
 #define HAVE_FTIME 1
 
@@ -39,9 +45,6 @@
 
 /* Define 1 if ColPack is available */
 /* #undef HAVE_LIBCOLPACK */
-
-/* Define to 1 if you have the `m' library (-lm). */
-#define HAVE_LIBM 1
 
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
@@ -95,6 +98,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
+
+/* Define to 1 if you have the `trunc' function. */
+#define HAVE_TRUNC 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef HAVE_UNISTD_H */

@@ -2043,20 +2043,17 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
 	    case subscript:
 		coval = get_val_r();
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
-		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
-			exit(-2);
-		    }
 		{
 		    size_t cnt, idx, numval = (size_t)trunc(fabs(coval));
-		    locint vectorloc[numval];
-		    for (cnt = 1; cnt <= numval; cnt++)
-			vectorloc[numval - cnt] = get_locint_r();
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    idx = (size_t)trunc(fabs(TARG));
-		    arg1 = vectorloc[idx];
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numval, idx);
+		    arg1 = vectorloc+idx;
 		    ASSIGN_A(Aarg1, rpp_A[arg1])
 		    ASSIGN_A(Ares, rpp_A[res])
 
@@ -2080,20 +2077,17 @@ int hov_ti_reverse(
 
 	    case subscript_ref:
 		coval = get_val_r();
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] <= coval + 2) {
-		    fprintf( DIAG_OUT, "ADOL-C error: LBUFSIZE=%d is too small for operating on advector of size=%d, need > size+2",ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE],coval);
-		    exit(-2);
-		}
 		{
 		    size_t cnt, idx, numval = (size_t)trunc(fabs(coval));
-		    locint vectorloc[numval];
-		    for (cnt = 1; cnt <= numval; cnt++)
-			vectorloc[numval - cnt] = get_locint_r();
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    ASSIGN_T(Tres, rpp_T[res])
 		    idx = (size_t)trunc(fabs(TARG));
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(TRES));
 		    // This is actually NOP 
                     // basically all we need is that arg1 == vectorloc[idx]

@@ -50,7 +50,7 @@ if test "x$ac_cv_sizeof_void_p" = "x8" ; then
 else
    _lib=lib
 fi
-libdir='${prefix}/${_lib}'
+libdir='${exec_prefix}/${_lib}'
 AC_SUBST(_lib)
 AC_SUBST(libdir)
 
@@ -69,13 +69,13 @@ AC_STRUCT_TM
 # Checks for library functions
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([floor ftime pow sqrt strchr strtol])
+
+# Checks for libraries and fuctions
+AC_SEARCH_LIBS([pow], [m])
+AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
 
 # substitutions
 AC_SUBST(ac_aux_dir)
-
-# Checks for libraries
-AC_CHECK_LIB([m], [pow])
 
 # ADOL-C configuration
 AC_DEFINE(ADOLC_VERSION,ADOLC_VER,[ADOL-C Version])
@@ -163,12 +163,10 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
             [sparse="no"
              AC_MSG_RESULT(no)])
 
-test "x${ac_pwd}" = x && ac_pwd=`pwd`
-abs_srcdir=`readlink -f ${ac_pwd}/${srcdir}`
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
-		[
+[
 colpack=$withval
 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
 COLPACK_LIBDIR="$colpack/${_lib}"
