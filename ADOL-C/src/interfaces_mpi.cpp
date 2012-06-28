@@ -13,7 +13,6 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/common.h>
-#include <adolc/adouble.h>
 #include <adolc/adolc_mpi.h>
 #include <adolc/interfaces_mpi.h>
 

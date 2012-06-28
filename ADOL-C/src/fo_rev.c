@@ -207,14 +207,15 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/adalloc.h>
 #include <adolc/oplate.h>
 #include "taping_p.h"
-#include <adolc/externfcts.h>
-#include "externfcts_p.h"
 
 #include <math.h>
 
 #if defined(_MPI_)
 #include <adolc/adolc_mpi.h>
 #endif
+
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 
 BEGIN_C_DECLS
 
