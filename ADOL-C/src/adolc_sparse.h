@@ -12,5 +12,5 @@
  
 ----------------------------------------------------------------------------*/
 
-#include <adolc/sparse/sparsedrivers.h>
-#include <adolc/sparse/sparse_fo_rev.h>
+#include <sparse/sparsedrivers.h>
+#include <sparse/sparse_fo_rev.h>
