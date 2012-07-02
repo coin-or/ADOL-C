@@ -27,6 +27,7 @@
  *
  */
 
+#include <cassert>
 
 #include "ADOL-C_sparseNLP.hpp"
 

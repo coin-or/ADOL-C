@@ -24,6 +24,7 @@
  *  no exploitation of sparsity !!
  *
  */
+#include <cassert>
 
 #include "ADOL-C_NLP.hpp"
 
