@@ -10,8 +10,9 @@ using std::ostream;
 using std::istream;
 
 #include <cuda_runtime.h>
+#include <math_constants.h>
 
-namespace adtl {
+namespace adtlc {
 
 
 #  define ADVAL                adval
@@ -24,157 +25,157 @@ namespace adtl {
 
 #define ADOLC_MATH_NSP std
 
-inline double makeNaN() {
-    return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
+inline __device__ double makeNaN() {
+    return CUDART_NAN;
 }
 
-inline double makeInf() {
-    return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
+inline __device__ double makeInf() {
+    return CUDART_INF;
 }
+
 
 class adouble {
 public:
     // ctors
-    __device__ __host__ inline adouble();
-    __device__ __host__ inline adouble(const double v);
-    __device__ __host__ inline adouble(const double v, ADVAL_TYPE adv);
-    __device__ __host__ inline adouble(const adouble& a);
+    __device__  inline adouble();
+    __device__  inline adouble(const double v);
+    __device__  inline adouble(const double v, ADVAL_TYPE adv);
+    __device__  inline adouble(const adouble& a);
 #if defined(DYNAMIC_DIRECTIONS)
     inline ~adouble();
 #endif
-
     /*******************  temporary results  ******************************/
     // sign
-    __device__ __host__ inline adouble operator - () const;
-    __device__ __host__ inline adouble operator + () const;
+    __device__  inline adouble operator - () const;
+    __device__  inline adouble operator + () const;
 
     // addition
-    __device__ __host__ inline adouble operator + (const double v) const;
-    __device__ __host__ inline adouble operator + (const adouble& a) const;
-    __device__ __host__ inline friend
+    __device__  inline adouble operator + (const double v) const;
+    __device__  inline adouble operator + (const adouble& a) const;
+    __device__  inline friend
     adouble operator + (const double v, const adouble& a);
 
     // substraction
-    __device__ __host__ inline adouble operator - (const double v) const;
-    __device__ __host__ inline adouble operator - (const adouble& a) const;
-    __device__ __host__ inline friend
+    __device__  inline adouble operator - (const double v) const;
+    __device__  inline adouble operator - (const adouble& a) const;
+    __device__  inline friend
     adouble operator - (const double v, const adouble& a);
 
     // multiplication
-    __device__ __host__ inline adouble operator * (const double v) const;
-    __device__ __host__ inline adouble operator * (const adouble& a) const;
-    __device__ __host__ inline friend
+    __device__  inline adouble operator * (const double v) const;
+    __device__  inline adouble operator * (const adouble& a) const;
+    __device__  inline friend
     adouble operator * (const double v, const adouble& a);
 
     // division
-    __device__ __host__ inline adouble operator / (const double v) const;
-    __device__ __host__ inline adouble operator / (const adouble& a) const;
-    __device__ __host__ inline friend
+    __device__  inline adouble operator / (const double v) const;
+    __device__  inline adouble operator / (const adouble& a) const;
+    __device__  inline friend
     adouble operator / (const double v, const adouble& a);
 
     // inc/dec
-    __device__ __host__ inline adouble operator ++ ();
-    __device__ __host__ inline adouble operator ++ (int);
-    __device__ __host__ inline adouble operator -- ();
-    __device__ __host__ inline adouble operator -- (int);
+    __device__  inline adouble operator ++ ();
+    __device__  inline adouble operator ++ (int);
+    __device__  inline adouble operator -- ();
+    __device__  inline adouble operator -- (int);
 
     // functions
-    __device__ __host__ inline friend adouble tan(const adouble &a);
-    __device__ __host__ inline friend adouble exp(const adouble &a);
-    __device__ __host__ inline friend adouble log(const adouble &a);
-    __device__ __host__ inline friend adouble sqrt(const adouble &a);
-    __device__ __host__ inline friend adouble sin(const adouble &a);
-    __device__ __host__ inline friend adouble cos(const adouble &a);
-    __device__ __host__ inline friend adouble asin(const adouble &a);
-    __device__ __host__ inline friend adouble acos(const adouble &a);
-    __device__ __host__ inline friend adouble atan(const adouble &a);
+    __device__  inline friend adouble tan(const adouble &a);
+    __device__  inline friend adouble exp(const adouble &a);
+    __device__  inline friend adouble log(const adouble &a);
+    __device__  inline friend adouble sqrt(const adouble &a);
+    __device__  inline friend adouble sin(const adouble &a);
+    __device__  inline friend adouble cos(const adouble &a);
+    __device__  inline friend adouble asin(const adouble &a);
+    __device__  inline friend adouble acos(const adouble &a);
+    __device__  inline friend adouble atan(const adouble &a);
 
-    __device__ __host__ inline friend adouble atan2(const adouble &a, const adouble &b);
-    __device__ __host__ inline friend adouble pow(const adouble &a, double v);
-    __device__ __host__ inline friend adouble pow(const adouble &a, const adouble &b);
-    __device__ __host__ inline friend adouble pow(double v, const adouble &a);
-    __device__ __host__ inline friend adouble log10(const adouble &a);
+    __device__  inline friend adouble atan2(const adouble &a, const adouble &b);
+    __device__  inline friend adouble pow(const adouble &a, double v);
+    __device__  inline friend adouble pow(const adouble &a, const adouble &b);
+    __device__  inline friend adouble pow(double v, const adouble &a);
+    __device__  inline friend adouble log10(const adouble &a);
 
-    __device__ __host__ inline friend adouble sinh (const adouble &a);
-    __device__ __host__ inline friend adouble cosh (const adouble &a);
-    __device__ __host__ inline friend adouble tanh (const adouble &a);
+    __device__  inline friend adouble sinh (const adouble &a);
+    __device__  inline friend adouble cosh (const adouble &a);
+    __device__  inline friend adouble tanh (const adouble &a);
 #if defined(ATRIG_ERF)
-    __device__ __host__ inline friend adouble asinh (const adouble &a);
-    __device__ __host__ inline friend adouble acosh (const adouble &a);
-    __device__ __host__ inline friend adouble atanh (const adouble &a);
+    __device__  inline friend adouble asinh (const adouble &a);
+    __device__  inline friend adouble acosh (const adouble &a);
+    __device__  inline friend adouble atanh (const adouble &a);
 #endif
-    __device__ __host__ inline friend adouble fabs (const adouble &a);
-    __device__ __host__ inline friend adouble ceil (const adouble &a);
-    __device__ __host__ inline friend adouble floor (const adouble &a);
-    __device__ __host__ inline friend adouble fmax (const adouble &a, const adouble &b);
-    __device__ __host__ inline friend adouble fmax (double v, const adouble &a);
-    __device__ __host__ inline friend adouble fmax (const adouble &a, double v);
-    __device__ __host__ inline friend adouble fmin (const adouble &a, const adouble &b);
-    __device__ __host__ inline friend adouble fmin (double v, const adouble &a);
-    __device__ __host__ inline friend adouble fmin (const adouble &a, double v);
-    __device__ __host__ inline friend adouble ldexp (const adouble &a, const adouble &b);
-    __device__ __host__ inline friend adouble ldexp (const adouble &a, const double v);
-    __device__ __host__ inline friend adouble ldexp (const double v, const adouble &a);
-    __device__ __host__ inline friend double frexp (const adouble &a, int* v);
+    __device__  inline friend adouble fabs (const adouble &a);
+    __device__  inline friend adouble ceil (const adouble &a);
+    __device__  inline friend adouble floor (const adouble &a);
+    __device__  inline friend adouble fmax (const adouble &a, const adouble &b);
+    __device__  inline friend adouble fmax (double v, const adouble &a);
+    __device__  inline friend adouble fmax (const adouble &a, double v);
+    __device__  inline friend adouble fmin (const adouble &a, const adouble &b);
+    __device__  inline friend adouble fmin (double v, const adouble &a);
+    __device__  inline friend adouble fmin (const adouble &a, double v);
+    __device__  inline friend adouble ldexp (const adouble &a, const adouble &b);
+    __device__  inline friend adouble ldexp (const adouble &a, const double v);
+    __device__  inline friend adouble ldexp (const double v, const adouble &a);
+    __device__  inline friend double frexp (const adouble &a, int* v);
 #if defined(ATRIG_ERF)
-    __device__ __host__ inline friend adouble erf (const adouble &a);
+    __device__  inline friend adouble erf (const adouble &a);
 #endif
 
 
     /*******************  nontemporary results  ***************************/
     // assignment
-    __device__ __host__ inline void operator = (const double v);
-    __device__ __host__ inline void operator = (const adouble& a);
+    __device__  inline void operator = (const double v);
+    __device__  inline void operator = (const adouble& a);
 
     // addition
-    __device__ __host__ inline void operator += (const double v);
-    __device__ __host__ inline void operator += (const adouble& a);
+    __device__  inline void operator += (const double v);
+    __device__  inline void operator += (const adouble& a);
 
     // substraction
-    __device__ __host__ inline void operator -= (const double v);
-    __device__ __host__ inline void operator -= (const adouble& a);
+    __device__  inline void operator -= (const double v);
+    __device__  inline void operator -= (const adouble& a);
 
     // multiplication
-    __device__ __host__ inline void operator *= (const double v);
-    __device__ __host__ inline void operator *= (const adouble& a);
+    __device__  inline void operator *= (const double v);
+    __device__  inline void operator *= (const adouble& a);
 
     // division
-    __device__ __host__ inline void operator /= (const double v);
-    __device__ __host__ inline void operator /= (const adouble& a);
+    __device__  inline void operator /= (const double v);
+    __device__  inline void operator /= (const adouble& a);
 
     // not
-    __device__ __host__ inline int operator ! () const;
+    __device__  inline int operator ! () const;
 
     // comparision
-    __device__ __host__ inline int operator != (const adouble&) const;
-    __device__ __host__ inline int operator != (const double) const;
-    __device__ __host__ inline friend int operator != (const double, const adouble&);
+    __device__  inline int operator != (const adouble&) const;
+    __device__  inline int operator != (const double) const;
+    __device__  inline friend int operator != (const double, const adouble&);
 
-    __device__ __host__ inline int operator == (const adouble&) const;
-    __device__ __host__ inline int operator == (const double) const;
-    __device__ __host__ inline friend int operator == (const double, const adouble&);
+    __device__  inline int operator == (const adouble&) const;
+    __device__  inline int operator == (const double) const;
+    __device__  inline friend int operator == (const double, const adouble&);
 
-    __device__ __host__ inline int operator <= (const adouble&) const;
-    __device__ __host__ inline int operator <= (const double) const;
-    __device__ __host__ inline friend int operator <= (const double, const adouble&);
+    __device__  inline int operator <= (const adouble&) const;
+    __device__  inline int operator <= (const double) const;
+    __device__  inline friend int operator <= (const double, const adouble&);
 
-    __device__ __host__ inline int operator >= (const adouble&) const;
-    __device__ __host__ inline int operator >= (const double) const;
-    __device__ __host__ inline friend int operator >= (const double, const adouble&);
+    __device__  inline int operator >= (const adouble&) const;
+    __device__  inline int operator >= (const double) const;
+    __device__  inline friend int operator >= (const double, const adouble&);
 
-    __device__ __host__ inline int operator >  (const adouble&) const;
-    __device__ __host__ inline int operator >  (const double) const;
-    __device__ __host__ inline friend int operator >  (const double, const adouble&);
+    __device__  inline int operator >  (const adouble&) const;
+    __device__  inline int operator >  (const double) const;
+    __device__  inline friend int operator >  (const double, const adouble&);
 
-    __device__ __host__ inline int operator <  (const adouble&) const;
-    __device__ __host__ inline int operator <  (const double) const;
-    __device__ __host__ inline friend int operator <  (const double, const adouble&);
+    __device__  inline int operator <  (const adouble&) const;
+    __device__  inline int operator <  (const double) const;
+    __device__  inline friend int operator <  (const double, const adouble&);
 
     /*******************  getter / setter  ********************************/
-    __device__ __host__ inline double getValue() const;
-    __device__ __host__ inline void setValue(const double v);
-    __device__ __host__ inline ADVAL_TYPE getADValue() const;
-    __device__ __host__ inline void setADValue(ADVAL_TYPE v);
+    __device__  inline double getValue() const;
+    __device__  inline void setValue(const double v);
+    __device__  inline ADVAL_TYPE getADValue() const;
+    __device__  inline void setADValue(ADVAL_TYPE v);
 #if defined(NUMBER_DIRECTIONS)
     inline double getADValue(const unsigned int p) const;
     inline void setADValue(const unsigned int p, const double v);
@@ -190,7 +191,7 @@ private:
     double val;
     double ADVAL;
 };
-
+  
 /*******************************  ctors  ************************************/
 adouble::adouble() {
 #if defined(DYNAMIC_DIRECTIONS)
@@ -385,8 +386,8 @@ adouble log(const adouble &a) {
 	if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/a.val;
 	else if (a.val==0 && a.ADVAL_I != 0.0) {
 	    int sign = (a.ADVAL_I < 0)  ? -1 : 1;
-	    tmp.ADVAL_I=sign* 1.0/0.0;
-	    } else tmp.ADVAL_I=0.0/0.0;
+	    tmp.ADVAL_I=sign* makeInf();
+	    } else tmp.ADVAL_I=makeNaN();
     return tmp;
 }
 
@@ -397,8 +398,9 @@ adouble sqrt(const adouble &a) {
 	if (a.val>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.val*2);
         else if (a.val==0.0 && a.ADVAL_I != 0.0) {
 	    int sign = (a.ADVAL_I < 0) ? -1 : 1;
-	    tmp.ADVAL_I=sign * 1.0/0.0;
-	} else tmp.ADVAL_I=0.0/0.0;
+	    tmp.ADVAL_I=sign * makeInf();
+	} 
+	else tmp.ADVAL_I=makeNaN(); 
     return tmp;
 }
 
