@@ -3361,6 +3361,306 @@ can occur:
       values below 1.0 have been observed. 
     \end{itemize}
 \end{itemize}
+
+
+\section{Traceless forward differentiation in ADOL-C using Cuda}
+\label{tracelessCuda}
+%
+One major drawback using the traceless version of ADOL-C is the fact 
+that several function evaluations are needed to compute derivatives
+in many different points. More precisely, to calculate the Jacobian for
+a function $F:\mathbb{R}^n\rightarrow \mathbb{R}^m$ in $M$ points, $M$
+function evaluations are needed for the traceless vector mode and even 
+$M*n$ for the traceless scalar mode. Depending on the size of the function 
+this can result in a long runtime. To achieve a better performance one can
+use parallelisation techniques as the same operations are
+performed during a function evaluation. One possibility is to use GPUs 
+since they are optimized for data parallel computation. Starting with 
+version 2.3.0 ADOL-C now features a traceless forward mode for computing 
+first order derivatives in scalar mode on GPUs using the 
+general purpose parallel computing architecture Cuda. 
+
+The idea is to include parallel code that executes in many GPU threads across
+processing elements. This can be done by using kernel functions, that is functions
+which are executed on GPU as an array of threads in parallel. In general all 
+threads execute the same code. They are grouped into blocks which are then grouped 
+into grids. A kernel is executed as a grid of blocks of threads. For more 
+details see, e.g., the NVIDIA CUDA C Programming Guide which can be downloaded from 
+the web page {\sf www.nvidia.com}. To solve the problem of calculating 
+the Jacobian of $F$ at $M$ points it is possible to let each thread perform a 
+function evaluation and thus the computation of derivatives for one direction 
+at one point. The advantage is that the function is evaluated in different points
+in parallel which can result in a faster wallclock runtime.
+
+The following subsection describes the source code modifications required to use 
+the traceless forward mode of ADOL-C with Cuda.  
+
+\subsection{Modifying the source code}
+
+Let us again consider the coordinate transformation from Cartesian to spherical
+polar coordinates given by the function $F: \mathbb{R}^3 \to \mathbb{R}^3$, $y
+= F(x)$, with
+\begin{eqnarray*}
+y_1  =  \sqrt{x_1^2 + x_2^2 + x_3^2},\qquad
+y_2  =  \arctan\left(\sqrt{x_1^2 + x_2^2}/x_3\right),\qquad
+y_3  =  \arctan(x_2/x_1),
+\end{eqnarray*}
+as an example. We now calculate the Jacobian at $M=1024$ different points.
+The source code for one point is shown in \autoref{fig:tapeless}. This example 
+has no real application but can still be used to show the combination of the traceless version
+of ADOL-C and Cuda.
+
+For the use of this mode a Cuda toolkit, which is suitable for the grafic card used,
+has to be installed. Furthermore, it is important to check that the graphic card
+used supports double precision (for details see e.g. NVIDIA CUDA C Programming Guide).
+Otherwise the data type employed inside of the {\sf adouble} class has to be adapted
+to {\sf float}. To use the traceless forward mode with Cuda, one has to include the header
+files \verb#adoublecuda.h# and \verb#cuda.h#. The first one contains the 
+definition of the class {\sf adouble} and the overloaded operators
+for this version of ADOL-C. As in the other versions all derivative 
+calculations are introduced by calls to overloaded operators. The 
+second header file is needed for the use of Cuda.  
+
+One possibility to solve the problem above is the following. First of all
+three {\sf double} arrays are needed: {\sf x} for the independent variables, 
+{\sf y} for the dependent variables and {\sf deriv} for the values of the 
+Jacobian matrices. The independent variables have to be initialised, therefore 
+the points at which the function should be evaluated are saved in a row in the 
+same array of length $3*M$. For the computation on GPUs one also has to allocate memory
+on this device. Using the syntax in Cuda one can allocate an array of 
+length $3*M$ (number of independent variables times number of points) for 
+the independent variables as follows:
+\begin{center}
+  \begin{tabular}{l}
+    {\sf double * devx;}\\
+    {\sf cudaMalloc((void**)\&devx, 3*M*sizeof(double));}\\
+  \end{tabular}
+\end{center}
+The arrays for the dependent variables and the values of the Jacobian matrices
+are allocated in the same way. Then the values of the independent variables 
+have to be copied to the GPU using the following command
+\begin{center}
+  \begin{tabular}{l}
+    {\sf cudaMemcpy(devx, x, sizeof(double)*3*M, cudaMemcpyHostToDevice);}\\
+  \end{tabular}
+\end{center}   
+The argument {\sf cudaMemcpyHostToDevice} indicates that the values are copied from 
+the host to the GPU. In this case the values stored in {\sf x} are copied to {\sf devx}. 
+
+Now all required information has been transferred to the GPU. The changes 
+in the source code made so far are summarized in \autoref{fig:cudacode1}.
+ 
+\begin{figure}[!h!t!b]
+\framebox[\textwidth]{\parbox{\textwidth}{
+%\begin{center}
+\begin{tabbing}
+\hspace*{-1cm} \= \kill
+\> {\sf \#include $<$iostream$>$}\\
+\> {\sf \#include $<$cuda.h$>$}\\
+\> {\sf \#include $<$adoublecuda.h$>$}\\
+\> {\sf using namespace std;}\\
+\\
+\> {\sf int main() \{}\\
+\> {\sf \rule{0.5cm}{0pt}int M=1024;}\\
+\> {\sf \rule{0.5cm}{0pt}double* deriv = new double[9*M];}\\
+\> {\sf \rule{0.5cm}{0pt}double* y = new double[3*M];}\\
+\> {\sf \rule{0.5cm}{0pt}double* x = new double[3*M];}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Initialize $x_i$}\\
+\> {\sf \rule{0.5cm}{0pt}for (int k=0; k$<$M; ++k)\{}\\
+\> {\sf \rule{1cm}{0pt}for (int i=0; i$<$3; ++i)}\\
+\> {\sf \rule{1.5cm}{0pt}x[k*3+i] =i + 1/(k+1);\}}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Allocate array for independent and dependent variables}\\
+\> {\sf \rule{0.5cm}{0pt}// and Jacobian matrices on GPU}\\
+\> {\sf \rule{0.5cm}{0pt}double * devx;}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMalloc((void**)\&devx, 3*M*sizeof(double));}\\
+\> {\sf \rule{0.5cm}{0pt}double * devy;}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMalloc((void**)\&devy, 3*M*sizeof(double));}\\
+\> {\sf \rule{0.5cm}{0pt}double * devderiv;}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMalloc((void**)\&devderiv, 3*3*M*sizeof(double));}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Copy values of independent variables from host to GPU}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMemcpy(devx, x, sizeof(double)*3*M, cudaMemcpyHostToDevice);}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Call function to specify amount of blocks and threads to be used}\\
+\> {\sf \rule{0.5cm}{0pt}kernellaunch(devx, devy, devderiv,M);}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Copy values of dependent variables and Jacobian matrices from GPU to host}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMemcpy(y, devy, sizeof(double)*3*M,cudaMemcpyDeviceToHost);}\\
+\> {\sf \rule{0.5cm}{0pt}cudaMemcpy(deriv, devderiv, sizeof(double)*3*3*M, cudaMemcpyDeviceToHost);}\\
+\> {\sf \}}
+\end{tabbing}
+%\end{center}
+}}
+\caption{Example for traceless scalar forward mode with Cuda}
+\label{fig:cudacode1}
+\end{figure}
+
+In the next step the user has to specify how many blocks and threads per block
+will be needed for the function evaluations. In the present example this is done by  
+the call of the function {\sf kernellaunch}, see \autoref{fig:cudacode2}.
+In this case the blocks are two dimensional: the x-dimension is determined
+by the number of points $M$ at which the Jacobian matrix has to be calculated 
+while the y-dimension is given by the number of independent variables, i.e., 3.
+Since a block cannot contain more than 1024 threads, the
+x-dimension in the example is 64 instead of $M=1024$. Therefore $1024/64=16$
+blocks are needed. The described division into blocks is reasonable as each 
+thread has to perform a function evaluation for one point and one direction,
+hence $M*3$ threads are needed where 3 denotes the number of independent 
+variables corresponding to the number of directions needed for the computation 
+of the Jacobian in one point. 
+
+\begin{figure}[!h!t!b]
+\framebox[\textwidth]{\parbox{\textwidth}{
+\begin{tabbing}
+\hspace*{-1cm} \= \kill
+\> {\sf cudaError\_t kernellaunch(double* inx, double* outy, double* outderiv, int M) \{}\\
+\> {\sf \rule{0.5cm}{0pt}// Create 16 blocks}\\
+\> {\sf \rule{0.5cm}{0pt}int Blocks=16;}\\
+\> {\sf \rule{0.5cm}{0pt}// Two dimensional (M/Blocks)$\times$3 blocks}\\
+\> {\sf \rule{0.5cm}{0pt}dim3 threadsPerBlock(M/Blocks,3);}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Call kernel function with 16 blocks with (M/Blocks)$\times$3 threads per block}\\
+\> {\sf \rule{0.5cm}{0pt}kernel $<<<$ Blocks, threadsPerBlock $>>>$(inx, outy, outderiv);}\\
+\> {\sf \rule{0.5cm}{0pt}cudaError\_t cudaErr = cudaGetLastError();}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}return cudaErr;}\\
+\> {\sf \}}
+\end{tabbing}
+}}
+\caption{Example for traceless scalar forward mode with Cuda}
+\label{fig:cudacode2}
+\end{figure}
+
+We can now perform the function evaluations together with the calculation 
+of the Jacobians. The corresponding code is illustrated in \autoref{fig:cudacode3}.
+Since the function evaluations should be performed on a GPU a kernel function is
+needed which is defined by using the \mbox{{\sf \_\_ global\_\_}} declaration specifier 
+(see \autoref{fig:cudacode3}). Then each thread executes the operations that are
+defined in the kernel. 
+
+\begin{figure}[!h!t!b]
+\framebox[\textwidth]{\parbox{\textwidth}{
+\begin{tabbing}
+\hspace*{-1cm} \= \kill
+\> {\sf \_\_global\_\_ void kernel(double* inx, double* outy, double* outderiv) \{}\\
+\> {\sf \rule{0.5cm}{0pt}const int index = threadIdx.x ;}\\
+\> {\sf \rule{0.5cm}{0pt}const int index1 = threadIdx.y;}\\
+\> {\sf \rule{0.5cm}{0pt}const int index2 = blockIdx.x;}\\
+\> {\sf \rule{0.5cm}{0pt}const int index3 = blockDim.x;}\\
+\> {\sf \rule{0.5cm}{0pt}const int index4 = blockDim.x*blockDim.y;}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Declare dependent and independent variables as {\sf adouble}s}\\
+\> {\sf \rule{0.5cm}{0pt}adtlc::adouble y[3], x[3];}\\
+\> {\sf \rule{0.5cm}{0pt}// Read out point for function evaluation}\\
+\> {\sf \rule{0.5cm}{0pt}for(int i=0; i $<$ 3; i++)}\\
+\> {\sf \rule{1cm}{0pt}x[i]=inx[index2*index4+index*3+i];}\\
+\> {\sf \rule{0.5cm}{0pt}// Set direction for calculation of derivatives}\\
+\> {\sf \rule{0.5cm}{0pt}x[index1].setADValue(1);}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}// Function evaluation}\\
+\> {\sf \rule{0.5cm}{0pt}y[0] = sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]);}\\
+\> {\sf \rule{0.5cm}{0pt}y[1] = atan(sqrt(x[0]*x[0]+x[1]*x[1])/x[2]);}\\
+\> {\sf \rule{0.5cm}{0pt}y[2] = atan(x[1]/x[0]);}\\
+\\
+\> {\sf \rule{0.5cm}{0pt}for(int i=0; i $<$ 3; i++)}\\
+\> {\sf \rule{1cm}{0pt}outy[(index2*index3+index)*3+i]=y[i].getValue();}\\
+\> {\sf \rule{0.5cm}{0pt}for(int i=0; i $<$ 3; i++)}\\
+\> {\sf \rule{1cm}{0pt}outderiv[(index2*index4+index*3+index1)*3+i]=y[i].getADValue();}\\
+\> {\sf \}}
+\end{tabbing}
+}}
+\caption{Example for traceless scalar forward mode with Cuda}
+\label{fig:cudacode3}
+\end{figure}
+
+In this example each thread is assigned the task of calculating the 
+derivatives in one point with respect to one independent variable. Therefore
+some indices are needed for the implementation. Each thread has a unique thread
+ID in a block consisting of an x and an y-dimension. The blocks have an ID as
+well. In the example the following indices are used.
+ 
+\begin{itemize}
+ \item {\sf index = threadIdx.x} denotes the x-dimension of a thread (ranges from 0 to 63 in the example)
+ \item {\sf index1 = threadIdx.y} denotes the y-dimension of a thread (ranges from 0 to 2 in the example)
+ \item {\sf index2 = blockIdx.x} denotes the block index (ranges from 0 to 15 in the example)
+ \item {\sf index3 = blockDim.x} denotes the x-dimension of a block (always 64 in the example)
+ \item {\sf index4 = blockDim.x*blockDim.y} denotes the size of a block (always $64*3=192$ in the example)
+\end{itemize}
+
+For the calculation of derivatives the function evaluation has to be performed
+with {\sf adouble}s. Therefore the dependent and the independent variables
+have to be declared as {\sf adouble}s as in the other versions of ADOL-C (see, e.g., \autoref{tapeless}). 
+Similar to the traceless version without Cuda the namespace \verb#adtlc# is used. 
+Now each thread has to read out the point at which the function evaluation is 
+then performed. This is determined by the blockindex and the x-dimension of 
+the thread, therefore the independent variables in a thread
+have the values
+\begin{center}
+  \begin{tabular}{l}
+    {\sf \rule{0.5cm}{0pt}x[i]=inx[index2*index4+index*3+i];}\\
+  \end{tabular}
+\end{center}  
+for {\sf i=0,1,2} where {\sf inx} corresponds to the vector {\sf devx}. The direction for 
+the derivatives is given by {\sf index1}.
+\begin{center}
+  \begin{tabular}{l}
+     {\sf \rule{0.5cm}{0pt}x[index1].setADValue(1);}\\
+  \end{tabular}
+\end{center} 
+The functions for setting and getting the value and the derivative value of an 
+{\sf adouble} are the same as in the traceless version of ADOL-C for first 
+order derivatives (see \autoref{tapeless}).
+The function evaluation is then performed with {\sf adouble x} on GPU and the results
+are saved in {\sf adouble y}. The function evaluation itself remains unchanged
+(see \autoref{fig:cudacode3}). Then we store the values of the function
+evaluations in each point in a row in one array:
+\begin{center}
+  \begin{tabular}{l}
+   {\sf \rule{0.5cm}{0pt}outy[(index2*index3+index)*3+i]=y[i].getValue();}\\
+  \end{tabular}
+\end{center} 
+for {\sf i=0,1,2}. The values of a Jacobian are stored column by column in 
+a row:
+\begin{center}
+  \begin{tabular}{l}
+   {\sf \rule{0.5cm}{0pt}outderiv[(index2*index4+index*3+index1)*3+i]=y[i].getADValue();}\\
+  \end{tabular}
+\end{center} 
+for {\sf i=0,1,2}. 
+
+Now there is one thing left to do. The values calculated on the GPU have to be copied 
+back to host. For the dependent variables in the example this can be done by the 
+following call:
+\begin{center}
+  \begin{tabular}{l}
+ {\sf \rule{0.5cm}{0pt}cudaMemcpy(y, devy, sizeof(double)*3*M,cudaMemcpyDeviceToHost);}\\
+  \end{tabular}
+\end{center} 
+see \autoref{fig:cudacode1}. The argument {\sf cudaMemcpyDeviceToHost} determines that
+the values are copied from GPU to host.
+
+%
+\subsection{Compiling and Linking the Source Code}
+%
+After incorporating the required changes, one has to compile the
+source code and link the object files to get the executable. For 
+the compilation of a Cuda file the {\sf nvcc} compiler is needed.
+The compile sequence should be similar to the following example:
+\begin{center}
+  \begin{tabular}{l}
+    {\sf nvcc -arch=sm\_20 -o traceless\_cuda traceless\_cuda.cu}
+  \end{tabular}
+\end{center}
+The compiler option \verb#-arch=sm_20# specifies the compute capability that is 
+assumed, in this case one that supports double precision.
+
+The mentioned source code {\sf traceless\_cuda.cu} illustrating the use of the
+forward traceless scalar mode with Cuda and a further example {\sf liborgpu.cu}
+can be found in the directory examples. The second example is an adaption of
+the OpenMP example to the traceless version with Cuda.
+
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \section{Installing and Using ADOL-C}
