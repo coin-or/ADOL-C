@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
+ /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     liborgpu.cpp
+ File:     liborgpu.cu
  Revision: $Id$
 Contents: example for differentiation of GPU parallel programs
 
@@ -59,8 +59,8 @@ __global__ void portfolio_kernel(double* inx, double* outy, double* dery) {
 	//block size (here always N+Nmat)
 	const int dim = blockDim.x*blockDim.y;
 
-	adtl::adouble L[N];
-	adtl::adouble z[Nmat];
+	adtlc::adouble L[N];
+	adtlc::adouble z[Nmat];
 	
 	//initialize independent variables
 	for(i=0; i < N; i++)
@@ -77,8 +77,8 @@ __global__ void portfolio_kernel(double* inx, double* outy, double* dery) {
 	/* calculate path values */
 
   	double   lam, con1;
-	adtl::adouble v, vrat;
-	adtl::adouble sqez;
+	adtlc::adouble v, vrat;
+	adtlc::adouble sqez;
   
    	for(n=0; n<Nmat; n++) {
     		sqez = sqrt(delta)*z[n];
@@ -100,9 +100,9 @@ __global__ void portfolio_kernel(double* inx, double* outy, double* dery) {
     	double swaprates[]  = {.045,.05,.055,.045,.05,.055,.045,.05,
                          .055,.045,.05,.055,.045,.05,.055 };
 
-	  adtl::adouble b, s, y, swapval;
-	  adtl::adouble B[N];
-	  adtl::adouble S[N];
+	  adtlc::adouble b, s, y, swapval;
+	  adtlc::adouble B[N];
+	  adtlc::adouble S[N];
   
 	  b = 1.0;
 	  s = 0.0;
@@ -143,10 +143,7 @@ cudaError_t portfolio(double* inx, double* outy, double* dery, int npath) {
     portfolio_kernel <<<npath , threadsPerBlock >>>(inx, outy, dery);
     cudaError_t cudaErr = cudaGetLastError();
 
-    //synchronize threads
-    cudaError_t err = cudaThreadSynchronize();
-
-    return err;
+    return cudaErr;
 }
 
 /* -------------------------------------------------------- */
