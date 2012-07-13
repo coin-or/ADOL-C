@@ -1665,6 +1665,7 @@ global header file \verb=<adolc/adolc.h>= (see \autoref{ssec:DesIH}).
 An example code illustrating the usage of {\sf
 generate\_seed\_jac} and {\sf generate\_seed\_hess} can be found in the file 
 \verb=sparse_jac_hess_exam.cpp= contained in \verb=examples/additional_examples/sparse=.
+
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Higher Derivative Tensors}
@@ -1965,6 +1966,257 @@ is included by the global header file \verb=<adolc/adolc.h>= automatically
 The example programs \verb=inversexam.cpp=, \verb=coordinates.cpp= and 
 \verb=trigger.cpp=  in the directory \verb=examples/additional_examples/taylor= 
 show the application of the procedures described here.
+%
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\subsection{Basic Calls of the Toolbox for Lie-Derivatives}
+Nonlinear controller and observer design often require certain types of Lie derivatives.
+These are total derivatives of tensor fields along a vector field.
+The drivers for calculating Lie derivatives in ADOL-C presented in this section
+were developed by the authors of \cite{Roeb05} and \cite{Roeb11}. 
+They are prototyped in the header file {\sf $<$adolc\_lie.h$>$} and
+allow the calculation of Lie derivatives of scalar, vector, covector fields and gradients of Lie 
+derivatives of scalar or vector fields.
+
+We consider computational problems occurring in controller and observer design for 
+nonlinear control systems
+\begin{equation*}
+\dot{\mathbf x}=\mathbf f(\mathbf x)+\mathbf g(\mathbf x)u,
+\quad \mathbf y=\mathbf h(\mathbf x),\quad \mathbf x(0)=\mathbf x_0 \in \Omega\\
+\end{equation*}
+with the scalar input u, the state $\mathbf x$, and the output $\mathbf y$, where the vector
+fields $\mathbf f : \Omega \rightarrow \mathbb{R}^n$, $\mathbf g: \Omega \rightarrow \mathbb{R}^n$
+and $\mathbf h: \Omega\rightarrow \mathbb{R}^m$ (for $m=1$ this is the scalar field $h$) 
+are defined on an open subset $\Omega\subseteq\mathbb{R}^n$. 
+
+%There are three types of fields, which are going to be used. 
+%The routine function allows to evaluate the desired function from the tape instead of
+%executing the corresponding source code:
+\subsubsection{Lie derivatives of a scalar field}
+Consider the initial value problem
+\begin{equation*}
+\dot{\mathbf x}=\mathbf f(\mathbf x),\quad y=h(\mathbf x),\quad \mathbf x(0)=\mathbf x_0 \in \Omega\\
+\end{equation*}
+with the vector field $\mathbf f: \Omega \rightarrow \mathbb{R}^n$. To compute Lie derivatives
+of the scalar field $h: \Omega\rightarrow \mathbb{R}$ along the vector field $\mathbf f$ 
+\begin{equation}\label{eq:lie_scalar}
+(L_\mathbf f^0h(\mathbf x_0),\cdots,L_\mathbf f^dh(\mathbf x_0))
+\end{equation}
+we need the trace numbers of the active sections of $\mathbf f$ and $h$, 
+the number of independent variables $n$, the initial coefficients $\mathbf x_0$
+and the highest derivative degree $d$. The values of the Lie derivatives are 
+then stored in the array {\sf result} of length $d+1$.
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_scalarc(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of scalar field $h$\\
+\>{\sf short n;}               \> // number of independent variables $n$ and $m = 1$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d; }              \> // highest derivative degree $d$\\
+\>{\sf double result[d+1];}    \> // resulting Lie derivatives of a scalar field\\
+\end{tabbing}   
+
+To compute Lie derivatives of a smooth map $\mathbf h: \Omega\rightarrow \mathbb{R}^m$ with 
+$\mathbf h(\mathbf x)=(h_1(\mathbf x),\cdots,h_m(\mathbf x))$ along the same vector field
+$\mathbf f$ 
+
+\begin{equation}\label{eq:lie_vectorial}
+L_\mathbf f^k\mathbf h(\mathbf x_0)=
+(L_\mathbf f^kh_1(\mathbf x_0),\cdots,L_\mathbf f^kh_m(\mathbf x_0)), \quad \text{for}\quad k = 0, \cdots, d,
+\end{equation}
+we additionally need the number of dependent variables $m$. 
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_scalarcv(Tape\_F, Tape\_H, n, m, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of vector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf short m;}               \> // number of dependent variables $m$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d; }              \> // highest derivative degree $d$\\
+\>{\sf double result[m][d+1];} \> // resulting Lie derivatives of vectorial scalar fields\\
+\end{tabbing}  
+
+\subsubsection{Gradients of Lie derivatives of a scalar field}
+To compute the gradients of Lie derivatives of a scalar field $h$
+\begin{equation}\label{eq:gradient_scalar}
+(dL_\mathbf f^0h(\mathbf x_0),\cdots, dL_\mathbf f^dh(\mathbf x_0)),
+\end{equation}
+the following function can be used
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_gradientc(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of scalar field $h$\\
+\>{\sf short n;}               \> // number of independent variables $n$ and $m=1$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting gardients of Lie derivatives\\
+\>{\sf} \> // of a scalar field\\
+\end{tabbing}  
+
+For calculating the jacobians of Lie derivatives of the field 
+$\mathbf h: \Omega\rightarrow \mathbb{R}^m$ with $\mathbf h(\mathbf x)=(h_1(\mathbf x),\cdots,h_m(\mathbf x) )$
+\begin{equation}\label{eq:jacobian_vectorial}
+dL_\mathbf f^k\mathbf h(\mathbf x_0)=
+(dL_\mathbf f^k h_1(\mathbf x_0),\cdots, dL_\mathbf f^k h_m(\mathbf x_0)),\quad \text{for}\quad k=0,\cdots, d,
+\end{equation}
+one can use
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_gradientcv(Tape\_F, Tape\_H, n, m, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of vector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf short m;}               \> // number of dependent variables $m$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[m][n][d+1];} \> // resulting jacobians of Lie derivatives\\
+\>{\sf} \> // of vectorial scalar fields\\
+\end{tabbing} 
+
+\subsubsection{Lie derivatives of a covector field}
+In a program the user does not have to distinguish between a vector field
+$\mathbf f: \Omega \rightarrow \mathbb{R}^n$ and its covector field 
+$\mathbf \omega: \Omega \rightarrow (\mathbb{R}^n)^*$. For convenience we also use
+the same character $\mathbf h$, but it is defined as a covector field $\mathbf h: \Omega \rightarrow (\mathbb{R}^n)^*$.
+Using this notation Lie derivatives of the covector field $\mathbf h$ along the vector field $\mathbf f$
+\begin{equation}\label{eq:lie_covector}
+L_\mathbf f^k\mathbf h(\mathbf x_0)=
+(L_\mathbf f^k h_1(\mathbf x_0),\cdots, L_\mathbf f^k h_n(\mathbf x_0)),\quad \text{for}\quad k=0,\cdots, d,
+\end{equation}
+can be computed by
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_covectorv(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of covector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting Lie derivatives of a covector field\\
+\end{tabbing} 
+
+\subsubsection{Lie derivatives of a vector field (Lie brackets)}
+We can calculate iterated Lie derivatives (Lie brackets) of the vector field 
+$\mathbf g: \Omega \rightarrow \mathbb{R}^n$ along the vector field 
+$\mathbf f: \Omega \rightarrow \mathbb{R}^n$ 
+\begin{equation}\label{eq:lie_vector}
+L_\mathbf f^k\mathbf g(\mathbf x_0)=ad_\mathbf f^k \mathbf g(\mathbf x_0)=
+(ad_\mathbf f^k g_1(\mathbf x_0),\cdots, ad_\mathbf f^k g_n(\mathbf x_0)),\quad \text{for}\quad k=0,\cdots, d,
+\end{equation}
+using
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_bracketv(Tape\_F, Tape\_G, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_G;}         \> // trace identification of vector field $\mathbf g$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting Lie derivatives of a vector field\\
+\end{tabbing} 
+
+\subsection{Drivers for Lie-Derivatives}
+In this section, all versions of Lie derivatives routines, which utilize the
+overloading capabilities of C++, are listed. They are also prototyped in the header
+file {\sf $<$adolc\_lie.h$>$}.
+
+\subsubsection{The Scalar Case}
+This procedure computes the Lie derivatives of a scalar field $h$ as in \eqref{eq:lie_scalar}. 
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_scalar(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of scalar field $h$\\
+\>{\sf short n;}               \> // number of independent variables $n$ and $m=1$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[d+1];}    \> // resulting Lie derivatives of a scalar field\\
+\end{tabbing} 
+
+This function computes the gradients of Lie derivatives of $h$ as in \eqref{eq:gradient_scalar}. 
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int lie\_gradient(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of vector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$ and $m=1$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting gradients of Lie derivatives\\
+\>{\sf } \> // of a scalar field\\
+\end{tabbing} 
+
+\subsubsection{The Vector Case}
+This procedure computes the Lie derivatives of $\mathbf h$ as in \eqref{eq:lie_vectorial}. It 
+supports both calling conventions, i.e., for $m=1$ and $m>=1$.
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int Lie\_scalar(Tape\_F, Tape\_H, n, m, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of scalar field $h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf short m;}               \> // number of dependent variables $m$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[m][d+1];} \> // resulting gradients of Lie derivatives\\
+\>{\sf } \> // of vectorial scalar fields\\
+\end{tabbing} 
+
+This function computes the jacobians of Lie derivatives of $\mathbf h$ as in \eqref{eq:jacobian_vectorial}.
+It supports both cases \eqref{eq:gradient_scalar} and \eqref{eq:jacobian_vectorial} at once.
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int Lie\_gradient(Tape\_F, Tape\_H, n, m, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of vector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf short m;}               \> // number of dependent variables $m$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[m][n][d+1];} \> // resulting jacobians of Lie derivatives\\
+\>{\sf } \> // of vectorial scalar fields\\
+\end{tabbing} 
+
+Although we do not have to differentiate between scalar and vector cases when calculating 
+Lie derivates of a covector field and Lie brackets, we still list them here 
+(see \eqref{eq:lie_covector} and \eqref{eq:lie_vector}).
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int Lie\_covector(Tape\_F, Tape\_H, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_H;}         \> // trace identification of covector field $\mathbf h$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting Lie derivatives of a covector field\\
+\end{tabbing} 
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int Lie\_bracket(Tape\_F, Tape\_G, n, x0, d, result)}\\
+\>{\sf short Tape\_F;}         \> // trace identification of vector field $\mathbf f$ \\
+\>{\sf short Tape\_G;}         \> // trace identification of vector field $\mathbf g$\\
+\>{\sf short n;}               \> // number of independent variables $n$\\
+\>{\sf double x0[n];}          \> // values of independent variables $x_0$\\
+\>{\sf short d;}               \> // highest derivative degree $d$\\
+\>{\sf double result[n][d+1];} \> // resulting Lie derivatives of a vector field\\
+\end{tabbing} 
+
+An example how to use these drivers for the calculation of Lie derivatives can be found 
+in the file {\sf GantryCrane.cpp} in the directory {\sf examples}.
 %
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
@@ -4147,6 +4399,22 @@ Andreas Griewank and Andrea Walther. {\em Revolve: An Implementation of Checkpoi
 Donald~E. Knuth.
 \newblock {\em The Art of Computer Programming. Second edition.}
 \newblock Addison-Wesley, Reading, 1973.
+
+\bibitem{Roeb05}
+Klaus R\"{o}benack.
+\newblock{\em Computation of Lie Derivatives of Tensor Fields Required for
+	 Nonlinear Controller and Observer Design Employing Automatic Differentiation. }
+\newblock PAMM, 5(1): 181-184, 2005.
+
+\bibitem{Roeb11}
+Klaus R\"{o}benack, Jan Winkler and Siqian Wang.
+\newblock {\em LIEDRIVERS - A Toolbox for the Efficient Computation of Lie
+	  Derivatives Based on the Object-Oriented Algorithmic Differentiation 
+	  Package ADOL-C. }
+\newblock Proc. of the 4th International Workshop on Equation-Based Object-Oriented
+          Modeling Languages and Tools, F. E. Cellier and D. Broman and P. Fritzson 
+	  and E. A. Lee, editors, volume 56 of Link\"oping Electronic Conference Proceedings,
+	  pages 57-66, Zurich 2011.
 
 \bibitem{Wa05a}
 Andrea Walther.
