@@ -23,9 +23,9 @@ AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C
 INCLUDES             = -I$(top_builddir)/ADOL-C
 
 if SPARSE
-SUBDIRS              = drivers sparse tapedoc
+SUBDIRS              = drivers sparse tapedoc lie
 else
-SUBDIRS              = drivers tapedoc
+SUBDIRS              = drivers tapedoc lie
 endif
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
