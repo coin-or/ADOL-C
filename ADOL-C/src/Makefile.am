@@ -63,7 +63,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        int_reverse_s.c int_reverse_t.c advector.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
-                       tapedoc/libtapedoc.la
+                       tapedoc/libtapedoc.la lie/liblie.la
 libadolc_la_LDFLAGS  += @COLPACK_LIBS@
 else
 libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
@@ -78,7 +78,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        externfcts.cpp checkpointing.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c advector.cpp
 
-libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
+libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la lie/liblie.la
 
 endif
 
