@@ -164,6 +164,7 @@ ADOL-C/examples/additional_examples/timing/vgenmain.cpp -text
 ADOL-C/examples/adolc_examples.sln -text
 ADOL-C/examples/detexam.cpp -text
 ADOL-C/examples/detexam.vcxproj -text
+ADOL-C/examples/luexam.cpp -text
 ADOL-C/examples/odexam.cpp -text
 ADOL-C/examples/odexam.vcxproj -text
 ADOL-C/examples/powexam.cpp -text
@@ -186,6 +187,8 @@ ADOL-C/src/adouble.cpp -text
 ADOL-C/src/adouble.h -text
 ADOL-C/src/adutils.h -text
 ADOL-C/src/adutilsc.h -text
+ADOL-C/src/advector.cpp -text
+ADOL-C/src/advector.h -text
 ADOL-C/src/buffer_temp.h -text
 ADOL-C/src/checkpointing.cpp -text
 ADOL-C/src/checkpointing.h -text
