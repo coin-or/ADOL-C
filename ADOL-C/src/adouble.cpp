@@ -12,7 +12,8 @@
            of automatic differentiation.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -21,7 +22,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adouble.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 
 using namespace std;
@@ -1339,12 +1340,10 @@ adouble atan2( const badouble& y, const badouble& x) {
     const double pihalf = ADOLC_MATH_NSP::asin(1.0);
     /* y+0.0 is a hack since condassign is currently not defined for
        badoubles */
-    condassign( sy,  y+0.0,  1.0 , -1.0 );
-    condassign( a1,  x+0.0, (adouble) atan(y/x),
-                (adouble)( atan(y/x)+sy*2*pihalf));
-    condassign( a2,  (adouble) fabs(y), (adouble) (sy*pihalf-atan(x/y)),
-                (adouble) 0.0 );
-    condassign( ret, (adouble) (fabs(x) - fabs(y)), a1, a2 );
+    condassign( sy,  y,  (adouble)1.0 , (adouble)-1.0 );
+    condassign( a1,  x,  atan(y/x),  atan(y/x)+sy*2*pihalf);
+    condassign( a2,  fabs(y), sy*pihalf-atan(x/y), (adouble) 0.0 );
+    condassign( ret, fabs(x) - fabs(y), a1, a2 );
     return ret;
 }
 
@@ -1381,8 +1380,8 @@ adouble pow ( double coval, const badouble& y ) {
         fprintf(DIAG_OUT,"\nADOL-C message:  exponent at zero/negative constant basis deactivated\n");
     }
 
-    condassign (ret, coval, exp(y*ADOLC_MATH_NSP::log(coval)),
-            ADOLC_MATH_NSP::pow(coval,y.getValue()) );
+    condassign (ret, (adouble) coval, exp(y*ADOLC_MATH_NSP::log(coval)),
+		(adouble) ADOLC_MATH_NSP::pow(coval,y.getValue()) );
 
     return ret;
 }
@@ -1400,9 +1399,9 @@ adouble pow ( const badouble& x, const badouble& y) {
         else
             fprintf(DIAG_OUT,"\nADOL-C message: negative exponent and zero basis deactivated\n");
     }
-    condassign(a1,-y, ADOLC_MATH_NSP::pow(vx,vy), pow(x,vy));
-    condassign(a2, fabs(x), pow(x, vy),a1);
-    condassign(ret,x+0.0, exp(y*log(x)),a2);
+    condassign(a1, -y, (adouble) ADOLC_MATH_NSP::pow(vx,vy), pow(x,vy));
+    condassign(a2, fabs(x), pow(x, vy), a1);
+    condassign(ret, x, exp(y*log(x)),a2);
 
     return ret;
 }
@@ -1758,8 +1757,8 @@ extend_quad(myquad,val = 1/arg)
    complete definition for all parameter type constellations */
 
 /*--------------------------------------------------------------------------*/
-void condassign( adouble &res,        const adouble &cond,
-                 const adouble &arg1, const adouble &arg2 ) {
+void condassign( adouble &res,         const badouble &cond,
+                 const badouble &arg1, const badouble &arg2 ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign(res.location,cond.location,arg1.location,
@@ -1783,7 +1782,7 @@ void condassign( adouble &res,        const adouble &cond,
 }
 
 /*--------------------------------------------------------------------------*/
-void condassign( adouble &res, const adouble &cond, const adouble &arg ) {
+void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.location,cond.location,arg.location);
