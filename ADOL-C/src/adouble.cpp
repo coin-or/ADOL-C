@@ -555,13 +555,13 @@ badouble& badouble::operator += ( const adub& a ) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
       {
         upd = upd_resloc_inc_prod(a_loc,location,eq_plus_prod);
-	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
       }
     if (upd) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
             put_op(eq_plus_a);
@@ -608,13 +608,13 @@ badouble& badouble::operator -= ( const adub& a ) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
       {
         upd = upd_resloc_inc_prod(a_loc,location,eq_min_prod);
-        ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
       }
     if (upd) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] -= ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
             put_op(eq_min_a);

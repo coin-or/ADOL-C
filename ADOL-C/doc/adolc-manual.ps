@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
 %%Creator: dvips(k) 5.991 Copyright 2011 Radical Eye Software
 %%Title: adolc-manual.dvi
-%%CreationDate: Wed Mar 21 16:24:11 2012
+%%CreationDate: Mon Aug  6 16:53:12 2012
 %%Pages: 69
 %%PageOrder: Ascend
 %%BoundingBox: 0 0 612 792
@@ -13,7 +13,7 @@
 %DVIPSWebPage: (www.radicaleye.com)
 %DVIPSCommandLine: dvips adolc-manual.dvi
 %DVIPSParameters: dpi=600
-%DVIPSSource:  TeX output 2012.03.21:1624
+%DVIPSSource:  TeX output 2012.08.06:1653
 %%BeginProcSet: tex.pro 0 0
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -10287,14 +10287,14 @@ SDict begin [/Subtype /Link/Dest (Hfootnote.1) cvn/H /I/Border [0 0
  2293 606 a 853 839 a FA(A)39
 b(P)m(ac)m(k)-7 b(age)37 b(for)h(the)g(Automatic)e(Di\013eren)m
 (tiation)1129 1012 y(of)i(Algorithms)e(W)-10 b(ritten)38
-b(in)g(C/C++)1196 1245 y Fz(V)-9 b(ersion)37 b(2.3.0-trunk,)i(Marc)m(h)
-e(2012)1160 1457 y Fy(Andrea)30 b(W)-8 b(alther)1799
-1457 y
+b(in)g(C/C++)1177 1245 y Fz(V)-9 b(ersion)38 b(2.3.0-trunk,)g(August)f
+(2012)1160 1457 y Fy(Andrea)30 b(W)-8 b(alther)1799 1457
+y
 SDict begin H.S end
  1799 1457 a -33 x FB(2)1839 1457 y
 SDict begin 13.6 H.L end
- 1839 1457 a
-1839 1457 a
+ 1839 1457 a 1839
+1457 a
 SDict begin [/Subtype /Link/Dest (Hfootnote.2) cvn/H /I/Border [0 0
 1]BorderArrayPatch/Color [1 0 0] H.B /ANN pdfmark end
  1839 1457 a 30 w Fy(and)30 b(Andreas)g(Griew)m(ank)2782
@@ -19441,42 +19441,42 @@ y(#include)e(<adolc/drivers/odedrivers.)o(h>)328 b(//)47
 b(use)g(of)g("Easy)g(To)g(use")f(ODE)h(drivers)191 1500
 y(#include)e(<adolc/adalloc.h>)855 b(//)47 b(use)g(of)g(ADOL-C)f
 (allocation)f(utilities)191 1726 y(void)i(tracerhs\(short)c(int)k(tag,)
-g(double*)f(py,)h(double*)f(pyprime\))f({)191 1839 y(adoublev)g
-(y\(3\);)1145 b(//)47 b(this)f(time)h(we)g(left)g(the)g(parameters)191
-1952 y(adoublev)e(yprime\(3\);)905 b(//)47 b(passive)f(and)g(use)h(the)
-g(vector)f(types)191 2065 y(trace_on\(tag\);)191 2178
-y(y)h(<<=)g(py;)1384 b(//)47 b(initialize)e(and)i(mark)f(independents)
-191 2291 y(yprime[0])f(=)j(-sin\(y[2]\))d(+)i(1e8*y[2]*\(1-1/y[0]\);)
-191 2404 y(yprime[1])e(=)j(-10*y[0])d(+)j(3e7*y[2]*\(1-y[1]\);)191
-2517 y(yprime[2])d(=)j(-yprime[0])d(-)i(yprime[1];)191
-2629 y(yprime)f(>>=)h(pyprime;)905 b(//)47 b(mark)f(and)h(pass)g
-(dependents)191 2742 y(trace_off\(tag\);)191 2855 y(})1766
-b(//)47 b(end)g(tracerhs)191 3076 y Fy(The)33 b(Jacobian)i(of)f(the)h
+g(double*)f(py,)h(double*)f(pyprime\))f({)191 1839 y(adouble)h(y[3];)
+1192 b(//)47 b(this)f(time)h(we)g(left)g(the)g(parameters)191
+1952 y(adouble)f(yprime[3];)952 b(//)47 b(passive)f(and)g(use)h(the)g
+(vector)f(types)191 2065 y(trace_on\(tag\);)191 2178
+y(for)h(\(int)f(i=0;)h(i<3;)g(i++\))430 2291 y(y[i])f(<<=)h(py[i];)858
+b(//)47 b(initialize)e(and)i(mark)f(independents)191
+2404 y(yprime[0])f(=)j(-sin\(y[2]\))d(+)i(1e8*y[2]*\(1-1/y[0]\);)191
+2517 y(yprime[1])e(=)j(-10*y[0])d(+)j(3e7*y[2]*\(1-y[1]\);)191
+2629 y(yprime[2])d(=)j(-yprime[0])d(-)i(yprime[1];)191
+2742 y(yprime)f(>>=)h(pyprime;)905 b(//)47 b(mark)f(and)h(pass)g
+(dependents)191 2855 y(trace_off\(tag\);)191 2968 y(})1766
+b(//)47 b(end)g(tracerhs)191 3189 y Fy(The)33 b(Jacobian)i(of)f(the)h
 (righ)m(t-hand)f(side)g(has)f(large)i(negativ)m(e)i(eigen)m(v)-5
-b(alues,)37 b(whic)m(h)c(mak)m(e)j(the)e(ODE)191 3189
+b(alues,)37 b(whic)m(h)c(mak)m(e)j(the)e(ODE)191 3302
 y(quite)f(sti\013.)48 b(W)-8 b(e)34 b(ha)m(v)m(e)g(added)d(some)i(n)m
 (umerically)h(b)s(enign)e(transcenden)m(tals)h(to)g(mak)m(e)h(the)f
-(di\013eren-)191 3302 y(tiation)k(more)f(in)m(teresting.)57
+(di\013eren-)191 3415 y(tiation)k(more)f(in)m(teresting.)57
 b(The)35 b(follo)m(wing)i(main)f(program)f(uses)g Fo(fo)m(ro)s(de)i
-Fy(to)f(calculate)i(the)d(T)-8 b(a)m(ylor)191 3415 y(series)34
+Fy(to)f(calculate)i(the)d(T)-8 b(a)m(ylor)191 3528 y(series)34
 b(de\014ned)e(b)m(y)i(the)g(ODE)g(at)g(the)g(giv)m(en)h(p)s(oin)m(t)e
-Fq(y)2080 3429 y FB(0)2153 3415 y Fy(and)g Fo(reverse)i
+Fq(y)2080 3542 y FB(0)2153 3528 y Fy(and)g Fo(reverse)i
 Fy(as)f(w)m(ell)h(as)e Fo(acco)s(de)i Fy(to)f(compute)191
-3528 y(the)d(Jacobians)f(of)h(the)g(co)s(e\016cien)m(t)h(v)m(ectors)g
-(with)e(resp)s(ect)g(to)h Fq(x)2438 3542 y FB(0)2478
-3528 y Fy(.)p Black Black 191 3749 a Fr(#include)45 b(.......)905
-b(//)48 b(as)f(above)191 3862 y(int)g(main\(\))f({)191
-3975 y(int)h(i,j,deg;)191 4088 y(int)g(n=3;)191 4201
-y(double)f(py[3];)191 4314 y(double)g(pyp[3];)191 4427
+3641 y(the)d(Jacobians)f(of)h(the)g(co)s(e\016cien)m(t)h(v)m(ectors)g
+(with)e(resp)s(ect)g(to)h Fq(x)2438 3655 y FB(0)2478
+3641 y Fy(.)p Black Black 191 3862 a Fr(#include)45 b(.......)905
+b(//)48 b(as)f(above)191 3975 y(int)g(main\(\))f({)191
+4088 y(int)h(i,j,deg;)191 4201 y(int)g(n=3;)191 4314
+y(double)f(py[3];)191 4427 y(double)g(pyp[3];)191 4540
 y(cout)h(<<)g("MODIFIED)e(ROBERTSON)g(TEST)i(PROBLEM)f(\(ADOL-C)g
-(Documented)f(Example\)\\n";)191 4540 y(cout)i(<<)g("degree)f(of)h
-(Taylor)f(series)g(=?\\n";)191 4653 y(cin)h(>>)g(deg;)191
-4765 y(double)f(**X;)191 4878 y(X=\(double**\)malloc\(n*siz)o(eof\()o
-(dou)o(ble*)o(\)\);)191 4991 y(for\(i=0;i<n;i++\))286
-5104 y(X[i]=\(double*\)malloc\(\(deg+)o(1\)*)o(size)o(of\(d)o(oub)o
-(le\)\))o(;)191 5217 y(double***)f(Z=new)i(double**[n];)191
-5330 y(double***)e(B=new)i(double**[n];)p Black Black
-eop end
+(Documented)f(Example\)\\n";)191 4653 y(cout)i(<<)g("degree)f(of)h
+(Taylor)f(series)g(=?\\n";)191 4765 y(cin)h(>>)g(deg;)191
+4878 y(double)f(**X;)191 4991 y(X=\(double**\)malloc\(n*siz)o(eof\()o
+(dou)o(ble*)o(\)\);)191 5104 y(for\(i=0;i<n;i++\))286
+5217 y(X[i]=\(double*\)malloc\(\(deg+)o(1\)*)o(size)o(of\(d)o(oub)o
+(le\)\))o(;)191 5330 y(double***)f(Z=new)i(double**[n];)p
+Black Black eop end
 %%Page: 68 68
 TeXDict begin 68 67 bop 0 0 a
 SDict begin /product where{pop product(Distiller)search{pop pop pop
@@ -19492,40 +19492,40 @@ SDict begin H.R end
 SDict begin [/View [/XYZ H.V]/Dest (page.68) cvn /DEST pdfmark end
  183 199 a Black 191 307
 a Fy(68)2563 b Fs(9)91 b(EXAMPLE)31 b(CODES)p Black 191
-606 a Fr(short**)46 b(nz)h(=)g(new)g(short*[n];)191 719
-y(for\(i=0;i<n;i++\))c({)286 832 y(Z[i]=new)j(double*[n];)286
-945 y(B[i]=new)g(double*[n];)286 1058 y(for\(j=0;j<n;j++\))e({)382
-1171 y(Z[i][j]=new)h(double[deg];)382 1284 y(B[i][j]=new)g
-(double[deg];)f(})238 b(//)48 b(end)e(for)191 1396 y(})1622
-b(//)48 b(end)e(for)191 1509 y(for\(i=0;i<n;i++\))d({)286
-1622 y(py[i])k(=)g(\(i)g(==)h(0\))f(?)g(1.0)g(:)h(0.0;)189
-b(//)48 b(initialize)d(the)h(base)h(point)286 1735 y(X[i][0])f(=)i
+606 a Fr(double***)45 b(B=new)i(double**[n];)191 719
+y(short**)f(nz)h(=)g(new)g(short*[n];)191 832 y(for\(i=0;i<n;i++\))c({)
+286 945 y(Z[i]=new)j(double*[n];)286 1058 y(B[i]=new)g(double*[n];)286
+1171 y(for\(j=0;j<n;j++\))e({)382 1284 y(Z[i][j]=new)h(double[deg];)382
+1396 y(B[i][j]=new)g(double[deg];)f(})238 b(//)48 b(end)e(for)191
+1509 y(})1622 b(//)48 b(end)e(for)191 1622 y(for\(i=0;i<n;i++\))d({)286
+1735 y(py[i])k(=)g(\(i)g(==)h(0\))f(?)g(1.0)g(:)h(0.0;)189
+b(//)48 b(initialize)d(the)h(base)h(point)286 1848 y(X[i][0])f(=)i
 (py[i];)809 b(//)48 b(and)e(the)h(Taylor)f(coefficient;)286
-1848 y(nz[i])h(=)g(new)g(short[n];)e(})477 b(//)48 b(set)e(up)i
-(sparsity)d(array)191 1961 y(tracerhs\(1,py,pyp\);)758
-b(//)48 b(trace)e(RHS)h(with)f(tag)h(=)h(1)191 2074 y
+1961 y(nz[i])h(=)g(new)g(short[n];)e(})477 b(//)48 b(set)e(up)i
+(sparsity)d(array)191 2074 y(tracerhs\(1,py,pyp\);)758
+b(//)48 b(trace)e(RHS)h(with)f(tag)h(=)h(1)191 2187 y
 (forode\(1,n,deg,X\);)806 b(//)48 b(compute)d(deg)i(coefficients)191
-2187 y(reverse\(1,n,n,deg-1,Z,nz)o(\);)423 b(//)48 b(U)f(defaults)f(to)
-h(the)g(identity)191 2300 y(accode\(n,deg-1,Z,B,nz\);)191
-2413 y(cout)g(<<)g("nonzero)e(pattern:\\n";)191 2526
-y(for\(i=0;i<n;i++\))e({)286 2638 y(for\(j=0;j<n;j++\))382
-2751 y(cout)j(<<)i(nz[i][j]<<"\\t";)286 2864 y(cout)f(<<"\\n";)f(})906
-b(//)48 b(end)e(for)191 2977 y(return)g(1;)191 3090 y(})1622
-b(//)48 b(end)e(main)191 3358 y Fy(The)30 b(pattern)g
+2300 y(reverse\(1,n,n,deg-1,Z,nz)o(\);)423 b(//)48 b(U)f(defaults)f(to)
+h(the)g(identity)191 2413 y(accode\(n,deg-1,Z,B,nz\);)191
+2526 y(cout)g(<<)g("nonzero)e(pattern:\\n";)191 2638
+y(for\(i=0;i<n;i++\))e({)286 2751 y(for\(j=0;j<n;j++\))382
+2864 y(cout)j(<<)i(nz[i][j]<<"\\t";)286 2977 y(cout)f(<<"\\n";)f(})906
+b(//)48 b(end)e(for)191 3090 y(return)g(1;)191 3203 y(})1622
+b(//)48 b(end)e(main)191 3448 y Fy(The)30 b(pattern)g
 Fo(nz)g Fy(returned)f(b)m(y)i Fo(acco)s(de)g Fy(is)p
-Black Black 859 3626 a Fr(3)95 b(-1)143 b(4)859 3739
-y(1)g(2)g(2)859 3851 y(3)g(2)g(4)191 4119 y Fy(The)32
+Black Black 859 3692 a Fr(3)95 b(-1)143 b(4)859 3805
+y(1)g(2)g(2)859 3918 y(3)g(2)g(4)191 4163 y Fy(The)32
 b(original)i(pattern)e Fo(nz)g Fy(returned)f(b)m(y)i
 Fo(reverse)g Fy(is)g(the)f(same)h(except)h(that)f(the)f(negativ)m(e)j
-(en)m(try)e Fm(\000)p Fy(1)191 4232 y(w)m(as)e(zero.)191
-4616 y
+(en)m(try)e Fm(\000)p Fy(1)191 4276 y(w)m(as)e(zero.)191
+4623 y
 SDict begin H.S end
- 191 4616 a 191 4616 a
+ 191 4623 a 191 4623 a
 SDict begin 18 H.A end
- 191 4616 a 191 4616 a
+ 191 4623 a 191 4623 a
 SDict begin [/View [/XYZ H.V]/Dest (section*.7) cvn /DEST pdfmark end
  191
-4616 a FC(Ac)l(kno)l(wledgemen)l(ts)191 4878 y Fy(P)m(arts)h(of)g(the)g
+4623 a FC(Ac)l(kno)l(wledgemen)l(ts)191 4878 y Fy(P)m(arts)h(of)g(the)g
 (ADOL-C)g(source)f(w)m(ere)i(dev)m(elop)s(ed)f(b)m(y)f(Andreas)g(Ko)m
 (w)m(arz,)j(Hristo)e(Mitev,)h(Sebastian)191 4991 y(Sc)m(hlenkric)m(h,)f
 (and)f(Olaf)h(V)-8 b(ogel.)47 b(W)-8 b(e)33 b(are)f(also)h(indebted)e

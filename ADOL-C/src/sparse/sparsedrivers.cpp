@@ -116,15 +116,15 @@ void generate_seed_jac
 {
   int dummy, i, j;
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
+    BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
-  if (option == 1) 
-    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
-				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
-  else 
-    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
-				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
-  delete g;
+    if (option == 1) 
+      g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
+					"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+    else 
+      g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
+					"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+    delete g;
 
 }
 #else

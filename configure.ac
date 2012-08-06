@@ -198,7 +198,7 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
 
 AC_ARG_WITH(colpack,
 	[
-AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=${srcdir}/ThirdParty/ColPack]])],
+AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=system libraries]])],
 [
 colpack=$withval
 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
