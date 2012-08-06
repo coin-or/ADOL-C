@@ -2092,8 +2092,8 @@ int hov_ti_reverse(
 		    // This is actually NOP 
                     // basically all we need is that arg1 == vectorloc[idx]
                     // so doing a check here is probably good
-		    if (arg1 != vectorloc[idx]) {
-			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc[idx], arg1);
+		    if (arg1 != vectorloc+idx) {
+			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc+idx, arg1);
 			exit(-2);
 		    }
 		    GET_TAYL(res,k,p)
