@@ -38,7 +38,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @DOCEXA_TRUE@noinst_PROGRAMS = detexam$(EXEEXT) speelpenning$(EXEEXT) \
-@DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) \
+@DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) luexam$(EXEEXT) \
 @DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT)
 subdir = ADOL-C/examples
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -58,6 +58,10 @@ detexam_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
+am_luexam_OBJECTS = luexam.$(OBJEXT)
+luexam_OBJECTS = $(am_luexam_OBJECTS)
+luexam_LDADD = $(LDADD)
+luexam_DEPENDENCIES =
 am_odexam_OBJECTS = odexam.$(OBJEXT)
 odexam_OBJECTS = $(am_odexam_OBJECTS)
 odexam_LDADD = $(LDADD)
@@ -104,12 +108,12 @@ am__v_CXXLD_0 = @echo "  CXXLD " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(detexam_SOURCES) $(odexam_SOURCES) $(powexam_SOURCES) \
-	$(speelpenning_SOURCES) $(tapeless_scalar_SOURCES) \
-	$(tapeless_vector_SOURCES)
-DIST_SOURCES = $(detexam_SOURCES) $(odexam_SOURCES) $(powexam_SOURCES) \
-	$(speelpenning_SOURCES) $(tapeless_scalar_SOURCES) \
-	$(tapeless_vector_SOURCES)
+SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
+	$(powexam_SOURCES) $(speelpenning_SOURCES) \
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
+DIST_SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
+	$(powexam_SOURCES) $(speelpenning_SOURCES) \
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -201,6 +205,7 @@ LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
@@ -230,6 +235,7 @@ abs_top_srcdir = @abs_top_srcdir@
 ac_adolc_cflags = @ac_adolc_cflags@
 ac_adolc_cxxflags = @ac_adolc_cxxflags@
 ac_aux_dir = @ac_aux_dir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
@@ -263,7 +269,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -297,6 +302,7 @@ detexam_SOURCES = detexam.cpp
 speelpenning_SOURCES = speelpenning.cpp
 powexam_SOURCES = powexam.cpp
 odexam_SOURCES = odexam.cpp 
+luexam_SOURCES = luexam.cpp
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 tapeless_vector_SOURCES = tapeless_vector.cpp
 all: all-recursive
@@ -345,6 +351,9 @@ clean-noinstPROGRAMS:
 detexam$(EXEEXT): $(detexam_OBJECTS) $(detexam_DEPENDENCIES) 
 	@rm -f detexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(detexam_OBJECTS) $(detexam_LDADD) $(LIBS)
+luexam$(EXEEXT): $(luexam_OBJECTS) $(luexam_DEPENDENCIES) 
+	@rm -f luexam$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(luexam_OBJECTS) $(luexam_LDADD) $(LIBS)
 odexam$(EXEEXT): $(odexam_OBJECTS) $(odexam_DEPENDENCIES) 
 	@rm -f odexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(odexam_OBJECTS) $(odexam_LDADD) $(LIBS)
@@ -368,6 +377,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detexam.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/luexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/powexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speelpenning.Po@am__quote@

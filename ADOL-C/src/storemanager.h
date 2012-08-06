@@ -8,8 +8,9 @@
            desired functionality.
 
  Copyright (c) 2006 Johannes Willkomm <johannes.willkomm@rwth-aachen.de>
- Written by Johannes Willkomm <johannes.willkomm@rwth-aachen.de>
-  
+               2011-2012 Kshitij Kulshreshtha <kshitij@math.upb.de>
+               2012 Benjamin Letschert <letschi@mail.upb.de>
+
  This file is part of ADOL-C.
 
  The classes StoreManagerXYZ basically takes the global double *store pointer 
@@ -34,6 +35,8 @@
     allocated again.
 
 
+ 3) Have a look a class StoreManagerLocintBlock. This class uses a list of
+    of free blocks of different sizes instead of free locations.
 
  class StoreManagerInSitu
  An unsafe implementation is provided as well, but commented out.
@@ -51,6 +54,7 @@
 	   
 
  History:
+          20120427 bl:     add blocking store management
           20110208 kk:     incorporated in ADOL-C; moved some code arround
           20060507 jw:     begin
 
@@ -60,6 +64,7 @@
 #define ADOL_C__STOREMANAGER_H
 
 #include <adolc/common.h>
+#include <list>
 
 class StoreManager {
 protected:
@@ -69,6 +74,7 @@ public:
 
   virtual locint next_loc() = 0;
   virtual void free_loc(locint) = 0;
+  virtual void ensure_block(size_t n) = 0;
 
 //   // effectively the current size of the store array
   virtual size_t maxSize() const = 0;
@@ -104,6 +110,37 @@ public:
 
   virtual locint next_loc();
   virtual void free_loc(locint loc); 
+  virtual void ensure_block(size_t n) {}
+};
+
+class StoreManagerLocintBlock : public StoreManager {
+protected:
+    double * &storePtr;
+    struct FeldBlock {
+	locint next; // next location
+	size_t size; // number of following free locations
+	FeldBlock(): next(0), size(0) {}
+	FeldBlock(const struct FeldBlock &block) :
+	    next(block.next),size(block.size) {}
+    };
+
+    list<struct FeldBlock> indexFeld;
+    size_t &groesse;
+    size_t &anzahl;
+private:
+    void grow( );
+public:
+    StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
+    StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
+
+    virtual ~StoreManagerLocintBlock();
+    virtual inline size_t size() const { return anzahl; }
+
+    virtual inline size_t maxSize() const { return groesse; }
+
+    virtual locint next_loc();
+    virtual void free_loc(locint loc);
+    virtual void ensure_block(size_t n);
 };
 
 #if 0

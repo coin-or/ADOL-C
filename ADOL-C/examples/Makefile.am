@@ -35,7 +35,7 @@ SUBDIRS                 = additional_examples
 endif
 
 if DOCEXA
-noinst_PROGRAMS         = detexam speelpenning powexam odexam \
+noinst_PROGRAMS         = detexam speelpenning powexam odexam luexam \
                           tapeless_scalar tapeless_vector
 endif
 
@@ -46,6 +46,8 @@ speelpenning_SOURCES    = speelpenning.cpp
 powexam_SOURCES         = powexam.cpp
 
 odexam_SOURCES          = odexam.cpp 
+
+luexam_SOURCES          = luexam.cpp
 
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 
