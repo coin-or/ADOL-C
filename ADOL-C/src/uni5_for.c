@@ -3562,7 +3562,7 @@ int  hov_forward(
                 break;
 
                 /*--------------------------------------------------------------------------*/
-#if defined(_EXTERN_) /* ZOS and FOS up to now */
+#if defined(_EXTERN_) /* ZOS,  FOS, FOV up to now */
             case ext_diff:                       /* extern differntiated function */
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 n=get_locint_f();
