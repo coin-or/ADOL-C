@@ -21,7 +21,16 @@
 
 BEGIN_C_DECLS
 
-typedef int (*ADOLC_ext_fct) (int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct) (int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct_fos_forward) (int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y);
+typedef int (ADOLC_ext_fct_fov_forward) (int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_hos_forward) (int n, double *dp_x, int d, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
+typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_Z);
+typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z);
+typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
+typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
+
 
 /**
  * A variable of this type has to be instantiated by reg_ext_fct (see below) and a pointer to it is
@@ -33,7 +42,7 @@ typedef struct {
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
-  ADOLC_ext_fct function;  
+  ADOLC_ext_fct *function;  
 
   /**
    * DO NOT touch - the index is set through reg_ext_fct
@@ -54,59 +63,47 @@ typedef struct {
    * but there are cases when it makes sense for this to be different as illustrated
    * in examples/additional_examples/ext_diff_func/ext_diff_func.cpp  
    */
-  int (*zos_forward) (int n, double *dp_x,
-		      int m, double *dp_y);
+  ADOLC_ext_fct *zos_forward;
 
   /**
    * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
    * and computing the projection dp_Y=Jacobian*dp_x 
    * see also the explanation of the dp_X/Y  members below.
    */
-  int (*fos_forward) (int n, double *dp_x, double *dp_X,
-		      int m, double *dp_y, double *dp_Y);
+  ADOLC_ext_fct_fos_forward *fos_forward;
+
   /**
    * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
    * and computing the projection dpp_Y=Jacobian*dpp_x 
    * see also the explanation of the dpp_X/Y  members below.
    */
-  int (*fov_forward) (int n, double *dp_x, int p, double **dpp_X,
-		      int m, double *dp_y, double **dpp_Y);
+  ADOLC_ext_fct_fov_forward *fov_forward;
   /** 
    * higher order scalar forward for external functions  is currently not implemented in uni5_for.c
    */
-  int (*hos_forward) (int n, double *dp_x, int d, double **dpp_X,
-		      int m, double *dp_y, double **dpp_Y);
+  ADOLC_ext_fct_hos_forward *hos_forward; 
   /** 
    * higher order vector forward for external functions  is currently not implemented in uni5_for.c
    */
-  int (*hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X,
-		      int m, double *dp_y, double ***dppp_Y);
-
+  ADOLC_ext_fct_hov_forward *hov_forward;
   /**
    * this points to a  method computing the projection dp_Z=transpose(dp_U) * Jacobian
    * see also the explanation of the dp_U/Z  members below.
    */
-  int (*fos_reverse) (int m, double *dp_U,
-		      int n, double *dp_Z);
-
+  ADOLC_ext_fct_fos_reverse *fos_reverse; 
   /**
    * this points to a  method computing the projection dpp_Z=transpose(dpp_U) * Jacobian
    * see also the explanation of the dpp_U/Z  members below.
    */
-  int (*fov_reverse) (int m, int p, double **dpp_U,
-		      int n, double **dpp_Z);
-
+  ADOLC_ext_fct_fov_reverse *fov_reverse; 
   /** 
    * higher order scalar reverse for external functions  is currently not implemented in ho_rev.c
    */
-  int (*hos_reverse) (int m, double *dp_U,
-		      int n, int d, double **dpp_Z);
+  ADOLC_ext_fct_hos_reverse *hos_reverse; 
   /** 
    * higher order vector reverse for external functions  is currently not implemented in ho_rev.c
    */
-  int (*hov_reverse) (int m, int p, double **dpp_U,
-		      int n, int d, double ***dppp_Z,
-		      short **spp_nz);
+  ADOLC_ext_fct_hov_reverse *hov_reverse; 
 
 
   /**
