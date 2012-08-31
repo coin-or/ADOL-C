@@ -146,24 +146,24 @@ public:
 
     /*******************  nontemporary results  ***************************/
     // assignment
-    inline void operator = (const double v);
-    inline void operator = (const adouble& a);
+    inline adouble& operator = (const double v);
+    inline adouble& operator = (const adouble& a);
 
     // addition
-    inline void operator += (const double v);
-    inline void operator += (const adouble& a);
+    inline adouble& operator += (const double v);
+    inline adouble& operator += (const adouble& a);
 
     // substraction
-    inline void operator -= (const double v);
-    inline void operator -= (const adouble& a);
+    inline adouble& operator -= (const double v);
+    inline adouble& operator -= (const adouble& a);
 
     // multiplication
-    inline void operator *= (const double v);
-    inline void operator *= (const adouble& a);
+    inline adouble& operator *= (const double v);
+    inline adouble& operator *= (const adouble& a);
 
     // division
-    inline void operator /= (const double v);
-    inline void operator /= (const adouble& a);
+    inline adouble& operator /= (const double v);
+    inline adouble& operator /= (const adouble& a);
 
     // not
     inline int operator ! () const;
@@ -1328,7 +1328,7 @@ inline void condassign( adouble &res, const adouble &cond,
 
 
 /*******************  nontemporary results  *********************************/
-inline void adouble::operator = (const double v) {
+inline adouble& adouble::operator = (const double v) {
     if (do_val()) 
 	val=v;
     if (do_adval()) 
@@ -1336,9 +1336,10 @@ inline void adouble::operator = (const double v) {
 	    ADVAL_I=0.0;
     if (do_indo())
 	if (!pattern.empty()) pattern.clear();
+    return *this;
 }
 
-inline void adouble::operator = (const adouble& a) {
+inline adouble& adouble::operator = (const adouble& a) {
     if (do_val()) 
 	val=a.val;
     if (do_adval()) 
@@ -1348,14 +1349,16 @@ inline void adouble::operator = (const adouble& a) {
 	if (!pattern.empty()) pattern.clear();
 	add_to_pattern( a.get_pattern() );
     }
+    return *this;
 }
 
-inline void adouble::operator += (const double v) {
+inline adouble& adouble::operator += (const double v) {
     if (do_val()) 
 	val+=v;
+    return *this;
 }
 
-inline void adouble::operator += (const adouble& a) {
+inline adouble& adouble::operator += (const adouble& a) {
     if (do_val()) 
 	val=val+a.val;
     if (do_adval()) 
@@ -1363,14 +1366,16 @@ inline void adouble::operator += (const adouble& a) {
 	    ADVAL_I+=a.ADVAL_I;
     if (do_indo()) 
 	add_to_pattern( a.get_pattern() );
+    return *this;
 }
 
-inline void adouble::operator -= (const double v) {
+inline adouble& adouble::operator -= (const double v) {
     if (do_val()) 
 	val-=v;
+    return *this;
 }
 
-inline void adouble::operator -= (const adouble& a) {
+inline adouble& adouble::operator -= (const adouble& a) {
     if (do_val()) 
 	val=val-a.val;
     if (do_adval()) 
@@ -1378,17 +1383,19 @@ inline void adouble::operator -= (const adouble& a) {
 	    ADVAL_I-=a.ADVAL_I;
     if (do_indo()) 
 	add_to_pattern( a.get_pattern() ) ;
+    return *this;
 }
 
-inline void adouble::operator *= (const double v) {
+inline adouble& adouble::operator *= (const double v) {
     if (do_val()) 
 	val=val*v;
     if (do_adval()) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I*=v;
+    return *this;
 }
 
-inline void adouble::operator *= (const adouble& a) {
+inline adouble& adouble::operator *= (const adouble& a) {
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
@@ -1400,17 +1407,19 @@ inline void adouble::operator *= (const adouble& a) {
 	val*=a.val;
     if (do_indo()) 
 	add_to_pattern( a.get_pattern() ) ;
+    return *this;
 }
 
-inline void adouble::operator /= (const double v) {
+inline adouble& adouble::operator /= (const double v) {
     if (do_val()) 
 	val/=v;
     if (do_adval()) 
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I/=v;
+    return *this;
 }
 
-inline void adouble::operator /= (const adouble& a) {
+inline adouble& adouble::operator /= (const adouble& a) {
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
@@ -1422,6 +1431,7 @@ inline void adouble::operator /= (const adouble& a) {
 	val=val/a.val;
     if (do_indo()) 
 	add_to_pattern( a.get_pattern() ) ;
+    return *this;
 }
 
 // not
