@@ -372,7 +372,7 @@ public:
     friend void dumpIt(const adouble&, const char* fName=0, int lineNum=0);
 };
 
-#define ADOLC_DUMP_MACRO(x)  dumpit(x,__FILE__,__LINE__)
+#define ADOLC_DUMP_MACRO(x)  dumpIt(x,__FILE__,__LINE__)
 
 /****************************************************************************/
 /*                                                       INLINE DEFINITIONS */
