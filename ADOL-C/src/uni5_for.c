@@ -1045,8 +1045,13 @@ int  hov_forward(
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
+#ifdef ADOLC_HARDDEBUG
+    unsigned long opCount=1;
+#endif
     while (operation !=end_of_tape) {
-      
+#ifdef ADOLC_HARDDEBUG
+      fprintf(DIAG_OUT, "p_op: %i3 (%i)\n", operation - '\0', opCount);
+#endif
       switch (operation) {
     
 
@@ -1057,6 +1062,9 @@ int  hov_forward(
             case end_of_op:                                          /* end_of_op */
                 get_op_block_f();
                 operation=get_op_f();
+#ifdef ADOLC_HARDDEBUG
+                opCount++;
+#endif
                 /* Skip next operation, it's another end_of_op */
                 break;
 
@@ -3651,6 +3659,9 @@ int  hov_forward(
 
         /* Read the next operation */
         operation=get_op_f();
+#ifdef ADOLC_HARDDEBUG
+        opCount++;
+#endif
 #if defined(ADOLC_DEBUG)
         ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
