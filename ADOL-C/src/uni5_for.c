@@ -1046,7 +1046,7 @@ int  hov_forward(
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
 #ifdef ADOLC_HARDDEBUG
-    unsigned long opCount=1;
+    unsigned long opCount=0;
 #endif
     while (operation !=end_of_tape) {
 #ifdef ADOLC_HARDDEBUG
