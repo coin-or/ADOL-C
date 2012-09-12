@@ -369,8 +369,10 @@ public:
     /* adouble& operator = ( const adouble& );
        !!! olvo 991210 was the same as badouble-assignment */
     adouble& operator = ( const adub& );
+    friend void dumpIt(const adouble&, const char* fName=0, int lineNum=0);
 };
 
+#define ADOLC_DUMP_MACRO(x)  dumpit(x,__FILE__,__LINE__)
 
 /****************************************************************************/
 /*                                                       INLINE DEFINITIONS */

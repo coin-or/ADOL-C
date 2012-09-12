@@ -717,6 +717,8 @@ int  hov_forward(
 
     int indexi = 0,  indexd = 0;
 
+    unsigned long dumpItCounter=0;
+
     /* loop indices */
 #if !defined (_ZOS_)
 #if !defined (_INT_FOR_)
@@ -3644,7 +3646,10 @@ int  hov_forward(
 
                 break;
 #endif
-
+            case dump_it :
+              arg=get_locint_f();
+              fprintf(DIAG_OUT,"[forward::dumpIt] cnt: %i loc: %i v: %f\n",dumpItCounter++,arg,dp_T0[arg]);
+              break;
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /* Die here, we screwed up */
