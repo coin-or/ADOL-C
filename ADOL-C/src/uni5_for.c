@@ -1050,7 +1050,7 @@ int  hov_forward(
 #endif
     while (operation !=end_of_tape) {
 #ifdef ADOLC_HARDDEBUG
-      fprintf(DIAG_OUT, "p_op: %i3 (%i)\n", operation - '\0', opCount);
+      fprintf(DIAG_OUT, "uni5_for_op: %i3 (%i)\n", operation - '\0', opCount);
 #endif
       switch (operation) {
     
