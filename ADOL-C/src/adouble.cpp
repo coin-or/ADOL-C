@@ -228,6 +228,9 @@ adouble& adouble::operator = ( double coval ) {
 badouble& badouble::operator <<= ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+#ifdef ADOLC_HARDDEBUG
+    fprintf(DIAG_OUT,"op_indep: xp[%i]=%f\n",ADOLC_CURRENT_TAPE_INFOS.numInds, coval);
+#endif
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
         ADOLC_CURRENT_TAPE_INFOS.numInds++;
 
