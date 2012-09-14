@@ -30,7 +30,41 @@ static ADOLC_BUFFER_TYPE buffer(init_ext_diff_fct);
 static int oldTraceFlag;
 
 ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct) {
-    return buffer.append(ext_fct);
+
+  // this call sets edf->function and edf->index:
+  ext_diff_fct * edf=buffer.append(ext_fct);
+
+  // for sanity make sure everything else is properly nullified 
+  edf->zos_forward=0;
+
+  edf->fos_forward=0;
+  edf->hos_forward=0;
+  edf->fov_forward=0;
+  edf->hov_forward=0;
+
+  edf->fos_reverse=0;
+  edf->hos_reverse=0;
+  edf->fov_reverse=0;
+  edf->hov_reverse=0;
+  
+  edf->dp_x=0; 
+  edf->dp_X=0; 
+  edf->dpp_X=0;
+  edf->dppp_X=0;
+  edf->dp_y=0;  
+  edf->dp_Y=0;  
+  edf->dpp_Y=0; 
+  edf->dppp_Y=0;
+
+  edf->dp_U=0;  
+  edf->dpp_U=0; 
+  edf->dp_Z=0;  
+  edf->dpp_Z=0; 
+  edf->dppp_Z=0;
+
+  edf->spp_nz=0;
+
+  return edf;
 }
 
 int call_ext_fct(ext_diff_fct *edfct,

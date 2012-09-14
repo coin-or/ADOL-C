@@ -798,7 +798,7 @@ current argument and then evaluate the gradient $\nabla f(x)$ by calling
 %
 At any point in the program, one may call the routine
 \begin{center}
-{\sf void tapestats(unsigned short tag, int* counts)}
+{\sf void tapestats(unsigned short tag, size\_t* counts)}
 \end{center}
 with {\sf counts} beeing an array of at least eleven integers.
 The first argument {\sf tag} specifies the particular tape of
@@ -2593,12 +2593,18 @@ in \autoref{vecCas}.
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 %
-\section{Advance algorithmic differentiation in ADOL-C}
+\section{Advanced algorithmic differentiation in ADOL-C}
 \label{adv_ad}
 %
-\subsection{External differentiated functions}
+\subsection{Differentiating external functions}
 %
-Ideally, AD is applied to a given function as a whole.
+Ideally, AD is applied to a given computation as a whole.
+This is not always possible because parts of the computation may 
+be coded in a different programming language or may a call to 
+an external library. 
+In the former case one may want to differentiate the parts in 
+question with a different AD tool or provide hand written derivatives. 
+To integrate these 
 In practice, however, sophisticated projects usually evolve over a long period of time.
 Within this process, a heterogeneous code base for the project
 develops, which may include the incorporation of external solutions,
@@ -2606,64 +2612,75 @@ changes in programming paradigms or even of programming languages.
 Equally heterogeneous, the computation of derivative values appears.
 Hence, different \mbox{AD-tools} may be combined with hand-derived
 codes based on the same or different programming languages. 
-ADOL-C support such settings  by the concept of external
-differentiated functions. Hence, a external differentiated function
-itself is not differentiated by ADOL-C. The required derivative
-information have to be provided by the user.
+ADOL-C supports such settings  by  the concept of externally
+differentiated functions, that is, a function
+not differentiated by ADOL-C itself. The required derivatives
+have to be provided by the user.
 
-For this purpose, it is assumed that the external differentiated
-function has the signature
+For this purpose, it is required that the externally differentiated
+function (for example named {\sf\em euler\_step} ) has the following signature.
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf int ext\_func(int n, double *yin, int m, double  *yout);}
+\hspace*{2cm}{\sf int euler\_step(int n, double *x, int m, double *y);}
 \medskip
 
 \noindent
-where the function names can be chosen by the user as long as the names are
-unique. This {\sf double} version of the external differentiated function has to
-be {\em registered} using the \mbox{ADOL-C} function
+Note that the formal paraemters in the signature have {\sf double} type, that is, 
+they are not active as in the original program before the ADOL-C type change.
+The externally differentiated function has to
+be {\em registered}\footnote{we record the function pointer} using an \mbox{ADOL-C} method as follows. 
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf edf = reg\_ext\_fct(ext\_func);}.
+\hspace*{2cm}{\sf ext\_diff\_fct *edf = reg\_ext\_fct(euler\_step);}.
 \smallskip
 
 \noindent
-This function initializes the structure {\sf edf}. Then, 
-the user has to provide the remaining  information
-by the following commands:
+This returns a pointer to an {\sf ext\_diff\_fct} instance specific to the registered function. 
+Then, the user has to supply the function pointers for the call back methods (for example here 
+{\sf zos\_for\_euler\_step} and {\sf  fos\_rev\_euler\_step}) the user implemented 
+to compute the derivatives as follows.
 \begin{tabbing}
-\hspace*{2cm}\= {\sf edf-$>$zos\_forward = zos\_for\_ext\_func;}\\
+\hspace*{2cm}\= {\sf edf-$>$zos\_forward = {\em zos\_for\_euler\_step};}\\
              \> {\sf // function pointer for computing
                Zero-Order-Scalar (=zos)}\\
              \> {\sf // forward information}\\
-             \> {\sf edf-$>$dp\_x = xp;}\\
-             \> {\sf edf-$>$dp\_y = yp;}\\
-             \> {\sf // double arrays for arguments and results}\\
-             \> {\sf edf-$>$fos\_reverse = fos\_rev\_ext\_func;} \\
+%             \> {\sf edf-$>$dp\_x = xp;}\\
+%             \> {\sf edf-$>$dp\_y = yp;}\\
+%             \> {\sf // double arrays for arguments and results}\\
+             \> {\sf edf-$>$fos\_reverse = fos\_rev\_euler\_step;} \\
              \> {\sf // function pointer for computing
                First-Order-Scalar (=fos)}\\ 
              \> {\sf reverse information}
 \end{tabbing}
-Subsequently, the call to the external differentiated function  in the function evaluation can be
-substituted by the call of
+To facilitate the switch between active and passive versions of the parameters {\sf x} and {\sf y}
+one has to provide (allocate) both variants. I.e. if the call to {\sf euler\_step} was originally
+\noindent
+\hspace*{2cm}{\sf rc=euler\_step(n, sOld, m, sNew);}
+\medskip
+then the ADOL-C typechange for the calling context will turn  {\sf sOld} and {\sf sNew} in {\sf adouble} pointers.
+To trigger the appropriate action for the derivative computation (i.e. creating an external differentiation entry on the trace) 
+the original call to the externally differentiated function 
+must be substituted by 
 \medskip
 
 \noindent
-\hspace*{2cm}{\sf int call\_ext\_fct(edf, n, xp, x, m, yp, y);}
+\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOldPassive, sOld, m, sNewPassive, sNew);}
 \medskip
 
 \noindent
+Here, {\sf sOldPassive} and {\sf sNewPassive} are the passive counterparts ({\sf double} pointers allocated to length {\sf n} and {\sf m}, respectively)  
+to the active arguments {\sf sNew} in {\sf adouble}.
 The usage of the external function facility is illustrated by the
 example \verb=ext_diff_func= contained in
 \verb=examples/additional_examples/ext_diff_func=.
-Here,the external differentiated function is also a C code, but the
+There,the external differentiated function is also a C code, but the
 handling as external differentiated functions also a decrease of the
 overall required tape size.
 
 %
-\subsection{Advance algorithmic differentiation of time integration processes}
+\subsection{Advanced algorithmic differentiation of time integration processes}
 %
 For many time-dependent applications, the corresponding simulations
 are based on ordinary or partial differential equations.
@@ -2799,7 +2816,7 @@ checkpointing facilities. It can be found in the directory \verb=examples/additi
 %
 %
 %
-\subsection{Advance algorithmic differentiation of fixed point iterations}
+\subsection{Advanced algorithmic differentiation of fixed point iterations}
 %
 Quite often, the state of the considered system denoted by $x\in\R^n$
 depends on some design parameters denoted by $u\in\R^m$. One example for this setting
@@ -2896,7 +2913,7 @@ is included by the global header file \verb=<adolc/adolc.h>= automatically.
 An example code that shows also the
 expected signature of the function pointers is contained in the directory \verb=examples/additional_examples/fixpoint_exam=.
 %
-\subsection{Advance algorithmic differentiation of OpenMP parallel programs}
+\subsection{Advanced algorithmic differentiation of OpenMP parallel programs}
 %
 ADOL-C allows to compute derivatives in parallel for functions
 containing OpenMP parallel loops.
@@ -3735,7 +3752,8 @@ using the appropriate drivers {\sf gradient} and {\sf hessian}.
 #include <adolc/taping.h>                // use of taping
 ...
 void main() {
-int n,i,j,tape_stats[STAT_SIZE];
+int n,i,j;
+size_t tape_stats[STAT_SIZE];
 cout << "SPEELPENNINGS PRODUCT (ADOL-C Documented Example) \n";
 cout << "number of independent variables = ?  \n";
 cin >> n;
