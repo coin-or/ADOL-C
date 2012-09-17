@@ -21,54 +21,176 @@
 
 BEGIN_C_DECLS
 
-typedef int (*ADOLC_ext_fct) (int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct) (int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct_fos_forward) (int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y);
+typedef int (ADOLC_ext_fct_fov_forward) (int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_hos_forward) (int n, double *dp_x, int d, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
+typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_Z);
+typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z);
+typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
+typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
 
-/* A variable of this type is created by reg_ext_fct and a pointer to it is
- * returned. Please do not create a variable of this type yourself. The index
- * is likely to be wrong in this case. Use pointers instead. */
+
+/**
+ * A variable of this type has to be instantiated by reg_ext_fct (see below) and a pointer to it is
+ * returned. Within reg_ext_fct the memberse function and index are properly set. 
+ * is likely to be wrong in this case. Use pointers instead. 
+ */
 typedef struct {
-    ADOLC_ext_fct function;
 
-    int (*zos_forward) (int n, double *dp_x,
-                        int m, double *dp_y);
-    int (*fos_forward) (int n, double *dp_x, double *dp_X,
-                        int m, double *dp_y, double *dp_Y);
-    int (*fov_forward) (int n, double *dp_x, int p, double **dpp_X,
-                        int m, double *dp_y, double **dpp_Y);
-    int (*hos_forward) (int n, double *dp_x, int d, double **dpp_X,
-                        int m, double *dp_y, double **dpp_Y);
-    int (*hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X,
-                        int m, double *dp_y, double ***dppp_Y);
+  /**
+   * DO NOT touch - the function pointer is set through reg_ext_fct
+   */
+  ADOLC_ext_fct *function;  
 
-    int (*fos_reverse) (int m, double *dp_U,
-                        int n, double *dp_Z);
-    int (*fov_reverse) (int m, int p, double **dpp_U,
-                        int n, double **dpp_Z);
-    int (*hos_reverse) (int m, double *dp_U,
-                        int n, int d, double **dpp_Z);
-    int (*hov_reverse) (int m, int p, double **dpp_U,
-                        int n, int d, double ***dppp_Z,
-                        short **spp_nz);
+  /**
+   * DO NOT touch - the index is set through reg_ext_fct
+   */
+  locint index;            
 
-    /* This variables must be set before calling the functions above. */
-    double *dp_x;                /* x[n], x0[n]        - forward mode */
-    double *dp_X;                /* x1[n]              - forward mode */
-    double **dpp_X;              /* X[n][p], X[n][d]   - forward mode */
-    double ***dppp_X;            /* X[n][p][d]         - forward mode */
-    double *dp_y;                /* y[n], y0[n]        - forward mode */
-    double *dp_Y;                /* y1[n]              - forward mode */
-    double **dpp_Y;              /* Y[m][p], Y[m][d]   - forward mode */
-    double ***dppp_Y;            /* Y[m][p][d]         - forward mode */
+  /** 
+   * below are function pointers used for call back from the corresponding ADOL-C trace interpreters; 
+   * these function pointers are initialized to 0 by reg_ext_fct; 
+   * the  user needs to set eplicitly the function pointers for the trace interpreters called in the 
+   * application driver
+   */
 
-    double *dp_U;                /* u[m]               - reverse mode */
-    double **dpp_U;              /* U[q][m]            - reverse mode */
-    double *dp_Z;                /* z[n]               - reverse mode */
-    double **dpp_Z;              /* Z[q][n], Z[n][d+1] - reverse mode */
-    double ***dppp_Z;            /* Z[q][n][d+1]       - reverse mode */
+  /**
+   * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x); 
+   * the pointer would typically be set to the same function pointer supplied in the call to reg_ext_fct, 
+   * i.e. zos_forward would be equal to function (above) 
+   * but there are cases when it makes sense for this to be different as illustrated
+   * in examples/additional_examples/ext_diff_func/ext_diff_func.cpp  
+   */
+  ADOLC_ext_fct *zos_forward;
 
-    short **spp_nz;              /* nz[q][n]           - reverse mode */
+  /**
+   * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
+   * and computing the projection dp_Y=Jacobian*dp_x 
+   * see also the explanation of the dp_X/Y  members below.
+   */
+  ADOLC_ext_fct_fos_forward *fos_forward;
 
-    locint index;                      /* please do not change */
+  /**
+   * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
+   * and computing the projection dpp_Y=Jacobian*dpp_x 
+   * see also the explanation of the dpp_X/Y  members below.
+   */
+  ADOLC_ext_fct_fov_forward *fov_forward;
+  /** 
+   * higher order scalar forward for external functions  is currently not implemented in uni5_for.c
+   */
+  ADOLC_ext_fct_hos_forward *hos_forward; 
+  /** 
+   * higher order vector forward for external functions  is currently not implemented in uni5_for.c
+   */
+  ADOLC_ext_fct_hov_forward *hov_forward;
+  /**
+   * this points to a  method computing the projection dp_Z=transpose(dp_U) * Jacobian
+   * see also the explanation of the dp_U/Z  members below.
+   */
+  ADOLC_ext_fct_fos_reverse *fos_reverse; 
+  /**
+   * this points to a  method computing the projection dpp_Z=transpose(dpp_U) * Jacobian
+   * see also the explanation of the dpp_U/Z  members below.
+   */
+  ADOLC_ext_fct_fov_reverse *fov_reverse; 
+  /** 
+   * higher order scalar reverse for external functions  is currently not implemented in ho_rev.c
+   */
+  ADOLC_ext_fct_hos_reverse *hos_reverse; 
+  /** 
+   * higher order vector reverse for external functions  is currently not implemented in ho_rev.c
+   */
+  ADOLC_ext_fct_hov_reverse *hov_reverse; 
+
+
+  /**
+   * The names of the variables below correspond to the formal parameters names in the call back 
+   * functions above; 
+   * The user has to preallocate the variables and set the pointers for any of the call back functions 
+   * that will be called during trace interpretation.
+   * The dimensions given below correspond to the formal arguments in the call back funtions signatures above. 
+   * If the dimensions n and m change between multiple calls to the same external function, then the variables 
+   * have to be preallocation with the maximum of the respective dimension values. 
+   * The dp_x and dp_y pointers have to be valid during both, the tracing phase and the trace interpretation; 
+   * all the other pointers are required to be valid only for the trace interpretation.
+   */
+       
+  /** 
+   * function and all _forward calls: function argument, dimension [n]
+   */ 
+  double *dp_x;     
+
+  /** 
+   * fos_forward: tangent direction, dimension [n]
+   */ 
+  double *dp_X;   
+
+  /**
+   * fov_forward: seed matrix for p directions, dimensions [n][p]
+   * hos_forward: argument Taylor polynomial coefficients up to order d. dimensions [n][d] 
+   */
+  double **dpp_X;
+  
+  /**
+   * hov_forward: argument Taylor polynomial coefficients up to order d in p directions. dimensions [n][p][d]
+   */
+  double ***dppp_X; 
+
+  /**
+   * function and all _forward calls: function result, dimension [m]
+   */
+  double *dp_y;   
+
+  /**
+   * fos_forward: Jacobian projection, dimension [m]
+   */
+  double *dp_Y;  
+
+  /**
+   * fov_forward: Jacobian projection in p directions, dimension [m][p]
+   * hos_forward: result Taylor polynomial coefficients up to order d. dimensions [m][d] 
+   */
+  double **dpp_Y;     
+
+  /**
+   * hov_forward: result Taylor polynomial coefficients up to order d in p directions. dimensions [m][p][d]
+   */
+  double ***dppp_Y;
+
+  /**
+   * fos_reverse and hos_reverse:  weight vector, dimension [m]
+   */
+  double *dp_U;
+ 
+  /**
+   * fov_reverse and hov_reverse: p weight vectors, dimensions [p][m]
+   */
+  double **dpp_U;       
+
+  /** 
+   * fos_reverse: Jacobian projection, dimension [n]
+   */
+  double *dp_Z; 
+
+  /** 
+   * fov_reverse: Jacobian projection for p weight vectors, dimensions [p][n]
+   * hos_reverse: adjoint Taylor polynomial coefficients up to order d, dimensions [n][d+1] 
+   */
+  double **dpp_Z;   
+
+  /**
+   * hov_reverse:  adjoint Taylor polynomial coefficients up to order d for p weight vectors, dimension [p][n][d+1]
+   */
+  double ***dppp_Z; 
+
+  /** 
+   * hov_reverse: non-zero pattern of dppp_Z, dimension [p][n], see also the hov_reverse ADOL-C driver 
+   */
+  short **spp_nz;
+
 }
 ext_diff_fct;
 

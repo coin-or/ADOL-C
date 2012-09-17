@@ -207,6 +207,9 @@ typedef struct TapeInfos {
     /* operations tape */
     FILE *op_file;              /* file descriptor */
     unsigned char *opBuffer;    /* pointer to the current tape buffer */
+#ifdef ADOLC_HARDDEBUG
+    unsigned long opCount;      /* count up to print as debug info */
+#endif
     unsigned char *currOp;      /* pointer to the current opcode */
     unsigned char *lastOpP1;    /* pointer to element following the buffer */
     size_t numOps_Tape;           /* overall number of opcodes */

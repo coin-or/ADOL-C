@@ -125,7 +125,7 @@ locint StoreManagerLocint::next_loc() {
     locint const result = head;
     head = indexFeld[head];
     ++anzahl;
-#ifdef ADOLC_DEBUG
+#ifdef ADOLC_DEBUG_LOC
     std::cerr << "next_loc: " << result << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
     return result;
@@ -136,7 +136,7 @@ void StoreManagerLocint::free_loc(locint loc) {
     indexFeld[loc] = head;
     head = loc;
     --anzahl;
-#ifdef ADOLC_DEBUG
+#ifdef ADOLC_DEBUG_LOC
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
 }
@@ -1168,6 +1168,9 @@ void endParallel() {
 
 TapeInfos::TapeInfos() {
     initTapeInfos(this);
+#ifdef ADOLC_HARDDEBUG
+    opCount=0;
+#endif
 }
 
 TapeInfos::TapeInfos(short _tapeID) {

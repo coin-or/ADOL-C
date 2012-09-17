@@ -714,6 +714,8 @@ int  hov_forward(
 
     int indexi = 0,  indexd = 0;
 
+    unsigned long dumpItCounter=0;
+
     /* loop indices */
 #if !defined (_ZOS_)
 #if !defined (_INT_FOR_)
@@ -860,7 +862,7 @@ int  hov_forward(
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER fov_forward
 #   define ADOLC_EXT_FCT_COMPLETE \
-    fov_forward(n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+    fov_forward(n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dpp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
@@ -1062,10 +1064,13 @@ int  hov_forward(
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
-
+#ifdef ADOLC_HARDDEBUG
+    unsigned long opCount=0;
+#endif
     while (operation !=end_of_tape) {
-
-
+#ifdef ADOLC_HARDDEBUG
+      fprintf(DIAG_OUT, "uni5_for_op: %3i (%i)\n", operation - '\0', opCount);
+#endif
       switch (operation) {
 
 
@@ -1076,6 +1081,9 @@ int  hov_forward(
             case end_of_op:                                          /* end_of_op */
                 get_op_block_f();
                 operation=get_op_f();
+#ifdef ADOLC_HARDDEBUG
+                opCount++;
+#endif
                 /* Skip next operation, it's another end_of_op */
                 break;
 
@@ -3890,7 +3898,7 @@ int  hov_forward(
                 break;
 
                 /*--------------------------------------------------------------------------*/
-#if defined(_EXTERN_) /* ZOS and FOS up to now */
+#if defined(_EXTERN_) /* ZOS,  FOS, FOV up to now */
             case ext_diff:                       /* extern differntiated function */
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 n=get_locint_f();
@@ -3964,6 +3972,10 @@ int  hov_forward(
 
                 break;
 #endif
+            case dump_it :
+              arg=get_locint_f();
+              fprintf(DIAG_OUT,"["GENERATED_FILENAME"::dumpIt] cnt: %i loc: %i v: %f\n",dumpItCounter++,arg,dp_T0[arg]);
+              break;
                 /*--------------------------------------------------------------------------*/
 
             default:                                                   /* default */
@@ -3979,6 +3991,9 @@ int  hov_forward(
 
         /* Read the next operation */
         operation=get_op_f();
+#ifdef ADOLC_HARDDEBUG
+        opCount++;
+#endif
 #if defined(ADOLC_DEBUG)
         ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */

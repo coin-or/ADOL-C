@@ -335,7 +335,7 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
 # define ADOLC_EXT_FCT_POINTER fov_reverse
 # define ADOLC_EXT_FCT_COMPLETE \
-    fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z)
+  fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
 #endif
 #if !defined(_INT_REV_)

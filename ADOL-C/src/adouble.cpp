@@ -210,6 +210,9 @@ adouble& adouble::operator = ( double coval ) {
 badouble& badouble::operator <<= ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+#ifdef ADOLC_HARDDEBUG
+    fprintf(DIAG_OUT,"op_indep: xp[%i]=%f\n",ADOLC_CURRENT_TAPE_INFOS.numInds, coval);
+#endif
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
         ADOLC_CURRENT_TAPE_INFOS.numInds++;
 
@@ -1802,5 +1805,15 @@ void condassign( adouble &res, const adouble &cond, const adouble &arg ) {
         ADOLC_GLOBAL_TAPE_VARS.store[res.location] = ADOLC_GLOBAL_TAPE_VARS.store[arg.location];
 }
 
+void dumpIt(const adouble& a, const char* fName, int lineNum) {
+  static unsigned long counter=0;
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+      put_op(dump_it);
+      ADOLC_PUT_LOCINT(a.location);
+  }
+  fprintf(DIAG_OUT,"[adouble::dumpIt:%s:%i] cnt: %i loc: %i v: %f\n",(fName?fName:""),lineNum,counter++,a.location,ADOLC_GLOBAL_TAPE_VARS.store[a.location]);
+}
 /****************************************************************************/
 /*                                                                THAT'S ALL*/

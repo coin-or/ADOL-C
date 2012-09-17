@@ -1615,6 +1615,9 @@ void put_op(unsigned char op) {
         *ADOLC_CURRENT_TAPE_INFOS.currOp = end_of_op;
         ++ADOLC_CURRENT_TAPE_INFOS.currOp;
     }
+#ifdef ADOLC_HARDDEBUG
+    fprintf(DIAG_OUT, "p_op: %3i (%i)\n", op - '\0', ADOLC_CURRENT_TAPE_INFOS.opCount++);
+#endif
     *ADOLC_CURRENT_TAPE_INFOS.currOp = op;
     ++ADOLC_CURRENT_TAPE_INFOS.currOp;
 }
