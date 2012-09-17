@@ -33,20 +33,15 @@ stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
 
 /* forward function declarations */
 void init_edf(ext_diff_fct *edf);
-int cp_zos_forward (int n, double *dp_x, int m, double *dp_y);
-int cp_fos_forward (int n, double *dp_x, double *dp_X,
-                    int m, double *dp_y, double *dp_Y);
-int cp_fov_forward (int n, double *dp_x, int p, double **dpp_X,
-                    int m, double *dp_y, double **dpp_Y);
-int cp_hos_forward (int n, double *dp_x, int d, double **dpp_X,
-                    int m, double *dp_y, double **dpp_Y);
-int cp_hov_forward (int n, double *dp_x, int d, int p, double ***dppp_X,
-                    int m, double *dp_y, double ***dppp_Y);
-int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z);
-int cp_fov_reverse (int m, int p, double **dpp_U, int n, double **dpp_Z);
-int cp_hos_reverse (int m, double *dp_U, int n, int d, double **dpp_Z);
-int cp_hov_reverse (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z,
-                    short **spp_nz);
+ADOLC_ext_fct cp_zos_forward;
+ADOLC_ext_fct_fos_forward cp_fos_forward;
+ADOLC_ext_fct_fov_forward cp_fov_forward;
+ADOLC_ext_fct_hos_forward cp_hos_forward;
+ADOLC_ext_fct_hov_forward cp_hov_forward;
+ADOLC_ext_fct_fos_reverse cp_fos_reverse;
+ADOLC_ext_fct_fov_reverse cp_fov_reverse;
+ADOLC_ext_fct_hos_reverse cp_hos_reverse;
+ADOLC_ext_fct_hov_reverse cp_hov_reverse;
 void cp_takeshot(CpInfos *cpInfos);
 void cp_restore(CpInfos *cpInfos);
 void cp_release(CpInfos *cpInfos);
@@ -282,7 +277,7 @@ int cp_fos_forward (int n, double *dp_x, double *dp_X,
     return 0;
 }
 
-int cp_fov_forward (int n, double *dp_x, int p,  double **dpp_X,
+int cp_fov_forward (int n, double *dp_x, int p, double **dpp_X,
                     int m, double *dp_y, double **dpp_Y) {
     printf("WARNING: Checkpointing algorithm not "
            "implemented for the fov_forward mode!\n");
@@ -504,7 +499,7 @@ int cp_fov_reverse (int m, int p, double **dpp_U, int n, double **dpp_Z) {
     return 0;
 }
 
-int cp_hos_reverse (int m, double *dp_U, int n, int d, double **dpp_Z) {
+int cp_hos_reverse (int m, double *dp_U, int n, int d,  double **dpp_Z) {
     printf("WARNING: Checkpointing algorithm not "
            "implemented for the hos_reverse mode!\n");
     return 0;
