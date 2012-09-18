@@ -77,6 +77,7 @@ int call_ext_fct(ext_diff_fct *edfct,
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
+    if (xa[n-1].loc()-xa[0].loc()!=n-1 || ya[m-1].loc()-ya[0].loc()!=m-1) fail(ADOLC_EXT_DIFF_LOCATIONGAP);
     if (edfct==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_STRUCT);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
