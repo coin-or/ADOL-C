@@ -42,8 +42,8 @@ END_C_DECLS
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = 0;
   // we do not use location 0 so start with 1 always
-  storeSize = 1;
-  numLives = 1;
+  storeSize = 0;
+  numLives = 0;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
 }
 
@@ -1313,12 +1313,12 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 }
 
 void StoreManagerLocintBlock::grow() {
-    if (groesse <= 1){
+    if (groesse == 0){
         groesse = initialeGroesse;
         struct FeldBlock tmp;
 	// do not use location 0
-        tmp.next = 1;
-        tmp.size = groesse - 1;
+        tmp.next = 0;
+        tmp.size = groesse;
         indexFeld.push_back(tmp);
     }
 
