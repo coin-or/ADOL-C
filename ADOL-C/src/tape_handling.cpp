@@ -41,7 +41,8 @@ END_C_DECLS
 
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = 0;
-  storeSize = 0;
+  // we do not use location 0 so start with 1 always
+  storeSize = 1;
   numLives = 1;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
 }
@@ -1232,9 +1233,6 @@ locint StoreManagerLocintBlock::next_loc() {
     indexFeld.front().next++;
     indexFeld.front().size--;
 
-    if (indexFeld.front().size == 0)
-          indexFeld.pop_front();
-
     ++anzahl;
 
 #ifdef ADOLC_DEBUG
@@ -1244,6 +1242,14 @@ locint StoreManagerLocintBlock::next_loc() {
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
     std::cerr << "next_loc: " << result << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
+
+    if (indexFeld.front().size == 0) {
+	if (indexFeld.size() <= 1)
+	    grow();
+	else
+          indexFeld.pop_front();
+    }
+
     return result;
 }
 
@@ -1310,11 +1316,12 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 }
 
 void StoreManagerLocintBlock::grow() {
-    if (groesse == 0){
-        groesse += initialeGroesse;
+    if (groesse <= 1){
+        groesse = initialeGroesse;
         struct FeldBlock tmp;
-        tmp.next = 0;
-        tmp.size = groesse;
+	// do not use location 0
+        tmp.next = 1;
+        tmp.size = groesse - 1;
         indexFeld.push_back(tmp);
     }
 
@@ -1362,7 +1369,7 @@ void StoreManagerLocintBlock::grow() {
     list<struct FeldBlock>::iterator iter = indexFeld.begin();
     for (; iter != indexFeld.end() ; iter++ ) {
          if (iter->next + iter->size == alteGroesse ) {
-              iter->size += alteGroesse;
+	     iter->size += (groesse - alteGroesse);
 	      // move the block to the end of the list because that is where
 	      // other functions expect the newly grown block to be
 	      struct FeldBlock tmp(*iter);
@@ -1370,12 +1377,6 @@ void StoreManagerLocintBlock::grow() {
 	      indexFeld.push_back(tmp);
               break;
          }
-    }
-    if (iter == indexFeld.end()) {
-         struct FeldBlock tmp;
-         tmp.next = alteGroesse;
-         tmp.size = alteGroesse;
-         indexFeld.push_back(tmp);
     }
 #ifdef ADOLC_DEBUG
     std::cerr << "Growing:" << endl;
