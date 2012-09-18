@@ -20,7 +20,8 @@
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Benjamin Letschert
+               Benjamin Letschert, Kshitij Kulshreshtha
+               
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -32,7 +33,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/taping.h>
 #include "taping_p.h"
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
 
@@ -154,14 +155,13 @@ typedef struct IndexElement_sod {
 }
 IndexElement_sod;
 
-#if defined(_TIGHT_)
 void free_tree(IndexElement* nlf, int num);
 void traverse_crs(IndexElement* fod2, IndexElement_sod* sod, int num);
 void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind);
 
+#if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_t"
-#endif
-#if defined(_NTIGHT_)
+#elif defined(_NTIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_s"
 #endif
 #endif
@@ -3630,7 +3630,11 @@ int  hov_forward(
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
+#ifdef _TIGHT_
+                ind_dom[res][0] = 0;
+#else
 		copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT_ */
 #endif
 #if defined(_NONLIND_)
                 arg_index[res] = arg_index[arg];		
@@ -3662,7 +3666,11 @@ int  hov_forward(
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
+#ifdef _TIGHT_
+                ind_dom[res][0] = 0;
+#else
 		copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT_ */
 #endif
 #if defined(_NONLIND_)
                 arg_index[res] = arg_index[arg];		
@@ -3853,6 +3861,553 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
 
+
+                /*--------------------------------------------------------------------------*/
+            case subscript:
+		coval = get_val_f();
+		arg = get_locint_f();
+		res = get_locint_f();
+		{
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
+#if !defined(_NTIGHT_)
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		    dp_T0[res] = dp_T0[arg1];
+#if defined(_INDO_)
+		    //copy_index_domain(res, arg1, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+		    ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+		    ASSIGN_T(Tres,TAYLOR_BUFFER[res])
+
+		    FOR_0_LE_l_LT_pk
+		    TRES_INC = TARG1_INC;
+#endif
+#endif
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+		break;
+
+            case subscript_ref:
+		coval = get_val_f();
+		arg = get_locint_f();
+		res = get_locint_f();
+		{
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
+#if !defined(_NTIGHT_)
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		    dp_T0[res] = arg1;
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif
+		}
+		break;
+
+            case ref_copyout:
+		arg = get_locint_f();
+		res = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		dp_T0[res] = dp_T0[arg1];
+#if defined(_INDO_)
+		//copy_index_domain(res, arg1, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+		ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+		ASSIGN_T(Tres,TAYLOR_BUFFER[res])
+
+		FOR_0_LE_l_LT_pk
+		TRES_INC = TARG1_INC;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		break;
+
+            case ref_incr_a:
+		arg = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
+		dp_T0[arg1]++;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_decr_a:
+		arg = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
+		dp_T0[arg1]--;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d:
+		arg = get_locint_f();
+		coval = get_val_f();
+		
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = coval;
+#if defined(_INDO_)
+		//ind_dom[arg1][0] = 0;
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d_zero:
+		arg = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = 0.0;
+#if defined(_INDO_)
+		//ind_dom[arg1][0] = 0;
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d_one:
+		arg = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = 1.0;
+#if defined(_INDO_)
+		//ind_dom[arg1][0] = 0;
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_a:           /* assign an adouble variable an    assign_a */
+                /* adouble value. (=) */
+                arg = get_locint_f();
+                res = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[res]));
+                IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+                dp_T0[arg1] = dp_T0[arg];
+#if defined(_INDO_)
+                //copy_index_domain(arg1, arg, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Targ,TAYLOR_BUFFER[arg])
+                ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+
+                FOR_0_LE_l_LT_pk
+                TARG1_INC = TARG_INC;
+#endif
+#endif 
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_assign_ind:       /* assign an adouble variable an    assign_ind */
+                /* independent double value (<<=) */
+                arg = get_locint_f();
+
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] = basepoint[indexi];
+#if defined(_INDO_)
+		//ind_dom[res][0] = 1;
+		//ind_dom[res][2] = indexi;
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_INC = ARGUMENT(indexi,l,i);
+#else
+                FOR_0_LE_l_LT_p
+                FOR_0_LE_i_LT_k
+                TRES_INC = ARGUMENT(indexi,l,i);
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                ++indexi;
+                break;
+
+            case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
+                /* adouble. (+=) */
+                arg  = get_locint_f();
+                coval = get_val_f();
+
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] += coval;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case ref_eq_plus_a:             /* Add an adouble to another    eq_plus_a */
+                /* adouble. (+=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] += dp_T0[arg];
+#if defined(_INDO_)
+                //merge_2_index_domains(res, arg, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_pk
+                TRES_INC |= TARG_INC;
+#else
+                FOR_0_LE_l_LT_pk
+                TRES_INC += TARG_INC;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
+                /* adouble. (-=) */
+                arg = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] -= coval;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case ref_eq_min_a:        /* Subtract an adouble from another    eq_min_a */
+                /* adouble. (-=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] -= dp_T0[arg];
+#if defined(_INDO_)
+                //merge_2_index_domains(res, arg, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_pk
+                TRES_INC |= TARG_INC;
+#else
+                FOR_0_LE_l_LT_pk
+                TRES_INC -= TARG_INC;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
+                /* flaoting point. (*=) */
+                arg = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] *= coval;
+#if !defined(_INDO_)
+#if !defined(_ZOS_) /* BREAK_ZOS */
+#if !defined( _INT_FOR_)
+
+                FOR_0_LE_l_LT_pk
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+                FOR_0_LE_l_LT_pk
+                TRES_INC *= coval;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_mult_a:       /* Multiply one adouble by another    eq_mult_a */
+                /* (*=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+#if defined(_INDO_)
+                //merge_2_index_domains(res, arg, ind_dom);
+#if defined(_NONLIND_)
+                //extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+                INC_pk_1(Tres)
+                INC_pk_1(Targ)
+
+#ifdef _INT_FOR_
+                FOR_p_GT_l_GE_0
+                TRES_FODEC |= TARG_DEC;
+#else
+                FOR_p_GT_l_GE_0
+                FOR_k_GT_i_GE_0
+                { TRES_FODEC = dp_T0[res]*TARG_DEC +
+                               TRES*dp_T0[arg];
+                  DEC_TRES_FO
+#ifdef _HIGHER_ORDER_
+                  TresOP = Tres-i;
+                  TargOP = Targ;
+
+                  for (j=0;j<i;j++)
+                  *Tres += (*TresOP++) * (*TargOP--);
+                  Tres--;
+#endif /* _HIGHER_ORDER_ */
+                }
+#endif
+#endif
+#endif
+		dp_T0[res] *= dp_T0[arg];
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_cond_assign:                                      /* cond_assign */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2  = get_locint_f();
+		{ 
+		    locint ref = get_locint_f();
+		    coval = get_val_f();
+#if !defined(_NTIGHT_)
+		    res   = (size_t)trunc(fabs(dp_T0[ref]));
+
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+		    //combine_2_index_domains(res, arg1, arg2, ind_dom);
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+
+		    //combine_2_index_domains(res, arg1, arg2, ind_dom);
+                }
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+                FOR_0_LE_l_LT_pk
+                TRES_INC = TARG1_INC | TARG2_INC;
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+#endif
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+                break;
+
+            case ref_cond_assign_s:                                  /* cond_assign_s */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2   = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg2]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+                    //copy_index_domain(res, arg1, ind_dom);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+#endif
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
 
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */

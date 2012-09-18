@@ -12,7 +12,7 @@
  
 ---------------------------------------------------------------------------*/
 
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include <adolc/adalloc.h>
 #include "taping_p.h"
 #include <adolc/externfcts.h>

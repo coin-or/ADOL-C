@@ -11,10 +11,10 @@
 ##############################################################################
 
 if SPARSE
-AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
+AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1 -std=gnu99
 AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 else
-AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1
+AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
 AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 endif
 
@@ -31,15 +31,15 @@ endif
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
-                       taping_p.h malloc.h storemanager.h \
+                       oplate.h taping_p.h malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h 
 
 pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        common.h convolut.h dvlparms.h fortutils.h\
-                       interfaces.h oplate.h taping.h usrparms.h \
+                       interfaces.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
-                       revolve.h
+                       revolve.h advector.h
 
 lib_LTLIBRARIES      = libadolc.la
 
@@ -60,7 +60,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
-                       int_reverse_s.c int_reverse_t.c 
+                       int_reverse_s.c int_reverse_t.c advector.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
@@ -76,7 +76,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
                        forward_partx.c \
                        externfcts.cpp checkpointing.cpp \
-                       fixpoint.cpp fov_offset_forward.c revolve.c 
+                       fixpoint.cpp fov_offset_forward.c revolve.c advector.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 

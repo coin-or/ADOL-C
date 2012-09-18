@@ -1,0 +1,14 @@
+*.user
+*.suo
+sparse/*
+nosparse/*
+x64/sparse/*
+x64/nosparse/*
+!sparse/*.h
+!nosparse/*.h
+!x64/sparse/*.h
+!x64/nosparse/*.h
+!sparse/*.h.in
+!nosparse/*.h.in
+!x64/sparse/*.h.in
+!x64/nosparse/*.h.in

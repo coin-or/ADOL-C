@@ -5,7 +5,8 @@
  Contents: Numeric values for the various opcodes used by ADOL-C.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -15,8 +16,6 @@
 
 #if !defined(ADOLC_OPLATE_P_H)
 #define ADOLC_OPLATE_P_H 1
-
-#include <adolc/common.h>
 
 /****************************************************************************/
 /* opcodes */
@@ -83,7 +82,25 @@ enum OPCODES {
   floor_op,
   ext_diff,
   dump_it,
-  ignore_me
+  ignore_me,
+  subscript = 80,
+  subscript_ref,
+  ref_assign_d_zero,
+  ref_assign_d_one,
+  ref_assign_d,
+  ref_assign_a,
+  ref_assign_ind,
+  ref_incr_a,
+  ref_decr_a,
+  ref_eq_plus_d,
+  ref_eq_min_d,
+  ref_eq_plus_a,
+  ref_eq_min_a,
+  ref_eq_mult_d,
+  ref_eq_mult_a,
+  ref_copyout,
+  ref_cond_assign,
+  ref_cond_assign_s
 };
 
 /****************************************************************************/
