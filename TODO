@@ -1,4 +1,3 @@
-
 - check variable initialization (to overcome ADOL-C - malloc bug)
 
 - performance tuning for tape handling and in many other ways
