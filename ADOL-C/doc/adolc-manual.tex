@@ -1035,6 +1035,30 @@ converts {\sf adouble}s to {\sf double}s. The deleterious effects
 of unnecessary activity are partly alleviated by run time
 activity flags in the derivative routine
 {\sf hov\_reverse} presented in \autoref{forw_rev_ad}.
+
+The {\sf adouble} default constructor sets to zero the associated value. 
+This implies a certain overhead that may seem unnecessary when no initial value 
+is actually given, however, 
+the implicit initialization of arrays from a partial value list is the only legitimate construct (known to us) that requires this behavior.
+An array instantiation such as 
+\begin{center}
+\sf double x[3]=\{2.0\};
+\end{center}
+will initialize {\sf x[0]} to {\sf 2.0} and initialize (implicitly) the remaining array elements 
+{\sf x[1]} and {\sf x[2]}  to {\sf 0.0}. According to the C++ standard the array element  construction of 
+the type changed instantiation 
+\begin{center}
+\sf adouble x[3]=\{2.0\};
+\end{center}
+will use the constructor {\sf adouble(const double\&);} for {\sf x[0]} passing in {\sf 2.0} but 
+will call the {\sf adouble} default constructor {\sf x[1]} and {\sf x[2]} leaving these array 
+elements uninitialized {\em unless} the default constructor does implement the initialization to 
+zero. 
+The C++ constructor syntax does not provide a means to  distinguish this implicit initialization from the declaration of any simple uninitialized variable.
+If the user can ascertain the absence of array instantiations such as the above then one can  
+configure ADOL-C with the \verb=--disable-stdczero= option , see \autoref{genlib}, to 
+avoid the overhead of these initializations.  
+ 
 %
 %
 %
@@ -3433,6 +3457,11 @@ files,
 the compiler used to compile {\sf ADOL-C} one of these libraries will
 be used for linking.
  
+The option \verb=--disable-stdczero= turns off the initialization in the {\sf adouble} default 
+constructor. This will improve efficiency but requires that there be no implicit array initialization in the code, see 
+\autoref{WarSug}.  
+
+
 \subsection{Compiling and Linking the Example Programs}
 %
 The installation procedure described in \autoref{genlib} also
