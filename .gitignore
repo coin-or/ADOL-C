@@ -24,3 +24,6 @@ libtool
 doltcompile
 doltlibtool
 resource.h
+.project
+.cproject
+.autotools
