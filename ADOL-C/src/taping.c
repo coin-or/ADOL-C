@@ -237,7 +237,7 @@ void fail( int error ) {
 
         case ADOLC_EXT_DIFF_LOCATIONGAP:
           fprintf(DIAG_OUT,
-                  "ADOL-C error: active type arguments passed to call_ext_fct do not have contiguous ascending locations;\n");
+                  "ADOL-C error: active type arguments passed to call_ext_fct do not have contiguous ascending locations; use ensureContiguousLocations(size_t) to reserve  contiguous blocks prior to allocation of the arguments.\n");
           break;
 
         case ADOLC_CHECKPOINTING_CPINFOS_NULLPOINTER:
