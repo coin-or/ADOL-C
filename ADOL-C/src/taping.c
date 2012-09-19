@@ -592,7 +592,7 @@ void take_stock() {
     vals      = ADOLC_GLOBAL_TAPE_VARS.store;
     
     /* if we have adoubles in use */
-    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 1) {
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
     /* fill the current values (real) tape buffer and write it to disk
      * - do this as long as buffer can be fully filled */
     while (space_left < vals_left) {
@@ -626,7 +626,7 @@ locint keep_stock() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* if we have adoubles in use */
-    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 1) {
+    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
         locint loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
 
         /* special signal -> all alive adoubles recorded on the end of the
