@@ -632,15 +632,15 @@ locint keep_stock() {
         /* special signal -> all alive adoubles recorded on the end of the
          * value stack -> special handling at the beginning of reverse */
         put_op(death_not);
-        ADOLC_PUT_LOCINT(1);    /* lowest loc */
+        ADOLC_PUT_LOCINT(0);    /* lowest loc */
         ADOLC_PUT_LOCINT(loc2); /* highest loc */
 
-        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
+        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize;
         /* now really do it if keepTaylors ist set */
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
             do {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
-            } while (--loc2 > 0);
+            } while (loc2-- > 0);
         }
     }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
