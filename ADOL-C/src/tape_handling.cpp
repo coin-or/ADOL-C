@@ -1202,7 +1202,7 @@ StoreManagerLocintBlock::~StoreManagerLocintBlock()
      delete[] storePtr;
      storePtr = 0;
     }
-    if (indexFeld.size() ) {
+    if (!indexFeld.empty() ) {
 	indexFeld.clear();
     }
     groesse = 0;
@@ -1226,7 +1226,7 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
 
 
 locint StoreManagerLocintBlock::next_loc() {
-    if ( indexFeld.size()==0 )
+    if ( indexFeld.empty() )
 	grow();
 
     locint const result = indexFeld.front().next;
@@ -1256,7 +1256,7 @@ locint StoreManagerLocintBlock::next_loc() {
 void StoreManagerLocintBlock::ensure_block(size_t n) {
     bool grown = false;
 
-    if ( indexFeld.size()==0 ) {
+    if ( indexFeld.empty() ) {
 #ifdef ADOLC_DEBUG
 	std::cerr << "no free blocks...growing " << endl;
 #endif
