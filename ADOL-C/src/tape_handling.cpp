@@ -1367,16 +1367,26 @@ void StoreManagerLocintBlock::grow() {
       delete [] oldStore;
     }
     list<struct FeldBlock>::iterator iter = indexFeld.begin();
-    list<struct FeldBlock>::iterator maxIter=iter;
-    for (; iter != indexFeld.end() ; iter++ ) {
-	 if (iter->next + iter->size > maxIter->next + maxIter->size)
-           maxIter=iter;
+    bool foundTail=false;
+    for (; iter != indexFeld.end() ; ++iter ) {
+      if (iter->next + iter->size == alteGroesse ) {
+        iter->size += (groesse - alteGroesse);
+        // move the block to the end of the list because that is where
+        // other functions expect the newly grown block to be
+        indexFeld.push_back(*iter);
+        indexFeld.erase(iter);
+        foundTail=true;
+        break;
+      }
     }
-    maxIter->size += (groesse - alteGroesse);
-    // move the block to the end of the list because that is where
-    // other functions expect the newly grown block to be
-    indexFeld.push_back(*maxIter);
-    indexFeld.erase(maxIter);
+    if (not foundTail) {
+      struct FeldBlock tmp;
+      tmp.next = alteGroesse;
+      tmp.size = groesse - alteGroesse;
+      // add the block to the end of the list because that is where
+      // other functions expect the newly grown block to be
+      indexFeld.push_back(tmp);
+    }
 #ifdef ADOLC_DEBUG
     std::cerr << "Growing:" << endl;
     iter = indexFeld.begin();
