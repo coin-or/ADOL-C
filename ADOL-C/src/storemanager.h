@@ -128,7 +128,11 @@ protected:
     size_t &groesse;
     size_t &anzahl;
 private:
-    void grow( );
+    /**
+     * when minGrow is specified we asssume that we have already
+     * search the blocks and found no block with minGrow locations in it
+     */
+    void grow(size_t minGrow=0 );
 public:
     StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
     StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
