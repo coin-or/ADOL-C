@@ -40,8 +40,7 @@ END_C_DECLS
 #endif
 
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
-  store = 0;
-  // we do not use location 0 so start with 1 always
+  store = NULL;
   storeSize = 0;
   numLives = 0;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
@@ -50,7 +49,7 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
   if (storeManagerPtr) {
     delete storeManagerPtr;
-    storeManagerPtr = 0;
+    storeManagerPtr = NULL;
   }
 }
 
@@ -78,9 +77,9 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
 
 StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
-    indexFeld(0),
+    indexFree(0),
     head(0),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
@@ -96,27 +95,27 @@ StoreManagerLocint::~StoreManagerLocint()
 	delete[] storePtr;
 	storePtr = 0;
     }
-    if (indexFeld) {
-	delete[] indexFeld;
-	indexFeld = 0;
+    if (indexFree) {
+	delete[] indexFree;
+	indexFree = 0;
     }
-    groesse = 0;
-    anzahl = 0;
+    maxsize = 0;
+    currentfill = 0;
     head = 0;
 }
 
 StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
 				       double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
     head = stm->head;
-    indexFeld = new locint[groesse];
-    for (int i = 0; i < groesse; i++)
-	indexFeld[i] = stm->indexFeld[i];
+    indexFree = new locint[maxsize];
+    for (int i = 0; i < maxsize; i++)
+	indexFree[i] = stm->indexFree[i];
 }
 
 locint StoreManagerLocint::next_loc() {
@@ -125,8 +124,8 @@ locint StoreManagerLocint::next_loc() {
     }
     assert(head);
     locint const result = head;
-    head = indexFeld[head];
-    ++anzahl;
+    head = indexFree[head];
+    ++currentfill;
 #ifdef ADOLC_DEBUG_LOC
     std::cerr << "next_loc: " << result << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
@@ -134,21 +133,21 @@ locint StoreManagerLocint::next_loc() {
 }
 
 void StoreManagerLocint::free_loc(locint loc) {
-    assert(0 < loc && loc < groesse);
-    indexFeld[loc] = head;
+    assert(0 < loc && loc < maxsize);
+    indexFree[loc] = head;
     head = loc;
-    --anzahl;
+    --currentfill;
 #ifdef ADOLC_DEBUG_LOC
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
 }
 
 void StoreManagerLocint::grow() {
-    if (groesse == 0) groesse += initialeGroesse;
-    size_t const alteGroesse = groesse;
-    groesse *= 2;
+    if (maxsize == 0) maxsize += initialSize;
+    size_t const oldMaxsize = maxsize;
+    maxsize *= 2;
 
-    if (groesse > std::numeric_limits<locint>::max()) {
+    if (maxsize > std::numeric_limits<locint>::max()) {
       // encapsulate this error message
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%d) of live active variables exceeded\n\n", 
@@ -157,41 +156,41 @@ void StoreManagerLocint::grow() {
     }
 
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::grow(): increase size from " << alteGroesse 
-	 << " to " << groesse << " entries (currently " << size() << " entries used)\n";
-    assert(alteGroesse == initialeGroesse or size() == alteGroesse);
+    std::cerr << "StoreManagerInteger::grow(): increase size from " << oldMaxsize
+	 << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
+    assert(oldMaxsize == initialSize or size() == oldMaxsize);
 #endif
 
     double *const oldStore = storePtr;
-    locint *const oldIndex = indexFeld;
+    locint *const oldIndex = indexFree;
 
 #if defined(ADOLC_DEBUG)
-    std::cerr << "StoreManagerInteger::grow(): allocate " << groesse * sizeof(double) << " B doubles " 
-	 << "and " << groesse * sizeof(locint) << " B locints\n";
+    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles " 
+	 << "and " << maxsize * sizeof(locint) << " B locints\n";
 #endif
-    storePtr = new double[groesse];
-    indexFeld = new locint[groesse];
+    storePtr = new double[maxsize];
+    indexFree = new locint[maxsize];
     // we use index 0 as end-of-list marker
     size_t i = 1;
     storePtr[0] =  std::numeric_limits<double>::quiet_NaN();
 
-    if (alteGroesse != initialeGroesse) { // not the first time
+    if (oldMaxsize != initialSize) { // not the first time
 #if defined(ADOLC_DEBUG)
       std::cerr << "StoreManagerInteger::grow(): copy values\n";
 #endif
-      for (size_t j = i; j < alteGroesse; ++j) {
-	indexFeld[j] = oldIndex[j];
+      for (size_t j = i; j < oldMaxsize; ++j) {
+	indexFree[j] = oldIndex[j];
       }
-      for (size_t j = i; j < alteGroesse; ++j) {
+      for (size_t j = i; j < oldMaxsize; ++j) {
 	storePtr[j] = oldStore[j];
       }
 
       // reset i to start of new slots (upper half)
-      i = alteGroesse;
+      i = oldMaxsize;
 
 #if defined(ADOLC_DEBUG)
-      std::cerr << "StoreManagerInteger::grow(): free " << alteGroesse * sizeof(double)
-		<< " + " << alteGroesse * sizeof(locint) << " B\n";
+      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double)
+		<< " + " << oldMaxsize * sizeof(locint) << " B\n";
 #endif
       delete [] oldStore;
       delete [] oldIndex;
@@ -199,11 +198,11 @@ void StoreManagerLocint::grow() {
 
     head = i;
     // create initial linked list for new slots
-    for ( ; i < groesse-1; ++i) {
-      indexFeld[i] = i + 1;
+    for ( ; i < maxsize-1; ++i) {
+      indexFree[i] = i + 1;
     }
-    indexFeld[i] = 0; // end marker
-    assert(i == groesse-1);
+    indexFree[i] = 0; // end marker
+    assert(i == maxsize-1);
 }
 
 
@@ -1185,9 +1184,9 @@ TapeInfos::TapeInfos(short _tapeID) {
 
 StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
-    indexFeld.clear();
+    indexFree.clear();
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
 #endif
@@ -1202,195 +1201,172 @@ StoreManagerLocintBlock::~StoreManagerLocintBlock()
      delete[] storePtr;
      storePtr = 0;
     }
-    if (indexFeld.size() ) {
-	indexFeld.clear();
+    if (!indexFree.empty() ) {
+	indexFree.clear();
     }
-    groesse = 0;
-    anzahl = 0;
+    maxsize = 0;
+    currentfill = 0;
 }
 
 StoreManagerLocintBlock::StoreManagerLocintBlock(
     const StoreManagerLocintBlock *const stm,
     double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
-    indexFeld.clear();
-    list<struct FeldBlock>::const_iterator iter = stm->indexFeld.begin();
-    for (; iter != stm->indexFeld.end(); iter++)
-	indexFeld.push_back( *iter );
+    indexFree.clear();
+    list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
+    for (; iter != stm->indexFree.end(); iter++)
+	indexFree.push_back( *iter );
 }
 
 
 locint StoreManagerLocintBlock::next_loc() {
-    if ( indexFeld.size()==0 )
+    if ( indexFree.empty() )
 	grow();
 
-    locint const result = indexFeld.front().next;
-    indexFeld.front().next++;
-    indexFeld.front().size--;
+    locint const result = indexFree.front().next;
+    indexFree.front().next++;
+    indexFree.front().size--;
 
-    ++anzahl;
+    ++currentfill;
 
 #ifdef ADOLC_DEBUG
-     std::cerr  << "next_loc() , anzahl= " <<anzahl << ", groesse= "<< groesse << endl;
-    list<struct FeldBlock>::iterator iter = indexFeld.begin();
-    for( ; iter != indexFeld.end(); iter++ )
+    std::cerr << "StoreManagerLocintBlock::next_loc: result: " << result << " fill: " << size() << "max: " << maxSize() << endl;
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
-    std::cerr << "next_loc: " << result << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
 
-    if (indexFeld.front().size == 0) {
-	if (indexFeld.size() <= 1)
+    if (indexFree.front().size == 0) {
+	if (indexFree.size() <= 1)
 	    grow();
 	else
-          indexFeld.pop_front();
+          indexFree.pop_front();
     }
 
     return result;
 }
 
 void StoreManagerLocintBlock::ensure_block(size_t n) {
-    bool grown = false;
+    bool found = false;
 
-    if ( indexFeld.size()==0 ) {
 #ifdef ADOLC_DEBUG
-	std::cerr << "no free blocks...growing " << endl;
+    std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
+    std::cerr << "searching for big enough block " << endl;
 #endif
-	grow();
-	grown = true;
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
+	if ( iter->size >= n) {
+	    if (iter != indexFree.begin() ) {
+		struct FreeBlock tmp(*iter);
+		iter = indexFree.erase(iter);
+		indexFree.push_front(tmp);
+	    }
+	    found = true;
+	    break;
+	}
     }
-
-    while (indexFeld.front().size < n) {
-	if (grown && indexFeld.back().size >= n) {
+    if (!found) {
 #ifdef ADOLC_DEBUG
-	    std::cerr << "bringing back to front " << endl;
+	std::cerr << "no big enough block...growing " << endl;
 #endif
-	    struct FeldBlock tmp(indexFeld.back());
-	    indexFeld.pop_back();
-	    indexFeld.push_front(tmp);
-	}
-	else if (grown && indexFeld.back().size < n) {
-#ifdef ADOLC_DEBUG
-	    std::cerr << "still not enough...growing " << endl;
-#endif
-	    grow();
-	}
-	else {
-#ifdef ADOLC_DEBUG
-	    std::cerr << "searching for big enough block " << endl;
-#endif
-	    bool found = false;
-	    list<struct FeldBlock>::iterator iter = indexFeld.begin();
-	    for (; iter != indexFeld.end() ; iter++ ) {
-		if ( iter->size >= n) {
-		    if (iter != indexFeld.begin() ) {
-			struct FeldBlock tmp(*iter);
-			iter = indexFeld.erase(iter);
-			indexFeld.push_front(tmp);
-		    }
-		    found = true;
-		    break;
-		}
-	    }
-	    if (!found) {
-#ifdef ADOLC_DEBUG
-		std::cerr << "no big enough block...growing " << endl;
-#endif
-		grow();
-		grown = true;
-	    }
-	}
+	grow(n);
     }
 
 #ifdef ADOLC_DEBUG
-    std::cerr << "ensure_Block: " << " fill: " << size() << "max: " << maxSize() << endl;
-    std::cerr << "ensure_Block (" << n << ")" << endl;
-    list<struct FeldBlock>::iterator iter = indexFeld.begin();
-    for( ; iter != indexFeld.end(); iter++ )
-       std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+    std::cerr << "StoreManagerLocintBlock::ensure_Block: " << " fill: " << size() << "max: " << maxSize() <<  " ensure_Block (" << n << ")" << endl;
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
 }
 
-void StoreManagerLocintBlock::grow() {
-    if (groesse == 0){
-        groesse = initialeGroesse;
-        struct FeldBlock tmp;
-	// do not use location 0
-        tmp.next = 0;
-        tmp.size = groesse;
-        indexFeld.push_back(tmp);
+void StoreManagerLocintBlock::grow(size_t minGrow) {
+    // first figure out what eventual size we want
+    size_t const oldMaxsize = maxsize;
+
+    if (maxsize == 0){
+        maxsize = initialSize;
+    } else {
+	maxsize *= 2;
     }
 
-    size_t const alteGroesse = groesse;
-    groesse *= 2;
+    if (minGrow > 0) {
+	while (maxsize - oldMaxsize < minGrow) {
+	    maxsize *= 2;
+	}
+    }
 
-    if (groesse > std::numeric_limits<locint>::max()) {
+    if (maxsize > std::numeric_limits<locint>::max()) {
       // encapsulate this error message
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
-      fprintf(DIAG_OUT,"maximal number (%d) of live active variables exceeded\n\n",
+      fprintf(DIAG_OUT,"maximal number (%u) of live active variables exceeded\n\n",
            std::numeric_limits<locint>::max());
       exit(-3);
     }
 
 #ifdef ADOLC_DEBUG
     // index 0 is not used, means one slot less
-    std::cerr << "StoreManagerIntegerBlock::grow(): increase size from " << alteGroesse
-      << " to " << groesse << " entries (currently " << size() << " entries used)\n";
+    std::cerr << "StoreManagerIntegerBlock::grow(): increase size from " << oldMaxsize
+      << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
 #endif
 
     double *const oldStore = storePtr;
 
 #if defined(ADOLC_DEBUG)
-    std::cerr << "StoreManagerInteger::grow(): allocate " << groesse * sizeof(double) << " B doubles "
-      << "and " << groesse * sizeof(struct FeldBlock) << " B LinkBlocks\n";
+    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles\n";
 #endif
-    storePtr = new double[groesse];
-    memset(storePtr, 0, groesse*sizeof(double));
-    size_t i = 0;
+    storePtr = new double[maxsize];
+    assert(storePtr);
+    memset(storePtr, 0, maxsize*sizeof(double));
 
-    if (alteGroesse != initialeGroesse) { // not the first time
+    if (oldStore != NULL) { // not the first time
 #if defined(ADOLC_DEBUG)
       std::cerr << "StoreManagerInteger::grow(): copy values\n";
 #endif
-      for (size_t j = i; j < alteGroesse; ++j) {
-          storePtr[j] = oldStore[j];
-      }
+
+      memcpy(storePtr, oldStore, oldMaxsize*sizeof(double));
 
 #if defined(ADOLC_DEBUG)
-      std::cerr << "StoreManagerInteger::grow(): free " << alteGroesse * sizeof(double)
-          << " + " << alteGroesse * sizeof(struct FeldBlock) << " B\n";
+      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double) << "\n";
 #endif
       delete [] oldStore;
     }
-    list<struct FeldBlock>::iterator iter = indexFeld.begin();
-    for (; iter != indexFeld.end() ; iter++ ) {
-         if (iter->next + iter->size == alteGroesse ) {
-	     iter->size += (groesse - alteGroesse);
-	      // move the block to the end of the list because that is where
-	      // other functions expect the newly grown block to be
-	      struct FeldBlock tmp(*iter);
-	      iter = indexFeld.erase(iter);
-	      indexFeld.push_back(tmp);
-              break;
+    bool foundTail = false;
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
+         if (iter->next + iter->size == oldMaxsize ) {
+	     iter->size += (maxsize - oldMaxsize);
+	      struct FreeBlock tmp(*iter);
+	      iter = indexFree.erase(iter);
+	      indexFree.push_front(tmp);
+	      foundTail = true;
          }
+	 if (!(iter->size)) iter=indexFree.erase(iter); // don't leave 0 blocks around
+    }
+    if (! foundTail) {
+	struct FreeBlock tmp;
+	tmp.next = oldMaxsize;
+	tmp.size = (maxsize - oldMaxsize);
+	indexFree.push_front(tmp);
     }
 #ifdef ADOLC_DEBUG
     std::cerr << "Growing:" << endl;
-    iter = indexFeld.begin();
-    for( ; iter != indexFeld.end(); iter++ )
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
 }
 
 void StoreManagerLocintBlock::free_loc(locint loc) {
-    assert( loc < groesse);
+    assert( loc < maxsize);
 
-    list<struct FeldBlock>::iterator iter = indexFeld.begin();
-    for (; iter != indexFeld.end() ; iter++ ) {
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
          if (loc+1 == iter->next || iter->next + iter->size == loc) {
               iter->size++;
               if (loc + 1 == iter->next)
@@ -1398,26 +1374,26 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
     // bringing the matched element to the front maybe a good idea
     // in case several contiguous adouble are deallcated right after 
     // one another, e.g. advector
-	      struct FeldBlock tmp(*iter);
-	      iter = indexFeld.erase(iter);
-	      indexFeld.push_front(tmp);
-	      iter = indexFeld.begin();
+	      struct FreeBlock tmp(*iter);
+	      iter = indexFree.erase(iter);
+	      indexFree.push_front(tmp);
+	      iter = indexFree.begin();
 	      break;
          }
     }
-    if (iter == indexFeld.end()) {
-         struct FeldBlock tmp;
+    if (iter == indexFree.end()) {
+         struct FreeBlock tmp;
          tmp.next = loc;
          tmp.size = 1;
-         indexFeld.push_front(tmp);
+         indexFree.push_front(tmp);
     }
 
-    --anzahl;
+    --currentfill;
 #ifdef ADOLC_DEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 
-    iter = indexFeld.begin();
-    for( ; iter != indexFeld.end(); iter++ )
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
 }
