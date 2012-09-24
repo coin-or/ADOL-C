@@ -78,3 +78,7 @@ ADOL-C/examples/speelpenning
 ADOL-C/examples/tapeless_scalar
 ADOL-C/examples/tapeless_vector
 ADOL-C/test/fminmax
+ADOL-C/doc/adolc-manual.aux
+ADOL-C/doc/adolc-manual.log
+ADOL-C/doc/adolc-manual.out
+ADOL-C/doc/adolc-manual.toc
