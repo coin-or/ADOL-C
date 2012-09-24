@@ -1333,6 +1333,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 #endif
       delete [] oldStore;
     }
+
     bool foundTail = false;
     list<struct FreeBlock>::iterator iter = indexFree.begin();
     for (; iter != indexFree.end() ; iter++ ) {
@@ -1342,14 +1343,23 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 	      iter = indexFree.erase(iter);
 	      indexFree.push_front(tmp);
 	      foundTail = true;
+	      break;
          }
-	 if (!(iter->size)) iter=indexFree.erase(iter); // don't leave 0 blocks around
     }
+
     if (! foundTail) {
 	struct FreeBlock tmp;
 	tmp.next = oldMaxsize;
 	tmp.size = (maxsize - oldMaxsize);
 	indexFree.push_front(tmp);
+    }
+
+    iter = indexFree.begin();
+    while (iter != indexFree.end()) {
+	 if (iter->size == 0)
+	     iter=indexFree.erase(iter); // don't leave 0 blocks around
+	 else
+	     iter++;
     }
 #ifdef ADOLC_DEBUG
     std::cerr << "Growing:" << endl;
