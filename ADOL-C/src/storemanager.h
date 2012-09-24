@@ -68,7 +68,7 @@
 
 class StoreManager {
 protected:
-  static size_t const initialeGroesse = 4;
+  static size_t const initialSize = 4;
 public:
   virtual ~StoreManager() {}
 
@@ -88,10 +88,10 @@ public:
 class StoreManagerLocint : public StoreManager {
 protected:
   double * &storePtr;
-  locint * indexFeld;
+  locint * indexFree;
   locint head;
-  size_t &groesse;
-  size_t &anzahl;
+  size_t &maxsize;
+  size_t &currentfill;
 private:
   void grow();
 public:
@@ -100,9 +100,9 @@ public:
   StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, size_t &size, size_t &numLives);
 
   virtual ~StoreManagerLocint();
-  virtual inline size_t size() const { return anzahl; }
+  virtual inline size_t size() const { return currentfill; }
 
-  virtual inline size_t maxSize() const { return groesse; }
+  virtual inline size_t maxSize() const { return maxsize; }
 
   virtual inline bool realloc_on_next_loc() const { 
       return (head == 0);
@@ -116,17 +116,17 @@ public:
 class StoreManagerLocintBlock : public StoreManager {
 protected:
     double * &storePtr;
-    struct FeldBlock {
+    struct FreeBlock {
 	locint next; // next location
 	size_t size; // number of following free locations
-	FeldBlock(): next(0), size(0) {}
-	FeldBlock(const struct FeldBlock &block) :
+	FreeBlock(): next(0), size(0) {}
+	FreeBlock(const struct FreeBlock &block) :
 	    next(block.next),size(block.size) {}
     };
 
-    list<struct FeldBlock> indexFeld;
-    size_t &groesse;
-    size_t &anzahl;
+    list<struct FreeBlock> indexFree;
+    size_t &maxsize;
+    size_t &currentfill;
 private:
     /**
      * when minGrow is specified we asssume that we have already
@@ -138,9 +138,9 @@ public:
     StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
 
     virtual ~StoreManagerLocintBlock();
-    virtual inline size_t size() const { return anzahl; }
+    virtual inline size_t size() const { return currentfill; }
 
-    virtual inline size_t maxSize() const { return groesse; }
+    virtual inline size_t maxSize() const { return maxsize; }
 
     virtual locint next_loc();
     virtual void free_loc(locint loc);
