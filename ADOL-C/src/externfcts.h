@@ -191,6 +191,15 @@ typedef struct {
    */
   short **spp_nz;
 
+  /**
+   * track maximal value of n when function is invoked
+   */
+  int max_n;
+
+  /**
+   * track maximal value of m when function is invoked
+   */
+  int max_m;
 }
 ext_diff_fct;
 

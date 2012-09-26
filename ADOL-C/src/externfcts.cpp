@@ -64,6 +64,9 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct) {
 
   edf->spp_nz=0;
 
+  edf->max_n=0;
+  edf->max_m=0;
+
   return edf;
 }
 
@@ -97,6 +100,9 @@ int call_ext_fct(ext_diff_fct *edfct,
     vals = new double[numVals];
     memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store,
             numVals * sizeof(double));
+
+    edfct->max_n=(edfct->max_n<n)?n:edfct->max_n;
+    edfct->max_m=(edfct->max_m<m)?m:edfct->max_m;
 
     for (i=0; i<n; ++i) xp[i]=xa[i].getValue();
     for (i=0; i<m; ++i) yp[i]=ya[i].getValue();
