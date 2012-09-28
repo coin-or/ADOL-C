@@ -222,7 +222,7 @@ void fail( int error ) {
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC:
             fprintf(DIAG_OUT,
-                    "ADOL-C error: No function for externally differentiation found"
+                    "ADOL-C error: No function for external differentiation found"
                     " to work with (null pointer)\n!");
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT:
