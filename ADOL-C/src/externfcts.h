@@ -204,7 +204,7 @@ typedef struct {
   /**
    * make the call such that Adol-C may be used inside
    * of the externally differentiated function;
-   * defaults to 0;
+   * defaults to non-0;
    * this implies certain storage duplication that can
    * be avoided if no nested use of Adol-C takes place
    */
