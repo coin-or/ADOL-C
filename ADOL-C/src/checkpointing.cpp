@@ -298,7 +298,7 @@ int cp_hov_forward (int n, double *dp_x, int d, int p, double ***dppp_X,
     return 0;
 }
 
-int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z) {
+int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     revreal *A = ADOLC_CURRENT_TAPE_INFOS.rp_A;

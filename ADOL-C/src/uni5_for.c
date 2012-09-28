@@ -4480,6 +4480,9 @@ int  hov_forward(
 
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_x[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4490,6 +4493,9 @@ int  hov_forward(
                 }
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
+                    if (edfct->dp_y_priorRequired) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_y[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4504,7 +4510,6 @@ int  hov_forward(
 
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_x[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4515,7 +4520,6 @@ int  hov_forward(
                 }
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_y[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
