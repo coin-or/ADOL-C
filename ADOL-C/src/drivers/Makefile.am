@@ -2,7 +2,7 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## Revision: $Id$
 ##
-## Copyright (C)  Andrea Walther, Andreas Kowarz
+## Copyright (C)  Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
 ##
 ## This file is part of ADOL-C. This software is provided as open source.
 ## Any use, reproduction, or distribution of the software constitutes 
@@ -13,17 +13,11 @@
 AM_CFLAGS                 = @ac_adolc_cflags@ -DADOLC_INTERNAL=1
 AM_CXXFLAGS               = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 AM_LDFLAGS                = -no-undefined
-AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C -I$(top_srcdir)/ADOL-C/src
+AM_CPPFLAGS               = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 
 MAINTAINERCLEANFILES      = Makefile.in *~ *.orig
 
-INCLUDES                  = -I$(top_builddir)/ADOL-C
-
 noinst_LTLIBRARIES        = libdrivers.la
-
-libdriversincludedir      = $(pkgincludedir)/drivers
-
-libdriversinclude_HEADERS = drivers.h odedrivers.h taylor.h
 
 libdrivers_la_SOURCES     = drivers.c driversf.c odedrivers.c odedriversf.c \
                             taylor.c
