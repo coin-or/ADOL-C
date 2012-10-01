@@ -177,7 +177,9 @@ ADOL-C/examples/tapeless_vector.cpp -text
 ADOL-C/examples/tapeless_vector.vcxproj -text
 ADOL-C/examples/winpackage.sh -text
 ADOL-C/include/Makefile.am -text
+ADOL-C/include/Makefile.in -text
 ADOL-C/include/adolc/Makefile.am -text
+ADOL-C/include/adolc/Makefile.in -text
 ADOL-C/include/adolc/adalloc.h -text
 ADOL-C/include/adolc/adolc.h -text
 ADOL-C/include/adolc/adolc_openmp.h -text
@@ -190,6 +192,7 @@ ADOL-C/include/adolc/checkpointing.h -text
 ADOL-C/include/adolc/common.h -text
 ADOL-C/include/adolc/convolut.h -text
 ADOL-C/include/adolc/drivers/Makefile.am -text
+ADOL-C/include/adolc/drivers/Makefile.in -text
 ADOL-C/include/adolc/drivers/drivers.h -text
 ADOL-C/include/adolc/drivers/odedrivers.h -text
 ADOL-C/include/adolc/drivers/taylor.h -text
@@ -200,9 +203,11 @@ ADOL-C/include/adolc/fortutils.h -text
 ADOL-C/include/adolc/interfaces.h -text
 ADOL-C/include/adolc/revolve.h -text
 ADOL-C/include/adolc/sparse/Makefile.am -text
+ADOL-C/include/adolc/sparse/Makefile.in -text
 ADOL-C/include/adolc/sparse/sparse_fo_rev.h -text
 ADOL-C/include/adolc/sparse/sparsedrivers.h -text
 ADOL-C/include/adolc/tapedoc/Makefile.am -text
+ADOL-C/include/adolc/tapedoc/Makefile.in -text
 ADOL-C/include/adolc/tapedoc/tapedoc.h -text
 ADOL-C/include/adolc/taping.h -text
 ADOL-C/include/adolc/usrparms.h -text
