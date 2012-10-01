@@ -18,9 +18,7 @@ AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
 AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 endif
 
-AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C 
-
-INCLUDES             = -I$(top_builddir)/ADOL-C
+AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
 SUBDIRS              = drivers sparse tapedoc
@@ -34,12 +32,6 @@ EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
                        oplate.h taping_p.h malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h 
 
-pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
-                       common.h convolut.h dvlparms.h fortutils.h\
-                       interfaces.h taping.h usrparms.h \
-                       externfcts.h checkpointing.h fixpoint.h\
-                       adolc_sparse.h adolc_openmp.h \
-                       revolve.h advector.h
 
 lib_LTLIBRARIES      = libadolc.la
 

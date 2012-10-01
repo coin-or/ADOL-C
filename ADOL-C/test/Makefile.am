@@ -18,8 +18,6 @@ powexam_SOURCES         = powexam.cpp
 
 fminmax_SOURCES		= fminmax.cpp
 
-INCLUDES                = -I$(top_builddir)/ADOL-C
-
 powexam_LDADD           = ../src/libadolc.la 
 speelpenning_LDADD = ../src/libadolc.la 
 fminmax_LDADD		= ../src/libadolc.la
@@ -29,10 +27,7 @@ AM_CXXFLAGS             = @ac_adolc_cxxflags@
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
-AM_CPPFLAGS = -I$(srcdir)/../src/ \
-	-I$(srcdir)/../src/drivers \
-	-I$(srcdir)/../src/sparse \
-	-I$(srcdir)/../src/tapedoc 
+AM_CPPFLAGS = -I$(srcdir)/../include
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin

@@ -12,9 +12,7 @@
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@
-AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C
-
-INCLUDES		= -I$(top_builddir)/ADOL-C
+AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/include
 
 LDADD                   = -ladolc 
 AM_LDFLAGS              = -L$(top_builddir)/ADOL-C/src
