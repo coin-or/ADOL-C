@@ -257,6 +257,7 @@ AM_CXXFLAGS = @ac_adolc_cxxflags@
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
 AM_CPPFLAGS = -I$(srcdir)/../include
+EXTRA_DIST = run_tests
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
@@ -569,8 +570,8 @@ uninstall-am:
 
 
 test:	powexam speelpenning 
-	chmod u+x ./run_tests
-	./run_tests
+	chmod u+x $(srcdir)/run_tests
+	$(srcdir)/run_tests
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
