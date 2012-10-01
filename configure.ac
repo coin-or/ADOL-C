@@ -16,7 +16,7 @@ AC_INIT(adolc,
         ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
         [adol-c@list.coin-or.org])
 AC_REVISION($Revision$)
-AC_CONFIG_SRCDIR([ADOL-C/src/adolc.h])
+AC_CONFIG_SRCDIR([ADOL-C/src/adouble.cpp])
 AC_CONFIG_AUX_DIR(autoconf)
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
@@ -364,6 +364,11 @@ AC_DEFUN([AC_COIN_PATCH_LIBTOOL_CYGWIN],
 # output
 AC_CONFIG_FILES(Makefile
                 ADOL-C/Makefile
+                ADOL-C/include/Makefile
+                ADOL-C/include/adolc/Makefile
+                ADOL-C/include/adolc/drivers/Makefile 
+                ADOL-C/include/adolc/sparse/Makefile
+                ADOL-C/include/adolc/tapedoc/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 
                 ADOL-C/src/sparse/Makefile

@@ -13,12 +13,10 @@
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@
-AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/src
+AM_CPPFLAGS             = -I$(top_srcdir)/ADOL-C/include
 
 LDADD                = -ladolc 
 AM_LDFLAGS           = -L$(top_builddir)/ADOL-C/src
-
-INCLUDES             = -I$(top_builddir)/ADOL-C -I$(top_srcdir)/ADOL-C/examples/additional_examples
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 
@@ -26,8 +24,8 @@ if ADDEXA
 noinst_PROGRAMS      = odexam od2exam od3exam
 endif
 
-odexam_SOURCES       = vfunc_robertson.cpp vgenodemain.cpp ../clock/myclock.cpp
+odexam_SOURCES       = vfunc_robertson.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
 
-od2exam_SOURCES      = vfunc_eutroph.cpp vgenodemain.cpp ../clock/myclock.cpp
+od2exam_SOURCES      = vfunc_eutroph.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
 
-od3exam_SOURCES      = vfunc_fic.cpp vgenodemain.cpp ../clock/myclock.cpp
+od3exam_SOURCES      = vfunc_fic.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
