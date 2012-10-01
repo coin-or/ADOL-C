@@ -1,6 +1,6 @@
 ##############################################################################
 ## Makefile.am -- Process this file with automake to produce Makefile.in
-## Revision: $Id: Makefile.am 38 2009-06-17 15:48:09Z awalther $
+## Revision: $Id$
 ##
 ## Copyright (C) Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
 ##
@@ -10,27 +10,15 @@
 ## 
 ##############################################################################
 
-AUTOMAKE_OPTIONS     = foreign
+pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
+                       common.h convolut.h dvlparms.h fortutils.h\
+                       interfaces.h taping.h usrparms.h \
+                       externfcts.h checkpointing.h fixpoint.h\
+                       adolc_sparse.h adolc_openmp.h \
+                       revolve.h advector.h
 
-if DOCEXA
-SUBDIRS              = src examples test
-else
-if ADDEXA
-SUBDIRS              = src examples test
-else
-if PAREXA
-SUBDIRS              = src examples test
-else
-SUBDIRS              = src test
+SUBDIRS = drivers tapedoc
+
+if SPARSE
+SUBDIRS += sparse
 endif
-endif
-endif
-
-SUBDIRS += include
-
-MAINTAINERCLEANFILES = Makefile.in 
-
-test: all
-	cd test; $(MAKE) test
-
-
