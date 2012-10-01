@@ -29,11 +29,13 @@ AM_CXXFLAGS             = @ac_adolc_cxxflags@
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
 AM_CPPFLAGS = -I$(srcdir)/../include
 
+EXTRA_DIST = run_tests
+
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/inc
 
 test:	powexam speelpenning 
-	chmod u+x ./run_tests
-	./run_tests
+	chmod u+x $(srcdir)/run_tests
+	$(srcdir)/run_tests
 
