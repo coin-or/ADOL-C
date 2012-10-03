@@ -372,7 +372,7 @@ ADOLC_DLL_EXPORT fint hos_ov_reverse_(
 
 /*--------------------------------------------------------------------------*/
 /*                                                                      FOV */
-/* fov_reverse(tag, m, n, d, p, U[p][m], Z[p][n])                           */
+/* fov_reverse(tag, m, n, p, U[p][m], Z[p][n])                              */
 /* (defined  in fo_rev.mc)                                                  */
 ADOLC_DLL_EXPORT int fov_reverse(short,int,int,int,double**,double**);
 
