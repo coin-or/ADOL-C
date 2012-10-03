@@ -396,7 +396,7 @@ int cp_fos_reverse (int m, double *dp_U, int n, double *dp_Z, double *dp_x, doub
     return 0;
 }
 
-int cp_fov_reverse (int m, int p, double **dpp_U, int n, double **dpp_Z) {
+int cp_fov_reverse (int m, int p, double **dpp_U, int n, double **dpp_Z, double */*unused*/, double */*unused*/) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     revreal **A = ADOLC_CURRENT_TAPE_INFOS.rpp_A;

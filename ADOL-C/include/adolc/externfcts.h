@@ -27,7 +27,7 @@ typedef int (ADOLC_ext_fct_fov_forward) (int n, double *dp_x, int p, double **dp
 typedef int (ADOLC_ext_fct_hos_forward) (int n, double *dp_x, int d, double **dpp_X, int m, double *dp_y, double **dpp_Y);
 typedef int (ADOLC_ext_fct_hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
 typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
-typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z);
+typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
 typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
 
