@@ -99,7 +99,13 @@ enum OPCODES {
   ref_eq_mult_a,
   ref_copyout,
   ref_cond_assign,
-  ref_cond_assign_s
+  ref_cond_assign_s,
+  eq_a_a = 125,
+  neq_a_a,
+  le_a_a,
+  gt_a_a,
+  ge_a_a,
+  lt_a_a
 };
 
 /****************************************************************************/

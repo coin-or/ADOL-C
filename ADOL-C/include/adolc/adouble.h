@@ -135,22 +135,28 @@ public:
 
     /*--------------------------------------------------------------------------*/
     /* Comparison (friends) */
-    inline friend int operator != ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
+    //inline friend int operator != ( const badouble&, const badouble& );
     inline friend int operator != ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator != ( const badouble&, double );
-    inline friend int operator == ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
+    //inline friend int operator == ( const badouble&, const badouble& );
     inline friend int operator == ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator == ( const badouble&, double );
-    inline friend int operator <= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
+    //inline friend int operator <= ( const badouble&, const badouble& );
     inline friend int operator <= ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator <= ( const badouble&, double );
-    inline friend int operator >= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
+    //inline friend int operator >= ( const badouble&, const badouble& );
     inline friend int operator >= ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator >= ( const badouble&, double );
-    inline friend int operator >  ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator >  ( const badouble&, const badouble& );
+    //inline friend int operator >  ( const badouble&, const badouble& );
     inline friend int operator >  ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator >  ( const badouble&, double );
-    inline friend int operator <  ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator <  ( const badouble&, const badouble& );
+    //inline friend int operator <  ( const badouble&, const badouble& );
     inline friend int operator <  ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator <  ( const badouble&, double );
 
@@ -269,6 +275,14 @@ protected:
 public:
 
     /*--------------------------------------------------------------------------*/
+    /* Comparison (friends) */
+    friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator < ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator > ( const badouble&, const badouble& );
+    /*--------------------------------------------------------------------------*/
     /* sign operators (friends) */
     friend ADOLC_DLL_EXPORT adub operator + ( const badouble& x );
     friend ADOLC_DLL_EXPORT adub operator - ( const badouble& x );
@@ -378,9 +392,11 @@ inline locint badouble::loc( void ) const {
 
 /*--------------------------------------------------------------------------*/
 /* Comparison */
+/*
 inline int operator != ( const badouble& u, const badouble& v ) {
     return (u-v != 0);
 }
+*/
 
 inline int operator != ( double coval, const badouble& v) {
     if (coval)
@@ -389,9 +405,11 @@ inline int operator != ( double coval, const badouble& v) {
         return (v != 0);
 }
 
+/*
 inline int operator == ( const badouble& u, const badouble& v ) {
     return (u-v == 0);
 }
+*/
 
 inline int operator == ( double coval, const badouble& v) {
     if (coval)
@@ -400,9 +418,11 @@ inline int operator == ( double coval, const badouble& v) {
         return (v == 0);
 }
 
+/*
 inline int operator <= ( const badouble& u, const badouble& v ) {
     return (u-v <= 0);
 }
+*/
 
 inline int operator <= ( double coval, const badouble& v ) {
     if (coval)
@@ -411,9 +431,11 @@ inline int operator <= ( double coval, const badouble& v ) {
         return (v >= 0);
 }
 
+/*
 inline int operator >= ( const badouble& u, const badouble& v ) {
     return (u-v >= 0);
 }
+*/
 
 inline int operator >= ( double coval, const badouble& v ) {
     if (coval)
@@ -422,9 +444,11 @@ inline int operator >= ( double coval, const badouble& v ) {
         return (v <= 0);
 }
 
+/*
 inline int operator > ( const badouble& u, const badouble& v ) {
     return (u-v > 0);
 }
+*/
 
 inline int operator > ( double coval, const badouble& v ) {
     if (coval)
@@ -433,9 +457,11 @@ inline int operator > ( double coval, const badouble& v ) {
         return (v < 0);
 }
 
+/*
 inline int operator < ( const badouble& u, const badouble& v ) {
     return (u-v < 0);
 }
+*/
 
 inline int operator < ( double coval, const badouble& v ) {
     if (coval)

@@ -1666,6 +1666,35 @@ int int_reverse_safe(
                 break;
 
                 /*--------------------------------------------------------------------------*/
+		/* NEW CONDITIONALS */
+                /*--------------------------------------------------------------------------*/
+            case neq_a_a:
+            case eq_a_a:
+            case le_a_a:
+            case ge_a_a:
+            case lt_a_a:
+            case gt_a_a:
+		res = get_locint_r();
+		arg1 = get_locint_r();
+		arg = get_locint_r();
+#if !defined(_NTIGHT_)
+		coval = get_val_r();
+#endif
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+
+                FOR_0_LE_l_LT_p
+#if defined(_INT_REV_)
+                ARES_INC = 0;
+#else
+                ARES_INC = 0.0;
+#endif
+
+#if !defined(_NTIGHT_)
+                ADOLC_GET_TAYLOR(res);
+#endif /* !_NTIGHT_ */
+
+		break;
+                /*--------------------------------------------------------------------------*/
             case subscript:
 	        {
 		    double val = get_val_r();

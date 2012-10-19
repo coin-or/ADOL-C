@@ -2039,6 +2039,26 @@ int hov_ti_reverse(
                             }
                         }
             break;
+                /*--------------------------------------------------------------------------*/
+		/* NEW CONDITIONALS */
+                /*--------------------------------------------------------------------------*/
+            case neq_a_a:
+            case eq_a_a:
+            case le_a_a:
+            case ge_a_a:
+            case lt_a_a:
+            case gt_a_a:
+		res = get_locint_r();
+		arg1 = get_locint_r();
+		arg = get_locint_r();
+		coval = get_val_r();
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_pk1
+                ARES_INC = 0.0;
+
+                GET_TAYL(res,k,p)
+                break;
 
                 /*--------------------------------------------------------------------------*/
 	    case subscript:
