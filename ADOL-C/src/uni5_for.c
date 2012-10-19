@@ -3855,6 +3855,78 @@ int  hov_forward(
 
 
                 /*--------------------------------------------------------------------------*/
+		/* NEW CONDITIONALS */
+                /*--------------------------------------------------------------------------*/
+            case neq_a_a:
+            case eq_a_a:
+            case le_a_a:
+            case ge_a_a:
+            case lt_a_a:
+            case gt_a_a:
+		coval = get_val_f();
+		arg = get_locint_f();
+		arg1 = get_locint_f();
+		res = get_locint_f();
+#if !defined(_NTIGHT_)
+		{
+		    revreal retval = -1;
+		    const char* opname = "";
+		    switch (operation) {
+		    case neq_a_a:
+			retval = (revreal)(dp_T0[arg] != dp_T0[arg1]);
+			opname = "neq_a_a";
+			break;
+		    case eq_a_a:
+			retval = (revreal)(dp_T0[arg] == dp_T0[arg1]);
+			opname = "eq_a_a";
+			break;
+		    case ge_a_a:
+			retval = (revreal)(dp_T0[arg] >= dp_T0[arg1]);
+			opname = "ge_a_a";
+			break;
+		    case le_a_a:
+			retval = (revreal)(dp_T0[arg] <= dp_T0[arg1]);
+			opname = "le_a_a";
+			break;
+		    case gt_a_a:
+			retval = (revreal)(dp_T0[arg] > dp_T0[arg1]);
+			opname = "gt_a_a";
+			break;
+		    case lt_a_a:
+			retval = (revreal)(dp_T0[arg] < dp_T0[arg1]);
+			opname = "lt_a_a";
+			break;
+		    }
+		    if (retval != coval && ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning)
+			fprintf(DIAG_OUT,
+				"ADOL-C Warning: Branch switch detected in comparison "
+				"(operator %s).\n"
+				"Results may be unpredictable! Retaping recommended!\n",opname);
+		    dp_T0[res] = retval;
+		}
+#endif
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+                FOR_0_LE_l_LT_pk
+                TRES_INC = 0;
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+
+		break;
+
+                /*--------------------------------------------------------------------------*/
             case subscript:
 		coval = get_val_f();
 		arg = get_locint_f();
