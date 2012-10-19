@@ -130,7 +130,7 @@ int main() {
                     y[i] *= x[0];
                     break;
                 case 2 :
-                    condassign(y[i],(adouble)(y[0]>y[1]),y[1],y[0]);
+                    condassign(y[i],(y[0]>y[1]),y[1],y[0]);
                     break;
                 case 3 :
                     y[i] -= sin(x[j]);
