@@ -3943,7 +3943,12 @@ int  hov_forward(
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
-		    //copy_index_domain(res, arg1, ind_dom);
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
 		    ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
@@ -3990,7 +3995,12 @@ int  hov_forward(
 		IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		dp_T0[res] = dp_T0[arg1];
 #if defined(_INDO_)
-		//copy_index_domain(res, arg1, ind_dom);
+#if defined(_INDOPRO_)
+		copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		arg_index[res] = arg_index[arg1];
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
 		ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
@@ -4039,7 +4049,15 @@ int  hov_forward(
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = coval;
 #if defined(_INDO_)
-		//ind_dom[arg1][0] = 0;
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
 #else
 #if !defined(_ZOS_)
 		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
@@ -4062,7 +4080,15 @@ int  hov_forward(
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = 0.0;
 #if defined(_INDO_)
-		//ind_dom[arg1][0] = 0;
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
 #else
 #if !defined(_ZOS_)
 		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
@@ -4085,7 +4111,15 @@ int  hov_forward(
 		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
 		dp_T0[arg1] = 1.0;
 #if defined(_INDO_)
-		//ind_dom[arg1][0] = 0;
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
 #else
 #if !defined(_ZOS_)
 		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
@@ -4110,7 +4144,12 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
                 dp_T0[arg1] = dp_T0[arg];
 #if defined(_INDO_)
-                //copy_index_domain(arg1, arg, ind_dom);
+#if defined(_INDOPRO_)
+                copy_index_domain(arg1, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[arg1] = arg_index[arg];
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Targ,TAYLOR_BUFFER[arg])
@@ -4136,8 +4175,16 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] = basepoint[indexi];
 #if defined(_INDO_)
-		//ind_dom[res][0] = 1;
-		//ind_dom[res][2] = indexi;
+#if defined(_INDOPRO_)
+		ind_dom[res][0] = 1;
+		ind_dom[res][2] = indexi;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = indexi;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -4186,7 +4233,15 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] += dp_T0[arg];
 #if defined(_INDO_)
-                //merge_2_index_domains(res, arg, ind_dom);
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -4233,7 +4288,15 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
                 dp_T0[res] -= dp_T0[arg];
 #if defined(_INDO_)
-                //merge_2_index_domains(res, arg, ind_dom);
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -4290,9 +4353,16 @@ int  hov_forward(
 		res = (size_t)trunc(fabs(dp_T0[arg1]));
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 #if defined(_INDO_)
-                //merge_2_index_domains(res, arg, ind_dom);
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
-                //extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[arg_index[arg]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -4349,7 +4419,12 @@ int  hov_forward(
                         MINDEC(ret_c,2);
                     dp_T0[res] = dp_T0[arg1];
 
-		    //combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_INDOPRO_)
+		    copy_index_domains(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
                 } else {
                     if (coval > 0.0)
                         MINDEC(ret_c,2);
@@ -4357,7 +4432,12 @@ int  hov_forward(
                         MINDEC(ret_c,0);
                     dp_T0[res] = dp_T0[arg2];
 
-		    //combine_2_index_domains(res, arg1, arg2, ind_dom);
+#if defined(_INDOPRO_)
+		    copy_index_domains(res, arg2, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg2];
+#endif
                 }
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -4431,7 +4511,14 @@ int  hov_forward(
 
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-                    //copy_index_domain(res, arg1, ind_dom);
+		if (dp_T0[arg] > 0) {
+#if defined(_INDOPRO_)
+                    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+		}
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
