@@ -35,29 +35,29 @@ BEGIN_C_DECLS
 /*                                              MEMORY MANAGEMENT UTILITIES */
 
 /*--------------------------------------------------------------------------*/
-double* myalloc1(int m) {
+double* myalloc1(size_t m) {
     double* A = (double*)ADOLC_MALLOC(m,sizeof(double));
     if (A == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc1 cannot allocate %i bytes\n",
-                (int)(m*sizeof(double)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc1 cannot allocate %zd bytes\n",
+                (size_t)(m*sizeof(double)));
         exit (-1);
     }
     return A;
 }
 
 /*--------------------------------------------------------------------------*/
-double** myalloc2(int m, int n) {
+double** myalloc2(size_t m, size_t n) {
     double *Adum = (double*)ADOLC_MALLOC(m*n,sizeof(double));
     double   **A = (double**)malloc(m*sizeof(double*));
     int i;
     if (Adum == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %i bytes\n",
-                (int)(m*n*sizeof(double)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
+                (size_t)(m*n*sizeof(double)));
         exit (-1);
     }
     if (A == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %i bytes\n",
-                (int)(m*sizeof(double*)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
+                (size_t)(m*sizeof(double*)));
         exit (-1);
     }
     for (i=0; i<m; i++) {
@@ -68,24 +68,24 @@ double** myalloc2(int m, int n) {
 }
 
 /*--------------------------------------------------------------------------*/
-double*** myalloc3(int m, int n, int p) { /* This function allocates 3-tensors contiguously */
+double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-tensors contiguously */
     double *Adum = (double*) ADOLC_MALLOC(m*n*p,sizeof(double));
     double **Apt = (double**)malloc(m*n*sizeof(double*));
     double  ***A = (double***)malloc(m*sizeof(double**));
     int i,j;
     if (Adum == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %i bytes\n",
-                (int)(m*n*p*sizeof(double)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
+                (size_t)(m*n*p*sizeof(double)));
         exit (-1);
     }
     if (Apt == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %i bytes\n",
-                (int)(m*n*sizeof(double*)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
+                (size_t)(m*n*sizeof(double*)));
         exit (-1);
     }
     if (A == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %i bytes\n",
-                (int)(m*sizeof(double**)));
+        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
+                (size_t)(m*sizeof(double**)));
         exit (-1);
     }
     for (i=0; i<m; i++) {
