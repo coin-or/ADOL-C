@@ -23,9 +23,9 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
-ADOLC_DLL_EXPORT double    *myalloc1(int);
-ADOLC_DLL_EXPORT double   **myalloc2(int, int);
-ADOLC_DLL_EXPORT double  ***myalloc3(int, int, int);
+ADOLC_DLL_EXPORT double    *myalloc1(size_t);
+ADOLC_DLL_EXPORT double   **myalloc2(size_t, size_t);
+ADOLC_DLL_EXPORT double  ***myalloc3(size_t, size_t, size_t);
 
 ADOLC_DLL_EXPORT void myfree1(double   *);
 ADOLC_DLL_EXPORT void myfree2(double  **);
