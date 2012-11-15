@@ -793,7 +793,6 @@ enable_debug
 enable_harddebug
 enable_stdczero
 enable_tserrno
-enable_safe_extern
 with_openmp_flag
 enable_sparse
 with_colpack
@@ -1454,9 +1453,6 @@ Optional Features:
                           cost of performance) [default=no]
 
   --enable-tserrno        use errno as thread number cache [default=no]
-
-  --enable-safe-extern    backup all adoubles before calling an external
-                          function [default=no]
 
   --enable-sparse         build sparse drivers [default=disabled]
 
@@ -16558,30 +16554,6 @@ fi
 if test x$adolc_tserrno == xyes ; then
 
 $as_echo "#define ADOLC_THREADSAVE_ERRNO 1" >>confdefs.h
-
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether external function call forces backup of all adoubles" >&5
-$as_echo_n "checking whether external function call forces backup of all adoubles... " >&6; }
-# Check whether --enable-safe_extern was given.
-if test "${enable_safe_extern+set}" = set; then :
-  enableval=$enable_safe_extern;
-  adolc_safe_extern=$enableval
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $adolc_safe_extern" >&5
-$as_echo "$adolc_safe_extern" >&6; }
-
-else
-
-  adolc_safe_extern=no
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-fi
-
-
-if test x$adolc_safe_extern == xyes ; then
-
-$as_echo "#define ADOLC_SAFE_EXTERN 1" >>confdefs.h
 
 fi
 
