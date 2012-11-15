@@ -12,9 +12,6 @@
 /* ADOL-C Patchlevel */
 #undef ADOLC_PATCHLEVEL
 
-/* ADOL-C safe extern mode */
-#undef ADOLC_SAFE_EXTERN
-
 /* ADOL-C Subversion */
 #undef ADOLC_SUBVERSION
 
