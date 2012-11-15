@@ -4420,7 +4420,7 @@ int  hov_forward(
                     dp_T0[res] = dp_T0[arg1];
 
 #if defined(_INDOPRO_)
-		    copy_index_domains(res, arg1, ind_dom);
+		    copy_index_domain(res, arg1, ind_dom);
 #endif
 #if defined(_NONLIND_)
 		    arg_index[res] = arg_index[arg1];
@@ -4433,7 +4433,7 @@ int  hov_forward(
                     dp_T0[res] = dp_T0[arg2];
 
 #if defined(_INDOPRO_)
-		    copy_index_domains(res, arg2, ind_dom);
+		    copy_index_domain(res, arg2, ind_dom);
 #endif
 #if defined(_NONLIND_)
 		    arg_index[res] = arg_index[arg2];
