@@ -159,23 +159,6 @@ if test x$adolc_tserrno == xyes ; then
 AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
 fi
 
-AC_MSG_CHECKING(whether external function call forces backup of all adoubles)
-AC_ARG_ENABLE(safe_extern,
-              [
-AS_HELP_STRING([--enable-safe-extern],[backup all adoubles before calling an external function [default=no]])],
-  [
-  adolc_safe_extern=$enableval
-  AC_MSG_RESULT($adolc_safe_extern)
-  ],
-  [
-  adolc_safe_extern=no
-  AC_MSG_RESULT(no)
-  ])
-
-if test x$adolc_safe_extern == xyes ; then
-AC_DEFINE(ADOLC_SAFE_EXTERN,1,[ADOL-C safe extern mode])
-fi
-
 AC_MSG_CHECKING(which flag to use to enable OpenMP)
 AC_ARG_WITH(openmp-flag,
             [AS_HELP_STRING([--with-openmp-flag=FLAG],
