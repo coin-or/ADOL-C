@@ -2722,6 +2722,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+config_flags="$*"
 
 
 ac_aux_dir=
@@ -3294,6 +3295,15 @@ if test "x$CXXFLAGS" == x ; then
 else
     ac_shell_cxxflags="$CXXFLAGS"
 fi
+libdir_set_on_cmd="no"
+for i in $config_flags ; do
+    case $i in
+    -libdir | --libdir | --libdi | --libd | -libdir=* | --libdir=* | --libdi=* | --libd=*)
+            libdir_set_on_cmd="yes"
+            break
+            ;;
+    esac
+done
 
 # checks for programs
 ac_ext=cpp
@@ -15804,9 +15814,11 @@ if test "x$ac_cv_sizeof_void_p" = "x8" ; then
 else
    _lib=lib
 fi
-libdir='${exec_prefix}/${_lib}'
+if test "x$libdir_set_on_cmd" = "xno" ; then
+   libdir='${exec_prefix}/${_lib}'
 
 
+fi
 
 # checks for header files
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5
