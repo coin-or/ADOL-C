@@ -15,6 +15,7 @@ AC_PREREQ(2.67)
 AC_INIT(adolc,
         ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
         [adol-c@list.coin-or.org])
+config_flags="$*"
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adouble.cpp])
 AC_CONFIG_AUX_DIR(autoconf)
@@ -33,6 +34,15 @@ if test "x$CXXFLAGS" == x ; then
 else
     ac_shell_cxxflags="$CXXFLAGS"
 fi
+libdir_set_on_cmd="no"
+for i in $config_flags ; do
+    case $i in
+    -libdir | --libdir | --libdi | --libd | -libdir=* | --libdir=* | --libdi=* | --libd=*)
+            libdir_set_on_cmd="yes"
+            break
+            ;;
+    esac
+done
 
 # checks for programs
 AC_PROG_CXX
@@ -50,9 +60,11 @@ if test "x$ac_cv_sizeof_void_p" = "x8" ; then
 else
    _lib=lib
 fi
-libdir='${exec_prefix}/${_lib}'
-AC_SUBST(_lib)
-AC_SUBST(libdir)
+if test "x$libdir_set_on_cmd" = "xno" ; then
+   libdir='${exec_prefix}/${_lib}'
+   AC_SUBST(_lib)
+   AC_SUBST(libdir)
+fi
 
 # checks for header files
 AC_HEADER_STDC
