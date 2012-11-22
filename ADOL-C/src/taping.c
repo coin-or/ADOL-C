@@ -222,7 +222,7 @@ void fail( int error ) {
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC:
             fprintf(DIAG_OUT,
-                    "ADOL-C error: No function for extern differentiation found"
+                    "ADOL-C error: No function for external differentiation found"
                     " to work with (null pointer)\n!");
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT:
@@ -234,6 +234,11 @@ void fail( int error ) {
             fprintf(DIAG_OUT,
                     "ADOL-C error: Function with specified index not found!\n");
             break;
+
+        case ADOLC_EXT_DIFF_LOCATIONGAP:
+          fprintf(DIAG_OUT,
+                  "ADOL-C error: active type arguments passed to call_ext_fct do not have contiguous ascending locations; use ensureContiguousLocations(size_t) to reserve  contiguous blocks prior to allocation of the arguments.\n");
+          break;
 
         case ADOLC_CHECKPOINTING_CPINFOS_NULLPOINTER:
             fprintf(DIAG_OUT,
