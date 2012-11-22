@@ -860,7 +860,7 @@ int  hov_forward(
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER fov_forward
 #   define ADOLC_EXT_FCT_COMPLETE \
-    fov_forward(n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+    fov_forward(n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dpp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
@@ -1064,8 +1064,7 @@ int  hov_forward(
 #endif /* ADOLC_DEBUG */
 
     while (operation !=end_of_tape) {
-
-
+      
       switch (operation) {
 
 
@@ -4631,6 +4630,9 @@ int  hov_forward(
 
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_x[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4641,6 +4643,9 @@ int  hov_forward(
                 }
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
+                    if (edfct->dp_y_priorRequired) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_y[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4655,7 +4660,6 @@ int  hov_forward(
 
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_x[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4666,7 +4670,6 @@ int  hov_forward(
                 }
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_y[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -4678,6 +4681,7 @@ int  hov_forward(
 
                 break;
 #endif
+
                 /*--------------------------------------------------------------------------*/
 
             default:                                                   /* default */

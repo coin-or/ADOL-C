@@ -136,21 +136,21 @@ if test x$adolc_debug == xyes ; then
 AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
 fi
 
-AC_MSG_CHECKING(whether standard adouble constructor shall zero value)
+AC_MSG_CHECKING(whether the default adouble constructor should initialize the value to 0)
 AC_ARG_ENABLE(stdczero,
               [
-AS_HELP_STRING([--enable-stdczero],[adouble standard constructor zeros value 
-(at the cost of performance) [default=no]])],
-  [
-  adolc_stdczero=$enableval
-  AC_MSG_RESULT($adolc_stdczero)
-  ],
+AS_HELP_STRING([--disable-stdczero],[adouble default constructor does not initialze the value to zero
+(improves performance but yields incorrect results for implicit array initializations, see manual) [default=enabled]])],
   [
   adolc_stdczero=no
   AC_MSG_RESULT(no)
+  ],
+  [
+  adolc_stdczero=yes
+  AC_MSG_RESULT(yes)
   ])
 
-if test x$adolc_stdczero == xyes ; then
+if test x$adolc_stdczero == xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
 fi
 
@@ -425,29 +425,29 @@ echo \
 -----------------------------------------------------------------------------
 Configuration:
 
-  C compiler:                       ${CC}
-  C++ compiler:                     ${CXX}
-  Linker:                           ${LD}
-  Source code location:             `pwd`
-  Install path:                     ${prefix}
+  C compiler:                         ${CC}
+  C++ compiler:                       ${CXX}
+  Linker:                             ${LD}
+  Source code location:               `pwd`
+  Install path:                       ${prefix}
   
-  CFLAGS:                           ${ac_adolc_cflags}
-  CXXFLAGS:                         ${ac_adolc_cxxflags}
+  CFLAGS:                             ${ac_adolc_cflags}
+  CXXFLAGS:                           ${ac_adolc_cxxflags}
 
-  Use ADOL-C debug mode:            ${adolc_debug}
-  Use ADOL-C hard debug mode:       ${adolc_harddebug}
-  Use ADOL-C adouble zeroing mode:  ${adolc_stdczero}"
+  Use ADOL-C debug mode:              ${adolc_debug}
+  Use ADOL-C hard debug mode:         ${adolc_harddebug}
+  Zero value in adouble default ctor: ${adolc_stdczero}"
 
 if [[ "x${ac_adolc_openmpflag}" != "x" ]] ; then
     echo \
-"  Access thread number via errno:   ${adolc_tserrno}"
+"  Access thread number via errno:     ${adolc_tserrno}"
 fi
 
 echo \
-"  Use ADOL-C safe extern mode:      ${adolc_safe_extern}
+"  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
 
-  Build sparse drivers:             ${sparse}
-  Build with ColPack:		    ${have_colpack}"
+  Build sparse drivers:               ${sparse}
+  Build with ColPack:		      ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
     echo -e \
 "  \033@<:@1;31mCompressed sparse structures will not be available
@@ -457,8 +457,8 @@ fi
 echo
 
 echo \
-"  Build documented examples:        ${docexa}
-  Build additional examples:        ${addexa}
+"  Build documented examples:          ${docexa}
+  Build additional examples:          ${addexa}
 
   See ADOL-C/src/config.h for further configuration information.
 -----------------------------------------------------------------------------"
