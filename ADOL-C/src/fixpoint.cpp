@@ -125,7 +125,7 @@ static int fp_fos_forward ( int dim_xu, double *xu, double *xu_dot,
     return -1;
 }
 
-static int fp_fos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu_bar) {
+static int fp_fos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu_bar, double* /*unused*/, double* /*unused*/) {
     // (d x_fix) / (d x_0) = 0 (!)
     int i, k;
     double err;

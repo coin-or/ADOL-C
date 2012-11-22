@@ -329,14 +329,14 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_Z edfct->dp_Z
 # define ADOLC_EXT_FCT_POINTER fos_reverse
 # define ADOLC_EXT_FCT_COMPLETE \
-  fos_reverse(m, edfct->dp_U, n, edfct->dp_Z)
+  fos_reverse(m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS
 #else
 # define ADOLC_EXT_FCT_U edfct->dpp_U
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
 # define ADOLC_EXT_FCT_POINTER fov_reverse
 # define ADOLC_EXT_FCT_COMPLETE \
-    fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z)
+  fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
 #endif
 #if !defined(_INT_REV_)
@@ -2170,11 +2170,14 @@ int int_reverse_safe(
 
                 if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
-                if (m>0)
+                if (m>0) {
                     if (ADOLC_EXT_FCT_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-                if (n>0)
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                if (n>0) {
                     if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
                 for (loop = 0; loop < m; ++loop) {
                     FOR_0_LE_l_LT_p {
@@ -2182,10 +2185,7 @@ int int_reverse_safe(
                     }
                     ++arg;
                 }
-                for (loop = 0; loop < m; ++loop) {
-                    --arg;
-                    ADOLC_GET_TAYLOR(arg);
-                }
+
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
                 for (loop = 0; loop < n; ++loop) {
                     FOR_0_LE_l_LT_p {
@@ -2193,11 +2193,14 @@ int int_reverse_safe(
                     }
                     ++arg;
                 }
-                for (loop = 0; loop < n; ++loop) {
-                    --arg;
-                    ADOLC_GET_TAYLOR(arg);
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop,++arg) {
+                  edfct->dp_x[loop]=TARG;
                 }
-
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop,++arg) {
+                  edfct->dp_y[loop]=TARG;
+                }
                 ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
                 MINDEC(ret_c, ext_retc);
 
@@ -2215,7 +2218,18 @@ int int_reverse_safe(
                     }
                     ++res;
                 }
-
+                if (edfct->dp_y_priorRequired) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                  for (loop = 0; loop < m; ++loop,--arg) {
+                    ADOLC_GET_TAYLOR(arg);
+                  }
+                }
+                if (edfct->dp_x_changes) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev+n-1;
+                  for (loop = 0; loop < n; ++loop,--arg) {
+                    ADOLC_GET_TAYLOR(arg);
+                  }
+                }
                 ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 
                 break;
