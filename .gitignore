@@ -29,10 +29,12 @@ resource.h
 .autotools
 ADOL-C/adolc
 ADOL-C/examples/additional_examples/checkpointing/checkpointing
+ADOL-C/examples/additional_examples/checkpointing/*.tap
 ADOL-C/examples/additional_examples/detexam/detexam
 ADOL-C/examples/additional_examples/detexam/detexam-old
 ADOL-C/examples/additional_examples/ext_diff_func/ext_diff_func
 ADOL-C/examples/additional_examples/fixpoint_exam/fixpoint_exam
+ADOL-C/examples/additional_examples/fixpoint_exam/*.tap
 ADOL-C/examples/additional_examples/helm/helm-auto
 ADOL-C/examples/additional_examples/helm/helm-diff
 ADOL-C/examples/additional_examples/hessmat/hessmat
