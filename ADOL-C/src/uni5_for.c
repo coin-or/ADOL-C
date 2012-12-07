@@ -132,7 +132,7 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 #define NUMNNZ 20
 #define FMIN_ADOLC(x,y)  ((y<x)?y:x)
 
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "indopro_forward_t"
 #endif
@@ -163,6 +163,28 @@ void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fo
 #define GENERATED_FILENAME "nonl_ind_forward_t"
 #elif defined(_NTIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_s"
+#endif
+#endif
+#if defined(_NONLIND_OLD_)
+
+/*
+ * This is the type used for the list elements. The entry is either a counter
+ * (first element of the NID list) or the index of an independent variable.
+ */
+
+void extend_nonlinearity_domain_binary_step
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
+void extend_nonlinearity_domain_unary
+(int arg, locint **ind_dom, locint **nonl_dom);
+void extend_nonlinearity_domain_binary
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
+
+
+#if defined(_TIGHT_)
+#define GENERATED_FILENAME "nonl_ind_old_forward_t"
+#endif
+#if defined(_NTIGHT_)
+#define GENERATED_FILENAME "nonl_ind_old_forward_s"
 #endif
 #endif
 
@@ -548,7 +570,7 @@ p = indep / bits_per_long + ((indep % bits_per_long) != 0)
 and pass a bit pattern version of the identity matrix as an argument    */
 #endif
 #else
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
@@ -600,6 +622,35 @@ int nonl_ind_forward_tight(
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
 int nonl_ind_forward_safe(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double      *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
+
+/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
+
+  */
+#endif
+#else
+#if defined(_NONLIND_OLD_)
+#if defined(_TIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode for bit patterns, tight   */
+/****************************************************************************/
+int nonl_ind_old_forward_tight(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int     **crs)        /* returned row index storage (out)     */
+
+#endif
+#if defined (_NTIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode, bit pattern, safe        */
+/****************************************************************************/
+int nonl_ind_old_forward_safe(
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
@@ -697,6 +748,7 @@ int  hov_forward(
 #endif
 #endif
 #endif
+#endif
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
@@ -753,6 +805,12 @@ int  hov_forward(
     int maxopind;
     int opind;
     int ii;
+#endif
+#if defined(_NONLIND_OLD_)
+    /* nonlinear interaction domains */
+    locint** nonl_dom;
+    locint*  temp;
+    locint*  temp1;
 #endif
 #endif
 
@@ -1000,6 +1058,15 @@ int  hov_forward(
 	    nonl_dom[i].left = NULL;
 	    nonl_dom[i].right = NULL;
 	  }
+#endif
+#if defined(_NONLIND_OLD_)
+
+    nonl_dom = (locint**) malloc(sizeof(locint*) * indcheck);
+    for(i=0;i<indcheck;i++){
+          nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
+          nonl_dom[i][0]=0;
+          nonl_dom[i][1]=NUMNNZ;
+       }
 #endif
 
     /*--------------------------------------------------------------------------*/
@@ -1391,7 +1458,7 @@ int  hov_forward(
 #endif
 
 #if defined(_INDO_)
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
           if (ind_dom[res][0] != 0) {
             crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int) * (ind_dom[res][0]+1));
             crs[indexd][0] = ind_dom[res][0];
@@ -1574,6 +1641,9 @@ int  hov_forward(
 		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[arg_index[arg]], indcheck+1,maxopind+2);
 		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1803,6 +1873,9 @@ int  hov_forward(
 		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[arg_index[arg1]], indcheck+1,maxopind+2);
 		arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+		extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1871,6 +1944,9 @@ int  hov_forward(
 		// second step: v = v+z,
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1937,6 +2013,9 @@ int  hov_forward(
 		fod[opind].right = &fod[opind-1];
 		// second step: v = v-z, 
                 arg_index[res] = opind++;	
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2043,6 +2122,10 @@ int  hov_forward(
 		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif 
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
+                extend_nonlinearity_domain_unary(arg2, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -2109,6 +2192,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif 
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2236,6 +2322,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2297,6 +2386,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2370,6 +2462,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
+#endif
 
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2440,6 +2535,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -2500,6 +2598,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2599,6 +2700,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2701,6 +2805,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -2761,6 +2868,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -2844,6 +2954,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3005,6 +3118,9 @@ int  hov_forward(
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3088,6 +3204,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
 #ifndef _ZOS_ /* BREAK_ZOS */
@@ -3229,6 +3348,9 @@ int  hov_forward(
 		fod[opind].right = NULL;
 		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3806,7 +3928,12 @@ int  hov_forward(
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
-		copy_index_domain(res, arg1, ind_dom);
+#ifdef _TIGHT_
+		if (dp_T0[arg] > 0)
+		    copy_index_domain(res, arg1, ind_dom);
+#else
+		merge_2_index_domains(res, arg1, ind_dom);
+#endif
 #endif
 #if defined(_NONLIND_)
                 arg_index[res] = arg_index[arg1];		
@@ -4363,6 +4490,9 @@ int  hov_forward(
 		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
                 arg_index[res] = opind++;
 #endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -4768,13 +4898,25 @@ int  hov_forward(
     free(arg_index);
 
 #endif
+#if defined(_NONLIND_OLD_)
+
+    for( i=0; i < indcheck; i++) {
+       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i][0]+1));
+       crs[i][0] = nonl_dom[i][0];
+       for(l=1; l < crs[i][0]+1; l++)
+          crs[i][l] = nonl_dom[i][l+1];
+       free(nonl_dom[i]);
+    }
+    free(nonl_dom);
+
+#endif
 #endif
     return ret_c;
 }
 
 /****************************************************************************/
 
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 
 /****************************************************************************/
 /* set operations for propagation of index domains                          */
@@ -5003,6 +5145,94 @@ void traverse_unary(IndexElement* tree,  IndexElement* nonl_dom,  IndexElement* 
 	}
     }
 }
+
+#endif
+#endif
+
+#if defined(_NONLIND_OLD_)
+#if defined(_TIGHT_)
+
+void extend_nonlinearity_domain_binary_step
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
+{
+  int index,num,num1, num2, i,j,k,l,m;
+  locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
+
+  num = ind_dom[arg2][0];
+
+  for(m=2;m<ind_dom[arg1][0]+2;m++) 
+    {
+      index = ind_dom[arg1][m];
+      index_nonl_dom = nonl_dom[index];
+
+      if (index_nonl_dom[0] == 0)  /* empty list */
+	{
+	  if ( index_nonl_dom[1] < num)
+	    {
+	      free(index_nonl_dom);
+	      index_nonl_dom = (locint*) malloc(sizeof(locint)*2*(num+1) );
+	      index_nonl_dom[1] = 2*num;
+	    }
+	  for(i=2;i<num+2;i++)      /* append index domain list of "arg" */
+	    index_nonl_dom[i] = ind_dom[arg2][i];
+	  index_nonl_dom[0] = num;
+	} 
+      else 
+	{ /* merge lists */
+	  num1 = index_nonl_dom[0];
+	  num2 = index_nonl_dom[1];
+	  
+	  if (num1+num > num2)
+	    num2 = num1+num;
+	  
+	  temp_nonl = (locint*) malloc(sizeof(locint)*(num2+2));
+	  temp_nonl[1] = num2;
+	  
+	  i = 2;
+	  k = 2;
+	  j = 2;
+	  num1 +=2;
+	  num2 = num+2;
+	  while ((i<num1) && (j < num2)){
+	    if (ind_dom[arg2][j] < index_nonl_dom[i]) /* < */ {
+	      temp_nonl[k] = ind_dom[arg2][j];
+	      j++; k++;
+	    } else {
+	      if (ind_dom[arg2][j] == index_nonl_dom[i])  /* == */ {
+		temp_nonl[k] = ind_dom[arg2][j];
+		j++; k++; i++;
+	      } else {
+		temp_nonl[k] = index_nonl_dom[i];
+		i++; k++;
+	      }
+	    }
+	  }
+	  for(l = j;l<num2;l++) {
+	    temp_nonl[k] = ind_dom[arg2][l];
+	    k++;
+	  }
+	  for(l = i;l<num1;l++) {
+	    temp_nonl[k] = index_nonl_dom[l];
+	    k++;
+	  }
+	  temp_nonl[0] = k-2; 
+	  free((char*) nonl_dom[index]);
+	  nonl_dom[index] = temp_nonl;
+	}
+    }
+}
+
+void extend_nonlinearity_domain_unary
+(int arg, locint **ind_dom, locint **nonl_dom) {
+    extend_nonlinearity_domain_binary_step(arg, arg, ind_dom, nonl_dom);
+}
+
+void extend_nonlinearity_domain_binary
+(int arg1, int arg2, locint **ind_dom, locint **nonl_dom) {
+    extend_nonlinearity_domain_binary_step(arg1, arg2, ind_dom, nonl_dom);
+    extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
+}
+
 
 #endif
 #endif
