@@ -15,7 +15,7 @@
 #ifdef HAVE_MPI
 #define _MPI_ 1
 #define _INDO_ 1
-#define _NONLIND_OLD 1
+#define _NONLIND_OLD_ 1
 #define _INDOPRO_ 1
 #define _TIGHT_ 1
 #include  "uni5_for.c"

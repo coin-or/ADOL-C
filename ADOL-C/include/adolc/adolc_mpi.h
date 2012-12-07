@@ -19,7 +19,6 @@
 #include <adolc/adouble.h>
 
 #if defined(HAVE_MPI)
-#include <mpi.h>
 #include <adolc/interfaces_mpi.h>
 
 BEGIN_C_DECLS
@@ -32,9 +31,6 @@ ADOLC_DLL_EXPORT int ADOLC_MPI_Barrier(ADOLC_MPI_Comm comm);
 ADOLC_DLL_EXPORT int ADOLC_MPI_Finalize() ;
 
 END_C_DECLS
-
-extern int mpi_initialized;
-extern int all_root;
 
 #ifdef __cplusplus
 ADOLC_DLL_EXPORT int ADOLC_MPI_Send(

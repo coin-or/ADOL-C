@@ -24,6 +24,7 @@
 #include <adolc/common.h>
 #if defined(HAVE_MPI)
 #if defined(ADOLC_ADOLC_MPI_H) || defined(ADOLC_TAPELESS)
+#include <mpi.h>
 
 #define ADOLC_MPI_Datatype MPI_Datatype
 #define MPI_ADOUBLE MPI_DOUBLE

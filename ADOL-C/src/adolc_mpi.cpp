@@ -14,7 +14,7 @@
 
 #include <adolc/common.h>
 #include <adolc/adolc_mpi.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adouble.h>
 #include <adolc/drivers/drivers.h>
@@ -192,16 +192,14 @@ int ADOLC_MPI_Reduce(
                case ADOLC_MPI_MAX: for(i=0; i < count; i++ ) {
                                        tmp = tmp_adoubles[i];
                                        for(j=1; j< size ; j++)
-                                          if ( tmp <= tmp_adoubles[j*count+i] )
-                                             tmp = tmp_adoubles[j*count+i];
+					   condassign(tmp, tmp <= tmp_adoubles[j*count+i], tmp_adoubles[j*count+i] );
                                        rec_buf[i] = tmp;
                                    }
                                    break;
                case ADOLC_MPI_MIN: for(i=0; i < count; i++ ) {
                                       tmp = tmp_adoubles[i];
                                       for(j=1; j< size ; j++)
-                                         if ( tmp >= tmp_adoubles[j*count+i] )
-                                            tmp = tmp_adoubles[j*count+i];
+					  condassign(tmp, tmp >= tmp_adoubles[j*count+i], tmp_adoubles[j*count+i] );
                                       rec_buf[i] = tmp;
                                    }
                                    break;

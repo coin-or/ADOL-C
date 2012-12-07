@@ -44,7 +44,8 @@
 #endif /* ADOLC_DEBUG */
 
 #if defined(_MPI_)
-#include <adolc/adolc_mpi.h>
+#include <mpi.h>
+#include <adolc/interfaces_mpi.h>
 #endif
 
 #include <adolc/externfcts.h>
@@ -1236,7 +1237,6 @@ tnum,
           nonl_dom[i][0]=0;
           nonl_dom[i][1]=NUMNNZ;
        }
-#endif
 #endif
 #endif
 
@@ -6710,7 +6710,7 @@ tnum,
 /****************************************************************************/
 
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-
+#if !defined(_MPI_)
 /****************************************************************************/
 /* set operations for propagation of index domains                          */
 
@@ -6818,7 +6818,7 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
     merge_2_index_domains(res, arg1, ind_dom);
     merge_2_index_domains(res, arg2, ind_dom);
 }
-
+#endif
 
 #if defined(_MPI_)
 void combine_index_domain_received_data(int res, int count, locint **ind_dom, locint *trade) {

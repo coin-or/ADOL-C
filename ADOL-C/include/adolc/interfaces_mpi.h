@@ -16,11 +16,12 @@
 #define ADOLC_INTERFACES_MPI_H 1
 
 #include <adolc/common.h>
-#include <adolc/adouble.h>
-#include <adolc/adolc_mpi.h>
 #include <adolc/interfaces.h>
 
 #if defined(HAVE_MPI)
+extern int mpi_initialized;
+extern int all_root;
+
 /* High level driver functions */
 /* at first parameter this process-ID */
 
