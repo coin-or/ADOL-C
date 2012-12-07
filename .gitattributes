@@ -258,6 +258,8 @@ ADOL-C/src/malloc.c -text
 ADOL-C/src/malloc.h -text
 ADOL-C/src/nonl_ind_forward_s.c -text
 ADOL-C/src/nonl_ind_forward_t.c -text
+ADOL-C/src/nonl_ind_old_forward_s.c -text
+ADOL-C/src/nonl_ind_old_forward_t.c -text
 ADOL-C/src/oplate.h -text
 ADOL-C/src/revolve.c -text
 ADOL-C/src/sparse/Makefile.am -text
