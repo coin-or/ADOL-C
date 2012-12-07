@@ -52,6 +52,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
+                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
                        int_reverse_s.c int_reverse_t.c advector.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
