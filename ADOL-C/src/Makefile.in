@@ -107,6 +107,7 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	fov_offset_forward.c revolve.c advector.cpp taping_p.h \
 	int_forward_s.c int_forward_t.c indopro_forward_s.c \
 	indopro_forward_t.c nonl_ind_forward_s.c nonl_ind_forward_t.c \
+	nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
 	int_reverse_s.c int_reverse_t.c
 @SPARSE_FALSE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 @SPARSE_FALSE@	convolut.lo fortutils.lo interfaces.lo \
@@ -129,7 +130,8 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@	fov_offset_forward.lo revolve.lo int_forward_s.lo \
 @SPARSE_TRUE@	int_forward_t.lo indopro_forward_s.lo \
 @SPARSE_TRUE@	indopro_forward_t.lo nonl_ind_forward_s.lo \
-@SPARSE_TRUE@	nonl_ind_forward_t.lo int_reverse_s.lo \
+@SPARSE_TRUE@	nonl_ind_forward_t.lo nonl_ind_old_forward_s.lo \
+@SPARSE_TRUE@	nonl_ind_old_forward_t.lo int_reverse_s.lo \
 @SPARSE_TRUE@	int_reverse_t.lo advector.lo
 libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -398,6 +400,7 @@ libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
 @SPARSE_TRUE@                       int_forward_s.c int_forward_t.c \
 @SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
 @SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
+@SPARSE_TRUE@                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
 @SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c advector.cpp
 
 @SPARSE_FALSE@libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la
@@ -528,6 +531,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tape_handling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taping.Plo@am__quote@
