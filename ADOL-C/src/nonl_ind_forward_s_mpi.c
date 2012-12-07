@@ -15,11 +15,13 @@
 #ifdef HAVE_MPI
 #define _MPI_ 1
 #define _INDO_ 1
-#define _NONLIND_ 1
+#define _NONLIND_OLD_ 1
+#define _INDOPRO_ 1
 #define _NTIGHT_ 1
 #include  "uni5_for.c"
 #undef _INDO_
-#undef _NONLIND_
+#undef _NONLIND_OLD_
+#undef _INDOPRO_
 #undef _NTIGHT_
 #undef _MPI_
 #endif

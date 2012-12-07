@@ -16,7 +16,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/tapedoc/tapedoc.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adalloc.h>
 
@@ -149,7 +149,7 @@ void filewrite_start( int opcode ) {
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
 #endif
     pagelength = 0;
 }

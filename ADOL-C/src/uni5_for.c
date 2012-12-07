@@ -13,14 +13,15 @@
            fov_forward (first-order-vector forward mode):     define _FOV_
            hov_forward (higher-order-vector forward mode):    define _HOV_
            hov_wk_forward (higher-order-vector forward mode): define _HOV_WK_
-	   int_forward_safe:                                  define _INT_FOR_ and _NTIGHT__
+           int_forward_safe:                                  define _INT_FOR_ and _NTIGHT__
 
            Uses the preprocessor to compile the 7 different object files
            with/without "keep" parameter:                     define _KEEP_
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Benjamin Letschert
+               Benjamin Letschert, Kshitij Kulshreshtha
+               
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -32,7 +33,9 @@
 #include <adolc/adalloc.h>
 #include <adolc/taping.h>
 #include "taping_p.h"
-#include <adolc/oplate.h>
+#include "oplate.h"
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 
 #include <math.h>
 
@@ -166,7 +169,7 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 #define NUMNNZ 20
 #define FMIN_ADOLC(x,y)  ((y<x)?y:x)
 
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 #if defined(_MPI_)
 #define GENERATED_FILENAME "indopro_forward_t_mpi"
@@ -184,6 +187,31 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 #endif
 #endif
 #if defined(_NONLIND_)
+
+typedef struct IndexElement {
+    locint  entry;
+    struct IndexElement* left;
+    struct IndexElement* right;
+}
+IndexElement;
+
+typedef struct IndexElement_sod {
+    locint  entry;
+    struct IndexElement_sod* left;
+}
+IndexElement_sod;
+
+void free_tree(IndexElement* nlf, int num);
+void traverse_crs(IndexElement* fod2, IndexElement_sod* sod, int num);
+void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind);
+
+#if defined(_TIGHT_)
+#define GENERATED_FILENAME "nonl_ind_forward_t"
+#elif defined(_NTIGHT_)
+#define GENERATED_FILENAME "nonl_ind_forward_s"
+#endif
+#endif
+#if defined(_NONLIND_OLD_)
 
 /*
  * This is the type used for the list elements. The entry is either a counter
@@ -207,7 +235,7 @@ void extend_nonlinearity_domain_combine_received_trade
 #if defined(_MPI_)
 #define GENERATED_FILENAME "nonl_ind_forward_t_mpi"
 #else
-#define GENERATED_FILENAME "nonl_ind_forward_t"
+#define GENERATED_FILENAME "nonl_ind_old_forward_t"
 #endif
 #endif
 
@@ -215,7 +243,7 @@ void extend_nonlinearity_domain_combine_received_trade
 #if defined(_MPI_)
 #define GENERATED_FILENAME "nonl_ind_forward_s_mpi"
 #else
-#define GENERATED_FILENAME "nonl_ind_forward_s"
+#define GENERATED_FILENAME "nonl_ind_old_forward_s"
 #endif
 #endif
 #endif
@@ -622,7 +650,7 @@ p = indep / bits_per_long + ((indep % bits_per_long) != 0)
 and pass a bit pattern version of the identity matrix as an argument    */
 #endif
 #else
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
@@ -671,21 +699,46 @@ int indopro_forward_safe(
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
-#if defined(_MPI_)
-int nonl_ind_forward_tight_mpi(
-    int mpi_id, int mpi_size,
-#else
 int nonl_ind_forward_tight(
-#endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
     int               indcheck,    /* consistency chk on # of independents */
     const double     *basepoint,  /* independent variable values   (in)   */
     unsigned int     **crs)        /* returned row index storage (out)     */
 
-/* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
+#endif
+#if defined (_NTIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode, bit pattern, safe        */
+/****************************************************************************/
+int nonl_ind_forward_safe(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double      *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
+
+/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
   */
+#endif
+#else
+#if defined(_NONLIND_OLD_)
+#if defined(_TIGHT_)
+/****************************************************************************/
+/* First Order Vector version of the forward mode for bit patterns, tight   */
+/****************************************************************************/
+#if defined(_MPI_)
+int nonl_ind_forward_tight_mpi(
+    int mpi_id, int mpi_size,
+#else
+int nonl_ind_old_forward_tight(
+#endif
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int     **crs)        /* returned row index storage (out)     */
 
 #endif
 #if defined (_NTIGHT_)
@@ -696,7 +749,7 @@ int nonl_ind_forward_tight(
 int nonl_ind_forward_safe_mpi(
     int mpi_id, int mpi_size,
 #else
-int nonl_ind_forward_safe(
+int nonl_ind_old_forward_safe(
 #endif
     short             tnum,        /* tape id                              */
     int               depcheck,    /* consistency chk on # of dependents   */
@@ -809,9 +862,11 @@ int  hov_forward(
 #endif
 #endif
 #endif
+#endif
 {
     /****************************************************************************/
     /*                                                            ALL VARIABLES */
+
     unsigned char operation;   /* operation code */
     int ret_c =3;              /* return value */
 
@@ -852,7 +907,23 @@ int  hov_forward(
 #if defined (_INDO_)
     int l=0;
     int max_ind_dom;
+#if defined(_INDOPRO_)
+    /* index domains */
+    locint** ind_dom;
+#endif 
 #if defined(_NONLIND_)
+    /* nonlinear interaction domains */
+    locint* arg_index;
+    IndexElement* fod;
+    IndexElement* nonl_dom;
+    IndexElement_sod* sod;
+    IndexElement_sod* temp;
+    IndexElement_sod* temp1;
+    int maxopind;
+    int opind;
+    int ii;
+#endif
+#if defined(_NONLIND_OLD_)
     /* nonlinear interaction domains */
     locint** nonl_dom;
     locint*  temp;
@@ -895,9 +966,6 @@ int  hov_forward(
 #endif /* _TIGHT_ */
 #define T0res  T0temp
 #define T0arg  T0temp
-
-    /* index domains */
-    locint** ind_dom;
 
 #else
     double *dp_T0;
@@ -967,7 +1035,7 @@ int  hov_forward(
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER fov_forward
 #   define ADOLC_EXT_FCT_COMPLETE \
-    fov_forward(n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+    fov_forward(n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dpp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
@@ -1043,7 +1111,7 @@ tnum,
      int mpi_i,mpi_ii, s_r_c=1;
      locint *loc_send, *loc_recv;
      int myid,root, count, count2, target,tag;
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
      locint *tmp_element;
 #endif
 #if defined(_INDO_)
@@ -1055,7 +1123,6 @@ tnum,
      locint *trade_loc, *rec_buf_loc;
 #endif
 #endif
-
 
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
@@ -1111,17 +1178,36 @@ tnum,
     /*--------------------------------------------------------------------------*/
 #else                                                                /* INDOPRO */
 #if defined(_INDO_)
-    ind_dom = (locint**)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+#if defined(_INDOPRO_)
+    /* index domains */
+    ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 
-    for(i=0;i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];i++)
+    for(i=0;i<max_ind_dom;i++)
     {
         ind_dom[i] = (locint*)  malloc(sizeof(locint)*(NUMNNZ+2));
         ind_dom[i][0] = 0;
         ind_dom[i][1] = NUMNNZ;
     }
-
-    max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
+#endif
 #if defined(_NONLIND_)
+	maxopind=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD];
+	fod = (struct IndexElement*) malloc(sizeof(struct IndexElement) * maxopind);
+	nonl_dom = (struct IndexElement*) malloc(sizeof(struct IndexElement) * indcheck);
+	arg_index = (locint *)  malloc(sizeof(locint) * (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]));
+        opind = 0;
+	sod = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod) * indcheck);
+
+	for(i=0;i<indcheck;i++)
+	  {
+	    sod[i].entry = 0;
+	    sod[i].left = NULL;
+	    nonl_dom[i].entry = indcheck+2;
+	    nonl_dom[i].left = NULL;
+	    nonl_dom[i].right = NULL;
+	  }
+#endif
+#if defined(_NONLIND_OLD_)
 #if defined(_MPI_)
     int s_r_indep =indcheck;
     if (mpi_initialized) {
@@ -1150,6 +1236,7 @@ tnum,
           nonl_dom[i][0]=0;
           nonl_dom[i][1]=NUMNNZ;
        }
+#endif
 #endif
 #endif
 
@@ -1213,8 +1300,9 @@ tnum,
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
-    while (operation !=end_of_tape) {
 
+    while (operation !=end_of_tape) {
+      
       switch (operation) {
 
 
@@ -1377,7 +1465,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif           
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Targ,TAYLOR_BUFFER[arg])
@@ -1402,7 +1495,15 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
 		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1425,7 +1526,15 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
 		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1448,7 +1557,15 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
 		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1472,8 +1589,16 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
 		ind_dom[res][0] = 1;
 		ind_dom[res][2] = indexi;
+#endif		
+#if defined(_NONLIND_)
+		fod[opind].entry = indexi;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;		
+#endif		
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1499,23 +1624,23 @@ tnum,
 #if !defined(_INDO_)
 #if !defined(_NTIGHT_)
                 if ( valuepoint != NULL )
-		  valuepoint[indexd] = dp_T0[res];
+                  valuepoint[indexd] = dp_T0[res];
 #endif /* !_NTIGHT_ */
 #endif
 
 #if defined(_INDO_)
-#if defined(_INDOPRO_)
-		if (ind_dom[res][0] != 0) {
-		  crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int) * (ind_dom[res][0]+1));
-		  crs[indexd][0] = ind_dom[res][0];
-		  for(l=1;l<=crs[indexd][0];l++) {
-		    crs[indexd][l] = ind_dom[res][l+1];
-		  }
-		}
-		else {
-		  crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int));
-		  crs[indexd][0] =0;
-		}
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+          if (ind_dom[res][0] != 0) {
+            crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int) * (ind_dom[res][0]+1));
+            crs[indexd][0] = ind_dom[res][0];
+            for(l=1;l<=crs[indexd][0];l++) {
+              crs[indexd][l] = ind_dom[res][l+1];
+            }
+          }
+          else {
+            crs[indexd] = (unsigned int*) malloc(sizeof(unsigned int));
+            crs[indexd][0] =0;
+          }
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -1566,7 +1691,15 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1609,7 +1742,15 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1661,8 +1802,18 @@ tnum,
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 merge_2_index_domains(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[arg_index[arg]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -1734,12 +1885,19 @@ tnum,
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if !defined(_NTIGHT_)
-                dp_T0[res] = dp_T0[arg1] +
-                                               dp_T0[arg2];
+                dp_T0[res] = dp_T0[arg1] + dp_T0[arg2];
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif      
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1771,7 +1929,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];
+#endif               
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1798,8 +1961,16 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 
-#if defined(_INDO_)
+#if defined(_INDO_)    
+#if defined(_INDOPRO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+                arg_index[res] = opind++;		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -1831,7 +2002,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -1857,8 +2033,18 @@ tnum,
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[arg_index[arg1]], indcheck+1,maxopind+2);
+		arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
 		extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
 #else
@@ -1909,8 +2095,27 @@ tnum,
                 res  = get_locint_f();
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		// operation: v = v+u*w
+		// first step: z = u*w, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		// first step: z = u*w, 
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		opind++;
+		// second step: v = v+z, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[opind-1];
+		// second step: v = v+z,
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
 #else
@@ -1960,8 +2165,27 @@ tnum,
                 res  = get_locint_f();
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 merge_3_index_domains(res, arg1, arg2, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		// operation: v = v-u*w
+		// first step: z = u*w, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		// first step: z = u*w,
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		opind++;
+		// second step: v = v-z, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[opind-1];
+		// second step: v = v-z, 
+                arg_index[res] = opind++;	
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
 #endif
 #else
@@ -2017,7 +2241,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2053,8 +2282,18 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = &fod[arg_index[arg2]];
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif 
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
                 extend_nonlinearity_domain_unary(arg2, ind_dom, nonl_dom);
 #endif
@@ -2114,8 +2353,17 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif 
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -2166,7 +2414,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];			    
+#endif  
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2190,7 +2443,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];			    
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2225,8 +2483,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -2265,7 +2532,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case sin_op:                              /* sine operation    sin_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2281,8 +2548,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2347,10 +2623,20 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
+
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -2410,8 +2696,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2465,8 +2760,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2545,7 +2849,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case acos_op:                                              /* acos_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2558,8 +2862,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2640,7 +2953,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case asinh_op:                                            /* asinh_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2653,8 +2966,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2695,7 +3017,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case acosh_op:                                           /* acosh_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2708,8 +3030,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2772,7 +3103,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case atanh_op:                                            /* atanh_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2785,8 +3116,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
 #endif
 #else
@@ -2871,7 +3211,7 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case erf_op:                                                /* erf_op */
-            arg1 = get_locint_f();
+                arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 res  = get_locint_f();
 
@@ -2883,7 +3223,16 @@ tnum,
 
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif        
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -2924,14 +3273,23 @@ tnum,
 
             /*--------------------------------------------------------------------------*/
         case log_op:                                                /* log_op */
-            arg = get_locint_f();
+                arg = get_locint_f();
                 res = get_locint_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -3008,8 +3366,17 @@ tnum,
 
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -3143,8 +3510,17 @@ tnum,
                 ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
                 copy_index_domain(res, arg, ind_dom);
+#endif
 #if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
                 extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
 #endif
 #else
@@ -3293,8 +3669,9 @@ tnum,
                             MINDEC(ret_c,1);
 #endif /* !_NTIGHT_ */
 
-#if defined(_INDO_)
-#ifdef _TIGHT_
+#if defined (_INDO_)
+#if defined (_INDOPRO_)
+#if defined (_TIGHT_)
                     if (dp_T0[arg1] < dp_T0[arg2])
                         copy_index_domain(res, arg1, ind_dom);
                     else {
@@ -3305,6 +3682,41 @@ tnum,
                     }
 #else
                     combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
+#endif
+#if defined(_NONLIND_)
+#ifdef _TIGHT_
+                    if (dp_T0[arg1] < dp_T0[arg2])
+		      {
+			fod[opind].entry = maxopind+2;
+			fod[opind].left = &fod[arg_index[arg1]];
+			fod[opind].right = NULL;
+			arg_index[res] = opind++;		
+		      }		   
+                    else {
+                        if (dp_T0[arg1] > dp_T0[arg2])
+			  {
+			    fod[opind].entry = maxopind+2;
+			    fod[opind].left = &fod[arg_index[arg2]];
+			    fod[opind].right = NULL;
+			    arg_index[res] = opind++;		
+
+			  }		   
+                        else
+			  {
+			    fod[opind].entry = maxopind+2;
+			    fod[opind].left = &fod[arg_index[arg1]];
+			    fod[opind].right = &fod[arg_index[arg2]];
+			    arg_index[res] = opind++;		
+			  }
+                    }
+#else
+		    fod[opind].entry = maxopind+2;
+		    fod[opind].left = &fod[arg_index[arg1]];
+		    fod[opind].right = &fod[arg_index[arg2]];
+		    arg_index[res] = opind++;		
+		    arg_index[res] = opind++;		
+#endif
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3324,9 +3736,9 @@ tnum,
                 FOR_0_LE_l_LT_p
                 { Targ = Tqo;
                   if (Targ == NULL) /* e.g. T0[arg1] == T0[arg2] */
-              { Targ1OP = Targ1;
-                  Targ2OP = Targ2;
-                  if (TARG1 > TARG2)
+                    { Targ1OP = Targ1;
+                      Targ2OP = Targ2;
+                      if (TARG1 > TARG2)
                           Targ = Targ2OP;
                       else
                           if (TARG1 < TARG2)
@@ -3340,7 +3752,7 @@ tnum,
                   TRES_INC = TARG_INC;
 
                   if (Tqo)
-                  Tqo++;
+                    Tqo++;
                 }
 
                 dp_T0[res] = MIN_ADOLC(dp_T0[arg1], dp_T0[arg2]);
@@ -3422,7 +3834,12 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
 		copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3496,7 +3913,16 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
+#ifdef _TIGHT_
+                ind_dom[res][0] = 0;
+#else
 		copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT_ */
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3523,7 +3949,16 @@ tnum,
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
+#ifdef _TIGHT_
+                ind_dom[res][0] = 0;
+#else
 		copy_index_domain(res, arg, ind_dom);
+#endif /* _TIGHT_ */
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres, TAYLOR_BUFFER[res])
@@ -3549,18 +3984,36 @@ tnum,
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
                 /* olvo 980924 changed order to allow reflexive ops */
-#if defined(_INDO_)
+#if defined (_INDO_)
+#if defined (_INDOPRO_)
+#if defined (_TIGHT_)
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+		    copy_index_domain(res, arg1, ind_dom);
+
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+		    copy_index_domain(res, arg2, ind_dom);
+                }
+#else
+		    combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
+#endif
+#if defined (_NONLIND_)
 #ifdef _TIGHT_
                 if (dp_T0[arg] > 0) {
                     if (coval <= 0.0)
                         MINDEC(ret_c,2);
                     dp_T0[res] = dp_T0[arg1];
 
-		    combine_2_index_domains(res, arg1, arg2, ind_dom);
-#else
-                        copy_index_domain(res, arg1, ind_dom);
-#endif
-#ifdef _TIGHT_
+		    arg_index[res] = arg_index[arg1];		
                 } else {
                     if (coval > 0.0)
                         MINDEC(ret_c,2);
@@ -3568,10 +4021,12 @@ tnum,
                         MINDEC(ret_c,0);
                     dp_T0[res] = dp_T0[arg2];
 
-                        combine_2_index_domains(res, arg1, arg2, ind_dom);
+		    arg_index[res] = arg_index[arg2];		
                 }
+
 #else
-                        copy_index_domain(res, arg2, ind_dom);
+               arg_index[res] = opind++;		
+#endif
 #endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
@@ -3643,7 +4098,17 @@ tnum,
 
                 /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-                    copy_index_domain(res, arg1, ind_dom);
+#if defined(_INDOPRO_)
+#ifdef _TIGHT_
+		if (dp_T0[arg] > 0)
+		    copy_index_domain(res, arg1, ind_dom);
+#else
+		merge_2_index_domains(res, arg1, ind_dom);
+#endif
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg1];		
+#endif
 #else
 #if !defined(_ZOS_) /* BREAK_ZOS */
                 ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
@@ -3685,6 +4150,715 @@ tnum,
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
 
+
+                /*--------------------------------------------------------------------------*/
+		/* NEW CONDITIONALS */
+                /*--------------------------------------------------------------------------*/
+            case neq_a_a:
+            case eq_a_a:
+            case le_a_a:
+            case ge_a_a:
+            case lt_a_a:
+            case gt_a_a:
+		coval = get_val_f();
+		arg = get_locint_f();
+		arg1 = get_locint_f();
+		res = get_locint_f();
+#if !defined(_NTIGHT_)
+		{
+		    revreal retval = -1;
+		    const char* opname = "";
+		    switch (operation) {
+		    case neq_a_a:
+			retval = (revreal)(dp_T0[arg] != dp_T0[arg1]);
+			opname = "neq_a_a";
+			break;
+		    case eq_a_a:
+			retval = (revreal)(dp_T0[arg] == dp_T0[arg1]);
+			opname = "eq_a_a";
+			break;
+		    case ge_a_a:
+			retval = (revreal)(dp_T0[arg] >= dp_T0[arg1]);
+			opname = "ge_a_a";
+			break;
+		    case le_a_a:
+			retval = (revreal)(dp_T0[arg] <= dp_T0[arg1]);
+			opname = "le_a_a";
+			break;
+		    case gt_a_a:
+			retval = (revreal)(dp_T0[arg] > dp_T0[arg1]);
+			opname = "gt_a_a";
+			break;
+		    case lt_a_a:
+			retval = (revreal)(dp_T0[arg] < dp_T0[arg1]);
+			opname = "lt_a_a";
+			break;
+		    }
+		    if (retval != coval && ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning)
+			fprintf(DIAG_OUT,
+				"ADOL-C Warning: Branch switch detected in comparison "
+				"(operator %s).\n"
+				"Results may be unpredictable! Retaping recommended!\n",opname);
+		    dp_T0[res] = retval;
+		}
+#endif
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+                FOR_0_LE_l_LT_pk
+                TRES_INC = 0;
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+
+		break;
+
+                /*--------------------------------------------------------------------------*/
+            case subscript:
+		coval = get_val_f();
+		arg = get_locint_f();
+		res = get_locint_f();
+		{
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
+#if !defined(_NTIGHT_)
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		    dp_T0[res] = dp_T0[arg1];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+		    ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+		    ASSIGN_T(Tres,TAYLOR_BUFFER[res])
+
+		    FOR_0_LE_l_LT_pk
+		    TRES_INC = TARG1_INC;
+#endif
+#endif
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+		break;
+
+            case subscript_ref:
+		coval = get_val_f();
+		arg = get_locint_f();
+		res = get_locint_f();
+		{
+		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_f();
+#if !defined(_NTIGHT_)
+		    idx = (size_t)trunc(fabs(dp_T0[arg]));
+		    if (idx >= numvar)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numvar, idx);
+		    arg1 = vectorloc+idx;
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		    dp_T0[res] = arg1;
+#else
+		    fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in safe mode, please use tight mode\n");
+		    exit(-2);
+#endif
+		}
+		break;
+
+            case ref_copyout:
+		arg = get_locint_f();
+		res = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+		dp_T0[res] = dp_T0[arg1];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		arg_index[res] = arg_index[arg1];
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+		ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+		ASSIGN_T(Tres,TAYLOR_BUFFER[res])
+
+		FOR_0_LE_l_LT_pk
+		TRES_INC = TARG1_INC;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		break;
+
+            case ref_incr_a:
+		arg = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
+		dp_T0[arg1]++;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_decr_a:
+		arg = get_locint_f();
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p);
+		dp_T0[arg1]--;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d:
+		arg = get_locint_f();
+		coval = get_val_f();
+		
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = coval;
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d_zero:
+		arg = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = 0.0;
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_d_one:
+		arg = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
+		IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+		dp_T0[arg1] = 1.0;
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[arg1][0] = 0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[arg1] = opind++;
+#endif
+#else
+#if !defined(_ZOS_)
+		ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+
+		FOR_0_LE_l_LT_pk
+		TARG1_INC = 0;
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif
+		break;
+
+            case ref_assign_a:           /* assign an adouble variable an    assign_a */
+                /* adouble value. (=) */
+                arg = get_locint_f();
+                res = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		arg1 = (size_t)trunc(fabs(dp_T0[res]));
+                IF_KEEP_WRITE_TAYLOR(arg1,keep,k,p)
+                dp_T0[arg1] = dp_T0[arg];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                copy_index_domain(arg1, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                arg_index[arg1] = arg_index[arg];
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Targ,TAYLOR_BUFFER[arg])
+                ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+
+                FOR_0_LE_l_LT_pk
+                TARG1_INC = TARG_INC;
+#endif
+#endif 
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_assign_ind:       /* assign an adouble variable an    assign_ind */
+                /* independent double value (<<=) */
+                arg = get_locint_f();
+
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] = basepoint[indexi];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[res][0] = 1;
+		ind_dom[res][2] = indexi;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = indexi;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_INC = ARGUMENT(indexi,l,i);
+#else
+                FOR_0_LE_l_LT_p
+                FOR_0_LE_i_LT_k
+                TRES_INC = ARGUMENT(indexi,l,i);
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                ++indexi;
+                break;
+
+            case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
+                /* adouble. (+=) */
+                arg  = get_locint_f();
+                coval = get_val_f();
+
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] += coval;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case ref_eq_plus_a:             /* Add an adouble to another    eq_plus_a */
+                /* adouble. (+=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] += dp_T0[arg];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_pk
+                TRES_INC |= TARG_INC;
+#else
+                FOR_0_LE_l_LT_pk
+                TRES_INC += TARG_INC;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
+                /* adouble. (-=) */
+                arg = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] -= coval;
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case ref_eq_min_a:        /* Subtract an adouble from another    eq_min_a */
+                /* adouble. (-=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] -= dp_T0[arg];
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+                arg_index[res] = opind++;
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_pk
+                TRES_INC |= TARG_INC;
+#else
+                FOR_0_LE_l_LT_pk
+                TRES_INC -= TARG_INC;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
+                /* flaoting point. (*=) */
+                arg = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+                dp_T0[res] *= coval;
+#if !defined(_INDO_)
+#if !defined(_ZOS_) /* BREAK_ZOS */
+#if !defined( _INT_FOR_)
+
+                FOR_0_LE_l_LT_pk
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+                FOR_0_LE_l_LT_pk
+                TRES_INC *= coval;
+#endif
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_eq_mult_a:       /* Multiply one adouble by another    eq_mult_a */
+                /* (*=) */
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg1]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                merge_2_index_domains(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[arg_index[arg]];
+		traverse_unary(&fod[arg_index[res]], nonl_dom, &fod[arg_index[arg]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+
+                INC_pk_1(Tres)
+                INC_pk_1(Targ)
+
+#ifdef _INT_FOR_
+                FOR_p_GT_l_GE_0
+                TRES_FODEC |= TARG_DEC;
+#else
+                FOR_p_GT_l_GE_0
+                FOR_k_GT_i_GE_0
+                { TRES_FODEC = dp_T0[res]*TARG_DEC +
+                               TRES*dp_T0[arg];
+                  DEC_TRES_FO
+#ifdef _HIGHER_ORDER_
+                  TresOP = Tres-i;
+                  TargOP = Targ;
+
+                  for (j=0;j<i;j++)
+                  *Tres += (*TresOP++) * (*TargOP--);
+                  Tres--;
+#endif /* _HIGHER_ORDER_ */
+                }
+#endif
+#endif
+#endif
+		dp_T0[res] *= dp_T0[arg];
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* !_NTIGHT_ */
+                break;
+
+            case ref_cond_assign:                                      /* cond_assign */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2  = get_locint_f();
+		{ 
+		    locint ref = get_locint_f();
+		    coval = get_val_f();
+#if !defined(_NTIGHT_)
+		    res   = (size_t)trunc(fabs(dp_T0[ref]));
+
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg2, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg2];
+#endif
+                }
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+                FOR_0_LE_l_LT_pk
+                TRES_INC = TARG1_INC | TARG2_INC;
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+#endif
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval > 0.0)
+                        MINDEC(ret_c,2);
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+                break;
+
+            case ref_cond_assign_s:                                  /* cond_assign_s */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2   = get_locint_f();
+                coval = get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg2]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+		if (dp_T0[arg] > 0) {
+#if defined(_INDOPRO_)
+                    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+		}
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] > 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+#endif
+                if (dp_T0[arg] > 0) {
+                    if (coval <= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else
+                    if (dp_T0[arg] == 0)
+                        MINDEC(ret_c,0);
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		exit(-2);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
 
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
@@ -3730,7 +4904,7 @@ tnum,
                 break;
 
                 /*--------------------------------------------------------------------------*/
-#if defined(_EXTERN_) /* ZOS and FOS up to now */
+#if defined(_EXTERN_) /* ZOS,  FOS, FOV up to now */
             case ext_diff:                       /* extern differntiated function */
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 n=get_locint_f();
@@ -3757,6 +4931,9 @@ tnum,
 
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_x[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -3767,6 +4944,9 @@ tnum,
                 }
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
+                    if (edfct->dp_y_priorRequired) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
                     edfct->dp_y[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -3781,7 +4961,6 @@ tnum,
 
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_x[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -3792,7 +4971,6 @@ tnum,
                 }
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
                 for (loop=0; loop<m; ++loop) {
-                    IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
                     dp_T0[res]=edfct->dp_y[loop];
 #if !defined(_ZOS_)
                     ADOLC_EXT_LOOP
@@ -3804,6 +4982,7 @@ tnum,
 
                 break;
 #endif
+
                 /*--------------------------------------------------------------------------*/
 #if defined(_MPI_)
       case send_data:	// MPI-Send-Befehl
@@ -3882,6 +5061,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            trade = myalloc1(count*2);
            anz=0;
            for (mpi_i=0; mpi_i< count; mpi_i++){
@@ -3906,7 +5086,7 @@ tnum,
            }
            free(trade);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            trade = myalloc1(s_r_indep*2);
            anz=0;
            for (mpi_i=0; mpi_i< s_r_indep; mpi_i++){
@@ -3929,6 +5109,7 @@ tnum,
            }
            free( trade);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* END OF TIGHT */
 #if defined(_NTIGHT_) /* without dp_T0 */
 #if defined(_INT_FOR_)
@@ -3942,6 +5123,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            counts = (int*) malloc(count*sizeof(int));
            anz=0;
            for (mpi_i=0; mpi_i< count; mpi_i++){
@@ -3965,7 +5147,7 @@ tnum,
            }
            free(trade);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            counts = (int*) malloc(s_r_indep*sizeof(int));
            anz=0;
            for (mpi_i=0; mpi_i< s_r_indep; mpi_i++){
@@ -3987,6 +5169,7 @@ tnum,
            }
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* END OF TIGHT */
            free(loc_send);
 	      break;
@@ -4076,6 +5259,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            // getting information about count of entries
            counts = ( int*) malloc( count*sizeof(int) );
            trade = myalloc1(count*2);
@@ -4103,7 +5287,7 @@ tnum,
            }
            free( counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            counts = ( int*) malloc( s_r_indep*sizeof(int) );
            trade = myalloc1(s_r_indep*2);
            MPI_Recv( trade , s_r_indep*2, MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
@@ -4132,6 +5316,7 @@ tnum,
            }
            free( counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* END TIGHT */
 #if defined(_NTIGHT_)
 #if defined(_INT_FOR_)
@@ -4144,6 +5329,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            // getting information about count of entries
            counts = ( int*) malloc( count*sizeof(int) );
            MPI_Recv( counts , count, MPI_INT , target, tag , MPI_COMM_WORLD, &status_MPI);
@@ -4166,7 +5352,7 @@ tnum,
            }
            free( counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            counts = ( int*) malloc( s_r_indep*sizeof(int) );
            MPI_Recv( counts , s_r_indep, MPI_INT , target, tag , MPI_COMM_WORLD, &status_MPI);
            anz =0;
@@ -4189,6 +5375,7 @@ tnum,
            }
            free( counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* END OF NTIGHT */
            free(loc_recv);
 	      break;
@@ -4325,6 +5512,7 @@ tnum,
            free(trade);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            trade = myalloc1( count*2);
            if (myid ==root){
               for(mpi_i =0; mpi_i < count; mpi_i++){
@@ -4365,7 +5553,7 @@ tnum,
            }
            free(counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            trade = myalloc1( s_r_indep*2);
            if (myid ==root){
               for(mpi_i =0; mpi_i < s_r_indep; mpi_i++){
@@ -4408,6 +5596,7 @@ tnum,
            }
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* TIGHT */
 #if defined(_NTIGHT_)
 #if defined(_INT_FOR_)
@@ -4424,6 +5613,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            // getting information about count of entries
            counts = ( int*) malloc( count*sizeof(int) );
            if (myid ==root){
@@ -4459,7 +5649,7 @@ tnum,
            }
            free(counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            counts = ( int*) malloc( s_r_indep*sizeof(int) );
            if (myid ==root){
               for(mpi_i =0; mpi_i < s_r_indep; mpi_i++)
@@ -4495,6 +5685,7 @@ tnum,
            }
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif
            free(loc_send);
            break;
@@ -4667,6 +5858,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            counts = ( int*) malloc( count*sizeof(int) );
            trade = myalloc1(count*2);
            if( myid == root){
@@ -4740,7 +5932,7 @@ tnum,
            }
            free(counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            counts = ( int*) malloc( count*sizeof(int) );
            trade = myalloc1(count*2);
            if( myid == root){
@@ -4819,6 +6011,7 @@ tnum,
            if( myid == root) free(tmp_counts);
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif
 #if defined(_NTIGHT_)
 #if defined(_INT_FOR_)
@@ -4843,6 +6036,7 @@ tnum,
            free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            // getting information about count of entries
            counts = ( int*) malloc( count*sizeof(int) );
            if( myid == root)
@@ -4900,7 +6094,7 @@ tnum,
            }
            free(counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            // getting information about count of entries
            counts = ( int*) malloc( count*sizeof(int) );
            if( myid == root)
@@ -4965,6 +6159,7 @@ tnum,
            if( myid == root) free(tmp_counts);
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif /* END _NTIGHT_ */
            if ( myid == root)
               free(loc_recv);
@@ -5152,6 +6347,7 @@ tnum,
               free(trade);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            rec_buf = myalloc1(count2+1);
            if (myid == root)
               trade = myalloc1(count+mpi_size);
@@ -5216,7 +6412,7 @@ tnum,
 
            free(rec_buf_loc);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            rec_buf = myalloc1(count2+1);
            if (myid == root)
               trade = myalloc1(count+mpi_size);
@@ -5262,6 +6458,7 @@ tnum,
            }
            free(rec_buf_loc);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif
 #if defined(_NTIGHT_)
 #if defined(_INT_FOR_)
@@ -5285,6 +6482,7 @@ tnum,
            if(myid==root) free(trade_loc);
 #endif /* END INT_FOR */
 #if defined(_INDO_)
+#if defined(_INDOPRO_)
            // getting information about count of entries
            if(myid== root){
               anz = ind_dom[loc_send[0]][0];
@@ -5328,7 +6526,7 @@ tnum,
            free(rec_buf_loc);
            free(counts);
 #endif
-#if defined(_NONLIND_)
+#if defined(_NONLIND_OLD_)
            // getting information about count of entries
            counts = ( int*) malloc( sizeof(int) );
            if(myid== root){
@@ -5373,6 +6571,7 @@ tnum,
            free(rec_buf_loc);
            free(counts);
 #endif    // end _NONLIND_
+#endif    // end _INDO_
 #endif
            if (myid == root)
               free(loc_send);
@@ -5398,6 +6597,7 @@ tnum,
         ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
     }  /* endwhile */
+
 
 #if defined(ADOLC_DEBUG)
     printf("\nTape contains:\n");
@@ -5435,14 +6635,36 @@ tnum,
 
 
 #if defined(_INDO_)
-
+#if defined(_INDOPRO_)
     for(i=0;i<max_ind_dom;i++)
       {
 	free(ind_dom[i]);
       }
     free(ind_dom);
-
+#endif
 #if defined(_NONLIND_)
+    for( i=0; i < indcheck; i++) {
+      traverse_crs(&nonl_dom[i],&sod[i],indcheck+1);
+      free_tree(&nonl_dom[i],indcheck+1);
+      crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (sod[i].entry+1));
+      crs[i][0] = sod[i].entry;
+      temp = sod[i].left;
+      for( ii=1; ii <=sod[i].entry; ii++)
+	{
+	  crs[i][ii] = temp->entry;
+	  temp1 = temp->left;
+	  free(temp);
+	  temp = temp1;
+	}
+    }
+
+    free(sod);
+    free(nonl_dom);
+    free(fod);
+    free(arg_index);
+
+#endif
+#if defined(_NONLIND_OLD_)
 #if defined(_MPI_)
     if (mpi_initialized){
        indcheck = s_r_indep;
@@ -5487,7 +6709,7 @@ tnum,
 
 /****************************************************************************/
 
-#if defined(_INDOPRO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 
 /****************************************************************************/
 /* set operations for propagation of index domains                          */
@@ -5525,60 +6747,60 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom)
   else
     {
       if (res != arg)
-	{
-	  arg_ind_dom = ind_dom[arg];
-	  res_ind_dom = ind_dom[res];
+     {
+       arg_ind_dom = ind_dom[arg];
+       res_ind_dom = ind_dom[res];
 
-	  num  = ind_dom[res][0];
-	  num1 = arg_ind_dom[0];
-	  num2 = ind_dom[res][1];
+       num  = ind_dom[res][0];
+       num1 = arg_ind_dom[0];
+       num2 = ind_dom[res][1];
 
-	  if (num2 < num1+num)
-	    num2 = num1+num;
+       if (num2 < num1+num)
+         num2 = num1+num;
 
-	  temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
-	  temp_array[1] = num2;
+       temp_array = (locint *)  malloc(sizeof(locint)* (num2+2));
+       temp_array[1] = num2;
 
-	  i = 2;
-	  j = 2;
-	  k = 2;
-	  num += 2;
-	  num1 += 2;
-	  while ((i< num) && (j < num1))
-	    {
-	      if (res_ind_dom[i] < arg_ind_dom[j])
-		{
-		  temp_array[k] = res_ind_dom[i];
-		  i++; k++;
-		}
-	      else
-		{
-		  if (res_ind_dom[i] == arg_ind_dom[j])
-		    {
-		      temp_array[k] = arg_ind_dom[j];
-		      i++;j++;k++;
-		    }
-		  else
-		    {
-		      temp_array[k] = arg_ind_dom[j];
-		      j++;k++;
-		    }
-		}
-	    }
-	  for(l = i;l<num;l++)
-	    {
-	      temp_array[k] = res_ind_dom[l];
-	      k++;
-	    }
-	  for(l = j;l<num1;l++)
-	    {
-	      temp_array[k] = arg_ind_dom[l];
-	      k++;
-	    }
-	  temp_array[0] = k-2;
-	  free(ind_dom[res]);
-	  ind_dom[res]=temp_array;
-	}
+       i = 2;
+       j = 2;
+       k = 2;
+       num += 2;
+       num1 += 2;
+       while ((i< num) && (j < num1))
+         {
+           if (res_ind_dom[i] < arg_ind_dom[j])
+          {
+            temp_array[k] = res_ind_dom[i];
+            i++; k++;
+          }
+           else
+          {
+            if (res_ind_dom[i] == arg_ind_dom[j])
+              {
+                temp_array[k] = arg_ind_dom[j];
+                i++;j++;k++;
+              }
+            else
+              {
+                temp_array[k] = arg_ind_dom[j];
+                j++;k++;
+              }
+          }
+         }
+       for(l = i;l<num;l++)
+         {
+           temp_array[k] = res_ind_dom[l];
+           k++;
+         }
+       for(l = j;l<num1;l++)
+         {
+           temp_array[k] = arg_ind_dom[l];
+           k++;
+         }
+       temp_array[0] = k-2;
+       free(ind_dom[res]);
+       ind_dom[res]=temp_array;
+     }
     }
 
 
@@ -5678,6 +6900,123 @@ void combine_index_domain_received_data(int res, int count, locint **ind_dom, lo
 
 
 #if defined(_NONLIND_)
+#if defined(_TIGHT_)
+
+void free_tree(IndexElement* tree, int num)
+{
+
+  if (tree->left != NULL)
+    {
+      free_tree(tree->left,num);
+    }
+  if (tree->right != NULL)
+    {
+      free_tree(tree->right,num);
+     }
+    {
+      if (tree->entry == num)
+	free(tree);
+
+    }
+  
+}
+void traverse_crs(IndexElement* tree,  IndexElement_sod* sod, int num)
+{
+
+  IndexElement_sod *temp, *temp1;
+  int ii;
+
+  if (tree->left != NULL)
+    {
+      traverse_crs(tree->left, sod, num);
+    }
+  if (tree->right != NULL)
+    {
+      traverse_crs(tree->right, sod, num);
+    }
+  if (tree->entry < num)
+    {
+      temp = sod->left;
+      if (temp == NULL)
+	{
+	  temp = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod));
+	  temp->left = NULL;
+	  temp->entry = tree->entry;
+	  sod->entry++;
+	  sod->left=temp;
+	}
+      else
+	{
+	  while ((temp->entry < tree->entry) && (temp->left != NULL))
+	    {
+	      temp1 = temp;
+	      temp = temp->left;
+	    }
+	  if (temp->left == NULL)
+	    {
+	      if(temp->entry < tree->entry)
+		{
+		  temp->left = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod));
+		  temp = temp->left;
+		  temp->left = NULL;
+		  temp->entry = tree->entry;
+		  sod->entry++;
+		}
+	      if(temp->entry > tree->entry)
+		{
+		  temp->left = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod));
+		  temp->left->entry = temp->entry;
+		  temp->left->left = NULL;
+		  temp->entry = tree->entry;
+		  sod->entry++;
+		}
+	    }
+	  else
+	    {
+	      if (temp->entry > tree->entry)
+		{
+		  temp1 = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod));
+		  temp1->left = temp->left;
+		  temp1->entry = temp->entry;
+		  temp->entry = tree->entry;
+		  temp->left=temp1;
+		  sod->entry++;
+		}
+	      
+	    }
+	}
+    }
+}
+
+void traverse_unary(IndexElement* tree,  IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind)
+{
+  IndexElement *temp;
+
+  if (tree->left != NULL)
+    {
+      traverse_unary(tree->left, nonl_dom, fodi, num, maxopind);
+      if (tree->right != NULL)
+	{
+	  traverse_unary(tree->right, nonl_dom, fodi, num, maxopind);
+	}
+     }
+  else
+    {
+      if(tree->entry<maxopind)
+	{
+	  temp = (struct IndexElement*) malloc(sizeof(struct IndexElement));
+	  temp->right = fodi;
+	  temp->left = nonl_dom[tree->entry].left;
+	  temp->entry= num;
+	  nonl_dom[tree->entry].left = temp;
+	}
+    }
+}
+
+#endif
+#endif
+
+#if defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step

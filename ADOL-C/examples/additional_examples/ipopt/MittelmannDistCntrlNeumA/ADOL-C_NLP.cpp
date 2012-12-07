@@ -27,6 +27,8 @@
  *
  */
 
+#include <cassert>
+
 #include "ADOL-C_NLP.hpp"
 
 #define  alpha_ 0.01 

@@ -12,7 +12,8 @@
            of automatic differentiation.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -21,7 +22,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adouble.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 
 using namespace std;
@@ -40,24 +41,6 @@ void condassign( double &res, const double &cond,
                  const double &arg) {
     res = cond > 0 ? arg : res;
 }
-
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
-/*--------------------------------------------------------------------------*/
-double fmax( const double &x, const double &y ) {
-    if (y > x)
-        return y;
-    else
-        return x;
-}
-
-/*--------------------------------------------------------------------------*/
-double fmin( const double &x, const double &y ) {
-    if (y < x)
-        return y;
-    else
-        return x;
-}
-#endif
 
 /*--------------------------------------------------------------------------*/
 /* The remaining routines define the badouble, adub and adouble routines.   */
@@ -572,13 +555,13 @@ badouble& badouble::operator += ( const adub& a ) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
       {
         upd = upd_resloc_inc_prod(a_loc,location,eq_plus_prod);
-	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
       }
     if (upd) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
             put_op(eq_plus_a);
@@ -625,13 +608,13 @@ badouble& badouble::operator -= ( const adub& a ) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
       {
         upd = upd_resloc_inc_prod(a_loc,location,eq_min_prod);
-        ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
       }
     if (upd) {
         ADOLC_GLOBAL_TAPE_VARS.store[location] -= ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
         --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(location,a_loc);
             put_op(eq_min_a);
@@ -1357,12 +1340,10 @@ adouble atan2( const badouble& y, const badouble& x) {
     const double pihalf = ADOLC_MATH_NSP::asin(1.0);
     /* y+0.0 is a hack since condassign is currently not defined for
        badoubles */
-    condassign( sy,  y+0.0,  1.0 , -1.0 );
-    condassign( a1,  x+0.0, (adouble) atan(y/x),
-                (adouble)( atan(y/x)+sy*2*pihalf));
-    condassign( a2,  (adouble) fabs(y), (adouble) (sy*pihalf-atan(x/y)),
-                (adouble) 0.0 );
-    condassign( ret, (adouble) (fabs(x) - fabs(y)), a1, a2 );
+    condassign( sy,  y,  (adouble)1.0 , (adouble)-1.0 );
+    condassign( a1,  x,  atan(y/x),  atan(y/x)+sy*2*pihalf);
+    condassign( a2,  fabs(y), sy*pihalf-atan(x/y), (adouble) 0.0 );
+    condassign( ret, fabs(x) - fabs(y), a1, a2 );
     return ret;
 }
 
@@ -1399,8 +1380,8 @@ adouble pow ( double coval, const badouble& y ) {
         fprintf(DIAG_OUT,"\nADOL-C message:  exponent at zero/negative constant basis deactivated\n");
     }
 
-    condassign (ret, coval, exp(y*ADOLC_MATH_NSP::log(coval)),
-            ADOLC_MATH_NSP::pow(coval,y.getValue()) );
+    condassign (ret, (adouble) coval, exp(y*ADOLC_MATH_NSP::log(coval)),
+		(adouble) ADOLC_MATH_NSP::pow(coval,y.getValue()) );
 
     return ret;
 }
@@ -1418,9 +1399,9 @@ adouble pow ( const badouble& x, const badouble& y) {
         else
             fprintf(DIAG_OUT,"\nADOL-C message: negative exponent and zero basis deactivated\n");
     }
-    condassign(a1,-y, ADOLC_MATH_NSP::pow(vx,vy), pow(x,vy));
-    condassign(a2, fabs(x), pow(x, vy),a1);
-    condassign(ret,x+0.0, exp(y*log(x)),a2);
+    condassign(a1, -y, (adouble) ADOLC_MATH_NSP::pow(vx,vy), pow(x,vy));
+    condassign(a2, fabs(x), pow(x, vy), a1);
+    condassign(ret, x, exp(y*log(x)),a2);
 
     return ret;
 }
@@ -1768,16 +1749,142 @@ extend_quad(myquad,val = 1/arg)
 
 /****************************************************************************/
 /*                                                             CONDITIONALS */
-
-/* For the time being condassign is defined using adoubles in two
-   versions with adouble and along as left hand side.  This implies 
-   some problems when badoubles are used as arguments, e.g. inside 
-   the pow definition. For later versions we will replace this with
-   complete definition for all parameter type constellations */
-
 /*--------------------------------------------------------------------------*/
-void condassign( adouble &res,        const adouble &cond,
-                 const adouble &arg1, const adouble &arg2 ) {
+adub operator != (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval != yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(neq_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+adub operator == (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval == yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(eq_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+adub operator <= (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval <= yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(le_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+adub operator >= (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval >= yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(ge_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+adub operator > (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval > yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(gt_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+adub operator < (const badouble& x, const badouble& y) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.location];
+    double yval = ADOLC_GLOBAL_TAPE_VARS.store[y.location];
+    double res = (double)(xval < yval);
+    locint locat = next_loc();
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+	put_op(lt_a_a);
+	ADOLC_PUT_LOCINT(x.location); // arg
+	ADOLC_PUT_LOCINT(y.location); // arg1
+	ADOLC_PUT_VAL(res);           // check for branch switch
+	ADOLC_PUT_LOCINT(locat);      // res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
+    return locat;
+}
+/*--------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------*/
+void condassign( adouble &res,         const badouble &cond,
+                 const badouble &arg1, const badouble &arg2 ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign(res.location,cond.location,arg1.location,
@@ -1801,7 +1908,7 @@ void condassign( adouble &res,        const adouble &cond,
 }
 
 /*--------------------------------------------------------------------------*/
-void condassign( adouble &res, const adouble &cond, const adouble &arg ) {
+void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.location,cond.location,arg.location);
