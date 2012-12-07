@@ -93,5 +93,4 @@ if SPARSE
 libadolc_mpi_la_LIBADD += sparse/libsparse_mpi.la
 endif
 libadolc_mpi_la_LDFLAGS = ${MPICXXEXTRALDFLAGS}
-pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
 endif
