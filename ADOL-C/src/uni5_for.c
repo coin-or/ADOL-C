@@ -6710,7 +6710,6 @@ tnum,
 /****************************************************************************/
 
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-#if !defined(_MPI_)
 /****************************************************************************/
 /* set operations for propagation of index domains                          */
 
@@ -6718,6 +6717,7 @@ tnum,
 /* operations on index domains                                              */
 
 #if defined(_TIGHT_)
+#if !defined(_MPI_)
 void copy_index_domain(int res, int arg, locint **ind_dom) {
 
    int i;
