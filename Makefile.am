@@ -10,6 +10,8 @@
 ## 
 ##############################################################################
 
+ACLOCAL_AMFLAGS = -I autoconf
+
 AUTOMAKE_OPTIONS     = foreign
 
 EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \

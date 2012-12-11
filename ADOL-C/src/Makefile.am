@@ -74,3 +74,6 @@ libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 
 endif
 
+if ADOLC_AMPI_SUPPORT 
+libadolc_la_SOURCES += ampisupport.cpp
+endif

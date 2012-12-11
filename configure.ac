@@ -18,11 +18,13 @@ AC_INIT(adolc,
 config_flags="$*"
 AC_REVISION($Revision$)
 AC_CONFIG_SRCDIR([ADOL-C/src/adouble.cpp])
-AC_CONFIG_AUX_DIR(autoconf)
+AC_CONFIG_AUX_DIR([autoconf])
+AC_CONFIG_MACRO_DIR([autoconf])
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign])
 AM_SILENT_RULES([yes])
+
 
 if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
@@ -325,6 +327,20 @@ AC_ARG_WITH(cxxflags,
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
             AC_SUBST(ac_adolc_cxxflags)
              AC_MSG_RESULT($ac_adolc_cxxflags)])
+
+AC_MSG_CHECKING(whether to build ADOL-C with adjoinable MPI (AMPI) support)
+AC_ARG_ENABLE(ampi,
+              [AS_HELP_STRING([--enable-ampi],[build ADOL-C with adjoinable MPI (AMPI) support [default=disabled]])],
+  	      [
+   		adolc_ampi_support=yes
+  	      ],
+  	      [
+   		adolc_ampi_support=no
+              ])
+AC_MSG_RESULT($adolc_ampi_support)
+AM_CONDITIONAL(ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
+MPI_CONF
+AMPI_CONF
 
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
