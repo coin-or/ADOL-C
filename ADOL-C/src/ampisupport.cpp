@@ -5,6 +5,7 @@
 #include "ampi/libCommon/modified.h"
 
 #include "taping_p.h"
+#include "oplate.h"
 #include "adolc/adouble.h"
 
 void ADTOOL_AMPI_pushSRinfo(void* buf, 
@@ -49,6 +50,8 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
 }
 
 void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
+  ADOLC_PUT_LOCINT(thisCall);
+  put_op(ampi_op);
 }
 
 void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) { 
@@ -58,6 +61,11 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 }
 
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
+}
+
+void * ADTOOL_AMPI_rawData(void* activeData) { 
+  adouble* adouble_p=(adouble*)activeData; 
+  return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
 }
 
 void ADTOOL_AMPI_mapBufForAdjoint(struct AMPI_Request_S  *ampiRequest,
