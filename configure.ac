@@ -463,6 +463,7 @@ echo \
 "  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
 
   Build sparse drivers:               ${sparse}
+  Build with adjoinable MPI support:  ${adolc_ampi_support}
   Build with ColPack:		      ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
     echo -e \
