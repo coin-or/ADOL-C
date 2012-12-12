@@ -1,6 +1,8 @@
 #include <cassert>
 
+#include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
+#include "ampi/libCommon/modified.h"
 
 #include "taping_p.h"
 #include "adolc/adouble.h"
@@ -100,5 +102,54 @@ void ADTOOL_AMPI_adjointIncrement(int adjointCount, void* target, void *source) 
 }
 
 void ADTOOL_AMPI_adjointNullify(int adjointCount, void* buf) { 
+}
+
+
+// tracing 
+
+int AMPI_Recv(void* buf,
+              int count,
+              MPI_Datatype datatype,
+              AMPI_Activity isActive,
+              int src,
+              int tag,
+              AMPI_PairedWith pairedWith,
+              MPI_Comm comm,
+              MPI_Status* status) {
+  return FW_AMPI_Recv(buf,
+                      count,
+                      datatype,
+                      isActive,
+                      src,
+                      tag,
+                      pairedWith,
+                      comm,
+                      status);
+}
+
+int AMPI_Isend (void* buf,
+                int count,
+                MPI_Datatype datatype,
+                AMPI_Activity isActive,
+                int dest,
+                int tag,
+                AMPI_PairedWith pairedWith,
+                MPI_Comm comm,
+                AMPI_Request* request) {
+  return FW_AMPI_Isend(buf,
+                       count,
+                       datatype,
+                       isActive,
+                       dest,
+                       tag,
+                       pairedWith,
+                       comm,
+                       request);
+}
+
+int AMPI_Wait(AMPI_Request *request,
+              MPI_Status *status) {
+  return FW_AMPI_Wait(request,
+                      status);
 }
 
