@@ -333,12 +333,13 @@ AC_ARG_ENABLE(ampi,
               [AS_HELP_STRING([--enable-ampi],[build ADOL-C with adjoinable MPI (AMPI) support [default=disabled]])],
   	      [
    		adolc_ampi_support=yes
+		AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
   	      ],
   	      [
    		adolc_ampi_support=no
               ])
 AC_MSG_RESULT($adolc_ampi_support)
-AM_CONDITIONAL(ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
+AM_CONDITIONAL(BUILD_ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
 MPI_CONF
 AMPI_CONF
 
