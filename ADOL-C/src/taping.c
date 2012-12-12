@@ -1585,8 +1585,8 @@ void end_sweep() {
 void put_op(unsigned char op) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    /* every operation writes <5 locations */
-    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + 5 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+    /* some special operations related to MPI write a number of integers */
+    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + 10 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
         *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 -
                 ADOLC_CURRENT_TAPE_INFOS.currLoc;
         put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
