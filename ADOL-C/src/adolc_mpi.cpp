@@ -178,13 +178,14 @@ int ADOLC_MPI_Reduce(
     ADOLC_MPI_Op op, int root, ADOLC_MPI_Comm comm)
 {
     int i,j,id,size, ierr=0;
-    adouble tmp, *tmp_adoubles = NULL;
-    double *trade_s, *trade_r;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    ierr = ADOLC_MPI_Gather(send_buf,tmp_adoubles,count,type,root,comm);
+    adouble *tmp_adoubles = NULL, tmp;
+    if( id == root )
+        tmp_adoubles = new adouble[size*count];
 
+    ierr = ADOLC_MPI_Gather(send_buf,tmp_adoubles,count,type,root,comm);
     if ( id == root){
        if( rec_buf == NULL)
            rec_buf = new adouble[count];
@@ -251,9 +252,9 @@ int ADOLC_MPI_Gather(
        for(i=0; i< count*size;i++){
           recvbuf[i].setValue(trade_r[i]);
           }
-    }
-    free(trade_s);
     free(trade_r);
+    }
+    free( trade_s);
 
     put_op(gather);
     ADOLC_PUT_LOCINT(count);
