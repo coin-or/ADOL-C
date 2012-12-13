@@ -2618,7 +2618,7 @@ int hov_ti_reverse(
                 count = get_locint_r(); // count
                 loc_recv = (locint*) malloc(count*sizeof(locint));
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                     loc_recv[mpi_i] = get_locint_r();
+                     loc_recv[count-1-mpi_i] = get_locint_r();
                 count2 = get_locint_r();
 #if defined(_HOS_)
                 trade = myalloc1((k+k1)*count);
@@ -2652,7 +2652,7 @@ int hov_ti_reverse(
                 count = get_locint_r(); // count
                 loc_recv = (locint*) malloc(count*sizeof(locint));
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-     	         loc_recv[mpi_i]  = get_locint_r(); // first Buffer
+     	         loc_recv[count-1-mpi_i]  = get_locint_r(); // first Buffer
                 count2 = get_locint_r(); // count
 
 #if defined(_HOS_)
@@ -2665,8 +2665,9 @@ int hov_ti_reverse(
                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
                       rpp_A[loc_recv[mpi_i]][l] = 0.;
                    }
-                   GET_TAYL(loc_recv[mpi_i],k,p);
                 }
+                for(mpi_i=0; mpi_i< count ;mpi_i++)
+                   GET_TAYL(loc_recv[count-1-mpi_i],k,p);
                MPI_Send( trade , (k+k1)*count, MPI_DOUBLE , target, tag , MPI_COMM_WORLD);
                myfree1(trade);
 #endif
@@ -2679,8 +2680,9 @@ int hov_ti_reverse(
                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
                       rpp_A[loc_recv[mpi_i]][l] = 0.;
                    }
-                   GET_TAYL(loc_recv[mpi_i],k,p);
                 }
+                for(mpi_i=0; mpi_i< count ;mpi_i++)
+                   GET_TAYL(loc_recv[count-1-mpi_i],k,p);
                MPI_Send( trade , (k+pk1)*count, MPI_DOUBLE , target, tag , MPI_COMM_WORLD);
                myfree1(trade);
 #endif
@@ -2696,7 +2698,7 @@ int hov_ti_reverse(
                 count = get_locint_r(); // count
                 loc_recv = (locint*) malloc(count*sizeof(locint));
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                   loc_recv[mpi_i] = get_locint_r();
+                   loc_recv[count-1-mpi_i] = get_locint_r();
                 count2 = get_locint_r();
 #if defined(_HOS_)
                 trade = myalloc1((k+k1)*count);
@@ -2709,8 +2711,9 @@ int hov_ti_reverse(
                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
                       rpp_A[loc_recv[mpi_i]][l] = 0.;
                    }
-                   GET_TAYL(loc_recv[mpi_i],k,p);
                 }
+                for(mpi_i=0; mpi_i< count ;mpi_i++)
+                     GET_TAYL(loc_recv[count-1-mpi_i],k,p);
                 if (myid == root)
                    rec_buf = myalloc1(count*mpi_size*(k+k1));
                 MPI_Gather( trade , (k+k1)*count, MPI_DOUBLE, rec_buf,(k+k1)*count, MPI_DOUBLE, root, MPI_COMM_WORLD);
@@ -2720,9 +2723,9 @@ int hov_ti_reverse(
                    for(arg=0; arg< mpi_size ;arg++){
                       for(mpi_i=0; mpi_i< count; mpi_i++){
                          for(l=0;l<k;l++,mpi_ii++)
-                            rpp_T[loc_recv[mpi_i]][l] = trade[mpi_ii];
+                            rpp_T[loc_recv[mpi_i]][l] = rec_buf[mpi_ii];
                          for(l=0;l<k1;l++,mpi_ii++)
-                            rpp_A[loc_recv[mpi_i]][l] += trade[mpi_ii];
+                            rpp_A[loc_recv[mpi_i]][l] += rec_buf[mpi_ii];
                       }
                    }
                    free(rec_buf);
@@ -2739,8 +2742,9 @@ int hov_ti_reverse(
                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
                       rpp_A[loc_recv[mpi_i]][l] = 0.;
                    }
-                   GET_TAYL(loc_recv[mpi_i],k,p);
                 }
+                for(mpi_i=0; mpi_i< count ;mpi_i++)
+                     GET_TAYL(loc_recv[count-1-mpi_i],k,p);
                 if (myid == root)
                    rec_buf = myalloc1(count*mpi_size*(k+pk1));
                 MPI_Gather( trade , (k+pk1)*count, MPI_DOUBLE, rec_buf,(k+pk1)*count, MPI_DOUBLE, root, MPI_COMM_WORLD);

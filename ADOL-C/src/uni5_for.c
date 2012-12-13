@@ -5199,7 +5199,7 @@ tnum,
            for(mpi_i=0; mpi_i< count; mpi_i++){
               IF_KEEP_WRITE_TAYLOR(loc_recv[mpi_i],keep,k,p)
               dp_T0[loc_recv[mpi_i]] = trade[2*mpi_i];
-              dp_T[loc_recv[mpi_i]] = trade[2*mpi_i]+1;
+              dp_T[loc_recv[mpi_i]] = trade[2*mpi_i+1];
               }
            free(trade);
 #endif
