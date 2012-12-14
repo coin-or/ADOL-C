@@ -16,6 +16,7 @@
 #if !defined(ADOLC_COMMON_H)
 #define ADOLC_COMMON_H 1
 
+#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* standard includes */
 #if !defined(__cplusplus)
@@ -78,6 +79,7 @@
 /* developer and user parameters */
 #include <adolc/dvlparms.h>
 #include <adolc/usrparms.h>
+#include <adolc/adolc_settings.h>
 
 /*--------------------------------------------------------------------------*/
 /* windows dll exports/imports */

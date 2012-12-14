@@ -15,9 +15,11 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        interfaces.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
-                       revolve.h advector.h
+                       revolve.h advector.h adolc_settings.h
 
 SUBDIRS = drivers tapedoc
+
+EXTRA_DIST = adolc_settings.h.in
 
 if SPARSE
 SUBDIRS += sparse

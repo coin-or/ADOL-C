@@ -100,6 +100,78 @@ AC_SUBST(ADOLC_VERSION)
 AC_SUBST(ADOLC_SUBVERSION)
 AC_SUBST(ADOLC_PATCHLEVEL)
 
+AC_MSG_CHECKING(whether to use calloc or malloc for memory allocation)
+AC_ARG_ENABLE(use-calloc,[AS_HELP_STRING([--disable-use-calloc],
+  [disable use of calloc and use malloc instead for memory allocation [default=calloc is used]])],
+  [use_calloc=$enableval],[use_calloc=yes])
+
+if test x$use_calloc = xyes ; then
+AC_MSG_RESULT(calloc)
+AC_DEFINE(ADOLC_USE_CALLOC,1,[Use calloc instead of malloc for memory allocation])
+else
+AC_MSG_RESULT(malloc)
+fi
+
+AC_MSG_CHECKING(whether to enable atrig/erf functions)
+AC_ARG_ENABLE(atrig-erf,[AS_HELP_STRING([--enable-atrig-erf],
+  [enable atrig and erf functions in ADOL-C [default=no]])],
+  [use_atrig_erf=$enableval],[use_atrig_erf=no])
+AC_MSG_RESULT($use_atrig_erf)
+
+if test x$use_atrig_erf = xyes ; then
+  ATRIG_ERF_FALSE="// "
+  ATRIG_ERF_TRUE=""
+else
+  ATRIG_ERF_FALSE=""
+  ATRIG_ERF_TRUE="// "
+fi
+AC_SUBST(ATRIG_ERF_FALSE)
+AC_SUBST(ATRIG_ERF_TRUE)
+
+AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
+AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
+  [enable 64-bit locations [default=32-bit]])],
+  [use_ulong=$enableval],[use_ulong=no])
+
+if test x$use_ulong = xyes ; then
+  UINT_TYPE=uint64_t
+  AC_MSG_RESULT(64-bit)
+else
+  UINT_TYPE=uint32_t
+  AC_MSG_RESULT(32-bit)
+fi
+AC_SUBST(UINT_TYPE)
+
+AC_MSG_CHECKING(whether to use single or double precision)
+AC_ARG_ENABLE(double,[AS_HELP_STRING([--disable-double],
+  [disable double precision arithmetic [default=no]])],
+  [use_float=$enableval],[use_float=no])
+
+if test x$use_float = xyes ; then
+  REAL_TYPE=float
+  AC_MSG_RESULT(float)
+else
+  REAL_TYPE=double
+  AC_MSG_RESULT(double)
+fi
+AC_SUBST(REAL_TYPE)
+
+AC_MSG_CHECKING(whether to enable advanced branching operations)
+AC_ARG_ENABLE(advanced-branching, [AS_HELP_STRING([--enable-advanced-branching],
+  [enable advanced branching operations to reduce retaping [default=no]])],
+  [use_advbranch=$enableval],[use_advbranch=no])
+AC_MSG_RESULT($use_advbranch)
+
+if test x$use_advbranch = xyes ; then
+  ADVBRANCH_TRUE=""
+  ADVBRANCH_FALSE="// "
+else
+  ADVBRANCH_TRUE="// "
+  ADVBRANCH_FALSE=""
+fi
+AC_SUBST(ADVBRANCH_TRUE)
+AC_SUBST(ADVBRANCH_FALSE)
+
 AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
               [
@@ -378,6 +450,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/Makefile
                 ADOL-C/include/Makefile
                 ADOL-C/include/adolc/Makefile
+		ADOL-C/include/adolc/adolc_settings.h
                 ADOL-C/include/adolc/drivers/Makefile 
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
