@@ -279,12 +279,14 @@ public:
 
     /*--------------------------------------------------------------------------*/
     /* Comparison (friends) */
+#if defined(ADOLC_ADVANCED_BRANCHING)
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator < ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator > ( const badouble&, const badouble& );
+#endif
     /*--------------------------------------------------------------------------*/
     /* sign operators (friends) */
     friend ADOLC_DLL_EXPORT adub operator + ( const badouble& x );
