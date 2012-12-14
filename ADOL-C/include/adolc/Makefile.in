@@ -56,14 +56,14 @@ host_triplet = @host@
 @SPARSE_TRUE@am__append_1 = sparse
 subdir = ADOL-C/include/adolc
 DIST_COMMON = $(pkginclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+	$(srcdir)/Makefile.in $(srcdir)/adolc_settings.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = adolc_settings.h
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
@@ -152,10 +152,14 @@ ACLOCAL = @ACLOCAL@
 ADOLC_PATCHLEVEL = @ADOLC_PATCHLEVEL@
 ADOLC_SUBVERSION = @ADOLC_SUBVERSION@
 ADOLC_VERSION = @ADOLC_VERSION@
+ADVBRANCH_FALSE = @ADVBRANCH_FALSE@
+ADVBRANCH_TRUE = @ADVBRANCH_TRUE@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AS = @AS@
+ATRIG_ERF_FALSE = @ATRIG_ERF_FALSE@
+ATRIG_ERF_TRUE = @ATRIG_ERF_TRUE@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -215,10 +219,12 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+REAL_TYPE = @REAL_TYPE@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+UINT_TYPE = @UINT_TYPE@
 VERSION = @VERSION@
 _lib = @_lib@
 abs_builddir = @abs_builddir@
@@ -282,9 +288,10 @@ pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        interfaces.h taping.h usrparms.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
-                       revolve.h advector.h
+                       revolve.h advector.h adolc_settings.h
 
 SUBDIRS = drivers tapedoc $(am__append_1)
+EXTRA_DIST = adolc_settings.h.in
 all: all-recursive
 
 .SUFFIXES:
@@ -318,6 +325,8 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+adolc_settings.h: $(top_builddir)/config.status $(srcdir)/adolc_settings.h.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
 	-rm -f *.lo
