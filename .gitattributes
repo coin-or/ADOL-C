@@ -183,6 +183,7 @@ ADOL-C/include/adolc/Makefile.in -text
 ADOL-C/include/adolc/adalloc.h -text
 ADOL-C/include/adolc/adolc.h -text
 ADOL-C/include/adolc/adolc_openmp.h -text
+ADOL-C/include/adolc/adolc_settings.h.in -text
 ADOL-C/include/adolc/adolc_sparse.h -text
 ADOL-C/include/adolc/adouble.h -text
 ADOL-C/include/adolc/adutils.h -text
