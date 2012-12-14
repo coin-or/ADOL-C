@@ -18,6 +18,9 @@
 /* ADOL-C thread save errno mode */
 #undef ADOLC_THREADSAVE_ERRNO
 
+/* Use calloc instead of malloc for memory allocation */
+#undef ADOLC_USE_CALLOC
+
 /* ADOL-C Version */
 #undef ADOLC_VERSION
 

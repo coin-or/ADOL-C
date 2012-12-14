@@ -651,6 +651,12 @@ SPARSE_FALSE
 SPARSE_TRUE
 HAVE_LIBCOLPACK_FALSE
 HAVE_LIBCOLPACK_TRUE
+ADVBRANCH_FALSE
+ADVBRANCH_TRUE
+REAL_TYPE
+UINT_TYPE
+ATRIG_ERF_TRUE
+ATRIG_ERF_FALSE
 ADOLC_PATCHLEVEL
 ADOLC_SUBVERSION
 ADOLC_VERSION
@@ -789,6 +795,11 @@ enable_fast_install
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+enable_use_calloc
+enable_atrig_erf
+enable_ulong
+enable_double
+enable_advanced_branching
 enable_debug
 enable_harddebug
 enable_stdczero
@@ -1444,6 +1455,15 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --disable-use-calloc    disable use of calloc and use malloc instead for
+                          memory allocation [default=calloc is used]
+  --enable-atrig-erf      enable atrig and erf functions in ADOL-C
+                          [default=no]
+  --enable-ulong          enable 64-bit locations [default=32-bit]
+  --disable-double        disable double precision arithmetic [default=no]
+  --enable-advanced-branching
+                          enable advanced branching operations to reduce
+                          retaping [default=no]
 
   --enable-debug          enable ADOL-C debug mode [default=no]
 
@@ -16474,6 +16494,113 @@ ADOLC_PATCHLEVEL=0
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use calloc or malloc for memory allocation" >&5
+$as_echo_n "checking whether to use calloc or malloc for memory allocation... " >&6; }
+# Check whether --enable-use-calloc was given.
+if test "${enable_use_calloc+set}" = set; then :
+  enableval=$enable_use_calloc; use_calloc=$enableval
+else
+  use_calloc=yes
+fi
+
+
+if test x$use_calloc = xyes ; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: calloc" >&5
+$as_echo "calloc" >&6; }
+
+$as_echo "#define ADOLC_USE_CALLOC 1" >>confdefs.h
+
+else
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: malloc" >&5
+$as_echo "malloc" >&6; }
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable atrig/erf functions" >&5
+$as_echo_n "checking whether to enable atrig/erf functions... " >&6; }
+# Check whether --enable-atrig-erf was given.
+if test "${enable_atrig_erf+set}" = set; then :
+  enableval=$enable_atrig_erf; use_atrig_erf=$enableval
+else
+  use_atrig_erf=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_atrig_erf" >&5
+$as_echo "$use_atrig_erf" >&6; }
+
+if test x$use_atrig_erf = xyes ; then
+  ATRIG_ERF_FALSE="// "
+  ATRIG_ERF_TRUE=""
+else
+  ATRIG_ERF_FALSE=""
+  ATRIG_ERF_TRUE="// "
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use 32-bit or 64-bit locations" >&5
+$as_echo_n "checking whether to use 32-bit or 64-bit locations... " >&6; }
+# Check whether --enable-ulong was given.
+if test "${enable_ulong+set}" = set; then :
+  enableval=$enable_ulong; use_ulong=$enableval
+else
+  use_ulong=no
+fi
+
+
+if test x$use_ulong = xyes ; then
+  UINT_TYPE=uint64_t
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: 64-bit" >&5
+$as_echo "64-bit" >&6; }
+else
+  UINT_TYPE=uint32_t
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: 32-bit" >&5
+$as_echo "32-bit" >&6; }
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use single or double precision" >&5
+$as_echo_n "checking whether to use single or double precision... " >&6; }
+# Check whether --enable-double was given.
+if test "${enable_double+set}" = set; then :
+  enableval=$enable_double; use_float=$enableval
+else
+  use_float=no
+fi
+
+
+if test x$use_float = xyes ; then
+  REAL_TYPE=float
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: float" >&5
+$as_echo "float" >&6; }
+else
+  REAL_TYPE=double
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: double" >&5
+$as_echo "double" >&6; }
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable advanced branching operations" >&5
+$as_echo_n "checking whether to enable advanced branching operations... " >&6; }
+# Check whether --enable-advanced-branching was given.
+if test "${enable_advanced_branching+set}" = set; then :
+  enableval=$enable_advanced_branching; use_advbranch=$enableval
+else
+  use_advbranch=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_advbranch" >&5
+$as_echo "$use_advbranch" >&6; }
+
+if test x$use_advbranch = xyes ; then
+  ADVBRANCH_TRUE=""
+  ADVBRANCH_FALSE="// "
+else
+  ADVBRANCH_TRUE="// "
+  ADVBRANCH_FALSE=""
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use ADOL-C debug mode" >&5
 $as_echo_n "checking whether to use ADOL-C debug mode... " >&6; }
 # Check whether --enable-debug was given.
@@ -16857,7 +16984,7 @@ fi
 
 
 # output
-ac_config_files="$ac_config_files Makefile ADOL-C/Makefile ADOL-C/include/Makefile ADOL-C/include/adolc/Makefile ADOL-C/include/adolc/drivers/Makefile ADOL-C/include/adolc/sparse/Makefile ADOL-C/include/adolc/tapedoc/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h adolc.spec"
+ac_config_files="$ac_config_files Makefile ADOL-C/Makefile ADOL-C/include/Makefile ADOL-C/include/adolc/Makefile ADOL-C/include/adolc/adolc_settings.h ADOL-C/include/adolc/drivers/Makefile ADOL-C/include/adolc/sparse/Makefile ADOL-C/include/adolc/tapedoc/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h adolc.spec"
 
 
 cat >confcache <<\_ACEOF
@@ -17993,6 +18120,7 @@ do
     "ADOL-C/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/Makefile" ;;
     "ADOL-C/include/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/Makefile" ;;
     "ADOL-C/include/adolc/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/adolc/Makefile" ;;
+    "ADOL-C/include/adolc/adolc_settings.h") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/adolc/adolc_settings.h" ;;
     "ADOL-C/include/adolc/drivers/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/adolc/drivers/Makefile" ;;
     "ADOL-C/include/adolc/sparse/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/adolc/sparse/Makefile" ;;
     "ADOL-C/include/adolc/tapedoc/Makefile") CONFIG_FILES="$CONFIG_FILES ADOL-C/include/adolc/tapedoc/Makefile" ;;
