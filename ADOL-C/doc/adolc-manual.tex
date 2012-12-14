@@ -659,6 +659,11 @@ and {\sf condassign(a,b,c)} for
 passive {\sf double} arguments so that the modified code 
 without any differentiation can be tested
 for correctness. 
+
+A generalization of this concept for more than two branches, e.g.,
+akin to a \texttt{switch} statement or a cascade of \texttt{if...else if}, may be done by enabling
+\textsf{ADOLC\_ADVANCED\_BRANCHING} and performing selection on
+elements of an \texttt{advector} with active indices.
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Step-by-Step Modification Procedure}
@@ -828,8 +833,7 @@ forward mode involves apart from the tape buffers an array of
 core and, in addition, a sequential data set called the value stack 
 of {\sf tssize}$*${\sf keep} {\sf revreal}s if called with the 
 option {\sf keep} $>$ 0. Here
-the type {\sf revreal} is defined as {\sf double} or {\sf float} in
-the header file \verb=<adolc/usrparms.h>=. The latter choice halves the storage
+the type {\sf revreal} is defined as {\sf double} or {\sf float}. The latter choice halves the storage
 requirement for the sequential data set, which stays in core if
 its length is less than {\sf TBUFSIZE} bytes and is otherwise written
 out to a temporary file. The parameter {\sf TBUFSIZE} is defined in the header file \verb=<adolc/usrparms.h>=.
@@ -855,33 +859,21 @@ to suit his problem and environment.
 
 \begin{description}
 \item[{\sf OBUFSIZE}, {\sf LBUFSIZE}, {\sf VBUFSIZE}{\rm :}] These integer determines the length of
-in\-ter\-nal buf\-fers (default: 65$\,$536). If the buffers are large enough to accommodate all
+in\-ter\-nal buf\-fers (default: 524$\,$288). If the buffers are large enough to accommodate all
 required data, any file access is avoided unless {\sf trace\_off}
 is called with a positive argument. This desirable situation can
 be achieved for many problem functions with an execution trace of moderate
 size. Primarily these values occur as an argument 
 to {\sf malloc}, so that setting it unnecessarily large may have no
 ill effects, unless the operating system prohibits or penalizes large
-array allocations.
+array allocations. It is however recommended to leave the values in
+\texttt{<adolc/usrparms.h>} unchanged and set them using the
+\texttt{.adolcrc} file in the current working directory at runtime.
 
 \item[{\sf TBUFSIZE}{\rm :}] This integer determines the length of the 
-in\-ter\-nal buf\-fer for a taylor stack (default: 65$\,$536). 
+in\-ter\-nal buf\-fer for a taylor stack (default: 524$\,$288). 
 
 \item[{\sf TBUFNUM}{\rm :}] This integer determines the maximal number of taylor stacks (default: 32).
-
-\item[{\sf locint}{\rm :}] The range of the integer type 
-{\sf locint} determines how many {\sf adouble}s can be simultaneously
-alive (default: {\sf unsigned int}).  In extreme cases when there are more than $2^{32}$ {\sf adouble}s
-alive at any one time, the type {\sf locint} must be changed to 
- {\sf unsigned long}.
-
-\item[{\sf revreal}{\rm :}] The choice of this floating-point type
-trades accuracy with storage for reverse sweeps (default: {\sf double}). While functions
-and their derivatives are always evaluated in double precision 
-during forward sweeps, gradients and other adjoint vectors are obtained
-with the precision determined by the type {\sf revreal}. The less
-accurate choice {\sf revreal} = {\sf float} nearly halves the
-storage requirement during reverse sweeps.
 
 \item[{\sf fint}{\rm :}] The integer data type used by Fortran callable versions of functions.
 
@@ -910,16 +902,52 @@ to detect the occurrence of undefined derivative values.
 
 \item[{\sf ADOLC\_EPS}{\rm :}] For testing on small numbers to avoid overflows (default: 10E-20).
 
-\item[{\sf ATRIG\_ERF}{\rm :}] By removing the comment signs 
-the overloaded versions of the inverse hyperbolic functions and 
-the error function are enabled (default: undefined).
-
 \item[{\sf DIAG\_OUT}{\rm :}] File identifier used as standard output for ADOL-C diagnostics (default: stdout).
+\end{description}
+
+The following types and options may be set using the command-line
+options of the \texttt{./configure} script.
+
+\begin{description}
+\item[{\sf locint}{\rm :}] The range of the integer type 
+{\sf locint} determines how many {\sf adouble}s can be simultaneously
+alive (default: {\sf unsigned int}).  In extreme cases when there are more than $2^{32}$ {\sf adouble}s
+alive at any one time, the type {\sf locint} must be changed to 
+ {\sf unsigned long}. This can be done by passing
+ \texttt{--enable-ulong} to \texttt{./configure}.
+
+\item[{\sf revreal}{\rm :}] The choice of this floating-point type
+trades accuracy with storage for reverse sweeps (default: {\sf double}). While functions
+and their derivatives are always evaluated in double precision 
+during forward sweeps, gradients and other adjoint vectors are obtained
+with the precision determined by the type {\sf revreal}. The less
+accurate choice {\sf revreal} = {\sf float} nearly halves the
+storage requirement during reverse sweeps. This can be done by passing
+\texttt{--disable-double} to \texttt{./configure}.
+
+\item[{\sf ATRIG\_ERF}{\rm :}] The overloaded versions of the inverse
+  hyperbolic functions and the error function are enabled (default:
+  undefined) by passing \texttt{--enable-atrig-erf}
+  to \texttt{./configure}
 
 \item[{\sf ADOLC\_USE\_CALLOC}{\rm :}] Selects the memory allocation routine
   used by ADOL-C. {\sf Malloc} will be used if this variable is
   undefined. {\sf ADOLC\_USE\_CALLOC} is defined by default to avoid incorrect
-  result caused by uninitialized memory. 
+  result caused by uninitialized memory. It can be set undefined by
+  passing \texttt{--disable-use-calloc} to \texttt{./configure}.
+
+\item[{\sf ADOLC\_ADVANCED\_BRANCHING}{\rm :}] Enables routines
+  required for automatic branch selection (default: disabled). The
+  boolean valued comparison operators with two \texttt{adouble} type
+  arguments will not return boolean values anymore and may not be used
+  in branch control statements (\texttt{if}, \texttt{while}, \texttt{for}
+  etc.). Instead conditional assignments using \texttt{condassign} or
+  selection operations on elements of \texttt{advector} type should be
+  used. Enabling this option and rewriting the function evaluation
+  using \texttt{condassign} or selections of \texttt{advector}
+  elements will prevent the need for retracing the function at branch
+  switches. This can be enabled by passing
+  \texttt{--enable-advanced-branching} to \texttt{./configure}.
 \end{description}
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

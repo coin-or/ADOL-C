@@ -1463,7 +1463,11 @@ Optional Features:
   --disable-double        disable double precision arithmetic [default=no]
   --enable-advanced-branching
                           enable advanced branching operations to reduce
-                          retaping [default=no]
+                          retaping [default=no]. The boolean valued comparison
+                          operators with two adouble arguments will not return
+                          boolean results but the active results may be used
+                          to automatically switch branches in conjunction with
+                          condassign or advector (see manual).
 
   --enable-debug          enable ADOL-C debug mode [default=no]
 
