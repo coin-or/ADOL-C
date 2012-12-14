@@ -4154,6 +4154,7 @@ tnum,
                 /*--------------------------------------------------------------------------*/
 		/* NEW CONDITIONALS */
                 /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
             case neq_a_a:
             case eq_a_a:
             case le_a_a:
@@ -4222,6 +4223,7 @@ tnum,
 #endif /* ALL_TOGETHER_AGAIN */
 
 		break;
+#endif /* ADVANCED_BRANCHING */
 
                 /*--------------------------------------------------------------------------*/
             case subscript:

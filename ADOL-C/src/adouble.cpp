@@ -1750,6 +1750,7 @@ extend_quad(myquad,val = 1/arg)
 /****************************************************************************/
 /*                                                             CONDITIONALS */
 /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
 adub operator != (const badouble& x, const badouble& y) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1881,6 +1882,7 @@ adub operator < (const badouble& x, const badouble& y) {
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
     return locat;
 }
+#endif
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 void condassign( adouble &res,         const badouble &cond,

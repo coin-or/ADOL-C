@@ -186,28 +186,31 @@ public:
 
     /*--------------------------------------------------------------------------*/
     /* Comparison (friends) */
+#if defined(ADOLC_ADVANCED_BRANCHING)
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
-    //inline friend int operator != ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator >  ( const badouble&, const badouble& );
+    friend ADOLC_DLL_EXPORT adub operator <  ( const badouble&, const badouble& );
+#else
+    inline friend int operator != ( const badouble&, const badouble& );
+    inline friend int operator == ( const badouble&, const badouble& );
+    inline friend int operator <= ( const badouble&, const badouble& );
+    inline friend int operator >= ( const badouble&, const badouble& );
+    inline friend int operator >  ( const badouble&, const badouble& );
+    inline friend int operator <  ( const badouble&, const badouble& );
+#endif
     inline friend int operator != ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator != ( const badouble&, double );
-    friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
-    //inline friend int operator == ( const badouble&, const badouble& );
     inline friend int operator == ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator == ( const badouble&, double );
-    friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
-    //inline friend int operator <= ( const badouble&, const badouble& );
     inline friend int operator <= ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator <= ( const badouble&, double );
-    friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
-    //inline friend int operator >= ( const badouble&, const badouble& );
     inline friend int operator >= ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator >= ( const badouble&, double );
-    friend ADOLC_DLL_EXPORT adub operator >  ( const badouble&, const badouble& );
-    //inline friend int operator >  ( const badouble&, const badouble& );
     inline friend int operator >  ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator >  ( const badouble&, double );
-    friend ADOLC_DLL_EXPORT adub operator <  ( const badouble&, const badouble& );
-    //inline friend int operator <  ( const badouble&, const badouble& );
     inline friend int operator <  ( double, const badouble& );
     friend ADOLC_DLL_EXPORT int operator <  ( const badouble&, double );
 
@@ -327,12 +330,14 @@ public:
 
     /*--------------------------------------------------------------------------*/
     /* Comparison (friends) */
+#if defined(ADOLC_ADVANCED_BRANCHING)
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator >= ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator < ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator > ( const badouble&, const badouble& );
+#endif
     /*--------------------------------------------------------------------------*/
     /* sign operators (friends) */
     friend ADOLC_DLL_EXPORT adub operator + ( const badouble& x );
@@ -443,11 +448,32 @@ inline locint badouble::loc( void ) const {
 
 /*--------------------------------------------------------------------------*/
 /* Comparison */
-/*
+
+#if !defined(ADOLC_ADVANCED_BRANCHING)
 inline int operator != ( const badouble& u, const badouble& v ) {
     return (u-v != 0);
 }
-*/
+
+inline int operator == ( const badouble& u, const badouble& v ) {
+    return (u-v == 0);
+}
+
+inline int operator <= ( const badouble& u, const badouble& v ) {
+    return (u-v <= 0);
+}
+
+inline int operator >= ( const badouble& u, const badouble& v ) {
+    return (u-v >= 0);
+}
+
+inline int operator > ( const badouble& u, const badouble& v ) {
+    return (u-v > 0);
+}
+
+inline int operator < ( const badouble& u, const badouble& v ) {
+    return (u-v < 0);
+}
+#endif
 
 inline int operator != ( double coval, const badouble& v) {
     if (coval)
@@ -456,24 +482,12 @@ inline int operator != ( double coval, const badouble& v) {
         return (v != 0);
 }
 
-/*
-inline int operator == ( const badouble& u, const badouble& v ) {
-    return (u-v == 0);
-}
-*/
-
 inline int operator == ( double coval, const badouble& v) {
     if (coval)
         return (-coval+v == 0);
     else
         return (v == 0);
 }
-
-/*
-inline int operator <= ( const badouble& u, const badouble& v ) {
-    return (u-v <= 0);
-}
-*/
 
 inline int operator <= ( double coval, const badouble& v ) {
     if (coval)
@@ -482,12 +496,6 @@ inline int operator <= ( double coval, const badouble& v ) {
         return (v >= 0);
 }
 
-/*
-inline int operator >= ( const badouble& u, const badouble& v ) {
-    return (u-v >= 0);
-}
-*/
-
 inline int operator >= ( double coval, const badouble& v ) {
     if (coval)
         return (-coval+v <= 0);
@@ -495,24 +503,12 @@ inline int operator >= ( double coval, const badouble& v ) {
         return (v <= 0);
 }
 
-/*
-inline int operator > ( const badouble& u, const badouble& v ) {
-    return (u-v > 0);
-}
-*/
-
 inline int operator > ( double coval, const badouble& v ) {
     if (coval)
         return (-coval+v < 0);
     else
         return (v < 0);
 }
-
-/*
-inline int operator < ( const badouble& u, const badouble& v ) {
-    return (u-v < 0);
-}
-*/
 
 inline int operator < ( double coval, const badouble& v ) {
     if (coval)
