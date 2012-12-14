@@ -3983,6 +3983,7 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
 		/* NEW CONDITIONALS */
                 /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
             case neq_a_a:
             case eq_a_a:
             case le_a_a:
@@ -4051,6 +4052,7 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
 
 		break;
+#endif /* ADVANCED_BRANCHING */
 
                 /*--------------------------------------------------------------------------*/
             case subscript:
