@@ -158,7 +158,10 @@ AC_SUBST(REAL_TYPE)
 
 AC_MSG_CHECKING(whether to enable advanced branching operations)
 AC_ARG_ENABLE(advanced-branching, [AS_HELP_STRING([--enable-advanced-branching],
-  [enable advanced branching operations to reduce retaping [default=no]])],
+  [enable advanced branching operations to reduce retaping [default=no].
+The boolean valued comparison operators with two adouble arguments will 
+not return boolean results but the active results may be used to automatically 
+switch branches in conjunction with condassign or advector (see manual).])],
   [use_advbranch=$enableval],[use_advbranch=no])
 AC_MSG_RESULT($use_advbranch)
 
