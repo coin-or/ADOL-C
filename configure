@@ -1459,7 +1459,8 @@ Optional Features:
                           memory allocation [default=calloc is used]
   --enable-atrig-erf      enable atrig and erf functions in ADOL-C
                           [default=no]
-  --enable-ulong          enable 64-bit locations [default=32-bit]
+  --enable-ulong          enable 64-bit locations (only available on 64-bit
+                          systems) [default=32-bit]
   --disable-double        disable double precision arithmetic [default=no]
   --enable-advanced-branching
                           enable advanced branching operations to reduce
@@ -16551,7 +16552,7 @@ else
 fi
 
 
-if test x$use_ulong = xyes ; then
+if test x$use_ulong = xyes -a 0$ac_cv_sizeof_void_p -ge 8 ; then
   UINT_TYPE=uint64_t
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: 64-bit" >&5
 $as_echo "64-bit" >&6; }
