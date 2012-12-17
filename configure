@@ -1461,7 +1461,8 @@ Optional Features:
                           [default=no]
   --enable-ulong          enable 64-bit locations (only available on 64-bit
                           systems) [default=32-bit]
-  --disable-double        disable double precision arithmetic [default=no]
+  --disable-double        disable double precision arithmetic
+                          [default=enabled]
   --enable-advanced-branching
                           enable advanced branching operations to reduce
                           retaping [default=no]. The boolean valued comparison
@@ -16567,21 +16568,19 @@ fi
 $as_echo_n "checking whether to use single or double precision... " >&6; }
 # Check whether --enable-double was given.
 if test "${enable_double+set}" = set; then :
-  enableval=$enable_double; use_float=$enableval
+  enableval=$enable_double; use_double=$enableval
 else
-  use_float=no
+  use_double=yes
 fi
 
 
-if test x$use_float = xyes ; then
+if test x$use_double = xno ; then
   REAL_TYPE=float
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: float" >&5
-$as_echo "float" >&6; }
 else
   REAL_TYPE=double
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: double" >&5
-$as_echo "double" >&6; }
 fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $REAL_TYPE" >&5
+$as_echo "$REAL_TYPE" >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable advanced branching operations" >&5
