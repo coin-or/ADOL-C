@@ -144,16 +144,15 @@ AC_SUBST(UINT_TYPE)
 
 AC_MSG_CHECKING(whether to use single or double precision)
 AC_ARG_ENABLE(double,[AS_HELP_STRING([--disable-double],
-  [disable double precision arithmetic [default=no]])],
-  [use_float=$enableval],[use_float=no])
+  [disable double precision arithmetic [default=enabled]])],
+  [use_double=$enableval],[use_double=yes])
 
-if test x$use_float = xyes ; then
+if test x$use_double = xno ; then
   REAL_TYPE=float
-  AC_MSG_RESULT(float)
 else
   REAL_TYPE=double
-  AC_MSG_RESULT(double)
 fi
+AC_MSG_RESULT($REAL_TYPE)
 AC_SUBST(REAL_TYPE)
 
 AC_MSG_CHECKING(whether to enable advanced branching operations)
