@@ -130,10 +130,10 @@ AC_SUBST(ATRIG_ERF_TRUE)
 
 AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
 AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
-  [enable 64-bit locations [default=32-bit]])],
+  [enable 64-bit locations (only available on 64-bit systems) [default=32-bit]])],
   [use_ulong=$enableval],[use_ulong=no])
 
-if test x$use_ulong = xyes ; then
+if test x$use_ulong = xyes -a 0$ac_cv_sizeof_void_p -ge 8 ; then
   UINT_TYPE=uint64_t
   AC_MSG_RESULT(64-bit)
 else
