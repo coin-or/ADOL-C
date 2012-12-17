@@ -343,6 +343,23 @@ AM_CONDITIONAL(BUILD_ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
 MPI_CONF
 AMPI_CONF
 
+AC_MSG_CHECKING(whether tape_doc should compute values as it prints the tape contents)
+AC_ARG_ENABLE(tapedoc_values,
+              [
+		AS_HELP_STRING([--disable-tapedoc-values],
+			       [should the tape_doc routine compute the values as it interprets and prints the tape contents [default=enabled]])],
+  [
+  tapedoc_values=no
+  ],
+  [
+  tapedoc_values=yes
+  ])
+AC_MSG_RESULT($tapedoc_values)
+
+if test x$tapedoc_values == xyes; then
+AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
+fi
+
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
@@ -477,6 +494,7 @@ echo
 echo \
 "  Build documented examples:          ${docexa}
   Build additional examples:          ${addexa}
+  tape_doc routine computes values:   ${tapedoc_values}
 
   See ADOL-C/src/config.h for further configuration information.
 -----------------------------------------------------------------------------"
