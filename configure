@@ -16761,8 +16761,6 @@ save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
 LIBS="$COLPACK_LIBS $LIBS"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ColPack in $COLPACK_LIBDIR" >&5
-$as_echo_n "checking for ColPack in $COLPACK_LIBDIR... " >&6; }
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "ColPack/ColPackHeaders.h" "ac_cv_header_ColPack_ColPackHeaders_h" "$ac_includes_default"
 if test "x$ac_cv_header_ColPack_ColPackHeaders_h" = xyes; then :
@@ -16773,6 +16771,8 @@ fi
 
 
 if test x$have_colpackheaders = xyes ; then
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libColPack in $COLPACK_LIBDIR" >&5
+$as_echo_n "checking for libColPack in $COLPACK_LIBDIR... " >&6; }
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <ColPack/ColPackHeaders.h>
@@ -16786,15 +16786,13 @@ ColPack::GraphColoring g
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
   have_colpack=yes
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: linking with -lColPack succeeded" >&5
-$as_echo "linking with -lColPack succeeded" >&6; }
 else
-  have_colpack=no,
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: linking with -lColPack failed" >&5
-$as_echo "linking with -lColPack failed" >&6; }
+  have_colpack=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_colpack" >&5
+$as_echo "$have_colpack" >&6; }
 else
     have_colpack=no
 fi
