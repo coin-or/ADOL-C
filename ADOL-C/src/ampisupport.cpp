@@ -71,6 +71,14 @@ void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) {
 }
 
 void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
+  ADTOOL_AMPI_pushSRinfo(ampiRequest->buf, 
+		         ampiRequest->count,
+			 ampiRequest->datatype,
+			 ampiRequest->endPoint,
+			 ampiRequest->tag,
+			 ampiRequest->pairedWith,
+			 ampiRequest->comm);
+  ADOLC_PUT_LOCINT(ampiRequest->origin);
 }
 
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
@@ -83,6 +91,7 @@ void * ADTOOL_AMPI_rawData(void* activeData) {
 
 void ADTOOL_AMPI_mapBufForAdjoint(struct AMPI_Request_S  *ampiRequest,
 				  void* buf) { 
+  ampiRequest->buf=buf;
 }
 
 void ADTOOL_AMPI_setBufForAdjoint(struct AMPI_Request_S  *ampiRequest,
