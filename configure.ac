@@ -285,15 +285,14 @@ save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
 LIBS="$COLPACK_LIBS $LIBS"
-AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
 AC_CHECK_HEADER([ColPack/ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
 if test x$have_colpackheaders = xyes ; then
+   AC_MSG_CHECKING(for libColPack in $COLPACK_LIBDIR)
    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPack/ColPackHeaders.h>],
 			[ColPack::GraphColoring g])],
-                       [have_colpack=yes
-                        AC_MSG_RESULT(linking with -lColPack succeeded)],
-                       [have_colpack=no,
-                        AC_MSG_RESULT(linking with -lColPack failed)])
+                       [have_colpack=yes],
+                       [have_colpack=no])
+   AC_MSG_RESULT($have_colpack)
 else
     have_colpack=no
 fi
