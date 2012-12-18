@@ -50,8 +50,21 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
 }
 
 void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
-  ADOLC_PUT_LOCINT(thisCall);
-  put_op(ampi_op);
+  
+  switch(thisCall) { 
+  case AMPI_WAIT:
+    put_op(ampi_wait);
+    break;
+  case AMPI_RECV:
+    put_op(ampi_recv);
+    break;
+  case AMPI_ISEND:
+    put_op(ampi_isend);
+    break;
+  default:
+    assert(0);
+    break;
+  } 
 }
 
 void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) { 

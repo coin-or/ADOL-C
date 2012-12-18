@@ -106,7 +106,9 @@ enum OPCODES {
   gt_a_a,
   ge_a_a,
   lt_a_a,
-  ampi_op
+  ampi_recv,
+  ampi_isend,
+  ampi_wait
 };
 
 /****************************************************************************/

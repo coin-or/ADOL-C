@@ -2239,7 +2239,7 @@ int int_reverse_safe(
                 break;
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
-	    case ampi_op: { 
+	    case ampi_recv: { 
 	      locint ampi_call=get_locint_r();
 	      void* buf;
 	      int count;
@@ -2251,42 +2251,47 @@ int int_reverse_safe(
 	      MPI_Comm comm;
 	      MPI_Status* status;
 	      struct AMPI_Request_S request;
-	      switch (ampi_call) { 
-	      case AMPI_RECV: 
-		BW_AMPI_Recv(buf,
-			     count,
-			     datatype,
-			     isActive,
-			     src,
-			     tag,
-			     pairedWith,
-			     comm,
-			     status);
-		break;
-	      case AMPI_ISEND:
-		BW_AMPI_Isend(buf,
-			      count,
-			      datatype,
-			      isActive,
-			      src,
-			      tag,
-			      pairedWith,
-			      comm,
-			      &request);
-		break;
-	      case AMPI_WAIT:
-		BW_AMPI_Wait(&request,
-			     status);
-		break;
-	      default: 
-		fprintf(DIAG_OUT,"ADOL-C fatal error in " GENERATED_FILENAME " ("
-                        __FILE__
-                        ") : unimplemented AMPI call %d\n", ampi_call);
-                exit(-1);
-		break;
-	      }
+	      BW_AMPI_Recv(buf,
+			   count,
+			   datatype,
+			   isActive,
+			   src,
+			   tag,
+			   pairedWith,
+			   comm,
+			   status);
 	      break;
 	    }
+	  case ampi_isend: { 
+	    locint ampi_call=get_locint_r();
+	    void* buf;
+	    int count;
+	    MPI_Datatype datatype; 
+	    enum AMPI_Activity_E isActive;
+	    int src; 
+	    int tag;
+	    enum AMPI_PairedWith_E pairedWith;
+	    MPI_Comm comm;
+	    MPI_Status* status;
+	    struct AMPI_Request_S request;
+	    BW_AMPI_Isend(buf,
+			  count,
+			  datatype,
+			  isActive,
+			  src,
+			  tag,
+			  pairedWith,
+			  comm,
+			  &request);
+	    break;
+	  }
+	  case ampi_wait: { 
+	    MPI_Status* status;
+	    struct AMPI_Request_S request;
+	    BW_AMPI_Wait(&request,
+			 status);
+	    break;
+	  }
 #endif
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/

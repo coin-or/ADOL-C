@@ -76,22 +76,12 @@ void filewrite_start( int opcode ) {
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
-    fprintf(fp," & & %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & \\\\ \\hline \n",opcode);
 #endif
     pagelength = 0;
 }
 
-/****************************************************************************/
-/* filewrite( opcode number,  op name, number locations, locations, values,           */
-/*            number constants, constants )                                 */
-/****************************************************************************/
-void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
-                double *val,int ncst, double* cst) {
-    int i;
-
-    ++op_cnt;
-    --rev_op_cnt;
-
+void checkPageBreak() { 
     if (pagelength == 100) { /* 101 lines per page */
         fprintf(fp,"\\end{tabular}\\\\\n");
         fprintf(fp,"\\newpage\n");
@@ -104,6 +94,20 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
 #endif
         pagelength=-1;
     }
+} 
+
+/****************************************************************************/
+/* filewrite( opcode number,  op name, number locations, locations, values,           */
+/*            number constants, constants )                                 */
+/****************************************************************************/
+void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
+                double *val,int ncst, double* cst) {
+    int i;
+
+    ++op_cnt;
+    --rev_op_cnt;
+
+    checkPageBreak();
 
     /* write opcode counters and  number */
     fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, opcode);
@@ -166,6 +170,36 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
     pagelength++;
 }
 
+/****************************************************************************/
+/* filewrite( opcode number,  op name, number locations, locations, values,           */
+/*            number constants, constants )                                 */
+/****************************************************************************/
+void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int *loc) {
+    int i;
+
+    ++op_cnt;
+    --rev_op_cnt;
+
+    checkPageBreak();
+
+    /* write opcode counters and  number */
+    fprintf(fp,"%i & %i & %i & ",op_cnt, rev_op_cnt, opcode);
+    
+    /* write opcode name if available */
+    if (opString) fprintf(fp,"%s",opString);
+
+#ifdef ADOLC_TAPE_DOC_VALUES /* values + constants */
+    fprintf(fp," & \\multicolumn{10}{|l|}{");
+#else
+    fprintf(fp," & \\multicolumn{6}{|l|}{");
+#endif
+    for(i=0; i<(nloc-1); i++) fprintf(fp," %i, ",loc[i]);
+    fprintf(fp," %i)} ",loc[nloc-1]);
+    fprintf(fp,"\\\\ \\hline \n"); /* end line */
+    fflush(fp);
+    pagelength++;
+}
+
 /*--------------------------------------------------------------------------*/
 void filewrite_end( int opcode ) {
     ++op_cnt;
@@ -173,7 +207,7 @@ void filewrite_end( int opcode ) {
 #ifdef ADOLC_TAPE_DOC_VALUES
   fprintf(fp," %i & %i & %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",op_cnt,rev_op_cnt, opcode);
 #else
-    fprintf(fp," %i & %i & %i & end of tape & & & & & & & \\\\ \\hline \n",op_cnt,rev_op_cnt,opcode);
+    fprintf(fp," %i & %i & %i & end of tape & & & & & & \\\\ \\hline \n",op_cnt,rev_op_cnt,opcode);
 #endif
     fprintf(fp,"\\end{tabular}");
     fprintf(fp,"\\end{document}");
@@ -1150,20 +1184,31 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation, "extern diff",3, loc_a, val_a, 0, cst_d);
                 break;
 
-            case ampi_op:
-                loc_a[0] = get_locint_f(); /* call */
-		switch(loc_a[0]) {
-		case AMPI_RECV:
-		  loc_a[1] = get_locint_f(); /* start */
-		  loc_a[2] = get_locint_f(); /* count */
-		  loc_a[3] = get_locint_f(); /* datatype */
-		  loc_a[3] = get_locint_f(); /* endpoint */
-		  loc_a[3] = get_locint_f(); /* tag */
-		  loc_a[3] = get_locint_f(); /* pairedWith */
-		  loc_a[3] = get_locint_f(); /* comm */
-		} 
-                filewrite(operation, "ampi op",3, loc_a, val_a, 0, cst_d);
-                break;
+            case ampi_recv:
+	        loc_a[0] = get_locint_f(); /* start */
+		loc_a[1] = get_locint_f(); /* count */
+		loc_a[2] = get_locint_f(); /* datatype */
+		loc_a[3] = get_locint_f(); /* endpoint */
+		loc_a[4] = get_locint_f(); /* tag */
+		loc_a[5] = get_locint_f(); /* pairedWith */
+		loc_a[6] = get_locint_f(); /* comm */
+		filewrite_ampi(operation, "ampi recv",7, loc_a);
+		break; 
+
+            case ampi_isend:
+	        loc_a[0] = get_locint_f(); /* start */
+		loc_a[1] = get_locint_f(); /* count */
+		loc_a[2] = get_locint_f(); /* datatype */
+		loc_a[3] = get_locint_f(); /* endpoint */
+		loc_a[4] = get_locint_f(); /* tag */
+		loc_a[5] = get_locint_f(); /* pairedWith */
+		loc_a[6] = get_locint_f(); /* comm */
+		filewrite_ampi(operation, "ampi isend",7, loc_a);
+		break; 
+
+            case ampi_wait:
+		filewrite_ampi(operation, "ampi wait",0, loc_a);
+		break; 
 
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
