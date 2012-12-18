@@ -170,9 +170,9 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
     pagelength++;
 }
 
+#ifdef ADOLC_AMPI_SUPPORT
 /****************************************************************************/
-/* filewrite( opcode number,  op name, number locations, locations, values,           */
-/*            number constants, constants )                                 */
+/* filewrite_ampi( opcode number,  op name, number locations, locations )   */
 /****************************************************************************/
 void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int *loc) {
     int i;
@@ -191,7 +191,7 @@ void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int 
 #ifdef ADOLC_TAPE_DOC_VALUES /* values + constants */
     fprintf(fp," & \\multicolumn{10}{|l|}{");
 #else
-    fprintf(fp," & \\multicolumn{6}{|l|}{");
+    fprintf(fp," & \\multicolumn{6}{|l|}{(");
 #endif
     for(i=0; i<(nloc-1); i++) fprintf(fp," %i, ",loc[i]);
     fprintf(fp," %i)} ",loc[nloc-1]);
@@ -199,6 +199,7 @@ void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int 
     fflush(fp);
     pagelength++;
 }
+#endif
 
 /*--------------------------------------------------------------------------*/
 void filewrite_end( int opcode ) {
@@ -1184,8 +1185,9 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation, "extern diff",3, loc_a, val_a, 0, cst_d);
                 break;
 
+#ifdef ADOLC_AMPI_SUPPORT
             case ampi_recv:
-	        loc_a[0] = get_locint_f(); /* start */
+	        loc_a[0] = get_locint_f(); /* start loc */
 		loc_a[1] = get_locint_f(); /* count */
 		loc_a[2] = get_locint_f(); /* datatype */
 		loc_a[3] = get_locint_f(); /* endpoint */
@@ -1195,21 +1197,23 @@ void tape_doc(short tnum,         /* tape id */
 		filewrite_ampi(operation, "ampi recv",7, loc_a);
 		break; 
 
-            case ampi_isend:
-	        loc_a[0] = get_locint_f(); /* start */
+            case ampi_isend: 
+	        /* push is delayed to the accompanying completion */
+		filewrite_ampi(operation, "ampi isend",0, loc_a);
+		break; 
+
+            case ampi_wait: 
+	        /* for the operation we had been waiting for */
+	        loc_a[0] = get_locint_f(); /* start loc */
 		loc_a[1] = get_locint_f(); /* count */
 		loc_a[2] = get_locint_f(); /* datatype */
 		loc_a[3] = get_locint_f(); /* endpoint */
 		loc_a[4] = get_locint_f(); /* tag */
 		loc_a[5] = get_locint_f(); /* pairedWith */
 		loc_a[6] = get_locint_f(); /* comm */
-		filewrite_ampi(operation, "ampi isend",7, loc_a);
+		filewrite_ampi(operation, "ampi wait",7, loc_a);
 		break; 
-
-            case ampi_wait:
-		filewrite_ampi(operation, "ampi wait",0, loc_a);
-		break; 
-
+#endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /* Die here, we screwed up */
