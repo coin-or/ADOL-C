@@ -245,7 +245,7 @@ void tape_doc(short tnum,         /* tape id */
     double *dp_T0;
 
     /* interface temporaries */
-    int loc_a[4];
+    int loc_a[maxLocsPerOp];
     double val_a[4], cst_d[2];
     const char* opName;
 
@@ -1231,7 +1231,7 @@ void tape_doc(short tnum,         /* tape id */
         filewrite_end(operation);
     };
 
-    free(dp_T0);
+    if (dp_T0) free(dp_T0);
     dp_T0 = NULL;
 
     end_sweep();
