@@ -1199,7 +1199,8 @@ void tape_doc(short tnum,         /* tape id */
 
             case ampi_isend: 
 	        /* push is delayed to the accompanying completion */
-		filewrite_ampi(operation, "ampi isend",0, loc_a);
+	        loc_a[0] = get_locint_f(); /* request */
+		filewrite_ampi(operation, "ampi isend",1, loc_a);
 		break; 
 
             case ampi_wait: 
