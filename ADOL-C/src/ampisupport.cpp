@@ -78,10 +78,28 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 			 ampiRequest->tag,
 			 ampiRequest->pairedWith,
 			 ampiRequest->comm);
+  ADOLC_PUT_LOCINT(ampiRequest->tracedRequest);
   ADOLC_PUT_LOCINT(ampiRequest->origin);
 }
 
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
+  ampiRequest->origin=(AMPI_Request_origin_E)get_locint_r();
+  ampiRequest->tracedRequest=get_locint_r();
+  ADTOOL_AMPI_popSRinfo(&(ampiRequest->buf), 
+			&(ampiRequest->count),
+			&(ampiRequest->datatype),
+			&(ampiRequest->endPoint),
+			&(ampiRequest->tag),
+			&(ampiRequest->pairedWith),
+			&(ampiRequest->comm));
+}
+
+void ADTOOL_AMPI_push_request(MPI_Request request) { 
+  ADOLC_PUT_LOCINT(request);
+} 
+
+MPI_Request ADTOOL_AMPI_pop_request() { 
+  return (MPI_Request)get_locint_r();
 }
 
 void * ADTOOL_AMPI_rawData(void* activeData) { 
