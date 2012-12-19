@@ -22,7 +22,7 @@
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
-           
+          
 ----------------------------------------------------------------------------*/
 
 /*****************************************************************************
@@ -350,7 +350,18 @@ int int_reverse_safe(
     int ext_retc;
     int oldTraceFlag;
 #endif
-
+#ifdef ADOLC_AMPI_SUPPORT
+    void* buf;
+    int count;
+    MPI_Datatype datatype; 
+    enum AMPI_Activity_E isActive;
+    int src; 
+    int tag;
+    enum AMPI_PairedWith_E pairedWith;
+    MPI_Comm comm;
+    MPI_Status* status;
+    struct AMPI_Request_S request;
+#endif
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -2240,17 +2251,6 @@ int int_reverse_safe(
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
 	    case ampi_recv: { 
-	      locint ampi_call=get_locint_r();
-	      void* buf;
-	      int count;
-	      MPI_Datatype datatype; 
-	      enum AMPI_Activity_E isActive;
-	      int src; 
-	      int tag;
-	      enum AMPI_PairedWith_E pairedWith;
-	      MPI_Comm comm;
-	      MPI_Status* status;
-	      struct AMPI_Request_S request;
 	      BW_AMPI_Recv(buf,
 			   count,
 			   datatype,
@@ -2263,17 +2263,6 @@ int int_reverse_safe(
 	      break;
 	    }
 	  case ampi_isend: { 
-	    locint ampi_call=get_locint_r();
-	    void* buf;
-	    int count;
-	    MPI_Datatype datatype; 
-	    enum AMPI_Activity_E isActive;
-	    int src; 
-	    int tag;
-	    enum AMPI_PairedWith_E pairedWith;
-	    MPI_Comm comm;
-	    MPI_Status* status;
-	    struct AMPI_Request_S request;
 	    BW_AMPI_Isend(buf,
 			  count,
 			  datatype,
@@ -2286,8 +2275,6 @@ int int_reverse_safe(
 	    break;
 	  }
 	  case ampi_wait: { 
-	    MPI_Status* status;
-	    struct AMPI_Request_S request;
 	    BW_AMPI_Wait(&request,
 			 status);
 	    break;
