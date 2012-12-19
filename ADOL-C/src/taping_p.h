@@ -195,6 +195,11 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
                        must survive all other actions on the tape */
 } PersistantTapeInfos;
 
+/**
+ * maximal number of locations writen per op code 
+ */
+extern const int maxLocsPerOp;
+
 typedef struct TapeInfos {
     short tapeID;
     int inUse;

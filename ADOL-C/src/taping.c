@@ -1578,6 +1578,8 @@ void end_sweep() {
 
 /* --- Operations --- */
 
+const int maxLocsPerOp=10;
+
 /****************************************************************************/
 /* Puts an operation into the operation buffer. Ensures that location buffer*/
 /* and constants buffer are prepared to take the belonging stuff.           */
@@ -1585,8 +1587,8 @@ void end_sweep() {
 void put_op(unsigned char op) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    /* some special operations related to MPI write a number of integers */
-    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + 10 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+    /* make sure we have enough slots to write the locs */
+    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + maxLocsPerOp > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
         *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 -
                 ADOLC_CURRENT_TAPE_INFOS.currLoc;
         put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
