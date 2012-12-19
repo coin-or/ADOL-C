@@ -455,8 +455,8 @@ int int_reverse_safe(
     /****************************************************************************/
     /*                                                    TAYLOR INITIALIZATION */
 
-#if !defined(_NTIGHT_)
     ADOLC_CURRENT_TAPE_INFOS.rp_T = rp_T;
+#if !defined(_NTIGHT_)
 
     taylor_back(tnum, &numdep, &numind, &taycheck);
 
