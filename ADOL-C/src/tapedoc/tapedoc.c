@@ -1212,7 +1212,9 @@ void tape_doc(short tnum,         /* tape id */
 		loc_a[4] = get_locint_f(); /* tag */
 		loc_a[5] = get_locint_f(); /* pairedWith */
 		loc_a[6] = get_locint_f(); /* comm */
-		filewrite_ampi(operation, "ampi wait",7, loc_a);
+		loc_a[7] = get_locint_f(); /* traced request */
+		loc_a[8] = get_locint_f(); /* origin */
+		filewrite_ampi(operation, "ampi wait",9, loc_a);
 		break; 
 #endif
                 /*--------------------------------------------------------------------------*/
