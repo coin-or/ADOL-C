@@ -46,7 +46,7 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
   *endPoint=(int)get_locint_r();
   *datatype=(int)get_locint_r();
   *count=(int)get_locint_r();
-  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_T[get_locint_r()]));
+  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
 }
 
 void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
@@ -148,9 +148,11 @@ void ADTOOL_AMPI_releaseAdjointTempBuf(struct AMPI_Request_S *ampiRequest) {
 }
 
 void ADTOOL_AMPI_adjointIncrement(int adjointCount, void* target, void *source) { 
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]+=((revreal*)(source))[i];
 }
 
 void ADTOOL_AMPI_adjointNullify(int adjointCount, void* buf) { 
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(buf))[i]=0.0;
 }
 
 
