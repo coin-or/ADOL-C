@@ -123,6 +123,7 @@ void ADTOOL_AMPI_getAdjointCount(int *count,
 
 void ADTOOL_AMPI_setAdjointCount(struct AMPI_Request_S  *ampiRequest) { 
   /* for now we keep the count as is but for example in vector mode one would have to multiply by vector length */
+  ampiRequest->adjointCount=ampiRequest->count;
 }
 
 void ADTOOL_AMPI_setAdjointCountAndTempBuf(struct AMPI_Request_S *ampiRequest) { 
