@@ -28,12 +28,10 @@
 
 namespace adtl {
 
-
 size_t adouble::numDir = 1;
 enum Mode adouble::forward_mode = ADTL_FOV;
 
 size_t refcounter::refcnt = 0;
-
 
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
@@ -73,7 +71,7 @@ istream& operator >> ( istream& in, adouble& a) {
 }
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
-int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
+int ADTL_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
     for(unsigned int i=0; i < n; i++) {
 	a[i].delete_pattern();
 	a[i].pattern.push_back( i+start_cnt );
@@ -81,7 +79,7 @@ int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
     return 3;
 }
 
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat) {
+int ADTL_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat) {
     pat = (unsigned int**) malloc(m*sizeof(unsigned int*));
     for( int i=0; i < m ; i++){
 	//const_cast<adouble&>(b[i]).pattern.sort();

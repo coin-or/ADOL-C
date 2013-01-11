@@ -20,7 +20,7 @@
 #if defined(HAVE_MPI)
 #include <mpi.h>
 #define ADTL_MPI_Datatype MPI_Datatype
-#define MPI_ADOUBLE MPI_DOUBLE
+#define MPI_ADTL MPI_DOUBLE
 #define ADTL_MPI_COMM_WORLD MPI_COMM_WORLD
 #define ADTL_MPI_Comm MPI_Comm
 
@@ -92,6 +92,7 @@ int ADTL_MPI_Allgather(
 int ADTL_MPI_Allreduce(
     adouble *send_buf, adouble *rec_buf, int count, ADTL_MPI_Datatype type,
     ADTL_MPI_Op op, MPI_Comm comm);
+
 
 }
 

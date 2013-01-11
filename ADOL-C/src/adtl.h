@@ -209,9 +209,9 @@ protected:
     inline void delete_pattern();
 
 public:
-    friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
-    friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat,
+    friend int ADTL_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+    friend int ADTL_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+    friend int ADTL_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat,
            double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
 #if defined(HAVE_MPI) && defined(ADOLC_ADTL_MPI_H)
     friend void ADTL_MPI_set_trade(adouble *buf, int count, size_t nd, double *trade);
@@ -256,9 +256,9 @@ private:
 inline void setNumDir(const size_t p);
 inline void setMode(enum Mode newmode);
 
-int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt);
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-int ADOLC_get_sparse_jacobian(func_ad *const func,
+int ADTL_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt);
+int ADTL_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+int ADTL_get_sparse_jacobian(func_ad *const func,
 			      int n, int m, int repeat, double* basepoints, int *nnz,
 			      unsigned int **rind, unsigned int **cind,
 			      double **values);

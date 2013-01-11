@@ -1115,7 +1115,7 @@ namespace adtl {
 
 SparseJacInfos sJinfos = { NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0 };
 
-int ADOLC_get_sparse_jacobian( func_ad *const fun,
+int ADTL_get_sparse_jacobian( func_ad *const fun,
 			       int n, int m, int repeat, double* basepoints,
 			       int *nnz, unsigned int **rind,
 			       unsigned int **cind, double **values)
@@ -1135,7 +1135,7 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
       x[i] = basepoints[i];
       //x[i].setADValue(i,1);
     }
-    ret_val = ADOLC_Init_sparse_pattern(x,n,0);
+    ret_val = ADTL_Init_sparse_pattern(x,n,0);
 
     ret_val = (*fun)(n,x,m,y);
 
@@ -1144,7 +1144,7 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
        return ret_val;
     }
 
-    ret_val = ADOLC_get_sparse_pattern(y, m, sJinfos.JP );
+    ret_val = ADTL_get_sparse_pattern(y, m, sJinfos.JP );
     }
     sJinfos.depen = m;
     sJinfos.nnz_in = 0;
