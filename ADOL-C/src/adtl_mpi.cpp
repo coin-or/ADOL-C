@@ -510,5 +510,69 @@ int ADTL_MPI_Allreduce(
     return ierr;
 }
 
+bool same_elem( unsigned int first, unsigned int second){
+     return ( first == second );
+}
+
+int ADTL_MPI_get_sparse_pattern( adouble *a,unsigned int count, ADTL_MPI_Datatype type,
+    int root, ADTL_MPI_Comm comm, unsigned int **&pat){
+    int id, p_size, ierr = -1;
+    MPI_Comm_size(comm, &p_size);
+    MPI_Comm_rank(comm, &id);
+    if( NULL != pat)
+       free (pat);
+    if( id == root)
+       pat = (unsigned int**) malloc(count*sizeof(unsigned int*));
+    unsigned int i,j;
+    for( i=0; i < count ; i++){
+       adouble b = a[i];
+       unsigned int max_size =0 , real_size;
+       unsigned int *sendbuf =NULL, *rec_buf =NULL, *tmp = NULL;
+       tmp = (unsigned int*) malloc( sizeof(unsigned int)*p_size );
+       real_size = (unsigned int) b.get_pattern_size();
+       ierr = MPI_Allgather(&real_size,1,MPI_UNSIGNED, tmp , 1,MPI_UNSIGNED, comm);
+       for( j=0; j < p_size ; j++)
+          if( tmp[j] > max_size)
+             max_size = tmp[j];
+
+       if( max_size > 0 ) {
+          sendbuf = (unsigned int*) malloc( max_size*sizeof(unsigned int) );
+          const list<unsigned int>& tmp_set = b.get_pattern();
+          list<unsigned int>::const_iterator it;
+          sendbuf[0] = real_size;
+          j=0;
+          for(it = tmp_set.begin() ; it != tmp_set.end() ; it++,j++)
+             sendbuf[j] = *it;
+          if(id == root)
+             rec_buf = (unsigned int*) malloc( max_size*p_size*sizeof(unsigned int) );
+
+          ierr = MPI_Gather(sendbuf,max_size, MPI_UNSIGNED, rec_buf , max_size, MPI_UNSIGNED, root, comm);
+          if(id == root){
+             list<unsigned int> sp;
+             for(j=0; j < p_size ; j++)
+                 for(unsigned int l=0; l < tmp[j]; l++)
+                    sp.push_back(  rec_buf[j*max_size+l]);
+            sp.unique(same_elem);
+            sp.sort();
+
+            pat[i] = (unsigned int*) malloc(sizeof(unsigned int) * (sp.size() +1) );
+            pat[i][0] = sp.size();
+            unsigned int l=1;
+            for(it = sp.begin() ; it != sp.end() ; it++,l++)
+                pat[i][l] = *it;
+            sp.clear();
+          }
+       } else {
+          if( id == root) {
+             pat[i] = (unsigned int*) malloc(sizeof(unsigned int));
+             pat[i][0] =0;
+          }
+       }
+    MPI_Barrier(comm);
+    }
+
+    return ierr;
+}
+
 }
 /* That's all*/

@@ -60,6 +60,7 @@ int ADTL_MPI_Barrier(ADTL_MPI_Comm comm);
 int ADTL_MPI_Finalize() ;
 
 MPI_Op adolc_to_mpi_op(ADTL_MPI_Op);
+bool same_elem (unsigned int first, unsigned int second);
 
 int ADTL_MPI_Send(
     adouble *buf, int count, ADTL_MPI_Datatype datatype, int dest,
@@ -93,6 +94,8 @@ int ADTL_MPI_Allreduce(
     adouble *send_buf, adouble *rec_buf, int count, ADTL_MPI_Datatype type,
     ADTL_MPI_Op op, MPI_Comm comm);
 
+int ADTL_MPI_get_sparse_pattern( adouble *a, unsigned int count, ADTL_MPI_Datatype type,
+    int root, ADTL_MPI_Comm comm , unsigned int **&pat);
 
 }
 
