@@ -93,7 +93,7 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
   TAPE_AMPI_pop_int((int*)&(ampiRequest->origin));
   TAPE_AMPI_pop_MPI_Request(&(ampiRequest->tracedRequest));
-  ADTOOL_AMPI_popSRinfo(&(ampiRequest->buf), 
+  ADTOOL_AMPI_popSRinfo(&(ampiRequest->adjointBuf), 
 			&(ampiRequest->count),
 			&(ampiRequest->datatype),
 			&(ampiRequest->endPoint),
@@ -118,8 +118,7 @@ void * ADTOOL_AMPI_rawData(void* activeData) {
 }
 
 void * ADTOOL_AMPI_rawAdjointData(void* activeData) {
-  assert(0); /* not sure how to use this yet */
-  return 0;
+  return activeData;
 }
 
 void ADTOOL_AMPI_mapBufForAdjoint(struct AMPI_Request_S  *ampiRequest,
@@ -173,7 +172,7 @@ void ADTOOL_AMPI_adjointIncrement(int adjointCount,
                                   void* adjointTarget,
                                   void* checkAdjointTarget,
                                   void *source) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]+=((revreal*)(source))[i];
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]+=((revreal*)(source))[i];
 }
 
 void ADTOOL_AMPI_adjointNullify(int adjointCount,
@@ -182,7 +181,7 @@ void ADTOOL_AMPI_adjointNullify(int adjointCount,
                                 void* target,
                                 void* adjointTarget,
                                 void* checkAdjointTarget) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]=0.0;
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]=0.0;
 }
 
 
