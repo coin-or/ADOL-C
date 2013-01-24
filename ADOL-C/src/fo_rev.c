@@ -2251,7 +2251,18 @@ int int_reverse_safe(
                 break;
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
-	    case ampi_recv: { 
+            case ampi_send: {
+              BW_AMPI_Send(buf,
+                           count,
+                           datatype,
+                           isActive,
+                           src,
+                           tag,
+                           pairedWith,
+                           comm);
+              break;
+            }
+            case ampi_recv: {
 	      BW_AMPI_Recv(buf,
 			   count,
 			   datatype,
@@ -2275,6 +2286,18 @@ int int_reverse_safe(
 			  &request);
 	    break;
 	  }
+          case ampi_irecv: {
+            BW_AMPI_Irecv(buf,
+                          count,
+                          datatype,
+                          isActive,
+                          src,
+                          tag,
+                          pairedWith,
+                          comm,
+                          &request);
+            break;
+          }
 	  case ampi_wait: { 
 	    BW_AMPI_Wait(&request,
 			 status);

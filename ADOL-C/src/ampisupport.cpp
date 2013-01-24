@@ -56,11 +56,17 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
   case AMPI_WAIT:
     put_op(ampi_wait);
     break;
+  case AMPI_SEND:
+    put_op(ampi_send);
+    break;
   case AMPI_RECV:
     put_op(ampi_recv);
     break;
   case AMPI_ISEND:
     put_op(ampi_isend);
+    break;
+  case AMPI_IRECV:
+    put_op(ampi_irecv);
     break;
   default:
     assert(0);
@@ -69,6 +75,7 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
 }
 
 void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) { 
+  assert(0);
 }
 
 void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
@@ -181,6 +188,24 @@ void ADTOOL_AMPI_adjointNullify(int adjointCount,
 
 // tracing 
 
+int AMPI_Send(void* buf,
+              int count,
+              MPI_Datatype datatype,
+              AMPI_Activity isActive,
+              int src,
+              int tag,
+              AMPI_PairedWith pairedWith,
+              MPI_Comm comm) {
+  return FW_AMPI_Send(buf,
+                      count,
+                      datatype,
+                      isActive,
+                      src,
+                      tag,
+                      pairedWith,
+                      comm);
+}
+
 int AMPI_Recv(void* buf,
               int count,
               MPI_Datatype datatype,
@@ -215,6 +240,26 @@ int AMPI_Isend (void* buf,
                        datatype,
                        isActive,
                        dest,
+                       tag,
+                       pairedWith,
+                       comm,
+                       request);
+}
+
+int AMPI_Irecv (void* buf,
+                int count,
+                MPI_Datatype datatype,
+                AMPI_Activity isActive,
+                int src,
+                int tag,
+                AMPI_PairedWith pairedWith,
+                MPI_Comm comm,
+                AMPI_Request* request) {
+  return FW_AMPI_Irecv(buf,
+                       count,
+                       datatype,
+                       isActive,
+                       src,
                        tag,
                        pairedWith,
                        comm,

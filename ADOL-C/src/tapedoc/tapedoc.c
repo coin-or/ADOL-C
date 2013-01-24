@@ -1192,7 +1192,7 @@ void tape_doc(short tnum,         /* tape id */
                 break;
 
 #ifdef ADOLC_AMPI_SUPPORT
-            case ampi_recv:
+            case ampi_send:
 	        loc_a[0] = get_locint_f();   /* start loc */
 	        TAPE_AMPI_read_int(loc_a+1); /* count */
 	        TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
@@ -1200,14 +1200,31 @@ void tape_doc(short tnum,         /* tape id */
 	        TAPE_AMPI_read_int(loc_a+3); /* tag */
 	        TAPE_AMPI_read_int(loc_a+4); /* pairedWith */
 	        TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
-		filewrite_ampi(operation, "ampi recv",5, loc_a);
+		filewrite_ampi(operation, "ampi send",5, loc_a);
 		break; 
+
+            case ampi_recv:
+                loc_a[0] = get_locint_f();   /* start loc */
+                TAPE_AMPI_read_int(loc_a+1); /* count */
+                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
+                TAPE_AMPI_read_int(loc_a+2); /* endpoint */
+                TAPE_AMPI_read_int(loc_a+3); /* tag */
+                TAPE_AMPI_read_int(loc_a+4); /* pairedWith */
+                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+                filewrite_ampi(operation, "ampi recv",5, loc_a);
+                break;
 
             case ampi_isend: 
 	        /* push is delayed to the accompanying completion */
 	        loc_a[0] = get_locint_f(); /* request */
 		filewrite_ampi(operation, "ampi isend",1, loc_a);
 		break; 
+
+            case ampi_irecv:
+                /* push is delayed to the accompanying completion */
+                loc_a[0] = get_locint_f(); /* request */
+                filewrite_ampi(operation, "ampi irecv",1, loc_a);
+                break;
 
             case ampi_wait: 
 	        /* for the operation we had been waiting for */
