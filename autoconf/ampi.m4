@@ -18,7 +18,7 @@ fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
 then 
-  LIBS="-lampiCommon -lampiBookkeeping $LIBS"
+  LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
 
   keepLIBS="$LIBS"
 

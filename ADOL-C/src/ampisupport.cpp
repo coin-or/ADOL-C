@@ -2,6 +2,7 @@
 
 #include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
+#include "ampi/tape/support.h"
 #include "ampi/libCommon/modified.h"
 
 #include "taping_p.h"
@@ -25,12 +26,12 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
   else {
     ADOLC_PUT_LOCINT(0); // have to put something 
   }    
-  ADOLC_PUT_LOCINT(count);
-  ADOLC_PUT_LOCINT(datatype);
-  ADOLC_PUT_LOCINT(endPoint);
-  ADOLC_PUT_LOCINT(tag);
-  ADOLC_PUT_LOCINT(pairedWith);
-  ADOLC_PUT_LOCINT(comm);
+  TAPE_AMPI_push_int(count);
+  TAPE_AMPI_push_MPI_Datatype(datatype);
+  TAPE_AMPI_push_int(endPoint);
+  TAPE_AMPI_push_int(tag);
+  TAPE_AMPI_push_int(pairedWith);
+  TAPE_AMPI_push_MPI_Comm(comm);
 }
 
 void ADTOOL_AMPI_popSRinfo(void** buf, 
@@ -40,12 +41,12 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
 			   int* tag,
 			   AMPI_PairedWith_E* pairedWith,
 			   MPI_Comm* comm) {
-  *comm=get_locint_r();
-  *pairedWith=(AMPI_PairedWith_E)get_locint_r();
-  *tag=(int)get_locint_r();
-  *endPoint=(int)get_locint_r();
-  *datatype=(int)get_locint_r();
-  *count=(int)get_locint_r();
+  TAPE_AMPI_pop_MPI_Comm(comm);
+  TAPE_AMPI_pop_int((int*)pairedWith);
+  TAPE_AMPI_pop_int(tag);
+  TAPE_AMPI_pop_int(endPoint);
+  TAPE_AMPI_pop_MPI_Datatype(datatype);
+  TAPE_AMPI_pop_int(count);
   *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
 }
 
@@ -78,13 +79,13 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 			 ampiRequest->tag,
 			 ampiRequest->pairedWith,
 			 ampiRequest->comm);
-  ADOLC_PUT_LOCINT(ampiRequest->tracedRequest);
-  ADOLC_PUT_LOCINT(ampiRequest->origin);
+  TAPE_AMPI_push_MPI_Request(ampiRequest->tracedRequest);
+  TAPE_AMPI_push_int(ampiRequest->origin);
 }
 
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
-  ampiRequest->origin=(AMPI_Request_origin_E)get_locint_r();
-  ampiRequest->tracedRequest=get_locint_r();
+  TAPE_AMPI_pop_int((int*)&(ampiRequest->origin));
+  TAPE_AMPI_pop_MPI_Request(&(ampiRequest->tracedRequest));
   ADTOOL_AMPI_popSRinfo(&(ampiRequest->buf), 
 			&(ampiRequest->count),
 			&(ampiRequest->datatype),
@@ -95,16 +96,23 @@ void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 }
 
 void ADTOOL_AMPI_push_request(MPI_Request request) { 
-  ADOLC_PUT_LOCINT(request);
+  TAPE_AMPI_push_MPI_Request(request);
 } 
 
-MPI_Request ADTOOL_AMPI_pop_request() { 
-  return (MPI_Request)get_locint_r();
+MPI_Request ADTOOL_AMPI_pop_request() {
+  MPI_Request r;
+  TAPE_AMPI_pop_MPI_Request(&r);
+  return r;
 }
 
 void * ADTOOL_AMPI_rawData(void* activeData) { 
   adouble* adouble_p=(adouble*)activeData; 
   return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+}
+
+void * ADTOOL_AMPI_rawAdjointData(void* activeData) {
+  assert(0); /* not sure how to use this yet */
+  return 0;
 }
 
 void ADTOOL_AMPI_mapBufForAdjoint(struct AMPI_Request_S  *ampiRequest,
@@ -128,31 +136,46 @@ void ADTOOL_AMPI_setAdjointCount(struct AMPI_Request_S  *ampiRequest) {
 
 void ADTOOL_AMPI_setAdjointCountAndTempBuf(struct AMPI_Request_S *ampiRequest) { 
   ADTOOL_AMPI_setAdjointCount(ampiRequest);
+  ampiRequest->adjointTempBuf=
+      ADTOOL_AMPI_allocateTempBuf(ampiRequest->adjointCount,
+          ampiRequest->datatype,
+          ampiRequest->comm);
+}
+
+void* ADTOOL_AMPI_allocateTempBuf(int adjointCount,
+                                  MPI_Datatype dataType,
+                                  MPI_Comm comm) {
   size_t s=0;
-  switch(ampiRequest->datatype) { 
-  case MPI_DOUBLE: 
-    s=sizeof(double);
-    break;
-  case MPI_FLOAT: 
-    s=sizeof(float);
-    break;
-  default:
-    MPI_Abort(ampiRequest->comm, MPI_ERR_TYPE);
-    break;
-  }
-  ampiRequest->adjointTempBuf=(void*)malloc(ampiRequest->adjointCount*s);
-  assert(ampiRequest->adjointTempBuf);
+  void* buf;
+  if(dataType==MPI_DOUBLE) s=sizeof(double);
+  else if(dataType==MPI_FLOAT) s=sizeof(float);
+  else MPI_Abort(comm, MPI_ERR_TYPE);
+  buf=malloc(adjointCount*s);
+  assert(buf);
+  return buf;
 }
 
-void ADTOOL_AMPI_releaseAdjointTempBuf(struct AMPI_Request_S *ampiRequest) { 
+void ADTOOL_AMPI_releaseAdjointTempBuf(void *tempBuf) {
+  free(tempBuf);
 }
 
-void ADTOOL_AMPI_adjointIncrement(int adjointCount, void* target, void *source) { 
+void ADTOOL_AMPI_adjointIncrement(int adjointCount,
+                                  MPI_Datatype datatype,
+                                  MPI_Comm comm,
+                                  void* target,
+                                  void* adjointTarget,
+                                  void* checkAdjointTarget,
+                                  void *source) {
   for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]+=((revreal*)(source))[i];
 }
 
-void ADTOOL_AMPI_adjointNullify(int adjointCount, void* buf) { 
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(buf))[i]=0.0;
+void ADTOOL_AMPI_adjointNullify(int adjointCount,
+                                MPI_Datatype datatype,
+                                MPI_Comm comm,
+                                void* target,
+                                void* adjointTarget,
+                                void* checkAdjointTarget) {
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]=0.0;
 }
 
 
