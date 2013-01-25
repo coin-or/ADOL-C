@@ -2042,6 +2042,7 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
 		/* NEW CONDITIONALS */
                 /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
             case neq_a_a:
             case eq_a_a:
             case le_a_a:
@@ -2059,6 +2060,7 @@ int hov_ti_reverse(
 
                 GET_TAYL(res,k,p)
                 break;
+#endif
 
                 /*--------------------------------------------------------------------------*/
 	    case subscript:

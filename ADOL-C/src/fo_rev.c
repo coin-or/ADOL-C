@@ -1684,6 +1684,7 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
 		/* NEW CONDITIONALS */
                 /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
             case neq_a_a:
             case eq_a_a:
             case le_a_a:
@@ -1710,6 +1711,7 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
 		break;
+#endif
                 /*--------------------------------------------------------------------------*/
             case subscript:
 	        {
