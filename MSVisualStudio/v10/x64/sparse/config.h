@@ -2,7 +2,7 @@
 /* ADOL-C/src/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* ADOL-C adouble zeroing mode */
-/* #undef ADOLC_ADOUBLE_STDCZERO */
+#define ADOLC_ADOUBLE_STDCZERO 1
 
 /* ADOL-C debug mode */
 /* #undef ADOLC_DEBUG */
@@ -13,14 +13,14 @@
 /* ADOL-C Patchlevel */
 #define ADOLC_PATCHLEVEL 0
 
-/* ADOL-C safe extern mode */
-/* #undef ADOLC_SAFE_EXTERN */
-
 /* ADOL-C Subversion */
 #define ADOLC_SUBVERSION 3
 
 /* ADOL-C thread save errno mode */
 /* #undef ADOLC_THREADSAVE_ERRNO */
+
+/* Use calloc instead of malloc for memory allocation */
+#define ADOLC_USE_CALLOC 1
 
 /* ADOL-C Version */
 #define ADOLC_VERSION 2
