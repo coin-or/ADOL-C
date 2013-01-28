@@ -72,6 +72,10 @@
 #           define realloc rpl_realloc
 #       endif /* ADOLC_NO_REALLOC */
 
+#       ifndef HAVE_TRUNC
+#           define trunc(x) ( (x<0) ? ceil(x) : floor(x) )
+#       endif
+
 #   endif /* HAVE_CONFIG_H */
 #endif /* ADOLC_INTERNAL */
 
