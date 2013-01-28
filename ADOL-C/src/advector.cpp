@@ -193,6 +193,7 @@ adubref& adubref::operator = ( const badouble& x ) {
 
 adubref& adubref::operator = ( const adubref& x ) {
     *this = adub(x);
+    return *this;
 }
 
 adubref& adubref::operator <<= ( double coval ) {
