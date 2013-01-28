@@ -144,11 +144,13 @@ AC_SUBST(UINT_TYPE)
 
 AC_MSG_CHECKING(whether to use single or double precision)
 AC_ARG_ENABLE(double,[AS_HELP_STRING([--disable-double],
-  [disable double precision arithmetic [default=enabled]])],
+  [disable double precision arithmetic [untested, default=double is enabled]])],
   [use_double=$enableval],[use_double=yes])
 
 if test x$use_double = xno ; then
   REAL_TYPE=float
+  echo
+  echo -n "using ${REAL_TYPE} is not well tested, please report bugs if you find any..."
 else
   REAL_TYPE=double
 fi
