@@ -100,7 +100,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the `trunc' function. */
-/ #undef HAVE_TRUNC */
+/* #undef HAVE_TRUNC */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef HAVE_UNISTD_H */
