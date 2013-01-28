@@ -1461,8 +1461,8 @@ Optional Features:
                           [default=no]
   --enable-ulong          enable 64-bit locations (only available on 64-bit
                           systems) [default=32-bit]
-  --disable-double        disable double precision arithmetic
-                          [default=enabled]
+  --disable-double        disable double precision arithmetic [untested,
+                          default=double is enabled]
   --enable-advanced-branching
                           enable advanced branching operations to reduce
                           retaping [default=no]. The boolean valued comparison
@@ -16576,6 +16576,8 @@ fi
 
 if test x$use_double = xno ; then
   REAL_TYPE=float
+  echo
+  echo -n "using ${REAL_TYPE} is not well tested, please report bugs if you find any..."
 else
   REAL_TYPE=double
 fi
