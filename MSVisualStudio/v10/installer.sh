@@ -1,5 +1,6 @@
 #!/bin/bash -x
-INCFILES=(adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
+INCFILES=(adolc.h adolc_settings.h adalloc.h adouble.h adutils.h \
+	 adutilsc.h advector.h \
          common.h convolut.h dvlparms.h fortutils.h \
          interfaces.h taping.h usrparms.h \
          externfcts.h checkpointing.h fixpoint.h \
@@ -50,19 +51,19 @@ mkdir -p tmp/include/adolc/drivers
 mkdir -p tmp/include/adolc/tapedoc
 
 for i in ${INCFILES[*]} ; do
-	cp ../../ADOL-C/src/$i tmp/include/adolc
+	cp ../../ADOL-C/include/adolc/$i tmp/include/adolc
 done
 
 for i in ${INCFILES_SPARSE[*]} ; do
-	cp ../../ADOL-C/src/sparse/$i tmp/include/adolc/sparse
+	cp ../../ADOL-C/include/adolc/sparse/$i tmp/include/adolc/sparse
 done
 
 for i in ${INCFILES_DRIVERS[*]} ; do
-	cp ../../ADOL-C/src/drivers/$i tmp/include/adolc/drivers
+	cp ../../ADOL-C/include/adolc/drivers/$i tmp/include/adolc/drivers
 done
 
 for i in ${INCFILES_TAPEDOC[*]} ; do
-	cp ../../ADOL-C/src/tapedoc/$i tmp/include/adolc/tapedoc
+	cp ../../ADOL-C/include/adolc/tapedoc/$i tmp/include/adolc/tapedoc
 done
 
 cp $conf/adolc.dll tmp/bin
