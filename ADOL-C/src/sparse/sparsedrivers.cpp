@@ -1115,6 +1115,93 @@ namespace adtl {
 
 SparseJacInfos sJinfos = { NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0 };
 
+int ADTL_get_sparse_jacobian( int n, int m, int p, double** jac_values,
+                      unsigned int nnz, unsigned int **rind,
+                      unsigned int **cind, double **values)
+{
+#if HAVE_LIBCOLPACK
+    int i;
+    unsigned int j;
+    int dummy;
+    int ret_val = 0;
+
+/*      sJinfos.B = myalloc2(sJinfos.seed_rows,sJinfos.seed_clms);
+      for(i=0; i < m; i++)
+           for(j=0; j < sJinfos.seed_clms; j++)
+               sJinfos.B[i][j] = jac_values[i][j];*/
+     sJinfos.B = jac_values;
+     sJinfos.y = myalloc1(m);
+
+    /* recover compressed Jacobian => ColPack library */
+
+      if (*values != NULL)
+       free(*values);
+      if (*rind != NULL)
+       free(*rind);
+      if (*cind != NULL)
+       free(*cind);
+     BipartiteGraphPartialColoringInterface *g;
+     JacobianRecovery1D *jr1d;
+     g = (BipartiteGraphPartialColoringInterface*)sJinfos.g;
+     jr1d = (JacobianRecovery1D*) sJinfos.jr1d;
+     jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind, cind, values);
+     return ret_val;
+#else
+
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+    return -1;
+#endif
+}
+
+int ADTL_get_seed_matrix(int n, int m, unsigned int *nnz, int *p, unsigned int **pattern, double **&seed)
+{
+#if HAVE_LIBCOLPACK
+    int i;
+    unsigned int j;
+    int dummy;
+    int ret_val = 0;
+    sJinfos.JP = pattern;
+    sJinfos.depen = m;
+    sJinfos.nnz_in = 0;
+    for (i=0;i<m;i++) {
+//        for (j=1;j<=sJinfos.JP[i][0];j++)
+          sJinfos.nnz_in += sJinfos.JP[i][0];
+    }
+      *nnz = sJinfos.nnz_in;
+      /* sJinfos.Seed is memory managed by ColPack and will be deleted
+       * along with g. We only keep it in sJinfos for the repeat != 0 case */
+      BipartiteGraphPartialColoringInterface *g;
+      JacobianRecovery1D *jr1d;
+
+      g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, sJinfos.JP, m, n);
+      jr1d = new JacobianRecovery1D;
+
+      g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows),
+                                &(sJinfos.seed_clms), "SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO");
+      sJinfos.seed_rows = m;
+      *p = sJinfos.seed_clms;
+
+      seed = sJinfos.Seed;
+    if (sJinfos.nnz_in != *nnz) {
+        printf(" ADOL-C error in sparse_jac():"
+               " Number of nonzeros not consistent,"
+               " repeat call with repeat = 0 \n");
+        return -3;
+    }
+
+      sJinfos.g = (void *) g;
+      sJinfos.jr1d = (void *) jr1d;
+
+     return ret_val;
+#else
+
+    fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
+    exit(-1);
+    return -1;
+#endif
+}
+
 int ADTL_get_sparse_jacobian( func_ad *const fun,
 			       int n, int m, int repeat, double* basepoints,
 			       int *nnz, unsigned int **rind,

@@ -213,6 +213,11 @@ public:
     friend int ADTL_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
     friend int ADTL_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat,
            double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+    friend int ADTL_get_sparse_jacobian( int n, int m, int p, double** jac_values,
+                      unsigned int nnz, unsigned int **rind,
+                      unsigned int **cind, double **values) ;
+    friend int ADTL_get_seed_matrix(int n, int m, unsigned int *nnz, int *p,
+                      unsigned int **pattern, double **&seed);
 #if defined(HAVE_MPI) && defined(ADOLC_ADTL_MPI_H)
     friend void ADTL_MPI_set_trade(adouble *buf, int count, size_t nd, double *trade);
     friend void ADTL_MPI_get_trade(adouble *buf, int count, size_t nd, double *trade);
@@ -264,6 +269,12 @@ int ADTL_get_sparse_jacobian(func_ad *const func,
 			      int n, int m, int repeat, double* basepoints, int *nnz,
 			      unsigned int **rind, unsigned int **cind,
 			      double **values);
+int ADTL_get_sparse_jacobian( int n, int m, int p, double** jac_values,
+                      unsigned int nnz, unsigned int **rind,
+                      unsigned int **cind, double **values) ;
+int ADTL_get_seed_matrix(int n, int m, unsigned int *nnz, int *p, unsigned int **pattern,
+                                    double **&seed);
+
 #if 0
 int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz,
 			      unsigned int *rind, unsigned int *cind,
