@@ -29,6 +29,7 @@
 namespace adtl {
 
 size_t adouble::numDir = 1;
+size_t adouble::maxNumDir = 1;
 enum Mode adouble::forward_mode = ADTL_FOV;
 
 size_t refcounter::refcnt = 0;

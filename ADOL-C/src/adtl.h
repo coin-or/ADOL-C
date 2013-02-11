@@ -43,6 +43,7 @@ class refcounter {
 private:
     static size_t refcnt;
     friend void setNumDir(const size_t p);
+    friend void setMaxNumDir(const size_t p);
     friend void setMode(enum Mode newmode);
     friend class adouble;
 public:
@@ -257,10 +258,12 @@ private:
     static size_t numDir;
     static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
+    inline friend void setMaxNumDir(const size_t p);
     inline friend void setMode(enum Mode newmode);
 };
 
 inline void setNumDir(const size_t p);
+inline void setMaxNumDir(const size_t p);
 inline void setMode(enum Mode newmode);
 
 int ADTL_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt);
@@ -325,13 +328,26 @@ inline bool adouble::_do_indo() {
 #define no_do_indo() likely(!adouble::_do_indo())
 
 inline void setNumDir(const size_t p) {
-    if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %z\n", refcounter::refcnt);
+    if (p > adouble::maxNumDir ) {
+	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You want to set more directional derivatives than allocated.\n");
+     abort();
     }
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
 	abort();
     }
+    adouble::numDir = p;
+}
+
+inline void setMaxNumDir(const size_t p) {
+    if (refcounter::refcnt > 0) {
+     fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting maxNumDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %z\n", refcounter::refcnt);
+    }
+    if (p < 1) {
+     fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
+     abort();
+    }
+    adouble::maxNumDir = p;
     adouble::numDir = p;
 }
 
@@ -358,7 +374,7 @@ inline double makeInf() {
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
-	adval = new double[adouble::numDir];
+	adval = new double[adouble::maxNumDir];
     if (do_indo()) {
      if (!pattern.empty())
           pattern.clear();
@@ -367,7 +383,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
 
 inline adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
-	adval = new double[adouble::numDir];
+	adval = new double[adouble::maxNumDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
@@ -379,7 +395,7 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
 
 inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
-	adval = new double[adouble::numDir];
+	adval = new double[adouble::maxNumDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
@@ -391,7 +407,7 @@ inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL)
 
 inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
-	adval = new double[adouble::numDir];
+	adval = new double[adouble::maxNumDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
@@ -1660,7 +1676,7 @@ inline double adouble::getADValue(const unsigned int p) const {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (p>=adouble::numDir) 
+    if (p>=adouble::maxNumDir)
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"getADValue(...)\"!!!\n");
@@ -1674,7 +1690,7 @@ inline void adouble::setADValue(const unsigned int p, const double v) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	exit(1);
     }
-    if (p>=adouble::numDir) 
+    if (p>=adouble::maxNumDir)
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"setADValue(...)\"!!!\n");
