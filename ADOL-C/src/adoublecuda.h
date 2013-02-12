@@ -1,3 +1,21 @@
+/* ---------------------------------------------------------------------------
+ ADOL-C -- Automatic Differentiation by Overloading in C++
+
+ Revision: $Id$
+ Contents: adoublecuda.h contains the class of adouble specifically
+           suited to be used within CUDA environment
+
+ Copyright (c) Alina Koniaeva, Andrea Walther
+
+ This file is part of ADOL-C. This software is provided as open source.
+ Any use, reproduction, or distribution of the software constitutes 
+ recipient's acceptance of the terms of the accompanying license file.
+ 
+---------------------------------------------------------------------------*/
+
+#if !defined(ADOLC_ADOUBLECUDA_H)
+#define ADOLC_ADOUBLECUDA_H 1
+
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -997,3 +1015,4 @@ while (c!=')' && !in.eof());
 /****************************************************************************/
 /* end traceless gpu implementation first order derivatives                      */
 /****************************************************************************/
+#endif

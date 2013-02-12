@@ -2,9 +2,9 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     liborgpu.cu
  Revision: $Id$
-Contents: example for differentiation of GPU parallel programs
+ Contents: example for differentiation of GPU parallel programs
 
- Copyright (c) Andrea Walther
+ Copyright (c) Andrea Walther, Alina Koniaeva
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 

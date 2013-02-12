@@ -5,7 +5,7 @@
  Contents: computation of coordinate transform, 
            cuda example described in the manual
 
- Copyright (c) Andrea Walther
+ Copyright (c) Andrea Walther, Alina Koniaeva
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
