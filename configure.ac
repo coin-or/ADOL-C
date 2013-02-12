@@ -464,6 +464,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/doc/version.tex
                 ADOL-C/examples/Makefile
                 ADOL-C/examples/additional_examples/Makefile
+                ADOL-C/examples/additional_examples/cuda/Makefile
                 ADOL-C/examples/additional_examples/clock/Makefile
                 ADOL-C/examples/additional_examples/checkpointing/Makefile
                 ADOL-C/examples/additional_examples/ext_diff_func/Makefile
