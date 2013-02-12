@@ -32,6 +32,7 @@ ADOL-C/examples/additional_examples/clock/Makefile.in -text
 ADOL-C/examples/additional_examples/clock/myclock.cpp -text
 ADOL-C/examples/additional_examples/clock/myclock.h -text
 ADOL-C/examples/additional_examples/cuda/Makefile.am -text
+ADOL-C/examples/additional_examples/cuda/Makefile.in -text
 ADOL-C/examples/additional_examples/cuda/liborgpu.cu -text
 ADOL-C/examples/additional_examples/cuda/traceless_cuda.cu -text
 ADOL-C/examples/additional_examples/detexam/Makefile.am -text
