@@ -256,6 +256,7 @@ private:
     inline static bool _do_adval();
     inline static bool _do_indo();
     static size_t numDir;
+    static size_t maxNumDir;
     static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
     inline friend void setMaxNumDir(const size_t p);
