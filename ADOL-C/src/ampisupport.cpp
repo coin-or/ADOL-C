@@ -40,7 +40,8 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
 			   int* endPoint, 
 			   int* tag,
 			   AMPI_PairedWith_E* pairedWith,
-			   MPI_Comm* comm) {
+			   MPI_Comm* comm,
+			   void **idx) {
   TAPE_AMPI_pop_MPI_Comm(comm);
   TAPE_AMPI_pop_int((int*)pairedWith);
   TAPE_AMPI_pop_int(tag);
@@ -99,7 +100,8 @@ void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 			&(ampiRequest->endPoint),
 			&(ampiRequest->tag),
 			&(ampiRequest->pairedWith),
-			&(ampiRequest->comm));
+			&(ampiRequest->comm),
+			&(ampiRequest->idx));
 }
 
 void ADTOOL_AMPI_push_request(MPI_Request request) { 
