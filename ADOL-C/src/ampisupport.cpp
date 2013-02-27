@@ -112,10 +112,12 @@ MPI_Request ADTOOL_AMPI_pop_request() {
   return r;
 }
 
-void * ADTOOL_AMPI_rawData(void* activeData) { 
+void * ADTOOL_AMPI_rawData(void* activeData, int *size) { 
   adouble* adouble_p=(adouble*)activeData; 
   return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
 }
+
+ void ADTOOL_AMPI_writeData(void* activeData,int *size) {}
 
 void * ADTOOL_AMPI_rawAdjointData(void* activeData) {
   return activeData;
@@ -171,7 +173,8 @@ void ADTOOL_AMPI_adjointIncrement(int adjointCount,
                                   void* target,
                                   void* adjointTarget,
                                   void* checkAdjointTarget,
-                                  void *source) {
+                                  void *source,
+				  void *idx) {
   for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]+=((revreal*)(source))[i];
 }
 
