@@ -10,13 +10,8 @@
 ## 
 ##############################################################################
 
-if SPARSE
-AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1 -std=gnu99
-AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-else
 AM_CFLAGS            = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
 AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
-endif
 
 AM_CPPFLAGS          = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 
