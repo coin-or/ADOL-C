@@ -308,6 +308,9 @@ if test x$have_colpack = xyes; then
    echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
+if test x$sparse = xyes ; then
+   AC_DEFINE(SPARSE,[1],[Define 1 if sparse derivative propagation is to be enabled])
+fi
 
 if test x$sparse = xyes && test x$have_colpack = xyes; then
 	AC_DEFINE(HAVE_LIBCOLPACK,[1],[Define 1 if ColPack is available])
