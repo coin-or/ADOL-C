@@ -365,10 +365,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-@SPARSE_FALSE@AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
-@SPARSE_TRUE@AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1 -std=gnu99
-@SPARSE_FALSE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
-@SPARSE_TRUE@AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
+AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
+AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 @SPARSE_FALSE@SUBDIRS = drivers tapedoc
 @SPARSE_TRUE@SUBDIRS = drivers sparse tapedoc
