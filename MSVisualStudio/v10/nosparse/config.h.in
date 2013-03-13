@@ -136,6 +136,9 @@
 /* The size of `void *', as computed by sizeof. */
 #define SIZEOF_VOID_P 4
 
+/* Define 1 if sparse derivative propagation is to be enabled */
+/* #undef SPARSE */
+
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
