@@ -16827,6 +16827,11 @@ else
   SPARSE_FALSE=
 fi
 
+if test x$sparse = xyes ; then
+
+$as_echo "#define SPARSE 1" >>confdefs.h
+
+fi
 
 if test x$sparse = xyes && test x$have_colpack = xyes; then
 
