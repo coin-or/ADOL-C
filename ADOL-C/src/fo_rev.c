@@ -354,7 +354,6 @@ int int_reverse_safe(
     void* buf;
     int count;
     MPI_Datatype datatype; 
-    enum AMPI_Activity_E isActive;
     int src; 
     int tag;
     enum AMPI_PairedWith_E pairedWith;
@@ -2257,7 +2256,6 @@ int int_reverse_safe(
               BW_AMPI_Send(buf,
                            count,
                            datatype,
-                           isActive,
                            src,
                            tag,
                            pairedWith,
@@ -2268,7 +2266,6 @@ int int_reverse_safe(
 	      BW_AMPI_Recv(buf,
 			   count,
 			   datatype,
-			   isActive,
 			   src,
 			   tag,
 			   pairedWith,
@@ -2280,7 +2277,6 @@ int int_reverse_safe(
 	    BW_AMPI_Isend(buf,
 			  count,
 			  datatype,
-			  isActive,
 			  src,
 			  tag,
 			  pairedWith,
@@ -2292,7 +2288,6 @@ int int_reverse_safe(
             BW_AMPI_Irecv(buf,
                           count,
                           datatype,
-                          isActive,
                           src,
                           tag,
                           pairedWith,

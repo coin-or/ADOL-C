@@ -189,13 +189,21 @@ void ADTOOL_AMPI_adjointNullify(int adjointCount,
   for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]=0.0;
 }
 
+AMPI_Activity ADTOOL_AMPI_isActiveType(MPI_Datatype datatype) {
+  if (datatype==AMPI_ADOUBLE || datatype==AMPI_AFLOAT) return AMPI_ACTIVE;
+  return AMPI_PASSIVE;
+};
+
+void ADTOOL_AMPI_setupTypes() {
+  AMPI_ADOUBLE=MPI_DOUBLE;
+  AMPI_AFLOAT=MPI_FLOAT;
+};
 
 // tracing 
 
 int AMPI_Send(void* buf,
               int count,
               MPI_Datatype datatype,
-              AMPI_Activity isActive,
               int src,
               int tag,
               AMPI_PairedWith pairedWith,
@@ -203,7 +211,6 @@ int AMPI_Send(void* buf,
   return FW_AMPI_Send(buf,
                       count,
                       datatype,
-                      isActive,
                       src,
                       tag,
                       pairedWith,
@@ -213,7 +220,6 @@ int AMPI_Send(void* buf,
 int AMPI_Recv(void* buf,
               int count,
               MPI_Datatype datatype,
-              AMPI_Activity isActive,
               int src,
               int tag,
               AMPI_PairedWith pairedWith,
@@ -222,7 +228,6 @@ int AMPI_Recv(void* buf,
   return FW_AMPI_Recv(buf,
                       count,
                       datatype,
-                      isActive,
                       src,
                       tag,
                       pairedWith,
@@ -233,7 +238,6 @@ int AMPI_Recv(void* buf,
 int AMPI_Isend (void* buf,
                 int count,
                 MPI_Datatype datatype,
-                AMPI_Activity isActive,
                 int dest,
                 int tag,
                 AMPI_PairedWith pairedWith,
@@ -242,7 +246,6 @@ int AMPI_Isend (void* buf,
   return FW_AMPI_Isend(buf,
                        count,
                        datatype,
-                       isActive,
                        dest,
                        tag,
                        pairedWith,
@@ -253,7 +256,6 @@ int AMPI_Isend (void* buf,
 int AMPI_Irecv (void* buf,
                 int count,
                 MPI_Datatype datatype,
-                AMPI_Activity isActive,
                 int src,
                 int tag,
                 AMPI_PairedWith pairedWith,
@@ -262,7 +264,6 @@ int AMPI_Irecv (void* buf,
   return FW_AMPI_Irecv(buf,
                        count,
                        datatype,
-                       isActive,
                        src,
                        tag,
                        pairedWith,
@@ -275,4 +276,5 @@ int AMPI_Wait(AMPI_Request *request,
   return FW_AMPI_Wait(request,
                       status);
 }
+
 
