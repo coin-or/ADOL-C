@@ -15,11 +15,13 @@ MAINTAINERCLEANFILES = Makefile.in *~
 if ADDEXA
 SUBDIRS              = clock hessmat lufact ode sparse tapesave timing \
                        detexam helm lighthouse scal speelpenning taylor pow \
-                       checkpointing ext_diff_func fixpoint_exam openmp_exam
+                       checkpointing ext_diff_func fixpoint_exam openmp_exam \
+                       cuda
 endif
 
 if PAREXA
 SUBDIRS              = clock hessmat lufact ode sparse tapesave timing \
                        detexam helm lighthouse scal speelpenning taylor pow \
-                       checkpointing ext_diff_func fixpoint_exam openmp_exam
+                       checkpointing ext_diff_func fixpoint_exam openmp_exam \
+                       cuda
 endif

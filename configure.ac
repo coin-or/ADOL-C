@@ -8,7 +8,7 @@
 #
 ##############################################################################
 define([ADOLC_VER], [2])
-define([ADOLC_SUB], [3])
+define([ADOLC_SUB], [4])
 define([ADOLC_LVL], [0])
 
 AC_PREREQ(2.67)
@@ -144,10 +144,10 @@ AC_SUBST(ATRIG_ERF_TRUE)
 
 AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
 AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
-  [enable 64-bit locations [default=32-bit]])],
+  [enable 64-bit locations (only available on 64-bit systems) [default=32-bit]])],
   [use_ulong=$enableval],[use_ulong=no])
 
-if test x$use_ulong = xyes ; then
+if test x$use_ulong = xyes -a 0$ac_cv_sizeof_void_p -ge 8 ; then
   UINT_TYPE=uint64_t
   AC_MSG_RESULT(64-bit)
 else
@@ -158,16 +158,17 @@ AC_SUBST(UINT_TYPE)
 
 AC_MSG_CHECKING(whether to use single or double precision)
 AC_ARG_ENABLE(double,[AS_HELP_STRING([--disable-double],
-  [disable double precision arithmetic [default=no]])],
-  [use_float=$enableval],[use_float=no])
+  [disable double precision arithmetic [untested, default=double is enabled]])],
+  [use_double=$enableval],[use_double=yes])
 
-if test x$use_float = xyes ; then
+if test x$use_double = xno ; then
   REAL_TYPE=float
-  AC_MSG_RESULT(float)
+  echo
+  echo -n "using ${REAL_TYPE} is not well tested, please report bugs if you find any..."
 else
   REAL_TYPE=double
-  AC_MSG_RESULT(double)
 fi
+AC_MSG_RESULT($REAL_TYPE)
 AC_SUBST(REAL_TYPE)
 
 AC_MSG_CHECKING(whether to enable advanced branching operations)
@@ -300,15 +301,14 @@ save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
 LIBS="$COLPACK_LIBS $LIBS"
-AC_MSG_CHECKING(for ColPack in $COLPACK_LIBDIR)
 AC_CHECK_HEADER([ColPack/ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
 if test x$have_colpackheaders = xyes ; then
+   AC_MSG_CHECKING(for libColPack in $COLPACK_LIBDIR)
    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPack/ColPackHeaders.h>],
 			[ColPack::GraphColoring g])],
-                       [have_colpack=yes
-                        AC_MSG_RESULT(linking with -lColPack succeeded)],
-                       [have_colpack=no,
-                        AC_MSG_RESULT(linking with -lColPack failed)])
+                       [have_colpack=yes],
+                       [have_colpack=no])
+   AC_MSG_RESULT($have_colpack)
 else
     have_colpack=no
 fi
@@ -322,6 +322,9 @@ if test x$have_colpack = xyes; then
    echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
+if test x$sparse = xyes ; then
+   AC_DEFINE(SPARSE,[1],[Define 1 if sparse derivative propagation is to be enabled])
+fi
 
 if test x$sparse = xyes && test x$have_colpack = xyes; then
 	AC_DEFINE(HAVE_LIBCOLPACK,[1],[Define 1 if ColPack is available])
@@ -490,6 +493,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/doc/version.tex
                 ADOL-C/examples/Makefile
                 ADOL-C/examples/additional_examples/Makefile
+                ADOL-C/examples/additional_examples/cuda/Makefile
                 ADOL-C/examples/additional_examples/clock/Makefile
                 ADOL-C/examples/additional_examples/checkpointing/Makefile
                 ADOL-C/examples/additional_examples/ext_diff_func/Makefile
