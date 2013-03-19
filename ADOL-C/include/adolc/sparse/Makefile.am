@@ -13,3 +13,7 @@
 libsparseincludedir      = $(pkgincludedir)/sparse
 
 libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h 
+
+if HAVE_MPI
+libsparseinclude_HEADERS += sparsedrivers_mpi.h
+endif

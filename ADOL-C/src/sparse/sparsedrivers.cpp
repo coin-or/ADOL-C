@@ -3,9 +3,9 @@
  File:     sparse/sparsedrivers.cpp
  Revision: $Id$
  Contents: "Easy To Use" C++ interfaces of SPARSE package
- 
- Copyright (c) Andrea Walther
-  
+
+ Copyright (c) Andrea Walther, Benjamin Letschert
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.  
@@ -1119,4 +1119,3 @@ END_C_DECLS
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */
-

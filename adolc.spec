@@ -2,7 +2,7 @@
 
 # norootforbuild
 
-%define packver 2.4.0-trunk
+%define packver 2.4.0-trunk-mpi
 
 Name:           adolc
 Version:        2.4.0

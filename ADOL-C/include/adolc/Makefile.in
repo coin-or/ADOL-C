@@ -53,12 +53,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@SPARSE_TRUE@am__append_1 = sparse
+@HAVE_MPI_TRUE@am__append_1 = adolc_mpi.h interfaces_mpi.h
+@SPARSE_TRUE@am__append_2 = sparse
 subdir = ADOL-C/include/adolc
-DIST_COMMON = $(pkginclude_HEADERS) $(srcdir)/Makefile.am \
+DIST_COMMON = $(am__pkginclude_HEADERS_DIST) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/adolc_settings.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/autoconf/ax_mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -85,6 +87,11 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__pkginclude_HEADERS_DIST = adolc.h adalloc.h adouble.h adutils.h \
+	adutilsc.h common.h convolut.h dvlparms.h fortutils.h \
+	interfaces.h taping.h usrparms.h externfcts.h checkpointing.h \
+	fixpoint.h adolc_sparse.h adolc_openmp.h revolve.h advector.h \
+	adolc_settings.h adoublecuda.h adolc_mpi.h interfaces_mpi.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -204,6 +211,10 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+MPICC = @MPICC@
+MPICXX = @MPICXX@
+MPICXXEXTRALDFLAGS = @MPICXXEXTRALDFLAGS@
+MPILIBS = @MPILIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -284,14 +295,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
-                       common.h convolut.h dvlparms.h fortutils.h\
-                       interfaces.h taping.h usrparms.h \
-                       externfcts.h checkpointing.h fixpoint.h\
-                       adolc_sparse.h adolc_openmp.h \
-                       revolve.h advector.h adolc_settings.h \
-                       adoublecuda.h
-
-SUBDIRS = drivers tapedoc $(am__append_1)
+	common.h convolut.h dvlparms.h fortutils.h interfaces.h \
+	taping.h usrparms.h externfcts.h checkpointing.h fixpoint.h \
+	adolc_sparse.h adolc_openmp.h revolve.h advector.h \
+	adolc_settings.h adoublecuda.h $(am__append_1)
+SUBDIRS = drivers tapedoc $(am__append_2)
 EXTRA_DIST = adolc_settings.h.in
 all: all-recursive
 

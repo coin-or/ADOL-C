@@ -6,7 +6,7 @@
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Kshitij Kulshreshtha
+               Kshitij Kulshreshtha, Benjamin Letschert
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -82,6 +82,12 @@ enum OPCODES {
   floor_op,
   ext_diff,
   ignore_me,
+  send_data=61,
+  receive_data,
+  barrier_op,
+  broadcast,
+  gather,
+  scatter,
   subscript = 80,
   subscript_ref,
   ref_assign_d_zero,
