@@ -21,7 +21,6 @@ ADOL-C/examples/Makefile.am -text
 ADOL-C/examples/Makefile.in -text
 ADOL-C/examples/README -text
 ADOL-C/examples/Readme_VC++.txt -text
-ADOL-C/examples/additional_examples/Makefile -text
 ADOL-C/examples/additional_examples/Makefile.am -text
 ADOL-C/examples/additional_examples/Makefile.in -text
 ADOL-C/examples/additional_examples/checkpointing/Makefile.am -text
