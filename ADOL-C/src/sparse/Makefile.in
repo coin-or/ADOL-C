@@ -53,11 +53,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = ADOL-C/src/sparse
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/autoconf/depcomp
+	$(top_srcdir)/autoconf/depcomp \
+	$(top_srcdir)/autoconf/rules_mpi.in
+@HAVE_MPI_TRUE@am__append_1 = libsparse_mpi.la
+subdir = ADOL-C/src/sparse
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/autoconf/ax_mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -71,6 +74,11 @@ libsparse_la_OBJECTS = $(am_libsparse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
+libsparse_mpi_la_LIBADD =
+am__libsparse_mpi_la_SOURCES_DIST = sparsedrivers_mpi.cpp
+@HAVE_MPI_TRUE@am_libsparse_mpi_la_OBJECTS = sparsedrivers_mpi.lo
+libsparse_mpi_la_OBJECTS = $(am_libsparse_mpi_la_OBJECTS)
+@HAVE_MPI_TRUE@am_libsparse_mpi_la_rpath =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/ADOL-C/src
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -97,8 +105,9 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(libsparse_la_SOURCES)
-DIST_SOURCES = $(libsparse_la_SOURCES)
+SOURCES = $(libsparse_la_SOURCES) $(libsparse_mpi_la_SOURCES)
+DIST_SOURCES = $(libsparse_la_SOURCES) \
+	$(am__libsparse_mpi_la_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -163,6 +172,10 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+MPICC = @MPICC@
+MPICXX = @MPICXX@
+MPICXXEXTRALDFLAGS = @MPICXXEXTRALDFLAGS@
+MPILIBS = @MPILIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -246,13 +259,30 @@ AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src  @COLPACK_CFLAGS@
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
-noinst_LTLIBRARIES = libsparse.la
+noinst_LTLIBRARIES = libsparse.la $(am__append_1)
 libsparse_la_SOURCES = sparse_fo_rev.cpp sparsedrivers.cpp
+@HAVE_MPI_TRUE@AM_V_MPICC = $(am__v_MPICC_$(V))
+@HAVE_MPI_TRUE@am__v_MPICC_ = $(am__v_MPICC_$(AM_DEFAULT_VERBOSITY))
+@HAVE_MPI_TRUE@am__v_MPICC_0 = @echo "  MPICC " $@;
+@HAVE_MPI_TRUE@AM_V_MPICXX = $(am__v_MPICXX_$(V))
+@HAVE_MPI_TRUE@am__v_MPICXX_ = $(am__v_MPICXX_$(AM_DEFAULT_VERBOSITY))
+@HAVE_MPI_TRUE@am__v_MPICXX_0 = @echo "  MPICXX" $@;
+@HAVE_MPI_TRUE@MPICOMPILE = $(MPICC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+@HAVE_MPI_TRUE@        $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+
+@HAVE_MPI_TRUE@MPICXXLD = $(MPICXX)
+@HAVE_MPI_TRUE@MPICXXCOMPILE = $(MPICXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+@HAVE_MPI_TRUE@        $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+
+@HAVE_MPI_TRUE@LTMPICOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICOMPILE)
+@HAVE_MPI_TRUE@LTMPICXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICXXCOMPILE)
+@HAVE_MPI_TRUE@SUFFIXES = _mpi.cpp _mpi.c _mpi.o _mpi.lo _mpi.obj
+@HAVE_MPI_TRUE@libsparse_mpi_la_SOURCES = sparsedrivers_mpi.cpp
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .lo .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+.SUFFIXES: _mpi.cpp _mpi.c _mpi.o _mpi.lo _mpi.obj .cpp .lo .o .obj
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/autoconf/rules_mpi.in $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -273,6 +303,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
+$(top_srcdir)/autoconf/rules_mpi.in:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
@@ -295,6 +326,8 @@ clean-noinstLTLIBRARIES:
 	}
 libsparse.la: $(libsparse_la_OBJECTS) $(libsparse_la_DEPENDENCIES) $(EXTRA_libsparse_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK)  $(libsparse_la_OBJECTS) $(libsparse_la_LIBADD) $(LIBS)
+libsparse_mpi.la: $(libsparse_mpi_la_OBJECTS) $(libsparse_mpi_la_DEPENDENCIES) $(EXTRA_libsparse_mpi_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK) $(am_libsparse_mpi_la_rpath) $(libsparse_mpi_la_OBJECTS) $(libsparse_mpi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -304,6 +337,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparse_fo_rev.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparsedrivers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparsedrivers_mpi.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -550,6 +584,54 @@ uninstall-am:
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am
 
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.o:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.lo:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(LTMPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(LTMPICOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.obj:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.o:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.lo:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(LTMPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(LTMPICXXCOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.obj:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

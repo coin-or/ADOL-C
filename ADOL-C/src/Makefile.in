@@ -54,11 +54,15 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @SPARSE_TRUE@am__append_1 = @COLPACK_LIBS@
-subdir = ADOL-C/src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/config.h.in $(top_srcdir)/autoconf/depcomp
+	$(srcdir)/config.h.in $(top_srcdir)/autoconf/depcomp \
+	$(top_srcdir)/autoconf/rules_mpi.in
+@HAVE_MPI_TRUE@am__append_2 = libadolc_mpi.la
+@HAVE_MPI_TRUE@@SPARSE_TRUE@am__append_3 = sparse/libsparse_mpi.la
+subdir = ADOL-C/src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/autoconf/ax_mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -140,6 +144,34 @@ am__v_lt_0 = --silent
 libadolc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(libadolc_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_MPI_TRUE@libadolc_mpi_la_DEPENDENCIES = libadolc.la \
+@HAVE_MPI_TRUE@	$(am__append_3)
+am__libadolc_mpi_la_SOURCES_DIST = adolc_mpi.cpp interfaces_mpi.cpp \
+	zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+	hos_forward_mpi.c hov_forward_mpi.c fos_reverse_mpi.c \
+	fov_reverse_mpi.c hos_reverse_mpi.c hov_reverse_mpi.c \
+	int_forward_s_mpi.c int_forward_t_mpi.c \
+	indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
+	nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
+	int_reverse_s_mpi.c int_reverse_t_mpi.c
+@HAVE_MPI_TRUE@am_libadolc_mpi_la_OBJECTS = adolc_mpi.lo \
+@HAVE_MPI_TRUE@	interfaces_mpi.lo zos_forward_mpi.lo \
+@HAVE_MPI_TRUE@	fos_forward_mpi.lo fov_forward_mpi.lo \
+@HAVE_MPI_TRUE@	hos_forward_mpi.lo hov_forward_mpi.lo \
+@HAVE_MPI_TRUE@	fos_reverse_mpi.lo fov_reverse_mpi.lo \
+@HAVE_MPI_TRUE@	hos_reverse_mpi.lo hov_reverse_mpi.lo \
+@HAVE_MPI_TRUE@	int_forward_s_mpi.lo int_forward_t_mpi.lo \
+@HAVE_MPI_TRUE@	indopro_forward_s_mpi.lo \
+@HAVE_MPI_TRUE@	indopro_forward_t_mpi.lo \
+@HAVE_MPI_TRUE@	nonl_ind_forward_s_mpi.lo \
+@HAVE_MPI_TRUE@	nonl_ind_forward_t_mpi.lo int_reverse_s_mpi.lo \
+@HAVE_MPI_TRUE@	int_reverse_t_mpi.lo
+libadolc_mpi_la_OBJECTS = $(am_libadolc_mpi_la_OBJECTS)
+libadolc_mpi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libadolc_mpi_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@HAVE_MPI_TRUE@am_libadolc_mpi_la_rpath = -rpath $(libdir)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -182,8 +214,9 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(libadolc_la_SOURCES)
-DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST)
+SOURCES = $(libadolc_la_SOURCES) $(libadolc_mpi_la_SOURCES)
+DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST) \
+	$(am__libadolc_mpi_la_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -286,6 +319,10 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+MPICC = @MPICC@
+MPICXX = @MPICXX@
+MPICXXEXTRALDFLAGS = @MPICXXEXTRALDFLAGS@
+MPILIBS = @MPILIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -375,7 +412,7 @@ EXTRA_DIST = uni5_for.c fo_rev.c ho_rev.c \
                        oplate.h taping_p.h malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h 
 
-lib_LTLIBRARIES = libadolc.la
+lib_LTLIBRARIES = libadolc.la $(am__append_2)
 libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
 	$(am__append_1)
 @SPARSE_FALSE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
@@ -411,12 +448,40 @@ libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
 @SPARSE_TRUE@libadolc_la_LIBADD = drivers/libdrivers.la sparse/libsparse.la \
 @SPARSE_TRUE@                       tapedoc/libtapedoc.la
 
+@HAVE_MPI_TRUE@AM_V_MPICC = $(am__v_MPICC_$(V))
+@HAVE_MPI_TRUE@am__v_MPICC_ = $(am__v_MPICC_$(AM_DEFAULT_VERBOSITY))
+@HAVE_MPI_TRUE@am__v_MPICC_0 = @echo "  MPICC " $@;
+@HAVE_MPI_TRUE@AM_V_MPICXX = $(am__v_MPICXX_$(V))
+@HAVE_MPI_TRUE@am__v_MPICXX_ = $(am__v_MPICXX_$(AM_DEFAULT_VERBOSITY))
+@HAVE_MPI_TRUE@am__v_MPICXX_0 = @echo "  MPICXX" $@;
+@HAVE_MPI_TRUE@MPICOMPILE = $(MPICC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+@HAVE_MPI_TRUE@        $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+
+@HAVE_MPI_TRUE@MPICXXLD = $(MPICXX)
+@HAVE_MPI_TRUE@MPICXXCOMPILE = $(MPICXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+@HAVE_MPI_TRUE@        $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+
+@HAVE_MPI_TRUE@LTMPICOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICOMPILE)
+@HAVE_MPI_TRUE@LTMPICXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(MPICXXCOMPILE)
+@HAVE_MPI_TRUE@SUFFIXES = _mpi.cpp _mpi.c _mpi.o _mpi.lo _mpi.obj
+@HAVE_MPI_TRUE@libadolc_mpi_la_SOURCES = adolc_mpi.cpp interfaces_mpi.cpp \
+@HAVE_MPI_TRUE@                           zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+@HAVE_MPI_TRUE@                           hos_forward_mpi.c hov_forward_mpi.c \
+@HAVE_MPI_TRUE@                           fos_reverse_mpi.c fov_reverse_mpi.c \
+@HAVE_MPI_TRUE@                           hos_reverse_mpi.c hov_reverse_mpi.c \
+@HAVE_MPI_TRUE@                           int_forward_s_mpi.c int_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
+@HAVE_MPI_TRUE@                           int_reverse_s_mpi.c int_reverse_t_mpi.c
+
+@HAVE_MPI_TRUE@libadolc_mpi_la_LIBADD = libadolc.la $(am__append_3)
+@HAVE_MPI_TRUE@libadolc_mpi_la_LDFLAGS = ${MPICXXEXTRALDFLAGS}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+.SUFFIXES: _mpi.cpp _mpi.c _mpi.o _mpi.lo _mpi.obj .c .cpp .lo .o .obj
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/autoconf/rules_mpi.in $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -437,6 +502,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
+$(top_srcdir)/autoconf/rules_mpi.in:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
@@ -497,6 +563,8 @@ clean-libLTLIBRARIES:
 	}
 libadolc.la: $(libadolc_la_OBJECTS) $(libadolc_la_DEPENDENCIES) $(EXTRA_libadolc_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(libadolc_la_LINK) -rpath $(libdir) $(libadolc_la_OBJECTS) $(libadolc_la_LIBADD) $(LIBS)
+libadolc_mpi.la: $(libadolc_mpi_la_OBJECTS) $(libadolc_mpi_la_DEPENDENCIES) $(EXTRA_libadolc_mpi_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libadolc_mpi_la_LINK) $(am_libadolc_mpi_la_rpath) $(libadolc_mpi_la_OBJECTS) $(libadolc_mpi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -505,6 +573,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adalloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adolc_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adouble.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/advector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checkpointing.Plo@am__quote@
@@ -514,33 +583,51 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fortutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/forward_partx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_offset_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_ov_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_forward_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_reverse_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_wk_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfacesf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t_mpi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tape_handling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taping.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward_mpi.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -929,6 +1016,54 @@ uninstall-am: uninstall-libLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
 	uninstall-libLTLIBRARIES
 
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.o:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.lo:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(LTMPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(LTMPICOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.c_mpi.obj:
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_MPICC)$(MPICOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@HAVE_MPI_TRUE@@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(AM_V_MPICC) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCC_FALSE@	$(MPICOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.o:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.lo:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(LTMPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ $<
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Plo
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(LTMPICXXCOMPILE) -c -o $@ $<
+
+@HAVE_MPI_TRUE@_mpi.cpp_mpi.obj:
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_MPICXX)$(MPICXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*_mpi.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@HAVE_MPI_TRUE@@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*_mpi.Tpo $(DEPDIR)/$*_mpi.Po
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_MPICXX) @AM_BACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@HAVE_MPI_TRUE@@am__fastdepCXX_FALSE@	$(MPICXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

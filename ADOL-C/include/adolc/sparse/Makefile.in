@@ -53,11 +53,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@HAVE_MPI_TRUE@am__append_1 = sparsedrivers_mpi.h
 subdir = ADOL-C/include/adolc/sparse
-DIST_COMMON = $(libsparseinclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(am__libsparseinclude_HEADERS_DIST) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/autoconf/ax_mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -77,6 +79,8 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__libsparseinclude_HEADERS_DIST = sparsedrivers.h sparse_fo_rev.h \
+	sparsedrivers_mpi.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -165,6 +169,10 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
+MPICC = @MPICC@
+MPICXX = @MPICXX@
+MPICXXEXTRALDFLAGS = @MPICXXEXTRALDFLAGS@
+MPILIBS = @MPILIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -245,7 +253,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 libsparseincludedir = $(pkgincludedir)/sparse
-libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h 
+libsparseinclude_HEADERS = sparsedrivers.h sparse_fo_rev.h \
+	$(am__append_1)
 all: all-am
 
 .SUFFIXES:

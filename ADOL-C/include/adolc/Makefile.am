@@ -17,6 +17,9 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        adolc_sparse.h adolc_openmp.h \
                        revolve.h advector.h adolc_settings.h \
                        adoublecuda.h
+if HAVE_MPI
+pkginclude_HEADERS += adolc_mpi.h interfaces_mpi.h
+endif
 
 SUBDIRS = drivers tapedoc
 

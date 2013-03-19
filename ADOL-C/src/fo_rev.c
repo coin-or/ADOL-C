@@ -17,8 +17,8 @@
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Kshitij Kulshreshtha
-
+               Kshitij Kulshreshtha, Benjamin Letschert
+  
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -63,14 +63,22 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _FOS_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fos_reverse_mpi"
+#else
 #define GENERATED_FILENAME "fos_reverse"
+#endif
 
 #define RESULTS(l,indexi)  results[indexi]
 #define LAGRANGE(l,indexd) lagrange[indexd]
 
 /*--------------------------------------------------------------------------*/
 #elif _FOV_
+#if defined(_MPI_)
+#define GENERATED_FILENAME "fov_reverse_mpi"
+#else
 #define GENERATED_FILENAME "fov_reverse"
+#endif
 
 #define _ADOLC_VECTOR_
 
@@ -80,10 +88,18 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #else
 #if defined(_INT_REV_)
 #if defined(_TIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_reverse_t_mpi"
+#else
 #define GENERATED_FILENAME "int_reverse_t"
 #endif
+#endif
 #if defined(_NTIGHT_)
+#if defined(_MPI_)
+#define GENERATED_FILENAME "int_reverse_s_mpi"
+#else
 #define GENERATED_FILENAME "int_reverse_s"
+#endif
 #endif
 #define RESULTS(l,indexi)  results[l][indexi]
 #define LAGRANGE(l,indexd) lagrange[l][indexd]
@@ -191,10 +207,15 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/adalloc.h>
 #include "oplate.h"
 #include "taping_p.h"
-#include <adolc/externfcts.h>
-#include "externfcts_p.h"
 
 #include <math.h>
+
+#if defined(_MPI_)
+#include <adolc/adolc_mpi.h>
+#endif
+
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 
 BEGIN_C_DECLS
 
@@ -205,7 +226,12 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* First-Order Scalar Reverse Pass.                                         */
 /****************************************************************************/
-int fos_reverse(short   tnum,       /* tape id */
+#if defined(_MPI_)
+int fos_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int fos_reverse(
+#endif
+                short   tnum,       /* tape id */
                 int     depen,      /* consistency chk on # of deps */
                 int     indep,      /* consistency chk on # of indeps */
                 double  *lagrange,
@@ -216,8 +242,12 @@ int fos_reverse(short   tnum,       /* tape id */
 /****************************************************************************/
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
-
-int fov_reverse(short   tnum,        /* tape id */
+#if defined(_MPI_)
+int fov_reverse_mpi( int mpi_id, int mpi_size,
+#else
+int fov_reverse(
+#endif
+                short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
                 int     nrows,       /* # of Jacobian rows being calculated */
@@ -230,7 +260,11 @@ int fov_reverse(short   tnum,        /* tape id */
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_reverse_tight_mpi( int mpi_id, int mpi_size,
+#else
 int int_reverse_tight(
+#endif
         short             tnum,  /* tape id                               */
         int               depen, /* consistency chk on # of deps          */
         int               indep, /* consistency chk on # of indeps        */
@@ -243,7 +277,11 @@ int int_reverse_tight(
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
+#if defined(_MPI_)
+int int_reverse_safe_mpi( int mpi_id, int mpi_size,
+#else
 int int_reverse_safe(
+#endif
         short             tnum,  /* tape id                               */
         int               depen, /* consistency chk on # of deps          */
         int               indep, /* consistency chk on # of indeps        */
@@ -265,6 +303,11 @@ int int_reverse_safe(
     locint arg  = 0;
     locint arg1 = 0;
     locint arg2 = 0;
+
+#if defined(_MPI_)
+     short this_tnum = mpi_size*tnum + mpi_id;
+#endif
+
 
 #if !defined (_NTIGHT_)
     double coval = 0, *d = 0;
@@ -355,11 +398,26 @@ int int_reverse_safe(
     /****************************************************************************/
     /*                                                           DEBUG MESSAGES */
     fprintf(DIAG_OUT,"Call of %s(..) with tag: %d, n: %d, m %d,\n",
-            GENERATED_FILENAME, tnum, indep, depen);
+            GENERATED_FILENAME,
+#if defined(_MPI_)
+this_tnum,
+#else
+ tnum,
+#endif
+           indep, depen);
 #ifdef _ADOLC_VECTOR_
     fprintf(DIAG_OUT,"                    p: %d\n\n",nrows);
 #endif
 
+#endif
+
+#if defined(_MPI_)
+	MPI_Status status_MPI;
+	int mpi_i,mpi_ii, myid, root, count, count2;
+     locint *loc_recv, *loc_send;
+     double *trade, *rec_buf;
+     unsigned long int *trade_ulong, *rec_ulong;
+     int target, tag;
 #endif
 
     /****************************************************************************/
@@ -369,7 +427,11 @@ int int_reverse_safe(
     /* Set up stuff for the tape */
 
     /* Initialize the Reverse Sweep */
+#ifdef _MPI_
+    init_rev_sweep(this_tnum);
+#else
     init_rev_sweep(tnum);
+#endif
 
     failAdditionalInfo3 = depen;
     failAdditionalInfo4 = indep;
@@ -453,8 +515,11 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
     ADOLC_CURRENT_TAPE_INFOS.rp_T = rp_T;
-
+#if defined(_MPI_)
+    taylor_back(this_tnum, &numdep, &numind, &taycheck);
+#else
     taylor_back(tnum, &numdep, &numind, &taycheck);
+#endif
 
     if (taycheck < 0) {
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
@@ -917,7 +982,7 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p
-                { 
+                {
 #if defined(_INT_REV_)
                   AARG2_INC |= ARES;
                   AARG1_INC |= ARES_INC;
@@ -2237,6 +2302,520 @@ int int_reverse_safe(
                 break;
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/
+#if defined(_MPI_)
+            case send_data:	// MPI-Send-Befehl
+                tag = get_locint_r(); // tag
+                target = get_locint_r(); // source
+                count = get_locint_r(); // count
+                loc_recv = (locint*) malloc(count*sizeof(locint));
+                for(mpi_i=0;mpi_i<count;mpi_i++)
+                     loc_recv[count -1-mpi_i] = get_locint_r();
+                count2 = get_locint_r();
+
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+                trade = myalloc1(count*(p+1));
+                MPI_Recv( trade , count*(p+1), MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   rp_T[loc_recv[mpi_i]] = trade[mpi_ii];
+                   mpi_ii++;
+                   for(l=0; l<p;l++,mpi_ii++)
+                      upp_A[loc_recv[mpi_i]][l] += (unsigned long int) trade[mpi_ii];
+                }
+                free(trade);
+#else
+                trade_ulong = (unsigned long int*) malloc(count*p*sizeof(unsigned long int));
+                MPI_Recv( trade_ulong , count*p, MPI_UNSIGNED_LONG , target, tag , MPI_COMM_WORLD, &status_MPI);
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   for(l=0; l<p;l++,mpi_ii++)
+                      upp_A[loc_recv[mpi_i]][l] += trade[mpi_ii];
+                }
+                free(trade_ulong);
+#endif
+#endif
+#if defined(_FOS_)
+                trade = myalloc1(count*2);
+                MPI_Recv( trade , count*2, MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
+
+                for (mpi_i=0; mpi_i < count; mpi_i++) {
+                    rp_T[loc_recv[mpi_i]] = trade[2*mpi_i ];
+                    rp_A[loc_recv[mpi_i]]+= trade[2*mpi_i+1];
+                }
+                free(trade);
+#endif
+#if defined(_FOV_)
+                trade = myalloc1(count*(p+1));
+                MPI_Recv( trade ,(p+1)*count, MPI_DOUBLE , target, tag , MPI_COMM_WORLD, &status_MPI);
+
+                mpi_ii = 0;
+                for( mpi_i=0; mpi_i < count ; mpi_i++ ){
+                   rp_T[loc_recv[mpi_i]] = trade[mpi_ii];
+                   mpi_ii++;
+                   for(l=0;l<p;l++,mpi_ii++)
+                        rpp_A[loc_recv[mpi_i]][l] += trade[mpi_ii];
+                }
+                free(trade);
+#endif
+                free(loc_recv);
+	           break;
+                /*--------------------------------------------------------------------------*/
+            case receive_data:     // MPI-Send
+                tag = get_locint_r(); // tag
+                target = get_locint_r(); // dest
+                count = get_locint_r(); // count
+                loc_recv = (locint*) malloc(count*sizeof(locint));
+                for(mpi_i=0;mpi_i<count;mpi_i++)
+                    loc_recv[count -1-mpi_i] = get_locint_r();
+                count2 = get_locint_r(); // count
+
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+                trade = myalloc1(count*(p+1));
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   trade[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                   mpi_ii++;
+                   for(l=0; l<p;l++,mpi_ii++)
+                      trade[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
+                   for(l=0; l<p;l++)
+                      upp_A[loc_recv[mpi_i]][l] = 0;
+                }
+                for(mpi_i=0; mpi_i<count; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count -1-mpi_i])
+                MPI_Send(trade,(p+1)*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
+                free(trade);
+#else
+                trade_ulong = (unsigned long int*) malloc(count*p*sizeof(unsigned long int));
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   for(l=0; l<p;l++,mpi_ii++){
+                      trade_ulong[mpi_ii] =  upp_A[loc_recv[mpi_i]][l];
+                      upp_A[loc_recv[mpi_i]][l] = 0;
+                   }
+                }
+                MPI_Send(trade_ulong,p*count,MPI_UNSIGNED_LONG,target,tag,MPI_COMM_WORLD);
+                free(trade_ulong);
+#endif
+#endif
+#if defined(_FOS_)
+                trade = myalloc1(count*2);
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   trade[2*mpi_i] = rp_T[loc_recv[mpi_i]];
+                   trade[2*mpi_i+1] = rp_A[loc_recv[mpi_i]];
+                   rp_A[loc_recv[mpi_i]] = 0.;
+                }
+                for(mpi_i=0; mpi_i<count; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count-1-mpi_i]);
+                MPI_Send(trade,2*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
+                free(trade);
+#endif
+#if defined(_FOV_)
+                trade = myalloc1(count*(p+1));
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i<count; mpi_i++){
+                   trade[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                   mpi_ii++;
+                   for(l=0; l<p;l++,mpi_ii++){
+                      trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
+                      rpp_A[loc_recv[mpi_i]][l] = 0.;
+                   }
+                 }
+                 for(mpi_i=0; mpi_i<count;mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count-1-mpi_i]);
+                MPI_Send(trade,(p+1)*count,MPI_DOUBLE,target,tag,MPI_COMM_WORLD);
+                free(trade);
+#endif
+                free(loc_recv);
+                break;
+                /*--------------------------------------------------------------------------*/
+            case barrier_op:
+                MPI_Barrier(MPI_COMM_WORLD);
+                break;
+                /*--------------------------------------------------------------------------*/
+            case broadcast:
+                myid = get_locint_r(); // process id
+                root = get_locint_r(); // root
+                count = get_locint_r(); // count
+                loc_recv = (locint*) malloc(count*sizeof(locint));
+                for(mpi_i=0;mpi_i<count;mpi_i++)
+                   loc_recv[count -1-mpi_i] = get_locint_r(); // Recv Buffer
+                count2 = get_locint_r(); // count
+                count2 *= mpi_size;
+
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+                trade = myalloc1(count*(p+1));
+                rec_buf = NULL;
+                if (myid == root)
+                   rec_buf = myalloc1(count2*(p+1));
+
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i < count; mpi_i++) {
+                   trade[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                   mpi_ii++;
+                   for(l=0; l<p;l++,mpi_ii++){
+                       trade[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
+                      upp_A[loc_recv[mpi_i]][l] = 0;
+                   }
+                }
+                for(mpi_i=0; mpi_i < count; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count-1-mpi_i])
+                MPI_Gather( trade, count*(p+1), MPI_DOUBLE, rec_buf ,count*(p+1), MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(trade);
+                if (myid == root){
+                   mpi_ii=0;
+                   for(arg=0; arg< mpi_size; arg++)
+                      for (mpi_i=0; mpi_i < count; mpi_i++) {
+                       rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
+                       mpi_ii++;
+                       for(l=0; l<p;l++,mpi_ii++)
+                          upp_A[loc_recv[mpi_i]][l] += (unsigned long int) trade[mpi_ii];
+                   }
+                   free(rec_buf);
+                }
+#else
+                trade_ulong = (unsigned long int*) malloc(count*p*sizeof(unsigned long int));
+                if (myid == root)
+                   rec_ulong = (unsigned long int*) malloc(count2*p*sizeof(unsigned long int));
+                else
+                   rec_ulong = NULL;
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i < count; mpi_i++) {
+                   for(l=0;l<p;l++,mpi_ii++){
+                       trade_ulong[mpi_ii] = upp_A[loc_recv[mpi_i]][l];
+                       upp_A[loc_recv[mpi_i]][l]=0;
+                    }
+                }
+                MPI_Reduce( trade_ulong , rec_ulong ,p*count, MPI_DOUBLE , MPI_SUM , root, MPI_COMM_WORLD);
+                if (myid == root){
+                   mpi_ii=0;
+                   for(mpi_i=0; mpi_i < count; mpi_i++) {
+                      for(l=0;l<p;l++,mpi_ii++)
+                         upp_A[loc_recv[mpi_i]][l] += rec_ulong[mpi_ii];
+                   }
+                   free(rec_ulong);
+                }
+                free(trade_ulong);
+#endif
+#endif
+#if defined(_FOS_)
+                trade = myalloc1(count*2);
+                if (myid == root)
+                   rec_buf = myalloc1(count2*2);
+                else
+                   rec_buf = NULL;
+                for (mpi_i=0; mpi_i < count; mpi_i++) {
+                    trade[2*mpi_i] = rp_T[loc_recv[mpi_i]];
+                    trade[2*mpi_i+1] = rp_A[loc_recv[mpi_i]];
+                    rp_A[loc_recv[mpi_i]]=0.;
+                }
+                for (mpi_i=0; mpi_i < count; mpi_i++)
+                    ADOLC_GET_TAYLOR(loc_recv[count-1-mpi_i])
+                MPI_Gather( trade, count*2, MPI_DOUBLE, rec_buf ,count*2, MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(trade);
+                if (myid == root){
+                   mpi_ii=0;
+                   for(arg=0; arg< mpi_size; arg++)
+                      for(mpi_i=0; mpi_i < count; mpi_i++) {
+                         rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
+                         rp_A[loc_recv[mpi_i]]+= rec_buf[mpi_ii+1];
+                         mpi_ii +=2;
+                      }
+                   free(rec_buf);
+                }
+#endif
+#if defined(_FOV_)
+                trade = myalloc1(count*(p+1));
+                if (myid == root)
+                   rec_buf = myalloc1(count2*(p+1));
+                else
+                   rec_buf = NULL;
+                mpi_ii=0;
+                for (mpi_i=0; mpi_i < count; mpi_i++) {
+                    trade[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                    mpi_ii++;
+                    for(l=0;l<p;l++,mpi_ii++){
+                       trade[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
+                       rpp_A[loc_recv[mpi_i]][l]=0.;
+                    }
+                }
+                for (mpi_i=0; mpi_i < count; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count-1-mpi_i])
+                MPI_Gather( trade, count*(p+1), MPI_DOUBLE, rec_buf ,count*(p+1), MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(trade);
+                if (myid == root){
+                   mpi_ii=0;
+                   for(arg=0; arg< mpi_size; arg++)
+                      for(mpi_i=0; mpi_i < count; mpi_i++) {
+                         rp_T[loc_recv[mpi_i]] = rec_buf[mpi_ii];
+                         mpi_ii++;
+                         for(l=0;l<p;l++,mpi_ii++)
+                            rpp_A[loc_recv[mpi_i]][l] +=rec_buf[mpi_ii];
+                      }
+                   free(rec_buf);
+                }
+#endif
+                free(loc_recv);
+                break;
+            case gather:
+                myid = get_locint_r(); // process id
+                root = get_locint_r(); // root
+                count2 = get_locint_r(); // count*process_count
+                if (root == myid){
+                   loc_recv = (locint*) malloc (count2*sizeof(locint));
+                   for(mpi_i=0; mpi_i < count2; mpi_i++)
+                      loc_recv[count2- mpi_i -1 ] = get_locint_r();
+                }
+                arg = get_locint_r(); // count*process_count
+                arg = get_locint_r(); // process id
+                arg = get_locint_r(); // root
+                count = get_locint_r(); // count
+                loc_send = (locint*) calloc(count,sizeof(locint));
+                for(mpi_i=0;mpi_i<count;mpi_i++)
+                   loc_send[count-1-mpi_i] = get_locint_r(); // Receive Buffer
+                arg = get_locint_r(); // count
+
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+               trade = myalloc1(count*(p+1));
+               rec_buf = NULL;
+               if (myid == root){
+                  rec_buf = myalloc1(count2*(p+1));
+                  mpi_ii=0;
+                  for(mpi_i=0; mpi_i < count2; mpi_i++) {
+                     rec_buf[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                     mpi_ii++;
+                     for(l=0;l<p;l++,mpi_ii++){
+                        rec_buf[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
+                        upp_A[loc_recv[mpi_i]][l]=0;
+                     }
+                  }
+                  for(mpi_i=0;mpi_i<count2;mpi_i++)
+                     ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i]);
+               }
+               MPI_Scatter(rec_buf,count*(p+1),MPI_DOUBLE,trade,count*(p+1),MPI_DOUBLE, root,MPI_COMM_WORLD);
+               if (myid == root)
+                  free(rec_buf);
+               mpi_ii=0;
+               for(mpi_i=0; mpi_i < count; mpi_i++) {
+                  rp_T[loc_send[mpi_i]] = trade[mpi_ii];
+                  mpi_ii++;
+                  for(l=0;l<p;l++,mpi_ii++)
+                     upp_A[loc_send[mpi_i]][l] += (unsigned long int) trade[mpi_ii];
+                }
+                free(trade);
+#else /* NTIGHT */
+               trade_ulong = (unsigned long int*) malloc(count*p*sizeof(unsigned long int));
+               rec_ulong = NULL;
+               if(myid == root){
+                  rec_ulong = (unsigned long int*) malloc(count2*p*sizeof(unsigned long int));
+                  mpi_ii=0;
+                  for (mpi_i=0; mpi_i < count2; mpi_i++){
+                     for(l=0;l<p;l++,mpi_ii++){
+                       rec_ulong[mpi_ii] = upp_A[loc_recv[mpi_i]][l];
+                       upp_A[loc_recv[mpi_i]][l]=0;
+                     }
+                  }
+               }
+               MPI_Scatter(rec_ulong,count*p,MPI_UNSIGNED_LONG,trade_ulong,count*p,MPI_UNSIGNED_LONG, root,MPI_COMM_WORLD);
+               if (myid == root)
+                  free(rec_ulong);
+               mpi_ii=0;
+               for(mpi_i=0; mpi_i < count; mpi_i++){
+                  for(l=0;l<p;l++,mpi_ii++)
+                     upp_A[loc_send[mpi_i]][l] += trade_ulong[mpi_ii];
+                }
+                free(trade_ulong);
+#endif
+#endif
+#if defined(_FOS_)
+                trade = myalloc1(count*2);
+                rec_buf = NULL;
+                if(myid == root){
+                    rec_buf = myalloc1(count2*2);
+                    for (mpi_i=0; mpi_i < count2; mpi_i++) {
+                       rec_buf[2*mpi_i] = rp_T[loc_recv[mpi_i]];
+                       rec_buf[2*mpi_i+1] = rp_A[loc_recv[mpi_i]];
+                       rp_A[loc_recv[mpi_i]]=0.;
+                    }
+                    for(mpi_i=0;mpi_i<count2;mpi_i++)
+                       ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i])
+                }
+                MPI_Scatter(rec_buf,count*2,MPI_DOUBLE,trade,count*2,MPI_DOUBLE, root,MPI_COMM_WORLD);
+                if (myid == root)
+                   free(rec_buf);
+                for (mpi_i=0; mpi_i < count; mpi_i++) {
+                    rp_T[loc_send[mpi_i]] = trade[2*mpi_i];
+                    rp_A[loc_send[mpi_i]] += trade[2*mpi_i+1];
+                }
+                free(trade);
+#endif
+#if defined(_FOV_)
+                trade = myalloc1(count*(p+1));
+                rec_buf = NULL;
+                if(myid == root){
+                    rec_buf = myalloc1(count2*(p+1));
+                    mpi_ii=0;
+                    for(mpi_i=0; mpi_i < count2; mpi_i++){
+                       rec_buf[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                       mpi_ii++;
+                       for(l=0;l<p;l++,mpi_ii++){
+                         rec_buf[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
+                         rpp_A[loc_recv[mpi_i]][l]=0.;
+                       }
+                    }
+                    for(mpi_i=0;mpi_i<count2;mpi_i++)
+                       ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i])
+                }
+                MPI_Scatter(rec_buf,count*(p+1),MPI_DOUBLE,trade,count*(p+1),MPI_DOUBLE, root,MPI_COMM_WORLD);
+                if (myid == root)
+                   free(rec_buf);
+                mpi_ii=0;
+                for (mpi_i=0; mpi_i < count; mpi_i++){
+                       rp_T[loc_send[mpi_i]] = trade[mpi_ii];
+                       mpi_ii++;
+                       for(l=0;l<p;l++,mpi_ii++)
+                          rpp_A[loc_send[mpi_i]][l] += trade[mpi_ii];
+                }
+                free(trade);
+#endif
+                if (myid == root )
+                   free(loc_recv);
+                free(loc_send);
+                break;
+                /*--------------------------------------------------------------------------*/
+            case scatter:
+               count2 = get_locint_r(); // recvcount (count)
+               loc_recv = (locint*) malloc(count2*sizeof(locint));
+               for(mpi_i=0;mpi_i<count2;mpi_i++)
+                 loc_recv[count2-1-mpi_i] = get_locint_r(); // recv Buffer
+               arg = get_locint_r(); // recvcount (count)
+               myid = get_locint_r(); // process id
+               root = get_locint_r(); // root
+               count = get_locint_r(); // sendcount (count*process_count)
+               if(myid==root){
+                  loc_send = (locint*) malloc(count*sizeof(locint));
+                  for(mpi_i=0;mpi_i<count;mpi_i++)
+                     loc_send[count-1-mpi_i]= get_locint_r();
+               }
+               res = get_locint_r(); // id
+               res = get_locint_r(); // root
+               res = get_locint_r(); // sendcount (count*process_count)
+
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+                rec_buf = myalloc1(count2*(p+1));
+                trade = NULL;
+                if (myid == root)
+                   trade = myalloc1(count*(p+1));
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i< count2; mpi_i++){
+                   rec_buf[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                   mpi_ii++;
+                   for(l=0;l<p;l++,mpi_ii++){
+                      rec_buf[mpi_ii] = (double) upp_A[loc_recv[mpi_i]][l];
+                      upp_A[loc_recv[mpi_i]][l] = 0;
+                   }
+                }
+                for(mpi_i=0;mpi_i<count2;mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i])
+                MPI_Gather(rec_buf , count2*(p+1), MPI_DOUBLE,trade,count2*(p+1), MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(rec_buf);
+                if (myid == root){
+                   mpi_ii=0;
+                   for( mpi_i=0; mpi_i< count; mpi_i++){
+                      rp_T[loc_send[mpi_i]] = trade[mpi_ii];
+                      mpi_ii++;
+                      for(l=0;l<p;l++,mpi_ii++)
+                         upp_A[loc_send[mpi_i]][l] += (unsigned long int) trade[mpi_ii];
+                   }
+                   free(trade);
+                }
+#else
+                rec_ulong = (unsigned long int*) malloc(count2*p*sizeof(unsigned long int));
+                trade_ulong = NULL;
+                if(myid == root)
+                   trade_ulong = (unsigned long int*) malloc(count*p*sizeof(unsigned long int));
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i < count2; mpi_i++){
+                   for(l=0;l<p;l++,mpi_ii++){
+                      rec_ulong[mpi_ii] = upp_A[loc_recv[mpi_i]][l];
+                      upp_A[loc_recv[mpi_i]][l]=0;
+                   }
+                }
+                MPI_Gather(rec_ulong , count2*p, MPI_DOUBLE,trade_ulong,count2*p, MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(rec_ulong);
+                mpi_ii=0;
+                if (myid == root ){
+                   for(mpi_i=0; mpi_i < count; mpi_i++){
+                     for(l=0;l<p;l++,mpi_ii++)
+                        upp_A[loc_send[mpi_i]][l] += trade_ulong[mpi_ii];
+                  }
+                  free(trade_ulong);
+                }
+#endif
+#endif
+#if defined(_FOS_)
+                rec_buf = myalloc1(count2*2);
+                trade = NULL;
+                if (myid == root)
+                   trade = myalloc1(count*2);
+
+                for (mpi_i=0; mpi_i < count2; mpi_i++) {
+                   rec_buf[2*mpi_i] = rp_T[loc_recv[mpi_i]];
+                   rec_buf[2*mpi_i+1] = rp_A[loc_recv[mpi_i]];
+                   rp_A[loc_recv[mpi_i]]=0;
+                }
+                for (mpi_i=0; mpi_i < count2; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i])
+                MPI_Gather( rec_buf ,count2*2, MPI_DOUBLE,trade,count2*2,MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(rec_buf);
+                if(myid == root){
+                   for(mpi_i=0; mpi_i < count; mpi_i++) {
+                      rp_T[loc_send[mpi_i]] = trade[2*mpi_i];
+                      rp_A[loc_send[mpi_i]] += trade[2*mpi_i+1];
+                   }
+                   free(trade);
+                }
+#endif
+#if defined(_FOV_)
+                rec_buf = myalloc1(count2*(p+1));
+                trade = NULL;
+                if(myid == root)
+                   trade = myalloc1(count*(p+1));
+
+                mpi_ii=0;
+                for(mpi_i=0; mpi_i< count2; mpi_i++){
+                   rec_buf[mpi_ii] = rp_T[loc_recv[mpi_i]];
+                   mpi_ii++;
+                   for(l=0;l<p;l++,mpi_ii++){
+                      rec_buf[mpi_ii] = rpp_A[loc_recv[mpi_i]][l];
+                      rpp_A[loc_recv[mpi_i]][l] = 0.;
+                   }
+                }
+                for(mpi_i=0; mpi_i< count2; mpi_i++)
+                   ADOLC_GET_TAYLOR(loc_recv[count2-1-mpi_i])
+                MPI_Gather(rec_buf , count2*(p+1), MPI_DOUBLE,trade,count2*(p+1), MPI_DOUBLE, root, MPI_COMM_WORLD);
+                free(rec_buf);
+                if (myid == root){
+                   mpi_ii=0;
+                   for( mpi_i=0; mpi_i< count; mpi_i++){
+                      rp_T[loc_send[mpi_i]] = trade[mpi_ii];
+                      mpi_ii++;
+                      for(l=0;l<p;l++,mpi_ii++)
+                         rpp_A[loc_send[mpi_i]][l] += trade[mpi_ii];
+                   }
+                   free(trade);
+                }
+#endif
+                if (myid == root)
+                   free(loc_send);
+                free(loc_recv);
+                break;
+#endif
+                /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */
 
@@ -2252,7 +2831,7 @@ int int_reverse_safe(
     } /* endwhile */
 
     /* clean up */
-#if !defined(_INT_REV_)
+#if !defined(_NTIGHT_)
     free(rp_T);
 #endif
 #ifdef _FOS_

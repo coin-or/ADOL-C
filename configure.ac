@@ -2,8 +2,8 @@
 # configure.ac -- Process this file with autoconf to produce configure
 # Revision: $Id$
 #
-# Copyright (C) Andrea Walther, Andreas Kowarz
-#               
+# Copyright (C) Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
+#
 # contains patches from the COIN OR libtool
 #
 ##############################################################################
@@ -13,7 +13,7 @@ define([ADOLC_LVL], [0])
 
 AC_PREREQ(2.67)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-trunk-mpi,
         [adol-c@list.coin-or.org])
 config_flags="$*"
 AC_REVISION($Revision$)
@@ -48,6 +48,20 @@ done
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+# ADOL-C with mpi
+AC_ARG_ENABLE(mpi, [AS_HELP_STRING([--enable-mpi],[enable mpi please make sure mpicc/mpicxx are in \$PATH [default=no]])], [use_mpi=$enableval], [use_mpi=no])
+mpi_found=false
+AC_LANG_PUSH([C++])
+if test $use_mpi != no; then
+AX_MPI([mpi_found=true],[mpi_found=false])
+fi
+AC_LANG_POP([C++])
+if test $use_mpi != no && $mpi_found ; then
+AX_MPI([mpi_found=true],[mpi_found=false
+MPICXX=
+MPILIBS=
+])
+fi
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
@@ -321,6 +335,18 @@ fi
 AC_SUBST(COLPACK_CFLAGS)
 AC_SUBST(COLPACK_LIBS)
 
+AM_CONDITIONAL(HAVE_MPI,[$mpi_found])
+if $mpi_found ; then
+AC_DEFINE(HAVE_MPI,[1],[Define 1 if mpi is available])
+
+AC_MSG_CHECKING(which linker flags to use for MPI)
+s="`${MPICXX} -show`"
+MPICXXEXTRALDFLAGS="`echo $s | sed 's/-I\S*//g;s/-D\S*//g;s/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g;s/^\S*//' `"
+AC_MSG_RESULT(${MPICXXEXTRALDFLAGS})
+
+AC_SUBST(MPICXXEXTRALDFLAGS)
+fi
+
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
 AC_ARG_ENABLE(docexa,
@@ -534,6 +560,8 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
 fi
+echo \
+"  Build with MPI:                   ${mpi_found}"
 echo
 
 echo \
