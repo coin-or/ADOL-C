@@ -373,9 +373,17 @@ return tape_doc_mpi(id,size,tag,m,n,x,y);
 
 void tapestats(int id, int size, short tag, size_t *tape_stats)
 {
-     tapestats( (short)(id + tag*size), tape_stats );
+     tapestats_mpi( id ,size, tag, tape_stats );
 }
 
+void printTapeStats(FILE *stream, short tag, int root)
+{
+     printTapeStats_mpi( stream, tag, root);
+}
+
+int removeTape(short tapeID, short type, int root) {
+return removeTape_mpi( tapeID, type, root);
+}
 
 BEGIN_C_DECLS
 
@@ -571,6 +579,62 @@ void tape_doc_mpi( int id,int size,short tag, int m,int n, double* x, double* y)
         tape_doc(id+size*tag,m,n,x,y);
      else
         tape_doc(id+size*tag,0,0,x,y);
+}
+
+void tapestats_mpi(int id, int size, short tag, size_t *tape_stats)
+{
+     tapestats( id +size*tag, tape_stats );
+}
+
+void printTapeStats_mpi(FILE *stream, short tag, int root)
+{
+  int id, size, ierr=0, curr_tag, i;
+  MPI_Comm_rank(MPI_COMM_WORLD, &id);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  if( id == root ){
+       fprintf(stream, "\n*** TAPE STATS (tape %d) **********\n", (int)tag);
+       fprintf(stream, "\n*** Used Processes %d *************\n", size);
+       for(i= 0; i < size; i++ ){
+            size_t stats[STAT_SIZE];
+            curr_tag = i + tag*size;
+            tapestats( curr_tag , (size_t *)&stats);
+            fprintf(stream, "\n*** Process ID %d               ***\n", i);
+            fprintf(stream, "Number of independents: %10zd\n", stats[NUM_INDEPENDENTS]);
+            fprintf(stream, "Number of dependents:   %10zd\n", stats[NUM_DEPENDENTS]);
+            fprintf(stream, "\n");
+            fprintf(stream, "Max # of live adoubles: %10zd\n", stats[NUM_MAX_LIVES]);
+            fprintf(stream, "Taylor stack size:      %10zd\n", stats[TAY_STACK_SIZE]);
+            fprintf(stream, "\n");
+            fprintf(stream, "Number of operations:   %10zd\n", stats[NUM_OPERATIONS]);
+            fprintf(stream, "Number of locations:    %10zd\n", stats[NUM_LOCATIONS]);
+            fprintf(stream, "Number of values:       %10zd\n", stats[NUM_VALUES]);
+            fprintf(stream, "\n");
+            fprintf(stream, "Operation file written: %10zd\n", stats[OP_FILE_ACCESS]);
+            fprintf(stream, "Location file written:  %10zd\n", stats[LOC_FILE_ACCESS]);
+            fprintf(stream, "Value file written:     %10zd\n", stats[VAL_FILE_ACCESS]);
+            fprintf(stream, "\n");
+            fprintf(stream, "Operation buffer size:  %10zd\n", stats[OP_BUFFER_SIZE]);
+            fprintf(stream, "Location buffer size:   %10zd\n", stats[LOC_BUFFER_SIZE]);
+            fprintf(stream, "Value buffer size:      %10zd\n", stats[VAL_BUFFER_SIZE]);
+            fprintf(stream, "Taylor buffer size:     %10zd\n", stats[TAY_BUFFER_SIZE]);
+            fprintf(stream, "\n");
+            fprintf(stream, "Operation type size:    %10zd\n", (size_t)sizeof(unsigned char));
+            fprintf(stream, "Location type size:     %10zd\n", (size_t)sizeof(locint));
+            fprintf(stream, "Value type size:        %10zd\n", (size_t)sizeof(double));
+            fprintf(stream, "Taylor type size:       %10zd\n", (size_t)sizeof(revreal));
+            fprintf(stream, "***                            ***\n\n");
+       }
+  }
+}
+
+int removeTape_mpi(short tapeID, short type, int root) {
+  int id, size, ierr=0, i;
+  MPI_Comm_rank(MPI_COMM_WORLD, &id);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  if( id == root )
+     for(i = 0 ; i < size; i++ )
+        ierr = removeTape(i + size*tapeID , type);
+     return ierr;
 }
 
 END_C_DECLS

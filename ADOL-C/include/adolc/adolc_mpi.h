@@ -98,6 +98,8 @@ ADOLC_DLL_EXPORT void tape_doc(
 
 /*  routines for tapestats */
 ADOLC_DLL_EXPORT void tapestats(int id, int size, short tag, size_t *tape_stats);
+ADOLC_DLL_EXPORT int  removeTape(short tapeID, short type, int root);
+ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag, int root);
 
 #endif /*__cplusplus*/
 
@@ -129,6 +131,11 @@ ADOLC_DLL_EXPORT int lagra_hess_vec_mpi(
 
 ADOLC_DLL_EXPORT void tape_doc_mpi(
     int,int,short, int,int, double*, double*);
+/*  routines for tapestats */
+ADOLC_DLL_EXPORT void tapestats_mpi(int id, int size, short tag, size_t *tape_stats);
+ADOLC_DLL_EXPORT int  removeTape_mpi(short tapeID, short type, int root);
+ADOLC_DLL_EXPORT void printTapeStats_mpi(FILE *stream, short tag, int root);
+
 END_C_DECLS
 
 #endif /*HAVE_MPI*/
