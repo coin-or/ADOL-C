@@ -371,6 +371,12 @@ void tape_doc(int id,int size,short tag, int m,int n, double *x, double *y)
 return tape_doc_mpi(id,size,tag,m,n,x,y);
 }
 
+void tapestats(int id, int size, short tag, size_t *tape_stats)
+{
+     tapestats( (short)(id + tag*size), tape_stats );
+}
+
+
 BEGIN_C_DECLS
 
 /* C - functions                                   */

@@ -95,6 +95,10 @@ ADOLC_DLL_EXPORT int lagra_hess_vec(
 /* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
 ADOLC_DLL_EXPORT void tape_doc(
     int,int,short, int,int, double*, double*);
+
+/*  routines for tapestats */
+ADOLC_DLL_EXPORT void tapestats(int id, int size, short tag, size_t *tape_stats);
+
 #endif /*__cplusplus*/
 
 BEGIN_C_DECLS
