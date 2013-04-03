@@ -230,6 +230,23 @@ if test x$adolc_stdczero == xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
 fi
 
+AC_MSG_CHECKING(wether the adouble varaibles have a late initialize option for functions like malloc/realloc)
+AC_ARG_ENABLE(lateinit,
+              [
+AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With malloc or realloc that is not the case. With this option the adouble can do an late initialization.) [default=disabled]])],
+  [
+  adolc_late_init=yes
+  AC_MSG_RESULT(yes)
+  ],
+  [
+  adolc_late_init=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_late_init == xyes; then
+AC_DEFINE(ADOLC_ADOUBLE_LATEINIT,1,[ADOL-C adouble late initialization mode])
+fi
+
 AC_MSG_CHECKING(whether errno is thread save)
 AC_ARG_ENABLE(tserrno,
               [
@@ -525,6 +542,7 @@ fi
 
 echo \
 "  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+  Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
   Build with ColPack:		      ${have_colpack}"

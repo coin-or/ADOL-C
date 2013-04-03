@@ -114,7 +114,7 @@ StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
 #endif
     head = stm->head;
     indexFree = new locint[maxsize];
-    for (int i = 0; i < maxsize; i++)
+    for (size_t i = 0; i < maxsize; i++)
 	indexFree[i] = stm->indexFree[i];
 }
 
