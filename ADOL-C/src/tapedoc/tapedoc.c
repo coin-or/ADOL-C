@@ -296,7 +296,7 @@ void tape_doc(short tnum,         /* tape id */
         fprintf(DIAG_OUT,"ADOL-C error: Tape_doc on tape %d  aborted!\n",tag);
         fprintf(DIAG_OUT,"Number of dependent (%d) and/or independent (%d) "
                 "variables passed to Tape_doc is\ninconsistent with "
-                "number recorded on tape %d (%d:%d)\n", depcheck,
+                "number recorded on tape %d (%zu:%zu)\n", depcheck,
                 indcheck, tag, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
