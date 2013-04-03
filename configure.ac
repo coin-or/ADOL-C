@@ -340,8 +340,8 @@ if $mpi_found ; then
 AC_DEFINE(HAVE_MPI,[1],[Define 1 if mpi is available])
 
 AC_MSG_CHECKING(which linker flags to use for MPI)
-s="`${MPICXX} -show`"
-MPICXXEXTRALDFLAGS="`echo $s | sed 's/-I\S*//g;s/-D\S*//g;s/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g;s/^\S*//' `"
+s="`${MPICXX} -showme:link `"
+MPICXXEXTRALDFLAGS="`echo $s | sed 's/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g' `"
 AC_MSG_RESULT(${MPICXXEXTRALDFLAGS})
 
 AC_SUBST(MPICXXEXTRALDFLAGS)
