@@ -140,12 +140,16 @@ protected:
     // badouble( const badouble& a ) {location = a.location;};
     explicit badouble( locint lo ) {
         location = lo;
+        isInit = true;
     };
+
+    bool isInit;  // marker if the badouble is properly initialized
 
 public:
     /*--------------------------------------------------------------------------*/
     badouble( const badouble& a ) {
         location = a.location;
+        isInit = true;
     }
     ;           /* ctor */
 
@@ -416,6 +420,8 @@ public:
 */
 class ADOLC_DLL_EXPORT adouble:public badouble {
     friend ADOLC_DLL_EXPORT class advector;
+protected:
+    void initInternal(void); // Init for late initialization
 public:
     adouble( const adub& );
     adouble( const adouble& );
@@ -432,9 +438,10 @@ public:
 
     adouble& operator = ( double );
     adouble& operator = ( const badouble& );
-    /* adouble& operator = ( const adouble& );
-       !!! olvo 991210 was the same as badouble-assignment */
+    adouble& operator = ( const adouble& );
     adouble& operator = ( const adub& );
+    
+    inline locint loc(void) const;
 };
 
 
@@ -443,6 +450,11 @@ public:
 
 /*--------------------------------------------------------------------------*/
 inline locint badouble::loc( void ) const {
+    return location;
+}
+
+inline locint adouble::loc( void ) const {
+    const_cast<adouble*>(this)->initInternal();
     return location;
 }
 

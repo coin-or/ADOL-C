@@ -112,10 +112,10 @@ public:
     ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n, *blk.dflt) { delete blk.dflt; }
     ADOLC_DLL_EXPORT ~advector() {}
     ADOLC_DLL_EXPORT advector(const advector& x) : blk(x.data.size()), data(x.data) { delete blk.dflt; }
-    ADOLC_DLL_EXPORT advector(const vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT advector(const std::vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
     ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
-    ADOLC_DLL_EXPORT operator const vector<adouble>&() const { return data; }
-    ADOLC_DLL_EXPORT operator vector<adouble>&() { return data; }
+    ADOLC_DLL_EXPORT operator const std::vector<adouble>&() const { return data; }
+    ADOLC_DLL_EXPORT operator std::vector<adouble>&() { return data; }
     ADOLC_DLL_EXPORT adub operator[](const badouble& index) const;
     ADOLC_DLL_EXPORT adubref operator[](const badouble& index);
     ADOLC_DLL_EXPORT adouble& operator[](size_t i) { return data[i]; }

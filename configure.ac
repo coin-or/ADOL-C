@@ -244,6 +244,23 @@ if test x$adolc_stdczero == xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
 fi
 
+AC_MSG_CHECKING(wether the adouble varaibles have a late initialize option for functions like malloc/realloc)
+AC_ARG_ENABLE(lateinit,
+              [
+AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With malloc or realloc that is not the case. With this option the adouble can do an late initialization.) [default=disabled]])],
+  [
+  adolc_late_init=yes
+  AC_MSG_RESULT(yes)
+  ],
+  [
+  adolc_late_init=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_late_init == xyes; then
+AC_DEFINE(ADOLC_ADOUBLE_LATEINIT,1,[ADOL-C adouble late initialization mode])
+fi
+
 AC_MSG_CHECKING(whether errno is thread save)
 AC_ARG_ENABLE(tserrno,
               [
@@ -337,15 +354,23 @@ AC_SUBST(COLPACK_LIBS)
 
 AM_CONDITIONAL(HAVE_MPI,[$mpi_found])
 if $mpi_found ; then
+MPI_FOUND_TRUE=""
+MPI_FOUND_FALSE="// "
 AC_DEFINE(HAVE_MPI,[1],[Define 1 if mpi is available])
 
 AC_MSG_CHECKING(which linker flags to use for MPI)
-s="`${MPICXX} -show`"
-MPICXXEXTRALDFLAGS="`echo $s | sed 's/-I\S*//g;s/-D\S*//g;s/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g;s/^\S*//' `"
+s="`${MPICXX} -showme:link `"
+MPICXXEXTRALDFLAGS="`echo $s | sed 's/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g' `"
 AC_MSG_RESULT(${MPICXXEXTRALDFLAGS})
 
-AC_SUBST(MPICXXEXTRALDFLAGS)
+else
+MPI_FOUND_TRUE="// "
+MPI_FOUND_FALSE=""
+MPICXXEXTRALDFLAGS=""
 fi
+AC_SUBST(MPI_FOUND_TRUE)
+AC_SUBST(MPI_FOUND_FALSE)
+AC_SUBST(MPICXXEXTRALDFLAGS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
@@ -551,6 +576,7 @@ fi
 
 echo \
 "  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+  Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
   Build with ColPack:		      ${have_colpack}"
