@@ -28,6 +28,13 @@ typedef @REAL_TYPE@ revreal;
 @ATRIG_ERF_TRUE@#define ATRIG_ERF 1
 
 /*--------------------------------------------------------------------------*/
+/* Enable/disable MPI code for external use */
+#if !defined(ADOLC_INTERNAL)
+@MPI_FOUND_FALSE@#undef HAVE_MPI
+@MPI_FOUND_TRUE@#define HAVE_MPI 1
+#endif
+
+/*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
 @ADVBRANCH_FALSE@#undef ADOLC_ADVANCED_BRANCHING
 @ADVBRANCH_TRUE@#define ADOLC_ADVANCED_BRANCHING 1

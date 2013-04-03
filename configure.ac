@@ -337,6 +337,8 @@ AC_SUBST(COLPACK_LIBS)
 
 AM_CONDITIONAL(HAVE_MPI,[$mpi_found])
 if $mpi_found ; then
+MPI_FOUND_TRUE=""
+MPI_FOUND_FALSE="// "
 AC_DEFINE(HAVE_MPI,[1],[Define 1 if mpi is available])
 
 AC_MSG_CHECKING(which linker flags to use for MPI)
@@ -344,8 +346,14 @@ s="`${MPICXX} -showme:link `"
 MPICXXEXTRALDFLAGS="`echo $s | sed 's/-L\(\S*\)/-L\1 -Wl,-rpath,\1/g' `"
 AC_MSG_RESULT(${MPICXXEXTRALDFLAGS})
 
-AC_SUBST(MPICXXEXTRALDFLAGS)
+else
+MPI_FOUND_TRUE="// "
+MPI_FOUND_FALSE=""
+MPICXXEXTRALDFLAGS=""
 fi
+AC_SUBST(MPI_FOUND_TRUE)
+AC_SUBST(MPI_FOUND_FALSE)
+AC_SUBST(MPICXXEXTRALDFLAGS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
