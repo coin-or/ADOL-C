@@ -124,7 +124,7 @@ protected:
 	    next(block.next),size(block.size) {}
     };
 
-    list<struct FreeBlock> indexFree;
+    std::list<struct FreeBlock> indexFree;
     size_t &maxsize;
     size_t &currentfill;
 private:

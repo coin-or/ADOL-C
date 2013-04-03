@@ -310,7 +310,7 @@ int int_reverse_safe(
 
 
 #if !defined (_NTIGHT_)
-    double coval = 0, *d = 0;
+    double coval = 0;
 #endif
 
     int indexi = 0,  indexd = 0;
@@ -1764,16 +1764,22 @@ this_tnum,
                 /*--------------------------------------------------------------------------*/
             case subscript:
 	        {
-		    double val = get_val_r();
-		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
+#if !defined(_NTIGHT_)
+		    double val = 
+#endif
+		    get_val_r();
+#if !defined(_NTIGHT_)
+		    size_t idx, numval = (size_t)trunc(fabs(val));
 		    locint vectorloc;
-		    vectorloc = get_locint_r();
+		    vectorloc = 
+#endif
+		    get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
 		    if (idx >= numval)
-			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numval, idx);
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = vectorloc+idx;
 		    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 		    ASSIGN_A( Ares, ADJOINT_BUFFER[res])
@@ -1797,22 +1803,28 @@ this_tnum,
 
             case subscript_ref:
 	        {
-		    double val = get_val_r();
-		    size_t cnt, idx, numval = (size_t)trunc(fabs(val));
+#if !defined(_NTIGHT_)
+		    double val = 
+#endif
+		    get_val_r();
+#if !defined(_NTIGHT_)
+		    size_t idx, numval = (size_t)trunc(fabs(val));
 		    locint vectorloc;
-		    vectorloc = get_locint_r();
+		    vectorloc = 
+#endif
+		    get_locint_r();
 		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
 		    if (idx >= numval)
-			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numval, idx);
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(TRES));
 		    // This is actually NOP 
                     // basically all we need is that arg1 == vectorloc+idx
                     // so doing a check here is probably good
 		    if (arg1 != vectorloc+idx) {
-			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %d, referenced = %d\n", vectorloc+idx, arg1);
+			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
 			exit(-2);
 		    }
 		    ADOLC_GET_TAYLOR(res);
@@ -2084,7 +2096,10 @@ this_tnum,
 
         case ref_cond_assign:                                      /* cond_assign */
 	   {
-                locint ref    = get_locint_r();
+#if !defined(_NTIGHT_)
+                locint ref    = 
+#endif
+		get_locint_r();
                 arg2   = get_locint_r();
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
@@ -2188,7 +2203,7 @@ this_tnum,
                 res  = get_locint_r();
                 size = get_locint_r();
 #if !defined(_NTIGHT_)
-                d    = get_val_v_r(size);
+		get_val_v_r(size);
 #endif /* !_NTIGHT_ */
 
                 res += size;

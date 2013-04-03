@@ -180,7 +180,7 @@ void fail( int error ) {
                     "independents(%u)\n"
                     "              variables passed to reverse is "
                     "inconsistent\n"
-                    "              with number recorded on tape(%u/%u)!\n",
+                    "              with number recorded on tape(%zu/%zu)!\n",
                     ADOLC_CURRENT_TAPE_INFOS.tapeID, failAdditionalInfo3,
                     failAdditionalInfo4,
                     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
