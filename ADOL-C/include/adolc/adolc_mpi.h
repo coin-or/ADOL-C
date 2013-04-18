@@ -96,6 +96,18 @@ ADOLC_DLL_EXPORT int lagra_hess_vec(
 ADOLC_DLL_EXPORT void tape_doc(
     int,int,short, int,int, double*, double*);
 
+/*********************************************************************/
+/* Algorithmic Differentation Programs - user defined distribution   */
+ADOLC_DLL_EXPORT int function_distrib(
+     int, int, short, int , int, double*,double*);
+
+/* gradient(rank,size,tag, n, x[n], g[n])          */
+ADOLC_DLL_EXPORT int gradient_distrib(
+    int,int,short,int,double*,double*);
+
+/* generating tapes by process id, processes count, used tag, m,n, x[n], y[m] */
+ADOLC_DLL_EXPORT void tape_doc_distrib(
+    int,int,short, int,int, double*, double*);
 /*  routines for tapestats */
 ADOLC_DLL_EXPORT void tapestats(int id, int size, short tag, size_t *tape_stats);
 ADOLC_DLL_EXPORT int  removeTape(short tapeID, short type, int root);
@@ -130,6 +142,15 @@ ADOLC_DLL_EXPORT int lagra_hess_vec_mpi(
     int,int,short,int,int,double*,double*,double*,double*);
 
 ADOLC_DLL_EXPORT void tape_doc_mpi(
+    int,int,short, int,int, double*, double*);
+
+/* routines for user defined dependends and independends    */
+ADOLC_DLL_EXPORT int function_mpi_distrib(
+   int, int, short, int , int, double*,double*);
+
+ADOLC_DLL_EXPORT int gradient_mpi_distrib(
+    int,int,short,int,double*,double*);
+ADOLC_DLL_EXPORT void tape_doc_mpi_distrib(
     int,int,short, int,int, double*, double*);
 /*  routines for tapestats */
 ADOLC_DLL_EXPORT void tapestats_mpi(int id, int size, short tag, size_t *tape_stats);

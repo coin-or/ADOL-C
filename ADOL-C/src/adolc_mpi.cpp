@@ -371,6 +371,20 @@ void tape_doc(int id,int size,short tag, int m,int n, double *x, double *y)
 return tape_doc_mpi(id,size,tag,m,n,x,y);
 }
 
+
+int function_distrib(int id, int size,short tag,int m,int n,double* argument ,double* result){
+     return function_mpi_distrib(id,size,tag,m,n,argument,result);
+}
+
+int gradient_distrib(int id,int size,short tag,int n,double *x,double *y)
+{
+     return gradient_mpi_distrib(id,size,tag,n,x,y);
+}
+void tape_doc_distrib(int id,int size,short tag, int m,int n, double *x, double *y)
+{
+return tape_doc_mpi_distrib(id,size,tag,m,n,x,y);
+}
+
 void tapestats(int id, int size, short tag, size_t *tape_stats)
 {
      tapestats_mpi( id ,size, tag, tape_stats );
@@ -579,6 +593,34 @@ void tape_doc_mpi( int id,int size,short tag, int m,int n, double* x, double* y)
         tape_doc(id+size*tag,m,n,x,y);
      else
         tape_doc(id+size*tag,0,0,x,y);
+}
+
+/* routines for user defined dependends and independends    */
+int function_mpi_distrib(int id, int size,short tag,int m,int n,double* argument ,double* result){
+       return zos_forward_mpi(id,size,tag,m,n,0,argument,result);
+}
+
+int gradient_mpi_distrib(int id,int size,short tag ,int n, double* x,double* result){
+     int rc=-1;
+     double one =1.0;
+     rc = zos_forward_mpi(id,size,tag,1,n,1,x,result);
+     if(rc <0){
+         printf("Failure by computing parallel gradient, process id %d!\n",id);
+           return rc;
+     }
+     rc = fos_reverse_mpi(id,size,tag,1,n,&one,result);
+     return rc;
+}
+
+void tape_doc_mpi( int id,int size,short tag, int m,int n, double* x, double* y){
+     if(id==0)
+        tape_doc(id+size*tag,m,n,x,y);
+     else
+        tape_doc(id+size*tag,0,0,x,y);
+}
+
+void tape_doc_mpi_distrib( int id,int size,short tag, int m,int n, double* x, double* y){
+        tape_doc(id+size*tag,m,n,x,y);
 }
 
 void tapestats_mpi(int id, int size, short tag, size_t *tape_stats)
