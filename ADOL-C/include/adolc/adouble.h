@@ -527,18 +527,6 @@ extern int ADOLC_numDir;
 #  define V_I                  v
 #endif
 
-#if !defined(_ISOC99_SOURCE) && !defined(__USE_ISOC99)
-inline double fmin( const double &x, const double &y ) {
-    if (x<y) return x;
-    else return y;
-}
-
-inline double fmax( const double &x, const double &y ) {
-    if (x>y) return x;
-    else return y;
-}
-#endif
-
 inline double makeNaN() {
     return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
 }
