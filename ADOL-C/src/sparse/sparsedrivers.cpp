@@ -12,7 +12,7 @@
   
 ----------------------------------------------------------------------------*/
 #include <adolc/sparse/sparsedrivers.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>
 #include "taping_p.h"
@@ -114,17 +114,17 @@ void generate_seed_jac
 ) 
 #if HAVE_LIBCOLPACK
 {
-  int dummy, i, j;
+  int dummy;
 
-  BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
+    BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
-  if (option == 1) 
-    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
-				"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
-  else 
-    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
-				"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
-  delete g;
+    if (option == 1) 
+      g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, 
+					"SMALLEST_LAST","ROW_PARTIAL_DISTANCE_TWO"); 
+    else 
+      g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, 
+					"SMALLEST_LAST","COLUMN_PARTIAL_DISTANCE_TWO"); 
+    delete g;
 
 }
 #else
@@ -152,7 +152,9 @@ int hess_pat(
     /* control option
        option : test the computational graph control flow
                                0 - safe mode (default)
-                               1 - tight mode                              */
+                               1 - tight mode
+                               2 - old safe mode 
+                               3 - old tight mode                         */
 
 ) {
     int         rc= -1;
@@ -166,10 +168,14 @@ int hess_pat(
         for (i=0; i<indep; i++)
             crs[i] = NULL;
 
-    if (( option < 0 ) || (option > 2 ))
+    if (( option < 0 ) || (option > 3 ))
       option = 0;   /* default */
 
-    if (option == 1)
+    if (option == 3)
+	rc = nonl_ind_old_forward_tight(tag, 1, indep, basepoint, crs);
+    else if (option == 2)
+	rc = nonl_ind_old_forward_safe(tag, 1, indep, basepoint, crs);
+    else if (option == 1)
       rc = nonl_ind_forward_tight(tag, 1, indep, basepoint, crs);
     else
       rc = nonl_ind_forward_safe(tag, 1, indep, basepoint, crs);
@@ -190,7 +196,7 @@ void generate_seed_hess
 )
 #if HAVE_LIBCOLPACK 
 {
-  int seed_rows, i, j;
+  int seed_rows;
 
   GraphColoringInterface *g = new GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
 
@@ -256,8 +262,7 @@ int sparse_jac(
     int i;
     unsigned int j;
     SparseJacInfos sJinfos;
-    int dummy;
-    int ret_val;
+    int ret_val = 0;
     BipartiteGraphPartialColoringInterface *g;
     TapeInfos *tapeInfos;
     JacobianRecovery1D *jr1d;
@@ -429,6 +434,8 @@ int sparse_hess(
                     options[0] :test the computational graph control flow
                                0 - safe mode (default)
                                1 - tight mode
+			       2 - old safe mode
+			       3 - old tight mode
                     options[1] : way of recovery
                                0 - indirect recovery
                                1 - direct recovery                         */
@@ -452,7 +459,7 @@ int sparse_hess(
 
     /* Generate sparsity pattern, determine nnz, allocate memory */
     if (repeat <= 0) {
-        if (( options[0] < 0 ) || (options[0] > 1 ))
+        if (( options[0] < 0 ) || (options[0] > 3 ))
           options[0] = 0; /* default */
         if (( options[1] < 0 ) || (options[1] > 1 ))
           options[1] = 0; /* default */
@@ -682,7 +689,6 @@ void get_HP(
     unsigned int *** HP)
 #ifdef SPARSE
 {
-    SparseHessInfos sHinfos;
     TapeInfos *tapeInfos;
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -1046,7 +1052,6 @@ BEGIN_C_DECLS
 void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
 			void *jr1d, int seed_rows, int seed_clms, int depen)
 {
-    int i;
     if(y)
       myfree1(y);
 
@@ -1075,8 +1080,6 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
                          double **Upp, unsigned int **HP,
                          void *g, void *hr, int p, int indep)
 {
-    int i;
-
     if(Hcomp)
       myfree2(Hcomp);
 

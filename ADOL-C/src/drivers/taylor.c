@@ -782,10 +782,12 @@ int tensor_eval( short tag, int m, int n, int d, int p,
                     for (k=0; k<bd; k++)
                         do {
                             for (j=0; j<m; j++)
+			      {
                                 tensor[j][ptr[k]->a] += Y[0][j][k]*ptr[k]->c;
-                            ptr[k] = ptr[k]->next;
+			      }
+                           ptr[k] = ptr[k]->next;
                         } while (ptr[k] != NULL);
-                    if (dim-i < bd)
+                    if (dim-i <= bd)
                         bd = dim-i-1;
                     ctr = 0;
                 }
@@ -817,7 +819,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
                                 tensor[j][ptr[k]->a] += Y[j][k][ptr[k]->b-1]*ptr[k]->c;
                             ptr[k] = ptr[k]->next;
                         } while (ptr[k] != NULL);
-                    if (dim-i < bd)
+                    if (dim-i <= bd)
                         bd = dim-i-1;
                     ctr = 0;
                 }

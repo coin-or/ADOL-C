@@ -34,11 +34,6 @@
 #define TBUFNUM    32
 
 /*--------------------------------------------------------------------------*/
-/* ADOL-C data types */
-#define locint     unsigned int                /* ensure locint is unsigned */
-#define revreal    double
-
-/*--------------------------------------------------------------------------*/
 /* Data types used by Fortran callable versions of functions */
 #define fint       long
 #define fdouble    double
@@ -51,20 +46,10 @@
 #define non_den    0.0     /* respectively, see the documentation         */
 #define ADOLC_EPS  10E-20  /* for test on zero                            */
 
-/*--------------------------------------------------------------------------*/
-/* Enable/disable asinh, acosh,atanh, erf */
-#undef ATRIG_ERF
-/* #define ATRIG_ERF 1 */
-
 /****************************************************************************/
 /* Standard output used for diagnostics by ADOL-C,                          */
 /* e.g. stdout or stderr or whatever file identifier                        */
 #define DIAG_OUT stderr
-
-/*--------------------------------------------------------------------------*/
-/* Use 'calloc' instead of 'malloc' in ADOL-C allocation routines. If you   */
-/* have any trouble with uninitialized memory, then define ADOLC_USE_CALLOC.*/
-#define ADOLC_USE_CALLOC 1
 
 /*--------------------------------------------------------------------------*/
 /* Constants used by the checkpointing part (revolve) */

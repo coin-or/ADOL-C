@@ -4,8 +4,9 @@
  Revision: $Id$
  Contents: management of tape infos
 
- Copyright (c) Andreas Kowarz, Andrea Walther
-  
+ Copyright (c) Andreas Kowarz, Andrea Walther, Kshitij Kulshreshtha,
+               Benjamin Letschert
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -39,16 +40,16 @@ END_C_DECLS
 #endif
 
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
-  store = 0;
+  store = NULL;
   storeSize = 0;
-  numLives = 1;
-  storeManagerPtr = new StoreManagerLocint(store, storeSize, numLives);
+  numLives = 0;
+  storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
 }
 
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
   if (storeManagerPtr) {
     delete storeManagerPtr;
-    storeManagerPtr = 0;
+    storeManagerPtr = NULL;
   }
 }
 
@@ -68,17 +69,17 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
     storeManagerPtr = new
-	StoreManagerLocint(
-	    dynamic_cast<StoreManagerLocint*>(gtv.storeManagerPtr),
+	StoreManagerLocintBlock(
+	    dynamic_cast<StoreManagerLocintBlock*>(gtv.storeManagerPtr),
 	    store, storeSize, numLives);
     return *this;
 }
 
 StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
-    indexFeld(0),
+    indexFree(0),
     head(0),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
@@ -94,27 +95,27 @@ StoreManagerLocint::~StoreManagerLocint()
 	delete[] storePtr;
 	storePtr = 0;
     }
-    if (indexFeld) {
-	delete[] indexFeld;
-	indexFeld = 0;
+    if (indexFree) {
+	delete[] indexFree;
+	indexFree = 0;
     }
-    groesse = 0;
-    anzahl = 0;
+    maxsize = 0;
+    currentfill = 0;
     head = 0;
 }
 
 StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
 				       double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
-    groesse(size), anzahl(numlives)
+    maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
     head = stm->head;
-    indexFeld = new locint[groesse];
-    for (int i = 0; i < groesse; i++)
-	indexFeld[i] = stm->indexFeld[i];
+    indexFree = new locint[maxsize];
+    for (size_t i = 0; i < maxsize; i++)
+	indexFree[i] = stm->indexFree[i];
 }
 
 locint StoreManagerLocint::next_loc() {
@@ -123,8 +124,8 @@ locint StoreManagerLocint::next_loc() {
     }
     assert(head);
     locint const result = head;
-    head = indexFeld[head];
-    ++anzahl;
+    head = indexFree[head];
+    ++currentfill;
 #ifdef ADOLC_DEBUG
     std::cerr << "next_loc: " << result << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
@@ -132,21 +133,21 @@ locint StoreManagerLocint::next_loc() {
 }
 
 void StoreManagerLocint::free_loc(locint loc) {
-    assert(0 < loc && loc < groesse);
-    indexFeld[loc] = head;
+    assert(0 < loc && loc < maxsize);
+    indexFree[loc] = head;
     head = loc;
-    --anzahl;
+    --currentfill;
 #ifdef ADOLC_DEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
 #endif
 }
 
 void StoreManagerLocint::grow() {
-    if (groesse == 0) groesse += initialeGroesse;
-    size_t const alteGroesse = groesse;
-    groesse *= 2;
+    if (maxsize == 0) maxsize += initialSize;
+    size_t const oldMaxsize = maxsize;
+    maxsize *= 2;
 
-    if (groesse > std::numeric_limits<locint>::max()) {
+    if (maxsize > std::numeric_limits<locint>::max()) {
       // encapsulate this error message
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%d) of live active variables exceeded\n\n", 
@@ -155,42 +156,41 @@ void StoreManagerLocint::grow() {
     }
 
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::grow(): increase size from " << alteGroesse 
-	 << " to " << groesse << " entries (currently " << size() << " entries used)\n";
-    assert(alteGroesse == initialeGroesse or size() == alteGroesse);
+    std::cerr << "StoreManagerInteger::grow(): increase size from " << oldMaxsize
+	 << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
+    assert(oldMaxsize == initialSize or size() == oldMaxsize);
 #endif
 
     double *const oldStore = storePtr;
-    locint *const oldIndex = indexFeld;
+    locint *const oldIndex = indexFree;
 
 #if defined(ADOLC_DEBUG)
-    std::cerr << "StoreManagerInteger::grow(): allocate " << groesse * sizeof(double) << " B doubles " 
-	 << "and " << groesse * sizeof(locint) << " B locints\n";
+    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles " 
+	 << "and " << maxsize * sizeof(locint) << " B locints\n";
 #endif
-    storePtr = new double[groesse];
-    indexFeld = new locint[groesse];
-    memset(storePtr, 0, groesse*sizeof(double));
+    storePtr = new double[maxsize];
+    indexFree = new locint[maxsize];
     // we use index 0 as end-of-list marker
     size_t i = 1;
     storePtr[0] =  std::numeric_limits<double>::quiet_NaN();
 
-    if (alteGroesse != initialeGroesse) { // not the first time
+    if (oldMaxsize != initialSize) { // not the first time
 #if defined(ADOLC_DEBUG)
       std::cerr << "StoreManagerInteger::grow(): copy values\n";
 #endif
-      for (size_t j = i; j < alteGroesse; ++j) {
-	indexFeld[j] = oldIndex[j];
+      for (size_t j = i; j < oldMaxsize; ++j) {
+	indexFree[j] = oldIndex[j];
       }
-      for (size_t j = i; j < alteGroesse; ++j) {
+      for (size_t j = i; j < oldMaxsize; ++j) {
 	storePtr[j] = oldStore[j];
       }
 
       // reset i to start of new slots (upper half)
-      i = alteGroesse;
+      i = oldMaxsize;
 
 #if defined(ADOLC_DEBUG)
-      std::cerr << "StoreManagerInteger::grow(): free " << alteGroesse * sizeof(double)
-		<< " + " << alteGroesse * sizeof(locint) << " B\n";
+      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double)
+		<< " + " << oldMaxsize * sizeof(locint) << " B\n";
 #endif
       delete [] oldStore;
       delete [] oldIndex;
@@ -198,11 +198,11 @@ void StoreManagerLocint::grow() {
 
     head = i;
     // create initial linked list for new slots
-    for ( ; i < groesse-1; ++i) {
-      indexFeld[i] = i + 1;
+    for ( ; i < maxsize-1; ++i) {
+      indexFree[i] = i + 1;
     }
-    indexFeld[i] = 0; // end marker
-    assert(i == groesse-1);
+    indexFree[i] = 0; // end marker
+    assert(i == maxsize-1);
 }
 
 
@@ -1099,8 +1099,8 @@ void beginParallel() {
             memcpy(ADOLC_GLOBAL_TAPE_VARS.store, globalTapeVars_s->store,
                     ADOLC_GLOBAL_TAPE_VARS.storeSize * sizeof(double));
 	    ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr = new
-		StoreManagerLocint(
-		    dynamic_cast<StoreManagerLocint*>(globalTapeVars_s->storeManagerPtr),
+		StoreManagerLocintBlock(
+		    dynamic_cast<StoreManagerLocintBlock*>(globalTapeVars_s->storeManagerPtr),
 		    ADOLC_GLOBAL_TAPE_VARS.store,
 		    ADOLC_GLOBAL_TAPE_VARS.storeSize,
 		    ADOLC_GLOBAL_TAPE_VARS.numLives);
@@ -1179,3 +1179,234 @@ TapeInfos::TapeInfos(short _tapeID) {
     pTapeInfos.tay_fileName = NULL;
 }
 
+StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+    maxsize(size), currentfill(numlives)
+{
+    indexFree.clear();
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
+#endif
+}
+
+StoreManagerLocintBlock::~StoreManagerLocintBlock()
+{
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerIntegerBlock::~StoreManagerIntegerBlock()\n";
+#endif
+    if (storePtr) {
+     delete[] storePtr;
+     storePtr = 0;
+    }
+    if (!indexFree.empty() ) {
+	indexFree.clear();
+    }
+    maxsize = 0;
+    currentfill = 0;
+}
+
+StoreManagerLocintBlock::StoreManagerLocintBlock(
+    const StoreManagerLocintBlock *const stm,
+    double * &storePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+    maxsize(size), currentfill(numlives)
+{
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+#endif
+    indexFree.clear();
+    list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
+    for (; iter != stm->indexFree.end(); iter++)
+	indexFree.push_back( *iter );
+}
+
+
+locint StoreManagerLocintBlock::next_loc() {
+    if ( indexFree.empty() )
+	grow();
+
+    locint const result = indexFree.front().next;
+    indexFree.front().next++;
+    indexFree.front().size--;
+
+    ++currentfill;
+
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerLocintBlock::next_loc: result: " << result << " fill: " << size() << "max: " << maxSize() << endl;
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+       std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+#endif
+
+    if (indexFree.front().size == 0) {
+	if (indexFree.size() <= 1)
+	    grow();
+	else
+          indexFree.pop_front();
+    }
+
+    return result;
+}
+
+void StoreManagerLocintBlock::ensure_block(size_t n) {
+    bool found = false;
+
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
+    std::cerr << "searching for big enough block " << endl;
+#endif
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
+	if ( iter->size >= n) {
+	    if (iter != indexFree.begin() ) {
+		struct FreeBlock tmp(*iter);
+		iter = indexFree.erase(iter);
+		indexFree.push_front(tmp);
+	    }
+	    found = true;
+	    break;
+	}
+    }
+    if (!found) {
+#ifdef ADOLC_DEBUG
+	std::cerr << "no big enough block...growing " << endl;
+#endif
+	grow(n);
+    }
+
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerLocintBlock::ensure_Block: " << " fill: " << size() << "max: " << maxSize() <<  " ensure_Block (" << n << ")" << endl;
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+#endif
+}
+
+void StoreManagerLocintBlock::grow(size_t minGrow) {
+    // first figure out what eventual size we want
+    size_t const oldMaxsize = maxsize;
+
+    if (maxsize == 0){
+        maxsize = initialSize;
+    } else {
+	maxsize *= 2;
+    }
+
+    if (minGrow > 0) {
+	while (maxsize - oldMaxsize < minGrow) {
+	    maxsize *= 2;
+	}
+    }
+
+    if (maxsize > std::numeric_limits<locint>::max()) {
+      // encapsulate this error message
+      fprintf(DIAG_OUT,"\nADOL-C error:\n");
+      fprintf(DIAG_OUT,"maximal number (%u) of live active variables exceeded\n\n",
+           std::numeric_limits<locint>::max());
+      exit(-3);
+    }
+
+#ifdef ADOLC_DEBUG
+    // index 0 is not used, means one slot less
+    std::cerr << "StoreManagerIntegerBlock::grow(): increase size from " << oldMaxsize
+      << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
+#endif
+
+    double *const oldStore = storePtr;
+
+#if defined(ADOLC_DEBUG)
+    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles\n";
+#endif
+    storePtr = new double[maxsize];
+    assert(storePtr);
+    memset(storePtr, 0, maxsize*sizeof(double));
+
+    if (oldStore != NULL) { // not the first time
+#if defined(ADOLC_DEBUG)
+      std::cerr << "StoreManagerInteger::grow(): copy values\n";
+#endif
+
+      memcpy(storePtr, oldStore, oldMaxsize*sizeof(double));
+
+#if defined(ADOLC_DEBUG)
+      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double) << "\n";
+#endif
+      delete [] oldStore;
+    }
+
+    bool foundTail = false;
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
+         if (iter->next + iter->size == oldMaxsize ) {
+	     iter->size += (maxsize - oldMaxsize);
+	      struct FreeBlock tmp(*iter);
+	      iter = indexFree.erase(iter);
+	      indexFree.push_front(tmp);
+	      foundTail = true;
+	      break;
+         }
+    }
+
+    if (! foundTail) {
+	struct FreeBlock tmp;
+	tmp.next = oldMaxsize;
+	tmp.size = (maxsize - oldMaxsize);
+	indexFree.push_front(tmp);
+    }
+
+    iter = indexFree.begin();
+    while (iter != indexFree.end()) {
+	 if (iter->size == 0)
+	     iter=indexFree.erase(iter); // don't leave 0 blocks around
+	 else
+	     iter++;
+    }
+#ifdef ADOLC_DEBUG
+    std::cerr << "Growing:" << endl;
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+       std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+#endif
+}
+
+void StoreManagerLocintBlock::free_loc(locint loc) {
+    assert( loc < maxsize);
+
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    for (; iter != indexFree.end() ; iter++ ) {
+         if (loc+1 == iter->next || iter->next + iter->size == loc) {
+              iter->size++;
+              if (loc + 1 == iter->next)
+                   iter->next = loc;
+    // bringing the matched element to the front maybe a good idea
+    // in case several contiguous adouble are deallcated right after 
+    // one another, e.g. advector
+	      struct FreeBlock tmp(*iter);
+	      iter = indexFree.erase(iter);
+	      indexFree.push_front(tmp);
+	      iter = indexFree.begin();
+	      break;
+         }
+    }
+    if (iter == indexFree.end()) {
+         struct FreeBlock tmp;
+         tmp.next = loc;
+         tmp.size = 1;
+         indexFree.push_front(tmp);
+    }
+
+    --currentfill;
+#ifdef ADOLC_DEBUG
+    std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
+
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+       std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+#endif
+}
+
+void ensureContiguousLocations(size_t n) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->ensure_block(n);
+}

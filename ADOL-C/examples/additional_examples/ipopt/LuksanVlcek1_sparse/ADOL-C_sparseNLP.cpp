@@ -26,6 +26,7 @@
  *
  */
 
+#include <cassert>
 
 #include "ADOL-C_sparseNLP.hpp"
 
@@ -327,7 +328,8 @@ void MyADOLC_sparseNLP::generate_tapes(Index n, Index m, Index& nnz_jac_g, Index
   options_g[2] = -1;         /*                     &jacval is not computed */ 
   options_g[3] = 0;          /*                column compression (default) */ 
   
-  jacval=NULL;
+  this->jacval=NULL;
+  this->hessval=NULL;
   sparse_jac(tag_g, m, n, 0, xp, &nnz_jac, &rind_g, &cind_g, &jacval, options_g); 
 
   options_g[2] = 0;

@@ -26,10 +26,7 @@ endif
 endif
 endif
 
-BUILT_SOURCES = $(top_builddir)/ADOL-C/adolc/adolc.h
-
-$(top_builddir)/ADOL-C/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
+SUBDIRS += include
 
 MAINTAINERCLEANFILES = Makefile.in 
 
