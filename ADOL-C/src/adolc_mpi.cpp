@@ -588,13 +588,6 @@ int lagra_hess_vec_mpi(int id, int size, short tag,
      return rc;
 }
 
-void tape_doc_mpi( int id,int size,short tag, int m,int n, double* x, double* y){
-     if(id==0)
-        tape_doc(id+size*tag,m,n,x,y);
-     else
-        tape_doc(id+size*tag,0,0,x,y);
-}
-
 /* routines for user defined dependends and independends    */
 int function_mpi_distrib(int id, int size,short tag,int m,int n,double* argument ,double* result){
        return zos_forward_mpi(id,size,tag,m,n,0,argument,result);
