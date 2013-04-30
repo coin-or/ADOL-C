@@ -15,7 +15,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/tapedoc/tapedoc.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adalloc.h>
 
@@ -138,11 +138,11 @@ void filewrite_start( int opcode ) {
 #ifdef computenumbers
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r||r|r|r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double & value & value & value & value \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & & & &  \\\\ \\hline \n",opcode);
 #else
     fprintf(fp,"\\begin{tabular}{|r|r|r|l|r|r|r|r||r|r|} \\hline \n");
     fprintf(fp," & & code & op & loc & loc & loc & loc & double & double \\\\ \\hline \n");
-    fprintf(fp," %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
+    fprintf(fp," & & %i & start of tape & & & & & & & \\\\ \\hline \n",opcode);
 #endif
     pagelength = 0;
 }
@@ -296,7 +296,7 @@ void tape_doc(short tnum,         /* tape id */
         fprintf(DIAG_OUT,"ADOL-C error: Tape_doc on tape %d  aborted!\n",tag);
         fprintf(DIAG_OUT,"Number of dependent (%d) and/or independent (%d) "
                 "variables passed to Tape_doc is\ninconsistent with "
-                "number recorded on tape %d (%d:%d)\n", depcheck,
+                "number recorded on tape %d (%zu:%zu)\n", depcheck,
                 indcheck, tag, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);

@@ -2,7 +2,7 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## Revision: $Id: Makefile.am 38 2009-06-17 15:48:09Z awalther $
 ##
-## Copyright (C) Andrea Walther, Andreas Kowarz
+## Copyright (C) Andrea Walther, Andreas Kowarz, Kshitij Kulshreshtha
 ##
 ## This file is part of ADOL-C. This software is provided as open source.
 ## Any use, reproduction, or distribution of the software constitutes 
@@ -26,10 +26,7 @@ endif
 endif
 endif
 
-BUILT_SOURCES = $(top_builddir)/ADOL-C/adolc/adolc.h
-
-$(top_builddir)/ADOL-C/adolc/adolc.h:
-	$(LN_S) $(top_srcdir)/ADOL-C/src adolc
+SUBDIRS += include
 
 MAINTAINERCLEANFILES = Makefile.in 
 

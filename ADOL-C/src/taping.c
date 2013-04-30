@@ -6,7 +6,8 @@
            (operations, locations, constants, value stack)
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -17,7 +18,7 @@
 #include <math.h>
 #include <string.h>
 
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 
 #include <sys/types.h>
@@ -179,7 +180,7 @@ void fail( int error ) {
                     "independents(%u)\n"
                     "              variables passed to reverse is "
                     "inconsistent\n"
-                    "              with number recorded on tape(%u/%u)!\n",
+                    "              with number recorded on tape(%zu/%zu)!\n",
                     ADOLC_CURRENT_TAPE_INFOS.tapeID, failAdditionalInfo3,
                     failAdditionalInfo4,
                     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
@@ -221,7 +222,7 @@ void fail( int error ) {
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC:
             fprintf(DIAG_OUT,
-                    "ADOL-C error: No function for extern differentiation found"
+                    "ADOL-C error: No function for external differentiation found"
                     " to work with (null pointer)\n!");
             break;
         case ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT:
@@ -233,6 +234,11 @@ void fail( int error ) {
             fprintf(DIAG_OUT,
                     "ADOL-C error: Function with specified index not found!\n");
             break;
+
+        case ADOLC_EXT_DIFF_LOCATIONGAP:
+          fprintf(DIAG_OUT,
+                  "ADOL-C error: active type arguments passed to call_ext_fct do not have contiguous ascending locations; use ensureContiguousLocations(size_t) to reserve  contiguous blocks prior to allocation of the arguments.\n");
+          break;
 
         case ADOLC_CHECKPOINTING_CPINFOS_NULLPOINTER:
             fprintf(DIAG_OUT,
@@ -626,15 +632,15 @@ locint keep_stock() {
         /* special signal -> all alive adoubles recorded on the end of the
          * value stack -> special handling at the beginning of reverse */
         put_op(death_not);
-        ADOLC_PUT_LOCINT(1);    /* lowest loc */
+        ADOLC_PUT_LOCINT(0);    /* lowest loc */
         ADOLC_PUT_LOCINT(loc2); /* highest loc */
 
-        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
+        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize;
         /* now really do it if keepTaylors ist set */
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
             do {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
-            } while (--loc2 > 0);
+            } while (loc2-- > 0);
         }
     }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;

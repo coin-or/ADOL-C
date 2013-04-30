@@ -130,7 +130,11 @@ int main() {
                     y[i] *= x[0];
                     break;
                 case 2 :
-                    condassign(y[i],y[0]>y[1],y[1],y[0]);
+#ifndef ADOLC_ADVANCED_BRANCHING
+                    condassign(y[i],adouble(y[0]>y[1]),y[1],y[0]);
+#else 
+                    condassign(y[i],(y[0]>y[1]),y[1],y[0]);
+#endif 
                     break;
                 case 3 :
                     y[i] -= sin(x[j]);

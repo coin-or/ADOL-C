@@ -2,7 +2,7 @@
 /* ADOL-C/src/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* ADOL-C adouble zeroing mode */
-/* #undef ADOLC_ADOUBLE_STDCZERO */
+#define ADOLC_ADOUBLE_STDCZERO 1
 
 /* ADOL-C debug mode */
 /* #undef ADOLC_DEBUG */
@@ -13,23 +13,32 @@
 /* ADOL-C Patchlevel */
 #define ADOLC_PATCHLEVEL 0
 
-/* ADOL-C safe extern mode */
-/* #undef ADOLC_SAFE_EXTERN */
-
 /* ADOL-C Subversion */
-#define ADOLC_SUBVERSION 3
+#define ADOLC_SUBVERSION 4
 
 /* ADOL-C thread save errno mode */
 /* #undef ADOLC_THREADSAVE_ERRNO */
 
+/* Use calloc instead of malloc for memory allocation */
+#define ADOLC_USE_CALLOC 1
+
 /* ADOL-C Version */
 #define ADOLC_VERSION 2
+
+/* Define if the compiler provides __builtin_expect */
+#define HAVE_BUILTIN_EXPECT 0
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the `floor' function. */
 #define HAVE_FLOOR 1
+
+/* Define to 1 if you have the `fmax' function. */
+#define HAVE_FMAX 1
+
+/* Define to 1 if you have the `fmin' function. */
+#define HAVE_FMIN 1
 
 /* Define to 1 if you have the `ftime' function. */
 #define HAVE_FTIME 1
@@ -39,9 +48,6 @@
 
 /* Define 1 if ColPack is available */
 #define HAVE_LIBCOLPACK 1
-
-/* Define to 1 if you have the `m' library (-lm). */
-#define HAVE_LIBM 1
 
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
@@ -96,6 +102,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
 
+/* Define to 1 if you have the `trunc' function. */
+/* #undef HAVE_TRUNC */
+
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef HAVE_UNISTD_H */
 
@@ -116,7 +125,7 @@
 #define PACKAGE_NAME "adolc"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "adolc 2.3.0-trunk"
+#define PACKAGE_STRING "adolc 2.4.0-trunk"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "adolc"
@@ -125,10 +134,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.3.0-trunk"
+#define PACKAGE_VERSION "2.4.0-trunk"
 
 /* The size of `void *', as computed by sizeof. */
 #define SIZEOF_VOID_P 4
+
+/* Define 1 if sparse derivative propagation is to be enabled */
+#define SPARSE 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -140,7 +152,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.3.0-trunk"
+#define VERSION "2.4.0-trunk"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

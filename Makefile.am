@@ -21,9 +21,9 @@ EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
                        ADOL-C/doc/tapeadv.pdf ADOL-C/doc/tapeadv.eps \
                        ADOL-C/doc/tapebasic.pdf ADOL-C/doc/tapebasic.eps \
                        ADOL-C/doc/tap_point.pdf ADOL-C/doc/tap_point.eps \
-                       autoconf/shave.in autoconf/shave-libtool.in \
-                       autoconf/dolt.m4 autoconf/shave.m4 \
                        MSVisualStudio/v10/adolc.sln MSVisualStudio/v10/adolc.vcxproj \
+                       MSVisualStudio/v10/ColPack_Readme_VC++.txt \
+                       MSVisualStudio/v10/ColPack.vcxproj \
                        MSVisualStudio/v10/sparse/config.h.in MSVisualStudio/v10/nosparse/config.h.in \
                        MSVisualStudio/v10/x64/sparse/config.h.in MSVisualStudio/v10/x64/nosparse/config.h.in \
                        MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h \
@@ -31,16 +31,9 @@ EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
                        MSVisualStudio/v10/Readme_VC++.txt \
                        MSVisualStudio/v10/installer.sh \
                        adolc.spec.in adolc.spec \
-                       update_versions.sh \
-                       ThirdParty/ColPack/ColPack.vcxproj \
-                       ThirdParty/ColPack/Readme_VC++.txt
+                       update_versions.sh
 
 SUBDIRS              = ADOL-C
-
-MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure ADOL-C/src/config.h.in \
-                       ADOL-C/src/stamp-h.in *~ *.orig 
-
-DISTCLEANFILES = doltcompile doltlibtool
 
 test: all
 	cd ADOL-C; $(MAKE) test

@@ -11,8 +11,9 @@
               define _HOV_
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Kshitij Kulshreshtha
+
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
@@ -266,7 +267,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*                                                       NECESSARY INCLUDES */
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
-#include <adolc/oplate.h>
+#include "oplate.h"
 #include "taping_p.h"
 #include <adolc/convolut.h>
 
@@ -373,7 +374,7 @@ int hov_ti_reverse(
     locint arg1 = 0;
     locint arg2 = 0;
 
-    double coval = 0, *d = 0;
+    double coval = 0;
 
     int indexi = 0,  indexd = 0;
 
@@ -2038,6 +2039,472 @@ int hov_ti_reverse(
                             }
                         }
             break;
+                /*--------------------------------------------------------------------------*/
+		/* NEW CONDITIONALS */
+                /*--------------------------------------------------------------------------*/
+#if defined(ADOLC_ADVANCED_BRANCHING)
+            case neq_a_a:
+            case eq_a_a:
+            case le_a_a:
+            case ge_a_a:
+            case lt_a_a:
+            case gt_a_a:
+		res = get_locint_r();
+		arg1 = get_locint_r();
+		arg = get_locint_r();
+		coval = get_val_r();
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_pk1
+                ARES_INC = 0.0;
+
+                GET_TAYL(res,k,p)
+                break;
+#endif
+
+                /*--------------------------------------------------------------------------*/
+	    case subscript:
+		coval = get_val_r();
+		{
+		    size_t idx, numval = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
+		    res = get_locint_r();
+		    arg = get_locint_r();
+		    ASSIGN_T(Targ, rpp_T[arg])
+		    idx = (size_t)trunc(fabs(TARG));
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", numval, idx);
+		    arg1 = vectorloc+idx;
+		    ASSIGN_A(Aarg1, rpp_A[arg1])
+		    ASSIGN_A(Ares, rpp_A[res])
+
+		    FOR_0_LE_l_LT_p
+		    if (0 == ARES) {
+			HOV_INC(Aarg1, k1)
+			HOV_INC(Ares, k1)
+		    } else {
+			MAXDEC(AARG1,ARES);
+			AARG1_INC_O;
+			ARES_INC = 0.0;
+			FOR_0_LE_i_LT_k
+			{
+			    AARG1_INC += ARES;
+			    ARES_INC = 0.0;
+			}
+		    }
+		    GET_TAYL(res,k,p)
+		}
+		break;
+
+	    case subscript_ref:
+		coval = get_val_r();
+		{
+		    size_t idx, numval = (size_t)trunc(fabs(coval));
+		    locint vectorloc;
+		    vectorloc = get_locint_r();
+		    res = get_locint_r();
+		    arg = get_locint_r();
+		    ASSIGN_T(Targ, rpp_T[arg])
+		    ASSIGN_T(Tres, rpp_T[res])
+		    idx = (size_t)trunc(fabs(TARG));
+		    if (idx >= numval)
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
+		    arg1 = (size_t)trunc(fabs(TRES));
+		    // This is actually NOP 
+                    // basically all we need is that arg1 == vectorloc[idx]
+                    // so doing a check here is probably good
+		    if (arg1 != vectorloc+idx) {
+			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
+			exit(-2);
+		    }
+		    GET_TAYL(res,k,p)
+		}
+		break;
+
+	    case ref_copyout:
+		res = get_locint_r();
+		arg1 = get_locint_r();
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		arg = (size_t)trunc(fabs(TARG1));
+
+		ASSIGN_A(Ares, rpp_A[res])
+		ASSIGN_A(Aarg, rpp_A[arg])
+
+		FOR_0_LE_l_LT_p
+		if (0 == ARES) {
+		    HOV_INC(Aarg, k1)
+		    HOV_INC(Ares, k1)
+		} else {
+		    MAXDEC(AARG,ARES);
+		    AARG_INC_O;
+		    ARES_INC = 0.0;
+		    FOR_0_LE_i_LT_k
+		    {
+			AARG_INC += ARES;
+			ARES_INC = 0.0;
+		    }
+		}
+		GET_TAYL(res,k,p)
+		break;
+
+            case ref_incr_a:                        /* Increment an adouble    incr_a */
+            case ref_decr_a:                        /* Increment an adouble    decr_a */
+                arg1   = get_locint_r();
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+
+                GET_TAYL(res,k,p)
+                break;
+
+            case ref_assign_d:      /* assign an adouble variable a    assign_d */
+                /* double value. (=) */
+                coval = get_val_r();
+		// fallthrough 
+            case ref_assign_d_zero: /* assign an adouble a        assign_d_zero */
+            case ref_assign_d_one:  /* double value. (=)           assign_d_one */
+                arg1   = get_locint_r();
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_pk1
+                ARES_INC = 0.0;
+
+                GET_TAYL(res,k,p)
+                break;
+
+            case ref_assign_a:     /* assign an adouble variable an    assign_a */
+                /* adouble value. (=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+
+                ASSIGN_A(Aarg, rpp_A[arg])
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_p
+                if  (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Ares, k1)
+                } else {
+                    MAXDEC(AARG,ARES);
+                    AARG_INC_O;
+                    ARES_INC = 0.0;
+                    FOR_0_LE_i_LT_k
+                    { /* ! no tempory */
+                        AARG_INC += ARES;
+                        ARES_INC = 0.0;
+                    }
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+            case ref_assign_ind:       /* assign an adouble variable an    assign_ind */
+                /* independent double value (<<=) */
+                arg1 = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_p
+                {
+#ifdef _HOV_
+                    if (nonzero) /* ??? question: why here? */
+                    nonzero[l][indexi] = (int)ARES;
+#endif /* _HOV_ */
+                    ARES_INC_O;
+                    FOR_0_LE_i_LT_k
+                        RESULTS(l,indexi,i) = ARES_INC;
+                }
+
+                GET_TAYL(res,k,p)
+                    indexi--;
+                break;
+
+        case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
+            /* adouble. (+=) */
+                arg1   = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                GET_TAYL(res,k,p)
+                break;
+
+            case ref_eq_plus_a:             /* Add an adouble to another    eq_plus_a */
+                /* adouble. (+=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+
+                FOR_0_LE_l_LT_p
+                if  (0 == ARES) {
+                    HOV_INC(Ares, k1)
+                    HOV_INC(Aarg, k1)
+                } else {
+                    MAXDEC(AARG,ARES);
+                    AARG_INC_O;
+                    ARES_INC_O;
+                    FOR_0_LE_i_LT_k
+                    AARG_INC += ARES_INC;
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+	    case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
+                /* adouble. (-=) */
+                arg1   = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                GET_TAYL(res,k,p)
+                break;
+
+            case ref_eq_min_a:        /* Subtract an adouble from another    eq_min_a */
+                /* adouble. (-=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+		
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+
+                FOR_0_LE_l_LT_p
+                if  (0==ARES) {
+                    HOV_INC(Ares, k1)
+                    HOV_INC(Aarg, k1)
+                } else {
+                    MAXDEC(AARG,ARES);
+                    AARG_INC_O;
+                    ARES_INC_O;
+                    FOR_0_LE_i_LT_k
+                    AARG_INC -= ARES_INC;
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+	    case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
+                /* flaoting point. (*=) */
+                arg1   = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = get_val_r();
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_p
+                if ( 0 == ARES_INC )
+                    HOV_INC(Ares, k)
+                    else
+                        FOR_0_LE_i_LT_k
+                        ARES_INC *= coval;
+
+                GET_TAYL(res,k,p)
+                break;
+
+	case ref_eq_mult_a:       /* Multiply one adouble by another    eq_mult_a */
+                /* (*=) */
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+                ASSIGN_A(Aqo,  rp_Atemp)
+                ASSIGN_T(Tres, rpp_T[res])
+                ASSIGN_T(Targ, rpp_T[arg])
+
+                FOR_0_LE_l_LT_p {
+                    if (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                        HOV_INC(Ares, k1)
+                    } else {
+                        MAXDEC(ARES,2.0);
+                        MAXDEC(AARG,ARES);
+                        AARG_INC_O;
+                        ARES_INC_O;
+                        conv(k,Ares,Targ,rp_Atemp);
+                        if(arg != res) {
+                            inconv(k,Ares,Tres,Aarg);
+                            FOR_0_LE_i_LT_k
+                            ARES_INC = AQO_INC;
+                        } else
+                            FOR_0_LE_i_LT_k
+                            ARES_INC = 2.0 * AQO_INC;
+                        HOV_INC(Aarg,k)
+                        HOS_OV_INC(Tres,k)
+                        HOS_OV_INC(Targ,k)
+                        HOS_OV_ASSIGN_A(Aqo,  rp_Atemp)
+                    }
+            }
+                break;
+
+            case ref_cond_assign:                                      /* cond_assign */
+	    {   
+		revreal *Tref;
+		locint ref   = get_locint_r();
+                arg2  = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+		
+		ASSIGN_T(Tref, rpp_T[ref])
+
+#ifdef _HIGHER_ORDER_
+#define TREF  *Tref
+#else
+#define TREF   rpp_T[ref]
+#endif   
+
+		res = (size_t)trunc(fabs(TREF));
+#undef TREF
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_A(Aarg2, rpp_A[arg2])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                if (TARG > 0.0) {
+                    if (res != arg1)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg1, k1)
+                          } else {
+                              if (coval <= 0.0)
+                                  MINDEC(ret_c,2);
+                              MAXDEC(AARG1,ARES);
+                              ARES_INC = 0.0;
+                              AARG1_INC_O;
+                              FOR_0_LE_i_LT_k
+                              { AARG1_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                    }
+                    else
+                        FOR_0_LE_l_LT_p {
+                            if ((coval <= 0.0) && (ARES))
+                            MINDEC(ret_c,2);
+                            HOV_INC(Ares,  k1)
+                        }
+                    } else /* TARG <= 0.0 */
+            {
+                if (res != arg2)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg2, k1)
+                          } else {
+                              if (TARG == 0.0) /* we are at the tie */
+                              { MINDEC(ret_c,0);
+                                  AARG1 = 5.0;
+                                  AARG2_INC = 5.0;
+                              } else {
+                                  if (coval <= 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG2,ARES);
+                                  AARG2_INC_O;
+                              }
+                              ARES_INC = 0.0;
+
+                              FOR_0_LE_i_LT_k
+                              { AARG2_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                      HOV_INC(Aarg1, k1)
+                    } else
+                        FOR_0_LE_l_LT_p {
+                            if (ARES) {
+                            if (TARG == 0.0) /* we are at the tie */
+                                { MINDEC(ret_c,0);
+                                    AARG1 = 5.0;
+                                    AARG2 = 5.0;
+                                } else
+                                    if (coval <= 0.0)
+                                        MINDEC(ret_c,2);
+                            }
+                        HOV_INC(Ares,  k1)
+                        HOV_INC(Aarg1, k1)
+                        HOV_INC(Aarg2, k1)
+                    }
+                }
+	    }
+                break;
+
+            case ref_cond_assign_s:                                  /* cond_assign_s */
+                arg2   = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+		
+		ASSIGN_T(Targ2, rpp_T[arg2])
+		res = (size_t)trunc(fabs(TARG2));
+
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                if (TARG == 0.0) /* we are at the tie */
+                { FOR_0_LE_l_LT_p
+                    { if  (ARES)
+                      AARG1 = 5.0;
+                      HOV_INC(Aarg1, k1)
+                      HOV_INC(Ares,  k1)
+                    }
+                    MINDEC(ret_c,0);
+                } else
+                    if (TARG > 0.0) {
+                        if (res != arg1)
+                            FOR_0_LE_l_LT_p
+                            { if  (0 == ARES) {
+                              HOV_INC(Ares,  k1)
+                                  HOV_INC(Aarg1, k1)
+                              } else {
+                                  if (coval <= 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG1,ARES);
+                                  ARES_INC = 0.0;
+                                  AARG1_INC_O;
+                                  FOR_0_LE_i_LT_k
+                                  { (AARG1_INC) += ARES;
+                                    ARES_INC = 0;
+                                  }
+                              }
+                        }
+                        else
+                            FOR_0_LE_l_LT_p {
+                                if ((coval <= 0.0) && (ARES))
+                                MINDEC(ret_c,2);
+                                HOV_INC(Ares,  k1)
+                            }
+                        }
+            break;
 
                 /****************************************************************************/
                 /*                                                          REMAINING STUFF */
@@ -2046,7 +2513,7 @@ int hov_ti_reverse(
             case take_stock_op:                                  /* take_stock_op */
                 res = get_locint_r();
                 size = get_locint_r();
-                d = get_val_v_r(size);
+                get_val_v_r(size);
 
                 res += size;
                 for (ls=size;ls>0;ls--) {

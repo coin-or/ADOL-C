@@ -16,6 +16,7 @@
 #if !defined(ADOLC_COMMON_H)
 #define ADOLC_COMMON_H 1
 
+#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* standard includes */
 #if !defined(__cplusplus)
@@ -24,7 +25,6 @@
 #else
 #   include <cstdlib>
 #   include <cstdio>
-    using namespace std;
 #endif
 
 /*--------------------------------------------------------------------------*/
@@ -71,6 +71,10 @@
 #           define realloc rpl_realloc
 #       endif /* ADOLC_NO_REALLOC */
 
+#       ifndef HAVE_TRUNC
+#           define trunc(x) ( (x<0) ? ceil(x) : floor(x) )
+#       endif
+
 #   endif /* HAVE_CONFIG_H */
 #endif /* ADOLC_INTERNAL */
 
@@ -78,6 +82,7 @@
 /* developer and user parameters */
 #include <adolc/dvlparms.h>
 #include <adolc/usrparms.h>
+#include <adolc/adolc_settings.h>
 
 /*--------------------------------------------------------------------------*/
 /* windows dll exports/imports */
