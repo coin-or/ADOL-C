@@ -26,6 +26,8 @@
 #include <iostream>
 #include <limits>
 
+using std::cout;
+
 namespace adtl {
 
 size_t adouble::numDir = 1;

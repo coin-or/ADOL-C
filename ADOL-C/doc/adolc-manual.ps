@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
 %%Creator: dvips(k) 5.992 Copyright 2012 Radical Eye Software
 %%Title: adolc-manual.dvi
-%%CreationDate: Tue Apr 30 15:24:02 2013
+%%CreationDate: Tue Apr 30 15:27:28 2013
 %%Pages: 88
 %%PageOrder: Ascend
 %%BoundingBox: 0 0 612 792
@@ -13,7 +13,7 @@
 %DVIPSWebPage: (www.radicaleye.com)
 %DVIPSCommandLine: dvips adolc-manual.dvi
 %DVIPSParameters: dpi=600
-%DVIPSSource:  TeX output 2013.04.30:1524
+%DVIPSSource:  TeX output 2013.04.30:1527
 %%BeginProcSet: tex.pro 0 0
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -10685,8 +10685,8 @@ SDict begin [/Subtype /Link/Dest (Hfootnote.1) cvn/H /I/Border [0 0
 1]BorderArrayPatch/Color [1 0 0] H.B /ANN pdfmark end
  2293 606 a 853 839 a FB(A)39 b(P)m(ac)m(k)-7 b(age)37
 b(for)h(the)g(Automatic)e(Di\013eren)m(tiation)1129 1012
-y(of)i(Algorithms)e(W)-10 b(ritten)38 b(in)g(C/C++)1226
-1245 y FA(V)-9 b(ersion)38 b(2.4.0-trunk,)g(April)f(2013)1160
+y(of)i(Algorithms)e(W)-10 b(ritten)38 b(in)g(C/C++)1114
+1245 y FA(V)-9 b(ersion)38 b(2.4.0-mpi-trunk,)h(April)e(2013)1160
 1457 y Fz(Andrea)30 b(W)-8 b(alther)1799 1457 y
 SDict begin H.S end
  1799
@@ -19750,71 +19750,72 @@ a Fz(66)1861 b Ft(9)91 b(INST)-8 b(ALLING)30 b(AND)h(USING)g(ADOL-C)p
 Black Black Black 1223 606 a Fs(configure)46 b(-)h(make)g(-)g(make)g
 (install)28 b Fz(.)191 899 y(Executing)21 b(this)f(three)h(steps)f
 (from)g(the)g(pac)m(k)-5 b(age)22 b(base)f(directory)f
-Fs(</SOMEPATH/adolc-2.4.0-tru)o(nk>)191 1012 y Fz(will)j(compile)h(the)
-f(static)i(and)d(the)h(dynamic)g(ADOL-C)g(library)f(with)h(default)g
-(options)g(and)g(install)h(the)191 1125 y(pac)m(k)-5
-b(age)27 b(\(libraries)f(and)f(headers\))h(in)m(to)g(the)g(default)f
-(installation)j(directory)e Fs(<$HOME/adolc)p 3502 1125
-29 4 v 31 w(base>)p Fz(.)191 1237 y(Inside)35 b(the)i(install)f
-(directory)h(the)f(sub)s(directory)f Fs(include)f Fz(will)j(con)m(tain)
-g(all)g(the)f(installed)h(header)191 1350 y(\014les)c(that)h(ma)m(y)g
-(b)s(e)f(included)f(b)m(y)h(the)h(user)f(program,)h(the)f(sub)s
-(directory)f Fs(lib)h Fz(will)g(con)m(tain)i(the)f(32-)191
-1463 y(bit)i(compiled)h(library)f(and)g(the)g(sub)s(directory)f
-Fs(lib64)g Fz(will)i(con)m(tain)h(the)e(64-bit)i(compiled)e(library)-8
-b(.)191 1576 y(Dep)s(ending)30 b(on)g(the)h(compiler)g(only)f(one)h(of)
-f Fs(lib)g Fz(or)g Fs(lib64)f Fz(ma)m(y)i(b)s(e)f(created.)332
-1739 y(Before)45 b(doing)f(so)h(the)f(user)f(ma)m(y)i(mo)s(dify)e(the)i
-(header)f(\014le)g Fs(usrparms.h)d Fz(in)j(order)g(to)g(tailor)191
-1852 y(the)39 b(ADOL-C)g(pac)m(k)-5 b(age)40 b(to)g(the)f(needs)f(in)g
-(the)h(particular)g(system)g(en)m(vironmen)m(t)g(as)g(discussed)f(in)
-191 1965 y
+Fs(</SOMEPATH/adolc-2.4.0-mpi)o(-tru)o(nk>)191 1012 y
+Fz(will)j(compile)h(the)f(static)i(and)d(the)h(dynamic)g(ADOL-C)g
+(library)f(with)h(default)g(options)g(and)g(install)h(the)191
+1125 y(pac)m(k)-5 b(age)27 b(\(libraries)f(and)f(headers\))h(in)m(to)g
+(the)g(default)f(installation)j(directory)e Fs(<$HOME/adolc)p
+3502 1125 29 4 v 31 w(base>)p Fz(.)191 1237 y(Inside)35
+b(the)i(install)f(directory)h(the)f(sub)s(directory)f
+Fs(include)f Fz(will)j(con)m(tain)g(all)g(the)f(installed)h(header)191
+1350 y(\014les)c(that)h(ma)m(y)g(b)s(e)f(included)f(b)m(y)h(the)h(user)
+f(program,)h(the)f(sub)s(directory)f Fs(lib)h Fz(will)g(con)m(tain)i
+(the)f(32-)191 1463 y(bit)i(compiled)h(library)f(and)g(the)g(sub)s
+(directory)f Fs(lib64)g Fz(will)i(con)m(tain)h(the)e(64-bit)i(compiled)
+e(library)-8 b(.)191 1576 y(Dep)s(ending)30 b(on)g(the)h(compiler)g
+(only)f(one)h(of)f Fs(lib)g Fz(or)g Fs(lib64)f Fz(ma)m(y)i(b)s(e)f
+(created.)332 1739 y(Before)45 b(doing)f(so)h(the)f(user)f(ma)m(y)i(mo)
+s(dify)e(the)i(header)f(\014le)g Fs(usrparms.h)d Fz(in)j(order)g(to)g
+(tailor)191 1852 y(the)39 b(ADOL-C)g(pac)m(k)-5 b(age)40
+b(to)g(the)f(needs)f(in)g(the)h(particular)g(system)g(en)m(vironmen)m
+(t)g(as)g(discussed)f(in)191 1965 y
 SDict begin H.S end
- 191 1965 a Black Fz(Section)31 b(2.2)p Black
-625 1903 a
+ 191 1965 a Black
+Fz(Section)31 b(2.2)p Black 625 1903 a
 SDict begin H.R end
- 625 1903 a 625 1965 a
+ 625 1903 a 625
+1965 a
 SDict begin [/Color [1 0 0]/H /I/Border [0 0 1]BorderArrayPatch/Subtype
 /Link/Dest (subsection.2.2) cvn H.B /ANN pdfmark end
- 625 1965 a Fz(.)60 b(The)36
-b(con\014gure)h(pro)s(cedure)e(whic)m(h)i(creates)h(the)f(necessary)g
-Fs(Makefile)p Fz(s)e(can)i(b)s(e)f(cus-)191 2078 y(tomized)c(b)m(y)f
-(use)g(of)h(some)f(switc)m(hes.)44 b(Av)-5 b(ailable)33
-b(options)f(and)e(their)i(meaning)f(can)h(b)s(e)e(obtained)i(b)m(y)191
-2191 y(executing)g Fs(./configure)44 b(--help)29 b Fz(from)h(the)g(pac)
-m(k)-5 b(age)33 b(base)d(directory)-8 b(.)332 2353 y(All)44
-b(ob)5 b(ject)44 b(\014les)g(and)e(other)i(in)m(termediately)h
-(generated)g(\014les)e(can)h(b)s(e)e(remo)m(v)m(ed)j(b)m(y)e(the)g
-(call)191 2466 y Fs(make)k(clean)p Fz(.)39 b(Uninstalling)31
-b(ADOL-C)g(b)m(y)f(executing)h Fs(make)47 b(uninstall)28
-b Fz(is)i(only)h(reasonable)g(after)191 2579 y(a)c(previous)e(called)j
-Fs(make)46 b(install)25 b Fz(and)g(will)i(remo)m(v)m(e)g(all)h
-(installed)e(pac)m(k)-5 b(age)29 b(\014les)d(but)f(will)i(lea)m(v)m(e)i
-(the)191 2692 y(created)i(directories)h(b)s(ehind.)332
-2855 y(The)46 b(sparse)g(driv)m(ers)g(are)h(included)f(in)g(the)g
-(ADOL-C)h(libraries)f(if)h(the)g Fs(./configure)c Fz(com-)191
-2968 y(mand)f(is)g(executed)h(with)g(the)f(option)h Fs(--enable-sparse)
-p Fz(.)73 b(The)42 b(ColP)m(ac)m(k)i(library)e(a)m(v)-5
-b(ailable)45 b(at)191 3081 y Fs(http://www.cscapes.org/c)o(olor)o(ing)o
-(page)o(/sof)o(twa)o(re.h)o(tm)16 b Fz(is)22 b(required)f(to)i(compute)
-g(the)f(sparse)191 3193 y(structures,)41 b(and)d(is)h(searc)m(hed)h
-(for)f(in)f(all)i(the)g(default)f(lo)s(cations)h(as)g(w)m(ell)g(as)f
-(in)g(the)g(sub)s(directory)191 3306 y Fs(<ThirdParty/ColPack/>)p
-Fz(.)33 b(In)25 b(case)i(the)f(library)f(and)g(its)i(headers)e(are)h
-(installed)h(in)e(a)h(nonstandard)191 3419 y(path)32
-b(this)g(ma)m(y)h(b)s(e)e(sp)s(eci\014ed)h(with)f(the)i
-Fs(--with-colpack=PATH)27 b Fz(option.)46 b(It)32 b(is)g(assumed)g
-(that)h(the)191 3532 y(library)g(and)f(its)i(header)f(\014les)g(ha)m(v)
-m(e)h(the)g(follo)m(wing)g(directory)g(structure:)46
-b Fs(PATH/include)30 b Fz(con)m(tains)191 3645 y(all)c(the)f(header)g
-(\014les,)i Fs(PATH/lib)22 b Fz(con)m(tains)27 b(the)e(32-bit)h
-(compiled)g(library)f(and)f Fs(PATH/lib64)f Fz(con)m(tains)191
-3758 y(the)38 b(64-bit)h(compiled)f(library)-8 b(.)64
-b(Dep)s(ending)37 b(on)h(the)g(compiler)g(used)f(to)i(compile)g
-Fp(ADOL-C)e Fz(one)i(of)191 3871 y(these)31 b(libraries)f(will)h(b)s(e)
-f(used)f(for)h(linking.)332 4034 y(The)f(option)h Fs
-(--disable-stdczero)24 b Fz(turns)k(o\013)i(the)f(initialization)k(in)c
-(the)g Fp(adouble)h Fz(default)f(con-)191 4147 y(structor.)40
+ 625 1965 a Fz(.)60 b(The)36 b(con\014gure)h(pro)s(cedure)e(whic)
+m(h)i(creates)h(the)f(necessary)g Fs(Makefile)p Fz(s)e(can)i(b)s(e)f
+(cus-)191 2078 y(tomized)c(b)m(y)f(use)g(of)h(some)f(switc)m(hes.)44
+b(Av)-5 b(ailable)33 b(options)f(and)e(their)i(meaning)f(can)h(b)s(e)e
+(obtained)i(b)m(y)191 2191 y(executing)g Fs(./configure)44
+b(--help)29 b Fz(from)h(the)g(pac)m(k)-5 b(age)33 b(base)d(directory)-8
+b(.)332 2353 y(All)44 b(ob)5 b(ject)44 b(\014les)g(and)e(other)i(in)m
+(termediately)h(generated)g(\014les)e(can)h(b)s(e)e(remo)m(v)m(ed)j(b)m
+(y)e(the)g(call)191 2466 y Fs(make)k(clean)p Fz(.)39
+b(Uninstalling)31 b(ADOL-C)g(b)m(y)f(executing)h Fs(make)47
+b(uninstall)28 b Fz(is)i(only)h(reasonable)g(after)191
+2579 y(a)c(previous)e(called)j Fs(make)46 b(install)25
+b Fz(and)g(will)i(remo)m(v)m(e)g(all)h(installed)e(pac)m(k)-5
+b(age)29 b(\014les)d(but)f(will)i(lea)m(v)m(e)i(the)191
+2692 y(created)i(directories)h(b)s(ehind.)332 2855 y(The)46
+b(sparse)g(driv)m(ers)g(are)h(included)f(in)g(the)g(ADOL-C)h(libraries)
+f(if)h(the)g Fs(./configure)c Fz(com-)191 2968 y(mand)f(is)g(executed)h
+(with)g(the)f(option)h Fs(--enable-sparse)p Fz(.)73 b(The)42
+b(ColP)m(ac)m(k)i(library)e(a)m(v)-5 b(ailable)45 b(at)191
+3081 y Fs(http://www.cscapes.org/c)o(olor)o(ing)o(page)o(/sof)o(twa)o
+(re.h)o(tm)16 b Fz(is)22 b(required)f(to)i(compute)g(the)f(sparse)191
+3193 y(structures,)41 b(and)d(is)h(searc)m(hed)h(for)f(in)f(all)i(the)g
+(default)f(lo)s(cations)h(as)g(w)m(ell)g(as)f(in)g(the)g(sub)s
+(directory)191 3306 y Fs(<ThirdParty/ColPack/>)p Fz(.)33
+b(In)25 b(case)i(the)f(library)f(and)g(its)i(headers)e(are)h(installed)
+h(in)e(a)h(nonstandard)191 3419 y(path)32 b(this)g(ma)m(y)h(b)s(e)e(sp)
+s(eci\014ed)h(with)f(the)i Fs(--with-colpack=PATH)27
+b Fz(option.)46 b(It)32 b(is)g(assumed)g(that)h(the)191
+3532 y(library)g(and)f(its)i(header)f(\014les)g(ha)m(v)m(e)h(the)g
+(follo)m(wing)g(directory)g(structure:)46 b Fs(PATH/include)30
+b Fz(con)m(tains)191 3645 y(all)c(the)f(header)g(\014les,)i
+Fs(PATH/lib)22 b Fz(con)m(tains)27 b(the)e(32-bit)h(compiled)g(library)
+f(and)f Fs(PATH/lib64)f Fz(con)m(tains)191 3758 y(the)38
+b(64-bit)h(compiled)f(library)-8 b(.)64 b(Dep)s(ending)37
+b(on)h(the)g(compiler)g(used)f(to)i(compile)g Fp(ADOL-C)e
+Fz(one)i(of)191 3871 y(these)31 b(libraries)f(will)h(b)s(e)f(used)f
+(for)h(linking.)332 4034 y(The)f(option)h Fs(--disable-stdczero)24
+b Fz(turns)k(o\013)i(the)f(initialization)k(in)c(the)g
+Fp(adouble)h Fz(default)f(con-)191 4147 y(structor.)40
 b(This)27 b(will)h(impro)m(v)m(e)h(e\016ciency)g(but)e(requires)h(that)
 g(there)h(b)s(e)e(no)h(implicit)h(arra)m(y)f(initializa-)191
 4259 y(tion)j(in)f(the)g(co)s(de,)h(see)1022 4259 y
@@ -19846,11 +19847,12 @@ SDict begin H.R end
 SDict begin [/Color [1 0 0]/H /I/Border [0 0 1]BorderArrayPatch/Subtype
 /Link/Dest (subsection.9.1) cvn H.B /ANN pdfmark end
  2210 4878 a 29 w Fz(also)e(pro)m(vides)g
-(the)g Fs(Makefile)p Fz(s)d(to)k(compile)191 4991 y(the)e(example)h
-(programs)e(in)h(the)g(directories)h Fs(<adolc-2.4.0-trunk>/ADOL)o
-(-C/e)o(xam)o(ples)21 b Fz(and)28 b(the)191 5104 y(additional)39
-b(examples)f(in)g Fs(<adolc-2.4.0-trunk>/ADO)o(L-C)o(/exa)o(mple)o(s/a)
-o(ddit)o(iona)o(l_e)o(xamp)o(les)p Fz(.)191 5217 y(Ho)m(w)m(ev)m(er,)46
+(the)g Fs(Makefile)p Fz(s)d(to)k(compile)191 4991 y(the)23
+b(example)g(programs)f(in)h(the)g(directories)g Fs
+(<adolc-2.4.0-mpi-trunk>/AD)o(OL-)o(C/ex)o(ampl)o(es)16
+b Fz(and)191 5104 y(the)k(additional)i(examples)e(in)g
+Fs(<adolc-2.4.0-mpi-trunk>/AD)o(OL-)o(C/ex)o(ampl)o(es/)o(addi)o(tion)o
+(al_)o(exam)o(ples)o Fz(.)191 5217 y(Ho)m(w)m(ev)m(er,)46
 b(one)41 b(has)g(to)h(execute)g(the)f Fs(configure)e
 Fz(command)i(with)f(appropriate)h(options)h(for)f(the)191
 5330 y(ADOL-C)30 b(pac)m(k)-5 b(age)33 b(to)e(enable)g(the)f
@@ -20845,10 +20847,10 @@ SDict begin [/View [/XYZ H.V]/Dest (section.11) cvn /DEST pdfmark end
  191 1837 a 179 x FD(11)135 b(Example)46 b(Co)t(des)191
 2270 y Fz(The)29 b(follo)m(wing)i(listings)g(are)f(all)g(simpli\014ed)f
 (v)m(ersions)h(of)g(co)s(des)g(that)g(are)g(con)m(tained)h(in)e(the)h
-(example)191 2383 y(sub)s(directory)c Fs(<adolc-2.4.0-trunk>/ADOL-C)o
-(/ex)o(ampl)o(es)21 b Fz(of)28 b(ADOL-C.)g(In)f(particular,)h(w)m(e)g
-(ha)m(v)m(e)191 2496 y(left)j(out)g(timings,)g(whic)m(h)f(are)h
-(included)e(in)h(the)h(complete)h(co)s(des.)191 2648
+(example)191 2383 y(sub)s(directory)f Fs(<adolc-2.4.0-mpi-trunk>/A)o
+(DOL)o(-C/e)o(xamp)o(les)24 b Fz(of)30 b(ADOL-C.)h(In)e(particular,)i
+(w)m(e)191 2496 y(ha)m(v)m(e)h(left)f(out)f(timings,)h(whic)m(h)f(are)h
+(included)f(in)g(the)g(complete)i(co)s(des.)191 2648
 y
 SDict begin H.S end
  191 2648 a 191 2648 a
