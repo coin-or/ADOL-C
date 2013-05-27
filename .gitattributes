@@ -192,6 +192,7 @@ ADOL-C/include/adolc/adolc_settings.h.in -text
 ADOL-C/include/adolc/adolc_sparse.h -text
 ADOL-C/include/adolc/adouble.h -text
 ADOL-C/include/adolc/adoublecuda.h -text
+ADOL-C/include/adolc/adtl.h -text
 ADOL-C/include/adolc/adutils.h -text
 ADOL-C/include/adolc/adutilsc.h -text
 ADOL-C/include/adolc/advector.h -text
@@ -222,6 +223,7 @@ ADOL-C/src/Makefile.am -text
 ADOL-C/src/Makefile.in -text
 ADOL-C/src/adalloc.c -text
 ADOL-C/src/adouble.cpp -text
+ADOL-C/src/adouble_tl.cpp -text
 ADOL-C/src/advector.cpp -text
 ADOL-C/src/buffer_temp.h -text
 ADOL-C/src/checkpointing.cpp -text
@@ -314,9 +316,11 @@ MSVisualStudio/v10/x64/vcredist_x64.exe -text svneol=unset#unset
 /NEWS -text
 /README -text
 /TODO -text
+/acinclude.m4 -text
 /aclocal.m4 -text
 /adolc.spec -text
 /adolc.spec.in -text
+autoconf/acx_builtin.m4 -text
 autoconf/config.guess -text
 autoconf/config.sub -text
 autoconf/depcomp -text

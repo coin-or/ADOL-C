@@ -58,7 +58,9 @@ subdir = ADOL-C/include/adolc
 DIST_COMMON = $(pkginclude_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/adolc_settings.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/autoconf/acx_builtin.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -289,7 +291,7 @@ pkginclude_HEADERS = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
                        revolve.h advector.h adolc_settings.h \
-                       adoublecuda.h
+                       adtl.h adoublecuda.h
 
 SUBDIRS = drivers tapedoc $(am__append_1)
 EXTRA_DIST = adolc_settings.h.in
