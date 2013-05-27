@@ -1,5 +1,8 @@
 /* ADOL-C/src/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* ADOL-C adouble late initialization mode */
+#undef ADOLC_ADOUBLE_LATEINIT
+
 /* ADOL-C adouble zeroing mode */
 #undef ADOLC_ADOUBLE_STDCZERO
 
@@ -23,6 +26,9 @@
 
 /* ADOL-C Version */
 #undef ADOLC_VERSION
+
+/* Define if the compiler provides __builtin_expect */
+#undef HAVE_BUILTIN_EXPECT
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H

@@ -20,14 +20,11 @@
 #include <iostream>
 using namespace std;
 
-#define ADOLC_TAPELESS
-#define NUMBER_DIRECTIONS 3
-#include <adolc/adouble.h>
+#include <adolc/adtl.h>
 typedef adtl::adouble adouble;
 
-ADOLC_TAPELESS_UNIQUE_INTERNALS
-
 int main(int argc, char *argv[]) {
+    adtl::setNumDir(3);
     adouble x[3], y[3];
 
     for (int i=0; i<3;++i)          // Initialize x_i
