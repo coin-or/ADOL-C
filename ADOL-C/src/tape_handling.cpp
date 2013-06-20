@@ -1381,10 +1381,12 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
     // bringing the matched element to the front maybe a good idea
     // in case several contiguous adouble are deallcated right after 
     // one another, e.g. advector
-	      struct FreeBlock tmp(*iter);
-	      iter = indexFree.erase(iter);
-	      indexFree.push_front(tmp);
-	      iter = indexFree.begin();
+	      if (iter != indexFree.begin()) {
+		  struct FreeBlock tmp(*iter);
+		  iter = indexFree.erase(iter);
+		  indexFree.push_front(tmp);
+		  iter = indexFree.begin();
+	      }
 	      break;
          }
     }
