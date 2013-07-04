@@ -1233,6 +1233,7 @@ locint StoreManagerLocintBlock::next_loc() {
 
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerLocintBlock::next_loc: result: " << result << " fill: " << size() << "max: " << maxSize() << endl;
+    std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
     list<struct FreeBlock>::iterator iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
@@ -1255,6 +1256,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
     std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
     std::cerr << "searching for big enough block " << endl;
 #endif
+    consolidateBlocks();
     list<struct FreeBlock>::iterator iter = indexFree.begin();
     for (; iter != indexFree.end() ; iter++ ) {
 	if ( iter->size >= n) {
@@ -1276,6 +1278,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerLocintBlock::ensure_Block: " << " fill: " << size() << "max: " << maxSize() <<  " ensure_Block (" << n << ")" << endl;
+    std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
     iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
 	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
@@ -1363,6 +1366,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
     }
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "Growing:" << endl;
+    std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
     iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
@@ -1373,24 +1377,12 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
     assert( loc < maxsize);
 
     list<struct FreeBlock>::iterator iter = indexFree.begin();
-    for (; iter != indexFree.end() ; iter++ ) {
-         if (loc+1 == iter->next || iter->next + iter->size == loc) {
-              iter->size++;
-              if (loc + 1 == iter->next)
-                   iter->next = loc;
-    // bringing the matched element to the front maybe a good idea
-    // in case several contiguous adouble are deallcated right after 
-    // one another, e.g. advector
-	      if (iter != indexFree.begin()) {
-		  struct FreeBlock tmp(*iter);
-		  iter = indexFree.erase(iter);
-		  indexFree.push_front(tmp);
-		  iter = indexFree.begin();
-	      }
-	      break;
-         }
+    if (loc+1 == iter->next || iter->next + iter->size == loc) {
+	iter->size++;
+	if (loc + 1 == iter->next)
+	    iter->next = loc;
     }
-    if (iter == indexFree.end()) {
+    else {
          struct FreeBlock tmp;
          tmp.next = loc;
          tmp.size = 1;
@@ -1400,7 +1392,7 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
     --currentfill;
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
-
+    std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
     iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
@@ -1411,4 +1403,27 @@ void ensureContiguousLocations(size_t n) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->ensure_block(n);
+}
+
+void StoreManagerLocintBlock::consolidateBlocks() {
+    indexFree.sort();
+    list<struct FreeBlock>::iterator iter = indexFree.begin(), niter = iter++;
+    while (iter != indexFree.end()) {
+	if (niter->next + niter->size == iter->next) {
+	    niter->size += iter->size;
+	    indexFree.erase(iter);
+	    iter = niter;
+	    iter++;
+	} else {
+	    niter = iter;
+	    iter++;
+	}
+    }
+#ifdef ADOLC_LOCDEBUG
+    std::cerr << "StoreManagerLocintBlock::consolidateBlocks: " << " fill: " << size() << "max: " << maxSize() << endl;
+    std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
+    iter = indexFree.begin();
+    for( ; iter != indexFree.end(); iter++ )
+	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
+#endif
 }
