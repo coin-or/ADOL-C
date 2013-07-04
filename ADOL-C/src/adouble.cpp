@@ -171,7 +171,7 @@ adouble::adouble( const adub& a ) {
 
 /*--------------------------------------------------------------------------*/
 adouble::~adouble() {
-#ifdef overwrite
+#ifdef adolc_overwrite
     if (isInit)
 	free_loc(location);
 #endif
@@ -179,7 +179,7 @@ adouble::~adouble() {
 
 /*--------------------------------------------------------------------------*/
 adub::~adub() {
-#ifdef overwrite
+#ifdef adolc_overwrite
     if (isInit)
 	free_loc(location);
 #endif

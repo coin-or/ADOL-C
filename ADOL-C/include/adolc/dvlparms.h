@@ -46,8 +46,8 @@
 
 /*--------------------------------------------------------------------------*/
 /* ADOL-C configuration (never change this) */
-#define overwrite 1
-#define compsize >
+#define adolc_overwrite 1
+#define adolc_compsize >
 
 /*--------------------------------------------------------------------------*/
 #endif
