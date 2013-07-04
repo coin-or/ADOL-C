@@ -122,11 +122,16 @@ protected:
 	FreeBlock(): next(0), size(0) {}
 	FreeBlock(const struct FreeBlock &block) :
 	    next(block.next),size(block.size) {}
+	bool operator<(const struct FreeBlock& b) const {
+	    return (next < b.next);
+	}
     };
 
     std::list<struct FreeBlock> indexFree;
     size_t &maxsize;
     size_t &currentfill;
+
+    void consolidateBlocks();
 private:
     /**
      * when minGrow is specified we asssume that we have already
