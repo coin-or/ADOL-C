@@ -351,9 +351,9 @@ int int_reverse_safe(
     int oldTraceFlag;
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
-    void* buf;
+    void *buf, *rbuf;
     int count;
-    MPI_Datatype datatype; 
+    MPI_Datatype datatype, rtype; 
     int src; 
     int tag;
     enum AMPI_PairedWith_E pairedWith;
@@ -2298,6 +2298,30 @@ int int_reverse_safe(
 	  case ampi_wait: { 
 	    BW_AMPI_Wait(&request,
 			 status);
+	    break;
+	  }
+	  case ampi_gatherv: { 
+	    BW_AMPI_Gatherv(buf,
+			    count,
+			    datatype,
+			    rbuf,
+			    NULL,
+			    NULL,
+			    rtype,
+			    src,
+			    comm);
+	    break;
+	  }
+	  case ampi_scatterv: { 
+	    BW_AMPI_Scatterv(rbuf,
+			     NULL,
+			     NULL,
+			     rtype,
+			     buf,
+			     count,
+			     datatype,
+			     src,
+			     comm);
 	    break;
 	  }
 #endif
