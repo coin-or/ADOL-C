@@ -1,4 +1,5 @@
 #include <cassert>
+#include <climits>
 
 #include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
@@ -163,6 +164,80 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
   *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
 }
 
+
+void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
+                             void *rbuf,
+                             int *rcnts,
+                             int *displs,
+                             MPI_Datatype rtype,
+                             void *buf,
+                             int  count,
+                             MPI_Datatype type,
+                             int  root,
+                             MPI_Comm comm) { 
+  int i;
+  int minDispls=INT_MAX;
+  TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
+  for (i=0;i<commSizeForRootOrNull;++i) { 
+    TAPE_AMPI_push_int(rcnts[i]);
+    TAPE_AMPI_push_int(displs[i]);
+    if (rcnts[i]>0) { 
+      if (minDispls>displs[i])  minDispls=displs[i];
+    }
+  }
+  if (commSizeForRootOrNull>0) { 
+    assert(minDispls==0); // don't want to make assumptions about memory layout for nonzero displacements 
+    assert(rbuf);
+    locint start=((adouble*)(rbuf))->loc();
+    ADOLC_PUT_LOCINT(start); 
+    TAPE_AMPI_push_MPI_Datatype(rtype);
+  }
+  if (count>0) { 
+    assert(buf);
+    locint start=((adouble*)(buf))->loc();
+    ADOLC_PUT_LOCINT(start); 
+  }
+  else {
+    ADOLC_PUT_LOCINT(0); // have to put something 
+  }    
+  TAPE_AMPI_push_int(count);
+  TAPE_AMPI_push_MPI_Datatype(type);
+  TAPE_AMPI_push_int(root);
+  TAPE_AMPI_push_MPI_Comm(comm);
+  TAPE_AMPI_push_int(commSizeForRootOrNull); // counter at the end
+}
+
+void ADTOOL_AMPI_popGSVcommSizeForRootOrNull(int *commSizeForRootOrNull) {
+  TAPE_AMPI_pop_int(commSizeForRootOrNull);
+}
+
+void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
+			    void **rbuf,
+			    int *rcnts,
+			    int *displs,
+			    MPI_Datatype *rtype,
+			    void **buf,
+			    int *count,
+			    MPI_Datatype *type,
+			    int *root,
+			    MPI_Comm *comm) { 
+  int i;
+  TAPE_AMPI_pop_MPI_Comm(comm);
+  TAPE_AMPI_pop_int(root);
+  TAPE_AMPI_pop_MPI_Datatype(type);
+  TAPE_AMPI_pop_int(count);
+  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  if (commSizeForRootOrNull>0) { 
+    TAPE_AMPI_pop_MPI_Datatype(rtype);
+    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  }
+  for (i=commSizeForRootOrNull-1;i>=0;--i) { 
+    TAPE_AMPI_pop_int(&(displs[i]));
+    TAPE_AMPI_pop_int(&(rcnts[i]));
+  }
+  TAPE_AMPI_pop_int(&commSizeForRootOrNull);
+}
+
 void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
   
   switch(thisCall) { 
@@ -186,6 +261,12 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
     break;
   case AMPI_REDUCE:
     put_op(ampi_reduce);
+    break;
+  case AMPI_GATHERV:
+    put_op(ampi_gatherv);
+    break;
+  case AMPI_SCATTERV:
+    put_op(ampi_scatterv);
     break;
   default:
     assert(0);
@@ -237,7 +318,14 @@ void * ADTOOL_AMPI_rawData(void* activeData, int *size) {
   return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
 }
 
- void ADTOOL_AMPI_writeData(void* activeData,int *size) {}
+void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) { 
+  adouble* adouble_p=(adouble*)activeData; 
+  return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+}
+
+void ADTOOL_AMPI_writeData(void* activeData,int *size) {}
+
+void ADTOOL_AMPI_writeDataV(void* activeData, int *counts, int* displs) {}
 
 void * ADTOOL_AMPI_rawAdjointData(void* activeData) {
   return activeData;
@@ -427,6 +515,45 @@ int AMPI_Bcast(void* buf,
 		       datatype,
 		       root,
 		       comm);
+}
+
+int AMPI_Gatherv(void *sendbuf,
+                 int sendcnt,
+                 MPI_Datatype sendtype,
+                 void *recvbuf,
+                 int *recvcnts,
+                 int *displs,
+                 MPI_Datatype recvtype,
+                 int root,
+                 MPI_Comm comm) {
+  return FW_AMPI_Gatherv(sendbuf,
+			 sendcnt,
+			 sendtype,
+			 recvbuf,
+			 recvcnts,
+			 displs,
+			 recvtype,
+			 root,
+			 comm);
+}
+
+int AMPI_Scatterv(void *sendbuf,
+                  int *sendcnts,
+                  int *displs,
+                  MPI_Datatype sendtype,
+                  void *recvbuf,
+                  int recvcnt,
+                  MPI_Datatype recvtype,
+                  int root, MPI_Comm comm) {
+  return FW_AMPI_Scatterv(sendbuf,
+			  sendcnts,
+			  displs,
+			  sendtype,
+			  recvbuf,
+			  recvcnt,
+			  recvtype,
+			  root,
+			  comm);
 }
 
 int AMPI_Reduce(void* sbuf,

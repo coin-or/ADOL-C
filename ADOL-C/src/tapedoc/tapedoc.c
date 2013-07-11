@@ -1242,6 +1242,7 @@ void tape_doc(short tnum,         /* tape id */
                 TAPE_AMPI_read_int(loc_a+5); /* origin */
 		filewrite_ampi(operation, "ampi wait",6, loc_a);
 		break; 
+
 	    case ampi_bcast:
 	      loc_a[0] = get_locint_f();   /* start loc */
 	      TAPE_AMPI_read_int(loc_a+1); /* count */
@@ -1250,6 +1251,7 @@ void tape_doc(short tnum,         /* tape id */
 	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
 	      filewrite_ampi(operation, "ampi bcast",3, loc_a);
 	      break;
+
 	    case ampi_reduce: /* COME BACK HERE - ANTON */
 	      loc_a[0] = get_locint_f();   /* rbuf */
 	      loc_a[1] = get_locint_f();   /* sbuf */
@@ -1269,7 +1271,43 @@ void tape_doc(short tnum,         /* tape id */
 	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
 	      filewrite_ampi(operation, "ampi reduce",5, loc_a);
 	      break;
-	      
+
+            case ampi_gatherv: 
+	        TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+		for (l=0;l<*(loc_a+1);++l) { 
+		  TAPE_AMPI_read_int(loc_a+2); /* rcnts */
+		  TAPE_AMPI_read_int(loc_a+2); /* displs */
+		}
+		if (*(loc_a+1)>0) { 
+		  loc_a[2] = get_locint_f(); /* rbuf loc */
+		  TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+		}
+                TAPE_AMPI_read_int(loc_a+2); /* count */
+                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+                TAPE_AMPI_read_int(loc_a+4); /* root */
+                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	        TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+		filewrite_ampi(operation, "ampi gatherv",5, loc_a);
+		break;
+
+            case ampi_scatterv: 
+	        TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+		for (l=0;l<*(loc_a+1);++l) { 
+		  TAPE_AMPI_read_int(loc_a+2); /* rcnts */
+		  TAPE_AMPI_read_int(loc_a+2); /* displs */
+		}
+		if (*(loc_a+1)>0) { 
+		  loc_a[2] = get_locint_f(); /* rbuf loc */
+		  TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+		}
+                TAPE_AMPI_read_int(loc_a+2); /* count */
+                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+                TAPE_AMPI_read_int(loc_a+4); /* root */
+                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	        TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+		filewrite_ampi(operation, "ampi scatterv",5, loc_a);
+		break;
+
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */

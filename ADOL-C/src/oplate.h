@@ -112,7 +112,9 @@ enum OPCODES {
   ampi_irecv,
   ampi_wait,
   ampi_bcast,
-  ampi_reduce
+  ampi_reduce,
+  ampi_gatherv,
+  ampi_scatterv
 };
 
 /****************************************************************************/
