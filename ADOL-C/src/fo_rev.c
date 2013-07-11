@@ -352,8 +352,10 @@ int int_reverse_safe(
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
     void* buf;
+    void* rbuf;
     int count;
     MPI_Datatype datatype; 
+    MPI_Op op;
     int src; 
     int tag;
     enum AMPI_PairedWith_E pairedWith;
@@ -2298,6 +2300,24 @@ int int_reverse_safe(
 	  case ampi_wait: { 
 	    BW_AMPI_Wait(&request,
 			 status);
+	    break;
+	  }
+	  case ampi_bcast: {
+	    BW_AMPI_Bcast(buf,
+			  count,
+			  datatype,
+			  src,
+			  comm);
+	    break;
+	  }
+	  case ampi_reduce: {
+	    BW_AMPI_Reduce(buf,
+			   rbuf,
+			   count,
+			   datatype,
+			   op,
+			   src,
+			   comm);
 	    break;
 	  }
 #endif
