@@ -260,7 +260,7 @@ void tape_doc(short tnum,         /* tape id */
     MPI_Comm anMPI_Comm;
     MPI_Request anMPI_Request;
     MPI_Op anMPI_Op;
-    int rank,i;
+    int i;
     double aDouble;
     TAPE_AMPI_resetRead();
 #endif
