@@ -8,7 +8,7 @@
 #
 ##############################################################################
 define([ADOLC_VER], [2])
-define([ADOLC_SUB], [3])
+define([ADOLC_SUB], [4])
 define([ADOLC_LVL], [0])
 
 AC_PREREQ(2.67)
@@ -146,11 +146,13 @@ AC_SUBST(UINT_TYPE)
 
 AC_MSG_CHECKING(whether to use single or double precision)
 AC_ARG_ENABLE(double,[AS_HELP_STRING([--disable-double],
-  [disable double precision arithmetic [default=enabled]])],
+  [disable double precision arithmetic [untested, default=double is enabled]])],
   [use_double=$enableval],[use_double=yes])
 
 if test x$use_double = xno ; then
   REAL_TYPE=float
+  echo
+  echo -n "using ${REAL_TYPE} is not well tested, please report bugs if you find any..."
 else
   REAL_TYPE=double
 fi
@@ -228,6 +230,23 @@ AS_HELP_STRING([--disable-stdczero],[adouble default constructor does not initia
 
 if test x$adolc_stdczero == xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
+fi
+
+AC_MSG_CHECKING(wether the adouble varaibles have a late initialize option for functions like malloc/realloc)
+AC_ARG_ENABLE(lateinit,
+              [
+AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With malloc or realloc that is not the case. With this option the adouble can do an late initialization.) [default=disabled]])],
+  [
+  adolc_late_init=yes
+  AC_MSG_RESULT(yes)
+  ],
+  [
+  adolc_late_init=no
+  AC_MSG_RESULT(no)
+  ])
+
+if test x$adolc_late_init == xyes; then
+AC_DEFINE(ADOLC_ADOUBLE_LATEINIT,1,[ADOL-C adouble late initialization mode])
 fi
 
 AC_MSG_CHECKING(whether errno is thread save)
@@ -308,6 +327,9 @@ if test x$have_colpack = xyes; then
    echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
+if test x$sparse = xyes ; then
+   AC_DEFINE(SPARSE,[1],[Define 1 if sparse derivative propagation is to be enabled])
+fi
 
 if test x$sparse = xyes && test x$have_colpack = xyes; then
 	AC_DEFINE(HAVE_LIBCOLPACK,[1],[Define 1 if ColPack is available])
@@ -496,6 +518,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/doc/version.tex
                 ADOL-C/examples/Makefile
                 ADOL-C/examples/additional_examples/Makefile
+                ADOL-C/examples/additional_examples/cuda/Makefile
                 ADOL-C/examples/additional_examples/clock/Makefile
                 ADOL-C/examples/additional_examples/checkpointing/Makefile
                 ADOL-C/examples/additional_examples/ext_diff_func/Makefile
@@ -553,6 +576,7 @@ fi
 
 echo \
 "  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+  Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
   Build with adjoinable MPI support:  ${adolc_ampi_support}
