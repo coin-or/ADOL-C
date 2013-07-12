@@ -354,6 +354,7 @@ int int_reverse_safe(
     void *buf, *rbuf;
     int count;
     MPI_Datatype datatype, rtype; 
+    MPI_Op op;
     int src; 
     int tag;
     enum AMPI_PairedWith_E pairedWith;
@@ -2322,6 +2323,24 @@ int int_reverse_safe(
 			     datatype,
 			     src,
 			     comm);
+	    break;
+	  }
+	  case ampi_bcast: {
+	    BW_AMPI_Bcast(buf,
+			  count,
+			  datatype,
+			  src,
+			  comm);
+	    break;
+	  }
+	  case ampi_reduce: {
+	    BW_AMPI_Reduce(buf,
+			   rbuf,
+			   count,
+			   datatype,
+			   op,
+			   src,
+			   comm);
 	    break;
 	  }
 #endif

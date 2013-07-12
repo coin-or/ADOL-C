@@ -259,6 +259,9 @@ void tape_doc(short tnum,         /* tape id */
     MPI_Datatype anMPI_Datatype;
     MPI_Comm anMPI_Comm;
     MPI_Request anMPI_Request;
+    MPI_Op anMPI_Op;
+    int i;
+    double aDouble;
     TAPE_AMPI_resetRead();
 #endif
     init_for_sweep(tnum);
@@ -1276,6 +1279,34 @@ void tape_doc(short tnum,         /* tape id */
 		filewrite_ampi(operation, "ampi scatterv",5, loc_a);
 		break;
 
+	    case ampi_bcast:
+	      loc_a[0] = get_locint_f();   /* start loc */
+	      TAPE_AMPI_read_int(loc_a+1); /* count */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
+	      TAPE_AMPI_read_int(loc_a+2); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      filewrite_ampi(operation, "ampi bcast",3, loc_a);
+	      break;
+	    case ampi_reduce: /* COME BACK HERE - ANTON */
+	      loc_a[0] = get_locint_f();   /* rbuf */
+	      loc_a[1] = get_locint_f();   /* sbuf */
+	      TAPE_AMPI_read_int(loc_a+2); /* pushResultData */
+	      TAPE_AMPI_read_int(loc_a+3); /* count */
+	      i=0; /* read off stored double array into dummy variable */
+	      while (i<loc_a[3]) { TAPE_AMPI_read_double(&aDouble); i++; }
+	      if (loc_a[2]) {
+		i=0; /* for root, also read off stored reduction result */
+		while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
+	      }
+	      TAPE_AMPI_read_int(loc_a+3); /* count again */
+	      TAPE_AMPI_read_int(loc_a+2); /* pushResultData again */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
+	      TAPE_AMPI_read_MPI_Op(&anMPI_Op);
+	      TAPE_AMPI_read_int(loc_a+4); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      filewrite_ampi(operation, "ampi reduce",5, loc_a);
+	      break;
+	      
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
