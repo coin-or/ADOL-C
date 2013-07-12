@@ -351,8 +351,6 @@ int int_reverse_safe(
     int oldTraceFlag;
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
-    int count;
-    MPI_Datatype datatype; 
     MPI_Op op;
     void *buf, *rbuf;
     int count;
