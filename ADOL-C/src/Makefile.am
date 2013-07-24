@@ -73,6 +73,7 @@ if HAVE_MPI
 include $(top_srcdir)/autoconf/rules_mpi.in
 
 lib_LTLIBRARIES += libadolc_mpi.la
+if SPARSE
 libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
                            hos_forward_mpi.c hov_forward_mpi.c \
@@ -82,6 +83,13 @@ libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
                            nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
                            int_reverse_s_mpi.c int_reverse_t_mpi.c
+else
+libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
+                           zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \
+                           hos_forward_mpi.c hov_forward_mpi.c \
+                           fos_reverse_mpi.c fov_reverse_mpi.c \
+                           hos_reverse_mpi.c hov_reverse_mpi.c 
+endif
 
 libadolc_mpi_la_LIBADD = libadolc.la
 if SPARSE
