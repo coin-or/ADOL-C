@@ -175,6 +175,7 @@ int rc = -3;
     return rc;
 }
 
+#ifdef SPARSE
 /* int_forward_tight(rank,size,tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 int int_forward_tight(
     int id,int size,short tag,
@@ -271,4 +272,4 @@ int nonl_ind_forward_safe(
     return rc;
 }
 
-
+#endif
