@@ -648,7 +648,7 @@ int hov_ti_reverse(
 	MPI_Status status_MPI;
 	double *trade, *rec_buf;
 	int mpi_i,mpi_ii, myid, root, count,count2;
-     locint *loc_recv, *loc_send;
+     locint *loc_recv, *loc_send, cont;
      int target, tag;
 #endif /* is used by Parallelisation */
 
@@ -2618,9 +2618,16 @@ int hov_ti_reverse(
                 tag = get_locint_r(); // tag
                 target = get_locint_r(); // source
                 count = get_locint_r(); // count
+                cont = get_locint_r();
                 loc_recv = (locint*) malloc(count*sizeof(locint));
+                if( cont ){
+                    locint loc_s = get_locint_r();
+                    for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_recv[mpi_i] = loc_s + mpi_i;
+                } else
                 for(mpi_i=0;mpi_i<count;mpi_i++)
                      loc_recv[count-1-mpi_i] = get_locint_r();
+                cont = get_locint_r();
                 count2 = get_locint_r();
 #if defined(_HOS_)
                 trade = myalloc1((k+k1)*count);
@@ -2652,9 +2659,16 @@ int hov_ti_reverse(
 	           tag  = get_locint_r(); // tag
 	           target = get_locint_r(); // dest
                 count = get_locint_r(); // count
+                cont = get_locint_r();
                 loc_recv = (locint*) malloc(count*sizeof(locint));
-                for(mpi_i=0;mpi_i<count;mpi_i++)
-     	         loc_recv[count-1-mpi_i]  = get_locint_r(); // first Buffer
+                if( cont ){
+                    locint loc_s = get_locint_r();
+                    for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_recv[mpi_i] = loc_s + mpi_i;
+                } else
+                   for(mpi_i=0;mpi_i<count;mpi_i++)
+       	           loc_recv[count-1-mpi_i]  = get_locint_r(); // first Buffer
+                cont = get_locint_r();
                 count2 = get_locint_r(); // count
 
 #if defined(_HOS_)
@@ -2698,9 +2712,16 @@ int hov_ti_reverse(
                 myid = get_locint_r(); // process id
                 root = get_locint_r(); // root
                 count = get_locint_r(); // count
+                cont = get_locint_r();
                 loc_recv = (locint*) malloc(count*sizeof(locint));
+                if( cont ){
+                    locint loc_s = get_locint_r();
+                    for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_recv[mpi_i] = loc_s + mpi_i;
+                } else
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                   loc_recv[count-1-mpi_i] = get_locint_r();
+                     loc_recv[count-1-mpi_i] = get_locint_r();
+                cont = get_locint_r();
                 count2 = get_locint_r();
 #if defined(_HOS_)
                 trade = myalloc1((k+k1)*count);
@@ -2773,17 +2794,31 @@ int hov_ti_reverse(
                 root = get_locint_r(); // root
                 count2 = get_locint_r(); // count*process_count
                 if (root == myid){
-                   loc_recv = (locint*) malloc (count2*sizeof(locint));
-                   for(mpi_i=0;mpi_i<count2;mpi_i++)
-                      loc_recv[count2-1-mpi_i] = get_locint_r(); // Receive Buffer
+                    cont = get_locint_r();
+                    loc_recv = (locint*) malloc(count2*sizeof(locint));
+                    if( cont ){
+                         locint loc_s = get_locint_r();
+                         for(mpi_i=0;mpi_i<count2;mpi_i++)
+                              loc_recv[mpi_i] = loc_s + mpi_i;
+                    } else
+                    for(mpi_i=0;mpi_i<count2;mpi_i++)
+                     loc_recv[count2-1-mpi_i] = get_locint_r();
+                    cont = get_locint_r();
                 }
                 arg = get_locint_r(); // count*process_count
                 arg = get_locint_r(); // process id
                 arg = get_locint_r(); // root
                 count = get_locint_r(); // count
-                loc_send = (locint*) calloc(count,sizeof(locint));
+                cont = get_locint_r();
+                loc_send = (locint*) malloc(count*sizeof(locint));
+                if( cont ){
+                    locint loc_s = get_locint_r();
+                    for(mpi_i=0;mpi_i<count;mpi_i++)
+                         loc_send[mpi_i] = loc_s + mpi_i;
+                } else
                 for(mpi_i=0;mpi_i<count;mpi_i++)
-                   loc_send[count-1-mpi_i] = get_locint_r(); // Send Buffer
+                     loc_send[count-1-mpi_i] = get_locint_r();
+                cont = get_locint_r();
                 arg = get_locint_r(); // count
 #if defined(_HOS_)
                 rec_buf = NULL;
@@ -2843,17 +2878,31 @@ int hov_ti_reverse(
            /*--------------------------------------------------------------------------*/
            case scatter:
                count2 = get_locint_r(); // recvcount (count)
+               cont = get_locint_r();
                loc_recv = (locint*) malloc(count2*sizeof(locint));
-               for(mpi_i=0;mpi_i<count2;mpi_i++)
-                 loc_recv[count2-1-mpi_i] = get_locint_r(); // recv Buffer
+               if( cont ) {
+                  locint loc_s = get_locint_r();
+                  for(mpi_i=0;mpi_i<count2;mpi_i++)
+                     loc_recv[mpi_i] = loc_s + mpi_i;
+               } else
+                  for(mpi_i=0;mpi_i<count2;mpi_i++)
+                     loc_recv[count2-1-mpi_i] = get_locint_r();
+               cont = get_locint_r();
                arg = get_locint_r(); // recvcount (count)
                myid = get_locint_r(); // process id
                root = get_locint_r(); // root
                count = get_locint_r(); // sendcount (count*process_count)
                if(myid==root){
+                  cont = get_locint_r();
                   loc_send = (locint*) malloc(count*sizeof(locint));
-                  for(mpi_i=0;mpi_i<count;mpi_i++)
-                     loc_send[count-1-mpi_i]= get_locint_r();
+                  if( cont ) {
+                     locint loc_s = get_locint_r();
+                     for(mpi_i=0;mpi_i<count;mpi_i++)
+                        loc_send[mpi_i] = loc_s + mpi_i;
+                  } else
+                     for(mpi_i=0;mpi_i<count;mpi_i++)
+                        loc_send[count-1-mpi_i]= get_locint_r();
+                  cont = get_locint_r();
                }
                res = get_locint_r(); // id
                res = get_locint_r(); // root

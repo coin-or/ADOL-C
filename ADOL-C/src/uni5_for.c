@@ -1111,7 +1111,7 @@ tnum,
      double *trade, *rec_buf, *mpi_tmp;
      MPI_Status status_MPI;
      int mpi_i,mpi_ii, s_r_c=1;
-     locint *loc_send, *loc_recv;
+     locint *loc_send, *loc_recv, cont;
      int myid,root, count, count2, target,tag;
 #if defined(_NONLIND_OLD_)
      locint *tmp_element;
@@ -5079,9 +5079,16 @@ tnum,
 #if defined(_MPI_)
       case send_data:	// MPI-Send-Befehl
 	      count = get_locint_f(); // first Buffer
+           cont = get_locint_f();
            loc_send = (locint*) malloc(count*sizeof(locint));
-           for(mpi_i=0; mpi_i < count; mpi_i++)
-               loc_send[mpi_i] = get_locint_f();
+           if( cont ){
+              locint loc_s = get_locint_f();
+              for(mpi_i=0; mpi_i< count; mpi_i++)
+                loc_send[mpi_i] = loc_s + mpi_i;
+           } else
+              for(mpi_i=0; mpi_i < count; mpi_i++)
+                loc_send[mpi_i] = get_locint_f();
+           cont = get_locint_f();
            res = get_locint_f();
 	      target = get_locint_f(); // dest
 	      tag = get_locint_f(); // tag
@@ -5270,9 +5277,16 @@ tnum,
                 /*--------------------------------------------------------------------------*/
       case receive_data: // MPI-Receive
            count =get_locint_f(); // count
+           cont = get_locint_f();
            loc_recv = (locint*) malloc(count*sizeof(locint));
-           for(mpi_i=0; mpi_i<count;mpi_i++)
-               loc_recv[mpi_i] = get_locint_f();
+           if( cont){
+              locint loc_s = get_locint_f();
+              for(mpi_i=0; mpi_i < count; mpi_i++)
+                 loc_recv[mpi_i] = loc_s + mpi_i;
+           } else
+              for(mpi_i=0; mpi_i<count;mpi_i++)
+                 loc_recv[mpi_i] = get_locint_f();
+           cont = get_locint_f();
            res =get_locint_f(); // count
            target = get_locint_f(); // source
            tag = get_locint_f(); // tag
@@ -5480,9 +5494,16 @@ tnum,
 	      break;
       case broadcast:
            count = get_locint_f(); // count
+           cont = get_locint_f();
            loc_send = (locint*) malloc(count*sizeof(locint));
-           for(mpi_i=0;mpi_i<count;mpi_i++)
-              loc_send[mpi_i] = get_locint_f(); // Send Location
+           if( cont ){
+                locint loc_s = get_locint_f();
+                for(mpi_i=0; mpi_i < count; mpi_i++)
+                     loc_send[mpi_i] = loc_s + mpi_i;
+           } else
+              for(mpi_i=0;mpi_i<count;mpi_i++)
+                 loc_send[mpi_i] = get_locint_f(); // Send Location
+           cont = get_locint_f();
            count2 = get_locint_f(); // count
            root = get_locint_f(); // root
            myid = get_locint_f(); // process id
@@ -5789,17 +5810,31 @@ tnum,
            break;
       case gather:
            count = get_locint_f(); // count
+           cont = get_locint_f();
            loc_send = (locint*) malloc(count*sizeof(locint));
-           for(mpi_i=0; mpi_i < count ; mpi_i++)
+           if( cont ) {
+               locint loc_s = get_locint_f();
+               for(mpi_i=0; mpi_i < count; mpi_i++)
+                  loc_send[mpi_i] = loc_s + mpi_i;
+           } else
+             for(mpi_i=0; mpi_i < count ; mpi_i++)
                loc_send[mpi_i] = get_locint_f(); // Send Location
+           cont = get_locint_f();
            count = get_locint_f(); // count
            root = get_locint_f(); // root
            myid = get_locint_f(); // process id
            count2 = get_locint_f(); // count*process_count
            if(myid==root){
+             cont = get_locint_f();
              loc_recv = (locint*) malloc(count2*sizeof(locint));
-             for(mpi_i=0; mpi_i < count2 ; mpi_i++)
-                loc_recv[mpi_i] = get_locint_f(); // Receive Location
+             if( cont ){
+               locint loc_s = get_locint_f();
+               for(mpi_i=0; mpi_i < count2 ; mpi_i++)
+                loc_recv[mpi_i] = loc_s + mpi_i; // Receive Location
+             } else
+                for(mpi_i=0; mpi_i < count2 ; mpi_i++)
+                   loc_recv[mpi_i] = get_locint_f(); // Receive Location
+             cont = get_locint_f();
            }
            arg = get_locint_f(); // count*process_count
            arg = get_locint_f(); // root
@@ -6263,17 +6298,31 @@ tnum,
            root = get_locint_f();
            myid = get_locint_f();
            if(myid == root){
+             cont = get_locint_f();
              loc_send = (locint*) malloc(count*sizeof(locint));
-             for(mpi_i=0; mpi_i < count ; mpi_i++)
-               loc_send[mpi_i] = get_locint_f(); // Send Location
+             if( cont ) {
+                  locint loc_s = get_locint_f();
+                  for(mpi_i=0; mpi_i < count ; mpi_i++)
+                      loc_send[mpi_i] = loc_s + mpi_i;
+             } else
+                for(mpi_i=0; mpi_i < count ; mpi_i++)
+                  loc_send[mpi_i] = get_locint_f(); // Send Location
+             cont = get_locint_f();
            }
            res = get_locint_f(); // count*procsize
            res = get_locint_f(); // root
            res = get_locint_f(); // process id
            count2 = get_locint_f(); // count or recv_count
+           cont = get_locint_f();
            loc_recv = (locint*) malloc(count2*sizeof(locint));
-           for(mpi_i=0;mpi_i< count2; mpi_i++)
-             loc_recv[mpi_i] = get_locint_f(); // Receive Location
+           if( cont ){
+             locint loc_s = get_locint_f();
+             for(mpi_i=0;mpi_i< count2; mpi_i++)
+               loc_recv[mpi_i] = loc_s + mpi_i;
+           } else
+             for(mpi_i=0;mpi_i< count2; mpi_i++)
+               loc_recv[mpi_i] = get_locint_f(); // Receive Location
+           cont = get_locint_f();
            arg = get_locint_f(); // count
 #if defined(_ZOS_)
            // receiving values for dp_T0
