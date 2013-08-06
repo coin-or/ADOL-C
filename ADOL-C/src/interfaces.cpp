@@ -457,7 +457,7 @@ int reverse( short  tag,
            If p and U are omitted they default to m and I                   */
 { static int depax;
     static double** I;
-    if (m compsize depax) {
+    if (m adolc_compsize depax) {
         if (depax)
             myfreeI2(depax,I);
         I = myallocI2(depax = m);

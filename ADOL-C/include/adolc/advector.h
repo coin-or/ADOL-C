@@ -97,30 +97,30 @@ public:
     friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
 };
 
-class ADOLC_DLL_EXPORT advector {
+class advector {
 private:
-    struct blocker {
+    struct ADOLC_DLL_EXPORT blocker {
 	adouble *dflt;
 	blocker() {}
 	blocker(size_t n);
 	~blocker() {}
     } blk;
     std::vector<adouble> data;
-    bool nondecreasing() const;
+    ADOLC_DLL_EXPORT bool nondecreasing() const;
 public:
-    advector() : blk(), data() {}
-    explicit advector(size_t n) : blk(n), data(n, *blk.dflt) { delete blk.dflt; }
-    ~advector() {}
-    advector(const advector& x) : blk(x.data.size()), data(x.data) { delete blk.dflt; }
-    advector(const vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
-    size_t size() const { return data.size(); }
-    operator const vector<adouble>&() const { return data; }
-    operator vector<adouble>&() { return data; }
-    adub operator[](const badouble& index) const;
-    adubref operator[](const badouble& index);
-    adouble& operator[](size_t i) { return data[i]; }
-    const adouble& operator[](size_t i) const { return data[i]; }
-    adouble lookupindex(const badouble& x, const badouble& y) const;
+    ADOLC_DLL_EXPORT advector() : blk(), data() {}
+    ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n, *blk.dflt) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT ~advector() {}
+    ADOLC_DLL_EXPORT advector(const advector& x) : blk(x.data.size()), data(x.data) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT advector(const std::vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
+    ADOLC_DLL_EXPORT operator const std::vector<adouble>&() const { return data; }
+    ADOLC_DLL_EXPORT operator std::vector<adouble>&() { return data; }
+    ADOLC_DLL_EXPORT adub operator[](const badouble& index) const;
+    ADOLC_DLL_EXPORT adubref operator[](const badouble& index);
+    ADOLC_DLL_EXPORT adouble& operator[](size_t i) { return data[i]; }
+    ADOLC_DLL_EXPORT const adouble& operator[](size_t i) const { return data[i]; }
+    ADOLC_DLL_EXPORT adouble lookupindex(const badouble& x, const badouble& y) const;
 };
 
 #endif /* TAPELESS */

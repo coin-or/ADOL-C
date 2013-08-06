@@ -21,8 +21,7 @@
 #include <iostream>
 using namespace std;
 
-#define ADOLC_TAPELESS
-#include <adolc/adouble.h>
+#include <adolc/adtl.h>
 typedef adtl::adouble adouble;
 
 
@@ -35,7 +34,8 @@ int main(int argc, char *argv[]) {
     cout << endl << "Compute transform from Cartesian to spherical polar coordinates" << endl << endl;
 
     // derivative of y with respect to x0
-    x[0].setADValue(1);
+    double one=1.0;
+    x[0].setADValue(&one);
 
     y[0] = sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]);
     y[1] = atan(sqrt(x[0]*x[0]+x[1]*x[1])/x[2]);
@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
 
     // "use" the derivative
     cout << "derivative:" << endl;
-    cout << "dy[0]/dx[0] = " << y[0].getADValue() << "  dy[1]/dx[0] = " << y[1].getADValue()
-    << "  dy[2]/dx[0] = " << y[2].getADValue() << endl;
+    cout << "dy[0]/dx[0] = " << *y[0].getADValue() << "  dy[1]/dx[0] = " << *y[1].getADValue()
+    << "  dy[2]/dx[0] = " << *y[2].getADValue() << endl;
 
     return 0;
 }

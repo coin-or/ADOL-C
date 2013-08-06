@@ -762,7 +762,10 @@ int  hov_forward(
     locint arg1 = 0;
     locint arg2 = 0;
 
-    double coval = 0, *d = 0;
+#if !defined(_NTIGHT_)
+    double coval = 0;
+    double *d=NULL;
+#endif
 
     int indexi = 0,  indexd = 0;
 
@@ -788,9 +791,9 @@ int  hov_forward(
     int l=0;
 #endif
 #if defined (_INDO_)
+#if defined(_INDOPRO_)
     int l=0;
     int max_ind_dom;
-#if defined(_INDOPRO_)
     /* index domains */
     locint** ind_dom;
 #endif 
@@ -809,8 +812,6 @@ int  hov_forward(
 #if defined(_NONLIND_OLD_)
     /* nonlinear interaction domains */
     locint** nonl_dom;
-    locint*  temp;
-    locint*  temp1;
 #endif
 #endif
 
@@ -819,7 +820,9 @@ int  hov_forward(
 #if !defined (_INDO_)
 #if !defined (_INT_FOR_)
     double r0=0.0, x, y, divs;
+#if defined(_HIGHER_ORDER_)
     int even;
+#endif
 #endif
 #endif
 #endif
@@ -827,7 +830,7 @@ int  hov_forward(
 #if defined(_INT_FOR_)
 #ifdef _TIGHT_
     double  *dp_T0;
-    double y, divs;
+    double y;
 #endif /* _TIGHT_ */
 
     /* Taylor stuff */
@@ -844,8 +847,6 @@ int  hov_forward(
 #if defined(_INDO_)
 #ifdef _TIGHT_
     double  *dp_T0;
-    double  T0temp;
-    double divs;
 #endif /* _TIGHT_ */
 #define T0res  T0temp
 #define T0arg  T0temp
@@ -969,7 +970,7 @@ int  hov_forward(
         fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
                 "Number of dependent(%u) and/or independent(%u) variables passed"
                 " to forward is\ninconsistent with number "
-                "recorded on tape (%d, %d) \n", tnum,
+                "recorded on tape (%zu, %zu) \n", tnum,
                 depcheck, indcheck,
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
@@ -1315,7 +1316,10 @@ int  hov_forward(
             case assign_d:            /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -1498,7 +1502,10 @@ int  hov_forward(
             case eq_plus_d:            /* Add a floating point to an    eq_plus_d */
                 /* adouble. (+=) */
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -1549,7 +1556,10 @@ int  hov_forward(
             case eq_min_d:       /* Subtract a floating point from an    eq_min_d */
                 /* adouble. (-=) */
                 res = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -1600,7 +1610,10 @@ int  hov_forward(
             case eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
                 /* flaoting point. (*=) */
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -1749,7 +1762,10 @@ int  hov_forward(
                 /* (+) */
                 arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -1822,7 +1838,10 @@ int  hov_forward(
                 /* double (-) */
                 arg =get_locint_f();
                 res = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -2061,7 +2080,10 @@ int  hov_forward(
                 /* (*) */
                 arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -2102,7 +2124,7 @@ int  hov_forward(
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
 #if !defined(_NTIGHT_)
-#if !defined(_ZOS_) /* BREAK_ZOS */
+#if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
                 divs = 1.0 / dp_T0[arg2];
 #endif /* ALL_TOGETHER_AGAIN */
 
@@ -2164,7 +2186,10 @@ int  hov_forward(
         case div_d_a:             /* Division double - adouble (/)    div_d_a */
             arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -2174,7 +2199,7 @@ int  hov_forward(
                 }
 
 #if !defined(_NTIGHT_)
-#if !defined(_ZOS_) /* BREAK_ZOS */
+#if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
                 divs = 1.0 / dp_T0[arg];
 #endif /* ALL_TOGETHER_AGAIN */
 
@@ -3172,7 +3197,10 @@ int  hov_forward(
                 arg   = get_locint_f();
                 res   = get_locint_f();
 
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+                get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3184,7 +3212,7 @@ int  hov_forward(
 #if !defined(_NTIGHT_)
 
 #ifndef _ZOS_ /* BREAK_ZOS */
-#if !defined(_INT_FOR_)
+#if !defined(_INT_FOR_) && !defined(_INDO_)
                 T0arg   = dp_T0[arg];
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
@@ -3385,7 +3413,9 @@ int  hov_forward(
                   }
                   Targ = TargOP;
 
+#if defined(_HIGHER_ORDER_)
                   even = 1;
+#endif
                   FOR_0_LE_i_LT_k
                   { TRES_FOINC = r0 * TARG_INC;
 #if defined(_HIGHER_ORDER_)
@@ -3424,7 +3454,10 @@ int  hov_forward(
                 }
 #endif /* !_NTIGHT_ */
 
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval =
+#endif 
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3478,7 +3511,10 @@ int  hov_forward(
             arg1  = get_locint_f();
                 arg2  = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3644,7 +3680,10 @@ int  hov_forward(
             case abs_val:                                              /* abs_val */
                 arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3730,7 +3769,10 @@ int  hov_forward(
             case ceil_op:                                              /* ceil_op */
                 arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3766,7 +3808,10 @@ int  hov_forward(
             case floor_op:                 /* Compute ceil of adouble    floor_op */
                 arg   = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3808,7 +3853,10 @@ int  hov_forward(
                 arg1  = get_locint_f();
                 arg2  = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3921,7 +3969,10 @@ int  hov_forward(
                 arg   = get_locint_f();
                 arg1  = get_locint_f();
                 res   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
@@ -3990,7 +4041,10 @@ int  hov_forward(
             case ge_a_a:
             case lt_a_a:
             case gt_a_a:
-		coval = get_val_f();
+#if !defined(_NTIGHT_)
+		coval = 
+#endif
+		get_val_f();
 		arg = get_locint_f();
 		arg1 = get_locint_f();
 		res = get_locint_f();
@@ -4056,17 +4110,23 @@ int  hov_forward(
 
                 /*--------------------------------------------------------------------------*/
             case subscript:
-		coval = get_val_f();
+#if !defined(_NTIGHT_)
+		coval = 
+#endif
+		get_val_f();
 		arg = get_locint_f();
 		res = get_locint_f();
 		{
-		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+#if !defined(_NTIGHT_)
+		    size_t idx, numvar = (size_t)trunc(fabs(coval));
 		    locint vectorloc;
-		    vectorloc = get_locint_f();
+		    vectorloc = 
+#endif
+		    get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    if (idx >= numvar)
-			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", numvar, idx);
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", numvar, idx);
 		    arg1 = vectorloc+idx;
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = dp_T0[arg1];
@@ -4094,17 +4154,23 @@ int  hov_forward(
 		break;
 
             case subscript_ref:
-		coval = get_val_f();
+#if !defined(_NTIGHT_)
+		coval = 
+#endif
+		get_val_f();
 		arg = get_locint_f();
 		res = get_locint_f();
 		{
-		    size_t cnt, idx, numvar = (size_t)trunc(fabs(coval));
+#if !defined(_NTIGHT_)
+		    size_t idx, numvar = (size_t)trunc(fabs(coval));
 		    locint vectorloc;
-		    vectorloc = get_locint_f();
+		    vectorloc = 
+#endif
+		    get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    if (idx >= numvar)
-			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", numvar, idx);
+			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numvar, idx);
 		    arg1 = vectorloc+idx;
 		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = arg1;
@@ -4170,7 +4236,10 @@ int  hov_forward(
 
             case ref_assign_d:
 		arg = get_locint_f();
-		coval = get_val_f();
+#if !defined(_NTIGHT_)
+		coval = 
+#endif
+		get_val_f();
 		
 #if !defined(_NTIGHT_)
 		arg1 = (size_t)trunc(fabs(dp_T0[arg]));
@@ -4337,7 +4406,10 @@ int  hov_forward(
             case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
                 /* adouble. (+=) */
                 arg  = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
 
 #if !defined(_NTIGHT_)
@@ -4393,7 +4465,10 @@ int  hov_forward(
             case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
                 /* adouble. (-=) */
                 arg = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(dp_T0[arg]));
@@ -4448,7 +4523,10 @@ int  hov_forward(
             case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
                 /* flaoting point. (*=) */
                 arg = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(dp_T0[arg]));
@@ -4536,8 +4614,14 @@ int  hov_forward(
                 arg1  = get_locint_f();
                 arg2  = get_locint_f();
 		{ 
-		    locint ref = get_locint_f();
-		    coval = get_val_f();
+#if !defined(_NTIGHT_)
+		    locint ref = 
+#endif
+		    get_locint_f();
+#if !defined(_NTIGHT_)
+		    coval = 
+#endif
+		    get_val_f();
 #if !defined(_NTIGHT_)
 		    res   = (size_t)trunc(fabs(dp_T0[ref]));
 
@@ -4634,7 +4718,10 @@ int  hov_forward(
                 arg   = get_locint_f();
                 arg1  = get_locint_f();
                 arg2   = get_locint_f();
-                coval = get_val_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
 
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(dp_T0[arg2]));
@@ -4698,7 +4785,10 @@ int  hov_forward(
             case take_stock_op:                                  /* take_stock_op */
                 size = get_locint_f();
                 res  = get_locint_f();
-                d    = get_val_v_f(size);
+#if !defined(_NTIGHT_)
+		d =
+#endif
+                get_val_v_f(size);
 
                 for (ls=0;ls<size;ls++) {
 #if !defined(_NTIGHT_)
@@ -5059,7 +5149,6 @@ void traverse_crs(IndexElement* tree,  IndexElement_sod* sod, int num)
 {
 
   IndexElement_sod *temp, *temp1;
-  int ii;
 
   if (tree->left != NULL)
     {
@@ -5158,7 +5247,7 @@ void extend_nonlinearity_domain_binary_step
 (int arg1, int arg2, locint **ind_dom, locint **nonl_dom) 
 {
   int index,num,num1, num2, i,j,k,l,m;
-  locint *temp_nonl, *index_nonl_dom, *arg1_ind_dom, *arg2_ind_dom;
+  locint *temp_nonl, *index_nonl_dom;
 
   num = ind_dom[arg2][0];
 

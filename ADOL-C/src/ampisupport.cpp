@@ -283,17 +283,17 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
   case AMPI_IRECV:
     put_op(ampi_irecv);
     break;
-  case AMPI_GATHERV:
-    put_op(ampi_gatherv);
-    break;
-  case AMPI_SCATTERV:
-    put_op(ampi_scatterv);
-    break;
   case AMPI_BCAST:
     put_op(ampi_bcast);
     break;
   case AMPI_REDUCE:
     put_op(ampi_reduce);
+    break;
+  case AMPI_GATHERV:
+    put_op(ampi_gatherv);
+    break;
+  case AMPI_SCATTERV:
+    put_op(ampi_scatterv);
     break;
   default:
     assert(0);

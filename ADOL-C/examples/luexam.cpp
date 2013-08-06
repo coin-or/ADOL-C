@@ -25,6 +25,8 @@
 #include <iomanip>
 #include <sstream>
 
+using namespace std;
+
 adouble findmaxindex(const size_t n, const advector& col, const size_t k) {
     adouble idx = k;
     for (size_t j = k + 1; j < n; j++ )
