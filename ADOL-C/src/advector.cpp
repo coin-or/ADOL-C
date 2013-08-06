@@ -193,6 +193,7 @@ adubref& adubref::operator = ( const badouble& x ) {
 
 adubref& adubref::operator = ( const adubref& x ) {
     *this = adub(x);
+    return *this;
 }
 
 adubref& adubref::operator <<= ( double coval ) {
@@ -418,7 +419,6 @@ adub advector::operator[](const badouble& index) const {
     size_t idx = (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.loc()]));
     locint locat = next_loc();
     size_t n = data.size();
-    static size_t callcounter  = 0;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 	put_op(subscript);
 	ADOLC_PUT_LOCINT(index.loc());
@@ -432,7 +432,7 @@ adub advector::operator[](const badouble& index) const {
     }
 
     if (idx >= n)
-	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%z, idx=%z\n", n, idx);
+	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", n, idx);
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[data[idx].loc()];
     return locat;
@@ -457,7 +457,7 @@ adubref advector::operator[](const badouble& index) {
     }
 
     if (idx >= n)
-	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%z, idx=%z\n", n, idx);
+	fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", n, idx);
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = data[idx].loc();
     return adubref(locat,data[idx].loc());
@@ -474,7 +474,7 @@ adouble advector::lookupindex(const badouble& x, const badouble& y) const {
     }
     adouble r = 0;
     size_t n = data.size();
-    for (int i = 0; i < n; i++) 
+    for (size_t i = 0; i < n; i++) 
 	condassign(r, x - data[i]*y, (adouble) (i+1));
     return r;
 }

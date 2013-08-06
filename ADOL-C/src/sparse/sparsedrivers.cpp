@@ -114,7 +114,7 @@ void generate_seed_jac
 ) 
 #if HAVE_LIBCOLPACK
 {
-  int dummy, i, j;
+  int dummy;
 
     BipartiteGraphPartialColoringInterface *g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
 
@@ -196,7 +196,7 @@ void generate_seed_hess
 )
 #if HAVE_LIBCOLPACK 
 {
-  int seed_rows, i, j;
+  int seed_rows;
 
   GraphColoringInterface *g = new GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
 
@@ -262,8 +262,7 @@ int sparse_jac(
     int i;
     unsigned int j;
     SparseJacInfos sJinfos;
-    int dummy;
-    int ret_val;
+    int ret_val = 0;
     BipartiteGraphPartialColoringInterface *g;
     TapeInfos *tapeInfos;
     JacobianRecovery1D *jr1d;
@@ -690,7 +689,6 @@ void get_HP(
     unsigned int *** HP)
 #ifdef SPARSE
 {
-    SparseHessInfos sHinfos;
     TapeInfos *tapeInfos;
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -1054,7 +1052,6 @@ BEGIN_C_DECLS
 void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g, 
 			void *jr1d, int seed_rows, int seed_clms, int depen)
 {
-    int i;
     if(y)
       myfree1(y);
 
@@ -1083,8 +1080,6 @@ void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp, double 
                          double **Upp, unsigned int **HP,
                          void *g, void *hr, int p, int indep)
 {
-    int i;
-
     if(Hcomp)
       myfree2(Hcomp);
 
