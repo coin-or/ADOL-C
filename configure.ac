@@ -68,6 +68,9 @@ if test "x$libdir_set_on_cmd" = "xno" ; then
    AC_SUBST(libdir)
 fi
 
+# check for builtin
+ACX_C_BUILTIN_EXPECT
+
 # checks for header files
 AC_HEADER_STDC
 AC_HEADER_TIME
