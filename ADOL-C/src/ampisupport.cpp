@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include <climits>
 
 #include "ampi/ampi.h"
@@ -129,16 +130,42 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
 			    int tag,
 			    enum AMPI_PairedWith_E pairedWith,
 			    MPI_Comm comm) { 
-  if (count>0) { 
+  int i, dt_idx = derivedTypeIdx(datatype);
+  int total_actives, to_first_active, to_last_active;
+  if (isDerivedType(dt_idx)) {
+    derivedTypeData* dtdata = getDTypeData();
+    int fst_active_idx = dtdata->first_active_indices[dt_idx];
+    int lst_active_idx = dtdata->last_active_indices[dt_idx];
+    total_actives = dtdata->num_actives[dt_idx]*count;
+    to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+    to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
+      + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
+      + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+    /*for (i=0;i<dtdata->counts[dt_idx];i++) {
+      if (ADTOOL_AMPI_isActiveType(dtdata->arrays_of_types[dt_idx][i])==AMPI_ACTIVE) {
+	to_first_active = dtdata->arrays_of_displacements[dt_idx][i]; break;
+      }
+    }
+    for (i=dtdata->counts[dt_idx]-1;i>=0;i--) {
+      if (ADTOOL_AMPI_isActiveType(dtdata->arrays_of_types[dt_idx][i])==AMPI_ACTIVE) {
+	to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
+	  + dtdata->arrays_of_displacements[dt_idx][i]
+	  + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][i]-1);
+	break;
+      }
+      }*/
+  }
+  else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
+  if (count>0) {
     assert(buf);
-    locint start=((adouble*)(buf))->loc();
-    locint end=(((adouble*)(buf))+(count-1))->loc();
-    assert(start+count-1==end); // buf must have consecutive ascending locations 
+    locint start=((adouble*)((char*)buf+to_first_active))->loc();
+    locint end=((adouble*)((char*)buf+to_last_active))->loc();
+    assert(start+total_actives-1==end); // buf must have consecutive ascending locations 
     ADOLC_PUT_LOCINT(start); 
   }
   else {
     ADOLC_PUT_LOCINT(0); // have to put something 
-  }    
+  }
   TAPE_AMPI_push_int(count);
   TAPE_AMPI_push_MPI_Datatype(datatype);
   TAPE_AMPI_push_int(endPoint);
@@ -147,10 +174,10 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
   TAPE_AMPI_push_MPI_Comm(comm);
 }
 
-void ADTOOL_AMPI_popSRinfo(void** buf, 
+void ADTOOL_AMPI_popSRinfo(void** buf,
 			   int* count,
-			   MPI_Datatype* datatype, 
-			   int* endPoint, 
+			   MPI_Datatype* datatype,
+			   int* endPoint,
 			   int* tag,
 			   AMPI_PairedWith_E* pairedWith,
 			   MPI_Comm* comm,
@@ -161,9 +188,9 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
   TAPE_AMPI_pop_int(endPoint);
   TAPE_AMPI_pop_MPI_Datatype(datatype);
   TAPE_AMPI_pop_int(count);
-  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  locint l  = get_locint_r();
+  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[l]));
 }
-
 
 void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
                              void *rbuf,
@@ -293,7 +320,7 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
   TAPE_AMPI_pop_int((int*)&(ampiRequest->origin));
   TAPE_AMPI_pop_MPI_Request(&(ampiRequest->tracedRequest));
-  ADTOOL_AMPI_popSRinfo(&(ampiRequest->adjointBuf), 
+  ADTOOL_AMPI_popSRinfo(&(ampiRequest->adjointBuf),
 			&(ampiRequest->count),
 			&(ampiRequest->datatype),
 			&(ampiRequest->endPoint),
@@ -321,6 +348,74 @@ void * ADTOOL_AMPI_rawData(void* activeData, int *size) {
 void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) { 
   adouble* adouble_p=(adouble*)activeData; 
   return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+}
+
+void * ADTOOL_AMPI_rawData_DType(void* indata, int* count, int idx) {
+  if (idx==-1) return indata; /* not derived type, or only passive elements */
+  int i, j, s, p_mapsize, in_offset, out_offset;
+  MPI_Datatype datatype;
+  derivedTypeData* dtdata = getDTypeData();
+  p_mapsize = dtdata->p_mapsizes[idx];
+  char* outdata = (char*)malloc(*count*p_mapsize);
+  char *out_addr, *in_addr;
+  for (j=0;j<*count;j++) {
+    in_offset = j*dtdata->mapsizes[idx];
+    out_offset = j*p_mapsize;
+    for (i=0;i<dtdata->counts[idx];i++) {
+      datatype = dtdata->arrays_of_types[idx][i];
+      if (datatype==MPI_UB) break;
+      out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
+      in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_displacements[idx][i];
+      if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
+	memcpy(out_addr,
+	       ADTOOL_AMPI_rawData((void*)in_addr,&dtdata->arrays_of_blocklengths[idx][i]),
+	       sizeof(revreal)*dtdata->arrays_of_blocklengths[idx][i]);
+      }
+      else {
+	if (datatype==MPI_DOUBLE) s = (int)sizeof(double);
+	else if (datatype==MPI_INT) s = (int)sizeof(int);
+	else if (datatype==MPI_FLOAT) s = (int)sizeof(float);
+	else if (datatype==MPI_CHAR) s = (int)sizeof(char);
+	memcpy(out_addr,
+	       in_addr,
+	       s*dtdata->arrays_of_blocklengths[idx][i]);
+      }
+    }
+  }
+  return outdata;
+}
+
+void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int* count, int idx) {
+  if (idx==-1) return indata; /* not derived type, or only passive elements */
+  int i, j, s, in_offset, out_offset;
+  MPI_Datatype datatype;
+  derivedTypeData* dtdata = getDTypeData();
+  char *out_addr, *in_addr;
+  for (j=0;j<*count;j++) {
+    in_offset = j*dtdata->p_mapsizes[idx];
+    out_offset = j*dtdata->mapsizes[idx];
+    for (i=0;i<dtdata->counts[idx];i++) {
+      datatype = dtdata->arrays_of_types[idx][i];
+      if (datatype==MPI_UB) break;
+      out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_displacements[idx][i];
+      in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
+      if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
+	memcpy(ADTOOL_AMPI_rawData((void*)out_addr,&dtdata->arrays_of_blocklengths[idx][i]),
+	       in_addr,
+	       sizeof(revreal)*dtdata->arrays_of_blocklengths[idx][i]);
+      }
+      else {
+	if (datatype==MPI_DOUBLE) s = (int)sizeof(double);
+	else if (datatype==MPI_INT) s = (int)sizeof(int);
+	else if (datatype==MPI_FLOAT) s = (int)sizeof(float);
+	else if (datatype==MPI_CHAR) s = (int)sizeof(char);
+	memcpy(out_addr,
+	       in_addr,
+	       s*dtdata->arrays_of_blocklengths[idx][i]);
+      }
+    }
+  }
+  return outdata;
 }
 
 void ADTOOL_AMPI_writeData(void* activeData,int *size) {}
@@ -363,8 +458,11 @@ void* ADTOOL_AMPI_allocateTempBuf(int adjointCount,
                                   MPI_Comm comm) {
   size_t s=0;
   void* buf;
-  if(dataType==MPI_DOUBLE) s=sizeof(double);
+  int dt_idx = derivedTypeIdx(dataType);
+  if (dataType==AMPI_ADOUBLE) s=sizeof(revreal);
+  else if(dataType==MPI_DOUBLE) s=sizeof(double);
   else if(dataType==MPI_FLOAT) s=sizeof(float);
+  else if(dt_idx!=-1) s=getDTypeData()->p_mapsizes[dt_idx];
   else MPI_Abort(comm, MPI_ERR_TYPE);
   buf=malloc(adjointCount*s);
   assert(buf);
