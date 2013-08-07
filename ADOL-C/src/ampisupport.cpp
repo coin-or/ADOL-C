@@ -141,19 +141,6 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
     to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
       + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
       + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
-    /*for (i=0;i<dtdata->counts[dt_idx];i++) {
-      if (ADTOOL_AMPI_isActiveType(dtdata->arrays_of_types[dt_idx][i])==AMPI_ACTIVE) {
-	to_first_active = dtdata->arrays_of_displacements[dt_idx][i]; break;
-      }
-    }
-    for (i=dtdata->counts[dt_idx]-1;i>=0;i--) {
-      if (ADTOOL_AMPI_isActiveType(dtdata->arrays_of_types[dt_idx][i])==AMPI_ACTIVE) {
-	to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
-	  + dtdata->arrays_of_displacements[dt_idx][i]
-	  + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][i]-1);
-	break;
-      }
-      }*/
   }
   else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
   if (count>0) {
@@ -521,8 +508,11 @@ AMPI_Activity ADTOOL_AMPI_isActiveType(MPI_Datatype datatype) {
 };
 
 void ADTOOL_AMPI_setupTypes() {
-  AMPI_ADOUBLE=MPI_DOUBLE;
-  AMPI_AFLOAT=MPI_FLOAT;
+  MPI_Type_contiguous(1,MPI_DOUBLE,&AMPI_ADOUBLE);
+  MPI_Type_commit(&AMPI_ADOUBLE);
+  MPI_Type_contiguous(1,MPI_FLOAT,&AMPI_AFLOAT);
+  MPI_Type_commit(&AMPI_AFLOAT);
+
 };
 
 // tracing 
