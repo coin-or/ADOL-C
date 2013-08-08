@@ -16,20 +16,22 @@ void ADTOOL_AMPI_pushBcastInfo(void* buf,
 			       MPI_Datatype datatype,
 			       int root,
 			       MPI_Comm comm) {
-  if (count>0) {
-    assert(buf);
-    locint start=((adouble*)(buf))->loc();
-    locint end=(((adouble*)(buf))+(count-1))->loc();
-    assert(start+count-1==end);
-    ADOLC_PUT_LOCINT(start);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    if (count>0) {
+      assert(buf);
+      locint start=((adouble*)(buf))->loc();
+      locint end=(((adouble*)(buf))+(count-1))->loc();
+      assert(start+count-1==end);
+      ADOLC_PUT_LOCINT(start);
+    }
+    else {
+      ADOLC_PUT_LOCINT(0);
+    }
+    TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_MPI_Datatype(datatype);
+    TAPE_AMPI_push_int(root);
+    TAPE_AMPI_push_MPI_Comm(comm);
   }
-  else {
-    ADOLC_PUT_LOCINT(0);
-  }
-  TAPE_AMPI_push_int(count);
-  TAPE_AMPI_push_MPI_Datatype(datatype);
-  TAPE_AMPI_push_int(root);
-  TAPE_AMPI_push_MPI_Comm(comm);
 }
 
 void ADTOOL_AMPI_popBcastInfo(void** buf,
@@ -48,8 +50,10 @@ void ADTOOL_AMPI_popBcastInfo(void** buf,
 void ADTOOL_AMPI_pushDoubleArray(void* buf,
 				 int count) {
   int i;
-  for (i=0;i<count;i++) {
-    TAPE_AMPI_push_double(((adouble*)(buf))[i].value());
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    for (i=0;i<count;i++) {
+      TAPE_AMPI_push_double(((adouble*)(buf))[i].value());
+    }
   }
 }
 
@@ -70,32 +74,34 @@ void ADTOOL_AMPI_pushReduceInfo(void* sbuf,
 				MPI_Op op,
 				int root,
 				MPI_Comm comm) {
-  if (count>0) {
-    assert(rbuf);
-    locint rstart=((adouble*)(rbuf))->loc();
-    locint rend=(((adouble*)(rbuf))+(count-1))->loc();
-    assert(rstart+count-1==rend);
-    ADOLC_PUT_LOCINT(rstart);
-    assert(sbuf);
-    locint sstart=((adouble*)(sbuf))->loc();
-    locint send=(((adouble*)(sbuf))+(count-1))->loc();
-    assert(sstart+count-1==send);
-    ADOLC_PUT_LOCINT(sstart);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    if (count>0) {
+      assert(rbuf);
+      locint rstart=((adouble*)(rbuf))->loc();
+      locint rend=(((adouble*)(rbuf))+(count-1))->loc();
+      assert(rstart+count-1==rend);
+      ADOLC_PUT_LOCINT(rstart);
+      assert(sbuf);
+      locint sstart=((adouble*)(sbuf))->loc();
+      locint send=(((adouble*)(sbuf))+(count-1))->loc();
+      assert(sstart+count-1==send);
+      ADOLC_PUT_LOCINT(sstart);
+    }
+    else {
+      ADOLC_PUT_LOCINT(0);
+      ADOLC_PUT_LOCINT(0);
+    }
+    TAPE_AMPI_push_int(pushResultData);
+    TAPE_AMPI_push_int(count);
+    ADTOOL_AMPI_pushDoubleArray(sbuf,count);
+    if (pushResultData) ADTOOL_AMPI_pushDoubleArray(resultData,count);
+    TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_int(pushResultData);
+    TAPE_AMPI_push_MPI_Datatype(datatype);
+    TAPE_AMPI_push_MPI_Op(op);
+    TAPE_AMPI_push_int(root);
+    TAPE_AMPI_push_MPI_Comm(comm);
   }
-  else {
-    ADOLC_PUT_LOCINT(0);
-    ADOLC_PUT_LOCINT(0);
-  }
-  TAPE_AMPI_push_int(pushResultData);
-  TAPE_AMPI_push_int(count);
-  ADTOOL_AMPI_pushDoubleArray(sbuf,count);
-  if (pushResultData) ADTOOL_AMPI_pushDoubleArray(resultData,count);
-  TAPE_AMPI_push_int(count);
-  TAPE_AMPI_push_int(pushResultData);
-  TAPE_AMPI_push_MPI_Datatype(datatype);
-  TAPE_AMPI_push_MPI_Op(op);
-  TAPE_AMPI_push_int(root);
-  TAPE_AMPI_push_MPI_Comm(comm);
 }
 
 void ADTOOL_AMPI_popReduceInfo(void** sbuf,
@@ -130,35 +136,37 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
 			    int tag,
 			    enum AMPI_PairedWith_E pairedWith,
 			    MPI_Comm comm) { 
-  int i, dt_idx = derivedTypeIdx(datatype);
-  int total_actives, to_first_active, to_last_active;
-  if (isDerivedType(dt_idx)) {
-    derivedTypeData* dtdata = getDTypeData();
-    int fst_active_idx = dtdata->first_active_indices[dt_idx];
-    int lst_active_idx = dtdata->last_active_indices[dt_idx];
-    total_actives = dtdata->num_actives[dt_idx]*count;
-    to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
-    to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
-      + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
-      + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    int i, dt_idx = derivedTypeIdx(datatype);
+    int total_actives, to_first_active, to_last_active;
+    if (isDerivedType(dt_idx)) {
+      derivedTypeData* dtdata = getDTypeData();
+      int fst_active_idx = dtdata->first_active_indices[dt_idx];
+      int lst_active_idx = dtdata->last_active_indices[dt_idx];
+      total_actives = dtdata->num_actives[dt_idx]*count;
+      to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+      to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
+                                                  + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
+                                                                                            + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+    }
+    else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
+    if (count>0) {
+      assert(buf);
+      locint start=((adouble*)((char*)buf+to_first_active))->loc();
+      locint end=((adouble*)((char*)buf+to_last_active))->loc();
+      assert(start+total_actives-1==end); // buf must have consecutive ascending locations
+      ADOLC_PUT_LOCINT(start);
+    }
+    else {
+      ADOLC_PUT_LOCINT(0); // have to put something
+    }
+    TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_MPI_Datatype(datatype);
+    TAPE_AMPI_push_int(endPoint);
+    TAPE_AMPI_push_int(tag);
+    TAPE_AMPI_push_int(pairedWith);
+    TAPE_AMPI_push_MPI_Comm(comm);
   }
-  else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
-  if (count>0) {
-    assert(buf);
-    locint start=((adouble*)((char*)buf+to_first_active))->loc();
-    locint end=((adouble*)((char*)buf+to_last_active))->loc();
-    assert(start+total_actives-1==end); // buf must have consecutive ascending locations 
-    ADOLC_PUT_LOCINT(start); 
-  }
-  else {
-    ADOLC_PUT_LOCINT(0); // have to put something 
-  }
-  TAPE_AMPI_push_int(count);
-  TAPE_AMPI_push_MPI_Datatype(datatype);
-  TAPE_AMPI_push_int(endPoint);
-  TAPE_AMPI_push_int(tag);
-  TAPE_AMPI_push_int(pairedWith);
-  TAPE_AMPI_push_MPI_Comm(comm);
 }
 
 void ADTOOL_AMPI_popSRinfo(void** buf,
@@ -189,36 +197,38 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
                              MPI_Datatype type,
                              int  root,
                              MPI_Comm comm) { 
-  int i;
-  int minDispls=INT_MAX;
-  TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
-  for (i=0;i<commSizeForRootOrNull;++i) { 
-    TAPE_AMPI_push_int(rcnts[i]);
-    TAPE_AMPI_push_int(displs[i]);
-    if (rcnts[i]>0) { 
-      if (minDispls>displs[i])  minDispls=displs[i];
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    int i;
+    int minDispls=INT_MAX;
+    TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
+    for (i=0;i<commSizeForRootOrNull;++i) {
+      TAPE_AMPI_push_int(rcnts[i]);
+      TAPE_AMPI_push_int(displs[i]);
+      if (rcnts[i]>0) {
+        if (minDispls>displs[i])  minDispls=displs[i];
+      }
     }
+    if (commSizeForRootOrNull>0) {
+      assert(minDispls==0); // don't want to make assumptions about memory layout for nonzero displacements
+      assert(rbuf);
+      locint start=((adouble*)(rbuf))->loc();
+      ADOLC_PUT_LOCINT(start);
+      TAPE_AMPI_push_MPI_Datatype(rtype);
+    }
+    if (count>0) {
+      assert(buf);
+      locint start=((adouble*)(buf))->loc();
+      ADOLC_PUT_LOCINT(start);
+    }
+    else {
+      ADOLC_PUT_LOCINT(0); // have to put something
+    }
+    TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_MPI_Datatype(type);
+    TAPE_AMPI_push_int(root);
+    TAPE_AMPI_push_MPI_Comm(comm);
+    TAPE_AMPI_push_int(commSizeForRootOrNull); // counter at the end
   }
-  if (commSizeForRootOrNull>0) { 
-    assert(minDispls==0); // don't want to make assumptions about memory layout for nonzero displacements 
-    assert(rbuf);
-    locint start=((adouble*)(rbuf))->loc();
-    ADOLC_PUT_LOCINT(start); 
-    TAPE_AMPI_push_MPI_Datatype(rtype);
-  }
-  if (count>0) { 
-    assert(buf);
-    locint start=((adouble*)(buf))->loc();
-    ADOLC_PUT_LOCINT(start); 
-  }
-  else {
-    ADOLC_PUT_LOCINT(0); // have to put something 
-  }    
-  TAPE_AMPI_push_int(count);
-  TAPE_AMPI_push_MPI_Datatype(type);
-  TAPE_AMPI_push_int(root);
-  TAPE_AMPI_push_MPI_Comm(comm);
-  TAPE_AMPI_push_int(commSizeForRootOrNull); // counter at the end
 }
 
 void ADTOOL_AMPI_popGSVcommSizeForRootOrNull(int *commSizeForRootOrNull) {
@@ -253,39 +263,40 @@ void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
 }
 
 void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
-  
-  switch(thisCall) { 
-  case AMPI_WAIT:
-    put_op(ampi_wait);
-    break;
-  case AMPI_SEND:
-    put_op(ampi_send);
-    break;
-  case AMPI_RECV:
-    put_op(ampi_recv);
-    break;
-  case AMPI_ISEND:
-    put_op(ampi_isend);
-    break;
-  case AMPI_IRECV:
-    put_op(ampi_irecv);
-    break;
-  case AMPI_BCAST:
-    put_op(ampi_bcast);
-    break;
-  case AMPI_REDUCE:
-    put_op(ampi_reduce);
-    break;
-  case AMPI_GATHERV:
-    put_op(ampi_gatherv);
-    break;
-  case AMPI_SCATTERV:
-    put_op(ampi_scatterv);
-    break;
-  default:
-    assert(0);
-    break;
-  } 
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    switch(thisCall) {
+      case AMPI_WAIT:
+        put_op(ampi_wait);
+        break;
+      case AMPI_SEND:
+        put_op(ampi_send);
+        break;
+      case AMPI_RECV:
+        put_op(ampi_recv);
+        break;
+      case AMPI_ISEND:
+        put_op(ampi_isend);
+        break;
+      case AMPI_IRECV:
+        put_op(ampi_irecv);
+        break;
+      case AMPI_BCAST:
+        put_op(ampi_bcast);
+        break;
+      case AMPI_REDUCE:
+        put_op(ampi_reduce);
+        break;
+      case AMPI_GATHERV:
+        put_op(ampi_gatherv);
+        break;
+      case AMPI_SCATTERV:
+        put_op(ampi_scatterv);
+        break;
+      default:
+        assert(0);
+        break;
+    }
+  }
 }
 
 void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) { 
@@ -300,8 +311,10 @@ void ADTOOL_AMPI_push_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 			 ampiRequest->tag,
 			 ampiRequest->pairedWith,
 			 ampiRequest->comm);
-  TAPE_AMPI_push_MPI_Request(ampiRequest->tracedRequest);
-  TAPE_AMPI_push_int(ampiRequest->origin);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    TAPE_AMPI_push_MPI_Request(ampiRequest->tracedRequest);
+    TAPE_AMPI_push_int(ampiRequest->origin);
+  }
 }
 
 void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) { 
@@ -318,7 +331,7 @@ void ADTOOL_AMPI_pop_AMPI_Request(struct AMPI_Request_S  *ampiRequest) {
 }
 
 void ADTOOL_AMPI_push_request(MPI_Request request) { 
-  TAPE_AMPI_push_MPI_Request(request);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) TAPE_AMPI_push_MPI_Request(request);
 } 
 
 MPI_Request ADTOOL_AMPI_pop_request() {
