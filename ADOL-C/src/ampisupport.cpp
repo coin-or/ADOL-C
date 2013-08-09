@@ -2,15 +2,15 @@
 #include <cstring>
 #include <climits>
 
+#include "taping_p.h"
+#include "oplate.h"
+#include "adolc/adouble.h"
+
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
 #include "ampi/tape/support.h"
 #include "ampi/libCommon/modified.h"
-
-#include "taping_p.h"
-#include "oplate.h"
-#include "adolc/adouble.h"
 
 void ADTOOL_AMPI_pushBcastInfo(void* buf,
 			       int count,
