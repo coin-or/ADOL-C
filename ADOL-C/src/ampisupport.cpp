@@ -2,6 +2,7 @@
 #include <cstring>
 #include <climits>
 
+#ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
 #include "ampi/tape/support.h"
@@ -672,3 +673,4 @@ int AMPI_Reduce(void* sbuf,
 			root,
 			comm);
 }
+#endif
