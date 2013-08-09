@@ -262,7 +262,6 @@ void tape_doc(short tnum,         /* tape id */
     MPI_Op anMPI_Op;
     int i;
     double aDouble;
-    TAPE_AMPI_resetRead();
 #endif
     init_for_sweep(tnum);
     tag = tnum;

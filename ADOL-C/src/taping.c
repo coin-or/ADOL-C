@@ -24,6 +24,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef ADOLC_AMPI_SUPPORT
+#include "ampi/ampi.h"
+#include "ampi/tape/support.h"
+#endif
+
 #if defined(_WINDOWS) && !__STDC__
 #define stat _stat
 #define S_IFDIR _S_IFDIR
@@ -1435,6 +1440,9 @@ void init_for_sweep(short tag) {
     }
     ADOLC_CURRENT_TAPE_INFOS.numVals_Tape = number;
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetBottom();
+#endif
 }
 
 /****************************************************************************/
@@ -1552,6 +1560,9 @@ void init_rev_sweep(short tag) {
         ADOLC_CURRENT_TAPE_INFOS.stats[NUM_VALUES] - number;
     ADOLC_CURRENT_TAPE_INFOS.currVal =
         ADOLC_CURRENT_TAPE_INFOS.valBuffer + number;
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetTop();
+#endif
 }
 
 /****************************************************************************/
