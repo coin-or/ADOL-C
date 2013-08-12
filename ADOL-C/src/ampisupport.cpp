@@ -507,6 +507,18 @@ void ADTOOL_AMPI_adjointDivide(int adjointCount,
   for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]/=((revreal*)(source))[i];
 }
 
+void ADTOOL_AMPI_adjointEquals(int adjointCount,
+			       MPI_Datatype datatype,
+			       MPI_Comm comm,
+			       void* target,
+			       void* adjointTarget,
+			       void* checkAdjointTarget,
+			       void *source1,
+			       void *source2,
+			       void *idx) {
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]=((revreal*)(source1))[i]==((revreal*)(source2))[i];
+}
+
 void ADTOOL_AMPI_adjointNullify(int adjointCount,
                                 MPI_Datatype datatype,
                                 MPI_Comm comm,
