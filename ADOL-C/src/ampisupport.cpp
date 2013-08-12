@@ -188,6 +188,69 @@ void ADTOOL_AMPI_popSRinfo(void** buf,
   *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[l]));
 }
 
+void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull,
+                            void *rbuf,
+                            int rcnt,
+                            MPI_Datatype rtype,
+                            void *buf,
+                            int  count,
+                            MPI_Datatype type,
+                            int  root,
+                            MPI_Comm comm) {
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    int i;
+    int minDispls=INT_MAX;
+    TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
+    if(commSizeForRootOrNull>0) {
+      TAPE_AMPI_push_int(rcnt);
+      assert(rbuf);
+      locint start=((adouble*)(rbuf))->loc();
+      ADOLC_PUT_LOCINT(start);
+      TAPE_AMPI_push_MPI_Datatype(rtype);
+    }
+    if (count>0) {
+      assert(buf);
+      locint start=((adouble*)(buf))->loc();
+      ADOLC_PUT_LOCINT(start);
+    }
+    else {
+      ADOLC_PUT_LOCINT(0); // have to put something
+    }
+    TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_MPI_Datatype(type);
+    TAPE_AMPI_push_int(root);
+    TAPE_AMPI_push_MPI_Comm(comm);
+    TAPE_AMPI_push_int(commSizeForRootOrNull); // counter at the end
+  }
+}
+
+void ADTOOL_AMPI_popGScommSizeForRootOrNull(int *commSizeForRootOrNull) {
+  TAPE_AMPI_pop_int(commSizeForRootOrNull);
+}
+
+void ADTOOL_AMPI_popGSinfo(int commSizeForRootOrNull,
+                           void **rbuf,
+                           int *rcnt,
+                           MPI_Datatype *rtype,
+                           void **buf,
+                           int *count,
+                           MPI_Datatype *type,
+                           int *root,
+                           MPI_Comm *comm) {
+  int i;
+  TAPE_AMPI_pop_MPI_Comm(comm);
+  TAPE_AMPI_pop_int(root);
+  TAPE_AMPI_pop_MPI_Datatype(type);
+  TAPE_AMPI_pop_int(count);
+  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  if (commSizeForRootOrNull>0) {
+    TAPE_AMPI_pop_MPI_Datatype(rtype);
+    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+    TAPE_AMPI_pop_int(rcnt);
+  }
+  TAPE_AMPI_pop_int(&commSizeForRootOrNull);
+}
+
 void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
                              void *rbuf,
                              int *rcnts,
@@ -230,10 +293,6 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
     TAPE_AMPI_push_MPI_Comm(comm);
     TAPE_AMPI_push_int(commSizeForRootOrNull); // counter at the end
   }
-}
-
-void ADTOOL_AMPI_popGSVcommSizeForRootOrNull(int *commSizeForRootOrNull) {
-  TAPE_AMPI_pop_int(commSizeForRootOrNull);
 }
 
 void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
@@ -286,6 +345,12 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
         break;
       case AMPI_REDUCE:
         put_op(ampi_reduce);
+        break;
+      case AMPI_GATHER:
+        put_op(ampi_gather);
+        break;
+      case AMPI_SCATTER:
+        put_op(ampi_scatter);
         break;
       case AMPI_GATHERV:
         put_op(ampi_gatherv);
@@ -605,6 +670,41 @@ int AMPI_Wait(AMPI_Request *request,
               MPI_Status *status) {
   return FW_AMPI_Wait(request,
                       status);
+}
+
+int AMPI_Gather(void *sendbuf,
+                int sendcnt,
+                MPI_Datatype sendtype,
+                void *recvbuf,
+                int recvcnt,
+                MPI_Datatype recvtype,
+                int root,
+                MPI_Comm comm) {
+  return FW_AMPI_Gather(sendbuf,
+                        sendcnt,
+                        sendtype,
+                        recvbuf,
+                        recvcnt,
+                        recvtype,
+                        root,
+                        comm);
+}
+
+int AMPI_Scatter(void *sendbuf,
+                 int sendcnt,
+                 MPI_Datatype sendtype,
+                 void *recvbuf,
+                 int recvcnt,
+                 MPI_Datatype recvtype,
+                 int root, MPI_Comm comm) {
+  return FW_AMPI_Scatter(sendbuf,
+                         sendcnt,
+                         sendtype,
+                         recvbuf,
+                         recvcnt,
+                         recvtype,
+                         root,
+                         comm);
 }
 
 int AMPI_Gatherv(void *sendbuf,
