@@ -111,6 +111,8 @@ enum OPCODES {
   ampi_isend,
   ampi_irecv,
   ampi_wait,
+  ampi_gather,
+  ampi_scatter,
   ampi_gatherv,
   ampi_scatterv,
   ampi_bcast,
