@@ -1271,6 +1271,36 @@ void tape_doc(short tnum,         /* tape id */
 	      filewrite_ampi(operation, "ampi reduce",5, loc_a);
 	      break;
 
+	    case ampi_gather:
+	      TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+	      if (*(loc_a+1)>0) {
+	        TAPE_AMPI_read_int(loc_a+2); /* rcnt */
+	        loc_a[2] = get_locint_f(); /* rbuf loc */
+	        TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+	      }
+	      TAPE_AMPI_read_int(loc_a+2); /* count */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+	      TAPE_AMPI_read_int(loc_a+4); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+	      filewrite_ampi(operation, "ampi gather",5, loc_a);
+	      break;
+
+	    case ampi_scatter:
+	      TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+              if (*(loc_a+1)>0) {
+	        TAPE_AMPI_read_int(loc_a+2); /* rcnt */
+	        loc_a[2] = get_locint_f(); /* rbuf loc */
+	        TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+	      }
+	      TAPE_AMPI_read_int(loc_a+2); /* count */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+	      TAPE_AMPI_read_int(loc_a+4); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
+	      filewrite_ampi(operation, "ampi scatter",5, loc_a);
+	      break;
+
             case ampi_gatherv: 
 	        TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
 		for (l=0;l<*(loc_a+1);++l) { 
