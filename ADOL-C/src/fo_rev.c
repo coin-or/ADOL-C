@@ -353,7 +353,7 @@ int int_reverse_safe(
 #ifdef ADOLC_AMPI_SUPPORT
     MPI_Op op;
     void *buf, *rbuf;
-    int count;
+    int count, rcount;
     MPI_Datatype datatype, rtype;
     int src; 
     int tag;
@@ -2316,7 +2316,29 @@ int int_reverse_safe(
 			 status);
 	    break;
 	  }
-	  case ampi_gatherv: { 
+	  case ampi_gather: { 
+	    BW_AMPI_Gather(buf,
+			   count,
+			   datatype,
+			   rbuf,
+			   rcount,
+			   rtype,
+			   src,
+			   comm);
+	    break;
+	  }
+	  case ampi_scatter: {
+	    BW_AMPI_Scatter(rbuf,
+			    rcount,
+			    rtype,
+			    buf,
+			    count,
+			    datatype,
+			    src,
+			    comm);
+	    break;
+	  }
+	  case ampi_gatherv: {
 	    BW_AMPI_Gatherv(buf,
 			    count,
 			    datatype,
