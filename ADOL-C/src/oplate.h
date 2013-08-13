@@ -116,6 +116,7 @@ enum OPCODES {
   ampi_allgather,
   ampi_gatherv,
   ampi_scatterv,
+  ampi_allgatherv,
   ampi_bcast,
   ampi_reduce
 };
