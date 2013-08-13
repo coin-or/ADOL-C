@@ -58,11 +58,11 @@ void ADTOOL_AMPI_pushDoubleArray(void* buf,
   }
 }
 
-void ADTOOL_AMPI_popDoubleArray(void** buf,
+void ADTOOL_AMPI_popDoubleArray(double* buf,
 				int* count) {
   int i;
   for (i=*count-1;i>=0;i--) {
-    TAPE_AMPI_pop_double(((double**)buf)[i]);
+    TAPE_AMPI_pop_double(&(buf[i]));
   }
 }
 
@@ -125,8 +125,8 @@ void ADTOOL_AMPI_popReduceInfo(void** sbuf,
   TAPE_AMPI_pop_int(root);
   TAPE_AMPI_pop_MPI_Op(op);
   TAPE_AMPI_pop_int(&popResultData);
-  if (popResultData) ADTOOL_AMPI_popDoubleArray(resultData,count);
-  ADTOOL_AMPI_popDoubleArray(prevData,count);
+  if (popResultData) ADTOOL_AMPI_popDoubleArray((double*)(*resultData),count);
+  ADTOOL_AMPI_popDoubleArray((double*)(*prevData),count);
   TAPE_AMPI_pop_int(&popResultData);
   TAPE_AMPI_pop_int(count);
   *sbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
