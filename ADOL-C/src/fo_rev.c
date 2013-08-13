@@ -2338,6 +2338,16 @@ int int_reverse_safe(
 			    comm);
 	    break;
 	  }
+	  case ampi_allgather: {
+	    BW_AMPI_Allgather(buf,
+	                      count,
+	                      datatype,
+	                      rbuf,
+	                      rcount,
+	                      rtype,
+	                      comm);
+	    break;
+	  }
 	  case ampi_gatherv: {
 	    BW_AMPI_Gatherv(buf,
 			    count,
