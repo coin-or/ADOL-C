@@ -352,6 +352,9 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
       case AMPI_SCATTER:
         put_op(ampi_scatter);
         break;
+      case AMPI_ALLGATHER:
+        put_op(ampi_allgather);
+        break;
       case AMPI_GATHERV:
         put_op(ampi_gatherv);
         break;
@@ -717,6 +720,22 @@ int AMPI_Scatter(void *sendbuf,
                          recvtype,
                          root,
                          comm);
+}
+
+int AMPI_Allgather(void *sendbuf,
+                   int sendcnt,
+                   MPI_Datatype sendtype,
+                   void *recvbuf,
+                   int recvcnt,
+                   MPI_Datatype recvtype,
+                   MPI_Comm comm) {
+  return FW_AMPI_Allgather(sendbuf,
+                           sendcnt,
+                           sendtype,
+                           recvbuf,
+                           recvcnt,
+                           recvtype,
+                           comm);
 }
 
 int AMPI_Gatherv(void *sendbuf,
