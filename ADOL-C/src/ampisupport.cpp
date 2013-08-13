@@ -92,17 +92,23 @@ void ADTOOL_AMPI_pushReduceInfo(void* sbuf,
       ADOLC_PUT_LOCINT(0);
       ADOLC_PUT_LOCINT(0);
     }
-    TAPE_AMPI_push_int(pushResultData);
     TAPE_AMPI_push_int(count);
+    TAPE_AMPI_push_int(pushResultData);
     ADTOOL_AMPI_pushDoubleArray(sbuf,count);
     if (pushResultData) ADTOOL_AMPI_pushDoubleArray(resultData,count);
-    TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_int(pushResultData);
-    TAPE_AMPI_push_MPI_Datatype(datatype);
     TAPE_AMPI_push_MPI_Op(op);
     TAPE_AMPI_push_int(root);
     TAPE_AMPI_push_MPI_Comm(comm);
+    TAPE_AMPI_push_MPI_Datatype(datatype);
+    TAPE_AMPI_push_int(count);
   }
+}
+
+void ADTOOL_AMPI_popReduceCountAndType(int* count,
+				       MPI_Datatype* datatype) {
+  TAPE_AMPI_pop_int(count);
+  TAPE_AMPI_pop_MPI_Datatype(datatype);
 }
 
 void ADTOOL_AMPI_popReduceInfo(void** sbuf,
@@ -110,7 +116,6 @@ void ADTOOL_AMPI_popReduceInfo(void** sbuf,
 			       void** prevData,
 			       void** resultData,
 			       int* count,
-			       MPI_Datatype* datatype,
 			       MPI_Op* op,
 			       int* root,
 			       MPI_Comm* comm,
@@ -119,13 +124,11 @@ void ADTOOL_AMPI_popReduceInfo(void** sbuf,
   TAPE_AMPI_pop_MPI_Comm(comm);
   TAPE_AMPI_pop_int(root);
   TAPE_AMPI_pop_MPI_Op(op);
-  TAPE_AMPI_pop_MPI_Datatype(datatype);
   TAPE_AMPI_pop_int(&popResultData);
-  TAPE_AMPI_pop_int(count);
   if (popResultData) ADTOOL_AMPI_popDoubleArray(resultData,count);
   ADTOOL_AMPI_popDoubleArray(prevData,count);
-  TAPE_AMPI_pop_int(count);
   TAPE_AMPI_pop_int(&popResultData);
+  TAPE_AMPI_pop_int(count);
   *sbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
   *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
 }
@@ -416,13 +419,12 @@ void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) {
   return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
 }
 
-void * ADTOOL_AMPI_rawData_DType(void* indata, int* count, int idx) {
+void * ADTOOL_AMPI_rawData_DType(void* indata, void* outdata, int* count, int idx) {
   if (idx==-1) return indata; /* not derived type, or only passive elements */
   int i, j, s, p_mapsize, in_offset, out_offset;
   MPI_Datatype datatype;
   derivedTypeData* dtdata = getDTypeData();
   p_mapsize = dtdata->p_mapsizes[idx];
-  char* outdata = (char*)malloc(*count*p_mapsize);
   char *out_addr, *in_addr;
   for (j=0;j<*count;j++) {
     in_offset = j*dtdata->mapsizes[idx];
