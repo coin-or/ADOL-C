@@ -1242,6 +1242,11 @@ void tape_doc(short tnum,         /* tape id */
 		filewrite_ampi(operation, "ampi wait",6, loc_a);
 		break; 
 
+            case ampi_barrier:
+              TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+              filewrite_ampi(operation, "ampi barrier",0, loc_a);
+              break;
+
 	    case ampi_bcast:
 	      loc_a[0] = get_locint_f();   /* start loc */
 	      TAPE_AMPI_read_int(loc_a+1); /* count */

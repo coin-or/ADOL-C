@@ -331,6 +331,9 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
       case AMPI_WAIT:
         put_op(ampi_wait);
         break;
+      case AMPI_BARRIER:
+         put_op(ampi_barrier);
+         break;
       case AMPI_SEND:
         put_op(ampi_send);
         break;
@@ -416,6 +419,16 @@ MPI_Request ADTOOL_AMPI_pop_request() {
   MPI_Request r;
   TAPE_AMPI_pop_MPI_Request(&r);
   return r;
+}
+
+void ADTOOL_AMPI_push_comm(MPI_Comm comm) {
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) TAPE_AMPI_push_MPI_Comm(comm);
+}
+
+MPI_Comm ADTOOL_AMPI_pop_comm() {
+  MPI_Comm c;
+  TAPE_AMPI_pop_MPI_Comm(&c);
+  return c;
 }
 
 void * ADTOOL_AMPI_rawData(void* activeData, int *size) { 
@@ -693,6 +706,10 @@ int AMPI_Wait(AMPI_Request *request,
               MPI_Status *status) {
   return FW_AMPI_Wait(request,
                       status);
+}
+
+int AMPI_Barrier(MPI_Comm comm) {
+  return FW_AMPI_Barrier(comm);
 }
 
 int AMPI_Gather(void *sendbuf,

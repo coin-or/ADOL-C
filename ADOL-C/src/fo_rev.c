@@ -2316,6 +2316,10 @@ int int_reverse_safe(
 			 status);
 	    break;
 	  }
+	  case ampi_barrier: {
+	    BW_AMPI_Barrier(comm);
+	    break;
+	  }
 	  case ampi_gather: { 
 	    BW_AMPI_Gather(buf,
 			   count,
