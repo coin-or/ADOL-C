@@ -1251,7 +1251,7 @@ void tape_doc(short tnum,         /* tape id */
 	      filewrite_ampi(operation, "ampi bcast",3, loc_a);
 	      break;
 
-	case ampi_reduce:
+	    case ampi_reduce:
 	      loc_a[0] = get_locint_f();   /* rbuf */
 	      loc_a[1] = get_locint_f();   /* sbuf */
 	      TAPE_AMPI_read_int(loc_a+2); /* count */
@@ -1259,8 +1259,8 @@ void tape_doc(short tnum,         /* tape id */
 	      i=0; /* read off stored double array into dummy variable */
 	      while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
 	      if (loc_a[3]) {
-		i=0; /* for root, also read off stored reduction result */
-		while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
+	        i=0; /* for root, also read off stored reduction result */
+	        while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
 	      }
 	      TAPE_AMPI_read_int(loc_a+3); /* pushResultData again */
 	      TAPE_AMPI_read_MPI_Op(&anMPI_Op);
@@ -1269,6 +1269,26 @@ void tape_doc(short tnum,         /* tape id */
 	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
 	      TAPE_AMPI_read_int(loc_a+2); /* count again */
 	      filewrite_ampi(operation, "ampi reduce",5, loc_a);
+	      break;
+
+	    case ampi_allreduce:
+	      loc_a[0] = get_locint_f();   /* rbuf */
+	      loc_a[1] = get_locint_f();   /* sbuf */
+	      TAPE_AMPI_read_int(loc_a+2); /* count */
+	      TAPE_AMPI_read_int(loc_a+3); /* pushResultData */
+	      i=0; /* read off stored double array into dummy variable */
+	      while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
+	      if (loc_a[3]) {
+	        i=0; /* for root, also read off stored reduction result */
+	        while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
+	      }
+	      TAPE_AMPI_read_int(loc_a+3); /* pushResultData again */
+	      TAPE_AMPI_read_MPI_Op(&anMPI_Op);
+	      TAPE_AMPI_read_int(loc_a+4); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
+	      TAPE_AMPI_read_int(loc_a+2); /* count again */
+	      filewrite_ampi(operation, "ampi allreduce",5, loc_a);
 	      break;
 
 	    case ampi_gather:

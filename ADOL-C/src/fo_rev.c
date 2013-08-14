@@ -2401,6 +2401,15 @@ int int_reverse_safe(
 			   comm);
 	    break;
 	  }
+	  case ampi_allreduce: {
+	    BW_AMPI_Allreduce(buf,
+	                      rbuf,
+	                      count,
+	                      datatype,
+	                      op,
+	                      comm);
+	    break;
+	  }
 #endif
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/

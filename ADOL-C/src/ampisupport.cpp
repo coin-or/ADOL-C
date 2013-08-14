@@ -349,6 +349,9 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
       case AMPI_REDUCE:
         put_op(ampi_reduce);
         break;
+      case AMPI_ALLREDUCE:
+        put_op(ampi_allreduce);
+        break;
       case AMPI_GATHER:
         put_op(ampi_gather);
         break;
@@ -827,4 +830,19 @@ int AMPI_Reduce(void* sbuf,
 			root,
 			comm);
 }
+
+int AMPI_Allreduce(void* sbuf,
+                   void* rbuf,
+                   int count,
+                   MPI_Datatype datatype,
+                   MPI_Op op,
+                   MPI_Comm comm) {
+  return FW_AMPI_Allreduce(sbuf,
+                           rbuf,
+                           count,
+                           datatype,
+                           op,
+                           comm);
+}
+
 #endif
