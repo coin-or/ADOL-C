@@ -576,6 +576,19 @@ void ADTOOL_AMPI_releaseAdjointTempBuf(void *tempBuf) {
   free(tempBuf);
 }
 
+void* ADTOOL_AMPI_allocateTempReduceBuf(int count,
+					MPI_Datatype dataType,
+					MPI_Comm comm) {
+  void* ptr;
+  if (dataType==AMPI_ADOUBLE) {
+    ptr = malloc(count*sizeof(adouble));
+    assert(ptr);
+    adouble* buf = new (ptr) adouble[count];
+    assert(buf);
+    
+  }
+}
+
 void ADTOOL_AMPI_adjointIncrement(int adjointCount,
                                   MPI_Datatype datatype,
                                   MPI_Comm comm,
