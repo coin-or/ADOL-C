@@ -464,8 +464,7 @@ void * ADTOOL_AMPI_rawData_DType(void* indata, void* outdata, int* count, int id
     out_offset = j*p_mapsize;
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
-      if (datatype==MPI_UB) break;
-      if (datatype==MPI_LB) continue;
+      if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
       out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
       in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_displacements[idx][i];
       if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
@@ -498,8 +497,7 @@ void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int* count, int idx)
     out_offset = j*dtdata->mapsizes[idx];
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
-      if (datatype==MPI_UB) break;
-      if (datatype==MPI_LB) continue;
+      if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
       out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_displacements[idx][i];
       in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
       if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
@@ -644,7 +642,7 @@ void ADTOOL_AMPI_setupTypes() {
   MPI_Type_commit(&AMPI_AFLOAT);
 };
 
-MPI_Datatype ADTOOL_AMPI_FW_mapToTransferType(MPI_Datatype datatype) {
+MPI_Datatype ADTOOL_AMPI_FW_rawType(MPI_Datatype datatype) {
   int dt_idx = derivedTypeIdx(datatype);
   if (datatype==AMPI_ADOUBLE) return MPI_DOUBLE;
   else if (datatype==AMPI_AFLOAT) return MPI_FLOAT;
@@ -652,7 +650,7 @@ MPI_Datatype ADTOOL_AMPI_FW_mapToTransferType(MPI_Datatype datatype) {
   else return datatype;
 }
 
-MPI_Datatype ADTOOL_AMPI_BW_mapToTransferType(MPI_Datatype datatype) {
+MPI_Datatype ADTOOL_AMPI_BW_rawType(MPI_Datatype datatype) {
   int dt_idx = derivedTypeIdx(datatype);
   if (datatype==AMPI_ADOUBLE) return MPI_DOUBLE;
   else if (datatype==AMPI_AFLOAT) return MPI_FLOAT;
