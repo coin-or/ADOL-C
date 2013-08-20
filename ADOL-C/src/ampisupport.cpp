@@ -12,6 +12,17 @@
 #include "ampi/tape/support.h"
 #include "ampi/libCommon/modified.h"
 
+int AMPI_Init_NT(int* argc,
+		 char*** argv) {
+  int rc;
+  rc=MPI_Init(argc,
+              argv);
+  ADTOOL_AMPI_setupTypes();
+  ourADTOOL_AMPI_FPCollection.pushBcastInfo_fp=&ADTOOL_AMPI_pushBcastInfo;
+  ourADTOOL_AMPI_FPCollection.popBcastInfo_fp=&ADTOOL_AMPI_popBcastInfo;
+  return rc;
+}
+
 void ADTOOL_AMPI_pushBcastInfo(void* buf,
 			       int count,
 			       MPI_Datatype datatype,
