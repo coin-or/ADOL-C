@@ -25,7 +25,7 @@ void ADTOOL_AMPI_pushBcastInfo(void* buf,
       int lst_active_idx = dtdata->last_active_indices[dt_idx];
       total_actives = dtdata->num_actives[dt_idx]*count;
       to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
-      to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
+      to_last_active = (count-1)*dtdata->extents[dt_idx]
                                                   + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
                                                                                             + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
     }
@@ -161,7 +161,7 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
       int lst_active_idx = dtdata->last_active_indices[dt_idx];
       total_actives = dtdata->num_actives[dt_idx]*count;
       to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
-      to_last_active = (count-1)*dtdata->mapsizes[dt_idx]
+      to_last_active = (count-1)*dtdata->extents[dt_idx]
                                                   + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
                                                                                             + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
     }
@@ -454,14 +454,14 @@ void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) {
 
 void * ADTOOL_AMPI_rawData_DType(void* indata, void* outdata, int* count, int idx) {
   if (idx==-1) return indata; /* not derived type, or only passive elements */
-  int i, j, s, p_mapsize, in_offset, out_offset;
+  int i, j, s, p_extent, in_offset, out_offset;
   MPI_Datatype datatype;
   derivedTypeData* dtdata = getDTypeData();
-  p_mapsize = dtdata->p_mapsizes[idx];
+  p_extent = dtdata->p_extents[idx];
   char *out_addr, *in_addr;
   for (j=0;j<*count;j++) {
-    in_offset = j*dtdata->mapsizes[idx];
-    out_offset = j*p_mapsize;
+    in_offset = j*dtdata->extents[idx];
+    out_offset = j*p_extent;
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
       if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
@@ -493,8 +493,8 @@ void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int* count, int idx)
   derivedTypeData* dtdata = getDTypeData();
   char *out_addr, *in_addr;
   for (j=0;j<*count;j++) {
-    in_offset = j*dtdata->p_mapsizes[idx];
-    out_offset = j*dtdata->mapsizes[idx];
+    in_offset = j*dtdata->p_extents[idx];
+    out_offset = j*dtdata->extents[idx];
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
       if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
@@ -565,7 +565,7 @@ void* ADTOOL_AMPI_allocateTempBuf(int adjointCount,
   if (dataType==AMPI_ADOUBLE) s=sizeof(revreal);
   else if(dataType==MPI_DOUBLE) s=sizeof(double);
   else if(dataType==MPI_FLOAT) s=sizeof(float);
-  else if(isDerivedType(dt_idx)) s=getDTypeData()->p_mapsizes[dt_idx];
+  else if(isDerivedType(dt_idx)) s=getDTypeData()->p_extents[dt_idx];
   else MPI_Abort(comm, MPI_ERR_TYPE);
   buf=malloc(adjointCount*s);
   assert(buf);
@@ -576,17 +576,83 @@ void ADTOOL_AMPI_releaseAdjointTempBuf(void *tempBuf) {
   free(tempBuf);
 }
 
-void* ADTOOL_AMPI_allocateTempReduceBuf(int count,
-					MPI_Datatype dataType,
+void* ADTOOL_AMPI_allocateTempActiveBuf(int count,
+					MPI_Datatype datatype,
 					MPI_Comm comm) {
-  void* ptr;
-  if (dataType==AMPI_ADOUBLE) {
-    ptr = malloc(count*sizeof(adouble));
-    assert(ptr);
-    adouble* buf = new (ptr) adouble[count];
+  int dt_idx = derivedTypeIdx(datatype);
+  if (isDerivedType(dt_idx)) {
+    int i, j, k, extent, struct_offset, block_offset;
+    MPI_Datatype blocktype;
+    derivedTypeData* dtdata = getDTypeData();
+    void* buf;
+    extent = dtdata->extents[dt_idx];
+
+    buf = malloc(count*extent);
     assert(buf);
-    
+    for (j=0;j<count;j++) {
+      struct_offset = j*extent;
+      for (i=0;i<dtdata->counts[dt_idx];i++) {
+	blocktype = dtdata->arrays_of_types[dt_idx][i];
+	if (blocktype==MPI_UB || blocktype==MPI_LB) assert(0);
+	block_offset = struct_offset + (int)dtdata->arrays_of_displacements[dt_idx][i];
+	if (ADTOOL_AMPI_isActiveType(blocktype)==AMPI_ACTIVE) {
+	  new ((void*)((char*)buf + block_offset)) adouble[dtdata->arrays_of_blocklengths[dt_idx][i]];
+	}
+      }
+    }
+    return buf;
   }
+  else if (datatype==AMPI_ADOUBLE) {
+    adouble* buf = (adouble*)malloc(count*sizeof(adouble));
+    new (buf) adouble[count];
+    assert(buf);
+    return buf;
+  }
+  else assert(0);
+}
+
+void * ADTOOL_AMPI_copyActiveBuf(void* source,
+				 void* target,
+				 int count,
+				 MPI_Datatype datatype,
+				 MPI_Comm comm) {
+  int s, k, dt_idx = derivedTypeIdx(datatype);
+  if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
+    for (k=0;k<count;k++) ((adouble*)target)[k] = ((adouble*)source)[k];
+  }
+  else if (isDerivedType(dt_idx)) {
+    int i, j, extent, struct_offset, block_offset;
+    MPI_Datatype blocktype;
+    derivedTypeData* dtdata = getDTypeData();
+    extent = dtdata->extents[dt_idx];
+    for (j=0;j<count;j++) {
+      struct_offset = j*extent;
+      for (i=0;i<dtdata->counts[dt_idx];i++) {
+	blocktype = dtdata->arrays_of_types[dt_idx][i];
+	if (blocktype==MPI_UB || blocktype==MPI_LB) assert(0);
+	block_offset = struct_offset + (int)dtdata->arrays_of_displacements[dt_idx][i];
+	if (ADTOOL_AMPI_isActiveType(blocktype)==AMPI_ACTIVE) {
+	  for (k=0;k<dtdata->arrays_of_blocklengths[dt_idx][i];k++) {
+	    ((adouble*)((char*)target + block_offset))[k] = ((adouble*)((char*)source + block_offset))[k];
+	  }
+	  /*memcpy(ADTOOL_AMPI_rawData((char*)target + block_offset,&count),
+		 ADTOOL_AMPI_rawData((char*)source + block_offset,&count),
+		 sizeof(revreal)*dtdata->arrays_of_blocklengths[dt_idx][i]);*/
+	}
+	else {
+	  if (blocktype==MPI_DOUBLE) s = sizeof(double);
+	  else if (blocktype==MPI_INT) s = sizeof(int);
+	  else if (blocktype==MPI_FLOAT) s = sizeof(float);
+	  else if (blocktype==MPI_CHAR) s = sizeof(char);
+	  memcpy((char*)target + block_offset,
+		 (char*)source + block_offset,
+		 s*dtdata->arrays_of_blocklengths[dt_idx][i]);
+	}
+      }
+    }
+  }
+  else assert(0);
+  return target;
 }
 
 void ADTOOL_AMPI_adjointIncrement(int adjointCount,
