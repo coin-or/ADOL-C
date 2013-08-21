@@ -38,6 +38,15 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.pop_AMPI_Request_fp=&ADTOOL_AMPI_pop_AMPI_Request;
   ourADTOOL_AMPI_FPCollection.push_request_fp=&ADTOOL_AMPI_push_request;
   ourADTOOL_AMPI_FPCollection.pop_request_fp=&ADTOOL_AMPI_pop_request;
+  ourADTOOL_AMPI_FPCollection.push_comm_fp=&ADTOOL_AMPI_push_comm;
+  ourADTOOL_AMPI_FPCollection.pop_comm_fp=&ADTOOL_AMPI_pop_comm;
+  ourADTOOL_AMPI_FPCollection.rawData_fp=&ADTOOL_AMPI_rawData;
+  ourADTOOL_AMPI_FPCollection.rawDataV_fp=&ADTOOL_AMPI_rawDataV;
+  ourADTOOL_AMPI_FPCollection.rawData_DType_fp=&ADTOOL_AMPI_rawData_DType;
+  ourADTOOL_AMPI_FPCollection.unpackDType_fp=&ADTOOL_AMPI_unpackDType;
+  ourADTOOL_AMPI_FPCollection.writeData_fp=&ADTOOL_AMPI_writeData;
+  ourADTOOL_AMPI_FPCollection.writeDataV_fp=&ADTOOL_AMPI_writeDataV;
+  ourADTOOL_AMPI_FPCollection.rawAdjointData_fp=&ADTOOL_AMPI_rawAdjointData;
   return rc;
 }
 
