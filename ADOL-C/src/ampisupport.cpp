@@ -55,6 +55,15 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.setAdjointCountAndTempBuf_fp=&ADTOOL_AMPI_setAdjointCountAndTempBuf;
   ourADTOOL_AMPI_FPCollection.allocateTempBuf_fp=&ADTOOL_AMPI_allocateTempBuf;
   ourADTOOL_AMPI_FPCollection.releaseAdjointTempBuf_fp=&ADTOOL_AMPI_releaseAdjointTempBuf;
+  ourADTOOL_AMPI_FPCollection.adjointIncrement_fp=&ADTOOL_AMPI_adjointIncrement;
+  ourADTOOL_AMPI_FPCollection.adjointMultiply_fp=&ADTOOL_AMPI_adjointMultiply;
+  ourADTOOL_AMPI_FPCollection.adjointDivide_fp=&ADTOOL_AMPI_adjointDivide;
+  ourADTOOL_AMPI_FPCollection.adjointEquals_fp=&ADTOOL_AMPI_adjointEquals;
+  ourADTOOL_AMPI_FPCollection.adjointNullify_fp=&ADTOOL_AMPI_adjointNullify;
+  ourADTOOL_AMPI_FPCollection.setupTypes_fp=&ADTOOL_AMPI_setupTypes;
+  ourADTOOL_AMPI_FPCollection.FW_rawType_fp=&ADTOOL_AMPI_FW_rawType;
+  ourADTOOL_AMPI_FPCollection.BW_rawType_fp=&ADTOOL_AMPI_BW_rawType;
+  ourADTOOL_AMPI_FPCollection.isActiveType_fp=&ADTOOL_AMPI_isActiveType;
   return rc;
 }
 
