@@ -64,6 +64,9 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.FW_rawType_fp=&ADTOOL_AMPI_FW_rawType;
   ourADTOOL_AMPI_FPCollection.BW_rawType_fp=&ADTOOL_AMPI_BW_rawType;
   ourADTOOL_AMPI_FPCollection.isActiveType_fp=&ADTOOL_AMPI_isActiveType;
+  ourADTOOL_AMPI_FPCollection.allocateTempActiveBuf_fp=&ADTOOL_AMPI_allocateTempActiveBuf;
+  ourADTOOL_AMPI_FPCollection.copyActiveBuf_fp=&ADTOOL_AMPI_copyActiveBuf;
+  
   return rc;
 }
 
@@ -692,9 +695,6 @@ void * ADTOOL_AMPI_copyActiveBuf(void* source,
 	  for (k=0;k<dtdata->arrays_of_blocklengths[dt_idx][i];k++) {
 	    ((adouble*)((char*)target + block_offset))[k] = ((adouble*)((char*)source + block_offset))[k];
 	  }
-	  /*memcpy(ADTOOL_AMPI_rawData((char*)target + block_offset,&count),
-		 ADTOOL_AMPI_rawData((char*)source + block_offset,&count),
-		 sizeof(revreal)*dtdata->arrays_of_blocklengths[dt_idx][i]);*/
 	}
 	else {
 	  if (blocktype==MPI_DOUBLE) s = sizeof(double);
