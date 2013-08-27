@@ -81,6 +81,7 @@ enum OPCODES {
   ceil_op,
   floor_op,
   ext_diff,
+  ext_diff_iArr,
   ignore_me,
   subscript = 80,
   subscript_ref,
