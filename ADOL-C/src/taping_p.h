@@ -522,9 +522,10 @@ char *createFileName(short tapeID, int tapeType);
 
 
 
-void put_op(unsigned char op);
 /* puts an operation into the operation buffer, ensures that location buffer
  * and constants buffer are prepared to take the belonging stuff */
+void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations);
+#define put_op(i) put_op_reserve((i),0)
 
 void put_op_block(unsigned char *lastOpP1);
 /* writes a block of operations onto hard disk and handles file creation,
