@@ -26,9 +26,8 @@
 
 #include <cstdlib>
 
-#define BUFFER Buffer<SubBufferElement, FunctionPointer, _subBufferSize>
-#define BUFFER_TEMPLATE template<class SubBufferElement,\
-   class FunctionPointer, IndexType _subBufferSize>
+#define BUFFER Buffer<SubBufferElement, _subBufferSize>
+#define BUFFER_TEMPLATE template<class SubBufferElement, IndexType _subBufferSize>
 
 typedef locint IndexType;
 
@@ -60,7 +59,7 @@ public:
     inline void init(InitFunctionPointer _initFunction) {
         initFunction = _initFunction;
     }
-    SubBufferElement *append(FunctionPointer functionPointer);
+    SubBufferElement *append();
     SubBufferElement *getElement(IndexType index);
 
 private:
@@ -82,11 +81,9 @@ BUFFER::~Buffer() {
 }
 
 BUFFER_TEMPLATE
-SubBufferElement *BUFFER::append(FunctionPointer functionPointer) {
+SubBufferElement *BUFFER::append() {
     SubBuffer *currentSubBuffer=firstSubBuffer, *previousSubBuffer=NULL;
     IndexType index, tmp=numEntries;
-
-    if (functionPointer==NULL) fail(ADOLC_BUFFER_NULLPOINTER_FUNCTION);
 
     while (tmp>=subBufferSize) {
         previousSubBuffer=currentSubBuffer;
@@ -105,7 +102,6 @@ SubBufferElement *BUFFER::append(FunctionPointer functionPointer) {
         initFunction(&(currentSubBuffer->elements[index]));
 
     currentSubBuffer->elements[index].index=numEntries;
-    currentSubBuffer->elements[index].function=functionPointer;
     ++numEntries;
 
     return &currentSubBuffer->elements[index];

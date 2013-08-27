@@ -39,8 +39,7 @@ END_C_DECLS
 
 #if defined(__cplusplus)
 
-#define ADOLC_BUFFER_TYPE \
-   Buffer< CpInfos, ADOLC_TimeStepFuncion, CP_BLOCK_SIZE >
+#define ADOLC_BUFFER_TYPE Buffer< CpInfos, CP_BLOCK_SIZE >
 extern ADOLC_BUFFER_TYPE ADOLC_EXT_DIFF_FCTS_BUFFER_DECL;
 
 /* field of pointers to the value fields of a checkpoint */
