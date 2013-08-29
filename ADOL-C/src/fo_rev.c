@@ -332,20 +332,28 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_U edfct->dp_U
 # define ADOLC_EXT_FCT_Z edfct->dp_Z
 # define ADOLC_EXT_FCT_POINTER fos_reverse
+# define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
 # define ADOLC_EXT_FCT_COMPLETE \
   fos_reverse(m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
+# define ADOLC_EXT_FCT_IARR_COMPLETE \
+  fos_reverse_iArr(iArrLength,iArr, m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS
 #else
 # define ADOLC_EXT_FCT_U edfct->dpp_U
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
 # define ADOLC_EXT_FCT_POINTER fov_reverse
+# define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 # define ADOLC_EXT_FCT_COMPLETE \
   fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
+# define ADOLC_EXT_FCT_IARR_COMPLETE \
+  fov_reverse_iArr(iArrLength, iArr, m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
 #endif
 #if !defined(_INT_REV_)
     locint n, m;
     ext_diff_fct *edfct;
+    int iArrLength;
+    int *iArr;
     int loop;
     int ext_retc;
     int oldTraceFlag;
@@ -2235,6 +2243,88 @@ int int_reverse_safe(
                   edfct->dp_y[loop]=TARG;
                 }
                 ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop) {
+                    FOR_0_LE_l_LT_p {
+                        ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */
+                    }
+                    ++res;
+                }
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop) {
+                    FOR_0_LE_l_LT_p {
+                        ADJOINT_BUFFER_RES_L = ADOLC_EXT_FCT_Z_L_LOOP;
+                    }
+                    ++res;
+                }
+                if (edfct->dp_y_priorRequired) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                  for (loop = 0; loop < m; ++loop,--arg) {
+                    ADOLC_GET_TAYLOR(arg);
+                  }
+                }
+                if (edfct->dp_x_changes) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev+n-1;
+                  for (loop = 0; loop < n; ++loop,--arg) {
+                    ADOLC_GET_TAYLOR(arg);
+                  }
+                }
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+
+                break;
+            case ext_diff_iArr:                       /* extern differntiated function */
+                ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
+                m = get_locint_r();
+                n = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+                iArrLength=get_locint_r();
+                iArr=(int*)malloc(iArrLength*sizeof(int));
+                for (loop=iArrLength-1;loop>=0;--loop) iArr[loop]=get_locint_r();
+                get_locint_r(); /* get it again */
+                ADOLC_EXT_FCT_SAVE_NUMDIRS;
+                edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+
+                oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+
+                if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+                if (m>0) {
+                    if (ADOLC_EXT_FCT_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                if (n>0) {
+                    if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop) {
+                    FOR_0_LE_l_LT_p {
+                        ADOLC_EXT_FCT_U_L_LOOP = ADJOINT_BUFFER_ARG_L;
+                    }
+                    ++arg;
+                }
+
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop) {
+                    FOR_0_LE_l_LT_p {
+                        ADOLC_EXT_FCT_Z_L_LOOP = ADJOINT_BUFFER_ARG_L;
+                    }
+                    ++arg;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop,++arg) {
+                  edfct->dp_x[loop]=TARG;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop,++arg) {
+                  edfct->dp_y[loop]=TARG;
+                }
+                ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
                 MINDEC(ret_c, ext_retc);
 
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;

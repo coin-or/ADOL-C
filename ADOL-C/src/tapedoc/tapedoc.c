@@ -1193,6 +1193,19 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation, "extern diff",3, loc_a, val_a, 0, cst_d);
                 break;
 
+            case ext_diff_iArr:
+                loc_a[0] = get_locint_f(); /* iArr length */
+                for (l=0; l<loc_a[0];++l) get_locint_f(); /* iArr */
+                get_locint_f(); /* iArr length again */
+                loc_a[0] = get_locint_f() + 1; /* index */
+                loc_a[1] = get_locint_f(); /* n */
+                loc_a[2] = get_locint_f(); /* m */
+                loc_a[3] = get_locint_f(); /* xa[0].loc */
+                loc_a[3] = get_locint_f(); /* ya[0].loc */
+                loc_a[3] = get_locint_f(); /* dummy */
+                filewrite(operation, "extern diff iArr",3, loc_a, val_a, 0, cst_d);
+                break;
+
 #ifdef ADOLC_AMPI_SUPPORT
             case ampi_send:
 	        loc_a[0] = get_locint_f();   /* start loc */
