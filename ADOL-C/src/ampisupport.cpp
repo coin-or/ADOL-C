@@ -81,13 +81,11 @@ void ADTOOL_AMPI_pushBcastInfo(void* buf,
     int total_actives, to_first_active, to_last_active;
     if (isDerivedType(dt_idx)) {
       derivedTypeData* dtdata = getDTypeData();
-      int fst_active_idx = dtdata->first_active_indices[dt_idx];
-      int lst_active_idx = dtdata->last_active_indices[dt_idx];
       total_actives = dtdata->num_actives[dt_idx]*count;
-      to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+      to_first_active = dtdata->first_active_blocks[dt_idx];
       to_last_active = (count-1)*dtdata->extents[dt_idx]
-                                                  + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
-                                                                                            + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+	+ dtdata->last_active_blocks[dt_idx]
+	+ sizeof(adouble)*(dtdata->last_active_block_lengths[dt_idx]-1);
     }
     else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
     if (count>0) {
@@ -217,13 +215,11 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
     int total_actives, to_first_active, to_last_active;
     if (isDerivedType(dt_idx)) {
       derivedTypeData* dtdata = getDTypeData();
-      int fst_active_idx = dtdata->first_active_indices[dt_idx];
-      int lst_active_idx = dtdata->last_active_indices[dt_idx];
       total_actives = dtdata->num_actives[dt_idx]*count;
-      to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+      to_first_active = dtdata->first_active_blocks[dt_idx];
       to_last_active = (count-1)*dtdata->extents[dt_idx]
-                                                  + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
-                                                                                            + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+	+ dtdata->last_active_blocks[dt_idx]
+	+ sizeof(adouble)*(dtdata->last_active_block_lengths[dt_idx]-1);
     }
     else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
     if (count>0) {
@@ -514,7 +510,7 @@ void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) {
 
 void * ADTOOL_AMPI_packDType(void* indata, void* outdata, int count, int idx) {
   if (!isDerivedType(idx)) return indata; /* not derived type, or only passive elements */
-  int i, j, s, in_offset, out_offset;
+  int i, j, s, in_offset, out_offset, dt_idx;
   MPI_Aint p_extent, extent;
   MPI_Datatype datatype;
   derivedTypeData* dtdata = getDTypeData();
@@ -527,6 +523,7 @@ void * ADTOOL_AMPI_packDType(void* indata, void* outdata, int count, int idx) {
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
       if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
+      dt_idx = derivedTypeIdx(datatype);
       out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
       in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_displacements[idx][i];
       if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
@@ -534,11 +531,18 @@ void * ADTOOL_AMPI_packDType(void* indata, void* outdata, int count, int idx) {
 	       ADTOOL_AMPI_rawData((void*)in_addr,&dtdata->arrays_of_blocklengths[idx][i]),
 	       sizeof(revreal)*dtdata->arrays_of_blocklengths[idx][i]);
       }
+      else if (isDerivedType(dt_idx)) {
+	ADTOOL_AMPI_packDType(in_addr,
+			      out_addr,
+			      dtdata->arrays_of_blocklengths[idx][i],
+			      dt_idx);
+      }
       else {
 	if (datatype==MPI_DOUBLE) s = (int)sizeof(double);
 	else if (datatype==MPI_INT) s = (int)sizeof(int);
 	else if (datatype==MPI_FLOAT) s = (int)sizeof(float);
 	else if (datatype==MPI_CHAR) s = (int)sizeof(char);
+	else assert(0);
 	memcpy(out_addr,
 	       in_addr,
 	       s*dtdata->arrays_of_blocklengths[idx][i]);
@@ -550,7 +554,7 @@ void * ADTOOL_AMPI_packDType(void* indata, void* outdata, int count, int idx) {
 
 void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int count, int idx) {
   if (!isDerivedType(idx)) return indata; /* not derived type, or only passive elements */
-  int i, j, s, in_offset, out_offset;
+  int i, j, s, in_offset, out_offset, dt_idx;
   MPI_Aint p_extent, extent;
   MPI_Datatype datatype;
   derivedTypeData* dtdata = getDTypeData();
@@ -563,6 +567,7 @@ void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int count, int idx) 
     for (i=0;i<dtdata->counts[idx];i++) {
       datatype = dtdata->arrays_of_types[idx][i];
       if (datatype==MPI_UB || datatype==MPI_LB) assert(0);
+      dt_idx = derivedTypeIdx(datatype);
       out_addr = (char*)outdata + out_offset + (int)dtdata->arrays_of_displacements[idx][i];
       in_addr = (char*)indata + in_offset + (int)dtdata->arrays_of_p_displacements[idx][i];
       if (ADTOOL_AMPI_isActiveType(datatype)==AMPI_ACTIVE) {
@@ -570,11 +575,18 @@ void * ADTOOL_AMPI_unpackDType(void* indata, void* outdata, int count, int idx) 
 	       in_addr,
 	       sizeof(revreal)*dtdata->arrays_of_blocklengths[idx][i]);
       }
+      else if (isDerivedType(dt_idx)) {
+	ADTOOL_AMPI_unpackDType(in_addr,
+				out_addr,
+				dtdata->arrays_of_blocklengths[idx][i],
+				dt_idx);
+      }
       else {
 	if (datatype==MPI_DOUBLE) s = (int)sizeof(double);
 	else if (datatype==MPI_INT) s = (int)sizeof(int);
 	else if (datatype==MPI_FLOAT) s = (int)sizeof(float);
 	else if (datatype==MPI_CHAR) s = (int)sizeof(char);
+	else assert(0);
 	memcpy(out_addr,
 	       in_addr,
 	       s*dtdata->arrays_of_blocklengths[idx][i]);
