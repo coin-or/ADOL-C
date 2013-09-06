@@ -40,15 +40,15 @@ typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, in
  * The alternative to doing this is the introduction of a separate stack to contain the extra data
  * but this would break the self-containment of the tape.
  */
-typedef int (ADOLC_ext_fct_iArr) (locint iArrLength, locint *iArr, locint n, double *x, locint m, double *y);
-typedef int (ADOLC_ext_fct_iArr_fos_forward) (locint iArrLength, locint *iArr, locint n, double *dp_x, double *dp_X, locint m, double *dp_y, double *dp_Y);
-typedef int (ADOLC_ext_fct_iArr_fov_forward) (locint iArrLength, locint *iArr, locint n, double *dp_x, int p, double **dpp_X, locint m, double *dp_y, double **dpp_Y);
-typedef int (ADOLC_ext_fct_iArr_hos_forward) (locint iArrLength, locint *iArr, locint n, double *dp_x, int d, double **dpp_X, locint m, double *dp_y, double **dpp_Y);
-typedef int (ADOLC_ext_fct_iArr_hov_forward) (locint iArrLength, locint *iArr, locint n, double *dp_x, int d, int p, double ***dppp_X, locint m, double *dp_y, double ***dppp_Y);
-typedef int (ADOLC_ext_fct_iArr_fos_reverse) (locint iArrLength, locint *iArr, locint m, double *dp_U, locint n, double *dp_Z, double *dp_x, double *dp_y);
-typedef int (ADOLC_ext_fct_iArr_fov_reverse) (locint iArrLength, locint *iArr, locint m, int p, double **dpp_U, locint n, double **dpp_Z, double *dp_x, double *dp_y);
-typedef int (ADOLC_ext_fct_iArr_hos_reverse) (locint iArrLength, locint *iArr, locint m, double *dp_U, locint n, int d, double **dpp_Z);
-typedef int (ADOLC_ext_fct_iArr_hov_reverse) (locint iArrLength, locint *iArr, locint m, int p, double **dpp_U, locint n, int d, double ***dppp_Z, short **spp_nz);
+typedef int (ADOLC_ext_fct_iArr) (int iArrLength, int *iArr, int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct_iArr_fos_forward) (int iArrLength, int *iArr, int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y);
+typedef int (ADOLC_ext_fct_iArr_fov_forward) (int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_iArr_hos_forward) (int iArrLength, int *iArr, int n, double *dp_x, int d, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_iArr_hov_forward) (int iArrLength, int *iArr, int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
+typedef int (ADOLC_ext_fct_iArr_fos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
+typedef int (ADOLC_ext_fct_iArr_fov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
+typedef int (ADOLC_ext_fct_iArr_hos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, int d, double **dpp_Z);
+typedef int (ADOLC_ext_fct_iArr_hov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
 
 
 /**
@@ -268,9 +268,9 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
                                    int n, double *xp, adouble *xa,
                                    int m, double *yp, adouble *ya);
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
-                                   locint iArrLength, locint* iArr,
-                                   locint n, double *xp, adouble *xa,
-                                   locint m, double *yp, adouble *ya);
+                                   int iArrLength, int* iArr,
+                                   int n, double *xp, adouble *xa,
+                                   int m, double *yp, adouble *ya);
 
 #endif /* __CPLUSPLUS */
 

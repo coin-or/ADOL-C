@@ -177,9 +177,9 @@ int call_ext_fct(ext_diff_fct *edfct,
 }
 
 int call_ext_fct(ext_diff_fct *edfct,
-                 locint iArrLength, locint *iArr,
-                 locint n, double *xp, adouble *xa,
-                 locint m, double *yp, adouble *ya) {
+                 int iArrLength, int *iArr,
+                 int n, double *xp, adouble *xa,
+                 int m, double *yp, adouble *ya) {
   int ret;
   int numVals = 0;
   double *vals = NULL;
