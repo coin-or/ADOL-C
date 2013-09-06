@@ -279,15 +279,15 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull,
       ADOLC_PUT_LOCINT(start);
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
+    locint start=0; // have to put something regardless
     if (buf!=MPI_IN_PLACE && count>0) {
       assert(buf);
-      locint start=((adouble*)(buf))->loc();
-      ADOLC_PUT_LOCINT(start);
+      start=((adouble*)(buf))->loc();
     }
     else {
       count=0;
-      ADOLC_PUT_LOCINT(0); // have to put something
     }
+    ADOLC_PUT_LOCINT(start);
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(type);
     TAPE_AMPI_push_int(root);
@@ -319,8 +319,7 @@ void ADTOOL_AMPI_popGSinfo(int commSizeForRootOrNull,
   else *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[bufLoc]));
   if (commSizeForRootOrNull>0) {
     TAPE_AMPI_pop_MPI_Datatype(rtype);
-    locint start=get_locint_r();
-    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[start]));
+    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
     TAPE_AMPI_pop_int(rcnt);
   }
   else { 
@@ -361,14 +360,15 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
       ADOLC_PUT_LOCINT(start);
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
-    if (count>0) {
+    locint start=0; // have to put something regardless
+    if (buf!=MPI_IN_PLACE && count>0) {
       assert(buf);
-      locint start=((adouble*)(buf))->loc();
-      ADOLC_PUT_LOCINT(start);
+      start=((adouble*)(buf))->loc();
     }
     else {
-      ADOLC_PUT_LOCINT(0); // have to put something
+      count=0;
     }
+    ADOLC_PUT_LOCINT(start);
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(type);
     TAPE_AMPI_push_int(root);
@@ -392,10 +392,18 @@ void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
   TAPE_AMPI_pop_int(root);
   TAPE_AMPI_pop_MPI_Datatype(type);
   TAPE_AMPI_pop_int(count);
-  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  locint bufLoc=get_locint_r();
+  if (*count==0) *buf=MPI_IN_PLACE;
+  else *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[bufLoc]));
   if (commSizeForRootOrNull>0) { 
     TAPE_AMPI_pop_MPI_Datatype(rtype);
     *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  }
+  else { 
+    // at least initialize to something nonrandom
+    // because we know we always have valid addresses passed in here 
+    // NOTE JU: may not be true for source transformation...
+    *rbuf=0;
   }
   for (i=commSizeForRootOrNull-1;i>=0;--i) { 
     TAPE_AMPI_pop_int(&(displs[i]));
