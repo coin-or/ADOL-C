@@ -271,7 +271,6 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull,
                             MPI_Comm comm) {
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     int i;
-    int minDispls=INT_MAX;
     TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
     if(commSizeForRootOrNull>0) {
       TAPE_AMPI_push_int(rcnt);
@@ -280,12 +279,13 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull,
       ADOLC_PUT_LOCINT(start);
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
-    if (count>0) {
+    if (buf!=MPI_IN_PLACE && count>0) {
       assert(buf);
       locint start=((adouble*)(buf))->loc();
       ADOLC_PUT_LOCINT(start);
     }
     else {
+      count=0;
       ADOLC_PUT_LOCINT(0); // have to put something
     }
     TAPE_AMPI_push_int(count);
@@ -314,11 +314,21 @@ void ADTOOL_AMPI_popGSinfo(int commSizeForRootOrNull,
   TAPE_AMPI_pop_int(root);
   TAPE_AMPI_pop_MPI_Datatype(type);
   TAPE_AMPI_pop_int(count);
-  *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+  locint bufLoc=get_locint_r();
+  if (*count==0) *buf=MPI_IN_PLACE;
+  else *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[bufLoc]));
   if (commSizeForRootOrNull>0) {
     TAPE_AMPI_pop_MPI_Datatype(rtype);
-    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[get_locint_r()]));
+    locint start=get_locint_r();
+    *rbuf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[start]));
     TAPE_AMPI_pop_int(rcnt);
+  }
+  else { 
+    // at least initialize to something nonrandom
+    // because we know we always have valid addresses passed in here 
+    // NOTE JU: may not be true for source transformation...
+    *rbuf=0;
+    *rcnt=0;
   }
   TAPE_AMPI_pop_int(&commSizeForRootOrNull);
 }
@@ -501,8 +511,12 @@ MPI_Comm ADTOOL_AMPI_pop_comm() {
 }
 
 void * ADTOOL_AMPI_rawData(void* activeData, int *size) { 
-  adouble* adouble_p=(adouble*)activeData; 
-  return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+  void *ret=0;
+  if (*size>0) {
+    adouble* adouble_p=(adouble*)activeData;
+    ret=(void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+  }
+  return ret;
 }
 
 void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) { 
