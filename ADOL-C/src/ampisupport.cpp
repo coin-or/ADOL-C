@@ -315,7 +315,10 @@ void ADTOOL_AMPI_popGSinfo(int commSizeForRootOrNull,
   TAPE_AMPI_pop_MPI_Datatype(type);
   TAPE_AMPI_pop_int(count);
   locint bufLoc=get_locint_r();
-  if (*count==0) *buf=MPI_IN_PLACE;
+  if (*count==0) { 
+    if (commSizeForRootOrNull) *buf=MPI_IN_PLACE;
+    else *buf=0;
+  }
   else *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[bufLoc]));
   if (commSizeForRootOrNull>0) {
     TAPE_AMPI_pop_MPI_Datatype(rtype);
@@ -393,7 +396,10 @@ void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
   TAPE_AMPI_pop_MPI_Datatype(type);
   TAPE_AMPI_pop_int(count);
   locint bufLoc=get_locint_r();
-  if (*count==0) *buf=MPI_IN_PLACE;
+  if (*count==0) { 
+    if (commSizeForRootOrNull) *buf=MPI_IN_PLACE;
+    else *buf=0;
+  }
   else *buf=(void*)(&(ADOLC_CURRENT_TAPE_INFOS.rp_A[bufLoc]));
   if (commSizeForRootOrNull>0) { 
     TAPE_AMPI_pop_MPI_Datatype(rtype);
