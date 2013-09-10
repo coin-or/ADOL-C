@@ -84,24 +84,29 @@ void ADTOOL_AMPI_pushBcastInfo(void* buf,
 			       MPI_Datatype datatype,
 			       int root,
 			       MPI_Comm comm) {
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {int i, dt_idx = derivedTypeIdx(datatype);
-    int total_actives, to_first_active, to_last_active;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    int i, dt_idx = derivedTypeIdx(datatype);
+    int activeVarCount, bitCountToFirstActive, bitCountToLastActive;
     if (isDerivedType(dt_idx)) {
       derivedTypeData* dtdata = getDTypeData();
       int fst_active_idx = dtdata->first_active_indices[dt_idx];
       int lst_active_idx = dtdata->last_active_indices[dt_idx];
-      total_actives = dtdata->num_actives[dt_idx]*count;
-      to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
-      to_last_active = (count-1)*dtdata->extents[dt_idx]
-                                                  + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
-                                                                                            + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
+      activeVarCount = dtdata->num_actives[dt_idx]*count;
+      bitCountToFirstActive = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+      bitCountToLastActive = (count-1)*dtdata->extents[dt_idx]
+	+ dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
+	+ sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
     }
-    else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
+    else { 
+      activeVarCount = count; 
+      bitCountToFirstActive = 0; 
+      bitCountToLastActive = (count-1)*sizeof(adouble); 
+    }
     if (count>0) {
       assert(buf);
-      locint start=((adouble*)((char*)buf+to_first_active))->loc();
-      locint end=((adouble*)((char*)buf+to_last_active))->loc();
-      assert(start+total_actives-1==end); // buf must have consecutive ascending locations
+      locint start=((adouble*)((char*)buf+bitCountToFirstActive))->loc();
+      locint end=((adouble*)((char*)buf+bitCountToLastActive))->loc();
+      assert(start+activeVarCount-1==end); // buf must have consecutive ascending locations
       ADOLC_PUT_LOCINT(start);
     }
     else {
@@ -214,23 +219,23 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
 			    MPI_Comm comm) { 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     int i, dt_idx = derivedTypeIdx(datatype);
-    int total_actives, to_first_active, to_last_active;
+    int activeVarCount, bitCountToFirstActive, bitCountToLastActive;
     if (isDerivedType(dt_idx)) {
       derivedTypeData* dtdata = getDTypeData();
       int fst_active_idx = dtdata->first_active_indices[dt_idx];
       int lst_active_idx = dtdata->last_active_indices[dt_idx];
-      total_actives = dtdata->num_actives[dt_idx]*count;
-      to_first_active = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
-      to_last_active = (count-1)*dtdata->extents[dt_idx]
+      activeVarCount = dtdata->num_actives[dt_idx]*count;
+      bitCountToFirstActive = dtdata->arrays_of_displacements[dt_idx][fst_active_idx];
+      bitCountToLastActive = (count-1)*dtdata->extents[dt_idx]
                                                   + dtdata->arrays_of_displacements[dt_idx][lst_active_idx]
                                                                                             + sizeof(adouble)*(dtdata->arrays_of_blocklengths[dt_idx][lst_active_idx]-1);
     }
-    else { total_actives = count; to_first_active = 0; to_last_active = count-1; }
+    else { activeVarCount = count; bitCountToFirstActive = 0; bitCountToLastActive = count-1; }
     if (count>0) {
       assert(buf);
-      locint start=((adouble*)((char*)buf+to_first_active))->loc();
-      locint end=((adouble*)((char*)buf+to_last_active))->loc();
-      assert(start+total_actives-1==end); // buf must have consecutive ascending locations
+      locint start=((adouble*)((char*)buf+bitCountToFirstActive))->loc();
+      locint end=((adouble*)((char*)buf+bitCountToLastActive))->loc();
+      assert(start+activeVarCount-1==end); // buf must have consecutive ascending locations
       ADOLC_PUT_LOCINT(start);
     }
     else {
