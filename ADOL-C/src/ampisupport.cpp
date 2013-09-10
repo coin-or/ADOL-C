@@ -362,6 +362,7 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
         if (minDispls>displs[i])  minDispls=displs[i];
 	if (endOffsetMax<displs[i]+rcnts[i]) endOffsetMax=displs[i]+rcnts[i]; 
       }
+      if (endOffsetMax==0) minDispls=0;
     }
     if (commSizeForRootOrNull>0) {
       assert(minDispls==0); // don't want to make assumptions about memory layout for nonzero displacements
