@@ -70,6 +70,15 @@ int AMPI_Init_NT(int* argc,
   return rc;
 }
 
+locint startLocAssertContiguous(adouble* adoubleBuffer, int count) { 
+  locint start=0;
+  if (count>0) { 
+    start=adoubleBuffer->loc();
+    assert(start+count-1==(adoubleBuffer+count-1)->loc()); // buf must have consecutive ascending locations
+  }
+  return start;
+} 
+
 void ADTOOL_AMPI_pushBcastInfo(void* buf,
 			       int count,
 			       MPI_Datatype datatype,
@@ -148,15 +157,8 @@ void ADTOOL_AMPI_pushReduceInfo(void* sbuf,
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     if (count>0) {
       assert(rbuf);
-      locint rstart=((adouble*)(rbuf))->loc();
-      locint rend=(((adouble*)(rbuf))+(count-1))->loc();
-      assert(rstart+count-1==rend);
-      ADOLC_PUT_LOCINT(rstart);
-      assert(sbuf);
-      locint sstart=((adouble*)(sbuf))->loc();
-      locint send=(((adouble*)(sbuf))+(count-1))->loc();
-      assert(sstart+count-1==send);
-      ADOLC_PUT_LOCINT(sstart);
+      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble*)rbuf,count));
+      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble*)sbuf,count));
     }
     else {
       ADOLC_PUT_LOCINT(0);
@@ -275,14 +277,13 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull,
     if(commSizeForRootOrNull>0) {
       TAPE_AMPI_push_int(rcnt);
       assert(rbuf);
-      locint start=((adouble*)(rbuf))->loc();
-      ADOLC_PUT_LOCINT(start);
+      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble*)rbuf,rcnt));
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
     locint start=0; // have to put something regardless
     if (buf!=MPI_IN_PLACE && count>0) {
       assert(buf);
-      start=((adouble*)(buf))->loc();
+      start=startLocAssertContiguous((adouble*)buf,count);
     }
     else {
       count=0;
@@ -347,26 +348,26 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
                              MPI_Comm comm) { 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     int i;
-    int minDispls=INT_MAX;
+    int minDispls=INT_MAX,endOffsetMax=0;
     TAPE_AMPI_push_int(commSizeForRootOrNull);  // counter at the beginning
     for (i=0;i<commSizeForRootOrNull;++i) {
       TAPE_AMPI_push_int(rcnts[i]);
       TAPE_AMPI_push_int(displs[i]);
       if (rcnts[i]>0) {
         if (minDispls>displs[i])  minDispls=displs[i];
+	if (endOffsetMax<displs[i]+rcnts[i]) endOffsetMax=displs[i]+rcnts[i]; 
       }
     }
     if (commSizeForRootOrNull>0) {
       assert(minDispls==0); // don't want to make assumptions about memory layout for nonzero displacements
       assert(rbuf);
-      locint start=((adouble*)(rbuf))->loc();
-      ADOLC_PUT_LOCINT(start);
+      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble*)rbuf,endOffsetMax));
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
     locint start=0; // have to put something regardless
     if (buf!=MPI_IN_PLACE && count>0) {
       assert(buf);
-      start=((adouble*)(buf))->loc();
+      start=startLocAssertContiguous((adouble*)buf,count);
     }
     else {
       count=0;
