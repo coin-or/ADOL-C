@@ -540,9 +540,20 @@ void * ADTOOL_AMPI_rawData(void* activeData, int *size) {
   return ret;
 }
 
-void * ADTOOL_AMPI_rawDataV(void* activeData, int *counts, int *displs) { 
-  adouble* adouble_p=(adouble*)activeData; 
-  return (void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+void * ADTOOL_AMPI_rawDataV(void* activeData, int commSize, int *counts, int *displs) { 
+  void *ret=NULL;
+  int nonNullCount=0;
+  int minDispls=INT_MAX;
+  for (int i=0; i< commSize; ++i)  { 
+    if (counts[i]>nonNullCount) nonNullCount=counts[i];
+    if (minDispls>displs[i]) minDispls=displs[i];
+  }
+  if (nonNullCount>0) { 
+    assert(minDispls==0);
+    adouble* adouble_p=(adouble*)activeData; 
+    ret=(void*)(&(ADOLC_GLOBAL_TAPE_VARS.store[adouble_p->loc()]));
+  }
+  return ret;
 }
 
 void * ADTOOL_AMPI_rawData_DType(void* indata, void* outdata, int* count, int idx) {
