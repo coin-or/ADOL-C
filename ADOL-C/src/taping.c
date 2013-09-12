@@ -1600,8 +1600,9 @@ void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* make sure we have enough slots to write the locs */
     if (ADOLC_CURRENT_TAPE_INFOS.currLoc + maxLocsPerOp + reserveExtraLocations > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
-        *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 -
-                ADOLC_CURRENT_TAPE_INFOS.currLoc;
+        size_t remainder = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
+        if (remainder>0) memset(ADOLC_CURRENT_TAPE_INFOS.currLoc,0,(remainder-1)*sizeof(locint));
+        *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = remainder;
         put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
         /* every operation writes 1 opcode */
         if (ADOLC_CURRENT_TAPE_INFOS.currOp + 1 == ADOLC_CURRENT_TAPE_INFOS.lastOpP1) {
