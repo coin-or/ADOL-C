@@ -691,7 +691,7 @@ void* ADTOOL_AMPI_allocateTempBuf(int adjointCount,
   else if(dataType==MPI_FLOAT) s=sizeof(float);
   else if(isDerivedType(dt_idx)) s=getDTypeData()->p_extents[dt_idx];
   else MPI_Abort(comm, MPI_ERR_TYPE);
-  buf=malloc(adjointCount*s);
+  buf=calloc(adjointCount,s);
   assert(buf);
   return buf;
 }
