@@ -206,6 +206,7 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\tape_handling.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\taping.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\adouble_tl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adalloc.h" />
@@ -240,6 +241,7 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\externfcts_p.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\malloc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\taping_p.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adtl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
