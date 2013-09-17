@@ -195,7 +195,8 @@ void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int 
     fprintf(fp," & \\multicolumn{6}{|l|}{(");
 #endif
     for(i=0; i<(nloc-1); i++) fprintf(fp," %i, ",loc[i]);
-    fprintf(fp," %i)} ",loc[nloc-1]);
+    if (nloc) fprintf(fp," %i",loc[nloc-1]);
+    fprintf(fp,")} ");
     fprintf(fp,"\\\\ \\hline \n"); /* end line */
     fflush(fp);
     pagelength++;
@@ -1230,30 +1231,31 @@ void tape_doc(short tnum,         /* tape id */
                 break;
 
             case ampi_isend: 
-	        /* push is delayed to the accompanying completion */
-	        loc_a[0] = get_locint_f(); /* request */
-		filewrite_ampi(operation, "ampi isend",1, loc_a);
-		break; 
+              /* push is delayed to the accompanying completion */
+              TAPE_AMPI_read_MPI_Request(&anMPI_Request);
+              filewrite_ampi(operation, "ampi isend",0, loc_a);
+              break;
 
             case ampi_irecv:
-                /* push is delayed to the accompanying completion */
-                loc_a[0] = get_locint_f(); /* request */
-                filewrite_ampi(operation, "ampi irecv",1, loc_a);
-                break;
+              /* push is delayed to the accompanying completion */
+              TAPE_AMPI_read_MPI_Request(&anMPI_Request);
+              filewrite_ampi(operation, "ampi irecv",0, loc_a);
+              break;
 
             case ampi_wait: 
-	        /* for the operation we had been waiting for */
-	        loc_a[0] = get_locint_f(); /* start loc */
-	        TAPE_AMPI_read_int(loc_a+1); /* count */
-                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
-                TAPE_AMPI_read_int(loc_a+2); /* endpoint */
-                TAPE_AMPI_read_int(loc_a+3); /* tag */
-                TAPE_AMPI_read_int(loc_a+4); /* pairedWith */
-                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
-                TAPE_AMPI_read_MPI_Request(&anMPI_Request);
-                TAPE_AMPI_read_int(loc_a+5); /* origin */
-		filewrite_ampi(operation, "ampi wait",6, loc_a);
-		break; 
+	      /* for the operation we had been waiting for */
+              size=0;
+              loc_a[size++] = get_locint_f(); /* start loc */
+              TAPE_AMPI_read_int(loc_a+size++); /* count */
+              TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
+              TAPE_AMPI_read_int(loc_a+size++); /* endpoint */
+              TAPE_AMPI_read_int(loc_a+size++); /* tag */
+              TAPE_AMPI_read_int(loc_a+size++); /* pairedWith */
+              TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+              TAPE_AMPI_read_MPI_Request(&anMPI_Request);
+              TAPE_AMPI_read_int(loc_a+size++); /* origin */
+              filewrite_ampi(operation, "ampi wait",size, loc_a);
+              break;
 
             case ampi_barrier:
               TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
