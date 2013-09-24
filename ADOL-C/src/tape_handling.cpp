@@ -1256,18 +1256,20 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
     std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
     std::cerr << "searching for big enough block " << endl;
 #endif
-    consolidateBlocks();
-    list<struct FreeBlock>::iterator iter = indexFree.begin();
-    for (; iter != indexFree.end() ; iter++ ) {
-	if ( iter->size >= n) {
-	    if (iter != indexFree.begin() ) {
-		struct FreeBlock tmp(*iter);
-		iter = indexFree.erase(iter);
-		indexFree.push_front(tmp);
-	    }
-	    found = true;
-	    break;
-	}
+    if (maxSize()-size()>n && ((double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize())) {
+      consolidateBlocks();
+      list<struct FreeBlock>::iterator iter = indexFree.begin();
+      for (; iter != indexFree.end() ; iter++ ) {
+        if ( iter->size >= n) {
+          if (iter != indexFree.begin() ) {
+            struct FreeBlock tmp(*iter);
+            iter = indexFree.erase(iter);
+            indexFree.push_front(tmp);
+          }
+          found = true;
+          break;
+        }
+      }
     }
     if (!found) {
 #ifdef ADOLC_LOCDEBUG
@@ -1403,6 +1405,12 @@ void ensureContiguousLocations(size_t n) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->ensure_block(n);
+}
+
+void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->setStoreManagerControl(gcTriggerRatio,gcTriggerMaxSize);
 }
 
 void StoreManagerLocintBlock::consolidateBlocks() {

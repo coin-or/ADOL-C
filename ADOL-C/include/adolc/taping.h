@@ -58,6 +58,13 @@ ADOLC_DLL_EXPORT void disableBranchSwitchWarnings();
 
 ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
 
+/*
+ * free location block sorting/consolidation upon calls to ensureContiguousLocations
+ * happens when  the ratio between allocated and used locations exceeds gcTriggerRatio or
+ * the allocated locations exceed gcTriggerMaxSize
+ */
+ADOLC_DLL_EXPORT void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize);
+
 END_C_DECLS
 
 /**

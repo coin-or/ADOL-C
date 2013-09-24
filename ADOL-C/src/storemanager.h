@@ -69,12 +69,17 @@
 class StoreManager {
 protected:
   static size_t const initialSize = 4;
+  double myGcTriggerRatio;
+  size_t myGcTriggerMaxSize;
 public:
+  StoreManager() : myGcTriggerRatio(1.5), myGcTriggerMaxSize(initialSize) {}
   virtual ~StoreManager() {}
-
   virtual locint next_loc() = 0;
   virtual void free_loc(locint) = 0;
   virtual void ensure_block(size_t n) = 0;
+  void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) { myGcTriggerRatio=gcTriggerRatio; myGcTriggerMaxSize=gcTriggerMaxSize;}
+  double gcTriggerRatio() const {return myGcTriggerRatio;}
+  size_t gcTriggerMaxSize() const {return myGcTriggerMaxSize;}
 
 //   // effectively the current size of the store array
   virtual size_t maxSize() const = 0;
@@ -82,8 +87,6 @@ public:
 //   // the number of slots currently in use
   virtual size_t size() const = 0;
 };
-
-
 
 class StoreManagerLocint : public StoreManager {
 protected:
