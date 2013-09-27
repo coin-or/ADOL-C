@@ -435,6 +435,8 @@ int initNewTape(short tapeID) {
     }
     if (newTI) ADOLC_TAPE_INFOS_BUFFER.push_back(newTapeInfos);
 
+    newTapeInfos->pTapeInfos.skipFileCleanup=0;
+
     /* set the new tape infos as current */
     memcpy(&ADOLC_CURRENT_TAPE_INFOS, newTapeInfos, sizeof(TapeInfos));
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = newTapeInfos;
@@ -726,7 +728,7 @@ void cleanUp() {
                 fclose((*tiIter)->loc_file);
                 (*tiIter)->loc_file = NULL;
             }
-            if ((*tiIter)->tay_file!=NULL) {
+            if ((*tiIter)->tay_file!=NULL && (*tiIter)->pTapeInfos.skipFileCleanup==0 ) {
                 fclose((*tiIter)->tay_file);
                 (*tiIter)->tay_file = NULL;
                 remove((*tiIter)->pTapeInfos.tay_fileName);
@@ -777,7 +779,7 @@ void cleanUp() {
             int filesWritten = (*tiIter)->stats[OP_FILE_ACCESS] +
                 (*tiIter)->stats[LOC_FILE_ACCESS] +
                 (*tiIter)->stats[VAL_FILE_ACCESS];
-            if ( (filesWritten > 0) && ((*tiIter)->pTapeInfos.keepTape == 0) )
+            if ( (filesWritten > 0) && ((*tiIter)->pTapeInfos.keepTape == 0) && (*tiIter)->pTapeInfos.skipFileCleanup==0 )
             {
                 /* try to remove all tapes (even those not written by this
                  * run) => this ensures that there is no mixture of tapes from
@@ -924,7 +926,7 @@ int trace_on(short tnum, int keepTaylors) {
 }
 
 int trace_on(short tnum, int keepTaylors,
-        uint obs, uint lbs, uint vbs, uint tbs)
+        uint obs, uint lbs, uint vbs, uint tbs, int skipFileCleanup)
 {
     int retval = 0;
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -937,6 +939,7 @@ int trace_on(short tnum, int keepTaylors,
     ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE] = vbs;
     ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE] = tbs;
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors=keepTaylors;
+    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.skipFileCleanup=skipFileCleanup;
     if (keepTaylors!=0) ADOLC_CURRENT_TAPE_INFOS.deg_save=1;
     start_trace();
     take_stock();               /* record all existing adoubles on the tape */

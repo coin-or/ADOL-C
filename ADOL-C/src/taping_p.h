@@ -193,6 +193,12 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     int keepTape; /* - remember if tapes shall be written out to disk
                      - this information can only be given at taping time and
                        must survive all other actions on the tape */
+
+    /**
+     * defaults to 0, if 1 skips file removal (when file operations are costly)
+     */
+    int skipFileCleanup;
+
 } PersistantTapeInfos;
 
 /**
