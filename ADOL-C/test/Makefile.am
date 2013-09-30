@@ -27,7 +27,7 @@ AM_CXXFLAGS             = @ac_adolc_cxxflags@
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
-AM_CPPFLAGS = -I$(srcdir)/../include
+AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include  -I$(top_srcdir)/ADOL-C/include
 
 EXTRA_DIST = run_tests
 
