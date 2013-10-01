@@ -135,6 +135,9 @@ protected:
     size_t &currentfill;
 
     void consolidateBlocks();
+#ifdef ADOLC_LOCDEBUG
+    unsigned int ensure_blockCallsSinceLastConsolidateBlocks;
+#endif
 private:
     /**
      * when minGrow is specified we asssume that we have already

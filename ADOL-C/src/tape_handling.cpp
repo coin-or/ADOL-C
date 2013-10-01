@@ -1184,8 +1184,12 @@ TapeInfos::TapeInfos(short _tapeID) {
 
 StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
-    maxsize(size), currentfill(numlives)
-{
+    maxsize(size),
+    currentfill(numlives)
+#ifdef ADOLC_LOCDEBUG
+    ,ensure_blockCallsSinceLastConsolidateBlocks(0)
+#endif
+  {
     indexFree.clear();
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
@@ -1212,8 +1216,12 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
     const StoreManagerLocintBlock *const stm,
     double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
-    maxsize(size), currentfill(numlives)
-{
+    maxsize(size),
+    currentfill(numlives)
+#ifdef ADOLC_LOCDEBUG
+    ,ensure_blockCallsSinceLastConsolidateBlocks(0)
+#endif
+  {
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
@@ -1254,23 +1262,30 @@ locint StoreManagerLocintBlock::next_loc() {
 
 void StoreManagerLocintBlock::ensure_block(size_t n) {
     bool found = false;
-
 #ifdef ADOLC_LOCDEBUG
+    ++ensure_blockCallsSinceLastConsolidateBlocks;
     std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
     std::cerr << "searching for big enough block " << endl;
 #endif
-    if (maxSize()-size()>n && ((double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize())) {
-      consolidateBlocks();
-      list<struct FreeBlock>::iterator iter = indexFree.begin();
-      for (; iter != indexFree.end() ; iter++ ) {
-        if ( iter->size >= n) {
-          if (iter != indexFree.begin() ) {
-            struct FreeBlock tmp(*iter);
-            iter = indexFree.erase(iter);
-            indexFree.push_front(tmp);
+    if (maxSize()-size()>n) {
+      if (indexFree.front().size>=n) found = true;
+      if ((!found) && (double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize()) {
+        consolidateBlocks();
+#ifdef ADOLC_LOCDEBUG
+        std::cerr << "ADOLC: GC called consolidateBlocks because " << maxSize() << "/" << size() << ">" << gcTriggerRatio() << " or " << maxSize() << ">" << gcTriggerMaxSize() << " after " << ensure_blockCallsSinceLastConsolidateBlocks << std::endl;
+        ensure_blockCallsSinceLastConsolidateBlocks=0;
+#endif
+        list<struct FreeBlock>::iterator iter = indexFree.begin();
+        for (; iter != indexFree.end() ; iter++ ) {
+          if ( iter->size >= n) {
+            if (iter != indexFree.begin() ) {
+              struct FreeBlock tmp(*iter);
+              iter = indexFree.erase(iter);
+              indexFree.push_front(tmp);
+            }
+            found = true;
+            break;
           }
-          found = true;
-          break;
         }
       }
     }
