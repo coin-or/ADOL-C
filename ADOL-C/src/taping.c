@@ -333,18 +333,22 @@ void printError() {
 }
 
 /* the base names of every tape type */
-char *tapeBaseNames[4];
+char *tapeBaseNames[4]={0,0,0,0};
 
 void clearTapeBaseNames() {
     int i;
-    for(i=0;i<4;i++)
-	free(tapeBaseNames[i]);
+    for(i=0;i<4;i++) {
+	if (tapeBaseNames[i]) {
+	    free(tapeBaseNames[i]);
+	    tapeBaseNames[i]=0;
+	}
+    }
 }
 
 /****************************************************************************/
 /* The subroutine get_fstr appends to the tape base name of type tapeType   */
 /* the number fnum and ".tap" and returns a pointer to the resulting string.*/
-/* The result string must be freed be thy caller!                           */
+/* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
     char *numberString, *fileName, *extension = ".tap", *currPos;
