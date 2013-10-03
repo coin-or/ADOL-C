@@ -262,6 +262,11 @@ typedef struct TapeInfos {
 
     /* evaluation forward */
     double *dp_T0;
+    int gDegree, numTay;
+    /*
+     * Taylor coefficient array  allocated like this:
+     * dpp_T[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES][numTay*gDegree]
+     */
     double **dpp_T;
 
     /* evaluation reverse */
@@ -415,7 +420,7 @@ locint next_loc();
 void free_loc(locint loc);
 /* frees the specified location in "adouble" memory */
 
-void taylor_begin(uint bufferSize, double **Tg, int degreeSave);
+void taylor_begin(uint bufferSize, int degreeSave);
 /* set up statics for writing taylor data */
 
 void taylor_close(uint buffer);

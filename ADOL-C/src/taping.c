@@ -660,7 +660,7 @@ locint keep_stock() {
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
 /****************************************************************************/
-void taylor_begin(uint bufferSize, double **Tg, int degreeSave) {
+void taylor_begin(uint bufferSize, int degreeSave) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer != NULL) {
@@ -680,7 +680,6 @@ void taylor_begin(uint bufferSize, double **Tg, int degreeSave) {
     }
 
     /* initial setups */
-    ADOLC_CURRENT_TAPE_INFOS.dpp_T = Tg;
     if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer != NULL)
         free(ADOLC_CURRENT_TAPE_INFOS.tayBuffer);
     ADOLC_CURRENT_TAPE_INFOS.tayBuffer = (revreal *)
@@ -1080,7 +1079,7 @@ void start_trace() {
 
     /* initialize value stack if necessary */
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        taylor_begin(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE], NULL, 0);
+        taylor_begin(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE], 0);
 
     /* mark possible (hard disk) tape creation */
     markNewTape();

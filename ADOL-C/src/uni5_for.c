@@ -1012,6 +1012,9 @@ int  hov_forward(
 #if !defined(_NTIGHT_)
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
     ADOLC_CURRENT_TAPE_INFOS.dp_T0 = dp_T0;
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T0;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 0;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 0;
 #endif /* !_NTIGHT_ */
 #if defined(_ZOS_)                                                   /* ZOS */
 
@@ -1026,7 +1029,7 @@ int  hov_forward(
     if (keep) {
       taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
 
-        taylor_begin(taylbuf,&dp_T0,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
@@ -1041,11 +1044,14 @@ int  hov_forward(
     }
 #endif
     dp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
 # define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,&dp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
@@ -1101,6 +1107,9 @@ int  hov_forward(
 #else                                                                /* FOV */
 #if defined(_FOV_)
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],p);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = p;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
 # define TAYLOR_BUFFER dpp_T
     dp_Ttemp = myalloc1(p);
 # define T_TEMP dp_Ttemp;
@@ -1109,6 +1118,9 @@ int  hov_forward(
 #else                                                                /* HOS */
 #if defined(_HOS_)
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],k);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(k);
@@ -1116,13 +1128,16 @@ int  hov_forward(
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,dpp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
     /*--------------------------------------------------------------------------*/
 #else                                                     /* HOV and HOV_WK */
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],p*k);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = p;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(p*k);
@@ -1130,7 +1145,7 @@ int  hov_forward(
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,dpp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 #endif
