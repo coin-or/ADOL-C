@@ -1276,10 +1276,10 @@ void tape_doc(short tnum,         /* tape id */
 	      loc_a[1] = get_locint_f();   /* sbuf */
 	      TAPE_AMPI_read_int(loc_a+2); /* count */
 	      TAPE_AMPI_read_int(loc_a+3); /* pushResultData */
-	      i=0; /* read off stored double array into dummy variable */
+	      i=0; /* read stored double array into dummy variable */
 	      while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
 	      if (loc_a[3]) {
-	        i=0; /* for root, also read off stored reduction result */
+	        i=0; /* for root, also read stored reduction result */
 	        while (i<loc_a[2]) { TAPE_AMPI_read_double(&aDouble); i++; }
 	      }
 	      TAPE_AMPI_read_int(loc_a+3); /* pushResultData again */
