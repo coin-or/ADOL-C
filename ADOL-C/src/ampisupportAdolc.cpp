@@ -224,7 +224,7 @@ void unpackDeallocate(void** buf,
                       const MPI_Datatype& packedDatatype) {
   assert(buf);
   int tayCount=ADOLC_CURRENT_TAPE_INFOS.gDegree*ADOLC_CURRENT_TAPE_INFOS.numTay;
-  double* doubleBuf=(double*)buf;
+  double* doubleBuf=(double*)(*buf);
   for (int i=0; i<count; ++i) {
     ADOLC_CURRENT_TAPE_INFOS.dp_T0[startLoc+i]=doubleBuf[i*(tayCount+1)];
     memcpy((void*)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc+i]),(void*)(doubleBuf+i*(tayCount+1)+1),tayCount*sizeof(double));
