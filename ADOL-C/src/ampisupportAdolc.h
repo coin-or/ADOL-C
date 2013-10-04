@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+void ADOLC_TLM_init();
+
 int ADOLC_TLM_AMPI_Send(void* buf,
                         int count,
                         MPI_Datatype datatype,

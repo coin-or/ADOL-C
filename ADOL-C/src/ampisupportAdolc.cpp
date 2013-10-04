@@ -9,6 +9,44 @@
 #include "ampi/adTool/support.h"
 #include "ampi/tape/support.h"
 
+extern "C" void ADOLC_TLM_AMPI_PROD(void *invec, void *inoutvec, int *len, MPI_Datatype *dtype);
+
+void ADOLC_TLM_AMPI_PROD(void *invec, void *inoutvec, int *len, MPI_Datatype *dtype){
+  int order=ADOLC_CURRENT_TAPE_INFOS.gDegree;
+  int dir=ADOLC_CURRENT_TAPE_INFOS.numTay;
+  double *in=(double*)invec;
+  double *inout=(double*)inoutvec;
+  int count=(*len)/((order*dir)+1);
+  assert((*len)%((order*dir)+1)==0);
+  for (int i=0;i<count;++i) {
+    for (int d=0;d<dir;++d) {
+      // compute the Taylor coefficients highest to lowest per direction
+      for (int o=order;o>0;--o) {
+        double z=0;
+        // do the convolution except for the 0-th coefficients
+        for (int conv=1;conv<o;++conv) {
+          z+=in[d*order+conv]*inout[d*order+o-conv];
+        }
+        // do the 0-th coeffients
+        z+=in[d*order+o]*inout[0]+in[0]*inout[d*order+o];
+        // set the coefficient
+        inout[d*order+o]=z;
+      }
+    }
+    // compute the value
+    inout[0] *= in[0];
+    // advance to the next block
+    in+=(order*dir)+1;
+    inout+=(order*dir)+1;
+  }
+}
+
+static MPI_Op ourProdOp;
+
+void ADOLC_TLM_init() {
+  MPI_Op_create(ADOLC_TLM_AMPI_PROD,1,&ourProdOp);
+}
+
 
 int ADOLC_TLM_AMPI_Send(void* buf,
                         int count,
@@ -233,6 +271,12 @@ void unpackDeallocate(void** buf,
   *buf=NULL;
 }
 
+MPI_Op opForPackedData(const MPI_Op& op) {
+  MPI_Op rOp=op;
+  if (op==MPI_PROD) rOp=ourProdOp;
+  return rOp;
+}
+
 int ADOLC_TLM_AMPI_Bcast(void* buf,
 	       int count,
 	       MPI_Datatype datatype,
@@ -299,11 +343,12 @@ int ADOLC_TLM_AMPI_Reduce(void* sbuf,
                packedCount,
                datatype,
                packedDatatype);
+  MPI_Op packedOp=opForPackedData(op);
   int rc=TLM_AMPI_Reduce(sbuf,
                          rbuf,
                          packedCount,
                          packedDatatype,
-                         op,
+                         packedOp,
                          root,
                          comm);
   unpackDeallocate(&sbuf,
