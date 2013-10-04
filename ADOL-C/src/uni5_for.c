@@ -1015,6 +1015,7 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T0;
     ADOLC_CURRENT_TAPE_INFOS.numTay = 0;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = 0;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_ZOS_FORWARD;
 #endif /* !_NTIGHT_ */
 #if defined(_ZOS_)                                                   /* ZOS */
 
@@ -1047,6 +1048,7 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T;
     ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_FORWARD;
 # define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
     if (keep) {
@@ -1110,6 +1112,7 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
     ADOLC_CURRENT_TAPE_INFOS.numTay = p;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_Ttemp = myalloc1(p);
 # define T_TEMP dp_Ttemp;
@@ -1121,6 +1124,7 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
     ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(k);
@@ -1138,6 +1142,7 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
     ADOLC_CURRENT_TAPE_INFOS.numTay = p;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(p*k);

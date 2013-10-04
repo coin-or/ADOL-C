@@ -263,6 +263,7 @@ typedef struct TapeInfos {
     /* evaluation forward */
     double *dp_T0;
     int gDegree, numTay;
+    enum WORKMODES workMode;
     /*
      * Taylor coefficient array  allocated like this:
      * dpp_T[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES][numTay*gDegree]
