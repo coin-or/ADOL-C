@@ -17,7 +17,7 @@ void ADOLC_TLM_AMPI_PROD(void *invec, void *inoutvec, int *len, MPI_Datatype *dt
   double *in=(double*)invec;
   double *inout=(double*)inoutvec;
   int count=(*len)/((order*dir)+1);
-  assert((*len)%((order*dir)+1)==0);
+  assert((*len)%((order*dir)+1)==0); // has to evenly divide or something is wrong
   for (int i=0;i<count;++i) {
     for (int d=0;d<dir;++d) {
       // compute the Taylor coefficients highest to lowest per direction
@@ -47,7 +47,6 @@ void ADOLC_TLM_init() {
   MPI_Op_create(ADOLC_TLM_AMPI_PROD,1,&ourProdOp);
 }
 
-
 int ADOLC_TLM_AMPI_Send(void* buf,
                         int count,
                         MPI_Datatype datatype,
@@ -56,72 +55,72 @@ int ADOLC_TLM_AMPI_Send(void* buf,
                         AMPI_PairedWith pairedWith,
                         MPI_Comm comm) {
   return TLM_AMPI_Send(buf,
-                      count,
-                      datatype,
-                      src,
-                      tag,
-                      pairedWith,
-                      comm);
+                       count,
+                       datatype,
+                       src,
+                       tag,
+                       pairedWith,
+                       comm);
 }
 
 int ADOLC_TLM_AMPI_Recv(void* buf,
-              int count,
-              MPI_Datatype datatype,
-              int src,
-              int tag,
-              AMPI_PairedWith pairedWith,
-              MPI_Comm comm,
-              MPI_Status* status) {
+                        int count,
+                        MPI_Datatype datatype,
+                        int src,
+                        int tag,
+                        AMPI_PairedWith pairedWith,
+                        MPI_Comm comm,
+                        MPI_Status* status) {
   return TLM_AMPI_Recv(buf,
-                      count,
-                      datatype,
-                      src,
-                      tag,
-                      pairedWith,
-                      comm,
-                      status);
-}
-
-int ADOLC_TLM_AMPI_Isend (void* buf,
-                int count,
-                MPI_Datatype datatype,
-                int dest,
-                int tag,
-                AMPI_PairedWith pairedWith,
-                MPI_Comm comm,
-                AMPI_Request* request) {
-  return TLM_AMPI_Isend(buf,
-                       count,
-                       datatype,
-                       dest,
-                       tag,
-                       pairedWith,
-                       comm,
-                       request);
-}
-
-int ADOLC_TLM_AMPI_Irecv (void* buf,
-                int count,
-                MPI_Datatype datatype,
-                int src,
-                int tag,
-                AMPI_PairedWith pairedWith,
-                MPI_Comm comm,
-                AMPI_Request* request) {
-  return TLM_AMPI_Irecv(buf,
                        count,
                        datatype,
                        src,
                        tag,
                        pairedWith,
                        comm,
-                       request);
+                       status);
+}
+
+int ADOLC_TLM_AMPI_Isend (void* buf,
+                          int count,
+                          MPI_Datatype datatype,
+                          int dest,
+                          int tag,
+                          AMPI_PairedWith pairedWith,
+                          MPI_Comm comm,
+                          AMPI_Request* request) {
+  return TLM_AMPI_Isend(buf,
+                        count,
+                        datatype,
+                        dest,
+                        tag,
+                        pairedWith,
+                        comm,
+                        request);
+}
+
+int ADOLC_TLM_AMPI_Irecv (void* buf,
+                          int count,
+                          MPI_Datatype datatype,
+                          int src,
+                          int tag,
+                          AMPI_PairedWith pairedWith,
+                          MPI_Comm comm,
+                          AMPI_Request* request) {
+  return TLM_AMPI_Irecv(buf,
+                        count,
+                        datatype,
+                        src,
+                        tag,
+                        pairedWith,
+                        comm,
+                        request);
 }
 
 int ADOLC_TLM_AMPI_Wait(AMPI_Request *request,
-              MPI_Status *status) {
+                        MPI_Status *status) {
   return TLM_AMPI_Wait(request,
-                      status);
+                       status);
 }
 
 int ADOLC_TLM_AMPI_Barrier(MPI_Comm comm) {
@@ -129,31 +128,14 @@ int ADOLC_TLM_AMPI_Barrier(MPI_Comm comm) {
 }
 
 int ADOLC_TLM_AMPI_Gather(void *sendbuf,
-                int sendcnt,
-                MPI_Datatype sendtype,
-                void *recvbuf,
-                int recvcnt,
-                MPI_Datatype recvtype,
-                int root,
-                MPI_Comm comm) {
+                          int sendcnt,
+                          MPI_Datatype sendtype,
+                          void *recvbuf,
+                          int recvcnt,
+                          MPI_Datatype recvtype,
+                          int root,
+                          MPI_Comm comm) {
   return TLM_AMPI_Gather(sendbuf,
-                        sendcnt,
-                        sendtype,
-                        recvbuf,
-                        recvcnt,
-                        recvtype,
-                        root,
-                        comm);
-}
-
-int ADOLC_TLM_AMPI_Scatter(void *sendbuf,
-                 int sendcnt,
-                 MPI_Datatype sendtype,
-                 void *recvbuf,
-                 int recvcnt,
-                 MPI_Datatype recvtype,
-                 int root, MPI_Comm comm) {
-  return TLM_AMPI_Scatter(sendbuf,
                          sendcnt,
                          sendtype,
                          recvbuf,
@@ -163,77 +145,94 @@ int ADOLC_TLM_AMPI_Scatter(void *sendbuf,
                          comm);
 }
 
+int ADOLC_TLM_AMPI_Scatter(void *sendbuf,
+                           int sendcnt,
+                           MPI_Datatype sendtype,
+                           void *recvbuf,
+                           int recvcnt,
+                           MPI_Datatype recvtype,
+                           int root, MPI_Comm comm) {
+  return TLM_AMPI_Scatter(sendbuf,
+                          sendcnt,
+                          sendtype,
+                          recvbuf,
+                          recvcnt,
+                          recvtype,
+                          root,
+                          comm);
+}
+
 int ADOLC_TLM_AMPI_Allgather(void *sendbuf,
-                   int sendcnt,
-                   MPI_Datatype sendtype,
-                   void *recvbuf,
-                   int recvcnt,
-                   MPI_Datatype recvtype,
-                   MPI_Comm comm) {
+                             int sendcnt,
+                             MPI_Datatype sendtype,
+                             void *recvbuf,
+                             int recvcnt,
+                             MPI_Datatype recvtype,
+                             MPI_Comm comm) {
   return TLM_AMPI_Allgather(sendbuf,
-                           sendcnt,
+                            sendcnt,
+                            sendtype,
+                            recvbuf,
+                            recvcnt,
+                            recvtype,
+                            comm);
+}
+
+int ADOLC_TLM_AMPI_Gatherv(void *sendbuf,
+                           int sendcnt,
+                           MPI_Datatype sendtype,
+                           void *recvbuf,
+                           int *recvcnts,
+                           int *displs,
+                           MPI_Datatype recvtype,
+                           int root,
+                           MPI_Comm comm) {
+  return TLM_AMPI_Gatherv(sendbuf,
+                          sendcnt,
+                          sendtype,
+                          recvbuf,
+                          recvcnts,
+                          displs,
+                          recvtype,
+                          root,
+                          comm);
+}
+
+int ADOLC_TLM_AMPI_Scatterv(void *sendbuf,
+                            int *sendcnts,
+                            int *displs,
+                            MPI_Datatype sendtype,
+                            void *recvbuf,
+                            int recvcnt,
+                            MPI_Datatype recvtype,
+                            int root, MPI_Comm comm) {
+  return TLM_AMPI_Scatterv(sendbuf,
+                           sendcnts,
+                           displs,
                            sendtype,
                            recvbuf,
                            recvcnt,
                            recvtype,
+                           root,
                            comm);
-}
-
-int ADOLC_TLM_AMPI_Gatherv(void *sendbuf,
-                 int sendcnt,
-                 MPI_Datatype sendtype,
-                 void *recvbuf,
-                 int *recvcnts,
-                 int *displs,
-                 MPI_Datatype recvtype,
-                 int root,
-                 MPI_Comm comm) {
-  return TLM_AMPI_Gatherv(sendbuf,
-			 sendcnt,
-			 sendtype,
-			 recvbuf,
-			 recvcnts,
-			 displs,
-			 recvtype,
-			 root,
-			 comm);
-}
-
-int ADOLC_TLM_AMPI_Scatterv(void *sendbuf,
-                  int *sendcnts,
-                  int *displs,
-                  MPI_Datatype sendtype,
-                  void *recvbuf,
-                  int recvcnt,
-                  MPI_Datatype recvtype,
-                  int root, MPI_Comm comm) {
-  return TLM_AMPI_Scatterv(sendbuf,
-			  sendcnts,
-			  displs,
-			  sendtype,
-			  recvbuf,
-			  recvcnt,
-			  recvtype,
-			  root,
-			  comm);
 }
 
 int ADOLC_TLM_AMPI_Allgatherv(void *sendbuf,
-                    int sendcnt,
-                    MPI_Datatype sendtype,
-                    void *recvbuf,
-                    int *recvcnts,
-                    int *displs,
-                    MPI_Datatype recvtype,
-                    MPI_Comm comm) {
+                              int sendcnt,
+                              MPI_Datatype sendtype,
+                              void *recvbuf,
+                              int *recvcnts,
+                              int *displs,
+                              MPI_Datatype recvtype,
+                              MPI_Comm comm) {
   return TLM_AMPI_Allgatherv(sendbuf,
-                           sendcnt,
-                           sendtype,
-                           recvbuf,
-                           recvcnts,
-                           displs,
-                           recvtype,
-                           comm);
+                             sendcnt,
+                             sendtype,
+                             recvbuf,
+                             recvcnts,
+                             displs,
+                             recvtype,
+                             comm);
 }
 
 void allocatePack(void** buf,
@@ -247,11 +246,23 @@ void allocatePack(void** buf,
   assert(doubleBuf);
   for (int i=0; i<count; ++i) {
     doubleBuf[i*(tayCount+1)]=ADOLC_CURRENT_TAPE_INFOS.dp_T0[startLoc+i];
-    memcpy((void*)(doubleBuf+i*(tayCount+1)+1),(void*)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc+i]),tayCount*sizeof(double));
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_ZOS_FORWARD) {
+      if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_FOS_FORWARD) {
+        memcpy((void*)(doubleBuf+i*(tayCount+1)+1),(void*)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc+i]),tayCount*sizeof(double));
+      }
+      else {  // dpp_T is set as &dp_T !
+        doubleBuf[i*2+1]=ADOLC_CURRENT_TAPE_INFOS.dpp_T[0][startLoc+i];
+      }
+    }
   }
   *buf=(void*)doubleBuf;
   packedCount=(tayCount+1)*count;
   packedDatatype=ADTOOL_AMPI_FW_rawType(datatype);
+}
+
+void deallocate(void** buf) {
+  free(*buf);
+  *buf=NULL;
 }
 
 void unpackDeallocate(void** buf,
@@ -265,10 +276,16 @@ void unpackDeallocate(void** buf,
   double* doubleBuf=(double*)(*buf);
   for (int i=0; i<count; ++i) {
     ADOLC_CURRENT_TAPE_INFOS.dp_T0[startLoc+i]=doubleBuf[i*(tayCount+1)];
-    memcpy((void*)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc+i]),(void*)(doubleBuf+i*(tayCount+1)+1),tayCount*sizeof(double));
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_ZOS_FORWARD) {
+      if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_FOS_FORWARD) {
+        memcpy((void*)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc+i]),(void*)(doubleBuf+i*(tayCount+1)+1),tayCount*sizeof(double));
+      }
+      else {
+        ADOLC_CURRENT_TAPE_INFOS.dpp_T[0][startLoc+i]=doubleBuf[i*2+1];
+      }
+    }
   }
-  free(*buf);
-  *buf=NULL;
+  deallocate(buf);
 }
 
 MPI_Op opForPackedData(const MPI_Op& op) {
@@ -278,10 +295,10 @@ MPI_Op opForPackedData(const MPI_Op& op) {
 }
 
 int ADOLC_TLM_AMPI_Bcast(void* buf,
-	       int count,
-	       MPI_Datatype datatype,
-	       int root,
-	       MPI_Comm comm) {
+                         int count,
+                         MPI_Datatype datatype,
+                         int root,
+                         MPI_Comm comm) {
   locint startLoc=get_locint_f();
   TAPE_AMPI_read_int(&count);
   TAPE_AMPI_read_MPI_Datatype(&datatype);
@@ -298,8 +315,8 @@ int ADOLC_TLM_AMPI_Bcast(void* buf,
   int rc=TLM_AMPI_Bcast(buf,
                         packedCount,
                         packedDatatype,
-		        root,
-		        comm);
+                        root,
+                        comm);
   unpackDeallocate(&buf,
                    startLoc,
                    count,
@@ -331,18 +348,21 @@ int ADOLC_TLM_AMPI_Reduce(void* sbuf,
   TAPE_AMPI_read_int(&count); /* count again */
   int packedCount=0;
   MPI_Datatype packedDatatype;
+  int myRank; MPI_Comm_rank(comm,&myRank);
   allocatePack(&sbuf,
                sbufStart,
                count,
                packedCount,
                datatype,
                packedDatatype);
-  allocatePack(&rbuf,
-               rbufStart,
-               count,
-               packedCount,
-               datatype,
-               packedDatatype);
+  if (myRank==root) {
+    allocatePack(&rbuf,
+                 rbufStart,
+                 count,
+                 packedCount,
+                 datatype,
+                 packedDatatype);
+  }
   MPI_Op packedOp=opForPackedData(op);
   int rc=TLM_AMPI_Reduce(sbuf,
                          rbuf,
@@ -351,33 +371,30 @@ int ADOLC_TLM_AMPI_Reduce(void* sbuf,
                          packedOp,
                          root,
                          comm);
-  unpackDeallocate(&sbuf,
-                   sbufStart,
-                   count,
-                   packedCount,
-                   datatype,
-                   packedDatatype);
-  unpackDeallocate(&rbuf,
-                   rbufStart,
-                   count,
-                   packedCount,
-                   datatype,
-                   packedDatatype);
+  deallocate(&sbuf);
+  if (myRank==root) {
+    unpackDeallocate(&rbuf,
+                     rbufStart,
+                     count,
+                     packedCount,
+                     datatype,
+                     packedDatatype);
+  }
   return rc;
 }
 
 int ADOLC_TLM_AMPI_Allreduce(void* sbuf,
-                   void* rbuf,
-                   int count,
-                   MPI_Datatype datatype,
-                   MPI_Op op,
-                   MPI_Comm comm) {
+                             void* rbuf,
+                             int count,
+                             MPI_Datatype datatype,
+                             MPI_Op op,
+                             MPI_Comm comm) {
   return TLM_AMPI_Allreduce(sbuf,
-                           rbuf,
-                           count,
-                           datatype,
-                           op,
-                           comm);
+                            rbuf,
+                            count,
+                            datatype,
+                            op,
+                            comm);
 }
 
 #endif
