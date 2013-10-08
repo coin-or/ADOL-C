@@ -474,6 +474,9 @@ fi
 
 AC_DEFUN([AC_COIN_PATCH_LIBTOOL_CYGWIN],
 [ case "$CXX" in
+    clang* | */clang*) 
+	# do nothing but don't want to accidentally match the 'cl' patterns below
+	;;
     cl* | */cl* | CL* | */CL* | icl* | */icl* | ICL* | */ICL*) 
       AC_MSG_NOTICE(Applying patches to libtool for cl compiler)
       sed -e 's|fix_srcfile_path=\"`cygpath -w \"\$srcfile\"`\"|fix_srcfile_path=\"\\\`'"$CYGPATH_W"' \\\"\\$srcfile\\\"\\\`\"|' \
