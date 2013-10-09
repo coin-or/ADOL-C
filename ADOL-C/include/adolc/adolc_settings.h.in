@@ -24,13 +24,10 @@ typedef @REAL_TYPE@ revreal;
 
 /*--------------------------------------------------------------------------*/
 /* Enable/disable asinh, acosh,atanh, erf */
-@ATRIG_ERF_FALSE@#undef ATRIG_ERF
-@ATRIG_ERF_TRUE@#define ATRIG_ERF 1
+@ATRIG_ERF@
 
 /*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
-@ADVBRANCH_FALSE@#undef ADOLC_ADVANCED_BRANCHING
-@ADVBRANCH_TRUE@#define ADOLC_ADVANCED_BRANCHING 1
-
+@ADVBRANCH@
 
 #endif

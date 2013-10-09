@@ -124,14 +124,11 @@ AC_ARG_ENABLE(atrig-erf,[AS_HELP_STRING([--enable-atrig-erf],
 AC_MSG_RESULT($use_atrig_erf)
 
 if test x$use_atrig_erf = xyes ; then
-  ATRIG_ERF_FALSE="// "
-  ATRIG_ERF_TRUE=""
+  ATRIG_ERF="#define ATRIG_ERF 1"
 else
-  ATRIG_ERF_FALSE=""
-  ATRIG_ERF_TRUE="// "
+  ATRIG_ERF="#undef ATRIG_ERF"
 fi
-AC_SUBST(ATRIG_ERF_FALSE)
-AC_SUBST(ATRIG_ERF_TRUE)
+AC_SUBST(ATRIG_ERF)
 
 AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
 AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
@@ -172,14 +169,12 @@ switch branches in conjunction with condassign or advector (see manual).])],
 AC_MSG_RESULT($use_advbranch)
 
 if test x$use_advbranch = xyes ; then
-  ADVBRANCH_TRUE=""
-  ADVBRANCH_FALSE="// "
+  ADVBRANCH="#define ADOLC_ADVANCED_BRANCHING 1"
 else
-  ADVBRANCH_TRUE="// "
-  ADVBRANCH_FALSE=""
+  ADVBRANCH="#undef ADOLC_ADVANCED_BRANCHING"
 fi
-AC_SUBST(ADVBRANCH_TRUE)
-AC_SUBST(ADVBRANCH_FALSE)
+AC_SUBST(ADVBRANCH)
+AC_SUBST(ADVBRANCH)
 
 AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
