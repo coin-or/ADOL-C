@@ -1621,7 +1621,7 @@ void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations) {
     if (ADOLC_CURRENT_TAPE_INFOS.currVal + 5 > ADOLC_CURRENT_TAPE_INFOS.lastValP1) {
         locint valRemainder=ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal;
         ADOLC_PUT_LOCINT(valRemainder);
-        // avoid writing uninitialized memory to the file and get valgrind upset
+        /* avoid writing uninitialized memory to the file and get valgrind upset */
         memset(ADOLC_CURRENT_TAPE_INFOS.currVal,0,valRemainder*sizeof(double));
         put_val_block(ADOLC_CURRENT_TAPE_INFOS.lastValP1);
         /* every operation writes 1 opcode */

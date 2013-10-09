@@ -1779,9 +1779,11 @@ int int_reverse_safe(
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(TRES));
-		    // This is actually NOP 
-                    // basically all we need is that arg1 == vectorloc+idx
-                    // so doing a check here is probably good
+		    /*
+		     * This is actually NOP
+                     * basically all we need is that arg1 == vectorloc+idx
+                     * so doing a check here is probably good
+                     */
 		    if (arg1 != vectorloc+idx) {
 			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
 			exit(-2);
