@@ -48,7 +48,8 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
                        nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
-                       int_reverse_s.c int_reverse_t.c advector.cpp
+                       int_reverse_s.c int_reverse_t.c advector.cpp \
+                       adouble_tl.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la sparse/libsparse.la \
                        tapedoc/libtapedoc.la
@@ -64,7 +65,8 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
                        forward_partx.c \
                        externfcts.cpp checkpointing.cpp \
-                       fixpoint.cpp fov_offset_forward.c revolve.c advector.cpp
+                       fixpoint.cpp fov_offset_forward.c revolve.c \
+                       advector.cpp adouble_tl.cpp
 
 libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 endif
@@ -82,7 +84,8 @@ libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            int_forward_s_mpi.c int_forward_t_mpi.c \
                            indopro_forward_s_mpi.c indopro_forward_t_mpi.c \
                            nonl_ind_forward_s_mpi.c nonl_ind_forward_t_mpi.c \
-                           int_reverse_s_mpi.c int_reverse_t_mpi.c
+                           int_reverse_s_mpi.c int_reverse_t_mpi.c \
+                           adtl_mpi.cpp
 else
 libadolc_mpi_la_SOURCES =  adolc_mpi.cpp interfaces_mpi.cpp \
                            zos_forward_mpi.c fos_forward_mpi.c fov_forward_mpi.c \

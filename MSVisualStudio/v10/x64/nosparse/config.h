@@ -25,6 +25,9 @@
 /* ADOL-C Version */
 #define ADOLC_VERSION 2
 
+/* Define if the compiler provides __builtin_expect */
+#define HAVE_BUILTIN_EXPECT 0
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 

@@ -586,6 +586,4 @@ int sparse_hess( int id, int size ,short tag ,int indep,int repeat,const double 
      return sparse_hess_mpi(id,size,tag,indep,repeat,basepoint,nnz,rind,cind,values,options);
 }
 
-
-
 #endif
