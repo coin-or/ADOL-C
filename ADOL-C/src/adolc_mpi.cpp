@@ -142,7 +142,7 @@ int ADOLC_MPI_Recv( adouble *buf,
        ADOLC_PUT_LOCINT(0);
        for (i=0; i< count;i++ )
           ADOLC_PUT_LOCINT(buf[i].loc());
-       DOLC_PUT_LOCINT(0);
+       ADOLC_PUT_LOCINT(0);
     }
     ADOLC_PUT_LOCINT(count);
     ADOLC_PUT_LOCINT(source);
@@ -345,7 +345,7 @@ int ADOLC_MPI_Scatter(
     ierr = MPI_Scatter(trade_s,sendcount,type,trade_r,recvcount,type, root, comm);
 
     if( recvbuf == NULL){
-       ensureContiguousLocation(recvcount);
+       ensureContiguousLocations(recvcount);
        recvbuf = new adouble[recvcount];
     }
     for(i=0; i< recvcount;i++)
@@ -359,7 +359,7 @@ int ADOLC_MPI_Scatter(
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     if( id == root ) {
-       if( sendbuf[count-1].loc() - sendbuf[0].loc() == sendcount*size-1 ){
+       if( sendbuf[sendcount*size-1].loc() - sendbuf[0].loc() == sendcount*size-1 ){
           ADOLC_PUT_LOCINT(1);
           ADOLC_PUT_LOCINT(sendbuf[0].loc());
           ADOLC_PUT_LOCINT(1);
@@ -374,7 +374,7 @@ int ADOLC_MPI_Scatter(
     ADOLC_PUT_LOCINT(root);
     ADOLC_PUT_LOCINT(id);
     ADOLC_PUT_LOCINT(recvcount);
-    if( recvbuf[count-1].loc() - recvbuf[0].loc() == recvcount-1 ){
+    if( recvbuf[recvcount-1].loc() - recvbuf[0].loc() == recvcount-1 ){
        ADOLC_PUT_LOCINT(1);
        ADOLC_PUT_LOCINT(recvbuf[0].loc());
        ADOLC_PUT_LOCINT(1);
