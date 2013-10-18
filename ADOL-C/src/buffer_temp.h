@@ -36,6 +36,8 @@ BUFFER_TEMPLATE class Buffer {
 
     typedef void (*InitFunctionPointer) (SubBufferElement *subBufferElement);
 
+    static void zeroAll(SubBufferElement* subBufferElement);
+
     typedef struct SubBuffer {
         SubBufferElement elements[_subBufferSize];
         struct SubBuffer *nextSubBuffer;
@@ -47,7 +49,7 @@ public:
         firstSubBuffer = NULL;
         numEntries = 0;
         subBufferSize = _subBufferSize;
-        initFunction = NULL;
+        initFunction = zeroAll;
     }
     inline Buffer(InitFunctionPointer _initFunction) {
         firstSubBuffer = NULL;
@@ -69,6 +71,11 @@ private:
     IndexType subBufferSize;
     IndexType numEntries;
 };
+
+BUFFER_TEMPLATE
+void BUFFER::zeroAll(SubBufferElement* subBufferElement) {
+    memset(subBufferElement,0,sizeof(*subBufferElement));
+}
 
 BUFFER_TEMPLATE
 BUFFER::~Buffer() {

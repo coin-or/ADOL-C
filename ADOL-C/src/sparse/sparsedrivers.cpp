@@ -36,6 +36,7 @@ using namespace ColPack;
 
 using namespace std;
 
+
 /****************************************************************************/
 /*******       sparse Jacobains, separate drivers             ***************/
 /****************************************************************************/
@@ -1116,7 +1117,10 @@ END_C_DECLS
 
 namespace adtl {
 
-SparseJacInfos sJinfos = { NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0 };
+#ifdef SPARSE
+SparseJacInfos sJinfos
+     = { NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0 };
+#endif
 
 int ADTL_get_sparse_jacobian( int n, int m, int p, double** jac_values,
                       unsigned int nnz, unsigned int **rind,
@@ -1220,7 +1224,13 @@ int ADTL_get_sparse_jacobian( func_ad *const fun,
     //setNumDir(n);
     setMode(ADTL_INDO);
     {
-    adouble x[n],y[m];
+#ifdef __GNUC__
+	adouble x[n],y[m];
+#else
+	adouble *x, *y;
+	x = new adouble[n];
+	y = new adouble[m];
+#endif
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
       //x[i].setADValue(i,1);
@@ -1235,6 +1245,10 @@ int ADTL_get_sparse_jacobian( func_ad *const fun,
     }
 
     ret_val = ADTL_get_sparse_pattern(y, m, sJinfos.JP );
+#ifndef __GNUC__
+	delete[] x;
+	delete[] y;
+#endif
     }
     sJinfos.depen = m;
     sJinfos.nnz_in = 0;
@@ -1273,7 +1287,13 @@ int ADTL_get_sparse_jacobian( func_ad *const fun,
     setNumDir(sJinfos.seed_clms);
     setMode(ADTL_FOV);
     {
-    adouble x[n],y[m];
+#ifdef __GNUC__
+	adouble x[n],y[m];
+#else
+	adouble *x, *y;
+	x = new adouble[n];
+	y = new adouble[m];
+#endif
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
       for (j=0; j < sJinfos.seed_clms; j++)
@@ -1285,8 +1305,12 @@ int ADTL_get_sparse_jacobian( func_ad *const fun,
     for (i=0;i<m;i++)
        for (j=0; j< sJinfos.seed_clms;j++)
           sJinfos.B[i][j] = y[i].getADValue(j);
+#ifndef __GNUC__
+	delete[] x;
+	delete[] y;
+#endif
     }
-    /* recover compressed Jacobian => ColPack library */
+	/* recover compressed Jacobian => ColPack library */
 
       if (*values != NULL)
        free(*values);

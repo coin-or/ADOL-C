@@ -134,11 +134,7 @@ protected:
 
 public:
     /*--------------------------------------------------------------------------*/
-    badouble( const badouble& a ) {
-        location = a.location;
-        isInit = true;
-    }
-    ;           /* ctor */
+    badouble( const badouble& a ) {};           /* ctor */
 
     inline locint loc( void ) const;                         /* Helpful stuff */
 
@@ -301,9 +297,7 @@ class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
     friend ADOLC_DLL_EXPORT class advector;
     friend ADOLC_DLL_EXPORT class adubref;
-#if GCC_VERSION >= 4003
     adub( adub const &) {}
-#endif
 protected:
     adub( locint lo ):badouble(lo) {};
     adub( void ):badouble(0) {
