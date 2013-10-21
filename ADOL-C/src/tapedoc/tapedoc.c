@@ -61,6 +61,7 @@ void filewrite_start( int opcode ) {
         fprintf(DIAG_OUT,"cannot open file !\n");
         exit(1);
     }
+    free((void*)fileName);
     fprintf(fp,"\\documentclass{article}\n");
     fprintf(fp,"\\headheight0cm\n");
     fprintf(fp,"\\headsep-1cm\n");
