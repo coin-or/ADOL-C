@@ -63,13 +63,13 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.adjointEquals_fp=&ADTOOL_AMPI_adjointEquals;
   ourADTOOL_AMPI_FPCollection.adjointNullify_fp=&ADTOOL_AMPI_adjointNullify;
   ourADTOOL_AMPI_FPCollection.setupTypes_fp=&ADTOOL_AMPI_setupTypes;
+  ourADTOOL_AMPI_FPCollection.cleanupTypes_fp=&ADTOOL_AMPI_cleanupTypes;
   ourADTOOL_AMPI_FPCollection.FW_rawType_fp=&ADTOOL_AMPI_FW_rawType;
   ourADTOOL_AMPI_FPCollection.BW_rawType_fp=&ADTOOL_AMPI_BW_rawType;
   ourADTOOL_AMPI_FPCollection.isActiveType_fp=&ADTOOL_AMPI_isActiveType;
   ourADTOOL_AMPI_FPCollection.allocateTempActiveBuf_fp=&ADTOOL_AMPI_allocateTempActiveBuf;
   ourADTOOL_AMPI_FPCollection.releaseTempActiveBuf_fp=&ADTOOL_AMPI_releaseTempActiveBuf;
   ourADTOOL_AMPI_FPCollection.copyActiveBuf_fp=&ADTOOL_AMPI_copyActiveBuf;
-  
   return rc;
 }
 
@@ -868,6 +868,11 @@ void ADTOOL_AMPI_setupTypes() {
   MPI_Type_contiguous(1,MPI_FLOAT,&AMPI_AFLOAT);
   MPI_Type_commit(&AMPI_AFLOAT);
 };
+
+void ADTOOL_AMPI_cleanupTypes() {
+  if (AMPI_ADOUBLE!=MPI_DATATYPE_NULL) MPI_Type_free(&AMPI_ADOUBLE);
+  if (AMPI_AFLOAT !=MPI_DATATYPE_NULL) MPI_Type_free(&AMPI_AFLOAT);
+}
 
 MPI_Datatype ADTOOL_AMPI_FW_rawType(MPI_Datatype datatype) {
   int dt_idx = derivedTypeIdx(datatype);
