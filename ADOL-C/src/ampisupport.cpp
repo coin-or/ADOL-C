@@ -370,7 +370,7 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull,
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
     locint start=0; // have to put something regardless
-    if (buf!=MPI_IN_PLACE && count>0) {
+    if (count>0 && buf!=MPI_IN_PLACE) {
       assert(buf);
       start=startLocAssertContiguous((adouble*)buf,count);
     }
