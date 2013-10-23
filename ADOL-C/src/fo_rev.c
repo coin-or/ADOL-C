@@ -2488,7 +2488,7 @@ int int_reverse_safe(
 	    break;
 	  }
 	  case ampi_reduce: {
-	    BW_AMPI_Reduce(buf,
+	    BWB_AMPI_Reduce(buf,
 			   rbuf,
 			   count,
 			   datatype,

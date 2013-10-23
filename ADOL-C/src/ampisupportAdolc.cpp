@@ -364,7 +364,7 @@ int ADOLC_TLM_AMPI_Reduce(void* sbuf,
                  packedDatatype);
   }
   MPI_Op packedOp=opForPackedData(op);
-  int rc=TLM_AMPI_Reduce(sbuf,
+  int rc=TLB_AMPI_Reduce(sbuf,
                          rbuf,
                          packedCount,
                          packedDatatype,

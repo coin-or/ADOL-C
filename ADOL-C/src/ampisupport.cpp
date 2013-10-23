@@ -13,6 +13,8 @@
 #include "ampi/libCommon/modified.h"
 #include "ampisupportAdolc.h"
 
+MPI_Comm ADTOOL_AMPI_COMM_WORLD_SHADOW;
+
 int AMPI_Init_NT(int* argc,
 		 char*** argv) {
   int rc;
@@ -24,7 +26,7 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.popBcastInfo_fp=&ADTOOL_AMPI_popBcastInfo;
   ourADTOOL_AMPI_FPCollection.pushDoubleArray_fp=&ADTOOL_AMPI_pushDoubleArray;
   ourADTOOL_AMPI_FPCollection.popDoubleArray_fp=&ADTOOL_AMPI_popDoubleArray;
-  ourADTOOL_AMPI_FPCollection.pushReduceInfo_fp=&ADTOOL_AMPI_pushReduceInfo; 
+  ourADTOOL_AMPI_FPCollection.pushReduceInfo_fp=&ADTOOL_AMPI_pushReduceInfo;
   ourADTOOL_AMPI_FPCollection.popReduceCountAndType_fp=&ADTOOL_AMPI_popReduceCountAndType;
   ourADTOOL_AMPI_FPCollection.popReduceInfo_fp=&ADTOOL_AMPI_popReduceInfo; 
   ourADTOOL_AMPI_FPCollection.pushSRinfo_fp=&ADTOOL_AMPI_pushSRinfo;
@@ -57,11 +59,11 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.setAdjointCountAndTempBuf_fp=&ADTOOL_AMPI_setAdjointCountAndTempBuf;
   ourADTOOL_AMPI_FPCollection.allocateTempBuf_fp=&ADTOOL_AMPI_allocateTempBuf;
   ourADTOOL_AMPI_FPCollection.releaseAdjointTempBuf_fp=&ADTOOL_AMPI_releaseAdjointTempBuf;
-  ourADTOOL_AMPI_FPCollection.adjointIncrement_fp=&ADTOOL_AMPI_adjointIncrement;
-  ourADTOOL_AMPI_FPCollection.adjointMultiply_fp=&ADTOOL_AMPI_adjointMultiply;
-  ourADTOOL_AMPI_FPCollection.adjointDivide_fp=&ADTOOL_AMPI_adjointDivide;
-  ourADTOOL_AMPI_FPCollection.adjointEquals_fp=&ADTOOL_AMPI_adjointEquals;
-  ourADTOOL_AMPI_FPCollection.adjointNullify_fp=&ADTOOL_AMPI_adjointNullify;
+  ourADTOOL_AMPI_FPCollection.incrementAdjoint_fp=&ADTOOL_AMPI_incrementAdjoint;
+  ourADTOOL_AMPI_FPCollection.multiplyAdjoint_fp=&ADTOOL_AMPI_multiplyAdjoint;
+  ourADTOOL_AMPI_FPCollection.divideAdjoint_fp=&ADTOOL_AMPI_divideAdjoint;
+  ourADTOOL_AMPI_FPCollection.equalAdjoints_fp=&ADTOOL_AMPI_equalAdjoints;
+  ourADTOOL_AMPI_FPCollection.nullifyAdjoint_fp=&ADTOOL_AMPI_nullifyAdjoint;
   ourADTOOL_AMPI_FPCollection.setupTypes_fp=&ADTOOL_AMPI_setupTypes;
   ourADTOOL_AMPI_FPCollection.cleanupTypes_fp=&ADTOOL_AMPI_cleanupTypes;
   ourADTOOL_AMPI_FPCollection.FW_rawType_fp=&ADTOOL_AMPI_FW_rawType;
@@ -803,58 +805,48 @@ void * ADTOOL_AMPI_copyActiveBuf(void* source,
   return target;
 }
 
-void ADTOOL_AMPI_adjointIncrement(int adjointCount,
+void ADTOOL_AMPI_incrementAdjoint(int adjointCount,
                                   MPI_Datatype datatype,
                                   MPI_Comm comm,
                                   void* target,
-                                  void* adjointTarget,
-                                  void* checkAdjointTarget,
                                   void *source,
 				  void *idx) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]+=((revreal*)(source))[i];
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]+=((revreal*)(source))[i];
 }
 
-void ADTOOL_AMPI_adjointMultiply(int adjointCount,
+void ADTOOL_AMPI_multiplyAdjoint(int adjointCount,
 				 MPI_Datatype datatype,
 				 MPI_Comm comm,
 				 void* target,
-				 void* adjointTarget,
-				 void* checkAdjointTarget,
 				 void *source,
 				 void *idx) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]*=((revreal*)(source))[i];
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]*=((revreal*)(source))[i];
 }
 
-void ADTOOL_AMPI_adjointDivide(int adjointCount,
+void ADTOOL_AMPI_divideAdjoint(int adjointCount,
 			       MPI_Datatype datatype,
 			       MPI_Comm comm,
 			       void* target,
-			       void* adjointTarget,
-			       void* checkAdjointTarget,
 			       void *source,
 			       void *idx) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]/=((revreal*)(source))[i];
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]/=((revreal*)(source))[i];
 }
 
-void ADTOOL_AMPI_adjointEquals(int adjointCount,
+void ADTOOL_AMPI_equalAdjoints(int adjointCount,
 			       MPI_Datatype datatype,
 			       MPI_Comm comm,
 			       void* target,
-			       void* adjointTarget,
-			       void* checkAdjointTarget,
 			       void *source1,
 			       void *source2,
 			       void *idx) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]=((revreal*)(source1))[i]==((revreal*)(source2))[i];
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]=((revreal*)(source1))[i]==((revreal*)(source2))[i];
 }
 
-void ADTOOL_AMPI_adjointNullify(int adjointCount,
+void ADTOOL_AMPI_nullifyAdjoint(int adjointCount,
                                 MPI_Datatype datatype,
                                 MPI_Comm comm,
-                                void* target,
-                                void* adjointTarget,
-                                void* checkAdjointTarget) {
-  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(adjointTarget))[i]=0.0;
+                                void* target) {
+  for (unsigned int i=0; i<adjointCount; ++i) ((revreal*)(target))[i]=0.0;
 }
 
 AMPI_Activity ADTOOL_AMPI_isActiveType(MPI_Datatype datatype) {
@@ -1099,7 +1091,7 @@ int AMPI_Reduce(void* sbuf,
 		MPI_Op op,
 		int root,
 		MPI_Comm comm) {
-  return FW_AMPI_Reduce(sbuf,
+  return FWB_AMPI_Reduce(sbuf,
 			rbuf,
 			count,
 			datatype,
