@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-#if defined(ADOLC_DEBUG)
+#if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
@@ -890,6 +890,12 @@ int  hov_forward(
 #endif
 #endif
 
+#if !defined(_NTIGHT_)
+    locint* switchlocs = NULL;
+    locint switchnum = 0;
+    double* signature = NULL;
+#endif
+
     /* extern diff. function variables */
 #if defined(_EXTERN_)
 #  undef (_EXTERN_)
@@ -985,6 +991,17 @@ int  hov_forward(
 #if !defined(_NTIGHT_)
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
     ADOLC_CURRENT_TAPE_INFOS.dp_T0 = dp_T0;
+
+    if(ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+	switchlocs = (locint*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]*sizeof(locint));
+	ADOLC_CURRENT_TAPE_INFOS.switchlocs = switchlocs;
+	if (!ADOLC_CURRENT_TAPE_INFOS.userSigns) {
+	    signature = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+	    ADOLC_CURRENT_TAPE_INFOS.signature = signature;
+	} else {
+	    signature = ADOLC_CURRENT_TAPE_INFOS.signature;
+	}
+    }
 #endif /* !_NTIGHT_ */
 #if defined(_ZOS_)                                                   /* ZOS */
 
@@ -3681,6 +3698,8 @@ int  hov_forward(
                 arg   = get_locint_f();
                 res   = get_locint_f();
 #if !defined(_NTIGHT_)
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
+		    switchlocs[switchnum] = arg;
                 coval = 
 #endif
 		get_val_f();
@@ -3699,6 +3718,14 @@ int  hov_forward(
                         if (!coval)
                             MINDEC(ret_c,2);
                     }
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] && !ADOLC_CURRENT_TAPE_INFOS.userSigns) {
+		    if (dp_T0[arg] < 0.0)
+			signature[switchnum] = -1.0;
+		    else if (dp_T0[arg] > 0.0)
+			signature[arg] = 1.0;
+		    else
+			signature[arg] = 0.0;
+		}
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
@@ -3736,6 +3763,16 @@ int  hov_forward(
                 TRES_INC = TARG_INC;
 #endif /* _NTIGHT_ */
 #else
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] && ADOLC_CURRENT_TAPE_INFOS.userSigns) {
+		    y = signature[switchnum];
+		    FOR_0_LE_l_LT_p
+		    { x = y;
+			FOR_0_LE_i_LT_k
+			{
+			    TRES_INC = x * TARG_INC;
+			}
+		    }
+		} else {
                 y = 0.0;
                 if (dp_T0[arg] != 0.0) {
                     if (dp_T0[arg] < 0.0)
@@ -3755,13 +3792,16 @@ int  hov_forward(
                             x = 1.0;
                     }
                     TRES_INC = x * TARG_INC;
-              }
-            }
+		  }
+		}
+		}
 #endif
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
                 dp_T0[res] = fabs(dp_T0[arg]);
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
+		    switchnum++;
 #endif /* !_NTIGHT_ */
                 break;
 
@@ -5006,6 +5046,99 @@ int  hov_forward(
     return ret_c;
 }
 
+
+/****************************************************************************/
+#if defined(_ZOS_)
+int get_num_switches(short tapeID) {
+    int nswitch;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    init_for_sweep(tapeID);
+    if (!ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		"with %s\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tapeID, __FUNCTION__, tapeID);
+	exit(-1);
+    }
+    nswitch = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES];
+    end_sweep();
+    return nswitch;
+}
+
+void set_user_signature(short tapeID,
+			int depcheck,
+			int indcheck,
+			int swcheck,
+			double* sig) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    init_for_sweep(tapeID);
+
+    if ( (depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
+	 (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]) ) {
+        fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
+                "Number of dependent(%u) and/or independent(%u) variables passed"
+                " to forward is\ninconsistent with number "
+                "recorded on tape (%zu, %zu) \n", tapeID,
+                depcheck, indcheck,
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
+        exit (-1);
+    }
+
+    if (!ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		"with %s\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tapeID, __FUNCTION__, tapeID);
+	exit(-1);
+    }
+
+    if (swcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
+	fprintf(DIAG_OUT, "ADOL-C error: forward sweep on tape %d  aborted!\n"
+		"Number of switches(%u) passed to %s is inconsitent with number "
+		"recorded on tape (%zu) \n", tapeID, swcheck, __FUNCTION__,
+		ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+	exit(-1);
+    }
+
+    if (ADOLC_CURRENT_TAPE_INFOS.signature == NULL) {
+	ADOLC_CURRENT_TAPE_INFOS.signature =
+	    myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+    }
+    memcpy(ADOLC_CURRENT_TAPE_INFOS.signature, sig, swcheck*sizeof(double));
+    ADOLC_CURRENT_TAPE_INFOS.userSigns = 1;
+    end_sweep();
+}
+
+void unset_user_signature(short tapeID) {
+    TapeInfos* tinfos;
+    tinfos = getTapeInfos(tapeID);
+    tinfos->userSigns = 0;
+}
+
+int get_signature(short tag,
+                  int m,
+		  int n,
+		  int keep,
+		  double *argument,
+		  double *result,
+		  double *sigs) {
+    int rc;
+    TapeInfos *tinfos;
+    tinfos = getTapeInfos(tag);
+    if (! tinfos->stats[NO_MIN_MAX] ) {
+	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		"with %s\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tag, __FUNCTION__, tag);
+	exit(-1);
+    }
+    rc = zos_forward(tag,m,n,keep,argument,result);
+    tinfos = getTapeInfos(tag);
+    memcpy(sigs,tinfos->signature,tinfos->stats[NUM_SWITCHES]*sizeof(double));
+}
+#endif
 /****************************************************************************/
 
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)

@@ -43,6 +43,7 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = NULL;
   storeSize = 0;
   numLives = 0;
+  nominmaxFlag = 0;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
 }
 
@@ -917,6 +918,8 @@ int trace_on(short tnum, int keepTaylors) {
     /* allocate memory for TapeInfos and update tapeStack */
     retval = initNewTape(tnum);
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors=keepTaylors;
+    ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] =
+	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag;
     if (keepTaylors!=0) ADOLC_CURRENT_TAPE_INFOS.deg_save=1;
     start_trace();
     take_stock();               /* record all existing adoubles on the tape */
@@ -937,6 +940,8 @@ int trace_on(short tnum, int keepTaylors,
     ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE] = vbs;
     ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE] = tbs;
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors=keepTaylors;
+    ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] =
+	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag;
     if (keepTaylors!=0) ADOLC_CURRENT_TAPE_INFOS.deg_save=1;
     start_trace();
     take_stock();               /* record all existing adoubles on the tape */
@@ -1426,4 +1431,34 @@ void StoreManagerLocintBlock::consolidateBlocks() {
     for( ; iter != indexFree.end(); iter++ )
 	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
+}
+
+void enableMinMaxUsingAbs() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (!isTaping())
+	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag = 1;
+    else
+	fprintf(DIAG_OUT, "ADOL-C warning: "
+		"change from native Min/Max to using Abs during tracing "
+		"will lead to inconsistent results, not changing behaviour now\n"
+		"                "
+		"call %s before trace_on(tape_id) for the correct behaviour\n"
+		,__FUNCTION__);
+}
+
+void disableMinMaxUsingAbs() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (!isTaping())
+	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag = 0;
+    else
+	fprintf(DIAG_OUT, "ADOL-C warning: "
+		"change from native Min/Max to using Abs during tracing "
+		"will lead to inconsistent results, not changing behaviour now\n"
+		"                "
+		"call %s after trace_off() for the correct behaviour\n"
+		,__FUNCTION__);
 }

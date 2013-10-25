@@ -36,6 +36,8 @@ enum StatEntries {
     VAL_BUFFER_SIZE,      /* # of values per buffer == CBUFSIZE (usrparms.h) */
     TAY_BUFFER_SIZE,     /* # of taylors per buffer <= TBUFSIZE (usrparms.h) */
     NUM_EQ_PROD,                      /* # of eq_*_prod for sparsity pattern */
+    NO_MIN_MAX,  /* no use of min_op, deferred to abs_op for piecewise stuff */
+    NUM_SWITCHES,                   /* # of abs calls that can switch branch */
     STAT_SIZE                     /* represents the size of the stats vector */
 };
 
@@ -58,6 +60,9 @@ ADOLC_DLL_EXPORT void disableBranchSwitchWarnings();
 
 ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
 
+ADOLC_DLL_EXPORT void enableMinMaxUsingAbs();
+ADOLC_DLL_EXPORT void disableMinMaxUsingAbs();
+ADOLC_DLL_EXPORT void preparePiecewiseLinearization(short tapeID);
 END_C_DECLS
 
 /**

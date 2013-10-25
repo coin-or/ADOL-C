@@ -1059,6 +1059,7 @@ void start_trace() {
     ADOLC_CURRENT_TAPE_INFOS.currLoc = ADOLC_CURRENT_TAPE_INFOS.locBuffer;
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
     ADOLC_CURRENT_TAPE_INFOS.num_eq_prod = 0;
+    ADOLC_CURRENT_TAPE_INFOS.numSwitches = 0;
 
     /* Put operation denoting the start_of_the tape */
     put_op(start_of_tape);
@@ -1094,6 +1095,10 @@ void stop_trace(int flag) {
 
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD] = 
         ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
+
+    ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES] =
+	ADOLC_CURRENT_TAPE_INFOS.numSwitches;
+
     taylor_close(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE]);
 
     /* The taylor stack size base estimation results in a doubled taylor count
