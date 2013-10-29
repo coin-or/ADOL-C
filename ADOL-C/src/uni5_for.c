@@ -3763,16 +3763,6 @@ int  hov_forward(
                 TRES_INC = TARG_INC;
 #endif /* _NTIGHT_ */
 #else
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] && ADOLC_CURRENT_TAPE_INFOS.userSigns) {
-		    y = signature[switchnum];
-		    FOR_0_LE_l_LT_p
-		    { x = y;
-			FOR_0_LE_i_LT_k
-			{
-			    TRES_INC = x * TARG_INC;
-			}
-		    }
-		} else {
                 y = 0.0;
                 if (dp_T0[arg] != 0.0) {
                     if (dp_T0[arg] < 0.0)
@@ -3793,7 +3783,6 @@ int  hov_forward(
                     }
                     TRES_INC = x * TARG_INC;
 		  }
-		}
 		}
 #endif
 #endif
@@ -5064,58 +5053,6 @@ int get_num_switches(short tapeID) {
     nswitch = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES];
     end_sweep();
     return nswitch;
-}
-
-void set_user_signature(short tapeID,
-			int depcheck,
-			int indcheck,
-			int swcheck,
-			double* sig) {
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    init_for_sweep(tapeID);
-
-    if ( (depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
-	 (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]) ) {
-        fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
-                "Number of dependent(%u) and/or independent(%u) variables passed"
-                " to forward is\ninconsistent with number "
-                "recorded on tape (%zu, %zu) \n", tapeID,
-                depcheck, indcheck,
-                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
-                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
-        exit (-1);
-    }
-
-    if (!ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
-		"with %s\n              Please call enableMinMaxUsingAbs() "
-		"before trace_on(%d)\n", tapeID, __FUNCTION__, tapeID);
-	exit(-1);
-    }
-
-    if (swcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
-	fprintf(DIAG_OUT, "ADOL-C error: forward sweep on tape %d  aborted!\n"
-		"Number of switches(%u) passed to %s is inconsitent with number "
-		"recorded on tape (%zu) \n", tapeID, swcheck, __FUNCTION__,
-		ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
-	exit(-1);
-    }
-
-    if (ADOLC_CURRENT_TAPE_INFOS.signature == NULL) {
-	ADOLC_CURRENT_TAPE_INFOS.signature =
-	    myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
-    }
-    memcpy(ADOLC_CURRENT_TAPE_INFOS.signature, sig, swcheck*sizeof(double));
-    ADOLC_CURRENT_TAPE_INFOS.userSigns = 1;
-    end_sweep();
-}
-
-void unset_user_signature(short tapeID) {
-    TapeInfos* tinfos;
-    tinfos = getTapeInfos(tapeID);
-    tinfos->userSigns = 0;
 }
 
 int get_signature(short tag,

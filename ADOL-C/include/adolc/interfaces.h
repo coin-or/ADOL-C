@@ -435,8 +435,6 @@ ADOLC_DLL_EXPORT int int_reverse_safe
 /*--------------------------------------------------------------------------*/
 ADOLC_DLL_EXPORT int get_num_switches(short);
 ADOLC_DLL_EXPORT int get_signature(short,int,int,int,double*,double*,double*);
-ADOLC_DLL_EXPORT void set_user_signature(short,int,int,int,double*);
-ADOLC_DLL_EXPORT void unset_user_signature(short);
 
 END_C_DECLS
 
