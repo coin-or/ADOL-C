@@ -41,7 +41,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_forward.c hov_forward.c hov_wk_forward.c \
                        fos_reverse.c fov_reverse.c \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-                       forward_partx.c \
+                       forward_partx.c fos_an_reverse.c \
                        externfcts.cpp checkpointing.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
                        int_forward_s.c int_forward_t.c \
@@ -63,7 +63,7 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_forward.c hov_forward.c hov_wk_forward.c \
                        fos_reverse.c fov_reverse.c \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-                       forward_partx.c \
+                       forward_partx.c fos_an_reverse.c \
                        externfcts.cpp checkpointing.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
                        advector.cpp adouble_tl.cpp

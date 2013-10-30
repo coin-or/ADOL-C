@@ -63,7 +63,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _FOS_
+#ifdef _ABS_NORM_
+#define GENERATED_FILENAME "fos_an_reverse"
+#else
 #define GENERATED_FILENAME "fos_reverse"
+#endif
 
 #define RESULTS(l,indexi)  results[indexi]
 #define LAGRANGE(l,indexd) lagrange[indexd]
@@ -205,12 +209,24 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* First-Order Scalar Reverse Pass.                                         */
 /****************************************************************************/
+#ifdef _ABS_NORM_
+/****************************************************************************/
+/* Abs-Normal extended adjoint row computation.                             */
+/****************************************************************************/
+int fos_an_reverse(short  tnum,     /* tape id */
+		   int    depen,     /* consistency chk on # of deps */
+		   int    indep,     /* consistency chk on # of indeps */
+		   int    swchk,    /* consistency chk on # of switches */
+		   int    rownum,   /* required row no. of abs-normal form */
+		   double *results) /*  coefficient vectors */
+#else
 int fos_reverse(short   tnum,       /* tape id */
                 int     depen,      /* consistency chk on # of deps */
                 int     indep,      /* consistency chk on # of indeps */
                 double  *lagrange,
                 double  *results)   /*  coefficient vectors */
 
+#endif
 #else
 #if _FOV_
 /****************************************************************************/
@@ -271,6 +287,9 @@ int int_reverse_safe(
 #endif
 
     int indexi = 0,  indexd = 0;
+#if defined(_ABS_NORM_)
+    int switchnum;
+#endif
 
     /* loop indices */
 #if defined(_FOV_)
@@ -380,7 +399,24 @@ int int_reverse_safe(
     indexi = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS] - 1;
     indexd = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS] - 1;
 
+#if defined(_ABS_NORM_)
+    if (! ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] ) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tape %d was not created compatible "
+		"with %s(..)\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tnum, GENERATED_FILENAME, tnum);
+	exit(-1);
+    }
+    else if (swchk != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
+	fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
+		"match with the one recorded on tape %d (%d)\n",swchk,tnum,
+		ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+	exit(-1);
+    }
+    else
+	switchnum = swchk - 1;
+#endif
 
+    
     /****************************************************************************/
     /*                                                  MEMORY ALLOCATION STUFF */
 
@@ -397,6 +433,9 @@ int int_reverse_safe(
     *c_Ptr = 0;
     memcpy(c_Ptr + 1, c_Ptr, sizeof(double) *
             ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
+#ifdef _ABS_NORM_
+    memset(results,0,sizeof(double)*(indep+swchk));
+#endif
 #endif
 # define ADJOINT_BUFFER rp_A
 # define ADJOINT_BUFFER_ARG_L rp_A[arg]
@@ -625,9 +664,15 @@ int int_reverse_safe(
 
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
 
+#if defined(_ABS_NORM_)
+		if (indexd + swchk == rownum)
+		    ARES = 1.0;
+		else
+		    ARES = 0.0;
+#else
                 FOR_0_LE_l_LT_p
                 ARES_INC = LAGRANGE(l,indexd);
-
+#endif
                 indexd--;
                 break;
 
@@ -1434,6 +1479,15 @@ int int_reverse_safe(
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res])
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
+#if defined(_ABS_NORM_) 
+		    if (rownum == switchnum) {
+			AARG = 1.0;
+		    } else {
+			results[indep+switchnum] = ARES;
+			AARG = 0.0;
+		    }
+		    switchnum--;
+#else
 #if !defined(_NTIGHT_)
                 if (TARG < 0.0)
                     FOR_0_LE_l_LT_p
@@ -1484,6 +1538,7 @@ int int_reverse_safe(
                                               AARG_INC |= aTmp;
                                             }
 #endif /* !_NTIGHT_ */
+#endif /* _ABS_NORM */
              break;
 
             /*--------------------------------------------------------------------------*/
