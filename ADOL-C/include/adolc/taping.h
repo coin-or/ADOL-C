@@ -62,7 +62,6 @@ ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
 
 ADOLC_DLL_EXPORT void enableMinMaxUsingAbs();
 ADOLC_DLL_EXPORT void disableMinMaxUsingAbs();
-ADOLC_DLL_EXPORT void preparePiecewiseLinearization(short tapeID);
 END_C_DECLS
 
 /**

@@ -286,6 +286,7 @@ void initTapeInfos_keep(TapeInfos *newTapeInfos) {
     locint *locBuffer = newTapeInfos->locBuffer;
     double *valBuffer = newTapeInfos->valBuffer;
     revreal *tayBuffer = newTapeInfos->tayBuffer;
+    double *signature = newTapeInfos->signature;
     FILE *tay_file = newTapeInfos->tay_file;
 
     initTapeInfos(newTapeInfos);
@@ -294,6 +295,7 @@ void initTapeInfos_keep(TapeInfos *newTapeInfos) {
     newTapeInfos->locBuffer = locBuffer;
     newTapeInfos->valBuffer = valBuffer;
     newTapeInfos->tayBuffer = tayBuffer;
+    newTapeInfos->signature = signature;
     newTapeInfos->tay_file = tay_file;
 }
 
@@ -747,6 +749,11 @@ void cleanUp() {
                 free((*tiIter)->locBuffer);
                 (*tiIter)->locBuffer = NULL;
             }
+	    if ((*tiIter)->signature != NULL)
+	    {
+		free((*tiIter)->signature);
+		((*tiIter)->signature == NULL);
+	    }
             if ((*tiIter)->tayBuffer != NULL)
             {
                 free((*tiIter)->tayBuffer);

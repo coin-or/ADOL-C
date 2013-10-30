@@ -891,7 +891,6 @@ int  hov_forward(
 #endif
 
 #if !defined(_NTIGHT_)
-    locint* switchlocs = NULL;
     locint switchnum = 0;
     double* signature = NULL;
 #endif
@@ -993,14 +992,11 @@ int  hov_forward(
     ADOLC_CURRENT_TAPE_INFOS.dp_T0 = dp_T0;
 
     if(ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-	switchlocs = (locint*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]*sizeof(locint));
-	ADOLC_CURRENT_TAPE_INFOS.switchlocs = switchlocs;
-	if (!ADOLC_CURRENT_TAPE_INFOS.userSigns) {
+	if (ADOLC_CURRENT_TAPE_INFOS.signature == NULL) {
 	    signature = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
 	    ADOLC_CURRENT_TAPE_INFOS.signature = signature;
-	} else {
+	} else
 	    signature = ADOLC_CURRENT_TAPE_INFOS.signature;
-	}
     }
 #endif /* !_NTIGHT_ */
 #if defined(_ZOS_)                                                   /* ZOS */
@@ -3698,8 +3694,6 @@ int  hov_forward(
                 arg   = get_locint_f();
                 res   = get_locint_f();
 #if !defined(_NTIGHT_)
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
-		    switchlocs[switchnum] = arg;
                 coval = 
 #endif
 		get_val_f();
@@ -3718,13 +3712,13 @@ int  hov_forward(
                         if (!coval)
                             MINDEC(ret_c,2);
                     }
-		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] && !ADOLC_CURRENT_TAPE_INFOS.userSigns) {
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
 		    if (dp_T0[arg] < 0.0)
 			signature[switchnum] = -1.0;
 		    else if (dp_T0[arg] > 0.0)
-			signature[arg] = 1.0;
+			signature[switchnum] = 1.0;
 		    else
-			signature[arg] = 0.0;
+			signature[switchnum] = 0.0;
 		}
 #endif /* !_NTIGHT_ */
 
