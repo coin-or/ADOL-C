@@ -3713,12 +3713,7 @@ int  hov_forward(
                             MINDEC(ret_c,2);
                     }
 		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-		    if (dp_T0[arg] < 0.0)
-			signature[switchnum] = -1.0;
-		    else if (dp_T0[arg] > 0.0)
-			signature[switchnum] = 1.0;
-		    else
-			signature[switchnum] = 0.0;
+		    signature[switchnum] = dp_T0[arg];
 		}
 #endif /* !_NTIGHT_ */
 
@@ -5049,13 +5044,13 @@ int get_num_switches(short tapeID) {
     return nswitch;
 }
 
-int get_signature(short tag,
+int zos_an_forward(short tag,
                   int m,
 		  int n,
 		  int keep,
 		  double *argument,
 		  double *result,
-		  double *sigs) {
+		  double *swargs) {
     int rc;
     TapeInfos *tinfos;
     tinfos = getTapeInfos(tag);
@@ -5067,7 +5062,7 @@ int get_signature(short tag,
     }
     rc = zos_forward(tag,m,n,keep,argument,result);
     tinfos = getTapeInfos(tag);
-    memcpy(sigs,tinfos->signature,tinfos->stats[NUM_SWITCHES]*sizeof(double));
+    memcpy(swargs,tinfos->signature,tinfos->stats[NUM_SWITCHES]*sizeof(double));
 }
 #endif
 /****************************************************************************/

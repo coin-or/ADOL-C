@@ -434,7 +434,7 @@ ADOLC_DLL_EXPORT int int_reverse_safe
 
 /*--------------------------------------------------------------------------*/
 ADOLC_DLL_EXPORT int get_num_switches(short);
-ADOLC_DLL_EXPORT int get_signature(short,int,int,int,double*,double*,double*);
+ADOLC_DLL_EXPORT int zos_an_forward(short,int,int,int,double*,double*,double*);
 /*--------------------------------------------------------------------------*/
 ADOLC_DLL_EXPORT int fos_an_reverse(short,int,int,int,int,double*);
 
