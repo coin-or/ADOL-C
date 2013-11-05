@@ -6,7 +6,7 @@
              per buffer
            - intended to be used with structs
  
- Copyright (c) Andreas Kowarz
+ Copyright (c) Andreas Kowarz, Kshitij Kulshreshtha, Jean Utke
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 

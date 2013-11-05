@@ -1,3 +1,16 @@
+/*----------------------------------------------------------------------------
+ ADOL-C -- Automatic Differentiation by Overloading in C++
+ File:     ampisupportAdolc.cpp
+ Revision: $Id$
+
+ Copyright (c) Jean Utke
+  
+ This file is part of ADOL-C. This software is provided as open source.
+ Any use, reproduction, or distribution of the software constitutes 
+ recipient's acceptance of the terms of the accompanying license file.
+ 
+----------------------------------------------------------------------------*/
+
 #if !defined(ADOLC_AMPISUPPORTADOLC_H)
 #define ADOLC_AMPISUPPORTADOLC_H 1
 

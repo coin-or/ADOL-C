@@ -8,8 +8,9 @@
            desired functionality.
 
  Copyright (c) 2006 Johannes Willkomm <johannes.willkomm@rwth-aachen.de>
-               2011-2012 Kshitij Kulshreshtha <kshitij@math.upb.de>
+               2011-2013 Kshitij Kulshreshtha <kshitij@math.upb.de>
                2012 Benjamin Letschert <letschi@mail.upb.de>
+               2013 Jean Utke <utke@mcs.anl.gov>
 
  This file is part of ADOL-C.
 

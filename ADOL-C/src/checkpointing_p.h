@@ -4,7 +4,7 @@
  Revision: $Id$
  Contents: private functions for the checkpointing functions.
  
- Copyright (c) Andreas Kowarz
+ Copyright (c) Andreas Kowarz, Jean Utke
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
