@@ -13,20 +13,26 @@
 AUTOMAKE_OPTIONS     = foreign
 
 if DOCEXA
-SUBDIRS              = src examples test
+SUBDIRS              = src examples
 else
 if ADDEXA
-SUBDIRS              = src examples test
+SUBDIRS              = src examples
 else
 if PAREXA
-SUBDIRS              = src examples test
+SUBDIRS              = src examples 
 else
-SUBDIRS              = src test
+SUBDIRS              = src
 endif
 endif
 endif
 
 SUBDIRS += include
+
+if BUILD_ADOLC_AMPI_SUPPORT 
+SUBDIRS += ampi
+endif
+
+SUBDIRS += test
 
 MAINTAINERCLEANFILES = Makefile.in 
 

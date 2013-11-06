@@ -14,13 +14,14 @@
 #if !defined(ADOLC_AMPISUPPORTADOLC_H)
 #define ADOLC_AMPISUPPORTADOLC_H 1
 
-#ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/libCommon/modified.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+void ADOLC_AMPI_setup_stubs();
 
 void ADOLC_TLM_init();
 
@@ -140,6 +141,5 @@ int ADOLC_TLM_AMPI_Allreduce(void* sbuf,
 
 #if defined(__cplusplus)
 }
-#endif
 #endif
 #endif

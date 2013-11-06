@@ -38,6 +38,8 @@ fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
 then 
+  keepCC="$CC"
+  keepLD="$LD"
   CC=$MPICC
   LD=$MPICXX
 
@@ -48,6 +50,8 @@ then
                [AC_MSG_RESULT([no])
                AC_MSG_FAILURE([MPI C compiler is required by $PACKAGE])])
 
+  CC="$keepCC"
+  LD="$keepLD"
 fi
 
 AC_ARG_WITH(mpicxx,
@@ -72,6 +76,9 @@ fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
 then 
+  keepCPP="$CPP"
+  keepCXX="$CXX"
+  keepLD="$LD"
   CPP=$MPICXX
   CXX=$MPICXX
   LD=$MPICXX
@@ -84,7 +91,11 @@ then
                [AC_MSG_RESULT([no])
                AC_MSG_FAILURE([MPI C++ compiler is required by $PACKAGE])])
   AC_LANG_POP([C++])
+  CPP="$keepCPP"
+  CXX="$keepCXX"
+  LD="$keepLD"
 fi
-
+AC_SUBST(MPICC)
+AC_SUBST(MPICXX)
 ]) 
 

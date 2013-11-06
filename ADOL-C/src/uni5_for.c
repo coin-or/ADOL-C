@@ -36,16 +36,13 @@
 #include "oplate.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
+#include "traverse_stub.h"
 
 #include <math.h>
 
 #if defined(ADOLC_DEBUG)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
-
-#ifdef ADOLC_AMPI_SUPPORT
-#include "ampisupportAdolc.h"
-#endif
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -948,19 +945,6 @@ int  hov_forward(
         int loop2;
 #   endif
     int ext_retc;
-#endif
-
-#ifdef ADOLC_AMPI_SUPPORT
-    MPI_Op op;
-    void *buf, *rbuf;
-    int count, rcount;
-    MPI_Datatype datatype, rtype;
-    int src;
-    int tag;
-    enum AMPI_PairedWith_E pairedWith;
-    MPI_Comm comm;
-    MPI_Status* status;
-    struct AMPI_Request_S request;
 #endif
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -5032,165 +5016,17 @@ int  hov_forward(
                 break;
 #endif
 
-#ifdef ADOLC_AMPI_SUPPORT
-                /*--------------------------------------------------------------------------*/
-            case ampi_send: {
-              ADOLC_TLM_AMPI_Send(buf,
-                  count,
-                  datatype,
-                  src,
-                  tag,
-                  pairedWith,
-                  comm);
-              break;
-            }
-            case ampi_recv: {
-              ADOLC_TLM_AMPI_Recv(buf,
-                            count,
-                            datatype,
-                            src,
-                            tag,
-                            pairedWith,
-                            comm,
-                            status);
-              break;
-            }
-          case ampi_isend: {
-            ADOLC_TLM_AMPI_Isend(buf,
-                           count,
-                           datatype,
-                           src,
-                           tag,
-                           pairedWith,
-                           comm,
-                           &request);
-            break;
-          }
-          case ampi_irecv: {
-            ADOLC_TLM_AMPI_Irecv(buf,
-                           count,
-                           datatype,
-                           src,
-                           tag,
-                           pairedWith,
-                           comm,
-                           &request);
-            break;
-          }
-          case ampi_wait: {
-            ADOLC_TLM_AMPI_Wait(&request,
-                          status);
-            break;
-          }
-          case ampi_barrier: {
-            ADOLC_TLM_AMPI_Barrier(comm);
-            break;
-          }
-          case ampi_gather: {
-            ADOLC_TLM_AMPI_Gather(buf,
-                            count,
-                            datatype,
-                            rbuf,
-                            rcount,
-                            rtype,
-                            src,
-                            comm);
-            break;
-          }
-          case ampi_scatter: {
-            ADOLC_TLM_AMPI_Scatter(rbuf,
-                             rcount,
-                             rtype,
-                             buf,
-                             count,
-                             datatype,
-                             src,
-                             comm);
-            break;
-          }
-          case ampi_allgather: {
-            ADOLC_TLM_AMPI_Allgather(buf,
-                               count,
-                               datatype,
-                               rbuf,
-                               rcount,
-                               rtype,
-                               comm);
-            break;
-          }
-          case ampi_gatherv: {
-            ADOLC_TLM_AMPI_Gatherv(buf,
-                             count,
-                             datatype,
-                             rbuf,
-                             NULL,
-                             NULL,
-                             rtype,
-                             src,
-                             comm);
-            break;
-          }
-          case ampi_scatterv: {
-            ADOLC_TLM_AMPI_Scatterv(rbuf,
-                              NULL,
-                              NULL,
-                              rtype,
-                              buf,
-                              count,
-                              datatype,
-                              src,
-                              comm);
-            break;
-          }
-          case ampi_allgatherv: {
-            ADOLC_TLM_AMPI_Allgatherv(buf,
-                                count,
-                                datatype,
-                                rbuf,
-                                NULL,
-                                NULL,
-                                rtype,
-                                comm);
-            break;
-          }
-          case ampi_bcast: {
-            ADOLC_TLM_AMPI_Bcast(buf,
-                           count,
-                           datatype,
-                           src,
-                           comm);
-            break;
-          }
-          case ampi_reduce: {
-            ADOLC_TLM_AMPI_Reduce(buf,
-                            rbuf,
-                            count,
-                            datatype,
-                            op,
-                            src,
-                            comm);
-            break;
-          }
-          case ampi_allreduce: {
-            ADOLC_TLM_AMPI_Allreduce(buf,
-                               rbuf,
-                               count,
-                               datatype,
-                               op,
-                               comm);
-            break;
-          }
-#endif
-
                 /*--------------------------------------------------------------------------*/
 
             default:                                                   /* default */
+		if (ampi_plugin == NULL || (ampi_plugin != NULL && !ampi_plugin->forward_func(operation))) {
                 /* Die here, we screwed up */
 
                 fprintf(DIAG_OUT,"ADOL-C fatal error in " GENERATED_FILENAME " ("
                         __FILE__
                         ") : no such operation %d\n", operation);
                 exit(-1);
+		}
                 break;
 
         } /* endswitch */

@@ -17,7 +17,6 @@
 #include "oplate.h"
 #include "adolc/adouble.h"
 
-#ifdef ADOLC_AMPI_SUPPORT
 #include "ampisupportAdolc.h"
 #include "ampi/adTool/support.h"
 #include "ampi/tape/support.h"
@@ -410,4 +409,3 @@ int ADOLC_TLM_AMPI_Allreduce(void* sbuf,
                             comm);
 }
 
-#endif

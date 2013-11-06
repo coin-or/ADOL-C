@@ -512,6 +512,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/include/adolc/drivers/Makefile 
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
+                ADOL-C/ampi/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 
                 ADOL-C/src/sparse/Makefile
