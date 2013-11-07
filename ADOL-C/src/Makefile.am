@@ -25,8 +25,7 @@ MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c \
                        oplate.h taping_p.h malloc.h storemanager.h \
-                       externfcts_p.h checkpointing_p.h buffer_temp.h \
-                       traverse_stub.h
+                       externfcts_p.h checkpointing_p.h buffer_temp.h 
 
 
 lib_LTLIBRARIES      = libadolc.la
@@ -71,4 +70,8 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
 
 libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
 
+endif
+
+if BUILD_ADOLC_AMPI_SUPPORT 
+libadolc_la_SOURCES += ampisupport.cpp ampisupportAdolc.cpp
 endif

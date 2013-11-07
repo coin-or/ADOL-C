@@ -19,6 +19,7 @@
 #include "oplate.h"
 #include "adolc/adouble.h"
 
+#ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/adTool/support.h"
 #include "ampi/tape/support.h"
@@ -33,7 +34,6 @@ int AMPI_Init_NT(int* argc,
   rc=MPI_Init(argc,
               argv);
   ADTOOL_AMPI_setupTypes();
-  ADOLC_AMPI_setup_stubs();
   ADOLC_TLM_init();
   ourADTOOL_AMPI_FPCollection.pushBcastInfo_fp=&ADTOOL_AMPI_pushBcastInfo;
   ourADTOOL_AMPI_FPCollection.popBcastInfo_fp=&ADTOOL_AMPI_popBcastInfo;
@@ -1127,3 +1127,4 @@ int AMPI_Allreduce(void* sbuf,
                            comm);
 }
 
+#endif

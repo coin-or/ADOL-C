@@ -12,30 +12,17 @@ then
   then 
     AC_MSG_ERROR([if --with-ampi is set one  must also --enable_ampi])
   fi
-  AMPICPPFLAGS="$CPPFLAGS -I$with_ampi/include"
-  AMPILDFLAGS="$LDFLAGS -L$with_ampi/${_lib}"
+  CPPFLAGS="$CPPFLAGS -I$with_ampi/include"
+  LDFLAGS="$LDFLAGS -L$with_ampi/lib"
 fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
 then 
-  AMPILIBS="-lampiCommon -lampiBookkeeping -lampiTape"
+  LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
 
-  keepCPPFLAGS="$CPPFLAGS"
   keepLIBS="$LIBS"
-  keepLDFLAGS="$LDFLAGS"
-  keepCC="$CC"
-  keepCPP="$CPP"
-  keepCXX="$CXX"
-  keepLD="$LD"
 
-  CC=$MPICC
-  CXX=$MPICXX
-  CPP=$MPICXX
-  LD=$MPICXX
-
-  CPPFLAGS="$AMPICPPFLAGS $CPPFLAGS"
-  LDFLAGS="$AMPILDFLAGS $LDFLAGS"
-  LIBS="$AMPILIBS -lampiADtoolStubsOO $LIBS" 
+  LIBS="$LIBS -lampiADtoolStubsOO" 
 
   AC_MSG_CHECKING([libampiCommon (provided by AMPI)])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([#include "ampi/ampi.h"],
@@ -45,15 +32,5 @@ then
                AC_MSG_FAILURE([libampiCommon is required by $PACKAGE])])
 
   LIBS="$keepLIBS"
-  LDFLAGS="$keepLDFLAGS"
-  CPPFLAGS="$keepCPPFLAGS"
-
-  CC="$keepCC"
-  CPP="$keepCPP"
-  CXX="$keepCXX"
-  LD="$keepLD"
 fi
-AC_SUBST(AMPICPPFLAGS)
-AC_SUBST(AMPILDFLAGS)
-AC_SUBST(AMPILIBS)
 ])

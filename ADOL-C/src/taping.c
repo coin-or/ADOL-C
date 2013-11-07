@@ -20,10 +20,14 @@
 
 #include "oplate.h"
 #include "taping_p.h"
-#include "traverse_stub.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef ADOLC_AMPI_SUPPORT
+#include "ampi/ampi.h"
+#include "ampi/tape/support.h"
+#endif
 
 #if defined(_WINDOWS) && !__STDC__
 #define stat _stat
@@ -44,7 +48,6 @@ ADOLC_ID adolc_id;
 #define ADOLC_NEW_TAPE_SUBVERSION 3
 #define ADOLC_NEW_TAPE_PATCHLEVEL 0
 
-ampi_traverse_plugin *ampi_plugin = NULL;
 /****************************************************************************/
 /****************************************************************************/
 /* HELP FUNCTIONS                                                           */
@@ -1440,7 +1443,9 @@ void init_for_sweep(short tag) {
     }
     ADOLC_CURRENT_TAPE_INFOS.numVals_Tape = number;
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
-    if(ampi_plugin != NULL) ampi_plugin->init_for();
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetBottom();
+#endif
 }
 
 /****************************************************************************/
@@ -1558,7 +1563,9 @@ void init_rev_sweep(short tag) {
         ADOLC_CURRENT_TAPE_INFOS.stats[NUM_VALUES] - number;
     ADOLC_CURRENT_TAPE_INFOS.currVal =
         ADOLC_CURRENT_TAPE_INFOS.valBuffer + number;
-    if (ampi_plugin != NULL) ampi_plugin->init_rev();
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetTop();
+#endif
 }
 
 /****************************************************************************/

@@ -193,9 +193,12 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include "taping_p.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
-#include "traverse_stub.h"
 
 #include <math.h>
+#ifdef ADOLC_AMPI_SUPPORT
+#include "ampi/ampi.h"
+#include "ampi/libCommon/modified.h"
+#endif
 
 BEGIN_C_DECLS
 
@@ -354,6 +357,18 @@ int int_reverse_safe(
     int loop;
     int ext_retc;
     int oldTraceFlag;
+#endif
+#ifdef ADOLC_AMPI_SUPPORT
+    MPI_Op op;
+    void *buf, *rbuf;
+    int count, rcount;
+    MPI_Datatype datatype, rtype;
+    int src; 
+    int tag;
+    enum AMPI_PairedWith_E pairedWith;
+    MPI_Comm comm;
+    MPI_Status* status;
+    struct AMPI_Request_S request;
 #endif
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -2343,21 +2358,164 @@ int int_reverse_safe(
                 ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 
                 break;
+#ifdef ADOLC_AMPI_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case ampi_send: {
+              BW_AMPI_Send(buf,
+                           count,
+                           datatype,
+                           src,
+                           tag,
+                           pairedWith,
+                           comm);
+              break;
+            }
+            case ampi_recv: {
+	      BW_AMPI_Recv(buf,
+			   count,
+			   datatype,
+			   src,
+			   tag,
+			   pairedWith,
+			   comm,
+			   status);
+	      break;
+	    }
+	  case ampi_isend: { 
+	    BW_AMPI_Isend(buf,
+			  count,
+			  datatype,
+			  src,
+			  tag,
+			  pairedWith,
+			  comm,
+			  &request);
+	    break;
+	  }
+          case ampi_irecv: {
+            BW_AMPI_Irecv(buf,
+                          count,
+                          datatype,
+                          src,
+                          tag,
+                          pairedWith,
+                          comm,
+                          &request);
+            break;
+          }
+	  case ampi_wait: { 
+	    BW_AMPI_Wait(&request,
+			 status);
+	    break;
+	  }
+	  case ampi_barrier: {
+	    BW_AMPI_Barrier(comm);
+	    break;
+	  }
+	  case ampi_gather: { 
+	    BW_AMPI_Gather(buf,
+			   count,
+			   datatype,
+			   rbuf,
+			   rcount,
+			   rtype,
+			   src,
+			   comm);
+	    break;
+	  }
+	  case ampi_scatter: {
+	    BW_AMPI_Scatter(rbuf,
+			    rcount,
+			    rtype,
+			    buf,
+			    count,
+			    datatype,
+			    src,
+			    comm);
+	    break;
+	  }
+	  case ampi_allgather: {
+	    BW_AMPI_Allgather(buf,
+	                      count,
+	                      datatype,
+	                      rbuf,
+	                      rcount,
+	                      rtype,
+	                      comm);
+	    break;
+	  }
+	  case ampi_gatherv: {
+	    BW_AMPI_Gatherv(buf,
+			    count,
+			    datatype,
+			    rbuf,
+			    NULL,
+			    NULL,
+			    rtype,
+			    src,
+			    comm);
+	    break;
+	  }
+	  case ampi_scatterv: { 
+	    BW_AMPI_Scatterv(rbuf,
+			     NULL,
+			     NULL,
+			     rtype,
+			     buf,
+			     count,
+			     datatype,
+			     src,
+			     comm);
+	    break;
+	  }
+	  case ampi_allgatherv: {
+	    BW_AMPI_Allgatherv(buf,
+	                       count,
+	                       datatype,
+	                       rbuf,
+	                       NULL,
+	                       NULL,
+	                       rtype,
+	                       comm);
+	    break;
+	  }
+	  case ampi_bcast: {
+	    BW_AMPI_Bcast(buf,
+			  count,
+			  datatype,
+			  src,
+			  comm);
+	    break;
+	  }
+	  case ampi_reduce: {
+	    BWB_AMPI_Reduce(buf,
+			   rbuf,
+			   count,
+			   datatype,
+			   op,
+			   src,
+			   comm);
+	    break;
+	  }
+	  case ampi_allreduce: {
+	    BW_AMPI_Allreduce(buf,
+	                      rbuf,
+	                      count,
+	                      datatype,
+	                      op,
+	                      comm);
+	    break;
+	  }
+#endif
 #endif /* !_INT_REV_ */
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
-#ifndef _INT_REV_
-		if (ampi_plugin == NULL || (ampi_plugin != NULL && !ampi_plugin->reverse_func(operation))) {
-#endif
                 /*             Die here, we screwed up     */
 
                 fprintf(DIAG_OUT,"ADOL-C fatal error in " GENERATED_FILENAME " ("
                         __FILE__
                         ") : no such operation %d\n", operation);
                 exit(-1);
-#ifndef _INT_REV_
-		}
-#endif
                 break;
         } /* endswitch */
 
