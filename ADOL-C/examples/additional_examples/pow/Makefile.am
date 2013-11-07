@@ -14,7 +14,7 @@ AM_CFLAGS            = @ac_adolc_cflags@
 AM_CXXFLAGS          = @ac_adolc_cxxflags@
 AM_CPPFLAGS          = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
 
-LDADD                = -ladolc 
+LDADD                = -l${adolclib}
 AM_LDFLAGS           = -L$(top_builddir)/ADOL-C/src
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig

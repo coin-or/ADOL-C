@@ -1,4 +1,4 @@
-AC_DEFUN([MPI_CONF],
+AC_DEFUN([MPI_CONF_PRE],
 [
 AC_PREREQ(2.59)
 
@@ -24,7 +24,7 @@ if test x"$with_mpicc" != "x";
 then 
   if test x"$adolc_ampi_support" = "xno";
   then 
-    AC_MSG_ERROR([if --with-mpicc is set one  must also --enable_ampi])
+    AC_MSG_ERROR([if --with-mpicc is set one  must also --enable-ampi])
   fi
   MPICC="$with_mpicc"
 else 
@@ -36,19 +36,6 @@ then
   MPICC="$with_mpi_root/bin/$MPICC"
 fi
 
-if test x"$adolc_ampi_support" = "xyes"; 
-then 
-  CC=$MPICC
-  LD=$MPICXX
-
-  AC_MSG_CHECKING([MPI C compiler])
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <mpi.h>],
-                              	[MPI_Init(0,0)])],
-               [AC_MSG_RESULT([ok])],
-               [AC_MSG_RESULT([no])
-               AC_MSG_FAILURE([MPI C compiler is required by $PACKAGE])])
-
-fi
 
 AC_ARG_WITH(mpicxx,
 [AC_HELP_STRING([--with-mpicxx=MPICXX],
@@ -58,7 +45,7 @@ if test x"$with_mpicxx" != "x";
 then 
   if test x"$adolc_ampi_support" = "xno";
   then 
-    AC_MSG_ERROR([if --with-mpicxx is set one  must also --enable_ampi])
+    AC_MSG_ERROR([if --with-mpicxx is set one  must also --enable-ampi])
   fi
   MPICXX="$with_mpicxx"
 else 
@@ -71,20 +58,40 @@ then
 fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
+then
+  CC="$MPICC"
+  CXX="$MPICXX"
+fi
+
+])
+
+AC_DEFUN([MPI_CONF_POST],
+[
+AC_PREREQ(2.59)
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+
+  AC_MSG_CHECKING([Linking of MPI C programs])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <mpi.h>],
+               [MPI_Init(0,0)])],
+               [AC_MSG_RESULT([ok])],
+               [AC_MSG_RESULT([no])
+               AC_MSG_FAILURE([MPI C compiler is required by $PACKAGE])])
+
+fi
+
+if test x"$adolc_ampi_support" = "xyes";
 then 
-  CPP=$MPICXX
-  CXX=$MPICXX
-  LD=$MPICXX
 
   AC_LANG_PUSH([C++])
-  AC_MSG_CHECKING([MPI C++ compiler])
+  AC_MSG_CHECKING([Linking of MPI C++ programs])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <mpi.h>],
-                              	[MPI_Init(0,0)])],
+               [MPI_Init(0,0)])],
                [AC_MSG_RESULT([ok])],
                [AC_MSG_RESULT([no])
                AC_MSG_FAILURE([MPI C++ compiler is required by $PACKAGE])])
   AC_LANG_POP([C++])
 fi
 
-]) 
-
+])

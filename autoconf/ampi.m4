@@ -10,10 +10,14 @@ if test x"$with_ampi" != "x";
 then 
   if test x"$adolc_ampi_support" = "xno";
   then 
-    AC_MSG_ERROR([if --with-ampi is set one  must also --enable_ampi])
+    AC_MSG_ERROR([if --with-ampi is set one  must also --enable-ampi])
   fi
   CPPFLAGS="$CPPFLAGS -I$with_ampi/include"
   LDFLAGS="$LDFLAGS -L$with_ampi/lib"
+  if test x"$_lib" != "xlib" ;
+  then
+     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib}"
+  fi
 fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
@@ -32,5 +36,6 @@ then
                AC_MSG_FAILURE([libampiCommon is required by $PACKAGE])])
 
   LIBS="$keepLIBS"
+  adolclib=adolc_ampi
 fi
 ])

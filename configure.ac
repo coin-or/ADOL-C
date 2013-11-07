@@ -26,6 +26,8 @@ AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign])
 AM_SILENT_RULES([yes])
 
 
+adolclib=adolc
+
 if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
 else
@@ -45,6 +47,17 @@ for i in $config_flags ; do
             ;;
     esac
 done
+
+AC_MSG_CHECKING(whether to build ADOL-C with adjoinable MPI (AMPI) support)
+AC_ARG_ENABLE(ampi,
+              [AS_HELP_STRING([--enable-ampi],[build ADOL-C with adjoinable MPI (AMPI) support [default=disabled]])],
+	      [adolc_ampi_support=$enableval],[adolc_ampi_support=no])
+AC_MSG_RESULT($adolc_ampi_support)
+AM_CONDITIONAL(BUILD_ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
+if test x"${adolc_ampi_support}" = xyes ; then
+AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
+fi
+MPI_CONF_PRE
 
 # checks for programs
 AC_PROG_CXX
@@ -419,22 +432,12 @@ AC_ARG_WITH(cxxflags,
              fi
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
             AC_SUBST(ac_adolc_cxxflags)
-             AC_MSG_RESULT($ac_adolc_cxxflags)])
+            AC_MSG_RESULT($ac_adolc_cxxflags)])
 
-AC_MSG_CHECKING(whether to build ADOL-C with adjoinable MPI (AMPI) support)
-AC_ARG_ENABLE(ampi,
-              [AS_HELP_STRING([--enable-ampi],[build ADOL-C with adjoinable MPI (AMPI) support [default=disabled]])],
-  	      [
-   		adolc_ampi_support=yes
-		AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
-  	      ],
-  	      [
-   		adolc_ampi_support=no
-              ])
-AC_MSG_RESULT($adolc_ampi_support)
-AM_CONDITIONAL(BUILD_ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
-MPI_CONF
+MPI_CONF_POST
 AMPI_CONF
+
+AC_SUBST(adolclib)
 
 AC_MSG_CHECKING(whether tape_doc should compute values as it prints the tape contents)
 AC_ARG_ENABLE(tapedoc_values,
@@ -641,17 +644,17 @@ echo \
      compiling:
         * add \"-I${prefix}/include\" to your compiler call
      linking:
-        * add \"-L${prefix}/${_lib} -ladolc\" to your linker call
-        * extend your linker call by \"-Wl,--rpath -Wl,${prefix}/${_lib}\"
+        * add \"-L${libdir} -l$adolclib\" to your linker call
+        * extend your linker call by \"-Wl,--rpath -Wl,${libdir}\"
           (if you wish to skip the point \"executing\")
      executing (do one of the following things):
-        * add ${prefix}/${_lib} to your LD_LIBRARY_PATH variable
-        * ask your system administrator for adding ${prefix}/${_lib} to
+        * add ${libdir} to your LD_LIBRARY_PATH variable
+        * ask your system administrator for adding ${libdir} to
           the global file containing library search paths (/etc/ld.so.conf)
 
      (or use the static library by replacing
-        \"-L${prefix}/${_lib} -ladolc\" with
-        \"${prefix}/${_lib}/libadolc.a\" when linking)
+        \"-L${libdir} -l$adolclib\" with
+        \"${libdir}/lib$adolclib.a\" when linking)
 
   See README for instructions on how to change to a nonlocal installation!
 
