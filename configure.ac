@@ -296,28 +296,36 @@ AS_HELP_STRING([--enable-sparse],[build sparse drivers [default=disabled]])],
              AC_MSG_RESULT($sparse)],
             [sparse="no"
              AC_MSG_RESULT(no)])
-
 AC_ARG_WITH(colpack,
 	[
 AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=system libraries]])],
 [
 colpack=$withval
 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
-COLPACK_LIBDIR="$colpack/${_lib}"
-COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+if test x${_lib} != xlib ; then
+   D[[0]]="$colpack/${_lib}"
+   D[[1]]="$colpack/lib"
+else
+   D[[0]]="$colpack/${_lib}"
+fi
 ],
 [
 COLPACK_CFLAGS="$ac_adolc_openmpflag"
-COLPACK_LIBDIR=""
-COLPACK_LIBS="-lColPack"
+COLPACK_LIBS="$ac_adolc_openmpflag -lColPack"
+D[[0]]=""
 ])
 
 AC_LANG_PUSH([C++])
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-LIBS="$COLPACK_LIBS $LIBS"
 AC_CHECK_HEADER([ColPack/ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
+for ((i=0; i < ${#D[@]} ; i++)); do
+COLPACK_LIBDIR="${D[[$i]]}"
+if test -n "$COLPACK_LIBDIR" ; then
+COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+fi
+LIBS="$COLPACK_LIBS $LIBS"
 if test x$have_colpackheaders = xyes ; then
    AC_MSG_CHECKING(for libColPack in $COLPACK_LIBDIR)
    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <ColPack/ColPackHeaders.h>],
@@ -325,9 +333,13 @@ if test x$have_colpackheaders = xyes ; then
                        [have_colpack=yes],
                        [have_colpack=no])
    AC_MSG_RESULT($have_colpack)
+   if test x$have_colpack = xyes ; then
+      break
+   fi
 else
     have_colpack=no
 fi
+done
 CPPFLAGS="$save_CPPFLAGS"
 LIBS="$save_LIBS"
 AC_LANG_POP([C++])
