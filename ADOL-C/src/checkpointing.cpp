@@ -4,7 +4,7 @@
  Revision: $Id$
  Contents: checkpointing algorithms
  
- Copyright (c) Andreas Kowarz
+ Copyright (c) Andreas Kowarz, Jean Utke
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -58,8 +58,9 @@ int dummy(int n, double *x, int m, double *y) {
 CpInfos *reg_timestep_fct(ADOLC_TimeStepFuncion timeStepFunction) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    return ADOLC_EXT_DIFF_FCTS_BUFFER.append(timeStepFunction);
+    CpInfos* theCpInfos=ADOLC_EXT_DIFF_FCTS_BUFFER.append();
+    theCpInfos->function=timeStepFunction;
+    return theCpInfos;
 }
 
 /* This is the main checkpointing function the user calls within the taping

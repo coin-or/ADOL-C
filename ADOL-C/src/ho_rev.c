@@ -2111,9 +2111,11 @@ int hov_ti_reverse(
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(TRES));
-		    // This is actually NOP 
-                    // basically all we need is that arg1 == vectorloc[idx]
-                    // so doing a check here is probably good
+		    /*
+		     * This is actually NOP
+                     * basically all we need is that arg1 == vectorloc[idx]
+                     * so doing a check here is probably good
+                     */
 		    if (arg1 != vectorloc+idx) {
 			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
 			exit(-2);
@@ -2162,7 +2164,7 @@ int hov_ti_reverse(
             case ref_assign_d:      /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
                 coval = get_val_r();
-		// fallthrough 
+		/* fallthrough */
             case ref_assign_d_zero: /* assign an adouble a        assign_d_zero */
             case ref_assign_d_one:  /* double value. (=)           assign_d_one */
                 arg1   = get_locint_r();
