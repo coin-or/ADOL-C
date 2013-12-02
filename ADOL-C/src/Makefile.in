@@ -116,12 +116,13 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
 	fos_forward.c fov_forward.c hos_forward.c hov_forward.c \
 	hov_wk_forward.c fos_reverse.c fov_reverse.c hos_reverse.c \
-	hos_ov_reverse.c hov_reverse.c forward_partx.c externfcts.cpp \
-	checkpointing.cpp fixpoint.cpp fov_offset_forward.c revolve.c \
-	advector.cpp adouble_tl.cpp int_forward_s.c int_forward_t.c \
-	indopro_forward_s.c indopro_forward_t.c nonl_ind_forward_s.c \
-	nonl_ind_forward_t.c nonl_ind_old_forward_s.c \
-	nonl_ind_old_forward_t.c int_reverse_s.c int_reverse_t.c
+	hos_ov_reverse.c hov_reverse.c forward_partx.c \
+	fos_an_reverse.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
+	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
+	int_forward_s.c int_forward_t.c indopro_forward_s.c \
+	indopro_forward_t.c nonl_ind_forward_s.c nonl_ind_forward_t.c \
+	nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
+	int_reverse_s.c int_reverse_t.c
 @SPARSE_TRUE@am__objects_1 = int_forward_s.lo int_forward_t.lo \
 @SPARSE_TRUE@	indopro_forward_s.lo indopro_forward_t.lo \
 @SPARSE_TRUE@	nonl_ind_forward_s.lo nonl_ind_forward_t.lo \
@@ -133,9 +134,9 @@ am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo convolut.lo \
 	tape_handling.lo zos_forward.lo fos_forward.lo fov_forward.lo \
 	hos_forward.lo hov_forward.lo hov_wk_forward.lo fos_reverse.lo \
 	fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo hov_reverse.lo \
-	forward_partx.lo externfcts.lo checkpointing.lo fixpoint.lo \
-	fov_offset_forward.lo revolve.lo advector.lo adouble_tl.lo \
-	$(am__objects_1)
+	forward_partx.lo fos_an_reverse.lo externfcts.lo \
+	checkpointing.lo fixpoint.lo fov_offset_forward.lo revolve.lo \
+	advector.lo adouble_tl.lo $(am__objects_1)
 libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -410,9 +411,10 @@ libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
 	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
 	fos_forward.c fov_forward.c hos_forward.c hov_forward.c \
 	hov_wk_forward.c fos_reverse.c fov_reverse.c hos_reverse.c \
-	hos_ov_reverse.c hov_reverse.c forward_partx.c externfcts.cpp \
-	checkpointing.cpp fixpoint.cpp fov_offset_forward.c revolve.c \
-	advector.cpp adouble_tl.cpp $(am__append_1)
+	hos_ov_reverse.c hov_reverse.c forward_partx.c \
+	fos_an_reverse.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
+	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
+	$(am__append_1)
 libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la \
 	$(am__append_2)
 all: config.h
@@ -533,6 +535,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixpoint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fortutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/forward_partx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_an_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward.Plo@am__quote@

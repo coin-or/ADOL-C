@@ -280,6 +280,10 @@ typedef struct TapeInfos {
     /* extern diff. fcts */
     locint ext_diff_fct_index;    /* set by forward and reverse (from tape) */
 
+    size_t numSwitches;
+    locint* switchlocs;
+    double* signature;
+
     PersistantTapeInfos pTapeInfos;
 
 #if defined(__cplusplus)
@@ -305,6 +309,7 @@ typedef struct GlobalTapeVarsCL {
     char newTape;               /* signals: at least one tape created (0/1) */
     char branchSwitchWarning;
     TapeInfos *currentTapeInfosPtr;
+    uint nominmaxFlag;
 #ifdef __cplusplus
     StoreManager *storeManagerPtr;
     GlobalTapeVarsCL();
