@@ -81,6 +81,7 @@ enum OPCODES {
   ceil_op,
   floor_op,
   ext_diff,
+  ext_diff_iArr,
   ignore_me,
   subscript = 80,
   subscript_ref,
@@ -105,7 +106,22 @@ enum OPCODES {
   le_a_a,
   gt_a_a,
   ge_a_a,
-  lt_a_a
+  lt_a_a,
+  ampi_send,
+  ampi_recv,
+  ampi_isend,
+  ampi_irecv,
+  ampi_wait,
+  ampi_barrier,
+  ampi_gather,
+  ampi_scatter,
+  ampi_allgather,
+  ampi_gatherv,
+  ampi_scatterv,
+  ampi_allgatherv,
+  ampi_bcast,
+  ampi_reduce,
+  ampi_allreduce
 };
 
 /****************************************************************************/

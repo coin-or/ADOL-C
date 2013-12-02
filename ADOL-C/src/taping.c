@@ -24,6 +24,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef ADOLC_AMPI_SUPPORT
+#include "ampi/ampi.h"
+#include "ampi/tape/support.h"
+#endif
+
 #if defined(_WINDOWS) && !__STDC__
 #define stat _stat
 #define S_IFDIR _S_IFDIR
@@ -328,18 +333,22 @@ void printError() {
 }
 
 /* the base names of every tape type */
-char *tapeBaseNames[4];
+char *tapeBaseNames[4]={0,0,0,0};
 
 void clearTapeBaseNames() {
     int i;
-    for(i=0;i<4;i++)
-	free(tapeBaseNames[i]);
+    for(i=0;i<4;i++) {
+	if (tapeBaseNames[i]) {
+	    free(tapeBaseNames[i]);
+	    tapeBaseNames[i]=0;
+	}
+    }
 }
 
 /****************************************************************************/
 /* The subroutine get_fstr appends to the tape base name of type tapeType   */
 /* the number fnum and ".tap" and returns a pointer to the resulting string.*/
-/* The result string must be freed be thy caller!                           */
+/* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
     char *numberString, *fileName, *extension = ".tap", *currPos;
@@ -651,7 +660,7 @@ locint keep_stock() {
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
 /****************************************************************************/
-void taylor_begin(uint bufferSize, double **Tg, int degreeSave) {
+void taylor_begin(uint bufferSize, int degreeSave) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer != NULL) {
@@ -671,7 +680,6 @@ void taylor_begin(uint bufferSize, double **Tg, int degreeSave) {
     }
 
     /* initial setups */
-    ADOLC_CURRENT_TAPE_INFOS.dpp_T = Tg;
     if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer != NULL)
         free(ADOLC_CURRENT_TAPE_INFOS.tayBuffer);
     ADOLC_CURRENT_TAPE_INFOS.tayBuffer = (revreal *)
@@ -1072,7 +1080,7 @@ void start_trace() {
 
     /* initialize value stack if necessary */
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        taylor_begin(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE], NULL, 0);
+        taylor_begin(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE], 0);
 
     /* mark possible (hard disk) tape creation */
     markNewTape();
@@ -1440,6 +1448,9 @@ void init_for_sweep(short tag) {
     }
     ADOLC_CURRENT_TAPE_INFOS.numVals_Tape = number;
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetBottom();
+#endif
 }
 
 /****************************************************************************/
@@ -1557,6 +1568,9 @@ void init_rev_sweep(short tag) {
         ADOLC_CURRENT_TAPE_INFOS.stats[NUM_VALUES] - number;
     ADOLC_CURRENT_TAPE_INFOS.currVal =
         ADOLC_CURRENT_TAPE_INFOS.valBuffer + number;
+#ifdef ADOLC_AMPI_SUPPORT
+    TAPE_AMPI_resetTop();
+#endif
 }
 
 /****************************************************************************/
@@ -1583,17 +1597,20 @@ void end_sweep() {
 
 /* --- Operations --- */
 
+const int maxLocsPerOp=10;
+
 /****************************************************************************/
 /* Puts an operation into the operation buffer. Ensures that location buffer*/
 /* and constants buffer are prepared to take the belonging stuff.           */
 /****************************************************************************/
-void put_op(unsigned char op) {
+void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    /* every operation writes <5 locations */
-    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + 5 > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
-        *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 -
-                ADOLC_CURRENT_TAPE_INFOS.currLoc;
+    /* make sure we have enough slots to write the locs */
+    if (ADOLC_CURRENT_TAPE_INFOS.currLoc + maxLocsPerOp + reserveExtraLocations > ADOLC_CURRENT_TAPE_INFOS.lastLocP1) {
+        size_t remainder = ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - ADOLC_CURRENT_TAPE_INFOS.currLoc;
+        if (remainder>0) memset(ADOLC_CURRENT_TAPE_INFOS.currLoc,0,(remainder-1)*sizeof(locint));
+        *(ADOLC_CURRENT_TAPE_INFOS.lastLocP1 - 1) = remainder;
         put_loc_block(ADOLC_CURRENT_TAPE_INFOS.lastLocP1);
         /* every operation writes 1 opcode */
         if (ADOLC_CURRENT_TAPE_INFOS.currOp + 1 == ADOLC_CURRENT_TAPE_INFOS.lastOpP1) {
@@ -1607,7 +1624,10 @@ void put_op(unsigned char op) {
     }
     /* every operation writes <5 values --- 3 should be sufficient */
     if (ADOLC_CURRENT_TAPE_INFOS.currVal + 5 > ADOLC_CURRENT_TAPE_INFOS.lastValP1) {
-        ADOLC_PUT_LOCINT(ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal);
+        locint valRemainder=ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal;
+        ADOLC_PUT_LOCINT(valRemainder);
+        /* avoid writing uninitialized memory to the file and get valgrind upset */
+        memset(ADOLC_CURRENT_TAPE_INFOS.currVal,0,valRemainder*sizeof(double));
         put_val_block(ADOLC_CURRENT_TAPE_INFOS.lastValP1);
         /* every operation writes 1 opcode */
         if (ADOLC_CURRENT_TAPE_INFOS.currOp + 1 == ADOLC_CURRENT_TAPE_INFOS.lastOpP1) {

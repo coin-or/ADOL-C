@@ -43,6 +43,9 @@
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
+#ifdef ADOLC_AMPI_SUPPORT
+#include "ampisupportAdolc.h"
+#endif
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -903,8 +906,11 @@ int  hov_forward(
 #if defined(_ZOS_)
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER zos_forward
+#   define ADOLC_EXT_FCT_IARR_POINTER zos_forward_iArr
 #   define ADOLC_EXT_FCT_COMPLETE \
     zos_forward(n, edfct->dp_x, m, edfct->dp_y)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    zos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y)
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
 #endif
@@ -912,8 +918,11 @@ int  hov_forward(
 #if defined(_FOS_)
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER fos_forward
+#   define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
 #   define ADOLC_EXT_FCT_COMPLETE \
     fos_forward(n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    fos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dp_Y
 #   define ADOLC_EXT_LOOP
@@ -923,8 +932,11 @@ int  hov_forward(
 #if defined(_FOV_)
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER fov_forward
+#   define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
 #   define ADOLC_EXT_FCT_COMPLETE \
     fov_forward(n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    fov_forward_iArr(iArrLength, iArr, n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dpp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
@@ -935,10 +947,25 @@ int  hov_forward(
     locint n, m;
     ext_diff_fct *edfct;
     int loop;
+    int iArrLength;
+    int *iArr;
 #   if defined(_FOV_)
         int loop2;
 #   endif
     int ext_retc;
+#endif
+
+#ifdef ADOLC_AMPI_SUPPORT
+    MPI_Op op;
+    void *buf, *rbuf;
+    int count, rcount;
+    MPI_Datatype datatype, rtype;
+    int src;
+    int tag;
+    enum AMPI_PairedWith_E pairedWith;
+    MPI_Comm comm;
+    MPI_Status* status;
+    struct AMPI_Request_S request;
 #endif
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -998,6 +1025,11 @@ int  hov_forward(
 	} else
 	    signature = ADOLC_CURRENT_TAPE_INFOS.signature;
     }
+
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T0;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 0;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 0;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_ZOS_FORWARD;
 #endif /* !_NTIGHT_ */
 #if defined(_ZOS_)                                                   /* ZOS */
 
@@ -1012,7 +1044,7 @@ int  hov_forward(
     if (keep) {
       taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
 
-        taylor_begin(taylbuf,&dp_T0,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
@@ -1027,11 +1059,15 @@ int  hov_forward(
     }
 #endif
     dp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_FORWARD;
 # define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,&dp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
@@ -1087,6 +1123,10 @@ int  hov_forward(
 #else                                                                /* FOV */
 #if defined(_FOV_)
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],p);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = p;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_Ttemp = myalloc1(p);
 # define T_TEMP dp_Ttemp;
@@ -1095,6 +1135,10 @@ int  hov_forward(
 #else                                                                /* HOS */
 #if defined(_HOS_)
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],k);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(k);
@@ -1102,13 +1146,17 @@ int  hov_forward(
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,dpp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 
     /*--------------------------------------------------------------------------*/
 #else                                                     /* HOV and HOV_WK */
     dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],p*k);
+    ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
+    ADOLC_CURRENT_TAPE_INFOS.numTay = p;
+    ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_FORWARD;
 # define TAYLOR_BUFFER dpp_T
     dp_z  = myalloc1(k);
     dp_Ttemp = myalloc1(p*k);
@@ -1116,7 +1164,7 @@ int  hov_forward(
 #if defined(_KEEP_)
     if (keep) {
         taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
-        taylor_begin(taylbuf,dpp_T,keep-1);
+        taylor_begin(taylbuf,keep-1);
     }
 #endif
 #endif
@@ -4920,6 +4968,237 @@ int  hov_forward(
                 }
 
                 break;
+
+            case ext_diff_iArr:                 /* extern differntiated function */
+                iArrLength=get_locint_f();
+                iArr=malloc(iArrLength*sizeof(int));
+                for (loop=0;loop<iArrLength;++loop) iArr[loop]=get_locint_f();
+                get_locint_f(); /* iArrLength again */
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
+                n=get_locint_f();
+                m=get_locint_f();
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for = get_locint_f();
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for = get_locint_f();
+                ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_f();
+                edfct=get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+
+                if (edfct->ADOLC_EXT_FCT_IARR_POINTER==NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
+                if (n>0) {
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#if !defined(_ZOS_)
+                    if (ADOLC_EXT_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+                }
+                if (m>0) {
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#if !defined(_ZOS_)
+                    if (ADOLC_EXT_POINTER_Y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+                }
+
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
+                for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
+                    edfct->dp_x[loop]=dp_T0[arg];
+#if !defined(_ZOS_)
+                    ADOLC_EXT_LOOP
+                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT =
+                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+#endif
+                    ++arg;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
+                for (loop=0; loop<m; ++loop) {
+                    if (edfct->dp_y_priorRequired) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
+                    edfct->dp_y[loop]=dp_T0[arg];
+#if !defined(_ZOS_)
+                    ADOLC_EXT_LOOP
+                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT =
+                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+#endif
+                    ++arg;
+                }
+
+                ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
+                for (loop=0; loop<n; ++loop) {
+                    dp_T0[res]=edfct->dp_x[loop];
+#if !defined(_ZOS_)
+                    ADOLC_EXT_LOOP
+                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
+                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT;
+#endif
+                    ++res;
+                }
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
+                for (loop=0; loop<m; ++loop) {
+                    dp_T0[res]=edfct->dp_y[loop];
+#if !defined(_ZOS_)
+                    ADOLC_EXT_LOOP
+                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
+                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT;
+#endif
+                    ++res;
+                }
+                free((void*)iArr); iArr=0;
+                break;
+#endif
+
+#ifdef ADOLC_AMPI_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case ampi_send: {
+              ADOLC_TLM_AMPI_Send(buf,
+                  count,
+                  datatype,
+                  src,
+                  tag,
+                  pairedWith,
+                  comm);
+              break;
+            }
+            case ampi_recv: {
+              ADOLC_TLM_AMPI_Recv(buf,
+                            count,
+                            datatype,
+                            src,
+                            tag,
+                            pairedWith,
+                            comm,
+                            status);
+              break;
+            }
+          case ampi_isend: {
+            ADOLC_TLM_AMPI_Isend(buf,
+                           count,
+                           datatype,
+                           src,
+                           tag,
+                           pairedWith,
+                           comm,
+                           &request);
+            break;
+          }
+          case ampi_irecv: {
+            ADOLC_TLM_AMPI_Irecv(buf,
+                           count,
+                           datatype,
+                           src,
+                           tag,
+                           pairedWith,
+                           comm,
+                           &request);
+            break;
+          }
+          case ampi_wait: {
+            ADOLC_TLM_AMPI_Wait(&request,
+                          status);
+            break;
+          }
+          case ampi_barrier: {
+            ADOLC_TLM_AMPI_Barrier(comm);
+            break;
+          }
+          case ampi_gather: {
+            ADOLC_TLM_AMPI_Gather(buf,
+                            count,
+                            datatype,
+                            rbuf,
+                            rcount,
+                            rtype,
+                            src,
+                            comm);
+            break;
+          }
+          case ampi_scatter: {
+            ADOLC_TLM_AMPI_Scatter(rbuf,
+                             rcount,
+                             rtype,
+                             buf,
+                             count,
+                             datatype,
+                             src,
+                             comm);
+            break;
+          }
+          case ampi_allgather: {
+            ADOLC_TLM_AMPI_Allgather(buf,
+                               count,
+                               datatype,
+                               rbuf,
+                               rcount,
+                               rtype,
+                               comm);
+            break;
+          }
+          case ampi_gatherv: {
+            ADOLC_TLM_AMPI_Gatherv(buf,
+                             count,
+                             datatype,
+                             rbuf,
+                             NULL,
+                             NULL,
+                             rtype,
+                             src,
+                             comm);
+            break;
+          }
+          case ampi_scatterv: {
+            ADOLC_TLM_AMPI_Scatterv(rbuf,
+                              NULL,
+                              NULL,
+                              rtype,
+                              buf,
+                              count,
+                              datatype,
+                              src,
+                              comm);
+            break;
+          }
+          case ampi_allgatherv: {
+            ADOLC_TLM_AMPI_Allgatherv(buf,
+                                count,
+                                datatype,
+                                rbuf,
+                                NULL,
+                                NULL,
+                                rtype,
+                                comm);
+            break;
+          }
+          case ampi_bcast: {
+            ADOLC_TLM_AMPI_Bcast(buf,
+                           count,
+                           datatype,
+                           src,
+                           comm);
+            break;
+          }
+          case ampi_reduce: {
+            ADOLC_TLM_AMPI_Reduce(buf,
+                            rbuf,
+                            count,
+                            datatype,
+                            op,
+                            src,
+                            comm);
+            break;
+          }
+          case ampi_allreduce: {
+            ADOLC_TLM_AMPI_Allreduce(buf,
+                               rbuf,
+                               count,
+                               datatype,
+                               op,
+                               comm);
+            break;
+          }
 #endif
 
                 /*--------------------------------------------------------------------------*/

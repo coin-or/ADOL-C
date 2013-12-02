@@ -5,7 +5,7 @@
  Contents: public functions and data types for extern (differentiated)
            functions.
  
- Copyright (c) Andreas Kowarz
+ Copyright (c) Andreas Kowarz, Jean Utke
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -31,6 +31,25 @@ typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, do
 typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
 typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
 
+/**
+ * we add a second set of function pointers with a signature expanded by a an integer array iArr
+ * and a parameter iArrLength motivated by externalizing sparse solvers where the sparsity format
+ * may be triples (i,j,A[i][j]) and a number of nonzero entries nz where all these integers are to
+ * be packed into iArr. Doing this will still allow the integers to be stored in the locint part
+ * of the tape.
+ * The alternative to doing this is the introduction of a separate stack to contain the extra data
+ * but this would break the self-containment of the tape.
+ */
+typedef int (ADOLC_ext_fct_iArr) (int iArrLength, int *iArr, int n, double *x, int m, double *y);
+typedef int (ADOLC_ext_fct_iArr_fos_forward) (int iArrLength, int *iArr, int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y);
+typedef int (ADOLC_ext_fct_iArr_fov_forward) (int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_iArr_hos_forward) (int iArrLength, int *iArr, int n, double *dp_x, int d, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+typedef int (ADOLC_ext_fct_iArr_hov_forward) (int iArrLength, int *iArr, int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
+typedef int (ADOLC_ext_fct_iArr_fos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
+typedef int (ADOLC_ext_fct_iArr_fov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
+typedef int (ADOLC_ext_fct_iArr_hos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, int d, double **dpp_Z);
+typedef int (ADOLC_ext_fct_iArr_hov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
+
 
 /**
  * A variable of this type has to be instantiated by reg_ext_fct (see below) and a pointer to it is
@@ -43,6 +62,7 @@ typedef struct {
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
   ADOLC_ext_fct *function;  
+  ADOLC_ext_fct_iArr *function_iArr;
 
   /**
    * DO NOT touch - the index is set through reg_ext_fct
@@ -64,6 +84,7 @@ typedef struct {
    * in examples/additional_examples/ext_diff_func/ext_diff_func.cpp  
    */
   ADOLC_ext_fct *zos_forward;
+  ADOLC_ext_fct_iArr *zos_forward_iArr;
 
   /**
    * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
@@ -71,6 +92,7 @@ typedef struct {
    * see also the explanation of the dp_X/Y  members below.
    */
   ADOLC_ext_fct_fos_forward *fos_forward;
+  ADOLC_ext_fct_iArr_fos_forward *fos_forward_iArr;
 
   /**
    * this points to a  method implementing a forward execution of the externally differentiated function dp_y=f(dp_x)
@@ -78,32 +100,39 @@ typedef struct {
    * see also the explanation of the dpp_X/Y  members below.
    */
   ADOLC_ext_fct_fov_forward *fov_forward;
+  ADOLC_ext_fct_iArr_fov_forward *fov_forward_iArr;
   /** 
    * higher order scalar forward for external functions  is currently not implemented in uni5_for.c
    */
   ADOLC_ext_fct_hos_forward *hos_forward; 
+  ADOLC_ext_fct_iArr_hos_forward *hos_forward_iArr;
   /** 
    * higher order vector forward for external functions  is currently not implemented in uni5_for.c
    */
   ADOLC_ext_fct_hov_forward *hov_forward;
+  ADOLC_ext_fct_iArr_hov_forward *hov_forward_iArr;
   /**
    * this points to a  method computing the projection dp_Z=transpose(dp_U) * Jacobian
    * see also the explanation of the dp_U/Z  members below.
    */
   ADOLC_ext_fct_fos_reverse *fos_reverse; 
+  ADOLC_ext_fct_iArr_fos_reverse *fos_reverse_iArr;
   /**
    * this points to a  method computing the projection dpp_Z=transpose(dpp_U) * Jacobian
    * see also the explanation of the dpp_U/Z  members below.
    */
   ADOLC_ext_fct_fov_reverse *fov_reverse; 
+  ADOLC_ext_fct_iArr_fov_reverse *fov_reverse_iArr;
   /** 
    * higher order scalar reverse for external functions  is currently not implemented in ho_rev.c
    */
   ADOLC_ext_fct_hos_reverse *hos_reverse; 
+  ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr;
   /** 
    * higher order vector reverse for external functions  is currently not implemented in ho_rev.c
    */
   ADOLC_ext_fct_hov_reverse *hov_reverse; 
+  ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
 
 
   /**
@@ -194,12 +223,12 @@ typedef struct {
   /**
    * track maximal value of n when function is invoked
    */
-  int max_n;
+  locint max_n;
 
   /**
    * track maximal value of m when function is invoked
    */
-  int max_m;
+  locint max_m;
 
   /**
    * make the call such that Adol-C may be used inside
@@ -233,8 +262,13 @@ END_C_DECLS
 /*                                                          This is all C++ */
 
 ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct);
+ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct);
 
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
+                                   int n, double *xp, adouble *xa,
+                                   int m, double *yp, adouble *ya);
+ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
+                                   int iArrLength, int* iArr,
                                    int n, double *xp, adouble *xa,
                                    int m, double *yp, adouble *ya);
 

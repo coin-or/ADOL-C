@@ -62,6 +62,13 @@ ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
 
 ADOLC_DLL_EXPORT void enableMinMaxUsingAbs();
 ADOLC_DLL_EXPORT void disableMinMaxUsingAbs();
+/*
+ * free location block sorting/consolidation upon calls to ensureContiguousLocations
+ * happens when  the ratio between allocated and used locations exceeds gcTriggerRatio or
+ * the allocated locations exceed gcTriggerMaxSize
+ */
+ADOLC_DLL_EXPORT void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize);
+
 END_C_DECLS
 
 /**
@@ -90,7 +97,7 @@ ADOLC_DLL_EXPORT int trace_on(short tnum, int keepTaylors = 0);
  * trace_on is the last point in time we want to allow the change of buffer
  * sizes for a given tape */
 ADOLC_DLL_EXPORT int trace_on(short tnum, int keepTaylors,
-        uint obs, uint lbs, uint vbs, uint tbs);
+        uint obs, uint lbs, uint vbs, uint tbs, int skipFileCleanup=0);
 
 /* Stop Tracing. Cleans up, and turns off trace_flag. Flag not equal zero
  * enforces writing of the three main tape files (op+loc+val). */
