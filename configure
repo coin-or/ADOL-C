@@ -16929,20 +16929,23 @@ $as_echo "no" >&6; }
 fi
 
 
-
 # Check whether --with-colpack was given.
 if test "${with_colpack+set}" = set; then :
   withval=$with_colpack;
 colpack=$withval
 COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
-COLPACK_LIBDIR="$colpack/${_lib}"
-COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+if test x${_lib} != xlib ; then
+   D[0]="$colpack/${_lib}"
+   D[1]="$colpack/lib"
+else
+   D[0]="$colpack/${_lib}"
+fi
 
 else
 
 COLPACK_CFLAGS="$ac_adolc_openmpflag"
-COLPACK_LIBDIR=""
-COLPACK_LIBS="-lColPack"
+COLPACK_LIBS="$ac_adolc_openmpflag -lColPack"
+D[0]=""
 
 fi
 
@@ -16956,7 +16959,6 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-LIBS="$COLPACK_LIBS $LIBS"
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "ColPack/ColPackHeaders.h" "ac_cv_header_ColPack_ColPackHeaders_h" "$ac_includes_default"
 if test "x$ac_cv_header_ColPack_ColPackHeaders_h" = xyes; then :
@@ -16966,6 +16968,12 @@ else
 fi
 
 
+for ((i=0; i < ${#D[@]} ; i++)); do
+COLPACK_LIBDIR="${D[$i]}"
+if test -n "$COLPACK_LIBDIR" ; then
+COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+fi
+LIBS="$COLPACK_LIBS $LIBS"
 if test x$have_colpackheaders = xyes ; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libColPack in $COLPACK_LIBDIR" >&5
 $as_echo_n "checking for libColPack in $COLPACK_LIBDIR... " >&6; }
@@ -16989,9 +16997,13 @@ rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_colpack" >&5
 $as_echo "$have_colpack" >&6; }
+   if test x$have_colpack = xyes ; then
+      break
+   fi
 else
     have_colpack=no
 fi
+done
 CPPFLAGS="$save_CPPFLAGS"
 LIBS="$save_LIBS"
 ac_ext=c
