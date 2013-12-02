@@ -58,9 +58,14 @@ subdir = ADOL-C/examples/additional_examples/scal
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/autoconf/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/autoconf/acx_builtin.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
+	$(top_srcdir)/autoconf/ampi.m4 \
+	$(top_srcdir)/autoconf/libtool.m4 \
+	$(top_srcdir)/autoconf/ltoptions.m4 \
+	$(top_srcdir)/autoconf/ltsugar.m4 \
+	$(top_srcdir)/autoconf/ltversion.m4 \
+	$(top_srcdir)/autoconf/lt~obsolete.m4 \
+	$(top_srcdir)/autoconf/mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -115,14 +120,12 @@ ACLOCAL = @ACLOCAL@
 ADOLC_PATCHLEVEL = @ADOLC_PATCHLEVEL@
 ADOLC_SUBVERSION = @ADOLC_SUBVERSION@
 ADOLC_VERSION = @ADOLC_VERSION@
-ADVBRANCH_FALSE = @ADVBRANCH_FALSE@
-ADVBRANCH_TRUE = @ADVBRANCH_TRUE@
+ADVBRANCH = @ADVBRANCH@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AS = @AS@
-ATRIG_ERF_FALSE = @ATRIG_ERF_FALSE@
-ATRIG_ERF_TRUE = @ATRIG_ERF_TRUE@
+ATRIG_ERF = @ATRIG_ERF@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -201,6 +204,7 @@ ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+adolclib = @adolclib@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -248,8 +252,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include
-LDADD = -ladolc 
+AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
+LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C/src
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 scalexam_SOURCES = scalexam.cpp

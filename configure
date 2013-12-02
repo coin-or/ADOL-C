@@ -637,6 +637,7 @@ ac_includes_default="\
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+adolclib
 ac_adolc_cxxflags
 ac_adolc_cflags
 PAREXA_FALSE
@@ -651,12 +652,10 @@ SPARSE_FALSE
 SPARSE_TRUE
 HAVE_LIBCOLPACK_FALSE
 HAVE_LIBCOLPACK_TRUE
-ADVBRANCH_FALSE
-ADVBRANCH_TRUE
+ADVBRANCH
 REAL_TYPE
 UINT_TYPE
-ATRIG_ERF_TRUE
-ATRIG_ERF_FALSE
+ATRIG_ERF
 ADOLC_PATCHLEVEL
 ADOLC_SUBVERSION
 ADOLC_VERSION
@@ -718,6 +717,8 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+BUILD_ADOLC_AMPI_SUPPORT_FALSE
+BUILD_ADOLC_AMPI_SUPPORT_TRUE
 AM_BACKSLASH
 AM_DEFAULT_VERBOSITY
 AM_DEFAULT_V
@@ -787,6 +788,10 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_silent_rules
+enable_ampi
+with_mpi_root
+with_mpicc
+with_mpicxx
 enable_dependency_tracking
 enable_shared
 enable_static
@@ -813,6 +818,8 @@ enable_addexa
 enable_parexa
 with_cflags
 with_cxxflags
+with_ampi
+enable_tapedoc_values
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1447,6 +1454,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-silent-rules   less verbose build output (undo: "make V=1")
   --disable-silent-rules  verbose build output (undo: "make V=0")
+  --enable-ampi           build ADOL-C with adjoinable MPI (AMPI) support
+                          [default=disabled]
   --enable-dependency-tracking
                           do not reject slow dependency extractors
   --disable-dependency-tracking
@@ -1495,9 +1504,17 @@ Optional Features:
   --enable-parexa         build parallel example [default=disabled], if
                           enabled -with-openmp-flag=FLAG required
 
+		  --disable-tapedoc-values
+                          should the tape_doc routine compute the values as it
+                          interprets and prints the tape contents
+                          [default=enabled]
+
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-mpi-root=MPIROOT absolute path to the MPI root directory
+  --with-mpicc=MPICC      name of the MPI C++ compiler to use (default mpicc)
+  --with-mpicxx=MPICXX    name of the MPI C++ compiler to use (default mpicxx)
   --with-pic[=PKGS]       try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
@@ -1510,6 +1527,8 @@ Optional Packages:
                           [default=system libraries]
   --with-cflags=FLAGS     use CFLAGS=FLAGS (default: -O2)
   --with-cxxflags=FLAGS   use CXXFLAGS=FLAGS (default: -O2)
+  --with-ampi=AMPI_DIR    full path to the installation of adjoinable MPI
+                          (AMPI)
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2788,6 +2807,7 @@ ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
+
 ac_config_headers="$ac_config_headers ADOL-C/src/config.h"
 
 
@@ -3319,6 +3339,9 @@ fi
 AM_BACKSLASH='\'
 
 
+
+adolclib=adolc
+
 if test "x$CFLAGS" == x ; then
     ac_shell_cflags="not_set"
 else
@@ -3338,6 +3361,105 @@ for i in $config_flags ; do
             ;;
     esac
 done
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build ADOL-C with adjoinable MPI (AMPI) support" >&5
+$as_echo_n "checking whether to build ADOL-C with adjoinable MPI (AMPI) support... " >&6; }
+# Check whether --enable-ampi was given.
+if test "${enable_ampi+set}" = set; then :
+  enableval=$enable_ampi; adolc_ampi_support=$enableval
+else
+  adolc_ampi_support=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $adolc_ampi_support" >&5
+$as_echo "$adolc_ampi_support" >&6; }
+ if test x${adolc_ampi_support} = xyes; then
+  BUILD_ADOLC_AMPI_SUPPORT_TRUE=
+  BUILD_ADOLC_AMPI_SUPPORT_FALSE='#'
+else
+  BUILD_ADOLC_AMPI_SUPPORT_TRUE='#'
+  BUILD_ADOLC_AMPI_SUPPORT_FALSE=
+fi
+
+if test x"${adolc_ampi_support}" = xyes ; then
+
+$as_echo "#define ADOLC_AMPI_SUPPORT 1" >>confdefs.h
+
+fi
+
+
+
+# MPI root directory
+
+# Check whether --with-mpi_root was given.
+if test "${with_mpi_root+set}" = set; then :
+  withval=$with_mpi_root;
+fi
+
+
+if test x"$with_mpi_root" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpi-root is set one  must also --enable_ampi" "$LINENO" 5
+  fi
+  MPIROOT="$with_mpi_root"
+fi
+
+
+# Check whether --with-mpicc was given.
+if test "${with_mpicc+set}" = set; then :
+  withval=$with_mpicc;
+fi
+
+
+if test x"$with_mpicc" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpicc is set one  must also --enable-ampi" "$LINENO" 5
+  fi
+  MPICC="$with_mpicc"
+else
+  MPICC="mpicc"
+fi
+
+if test x"$with_mpi_root" != "x";
+then
+  MPICC="$with_mpi_root/bin/$MPICC"
+fi
+
+
+
+# Check whether --with-mpicxx was given.
+if test "${with_mpicxx+set}" = set; then :
+  withval=$with_mpicxx;
+fi
+
+
+if test x"$with_mpicxx" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpicxx is set one  must also --enable-ampi" "$LINENO" 5
+  fi
+  MPICXX="$with_mpicxx"
+else
+  MPICXX="mpicxx"
+fi
+
+if test x"$with_mpi_root" != "x";
+then
+  MPICXX="$with_mpi_root/bin/$MPICXX"
+fi
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+  CC="$MPICC"
+  CXX="$MPICXX"
+fi
+
+
 
 # checks for programs
 ac_ext=cpp
@@ -9082,6 +9204,10 @@ _lt_linker_boilerplate=`cat conftest.err`
 $RM -r conftest*
 
 
+## CAVEAT EMPTOR:
+## There is no encapsulation within the following macros, do not change
+## the running order or otherwise move them around unless you know exactly
+## what you are doing...
 if test -n "$compiler"; then
 
 lt_prog_compiler_no_builtin_flag=
@@ -16583,13 +16709,10 @@ fi
 $as_echo "$use_atrig_erf" >&6; }
 
 if test x$use_atrig_erf = xyes ; then
-  ATRIG_ERF_FALSE="// "
-  ATRIG_ERF_TRUE=""
+  ATRIG_ERF="#define ATRIG_ERF 1"
 else
-  ATRIG_ERF_FALSE=""
-  ATRIG_ERF_TRUE="// "
+  ATRIG_ERF="#undef ATRIG_ERF"
 fi
-
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use 32-bit or 64-bit locations" >&5
@@ -16647,11 +16770,9 @@ fi
 $as_echo "$use_advbranch" >&6; }
 
 if test x$use_advbranch = xyes ; then
-  ADVBRANCH_TRUE=""
-  ADVBRANCH_FALSE="// "
+  ADVBRANCH="#define ADOLC_ADVANCED_BRANCHING 1"
 else
-  ADVBRANCH_TRUE="// "
-  ADVBRANCH_FALSE=""
+  ADVBRANCH="#undef ADOLC_ADVANCED_BRANCHING"
 fi
 
 
@@ -17004,7 +17125,7 @@ else
                 ac_adolc_cflags="-O2"
                 if test x${adolc_debug} == xyes ||
                    test x${adolc_harddebug} == xyes ; then
-                   ac_adolc_cflags="-g -O3 -Wall -ansi"
+                   ac_adolc_cflags="-g -O0 -Wall -ansi"
                 fi
              else
                 ac_adolc_cflags="$CFLAGS"
@@ -17043,10 +17164,177 @@ else
              fi
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
 
-             { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_cxxflags" >&5
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_adolc_cxxflags" >&5
 $as_echo "$ac_adolc_cxxflags" >&6; }
 fi
 
+
+
+
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking Linking of MPI C programs" >&5
+$as_echo_n "checking Linking of MPI C programs... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <mpi.h>
+int
+main ()
+{
+MPI_Init(0,0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
+$as_echo "ok" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+               { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "MPI C compiler is required by $PACKAGE
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking Linking of MPI C++ programs" >&5
+$as_echo_n "checking Linking of MPI C++ programs... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <mpi.h>
+int
+main ()
+{
+MPI_Init(0,0)
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
+$as_echo "ok" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+               { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "MPI C++ compiler is required by $PACKAGE
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+fi
+
+
+
+
+
+
+# Check whether --with-ampi was given.
+if test "${with_ampi+set}" = set; then :
+  withval=$with_ampi;
+fi
+
+
+if test x"$with_ampi" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-ampi is set one  must also --enable-ampi" "$LINENO" 5
+  fi
+  CPPFLAGS="$CPPFLAGS -I$with_ampi/include"
+  LDFLAGS="$LDFLAGS -L$with_ampi/lib"
+  if test x"$_lib" != "xlib" ;
+  then
+     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib}"
+  fi
+fi
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+  LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
+
+  keepLIBS="$LIBS"
+
+  LIBS="$LIBS -lampiADtoolStubsOO"
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking libampiCommon (provided by AMPI)" >&5
+$as_echo_n "checking libampiCommon (provided by AMPI)... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include "ampi/ampi.h"
+int
+main ()
+{
+AMPI_Finalize_NT()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
+$as_echo "ok" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+               { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "libampiCommon is required by $PACKAGE
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+  LIBS="$keepLIBS"
+  adolclib=adolc_ampi
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether tape_doc should compute values as it prints the tape contents" >&5
+$as_echo_n "checking whether tape_doc should compute values as it prints the tape contents... " >&6; }
+# Check whether --enable-tapedoc_values was given.
+if test "${enable_tapedoc_values+set}" = set; then :
+  enableval=$enable_tapedoc_values;
+  tapedoc_values=no
+
+else
+
+  tapedoc_values=yes
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $tapedoc_values" >&5
+$as_echo "$tapedoc_values" >&6; }
+
+if test x$tapedoc_values == xyes; then
+
+$as_echo "#define ADOLC_TAPE_DOC_VALUES 1" >>confdefs.h
+
+fi
 
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
@@ -17194,6 +17482,10 @@ else
   am__EXEEXT_FALSE=
 fi
 
+if test -z "${BUILD_ADOLC_AMPI_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_AMPI_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_ADOLC_AMPI_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
   as_fn_error $? "conditional \"AMDEP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -19767,6 +20059,9 @@ fi
 
 #call libtool for cygwin
  case "$CXX" in
+    clang* | */clang*)
+	# do nothing but don't want to accidentally match the 'cl' patterns below
+	;;
     cl* | */cl* | CL* | */CL* | icl* | */icl* | ICL* | */ICL*)
       { $as_echo "$as_me:${as_lineno-$LINENO}: Applying patches to libtool for cl compiler" >&5
 $as_echo "$as_me: Applying patches to libtool for cl compiler" >&6;}
@@ -19828,6 +20123,7 @@ echo \
   Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
+  Build with adjoinable MPI support:  ${adolc_ampi_support}
   Build with ColPack:		      ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
     echo -e \
@@ -19840,6 +20136,7 @@ echo
 echo \
 "  Build documented examples:          ${docexa}
   Build additional examples:          ${addexa}
+  tape_doc routine computes values:   ${tapedoc_values}
 
   See ADOL-C/src/config.h for further configuration information.
 -----------------------------------------------------------------------------"
@@ -19887,17 +20184,17 @@ echo \
      compiling:
         * add \"-I${prefix}/include\" to your compiler call
      linking:
-        * add \"-L${prefix}/${_lib} -ladolc\" to your linker call
-        * extend your linker call by \"-Wl,--rpath -Wl,${prefix}/${_lib}\"
+        * add \"-L${libdir} -l$adolclib\" to your linker call
+        * extend your linker call by \"-Wl,--rpath -Wl,${libdir}\"
           (if you wish to skip the point \"executing\")
      executing (do one of the following things):
-        * add ${prefix}/${_lib} to your LD_LIBRARY_PATH variable
-        * ask your system administrator for adding ${prefix}/${_lib} to
+        * add ${libdir} to your LD_LIBRARY_PATH variable
+        * ask your system administrator for adding ${libdir} to
           the global file containing library search paths (/etc/ld.so.conf)
 
      (or use the static library by replacing
-        \"-L${prefix}/${_lib} -ladolc\" with
-        \"${prefix}/${_lib}/libadolc.a\" when linking)
+        \"-L${libdir} -l$adolclib\" with
+        \"${libdir}/lib$adolclib.a\" when linking)
 
   See README for instructions on how to change to a nonlocal installation!
 

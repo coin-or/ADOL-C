@@ -53,14 +53,26 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@SPARSE_TRUE@am__append_1 = @COLPACK_LIBS@
+@SPARSE_TRUE@am__append_1 = int_forward_s.c int_forward_t.c \
+@SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
+@SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
+@SPARSE_TRUE@                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
+@SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c
+
+@SPARSE_TRUE@am__append_2 = sparse/libsparse.la
+@SPARSE_TRUE@am__append_3 = @COLPACK_LIBS@
 subdir = ADOL-C/src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config.h.in $(top_srcdir)/autoconf/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/autoconf/acx_builtin.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
+	$(top_srcdir)/autoconf/ampi.m4 \
+	$(top_srcdir)/autoconf/libtool.m4 \
+	$(top_srcdir)/autoconf/ltoptions.m4 \
+	$(top_srcdir)/autoconf/ltsugar.m4 \
+	$(top_srcdir)/autoconf/ltversion.m4 \
+	$(top_srcdir)/autoconf/lt~obsolete.m4 \
+	$(top_srcdir)/autoconf/mpi.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -95,46 +107,35 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-@SPARSE_FALSE@libadolc_la_DEPENDENCIES = drivers/libdrivers.la \
-@SPARSE_FALSE@	tapedoc/libtapedoc.la
-@SPARSE_TRUE@libadolc_la_DEPENDENCIES = drivers/libdrivers.la \
-@SPARSE_TRUE@	sparse/libsparse.la tapedoc/libtapedoc.la
+LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
+libadolc_la_DEPENDENCIES = drivers/libdrivers.la tapedoc/libtapedoc.la \
+	$(am__append_2)
 am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	convolut.c fortutils.c interfaces.cpp interfacesf.c taping.c \
-	tape_handling.cpp zos_forward.c fos_forward.c fov_forward.c \
-	hos_forward.c hov_forward.c hov_wk_forward.c fos_reverse.c \
-	fov_reverse.c hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-	forward_partx.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
-	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
-	taping_p.h int_forward_s.c int_forward_t.c indopro_forward_s.c \
-	indopro_forward_t.c nonl_ind_forward_s.c nonl_ind_forward_t.c \
-	nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
-	int_reverse_s.c int_reverse_t.c
-@SPARSE_FALSE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
-@SPARSE_FALSE@	convolut.lo fortutils.lo interfaces.lo \
-@SPARSE_FALSE@	interfacesf.lo taping.lo tape_handling.lo \
-@SPARSE_FALSE@	zos_forward.lo fos_forward.lo fov_forward.lo \
-@SPARSE_FALSE@	hos_forward.lo hov_forward.lo hov_wk_forward.lo \
-@SPARSE_FALSE@	fos_reverse.lo fov_reverse.lo hos_reverse.lo \
-@SPARSE_FALSE@	hos_ov_reverse.lo hov_reverse.lo \
-@SPARSE_FALSE@	forward_partx.lo externfcts.lo checkpointing.lo \
-@SPARSE_FALSE@	fixpoint.lo fov_offset_forward.lo revolve.lo \
-@SPARSE_FALSE@	advector.lo adouble_tl.lo
-@SPARSE_TRUE@am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
-@SPARSE_TRUE@	convolut.lo fortutils.lo interfaces.lo \
-@SPARSE_TRUE@	interfacesf.lo taping.lo tape_handling.lo \
-@SPARSE_TRUE@	zos_forward.lo fos_forward.lo fov_forward.lo \
-@SPARSE_TRUE@	hos_forward.lo hov_forward.lo hov_wk_forward.lo \
-@SPARSE_TRUE@	fos_reverse.lo fov_reverse.lo hos_reverse.lo \
-@SPARSE_TRUE@	hos_ov_reverse.lo hov_reverse.lo forward_partx.lo \
-@SPARSE_TRUE@	externfcts.lo checkpointing.lo fixpoint.lo \
-@SPARSE_TRUE@	fov_offset_forward.lo revolve.lo int_forward_s.lo \
-@SPARSE_TRUE@	int_forward_t.lo indopro_forward_s.lo \
-@SPARSE_TRUE@	indopro_forward_t.lo nonl_ind_forward_s.lo \
-@SPARSE_TRUE@	nonl_ind_forward_t.lo nonl_ind_old_forward_s.lo \
+	tape_handling.cpp oplate.h taping_p.h malloc.h storemanager.h \
+	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
+	fos_forward.c fov_forward.c hos_forward.c hov_forward.c \
+	hov_wk_forward.c fos_reverse.c fov_reverse.c hos_reverse.c \
+	hos_ov_reverse.c hov_reverse.c forward_partx.c externfcts.cpp \
+	checkpointing.cpp fixpoint.cpp fov_offset_forward.c revolve.c \
+	advector.cpp adouble_tl.cpp int_forward_s.c int_forward_t.c \
+	indopro_forward_s.c indopro_forward_t.c nonl_ind_forward_s.c \
+	nonl_ind_forward_t.c nonl_ind_old_forward_s.c \
+	nonl_ind_old_forward_t.c int_reverse_s.c int_reverse_t.c
+@SPARSE_TRUE@am__objects_1 = int_forward_s.lo int_forward_t.lo \
+@SPARSE_TRUE@	indopro_forward_s.lo indopro_forward_t.lo \
+@SPARSE_TRUE@	nonl_ind_forward_s.lo nonl_ind_forward_t.lo \
+@SPARSE_TRUE@	nonl_ind_old_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_old_forward_t.lo int_reverse_s.lo \
-@SPARSE_TRUE@	int_reverse_t.lo advector.lo adouble_tl.lo
+@SPARSE_TRUE@	int_reverse_t.lo
+am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo convolut.lo \
+	fortutils.lo interfaces.lo interfacesf.lo taping.lo \
+	tape_handling.lo zos_forward.lo fos_forward.lo fov_forward.lo \
+	hos_forward.lo hov_forward.lo hov_wk_forward.lo fos_reverse.lo \
+	fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo hov_reverse.lo \
+	forward_partx.lo externfcts.lo checkpointing.lo fixpoint.lo \
+	fov_offset_forward.lo revolve.lo advector.lo adouble_tl.lo \
+	$(am__objects_1)
 libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -142,6 +143,23 @@ am__v_lt_0 = --silent
 libadolc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(libadolc_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@am_libadolc_la_rpath = -rpath \
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	$(libdir)
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_la_rpath =
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_DEPENDENCIES =  \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	libadolc.la
+am__libadolc_ampi_la_SOURCES_DIST = ampisupport.cpp \
+	ampisupportAdolc.cpp ampisupportAdolc.h
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_ampi_la_OBJECTS =  \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupport.lo \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupportAdolc.lo
+libadolc_ampi_la_OBJECTS = $(am_libadolc_ampi_la_OBJECTS)
+libadolc_ampi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libadolc_ampi_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_ampi_la_rpath = -rpath \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	$(libdir)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -184,8 +202,9 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(libadolc_la_SOURCES)
-DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST)
+SOURCES = $(libadolc_la_SOURCES) $(libadolc_ampi_la_SOURCES)
+DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST) \
+	$(am__libadolc_ampi_la_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -236,14 +255,12 @@ ACLOCAL = @ACLOCAL@
 ADOLC_PATCHLEVEL = @ADOLC_PATCHLEVEL@
 ADOLC_SUBVERSION = @ADOLC_SUBVERSION@
 ADOLC_VERSION = @ADOLC_VERSION@
-ADVBRANCH_FALSE = @ADVBRANCH_FALSE@
-ADVBRANCH_TRUE = @ADVBRANCH_TRUE@
+ADVBRANCH = @ADVBRANCH@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AS = @AS@
-ATRIG_ERF_FALSE = @ATRIG_ERF_FALSE@
-ATRIG_ERF_TRUE = @ATRIG_ERF_TRUE@
+ATRIG_ERF = @ATRIG_ERF@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -322,6 +339,7 @@ ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+adolclib = @adolclib@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -369,52 +387,34 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -std=gnu99
 AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
+AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 @SPARSE_FALSE@SUBDIRS = drivers tapedoc
 @SPARSE_TRUE@SUBDIRS = drivers sparse tapedoc
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
-EXTRA_DIST = uni5_for.c fo_rev.c ho_rev.c \
-                       oplate.h taping_p.h malloc.h storemanager.h \
-                       externfcts_p.h checkpointing_p.h buffer_temp.h 
+EXTRA_DIST = uni5_for.c fo_rev.c ho_rev.c
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@lib_LTLIBRARIES = libadolc.la
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@lib_LTLIBRARIES = libadolc_ampi.la
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@noinst_LTLIBRARIES = libadolc.la
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_LDFLAGS = -version-info 2:1:1 -no-undefined
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@libadolc_la_LDFLAGS = -version-info \
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	2:1:1 -no-undefined \
+@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	$(am__append_3)
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_la_LDFLAGS = $(am__append_3)
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_LIBADD = libadolc.la
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@                           ampisupportAdolc.h
 
-lib_LTLIBRARIES = libadolc.la
-libadolc_la_LDFLAGS = -version-info 2:1:1 -no-undefined \
-	$(am__append_1)
-@SPARSE_FALSE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
-@SPARSE_FALSE@                       convolut.c fortutils.c\
-@SPARSE_FALSE@                       interfaces.cpp interfacesf.c \
-@SPARSE_FALSE@                       taping.c tape_handling.cpp \
-@SPARSE_FALSE@                       zos_forward.c fos_forward.c fov_forward.c \
-@SPARSE_FALSE@                       hos_forward.c hov_forward.c hov_wk_forward.c \
-@SPARSE_FALSE@                       fos_reverse.c fov_reverse.c \
-@SPARSE_FALSE@                       hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-@SPARSE_FALSE@                       forward_partx.c \
-@SPARSE_FALSE@                       externfcts.cpp checkpointing.cpp \
-@SPARSE_FALSE@                       fixpoint.cpp fov_offset_forward.c revolve.c \
-@SPARSE_FALSE@                       advector.cpp adouble_tl.cpp
-
-@SPARSE_TRUE@libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp \
-@SPARSE_TRUE@                       convolut.c fortutils.c \
-@SPARSE_TRUE@                       interfaces.cpp interfacesf.c \
-@SPARSE_TRUE@                       taping_p.h taping.c tape_handling.cpp \
-@SPARSE_TRUE@                       zos_forward.c fos_forward.c fov_forward.c \
-@SPARSE_TRUE@                       hos_forward.c hov_forward.c hov_wk_forward.c \
-@SPARSE_TRUE@                       fos_reverse.c fov_reverse.c \
-@SPARSE_TRUE@                       hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-@SPARSE_TRUE@                       forward_partx.c \
-@SPARSE_TRUE@                       externfcts.cpp checkpointing.cpp \
-@SPARSE_TRUE@                       fixpoint.cpp fov_offset_forward.c revolve.c \
-@SPARSE_TRUE@                       int_forward_s.c int_forward_t.c \
-@SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
-@SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
-@SPARSE_TRUE@                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
-@SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c advector.cpp \
-@SPARSE_TRUE@                       adouble_tl.cpp
-
-@SPARSE_FALSE@libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la
-@SPARSE_TRUE@libadolc_la_LIBADD = drivers/libdrivers.la sparse/libsparse.la \
-@SPARSE_TRUE@                       tapedoc/libtapedoc.la
-
+libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
+	fortutils.c interfaces.cpp interfacesf.c taping.c \
+	tape_handling.cpp oplate.h taping_p.h malloc.h storemanager.h \
+	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
+	fos_forward.c fov_forward.c hos_forward.c hov_forward.c \
+	hov_wk_forward.c fos_reverse.c fov_reverse.c hos_reverse.c \
+	hos_ov_reverse.c hov_reverse.c forward_partx.c externfcts.cpp \
+	checkpointing.cpp fixpoint.cpp fov_offset_forward.c revolve.c \
+	advector.cpp adouble_tl.cpp $(am__append_1)
+libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la \
+	$(am__append_2)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -499,8 +499,21 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 libadolc.la: $(libadolc_la_OBJECTS) $(libadolc_la_DEPENDENCIES) $(EXTRA_libadolc_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(libadolc_la_LINK) -rpath $(libdir) $(libadolc_la_OBJECTS) $(libadolc_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(libadolc_la_LINK) $(am_libadolc_la_rpath) $(libadolc_la_OBJECTS) $(libadolc_la_LIBADD) $(LIBS)
+libadolc_ampi.la: $(libadolc_ampi_la_OBJECTS) $(libadolc_ampi_la_DEPENDENCIES) $(EXTRA_libadolc_ampi_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libadolc_ampi_la_LINK) $(am_libadolc_ampi_la_rpath) $(libadolc_ampi_la_OBJECTS) $(libadolc_ampi_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -512,6 +525,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adouble.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adouble_tl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/advector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ampisupport.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ampisupportAdolc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/checkpointing.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convolut.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/externfcts.Plo@am__quote@
@@ -845,7 +860,7 @@ maintainer-clean-generic:
 clean: clean-recursive
 
 clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	mostlyclean-am
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
@@ -919,9 +934,9 @@ uninstall-am: uninstall-libLTLIBRARIES
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool cscopelist \
-	cscopelist-recursive ctags ctags-recursive distclean \
-	distclean-compile distclean-generic distclean-hdr \
+	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
+	cscopelist cscopelist-recursive ctags ctags-recursive \
+	distclean distclean-compile distclean-generic distclean-hdr \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \

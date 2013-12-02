@@ -6,6 +6,9 @@
 /* ADOL-C adouble zeroing mode */
 #undef ADOLC_ADOUBLE_STDCZERO
 
+/* defined if adjoinable MPI support is to be compiled in */
+#undef ADOLC_AMPI_SUPPORT
+
 /* ADOL-C debug mode */
 #undef ADOLC_DEBUG
 
@@ -17,6 +20,9 @@
 
 /* ADOL-C Subversion */
 #undef ADOLC_SUBVERSION
+
+/* ADOL-C tape_doc routine computes values */
+#undef ADOLC_TAPE_DOC_VALUES
 
 /* ADOL-C thread save errno mode */
 #undef ADOLC_THREADSAVE_ERRNO

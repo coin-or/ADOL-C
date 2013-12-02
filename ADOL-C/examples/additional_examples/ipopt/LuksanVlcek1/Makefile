@@ -33,7 +33,7 @@ ADPATH = $(HOME)/AD/ADOL-C/adolc_base_coin/include/adolc
 ADLIBDIR = $(HOME)/AD/ADOL-C/adolc_base_coin/lib
 
 # CHANGEME: Additional libraries
-ADDLIBS = -Wl,--rpath -Wl,$(ADLIBDIR) -L$(ADLIBDIR) -ladolc  $(HOME)/AD/ADOL-C/adolc_base_coin/lib/libColPack.a
+ADDLIBS = -Wl,--rpath -Wl,$(ADLIBDIR) -L$(ADLIBDIR) -l${adolclib} $(HOME)/AD/ADOL-C/adolc_base_coin/lib/libColPack.a
 
 # CHANGEME: Additional flags for compilation (e.g., include flags)
 ADDINCFLAGS = -I$(ADPATH)  
