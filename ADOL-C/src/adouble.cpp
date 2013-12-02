@@ -1670,6 +1670,8 @@ adub fabs ( const badouble& x ) {
         ADOLC_PUT_VAL(coval);           /* coval */
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
+	    ++ADOLC_CURRENT_TAPE_INFOS.numSwitches;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
     }
@@ -1682,6 +1684,9 @@ adub fabs ( const badouble& x ) {
 adub fmin ( const badouble& x, const badouble& y ) { /* olvo 980702 tested: return 0.5*fabs(x+y-fabs(x-y)); */
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
+	return ((x + y - fabs(x - y))/2.0);
+
     locint locat = next_loc();
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] < ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]) {

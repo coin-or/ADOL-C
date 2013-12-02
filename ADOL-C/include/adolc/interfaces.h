@@ -432,6 +432,12 @@ ADOLC_DLL_EXPORT int int_reverse_tight
 ADOLC_DLL_EXPORT int int_reverse_safe
 (short, int, int, int, unsigned long int**, unsigned long int**);
 
+/*--------------------------------------------------------------------------*/
+ADOLC_DLL_EXPORT int get_num_switches(short);
+ADOLC_DLL_EXPORT int zos_an_forward(short,int,int,int,double*,double*,double*);
+/*--------------------------------------------------------------------------*/
+ADOLC_DLL_EXPORT int fos_an_reverse(short,int,int,int,int,double*);
+
 END_C_DECLS
 
 #endif

@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-#if defined(ADOLC_DEBUG)
+#if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
@@ -893,6 +893,11 @@ int  hov_forward(
 #endif
 #endif
 
+#if !defined(_NTIGHT_)
+    locint switchnum = 0;
+    double* signature = NULL;
+#endif
+
     /* extern diff. function variables */
 #if defined(_EXTERN_)
 #  undef (_EXTERN_)
@@ -1012,6 +1017,15 @@ int  hov_forward(
 #if !defined(_NTIGHT_)
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
     ADOLC_CURRENT_TAPE_INFOS.dp_T0 = dp_T0;
+
+    if(ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+	if (ADOLC_CURRENT_TAPE_INFOS.signature == NULL) {
+	    signature = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+	    ADOLC_CURRENT_TAPE_INFOS.signature = signature;
+	} else
+	    signature = ADOLC_CURRENT_TAPE_INFOS.signature;
+    }
+
     ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T0;
     ADOLC_CURRENT_TAPE_INFOS.numTay = 0;
     ADOLC_CURRENT_TAPE_INFOS.gDegree = 0;
@@ -3746,6 +3760,9 @@ int  hov_forward(
                         if (!coval)
                             MINDEC(ret_c,2);
                     }
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+		    signature[switchnum] = dp_T0[arg];
+		}
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
@@ -3802,13 +3819,15 @@ int  hov_forward(
                             x = 1.0;
                     }
                     TRES_INC = x * TARG_INC;
-              }
-            }
+		  }
+		}
 #endif
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
                 dp_T0[res] = fabs(dp_T0[arg]);
+		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
+		    switchnum++;
 #endif /* !_NTIGHT_ */
                 break;
 
@@ -5284,6 +5303,47 @@ int  hov_forward(
     return ret_c;
 }
 
+
+/****************************************************************************/
+#if defined(_ZOS_)
+int get_num_switches(short tapeID) {
+    int nswitch;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    init_for_sweep(tapeID);
+    if (!ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
+	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		"with %s\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tapeID, __FUNCTION__, tapeID);
+	exit(-1);
+    }
+    nswitch = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES];
+    end_sweep();
+    return nswitch;
+}
+
+int zos_an_forward(short tag,
+                  int m,
+		  int n,
+		  int keep,
+		  double *argument,
+		  double *result,
+		  double *swargs) {
+    int rc;
+    TapeInfos *tinfos;
+    tinfos = getTapeInfos(tag);
+    if (! tinfos->stats[NO_MIN_MAX] ) {
+	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		"with %s\n              Please call enableMinMaxUsingAbs() "
+		"before trace_on(%d)\n", tag, __FUNCTION__, tag);
+	exit(-1);
+    }
+    rc = zos_forward(tag,m,n,keep,argument,result);
+    tinfos = getTapeInfos(tag);
+    memcpy(swargs,tinfos->signature,tinfos->stats[NUM_SWITCHES]*sizeof(double));
+}
+#endif
 /****************************************************************************/
 
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
