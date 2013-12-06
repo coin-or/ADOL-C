@@ -199,6 +199,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include "externfcts_p.h"
 
 #include <math.h>
+#include <string.h>
+
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/libCommon/modified.h"
@@ -456,9 +458,9 @@ int int_reverse_safe(
     *c_Ptr = 0;
     memcpy(c_Ptr + 1, c_Ptr, sizeof(double) *
             ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
+#endif
 #ifdef _ABS_NORM_
     memset(results,0,sizeof(double)*(indep+swchk));
-#endif
 #endif
 # define ADJOINT_BUFFER rp_A
 # define ADJOINT_BUFFER_ARG_L rp_A[arg]
@@ -1509,6 +1511,7 @@ int int_reverse_safe(
 		    } else {
 			results[indep+switchnum] = ARES;
 			AARG = 0.0;
+			ARES = 0.0;
 		    }
 		    switchnum--;
 #else
