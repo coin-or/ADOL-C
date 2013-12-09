@@ -76,7 +76,7 @@ else
    _lib=lib
 fi
 if test "x$libdir_set_on_cmd" = "xno" ; then
-   libdir='${exec_prefix}/${_lib}'
+   libdir='${exec_prefix}'/"${_lib}"
    AC_SUBST(_lib)
    AC_SUBST(libdir)
 fi
