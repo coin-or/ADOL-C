@@ -9,6 +9,7 @@
 .libs
 *~
 *.bak
+adolc.pc
 Makefile.in
 Makefile
 autoconf/libtool.m4

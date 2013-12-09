@@ -559,6 +559,7 @@ AC_CONFIG_FILES(Makefile
                 MSVisualStudio/v10/x64/sparse/config.h
                 MSVisualStudio/v10/x64/nosparse/config.h
 		adolc.spec
+                adolc.pc
 )
 
 AC_OUTPUT
