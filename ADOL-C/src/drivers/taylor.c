@@ -260,7 +260,7 @@ void convert( int p, int d, int *im, int *multi ) {
 }
 
 /*--------------------------------------------------------------------------*/
-int address( int d, int* im ) {
+int tensor_address( int d, int* im ) {
     int i,
     add = 0;
 
@@ -867,7 +867,7 @@ void tensor_value( int d, int m, double *y, double **tensor, int *multi ) {
                     max = multi[j];
         }
     }
-    add = address(d,im);
+    add = tensor_address(d,im);
     for (i=0; i<m; i++)
         y[i] = tensor[i][add];
     free((char*) im);

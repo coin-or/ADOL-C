@@ -30,14 +30,14 @@ EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c
 if BUILD_ADOLC_AMPI_SUPPORT
 lib_LTLIBRARIES      = libadolc_ampi.la
 noinst_LTLIBRARIES   = libadolc.la
-libadolc_ampi_la_LDFLAGS  = -version-info 2:1:1 -no-undefined
+libadolc_ampi_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
 libadolc_la_LDFLAGS  =
 libadolc_ampi_la_LIBADD = libadolc.la
 libadolc_ampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
                            ampisupportAdolc.h
 else
 lib_LTLIBRARIES      = libadolc.la
-libadolc_la_LDFLAGS  = -version-info 2:1:1 -no-undefined
+libadolc_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
 endif
 
 

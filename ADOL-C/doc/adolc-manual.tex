@@ -1796,12 +1796,12 @@ by $j$ is computed by the function
 %
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int address(d,$\,$j)} \\
+\>{\sf int tensor\_address(d,$\,$j)} \\
 \>{\sf int d;}                 \> // highest derivative degree $d$ \\
 \>{\sf int j[d];}              \> // multi-index $j$
 \end{tabbing}       
 %
-and it may thus be referenced as {\sf tensor[i][address(d,$\,$j)]}.
+and it may thus be referenced as {\sf tensor[i][tensor\_address(d,$\,$j)]}.
 Notice that the address computation does depend on the degree $d$ 
 but not on the number of directions $p$, which could theoretically be
 enlarged without the need to reallocate the original tensor. 
@@ -1853,12 +1853,12 @@ the value of the mixed partial
 \]
 can be recovered as 
 \begin{center}
-   {\sf tensorentry[4][2][1][1]} \hspace{0.2in} or \hspace{0.2in} {\sf tensor[4][address(d,$\,$j)]},
+   {\sf tensorentry[4][2][1][1]} \hspace{0.2in} or \hspace{0.2in} {\sf tensor[4][tensor\_address(d,$\,$j)]},
 \end{center}
 where the integer array {\sf j} may equal (1,1,2), (1,2,1) or (2,1,1).  
 Analogously, the entry 
 \begin{center}   
-   {\sf tensorentry[2][1][0][0]} \hspace{0.2in} or \hspace{0.2in} {\sf tensor[2][address(d,$\,$j)]}
+   {\sf tensorentry[2][1][0][0]} \hspace{0.2in} or \hspace{0.2in} {\sf tensor[2][tensor\_address(d,$\,$j)]}
 \end{center}
 with {\sf j} = (1,0,0) contains the first derivative of the third dependent
 variable $F_3$ with respect to the first differentiation parameter $z_1$. 
