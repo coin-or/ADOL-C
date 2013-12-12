@@ -37,9 +37,11 @@ EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
 
 SUBDIRS              = ADOL-C
 
+if !BUILD_ADOLC_AMPI_SUPPORT
 # install pkg-config information
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = adolc.pc
+endif
 
 test: all
 	cd ADOL-C; $(MAKE) test

@@ -7,5 +7,5 @@ Name: adolc
 Version: @VERSION@
 Description: Algorithmic Differentiation Library for C/C++
 Requires:
-Libs: -L${libdir} -ladolc -Wl,--rpath -Wl,${libdir}
+Libs: -L${libdir} -ladolc -Wl,--rpath -Wl,${libdir} @COLPACK_LIBS@
 Cflags: -I${includedir}

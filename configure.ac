@@ -301,7 +301,7 @@ AC_ARG_WITH(colpack,
 AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [default=system libraries]])],
 [
 colpack=$withval
-COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
+COLPACK_CFLAGS="-I$colpack/include"
 if test x${_lib} != xlib ; then
    D[[0]]="$colpack/${_lib}"
    D[[1]]="$colpack/lib"
@@ -310,20 +310,22 @@ else
 fi
 ],
 [
-COLPACK_CFLAGS="$ac_adolc_openmpflag"
-COLPACK_LIBS="$ac_adolc_openmpflag -lColPack"
+COLPACK_CFLAGS=""
+COLPACK_LIBS="-lColPack"
 D[[0]]=""
 ])
 
 AC_LANG_PUSH([C++])
 save_CPPFLAGS="$CPPFLAGS"
+save_CXXFLAGS="$CXXFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
+CXXFLAGS="$CXXFLAGS $ac_adolc_openmpflag"
 AC_CHECK_HEADER([ColPack/ColPackHeaders.h],[have_colpackheaders=yes],[have_colpackheaders=no])
 for ((i=0; i < ${#D[@]} ; i++)); do
 COLPACK_LIBDIR="${D[[$i]]}"
 if test -n "$COLPACK_LIBDIR" ; then
-COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
 fi
 LIBS="$COLPACK_LIBS $LIBS"
 if test x$have_colpackheaders = xyes ; then
@@ -341,6 +343,7 @@ else
 fi
 done
 CPPFLAGS="$save_CPPFLAGS"
+CXXFLAGS="$save_CXXFLAGS"
 LIBS="$save_LIBS"
 AC_LANG_POP([C++])
 
