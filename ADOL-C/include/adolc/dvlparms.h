@@ -40,7 +40,7 @@
 
 /*--------------------------------------------------------------------------*/
 /* TAPE IDENTIFICATION (ADOLC & version check) */
-#define statSpace   35
+#define statSpace   40
 #define adolcIDSize  5
 /* NOTE: adolcIDSize + statSize <= statSpace required! */
 
