@@ -343,10 +343,6 @@ int int_reverse_safe(
     int p = nrows;
 #endif
 
-#if !defined(ADOLC_USE_CALLOC)
-    char * c_Ptr;
-#endif
-
     /****************************************************************************/
     /*                                          extern diff. function variables */
 #if defined(_FOS_)
@@ -447,18 +443,12 @@ int int_reverse_safe(
 
     /*--------------------------------------------------------------------------*/
 #ifdef _FOS_                                                         /* FOS */
-    rp_A = (revreal*) malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * sizeof(revreal));
+    rp_A = (revreal*) calloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], sizeof(revreal));
     if (rp_A == NULL) fail(ADOLC_MALLOC_FAILED);
     ADOLC_CURRENT_TAPE_INFOS.rp_A = rp_A;
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
-#if !defined(ADOLC_USE_CALLOC)
-    c_Ptr = (char *) ADOLC_GLOBAL_TAPE_VARS.rp_A;
-    *c_Ptr = 0;
-    memcpy(c_Ptr + 1, c_Ptr, sizeof(double) *
-            ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
-#endif
 #ifdef _ABS_NORM_
     memset(results,0,sizeof(double)*(indep+swchk));
 #endif
