@@ -1311,7 +1311,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerLocintBlock::ensure_Block: " << " fill: " << size() << "max: " << maxSize() <<  " ensure_Block (" << n << ")" << endl;
     std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
-    iter = indexFree.begin();
+    list<struct FreeBlock>::iterator iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
 	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
