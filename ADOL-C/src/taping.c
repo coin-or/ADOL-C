@@ -634,8 +634,7 @@ void take_stock() {
 locint keep_stock() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-    /* if we have adoubles in use */
-    if (ADOLC_GLOBAL_TAPE_VARS.numLives > 0) {
+    /* save all the final adoubles when finishing tracing */
         locint loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
 
         /* special signal -> all alive adoubles recorded on the end of the
@@ -651,7 +650,6 @@ locint keep_stock() {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
             } while (loc2-- > 0);
         }
-    }
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
     return ADOLC_GLOBAL_TAPE_VARS.storeSize;
 }
