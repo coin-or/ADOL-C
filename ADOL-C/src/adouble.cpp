@@ -1260,6 +1260,7 @@ adub sin ( const badouble& x ) {
         ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
     ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] =
         ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1290,6 +1291,7 @@ adub cos ( const badouble& x ) {
         ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
     ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] =
         ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1322,6 +1324,7 @@ adub asin ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP::asin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1348,6 +1351,7 @@ adub acos ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP::acos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1374,6 +1378,7 @@ adub atan ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP::atan(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1566,6 +1571,7 @@ adub asinh ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP_ERF::asinh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1592,6 +1598,7 @@ adub acosh ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP_ERF::acosh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1618,6 +1625,7 @@ adub atanh ( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP_ERF::atanh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1645,6 +1653,7 @@ adub erf( const badouble& x ) {
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] =
         ADOLC_MATH_NSP_ERF::erf(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    y = 0;
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
