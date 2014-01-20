@@ -246,6 +246,7 @@ ADOL-C/src/fixpoint.cpp -text
 ADOL-C/src/fo_rev.c -text
 ADOL-C/src/fortutils.c -text
 ADOL-C/src/forward_partx.c -text
+ADOL-C/src/fos_an_reverse.c -text
 ADOL-C/src/fos_forward.c -text
 ADOL-C/src/fos_reverse.c -text
 ADOL-C/src/fov_forward.c -text
