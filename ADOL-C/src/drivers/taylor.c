@@ -260,13 +260,41 @@ void convert( int p, int d, int *im, int *multi ) {
 }
 
 /*--------------------------------------------------------------------------*/
-int address( int d, int* im ) {
-    int i,
-    add = 0;
+int tensor_address( int d, int* multi) {
+    int i, j, max, ind;
+    int add = 0;
+    int *im = (int*) malloc(d*sizeof(int));
+    int *mymulti = (int*) malloc(d*sizeof(int));
+
+    max = 0;
+    ind = d-1;
+    for (i=0; i<d; i++) {
+        mymulti[i] = multi[i];
+        if (mymulti[i] > max)
+            max = mymulti[i];
+        im[i] = 0;
+    }
+
+    for (i=0; i<d; i++) {
+        if (mymulti[i] == max) 
+        { im[ind] = mymulti[i];
+          mymulti[i] = 0;
+          max = 0;
+          ind -= 1;
+          for (j=0; j<d; j++)
+            if (mymulti[j] > max)
+              max = mymulti[j];
+        }
+    }
 
     for (i=0; i<d; i++)
+      {
         add += binomi(im[i]+i,i+1);
-    return add;
+      }
+    free((char*) im);
+    free((char*) mymulti);
+
+    return add; 
 }
 
 
@@ -867,7 +895,7 @@ void tensor_value( int d, int m, double *y, double **tensor, int *multi ) {
                     max = multi[j];
         }
     }
-    add = address(d,im);
+    add = tensor_address(d,im);
     for (i=0; i<m; i++)
         y[i] = tensor[i][add];
     free((char*) im);
