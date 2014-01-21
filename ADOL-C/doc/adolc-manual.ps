@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
-%%Creator: dvips(k) 5.992 Copyright 2012 Radical Eye Software
+%%Creator: dvips(k) 5.993 Copyright 2013 Radical Eye Software
 %%Title: adolc-manual.dvi
-%%CreationDate: Mon May 27 11:09:54 2013
+%%CreationDate: Tue Jan 21 12:43:39 2014
 %%Pages: 77
 %%PageOrder: Ascend
 %%BoundingBox: 0 0 612 792
@@ -13,7 +13,7 @@
 %DVIPSWebPage: (www.radicaleye.com)
 %DVIPSCommandLine: dvips adolc-manual.dvi
 %DVIPSParameters: dpi=600
-%DVIPSSource:  TeX output 2013.05.27:1109
+%DVIPSSource:  TeX output 2014.01.21:1243
 %%BeginProcSet: tex.pro 0 0
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -10587,8 +10587,8 @@ SDict begin [/Subtype /Link/Dest (Hfootnote.1) cvn/H /I/Border [0 0
 1]BorderArrayPatch/Color [1 0 0] H.B /ANN pdfmark end
  2293 606 a 853 839 a FB(A)39 b(P)m(ac)m(k)-7 b(age)37
 b(for)h(the)g(Automatic)e(Di\013eren)m(tiation)1129 1012
-y(of)i(Algorithms)e(W)-10 b(ritten)38 b(in)g(C/C++)1245
-1245 y FA(V)-9 b(ersion)38 b(2.4.0-trunk,)g(Ma)m(y)g(2013)1160
+y(of)i(Algorithms)e(W)-10 b(ritten)38 b(in)g(C/C++)1157
+1245 y FA(V)-9 b(ersion)37 b(2.4.0-trunk,)i(Jan)m(uary)f(2014)1160
 1457 y Fz(Andrea)30 b(W)-8 b(alther)1799 1457 y
 SDict begin H.S end
  1799
@@ -15211,97 +15211,97 @@ b(data)g(structure)f(as)h(describ)s(ed)e(ab)s(o)m(v)m(e)j(for)e(the)h
 (quadratic)g(case.)45 b(The)31 b(lo)s(cation)i(of)e(the)h(partial)191
 832 y(deriv)-5 b(ativ)m(e)32 b(sp)s(eci\014ed)e(b)m(y)g
 Fr(j)36 b Fz(is)30 b(computed)g(b)m(y)h(the)f(function)p
-Black Black 491 1052 a Fp(int)g(address\(d,)15 b(j\))491
-1165 y(int)30 b(d;)984 b Fz(//)31 b(highest)g(deriv)-5
-b(ativ)m(e)32 b(degree)f Fr(d)491 1277 y Fp(int)f(j[d];)908
-b Fz(//)31 b(m)m(ulti-index)g Fr(j)191 1497 y Fz(and)23
-b(it)h(ma)m(y)g(th)m(us)f(b)s(e)g(referenced)g(as)h Fp(tenso)m
-(r[i][address\(d,)15 b(j\)])p Fz(.)41 b(Notice)26 b(that)e(the)f
-(address)g(computation)191 1610 y(do)s(es)f(dep)s(end)f(on)i(the)g
-(degree)g Fr(d)g Fz(but)f(not)h(on)g(the)f(n)m(um)m(b)s(er)g(of)h
-(directions)g Fr(p)p Fz(,)h(whic)m(h)e(could)h(theoretically)191
-1723 y(b)s(e)33 b(enlarged)h(without)g(the)g(need)f(to)i(reallo)s(cate)
-h(the)e(original)h(tensor.)51 b(Also,)35 b(the)f(comp)s(onen)m(ts)g(of)
-g Fr(j)191 1836 y Fz(need)d(to)i(b)s(e)e(non-increasing.)45
-b(T)-8 b(o)33 b(some)f(C)f(programmers)g(it)i(ma)m(y)f(app)s(ear)f
-(more)h(natural)g(to)g(access)191 1949 y(tensor)e(en)m(tries)g(b)m(y)g
-(successiv)m(e)h(dereferencing)f(in)f(the)h(form)g Fp(tenso)m
-(rentry[i][)15 b(j1)g(][)g(j2)g(])p Fr(:)g(:)g(:)5 b
-Fp([)15 b(jd)g(])p Fz(.)42 b(W)-8 b(e)30 b(ha)m(v)m(e)191
-2062 y(also)36 b(pro)m(vided)e(this)g(mo)s(de,)i(alb)s(eit)f(with)g
-(the)g(restriction)g(that)h(the)e(indices)h Fr(j)2986
-2076 y FC(1)3026 2062 y Fr(;)15 b(j)3103 2076 y FC(2)3143
-2062 y Fr(;)g(:)g(:)g(:)i(;)e(j)3382 2077 y Fh(d)3458
-2062 y Fz(are)35 b(non-)191 2175 y(increasing.)k(In)25
-b(the)g(second)g(order)f(case)i(this)f(means)g(that)g(the)h(Hessian)f
-(en)m(tries)h(m)m(ust)e(b)s(e)h(sp)s(eci\014ed)f(in)191
-2288 y(or)f(b)s(elo)m(w)f(the)h(diagonal.)40 b(If)22
-b(this)g(restriction)i(is)f(violated)h(the)f(v)-5 b(alues)23
-b(are)g(almost)g(certain)h(to)f(b)s(e)f(wrong)191 2401
-y(and)31 b(arra)m(y)i(b)s(ounds)d(ma)m(y)j(b)s(e)e(violated.)47
-b(W)-8 b(e)34 b(emphasize)e(that)h(subscripting)e(is)h(not)g(o)m(v)m
-(erloaded)i(but)191 2513 y(that)29 b Fp(tenso)m(rentry)g
-Fz(is)f(a)g(con)m(v)m(en)m(tional)j(and)c(th)m(us)h(mo)s(derately)h
-(e\016cien)m(t)g(C)f(p)s(oin)m(ter)g(structure.)39 b(Suc)m(h)27
-b(a)191 2626 y(p)s(oin)m(ter)j(structure)g(can)h(b)s(e)f(allo)s(cated)i
-(and)e(set)h(up)e(completely)j(b)m(y)e(the)h(function)p
-Black Black 491 2846 a Fp(void**)g(tenso)m(rsetup\(m,p,d,tenso)m(r\))
-491 2959 y(int)f(m;)959 b Fz(//)31 b(n)m(um)m(b)s(er)f(of)g(dep)s
-(enden)m(t)f(v)-5 b(ariables)31 b Fr(n)491 3072 y Fp(int)f(p;)984
-b Fz(//)31 b(n)m(um)m(b)s(er)f(of)g(directions)h Fr(p)491
-3185 y Fp(int)f(d;)984 b Fz(//)31 b(highest)g(deriv)-5
-b(ativ)m(e)32 b(degree)f Fr(d)491 3298 y Fp(double)g(tenso)m
-(r[m][size];)343 b Fz(//)31 b(p)s(oin)m(ter)g(to)g(t)m(w)m(o)h
-(dimensional)e(arra)m(y)191 3533 y(Here,)35 b Fp(tenso)m(r)g
-Fz(is)f(the)g(arra)m(y)h(of)f Fr(m)f Fz(p)s(oin)m(ters)h(p)s(oin)m
-(ting)g(to)h(arra)m(ys)f(of)g Fp(size)f Fn(\025)2901
-3460 y Fk(\000)2943 3493 y Fh(p)p FC(+)p Fh(d)2988 3565
-y(d)3069 3460 y Fk(\001)3145 3533 y Fz(allo)s(cated)j(b)m(y)e(the)191
-3646 y(user)29 b(b)s(efore.)40 b(During)30 b(the)g(execution)h(of)f
-Fp(tenso)m(rsetup)p Fz(,)i Fr(d)19 b Fn(\000)h Fz(1)30
-b(la)m(y)m(ers)h(of)f(p)s(oin)m(ters)g(are)h(set)f(up)f(so)h(that)191
-3759 y(the)h(return)e(v)-5 b(alue)31 b(allo)m(ws)g(the)g(direct)g
-(dereferencing)f(of)h(individual)f(tensor)g(elemen)m(ts.)332
-3922 y(F)-8 b(or)45 b(example,)k(supp)s(ose)43 b(some)i(activ)m(e)i
-(section)f(in)m(v)m(olving)g Fr(m)j Fn(\025)f Fz(5)d(dep)s(enden)m(ts)e
-(and)h Fr(n)49 b Fn(\025)f Fz(2)191 4035 y(indep)s(enden)m(ts)31
-b(has)h(b)s(een)g(executed)h(and)f(tap)s(ed.)46 b(W)-8
-b(e)33 b(ma)m(y)g(select)h Fr(p)29 b Fz(=)f(2,)33 b Fr(d)c
-Fz(=)f(3)33 b(and)f(initialize)j(the)191 4148 y Fr(n)24
-b Fn(\002)f Fz(2)37 b(seed)f(matrix)g Fr(S)41 b Fz(with)36
-b(t)m(w)m(o)i(columns)d Fr(s)1840 4162 y FC(1)1916 4148
-y Fz(and)g Fr(s)2141 4162 y FC(2)2180 4148 y Fz(.)58
-b(Then)35 b(w)m(e)i(are)f(able)h(to)g(execute)g(the)f(co)s(de)191
-4261 y(segmen)m(t)p Black Black 491 4480 a Fp(double****)d(tenso)m
-(rentry)e(=)f(\(double****\))j(tenso)m(rsetup\(m,p,d,tenso)m(r\);)491
-4593 y(tenso)m(r)p 724 4593 28 4 v 34 w(eval\(tag,m,n,d,p,x,tenso)m
-(r,S\);)191 4813 y Fz(This)g(w)m(a)m(y)-8 b(,)35 b(w)m(e)f(ev)-5
-b(aluated)35 b(all)f(tensors)g(de\014ned)e(in)h(\()2056
-4813 y
+Black Black 491 1052 a Fp(int)g(tenso)m(r)p 856 1052
+28 4 v 34 w(address\(d,)15 b(j\))491 1165 y(int)30 b(d;)984
+b Fz(//)31 b(highest)g(deriv)-5 b(ativ)m(e)32 b(degree)f
+Fr(d)491 1277 y Fp(int)f(j[d];)908 b Fz(//)31 b(m)m(ulti-index)g
+Fr(j)191 1497 y Fz(and)c(it)h(ma)m(y)g(th)m(us)f(b)s(e)g(referenced)h
+(as)f Fp(tenso)m(r[i][tenso)m(r)p 2064 1497 V 36 w(address\(d,)15
+b(j\)])p Fz(.)41 b(Notice)29 b(that)f(the)g(address)f(com-)191
+1610 y(putation)33 b(do)s(es)f(dep)s(end)e(on)j(the)f(degree)h
+Fr(d)g Fz(but)f(not)g(on)h(the)f(n)m(um)m(b)s(er)f(of)i(directions)g
+Fr(p)p Fz(,)g(whic)m(h)f(could)191 1723 y(theoretically)g(b)s(e)c
+(enlarged)i(without)f(the)h(need)f(to)h(reallo)s(cate)i(the)d(original)
+i(tensor.)40 b(Also,)30 b(the)g(com-)191 1836 y(p)s(onen)m(ts)22
+b(of)h Fr(j)28 b Fz(need)22 b(to)h(b)s(e)f(non-increasing.)38
+b(T)-8 b(o)23 b(some)g(C)f(programmers)g(it)h(ma)m(y)g(app)s(ear)f
+(more)h(natural)191 1949 y(to)30 b(access)h(tensor)e(en)m(tries)i(b)m
+(y)e(successiv)m(e)i(dereferencing)e(in)g(the)h(form)f
+Fp(tenso)m(rentry[i][)15 b(j1)g(][)g(j2)g(])p Fr(:)g(:)g(:)5
+b Fp([)15 b(jd)g(])p Fz(.)191 2062 y(W)-8 b(e)35 b(ha)m(v)m(e)h(also)f
+(pro)m(vided)e(this)h(mo)s(de,)h(alb)s(eit)g(with)f(the)g(restriction)h
+(that)g(the)f(indices)h Fr(j)3354 2076 y FC(1)3394 2062
+y Fr(;)15 b(j)3471 2076 y FC(2)3511 2062 y Fr(;)g(:)g(:)g(:)h(;)f(j)
+3749 2077 y Fh(d)191 2175 y Fz(are)35 b(non-increasing.)53
+b(In)34 b(the)h(second)f(order)g(case)i(this)e(means)h(that)g(the)g
+(Hessian)g(en)m(tries)g(m)m(ust)f(b)s(e)191 2288 y(sp)s(eci\014ed)e(in)
+h(or)g(b)s(elo)m(w)g(the)g(diagonal.)49 b(If)33 b(this)f(restriction)i
+(is)f(violated)i(the)e(v)-5 b(alues)33 b(are)g(almost)h(cer-)191
+2401 y(tain)27 b(to)h(b)s(e)e(wrong)h(and)f(arra)m(y)h(b)s(ounds)e(ma)m
+(y)i(b)s(e)g(violated.)41 b(W)-8 b(e)28 b(emphasize)f(that)h
+(subscripting)e(is)g(not)191 2513 y(o)m(v)m(erloaded)38
+b(but)e(that)h Fp(tenso)m(rentry)g Fz(is)g(a)g(con)m(v)m(en)m(tional)i
+(and)d(th)m(us)g(mo)s(derately)h(e\016cien)m(t)h(C)e(p)s(oin)m(ter)191
+2626 y(structure.)k(Suc)m(h)28 b(a)i(p)s(oin)m(ter)f(structure)g(can)g
+(b)s(e)f(allo)s(cated)k(and)c(set)i(up)e(completely)j(b)m(y)e(the)g
+(function)p Black Black 491 2846 a Fp(void**)i(tenso)m
+(rsetup\(m,p,d,tenso)m(r\))491 2959 y(int)f(m;)959 b
+Fz(//)31 b(n)m(um)m(b)s(er)f(of)g(dep)s(enden)m(t)f(v)-5
+b(ariables)31 b Fr(n)491 3072 y Fp(int)f(p;)984 b Fz(//)31
+b(n)m(um)m(b)s(er)f(of)g(directions)h Fr(p)491 3185 y
+Fp(int)f(d;)984 b Fz(//)31 b(highest)g(deriv)-5 b(ativ)m(e)32
+b(degree)f Fr(d)491 3298 y Fp(double)g(tenso)m(r[m][size];)343
+b Fz(//)31 b(p)s(oin)m(ter)g(to)g(t)m(w)m(o)h(dimensional)e(arra)m(y)
+191 3533 y(Here,)35 b Fp(tenso)m(r)g Fz(is)f(the)g(arra)m(y)h(of)f
+Fr(m)f Fz(p)s(oin)m(ters)h(p)s(oin)m(ting)g(to)h(arra)m(ys)f(of)g
+Fp(size)f Fn(\025)2901 3460 y Fk(\000)2943 3493 y Fh(p)p
+FC(+)p Fh(d)2988 3565 y(d)3069 3460 y Fk(\001)3145 3533
+y Fz(allo)s(cated)j(b)m(y)e(the)191 3646 y(user)29 b(b)s(efore.)40
+b(During)30 b(the)g(execution)h(of)f Fp(tenso)m(rsetup)p
+Fz(,)i Fr(d)19 b Fn(\000)h Fz(1)30 b(la)m(y)m(ers)h(of)f(p)s(oin)m
+(ters)g(are)h(set)f(up)f(so)h(that)191 3759 y(the)h(return)e(v)-5
+b(alue)31 b(allo)m(ws)g(the)g(direct)g(dereferencing)f(of)h(individual)
+f(tensor)g(elemen)m(ts.)332 3922 y(F)-8 b(or)45 b(example,)k(supp)s
+(ose)43 b(some)i(activ)m(e)i(section)f(in)m(v)m(olving)g
+Fr(m)j Fn(\025)f Fz(5)d(dep)s(enden)m(ts)e(and)h Fr(n)49
+b Fn(\025)f Fz(2)191 4035 y(indep)s(enden)m(ts)31 b(has)h(b)s(een)g
+(executed)h(and)f(tap)s(ed.)46 b(W)-8 b(e)33 b(ma)m(y)g(select)h
+Fr(p)29 b Fz(=)f(2,)33 b Fr(d)c Fz(=)f(3)33 b(and)f(initialize)j(the)
+191 4148 y Fr(n)24 b Fn(\002)f Fz(2)37 b(seed)f(matrix)g
+Fr(S)41 b Fz(with)36 b(t)m(w)m(o)i(columns)d Fr(s)1840
+4162 y FC(1)1916 4148 y Fz(and)g Fr(s)2141 4162 y FC(2)2180
+4148 y Fz(.)58 b(Then)35 b(w)m(e)i(are)f(able)h(to)g(execute)g(the)f
+(co)s(de)191 4261 y(segmen)m(t)p Black Black 491 4480
+a Fp(double****)d(tenso)m(rentry)e(=)f(\(double****\))j(tenso)m
+(rsetup\(m,p,d,tenso)m(r\);)491 4593 y(tenso)m(r)p 724
+4593 V 34 w(eval\(tag,m,n,d,p,x,tenso)m(r,S\);)191 4813
+y Fz(This)g(w)m(a)m(y)-8 b(,)35 b(w)m(e)f(ev)-5 b(aluated)35
+b(all)f(tensors)g(de\014ned)e(in)h(\()2056 4813 y
 SDict begin H.S end
- 2056 4813 a Black Fz(2)p Black 2102 4754 a
+ 2056
+4813 a Black Fz(2)p Black 2102 4754 a
 SDict begin H.R end
- 2102
-4754 a 2102 4813 a
+ 2102 4754 a 2102
+4813 a
 SDict begin [/Color [1 0 0]/H /I/Border [0 0 1]BorderArrayPatch/Subtype
 /Link/Dest (equation.3.2) cvn H.B /ANN pdfmark end
- 2102 4813 a Fz(\))h(up)e(to)i(degree)g(3)g(in)f(b)s
-(oth)g(directions)h Fr(s)3572 4827 y FC(1)3644 4813 y
-Fz(and)191 4926 y Fr(s)234 4940 y FC(2)306 4926 y Fz(at)f(some)h
-(argumen)m(t)f Fr(x)p Fz(.)48 b(T)-8 b(o)34 b(allo)m(w)g(the)f(access)h
-(of)f(tensor)g(en)m(tries)h(b)m(y)f(dereferencing)g(the)g(p)s(oin)m
-(ter)191 5039 y(structure)d Fp(tenso)m(rentry)h Fz(has)f(b)s(een)g
-(created.)42 b(No)m(w,)31 b(the)g(v)-5 b(alue)31 b(of)f(the)h(mixed)f
-(partial)1407 5211 y Fr(@)1460 5178 y FC(3)1500 5211
-y Fr(F)1558 5225 y FC(5)1598 5211 y Fz(\()p Fr(x)20 b
-Fz(+)g Fr(s)1839 5225 y FC(1)1878 5211 y Fr(z)1920 5225
-y FC(1)1980 5211 y Fz(+)g Fr(s)2114 5225 y FC(2)2153
-5211 y Fr(z)2195 5225 y FC(2)2235 5211 y Fz(\))p 1407
-5251 864 4 v 1702 5336 a Fr(@)5 b(z)1801 5305 y FC(2)1797
-5362 y(1)1841 5336 y Fr(@)g(z)1936 5350 y FC(2)2280 5140
-y Fk(\014)2280 5195 y(\014)2280 5249 y(\014)2280 5304
-y(\014)2310 5366 y Fh(z)2343 5375 y Fv(1)2378 5366 y
-FC(=0=)p Fh(z)2556 5375 y Fv(2)p Black Black eop end
+ 2102 4813 a Fz(\))h(up)e(to)i(degree)g(3)g(in)f(b)s(oth)g
+(directions)h Fr(s)3572 4827 y FC(1)3644 4813 y Fz(and)191
+4926 y Fr(s)234 4940 y FC(2)306 4926 y Fz(at)f(some)h(argumen)m(t)f
+Fr(x)p Fz(.)48 b(T)-8 b(o)34 b(allo)m(w)g(the)f(access)h(of)f(tensor)g
+(en)m(tries)h(b)m(y)f(dereferencing)g(the)g(p)s(oin)m(ter)191
+5039 y(structure)d Fp(tenso)m(rentry)h Fz(has)f(b)s(een)g(created.)42
+b(No)m(w,)31 b(the)g(v)-5 b(alue)31 b(of)f(the)h(mixed)f(partial)1407
+5211 y Fr(@)1460 5178 y FC(3)1500 5211 y Fr(F)1558 5225
+y FC(5)1598 5211 y Fz(\()p Fr(x)20 b Fz(+)g Fr(s)1839
+5225 y FC(1)1878 5211 y Fr(z)1920 5225 y FC(1)1980 5211
+y Fz(+)g Fr(s)2114 5225 y FC(2)2153 5211 y Fr(z)2195
+5225 y FC(2)2235 5211 y Fz(\))p 1407 5251 864 4 v 1702
+5336 a Fr(@)5 b(z)1801 5305 y FC(2)1797 5362 y(1)1841
+5336 y Fr(@)g(z)1936 5350 y FC(2)2280 5140 y Fk(\014)2280
+5195 y(\014)2280 5249 y(\014)2280 5304 y(\014)2310 5366
+y Fh(z)2343 5375 y Fv(1)2378 5366 y FC(=0=)p Fh(z)2556
+5375 y Fv(2)p Black Black eop end
 %%Page: 32 32
 TeXDict begin 32 31 bop 0 0 a
 SDict begin /product where{pop product(Distiller)search{pop pop pop
@@ -15318,12 +15318,13 @@ SDict begin [/View [/XYZ H.V]/Dest (page.32) cvn /DEST pdfmark end
  183 199 a Black 191 307
 a Fz(32)2300 b Ft(3)92 b(EASY-TO-USE)29 b(DRIVERS)p Black
 191 606 a Fz(can)i(b)s(e)e(reco)m(v)m(ered)j(as)p Black
-Black 930 847 a Fp(tenso)m(rentry[4][2][1][1])185 b Fz(or)c
-Fp(tenso)m(r[4][address\(d,)15 b(j\)])p Fz(,)191 1088
-y(where)30 b(the)g(in)m(teger)i(arra)m(y)f Fp(j)g Fz(ma)m(y)g(equal)f
-(\(1,1,2\),)k(\(1,2,1\))e(or)f(\(2,1,1\).)43 b(Analogously)-8
-b(,)32 b(the)f(en)m(try)p Black Black 942 1329 a Fp(tenso)m
-(rentry[2][1][0][0])186 b Fz(or)181 b Fp(tenso)m(r[2][address\(d,)15
+Black 799 847 a Fp(tenso)m(rentry[4][2][1][1])186 b Fz(or)180
+b Fp(tenso)m(r[4][tenso)m(r)p 2639 847 28 4 v 36 w(address\(d,)15
+b(j\)])p Fz(,)191 1088 y(where)30 b(the)g(in)m(teger)i(arra)m(y)f
+Fp(j)g Fz(ma)m(y)g(equal)f(\(1,1,2\),)k(\(1,2,1\))e(or)f(\(2,1,1\).)43
+b(Analogously)-8 b(,)32 b(the)f(en)m(try)p Black Black
+811 1329 a Fp(tenso)m(rentry[2][1][0][0])186 b Fz(or)181
+b Fp(tenso)m(r[2][tenso)m(r)p 2652 1329 V 36 w(address\(d,)15
 b(j\)])191 1570 y Fz(with)26 b Fp(j)i Fz(=)e(\(1,0,0\))j(con)m(tains)f
 (the)f(\014rst)g(deriv)-5 b(ativ)m(e)28 b(of)f(the)g(third)f(dep)s
 (enden)m(t)g(v)-5 b(ariable)28 b Fr(F)3240 1584 y FC(3)3306
@@ -15333,9 +15334,9 @@ y Fz(.)332 1846 y(Note,)36 b(that)f(the)f(p)s(oin)m(ter)g(structure)f
 Fp(tenso)m(rentry)i Fz(has)f(to)h(b)s(e)e(set)h(up)f(only)h(once.)52
 b(Changing)34 b(the)191 1959 y(v)-5 b(alues)30 b(of)f(the)h(arra)m(y)g
 Fp(tenso)m(r)p Fz(,)h(e.g.)g(b)m(y)e(a)h(further)e(call)j(of)f
-Fp(tenso)m(r)p 2413 1959 28 4 v 33 w(eval)p Fz(,)g(directly)g
-(e\013ects)h(the)f(v)-5 b(alues)30 b(ac-)191 2072 y(cessed)23
-b(b)m(y)g Fp(tenso)m(rentry)p Fz(.)39 b(When)22 b(no)h(more)g(deriv)-5
+Fp(tenso)m(r)p 2413 1959 V 33 w(eval)p Fz(,)g(directly)g(e\013ects)h
+(the)f(v)-5 b(alues)30 b(ac-)191 2072 y(cessed)23 b(b)m(y)g
+Fp(tenso)m(rentry)p Fz(.)39 b(When)22 b(no)h(more)g(deriv)-5
 b(ativ)m(e)24 b(ev)-5 b(aluations)24 b(are)f(desired)g(the)f(p)s(oin)m
 (ter)h(structure)191 2185 y Fp(tenso)m(rentry)31 b Fz(can)g(b)s(e)f
 (deallo)s(cated)i(b)m(y)e(a)h(call)h(to)f(the)g(function)p

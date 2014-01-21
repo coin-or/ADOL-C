@@ -26,6 +26,7 @@ ADOL-C/examples/additional_examples/Makefile.in -text
 ADOL-C/examples/additional_examples/checkpointing/Makefile.am -text
 ADOL-C/examples/additional_examples/checkpointing/Makefile.in -text
 ADOL-C/examples/additional_examples/checkpointing/README -text
+ADOL-C/examples/additional_examples/checkpointing/checkpointing -text
 ADOL-C/examples/additional_examples/checkpointing/checkpointing.cpp -text
 ADOL-C/examples/additional_examples/clock/Makefile.am -text
 ADOL-C/examples/additional_examples/clock/Makefile.in -text
