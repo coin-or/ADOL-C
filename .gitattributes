@@ -329,7 +329,12 @@ autoconf/config.guess -text
 autoconf/config.sub -text
 autoconf/depcomp -text
 autoconf/install-sh -text
+autoconf/libtool.m4 -text
 autoconf/ltmain.sh -text
+autoconf/ltoptions.m4 -text
+autoconf/ltsugar.m4 -text
+autoconf/ltversion.m4 -text
+autoconf/lt~obsolete.m4 -text
 autoconf/missing -text
 autoconf/mpi.m4 -text
 /configure -text
