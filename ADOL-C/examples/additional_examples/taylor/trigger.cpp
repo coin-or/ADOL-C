@@ -39,7 +39,7 @@ int main() {
     double* xp = new double[n];                      /* allocations and inits */
     double* Fhp = new double[n];
     double** S = new double*[n];
-    double** tensoren;
+    double** tensors;
     int* multi = new int[d];
     int* add = new int[5];
 
@@ -90,49 +90,49 @@ int main() {
         printf(" %f",Fhp[i]);
     printf(" %15.10f )\n\n",Fhp[n-1]);
     dim = binomi(p+d,d);
-    tensoren = myalloc2(n,dim);
+    tensors = myalloc2(n,dim);
 
-    inverse_tensor_eval(1,n,d,p,xp,tensoren,S);
+    inverse_tensor_eval(1,n,d,p,xp,tensors,S);
 
     for(i=0;i<d;i++)
         multi[i] = 0;
     multi[d-1] = 1;
-    add[0] = address(d,multi);
+    add[0] = tensor_address(d,multi);
     multi[d-2] = 1;
-    add[1] = address(d,multi);
+    add[1] = tensor_address(d,multi);
     multi[d-3] = 1;
-    add[2] = address(d,multi);
+    add[2] = tensor_address(d,multi);
     multi[d-1] = 2;
     multi[d-2] = 0;
     multi[d-3] = 0;
-    add[3] = address(d,multi);
+    add[3] = tensor_address(d,multi);
     multi[d-1] = 3;
-    add[4] = address(d,multi);
+    add[4] = tensor_address(d,multi);
     printf(" Results: \n");
     printf(" Fh^{-1}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][0]);
-    printf(" %15.10f )\n\n",tensoren[n-1][0]);
+        printf(" %15.10f ,",tensors[i][0]);
+    printf(" %15.10f )\n\n",tensors[n-1][0]);
     printf(" Fh^{-1}_{z_1}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][add[0]]);
-    printf(" %15.10f )\n\n",tensoren[n-1][add[0]]);
+        printf(" %15.10f ,",tensors[i][add[0]]);
+    printf(" %15.10f )\n\n",tensors[n-1][add[0]]);
     printf(" Fh^{-1}_{x_1 x_1}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][add[1]]);
-    printf(" %15.10f )\n\n",tensoren[n-1][add[1]]);
+        printf(" %15.10f ,",tensors[i][add[1]]);
+    printf(" %15.10f )\n\n",tensors[n-1][add[1]]);
     printf(" Fh^{-1}_{x_1 x_1 x_1}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][add[2]]);
-    printf(" %15.10f )\n\n",tensoren[n-1][add[2]]);
+        printf(" %15.10f ,",tensors[i][add[2]]);
+    printf(" %15.10f )\n\n",tensors[n-1][add[2]]);
     printf(" Fh^{-1}_{x_2}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][add[3]]);
-    printf(" %15.10f )\n\n",tensoren[n-1][add[3]]);
+        printf(" %15.10f ,",tensors[i][add[3]]);
+    printf(" %15.10f )\n\n",tensors[n-1][add[3]]);
     printf(" Fh^{-1}_{x_3}(0,z) = \n (");
     for(i=0;i<n-1;i++)
-        printf(" %15.10f ,",tensoren[i][add[4]]);
-    printf(" %15.10f )\n",tensoren[n-1][add[4]]);
+        printf(" %15.10f ,",tensors[i][add[4]]);
+    printf(" %15.10f )\n",tensors[n-1][add[4]]);
 
     return 1;
 }
