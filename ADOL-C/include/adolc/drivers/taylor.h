@@ -58,8 +58,8 @@ ADOLC_DLL_EXPORT void** tensorsetup(int m, int p, int d, double** tensorig);
 ADOLC_DLL_EXPORT void freetensor(int m, int p, int d, double** tensor);
 
 /*--------------------------------------------------------------------------*/
-/* int address(d, im[d]) */
-ADOLC_DLL_EXPORT int address(int d, int* im);
+/* int tensor_address(d, im[d]) */
+ADOLC_DLL_EXPORT int tensor_address(int d, int* im);
 
 /****************************************************************************/
 /*                                                                    UTILS */
