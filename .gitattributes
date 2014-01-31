@@ -246,9 +246,11 @@ ADOL-C/src/fixpoint.cpp -text
 ADOL-C/src/fo_rev.c -text
 ADOL-C/src/fortutils.c -text
 ADOL-C/src/forward_partx.c -text
+ADOL-C/src/fos_an_forward.c -text
 ADOL-C/src/fos_an_reverse.c -text
 ADOL-C/src/fos_forward.c -text
 ADOL-C/src/fos_reverse.c -text
+ADOL-C/src/fov_an_forward.c -text
 ADOL-C/src/fov_forward.c -text
 ADOL-C/src/fov_offset_forward.c -text
 ADOL-C/src/fov_reverse.c -text
@@ -287,6 +289,7 @@ ADOL-C/src/tapedoc/tapedoc.c -text
 ADOL-C/src/taping.c -text
 ADOL-C/src/taping_p.h -text
 ADOL-C/src/uni5_for.c -text
+ADOL-C/src/zos_an_forward.c -text
 ADOL-C/src/zos_forward.c -text
 ADOL-C/test/Makefile.am -text
 ADOL-C/test/Makefile.in -text
