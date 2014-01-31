@@ -5394,11 +5394,9 @@ int get_num_switches(short tapeID) {
 double firstsign(int p, double u, double* du) {
     int i=0;
     double tmp;
-    tmp=(u>0.0)?1.0:0.0;
-    tmp=(u<0.0)?-1.0:0.0;
+    tmp=(u>0.0)?1.0:((u<0.0)?-1.0:0.0);
     while(i<p && tmp==0.0) {
-	tmp=(du[i]>0.0)?1.0:0.0;
-	tmp=(du[i]<0.0)?-1.0:0.0;
+	tmp=(du[i]>0.0)?1.0:((du[i]<0.0)?-1.0:0.0);
 	i++;
     }
     return tmp;
