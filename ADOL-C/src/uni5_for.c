@@ -56,12 +56,19 @@
 
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
+#if defined(_ABS_NORM_)
+#  define GENERATED_FILENAME "zos_an_forward"
+#else
 #  define GENERATED_FILENAME "zos_forward"
-
+#endif
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_FOS_)
+#if defined(_ABS_NORM_)
+#define GENERATED_FILENAME "fos_an_forward"
+#else
 #define GENERATED_FILENAME "fos_forward"
+#endif
 
 #define ARGUMENT(indexi,l,i) argument[indexi]
 #define TAYLORS(indexd,l,i)   taylors[indexd]
@@ -69,7 +76,11 @@
 /*--------------------------------------------------------------------------*/
 #else
 #if defined(_FOV_)
+#if defined(_ABS_NORM_)
+#define GENERATED_FILENAME "fov_an_forward"
+#else
 #define GENERATED_FILENAME "fov_forward"
+#endif
 
 #define _ADOLC_VECTOR_
 
@@ -407,6 +418,9 @@ if (keep){\
 #if defined(_ADOLC_VECTOR_)
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
 #define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
+#if defined(_ABS_NORM_)
+#define FIRSTSIGN_P(x,y) firstsign(p,x,y)
+#endif
 #else
 #if defined(_INT_FOR_)
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
@@ -414,6 +428,9 @@ if (keep){\
 #else
 #define FOR_0_LE_l_LT_p
 #define FOR_p_GT_l_GE_0
+#if defined(_ABS_NORM_)
+#define FIRSTSIGN_P(x,y) firstsign(1,x,y)
+#endif
 #endif
 #endif
 
@@ -480,6 +497,15 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* Zero Order Scalar version of the forward mode.                           */
 /****************************************************************************/
+#if defined(_ABS_NORM_)
+int zos_an_forward(short tnum,
+                  int depcheck,
+		  int indcheck,
+		  int keep,
+		  const double *basepoint,
+		  double *valuepoint,
+		  double *swargs)
+#else
 #if defined(_KEEP_)
 int  zos_forward(
 #else
@@ -494,11 +520,22 @@ int  zos_forward_nk(
     const double *basepoint,  /* independant variable values */
     double       *valuepoint) /* dependent variable values */
 
+#endif
+
 #else
 #if defined(_FOS_)
 /****************************************************************************/
 /* First Order Scalar version of the forward mode.                          */
 /****************************************************************************/
+#if defined(_ABS_NORM_)
+int  fos_an_forward(short tnum,
+		    int depcheck,
+		    int indcheck,
+		    const double* basepoint,
+		    double *argument,
+		    double *valuepoint,
+		    double *taylors)
+#else
 #if defined(_KEEP_)
 int  fos_forward(
 #else
@@ -515,6 +552,7 @@ int  fos_forward_nk(
     double *valuepoint, /* Taylor coefficients (output) */
     double *taylors)    /* matrix of coefficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
+#endif
 
 #else
 #if defined(_INT_FOR_)
@@ -686,6 +724,18 @@ int  fov_offset_forward(
 /****************************************************************************/
 /* First Order Vector version of the forward mode.                          */
 /****************************************************************************/
+#if defined(_ABS_NORM_)
+int  fov_an_forward(
+    short         tnum,        /* tape id */
+    int           depcheck,    /* consistency chk on # of deps */
+    int           indcheck,    /* consistency chk on # of indeps */
+    int           p,           /* # of taylor series */
+    const double *basepoint,   /* independent variable values */
+    double      **argument,    /* Taylor coefficients (input) */
+    double       *valuepoint,  /* Taylor coefficients (output) */
+    double      **taylors)     /* matrix of coifficient vectors */
+/* the order of the indices in argument and taylors is [var][taylor] */
+#else
 int  fov_forward(
     short         tnum,        /* tape id */
     int           depcheck,    /* consistency chk on # of deps */
@@ -696,6 +746,7 @@ int  fov_forward(
     double       *valuepoint,  /* Taylor coefficients (output) */
     double      **taylors)     /* matrix of coifficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
+#endif
 #endif
 
 #else
@@ -1008,7 +1059,14 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         exit (-1);
     }
-
+#if defined(_ABS_NORM_)
+      if (! ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] ) {
+	  fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
+		  "with %s\n              Please call enableMinMaxUsingAbs() "
+		  "before trace_on(%d)\n", tag, __FUNCTION__, tag);
+	  exit(-1);
+      }
+#endif
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
     /* olvo 980626 has to be revised for common blocks */
@@ -3762,6 +3820,9 @@ int  hov_forward(
                     }
 		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
 		    signature[switchnum] = dp_T0[arg];
+#if defined(_ZOS_) && defined(_ABS_NORM_)
+		    swargs[switchnum] = dp_T0[arg];
+#endif
 		}
 #endif /* !_NTIGHT_ */
 
@@ -3800,6 +3861,11 @@ int  hov_forward(
                 TRES_INC = TARG_INC;
 #endif /* _NTIGHT_ */
 #else
+#ifdef _ABS_NORM_
+		y = FIRSTSIGN_P(dp_T0[arg],Targ);
+		FOR_0_LE_l_LT_p
+		    TRES_INC = y * TARG_INC;
+#else
                 y = 0.0;
                 if (dp_T0[arg] != 0.0) {
                     if (dp_T0[arg] < 0.0)
@@ -3821,6 +3887,7 @@ int  hov_forward(
                     TRES_INC = x * TARG_INC;
 		  }
 		}
+#endif
 #endif
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
@@ -5305,7 +5372,7 @@ int  hov_forward(
 
 
 /****************************************************************************/
-#if defined(_ZOS_)
+#if defined(_ZOS_) && defined(_ABS_NORM_)
 int get_num_switches(short tapeID) {
     int nswitch;
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -5322,26 +5389,19 @@ int get_num_switches(short tapeID) {
     end_sweep();
     return nswitch;
 }
-
-int zos_an_forward(short tag,
-                  int m,
-		  int n,
-		  int keep,
-		  double *argument,
-		  double *result,
-		  double *swargs) {
-    int rc;
-    TapeInfos *tinfos;
-    tinfos = getTapeInfos(tag);
-    if (! tinfos->stats[NO_MIN_MAX] ) {
-	fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
-		"with %s\n              Please call enableMinMaxUsingAbs() "
-		"before trace_on(%d)\n", tag, __FUNCTION__, tag);
-	exit(-1);
+#endif
+#if defined(_ABS_NORM_) && defined(_FOV_)
+double firstsign(int p, double u, double* du) {
+    int i=0;
+    double tmp;
+    tmp=(u>0.0)?1.0:0.0;
+    tmp=(u<0.0)?-1.0:0.0;
+    while(i<p && tmp==0.0) {
+	tmp=(du[i]>0.0)?1.0:0.0;
+	tmp=(du[i]<0.0)?-1.0:0.0;
+	i++;
     }
-    rc = zos_forward(tag,m,n,keep,argument,result);
-    tinfos = getTapeInfos(tag);
-    memcpy(swargs,tinfos->signature,tinfos->stats[NUM_SWITCHES]*sizeof(double));
+    return tmp;
 }
 #endif
 /****************************************************************************/
