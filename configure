@@ -16663,7 +16663,13 @@ $as_echo "#define realloc rpl_realloc" >>confdefs.h
 fi
 
 
+if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
 
+cat >>confdefs.h <<_ACEOF
+#define calloc rpl_calloc
+_ACEOF
+
+fi
 # Checks for libraries and fuctions
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing pow" >&5
 $as_echo_n "checking for library containing pow... " >&6; }
