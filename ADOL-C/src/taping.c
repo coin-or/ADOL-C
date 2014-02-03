@@ -632,8 +632,8 @@ void take_stock() {
 /* - intended to be used in stop_trace only                                 */
 /****************************************************************************/
 locint keep_stock() {
-    ADOLC_OPENMP_THREAD_NUMBER;
     locint loc2;
+    ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* save all the final adoubles when finishing tracing */
         loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
