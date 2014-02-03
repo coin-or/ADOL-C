@@ -162,6 +162,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Define to rpl_calloc if the replacement function should be used. */
+#undef calloc
+
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
