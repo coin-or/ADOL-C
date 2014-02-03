@@ -633,9 +633,10 @@ void take_stock() {
 /****************************************************************************/
 locint keep_stock() {
     ADOLC_OPENMP_THREAD_NUMBER;
+    locint loc2;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     /* save all the final adoubles when finishing tracing */
-        locint loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
+        loc2 = ADOLC_GLOBAL_TAPE_VARS.storeSize - 1;
 
         /* special signal -> all alive adoubles recorded on the end of the
          * value stack -> special handling at the beginning of reverse */
