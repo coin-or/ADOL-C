@@ -1,8 +1,14 @@
 /* ADOL-C/src/config.h.  Generated from config.h.in by configure.  */
 /* ADOL-C/src/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* ADOL-C adouble late initialization mode */
+/* #undef ADOLC_ADOUBLE_LATEINIT */
+
 /* ADOL-C adouble zeroing mode */
 #define ADOLC_ADOUBLE_STDCZERO 1
+
+/* defined if adjoinable MPI support is to be compiled in */
+/* #undef ADOLC_AMPI_SUPPORT */
 
 /* ADOL-C debug mode */
 /* #undef ADOLC_DEBUG */
@@ -15,6 +21,9 @@
 
 /* ADOL-C Subversion */
 #define ADOLC_SUBVERSION @ADOLC_SUBVERSION@
+
+/* ADOL-C tape_doc routine computes values */
+#define ADOLC_TAPE_DOC_VALUES 1
 
 /* ADOL-C thread save errno mode */
 /* #undef ADOLC_THREADSAVE_ERRNO */
@@ -153,6 +162,9 @@
 
 /* Version number of package */
 #define VERSION "@VERSION@"
+
+/* Define to rpl_calloc if the replacement function should be used. */
+#define calloc rpl_calloc
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
