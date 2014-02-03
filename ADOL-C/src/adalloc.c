@@ -57,9 +57,9 @@ double* myalloc1(size_t m) {
 double** myalloc2(size_t m, size_t n) {
     double **A=NULL;
     if (m>0 && n>0)  { 
+      int i;
       double *Adum = (double*)ADOLC_MALLOC(m*n,sizeof(double));
       A = (double**)malloc(m*sizeof(double*));
-      int i;
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
                 (size_t)(m*n*sizeof(double)));
@@ -82,10 +82,10 @@ double** myalloc2(size_t m, size_t n) {
 double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-tensors contiguously */
     double  ***A = NULL;
     if (m>0 && n>0 && p > 0)  { 
+      int i,j;
       double *Adum = (double*) ADOLC_MALLOC(m*n*p,sizeof(double));
       double **Apt = (double**)malloc(m*n*sizeof(double*));
       A = (double***)malloc(m*sizeof(double**));
-      int i,j;
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
                 (size_t)(m*n*p*sizeof(double)));
