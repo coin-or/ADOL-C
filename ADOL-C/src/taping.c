@@ -1595,7 +1595,9 @@ void end_sweep() {
 
 /* --- Operations --- */
 
+#if defined(__USE_ISOC99)
 const int maxLocsPerOp=10;
+#endif
 
 /****************************************************************************/
 /* Puts an operation into the operation buffer. Ensures that location buffer*/
