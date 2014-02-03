@@ -1063,7 +1063,7 @@ int  hov_forward(
       if (! ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] ) {
 	  fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
 		  "with %s\n              Please call enableMinMaxUsingAbs() "
-		  "before trace_on(%d)\n", tag, __FUNCTION__, tag);
+		  "before trace_on(%d)\n", tnum, __FUNCTION__, tnum);
 	  exit(-1);
       }
 #endif
