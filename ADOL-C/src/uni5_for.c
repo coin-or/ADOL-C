@@ -420,6 +420,7 @@ if (keep){\
 #define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
 #if defined(_ABS_NORM_)
 #define FIRSTSIGN_P(x,y) firstsign(p,x,y)
+#define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
 #endif
 #else
 #if defined(_INT_FOR_)
@@ -430,6 +431,7 @@ if (keep){\
 #define FOR_p_GT_l_GE_0
 #if defined(_ABS_NORM_)
 #define FIRSTSIGN_P(x,y) firstsign(1,x,y)
+#define COPYTAYL_P(x,y)  x = *y
 #endif
 #endif
 #endif
@@ -534,7 +536,9 @@ int  fos_an_forward(short tnum,
 		    const double* basepoint,
 		    double *argument,
 		    double *valuepoint,
-		    double *taylors)
+		    double *taylors,
+		    double *swargs,
+		    double *swtaylors)
 #else
 #if defined(_KEEP_)
 int  fos_forward(
@@ -733,7 +737,9 @@ int  fov_an_forward(
     const double *basepoint,   /* independent variable values */
     double      **argument,    /* Taylor coefficients (input) */
     double       *valuepoint,  /* Taylor coefficients (output) */
-    double      **taylors)     /* matrix of coifficient vectors */
+    double      **taylors,     /* matrix of coifficient vectors */
+    double       *swargs,
+    double      **swtaylors)
 /* the order of the indices in argument and taylors is [var][taylor] */
 #else
 int  fov_forward(
@@ -3820,7 +3826,7 @@ int  hov_forward(
                     }
 		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
 		    signature[switchnum] = dp_T0[arg];
-#if defined(_ZOS_) && defined(_ABS_NORM_)
+#if defined(_ABS_NORM_)
 		    swargs[switchnum] = dp_T0[arg];
 #endif
 		}
@@ -3863,6 +3869,7 @@ int  hov_forward(
 #else
 #ifdef _ABS_NORM_
 		y = FIRSTSIGN_P(dp_T0[arg],Targ);
+		COPYTAYL_P(swtaylors[switchnum],Targ);
 		FOR_0_LE_l_LT_p
 		    TRES_INC = y * TARG_INC;
 #else
