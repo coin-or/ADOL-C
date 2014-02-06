@@ -439,7 +439,7 @@ void ADTOOL_AMPI_popGSVinfo(int commSizeForRootOrNull,
   TAPE_AMPI_pop_int(&commSizeForRootOrNull);
 }
 
-void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) { 
+void ADTOOL_AMPI_push_CallCode(enum AMPI_CallCode_E thisCall) {
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     switch(thisCall) {
       case AMPI_WAIT:
@@ -494,7 +494,7 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_PairedWith_E thisCall) {
   }
 }
 
-void ADTOOL_AMPI_pop_CallCode(enum AMPI_PairedWith_E *thisCall) { 
+void ADTOOL_AMPI_pop_CallCode(enum AMPI_CallCode_E *thisCall) {
   assert(0);
 }
 
