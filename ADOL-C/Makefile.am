@@ -48,5 +48,8 @@ lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
 lib@adolclib@_la_LDFLAGS  += @COLPACK_LIBS@
 endif
 
+CC = $(saveCC)
+CXX = $(saveCXX)
+
 test: lib@adolclib@.la
 	cd test; $(MAKE) test

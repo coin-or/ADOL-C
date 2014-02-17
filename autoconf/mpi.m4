@@ -57,6 +57,11 @@ then
   MPICXX="$with_mpi_root/bin/$MPICXX"
 fi
 
+saveCC="$CC"
+saveCXX="$CXX"
+AC_SUBST(saveCC)
+AC_SUBST(saveCXX)
+
 if test x"$adolc_ampi_support" = "xyes"; 
 then
   CC="$MPICC"

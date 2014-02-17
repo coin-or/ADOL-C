@@ -57,7 +57,6 @@ AM_CONDITIONAL(BUILD_ADOLC_AMPI_SUPPORT,[test x${adolc_ampi_support} = xyes])
 if test x"${adolc_ampi_support}" = xyes ; then
 AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
 fi
-MPI_CONF_PRE
 
 # checks for programs
 AC_PROG_CXX
@@ -68,6 +67,8 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
+
+MPI_CONF_PRE
 
 AC_CHECK_SIZEOF([void *])
 if test "x$ac_cv_sizeof_void_p" = "x8" ; then
