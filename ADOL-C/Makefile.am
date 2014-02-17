@@ -13,15 +13,15 @@
 AUTOMAKE_OPTIONS     = foreign
 
 if DOCEXA
-SUBDIRS              = src examples test
+SUBDIRS              = src . test examples
 else
 if ADDEXA
-SUBDIRS              = src examples test
+SUBDIRS              = src . test examples
 else
 if PAREXA
-SUBDIRS              = src examples test
+SUBDIRS              = src . test examples
 else
-SUBDIRS              = src test
+SUBDIRS              = src . test
 endif
 endif
 endif
@@ -30,7 +30,23 @@ SUBDIRS += include
 
 MAINTAINERCLEANFILES = Makefile.in 
 
-test: all
+lib_LTLIBRARIES = lib@adolclib@.la
+lib@adolclib@_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
+lib@adolclib@_la_SOURCES  =
+
+lib@adolclib@_la_LIBADD = src/libadolcsrc.la
+
+if BUILD_ADOLC_AMPI_SUPPORT
+lib@adolclib@_la_LIBADD  += src/libadolcampi.la
+lib@adolclib@_la_LDFLAGS += @AMPILIBS@
+endif
+
+lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la
+
+if SPARSE
+lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
+lib@adolclib@_la_LDFLAGS  += @COLPACK_LIBS@
+endif
+
+test: lib@adolclib@.la
 	cd test; $(MAKE) test
-
-

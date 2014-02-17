@@ -25,23 +25,17 @@ MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 
 EXTRA_DIST           = uni5_for.c fo_rev.c ho_rev.c
 
-
+noinst_LTLIBRARIES      = libadolcsrc.la
+libadolcsrc_la_LDFLAGS  =
 
 if BUILD_ADOLC_AMPI_SUPPORT
-lib_LTLIBRARIES      = libadolc_ampi.la
-noinst_LTLIBRARIES   = libadolc.la
-libadolc_ampi_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
-libadolc_la_LDFLAGS  =
-libadolc_ampi_la_LIBADD = libadolc.la
-libadolc_ampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
+noinst_LTLIBRARIES       += libadolcampi.la
+libadolcampi_la_SOURCES  = ampisupport.cpp ampisupportAdolc.cpp \
                            ampisupportAdolc.h
-else
-lib_LTLIBRARIES      = libadolc.la
-libadolc_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
 endif
 
 
-libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
+libadolcsrc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c \
                        interfaces.cpp interfacesf.c \
                        taping.c tape_handling.cpp \
@@ -57,15 +51,11 @@ libadolc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
                        advector.cpp adouble_tl.cpp
 
-libadolc_la_LIBADD   = drivers/libdrivers.la tapedoc/libtapedoc.la
-
 if SPARSE
-libadolc_la_SOURCES  += int_forward_s.c int_forward_t.c \
+libadolcsrc_la_SOURCES  += int_forward_s.c int_forward_t.c \
                        indopro_forward_s.c indopro_forward_t.c \
                        nonl_ind_forward_s.c nonl_ind_forward_t.c \
                        nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
                        int_reverse_s.c int_reverse_t.c
 
-libadolc_la_LIBADD   += sparse/libsparse.la
-libadolc_la_LDFLAGS  += @COLPACK_LIBS@
 endif

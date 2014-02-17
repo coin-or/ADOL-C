@@ -18,9 +18,9 @@ powexam_SOURCES         = powexam.cpp
 
 fminmax_SOURCES		= fminmax.cpp
 
-powexam_LDADD           = ../src/lib${adolclib}.la
-speelpenning_LDADD = ../src/lib${adolclib}.la
-fminmax_LDADD		= ../src/lib${adolclib}.la
+powexam_LDADD           = ../lib${adolclib}.la
+speelpenning_LDADD = ../lib${adolclib}.la
+fminmax_LDADD		= ../lib${adolclib}.la
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@

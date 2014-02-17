@@ -454,6 +454,11 @@ AC_ARG_WITH(cxxflags,
 MPI_CONF_POST
 AMPI_CONF
 
+AC_ARG_WITH(soname,
+            [AS_HELP_STRING([--with-soname=NAME],
+              [user can choose what to call his library here [default: if ampi enabled then adolc_ampi otherwise adolc]])],
+      [adolclib=$withval])
+
 AC_SUBST(adolclib)
 
 AC_MSG_CHECKING(whether tape_doc should compute values as it prints the tape contents)

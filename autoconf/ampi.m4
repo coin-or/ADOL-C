@@ -22,11 +22,11 @@ fi
 
 if test x"$adolc_ampi_support" = "xyes"; 
 then 
-  LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
+  AMPILIBS="-lampiCommon -lampiBookkeeping -lampiTape"
 
   keepLIBS="$LIBS"
 
-  LIBS="$LIBS -lampiADtoolStubsOO" 
+  LIBS="$AMPILIBS $LIBS -lampiADtoolStubsOO" 
 
   AC_MSG_CHECKING([libampiCommon (provided by AMPI)])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([#include "ampi/ampi.h"],
@@ -36,6 +36,7 @@ then
                AC_MSG_FAILURE([libampiCommon is required by $PACKAGE])])
 
   LIBS="$keepLIBS"
+  AC_SUBST(AMPILIBS)
   adolclib=adolc_ampi
 fi
 ])
