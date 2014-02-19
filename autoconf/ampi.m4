@@ -25,7 +25,6 @@ then
   LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
 
   keepLIBS="$LIBS"
-
   LIBS="$LIBS -lampiADtoolStubsOO" 
 
   AC_MSG_CHECKING([libampiCommon (provided by AMPI)])
