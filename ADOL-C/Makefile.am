@@ -49,5 +49,7 @@ endif
 CC = $(saveCC)
 CXX = $(saveCXX)
 
-test: lib@adolclib@.la
+test:
 	cd test; $(MAKE) test
+
+.PHONY: test

@@ -46,3 +46,4 @@ endif
 test: all
 	cd ADOL-C; $(MAKE) test
 
+.PHONY: test
