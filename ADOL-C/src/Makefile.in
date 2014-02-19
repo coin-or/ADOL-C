@@ -81,20 +81,20 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@SPARSE_TRUE@am__append_1 = int_forward_s.c int_forward_t.c \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am__append_1 = libadolcampi.la
+@SPARSE_TRUE@am__append_2 = int_forward_s.c int_forward_t.c \
 @SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
 @SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
 @SPARSE_TRUE@                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
 @SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c
 
-@SPARSE_TRUE@am__append_2 = sparse/libsparse.la
-@SPARSE_TRUE@am__append_3 = @COLPACK_LIBS@
 subdir = ADOL-C/src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/config.h.in $(top_srcdir)/autoconf/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
 	$(top_srcdir)/autoconf/ampi.m4 \
+	$(top_srcdir)/autoconf/colpack.m4 \
 	$(top_srcdir)/autoconf/libtool.m4 \
 	$(top_srcdir)/autoconf/ltoptions.m4 \
 	$(top_srcdir)/autoconf/ltsugar.m4 \
@@ -107,38 +107,21 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(libdir)"
-LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
-libadolc_la_DEPENDENCIES = drivers/libdrivers.la tapedoc/libtapedoc.la \
-	$(am__append_2)
-am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libadolcampi_la_LIBADD =
+am__libadolcampi_la_SOURCES_DIST = ampisupport.cpp \
+	ampisupportAdolc.cpp ampisupportAdolc.h
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolcampi_la_OBJECTS =  \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupport.lo \
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupportAdolc.lo
+libadolcampi_la_OBJECTS = $(am_libadolcampi_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolcampi_la_rpath =
+libadolcsrc_la_LIBADD =
+am__libadolcsrc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	convolut.c fortutils.c interfaces.cpp interfacesf.c taping.c \
 	tape_handling.cpp oplate.h taping_p.h malloc.h storemanager.h \
 	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
@@ -158,40 +141,21 @@ am__libadolc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@	nonl_ind_old_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_old_forward_t.lo int_reverse_s.lo \
 @SPARSE_TRUE@	int_reverse_t.lo
-am_libadolc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo convolut.lo \
-	fortutils.lo interfaces.lo interfacesf.lo taping.lo \
-	tape_handling.lo zos_forward.lo fos_forward.lo fov_forward.lo \
-	hos_forward.lo hov_forward.lo hov_wk_forward.lo fos_reverse.lo \
-	fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo hov_reverse.lo \
-	forward_partx.lo zos_an_forward.lo fos_an_reverse.lo \
-	fos_an_forward.lo fov_an_forward.lo externfcts.lo \
-	checkpointing.lo fixpoint.lo fov_offset_forward.lo revolve.lo \
-	advector.lo adouble_tl.lo $(am__objects_1)
-libadolc_la_OBJECTS = $(am_libadolc_la_OBJECTS)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
-libadolc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(libadolc_la_LDFLAGS) $(LDFLAGS) -o $@
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@am_libadolc_la_rpath = -rpath \
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	$(libdir)
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_la_rpath =
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_DEPENDENCIES =  \
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	libadolc.la
-am__libadolc_ampi_la_SOURCES_DIST = ampisupport.cpp \
-	ampisupportAdolc.cpp ampisupportAdolc.h
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_ampi_la_OBJECTS =  \
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupport.lo \
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	ampisupportAdolc.lo
-libadolc_ampi_la_OBJECTS = $(am_libadolc_ampi_la_OBJECTS)
-libadolc_ampi_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+am_libadolcsrc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
+	convolut.lo fortutils.lo interfaces.lo interfacesf.lo \
+	taping.lo tape_handling.lo zos_forward.lo fos_forward.lo \
+	fov_forward.lo hos_forward.lo hov_forward.lo hov_wk_forward.lo \
+	fos_reverse.lo fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo \
+	hov_reverse.lo forward_partx.lo zos_an_forward.lo \
+	fos_an_reverse.lo fos_an_forward.lo fov_an_forward.lo \
+	externfcts.lo checkpointing.lo fixpoint.lo \
+	fov_offset_forward.lo revolve.lo advector.lo adouble_tl.lo \
+	$(am__objects_1)
+libadolcsrc_la_OBJECTS = $(am_libadolcsrc_la_OBJECTS)
+libadolcsrc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(libadolc_ampi_la_LDFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libadolcsrc_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolc_ampi_la_rpath = -rpath \
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@	$(libdir)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -244,9 +208,9 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libadolc_la_SOURCES) $(libadolc_ampi_la_SOURCES)
-DIST_SOURCES = $(am__libadolc_la_SOURCES_DIST) \
-	$(am__libadolc_ampi_la_SOURCES_DIST)
+SOURCES = $(libadolcampi_la_SOURCES) $(libadolcsrc_la_SOURCES)
+DIST_SOURCES = $(am__libadolcampi_la_SOURCES_DIST) \
+	$(am__libadolcsrc_la_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -332,8 +296,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-COLPACK_CFLAGS = @COLPACK_CFLAGS@
-COLPACK_LIBS = @COLPACK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -442,6 +404,8 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+saveCC = @saveCC@
+saveCXX = @saveCXX@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -457,19 +421,12 @@ AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include -I
 @SPARSE_TRUE@SUBDIRS = drivers sparse tapedoc
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in
 EXTRA_DIST = uni5_for.c fo_rev.c ho_rev.c
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@lib_LTLIBRARIES = libadolc.la
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@lib_LTLIBRARIES = libadolc_ampi.la
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@noinst_LTLIBRARIES = libadolc.la
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_LDFLAGS = -version-info 2:1:1 -no-undefined
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@libadolc_la_LDFLAGS = -version-info \
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	2:1:1 -no-undefined \
-@BUILD_ADOLC_AMPI_SUPPORT_FALSE@	$(am__append_3)
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_la_LDFLAGS = $(am__append_3)
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_LIBADD = libadolc.la
-@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolc_ampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
+noinst_LTLIBRARIES = libadolcsrc.la $(am__append_1)
+libadolcsrc_la_LDFLAGS = 
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolcampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@                           ampisupportAdolc.h
 
-libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
+libadolcsrc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
 	fortutils.c interfaces.cpp interfacesf.c taping.c \
 	tape_handling.cpp oplate.h taping_p.h malloc.h storemanager.h \
 	externfcts_p.h checkpointing_p.h buffer_temp.h zos_forward.c \
@@ -479,8 +436,6 @@ libadolc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
 	zos_an_forward.c fos_an_reverse.c fos_an_forward.c \
 	fov_an_forward.c externfcts.cpp checkpointing.cpp fixpoint.cpp \
 	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
-	$(am__append_1)
-libadolc_la_LIBADD = drivers/libdrivers.la tapedoc/libtapedoc.la \
 	$(am__append_2)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -533,41 +488,6 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 distclean-hdr:
 	-rm -f config.h stamp-h1
 
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-	}
-
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
-	done
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; \
-	locs=`for p in $$list; do echo $$p; done | \
-	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
-	      sort -u`; \
-	test -z "$$locs" || { \
-	  echo rm -f $${locs}; \
-	  rm -f $${locs}; \
-	}
-
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
 	@list='$(noinst_LTLIBRARIES)'; \
@@ -579,11 +499,11 @@ clean-noinstLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libadolc.la: $(libadolc_la_OBJECTS) $(libadolc_la_DEPENDENCIES) $(EXTRA_libadolc_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(libadolc_la_LINK) $(am_libadolc_la_rpath) $(libadolc_la_OBJECTS) $(libadolc_la_LIBADD) $(LIBS)
+libadolcampi.la: $(libadolcampi_la_OBJECTS) $(libadolcampi_la_DEPENDENCIES) $(EXTRA_libadolcampi_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK) $(am_libadolcampi_la_rpath) $(libadolcampi_la_OBJECTS) $(libadolcampi_la_LIBADD) $(LIBS)
 
-libadolc_ampi.la: $(libadolc_ampi_la_OBJECTS) $(libadolc_ampi_la_DEPENDENCIES) $(EXTRA_libadolc_ampi_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(libadolc_ampi_la_LINK) $(am_libadolc_ampi_la_rpath) $(libadolc_ampi_la_OBJECTS) $(libadolc_ampi_la_LIBADD) $(LIBS)
+libadolcsrc.la: $(libadolcsrc_la_OBJECTS) $(libadolcsrc_la_DEPENDENCIES) $(EXTRA_libadolcsrc_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libadolcsrc_la_LINK)  $(libadolcsrc_la_OBJECTS) $(libadolcsrc_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -843,9 +763,6 @@ check: check-recursive
 all-am: Makefile $(LTLIBRARIES) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -879,8 +796,8 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-recursive
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstLTLIBRARIES mostlyclean-am
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
@@ -906,7 +823,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am:
 
 install-html: install-html-recursive
 
@@ -946,25 +863,24 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am:
 
 .MAKE: $(am__recursive_targets) all install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
-	check-am clean clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-noinstLTLIBRARIES cscopelist-am ctags \
-	ctags-am distclean distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
+	check-am clean clean-generic clean-libtool \
+	clean-noinstLTLIBRARIES cscopelist-am ctags ctags-am distclean \
+	distclean-compile distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES
+	tags tags-am uninstall uninstall-am
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

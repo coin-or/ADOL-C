@@ -87,6 +87,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
 	$(top_srcdir)/autoconf/ampi.m4 \
+	$(top_srcdir)/autoconf/colpack.m4 \
 	$(top_srcdir)/autoconf/libtool.m4 \
 	$(top_srcdir)/autoconf/ltoptions.m4 \
 	$(top_srcdir)/autoconf/ltsugar.m4 \
@@ -185,8 +186,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-COLPACK_CFLAGS = @COLPACK_CFLAGS@
-COLPACK_LIBS = @COLPACK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -295,6 +294,8 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+saveCC = @saveCC@
+saveCXX = @saveCXX@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -305,7 +306,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
 AM_CXXFLAGS = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1 -DSPARSE=1
-AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src  @COLPACK_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 noinst_LTLIBRARIES = libsparse.la
 libsparse_la_SOURCES = sparse_fo_rev.cpp sparsedrivers.cpp

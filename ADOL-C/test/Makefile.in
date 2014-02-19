@@ -89,6 +89,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
 	$(top_srcdir)/autoconf/ampi.m4 \
+	$(top_srcdir)/autoconf/colpack.m4 \
 	$(top_srcdir)/autoconf/libtool.m4 \
 	$(top_srcdir)/autoconf/ltoptions.m4 \
 	$(top_srcdir)/autoconf/ltsugar.m4 \
@@ -104,17 +105,17 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_fminmax_OBJECTS = fminmax.$(OBJEXT)
 fminmax_OBJECTS = $(am_fminmax_OBJECTS)
-fminmax_DEPENDENCIES = ../src/lib${adolclib}.la
+fminmax_DEPENDENCIES = ../lib${adolclib}.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 am_powexam_OBJECTS = powexam.$(OBJEXT)
 powexam_OBJECTS = $(am_powexam_OBJECTS)
-powexam_DEPENDENCIES = ../src/lib${adolclib}.la
+powexam_DEPENDENCIES = ../lib${adolclib}.la
 am_speelpenning_OBJECTS = speelpenning.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
-speelpenning_DEPENDENCIES = ../src/lib${adolclib}.la
+speelpenning_DEPENDENCIES = ../lib${adolclib}.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -194,8 +195,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-COLPACK_CFLAGS = @COLPACK_CFLAGS@
-COLPACK_LIBS = @COLPACK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -304,6 +303,8 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+saveCC = @saveCC@
+saveCXX = @saveCXX@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -315,9 +316,9 @@ top_srcdir = @top_srcdir@
 speelpenning_SOURCES = speelpenning.cpp
 powexam_SOURCES = powexam.cpp
 fminmax_SOURCES = fminmax.cpp
-powexam_LDADD = ../src/lib${adolclib}.la
-speelpenning_LDADD = ../src/lib${adolclib}.la
-fminmax_LDADD = ../src/lib${adolclib}.la
+powexam_LDADD = ../lib${adolclib}.la
+speelpenning_LDADD = ../lib${adolclib}.la
+fminmax_LDADD = ../lib${adolclib}.la
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
 

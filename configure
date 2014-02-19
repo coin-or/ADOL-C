@@ -646,8 +646,6 @@ ADDEXA_FALSE
 ADDEXA_TRUE
 DOCEXA_FALSE
 DOCEXA_TRUE
-COLPACK_LIBS
-COLPACK_CFLAGS
 SPARSE_FALSE
 SPARSE_TRUE
 HAVE_LIBCOLPACK_FALSE
@@ -662,6 +660,8 @@ ADOLC_VERSION
 ac_aux_dir
 LIBOBJS
 _lib
+saveCXX
+saveCC
 CXXCPP
 OTOOL64
 OTOOL
@@ -793,9 +793,6 @@ enable_option_checking
 enable_silent_rules
 enable_maintainer_mode
 enable_ampi
-with_mpi_root
-with_mpicc
-with_mpicxx
 enable_dependency_tracking
 enable_shared
 enable_static
@@ -804,6 +801,9 @@ enable_fast_install
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+with_mpi_root
+with_mpicc
+with_mpicxx
 enable_use_calloc
 enable_atrig_erf
 enable_ulong
@@ -823,6 +823,7 @@ enable_parexa
 with_cflags
 with_cxxflags
 with_ampi
+with_soname
 enable_tapedoc_values
 '
       ac_precious_vars='build_alias
@@ -1519,14 +1520,14 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-mpi-root=MPIROOT absolute path to the MPI root directory
-  --with-mpicc=MPICC      name of the MPI C++ compiler to use (default mpicc)
-  --with-mpicxx=MPICXX    name of the MPI C++ compiler to use (default mpicxx)
   --with-pic[=PKGS]       try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot=DIR Search for dependent libraries within DIR
                         (or the compiler's sysroot if not specified).
+  --with-mpi-root=MPIROOT absolute path to the MPI root directory
+  --with-mpicc=MPICC      name of the MPI C++ compiler to use (default mpicc)
+  --with-mpicxx=MPICXX    name of the MPI C++ compiler to use (default mpicxx)
   --with-openmp-flag=FLAG use FLAG to enable OpenMP at compile time
                           [default=none]
 
@@ -1536,6 +1537,9 @@ Optional Packages:
   --with-cxxflags=FLAGS   use CXXFLAGS=FLAGS (default: -O2)
   --with-ampi=AMPI_DIR    full path to the installation of adjoinable MPI
                           (AMPI)
+  --with-soname=NAME      user can choose what to call his library here
+                          [default: if ampi enabled then adolc_ampi otherwise
+                          adolc]
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -3465,80 +3469,6 @@ if test x"${adolc_ampi_support}" = xyes ; then
 $as_echo "#define ADOLC_AMPI_SUPPORT 1" >>confdefs.h
 
 fi
-
-
-
-# MPI root directory
-
-# Check whether --with-mpi_root was given.
-if test "${with_mpi_root+set}" = set; then :
-  withval=$with_mpi_root;
-fi
-
-
-if test x"$with_mpi_root" != "x";
-then
-  if test x"$adolc_ampi_support" = "xno";
-  then
-    as_fn_error $? "if --with-mpi-root is set one  must also --enable_ampi" "$LINENO" 5
-  fi
-  MPIROOT="$with_mpi_root"
-fi
-
-
-# Check whether --with-mpicc was given.
-if test "${with_mpicc+set}" = set; then :
-  withval=$with_mpicc;
-fi
-
-
-if test x"$with_mpicc" != "x";
-then
-  if test x"$adolc_ampi_support" = "xno";
-  then
-    as_fn_error $? "if --with-mpicc is set one  must also --enable-ampi" "$LINENO" 5
-  fi
-  MPICC="$with_mpicc"
-else
-  MPICC="mpicc"
-fi
-
-if test x"$with_mpi_root" != "x";
-then
-  MPICC="$with_mpi_root/bin/$MPICC"
-fi
-
-
-
-# Check whether --with-mpicxx was given.
-if test "${with_mpicxx+set}" = set; then :
-  withval=$with_mpicxx;
-fi
-
-
-if test x"$with_mpicxx" != "x";
-then
-  if test x"$adolc_ampi_support" = "xno";
-  then
-    as_fn_error $? "if --with-mpicxx is set one  must also --enable-ampi" "$LINENO" 5
-  fi
-  MPICXX="$with_mpicxx"
-else
-  MPICXX="mpicxx"
-fi
-
-if test x"$with_mpi_root" != "x";
-then
-  MPICXX="$with_mpi_root/bin/$MPICXX"
-fi
-
-if test x"$adolc_ampi_support" = "xyes";
-then
-  CC="$MPICC"
-  CXX="$MPICXX"
-fi
-
-
 
 # checks for programs
 ac_ext=cpp
@@ -16015,6 +15945,86 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+
+
+# MPI root directory
+
+# Check whether --with-mpi_root was given.
+if test "${with_mpi_root+set}" = set; then :
+  withval=$with_mpi_root;
+fi
+
+
+if test x"$with_mpi_root" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpi-root is set one  must also --enable_ampi" "$LINENO" 5
+  fi
+  MPIROOT="$with_mpi_root"
+fi
+
+
+# Check whether --with-mpicc was given.
+if test "${with_mpicc+set}" = set; then :
+  withval=$with_mpicc;
+fi
+
+
+if test x"$with_mpicc" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpicc is set one  must also --enable-ampi" "$LINENO" 5
+  fi
+  MPICC="$with_mpicc"
+else
+  MPICC="mpicc"
+fi
+
+if test x"$with_mpi_root" != "x";
+then
+  MPICC="$with_mpi_root/bin/$MPICC"
+fi
+
+
+
+# Check whether --with-mpicxx was given.
+if test "${with_mpicxx+set}" = set; then :
+  withval=$with_mpicxx;
+fi
+
+
+if test x"$with_mpicxx" != "x";
+then
+  if test x"$adolc_ampi_support" = "xno";
+  then
+    as_fn_error $? "if --with-mpicxx is set one  must also --enable-ampi" "$LINENO" 5
+  fi
+  MPICXX="$with_mpicxx"
+else
+  MPICXX="mpicxx"
+fi
+
+if test x"$with_mpi_root" != "x";
+then
+  MPICXX="$with_mpi_root/bin/$MPICXX"
+fi
+
+saveCC="$CC"
+saveCXX="$CXX"
+
+
+
+if test x"$adolc_ampi_support" = "xyes";
+then
+  CC="$MPICC"
+  CXX="$MPICXX"
+fi
+
+
+
 # The cast to long int works around a bug in the HP C Compiler
 # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
 # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
@@ -17014,11 +17024,16 @@ $as_echo "no" >&6; }
 fi
 
 
+
+
+
+
+
 # Check whether --with-colpack was given.
 if test "${with_colpack+set}" = set; then :
   withval=$with_colpack;
 colpack=$withval
-COLPACK_CFLAGS="$ac_adolc_openmpflag -I$colpack/include"
+COLPACK_CFLAGS="-I$colpack/include"
 if test x${_lib} != xlib ; then
    D[0]="$colpack/${_lib}"
    D[1]="$colpack/lib"
@@ -17028,8 +17043,8 @@ fi
 
 else
 
-COLPACK_CFLAGS="$ac_adolc_openmpflag"
-COLPACK_LIBS="$ac_adolc_openmpflag -lColPack"
+COLPACK_CFLAGS=""
+COLPACK_LIBS="-lColPack"
 D[0]=""
 
 fi
@@ -17041,25 +17056,30 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
+save_CXXFLAGS="$CXXFLAGS"
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 CPPFLAGS="$CPPFLAGS $COLPACK_CFLAGS"
-
+CXXFLAGS="$CXXFLAGS $ac_adolc_openmpflag"
 ac_fn_cxx_check_header_mongrel "$LINENO" "ColPack/ColPackHeaders.h" "ac_cv_header_ColPack_ColPackHeaders_h" "$ac_includes_default"
 if test "x$ac_cv_header_ColPack_ColPackHeaders_h" = xyes; then :
   have_colpackheaders=yes
 else
-  have_colpackheaders=no
+
+have_colpackheaders=no
+CPPFLAGS="$save_CPPFLAGS"
+CXXFLAGS="$save_CXXFLAGS"
+
 fi
 
 
 for ((i=0; i < ${#D[@]} ; i++)); do
 COLPACK_LIBDIR="${D[$i]}"
 if test -n "$COLPACK_LIBDIR" ; then
-COLPACK_LIBS="$ac_adolc_openmpflag -L$COLPACK_LIBDIR -lColPack"
+COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
 fi
-LIBS="$COLPACK_LIBS $LIBS"
 if test x$have_colpackheaders = xyes ; then
+   LIBS="$COLPACK_LIBS $LIBS"
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libColPack in $COLPACK_LIBDIR" >&5
 $as_echo_n "checking for libColPack in $COLPACK_LIBDIR... " >&6; }
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -17084,13 +17104,13 @@ rm -f core conftest.err conftest.$ac_objext \
 $as_echo "$have_colpack" >&6; }
    if test x$have_colpack = xyes ; then
       break
+   else
+      LIBS="$save_LIBS"
    fi
 else
     have_colpack=no
 fi
 done
-CPPFLAGS="$save_CPPFLAGS"
-LIBS="$save_LIBS"
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -17110,6 +17130,15 @@ if test x$have_colpack = xyes; then
    sparse=yes
    echo "will build sparse drivers as linking with -lColPack succeeded"
 fi
+
+if test x$sparse = xyes && test x$have_colpack = xyes; then
+
+$as_echo "#define HAVE_LIBCOLPACK 1" >>confdefs.h
+
+fi
+
+
+
  if test x${sparse} = xyes; then
   SPARSE_TRUE=
   SPARSE_FALSE='#'
@@ -17118,22 +17147,12 @@ else
   SPARSE_FALSE=
 fi
 
+
 if test x$sparse = xyes ; then
 
 $as_echo "#define SPARSE 1" >>confdefs.h
 
 fi
-
-if test x$sparse = xyes && test x$have_colpack = xyes; then
-
-$as_echo "#define HAVE_LIBCOLPACK 1" >>confdefs.h
-
-else
-	COLPACK_CFLAGS=""
-	COLPACK_LIBS=""
-fi
-
-
 
 # ADOL-C Examples
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build documented examples" >&5
@@ -17374,7 +17393,6 @@ then
   LIBS="-lampiCommon -lampiBookkeeping -lampiTape $LIBS"
 
   keepLIBS="$LIBS"
-
   LIBS="$LIBS -lampiADtoolStubsOO"
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking libampiCommon (provided by AMPI)" >&5
@@ -17406,6 +17424,13 @@ rm -f core conftest.err conftest.$ac_objext \
 
   LIBS="$keepLIBS"
   adolclib=adolc_ampi
+fi
+
+
+
+# Check whether --with-soname was given.
+if test "${with_soname+set}" = set; then :
+  withval=$with_soname; adolclib=$withval
 fi
 
 
