@@ -35,8 +35,6 @@ then
                [AC_MSG_RESULT([no])
                AC_MSG_FAILURE([libampiCommon is required by $PACKAGE])])
 
-  LIBS="$keepLIBS"
-  AC_SUBST(AMPILIBS)
   adolclib=adolc_ampi
 fi
 ])
