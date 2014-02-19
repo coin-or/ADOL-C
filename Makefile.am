@@ -40,3 +40,4 @@ SUBDIRS              = ADOL-C
 test: all
 	cd ADOL-C; $(MAKE) test
 
+.PHONY: test
