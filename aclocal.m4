@@ -1075,6 +1075,7 @@ AC_SUBST([am__untar])
 
 m4_include([autoconf/acx_builtin.m4])
 m4_include([autoconf/ampi.m4])
+m4_include([autoconf/colpack.m4])
 m4_include([autoconf/libtool.m4])
 m4_include([autoconf/ltoptions.m4])
 m4_include([autoconf/ltsugar.m4])
