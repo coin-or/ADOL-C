@@ -44,7 +44,6 @@ lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la
 
 if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
-lib@adolclib@_la_LDFLAGS  += @COLPACK_LIBS@
 endif
 
 CC = $(saveCC)
