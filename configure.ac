@@ -78,7 +78,7 @@ else
    _lib=lib
 fi
 if test "x$libdir_set_on_cmd" = "xno" ; then
-   libdir='${exec_prefix}/${_lib}'
+   libdir='${exec_prefix}'/"${_lib}"
    AC_SUBST(_lib)
    AC_SUBST(libdir)
 fi
@@ -104,6 +104,7 @@ AC_FUNC_REALLOC
 if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
 AC_DEFINE_UNQUOTED([calloc],[rpl_calloc],[Define to rpl_calloc if the replacement function should be used.])
 fi
+
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
 AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
@@ -232,7 +233,7 @@ fi
 AC_MSG_CHECKING(whether the default adouble constructor should initialize the value to 0)
 AC_ARG_ENABLE(stdczero,
               [
-AS_HELP_STRING([--disable-stdczero],[adouble default constructor does not initialze the value to zero
+AS_HELP_STRING([--disable-stdczero],[adouble default constructor does not initialize the value to zero
 (improves performance but yields incorrect results for implicit array initializations, see manual) [default=enabled]])],
   [
   adolc_stdczero=no
@@ -247,10 +248,10 @@ if test x$adolc_stdczero == xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
 fi
 
-AC_MSG_CHECKING(wether the adouble varaibles have a late initialize option for functions like malloc/realloc)
+AC_MSG_CHECKING(whether the adouble variables have a late initialize option for functions like malloc/realloc)
 AC_ARG_ENABLE(lateinit,
               [
-AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With malloc or realloc that is not the case. With this option the adouble can do an late initialization.) [default=disabled]])],
+AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With malloc or realloc that is not the case. With this option the adouble can do a late initialization.) [default=disabled]])],
   [
   adolc_late_init=yes
   AC_MSG_RESULT(yes)
@@ -510,6 +511,7 @@ AC_CONFIG_FILES(Makefile
                 MSVisualStudio/v10/x64/sparse/config.h
                 MSVisualStudio/v10/x64/nosparse/config.h
 		adolc.spec
+                adolclib.pc
 )
 
 AC_OUTPUT
@@ -584,7 +586,7 @@ if ! ${writable} ; then
     echo -e \
 "  \033@<:@1;31mPrefix ${prefix} not writable
   please run ./configure --prefix=DIR
-  with a writable directory path otherwise administrator privilages
+  with a writable directory path otherwise administrator privileges
   will be required to run \`make install'\033@<:@0m"
     warn=true
 fi
