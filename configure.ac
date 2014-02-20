@@ -103,6 +103,7 @@ AC_FUNC_REALLOC
 if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
 AC_DEFINE_UNQUOTED([calloc],[rpl_calloc],[Define to rpl_calloc if the replacement function should be used.])
 fi
+
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
 AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
