@@ -42,7 +42,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = @adolclib@.pc
 
 @adolclib@.pc: adolclib.pc
-	mv $@ $<
+	mv $< $@
 
 test: all
 	cd ADOL-C; $(MAKE) test
