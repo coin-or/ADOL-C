@@ -908,7 +908,7 @@ uninstall-am: uninstall-pkgconfigDATA
 
 
 @adolclib@.pc: adolclib.pc
-	mv $@ $<
+	mv $< $@
 
 test: all
 	cd ADOL-C; $(MAKE) test
