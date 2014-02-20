@@ -326,6 +326,7 @@ MSVisualStudio/v10/x64/vcredist_x64.exe -text svneol=unset#unset
 /aclocal.m4 -text
 /adolc.spec -text
 /adolc.spec.in -text
+/adolclib.pc.in -text
 autoconf/acx_builtin.m4 -text
 autoconf/ampi.m4 -text
 autoconf/colpack.m4 -text
