@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: adolc
-Version: @VERSION@
+Name: @adolclib@
+Version: @PACKAGE_VERSION@
 Description: Algorithmic Differentiation Library for C/C++
-Requires:
-Libs: -L${libdir} -ladolc -Wl,--rpath -Wl,${libdir} @COLPACK_LIBS@
+Requires: 
+Libs: -L${libdir} -l@adolclib@ -Wl,--rpath -Wl,${libdir} @LDFLAGS@ @LIBS@
 Cflags: -I${includedir}
