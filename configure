@@ -1493,14 +1493,14 @@ Optional Features:
 
   --enable-harddebug      enable ADOL-C hard debug mode [default=no]
 
-  --disable-stdczero      adouble default constructor does not initialze the
+  --disable-stdczero      adouble default constructor does not initialize the
                           value to zero (improves performance but yields
                           incorrect results for implicit array
                           initializations, see manual) [default=enabled]
 
   --enable-lateinit       adouble constructors need to be called. With malloc
                           or realloc that is not the case. With this option
-                          the adouble can do an late initialization.)
+                          the adouble can do a late initialization.)
                           [default=disabled]
 
   --enable-tserrno        use errno as thread number cache [default=no]
@@ -16064,7 +16064,7 @@ else
    _lib=lib
 fi
 if test "x$libdir_set_on_cmd" = "xno" ; then
-   libdir='${exec_prefix}/${_lib}'
+   libdir='${exec_prefix}'/"${_lib}"
 
 
 fi
@@ -16680,6 +16680,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 fi
+
 # Checks for libraries and fuctions
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing pow" >&5
 $as_echo_n "checking for library containing pow... " >&6; }
@@ -16945,8 +16946,8 @@ $as_echo "#define ADOLC_ADOUBLE_STDCZERO 1" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking wether the adouble varaibles have a late initialize option for functions like malloc/realloc" >&5
-$as_echo_n "checking wether the adouble varaibles have a late initialize option for functions like malloc/realloc... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the adouble variables have a late initialize option for functions like malloc/realloc" >&5
+$as_echo_n "checking whether the adouble variables have a late initialize option for functions like malloc/realloc... " >&6; }
 # Check whether --enable-lateinit was given.
 if test "${enable_lateinit+set}" = set; then :
   enableval=$enable_lateinit;
@@ -17381,10 +17382,10 @@ then
     as_fn_error $? "if --with-ampi is set one  must also --enable-ampi" "$LINENO" 5
   fi
   CPPFLAGS="$CPPFLAGS -I$with_ampi/include"
-  LDFLAGS="$LDFLAGS -L$with_ampi/lib"
+  LDFLAGS="$LDFLAGS -L$with_ampi/lib -Wl,-rpath,$with_ampi/lib"
   if test x"$_lib" != "xlib" ;
   then
-     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib}"
+     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib} -Wl,-rpath,$with_ampi/${_lib}"
   fi
 fi
 
@@ -17476,7 +17477,7 @@ fi
 
 
 # output
-ac_config_files="$ac_config_files Makefile ADOL-C/Makefile ADOL-C/include/Makefile ADOL-C/include/adolc/Makefile ADOL-C/include/adolc/adolc_settings.h ADOL-C/include/adolc/drivers/Makefile ADOL-C/include/adolc/sparse/Makefile ADOL-C/include/adolc/tapedoc/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/cuda/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h adolc.spec"
+ac_config_files="$ac_config_files Makefile ADOL-C/Makefile ADOL-C/include/Makefile ADOL-C/include/adolc/Makefile ADOL-C/include/adolc/adolc_settings.h ADOL-C/include/adolc/drivers/Makefile ADOL-C/include/adolc/sparse/Makefile ADOL-C/include/adolc/tapedoc/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/cuda/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/test/Makefile MSVisualStudio/v10/sparse/config.h MSVisualStudio/v10/nosparse/config.h MSVisualStudio/v10/x64/sparse/config.h MSVisualStudio/v10/x64/nosparse/config.h adolc.spec adolclib.pc"
 
 
 cat >confcache <<\_ACEOF
@@ -18656,6 +18657,7 @@ do
     "MSVisualStudio/v10/x64/sparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/x64/sparse/config.h" ;;
     "MSVisualStudio/v10/x64/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v10/x64/nosparse/config.h" ;;
     "adolc.spec") CONFIG_FILES="$CONFIG_FILES adolc.spec" ;;
+    "adolclib.pc") CONFIG_FILES="$CONFIG_FILES adolclib.pc" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -20287,7 +20289,7 @@ if ! ${writable} ; then
     echo -e \
 "  \033[1;31mPrefix ${prefix} not writable
   please run ./configure --prefix=DIR
-  with a writable directory path otherwise administrator privilages
+  with a writable directory path otherwise administrator privileges
   will be required to run \`make install'\033[0m"
     warn=true
 fi
