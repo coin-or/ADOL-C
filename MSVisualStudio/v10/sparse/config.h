@@ -20,7 +20,7 @@
 #define ADOLC_PATCHLEVEL 0
 
 /* ADOL-C Subversion */
-#define ADOLC_SUBVERSION 4
+#define ADOLC_SUBVERSION 5
 
 /* ADOL-C tape_doc routine computes values */
 #define ADOLC_TAPE_DOC_VALUES 1
@@ -134,7 +134,7 @@
 #define PACKAGE_NAME "adolc"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "adolc 2.4.0-trunk"
+#define PACKAGE_STRING "adolc 2.5.0-stable"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "adolc"
@@ -143,7 +143,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.4.0-trunk"
+#define PACKAGE_VERSION "2.5.0-stable"
 
 /* The size of `void *', as computed by sizeof. */
 #define SIZEOF_VOID_P 4
@@ -161,7 +161,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.4.0-trunk"
+#define VERSION "2.5.0-stable"
 
 /* Define to rpl_calloc if the replacement function should be used. */
 #define calloc rpl_calloc
