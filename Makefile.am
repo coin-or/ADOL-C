@@ -37,6 +37,13 @@ EXTRA_DIST           = TODO BUGS LICENSE update_versions.sh \
 
 SUBDIRS              = ADOL-C
 
+# install pkg-config information
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = @adolclib@.pc
+
+@adolclib@.pc: adolclib.pc
+	mv $@ $<
+
 test: all
 	cd ADOL-C; $(MAKE) test
 
