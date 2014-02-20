@@ -13,10 +13,10 @@ then
     AC_MSG_ERROR([if --with-ampi is set one  must also --enable-ampi])
   fi
   CPPFLAGS="$CPPFLAGS -I$with_ampi/include"
-  LDFLAGS="$LDFLAGS -L$with_ampi/lib"
+  LDFLAGS="$LDFLAGS -L$with_ampi/lib -Wl,-rpath,$with_ampi/lib"
   if test x"$_lib" != "xlib" ;
   then
-     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib}"
+     LDFLAGS="$LDFLAGS -L$with_ampi/${_lib} -Wl,-rpath,$with_ampi/${_lib}"
   fi
 fi
 
