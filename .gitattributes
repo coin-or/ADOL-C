@@ -17,6 +17,7 @@ ADOL-C/doc/tapebasic.eps -text
 ADOL-C/doc/tapebasic.pdf -text svneol=unset#unset
 ADOL-C/doc/version.tex -text
 ADOL-C/doc/version.tex.in -text
+ADOL-C/dummy.cpp -text
 ADOL-C/examples/Makefile.am -text
 ADOL-C/examples/Makefile.in -text
 ADOL-C/examples/README -text
