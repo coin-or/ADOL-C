@@ -1274,6 +1274,7 @@ all comparisons  involving {\sf adouble}s have the same result as
 during taping. If this assumption is falsely made all drivers
 while internally calling the forward mode evaluation will return the value -1 or -2 
 as already specified in \autoref{reuse_tape}.  
+
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Drivers for Ordinary Differential Equations}
@@ -2330,6 +2331,9 @@ in fact be simpler, for example due to exact cancellations.
 
 There are also overloaded versions providing a general {\sf reverse}-call.
 Details of the appropriate calling sequences are given in the following \autoref{forw_rev}.
+
+
+\input{absdrivers}
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \section{Overloaded Forward and Reverse Calls}
@@ -3774,7 +3778,7 @@ The sparse drivers are included in the ADOL-C libraries if the
 \verb=--enable-sparse=. The ColPack library available at 
 \verb=http://www.cscapes.org/coloringpage/software.htm= is required to
 compute the sparse structures, and is searched for in all the default 
-locations as well as in the subdirectory \verb=<ThirdParty/ColPack/>=.
+locations. 
 In case the library and its headers are installed in a nonstandard path
 this may be specified with the \verb?--with-colpack=PATH? option.
 It is assumed that the library and its header files have the following
@@ -3788,6 +3792,23 @@ be used for linking.
 The option \verb=--disable-stdczero= turns off the initialization in the {\sf adouble} default 
 constructor. This will improve efficiency but requires that there be no implicit array initialization in the code, see 
 \autoref{WarSug}.  
+
+Support for MPI and the AdjoinableMPI API (see\\
+\verb=http://www.mcs.anl.gov/~utke/AdjoinableMPI/AdjoinableMPIDox/index.html=
+) may be enabled using the option \verb=--enable-ampi=. This requires
+the presence of MPI compiler wrappers \verb=mpicc= and \verb=mpicxx=
+in the \verb=$PATH= and the AdjoinableMPI libraries in the standard
+locations. If MPI is installed in a nonstandard path one may specify
+this using the \verb?--with-mpi=PATH? option. Similarly if the
+AdjoinableMPI libraries are in an nonstandard path this may be
+specified using the \verb?--with-ampi=PATH? option.  When MPI and
+AdjoinableMPI support is compiled into {\sf ADOL-C} the generated
+library will be unsuitable for linking with non-MPI
+programs and is called \verb=libadolc_ampi=. Therefore the user
+programs should use the flag \verb=-ladolc_ampi= instead of
+\verb=-ladolc= in this case. An advanced user may infact specify
+whatever name the resulting {\sf ADOL-C} library should have using the
+\verb?--with-soname=SONAME? option.
 
 
 \subsection{Compiling and Linking the Example Programs}
@@ -4496,6 +4517,10 @@ Assefaw Gebremedhin, Arijit Tarafdar, Fredrik Manne, and Alex Pothen,
 {\em New Acyclic and Star Coloring Algorithms with Applications to Hessian Computation}.
 SIAM Journal on Scientific Computing 29(3):1042--1072, 2007.
 
+\bibitem{Griewank13}
+Andreas Griewank,
+{\em On stable piecewise linearization and generalized algorithmic differentiation}.
+Optimization Methods and Software 28(6):1139--1178, 2013.
 
 \bibitem{GrWa08}
 Andreas Griewank and Andrea Walther: {\em Evaluating Derivatives, Principles and Techniques of
