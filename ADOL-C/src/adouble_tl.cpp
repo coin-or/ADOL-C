@@ -72,6 +72,7 @@ istream& operator >> ( istream& in, adouble& a) {
 	while (c!=')' && !in.eof());
 	return in;
     }
+    return in;
 }
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
