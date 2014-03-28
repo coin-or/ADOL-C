@@ -106,9 +106,6 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
                 double *val,int ncst, double* cst) {
     int i;
 
-    ++op_cnt;
-    --rev_op_cnt;
-
     checkPageBreak();
 
     /* write opcode counters and  number */
@@ -179,9 +176,6 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
 void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int *loc) {
     int i;
 
-    ++op_cnt;
-    --rev_op_cnt;
-
     checkPageBreak();
 
     /* write opcode counters and  number */
@@ -206,8 +200,6 @@ void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int 
 
 /*--------------------------------------------------------------------------*/
 void filewrite_end( int opcode ) {
-    ++op_cnt;
-    --rev_op_cnt;
 #ifdef ADOLC_TAPE_DOC_VALUES
   fprintf(fp," %i & %i & %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",op_cnt,rev_op_cnt, opcode);
 #else
@@ -281,12 +273,14 @@ void tape_doc(short tnum,         /* tape id */
 
     /* globals */
     op_cnt=0;
-    rev_op_cnt=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS];
+    rev_op_cnt=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+1;
 
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     operation=get_op_f();
     while (operation !=end_of_tape) {
+      ++op_cnt;
+      --rev_op_cnt;
         switch (operation) {
 
                 /****************************************************************************/
