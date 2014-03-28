@@ -1409,21 +1409,25 @@ void tape_doc(short tnum,         /* tape id */
               break;
 
             case ampi_allgatherv:
-                TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
-                for (l=0;l<*(loc_a+1);++l) {
-                  TAPE_AMPI_read_int(loc_a+2); /* rcnts */
-                  TAPE_AMPI_read_int(loc_a+2); /* displs */
-                }
-                if (*(loc_a+1)>0) {
-                  loc_a[2] = get_locint_f(); /* rbuf loc */
-                  TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
-                }
-                TAPE_AMPI_read_int(loc_a+3); /* count */
-                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
-                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
-                TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
-                filewrite_ampi(operation, "ampi allgatherv",4, loc_a);
-                break;
+	      size=0;
+	      TAPE_AMPI_read_int(loc_a+size++); /* commSizeForRootOrNull */
+	      for (l=0;l<*(loc_a);++l) {
+		TAPE_AMPI_read_int(loc_a+size); /* rcnts */
+		TAPE_AMPI_read_int(loc_a+size+1); /* displs */
+	      }
+	      if (*(loc_a)>0) {
+		size+=2;
+		loc_a[size++] = get_locint_f(); /* rbuf loc */
+		TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+	      }
+              loc_a[size++] = get_locint_f(); /* buf loc */
+	      TAPE_AMPI_read_int(loc_a+size++); /* count */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+	      TAPE_AMPI_read_int(loc_a+size++); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      TAPE_AMPI_read_int(loc_a); /* commSizeForRootOrNull */
+	      filewrite_ampi(operation, "ampi allgatherv",size, loc_a);
+	      break;
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
