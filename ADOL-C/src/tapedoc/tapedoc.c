@@ -278,9 +278,9 @@ void tape_doc(short tnum,         /* tape id */
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     operation=get_op_f();
+    ++op_cnt;
+    --rev_op_cnt;
     while (operation !=end_of_tape) {
-      ++op_cnt;
-      --rev_op_cnt;
         switch (operation) {
 
                 /****************************************************************************/
@@ -291,6 +291,8 @@ void tape_doc(short tnum,         /* tape id */
   	        filewrite(operation,"end of op",0,loc_a,val_a,0,cst_d);
                 get_op_block_f();
                 operation=get_op_f();
+		++op_cnt;
+		--rev_op_cnt;
                 /* Skip next operation, it's another end_of_op */
                 break;
 
@@ -1434,6 +1436,8 @@ void tape_doc(short tnum,         /* tape id */
 
         /* Read the next operation */
         operation=get_op_f();
+	++op_cnt;
+	--rev_op_cnt;
     }  /* endwhile */
 
     if (operation == end_of_tape) {
