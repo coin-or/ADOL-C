@@ -1577,7 +1577,7 @@ adub acosh ( const badouble& x ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
 
-    adouble y = 1.0 / sqrt(1.0 - x*x);
+    adouble y = 1.0 / sqrt(x*x-1.0);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(acosh_op,locat,x.loc(),y.loc());
         put_op(acosh_op);
