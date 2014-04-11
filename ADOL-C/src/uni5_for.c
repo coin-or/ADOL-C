@@ -4223,6 +4223,7 @@ int  hov_forward(
 				"ADOL-C Warning: Branch switch detected in comparison "
 				"(operator %s).\n"
 				"Results may be unpredictable! Retaping recommended!\n",opname);
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 		    dp_T0[res] = retval;
 		}
 #endif
