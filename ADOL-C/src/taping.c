@@ -48,6 +48,8 @@ ADOLC_ID adolc_id;
 #define ADOLC_NEW_TAPE_SUBVERSION 3
 #define ADOLC_NEW_TAPE_PATCHLEVEL 0
 
+extern void adolc_error(int errorcode, const char *what, const char *file, const char *line);
+
 /****************************************************************************/
 /****************************************************************************/
 /* HELP FUNCTIONS                                                           */
@@ -287,10 +289,11 @@ void fail( int error ) {
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
-            exit (-1);
+            adolc_error(-1, "", __FILE__, __LINE__);
             break;
     }
-    exit (error + 1);
+    adolc_error(error+1, "", __FILE__, __LINE__);
+    // exit (error + 1);
 }
 
 /* print an error message describing the error number */

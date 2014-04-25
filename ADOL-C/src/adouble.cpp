@@ -1992,3 +1992,27 @@ void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
 
 /****************************************************************************/
 /*                                                                THAT'S ALL*/
+
+#include <exception>
+#include <stdio.h>
+
+struct FatalError: public std::exception{
+    static const int MAX_MSG_SIZE = 4*1024;
+    char msg[MAX_MSG_SIZE];
+
+    FatalError(int errorcode, const char* what, const char* file, int line)
+    {
+        // need to use C-style functions that do not use exceptions themselves
+        snprintf(this->msg, MAX_MSG_SIZE, "errorcode=%d what=%s file=%s line=%d", errorcode, what, file, line);
+    }
+
+    virtual const char* what() const throw()
+    {
+        return msg;
+    }
+};
+
+
+extern "C" void adolc_error(int errorcode, const char *what, const char *file, int line){
+    throw FatalError(errorcode, what, file, line);
+}
