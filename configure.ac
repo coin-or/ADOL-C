@@ -48,6 +48,8 @@ for i in $config_flags ; do
     esac
 done
 
+AM_CONDITIONAL(DARWIN, [test "x${host_os#darwin}" != "x${host_os}"])
+
 AC_MSG_CHECKING(whether to build ADOL-C with adjoinable MPI (AMPI) support)
 AC_ARG_ENABLE(ampi,
               [AS_HELP_STRING([--enable-ampi],[build ADOL-C with adjoinable MPI (AMPI) support [default=disabled]])],
