@@ -38,6 +38,9 @@ lib@adolclib@_la_LIBADD = src/libadolcsrc.la
 
 if BUILD_ADOLC_AMPI_SUPPORT
 lib@adolclib@_la_LIBADD  += src/libadolcampi.la
+if DARWIN
+lib@adolclib@_la_LDFLAGS += -Wl,-undefined,dynamic_lookup
+endif
 endif
 
 lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la
