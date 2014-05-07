@@ -719,6 +719,8 @@ CXXFLAGS
 CXX
 BUILD_ADOLC_AMPI_SUPPORT_FALSE
 BUILD_ADOLC_AMPI_SUPPORT_TRUE
+DARWIN_FALSE
+DARWIN_TRUE
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
@@ -3444,6 +3446,15 @@ for i in $config_flags ; do
             ;;
     esac
 done
+
+ if test "x${host_os#darwin}" != "x${host_os}"; then
+  DARWIN_TRUE=
+  DARWIN_FALSE='#'
+else
+  DARWIN_TRUE='#'
+  DARWIN_FALSE=
+fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build ADOL-C with adjoinable MPI (AMPI) support" >&5
 $as_echo_n "checking whether to build ADOL-C with adjoinable MPI (AMPI) support... " >&6; }
@@ -17607,6 +17618,10 @@ fi
 
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error $? "conditional \"MAINTAINER_MODE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DARWIN_TRUE}" && test -z "${DARWIN_FALSE}"; then
+  as_fn_error $? "conditional \"DARWIN\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_ADOLC_AMPI_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_AMPI_SUPPORT_FALSE}"; then
