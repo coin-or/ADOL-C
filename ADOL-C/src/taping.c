@@ -287,10 +287,11 @@ void fail( int error ) {
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
-            exit (-1);
+            adolc_exit(-1, "", __func__, __FILE__, __LINE__);
             break;
     }
-    exit (error + 1);
+    adolc_exit(error+1, "", __func__,  __FILE__, __LINE__);
+    // exit (error + 1);
 }
 
 /* print an error message describing the error number */

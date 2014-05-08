@@ -663,6 +663,12 @@ void clearTapeBaseNames();
 /****************************************************************************/
 void markNewTape();
 
+/****************************************************************************/
+/* Allows us to throw an exception instead of calling exit() in case of a   */
+/* irrecoverable error                                                      */
+/****************************************************************************/
+void adolc_exit(int errorcode, const char *what, const char *function, const char* file, int line);
+
 END_C_DECLS
 
 /****************************************************************************/

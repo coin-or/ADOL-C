@@ -26,6 +26,7 @@
 #include <vector>
 #include <stack>
 #include <errno.h>
+#include <exception>
 
 using namespace std;
 
@@ -153,7 +154,7 @@ void StoreManagerLocint::grow() {
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%d) of live active variables exceeded\n\n", 
 	      std::numeric_limits<locint>::max());
-      exit(-3);
+      adolc_exit(-3,"",__func__,__FILE__,__LINE__);
     }
 
 #ifdef ADOLC_DEBUG
@@ -1338,7 +1339,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%u) of live active variables exceeded\n\n",
            std::numeric_limits<locint>::max());
-      exit(-3);
+      adolc_exit(-3,"",__func__,__FILE__,__LINE__);
     }
 
 #ifdef ADOLC_LOCDEBUG
@@ -1494,4 +1495,24 @@ void disableMinMaxUsingAbs() {
 		"                "
 		"call %s after trace_off() for the correct behaviour\n"
 		,__FUNCTION__);
+}
+
+class FatalError: public exception{
+protected:
+    static const int MAX_MSG_SIZE = 4*1024;
+    char msg[MAX_MSG_SIZE];
+
+public:
+    explicit FatalError(int errorcode, const char* what, const char* function, const char* file, int line) {
+        // need to use C-style functions that do not use exceptions themselves
+        snprintf(this->msg, MAX_MSG_SIZE, "errorcode=%d function=%s file=%s line=%d what=%s", errorcode, function, file, line, what);
+    }
+
+    virtual const char* what() const throw() {
+        return msg;
+    }
+};
+
+void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line) {
+    throw FatalError(errorcode, what, function, file, line);
 }

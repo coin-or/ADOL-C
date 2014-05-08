@@ -555,7 +555,7 @@ int hov_ti_reverse(
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
                 " preceded\nby a forward sweep with degree>%i,"
                 " keep=%i!\n",degre,degre+1);
-        exit(-2);
+        adolc_exit(-2,"",__func__,__FILE__,__LINE__);
     };
 
     if((numdep != depen)||(numind != indep)) {
@@ -563,7 +563,7 @@ int hov_ti_reverse(
                 "the number of\nindependent and/or dependent variables"
                 " given to reverse are\ninconsistent with that of the"
                 "  internal taylor array.\n",tnum);
-        exit(-2);
+        adolc_exit(-2,"",__func__,__FILE__,__LINE__);
     }
 
 
@@ -2118,7 +2118,7 @@ int hov_ti_reverse(
                      */
 		    if (arg1 != vectorloc+idx) {
 			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
-			exit(-2);
+			adolc_exit(-2,"",__func__,__FILE__,__LINE__);
 		    }
 		    GET_TAYL(res,k,p)
 		}
@@ -2553,7 +2553,7 @@ int hov_ti_reverse(
                 fprintf(DIAG_OUT,"ADOL-C fatal error in " GENERATED_FILENAME " ("
                         __FILE__
                         ") : no such operation %d\n", operation);
-                exit(-1);
+                adolc_exit(-1,"",__func__,__FILE__,__LINE__);
                 break;
         } /* endswitch */
 
