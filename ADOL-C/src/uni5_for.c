@@ -2318,10 +2318,11 @@ int  hov_forward(
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
-                /* olvo 980922 necessary for reverse */
+                /* olvo 980922 necessary for reverse 
+                   kk 20140508 I don't think so
                 if (arg == res) {
                     IF_KEEP_WRITE_TAYLOR(arg,keep,k,p)
-                }
+                } */
 
 #if !defined(_NTIGHT_)
 #if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)

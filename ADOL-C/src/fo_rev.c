@@ -1112,6 +1112,7 @@ int int_reverse_safe(
                 }
 
 #if !defined(_NTIGHT_)
+		if (arg != res)
                 ADOLC_GET_TAYLOR(res);
 #endif /* !_NTIGHT_ */
                 break;
