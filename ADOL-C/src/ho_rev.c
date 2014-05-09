@@ -1266,6 +1266,7 @@ int hov_ti_reverse(
                   }
             }
 
+		if (arg != res)
                 GET_TAYL(res,k,p)
                 break;
 
