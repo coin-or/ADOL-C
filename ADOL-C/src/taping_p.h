@@ -37,7 +37,9 @@ enum WORKMODES {
     ADOLC_FOS_REVERSE,
     ADOLC_FOV_REVERSE,
     ADOLC_HOS_REVERSE,
-    ADOLC_HOV_REVERSE
+    ADOLC_HOV_REVERSE,
+
+    ADOLC_TAPING
 };
 
 /****************************************************************************/
@@ -114,7 +116,8 @@ enum ADOLC_ERRORS {
     ADOLC_CHECKPOINTING_REVOLVE_IRREGULAR_TERMINATED,
     ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
     ADOLC_WRONG_PLATFORM_32,
-    ADOLC_WRONG_PLATFORM_64
+    ADOLC_WRONG_PLATFORM_64,
+    ADOLC_TAPING_NOT_ACTUALLY_TAPING
 };
 /* additional infos fail can work with */
 extern int failAdditionalInfo1;
