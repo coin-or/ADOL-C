@@ -284,6 +284,11 @@ void fail( int error ) {
 		    "ADOL-C error: Trace was created on a 32-bit platform, cannot be opened on 64-bit platform!\n"
 		);
 	    break;
+        case ADOLC_TAPING_NOT_ACTUALLY_TAPING:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace %d is not being currently created!\n",
+		    failAdditionalInfo1);
+	    break;
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
@@ -1068,6 +1073,7 @@ void start_trace() {
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
     ADOLC_CURRENT_TAPE_INFOS.num_eq_prod = 0;
     ADOLC_CURRENT_TAPE_INFOS.numSwitches = 0;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_TAPING;
 
     /* Put operation denoting the start_of_the tape */
     put_op(start_of_tape);

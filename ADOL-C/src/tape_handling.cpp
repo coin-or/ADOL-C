@@ -966,11 +966,16 @@ int trace_on(short tnum, int keepTaylors,
 void trace_off(int flag) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_TAPING) {
+	failAdditionalInfo1 = ADOLC_CURRENT_TAPE_INFOS.tapeID;
+	fail(ADOLC_TAPING_NOT_ACTUALLY_TAPING);
+    }
     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.keepTape = flag;
     keep_stock();         /* copy remaining live variables + trace_flag = 0 */
     stop_trace(flag);
     cout.flush();
     ADOLC_CURRENT_TAPE_INFOS.tapingComplete = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     releaseTape();
 }
 

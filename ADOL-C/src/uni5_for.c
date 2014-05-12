@@ -5330,6 +5330,7 @@ int  hov_forward(
     free(dp_z);
 #endif
 
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     end_sweep();
 
 

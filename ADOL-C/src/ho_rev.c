@@ -487,6 +487,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal *)malloc(k1 * sizeof(revreal));
     rp_Atemp2 = (revreal *)malloc(k1 * sizeof(revreal));
     rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_REVERSE;
     /*----------------------------------------------------------------------*/
 #elif _HOV_                                                          /* HOV */
     rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -512,6 +513,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Atemp2 = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Ttemp2 = (revreal*) malloc(k * sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
     /*----------------------------------------------------------------------*/
 #elif _HOS_OV_                                                    /* HOS_OV */
     rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -537,6 +539,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Atemp2 = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Ttemp2 = (revreal*) malloc(p*k*sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
 #endif
     rp_Ttemp  = (revreal*) malloc(k*sizeof(revreal));
     if (rp_Ttemp == NULL) fail(ADOLC_MALLOC_FAILED);
@@ -2586,6 +2589,7 @@ int hov_ti_reverse(
     free((char*) jj);
     free((char*) x);
 
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     end_sweep();
 
     return ret_c;

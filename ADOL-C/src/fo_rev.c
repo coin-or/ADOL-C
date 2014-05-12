@@ -449,6 +449,7 @@ int int_reverse_safe(
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_REVERSE;
 #ifdef _ABS_NORM_
     memset(results,0,sizeof(double)*(indep+swchk));
 #endif
@@ -475,6 +476,7 @@ int int_reverse_safe(
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
 #if !defined(ADOLC_USE_CALLOC)
     c_Ptr = (char *) ADOLC_GLOBAL_TAPE_VARS.dpp_A;
     *c_Ptr = 0;
@@ -2586,6 +2588,7 @@ int int_reverse_safe(
     free(upp_A);
 #endif
 
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     end_sweep();
 
     return ret_c;
