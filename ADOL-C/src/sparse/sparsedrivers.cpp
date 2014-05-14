@@ -1201,13 +1201,10 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     setNumDir(sJinfos.seed_clms);
     setMode(ADTL_FOV);
     {
-#ifdef __GNUC__
-	adouble x[n],y[m];
-#else
 	adouble *x, *y;
 	x = new adouble[n];
 	y = new adouble[m];
-#endif
+
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
       for (j=0; j < sJinfos.seed_clms; j++)
@@ -1219,10 +1216,9 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     for (i=0;i<m;i++)
        for (j=0; j< sJinfos.seed_clms;j++)
           sJinfos.B[i][j] = y[i].getADValue(j);
-#ifndef __GNUC__
+
 	delete[] x;
 	delete[] y;
-#endif
     }
 	/* recover compressed Jacobian => ColPack library */
 
