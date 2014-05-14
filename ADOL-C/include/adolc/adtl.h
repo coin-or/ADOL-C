@@ -274,19 +274,19 @@ enum ModeMask {
 #endif
 
 inline bool adouble::_do_val() {
-    return (forward_mode & ADTL_Z_MASK == ADTL_Z_MASK);
+    return ((forward_mode & ADTL_Z_MASK) == ADTL_Z_MASK);
 }
 #define do_val() likely(adouble::_do_val())
 #define no_do_val() unlikely(!adouble::_do_val())
 
 inline bool adouble::_do_adval() {
-    return (forward_mode & ADTL_F_MASK == ADTL_F_MASK);
+    return ((forward_mode & ADTL_F_MASK) == ADTL_F_MASK);
 }
 #define do_adval() likely(adouble::_do_adval())
 #define no_do_adval() unlikely(!adouble::_do_adval())
 
 inline bool adouble::_do_indo() {
-    return (forward_mode & ADTL_I_MASK == ADTL_I_MASK);
+    return ((forward_mode & ADTL_I_MASK) == ADTL_I_MASK);
 }
 #define do_indo() unlikely(adouble::_do_indo())
 #define no_do_indo() likely(!adouble::_do_indo())
