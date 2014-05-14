@@ -800,7 +800,7 @@ int bit_vector_propagation(
 
         if ( ! (indep_blocks_flags = (unsigned char*)
                                      calloc(i_blocks_per_strip, sizeof(char)) ) ) {
-            fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+            fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                     ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                     __LINE__, (int)(i_blocks_per_strip*sizeof(char)));
             exit(-1);
@@ -877,7 +877,7 @@ int bit_vector_propagation(
                 if ((k > 0 ) || ( strip_idx == 0 )) {
                     if ( ! (crs[j] = (unsigned int*)realloc(crs[j],
                                             (k_old+k+1)*sizeof(unsigned int))) ) {
-                        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+                        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                                  ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                                 __LINE__, (int)((k_old+k+1)*sizeof(unsigned int)));
                         exit(-1);
@@ -929,7 +929,7 @@ int bit_vector_propagation(
         /* allocate memory --------------------------------------------------- */
         if ( ! (indep_blocks_flags = (unsigned char*)calloc(indep,
                                      sizeof(unsigned char)) ) ) {
-            fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+            fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                     ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                     __LINE__, (int)(indep*sizeof(unsigned char)));
             exit(-1);
@@ -1009,7 +1009,7 @@ int bit_vector_propagation(
                     k += *i_b_flags++;
 
                 if ( ! (crs[d_bl_idx] = (unsigned int*)malloc((k+1)*sizeof(unsigned int))) ) {
-                    fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+                    fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                             ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                             __LINE__, (int)((k+1)*sizeof(unsigned int)));
                     exit(-1);
