@@ -176,7 +176,7 @@ void myfreeI2(int n, double** I) {
 unsigned int *myalloc1_uint(int m) {
     unsigned int *A = (unsigned int*)ADOLC_MALLOC(m,sizeof(unsigned int));
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc1_ushort cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned int)));
         exit (-1);
@@ -189,7 +189,7 @@ unsigned int *myalloc1_uint(int m) {
 unsigned long int *myalloc1_ulong(int m) {
     unsigned long int *A = (unsigned long int*)ADOLC_CALLOC(m,sizeof(unsigned long int));
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc1_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned long int)));
         exit (-1);
@@ -204,13 +204,13 @@ unsigned long int **myalloc2_ulong(int m,int n) {
     unsigned long int **A   = (unsigned long int**)ADOLC_CALLOC(m,sizeof(unsigned long int*));
     int i;
     if (Adum == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*n*sizeof(unsigned long int)));
         exit (-1);
     } /* endif */
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned long int*)));
         exit (-1);
