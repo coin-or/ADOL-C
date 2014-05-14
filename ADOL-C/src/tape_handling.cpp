@@ -755,7 +755,7 @@ void cleanUp() {
 	    if ((*tiIter)->signature != NULL)
 	    {
 		free((*tiIter)->signature);
-		((*tiIter)->signature == NULL);
+		(*tiIter)->signature = NULL;
 	    }
             if ((*tiIter)->tayBuffer != NULL)
             {
@@ -1287,7 +1287,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 #endif
     if (maxSize()-size()>n) {
       if (indexFree.front().size>=n) found = true;
-      if ((!found) && (double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize()) {
+      if ((!found) && ((double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize())) {
         consolidateBlocks();
 #ifdef ADOLC_LOCDEBUG
         std::cerr << "ADOLC: GC called consolidateBlocks because " << maxSize() << "/" << size() << ">" << gcTriggerRatio() << " or " << maxSize() << ">" << gcTriggerMaxSize() << " after " << ensure_blockCallsSinceLastConsolidateBlocks << std::endl;

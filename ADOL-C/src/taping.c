@@ -432,6 +432,13 @@ char *createFileName(short tapeID, int tapeType) {
 /****************************************************************************/
 /* Tries to read a local config file containing, e.g., buffer sizes         */
 /****************************************************************************/
+static char* duplicatestr(const char* instr) {
+    size_t len = strlen(instr);
+    char *outstr = calloc(len+1,sizeof(char));
+    strncpy(outstr,instr,len);
+    return outstr;
+}
+
 #define ADOLC_LINE_LENGTH 100
 void readConfigFile() {
     FILE *configFile = NULL;
@@ -441,13 +448,13 @@ void readConfigFile() {
     long int number = 0;
     char *path = NULL;
     int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
-    tapeBaseNames[0] = strdup(
+    tapeBaseNames[0] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);
-    tapeBaseNames[1] = strdup(
+    tapeBaseNames[1] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME);
-    tapeBaseNames[2] = strdup(
+    tapeBaseNames[2] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME);
-    tapeBaseNames[3] = strdup(
+    tapeBaseNames[3] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME);
 
     ADOLC_OPENMP_THREAD_NUMBER;

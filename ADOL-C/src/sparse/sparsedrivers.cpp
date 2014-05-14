@@ -800,7 +800,7 @@ int bit_vector_propagation(
 
         if ( ! (indep_blocks_flags = (unsigned char*)
                                      calloc(i_blocks_per_strip, sizeof(char)) ) ) {
-            fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+            fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                     ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                     __LINE__, (int)(i_blocks_per_strip*sizeof(char)));
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
@@ -877,7 +877,7 @@ int bit_vector_propagation(
                 if ((k > 0 ) || ( strip_idx == 0 )) {
                     if ( ! (crs[j] = (unsigned int*)realloc(crs[j],
                                             (k_old+k+1)*sizeof(unsigned int))) ) {
-                        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+                        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                                  ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                                 __LINE__, (int)((k_old+k+1)*sizeof(unsigned int)));
                         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
@@ -929,7 +929,7 @@ int bit_vector_propagation(
         /* allocate memory --------------------------------------------------- */
         if ( ! (indep_blocks_flags = (unsigned char*)calloc(indep,
                                      sizeof(unsigned char)) ) ) {
-            fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+            fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                     ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                     __LINE__, (int)(indep*sizeof(unsigned char)));
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
@@ -1009,7 +1009,7 @@ int bit_vector_propagation(
                     k += *i_b_flags++;
 
                 if ( ! (crs[d_bl_idx] = (unsigned int*)malloc((k+1)*sizeof(unsigned int))) ) {
-                    fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+                    fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                             ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
                             __LINE__, (int)((k+1)*sizeof(unsigned int)));
                     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
@@ -1138,13 +1138,9 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     //setNumDir(n);
     setMode(ADTL_INDO);
     {
-#ifdef __GNUC__
-	adouble x[n],y[m];
-#else
 	adouble *x, *y;
 	x = new adouble[n];
 	y = new adouble[m];
-#endif
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
       //x[i].setADValue(i,1);
@@ -1159,10 +1155,8 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     }
 
     ret_val = ADOLC_get_sparse_pattern(y, m, sJinfos.JP );
-#ifndef __GNUC__
 	delete[] x;
 	delete[] y;
-#endif
     }
     sJinfos.depen = m;
     sJinfos.nnz_in = 0;

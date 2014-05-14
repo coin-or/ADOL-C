@@ -429,7 +429,7 @@ int int_reverse_safe(
     }
     else if (swchk != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
 	fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
-		"match with the one recorded on tape %d (%d)\n",swchk,tnum,
+		"match with the one recorded on tape %d (%zu)\n",swchk,tnum,
 		ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
 	adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
