@@ -1025,7 +1025,7 @@ void initADOLC() {
 /****************************************************************************/
 /****************************************************************************/
 #if defined(_OPENMP)
-#include "adolc_openmp.h"
+#include <adolc/adolc_openmp.h>
 
 ADOLC_OpenMP ADOLC_OpenMP_Handler;
 ADOLC_OpenMP_NC ADOLC_OpenMP_Handler_NC;
