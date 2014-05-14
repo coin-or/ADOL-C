@@ -1138,13 +1138,9 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     //setNumDir(n);
     setMode(ADTL_INDO);
     {
-#ifdef __GNUC__
-	adouble x[n],y[m];
-#else
 	adouble *x, *y;
 	x = new adouble[n];
 	y = new adouble[m];
-#endif
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
       //x[i].setADValue(i,1);
@@ -1159,10 +1155,8 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
     }
 
     ret_val = ADOLC_get_sparse_pattern(y, m, sJinfos.JP );
-#ifndef __GNUC__
 	delete[] x;
 	delete[] y;
-#endif
     }
     sJinfos.depen = m;
     sJinfos.nnz_in = 0;
