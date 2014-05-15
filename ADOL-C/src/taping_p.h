@@ -172,11 +172,6 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     int jacSolv_nax, jacSolv_modeold, jacSolv_cgd;
 
 #ifdef SPARSE
-    /* sparse derivative matrices */
-
-    int inJacSparseUse;
-    int inHessSparseUse;
-
     /* sparse Jacobian matrices */
 
     SparseJacInfos sJinfos;

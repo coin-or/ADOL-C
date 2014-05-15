@@ -356,8 +356,6 @@ int initNewTape(short tapeID) {
 				    newTapeInfos->pTapeInfos.sHinfos.hr, 
 				    newTapeInfos->pTapeInfos.sHinfos.p, 
 				    newTapeInfos->pTapeInfos.sHinfos.indep);	
-		newTapeInfos->pTapeInfos.inJacSparseUse=0;
-		newTapeInfos->pTapeInfos.inHessSparseUse=0;
 		newTapeInfos->pTapeInfos.sJinfos.B=NULL;
 		newTapeInfos->pTapeInfos.sJinfos.y=NULL;
 		newTapeInfos->pTapeInfos.sJinfos.g=NULL;
@@ -392,31 +390,6 @@ int initNewTape(short tapeID) {
     }
     newTapeInfos->traceFlag=1;
     newTapeInfos->inUse=1;
-#ifdef SPARSE
-    newTapeInfos->pTapeInfos.inJacSparseUse=0;
-    newTapeInfos->pTapeInfos.inHessSparseUse=0;
-    newTapeInfos->pTapeInfos.sJinfos.B=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.y=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.g=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.depen=0;
-    newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
-    newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
-    newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
-    newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.g=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
-    newTapeInfos->pTapeInfos.sHinfos.indep=0;
-    newTapeInfos->pTapeInfos.sHinfos.p=0;
-#endif
 
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
@@ -572,10 +545,6 @@ TapeInfos *getTapeInfos(short tapeID) {
     ADOLC_TAPE_INFOS_BUFFER.push_back(tapeInfos);
     tapeInfos->traceFlag=1;
     tapeInfos->inUse=0;
-#ifdef SPARSE
-    tapeInfos->pTapeInfos.inJacSparseUse=0;
-    tapeInfos->pTapeInfos.inHessSparseUse=0;
-#endif
     tapeInfos->tapingComplete = 1;
     read_tape_stats(tapeInfos);
     return tapeInfos;
@@ -1187,12 +1156,21 @@ void endParallel() {
 
 #endif /* _OPENMP */
 
+static void clearPersistantTapeInfos(TapeInfos* newTapeInfos) {
+    char *ptr;
+    ptr = (char*) &(newTapeInfos->pTapeInfos);
+    for (unsigned int i=0; i < sizeof(PersistantTapeInfos); ++i)
+	ptr[i] = 0;
+}
+
 TapeInfos::TapeInfos() {
     initTapeInfos(this);
+    clearPersistantTapeInfos(this);
 }
 
 TapeInfos::TapeInfos(short _tapeID) {
     initTapeInfos(this);
+    clearPersistantTapeInfos(this);
     tapeID = _tapeID;
     pTapeInfos.op_fileName = createFileName(tapeID, OPERATIONS_TAPE);
     pTapeInfos.loc_fileName = createFileName(tapeID, LOCATIONS_TAPE);
