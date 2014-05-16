@@ -21,6 +21,7 @@
 #define fabs(x) ((x) > 0 ? (x) : -(x))
 #define ceil(x) ((int)((x)+1) - (int)((x) == (int)(x)))
 
+extern "C" void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line);
 
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
@@ -162,7 +163,7 @@ int forward( short  tag,
         Y[0] = y;
     } else {
         fprintf(DIAG_OUT,"ADOL-C error: wrong Y dimension in forward \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 
     return rc;
@@ -184,7 +185,7 @@ int forward( short  tag,
 
     if (d != 0) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong X and Y dimensions in forward \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else
         rc = zos_forward(tag,m,n,keep,X,Y);
 
@@ -270,7 +271,7 @@ int reverse( short  tag,
 
     if (m != 1) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong u dimension in scalar-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else
         rc = hos_reverse(tag,m,n,d,&u,Z);
 
@@ -290,7 +291,7 @@ int reverse( short  tag,
 /* reverse(tag, m, n, 0, u[m], Z[n]), d=0                                   */
 { if (d != 0) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong Z dimension in scalar-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 
     return fos_reverse(tag,m,n,u,Z);
@@ -311,7 +312,7 @@ int reverse( short  tag,
 
     if (m != 1 || d != 0 ) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong u or Z dimension in scalar-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else
         rc = fos_reverse(tag,m,n,&u,Z);
     \
@@ -351,7 +352,7 @@ int reverse( short  tag,
 
     if (m != 1) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong U dimension in vector-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else { /* olvo 980727 ??? */
         /* double** upp = new double*[nrows]; */
         double **upp = (double**) malloc(q*sizeof(double*));
@@ -381,7 +382,7 @@ int reverse( short  tag,
 
     if (d != 0) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong degree in vector-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else
         rc = fov_reverse(tag,m,n,q,U,Z);
 
@@ -428,7 +429,7 @@ int reverse( short  tag,
 
     if ((m != 1) || (d != 0)) {
         fprintf(DIAG_OUT,"ADOL-C error:  wrong U dimension in vector-reverse \n");
-        exit(-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } else { /* olvo 980727 ??? */
         /* double ** upp = new double*[nrows]; */
         double **upp = (double**) malloc(q*sizeof(double*));

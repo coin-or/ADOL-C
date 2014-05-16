@@ -29,11 +29,14 @@
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
+
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::ostream;
 using std::istream;
+using std::logic_error;
 
 #include <adolc/common.h>
 
@@ -252,12 +255,12 @@ protected:
     adub( void ):badouble(0) {
         fprintf(DIAG_OUT,"ADOL-C error: illegal default construction of adub"
                 " variable\n");
-        exit(-2);
+        throw logic_error("illegal constructor call, errorcode=-2");
     };
     explicit adub( double ):badouble(0) {
         fprintf(DIAG_OUT,"ADOL-C error: illegal  construction of adub variable"
                 " from double\n");
-        exit(-2);
+        throw logic_error("illegal constructor call, errorcode=-2");
     };
 
 public:

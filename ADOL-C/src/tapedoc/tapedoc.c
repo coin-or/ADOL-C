@@ -59,7 +59,7 @@ void filewrite_start( int opcode ) {
     fileName[strlen(baseName)+num+strlen(extension)]=0;
     if ((fp = fopen(fileName,"w")) == NULL) {
         fprintf(DIAG_OUT,"cannot open file !\n");
-        exit(1);
+        adolc_exit(1,"",__func__,__FILE__,__LINE__);
     }
     free((void*)fileName);
     fprintf(fp,"\\documentclass{article}\n");
@@ -276,7 +276,7 @@ void tape_doc(short tnum,         /* tape id */
                 "number recorded on tape %d (%zu:%zu)\n", depcheck,
                 indcheck, tag, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 
     /* globals */
