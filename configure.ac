@@ -60,7 +60,9 @@ fi
 
 # checks for programs
 AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
