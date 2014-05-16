@@ -20,10 +20,12 @@
 #include <ostream>
 #include <adolc/common.h>
 #include <list>
+#include <stdexcept>
 
 using std::ostream;
 using std::istream;
 using std::list;
+using std::logic_error;
 
 namespace adtl {
 
@@ -478,7 +480,7 @@ inline adouble adouble::operator * (const adouble& a) const {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val())
 	tmp.val=val*a.val;
@@ -521,7 +523,7 @@ inline adouble adouble::operator / (const adouble& a) const {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val())
 	tmp.val=val/a.val;
@@ -539,7 +541,7 @@ inline adouble operator / (const double v, const adouble& a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val())
 	tmp.val=v/a.val;
@@ -594,7 +596,7 @@ inline adouble tan(const adouble& a) {
     double tmp2;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::tan(a.val);    
@@ -613,7 +615,7 @@ inline adouble exp(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::exp(a.val);
@@ -629,7 +631,7 @@ inline adouble log(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::log(a.val);
@@ -650,7 +652,7 @@ inline adouble sqrt(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
@@ -672,7 +674,7 @@ inline adouble sin(const adouble &a) {
     double tmp2;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sin(a.val);
@@ -691,7 +693,7 @@ inline adouble cos(const adouble &a) {
     double tmp2;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::cos(a.val);
@@ -709,7 +711,7 @@ inline adouble asin(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::asin(a.val);
@@ -727,7 +729,7 @@ inline adouble acos(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::acos(a.val);
@@ -745,7 +747,7 @@ inline adouble atan(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::atan(a.val);
@@ -768,7 +770,7 @@ inline adouble atan2(const adouble &a, const adouble &b) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::atan2(a.val, b.val);
@@ -794,7 +796,7 @@ inline adouble pow(const adouble &a, double v) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(a.val, v);
@@ -812,7 +814,7 @@ inline adouble pow(const adouble &a, const adouble &b) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(a.val, b.val);
@@ -833,7 +835,7 @@ inline adouble pow(double v, const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::pow(v, a.val);
@@ -851,7 +853,7 @@ inline adouble log10(const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::log10(a.val);
@@ -869,7 +871,7 @@ inline adouble sinh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::sinh(a.val);
@@ -887,7 +889,7 @@ inline adouble cosh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::cosh(a.val);
@@ -905,7 +907,7 @@ inline adouble tanh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::tanh(a.val);
@@ -925,7 +927,7 @@ inline adouble asinh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
@@ -943,7 +945,7 @@ inline adouble acosh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::acosh(a.val);
@@ -961,7 +963,7 @@ inline adouble atanh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::atanh(a.val);
@@ -980,7 +982,7 @@ inline adouble fabs (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP::fabs(a.val);
@@ -1028,7 +1030,7 @@ inline adouble fmax (const adouble &a, const adouble &b) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=a.val-b.val;
     if (tmp2<0) {
@@ -1068,7 +1070,7 @@ inline adouble fmax (double v, const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=v-a.val;
     if (tmp2<0) {
@@ -1104,7 +1106,7 @@ inline adouble fmax (const adouble &a, double v) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=a.val-v;
     if (tmp2<0) {
@@ -1140,7 +1142,7 @@ inline adouble fmin (const adouble &a, const adouble &b) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=a.val-b.val;
     if (tmp2<0) {
@@ -1181,7 +1183,7 @@ inline adouble fmin (double v, const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=v-a.val;
     if (tmp2<0) {
@@ -1217,7 +1219,7 @@ inline adouble fmin (const adouble &a, double v) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && (adouble::_do_adval() || adouble::_do_indo()))) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     double tmp2=a.val-v;
     if (tmp2<0) {
@@ -1272,7 +1274,7 @@ inline adouble ldexp (const double v, const adouble &a) {
 inline double frexp (const adouble &a, int* v) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }    
     return ADOLC_MATH_NSP::frexp(a.val, v);
 }
@@ -1282,7 +1284,7 @@ inline adouble erf (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) 
 	tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
@@ -1303,7 +1305,7 @@ inline void condassign( adouble &res, const adouble &cond,
 			const adouble &arg1, const adouble &arg2 ) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) {
 	if (cond.getValue() > 0) 
@@ -1317,7 +1319,7 @@ inline void condassign( adouble &res, const adouble &cond,
 			const adouble &arg ) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (do_val()) {
 	if (cond.getValue() > 0) 
@@ -1398,7 +1400,7 @@ inline adouble& adouble::operator *= (const double v) {
 inline adouble& adouble::operator *= (const adouble& a) {
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (likely(adouble::_do_adval() && adouble::_do_val())) 
 	FOR_I_EQ_0_LT_NUMDIR
@@ -1422,7 +1424,7 @@ inline adouble& adouble::operator /= (const double v) {
 inline adouble& adouble::operator /= (const adouble& a) {
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (likely(adouble::_do_adval() && adouble::_do_val())) 
 	FOR_I_EQ_0_LT_NUMDIR
@@ -1438,7 +1440,7 @@ inline adouble& adouble::operator /= (const adouble& a) {
 inline int adouble::operator ! () const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val==0.0;
 }
@@ -1447,7 +1449,7 @@ inline int adouble::operator ! () const {
 inline int adouble::operator != (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val!=a.val;
 }
@@ -1455,7 +1457,7 @@ inline int adouble::operator != (const adouble &a) const {
 inline int adouble::operator != (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val!=v;
 }
@@ -1463,7 +1465,7 @@ inline int adouble::operator != (const double v) const {
 inline int operator != (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v!=a.val;
 }
@@ -1471,7 +1473,7 @@ inline int operator != (const double v, const adouble &a) {
 inline int adouble::operator == (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val==a.val;
 }
@@ -1479,7 +1481,7 @@ inline int adouble::operator == (const adouble &a) const {
 inline int adouble::operator == (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val==v;
 }
@@ -1487,7 +1489,7 @@ inline int adouble::operator == (const double v) const {
 inline int operator == (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v==a.val;
 }
@@ -1495,7 +1497,7 @@ inline int operator == (const double v, const adouble &a) {
 inline int adouble::operator <= (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val<=a.val;
 }
@@ -1503,7 +1505,7 @@ inline int adouble::operator <= (const adouble &a) const {
 inline int adouble::operator <= (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val<=v;
 }
@@ -1511,7 +1513,7 @@ inline int adouble::operator <= (const double v) const {
 inline int operator <= (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v<=a.val;
 }
@@ -1519,7 +1521,7 @@ inline int operator <= (const double v, const adouble &a) {
 inline int adouble::operator >= (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val>=a.val;
 }
@@ -1527,7 +1529,7 @@ inline int adouble::operator >= (const adouble &a) const {
 inline int adouble::operator >= (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val>=v;
 }
@@ -1535,7 +1537,7 @@ inline int adouble::operator >= (const double v) const {
 inline int operator >= (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v>=a.val;
 }
@@ -1543,7 +1545,7 @@ inline int operator >= (const double v, const adouble &a) {
 inline int adouble::operator >  (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val>a.val;
 }
@@ -1551,7 +1553,7 @@ inline int adouble::operator >  (const adouble &a) const {
 inline int adouble::operator >  (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val>v;
 }
@@ -1559,7 +1561,7 @@ inline int adouble::operator >  (const double v) const {
 inline int operator >  (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v>a.val;
 }
@@ -1567,7 +1569,7 @@ inline int operator >  (const double v, const adouble &a) {
 inline int adouble::operator <  (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val<a.val;
 }
@@ -1575,7 +1577,7 @@ inline int adouble::operator <  (const adouble &a) const {
 inline int adouble::operator <  (const double v) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val<v;
 }
@@ -1583,7 +1585,7 @@ inline int adouble::operator <  (const double v) const {
 inline int operator <  (const double v, const adouble &a) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return v<a.val;
 }
@@ -1592,7 +1594,7 @@ inline int operator <  (const double v, const adouble &a) {
 inline double adouble::getValue() const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return val;
 }
@@ -1600,7 +1602,7 @@ inline double adouble::getValue() const {
 inline void adouble::setValue(const double v) {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     val=v;
 }
@@ -1608,7 +1610,7 @@ inline void adouble::setValue(const double v) {
 inline const double *const adouble::getADValue() const {
     if (no_do_adval()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return adval;
 }
@@ -1616,7 +1618,7 @@ inline const double *const adouble::getADValue() const {
 inline void adouble::setADValue(const double *const v) {
     if (no_do_adval()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=V_I;
@@ -1625,13 +1627,13 @@ inline void adouble::setADValue(const double *const v) {
 inline double adouble::getADValue(const unsigned int p) const {
     if (no_do_adval()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (p>=adouble::numDir) 
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"getADValue(...)\"!!!\n");
-        exit(-1);
+        throw logic_error("incorrect function call, errorcode=-1");
     }
     return adval[p];
 }
@@ -1639,13 +1641,13 @@ inline double adouble::getADValue(const unsigned int p) const {
 inline void adouble::setADValue(const unsigned int p, const double v) {
     if (no_do_adval()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (p>=adouble::numDir) 
     {
         fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
                 " while \"setADValue(...)\"!!!\n");
-        exit(-1);
+        throw logic_error("incorrect function call, errorcode=-1");
     }
     adval[p]=v;
 }
@@ -1653,7 +1655,7 @@ inline void adouble::setADValue(const unsigned int p, const double v) {
 inline const list<unsigned int>& adouble::get_pattern() const {
     if (no_do_indo()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     return pattern;
 }
@@ -1661,7 +1663,7 @@ inline const list<unsigned int>& adouble::get_pattern() const {
 inline void adouble::delete_pattern() {
     if (no_do_indo()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if ( !pattern.empty() )
 	pattern.clear();
@@ -1670,7 +1672,7 @@ inline void adouble::delete_pattern() {
 inline void adouble::add_to_pattern(const list<unsigned int>& v) {
     if (no_do_indo()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-	exit(1);
+	throw logic_error("incorrect function call, errorcode=1");
     }
     if (likely( pattern != v)) {
 	if( !v.empty() ){
@@ -1688,7 +1690,7 @@ inline void adouble::add_to_pattern(const list<unsigned int>& v) {
 inline size_t adouble::get_pattern_size() const {
     if (no_do_indo()) {
      fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
-     exit(1);
+     throw logic_error("incorrect function call, errorcode=1");
     }
     size_t s=0;
     if( !pattern.empty() )
