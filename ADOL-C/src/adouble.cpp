@@ -190,9 +190,9 @@ adub::~adub() {
 /*                                                                  HELPERS */
 
 adub* adubp_from_adub(const adub& a) {
-    locint locat = next_loc();
+    locint locat = a.loc();
+    const_cast<adub&>(a).isInit = false;
     adub *retp = new adub(locat);
-    (*retp).badouble::operator=(a);
     return retp;
 }
 
