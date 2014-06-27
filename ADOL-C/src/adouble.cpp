@@ -87,11 +87,12 @@ adouble::adouble() {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         put_op(assign_d_zero);
         ADOLC_PUT_LOCINT(location);   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
     }
     
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
     
     ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
 #endif
@@ -190,9 +191,9 @@ adub::~adub() {
 /*                                                                  HELPERS */
 
 adub* adubp_from_adub(const adub& a) {
-    locint locat = next_loc();
+    locint locat = a.loc();
+    const_cast<adub&>(a).isInit = false;
     adub *retp = new adub(locat);
-    (*retp).badouble::operator=(a);
     return retp;
 }
 
