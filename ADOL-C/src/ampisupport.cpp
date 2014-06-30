@@ -50,6 +50,7 @@ int AMPI_Init_NT(int* argc,
   ourADTOOL_AMPI_FPCollection.pushGSVinfo_fp=&ADTOOL_AMPI_pushGSVinfo;
   ourADTOOL_AMPI_FPCollection.popGSVinfo_fp=&ADTOOL_AMPI_popGSVinfo;
   ourADTOOL_AMPI_FPCollection.push_CallCode_fp=&ADTOOL_AMPI_push_CallCode;
+  ourADTOOL_AMPI_FPCollection.push_CallCodeReserve_fp=&ADTOOL_AMPI_push_CallCodeReserve;
   ourADTOOL_AMPI_FPCollection.pop_CallCode_fp=&ADTOOL_AMPI_pop_CallCode;
   ourADTOOL_AMPI_FPCollection.push_AMPI_Request_fp=&ADTOOL_AMPI_push_AMPI_Request;
   ourADTOOL_AMPI_FPCollection.pop_AMPI_Request_fp=&ADTOOL_AMPI_pop_AMPI_Request;
@@ -478,14 +479,24 @@ void ADTOOL_AMPI_push_CallCode(enum AMPI_CallCode_E thisCall) {
       case AMPI_ALLGATHER:
         put_op(ampi_allgather);
         break;
+      default:
+        assert(0);
+        break;
+    }
+  }
+}
+
+void ADTOOL_AMPI_push_CallCodeReserve(enum AMPI_CallCode_E thisCall, unsigned int numlocations) {
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    switch(thisCall) {
       case AMPI_GATHERV:
-        put_op(ampi_gatherv);
+        put_op_reserve(ampi_gatherv, numlocations);
         break;
       case AMPI_SCATTERV:
-        put_op(ampi_scatterv);
+        put_op_reserve(ampi_scatterv, numlocations);
         break;
       case AMPI_ALLGATHERV:
-         put_op(ampi_allgatherv);
+         put_op_reserve(ampi_allgatherv, numlocations);
          break;
       default:
         assert(0);
