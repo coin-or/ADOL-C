@@ -245,7 +245,7 @@ void ADTOOL_AMPI_pushSRinfo(void* buf,
 	+ dtdata->last_active_blocks[dt_idx]
 	+ sizeof(adouble)*(dtdata->last_active_block_lengths[dt_idx]-1);
     }
-    else { activeVarCount = count; bitCountToFirstActive = 0; bitCountToLastActive = count-1; }
+    else { activeVarCount = count; bitCountToFirstActive = 0; bitCountToLastActive = (count-1)*sizeof(adouble); }
     if (count>0) {
       assert(buf);
       locint start=((adouble*)((char*)buf+bitCountToFirstActive))->loc();
