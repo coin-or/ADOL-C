@@ -1577,8 +1577,8 @@ int hov_ti_reverse(
                                 if (coval == 1) {
                                     FOR_0_LE_i_LT_k
                                     { /* ! no tempory */
-                                        AARG_INC += ARES;
-                                        ARES_INC = 0.0;
+                                        Aarg[i] += Ares[i];
+                                        Ares[i] = 0.0;
                                     }
                                 } else {
                                     /* coval is an int > 1 */
