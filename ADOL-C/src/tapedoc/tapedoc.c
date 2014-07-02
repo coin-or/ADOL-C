@@ -281,8 +281,6 @@ void tape_doc(short tnum,         /* tape id */
     ++op_cnt;
     --rev_op_cnt;
     while (operation !=end_of_tape) {
-      ++op_cnt;
-      --rev_op_cnt;
         switch (operation) {
 
                 /****************************************************************************/
