@@ -249,19 +249,29 @@ class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class advector;
     friend ADOLC_DLL_EXPORT class adubref;
     friend ADOLC_DLL_EXPORT adub* adubp_from_adub(const adub&);
-    adub( adub const &) {}
-protected:
-    adub( locint lo ):badouble(lo) {};
-    adub( void ):badouble(0) {
+    adub( adub const &) {
+	isInit = false;
+        fprintf(DIAG_OUT,"ADOL-C error: illegal copy construction of adub"
+		" variable\n          ... adub objects must never be copied\n");
+        throw logic_error("illegal constructor call, errorcode=-2");
+    }
+    adub( void ) {
+	isInit = false;
         fprintf(DIAG_OUT,"ADOL-C error: illegal default construction of adub"
                 " variable\n");
         throw logic_error("illegal constructor call, errorcode=-2");
-    };
-    explicit adub( double ):badouble(0) {
+    }
+    explicit adub( double ) {
+	isInit = false;
         fprintf(DIAG_OUT,"ADOL-C error: illegal  construction of adub variable"
                 " from double\n");
         throw logic_error("illegal constructor call, errorcode=-2");
-    };
+    }
+protected:
+   /* this is the only logically legal constructor, which can be called by 
+    * friend classes and functions 
+    */
+   adub( locint lo ) : badouble(lo) {} 
 
 public:
 
