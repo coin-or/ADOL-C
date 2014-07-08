@@ -1349,6 +1349,11 @@ void read_tape_stats(TapeInfos *tapeInfos) {
     tapeInfos->tapingComplete = 1;
 }
 
+void skip_tracefile_cleanup(short tnum) {
+    TapeInfos *tinfo = getTapeInfos(tnum);
+    tinfo->pTapeInfos.skipFileCleanup = 1;
+}
+
 /****************************************************************************/
 /* Initialize a forward sweep. Get stats, open tapes, fill buffers, ...     */
 /****************************************************************************/
