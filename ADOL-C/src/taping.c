@@ -992,6 +992,8 @@ void get_taylors_p(locint loc, int degree, int numDir) {
         --T; /* skip the base point part */
     }
     /* now update the base point parts */
+    if (ADOLC_CURRENT_TAPE_INFOS.currTay == ADOLC_CURRENT_TAPE_INFOS.tayBuffer)
+	get_tay_block_r();
     --ADOLC_CURRENT_TAPE_INFOS.currTay;
     for (i = 0; i < numDir; ++i) {
         *T = *ADOLC_CURRENT_TAPE_INFOS.currTay;
