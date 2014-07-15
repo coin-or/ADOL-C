@@ -344,6 +344,7 @@ autoconf/ltversion.m4 -text
 autoconf/lt~obsolete.m4 -text
 autoconf/missing -text
 autoconf/mpi.m4 -text
+autoconf/stdcxx_11.m4 -text
 /configure -text
 /configure.ac -text
 /update_versions.sh -text

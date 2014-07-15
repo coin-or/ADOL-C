@@ -82,7 +82,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@am__append_1 = src/libadolcampi.la
-@SPARSE_TRUE@am__append_2 = src/sparse/libsparse.la
+@BUILD_ADOLC_AMPI_SUPPORT_TRUE@@DARWIN_TRUE@am__append_2 = -Wl,-undefined,dynamic_lookup
+@SPARSE_TRUE@am__append_3 = src/sparse/libsparse.la
 subdir = ADOL-C
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/autoconf/depcomp
@@ -95,7 +96,8 @@ am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
 	$(top_srcdir)/autoconf/ltsugar.m4 \
 	$(top_srcdir)/autoconf/ltversion.m4 \
 	$(top_srcdir)/autoconf/lt~obsolete.m4 \
-	$(top_srcdir)/autoconf/mpi.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/autoconf/mpi.m4 \
+	$(top_srcdir)/autoconf/stdcxx_11.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -133,7 +135,7 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 lib@adolclib@_la_DEPENDENCIES = src/libadolcsrc.la $(am__append_1) \
 	src/drivers/libdrivers.la src/tapedoc/libtapedoc.la \
-	$(am__append_2)
+	$(am__append_3)
 am_lib@adolclib@_la_OBJECTS = dummy.lo
 lib@adolclib@_la_OBJECTS = $(am_lib@adolclib@_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -283,6 +285,7 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GREP = @GREP@
+HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -390,11 +393,12 @@ AUTOMAKE_OPTIONS = foreign
 @DOCEXA_TRUE@SUBDIRS = src . test examples include
 MAINTAINERCLEANFILES = Makefile.in 
 lib_LTLIBRARIES = lib@adolclib@.la
-lib@adolclib@_la_LDFLAGS = -version-info 3:0:2 -no-undefined
+lib@adolclib@_la_LDFLAGS = -version-info 3:0:2 -no-undefined \
+	$(am__append_2)
 lib@adolclib@_la_SOURCES = dummy.cpp
 lib@adolclib@_la_LIBADD = src/libadolcsrc.la $(am__append_1) \
 	src/drivers/libdrivers.la src/tapedoc/libtapedoc.la \
-	$(am__append_2)
+	$(am__append_3)
 all: all-recursive
 
 .SUFFIXES:

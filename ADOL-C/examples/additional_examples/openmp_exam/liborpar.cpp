@@ -31,7 +31,7 @@ using namespace std;
 
 #ifdef _OPENMP
 #include <omp.h>
-#include <adolc_openmp.h>
+#include <adolc/adolc_openmp.h>
 #endif
 
 /* calculate path values */

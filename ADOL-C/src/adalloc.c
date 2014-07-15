@@ -36,6 +36,8 @@
 
 BEGIN_C_DECLS
 
+extern void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line);
+
 /****************************************************************************/
 /*                                              MEMORY MANAGEMENT UTILITIES */
 
@@ -47,7 +49,7 @@ double* myalloc1(size_t m) {
       if (A == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc1 cannot allocate %zd bytes\n",
                 (size_t)(m*sizeof(double)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
     }
     return A;
@@ -63,12 +65,12 @@ double** myalloc2(size_t m, size_t n) {
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
                 (size_t)(m*n*sizeof(double)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
       if (A == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
                 (size_t)(m*sizeof(double*)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
       for (i=0; i<m; i++) {
         A[i] = Adum;
@@ -89,17 +91,17 @@ double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
                 (size_t)(m*n*p*sizeof(double)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
       if (Apt == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
                 (size_t)(m*n*sizeof(double*)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
       if (A == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
                 (size_t)(m*sizeof(double**)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
       for (i=0; i<m; i++) {
         A[i] = Apt;
@@ -142,12 +144,12 @@ double   **myallocI2(int n) {
     if (Idum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myallocI2 cannot allocate %i bytes\n",
                 (int)((2*n-1)*sizeof(double)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
     if (I == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myallocI2 cannot allocate %i bytes\n",
                 (int)(n*sizeof(double*)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
     Idum += (n - 1);
     I[0] = Idum;
@@ -176,10 +178,10 @@ void myfreeI2(int n, double** I) {
 unsigned int *myalloc1_uint(int m) {
     unsigned int *A = (unsigned int*)ADOLC_MALLOC(m,sizeof(unsigned int));
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc1_ushort cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned int)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } /* endif */
     return A;
 }
@@ -189,10 +191,10 @@ unsigned int *myalloc1_uint(int m) {
 unsigned long int *myalloc1_ulong(int m) {
     unsigned long int *A = (unsigned long int*)ADOLC_CALLOC(m,sizeof(unsigned long int));
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc1_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned long int)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } /* endif */
     return A;
 }
@@ -204,16 +206,16 @@ unsigned long int **myalloc2_ulong(int m,int n) {
     unsigned long int **A   = (unsigned long int**)ADOLC_CALLOC(m,sizeof(unsigned long int*));
     int i;
     if (Adum == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*n*sizeof(unsigned long int)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } /* endif */
     if (A == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error, "__FILE__
+        fprintf(DIAG_OUT, "ADOL-C error, " __FILE__
                 ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
                 __LINE__, (int)(m*sizeof(unsigned long int*)));
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     } /* endif */
     for(i=0;i<m;i++) {
         A[i] = Adum;

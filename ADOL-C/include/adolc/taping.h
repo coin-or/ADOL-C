@@ -105,6 +105,8 @@ ADOLC_DLL_EXPORT void trace_off(int flag = 0);
 
 ADOLC_DLL_EXPORT bool isTaping();
 
+ADOLC_DLL_EXPORT void skip_tracefile_cleanup(short tnum);
+
 #endif
 
 #endif /* ADOLC_TAPING_H */

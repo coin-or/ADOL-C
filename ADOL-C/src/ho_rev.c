@@ -487,6 +487,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal *)malloc(k1 * sizeof(revreal));
     rp_Atemp2 = (revreal *)malloc(k1 * sizeof(revreal));
     rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_REVERSE;
     /*----------------------------------------------------------------------*/
 #elif _HOV_                                                          /* HOV */
     rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -512,6 +513,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Atemp2 = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Ttemp2 = (revreal*) malloc(k * sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
     /*----------------------------------------------------------------------*/
 #elif _HOS_OV_                                                    /* HOS_OV */
     rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -537,6 +539,7 @@ int hov_ti_reverse(
     rp_Atemp  = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Atemp2 = (revreal*) malloc(pk1 * sizeof(revreal));
     rp_Ttemp2 = (revreal*) malloc(p*k*sizeof(revreal));
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
 #endif
     rp_Ttemp  = (revreal*) malloc(k*sizeof(revreal));
     if (rp_Ttemp == NULL) fail(ADOLC_MALLOC_FAILED);
@@ -555,7 +558,7 @@ int hov_ti_reverse(
         fprintf(DIAG_OUT,"\n ADOL-C error: reverse fails because it was not"
                 " preceded\nby a forward sweep with degree>%i,"
                 " keep=%i!\n",degre,degre+1);
-        exit(-2);
+        adolc_exit(-2,"",__func__,__FILE__,__LINE__);
     };
 
     if((numdep != depen)||(numind != indep)) {
@@ -563,7 +566,7 @@ int hov_ti_reverse(
                 "the number of\nindependent and/or dependent variables"
                 " given to reverse are\ninconsistent with that of the"
                 "  internal taylor array.\n",tnum);
-        exit(-2);
+        adolc_exit(-2,"",__func__,__FILE__,__LINE__);
     }
 
 
@@ -1266,6 +1269,7 @@ int hov_ti_reverse(
                   }
             }
 
+		if (arg != res)
                 GET_TAYL(res,k,p)
                 break;
 
@@ -1573,8 +1577,8 @@ int hov_ti_reverse(
                                 if (coval == 1) {
                                     FOR_0_LE_i_LT_k
                                     { /* ! no tempory */
-                                        AARG_INC += ARES;
-                                        ARES_INC = 0.0;
+                                        Aarg[i] += Ares[i];
+                                        Ares[i] = 0.0;
                                     }
                                 } else {
                                     /* coval is an int > 1 */
@@ -2118,7 +2122,7 @@ int hov_ti_reverse(
                      */
 		    if (arg1 != vectorloc+idx) {
 			fprintf(DIAG_OUT, "ADOL-C error: indexed active position does not match referenced position\nindexed = %zu, referenced = %d\n", vectorloc+idx, arg1);
-			exit(-2);
+			adolc_exit(-2,"",__func__,__FILE__,__LINE__);
 		    }
 		    GET_TAYL(res,k,p)
 		}
@@ -2553,7 +2557,7 @@ int hov_ti_reverse(
                 fprintf(DIAG_OUT,"ADOL-C fatal error in " GENERATED_FILENAME " ("
                         __FILE__
                         ") : no such operation %d\n", operation);
-                exit(-1);
+                adolc_exit(-1,"",__func__,__FILE__,__LINE__);
                 break;
         } /* endswitch */
 
@@ -2585,6 +2589,7 @@ int hov_ti_reverse(
     free((char*) jj);
     free((char*) x);
 
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     end_sweep();
 
     return ret_c;
