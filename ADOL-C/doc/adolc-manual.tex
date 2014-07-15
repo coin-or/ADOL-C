@@ -729,6 +729,11 @@ the length of any of the buffers exceeds the maximal array lengths of
 defined in the header file \verb=<adolc/usrparms.h>=
 and may be adjusted by the user in the header file before compiling
 the ADOL-C library, or on runtime using a file named \verb=.adolcrc=. 
+Lines in this file must have the form
+\begin{verbatim}
+"VARIABLE" = "VALUE"
+\end{verbatim}
+where the quotation marks are mandatory.
 The filesystem folder, where the tapes files may be written to disk, 
 can be changed by changing the definition of {\sf TAPE\_DIR} in
 the header file \verb=<adolc/dvlparms.h>= before 

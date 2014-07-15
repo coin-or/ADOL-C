@@ -59,7 +59,7 @@ void filewrite_start( int opcode ) {
     fileName[strlen(baseName)+num+strlen(extension)]=0;
     if ((fp = fopen(fileName,"w")) == NULL) {
         fprintf(DIAG_OUT,"cannot open file !\n");
-        exit(1);
+        adolc_exit(1,"",__func__,__FILE__,__LINE__);
     }
     free((void*)fileName);
     fprintf(fp,"\\documentclass{article}\n");
@@ -105,9 +105,6 @@ void checkPageBreak() {
 void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
                 double *val,int ncst, double* cst) {
     int i;
-
-    ++op_cnt;
-    --rev_op_cnt;
 
     checkPageBreak();
 
@@ -179,9 +176,6 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
 void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int *loc) {
     int i;
 
-    ++op_cnt;
-    --rev_op_cnt;
-
     checkPageBreak();
 
     /* write opcode counters and  number */
@@ -206,8 +200,6 @@ void filewrite_ampi( unsigned short opcode, const char* opString, int nloc, int 
 
 /*--------------------------------------------------------------------------*/
 void filewrite_end( int opcode ) {
-    ++op_cnt;
-    --rev_op_cnt;
 #ifdef ADOLC_TAPE_DOC_VALUES
   fprintf(fp," %i & %i & %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",op_cnt,rev_op_cnt, opcode);
 #else
@@ -276,16 +268,18 @@ void tape_doc(short tnum,         /* tape id */
                 "number recorded on tape %d (%zu:%zu)\n", depcheck,
                 indcheck, tag, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
-        exit (-1);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 
     /* globals */
     op_cnt=0;
-    rev_op_cnt=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS];
+    rev_op_cnt=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+1;
 
     dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 
     operation=get_op_f();
+    ++op_cnt;
+    --rev_op_cnt;
     while (operation !=end_of_tape) {
         switch (operation) {
 
@@ -297,6 +291,8 @@ void tape_doc(short tnum,         /* tape id */
   	        filewrite(operation,"end of op",0,loc_a,val_a,0,cst_d);
                 get_op_block_f();
                 operation=get_op_f();
+		++op_cnt;
+		--rev_op_cnt;
                 /* Skip next operation, it's another end_of_op */
                 break;
 
@@ -1409,21 +1405,25 @@ void tape_doc(short tnum,         /* tape id */
               break;
 
             case ampi_allgatherv:
-                TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
-                for (l=0;l<*(loc_a+1);++l) {
-                  TAPE_AMPI_read_int(loc_a+2); /* rcnts */
-                  TAPE_AMPI_read_int(loc_a+2); /* displs */
-                }
-                if (*(loc_a+1)>0) {
-                  loc_a[2] = get_locint_f(); /* rbuf loc */
-                  TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
-                }
-                TAPE_AMPI_read_int(loc_a+3); /* count */
-                TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
-                TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
-                TAPE_AMPI_read_int(loc_a+1); /* commSizeForRootOrNull */
-                filewrite_ampi(operation, "ampi allgatherv",4, loc_a);
-                break;
+	      size=0;
+	      TAPE_AMPI_read_int(loc_a+size++); /* commSizeForRootOrNull */
+	      for (l=0;l<*(loc_a);++l) {
+		TAPE_AMPI_read_int(loc_a+size); /* rcnts */
+		TAPE_AMPI_read_int(loc_a+size+1); /* displs */
+	      }
+	      if (*(loc_a)>0) {
+		size+=2;
+		loc_a[size++] = get_locint_f(); /* rbuf loc */
+		TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* rtype */
+	      }
+              loc_a[size++] = get_locint_f(); /* buf loc */
+	      TAPE_AMPI_read_int(loc_a+size++); /* count */
+	      TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype); /* type */
+	      TAPE_AMPI_read_int(loc_a+size++); /* root */
+	      TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
+	      TAPE_AMPI_read_int(loc_a); /* commSizeForRootOrNull */
+	      filewrite_ampi(operation, "ampi allgatherv",size, loc_a);
+	      break;
 #endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
@@ -1436,6 +1436,8 @@ void tape_doc(short tnum,         /* tape id */
 
         /* Read the next operation */
         operation=get_op_f();
+	++op_cnt;
+	--rev_op_cnt;
     }  /* endwhile */
 
     if (operation == end_of_tape) {

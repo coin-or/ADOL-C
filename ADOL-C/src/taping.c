@@ -284,13 +284,19 @@ void fail( int error ) {
 		    "ADOL-C error: Trace was created on a 32-bit platform, cannot be opened on 64-bit platform!\n"
 		);
 	    break;
+        case ADOLC_TAPING_NOT_ACTUALLY_TAPING:
+	    fprintf(DIAG_OUT,
+		    "ADOL-C error: Trace %d is not being currently created!\n",
+		    failAdditionalInfo1);
+	    break;
 
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
-            exit (-1);
+            adolc_exit(-1, "", __func__, __FILE__, __LINE__);
             break;
     }
-    exit (error + 1);
+    adolc_exit(error+1, "", __func__,  __FILE__, __LINE__);
+    // exit (error + 1);
 }
 
 /* print an error message describing the error number */
@@ -426,6 +432,13 @@ char *createFileName(short tapeID, int tapeType) {
 /****************************************************************************/
 /* Tries to read a local config file containing, e.g., buffer sizes         */
 /****************************************************************************/
+static char* duplicatestr(const char* instr) {
+    size_t len = strlen(instr);
+    char *outstr = calloc(len+1,sizeof(char));
+    strncpy(outstr,instr,len);
+    return outstr;
+}
+
 #define ADOLC_LINE_LENGTH 100
 void readConfigFile() {
     FILE *configFile = NULL;
@@ -435,13 +448,13 @@ void readConfigFile() {
     long int number = 0;
     char *path = NULL;
     int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
-    tapeBaseNames[0] = strdup(
+    tapeBaseNames[0] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);
-    tapeBaseNames[1] = strdup(
+    tapeBaseNames[1] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME);
-    tapeBaseNames[2] = strdup(
+    tapeBaseNames[2] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME);
-    tapeBaseNames[3] = strdup(
+    tapeBaseNames[3] = duplicatestr(
 	TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME);
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -979,6 +992,8 @@ void get_taylors_p(locint loc, int degree, int numDir) {
         --T; /* skip the base point part */
     }
     /* now update the base point parts */
+    if (ADOLC_CURRENT_TAPE_INFOS.currTay == ADOLC_CURRENT_TAPE_INFOS.tayBuffer)
+	get_tay_block_r();
     --ADOLC_CURRENT_TAPE_INFOS.currTay;
     for (i = 0; i < numDir; ++i) {
         *T = *ADOLC_CURRENT_TAPE_INFOS.currTay;
@@ -1067,6 +1082,7 @@ void start_trace() {
     ADOLC_CURRENT_TAPE_INFOS.currVal = ADOLC_CURRENT_TAPE_INFOS.valBuffer;
     ADOLC_CURRENT_TAPE_INFOS.num_eq_prod = 0;
     ADOLC_CURRENT_TAPE_INFOS.numSwitches = 0;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_TAPING;
 
     /* Put operation denoting the start_of_the tape */
     put_op(start_of_tape);
@@ -1333,6 +1349,11 @@ void read_tape_stats(TapeInfos *tapeInfos) {
 
     fclose(loc_file);
     tapeInfos->tapingComplete = 1;
+}
+
+void skip_tracefile_cleanup(short tnum) {
+    TapeInfos *tinfo = getTapeInfos(tnum);
+    tinfo->pTapeInfos.skipFileCleanup = 1;
 }
 
 /****************************************************************************/

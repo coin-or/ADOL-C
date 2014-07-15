@@ -87,11 +87,12 @@ adouble::adouble() {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         put_op(assign_d_zero);
         ADOLC_PUT_LOCINT(location);   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
     }
     
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
     
     ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
 #endif
@@ -184,6 +185,18 @@ adub::~adub() {
 	free_loc(location);
 #endif
 }
+
+
+/****************************************************************************/
+/*                                                                  HELPERS */
+
+adub* adubp_from_adub(const adub& a) {
+    locint locat = a.loc();
+    const_cast<adub&>(a).isInit = false;
+    adub *retp = new adub(locat);
+    return retp;
+}
+
 
 /****************************************************************************/
 /*                                                                   VALUE */
@@ -1577,7 +1590,7 @@ adub acosh ( const badouble& x ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
 
-    adouble y = 1.0 / sqrt(1.0 - x*x);
+    adouble y = 1.0 / sqrt(x*x-1.0);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(acosh_op,locat,x.loc(),y.loc());
         put_op(acosh_op);

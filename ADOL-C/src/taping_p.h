@@ -37,7 +37,9 @@ enum WORKMODES {
     ADOLC_FOS_REVERSE,
     ADOLC_FOV_REVERSE,
     ADOLC_HOS_REVERSE,
-    ADOLC_HOV_REVERSE
+    ADOLC_HOV_REVERSE,
+
+    ADOLC_TAPING
 };
 
 /****************************************************************************/
@@ -114,7 +116,8 @@ enum ADOLC_ERRORS {
     ADOLC_CHECKPOINTING_REVOLVE_IRREGULAR_TERMINATED,
     ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
     ADOLC_WRONG_PLATFORM_32,
-    ADOLC_WRONG_PLATFORM_64
+    ADOLC_WRONG_PLATFORM_64,
+    ADOLC_TAPING_NOT_ACTUALLY_TAPING
 };
 /* additional infos fail can work with */
 extern int failAdditionalInfo1;
@@ -169,11 +172,6 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     int jacSolv_nax, jacSolv_modeold, jacSolv_cgd;
 
 #ifdef SPARSE
-    /* sparse derivative matrices */
-
-    int inJacSparseUse;
-    int inHessSparseUse;
-
     /* sparse Jacobian matrices */
 
     SparseJacInfos sJinfos;
@@ -662,6 +660,12 @@ void clearTapeBaseNames();
 /* the binary when linking statically!                                      */
 /****************************************************************************/
 void markNewTape();
+
+/****************************************************************************/
+/* Allows us to throw an exception instead of calling exit() in case of a   */
+/* irrecoverable error                                                      */
+/****************************************************************************/
+void adolc_exit(int errorcode, const char *what, const char *function, const char* file, int line);
 
 END_C_DECLS
 

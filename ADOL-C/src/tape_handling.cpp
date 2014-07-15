@@ -26,6 +26,7 @@
 #include <vector>
 #include <stack>
 #include <errno.h>
+#include <exception>
 
 using namespace std;
 
@@ -153,7 +154,7 @@ void StoreManagerLocint::grow() {
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%d) of live active variables exceeded\n\n", 
 	      std::numeric_limits<locint>::max());
-      exit(-3);
+      adolc_exit(-3,"",__func__,__FILE__,__LINE__);
     }
 
 #ifdef ADOLC_DEBUG
@@ -355,8 +356,6 @@ int initNewTape(short tapeID) {
 				    newTapeInfos->pTapeInfos.sHinfos.hr, 
 				    newTapeInfos->pTapeInfos.sHinfos.p, 
 				    newTapeInfos->pTapeInfos.sHinfos.indep);	
-		newTapeInfos->pTapeInfos.inJacSparseUse=0;
-		newTapeInfos->pTapeInfos.inHessSparseUse=0;
 		newTapeInfos->pTapeInfos.sJinfos.B=NULL;
 		newTapeInfos->pTapeInfos.sJinfos.y=NULL;
 		newTapeInfos->pTapeInfos.sJinfos.g=NULL;
@@ -391,31 +390,6 @@ int initNewTape(short tapeID) {
     }
     newTapeInfos->traceFlag=1;
     newTapeInfos->inUse=1;
-#ifdef SPARSE
-    newTapeInfos->pTapeInfos.inJacSparseUse=0;
-    newTapeInfos->pTapeInfos.inHessSparseUse=0;
-    newTapeInfos->pTapeInfos.sJinfos.B=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.y=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.g=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
-    newTapeInfos->pTapeInfos.sJinfos.depen=0;
-    newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
-    newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
-    newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
-    newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.g=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
-    newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
-    newTapeInfos->pTapeInfos.sHinfos.indep=0;
-    newTapeInfos->pTapeInfos.sHinfos.p=0;
-#endif
 
     newTapeInfos->stats[OP_BUFFER_SIZE] =
         ADOLC_GLOBAL_TAPE_VARS.operationBufferSize;
@@ -571,10 +545,6 @@ TapeInfos *getTapeInfos(short tapeID) {
     ADOLC_TAPE_INFOS_BUFFER.push_back(tapeInfos);
     tapeInfos->traceFlag=1;
     tapeInfos->inUse=0;
-#ifdef SPARSE
-    tapeInfos->pTapeInfos.inJacSparseUse=0;
-    tapeInfos->pTapeInfos.inHessSparseUse=0;
-#endif
     tapeInfos->tapingComplete = 1;
     read_tape_stats(tapeInfos);
     return tapeInfos;
@@ -754,7 +724,7 @@ void cleanUp() {
 	    if ((*tiIter)->signature != NULL)
 	    {
 		free((*tiIter)->signature);
-		((*tiIter)->signature == NULL);
+		(*tiIter)->signature = NULL;
 	    }
             if ((*tiIter)->tayBuffer != NULL)
             {
@@ -965,11 +935,16 @@ int trace_on(short tnum, int keepTaylors,
 void trace_off(int flag) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_TAPING) {
+	failAdditionalInfo1 = ADOLC_CURRENT_TAPE_INFOS.tapeID;
+	fail(ADOLC_TAPING_NOT_ACTUALLY_TAPING);
+    }
     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.keepTape = flag;
     keep_stock();         /* copy remaining live variables + trace_flag = 0 */
     stop_trace(flag);
     cout.flush();
     ADOLC_CURRENT_TAPE_INFOS.tapingComplete = 1;
+    ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
     releaseTape();
 }
 
@@ -1019,7 +994,7 @@ void initADOLC() {
 /****************************************************************************/
 /****************************************************************************/
 #if defined(_OPENMP)
-#include "adolc_openmp.h"
+#include <adolc/adolc_openmp.h>
 
 ADOLC_OpenMP ADOLC_OpenMP_Handler;
 ADOLC_OpenMP_NC ADOLC_OpenMP_Handler_NC;
@@ -1181,12 +1156,21 @@ void endParallel() {
 
 #endif /* _OPENMP */
 
+static void clearPersistantTapeInfos(TapeInfos* newTapeInfos) {
+    char *ptr;
+    ptr = (char*) &(newTapeInfos->pTapeInfos);
+    for (unsigned int i=0; i < sizeof(PersistantTapeInfos); ++i)
+	ptr[i] = 0;
+}
+
 TapeInfos::TapeInfos() {
     initTapeInfos(this);
+    clearPersistantTapeInfos(this);
 }
 
 TapeInfos::TapeInfos(short _tapeID) {
     initTapeInfos(this);
+    clearPersistantTapeInfos(this);
     tapeID = _tapeID;
     pTapeInfos.op_fileName = createFileName(tapeID, OPERATIONS_TAPE);
     pTapeInfos.loc_fileName = createFileName(tapeID, LOCATIONS_TAPE);
@@ -1281,7 +1265,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 #endif
     if (maxSize()-size()>n) {
       if (indexFree.front().size>=n) found = true;
-      if ((!found) && (double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize()) {
+      if ((!found) && ((double(maxSize())/double(size()))>gcTriggerRatio() || maxSize()>gcTriggerMaxSize())) {
         consolidateBlocks();
 #ifdef ADOLC_LOCDEBUG
         std::cerr << "ADOLC: GC called consolidateBlocks because " << maxSize() << "/" << size() << ">" << gcTriggerRatio() << " or " << maxSize() << ">" << gcTriggerMaxSize() << " after " << ensure_blockCallsSinceLastConsolidateBlocks << std::endl;
@@ -1338,7 +1322,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
       fprintf(DIAG_OUT,"\nADOL-C error:\n");
       fprintf(DIAG_OUT,"maximal number (%u) of live active variables exceeded\n\n",
            std::numeric_limits<locint>::max());
-      exit(-3);
+      adolc_exit(-3,"",__func__,__FILE__,__LINE__);
     }
 
 #ifdef ADOLC_LOCDEBUG
@@ -1494,4 +1478,24 @@ void disableMinMaxUsingAbs() {
 		"                "
 		"call %s after trace_off() for the correct behaviour\n"
 		,__FUNCTION__);
+}
+
+class FatalError: public exception{
+protected:
+    static const int MAX_MSG_SIZE = 4*1024;
+    char msg[MAX_MSG_SIZE];
+
+public:
+    explicit FatalError(int errorcode, const char* what, const char* function, const char* file, int line) {
+        // need to use C-style functions that do not use exceptions themselves
+        snprintf(this->msg, MAX_MSG_SIZE, "errorcode=%d function=%s file=%s line=%d what=%s", errorcode, function, file, line, what);
+    }
+
+    virtual const char* what() const throw() {
+        return msg;
+    }
+};
+
+void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line) {
+    throw FatalError(errorcode, what, function, file, line);
 }
