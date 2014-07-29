@@ -1066,9 +1066,14 @@ int hov_ti_reverse(
 
                 /* RECOMPUTATION */
                 ASSIGN_T( Tres,  rpp_T[res])
+#if !defined(_HOS_OV_)
                 deconv1(k,Targ1,Targ2,Tres);
+#endif
 
-                FOR_0_LE_l_LT_p
+		FOR_0_LE_l_LT_p {
+#if _HOS_OV_
+                deconv1(k,Targ1,Targ2,Tres);
+#endif
                 if (0 == ARES) {
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Aarg2, k1)
@@ -1089,7 +1094,9 @@ int hov_ti_reverse(
                     HOV_INC(Aarg2, k)
                     HOS_OV_INC(Targ1, k)
                     HOS_OV_INC(Targ2, k)
+		    HOS_OV_INC(Tres, k)
                 }
+		}
                 break;
 
                 /*--------------------------------------------------------------------------*/
@@ -1109,9 +1116,14 @@ int hov_ti_reverse(
 
                 /* RECOMPUTATION */
                 ASSIGN_T( Tres,  rpp_T[res])
+#if !defined(_HOS_OV_)
                 inconv1(k,Targ1,Targ2,Tres);
+#endif
 
-                FOR_0_LE_l_LT_p
+		FOR_0_LE_l_LT_p {
+#if _HOS_OV_
+                inconv1(k,Targ1,Targ2,Tres);
+#endif
                 if (0 == ARES) {
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Aarg2, k1)
@@ -1132,7 +1144,9 @@ int hov_ti_reverse(
                     HOV_INC(Aarg2, k)
                     HOS_OV_INC(Targ1, k)
                     HOS_OV_INC(Targ2, k)
+		    HOS_OV_INC(Tres, k)
                 }
+		}
                 break;
 
                 /*--------------------------------------------------------------------------*/
