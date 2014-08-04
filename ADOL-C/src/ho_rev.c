@@ -1071,7 +1071,7 @@ int hov_ti_reverse(
 #endif
 
 		FOR_0_LE_l_LT_p {
-#if _HOS_OV_
+#if defined(_HOS_OV_)
                 deconv1(k,Targ1,Targ2,Tres);
 #endif
                 if (0 == ARES) {
@@ -1121,7 +1121,7 @@ int hov_ti_reverse(
 #endif
 
 		FOR_0_LE_l_LT_p {
-#if _HOS_OV_
+#if defined(_HOS_OV_)
                 inconv1(k,Targ1,Targ2,Tres);
 #endif
                 if (0 == ARES) {
