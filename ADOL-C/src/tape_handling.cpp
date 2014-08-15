@@ -274,11 +274,12 @@ void markNewTape() {
 
 /* inits the struct for the new tape */
 void initTapeInfos(TapeInfos *newTapeInfos) {
-    char *ptr;
+    char *ptr, *end;
 
-    ptr = (char *)newTapeInfos;
-    for (unsigned int i = 0; i < sizeof(TapeInfos) -
-            sizeof(PersistantTapeInfos); ++i) ptr[i] = 0;
+    ptr = (char *)(&newTapeInfos->tapeID);
+    end = (char *)(&newTapeInfos->pTapeInfos);
+    for ( ; ptr != end ; ptr++ )
+        *ptr = 0;
 }
 
 /* as above but keep allocated buffers if possible */
@@ -679,11 +680,10 @@ void cleanUp() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-    vector<TapeInfos *>::iterator tiIter;
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter)
+    TapeInfos** tiIter;
+    while (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
+        tiIter = &ADOLC_TAPE_INFOS_BUFFER.back();
+        ADOLC_TAPE_INFOS_BUFFER.pop_back();
         {
             /* close open files though they may be incomplete */
             if ((*tiIter)->op_file!=NULL)
@@ -791,6 +791,7 @@ void cleanUp() {
             }
 
             delete *tiIter;
+            *tiIter = NULL;
         }
     }
 
@@ -1156,26 +1157,31 @@ void endParallel() {
 
 #endif /* _OPENMP */
 
-static void clearPersistantTapeInfos(TapeInfos* newTapeInfos) {
-    char *ptr;
-    ptr = (char*) &(newTapeInfos->pTapeInfos);
-    for (unsigned int i=0; i < sizeof(PersistantTapeInfos); ++i)
-	ptr[i] = 0;
+TapeInfos::TapeInfos() : pTapeInfos() {
+    initTapeInfos(this);
 }
 
-TapeInfos::TapeInfos() {
+TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
     initTapeInfos(this);
-    clearPersistantTapeInfos(this);
-}
-
-TapeInfos::TapeInfos(short _tapeID) {
-    initTapeInfos(this);
-    clearPersistantTapeInfos(this);
     tapeID = _tapeID;
     pTapeInfos.op_fileName = createFileName(tapeID, OPERATIONS_TAPE);
     pTapeInfos.loc_fileName = createFileName(tapeID, LOCATIONS_TAPE);
     pTapeInfos.val_fileName = createFileName(tapeID, VALUES_TAPE);
     pTapeInfos.tay_fileName = NULL;
+}
+
+PersistantTapeInfos::PersistantTapeInfos() {
+    char *ptr = (char*)(&forodec_nax), *end = (char*)(&paramstore);
+    for (; ptr != end ; ptr++ )
+        *ptr = 0;
+    paramstore = NULL;
+}
+
+PersistantTapeInfos::~PersistantTapeInfos() {
+    if (paramstore != NULL) {
+        free(paramstore);
+        paramstore = NULL;
+    }
 }
 
 StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives) :

@@ -197,6 +197,10 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
      */
     int skipFileCleanup;
 
+    revreal *paramstore;
+#ifdef __cplusplus
+    PersistantTapeInfos();
+    ~PersistantTapeInfos();
 } PersistantTapeInfos;
 
 /**
@@ -291,6 +295,7 @@ typedef struct TapeInfos {
 #if defined(__cplusplus)
     TapeInfos();
     TapeInfos(short tapeID);
+    ~TapeInfos() {}
 #endif
 }
 TapeInfos;
