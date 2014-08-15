@@ -64,7 +64,7 @@
 #ifndef ADOL_C__STOREMANAGER_H
 #define ADOL_C__STOREMANAGER_H
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 #include <list>
 
 class StoreManager {

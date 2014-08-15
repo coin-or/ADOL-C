@@ -51,6 +51,12 @@
 /* e.g. stdout or stderr or whatever file identifier                        */
 #define DIAG_OUT stderr
 
+/****************************************************************************/
+/* Tells ADOL-C which name space offers the mathematical functions          */
+#define ADOLC_MATH_NSP std
+/* For error function with gcc compiler                                     */
+#define ADOLC_MATH_NSP_ERF 
+
 /*--------------------------------------------------------------------------*/
 /* Constants used by the checkpointing part (revolve) */
 #define ADOLC_CHECKUP 1000

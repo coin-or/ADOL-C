@@ -14,6 +14,6 @@ libinternalincludedir      = $(pkgincludedir)/internal
 
 libinternalinclude_HEADERS = adolc_settings.h \
                              adubfunc.h paramfunc.h \
-                             common.h dvlparms.h usrparms.h
+                             common.h usrparms.h
 
 EXTRA_DIST = adolc_settings.h.in

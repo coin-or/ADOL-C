@@ -79,8 +79,7 @@
 #endif /* ADOLC_INTERNAL */
 
 /*--------------------------------------------------------------------------*/
-/* developer and user parameters */
-#include <adolc/internal/dvlparms.h>
+/* user parameters and settings */
 #include <adolc/internal/usrparms.h>
 #include <adolc/internal/adolc_settings.h>
 
