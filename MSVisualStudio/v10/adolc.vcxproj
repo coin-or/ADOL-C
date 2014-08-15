@@ -228,7 +228,7 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\drivers.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\odedrivers.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\taylor.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\dvlparms.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\dvlparms.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\externfcts.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fixpoint.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fortutils.h" />
