@@ -28,11 +28,11 @@ The numerical values of derivative vectors are obtained free of
 truncation errors at a small multiple of the run time and randomly
 accessed memory of the given function evaluation program.
 
-%package -n libadolc1
+%package -n libadolc2
 Summary:        Algorithmic Differentiation Library for C/C++
 Group:          Development/Languages/C and C++
 
-%description -n libadolc1
+%description -n libadolc2
 The package ADOL-C (Automatic Differentiation by OverLoading in C++)
 facilitates the evaluation of first and higher derivatives of vector
 functions that are defined by computer programs written in C or
@@ -46,7 +46,7 @@ accessed memory of the given function evaluation program.
 %package devel
 Summary:        Algorithmic Differentiation Library for C/C++ -- development files
 Group:          Development/Languages/C and C++
-Requires:       libadolc1 = %{version}
+Requires:       libadolc2 = %{version}
 
 %description devel
 The package ADOL-C (Automatic Differentiation by OverLoading in C++)
@@ -106,10 +106,10 @@ find %{buildroot} -type f -name '*.la' -delete -print
 rm -rf %{buildroot}
 rm -rf %{_builddir}/%{name}-%{packver}
 
-%post -n libadolc1 -p /sbin/ldconfig
-%postun -n libadolc1 -p /sbin/ldconfig
+%post -n libadolc2 -p /sbin/ldconfig
+%postun -n libadolc2 -p /sbin/ldconfig
 
-%files -n libadolc1
+%files -n libadolc2
 %defattr(-,root,root)
 %{_libdir}/libadolc.so.*
 
