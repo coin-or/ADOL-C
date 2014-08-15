@@ -31,7 +31,7 @@ SUBDIRS += include
 MAINTAINERCLEANFILES = Makefile.in 
 
 lib_LTLIBRARIES = lib@adolclib@.la
-lib@adolclib@_la_LDFLAGS  = -version-info 3:0:2 -no-undefined
+lib@adolclib@_la_LDFLAGS  = -version-info 3:0:1 -no-undefined
 lib@adolclib@_la_SOURCES  = dummy.cpp
 
 lib@adolclib@_la_LIBADD = src/libadolcsrc.la
