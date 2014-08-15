@@ -48,7 +48,7 @@ ADOLC_ID adolc_id;
  * => to work with older tapes use older ADOL-C version */
 #define ADOLC_NEW_TAPE_VERSION 2
 #define ADOLC_NEW_TAPE_SUBVERSION 5
-#define ADOLC_NEW_TAPE_PATCHLEVEL 1
+#define ADOLC_NEW_TAPE_PATCHLEVEL 2
 
 /****************************************************************************/
 /****************************************************************************/
