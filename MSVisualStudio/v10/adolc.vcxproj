@@ -211,6 +211,7 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fos_an_reverse.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fov_an_forward.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_an_forward.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\param.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adalloc.h" />
