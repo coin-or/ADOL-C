@@ -246,6 +246,9 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\malloc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\taping_p.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adtl.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\param.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adubfunc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\paramfunc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
