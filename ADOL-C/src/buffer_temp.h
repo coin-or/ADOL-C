@@ -17,7 +17,7 @@
 #if !defined(ADOLC_STRUCT_BUF_H)
 #define ADOLC_STRUCT_BUF_H 1
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 #include "taping_p.h"
 
 #if defined(__cplusplus)

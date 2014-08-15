@@ -14,7 +14,7 @@
 #if !defined(ADOLC_TAPING_P_H)
 #define ADOLC_TAPING_P_H 1
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 #include <adolc/taping.h>
 #include <errno.h>
 #ifdef __cplusplus
