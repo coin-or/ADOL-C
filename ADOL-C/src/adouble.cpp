@@ -24,6 +24,7 @@
 #include <adolc/adouble.h>
 #include "oplate.h"
 #include "taping_p.h"
+#include "dvlparms.h"
 
 using namespace std;
 

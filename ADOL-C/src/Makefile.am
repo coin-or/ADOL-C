@@ -39,7 +39,7 @@ libadolcsrc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        convolut.c fortutils.c \
                        interfaces.cpp interfacesf.c \
                        taping.c tape_handling.cpp \
-                       oplate.h taping_p.h malloc.h storemanager.h \
+                       dvlparms.h oplate.h taping_p.h malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h \
                        zos_forward.c fos_forward.c fov_forward.c \
                        hos_forward.c hov_forward.c hov_wk_forward.c \
