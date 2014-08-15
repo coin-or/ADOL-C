@@ -29,6 +29,8 @@
 #include "ampi/tape/support.h"
 #endif
 
+#include <adolc/param.h>
+
 #if defined(_WINDOWS) && !__STDC__
 #define stat _stat
 #define S_IFDIR _S_IFDIR
@@ -45,8 +47,8 @@ ADOLC_ID adolc_id;
 /* first version with new tape structure
  * => to work with older tapes use older ADOL-C version */
 #define ADOLC_NEW_TAPE_VERSION 2
-#define ADOLC_NEW_TAPE_SUBVERSION 3
-#define ADOLC_NEW_TAPE_PATCHLEVEL 0
+#define ADOLC_NEW_TAPE_SUBVERSION 5
+#define ADOLC_NEW_TAPE_PATCHLEVEL 1
 
 /****************************************************************************/
 /****************************************************************************/
@@ -76,6 +78,13 @@ void fail( int error ) {
         case ADOLC_INTEGER_TAPE_FREAD_FAILED:
             fprintf(DIAG_OUT, "ADOL-C error: "
                     "reading integer tape number %d!\n",
+                    failAdditionalInfo1);
+            printError();
+            break;
+        case ADOLC_VALUE_TAPE_FOPEN_FAILED:
+        case ADOLC_VALUE_TAPE_FREAD_FAILED:
+            fprintf(DIAG_OUT, "ADOL-C error: "
+                    "reading value tape number %d!\n",
                     failAdditionalInfo1);
             printError();
             break;
@@ -1101,6 +1110,41 @@ void start_trace() {
     markNewTape();
 }
 
+static void save_params() {
+    size_t np;
+    size_t ip, avail, remain, chunk;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] =
+        ADOLC_GLOBAL_TAPE_VARS.numparam;
+    if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore == NULL)
+        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore =
+            malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
+    memcpy(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
+           ADOLC_GLOBAL_TAPE_VARS.pStore,
+           ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
+    free_all_taping_params();
+    if (ADOLC_CURRENT_TAPE_INFOS.currVal +
+        ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] <
+        ADOLC_CURRENT_TAPE_INFOS.lastValP1)
+        put_vals_notWriteBlock(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
+                               ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]);
+    else {
+        np = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
+        ip = 0;
+        while (ip < np) {
+            avail = ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal;
+            remain = np - ip;
+            chunk = (avail<remain)?avail:remain;
+            put_vals_notWriteBlock(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore + ip, chunk);
+            ip += chunk;
+            if (ip < np)
+                put_val_block(ADOLC_CURRENT_TAPE_INFOS.lastValP1);
+        }
+    }
+}
+
 /****************************************************************************/
 /* Stop Tracing.  Clean up, and turn off trace_flag.                        */
 /****************************************************************************/
@@ -1108,6 +1152,7 @@ void stop_trace(int flag) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     put_op(end_of_tape);        /* Mark end of tape. */
+    save_params();
 
     ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS] =
         ADOLC_CURRENT_TAPE_INFOS.numInds;
@@ -1289,6 +1334,7 @@ void printTapeStats(FILE *stream, short tag) {
     fprintf(stream, "Number of operations:   %10zu\n", stats[NUM_OPERATIONS]);
     fprintf(stream, "Number of locations:    %10zu\n", stats[NUM_LOCATIONS]);
     fprintf(stream, "Number of values:       %10zu\n", stats[NUM_VALUES]);
+    fprintf(stream, "Number of parameters:   %10zu\n", stats[NUM_PARAM]);
     fprintf(stream, "\n");
     fprintf(stream, "Operation file written: %10zu\n", stats[OP_FILE_ACCESS]);
     fprintf(stream, "Location file written:  %10zu\n", stats[LOC_FILE_ACCESS]);
@@ -1305,6 +1351,113 @@ void printTapeStats(FILE *stream, short tag) {
     fprintf(stream, "Value type size:        %10zu\n", (size_t)sizeof(double));
     fprintf(stream, "Taylor type size:       %10zu\n", (size_t)sizeof(revreal));
     fprintf(stream, "**********************************\n\n");
+}
+
+/****************************************************************************/
+/* Returns the number of parameters recorded on tape                        */
+/****************************************************************************/
+size_t get_num_param(short tag) {
+    TapeInfos *tapeInfos;
+    tapeInfos = getTapeInfos(tag);
+    return tapeInfos->stats[NUM_PARAM];
+}
+
+/****************************************************************************/
+/* Reads parameters from the end of value tape for disk based tapes         */
+/****************************************************************************/
+static void read_params(TapeInfos* tapeInfos) {
+    FILE* val_file;
+    int i, chunks;
+    size_t number, remain, chunkSize, nVT;
+    double *valBuffer = NULL, *currVal = NULL, *lastValP1 = NULL;
+    size_t np, ip, avail, rsize;
+    if (tapeInfos->pTapeInfos.paramstore == NULL)
+        tapeInfos->pTapeInfos.paramstore =
+            malloc(tapeInfos->stats[NUM_PARAM]*sizeof(double));
+    valBuffer = (double*)
+        malloc(tapeInfos->stats[VAL_BUFFER_SIZE] *sizeof(double));
+    lastValP1 = valBuffer + tapeInfos->stats[VAL_BUFFER_SIZE];
+    if ((val_file = fopen(tapeInfos->pTapeInfos.val_fileName, "rb")) == NULL)
+        fail(ADOLC_VALUE_TAPE_FOPEN_FAILED);
+    number = (tapeInfos->stats[NUM_VALUES] /
+              tapeInfos->stats[VAL_BUFFER_SIZE]) *
+        tapeInfos->stats[VAL_BUFFER_SIZE];
+    fseek(val_file, number * sizeof(double), SEEK_SET);
+    number = tapeInfos->stats[NUM_VALUES] % tapeInfos->stats[VAL_BUFFER_SIZE];
+    if (number != 0) {
+        chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
+        chunks = number / chunkSize;
+        for (i = 0; i < chunks; ++i)
+            if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
+                      val_file) != 1 )
+                fail(ADOLC_VALUE_TAPE_FREAD_FAILED);
+        remain = number % chunkSize;
+        if (remain != 0)
+            if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
+                      val_file) != 1)
+                fail(ADOLC_VALUE_TAPE_FREAD_FAILED);
+    }
+    nVT = tapeInfos->stats[NUM_VALUES] - number;
+    currVal = valBuffer + number;
+    np = tapeInfos->stats[NUM_PARAM];
+    ip = np;
+    while ( ip > 0) {
+        avail = currVal - valBuffer;
+        rsize = (avail<ip)?avail:ip;
+        for ( i = 0; i < rsize; i++ )
+            tapeInfos->pTapeInfos.paramstore[--ip] = *--currVal;
+        if (ip > 0) {
+            number = tapeInfos->stats[VAL_BUFFER_SIZE];
+            fseek(val_file, sizeof(double)*(nVT - number), SEEK_SET);
+            chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
+            chunks = number / chunkSize;
+            for (i = 0; i < chunks; ++i)
+                if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
+                          val_file) != 1 )
+                    fail(ADOLC_VALUE_TAPE_FREAD_FAILED);
+            remain = number % chunkSize;
+            if (remain != 0)
+                if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
+                          val_file) != 1)
+                    fail(ADOLC_VALUE_TAPE_FREAD_FAILED);
+            nVT -= number;
+            currVal = lastValP1;
+        }
+    }
+    fclose(val_file);
+    free(valBuffer);
+}
+
+/****************************************************************************/
+/* Overrides the parameters for the next evaluations. This will invalidate  */
+/* the taylor stack, so next reverse call will fail, if not preceeded by a  */
+/* forward call after setting the parameters.                               */
+/****************************************************************************/
+void set_param_vec(short tag, size_t numparam, revreal* paramvec) {
+    size_t i;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    /* mark possible (hard disk) tape creation */
+    markNewTape();
+
+    /* make room for tapeInfos and read tape stats if necessary, keep value
+     * stack information */
+    openTape(tag, ADOLC_FORWARD);
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] != numparam) {
+        fprintf(DIAG_OUT, "ADOL-C error: Setting parameters on tape %d "
+                "aborted!\nNumber of parameters (%zu) passed"
+                " is inconsistent with number recorded on tape (%zu)\n",
+                tag, numparam, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+    }
+    if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore == NULL)
+        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore = (double*)
+            malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
+    for(i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]; i++)
+        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[i] = paramvec[i];
+    taylor_close(0);
+    releaseTape();
 }
 
 /****************************************************************************/
@@ -1349,6 +1502,8 @@ void read_tape_stats(TapeInfos *tapeInfos) {
 
     fclose(loc_file);
     tapeInfos->tapingComplete = 1;
+    if (tapeInfos->stats[NUM_PARAM] > 0)
+        read_params(tapeInfos);
 }
 
 void skip_tracefile_cleanup(short tnum) {
@@ -1686,10 +1841,10 @@ void put_op_block(unsigned char *lastOpP1) {
         ADOLC_CURRENT_TAPE_INFOS.op_file =
             fopen(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.op_fileName, "rb");
         if (ADOLC_CURRENT_TAPE_INFOS.op_file != NULL) {
-            #if defined(ADOLC_DEBUG)
+#if defined(ADOLC_DEBUG)
             fprintf(DIAG_OUT, "ADOL-C debug: Old tapefile %s gets removed!\n",
                     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.op_fileName);
-            #endif
+#endif
             fclose(ADOLC_CURRENT_TAPE_INFOS.op_file);
             ADOLC_CURRENT_TAPE_INFOS.op_file = NULL;
             if (remove(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.op_fileName))

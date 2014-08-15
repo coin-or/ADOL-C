@@ -1540,3 +1540,14 @@ public:
 void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line) {
     throw FatalError(errorcode, what, function, file, line);
 }
+
+/* Only called during stop_trace() via save_params() */
+void free_all_taping_params() {
+    size_t np;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    np = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
+    while ( np > 0 )
+        ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->free_loc(--np);
+}

@@ -74,6 +74,8 @@ enum ADOLC_ERRORS {
     ADOLC_MALLOC_FAILED,
     ADOLC_INTEGER_TAPE_FOPEN_FAILED,
     ADOLC_INTEGER_TAPE_FREAD_FAILED,
+    ADOLC_VALUE_TAPE_FOPEN_FAILED,
+    ADOLC_VALUE_TAPE_FREAD_FAILED,
     ADOLC_TAPE_TO_OLD,
     ADOLC_WRONG_LOCINT_SIZE,
     ADOLC_MORE_STAT_SPACE_REQUIRED,
@@ -679,6 +681,11 @@ void markNewTape();
 /* irrecoverable error                                                      */
 /****************************************************************************/
 void adolc_exit(int errorcode, const char *what, const char *function, const char* file, int line);
+
+/****************************************************************************/
+/* Frees parameter indices after taping is complete                         */
+/****************************************************************************/
+void free_all_taping_params();
 
 END_C_DECLS
 

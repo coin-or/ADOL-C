@@ -38,6 +38,7 @@ enum StatEntries {
     NUM_EQ_PROD,                      /* # of eq_*_prod for sparsity pattern */
     NO_MIN_MAX,  /* no use of min_op, deferred to abs_op for piecewise stuff */
     NUM_SWITCHES,                   /* # of abs calls that can switch branch */
+    NUM_PARAM, /* no of parameters (doubles) interchangable without retaping */
     STAT_SIZE                     /* represents the size of the stats vector */
 };
 
