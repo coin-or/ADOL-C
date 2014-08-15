@@ -103,6 +103,7 @@ ADOL-C/examples/additional_examples/openmp_exam/README -text
 ADOL-C/examples/additional_examples/openmp_exam/liborpar.cpp -text
 ADOL-C/examples/additional_examples/openmp_exam/liborser.cpp -text
 ADOL-C/examples/additional_examples/param/Makefile.am -text
+ADOL-C/examples/additional_examples/param/Makefile.in -text
 ADOL-C/examples/additional_examples/param/paramexam.cpp -text
 ADOL-C/examples/additional_examples/pow/Makefile.am -text
 ADOL-C/examples/additional_examples/pow/Makefile.in -text
