@@ -693,6 +693,23 @@ int hov_ti_reverse(
                 break;
 
                 /*----------------------------------------------------------*/
+            case neg_sign_p:
+            case recipr_p:
+            case assign_p:      /* assign an adouble variable a    assign_d */
+                /* double value. (=) */
+                arg   = get_locint_r();
+                res   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_pk1
+                ARES_INC = 0.0;
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*----------------------------------------------------------*/
             case assign_d_zero: /* assign an adouble a        assign_d_zero */
             case assign_d_one:  /* double value. (=)           assign_d_one */
                 res   = get_locint_r();
@@ -762,6 +779,16 @@ int hov_ti_reverse(
                 break;
 
                 /*--------------------------------------------------------------------------*/
+        case eq_plus_p:            /* Add a floating point to an    eq_plus_p */
+            /* adouble. (+=) */
+           arg   = get_locint_r();
+           res   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
             case eq_plus_a:             /* Add an adouble to another    eq_plus_a */
                 /* adouble. (+=) */
                 res = get_locint_r();
@@ -795,6 +822,16 @@ int hov_ti_reverse(
                 break;
 
                 /*--------------------------------------------------------------------------*/
+            case eq_min_p:       /* Subtract a floating point from an    eq_min_p */
+                /* adouble. (-=) */
+                arg   = get_locint_r();
+                res   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
             case eq_min_a:        /* Subtract an adouble from another    eq_min_a */
                 /* adouble. (-=) */
                 res = get_locint_r();
@@ -823,6 +860,25 @@ int hov_ti_reverse(
                 /* flaoting point. (*=) */
                 res   = get_locint_r();
                 coval = get_val_r();
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_p
+                if ( 0 == ARES_INC )
+                    HOV_INC(Ares, k)
+                    else
+                        FOR_0_LE_i_LT_k
+                        ARES_INC *= coval;
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
+                /* flaoting point. (*=) */
+                arg   = get_locint_r();
+                res   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 ASSIGN_A(Ares, rpp_A[res])
 
@@ -914,6 +970,37 @@ int hov_ti_reverse(
                       ARES_INC = 0.0;
                       AARG1_INC += aTmp;
                       AARG2_INC += aTmp;
+                    }
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case plus_a_p:             /* Add an adouble and a double    plus_a_p */
+            case min_a_p:                /* Subtract an adouble from a    min_a_p */
+                /* (+) */
+                arg1  = get_locint_r();
+                res   = get_locint_r();
+                arg   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
+
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+
+                FOR_0_LE_l_LT_p
+                if  (0 == ARES) {
+                    HOV_INC(Ares, k1)
+                    HOV_INC(Aarg, k1)
+                } else {
+                    aTmp = ARES;
+                    ARES_INC = 0.0;
+                    MAXDEC(AARG,aTmp);
+                    AARG_INC_O;
+                    FOR_0_LE_i_LT_k
+                    { aTmp = ARES;
+                      ARES_INC = 0.0;
+                      AARG_INC += aTmp;
                     }
                 }
 
@@ -1181,6 +1268,36 @@ int hov_ti_reverse(
                 break;
 
                 /*--------------------------------------------------------------------------*/
+            case mult_a_p:         /* Multiply an adouble by a double    mult_a_p */
+                /* (*) */
+                arg1  = get_locint_r();
+                res   = get_locint_r();
+                arg   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
+
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+
+                FOR_0_LE_l_LT_p
+                if (0 == ARES) {
+                    HOV_INC(Ares, k1)
+                    HOV_INC(Aarg, k1)
+                } else {
+                    aTmp = ARES;
+                    ARES_INC = 0.0;
+                    MAXDEC(AARG,aTmp);
+                    AARG_INC_O;
+                    FOR_0_LE_i_LT_k
+                    { aTmp = ARES;
+                      ARES_INC = 0.0;
+                      AARG_INC += coval * aTmp;
+                    }
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
             case div_a_a:           /* Divide an adouble by an adouble    div_a_a */
                 /* (/) */
                 res  = get_locint_r();
@@ -1245,6 +1362,57 @@ int hov_ti_reverse(
                 res   = get_locint_r();
                 arg   = get_locint_r();
                 coval = get_val_r();
+
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+                ASSIGN_T(Tres, rpp_T[res])
+                ASSIGN_T(Targ, rpp_T[arg])
+
+                /* olvo 980922 allows reflexive operation */
+                if (arg == res) {
+                    FOR_0_LE_l_LT_pk
+                    rp_Ttemp2[l] = Tres[l];
+                    Tres = rp_Ttemp2;
+                    GET_TAYL(arg,k,p)
+                }
+
+                VEC_COMPUTED_INIT
+                FOR_0_LE_l_LT_p
+                { if (0 == ARES) {
+                  HOV_INC(Ares, k1)
+                      HOV_INC(Aarg, k1)
+                  } else {
+                      aTmp = ARES;
+                      ARES_INC = 0.0;
+                      MAXDEC(AARG,aTmp);
+                      MAXDEC(AARG,3.0);
+                      AARG_INC_O;
+
+                      VEC_COMPUTED_CHECK
+                      recipr(k,1.0,Targ,rp_Ttemp);
+                      conv0(k, rp_Ttemp,
+                           Tres, rp_Atemp);
+                      VEC_COMPUTED_END
+                      deconvZeroR(k,Ares,rp_Atemp,Aarg);
+
+                      HOV_INC(Ares, k)
+                      HOV_INC(Aarg, k)
+                      HOS_OV_INC(Tres, k)
+                      HOS_OV_INC(Targ, k)
+                  }
+            }
+
+		if (arg != res)
+                GET_TAYL(res,k,p)
+                break;
+
+
+                /****************************************************************************/
+            case div_p_a:             /* Division double - adouble (/)    div_p_a */
+                arg1  = get_locint_r();
+                res   = get_locint_r();
+                arg   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
@@ -1529,6 +1697,107 @@ int hov_ti_reverse(
                 res   = get_locint_r();
                 arg   = get_locint_r();
                 coval = get_val_r();
+
+                ASSIGN_T(Targ, rpp_T[arg])
+                ASSIGN_T(Tres, rpp_T[res])
+                ASSIGN_A(Ares, rpp_A[res])
+                ASSIGN_A(Aarg, rpp_A[arg])
+
+                /* olvo 980921 allows reflexive operation */
+                if (arg == res) {
+                    FOR_0_LE_l_LT_pk
+                    rp_Ttemp2[l] = Tres[l];
+                    Tres = rp_Ttemp2;
+                    GET_TAYL(arg,k,p)
+                }
+
+                VEC_COMPUTED_INIT
+                FOR_0_LE_l_LT_p
+                if (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Ares, k1)
+                } else {
+                    aTmp = ARES;
+                    ARES_INC = 0.0;
+                    MAXDEC(AARG,aTmp);
+                    MAXDEC(AARG,4.0);
+                    AARG_INC_O;
+
+                    VEC_COMPUTED_CHECK
+                    if (fabs(Targ[0]) > ADOLC_EPS) {
+                        divide(k,Tres,Targ,rp_Ttemp);
+                        for (i=0;i<k;i++) {
+                            rp_Ttemp[i] *= coval;
+                            /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
+                        }
+                        inconv0(k,Ares,rp_Ttemp,Aarg);
+                    } else {
+                        if (coval <= 0.0) {
+                            FOR_0_LE_i_LT_k
+                            {
+                                Aarg[i] = make_nan();
+                                Ares[i] = 0;
+                            }
+                        } else {
+                            /* coval not a whole number */
+                            if (coval - floor(coval) != 0) {
+                                i = 0;
+                                FOR_0_LE_i_LT_k
+                                {
+                                    if (coval - i > 1) {
+                                    Aarg[i] = 0;
+                                        Ares[i] = 0;
+                                    }
+                                    if ((coval - i < 1) && (coval - i > 0)) {
+                                    Aarg[i] = make_inf();
+                                        Ares[i] = 0;
+                                    }
+                                    if (coval - i < 0) {
+                                    Aarg[i] = make_nan();
+                                        Ares[i] = 0;
+                                    }
+                                }
+                            } else {
+                                if (coval == 1) {
+                                    FOR_0_LE_i_LT_k
+                                    { /* ! no tempory */
+                                        Aarg[i] += Ares[i];
+                                        Ares[i] = 0.0;
+                                    }
+                                } else {
+                                    /* coval is an int > 1 */
+                                    /* the following is not efficient but at least it works */
+                                    /* it reformulates x^n into x* ... *x n times */
+
+                                    copyAndZeroset(k,Ares,rp_Atemp);
+                                    inconv(k,rp_Atemp,Targ,Aarg);
+                                    inconv(k,rp_Atemp,Targ,Aarg);
+                                    if (coval == 3) {
+                                        conv(k,Aarg,Targ,rp_Atemp);
+                                        FOR_0_LE_i_LT_k
+                                        Aarg[i] = 2.0 * rp_Atemp[i];
+                                   }
+                                }
+                            }
+                        }
+                    }
+                    VEC_COMPUTED_END
+
+                    HOV_INC(Ares, k)
+                    HOV_INC(Aarg, k)
+                    HOS_OV_INC(Tres, k)
+                    HOS_OV_INC(Targ, k)
+                }
+
+                GET_TAYL(res,k,p)
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case pow_op_p:                                                /* pow_op_p */
+                arg1  = get_locint_r();
+                res   = get_locint_r();
+                arg   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
                 ASSIGN_T(Targ, rpp_T[arg])
                 ASSIGN_T(Tres, rpp_T[res])
@@ -2069,6 +2338,12 @@ int hov_ti_reverse(
             case ge_a_a:
             case lt_a_a:
             case gt_a_a:
+            case neq_a_p:
+            case eq_a_p:
+            case le_a_p:
+            case ge_a_p:
+            case lt_a_p:
+            case gt_a_p:
 		res = get_locint_r();
 		arg1 = get_locint_r();
 		arg = get_locint_r();
@@ -2200,6 +2475,22 @@ int hov_ti_reverse(
                 GET_TAYL(res,k,p)
                 break;
 
+            case ref_assign_p:
+                arg    = get_locint_r();
+                arg1   = get_locint_r();
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_pk1
+                ARES_INC = 0.0;
+
+                GET_TAYL(res,k,p)
+                break;
+
             case ref_assign_a:     /* assign an adouble variable an    assign_a */
                 /* adouble value. (=) */
                 arg1 = get_locint_r();
@@ -2257,6 +2548,17 @@ int hov_ti_reverse(
 		ASSIGN_T(Targ1, rpp_T[arg1])
 		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
+
+                GET_TAYL(res,k,p)
+                break;
+
+        case ref_eq_plus_p:            /* Add a floating point to an    eq_plus_d */
+            /* adouble. (+=) */
+                arg    = get_locint_r();
+                arg1   = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 GET_TAYL(res,k,p)
                 break;
