@@ -38,7 +38,7 @@ using std::ostream;
 using std::istream;
 using std::logic_error;
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 
 /* NOTICE: There are automatic includes at the end of this file! */
 

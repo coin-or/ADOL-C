@@ -18,7 +18,7 @@
 #if !defined(ADOLC_ADOLC_H)
 #define ADOLC_ADOLC_H 1
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 
 /****************************************************************************/
 /*                                                  Now the pure C++ THINGS */

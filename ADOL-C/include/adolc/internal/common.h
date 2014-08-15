@@ -80,9 +80,9 @@
 
 /*--------------------------------------------------------------------------*/
 /* developer and user parameters */
-#include <adolc/dvlparms.h>
-#include <adolc/usrparms.h>
-#include <adolc/adolc_settings.h>
+#include <adolc/internal/dvlparms.h>
+#include <adolc/internal/usrparms.h>
+#include <adolc/internal/adolc_settings.h>
 
 /*--------------------------------------------------------------------------*/
 /* windows dll exports/imports */

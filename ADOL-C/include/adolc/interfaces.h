@@ -46,7 +46,7 @@
 #if !defined(ADOLC_INTERFACES_H)
 #define ADOLC_INTERFACES_H 1
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 
 #if defined(SPARSE)
 #include <adolc/sparse/sparsedrivers.h>

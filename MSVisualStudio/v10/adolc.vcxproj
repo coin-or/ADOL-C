@@ -222,12 +222,12 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adutilsc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\advector.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\checkpointing.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\common.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\common.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\convolut.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\drivers.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\odedrivers.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\taylor.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\dvlparms.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\dvlparms.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\externfcts.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fixpoint.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fortutils.h" />
@@ -239,8 +239,8 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\storemanager.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\tapedoc\tapedoc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\taping.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\usrparms.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adolc_settings.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\usrparms.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adolc_settings.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\buffer_temp.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\externfcts_p.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\malloc.h" />
