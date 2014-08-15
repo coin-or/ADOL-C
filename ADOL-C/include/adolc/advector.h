@@ -21,8 +21,6 @@
 #ifdef __cplusplus
 #include <vector>
 
-#include <adolc/adouble.h>
-
 /****************************************************************************/
 /*                                           THIS IS ONLY FOR TAPED VERSION */
 #if !defined(TAPELESS)
@@ -46,6 +44,7 @@ class ADOLC_DLL_EXPORT adubref {
      */
     friend ADOLC_DLL_EXPORT class adub;
     friend ADOLC_DLL_EXPORT class advector;
+    friend ADOLC_DLL_EXPORT class pdouble;
 protected:
     locint location;
     locint refloc;
@@ -80,14 +79,20 @@ public:
     adubref& operator = ( double );
     adubref& operator = ( const badouble& );
     adubref& operator = ( const adubref& );
+    adubref& operator = ( const pdouble& );
     adubref& operator +=  ( double );
     adubref& operator +=  ( const badouble& );
+    adubref& operator +=  ( const pdouble& );
     adubref& operator -=  ( double x );
     adubref& operator -=  ( const badouble& );
+    adubref& operator -=  ( const pdouble& );
     adubref& operator *=  ( double x );
     adubref& operator *=  ( const badouble& );
-    adubref& operator /=  ( double x );
-    adubref& operator /=  ( const badouble& );
+    adubref& operator *=  ( const pdouble& );
+    inline adubref& operator /=  ( double x );
+    inline adubref& operator /=  ( const badouble& );
+    inline adubref& operator /=  ( const pdouble&);
+
     adubref& operator <<= ( double );
     void declareIndependent();
     adubref& operator >>= ( double& );
@@ -123,6 +128,21 @@ public:
     ADOLC_DLL_EXPORT adouble lookupindex(const badouble& x, const badouble& y) const;
 };
 
+inline adubref& adubref::operator /= (double y) {
+    *this *=  (1.0/y);
+    return *this;
+}
+
+
+inline adubref& adubref::operator /= (const badouble& y) {
+    *this *=  (1.0/y);
+    return *this;
+}
+
+inline adubref& adubref::operator /= (const pdouble& p) {
+    *this *= recipr(p); 
+    return *this;
+}
 #endif /* TAPELESS */
 #endif /* __cplusplus */
 #endif /* ADOLC_ADVECTOR_H */

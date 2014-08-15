@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [5])
-define([ADOLC_LVL], [1])
+define([ADOLC_LVL], [2])
 
 AC_PREREQ(2.67)
 AC_INIT(adolc,
@@ -479,8 +479,9 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/Makefile
                 ADOL-C/include/Makefile
                 ADOL-C/include/adolc/Makefile
-		ADOL-C/include/adolc/adolc_settings.h
+		ADOL-C/include/adolc/internal/adolc_settings.h
                 ADOL-C/include/adolc/drivers/Makefile 
+                ADOL-C/include/adolc/internal/Makefile
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
                 ADOL-C/src/Makefile
@@ -509,6 +510,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/tapesave/Makefile
                 ADOL-C/examples/additional_examples/pow/Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile
+                ADOL-C/examples/additional_examples/param/Makefile
                 ADOL-C/test/Makefile
                 MSVisualStudio/v10/sparse/config.h
                 MSVisualStudio/v10/nosparse/config.h

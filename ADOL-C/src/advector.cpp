@@ -16,7 +16,7 @@
 #include <limits>
 #include <cmath>
 
-#include <adolc/advector.h>
+#include <adolc/adouble.h>
 #include "oplate.h"
 #include "taping_p.h"
 
@@ -341,16 +341,6 @@ adubref& adubref::operator *= ( const badouble& y ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[refloc] *= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
-    return *this;
-}
-
-adubref& adubref::operator /= (double y) {
-    *this *=  (1.0/y);
-    return *this;
-}
-
-adubref& adubref::operator /= (const badouble& y) {
-    *this *=  (1.0/y);
     return *this;
 }
 
