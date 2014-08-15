@@ -201,6 +201,8 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
 #ifdef __cplusplus
     PersistantTapeInfos();
     ~PersistantTapeInfos();
+    void copy(const PersistantTapeInfos&);
+#endif
 } PersistantTapeInfos;
 
 /**
@@ -296,6 +298,7 @@ typedef struct TapeInfos {
     TapeInfos();
     TapeInfos(short tapeID);
     ~TapeInfos() {}
+    void copy(const TapeInfos&);
 #endif
 }
 TapeInfos;

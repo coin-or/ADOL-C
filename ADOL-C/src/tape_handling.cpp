@@ -403,12 +403,12 @@ int initNewTape(short tapeID) {
 
     /* update tapeStack and save tapeInfos */
     if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-        memcpy(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr,
-                &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
+            ADOLC_CURRENT_TAPE_INFOS);
         ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
     } else {
-        memcpy(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK,
-                &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+        ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
+                ADOLC_CURRENT_TAPE_INFOS);
         ADOLC_TAPE_STACK.push(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK);
     }
     if (newTI) ADOLC_TAPE_INFOS_BUFFER.push_back(newTapeInfos);
@@ -416,7 +416,7 @@ int initNewTape(short tapeID) {
     newTapeInfos->pTapeInfos.skipFileCleanup=0;
 
     /* set the new tape infos as current */
-    memcpy(&ADOLC_CURRENT_TAPE_INFOS, newTapeInfos, sizeof(TapeInfos));
+    ADOLC_CURRENT_TAPE_INFOS.copy(*newTapeInfos);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = newTapeInfos;
 
     return retval;
@@ -450,16 +450,16 @@ void openTape(short tapeID, char mode) {
                     read_tape_stats(*tiIter);
                }
                 if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-                    memcpy(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr,
-                            &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+                    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
+                            ADOLC_CURRENT_TAPE_INFOS);
                     ADOLC_TAPE_STACK.push(
                             ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
                 } else {
-                    memcpy(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK,
-                            &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+                    ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
+                            ADOLC_CURRENT_TAPE_INFOS);
                     ADOLC_TAPE_STACK.push(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK);
                 }
-                memcpy(&ADOLC_CURRENT_TAPE_INFOS, *tiIter, sizeof(TapeInfos));
+                ADOLC_CURRENT_TAPE_INFOS.copy(**tiIter);
                 ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = *tiIter;
                 return;
             }
@@ -482,17 +482,17 @@ void openTape(short tapeID, char mode) {
     read_tape_stats(tempTapeInfos);
     /* update tapeStack and save tapeInfos */
     if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-        memcpy(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr,
-                &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
+                ADOLC_CURRENT_TAPE_INFOS);
         ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
     } else {
-        memcpy(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK,
-                &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+        ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
+                ADOLC_CURRENT_TAPE_INFOS);
         ADOLC_TAPE_STACK.push(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK);
     }
 
     /* set the new tape infos as current */
-    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tempTapeInfos, sizeof(TapeInfos));
+    ADOLC_CURRENT_TAPE_INFOS.copy(*tempTapeInfos);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = tempTapeInfos;
 }
 
@@ -510,11 +510,11 @@ void releaseTape() {
         ADOLC_CURRENT_TAPE_INFOS.inUse = 0;
     }
 
-    memcpy(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr,
-            &ADOLC_CURRENT_TAPE_INFOS, sizeof(TapeInfos));
+    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
+            ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = ADOLC_TAPE_STACK.top();
-    memcpy(&ADOLC_CURRENT_TAPE_INFOS,
-            ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr, sizeof(TapeInfos));
+    ADOLC_CURRENT_TAPE_INFOS.copy(
+            *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
     ADOLC_TAPE_STACK.pop();
     if (ADOLC_TAPE_STACK.empty())
         ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
@@ -1170,11 +1170,30 @@ TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
     pTapeInfos.tay_fileName = NULL;
 }
 
+void TapeInfos::copy(const TapeInfos& tInfos) {
+    char *ptr, *end;
+    char const* tIptr = (char const*)(&tInfos.tapeID);
+
+    ptr = (char *)(&this->tapeID);
+    end = (char *)(&this->pTapeInfos);
+    for ( ; ptr != end ; ptr++, tIptr++ )
+        *ptr = *tIptr;
+    this->pTapeInfos.copy(tInfos.pTapeInfos);
+}
+
 PersistantTapeInfos::PersistantTapeInfos() {
     char *ptr = (char*)(&forodec_nax), *end = (char*)(&paramstore);
     for (; ptr != end ; ptr++ )
         *ptr = 0;
     paramstore = NULL;
+}
+
+void PersistantTapeInfos::copy(const PersistantTapeInfos& pTInfos) {
+    char *ptr = (char*)(&this->forodec_nax), *end = (char*)(&this->paramstore);
+    char const* pTIptr = (char const*)(&pTInfos.forodec_nax);
+    for (; ptr != end ; ptr++, pTIptr++ )
+        *ptr = *pTIptr;
+    paramstore = pTInfos.paramstore;
 }
 
 PersistantTapeInfos::~PersistantTapeInfos() {
