@@ -45,13 +45,21 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
   storeSize = 0;
   numLives = 0;
   nominmaxFlag = 0;
+  pStore = NULL;
+  numparam = 0;
+  maxparam = 0;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
+  paramStoreMgrPtr = new StoreManagerLocintBlock(pStore, maxparam, numparam);
 }
 
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
-  if (storeManagerPtr) {
+  if (storeManagerPtr != NULL) {
     delete storeManagerPtr;
     storeManagerPtr = NULL;
+  }
+  if (paramStoreMgrPtr != NULL) {
+      delete paramStoreMgrPtr;
+      paramStoreMgrPtr = NULL;
   }
 }
 
@@ -71,9 +79,13 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
     storeManagerPtr = new
-	StoreManagerLocintBlock(
-	    dynamic_cast<StoreManagerLocintBlock*>(gtv.storeManagerPtr),
-	    store, storeSize, numLives);
+        StoreManagerLocintBlock(
+            dynamic_cast<StoreManagerLocintBlock*>(gtv.storeManagerPtr),
+            store, storeSize, numLives);
+    paramStoreMgrPtr = new
+        StoreManagerLocintBlock(
+            dynamic_cast<StoreManagerLocintBlock*>(gtv.paramStoreMgrPtr),
+            pStore, maxparam, numparam);
     return *this;
 }
 
@@ -801,6 +813,10 @@ void cleanUp() {
         delete[] ADOLC_GLOBAL_TAPE_VARS.store;
         ADOLC_GLOBAL_TAPE_VARS.store = NULL;
     }
+    if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) {
+        delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
+        ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
+    }
 
 #if defined(_OPENMP)
     if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 0) {
@@ -1222,9 +1238,9 @@ StoreManagerLocintBlock::~StoreManagerLocintBlock()
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerIntegerBlock::~StoreManagerIntegerBlock()\n";
 #endif
-    if (storePtr) {
+    if (storePtr != NULL) {
      delete[] storePtr;
-     storePtr = 0;
+     storePtr = NULL;
     }
     if (!indexFree.empty() ) {
 	indexFree.clear();

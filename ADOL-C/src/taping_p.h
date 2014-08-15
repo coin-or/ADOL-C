@@ -320,12 +320,17 @@ typedef struct GlobalTapeVarsCL {
     char branchSwitchWarning;
     TapeInfos *currentTapeInfosPtr;
     uint nominmaxFlag;
+    size_t numparam;
+    size_t maxparam;
+    double *pStore;
 #ifdef __cplusplus
+    StoreManager *paramStoreMgrPtr;
     StoreManager *storeManagerPtr;
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
     const GlobalTapeVarsCL& operator=(const GlobalTapeVarsCL&);
 #else
+    void *paramStoreMgrPtr;
     void *storeManagerPtr;
 #endif
 }
