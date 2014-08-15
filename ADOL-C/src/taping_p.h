@@ -683,6 +683,11 @@ void markNewTape();
 void adolc_exit(int errorcode, const char *what, const char *function, const char* file, int line);
 
 /****************************************************************************/
+/* Discards parameters from the end of value tape during reverse mode       */
+/****************************************************************************/
+void discard_params_r();
+
+/****************************************************************************/
 /* Frees parameter indices after taping is complete                         */
 /****************************************************************************/
 void free_all_taping_params();

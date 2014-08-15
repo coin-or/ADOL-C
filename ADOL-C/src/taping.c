@@ -2227,6 +2227,45 @@ locint get_val_space(void) {
 }
 
 /****************************************************************************/
+/* Discards parameters from the end of value tape during reverse mode       */
+/****************************************************************************/
+void discard_params_r(void) {
+    size_t i, np, ip, avail, rsize, chunks;
+    size_t number, remain, chunkSize;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    np = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
+    ip = np;
+    while ( ip > 0 ) {
+	avail = ADOLC_CURRENT_TAPE_INFOS.currVal - ADOLC_CURRENT_TAPE_INFOS.valBuffer;
+	rsize = (avail<ip)?avail:ip;
+	ip -= rsize;
+	ADOLC_CURRENT_TAPE_INFOS.currVal -= rsize;
+	if ( ip > 0 ) {
+	    number = ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE];
+	    fseek(ADOLC_CURRENT_TAPE_INFOS.val_file, sizeof(double) *
+		(ADOLC_CURRENT_TAPE_INFOS.numVals_Tape - number), SEEK_SET);
+	    chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
+	    chunks = number / chunkSize;
+	    for (i = 0; i < chunks; ++i)
+		if (fread(ADOLC_CURRENT_TAPE_INFOS.valBuffer +
+		i * chunkSize, chunkSize * sizeof(double), 1,
+		ADOLC_CURRENT_TAPE_INFOS.val_file) != 1)
+		    fail(ADOLC_EVAL_VAL_TAPE_READ_FAILED);
+	    remain = number % chunkSize;
+	    if (remain != 0)
+		if (fread(ADOLC_CURRENT_TAPE_INFOS.valBuffer +
+		chunks * chunkSize, remain * sizeof(double), 1,
+		ADOLC_CURRENT_TAPE_INFOS.val_file) != 1)
+		    fail(ADOLC_EVAL_VAL_TAPE_READ_FAILED);
+	    ADOLC_CURRENT_TAPE_INFOS.numVals_Tape -= number;
+	    ADOLC_CURRENT_TAPE_INFOS.currVal =
+		ADOLC_CURRENT_TAPE_INFOS.lastValP1;
+	}
+    }
+}
+
+/****************************************************************************/
 /* Returns a pointer to the first element of a values vector and skips the  */
 /* vector. -- Forward Mode --                                               */
 /****************************************************************************/

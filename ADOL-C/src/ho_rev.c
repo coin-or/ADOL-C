@@ -615,7 +615,9 @@ int hov_ti_reverse(
 
                 /*----------------------------------------------------------*/
             case start_of_tape:                            /* start_of_tape */
+                break;
             case end_of_tape:                                /* end_of_tape */
+                discard_params_r();
                 break;
 
 
