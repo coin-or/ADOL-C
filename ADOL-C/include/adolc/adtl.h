@@ -18,7 +18,7 @@
 #define ADOLC_ADTL_H
 
 #include <ostream>
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 #include <list>
 #include <stdexcept>
 

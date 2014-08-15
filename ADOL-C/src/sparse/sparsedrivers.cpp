@@ -343,12 +343,12 @@ int sparse_jac(
       sJinfos.jr1d = (void *) jr1d;
       setTapeInfoJacSparse(tag, sJinfos);
       tapeInfos=getTapeInfos(tag);
-      memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+      ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
     }
     else
       {
 	tapeInfos=getTapeInfos(tag);
-	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+	ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
 	sJinfos.depen    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.depen;
 	sJinfos.nnz_in    = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.nnz_in;
 	sJinfos.JP        = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.JP;
@@ -481,7 +481,7 @@ int sparse_hess(
 	else
 	  {
 	    tapeInfos=getTapeInfos(tag);
-	    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+	    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
             if (indep != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.indep) {
                 fprintf(DIAG_OUT,"ADOL-C Error: wrong number of independents stored in hessian pattern.\n");
                 adolc_exit(-1,"",__func__,__FILE__,__LINE__);
@@ -538,13 +538,13 @@ int sparse_hess(
 	setTapeInfoHessSparse(tag, sHinfos);
 
 	tapeInfos=getTapeInfos(tag);
-	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+	ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
 
     }
     else
       {
 	tapeInfos=getTapeInfos(tag);
-	memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+	ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
 	sHinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.nnz_in;
 	sHinfos.HP     = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
     	sHinfos.Hcomp  = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Hcomp;
@@ -664,7 +664,7 @@ void set_HP(
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     tapeInfos=getTapeInfos(tag);
-    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
     sHinfos.nnz_in = 0;
     deepcopy_HP(&sHinfos.HP,HP,indep);
     sHinfos.Hcomp  = NULL;
@@ -697,7 +697,7 @@ void get_HP(
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     tapeInfos=getTapeInfos(tag);
-    memcpy(&ADOLC_CURRENT_TAPE_INFOS, tapeInfos, sizeof(TapeInfos));
+    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
     deepcopy_HP(HP,ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,indep);
 }
 #else

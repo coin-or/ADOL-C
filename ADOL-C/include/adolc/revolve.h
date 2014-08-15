@@ -15,7 +15,7 @@
 #if !defined(ADOLC_REVOLVE_H)
 #define ADOLC_REVOLVE_H 1
 
-#include <adolc/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 

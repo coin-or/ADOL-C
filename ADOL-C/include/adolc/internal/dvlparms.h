@@ -40,9 +40,8 @@
 
 /*--------------------------------------------------------------------------*/
 /* TAPE IDENTIFICATION (ADOLC & version check) */
-#define statSpace   40
-#define adolcIDSize  5
-/* NOTE: adolcIDSize + statSize <= statSpace required! */
+#define statSpace   42
+/* NOTE: ADOLC_ID and stats must fit in statSpace locints required!         */
 
 /*--------------------------------------------------------------------------*/
 /* ADOL-C configuration (never change this) */
