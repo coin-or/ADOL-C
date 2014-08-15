@@ -15,6 +15,7 @@
 
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
+#include "dvlparms.h"
 
 /****************************************************************************/
 /*                                                                   MACROS */

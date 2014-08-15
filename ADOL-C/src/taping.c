@@ -20,6 +20,7 @@
 
 #include "oplate.h"
 #include "taping_p.h"
+#include "dvlparms.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

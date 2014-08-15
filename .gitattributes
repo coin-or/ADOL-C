@@ -215,7 +215,6 @@ ADOL-C/include/adolc/internal/Makefile.am -text
 ADOL-C/include/adolc/internal/adolc_settings.h.in -text
 ADOL-C/include/adolc/internal/adubfunc.h -text
 ADOL-C/include/adolc/internal/common.h -text
-ADOL-C/include/adolc/internal/dvlparms.h -text
 ADOL-C/include/adolc/internal/paramfunc.h -text
 ADOL-C/include/adolc/internal/usrparms.h -text
 ADOL-C/include/adolc/param.h -text
@@ -249,6 +248,7 @@ ADOL-C/src/drivers/driversf.c -text
 ADOL-C/src/drivers/odedrivers.c -text
 ADOL-C/src/drivers/odedriversf.c -text
 ADOL-C/src/drivers/taylor.c -text
+ADOL-C/src/dvlparms.h -text
 ADOL-C/src/externfcts.cpp -text
 ADOL-C/src/externfcts_p.h -text
 ADOL-C/src/fixpoint.cpp -text
