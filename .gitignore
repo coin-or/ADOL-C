@@ -39,7 +39,7 @@ resource.h
 .cproject
 .autotools
 ADOL-C/adolc
-ADOL-C/include/adolc/adolc_settings.h
+ADOL-C/include/adolc/internal/adolc_settings.h
 ADOL-C/examples/additional_examples/checkpointing/checkpointing
 ADOL-C/examples/additional_examples/checkpointing/*.tap
 ADOL-C/examples/additional_examples/detexam/detexam
