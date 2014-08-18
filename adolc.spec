@@ -2,7 +2,7 @@
 
 # norootforbuild
 
-%define packver 2.5.2
+%define packver 2.5.2-stable
 
 Name:           adolc
 Version:        2.5.2
