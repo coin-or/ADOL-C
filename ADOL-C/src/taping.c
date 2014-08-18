@@ -1280,30 +1280,30 @@ void printTapeStats(FILE *stream, short tag) {
 
     tapestats(tag, (size_t *)&stats);
     fprintf(stream, "\n*** TAPE STATS (tape %d) **********\n", (int)tag);
-    fprintf(stream, "Number of independents: %10zd\n", stats[NUM_INDEPENDENTS]);
-    fprintf(stream, "Number of dependents:   %10zd\n", stats[NUM_DEPENDENTS]);
+    fprintf(stream, "Number of independents: %10zu\n", stats[NUM_INDEPENDENTS]);
+    fprintf(stream, "Number of dependents:   %10zu\n", stats[NUM_DEPENDENTS]);
     fprintf(stream, "\n");
-    fprintf(stream, "Max # of live adoubles: %10zd\n", stats[NUM_MAX_LIVES]);
-    fprintf(stream, "Taylor stack size:      %10zd\n", stats[TAY_STACK_SIZE]);
+    fprintf(stream, "Max # of live adoubles: %10zu\n", stats[NUM_MAX_LIVES]);
+    fprintf(stream, "Taylor stack size:      %10zu\n", stats[TAY_STACK_SIZE]);
     fprintf(stream, "\n");
-    fprintf(stream, "Number of operations:   %10zd\n", stats[NUM_OPERATIONS]);
-    fprintf(stream, "Number of locations:    %10zd\n", stats[NUM_LOCATIONS]);
-    fprintf(stream, "Number of values:       %10zd\n", stats[NUM_VALUES]);
+    fprintf(stream, "Number of operations:   %10zu\n", stats[NUM_OPERATIONS]);
+    fprintf(stream, "Number of locations:    %10zu\n", stats[NUM_LOCATIONS]);
+    fprintf(stream, "Number of values:       %10zu\n", stats[NUM_VALUES]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation file written: %10zd\n", stats[OP_FILE_ACCESS]);
-    fprintf(stream, "Location file written:  %10zd\n", stats[LOC_FILE_ACCESS]);
-    fprintf(stream, "Value file written:     %10zd\n", stats[VAL_FILE_ACCESS]);
+    fprintf(stream, "Operation file written: %10zu\n", stats[OP_FILE_ACCESS]);
+    fprintf(stream, "Location file written:  %10zu\n", stats[LOC_FILE_ACCESS]);
+    fprintf(stream, "Value file written:     %10zu\n", stats[VAL_FILE_ACCESS]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation buffer size:  %10zd\n", stats[OP_BUFFER_SIZE]);
-    fprintf(stream, "Location buffer size:   %10zd\n", stats[LOC_BUFFER_SIZE]);
-    fprintf(stream, "Value buffer size:      %10zd\n", stats[VAL_BUFFER_SIZE]);
-    fprintf(stream, "Taylor buffer size:     %10zd\n", stats[TAY_BUFFER_SIZE]);
+    fprintf(stream, "Operation buffer size:  %10zu\n", stats[OP_BUFFER_SIZE]);
+    fprintf(stream, "Location buffer size:   %10zu\n", stats[LOC_BUFFER_SIZE]);
+    fprintf(stream, "Value buffer size:      %10zu\n", stats[VAL_BUFFER_SIZE]);
+    fprintf(stream, "Taylor buffer size:     %10zu\n", stats[TAY_BUFFER_SIZE]);
     fprintf(stream, "\n");
-    fprintf(stream, "Operation type size:    %10zd\n",
+    fprintf(stream, "Operation type size:    %10zu\n",
             (size_t)sizeof(unsigned char));
-    fprintf(stream, "Location type size:     %10zd\n", (size_t)sizeof(locint));
-    fprintf(stream, "Value type size:        %10zd\n", (size_t)sizeof(double));
-    fprintf(stream, "Taylor type size:       %10zd\n", (size_t)sizeof(revreal));
+    fprintf(stream, "Location type size:     %10zu\n", (size_t)sizeof(locint));
+    fprintf(stream, "Value type size:        %10zu\n", (size_t)sizeof(double));
+    fprintf(stream, "Taylor type size:       %10zu\n", (size_t)sizeof(revreal));
     fprintf(stream, "**********************************\n\n");
 }
 
