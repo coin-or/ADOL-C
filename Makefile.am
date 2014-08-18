@@ -47,4 +47,7 @@ pkgconfig_DATA = @adolclib@.pc
 test: all
 	cd ADOL-C; $(MAKE) test
 
+distclean-local:
+	rm -f @adolclib@.pc
+
 .PHONY: test
