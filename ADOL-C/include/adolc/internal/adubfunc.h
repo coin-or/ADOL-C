@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     paramfunc.h
+ File:     adubfunc.h
  Revision: $Id$
  Contents: operators and functions returning temporaries
  
