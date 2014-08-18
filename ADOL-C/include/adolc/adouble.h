@@ -287,9 +287,12 @@ public:
     inline locint loc(void) const;
 };
 
+#endif /* __cplusplus */
+
 #include <adolc/param.h>
 #include <adolc/advector.h>
 
+#ifdef __cplusplus
 /****************************************************************************/
 /*                                                       INLINE DEFINITIONS */
 
