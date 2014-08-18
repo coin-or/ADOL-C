@@ -14,7 +14,8 @@
 
 #if defined(_IN_CLASS_) && _IN_CLASS_
 #if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_)
-    /*--------------------------------------------------------------------------    /* Comparison (friends) */
+    /*--------------------------------------------------------------------------*/
+    /* Comparison (friends) */
 #if defined(ADOLC_ADVANCED_BRANCHING)
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
