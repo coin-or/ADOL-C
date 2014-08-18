@@ -13,7 +13,7 @@ define([ADOLC_LVL], [2])
 
 AC_PREREQ(2.67)
 AC_INIT(adolc,
-        ADOLC_VER.ADOLC_SUB.ADOLC_LVL,
+        ADOLC_VER.ADOLC_SUB.ADOLC_LVL-stable,
         [adol-c@list.coin-or.org])
 config_flags="$*"
 AC_REVISION($Revision$)
