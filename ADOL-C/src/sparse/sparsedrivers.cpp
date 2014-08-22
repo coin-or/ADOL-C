@@ -415,6 +415,7 @@ int sparse_jac(
 {
     fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+	return -1;
 }
 #endif
 
@@ -643,6 +644,7 @@ int sparse_hess(
 {
     fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+	return -1;
 }
 #endif
 
@@ -1238,6 +1240,7 @@ int ADOLC_get_sparse_jacobian( func_ad *const fun,
 {
     fprintf(DIAG_OUT, "ADOL-C error: function %s can only be used if linked with ColPack\n", __FUNCTION__);
     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+	return -1;
 }
 #endif
 
