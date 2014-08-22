@@ -1,16 +1,20 @@
 #!/bin/bash -x
-INCFILES=(adolc.h adolc_settings.h adalloc.h adouble.h adutils.h \
+INCFILES=(adolc.h adalloc.h adouble.h adutils.h \
 	 adutilsc.h advector.h \
-         common.h convolut.h dvlparms.h fortutils.h \
-         interfaces.h taping.h usrparms.h \
+         convolut.h fortutils.h \
+         interfaces.h taping.h \
          externfcts.h checkpointing.h fixpoint.h \
          adolc_sparse.h adolc_openmp.h \
-         revolve.h)
+         revolve.h adtl.h adoublecuda.h)
 INCFILES_SPARSE=(sparsedrivers.h sparse_fo_rev.h)
 
 INCFILES_DRIVERS=(drivers.h odedrivers.h taylor.h)
 
 INCFILES_TAPEDOC=(tapedoc.h)
+
+INCFILES_INTERNAL=(adolc_settings.h \
+                   adubfunc.h paramfunc.h \
+                   common.h usrparms.h)
 
 if [[ $# < 1 ]]; then
 	echo "usage: installer.sh config [arch]"
@@ -49,6 +53,7 @@ mkdir -p tmp/doc
 mkdir -p tmp/include/adolc/sparse
 mkdir -p tmp/include/adolc/drivers
 mkdir -p tmp/include/adolc/tapedoc
+mkdir -p tmp/include/adolc/internal
 
 for i in ${INCFILES[*]} ; do
 	cp ../../ADOL-C/include/adolc/$i tmp/include/adolc
@@ -64,6 +69,10 @@ done
 
 for i in ${INCFILES_TAPEDOC[*]} ; do
 	cp ../../ADOL-C/include/adolc/tapedoc/$i tmp/include/adolc/tapedoc
+done
+
+for i in ${INCFILES_INTERNAL[*]} ; do
+	cp ../../ADOL-C/include/adolc/internal/$i tmp/include/adolc/internal
 done
 
 cp $conf/adolc.dll tmp/bin
