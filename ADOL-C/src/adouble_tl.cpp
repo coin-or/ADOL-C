@@ -25,6 +25,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include "dvlparms.h"
 
 using std::cout;
 

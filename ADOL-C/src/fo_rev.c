@@ -197,6 +197,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include "taping_p.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
+#include "dvlparms.h"
 
 #include <math.h>
 #include <string.h>

@@ -17,6 +17,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>
 #include "taping_p.h"
+#include "dvlparms.h"
 
 #if defined(ADOLC_INTERNAL)
 #    if HAVE_CONFIG_H

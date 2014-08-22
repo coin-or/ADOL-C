@@ -13,6 +13,7 @@
 ----------------------------------------------------------------------------*/
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <adolc/interfaces.h>
+#include "dvlparms.h"
 
 #include <math.h>
 

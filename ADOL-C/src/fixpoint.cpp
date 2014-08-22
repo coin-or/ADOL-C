@@ -17,6 +17,7 @@
 #include <adolc/adolc.h>
 #include <adolc/fixpoint.h>
 #include "taping_p.h"
+#include "dvlparms.h"
 
 #include <vector>
 
