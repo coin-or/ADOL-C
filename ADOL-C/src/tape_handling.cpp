@@ -14,6 +14,7 @@
 ---------------------------------------------------------------------------*/
 #include "taping_p.h"
 #include "checkpointing_p.h"
+#include "dvlparms.h"
 #include <adolc/revolve.h>
 
 #include <cassert>
