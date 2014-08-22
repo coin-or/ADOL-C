@@ -18,6 +18,7 @@
 #include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adalloc.h>
+#include "dvlparms.h"
 
 #include <math.h>
 #include <string.h>

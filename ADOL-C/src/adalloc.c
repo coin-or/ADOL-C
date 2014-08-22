@@ -14,6 +14,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include "dvlparms.h"
 
 #if !defined(ADOLC_NO_MALLOC)
 #   define ADOLC_CALLOC(n,m) calloc(n,m)

@@ -270,6 +270,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include "oplate.h"
 #include "taping_p.h"
 #include <adolc/convolut.h>
+#include "dvlparms.h"
 
 #include <math.h>
 

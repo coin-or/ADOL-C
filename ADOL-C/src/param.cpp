@@ -16,6 +16,7 @@
 
 #include "oplate.h"
 #include "taping_p.h"
+#include "dvlparms.h"
 
 #include <limits>
 

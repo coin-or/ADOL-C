@@ -42,9 +42,9 @@ protected:
     pdouble(double pval);
     pdouble(locint index);
 public:
-    friend pdouble mkparam(double pval);
-    friend pdouble getparam(locint index);
-    friend locint mkparam_idx(double pval);
+    friend ADOLC_DLL_EXPORT pdouble mkparam(double pval);
+    friend ADOLC_DLL_EXPORT pdouble getparam(locint index);
+    friend ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
     operator adub() const;
 
 #define _IN_CLASS_ 1
@@ -55,10 +55,6 @@ public:
 
     ~pdouble() {}
 };
-
-ADOLC_DLL_EXPORT pdouble mkparam(double pval);
-ADOLC_DLL_EXPORT pdouble getparam(locint index);
-ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
 
 #ifdef ADOLC_ADVANCED_BRANCHING
 inline adub operator != ( const pdouble& a, const badouble& b)

@@ -36,6 +36,7 @@
 #include "oplate.h"
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
+#include "dvlparms.h"
 
 #include <math.h>
 
