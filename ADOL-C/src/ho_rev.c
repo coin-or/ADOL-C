@@ -1688,7 +1688,7 @@ int hov_ti_reverse(
 
                       HOV_INC(Ares, k)
                       HOV_INC(Aarg, k)
-                      HOS_OV_INC(Targ2, k)
+                      HOS_OV_INC(Targ, k)
                   }
             }
                 break;
