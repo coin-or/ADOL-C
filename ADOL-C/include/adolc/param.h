@@ -21,6 +21,12 @@
 
 using std::logic_error;
 
+class pdouble;
+
+ADOLC_DLL_EXPORT pdouble mkparam(double pval);
+ADOLC_DLL_EXPORT pdouble getparam(locint index);
+ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
+
 class ADOLC_DLL_EXPORT pdouble {
     friend ADOLC_DLL_EXPORT class badouble;
     friend ADOLC_DLL_EXPORT class adub;
@@ -42,9 +48,9 @@ protected:
     pdouble(double pval);
     pdouble(locint index);
 public:
-    friend ADOLC_DLL_EXPORT pdouble mkparam(double pval);
-    friend ADOLC_DLL_EXPORT pdouble getparam(locint index);
-    friend ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
+    friend pdouble mkparam(double pval);
+    friend pdouble getparam(locint index);
+    friend locint mkparam_idx(double pval);
     operator adub() const;
 
 #define _IN_CLASS_ 1
