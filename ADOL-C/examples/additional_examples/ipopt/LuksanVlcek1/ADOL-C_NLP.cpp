@@ -212,13 +212,12 @@ bool MyADOLC_NLP::eval_h(Index n, const Number* x, bool new_x,
     // return the values. This is a symmetric matrix, fill the lower left
     // triangle only
 
-    for(Index i = 0; i<n ; i++)
-      x_lam[i] = x[i];
+    obj_lam[0] = obj_factor;
     for(Index i = 0; i<m ; i++)
-      x_lam[n+i] = lambda[i];
-    x_lam[n+m] = obj_factor;
+      obj_lam[1+i] = lambda[i];
 
-    hessian(tag_L,n+m+1,x_lam,Hess);
+    set_param_vec(tag_L,m+1,obj_lam);
+    hessian(tag_L,n,const_cast<double*>(x),Hess);
 
     Index idx = 0;
 
@@ -247,7 +246,7 @@ void MyADOLC_NLP::finalize_solution(SolverReturn status,
 
 // Memory deallocation for ADOL-C variables
 
-  delete[] x_lam;
+  delete[] obj_lam;
 
   for(Index i=0;i<m;i++)
     delete[] Jac[i];
@@ -270,8 +269,8 @@ void MyADOLC_NLP::generate_tapes(Index n, Index m)
 
   adouble *xa   = new adouble[n];
   adouble *g    = new adouble[m];
-  adouble *lam  = new adouble[m];
-  adouble sig;
+  double *lam   = new double[m];
+  double sig;
   adouble obj_value;
   
   double dummy;
@@ -280,7 +279,7 @@ void MyADOLC_NLP::generate_tapes(Index n, Index m)
   for(Index i=0;i<m;i++)
     Jac[i] = new double[n];
 
-  x_lam   = new double[n+m+1];
+  obj_lam   = new double[m+1];
 
   Hess = new double*[n+m+1];
   for(Index i=0;i<n+m+1;i++)
@@ -317,16 +316,16 @@ void MyADOLC_NLP::generate_tapes(Index n, Index m)
     for(Index i=0;i<n;i++)
       xa[i] <<= xp[i];
     for(Index i=0;i<m;i++)
-      lam[i] <<= 1.0;
-    sig <<= 1.0;
+      lam[i] = 1.0;
+    sig = 1.0;
 
     eval_obj(n,xa,obj_value);
 
-    obj_value *= sig;
+    obj_value *= mkparam(sig);
     eval_constraints(n,xa,m,g);
  
     for(Index i=0;i<m;i++)
-      obj_value += g[i]*lam[i];
+      obj_value += g[i]*mkparam(lam[i]);
 
     obj_value >>= dummy;
 
