@@ -688,12 +688,22 @@ void init() {
     ADOLC_EXT_DIFF_FCTS_BUFFER.init(init_CpInfos);
 }
 
+static void clearCurrentTape() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    TapeInfos* tmpTapeInfos = new TapeInfos;
+
+    ADOLC_CURRENT_TAPE_INFOS.copy(*tmpTapeInfos);
+    delete tmpTapeInfos;
+}
+
 /* does things like closing/removing temporary files, ... */
 void cleanUp() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     TapeInfos** tiIter;
+    clearCurrentTape();
     while (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
         tiIter = &ADOLC_TAPE_INFOS_BUFFER.back();
         ADOLC_TAPE_INFOS_BUFFER.pop_back();
