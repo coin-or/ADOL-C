@@ -269,7 +269,7 @@ ADOLC_DLL_EXPORT int hov_forward_partx(
 
 /*--------------------------------------------------------------------------*/
 /*                                                                   HOV_WK */
-/* hov_wk_forward(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d])      */
+/* hov_wk_forward(tag, m, n, d, p, keep, x[n], X[n][p][d], y[m], Y[m][p][d])      */
 /* (defined in uni5_for.mc)                                                 */
 ADOLC_DLL_EXPORT int hov_wk_forward(
     short,int,int,int,int,int,double*,double***,double*,double***);
