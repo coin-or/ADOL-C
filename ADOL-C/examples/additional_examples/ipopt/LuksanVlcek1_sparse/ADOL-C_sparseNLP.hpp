@@ -25,9 +25,9 @@
 #ifndef __MYADOLCNLP_HPP__
 #define __MYADOLCNLP_HPP__
 
-#include "IpTNLP.hpp"
-#include <adolc.h>
-#include <adolc_sparse.h>
+#include <coin/IpTNLP.hpp>
+#include <adolc/adolc.h>
+#include <adolc/adolc_sparse.h>
 
 #define tag_f 1
 #define tag_g 2
@@ -138,20 +138,17 @@ private:
 
   //@{
 
-  double *x_lam;
+  double *obj_lam;
 
   //** variables for sparsity exploitation
-  unsigned int **HP_t;         /* compressed block row storage */
   unsigned int *rind_g;        /* row indices    */
   unsigned int *cind_g;        /* column indices */
   double *jacval;              /* values         */
   unsigned int *rind_L;        /* row indices    */
   unsigned int *cind_L;        /* column indices */
-  unsigned int *rind_L_total;  /* row indices    */
-  unsigned int *cind_L_total;  /* column indices */
   double *hessval;             /* values */
   int nnz_jac;
-  int nnz_L, nnz_L_total;
+  int nnz_L;
   int options_g[4];
   int options_L[4];
   

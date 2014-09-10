@@ -22,8 +22,8 @@
 //
 //*************************************************************************
 
-#include "IpIpoptApplication.hpp"
-#include "IpSolveStatistics.hpp"
+#include <coin/IpIpoptApplication.hpp>
+#include <coin/IpSolveStatistics.hpp>
 #include "ADOL-C_NLP.hpp"
 
 using namespace Ipopt;
