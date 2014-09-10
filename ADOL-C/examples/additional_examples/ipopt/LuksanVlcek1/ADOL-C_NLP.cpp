@@ -252,7 +252,7 @@ void MyADOLC_NLP::finalize_solution(SolverReturn status,
     delete[] Jac[i];
   delete[] Jac;
 
-  for(Index i=0;i<n+m+1;i++)
+  for(Index i=0;i<n;i++)
     delete[] Hess[i];
   delete[] Hess;
 }
@@ -281,8 +281,8 @@ void MyADOLC_NLP::generate_tapes(Index n, Index m)
 
   obj_lam   = new double[m+1];
 
-  Hess = new double*[n+m+1];
-  for(Index i=0;i<n+m+1;i++)
+  Hess = new double*[n];
+  for(Index i=0;i<n;i++)
     Hess[i] = new double[i+1];
 
   get_starting_point(n, 1, xp, 0, zl, zu, m, 0, lamp);
