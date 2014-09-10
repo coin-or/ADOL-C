@@ -25,8 +25,8 @@
 #ifndef __MYADOLCNLP_HPP__
 #define __MYADOLCNLP_HPP__
 
-#include "IpTNLP.hpp"
-#include <adolc.h>
+#include <coin/IpTNLP.hpp>
+#include <adolc/adolc.h>
 
 #define tag_f 1
 #define tag_g 2
@@ -137,7 +137,7 @@ private:
   //@{
   double **Jac;
 
-  double *x_lam;
+  double *obj_lam;
   double **Hess;
   //@}
 

@@ -2657,6 +2657,80 @@ in \autoref{vecCas}.
 \section{Advanced algorithmic differentiation in ADOL-C}
 \label{adv_ad}
 %
+\subsection{Differentiating parameter dependent functions}
+%
+Normally the functions to be differentiated using AD are defined as
+mappings from $\R^n$ to $\R^m$. The derivatives of the $m$ dependents
+are then computed w.r.t. all the $n$ independents. However sometimes
+the application requires only derivatives w.r.t. some of the
+independents and the others only occur in the evaluation procedure as
+parameters. One important such use case is Lagrange Multipliers in a
+nonlinear optimization problem. Declaring such variables as
+\verb=adouble= and marking them as independent results in the
+evaluation of superfluous derivative information and increases
+runtime. However, if the parameters are not defined as \verb=adouble=
+type variables they get hard coded as constants onto the ADOL-C
+trace. One may want to change these parameters for some evaluations,
+however the overhead of retracing the function may be very high. In
+such cases these constants may be specially marked as parameters
+during tracing using the function 
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf mkparam(d)}\\
+\>{\sf double d;}         \> // constant value to be marked as parameter \\
+\end{tabbing}
+This stores the constant in a different place on the trace than the
+other unmarked constants and enables the user to replace a whole
+vector of parameters with a new one before computing derivatives later
+on. All such marked parameter constants can be used in any evaluation
+expression where the original unmarked constants were used.
+
+Sometimes the same parameter may be needed in various different
+expressions. During trace creation the marked parameters are given a
+running index as they are marked. This index may me saved by the user
+and used to access the same stored value in different expressions.
+
+To save the index while marking a parameter use
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf locint mkparam\_idx(d)}\\
+\>{\sf double d;} \> // constant value to be marked
+\end{tabbing}
+The resulting \verb=locint= can be saved in a variable by the user and
+later used to access the saved parameter from in the trace in any expression
+
+To access a saved parameter inside any evaluation expression use
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf getparam(idx)}\\
+\>{\sf locint idx;} \> // index of the parameter as returned by
+mkparam\_idx()\\
+\end{tabbing}
+
+The above three functions work only during the creation of the trace,
+i.e., between the invokation of \verb=trace_on()= and \verb=trace_off()=.
+
+For all following derivative computations using the drivers described
+in the preceding sections, the saved parameter values will be used,
+unless the user asks to replace them with a different vector of
+values.
+
+To replace the whole parameter vector one uses the routine
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf set\_param\_vec(tag, number, parameters)}\\
+\>{\sf short int tag;}   \> // tape identification\\
+\>{\sf size\_t number;}  \> // total number of constants marked as
+parameters\\
+\>{\sf double* parameters;} \> // array of constants to be used as replacement\\
+\end{tabbing}
+All following derivative computations using the drivers described in
+the preceding sections will now use the new parameters. 
+
+After replacing the parameters, however, one cannot directly call a basic
+reverse mode driver. A basic forward mode driver must be called. However,
+the easy to use drivers from Section \ref{drivers} do this automatically.
+%
 \subsection{Differentiating external functions}
 %
 Ideally, AD is applied to a given computation as a whole.
