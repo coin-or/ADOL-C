@@ -694,6 +694,7 @@ static void clearCurrentTape() {
     TapeInfos* tmpTapeInfos = new TapeInfos;
 
     ADOLC_CURRENT_TAPE_INFOS.copy(*tmpTapeInfos);
+    ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(*tmpTapeInfos);
     delete tmpTapeInfos;
 }
 
