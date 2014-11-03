@@ -4282,7 +4282,7 @@ int  hov_forward(
                     }
 		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
 		    signature[switchnum] = dp_T0[arg];
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
 		    swargs[switchnum] = dp_T0[arg];
 #endif
 		}
