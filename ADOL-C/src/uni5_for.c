@@ -420,9 +420,9 @@ if (keep){\
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
 #define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-#define FIRSTSIGN_P(x,y) firstsign(p,x,y)
+#define FIRSTSIGN_P(x,y) firstsign(p,&(x),y)
 #define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
-#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,p,x,y)
+#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,p,&(x),y)
 #endif
 #else
 #if defined(_INT_FOR_)
@@ -432,9 +432,9 @@ if (keep){\
 #define FOR_0_LE_l_LT_p
 #define FOR_p_GT_l_GE_0
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-#define FIRSTSIGN_P(x,y) firstsign(1,x,y)
+#define FIRSTSIGN_P(x,y) firstsign(1,&(x),y)
 #define COPYTAYL_P(x,y)  x = *y
-#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,1,x,y)
+#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,1,&(x),y)
 #endif
 #endif
 #endif
@@ -5994,10 +5994,10 @@ int get_num_switches(short tapeID) {
 }
 #endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
-short firstsign(int p, double u, double* du) {
+short firstsign(int p, double *u, double* du) {
     int i=0;
     short tmp;
-    tmp=(u>0.0)?1.0:((u<0.0)?-1.0:0.0);
+    tmp=(*u>0.0)?1.0:((*u<0.0)?-1.0:0.0);
     while(i<p && tmp==0.0) {
 	tmp=(du[i]>0.0)?1.0:((du[i]<0.0)?-1.0:0.0);
 	i++;
@@ -6005,13 +6005,19 @@ short firstsign(int p, double u, double* du) {
     return tmp;
 }
 #elif defined(_ABS_NORM_SIG_) && defined(_FOV_)
-short ext_firstsign(double sigbase, double sigdir, int p, double u, double* du) {
-    if (sigbase == 0 && sigdir > 0) 
+short ext_firstsign(double sigbase, double sigdir, int p, double *u, double* du) {
+    if (sigbase == 0 && sigdir > 0) { 
         du[0] = fmax(0,du[0]);
-    else if (sigbase == 0 && sigdir < 0)
+        *u = 0;
+    }
+    else if (sigbase == 0 && sigdir < 0) {
         du[0] = fmin(0,du[0]);
-    else if (sigbase == 0 && sigdir == 0)
+        *u =0;
+    }
+    else if (sigbase == 0 && sigdir == 0) {
         du[0] = 0;
+        *u = 0;
+    }
     return firstsign(p,u,du);
 }
 #endif
