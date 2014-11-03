@@ -419,9 +419,10 @@ if (keep){\
 #if defined(_ADOLC_VECTOR_)
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
 #define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
 #define FIRSTSIGN_P(x,y) firstsign(p,x,y)
 #define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
+#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,p,x,y)
 #endif
 #else
 #if defined(_INT_FOR_)
@@ -430,9 +431,10 @@ if (keep){\
 #else
 #define FOR_0_LE_l_LT_p
 #define FOR_p_GT_l_GE_0
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
 #define FIRSTSIGN_P(x,y) firstsign(1,x,y)
 #define COPYTAYL_P(x,y)  x = *y
+#define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,1,x,y)
 #endif
 #endif
 #endif
@@ -540,6 +542,20 @@ int  fos_an_forward(short tnum,
 		    double *taylors,
 		    double *swargs,
 		    double *swtaylors)
+#elif defined(_ABS_NORM_SIG_)
+int  fos_an_sig_forward(short tnum,
+                        int depcheck,
+                        int indcheck,
+                        const double* basepoint,
+                        double *argument,
+                        int swcheck,
+                        double *sigbase,
+                        double *sigdir,
+                        double *valuepoint,
+                        double *taylors,
+                        double *swargs,
+                        double *swtaylors,
+                        double *sigsw)
 #else
 #if defined(_KEEP_)
 int  fos_forward(
@@ -742,6 +758,22 @@ int  fov_an_forward(
     double       *swargs,
     double      **swtaylors)
 /* the order of the indices in argument and taylors is [var][taylor] */
+#elif defined(_ABS_NORM_SIG_)
+int  fov_an_sig_forward(
+    short         tnum,        /* tape id */
+    int           depcheck,    /* consistency chk on # of deps */
+    int           indcheck,    /* consistency chk on # of indeps */
+    int           p,           /* # of taylor series */
+    const double *basepoint,   /* independent variable values */
+    double      **argument,    /* Taylor coefficients (input) */
+    int           swcheck,     /* consistency chk in # of switches */
+    double       *sigbase,     /* Signature of basepoint */
+    double       *sigdir,      /* Signature of direction */
+    double       *valuepoint,  /* Taylor coefficients (output) */
+    double      **taylors,     /* matrix of coifficient vectors */
+    double       *swargs,
+    double      **swtaylors,
+    double       *sigsw)
 #else
 int  fov_forward(
     short         tnum,        /* tape id */
@@ -1066,13 +1098,24 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
       if (! ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] ) {
 	  fprintf(DIAG_OUT,"ADOL-C error: tape %d was not created compatible "
 		  "with %s\n              Please call enableMinMaxUsingAbs() "
 		  "before trace_on(%d)\n", tnum, __FUNCTION__, tnum);
 	  adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
+#if defined(_ABS_NORM_SIG_)
+      if (swcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
+        fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
+                "Number of switches(%u) passed"
+                " to forward is\ninconsistent with number "
+                "recorded on tape (%zu) \n", tnum,
+                swcheck,
+                ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+      }
+#endif
 #endif
     /****************************************************************************/
     /*                                                        MEMORY ALLOCATION */
@@ -4285,6 +4328,12 @@ int  hov_forward(
 		COPYTAYL_P(swtaylors[switchnum],Targ);
 		FOR_0_LE_l_LT_p
 		    TRES_INC = y * TARG_INC;
+#elif defined(_ABS_NORM_SIG_)
+		y = EXT_FIRSTSIGN_P(sigbase[switchnum],sigdir[switchnum],dp_T0[arg],Targ);
+		COPYTAYL_P(swtaylors[switchnum],Targ);
+                sigsw[switchnum] = y;
+		FOR_0_LE_l_LT_p
+		    TRES_INC = y * TARG_INC;
 #else
                 y = 0.0;
                 if (dp_T0[arg] != 0.0) {
@@ -5954,6 +6003,16 @@ double firstsign(int p, double u, double* du) {
 	i++;
     }
     return tmp;
+}
+#elif defined(_ABS_NORM_SIG_) && defined(_FOV_)
+double ext_firstsign(double sigbase, double sigdir, int p, double u, double* du) {
+    if (sigbase == 0 && sigdir > 0) 
+        du[0] = fmax(0,du[0]);
+    else if (sigbase == 0 && sigdir < 0)
+        du[0] = fmin(0,du[0]);
+    else if (sigbase == 0 && sigdir == 0)
+        du[0] = 0;
+    return firstsign(p,u,du);
 }
 #endif
 /****************************************************************************/
