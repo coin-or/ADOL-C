@@ -549,13 +549,13 @@ int  fos_an_sig_forward(short tnum,
                         const double* basepoint,
                         double *argument,
                         int swcheck,
-                        double *sigbase,
-                        double *sigdir,
+                        short *sigbase,
+                        short *sigdir,
                         double *valuepoint,
                         double *taylors,
                         double *swargs,
                         double *swtaylors,
-                        double *sigsw)
+                        short *sigsw)
 #else
 #if defined(_KEEP_)
 int  fos_forward(
@@ -767,13 +767,13 @@ int  fov_an_sig_forward(
     const double *basepoint,   /* independent variable values */
     double      **argument,    /* Taylor coefficients (input) */
     int           swcheck,     /* consistency chk in # of switches */
-    double       *sigbase,     /* Signature of basepoint */
-    double       *sigdir,      /* Signature of direction */
+    short        *sigbase,     /* Signature of basepoint */
+    short        *sigdir,      /* Signature of direction */
     double       *valuepoint,  /* Taylor coefficients (output) */
     double      **taylors,     /* matrix of coifficient vectors */
     double       *swargs,
     double      **swtaylors,
-    double       *sigsw)
+    short        *sigsw)
 #else
 int  fov_forward(
     short         tnum,        /* tape id */
@@ -5994,9 +5994,9 @@ int get_num_switches(short tapeID) {
 }
 #endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
-double firstsign(int p, double u, double* du) {
+short firstsign(int p, double u, double* du) {
     int i=0;
-    double tmp;
+    short tmp;
     tmp=(u>0.0)?1.0:((u<0.0)?-1.0:0.0);
     while(i<p && tmp==0.0) {
 	tmp=(du[i]>0.0)?1.0:((du[i]<0.0)?-1.0:0.0);
@@ -6005,7 +6005,7 @@ double firstsign(int p, double u, double* du) {
     return tmp;
 }
 #elif defined(_ABS_NORM_SIG_) && defined(_FOV_)
-double ext_firstsign(double sigbase, double sigdir, int p, double u, double* du) {
+short ext_firstsign(double sigbase, double sigdir, int p, double u, double* du) {
     if (sigbase == 0 && sigdir > 0) 
         du[0] = fmax(0,du[0]);
     else if (sigbase == 0 && sigdir < 0)
