@@ -129,8 +129,8 @@ am__libadolcsrc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
 	hos_reverse.c hos_ov_reverse.c hov_reverse.c forward_partx.c \
-	zos_an_forward.c fos_an_reverse.c fos_an_forward.c \
-	fov_an_forward.c fos_an_sig_forward.c fov_an_sig_forward.c \
+	zos_pl_forward.c fos_pl_reverse.c fos_pl_forward.c \
+	fov_pl_forward.c fos_pl_sig_forward.c fov_pl_sig_forward.c \
 	externfcts.cpp checkpointing.cpp fixpoint.cpp \
 	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
 	param.cpp int_forward_s.c int_forward_t.c indopro_forward_s.c \
@@ -148,9 +148,9 @@ am_libadolcsrc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
 	taping.lo tape_handling.lo zos_forward.lo fos_forward.lo \
 	fov_forward.lo hos_forward.lo hov_forward.lo hov_wk_forward.lo \
 	fos_reverse.lo fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo \
-	hov_reverse.lo forward_partx.lo zos_an_forward.lo \
-	fos_an_reverse.lo fos_an_forward.lo fov_an_forward.lo \
-	fos_an_sig_forward.lo fov_an_sig_forward.lo externfcts.lo \
+	hov_reverse.lo forward_partx.lo zos_pl_forward.lo \
+	fos_pl_reverse.lo fos_pl_forward.lo fov_pl_forward.lo \
+	fos_pl_sig_forward.lo fov_pl_sig_forward.lo externfcts.lo \
 	checkpointing.lo fixpoint.lo fov_offset_forward.lo revolve.lo \
 	advector.lo adouble_tl.lo param.lo $(am__objects_1)
 libadolcsrc_la_OBJECTS = $(am_libadolcsrc_la_OBJECTS)
@@ -436,8 +436,8 @@ libadolcsrc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
 	hos_reverse.c hos_ov_reverse.c hov_reverse.c forward_partx.c \
-	zos_an_forward.c fos_an_reverse.c fos_an_forward.c \
-	fov_an_forward.c fos_an_sig_forward.c fov_an_sig_forward.c \
+	zos_pl_forward.c fos_pl_reverse.c fos_pl_forward.c \
+	fov_pl_forward.c fos_pl_sig_forward.c fov_pl_sig_forward.c \
 	externfcts.cpp checkpointing.cpp fixpoint.cpp \
 	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
 	param.cpp $(am__append_2)
@@ -527,15 +527,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixpoint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fortutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/forward_partx.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_an_forward.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_an_reverse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_an_sig_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_reverse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_sig_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_an_forward.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_an_sig_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_offset_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_pl_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_pl_sig_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hos_ov_reverse.Plo@am__quote@
@@ -560,8 +560,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tape_handling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taping.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_an_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_pl_forward.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
