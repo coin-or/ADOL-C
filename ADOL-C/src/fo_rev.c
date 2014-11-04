@@ -64,7 +64,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*--------------------------------------------------------------------------*/
 #ifdef _FOS_
 #ifdef _ABS_NORM_
-#define GENERATED_FILENAME "fos_an_reverse"
+#define GENERATED_FILENAME "fos_pl_reverse"
 #else
 #define GENERATED_FILENAME "fos_reverse"
 #endif
@@ -220,7 +220,7 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
-int fos_an_reverse(short  tnum,     /* tape id */
+int fos_pl_reverse(short  tnum,     /* tape id */
 		   int    depen,     /* consistency chk on # of deps */
 		   int    indep,     /* consistency chk on # of indeps */
 		   int    swchk,    /* consistency chk on # of switches */

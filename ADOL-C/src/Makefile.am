@@ -45,9 +45,9 @@ libadolcsrc_la_SOURCES  = adalloc.c malloc.c adouble.cpp \
                        hos_forward.c hov_forward.c hov_wk_forward.c \
                        fos_reverse.c fov_reverse.c \
                        hos_reverse.c hos_ov_reverse.c hov_reverse.c \
-                       forward_partx.c zos_an_forward.c fos_an_reverse.c \
-                       fos_an_forward.c fov_an_forward.c fos_an_sig_forward.c \
-                       fov_an_sig_forward.c externfcts.cpp checkpointing.cpp \
+                       forward_partx.c zos_pl_forward.c fos_pl_reverse.c \
+                       fos_pl_forward.c fov_pl_forward.c fos_pl_sig_forward.c \
+                       fov_pl_sig_forward.c externfcts.cpp checkpointing.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
                        advector.cpp adouble_tl.cpp param.cpp
 
