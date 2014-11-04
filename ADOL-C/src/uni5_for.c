@@ -58,7 +58,7 @@
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
 #if defined(_ABS_NORM_)
-#  define GENERATED_FILENAME "zos_an_forward"
+#  define GENERATED_FILENAME "zos_pl_forward"
 #else
 #  define GENERATED_FILENAME "zos_forward"
 #endif
@@ -66,7 +66,9 @@
 #else
 #if defined(_FOS_)
 #if defined(_ABS_NORM_)
-#define GENERATED_FILENAME "fos_an_forward"
+#define GENERATED_FILENAME "fos_pl_forward"
+#elif defined(_ABS_NORM_SIG_)
+#define GENERATED_FILENAME "fos_pl_sig_forward"
 #else
 #define GENERATED_FILENAME "fos_forward"
 #endif
@@ -78,7 +80,9 @@
 #else
 #if defined(_FOV_)
 #if defined(_ABS_NORM_)
-#define GENERATED_FILENAME "fov_an_forward"
+#define GENERATED_FILENAME "fov_pl_forward"
+#elif defined(_ABS_NORM_SIG_)
+#define GENERATED_FILENAME "fov_pl_sig_forward"
 #else
 #define GENERATED_FILENAME "fov_forward"
 #endif
@@ -503,7 +507,7 @@ BEGIN_C_DECLS
 /* Zero Order Scalar version of the forward mode.                           */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int zos_an_forward(short tnum,
+int zos_pl_forward(short tnum,
                   int depcheck,
 		  int indcheck,
 		  int keep,
@@ -533,7 +537,7 @@ int  zos_forward_nk(
 /* First Order Scalar version of the forward mode.                          */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int  fos_an_forward(short tnum,
+int  fos_pl_forward(short tnum,
 		    int depcheck,
 		    int indcheck,
 		    const double* basepoint,
@@ -543,7 +547,7 @@ int  fos_an_forward(short tnum,
 		    double *swargs,
 		    double *swtaylors)
 #elif defined(_ABS_NORM_SIG_)
-int  fos_an_sig_forward(short tnum,
+int  fos_pl_sig_forward(short tnum,
                         int depcheck,
                         int indcheck,
                         const double* basepoint,
@@ -746,7 +750,7 @@ int  fov_offset_forward(
 /* First Order Vector version of the forward mode.                          */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int  fov_an_forward(
+int  fov_pl_forward(
     short         tnum,        /* tape id */
     int           depcheck,    /* consistency chk on # of deps */
     int           indcheck,    /* consistency chk on # of indeps */
@@ -759,7 +763,7 @@ int  fov_an_forward(
     double      **swtaylors)
 /* the order of the indices in argument and taylors is [var][taylor] */
 #elif defined(_ABS_NORM_SIG_)
-int  fov_an_sig_forward(
+int  fov_pl_sig_forward(
     short         tnum,        /* tape id */
     int           depcheck,    /* consistency chk on # of deps */
     int           indcheck,    /* consistency chk on # of indeps */
