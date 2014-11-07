@@ -36,6 +36,13 @@ ADOLC_DLL_EXPORT int jac_pat
 (short,int,int,const double*,unsigned int**,int*);
 
 /*--------------------------------------------------------------------------*/
+/*                                              abs-normal jacobian pattern */
+/* absnormal_jac_pat(tag, m, n, s, argument,                                */
+/*         crs[] [ crs[][0] = non-zero independent blocks per row ])        */
+/*                                                                          */
+ADOLC_DLL_EXPORT int absnormal_jac_pat
+(short,int,int,int,const double*,unsigned int**);
+/*--------------------------------------------------------------------------*/
 /*                                         seed matrix for sparse jacobian  */
 /* generate_seed_jac(m, n, crs, &seed, &p, option);                         */
 

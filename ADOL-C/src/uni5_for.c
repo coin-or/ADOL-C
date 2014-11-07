@@ -156,7 +156,11 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 #define GENERATED_FILENAME "indopro_forward_t"
 #endif
 #if defined(_NTIGHT_)
+#if defined(_ABS_NORM_)
+#define GENERATED_FILENAME "indopro_forward_pl"
+#else
 #define GENERATED_FILENAME "indopro_forward_s"
+#endif
 #endif
 #endif
 #if defined(_NONLIND_)
@@ -651,10 +655,20 @@ int indopro_forward_tight(
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
 
   */
-
-
 #endif
 #if defined (_NTIGHT_)
+#if defined(_ABS_NORM_)
+int indopro_forward_absnormal(
+    short             tnum,        /* tape id                              */
+    int               depcheck,    /* consistency chk on # of dependents   */
+    int               indcheck,    /* consistency chk on # of independents */
+    int               swcheck,     /* consistency chk on # of switches    */
+    const double     *basepoint,  /* independent variable values   (in)   */
+    unsigned int    **crs)        /* returned row index storage (out)     */
+
+/* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
+  */
+#else
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
@@ -668,6 +682,7 @@ int indopro_forward_safe(
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
   */
+#endif
 #endif
 #else
 #if defined(_NONLIND_)
@@ -987,8 +1002,8 @@ int  hov_forward(
 #endif
 #endif
 
-#if !defined(_NTIGHT_)
     locint switchnum = 0;
+#if !defined(_NTIGHT_)
     double* signature = NULL;
 #endif
 
@@ -1109,7 +1124,7 @@ int  hov_forward(
 		  "before trace_on(%d)\n", tnum, __FUNCTION__, tnum);
 	  adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
-#if defined(_ABS_NORM_SIG_)
+#if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
       if (swcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
         fprintf(DIAG_OUT,"ADOL-C error: forward sweep on tape %d  aborted!\n"
                 "Number of switches(%u) passed"
@@ -1203,6 +1218,9 @@ int  hov_forward(
         ind_dom[i][0] = 0;
         ind_dom[i][1] = NUMNNZ;
     }
+#if defined(_ABS_NORM_)
+    indexd = swcheck;
+#endif
 #endif
 #if defined(_NONLIND_)
 	maxopind=ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS]+ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD];
@@ -4294,7 +4312,22 @@ int  hov_forward(
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
+#if defined(_ABS_NORM_)
+                if (ind_dom[arg][0] != 0) {
+                    crs[switchnum] = (unsigned int*) malloc(sizeof(unsigned int)* (ind_dom[arg][0]+1));
+                    crs[switchnum][0] = ind_dom[arg][0];
+                    for(l=1;l<crs[switchnum][0];i++) {
+                        crs[switchnum][l] = ind_dom[arg][l+1];
+                    }
+                } else {
+                    crs[switchnum] = (unsigned int*) malloc(sizeof(unsigned int));
+                    crs[switchnum][0] = 0;
+                }
+                ind_dom[res][0] = 1;
+                ind_dom[res][2] = indcheck+switchnum;
+#else
 		copy_index_domain(res, arg, ind_dom);
+#endif
 #endif
 #if defined(_NONLIND_)
                 arg_index[res] = arg_index[arg];		
@@ -4366,9 +4399,9 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
                 dp_T0[res] = fabs(dp_T0[arg]);
+#endif /* !_NTIGHT_ */
 		if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
 		    switchnum++;
-#endif /* !_NTIGHT_ */
                 break;
 
                 /*--------------------------------------------------------------------------*/
