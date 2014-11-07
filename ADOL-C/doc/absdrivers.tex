@@ -53,7 +53,7 @@ order mode. The vector $\sigma\equiv \{-1,0,1\}^s$ is called signature vector.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int zos\_an\_forward(tag,m,n,keep,x,y,z)}\\
+\>{\sf int zos\_pl\_forward(tag,m,n,keep,x,y,z)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int n;}                 \> // number of independent variables $n$ and $m=1$\\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
@@ -78,7 +78,7 @@ More detailed information can be found in \cite{Griewank13}.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fos\_an\_forward(tag,m,n,x0,x1,y0,y1,z0,z2)}\\
+\>{\sf int fos\_pl\_forward(tag,m,n,x0,x1,y0,y1,z0,z2)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
@@ -92,7 +92,7 @@ More detailed information can be found in \cite{Griewank13}.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fov\_an\_forward(tag,m,n,p,x,X,y,Y,z,Z)}\\
+\>{\sf int fov\_pl\_forward(tag,m,n,p,x,X,y,Y,z,Z)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
@@ -110,7 +110,7 @@ It always returns one row of the Jacobian matrix.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fov\_an\_reverse(tag,m,n,s,rownum,z)}\\
+\>{\sf int fov\_pl\_reverse(tag,m,n,s,rownum,z)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
@@ -119,7 +119,20 @@ It always returns one row of the Jacobian matrix.
 \>{\sf double z[n];}           \> // resulting adjoint value $z^T = u^T F^\prime (x)$\\
 \end{tabbing}
 
+One may also compute the sparsity pattern of the extended Jacobian
+matrix 
 
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf \#include $<$adolc/sparse/sparsedrivers.h$>$} \>\phantom{something}\\
+\>{\sf int absnormal\_jac\_pat(tag,m,n,s,x,JP)}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf int m;}                 \> // number of dependent variables $m$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
+\>{\sf int s;}                 \> // number of sign switches\\
+\>{\sf const double* x;}       \> // point of evaluation\\     
+\>{\sf unsigned int** JP;}     \> // sparsity pattern of abs-normal form \\
+\end{tabbing}
 % \bibitem{Griewank13}
 % Andreas Griewank,
 % {\em On stable piecewise linearization and generalized algorithmic differentiation}.
