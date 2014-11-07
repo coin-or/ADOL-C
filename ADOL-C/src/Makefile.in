@@ -84,6 +84,7 @@ host_triplet = @host@
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@am__append_1 = libadolcampi.la
 @SPARSE_TRUE@am__append_2 = int_forward_s.c int_forward_t.c \
 @SPARSE_TRUE@                       indopro_forward_s.c indopro_forward_t.c \
+@SPARSE_TRUE@                       indopro_forward_pl.c \
 @SPARSE_TRUE@                       nonl_ind_forward_s.c nonl_ind_forward_t.c \
 @SPARSE_TRUE@                       nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
 @SPARSE_TRUE@                       int_reverse_s.c int_reverse_t.c
@@ -134,13 +135,13 @@ am__libadolcsrc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 	externfcts.cpp checkpointing.cpp fixpoint.cpp \
 	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
 	param.cpp int_forward_s.c int_forward_t.c indopro_forward_s.c \
-	indopro_forward_t.c nonl_ind_forward_s.c nonl_ind_forward_t.c \
-	nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
-	int_reverse_s.c int_reverse_t.c
+	indopro_forward_t.c indopro_forward_pl.c nonl_ind_forward_s.c \
+	nonl_ind_forward_t.c nonl_ind_old_forward_s.c \
+	nonl_ind_old_forward_t.c int_reverse_s.c int_reverse_t.c
 @SPARSE_TRUE@am__objects_1 = int_forward_s.lo int_forward_t.lo \
 @SPARSE_TRUE@	indopro_forward_s.lo indopro_forward_t.lo \
-@SPARSE_TRUE@	nonl_ind_forward_s.lo nonl_ind_forward_t.lo \
-@SPARSE_TRUE@	nonl_ind_old_forward_s.lo \
+@SPARSE_TRUE@	indopro_forward_pl.lo nonl_ind_forward_s.lo \
+@SPARSE_TRUE@	nonl_ind_forward_t.lo nonl_ind_old_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_old_forward_t.lo int_reverse_s.lo \
 @SPARSE_TRUE@	int_reverse_t.lo
 am_libadolcsrc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
@@ -543,6 +544,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hov_wk_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_pl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/indopro_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_forward_s.Plo@am__quote@
