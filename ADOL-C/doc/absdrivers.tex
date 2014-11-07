@@ -119,7 +119,20 @@ It always returns one row of the Jacobian matrix.
 \>{\sf double z[n];}           \> // resulting adjoint value $z^T = u^T F^\prime (x)$\\
 \end{tabbing}
 
+One may also compute the sparsity pattern of the extended Jacobian
+matrix 
 
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf \#include $<$adolc/sparse/sparsedrivers.h$>$} \>\phantom{something}\\
+\>{\sf int absnormal\_jac\_pat(tag,m,n,s,x,JP)}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf int m;}                 \> // number of dependent variables $m$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
+\>{\sf int s;}                 \> // number of sign switches\\
+\>{\sf const double* x;}       \> // point of evaluation\\     
+\>{\sf unsigned int** JP;}     \> // sparsity pattern of abs-normal form \\
+\end{tabbing}
 % \bibitem{Griewank13}
 % Andreas Griewank,
 % {\em On stable piecewise linearization and generalized algorithmic differentiation}.
