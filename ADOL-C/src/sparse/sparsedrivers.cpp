@@ -104,6 +104,25 @@ int jac_pat(
     return(rc);
 }
 
+int absnormal_jac_pat(
+    short          tag,       /* tape identification                       */
+    int            depen,     /* number of dependent variables             */
+    int            indep,     /* number of independent variables           */
+    int            numsw,     /* number of switches                        */
+    const double  *basepoint, /* independant variable values               */
+    unsigned int **crs
+    /* returned compressed row block-index storage                         */
+    ) {
+
+    if (crs == NULL) {
+        fprintf(DIAG_OUT,"ADOL-C user error in jac_pat(...) : "
+                "parameter crs may not be NULL !\n");
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+    } else
+        for (int i=0; i<depen+numsw; i++)
+            crs[i] = NULL;
+    return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint, crs);
+}
 /*--------------------------------------------------------------------------*/
 /*                                                 seed matrix for Jacobian */
 /*--------------------------------------------------------------------------*/

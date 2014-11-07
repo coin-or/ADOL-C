@@ -273,6 +273,7 @@ ADOL-C/src/hos_reverse.c -text
 ADOL-C/src/hov_forward.c -text
 ADOL-C/src/hov_reverse.c -text
 ADOL-C/src/hov_wk_forward.c -text
+ADOL-C/src/indopro_forward_pl.c -text
 ADOL-C/src/indopro_forward_s.c -text
 ADOL-C/src/indopro_forward_t.c -text
 ADOL-C/src/int_forward_s.c -text
