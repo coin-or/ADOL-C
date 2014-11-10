@@ -431,6 +431,7 @@ if (keep){\
 #define FIRSTSIGN_P(x,y) firstsign(p,&(x),y)
 #define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
 #define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,p,&(x),y)
+#define EXT_FIRSTSIGN2_P(sigx,sigd,x,y) ext_firstsign2(sigx,p,&(x),y)
 #endif
 #else
 #if defined(_INT_FOR_)
@@ -443,6 +444,7 @@ if (keep){\
 #define FIRSTSIGN_P(x,y) firstsign(1,&(x),y)
 #define COPYTAYL_P(x,y)  x = *y
 #define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,1,&(x),y)
+#define EXT_FIRSTSIGN2_P(sigx,sigd,x,y) ext_firstsign2(sigx,1,&(x),y)
 #endif
 #endif
 #endif
@@ -4366,7 +4368,10 @@ int  hov_forward(
 		FOR_0_LE_l_LT_p
 		    TRES_INC = y * TARG_INC;
 #elif defined(_ABS_NORM_SIG_)
-		y = EXT_FIRSTSIGN_P(sigbase[switchnum],sigdir[switchnum],dp_T0[arg],Targ);
+                if (sigdir == NULL)
+                    y = EXT_FIRSTSIGN2_P(sigbase[switchnum],dp_T0[arg],Targ);
+                else
+                    y = EXT_FIRSTSIGN_P(sigbase[switchnum],sigdir[switchnum],dp_T0[arg],Targ);
 		COPYTAYL_P(swtaylors[switchnum],Targ);
                 sigsw[switchnum] = y;
 		FOR_0_LE_l_LT_p
@@ -6055,6 +6060,12 @@ short ext_firstsign(double sigbase, double sigdir, int p, double *u, double* du)
         du[0] = 0;
         *u = 0;
     }
+    return firstsign(p,u,du);
+}
+
+short ext_firstsign2(double sigbase, int p, double *u, double* du) {
+    if (sigbase == 0)
+        *u=0;
     return firstsign(p,u,du);
 }
 #endif
