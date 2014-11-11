@@ -431,7 +431,7 @@ if (keep){\
 #define FIRSTSIGN_P(x,y) firstsign(p,&(x),y)
 #define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
 #define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,p,&(x),y)
-#define EXT_FIRSTSIGN2_P(sigx,sigd,x,y) ext_firstsign2(sigx,p,&(x),y)
+#define EXT_FIRSTSIGN2_P(sigx,x,y) ext_firstsign2(sigx,p,&(x),y)
 #endif
 #else
 #if defined(_INT_FOR_)
@@ -444,7 +444,7 @@ if (keep){\
 #define FIRSTSIGN_P(x,y) firstsign(1,&(x),y)
 #define COPYTAYL_P(x,y)  x = *y
 #define EXT_FIRSTSIGN_P(sigx,sigd,x,y) ext_firstsign(sigx,sigd,1,&(x),y)
-#define EXT_FIRSTSIGN2_P(sigx,sigd,x,y) ext_firstsign2(sigx,1,&(x),y)
+#define EXT_FIRSTSIGN2_P(sigx,x,y) ext_firstsign2(sigx,1,&(x),y)
 #endif
 #endif
 #endif
