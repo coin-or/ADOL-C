@@ -1275,9 +1275,9 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
     std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
 #endif
     indexFree.clear();
-    list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
+    forward_list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
     for (; iter != stm->indexFree.end(); iter++)
-	indexFree.push_back( *iter );
+	indexFree.emplace_front( *iter );
 }
 
 
@@ -1294,13 +1294,13 @@ locint StoreManagerLocintBlock::next_loc() {
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerLocintBlock::next_loc: result: " << result << " fill: " << size() << "max: " << maxSize() << endl;
     std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
-    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    forward_list<struct FreeBlock>::iterator iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
 
     if (indexFree.front().size == 0) {
-	if (indexFree.size() <= 1)
+	if (next(indexFree.cbegin()) == indexFree.cend())
 	    grow();
 	else
           indexFree.pop_front();
@@ -1324,13 +1324,14 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
         std::cerr << "ADOLC: GC called consolidateBlocks because " << maxSize() << "/" << size() << ">" << gcTriggerRatio() << " or " << maxSize() << ">" << gcTriggerMaxSize() << " after " << ensure_blockCallsSinceLastConsolidateBlocks << std::endl;
         ensure_blockCallsSinceLastConsolidateBlocks=0;
 #endif
-        list<struct FreeBlock>::iterator iter = indexFree.begin();
-        for (; iter != indexFree.end() ; iter++ ) {
+        forward_list<struct FreeBlock>::iterator 
+            biter = indexFree.before_begin(), 
+            iter = indexFree.begin();
+        for (; iter != indexFree.end() ; biter++, iter++ ) {
           if ( iter->size >= n) {
             if (iter != indexFree.begin() ) {
-              struct FreeBlock tmp(*iter);
-              iter = indexFree.erase(iter);
-              indexFree.push_front(tmp);
+              indexFree.emplace_front(*iter);
+              indexFree.erase_after(biter);
             }
             found = true;
             break;
@@ -1348,7 +1349,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "StoreManagerLocintBlock::ensure_Block: " << " fill: " << size() << "max: " << maxSize() <<  " ensure_Block (" << n << ")" << endl;
     std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
-    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    forward_list<struct FreeBlock>::iterator iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
 	std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
@@ -1407,31 +1408,34 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
     }
 
     bool foundTail = false;
-    list<struct FreeBlock>::iterator iter = indexFree.begin();
-    for (; iter != indexFree.end() ; iter++ ) {
+    forward_list<struct FreeBlock>::iterator 
+        biter = indexFree.before_begin(),
+        iter = indexFree.begin();
+    for (; iter != indexFree.end() ; biter++,iter++ ) {
          if (iter->next + iter->size == oldMaxsize ) {
 	     iter->size += (maxsize - oldMaxsize);
-	      struct FreeBlock tmp(*iter);
-	      iter = indexFree.erase(iter);
-	      indexFree.push_front(tmp);
+	      indexFree.emplace_front(*iter);
+	      indexFree.erase_after(biter);
 	      foundTail = true;
 	      break;
          }
     }
 
     if (! foundTail) {
-	struct FreeBlock tmp;
-	tmp.next = oldMaxsize;
-	tmp.size = (maxsize - oldMaxsize);
-	indexFree.push_front(tmp);
+	indexFree.emplace_front(oldMaxsize,(maxsize - oldMaxsize));
     }
 
+    biter = indexFree.before_begin();
     iter = indexFree.begin();
     while (iter != indexFree.end()) {
-	 if (iter->size == 0)
-	     iter=indexFree.erase(iter); // don't leave 0 blocks around
-	 else
+         if (iter->size == 0) {
+             indexFree.erase_after(biter); // don't leave 0 blocks around
+             iter = next(biter);
+         }
+	 else {
+             biter++;
 	     iter++;
+         }
     }
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "Growing:" << endl;
@@ -1445,17 +1449,14 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 void StoreManagerLocintBlock::free_loc(locint loc) {
     assert( loc < maxsize);
 
-    list<struct FreeBlock>::iterator iter = indexFree.begin();
+    forward_list<struct FreeBlock>::iterator iter = indexFree.begin();
     if (loc+1 == iter->next || iter->next + iter->size == loc) {
 	iter->size++;
 	if (loc + 1 == iter->next)
 	    iter->next = loc;
     }
     else {
-         struct FreeBlock tmp;
-         tmp.next = loc;
-         tmp.size = 1;
-         indexFree.push_front(tmp);
+         indexFree.emplace_front(loc,1);
     }
 
     --currentfill;
@@ -1482,15 +1483,16 @@ void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) {
 
 void StoreManagerLocintBlock::consolidateBlocks() {
     indexFree.sort();
-    list<struct FreeBlock>::iterator iter = indexFree.begin(), niter = iter++;
+    forward_list<struct FreeBlock>::iterator 
+        iter = indexFree.begin(),
+        niter = iter++;
     while (iter != indexFree.end()) {
 	if (niter->next + niter->size == iter->next) {
 	    niter->size += iter->size;
-	    indexFree.erase(iter);
-	    iter = niter;
-	    iter++;
+	    indexFree.erase_after(niter);
+	    iter = next(niter);
 	} else {
-	    niter = iter;
+	    niter++;
 	    iter++;
 	}
     }

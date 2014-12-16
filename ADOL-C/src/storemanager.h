@@ -65,7 +65,7 @@
 #define ADOL_C__STOREMANAGER_H
 
 #include <adolc/internal/common.h>
-#include <list>
+#include <forward_list>
 
 class StoreManager {
 protected:
@@ -126,12 +126,14 @@ protected:
 	FreeBlock(): next(0), size(0) {}
 	FreeBlock(const struct FreeBlock &block) :
 	    next(block.next),size(block.size) {}
+        FreeBlock(const locint& n, const size_t& s) :
+            next(n), size(s) {}
 	bool operator<(const struct FreeBlock& b) const {
 	    return (next < b.next);
 	}
     };
 
-    std::list<struct FreeBlock> indexFree;
+    std::forward_list<struct FreeBlock> indexFree;
     size_t &maxsize;
     size_t &currentfill;
 
