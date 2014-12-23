@@ -1075,7 +1075,7 @@ int  hov_forward(
     int tag;
     enum AMPI_PairedWith_E pairedWith;
     MPI_Comm comm;
-    MPI_Status* status;
+    MPI_Status status;
     struct AMPI_Request_S request;
 #endif
 
@@ -5782,7 +5782,7 @@ int  hov_forward(
                             tag,
                             pairedWith,
                             comm,
-                            status);
+                            &status);
               break;
             }
           case ampi_isend: {
@@ -5809,7 +5809,7 @@ int  hov_forward(
           }
           case ampi_wait: {
             ADOLC_TLM_AMPI_Wait(&request,
-                          status);
+                          &status);
             break;
           }
           case ampi_barrier: {
