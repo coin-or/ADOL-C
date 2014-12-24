@@ -464,12 +464,12 @@ int ADOLC_TLM_AMPI_Gatherv(void *sendbuf,
   int packedRCount, packedSCount;
   int totalrecvcnt = 0;
   TAPE_AMPI_read_int(&commSizeForRootOrNull);
-  for(i=0;i<commSizeForRootOrNull,++i) {
-      TAPE_AMPI_read_int(recvcnts[i]);
-      TAPE_AMPI_read_int(displs[i]);
+  for(i=0;i<commSizeForRootOrNull;++i) {
+      TAPE_AMPI_read_int(&recvcnts[i]);
+      TAPE_AMPI_read_int(&displs[i]);
       if ((recvcnts[i]>0) &&
           (totalrecvcnt<displs[i]+recvcnts[i]))
-          totalrecvcnt=displs[i]+rcnts[i];
+          totalrecvcnt=displs[i]+recvcnts[i];
   }
   if (commSizeForRootOrNull>0) {
       startRLoc = get_locint_f();
@@ -519,6 +519,7 @@ int ADOLC_TLM_AMPI_Gatherv(void *sendbuf,
                        recvtype,
                        packedRDatatype);
   }
+  TAPE_AMPI_read_int(&commSizeForRootOrNull);
   return rc;
 }
 
@@ -530,7 +531,44 @@ int ADOLC_TLM_AMPI_Scatterv(void *sendbuf,
                             int recvcnt,
                             MPI_Datatype recvtype,
                             int root, MPI_Comm comm) {
-  return TLM_AMPI_Scatterv(sendbuf,
+  int rc,i;
+  int commSizeForRootOrNull;
+  locint startRLoc, startSLoc;
+  MPI_Datatype packedRDatatype, packedSDatatype;
+  int packedRCount, packedSCount;
+  int totalsendcnt = 0;
+  TAPE_AMPI_read_int(&commSizeForRootOrNull);
+  for(i=0;i<commSizeForRootOrNull;++i) {
+      TAPE_AMPI_read_int(&sendcnts[i]);
+      TAPE_AMPI_read_int(&displs[i]);
+      if ((sendcnts[i]>0) &&
+          (totalsendcnt<displs[i]+sendcnts[i]))
+          totalsendcnt=displs[i]+sendcnts[i];
+  }
+  if (commSizeForRootOrNull>0) {
+      startSLoc = get_locint_f();
+      TAPE_AMPI_read_MPI_Datatype(&sendtype);
+      allocatePack(&sendbuf,
+                   startSLoc,
+                   totalsendcnt,
+                   packedSCount,
+                   sendtype,
+                   packedSDatatype);
+  }
+  startRLoc = get_locint_f();
+  TAPE_AMPI_read_int(&recvcnt);
+  TAPE_AMPI_read_MPI_Datatype(&recvtype);
+  TAPE_AMPI_read_int(&root);
+  TAPE_AMPI_read_MPI_Comm(&comm);
+  if (recvcnt > 0) {
+      allocatePack(&recvbuf,
+                   startRLoc,
+                   recvcnt,
+                   packedRCount,
+                   recvtype,
+                   packedRDatatype);
+  }
+  rc =   TLM_AMPI_Scatterv(sendbuf,
                            sendcnts,
                            displs,
                            sendtype,
@@ -539,6 +577,24 @@ int ADOLC_TLM_AMPI_Scatterv(void *sendbuf,
                            recvtype,
                            root,
                            comm);
+  if (commSizeForRootOrNull>0) {
+     unpackDeallocate(&sendbuf,
+                       startSLoc,
+                       totalsendcnt,
+                       packedSCount,
+                       sendtype,
+                       packedSDatatype);
+  }
+  if (recvcnt > 0) {
+      unpackDeallocate(&recvbuf,
+                       startRLoc,
+                       recvcnt,
+                       packedRCount,
+                       recvtype,
+                       packedRDatatype);
+  }
+  TAPE_AMPI_read_int(&commSizeForRootOrNull);
+  return rc;
 }
 
 int ADOLC_TLM_AMPI_Allgatherv(void *sendbuf,
@@ -549,7 +605,44 @@ int ADOLC_TLM_AMPI_Allgatherv(void *sendbuf,
                               int *displs,
                               MPI_Datatype recvtype,
                               MPI_Comm comm) {
-  return TLM_AMPI_Allgatherv(sendbuf,
+  int rc,i;
+  int commSizeForRootOrNull, rootPlaceholder;
+  locint startRLoc, startSLoc;
+  MPI_Datatype packedRDatatype, packedSDatatype;
+  int packedRCount, packedSCount;
+  int totalrecvcnt = 0;
+  TAPE_AMPI_read_int(&commSizeForRootOrNull);
+  for(i=0;i<commSizeForRootOrNull;++i) {
+      TAPE_AMPI_read_int(&recvcnts[i]);
+      TAPE_AMPI_read_int(&displs[i]);
+      if ((recvcnts[i]>0) &&
+          (totalrecvcnt<displs[i]+recvcnts[i]))
+          totalrecvcnt=displs[i]+recvcnts[i];
+  }
+  if (commSizeForRootOrNull>0) {
+      startRLoc = get_locint_f();
+      TAPE_AMPI_read_MPI_Datatype(&recvtype);
+      allocatePack(&recvbuf,
+                   startRLoc,
+                   totalrecvcnt,
+                   packedRCount,
+                   recvtype,
+                   packedRDatatype);
+  }
+  startSLoc = get_locint_f();
+  TAPE_AMPI_read_int(&sendcnt);
+  TAPE_AMPI_read_MPI_Datatype(&sendtype);
+  TAPE_AMPI_read_int(&rootPlaceholder);
+  TAPE_AMPI_read_MPI_Comm(&comm);
+  if (sendcnt > 0) {
+      allocatePack(&sendbuf,
+                   startSLoc,
+                   sendcnt,
+                   packedSCount,
+                   sendtype,
+                   packedSDatatype);
+  }
+  rc =   TLM_AMPI_Allgatherv(sendbuf,
                              sendcnt,
                              sendtype,
                              recvbuf,
@@ -557,6 +650,24 @@ int ADOLC_TLM_AMPI_Allgatherv(void *sendbuf,
                              displs,
                              recvtype,
                              comm);
+  if (sendcnt > 0) {
+     unpackDeallocate(&sendbuf,
+                       startSLoc,
+                       sendcnt,
+                       packedSCount,
+                       sendtype,
+                       packedSDatatype);
+  }
+  if (commSizeForRootOrNull>0) {
+      unpackDeallocate(&recvbuf,
+                       startRLoc,
+                       totalrecvcnt,
+                       packedRCount,
+                       recvtype,
+                       packedRDatatype);
+  }
+  TAPE_AMPI_read_int(&commSizeForRootOrNull);
+  return rc;
 }
 
 
