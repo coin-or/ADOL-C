@@ -69,10 +69,6 @@ inline adub operator == ( const pdouble& a, const badouble& b)
 { return (b == a); }
 inline adub operator <= ( const pdouble& a, const badouble& b)
 { return (b >= a); }
-inline adub operator <= ( const pdouble& a, const badouble& b)
-{ return (b >= a); }
-inline adub operator <= ( const pdouble& a, const badouble& b)
-{ return (b >= a); }
 inline adub operator >= ( const pdouble& a, const badouble& b)
 { return (b <= a); }
 inline adub operator >  ( const pdouble& a, const badouble& b)
