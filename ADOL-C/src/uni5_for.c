@@ -4731,23 +4731,23 @@ int  hov_forward(
 			retval = (revreal)(dp_T0[arg] != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "neq_a_p";
 			break;
-		    case eq_a_a:
+		    case eq_a_p:
 			retval = (revreal)(dp_T0[arg] == ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "eq_a_p";
 			break;
-		    case ge_a_a:
+		    case ge_a_p:
 			retval = (revreal)(dp_T0[arg] >= ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "ge_a_p";
 			break;
-		    case le_a_a:
+		    case le_a_p:
 			retval = (revreal)(dp_T0[arg] <= ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "le_a_p";
 			break;
-		    case gt_a_a:
+		    case gt_a_p:
 			retval = (revreal)(dp_T0[arg] > ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "gt_a_p";
 			break;
-		    case lt_a_a:
+		    case lt_a_p:
 			retval = (revreal)(dp_T0[arg] < ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1]);
 			opname = "lt_a_p";
 			break;
