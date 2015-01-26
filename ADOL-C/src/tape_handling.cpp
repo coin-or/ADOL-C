@@ -1286,8 +1286,13 @@ locint StoreManagerLocintBlock::next_loc() {
 	grow();
 
     locint const result = indexFree.front().next;
-    indexFree.front().next++;
-    indexFree.front().size--;
+    if (--indexFree.front().size == 0) {
+	if (next(indexFree.cbegin()) == indexFree.cend())
+	    grow();
+	else
+          indexFree.pop_front();
+    } else
+        indexFree.front().next++;
 
     ++currentfill;
 
@@ -1298,13 +1303,6 @@ locint StoreManagerLocintBlock::next_loc() {
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
-
-    if (indexFree.front().size == 0) {
-	if (next(indexFree.cbegin()) == indexFree.cend())
-	    grow();
-	else
-          indexFree.pop_front();
-    }
 
     return result;
 }

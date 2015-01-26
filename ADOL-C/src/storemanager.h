@@ -66,6 +66,10 @@
 
 #include <adolc/internal/common.h>
 #include <forward_list>
+#ifdef HAVE_BOOST_POOL_POOL_ALLOC_HPP
+#include <boost/pool/pool_alloc.hpp>
+#define USE_BOOST_POOL 1
+#endif
 
 class StoreManager {
 protected:
@@ -133,7 +137,11 @@ protected:
 	}
     };
 
-    std::forward_list<struct FreeBlock> indexFree;
+    std::forward_list<struct FreeBlock
+#if USE_BOOST_POOL
+                      , boost::fast_pool_allocator<struct FreeBlock> 
+#endif 
+                      >  indexFree;
     size_t &maxsize;
     size_t &currentfill;
 
