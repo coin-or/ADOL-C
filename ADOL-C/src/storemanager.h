@@ -66,7 +66,7 @@
 
 #include <adolc/internal/common.h>
 #include <forward_list>
-#ifdef HAVE_BOOST_POOL_POOL_ALLOC_HPP
+#if defined(HAVE_BOOST_POOL_POOL_ALLOC_HPP) && defined(HAVE_BOOST_SYSTEM)
 #include <boost/pool/pool_alloc.hpp>
 #define USE_BOOST_POOL 1
 #endif
