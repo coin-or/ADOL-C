@@ -1447,11 +1447,11 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 void StoreManagerLocintBlock::free_loc(locint loc) {
     assert( loc < maxsize);
 
-    forward_list<struct FreeBlock>::iterator iter = indexFree.begin();
-    if (loc+1 == iter->next || iter->next + iter->size == loc) {
-	iter->size++;
-	if (loc + 1 == iter->next)
-	    iter->next = loc;
+    if ((loc+1 == indexFree.front().next)
+        || (indexFree.front().next + indexFree.front().size == loc)) {
+	indexFree.front().size++;
+	if (loc + 1 == indexFree.front().next)
+	    indexFree.front().next = loc;
     }
     else {
          indexFree.emplace_front(loc,1);
@@ -1461,7 +1461,7 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
 #ifdef ADOLC_LOCDEBUG
     std::cerr << "free_loc: " << loc << " fill: " << size() << "max: " << maxSize() << endl;
     std::cerr << "Size(INDEXFELD) = " << indexFree.size() << "\n";
-    iter = indexFree.begin();
+    forward_list<struct FreeBlock>::iterator iter = indexFree.begin();
     for( ; iter != indexFree.end(); iter++ )
        std::cerr << "INDEXFELD ( " << iter->next << " , " << iter->size << ")" << endl;
 #endif
