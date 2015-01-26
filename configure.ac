@@ -117,7 +117,7 @@ AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
 AC_LANG_POP([C++])
 AX_BOOST_SYSTEM
-LDFLAGS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
+LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
 fi
 
 if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
