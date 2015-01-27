@@ -272,6 +272,11 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
                                    int n, double *xp, adouble *xa,
                                    int m, double *yp, adouble *ya);
 
+/**
+ * zeros out the edf pointers and sets bools to defaults
+ */
+void edf_zero(ext_diff_fct *edfct);
+
 #endif /* __CPLUSPLUS */
 
 /****************************************************************************/

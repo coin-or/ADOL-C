@@ -27,11 +27,6 @@ BEGIN_C_DECLS
 
 ext_diff_fct *get_ext_diff_fct(int index);
 
-/**
- * initialize with defaults
- */
-void edf_init(ext_diff_fct *edfct);
-
 END_C_DECLS
 
 /****************************************************************************/
