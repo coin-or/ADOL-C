@@ -308,6 +308,9 @@ AC_ARG_WITH(openmp-flag,
             [ac_adolc_openmpflag=""
              AC_MSG_RESULT(none)])
 
+if test "x$using_boost_pool" = xyes -a "x$ac_adolc_openmpflag" = x ; then
+   AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
+fi
 
 # ADOL-C Sparse facility
 AC_MSG_CHECKING(whether to build sparse drivers)
