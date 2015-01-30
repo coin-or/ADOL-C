@@ -124,6 +124,7 @@ public:
     ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
     ADOLC_DLL_EXPORT operator const std::vector<adouble>&() const { return data; }
     ADOLC_DLL_EXPORT operator std::vector<adouble>&() { return data; }
+    ADOLC_DLL_EXPORT operator adouble*() { return data.data(); }
     ADOLC_DLL_EXPORT adub operator[](const badouble& index) const;
     ADOLC_DLL_EXPORT adubref operator[](const badouble& index);
     ADOLC_DLL_EXPORT adouble& operator[](size_t i) { return data[i]; }
