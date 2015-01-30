@@ -102,6 +102,8 @@ public:
     friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
 };
 
+ADOLC_DLL_EXPORT void adolc_vec_copy(adouble *const, const adouble*const, locint);
+
 class advector {
 private:
     struct ADOLC_DLL_EXPORT blocker {

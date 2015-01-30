@@ -2683,6 +2683,38 @@ int hov_ti_reverse(
             }
                 break;
 
+            case vec_copy:
+
+                arg1 = get_locint_r();
+                res = get_locint_r();
+                arg = get_locint_r();
+
+                for(locint qq=0;qq<arg1;qq++) {
+
+                ASSIGN_A(Aarg, rpp_A[arg+qq])
+                ASSIGN_A(Ares, rpp_A[res+qq])
+
+                FOR_0_LE_l_LT_p
+                if  (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Ares, k1)
+                } else {
+                    MAXDEC(AARG,ARES);
+                    AARG_INC_O;
+                    ARES_INC = 0.0;
+                    FOR_0_LE_i_LT_k
+                    { /* ! no tempory */
+                        AARG_INC += ARES;
+                        ARES_INC = 0.0;
+                    }
+                }
+
+                GET_TAYL(res+qq,k,p)
+
+                }
+
+                break;
+
             case ref_cond_assign:                                      /* cond_assign */
 	    {   
 		revreal *Tref;

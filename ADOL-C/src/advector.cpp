@@ -469,3 +469,23 @@ adouble advector::lookupindex(const badouble& x, const badouble& y) const {
 	condassign(r, x - data[i]*y, (adouble) (i+1));
     return r;
 }
+
+void adolc_vec_copy(adouble *const dest, const adouble *const src, locint n) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  if (dest[n-1].loc() - dest[0].loc()!=(unsigned)n-1 || src[n-1].loc()-src[0].loc()!=(unsigned)n-1) fail(ADOLC_EXT_DIFF_LOCATIONGAP);
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+      put_op(vec_copy);
+      ADOLC_PUT_LOCINT(src[0].loc());
+      ADOLC_PUT_LOCINT(dest[0].loc());
+      ADOLC_PUT_LOCINT(n);
+      for (locint i=0; i<n; i++) {
+          ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+          if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+              ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[dest[0].loc()+i]);
+      }
+  }
+  for (locint i=0; i<n; i++)
+      ADOLC_GLOBAL_TAPE_VARS.store[dest[0].loc()+i] = 
+          ADOLC_GLOBAL_TAPE_VARS.store[src[0].loc()+i];
+}

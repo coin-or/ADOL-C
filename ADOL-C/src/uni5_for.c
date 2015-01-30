@@ -5386,6 +5386,37 @@ int  hov_forward(
 #endif /* !_NTIGHT_ */
                 break;
 
+            case vec_copy:
+                arg = get_locint_f();
+                res = get_locint_f();
+                arg1 = get_locint_f();
+
+                for(locint qq=0;qq<arg1;qq++) {
+                    IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
+#if !defined(_NTIGHT_)
+                    dp_T0[res+qq] = dp_T0[arg+qq];
+#endif /* !_NTIGHT_ */
+
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                    copy_index_domain(res+qq, arg+qq, ind_dom);
+#endif
+#if defined(_NONLIND_)
+                    arg_index[res+qq] = arg_index[arg+qq];
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                    ASSIGN_T(Targ,TAYLOR_BUFFER[arg+qq])
+                    ASSIGN_T(Tres,TAYLOR_BUFFER[res+qq])
+
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG_INC;
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                }
+
+                break;
+
             case ref_cond_assign:                                      /* cond_assign */
                 arg   = get_locint_f();
                 arg1  = get_locint_f();
