@@ -325,6 +325,7 @@ typedef struct GlobalTapeVarsCL {
     size_t numparam;
     size_t maxparam;
     double *pStore;
+    size_t initialStoreSize;
 #ifdef __cplusplus
     StoreManager *paramStoreMgrPtr;
     StoreManager *storeManagerPtr;

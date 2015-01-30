@@ -589,6 +589,10 @@ void readConfigFile() {
                         ADOLC_GLOBAL_TAPE_VARS.maxNumberTaylorBuffers = (int)number;
                         fprintf(DIAG_OUT, "Found maximal number of taylor buffers: "
                                 "%d\n", (int)number);
+                    } else if (strcmp(pos1 + 1, "INITLIVE") == 0) {
+                        ADOLC_GLOBAL_TAPE_VARS.initialStoreSize = (locint)number;
+                        fprintf(DIAG_OUT, "Found initial live variable store size : %u\n",
+                                (locint)number);
                     } else {
                         fprintf(DIAG_OUT, "ADOL-C warning: Unable to parse "
                                 "parameter name in .adolcrc!\n");

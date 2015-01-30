@@ -49,6 +49,7 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
   pStore = NULL;
   numparam = 0;
   maxparam = 0;
+  initialStoreSize = 0;
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
   paramStoreMgrPtr = new StoreManagerLocintBlock(pStore, maxparam, numparam);
 }
@@ -77,6 +78,7 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     newTape = gtv.newTape;
     branchSwitchWarning = gtv.branchSwitchWarning;
     currentTapeInfosPtr = gtv.currentTapeInfosPtr;
+    initialStoreSize = gtv.initialStoreSize;
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
     storeManagerPtr = new
@@ -157,10 +159,11 @@ void StoreManagerLocint::free_loc(locint loc) {
 #endif
 }
 
-void StoreManagerLocint::grow() {
+void StoreManagerLocint::grow(size_t mingrow) {
     if (maxsize == 0) maxsize += initialSize;
     size_t const oldMaxsize = maxsize;
     maxsize *= 2;
+    if (maxsize < mingrow) maxsize = mingrow;
 
     if (maxsize > std::numeric_limits<locint>::max()) {
       // encapsulate this error message
@@ -994,6 +997,10 @@ class Keeper {
             dummy = 0;
             init();
             readConfigFile();
+            if (ADOLC_GLOBAL_TAPE_VARS.initialStoreSize > 
+                ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->initialSize)
+                ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->grow(
+                    ADOLC_GLOBAL_TAPE_VARS.initialStoreSize);
         }
         inline ~Keeper() {
             cleanUp();

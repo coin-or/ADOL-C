@@ -71,11 +71,15 @@
 #define USE_BOOST_POOL 1
 #endif
 
+class Keeper;
+
 class StoreManager {
+  friend class Keeper;
 protected:
   static size_t const initialSize = 4;
   double myGcTriggerRatio;
   size_t myGcTriggerMaxSize;
+  virtual void grow(size_t mingrow = 0) = 0;
 public:
   StoreManager() : myGcTriggerRatio(1.5), myGcTriggerMaxSize(initialSize) {}
   virtual ~StoreManager() {}
@@ -100,8 +104,7 @@ protected:
   locint head;
   size_t &maxsize;
   size_t &currentfill;
-private:
-  void grow();
+  virtual void grow(size_t mingrow = 0);
 public:
 
   StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
@@ -149,12 +152,11 @@ protected:
 #ifdef ADOLC_LOCDEBUG
     unsigned int ensure_blockCallsSinceLastConsolidateBlocks;
 #endif
-private:
     /**
      * when minGrow is specified we asssume that we have already
      * search the blocks and found no block with minGrow locations in it
      */
-    void grow(size_t minGrow=0 );
+    virtual void grow(size_t minGrow=0 );
 public:
     StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
     StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
