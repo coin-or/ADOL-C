@@ -389,7 +389,6 @@ void condassign( adubref res, const badouble &cond, const badouble &arg ) {
 }
 
 advector::blocker::blocker(size_t n) {
-    dflt = new adouble;
     ensureContiguousLocations(n);
 }
 
