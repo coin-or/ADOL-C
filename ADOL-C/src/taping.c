@@ -455,7 +455,7 @@ void readConfigFile() {
     char inputLine[ADOLC_LINE_LENGTH + 1];
     char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *start = NULL, *end = NULL;
     int base;
-    long int number = 0;
+    unsigned long int number = 0;
     char *path = NULL;
     int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
     tapeBaseNames[0] = duplicatestr(
@@ -512,7 +512,7 @@ void readConfigFile() {
 		    start = pos3 + 1;
 		    base = 10;
 		}
-		number = strtol(start, &end, base);
+		number = strtoul(start, &end, base);
                 if (end == start) {
 		    *pos2 = 0;
 		    *pos4 = 0;
