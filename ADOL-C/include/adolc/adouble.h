@@ -198,15 +198,16 @@ public:
         is "freed" when the adub goes out of scope (at destruction time).
    ---- operates just like a badouble, but it has a destructor defined for it.
 */
+adub* ADOLC_DLL_EXPORT adubp_from_adub(const adub&);
+/* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
+adub ADOLC_DLL_EXPORT adolc_vec_dot(const adouble*const, const adouble*const, locint);
 
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
     friend ADOLC_DLL_EXPORT class advector;
     friend ADOLC_DLL_EXPORT class adubref;
     friend ADOLC_DLL_EXPORT class pdouble;
-    friend ADOLC_DLL_EXPORT adub* adubp_from_adub(const adub&);
-    /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
-    friend ADOLC_DLL_EXPORT adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
+    friend adub* adubp_from_adub(const adub&);
     adub( adub const &) {
 	isInit = false;
         fprintf(DIAG_OUT,"ADOL-C error: illegal copy construction of adub"
@@ -234,6 +235,8 @@ protected:
 public:
 
     /*--------------------------------------------------------------------------*/
+    /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
+    friend adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
     /* Functions friends with both badouble and adub */
 #define _IN_CLASS_ 1
 #define _IN_ADUB_ 1
