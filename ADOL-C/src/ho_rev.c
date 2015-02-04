@@ -2685,11 +2685,11 @@ int hov_ti_reverse(
 
             case vec_copy:
 
-                arg1 = get_locint_r();
-                res = get_locint_r();
+                size = get_locint_r();
                 arg = get_locint_r();
+                res = get_locint_r();
 
-                for(locint qq=0;qq<arg1;qq++) {
+                for(locint qq=0;qq<size;qq++) {
 
                 ASSIGN_A(Aarg, rpp_A[arg+qq])
                 ASSIGN_A(Ares, rpp_A[res+qq])
@@ -2714,6 +2714,88 @@ int hov_ti_reverse(
                 }
 
                 break;
+
+        case vec_dot:
+                size = get_locint_r();
+                arg2 = get_locint_r();
+                arg1 = get_locint_r();
+                res = get_locint_r();
+                for (locint qq=0;qq<size;qq++) {
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_A(Aarg2, rpp_A[arg2+qq])
+                ASSIGN_A(Aarg1, rpp_A[arg1+qq])
+                ASSIGN_T(Targ1, rpp_T[arg1+qq])
+                ASSIGN_T(Targ2, rpp_T[arg2+qq])
+		FOR_0_LE_l_LT_p {
+                if (0 == ARES) {
+                    HOV_INC(Aarg1, k1)
+                    HOV_INC(Aarg2, k1)
+                    HOV_INC(Ares,  k1)
+                } else {
+                    comp = (ARES > 2.0) ? ARES : 2.0 ;
+                    ARES_INC = comp;
+                    MAXDEC(AARG1,comp);
+                    MAXDEC(AARG2,comp);
+                    AARG1_INC_O;
+                    AARG2_INC_O;
+
+                    inconv(k,Ares,Targ1,Aarg2);
+                    inconv(k,Ares,Targ2,Aarg1);
+
+                    HOV_INC(Ares,  k)
+                    HOV_INC(Aarg1, k)
+                    HOV_INC(Aarg2, k)
+                    HOS_OV_INC(Targ1, k)
+                    HOS_OV_INC(Targ2, k)
+		    HOS_OV_INC(Tres, k)
+                }
+		}
+                }
+                GET_TAYL(res,k,p)
+                break;
+
+        case vec_axpy:
+                size = get_locint_r();
+                arg2 = get_locint_r();
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+                res = get_locint_r();
+                for (locint qq=0;qq<size;qq++) {
+                ASSIGN_A(Ares,  rpp_A[res+qq])
+                ASSIGN_A(Aarg,  rpp_A[arg])
+                ASSIGN_A(Aarg2, rpp_A[arg2+qq])
+                ASSIGN_A(Aarg1, rpp_A[arg1+qq])
+                ASSIGN_T(Targ,  rpp_T[arg])
+                ASSIGN_T(Targ1, rpp_T[arg1+qq])
+                if (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Aarg1, k1)
+                    HOV_INC(Aarg2, k1)
+                    HOV_INC(Ares,  k1)
+                } else {
+                    comp = (ARES > 2.0) ? ARES : 2.0 ;
+                    MAXDEC(AARG2,ARES);
+                    ARES_INC = 0.0;
+                    MAXDEC(AARG,comp);
+                    MAXDEC(AARG1,comp);
+                    AARG_INC_O;
+                    AARG1_INC_O;
+                    AARG2_INC_O;
+                    copyAndZeroset(k,Ares,rp_Atemp);
+                    inconv(k,rp_Atemp,Targ1,Aarg);
+                    inconv(k,rp_Atemp,Targ,Aarg1);
+                    FOR_0_LE_i_LT_k 
+                        AARG2_INC += *rp_Atemp++;
+
+                    HOV_INC(Ares,k)
+                    HOV_INC(Aarg, k)
+                    HOV_INC(Aarg1,k)
+                    HOS_OV_INC(Targ,k)
+                    HOS_OV_INC(Targ1,k)
+                }
+                GET_TAYL(res+qq,k,p)
+                }
+                break;               
 
             case ref_cond_assign:                                      /* cond_assign */
 	    {   

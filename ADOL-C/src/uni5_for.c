@@ -5387,11 +5387,11 @@ int  hov_forward(
                 break;
 
             case vec_copy:
-                arg = get_locint_f();
                 res = get_locint_f();
-                arg1 = get_locint_f();
+                arg = get_locint_f();
+                size = get_locint_f();
 
-                for(locint qq=0;qq<arg1;qq++) {
+                for(locint qq=0;qq<size;qq++) {
                     IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
 #if !defined(_NTIGHT_)
                     dp_T0[res+qq] = dp_T0[arg+qq];
@@ -5415,6 +5415,169 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                 }
 
+                break;
+
+            case vec_dot:
+                res = get_locint_f();
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                size = get_locint_f();
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
+#if !defined(_NTIGHT_)
+                dp_T0[res] = 0;
+#endif
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+		ind_dom[res][0]=0;
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = NULL;
+		fod[opind].right = NULL;
+                arg_index[res] = opind++;		
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+                FOR_0_LE_l_LT_pk
+                TRES_INC = 0;
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                for(locint qq=0;qq<size;qq++) {
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                merge_3_index_domains(res, arg1+qq, arg2+qq, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		// operation: v = v+u*w
+		// first step: z = u*w, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1+qq]];
+		fod[opind].right = &fod[arg_index[arg2+qq]];
+		// first step: z = u*w,
+		traverse_unary(&fod[arg_index[arg1+qq]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2+qq]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		opind++;
+		// second step: v = v+z, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[res]];
+		fod[opind].right = &fod[opind-1];
+		// second step: v = v+z,
+                arg_index[res] = opind++;
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_binary(arg1+qq, arg2+qq, ind_dom, nonl_dom);
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1+qq])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2+qq])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_FOINC |= TARG2_INC | TARG1_INC;
+#else
+                /* olvo 980915 now in reverse order to allow x = x*x etc. */
+                INC_pk_1(Tres)
+                INC_pk_1(Targ1)
+                INC_pk_1(Targ2)
+
+                FOR_p_GT_l_GE_0
+                FOR_k_GT_i_GE_0
+                { TRES_FODEC += dp_T0[arg1+qq]*TARG2_DEC +
+                                TARG1_DEC*dp_T0[arg2+qq];
+                  DEC_TRES_FO
+#if defined(_HIGHER_ORDER_)
+                  Targ1OP = Targ1-i+1;
+                  Targ2OP = Targ2;
+
+                  for (j=0;j<i;j++)
+                  *Tres += (*Targ1OP++) * (*Targ2OP--);
+                  Tres--;
+#endif /* _HIGHER_ORDER_ */
+                }
+#endif
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+#if !defined(_NTIGHT_)
+                dp_T0[res] += dp_T0[arg1+qq] *  dp_T0[arg2+qq];
+#endif /* !_NTIGHT_ */
+                }
+                break;
+
+            case vec_axpy:
+                res = get_locint_f();
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                size = get_locint_f();
+                
+                for(locint qq=0;qq<size;qq++) {
+                    IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                combine_2_index_domains(res+qq, arg, arg1+qq, ind_dom);
+                merge_2_index_domains(res+qq, arg2+qq, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		// operation: v = u*w + y
+		// first step: z = u*w, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = &fod[arg_index[arg1+qq]];
+		// first step: z = u*w,
+		traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg1+qq]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                opind++;
+		// second step: v = z+y, index domains
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[opind-1];
+		fod[opind].right = &fod[arg_index[arg2+qq]];
+		// second step: v = v+z,
+                arg_index[res+qq] = opind++;
+#endif
+#if defined(_NONLIND_OLD_)
+		extend_nonlinearity_domain_binary(arg, arg1+qq, ind_dom, nonl_dom);
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res+qq])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1+qq])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2+qq])
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_FOINC = TARG2_INC | TARG1_INC | TARG_INC;
+#else
+                INC_pk_1(Tres)
+                INC_pk_1(Targ)
+                INC_pk_1(Targ1)
+                INC_pk_1(Targ2)
+                FOR_p_GT_l_GE_0
+                FOR_k_GT_i_GE_0
+                {  
+                    TRES_FODEC = dp_T0[arg] * TARG1_DEC + TARG_DEC * dp_T0[arg1+qq] + TARG2_DEC;
+                    DEC_TRES_FO
+#if defined(_HIGHER_ORDER_)
+                    Targ1OP = Targ - i + 1;
+                    Targ2OP = Targ1;
+
+                    for (j=0;j<i;j++) {
+                        *Tres += (*Targ1OP++) * (*Targ2OP--);
+                    }
+                    Tres--;
+#endif /* _HIGHER_ORDER_ */
+                }
+#endif
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+#if !defined(_NTIGHT_)
+                dp_T0[res+qq] = dp_T0[arg] * dp_T0[arg1+qq] + dp_T0[arg2+qq];
+#endif /* !_NTIGHT_ */
+
+                }
                 break;
 
             case ref_cond_assign:                                      /* cond_assign */

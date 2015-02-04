@@ -102,7 +102,10 @@ public:
     friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
 };
 
+/* adolc_vec_copy(dest,src,size); */
 ADOLC_DLL_EXPORT void adolc_vec_copy(adouble *const, const adouble*const, locint);
+/* adolc_vec_axpy(res,a,x,y,size); <=> res = a*x + y  */
+ADOLC_DLL_EXPORT void adolc_vec_axpy(adouble *const, const badouble&, const adouble*const, const adouble*const, locint);
 
 class advector {
 private:

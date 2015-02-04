@@ -117,6 +117,8 @@ enum OPCODES {
   neg_sign_p,
   recipr_p,
   vec_copy,
+  vec_dot,
+  vec_axpy,
   eq_a_p = 119,
   neq_a_p,
   le_a_p,

@@ -300,6 +300,11 @@ void fail( int error ) {
 		    failAdditionalInfo1);
 	    break;
 
+        case ADOLC_VEC_LOCATIONGAP:
+          fprintf(DIAG_OUT,
+                  "ADOL-C error: arrays passed to vector operation do not have contiguous ascending locations;\nuse dynamic_cast<adouble*>(advector&) \nor call ensureContiguousLocations(size_t) to reserve  contiguous blocks prior to allocation of the arrays.\n");
+          break;
+
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
             adolc_exit(-1, "", __func__, __FILE__, __LINE__);
