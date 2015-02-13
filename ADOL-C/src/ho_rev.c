@@ -422,7 +422,7 @@ int hov_ti_reverse(
 #else
     int q = 1;
 #endif
-
+	locint qq;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -2689,7 +2689,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
                 res = get_locint_r();
 
-                for(locint qq=0;qq<size;qq++) {
+                for(qq=0;qq<size;qq++) {
 
                 ASSIGN_A(Aarg, rpp_A[arg+qq])
                 ASSIGN_A(Ares, rpp_A[res+qq])
@@ -2720,7 +2720,7 @@ int hov_ti_reverse(
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
                 res = get_locint_r();
-                for (locint qq=0;qq<size;qq++) {
+                for (qq=0;qq<size;qq++) {
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2+qq])
                 ASSIGN_A(Aarg1, rpp_A[arg1+qq])
@@ -2760,7 +2760,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
                 res = get_locint_r();
-                for (locint qq=0;qq<size;qq++) {
+                for (qq=0;qq<size;qq++) {
                 ASSIGN_A(Ares,  rpp_A[res+qq])
                 ASSIGN_A(Aarg,  rpp_A[arg])
                 ASSIGN_A(Aarg2, rpp_A[arg2+qq])

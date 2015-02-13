@@ -388,8 +388,9 @@ int int_reverse_safe(
     MPI_Status* status;
     struct AMPI_Request_S request;
 #endif
+	locint qq;
 
-    ADOLC_OPENMP_THREAD_NUMBER;
+	ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(ADOLC_DEBUG)
@@ -2400,7 +2401,7 @@ int int_reverse_safe(
                 size = get_locint_r();
                 arg = get_locint_r();
                 res = get_locint_r();
-                for (locint qq=0;qq<size;qq++) {
+                for (qq=0;qq<size;qq++) {
 
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg+qq])
                 ASSIGN_A( Ares, ADJOINT_BUFFER[res+qq])
@@ -2428,7 +2429,7 @@ int int_reverse_safe(
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
                 res = get_locint_r();
-                for (locint qq=0;qq<size;qq++) {
+                for (qq=0;qq<size;qq++) {
                     ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
                     ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
                     ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
@@ -2456,7 +2457,7 @@ int int_reverse_safe(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
                 res = get_locint_r();
-                for (locint qq=0;qq<size;qq++) {
+                for (qq=0;qq<size;qq++) {
                     ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
                     ASSIGN_A( Aarg,  ADJOINT_BUFFER[arg])
                     ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])

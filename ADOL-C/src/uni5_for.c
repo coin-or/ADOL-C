@@ -1078,6 +1078,7 @@ int  hov_forward(
     MPI_Status status;
     struct AMPI_Request_S request;
 #endif
+    locint qq;
 
     ADOLC_OPENMP_THREAD_NUMBER;
 
@@ -5391,7 +5392,7 @@ int  hov_forward(
                 arg = get_locint_f();
                 size = get_locint_f();
 
-                for(locint qq=0;qq<size;qq++) {
+                for(qq=0;qq<size;qq++) {
                     IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
 #if !defined(_NTIGHT_)
                     dp_T0[res+qq] = dp_T0[arg+qq];
@@ -5444,7 +5445,7 @@ int  hov_forward(
                 TRES_INC = 0;
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
-                for(locint qq=0;qq<size;qq++) {
+                for(qq=0;qq<size;qq++) {
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
                 merge_3_index_domains(res, arg1+qq, arg2+qq, ind_dom);
@@ -5514,7 +5515,7 @@ int  hov_forward(
                 arg2 = get_locint_f();
                 size = get_locint_f();
                 
-                for(locint qq=0;qq<size;qq++) {
+                for(qq=0;qq<size;qq++) {
                     IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
 #if defined(_INDO_)
 #if defined(_INDOPRO_)

@@ -198,9 +198,9 @@ public:
         is "freed" when the adub goes out of scope (at destruction time).
    ---- operates just like a badouble, but it has a destructor defined for it.
 */
-adub* ADOLC_DLL_EXPORT adubp_from_adub(const adub&);
+ADOLC_DLL_EXPORT adub* adubp_from_adub(const adub&);
 /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
-adub ADOLC_DLL_EXPORT adolc_vec_dot(const adouble*const, const adouble*const, locint);
+ADOLC_DLL_EXPORT adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
 
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
