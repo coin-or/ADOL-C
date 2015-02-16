@@ -213,6 +213,7 @@ ADOL-C/include/adolc/fortutils.h -text
 ADOL-C/include/adolc/interfaces.h -text
 ADOL-C/include/adolc/internal/Makefile.am -text
 ADOL-C/include/adolc/internal/Makefile.in -text
+ADOL-C/include/adolc/internal/adolc_settings.h -text
 ADOL-C/include/adolc/internal/adolc_settings.h.in -text
 ADOL-C/include/adolc/internal/adubfunc.h -text
 ADOL-C/include/adolc/internal/common.h -text
