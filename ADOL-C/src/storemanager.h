@@ -65,13 +65,21 @@
 #define ADOL_C__STOREMANAGER_H
 
 #include <adolc/internal/common.h>
-#include <list>
+#include <forward_list>
+#if defined(HAVE_BOOST_POOL_POOL_ALLOC_HPP) && defined(HAVE_BOOST_SYSTEM)
+#include <boost/pool/pool_alloc.hpp>
+#define USE_BOOST_POOL 1
+#endif
+
+class Keeper;
 
 class StoreManager {
+  friend class Keeper;
 protected:
   static size_t const initialSize = 4;
   double myGcTriggerRatio;
   size_t myGcTriggerMaxSize;
+  virtual void grow(size_t mingrow = 0) = 0;
 public:
   StoreManager() : myGcTriggerRatio(1.5), myGcTriggerMaxSize(initialSize) {}
   virtual ~StoreManager() {}
@@ -96,8 +104,7 @@ protected:
   locint head;
   size_t &maxsize;
   size_t &currentfill;
-private:
-  void grow();
+  virtual void grow(size_t mingrow = 0);
 public:
 
   StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
@@ -126,12 +133,18 @@ protected:
 	FreeBlock(): next(0), size(0) {}
 	FreeBlock(const struct FreeBlock &block) :
 	    next(block.next),size(block.size) {}
+        FreeBlock(const locint& n, const size_t& s) :
+            next(n), size(s) {}
 	bool operator<(const struct FreeBlock& b) const {
 	    return (next < b.next);
 	}
     };
 
-    std::list<struct FreeBlock> indexFree;
+    std::forward_list<struct FreeBlock
+#if USE_BOOST_POOL
+                      , boost::fast_pool_allocator<struct FreeBlock> 
+#endif 
+                      >  indexFree;
     size_t &maxsize;
     size_t &currentfill;
 
@@ -139,12 +152,11 @@ protected:
 #ifdef ADOLC_LOCDEBUG
     unsigned int ensure_blockCallsSinceLastConsolidateBlocks;
 #endif
-private:
     /**
      * when minGrow is specified we asssume that we have already
      * search the blocks and found no block with minGrow locations in it
      */
-    void grow(size_t minGrow=0 );
+    virtual void grow(size_t minGrow=0 );
 public:
     StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
     StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);

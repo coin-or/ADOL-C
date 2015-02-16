@@ -26,9 +26,9 @@
 
 #define ADOLC_BUFFER_TYPE \
    Buffer< ext_diff_fct, EDFCTS_BLOCK_SIZE >
-static ADOLC_BUFFER_TYPE buffer(edf_init);
+static ADOLC_BUFFER_TYPE buffer(edf_zero);
 
-void edf_init(ext_diff_fct *edf) {
+void edf_zero(ext_diff_fct *edf) {
   // sanity settings
   edf->function=0;
   edf->function_iArr=0;

@@ -388,8 +388,9 @@ int int_reverse_safe(
     MPI_Status* status;
     struct AMPI_Request_S request;
 #endif
+	locint qq;
 
-    ADOLC_OPENMP_THREAD_NUMBER;
+	ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(ADOLC_DEBUG)
@@ -2395,6 +2396,92 @@ int int_reverse_safe(
 		adolc_exit(-2,"",__func__,__FILE__,__LINE__);
 #endif /* !_NTIGHT_ */
 		break;
+
+        case vec_copy:
+                size = get_locint_r();
+                arg = get_locint_r();
+                res = get_locint_r();
+                for (qq=0;qq<size;qq++) {
+
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg+qq])
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res+qq])
+
+                FOR_0_LE_l_LT_p
+                {
+#if defined(_INT_REV_)
+		  AARG_INC |= ARES;
+                  ARES_INC = 0;
+#else
+                  AARG_INC += ARES;
+                  ARES_INC = 0.0;
+#endif
+                }
+
+#if !defined(_NTIGHT_)
+                ADOLC_GET_TAYLOR(res+qq);
+#endif /* !_NTIGHT_ */
+                }
+
+                break;
+
+        case vec_dot:
+                size = get_locint_r();
+                arg2 = get_locint_r();
+                arg1 = get_locint_r();
+                res = get_locint_r();
+                for (qq=0;qq<size;qq++) {
+                    ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
+                    ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
+                    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
+                    FOR_0_LE_l_LT_p
+                    { 
+#if defined(_INT_REV_)
+                        AARG2_INC |= ARES;
+                        AARG1_INC |= ARES_INC;
+#else
+                        AARG2_INC += ARES    * TARG1;
+                        AARG1_INC += ARES_INC * TARG2;
+#endif
+                    }
+                    arg2++;
+                    arg1++;
+                }
+#if !defined(_NTIGHT_)
+                ADOLC_GET_TAYLOR(res);
+#endif /* !_NTIGHT_ */
+                break;
+
+        case vec_axpy:
+                size = get_locint_r();
+                arg2 = get_locint_r();
+                arg1 = get_locint_r();
+                arg = get_locint_r();
+                res = get_locint_r();
+                for (qq=0;qq<size;qq++) {
+                    ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
+                    ASSIGN_A( Aarg,  ADJOINT_BUFFER[arg])
+                    ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
+                    ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
+                    FOR_0_LE_l_LT_p
+                    { 
+#if defined(_INT_REV_)
+                        AARG_INC |= ARES;
+                        AARG2_INC |= ARES;
+                        AARG1_INC |= ARES_INC;
+#else
+                        AARG2_INC += ARES;
+                        AARG1_INC += ARES * TARG;
+                        AARG_INC += ARES_INC * TARG1;
+#endif
+                    }
+#if !defined(_NTIGHT_)
+                    ADOLC_GET_TAYLOR(res);
+#endif /* !_NTIGHT_ */
+                    arg2++;
+                    arg1++;
+                    res++;
+                }
+                break;
 
         case ref_cond_assign:                                      /* cond_assign */
 	   {

@@ -3,9 +3,10 @@
 int main(int, char **)
 {
         double x = 3, y = 4;
+        double a,b;
 
-        fmax(x, y);
-        fmin(x, y);
+        a = fmax(x, y);
+        b = fmin(x, y);
 
         return 0;
 }

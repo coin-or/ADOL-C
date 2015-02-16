@@ -300,6 +300,11 @@ void fail( int error ) {
 		    failAdditionalInfo1);
 	    break;
 
+        case ADOLC_VEC_LOCATIONGAP:
+          fprintf(DIAG_OUT,
+                  "ADOL-C error: arrays passed to vector operation do not have contiguous ascending locations;\nuse dynamic_cast<adouble*>(advector&) \nor call ensureContiguousLocations(size_t) to reserve  contiguous blocks prior to allocation of the arrays.\n");
+          break;
+
         default:
             fprintf(DIAG_OUT, "ADOL-C error => unknown error type!\n");
             adolc_exit(-1, "", __func__, __FILE__, __LINE__);
@@ -455,7 +460,7 @@ void readConfigFile() {
     char inputLine[ADOLC_LINE_LENGTH + 1];
     char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *start = NULL, *end = NULL;
     int base;
-    long int number = 0;
+    unsigned long int number = 0;
     char *path = NULL;
     int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
     tapeBaseNames[0] = duplicatestr(
@@ -512,7 +517,7 @@ void readConfigFile() {
 		    start = pos3 + 1;
 		    base = 10;
 		}
-		number = strtol(start, &end, base);
+		number = strtoul(start, &end, base);
                 if (end == start) {
 		    *pos2 = 0;
 		    *pos4 = 0;
@@ -589,6 +594,10 @@ void readConfigFile() {
                         ADOLC_GLOBAL_TAPE_VARS.maxNumberTaylorBuffers = (int)number;
                         fprintf(DIAG_OUT, "Found maximal number of taylor buffers: "
                                 "%d\n", (int)number);
+                    } else if (strcmp(pos1 + 1, "INITLIVE") == 0) {
+                        ADOLC_GLOBAL_TAPE_VARS.initialStoreSize = (locint)number;
+                        fprintf(DIAG_OUT, "Found initial live variable store size : %u\n",
+                                (locint)number);
                     } else {
                         fprintf(DIAG_OUT, "ADOL-C warning: Unable to parse "
                                 "parameter name in .adolcrc!\n");

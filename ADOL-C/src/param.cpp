@@ -42,7 +42,7 @@ pdouble::pdouble(locint idx) {
         _idx = idx;
     } else {
         fprintf(DIAG_OUT, "ADOL-C error: Parameter index %d out of bounds, "
-                "# existing parameters = %d\n", idx, 
+                "# existing parameters = %zu\n", idx, 
                 ADOLC_GLOBAL_TAPE_VARS.numparam);
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
