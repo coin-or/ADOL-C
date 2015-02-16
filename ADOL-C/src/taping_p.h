@@ -119,7 +119,8 @@ enum ADOLC_ERRORS {
     ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
     ADOLC_WRONG_PLATFORM_32,
     ADOLC_WRONG_PLATFORM_64,
-    ADOLC_TAPING_NOT_ACTUALLY_TAPING
+    ADOLC_TAPING_NOT_ACTUALLY_TAPING,
+    ADOLC_VEC_LOCATIONGAP
 };
 /* additional infos fail can work with */
 extern int failAdditionalInfo1;
@@ -325,6 +326,7 @@ typedef struct GlobalTapeVarsCL {
     size_t numparam;
     size_t maxparam;
     double *pStore;
+    size_t initialStoreSize;
 #ifdef __cplusplus
     StoreManager *paramStoreMgrPtr;
     StoreManager *storeManagerPtr;

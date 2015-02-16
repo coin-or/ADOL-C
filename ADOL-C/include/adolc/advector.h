@@ -102,10 +102,14 @@ public:
     friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
 };
 
+/* adolc_vec_copy(dest,src,size); */
+void ADOLC_DLL_EXPORT adolc_vec_copy(adouble *const, const adouble*const, locint);
+/* adolc_vec_axpy(res,a,x,y,size); <=> res = a*x + y  */
+void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const, const badouble&, const adouble*const, const adouble*const, locint);
+
 class advector {
 private:
     struct ADOLC_DLL_EXPORT blocker {
-	adouble *dflt;
 	blocker() {}
 	blocker(size_t n);
 	~blocker() {}
@@ -114,13 +118,16 @@ private:
     ADOLC_DLL_EXPORT bool nondecreasing() const;
 public:
     ADOLC_DLL_EXPORT advector() : blk(), data() {}
-    ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n, *blk.dflt) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n) {}
     ADOLC_DLL_EXPORT ~advector() {}
-    ADOLC_DLL_EXPORT advector(const advector& x) : blk(x.data.size()), data(x.data) { delete blk.dflt; }
-    ADOLC_DLL_EXPORT advector(const std::vector<adouble>& v) : blk(v.size()), data(v) { delete blk.dflt; }
+    ADOLC_DLL_EXPORT advector(const advector& x) : blk(x.size()), data(x.size()) {  adolc_vec_copy(data.data(),x.data.data(),x.size()); }
+    // in the above copy we are sure of contiguous locations
+    // but not so in the one below
+    ADOLC_DLL_EXPORT advector(const std::vector<adouble>& v) : blk(v.size()), data(v) {}
     ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
     ADOLC_DLL_EXPORT operator const std::vector<adouble>&() const { return data; }
     ADOLC_DLL_EXPORT operator std::vector<adouble>&() { return data; }
+    ADOLC_DLL_EXPORT operator adouble*() { return data.data(); }
     ADOLC_DLL_EXPORT adub operator[](const badouble& index) const;
     ADOLC_DLL_EXPORT adubref operator[](const badouble& index);
     ADOLC_DLL_EXPORT adouble& operator[](size_t i) { return data[i]; }

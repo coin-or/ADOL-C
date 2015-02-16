@@ -133,8 +133,10 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
     /* write values */
 #ifdef ADOLC_TAPE_DOC_VALUES /* values + constants */
     /* constants (max 2) */
-    if (opcode==ext_diff)
+    if (opcode==ext_diff || opcode == vec_copy)
         nloc=0;
+    if (opcode == vec_dot || opcode == vec_axpy)
+        nloc=1;
     for(i=0; i<(2-ncst); i++)
         fprintf(fp," &");
     for(i=0; i<ncst; i++)
@@ -244,7 +246,9 @@ void tape_doc(short tnum,         /* tape id */
     int loc_a[maxLocsPerOp];
     double val_a[4]={0,0,0,0}, cst_d[2]={0,0};
     const char* opName;
-
+#ifdef ADOLC_TAPE_DOC_VALUES
+	locint qq;
+#endif
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -1149,6 +1153,57 @@ void tape_doc(short tnum,         /* tape id */
                 val_a[2]=dp_T0[res];
 #endif
                 filewrite(operation,"cond assign s $\\longrightarrow$",3,loc_a,val_a,1,cst_d);
+                break;
+
+            case vec_copy:
+                res = get_locint_f();
+                arg = get_locint_f();
+                size = get_locint_f();
+                loc_a[0] = res;
+                loc_a[1] = arg;
+                loc_a[2] = size;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                for(qq=0;qq<size;qq++) 
+                    dp_T0[res+qq] = dp_T0[arg+qq];
+#endif
+                filewrite(operation,"vec copy $\\longrightarrow$",3,loc_a,val_a,0,cst_d);
+                break;
+
+            case vec_dot:
+                res = get_locint_f();
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                size = get_locint_f();
+                loc_a[0] = res;
+                loc_a[1] = arg1;
+                loc_a[2] = arg2;
+                loc_a[3] = size;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                dp_T0[res] = 0;
+                for(qq=0;qq<size;qq++) 
+                    dp_T0[res] += dp_T0[arg1+qq] *  dp_T0[arg2+qq];
+                val_a[0] = dp_T0[res];
+#endif
+                filewrite(operation,"vec dot $\\longrightarrow$",4,loc_a,val_a,0,cst_d);
+                break;
+
+            case vec_axpy:
+                res = get_locint_f();
+                arg = get_locint_f();
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                size = get_locint_f();
+                loc_a[0] = res;
+                loc_a[1] = arg;
+                loc_a[1] = arg1;
+                loc_a[2] = arg2;
+                loc_a[3] = size;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0] = dp_T0[arg];
+                for(qq=0;qq<size;qq++) 
+                    dp_T0[res+qq] = dp_T0[arg] * dp_T0[arg1+qq] + dp_T0[arg2+qq];
+#endif
+                filewrite(operation,"vec axpy $\\longrightarrow$",4,loc_a,val_a,0,cst_d);
                 break;
 
 
