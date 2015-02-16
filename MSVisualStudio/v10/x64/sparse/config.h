@@ -34,6 +34,18 @@
 /* ADOL-C Version */
 #define ADOLC_VERSION 2
 
+/* Boost pool should not assume multithreading */
+#undef BOOST_POOL_NO_MT
+
+/* define if the Boost library is available */
+#undef HAVE_BOOST
+
+/* Define to 1 if you have the <boost/pool/pool_alloc.hpp> header file. */
+#undef HAVE_BOOST_POOL_POOL_ALLOC_HPP
+
+/* define if the Boost::System library is available */
+#undef HAVE_BOOST_SYSTEM
+
 /* Define if the compiler provides __builtin_expect */
 #define HAVE_BUILTIN_EXPECT 0
 

@@ -343,6 +343,8 @@ MSVisualStudio/v10/x64/vcredist_x64.exe -text svneol=unset#unset
 /adolclib.pc.in -text
 autoconf/acx_builtin.m4 -text
 autoconf/ampi.m4 -text
+autoconf/ax_boost_base.m4 -text
+autoconf/ax_boost_system.m4 -text
 autoconf/colpack.m4 -text
 autoconf/config.guess -text
 autoconf/config.sub -text
