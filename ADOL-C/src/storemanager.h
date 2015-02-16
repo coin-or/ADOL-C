@@ -69,6 +69,8 @@
 #if defined(HAVE_BOOST_POOL_POOL_ALLOC_HPP) && defined(HAVE_BOOST_SYSTEM)
 #include <boost/pool/pool_alloc.hpp>
 #define USE_BOOST_POOL 1
+#else
+#define USE_BOOST_POOL 0
 #endif
 
 class Keeper;
