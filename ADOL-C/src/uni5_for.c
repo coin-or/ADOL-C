@@ -83,6 +83,10 @@
 #define GENERATED_FILENAME "fov_pl_forward"
 #elif defined(_ABS_NORM_SIG_)
 #define GENERATED_FILENAME "fov_pl_sig_forward"
+#if defined(_MSC_VER) && _MSC_VER < 1800
+#define fmin __min
+#define fmax __max
+#endif
 #else
 #define GENERATED_FILENAME "fov_forward"
 #endif
