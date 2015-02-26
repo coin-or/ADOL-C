@@ -1427,7 +1427,15 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
     }
 
     if (! foundTail) {
-	indexFree.emplace_front(oldMaxsize,(maxsize - oldMaxsize));
+	indexFree.emplace_front(
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+		FreeBlock(
+#endif
+		oldMaxsize,(maxsize - oldMaxsize)
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+		)
+#endif
+		);
     }
 
     biter = indexFree.before_begin();
@@ -1461,7 +1469,15 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
 	    front.next = loc;
     }
     else {
-         indexFree.emplace_front(loc,1);
+         indexFree.emplace_front(
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+		FreeBlock(
+#endif
+			 loc,1
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+			 )
+#endif
+			 );
     }
 
     --currentfill;
