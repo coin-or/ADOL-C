@@ -113,7 +113,20 @@ static char* populate_dpp(double ***const pointer, char *const memory,
     tmp = (char*)tmp2;
     return tmp;
 }
-
+/*
+ * The externfcts.h had a comment previously that said the following:
+ ****
+ * The user has to preallocate the variables and set the pointers for any of the call back functions 
+ * that will be called during trace interpretation.
+ * The dimensions given below correspond to the formal arguments in the call back funtions signatures above. 
+ * If the dimensions n and m change between multiple calls to the same external function, then the variables 
+ * have to be preallocation with the maximum of the respective dimension values. 
+ * The dp_x and dp_y pointers have to be valid during both, the tracing phase and the trace interpretation; 
+ * all the other pointers are required to be valid only for the trace interpretation.
+ ****
+ * Doing this now internally saves the user from doing it, as well as updating
+ * when using multiple problem sizes.
+ */
 static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
   if (edfct->max_n<n || edfct->max_m<m) {
       /* We need memory stored in the edfct dp_x[n], dp_X[n], dp_Z[n], 

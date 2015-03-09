@@ -138,13 +138,6 @@ typedef struct {
   /**
    * The names of the variables below correspond to the formal parameters names in the call back 
    * functions above; 
-   * The user has to preallocate the variables and set the pointers for any of the call back functions 
-   * that will be called during trace interpretation.
-   * The dimensions given below correspond to the formal arguments in the call back funtions signatures above. 
-   * If the dimensions n and m change between multiple calls to the same external function, then the variables 
-   * have to be preallocation with the maximum of the respective dimension values. 
-   * The dp_x and dp_y pointers have to be valid during both, the tracing phase and the trace interpretation; 
-   * all the other pointers are required to be valid only for the trace interpretation.
    */
        
   /** 
