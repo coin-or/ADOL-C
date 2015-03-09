@@ -252,6 +252,11 @@ typedef struct {
    */
   char dp_y_priorRequired;
 
+  /**
+   * This is an all-memory pointer for allocating and deallocating
+   * all other pointers can point to memory within here.
+   */
+  char* allmem;
 }
 ext_diff_fct;
 

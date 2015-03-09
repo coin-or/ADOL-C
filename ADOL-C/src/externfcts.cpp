@@ -77,6 +77,9 @@ void edf_zero(ext_diff_fct *edf) {
   edf->nestedAdolc=true;
   edf->dp_x_changes=true;
   edf->dp_y_priorRequired=true;
+  if (edf->allmem == NULL)
+      free(edf->allmem);
+  edf->allmem=NULL;
 }
 
 ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct) {
@@ -91,6 +94,54 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
   ext_diff_fct * edf=buffer.append();
   edf->function_iArr=ext_fct;
   return edf;
+}
+
+static char* populate_dpp(double ***const pointer, char *const memory,
+                          int n, int m) {
+    char* tmp;
+    double **tmp1; double *tmp2;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double**)memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double*)tmp;
+    for (i=0;i<n;i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    return tmp;
+}
+
+static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
+  if (edfct->max_n<n || edfct->max_m<m) {
+      /* We need memory stored in the edfct dp_x[n], dp_X[n], dp_Z[n], 
+       * dp_y[m], dp_Y[m], dp_U[m], dpp_X[n][n], dpp_Y[m][n], 
+       * dpp_U[m][m], dpp_Z[m][n]. We have no implementation for higher order
+       * so leave it out.
+       */
+      size_t totalmem = (3*n + 3*m + n*n + 2*n*m + m*m)*sizeof(double)
+                         + (3*m+n)*sizeof(double*);
+      char *tmp;
+      if (edfct->allmem != NULL) free(edfct->allmem);
+      edfct->allmem = (char*)malloc(totalmem);
+      edfct->dp_x = (double*)edfct->allmem;
+      edfct->dp_y = edfct->dp_x+n;
+      edfct->dp_X = edfct->dp_y+m;
+      edfct->dp_Y = edfct->dp_X+n;
+      edfct->dp_U = edfct->dp_Y+m;
+      edfct->dp_Z = edfct->dp_U+m;
+      tmp = (char*)(edfct->dp_Z+n);
+      tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
+      tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
+      tmp = populate_dpp(&edfct->dpp_U, tmp, m,m);
+      tmp = populate_dpp(&edfct->dpp_Z, tmp, m,n);
+  }
+
+  edfct->max_n=(edfct->max_n<n)?n:edfct->max_n;
+  edfct->max_m=(edfct->max_m<m)?m:edfct->max_m;
+  
 }
 
 void call_ext_fct_commonPrior(ext_diff_fct *edfct,
@@ -121,8 +172,8 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct,
     memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store,
            numVals * sizeof(double));
   }
-  edfct->max_n=(edfct->max_n<n)?n:edfct->max_n;
-  edfct->max_m=(edfct->max_m<m)?m:edfct->max_m;
+
+  update_ext_fct_memory(edfct,n,m);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.c */
