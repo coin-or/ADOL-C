@@ -94,8 +94,8 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
 }
 
 void call_ext_fct_commonPrior(ext_diff_fct *edfct,
-                              int n, double *xp, adouble *xa,
-                              int m, double *yp, adouble *ya,
+                              int n, adouble *xa,
+                              int m, adouble *ya,
                               int &numVals,
                               double *&vals,
                               int &oldTraceFlag) {
@@ -136,13 +136,13 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct,
     }
   }
 
-  for (int i=0; i<n; ++i) xp[i]=xa[i].getValue();
-  if (edfct->dp_y_priorRequired) for (int i=0; i<m; ++i) yp[i]=ya[i].getValue();
+  for (int i=0; i<n; ++i) edfct->dp_x[i]=xa[i].getValue();
+  if (edfct->dp_y_priorRequired) for (int i=0; i<m; ++i) edfct->dp_y[i]=ya[i].getValue();
 }
 
 void call_ext_fct_commonPost(ext_diff_fct *edfct,
-                              int n, double *xp, adouble *xa,
-                              int m, double *yp, adouble *ya,
+                              int n, adouble *xa,
+                              int m, adouble *ya,
                               int &numVals,
                               double *&vals,
                               int &oldTraceFlag) {
@@ -155,14 +155,14 @@ void call_ext_fct_commonPost(ext_diff_fct *edfct,
     vals=0;
   }
   /* write back */
-  if (edfct->dp_x_changes) for (int i=0; i<n; ++i) xa[i].setValue(xp[i]);
-  for (int i=0; i<m; ++i) ya[i].setValue(yp[i]);
+  if (edfct->dp_x_changes) for (int i=0; i<n; ++i) xa[i].setValue(edfct->dp_x[i]);
+  for (int i=0; i<m; ++i) ya[i].setValue(edfct->dp_y[i]);
   ADOLC_CURRENT_TAPE_INFOS.traceFlag=oldTraceFlag;
 }
 
 int call_ext_fct(ext_diff_fct *edfct,
-                 int n, double *xp, adouble *xa,
-                 int m, double *yp, adouble *ya) {
+                 int n, adouble *xa,
+                 int m, adouble *ya) {
   int ret;
   int numVals = 0;
   double *vals = NULL;
@@ -170,16 +170,16 @@ int call_ext_fct(ext_diff_fct *edfct,
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) put_op(ext_diff);
-  call_ext_fct_commonPrior (edfct,n,xp,xa,m,yp,ya,numVals,vals,oldTraceFlag);
-  ret=edfct->function(n, xp, m, yp);
-  call_ext_fct_commonPost (edfct,n,xp,xa,m,yp,ya,numVals,vals,oldTraceFlag);
+  call_ext_fct_commonPrior (edfct,n,xa,m,ya,numVals,vals,oldTraceFlag);
+  ret=edfct->function(n, edfct->dp_x, m, edfct->dp_y);
+  call_ext_fct_commonPost (edfct,n,xa,m,ya,numVals,vals,oldTraceFlag);
   return ret;
 }
 
 int call_ext_fct(ext_diff_fct *edfct,
                  int iArrLength, int *iArr,
-                 int n, double *xp, adouble *xa,
-                 int m, double *yp, adouble *ya) {
+                 int n, adouble *xa,
+                 int m, adouble *ya) {
   int ret;
   int numVals = 0;
   double *vals = NULL;
@@ -192,9 +192,9 @@ int call_ext_fct(ext_diff_fct *edfct,
     for (int i=0; i<iArrLength; ++i) ADOLC_PUT_LOCINT(iArr[i]);
     ADOLC_PUT_LOCINT(iArrLength); // do it again so we can read in either direction
   }
-  call_ext_fct_commonPrior (edfct,n,xp,xa,m,yp,ya,numVals,vals,oldTraceFlag);
-  ret=edfct->function_iArr(iArrLength, iArr, n, xp, m, yp);
-  call_ext_fct_commonPost (edfct,n,xp,xa,m,yp,ya,numVals,vals,oldTraceFlag);
+  call_ext_fct_commonPrior (edfct,n,xa,m,ya,numVals,vals,oldTraceFlag);
+  ret=edfct->function_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y);
+  call_ext_fct_commonPost (edfct,n,xa,m,ya,numVals,vals,oldTraceFlag);
   return ret;
 }
 

@@ -265,12 +265,12 @@ ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct);
 ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct);
 
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
-                                   int n, double *xp, adouble *xa,
-                                   int m, double *yp, adouble *ya);
+                                   int n, adouble *xa,
+                                   int m, adouble *ya);
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
                                    int iArrLength, int* iArr,
-                                   int n, double *xp, adouble *xa,
-                                   int m, double *yp, adouble *ya);
+                                   int n, adouble *xa,
+                                   int m, adouble *ya);
 
 /**
  * zeros out the edf pointers and sets bools to defaults
