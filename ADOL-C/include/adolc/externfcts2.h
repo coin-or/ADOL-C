@@ -173,6 +173,7 @@ typedef struct {
 ext_diff_fct_v2;
 
 END_C_DECLS
+#if defined(__cplusplus)
 
 ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 ext_fct);
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct_v2 *edfct,
@@ -182,4 +183,5 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct_v2 *edfct,
 
 ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct_v2 *edfct);
 
+#endif
 #endif
