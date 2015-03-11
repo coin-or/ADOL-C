@@ -99,7 +99,7 @@ typedef struct {
   double **xp;
 
   /**
-   * fov_forward: seed matrix for p directions, dimensions nin*insz[0..nin]*insz[0..nin]
+   * fov_forward: seed matrix for p directions, dimensions nin*insz[0..nin]*p (p=nin*insz[0..nin])
    */
   double ***Xp;
 
@@ -114,7 +114,7 @@ typedef struct {
   double **yp;
 
   /**
-   * fov_forward: Jacobian projection in p directions, dimension nout*outsz[0..nout]*insz[0..nin]
+   * fov_forward: Jacobian projection in p directions, dimension nout*outsz[0..nout]*p (p=nin*insz[0..nin])
    */
   double ***Yp;
 
@@ -124,7 +124,7 @@ typedef struct {
   double **up;
 
   /**
-   * fov_reverse and hov_reverse: p weight vectors, dimensions nout*outsz[0..nout]*outsz[0..nout]
+   * fov_reverse and hov_reverse: q weight vectors, dimensions (q=nout*outsz[0..nout]) q*nout*outsz[0..nout]
    */
   double ***Up;
 
@@ -134,19 +134,19 @@ typedef struct {
   double **zp;
 
   /**
-   * fov_reverse: Jacobian projection for p weight vectors, dimensions nin*insz[0..nin]*outsz[0..nout]
+   * fov_reverse: Jacobian projection for q weight vectors, dimensions (q=nout*outsz[0..nout]) q*nin*insz[0..nin]
    */
   double ***Zp;
 
   /**
    * track maximal dimensions when function is invoked
    */
-  locint max_nin, max_nout, *max_insz, *max_outsz;
+  locint max_nin, max_nout, max_insz, max_outsz;
 
   /**
    * make the call such that Adol-C may be used inside
    * of the externally differentiated function;
-   * defaults to non-0;
+   * defaults to 0;
    * this implies certain storage duplication that can
    * be avoided if no nested use of Adol-C takes place
    */
