@@ -18,6 +18,7 @@
 
 #include <adolc/internal/common.h>
 #include <adolc/externfcts.h>
+#include <adolc/externfcts2.h>
 
 BEGIN_C_DECLS
 /****************************************************************************/
@@ -26,6 +27,10 @@ BEGIN_C_DECLS
 #define EDFCTS_BLOCK_SIZE 10
 
 ext_diff_fct *get_ext_diff_fct(int index);
+ext_diff_fct_v2 *get_ext_diff_fct_v2(int index);
+char* populate_dpp(double ***const pointer, char *const memory,
+                   int n, int m);
+
 
 END_C_DECLS
 

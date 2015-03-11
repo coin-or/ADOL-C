@@ -77,7 +77,7 @@ void edf_zero(ext_diff_fct *edf) {
   edf->nestedAdolc=true;
   edf->dp_x_changes=true;
   edf->dp_y_priorRequired=true;
-  if (edf->allmem == NULL)
+  if (edf->allmem != NULL)
       free(edf->allmem);
   edf->allmem=NULL;
 }
@@ -96,8 +96,8 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
   return edf;
 }
 
-static char* populate_dpp(double ***const pointer, char *const memory,
-                          int n, int m) {
+char* populate_dpp(double ***const pointer, char *const memory,
+                   int n, int m) {
     char* tmp;
     double **tmp1; double *tmp2;
     int i,j;
@@ -139,6 +139,7 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       char *tmp;
       if (edfct->allmem != NULL) free(edfct->allmem);
       edfct->allmem = (char*)malloc(totalmem);
+      memset(edfct->allmem,0,totalmem);
       edfct->dp_x = (double*)edfct->allmem;
       edfct->dp_y = edfct->dp_x+n;
       edfct->dp_X = edfct->dp_y+m;
