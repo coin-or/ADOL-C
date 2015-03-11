@@ -139,7 +139,7 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-        put_op_reserve(ext_diff_v2, 2*(nin+nout+2)+iArrLen+3);
+        put_op_reserve(ext_diff_v2, 2*(nin+nout)+iArrLen);
         ADOLC_PUT_LOCINT(edfct->index);
         ADOLC_PUT_LOCINT(iArrLen);
         for(i=0;i<iArrLen;i++)
@@ -214,4 +214,8 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
 
     ADOLC_CURRENT_TAPE_INFOS.traceFlag=oldTraceFlag;
     return ret;
+}
+
+ext_diff_fct_v2 *get_ext_diff_fct_v2( int index ) {
+    return buffer.getElement(index);
 }

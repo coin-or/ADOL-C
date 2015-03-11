@@ -1026,6 +1026,8 @@ int  hov_forward(
     zos_forward(n, edfct->dp_x, m, edfct->dp_y)
 #   define ADOLC_EXT_FCT_IARR_COMPLETE \
     zos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y)
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    zos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, outsz, edfct2->y)
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
 #endif
@@ -1040,6 +1042,10 @@ int  hov_forward(
     fos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dp_Y
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    fos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, edfct2->xp, outsz, edfct2->y, edfct2->yp)
+#   define ADOLC_EXT_V2_POINTER_X edfct2->xp
+#   define ADOLC_EXT_V2_POINTER_Y edfct2->yp
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
 #endif
@@ -1054,6 +1060,10 @@ int  hov_forward(
     fov_forward_iArr(iArrLength, iArr, n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #   define ADOLC_EXT_POINTER_X edfct->dpp_X
 #   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    fov_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, p, edfct2->Xp, outsz, edfct2->y, edfct2->Yp)
+#   define ADOLC_EXT_V2_POINTER_X edfct2->Xp
+#   define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
 #   define ADOLC_EXT_SUBSCRIPT [loop2]
 #endif
@@ -1061,13 +1071,16 @@ int  hov_forward(
 #if defined(_EXTERN_)
     locint n, m;
     ext_diff_fct *edfct;
-    int loop;
+    ext_diff_fct_v2 *edfct2;
+    int loop,oloop;
     int iArrLength;
     int *iArr;
 #   if defined(_FOV_)
         int loop2;
 #   endif
     int ext_retc;
+    int nin, nout;
+    locint *insz, *outsz;
 #endif
 
 #ifdef ADOLC_AMPI_SUPPORT
@@ -5958,6 +5971,104 @@ int  hov_forward(
                     ++res;
                 }
                 free((void*)iArr); iArr=0;
+                break;
+            case ext_diff_v2:
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
+                iArrLength = get_locint_f();
+                iArr = malloc(iArrLength*sizeof(int));
+                for (loop=0;loop<iArrLength;++loop) iArr[loop] = get_locint_f();
+                get_locint_f(); /* iArrLength again */
+                nin = get_locint_f();
+                nout = get_locint_f();
+                insz = malloc(2*(nin+nout)*sizeof(locint));
+                outsz = insz + nin;
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = outsz + nout;
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = outsz + nout + nin;
+                for (loop=0;loop<nin;++loop) {
+                    insz[loop] = get_locint_f();
+                    ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[loop] = get_locint_f();
+                }
+                for (loop=0;loop<nout;++loop) {
+                    outsz[loop] = get_locint_f();
+                    ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[loop] = get_locint_f();
+                }
+                get_locint_f(); /* nin again */
+                get_locint_f(); /* nout again */
+                edfct2 = get_ext_diff_fct_v2(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+                if (edfct2->ADOLC_EXT_FCT_POINTER==NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
+                if (nin>0) {
+                    if (edfct2->x == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#if !defined(_ZOS_)
+                    if (ADOLC_EXT_V2_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+                }
+                if (nout>0) {
+                    if (edfct2->y == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#if !defined(_ZOS_)
+                    if (ADOLC_EXT_V2_POINTER_Y == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+                }
+
+                for(oloop=0;oloop<nin;++oloop) {
+                    arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    for(loop=0;loop<insz[oloop];++loop) {
+                        if(edfct2->dp_x_changes) {
+                            IF_KEEP_WRITE_TAYLOR(arg,keep,k,p);
+                        }
+                        edfct2->x[oloop][loop] = dp_T0[arg];
+#if !defined(_ZOS_)
+                        ADOLC_EXT_LOOP
+                            ADOLC_EXT_V2_POINTER_X[oloop][loop]ADOLC_EXT_SUBSCRIPT =
+                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+#endif
+                        ++arg;
+                    }
+                }
+                for(oloop=0;oloop<nout;++oloop) {
+                    arg=ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+                    for(loop=0;loop<outsz[oloop];++loop) {
+                        if (edfct2->dp_y_priorRequired) {
+                            IF_KEEP_WRITE_TAYLOR(arg,keep,k,p);
+                        }
+                            edfct2->y[oloop][loop] = dp_T0[arg];
+#if !defined(_ZOS_)
+                            ADOLC_EXT_LOOP
+                                ADOLC_EXT_V2_POINTER_Y[oloop][loop]ADOLC_EXT_SUBSCRIPT =
+                                TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+#endif
+                            ++arg;
+                    }
+                }
+                ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
+                MINDEC(ret_c,ext_retc);
+
+                for(oloop=0;oloop<nin;++oloop) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    for(loop=0;loop<insz[oloop];++loop) {
+                        dp_T0[res] = edfct2->x[oloop][loop];
+#if !defined(_ZOS_)
+                        ADOLC_EXT_LOOP
+                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT =
+                            ADOLC_EXT_V2_POINTER_X[oloop][loop]ADOLC_EXT_SUBSCRIPT;
+#endif
+                        ++res;
+                    }
+                }
+
+                for(oloop=0;oloop<nout;++oloop) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+                    for(loop=0;loop<outsz[oloop];++loop) {
+                        dp_T0[res] = edfct2->y[oloop][loop];
+#if !defined(_ZOS_)
+                        ADOLC_EXT_LOOP
+                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT =
+                            ADOLC_EXT_V2_POINTER_Y[oloop][loop]ADOLC_EXT_SUBSCRIPT;
+#endif
+                        ++res;
+                    }
+                }
+
                 break;
 #endif
 
