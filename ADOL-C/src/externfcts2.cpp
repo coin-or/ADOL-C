@@ -131,4 +131,82 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
                  int nin, int nout,
                  int *insz, adouble **x,
                  int *outsz, adouble **y) {
+    int ret;
+    int oldTraceFlag;
+    int i,j; size_t numVals;
+    double *vals;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+        put_op_reserve(ext_diff_v2, 2*(nin+nout+2)+1);
+        ADOLC_PUT_LOCINT(edfct->index);
+        ADOLC_PUT_LOCINT(nin);
+        ADOLC_PUT_LOCINT(nout);
+        for (i=0;i<nin;i++) {
+            if (x[i][insz[i]-1].loc()-x[i][0].loc() != (unsigned)insz[i]-1) fail(ADOLC_EXT_DIFF_LOCATIONGAP);
+            ADOLC_PUT_LOCINT(insz[i]);
+            ADOLC_PUT_LOCINT(x[i][0].loc());
+        }
+        for (i=0;i<nout;i++) {
+            if (y[i][outsz[i]-1].loc()-y[i][0].loc() != (unsigned)outsz[i]-1) fail(ADOLC_EXT_DIFF_LOCATIONGAP);
+            ADOLC_PUT_LOCINT(outsz[i]);
+            ADOLC_PUT_LOCINT(y[i][0].loc());
+        }
+        ADOLC_PUT_LOCINT(nin);
+        ADOLC_PUT_LOCINT(nout);
+        oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+        ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+    } else oldTraceFlag = 0;
+    if (edfct->nestedAdolc) {
+        numVals = ADOLC_GLOBAL_TAPE_VARS.storeSize;
+        vals = new double[numVals];
+        memcpy(vals,ADOLC_GLOBAL_TAPE_VARS.store, numVals*sizeof(double));
+    }
+    update_ext_fct_memory(edfct,nin,nout,insz,outsz);
+    if (oldTraceFlag != 0) {
+        if (edfct->dp_x_changes)
+            for(i=0;i<nin;i++)
+                ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += insz[i];
+        if (edfct->dp_y_priorRequired)
+            for(i=0;i<nout;i++)
+                ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += outsz[i];
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
+            if (edfct->dp_x_changes)
+                for(i=0;i<nin;i++)
+                    for(j=0;j<insz[i];j++)
+                        ADOLC_WRITE_SCAYLOR(x[i][j].getValue());
+            if (edfct->dp_y_priorRequired)
+                for(i=0;i<nout;i++)
+                    for(j=0;j<outsz[i];j++)
+                        ADOLC_WRITE_SCAYLOR(y[i][j].getValue());
+        }
+    }
+
+    for(i=0;i<nin;i++)
+        for(j=0;j<insz[i];j++)
+            edfct->x[i][j] = x[i][j].getValue();
+
+    if (edfct->dp_y_priorRequired)
+        for(i=0;i<nout;i++)
+            for(j=0;j<outsz[i];j++)
+                edfct->y[i][j] = y[i][j].getValue();
+
+    ret=edfct->function(nin,nout,insz,edfct->x,outsz,edfct->y);
+
+    if (edfct->nestedAdolc) {
+        memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals, numVals*sizeof(double));
+        delete[] vals;
+        vals = NULL;
+    }
+    if (edfct->dp_x_changes)
+        for(i=0;i<nin;i++)
+            for(j=0;j<insz[i];j++)
+                x[i][j].setValue(edfct->x[i][j]);
+
+    for(i=0;i<nout;i++)
+        for(j=0;j<outsz[i];j++)
+            y[i][j].setValue(edfct->y[i][j]);
+
+    ADOLC_CURRENT_TAPE_INFOS.traceFlag=oldTraceFlag;
+    return ret;
 }
