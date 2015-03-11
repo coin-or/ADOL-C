@@ -21,15 +21,15 @@
 
 BEGIN_C_DECLS
 
-typedef int (ADOLC_ext_fct_v2) (int nin, int nout, int *insz, double **x, int *outsz, double **y);
-typedef int (ADOLC_ext_fct_v2_fos_forward)(int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp);
-typedef int (ADOLC_ext_fct_v2_fov_forward)(int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp);
-typedef int (ADOLC_ext_fct_v2_fos_reverse)(int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y);
-typedef int (ADOLC_ext_fct_v2_fov_reverse)(int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y);
+typedef int (ADOLC_ext_fct_v2) (int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y);
+typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp);
+typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp);
+typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y);
+typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y);
 
 /* The following two aren't implemented */
-typedef int (ADOLC_ext_fct_v2_hos_forward)(int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp);
-typedef int (ADOLC_ext_fct_v2_hov_forward)(int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp);
+typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp);
+typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp);
 
 typedef struct {
  /**
@@ -177,6 +177,7 @@ END_C_DECLS
 
 ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 ext_fct);
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct_v2 *edfct,
+                                   int iArrLen, int* iArr,
                                    int nin, int nout,
                                    int *insz, adouble **x,
                                    int *outsz, adouble **y);
