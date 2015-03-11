@@ -105,6 +105,7 @@ SubBufferElement *BUFFER::append() {
     }
     index=tmp;
 
+    currentSubBuffer->elements[index].allmem=NULL;
     if (initFunction!=NULL)
         initFunction(&(currentSubBuffer->elements[index]));
 
