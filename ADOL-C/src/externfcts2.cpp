@@ -128,6 +128,7 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int
 }
 
 int call_ext_fct(ext_diff_fct_v2 *edfct,
+                 int iArrLen, int* iArr,
                  int nin, int nout,
                  int *insz, adouble **x,
                  int *outsz, adouble **y) {
@@ -138,8 +139,12 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-        put_op_reserve(ext_diff_v2, 2*(nin+nout+2)+1);
+        put_op_reserve(ext_diff_v2, 2*(nin+nout+2)+iArrLen+3);
         ADOLC_PUT_LOCINT(edfct->index);
+        ADOLC_PUT_LOCINT(iArrLen);
+        for(i=0;i<iArrLen;i++)
+            ADOLC_PUT_LOCINT(iArr[i]);
+        ADOLC_PUT_LOCINT(iArrLen);
         ADOLC_PUT_LOCINT(nin);
         ADOLC_PUT_LOCINT(nout);
         for (i=0;i<nin;i++) {
@@ -191,7 +196,7 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
             for(j=0;j<outsz[i];j++)
                 edfct->y[i][j] = y[i][j].getValue();
 
-    ret=edfct->function(nin,nout,insz,edfct->x,outsz,edfct->y);
+    ret=edfct->function(iArrLen,iArr,nin,nout,insz,edfct->x,outsz,edfct->y);
 
     if (edfct->nestedAdolc) {
         memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals, numVals*sizeof(double));
