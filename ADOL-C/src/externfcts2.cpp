@@ -126,3 +126,9 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int
     edfct->max_insz=(edfct->max_insz<m_isz)?m_isz:edfct->max_insz;
     edfct->max_outsz=(edfct->max_outsz<m_osz)?m_osz:edfct->max_outsz;
 }
+
+int call_ext_fct(ext_diff_fct_v2 *edfct,
+                 int nin, int nout,
+                 int *insz, adouble **x,
+                 int *outsz, adouble **y) {
+}

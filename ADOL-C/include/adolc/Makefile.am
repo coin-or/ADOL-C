@@ -16,7 +16,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        externfcts.h checkpointing.h fixpoint.h\
                        adolc_sparse.h adolc_openmp.h \
                        revolve.h advector.h \
-                       adtl.h adoublecuda.h param.h
+                       adtl.h adoublecuda.h param.h externfct2.h
 
 SUBDIRS = internal drivers tapedoc
 
