@@ -6049,7 +6049,7 @@ int  hov_forward(
                         dp_T0[res] = edfct2->x[oloop][loop];
 #if !defined(_ZOS_)
                         ADOLC_EXT_LOOP
-                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT =
+                            TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
                             ADOLC_EXT_V2_POINTER_X[oloop][loop]ADOLC_EXT_SUBSCRIPT;
 #endif
                         ++res;
@@ -6062,7 +6062,7 @@ int  hov_forward(
                         dp_T0[res] = edfct2->y[oloop][loop];
 #if !defined(_ZOS_)
                         ADOLC_EXT_LOOP
-                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT =
+                            TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
                             ADOLC_EXT_V2_POINTER_Y[oloop][loop]ADOLC_EXT_SUBSCRIPT;
 #endif
                         ++res;
