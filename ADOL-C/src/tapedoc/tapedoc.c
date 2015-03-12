@@ -117,6 +117,8 @@ void filewrite( unsigned short opcode, const char* opString, int nloc, int *loc,
     
     /* write locations (max 4) right-justified */
     fprintf(fp," &");
+    if (opcode==ext_diff || opcode==ext_diff_iArr || opcode==ext_diff_v2)
+        opcode = ext_diff;
     if (opcode!=ext_diff) { /* default */
         for(i=0; i<(4-nloc); i++)
             fprintf(fp," &");
@@ -1259,7 +1261,21 @@ void tape_doc(short tnum,         /* tape id */
                 loc_a[3] = get_locint_f(); /* dummy */
                 filewrite(operation, "extern diff iArr",3, loc_a, val_a, 0, cst_d);
                 break;
-
+            case ext_diff_v2:
+                loc_a[0] = get_locint_f(); /* index */
+                loc_a[1] = get_locint_f(); /* iArr length */
+                for (l=0; l<loc_a[1];++l) get_locint_f(); /* iArr */
+                get_locint_f(); /* iArr length again */
+                loc_a[1] = get_locint_f(); /* nin */
+                loc_a[2] = get_locint_f(); /* nout */
+                for (l=0; l<loc_a[1];++l) { get_locint_f(); get_locint_f(); } 
+                /* input vectors sizes and start locs */
+                for (l=0; l<loc_a[2];++l) { get_locint_f(); get_locint_f(); } 
+                /* output vectors sizes and start locs */
+                get_locint_f(); /* nin again */
+                get_locint_f(); /* nout again */
+                filewrite(operation, "extern diff v2",3, loc_a, val_a, 0, cst_d);
+                break;
 #ifdef ADOLC_AMPI_SUPPORT
             case ampi_send:
 	        loc_a[0] = get_locint_f();   /* start loc */
