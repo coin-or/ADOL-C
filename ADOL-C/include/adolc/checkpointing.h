@@ -53,6 +53,7 @@ typedef struct CpInfos {
     locint index;                            /* please do not change */
     char modeForward;
     char modeReverse;
+    char *allmem; /* this is dummy to get externfcts and checkpointing both use buffer_temp without a problem */
 }
 CpInfos;
 

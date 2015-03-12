@@ -21,7 +21,7 @@
 /* opcodes */
 
 enum OPCODES {
-  death_not,
+  death_not = 0,
   assign_ind,
   assign_dep,
   assign_a,
@@ -83,6 +83,7 @@ enum OPCODES {
   ext_diff,
   ext_diff_iArr,
   ignore_me,
+  ext_diff_v2,
   subscript = 80,
   subscript_ref,
   ref_assign_d_zero,

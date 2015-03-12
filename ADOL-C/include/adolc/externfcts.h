@@ -138,13 +138,6 @@ typedef struct {
   /**
    * The names of the variables below correspond to the formal parameters names in the call back 
    * functions above; 
-   * The user has to preallocate the variables and set the pointers for any of the call back functions 
-   * that will be called during trace interpretation.
-   * The dimensions given below correspond to the formal arguments in the call back funtions signatures above. 
-   * If the dimensions n and m change between multiple calls to the same external function, then the variables 
-   * have to be preallocation with the maximum of the respective dimension values. 
-   * The dp_x and dp_y pointers have to be valid during both, the tracing phase and the trace interpretation; 
-   * all the other pointers are required to be valid only for the trace interpretation.
    */
        
   /** 
@@ -252,6 +245,11 @@ typedef struct {
    */
   char dp_y_priorRequired;
 
+  /**
+   * This is an all-memory pointer for allocating and deallocating
+   * all other pointers can point to memory within here.
+   */
+  char* allmem;
 }
 ext_diff_fct;
 
@@ -265,12 +263,12 @@ ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct);
 ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct);
 
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
-                                   int n, double *xp, adouble *xa,
-                                   int m, double *yp, adouble *ya);
+                                   int n, adouble *xa,
+                                   int m, adouble *ya);
 ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
                                    int iArrLength, int* iArr,
-                                   int n, double *xp, adouble *xa,
-                                   int m, double *yp, adouble *ya);
+                                   int n, adouble *xa,
+                                   int m, adouble *ya);
 
 /**
  * zeros out the edf pointers and sets bools to defaults
