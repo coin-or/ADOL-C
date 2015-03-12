@@ -215,14 +215,12 @@ int fp_iteration ( int        sub_tape_num,
     edf_iteration->fos_reverse = &fp_fos_reverse;
 
     // put x and u together
-    double    *xu_p    = new double[dim_x+dim_u];
-    double    *x_fix_p = new double[dim_x];
     adouble   *xu      = new adouble[dim_x+dim_u];
     for (i=0; i<dim_x; i++) xu[i] = x_0[i];
     for (i=0; i<dim_u; i++) xu[dim_x+i] = u[i];
 
-    k = call_ext_fct ( edf_iteration, dim_x+dim_u, xu_p, xu,
-                       dim_x, x_fix_p, x_fix );
+    k = call_ext_fct ( edf_iteration, dim_x+dim_u, xu,
+                       dim_x, x_fix );
 
     // tape near solution
     trace_on(sub_tape_num,1);
@@ -233,7 +231,5 @@ int fp_iteration ( int        sub_tape_num,
     trace_off();
 
     delete[] xu;
-    delete[] x_fix_p;
-    delete[] xu_p;
     return k;
 }

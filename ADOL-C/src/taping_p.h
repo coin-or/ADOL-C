@@ -271,6 +271,9 @@ typedef struct TapeInfos {
     locint cpIndex;               /* index of the curr. cp function <- tape */
     int numDirs_rev;     /* # of directions for **v_reverse (checkpointing) */
 
+    locint *lowestXLoc_ext_v2;
+    locint *lowestYLoc_ext_v2;
+
     /* evaluation forward */
     double *dp_T0;
     int gDegree, numTay;

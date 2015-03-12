@@ -356,6 +356,10 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_IARR_COMPLETE \
   fos_reverse_iArr(iArrLength,iArr, m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS
+# define ADOLC_EXT_FCT_V2_U edfct2->up
+# define ADOLC_EXT_FCT_V2_Z edfct2->zp
+# define ADOLC_EXT_FCT_V2_COMPLETE \
+  fos_reverse(iArrLength,iArr,nout,nin,outsz,edfct2->up,insz,edfct2->zp,edfct2->x,edfct2->y)
 #else
 # define ADOLC_EXT_FCT_U edfct->dpp_U
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
@@ -366,15 +370,21 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_IARR_COMPLETE \
   fov_reverse_iArr(iArrLength, iArr, m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
 # define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
+# define ADOLC_EXT_FCT_V2_U edfct2->Up
+# define ADOLC_EXT_FCT_V2_Z edfct2->Zp
+# define ADOLC_EXT_FCT_V2_COMPLETE \
+  fov_reverse(iArrLength,iArr,nout,nin,outsz,p,edfct2->Up,insz,edfct2->Zp,edfct2->x,edfct2->y)
 #endif
 #if !defined(_INT_REV_)
     locint n, m;
     ext_diff_fct *edfct;
+    ext_diff_fct_v2 *edfct2;
     int iArrLength;
     int *iArr;
-    int loop;
+    int loop,oloop;
     int ext_retc;
     int oldTraceFlag;
+    locint *insz, *outsz, nin, nout;
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
     MPI_Op op;
@@ -460,6 +470,8 @@ int int_reverse_safe(
 # define ADJOINT_BUFFER_RES_L rp_A[res]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dp_U[loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dp_Z[loop]
+# define ADOLC_EXT_FCT_V2_U_L_LOOP edfct2->up[oloop][loop]
+# define ADOLC_EXT_FCT_V2_Z_L_LOOP edfct2->zp[oloop][loop]
 
     /*--------------------------------------------------------------------------*/
 #else
@@ -490,6 +502,8 @@ int int_reverse_safe(
 # define ADJOINT_BUFFER_RES_L rpp_A[res][l]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dpp_U[l][loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dpp_Z[l][loop]
+# define ADOLC_EXT_FCT_V2_U_L_LOOP edfct2->Up[l][oloop][loop]
+# define ADOLC_EXT_FCT_V2_Z_L_LOOP edfct2->Zp[l][oloop][loop]
 #else
 #if defined _INT_REV_
     upp_A = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
@@ -2786,6 +2800,111 @@ int int_reverse_safe(
                 ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 
                 break;
+            case ext_diff_v2:
+                nout = get_locint_r();
+                nin = get_locint_r();
+                insz = malloc(2*(nin+nout)*sizeof(locint));
+                outsz = insz + nin;
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = outsz + nout;
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = outsz + nout + nin;
+                for (loop=nout-1;loop>=0;--loop) {
+                    ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[loop] = get_locint_r();
+                    outsz[loop] = get_locint_r();
+                }
+                for (loop=nin-1;loop>=0;--loop) {
+                    ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[loop] = get_locint_r();
+                    insz[loop] = get_locint_r();
+                }
+                get_locint_r(); /* nout again */
+                get_locint_r(); /* nin again */
+                iArrLength = get_locint_r();
+                iArr = malloc(iArrLength*sizeof(int));
+                for (loop=iArrLength-1;loop>=0;--loop) iArr[loop] = get_locint_r();
+                get_locint_r(); /* iArrLength again */
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_r();
+                ADOLC_EXT_FCT_SAVE_NUMDIRS;
+                edfct2 = get_ext_diff_fct_v2(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+                oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+                
+                if (edfct2->ADOLC_EXT_FCT_POINTER == NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+                if (nout>0) {
+                    if (ADOLC_EXT_FCT_V2_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct2->y == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                if (nin>0) {
+                    if (ADOLC_EXT_FCT_V2_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct2->x == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                for (oloop=0;oloop<nout;++oloop) {
+                    arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+                    for (loop = 0; loop < outsz[oloop]; ++loop) {
+                        FOR_0_LE_l_LT_p {
+                            ADOLC_EXT_FCT_V2_U_L_LOOP = ADJOINT_BUFFER_ARG_L;
+                        }
+                        edfct2->x[oloop][loop]=TARG;
+                        ++arg;
+                    }
+                }
+                for (oloop=0;oloop<nin;++oloop) {
+                    arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    for (loop =0; loop < insz[oloop]; ++loop) {
+                        FOR_0_LE_l_LT_p {
+                            ADOLC_EXT_FCT_V2_Z_L_LOOP = ADJOINT_BUFFER_ARG_L;
+                        }
+                        edfct2->y[oloop][loop]=TARG;
+                        ++arg;
+                    }
+                }
+                ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+                for (oloop=0;oloop<nout;++oloop) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+                    for (loop =0; loop < outsz[oloop]; ++loop) {
+                        FOR_0_LE_l_LT_p {
+                            ADJOINT_BUFFER_RES_L = 0.0; /* \bar{v}_i = 0 !!! */
+                        }
+                        ++res;
+                    }
+                }
+                for (oloop=0;oloop<nin;++oloop) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    for(loop = 0; loop<insz[oloop]; ++loop) {
+                        FOR_0_LE_l_LT_p {
+                            ADJOINT_BUFFER_RES_L = ADOLC_EXT_FCT_V2_Z_L_LOOP;
+                        }
+                        ++res;
+                    }
+                }
+                if (edfct2->dp_y_priorRequired) {
+                    for(oloop=nout-1;oloop>=0;--oloop) {
+                        arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop]+outsz[oloop]-1;
+                        for (loop=outsz[oloop]-1; loop>=0; --loop) {
+                            ADOLC_GET_TAYLOR(arg);
+                            --arg;
+                        }
+                    }
+                }
+                if (edfct2->dp_x_changes) {
+                    for(oloop=nin-1;oloop>=0;--oloop) {
+                        arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop]+insz[oloop]-1;
+                        for (loop=insz[oloop]-1; loop>=0; --loop) {
+                            ADOLC_GET_TAYLOR(arg);
+                            --arg;
+                        }
+                    }
+                }
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+                free(iArr);
+                free(insz);
+                insz = 0;
+                iArr = 0;
+                outsz = 0;
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
+                break;
+
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case ampi_send: {
