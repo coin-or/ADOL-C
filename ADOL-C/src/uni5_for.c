@@ -6069,6 +6069,13 @@ int  hov_forward(
                     }
                 }
 
+                free(insz);
+                free(iArr);
+                insz = 0;
+                iArr = 0;
+                outsz = 0;
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
                 break;
 #endif
 
