@@ -168,6 +168,7 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\odedriversf.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\taylor.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\externfcts.cpp" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\externfcts2.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fixpoint.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fortutils.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\forward_partx.c" />
@@ -229,6 +230,7 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\taylor.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\dvlparms.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\externfcts.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\externfcts2.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fixpoint.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fortutils.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\interfaces.h" />
