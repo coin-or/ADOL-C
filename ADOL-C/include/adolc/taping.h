@@ -108,6 +108,9 @@ ADOLC_DLL_EXPORT bool isTaping();
 
 ADOLC_DLL_EXPORT void skip_tracefile_cleanup(short tnum);
 
+#include <vector>
+ADOLC_DLL_EXPORT void cachedTraceTags(std::vector<short>& result);
+
 #endif
 
 #endif /* ADOLC_TAPING_H */
