@@ -59,8 +59,6 @@ ADOLC_DLL_EXPORT int removeTape(short tapeID, short type);
 ADOLC_DLL_EXPORT void enableBranchSwitchWarnings();
 ADOLC_DLL_EXPORT void disableBranchSwitchWarnings();
 
-ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
-
 ADOLC_DLL_EXPORT void enableMinMaxUsingAbs();
 ADOLC_DLL_EXPORT void disableMinMaxUsingAbs();
 /*
