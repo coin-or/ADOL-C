@@ -567,6 +567,22 @@ TapeInfos *getTapeInfos(short tapeID) {
     return tapeInfos;
 }
 
+void cachedTraceTags(std::vector<short>& result) {
+    vector<TapeInfos *>::const_iterator tiIter;
+    vector<short>::iterator tIdIter;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    result.resize(ADOLC_TAPE_INFOS_BUFFER.size());
+    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
+        for(tiIter=ADOLC_TAPE_INFOS_BUFFER.begin(), tIdIter=result.begin();
+            tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
+            ++tiIter, ++tIdIter) {
+            *tIdIter = (*tiIter)->tapeID;
+        }
+    }
+}
+
 #ifdef SPARSE
 /* updates the tape infos on sparse Jac for the given ID  */
 void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
