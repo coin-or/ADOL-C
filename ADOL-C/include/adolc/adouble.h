@@ -255,6 +255,9 @@ public:
     ~adub();
 };
 
+BEGIN_C_DECLS
+ADOLC_DLL_EXPORT void ensureContiguousLocations(size_t n);
+END_C_DECLS
 
 /****************************************************************************/
 /*                                                            CLASS ADOUBLE */
@@ -290,6 +293,19 @@ public:
     adouble& operator = (const pdouble&);
     
     inline locint loc(void) const;
+
+#if defined(ADIC_ADOLC_TYPE)
+    void *operator new[](size_t sz) {
+        void *p = ::new char[sz];
+        size_t n = (sz - sizeof(size_t))/sizeof(adouble);
+        ensureContiguousLocations(n);
+        return p;
+    }
+    void operator delete[](void* p) {
+        ::delete[] (char*)p;
+    }
+#endif
+
 };
 
 #endif /* __cplusplus */

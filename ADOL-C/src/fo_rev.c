@@ -2843,7 +2843,7 @@ int int_reverse_safe(
                         FOR_0_LE_l_LT_p {
                             ADOLC_EXT_FCT_V2_U_L_LOOP = ADJOINT_BUFFER_ARG_L;
                         }
-                        edfct2->x[oloop][loop]=TARG;
+                        edfct2->y[oloop][loop]=TARG;
                         ++arg;
                     }
                 }
@@ -2853,7 +2853,7 @@ int int_reverse_safe(
                         FOR_0_LE_l_LT_p {
                             ADOLC_EXT_FCT_V2_Z_L_LOOP = ADJOINT_BUFFER_ARG_L;
                         }
-                        edfct2->y[oloop][loop]=TARG;
+                        edfct2->x[oloop][loop]=TARG;
                         ++arg;
                     }
                 }
