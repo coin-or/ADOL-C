@@ -26,12 +26,6 @@
 #include <iostream>
 #include <limits>
 #include "dvlparms.h"
-#if defined(HAVE_BOOST_POOL_POOL_ALLOC_HPP) && defined(HAVE_BOOST_SYSTEM)
-#include <boost/pool/pool_alloc.hpp>
-#define USE_BOOST_POOL 1
-#else
-#define USE_BOOST_POOL 0
-#endif
 
 using std::cout;
 
@@ -39,21 +33,6 @@ extern "C" void adolc_exit(int errorcode, const char *what, const char* function
 
 namespace adtl {
 
-#if USE_BOOST_POOL
-double* adtl_alloc::allocate(size_t n) {
-    return boost::pool_allocator<double>::allocate(n);
-}
-void adtl_alloc::deallocate(double* p, size_t n) {
-    boost::pool_allocator<double>::deallocate(p,n);
-}
-#else
-double* adtl_alloc::allocate(size_t n) {
-    return new double[n];
-}
-void adtl_alloc::deallocate(double* p, size_t n) {
-    delete[] p;
-}
-#endif
 
 size_t adouble::numDir = 1;
 enum Mode adouble::forward_mode = ADTL_FOV;
