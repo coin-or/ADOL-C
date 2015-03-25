@@ -255,7 +255,6 @@ int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz,
 #include <iostream>
 #include <limits>
 
-
 namespace adtl {
 
 enum ModeMask {
@@ -275,12 +274,6 @@ enum ModeMask {
 #ifndef unlikely
 #define unlikely(x) (x)
 #endif
-
-struct adtl_alloc {
-    static double* allocate(size_t n);
-    static void deallocate(double* p, size_t n);
-};
-
 
 inline bool adouble::_do_val() {
     return ((forward_mode & ADTL_Z_MASK) == ADTL_Z_MASK);
@@ -334,7 +327,7 @@ inline double makeInf() {
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
-	adval = adtl_alloc::allocate(adouble::numDir);
+	adval = new double[adouble::numDir];
     if (do_indo()) {
      if (!pattern.empty())
           pattern.clear();
@@ -343,7 +336,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
 
 inline adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
-	adval = adtl_alloc::allocate(adouble::numDir);
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
@@ -355,7 +348,7 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
 
 inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
-	adval = adtl_alloc::allocate(adouble::numDir);
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
@@ -367,7 +360,7 @@ inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL)
 
 inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
-	adval = adtl_alloc::allocate(adouble::numDir);
+	adval = new double[adouble::numDir];
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
@@ -382,7 +375,7 @@ inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
 /*******************************  dtors  ************************************/
 inline adouble::~adouble() {
     if (adval != NULL)
-        adtl_alloc::deallocate(adval,adouble::numDir);
+	delete[] adval;
 #if 0
     if ( !pattern.empty() )
 	pattern.clear();
