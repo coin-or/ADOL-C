@@ -64,7 +64,6 @@
 #ifndef ADOL_C__STOREMANAGER_H
 #define ADOL_C__STOREMANAGER_H
 
-#include <adolc/internal/common.h>
 #include <forward_list>
 #if defined(HAVE_BOOST_POOL_POOL_ALLOC_HPP) && defined(HAVE_BOOST_SYSTEM)
 #include <boost/pool/pool_alloc.hpp>
@@ -72,6 +71,7 @@
 #else
 #define USE_BOOST_POOL 0
 #endif
+#include <adolc/internal/common.h>
 
 class Keeper;
 

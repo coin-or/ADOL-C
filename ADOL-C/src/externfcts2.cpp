@@ -12,9 +12,9 @@
 
 ----------------------------------------------------------------------------*/
 
+#include "taping_p.h"
 #include <adolc/externfcts2.h>
 #include "externfcts_p.h"
-#include "taping_p.h"
 #include <adolc/adouble.h>
 #include "oplate.h"
 #include "buffer_temp.h"

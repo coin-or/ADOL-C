@@ -16,9 +16,9 @@
 #include <limits>
 #include <cmath>
 
+#include "taping_p.h"
 #include <adolc/adouble.h>
 #include "oplate.h"
-#include "taping_p.h"
 #include "dvlparms.h"
 
 using std::vector;
