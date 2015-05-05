@@ -440,17 +440,6 @@ if test x$tapedoc_values == xyes; then
 AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
-AC_MSG_CHECKING(whether to enable user-io for traceless adoubles)
-AC_ARG_ENABLE(adtl-userio,
-        [AS_HELP_STRING([--enable-adtl-userio],
-        [should the user implement io of traceless adoubles [default=disabled]])],
-        [adtl_userio=$enableval],
-        [adtl_userio=no])
-AC_MSG_RESULT($adtl_userio)
-if test x$adtl_userio == xyes; then
-AC_DEFINE(ADTL_USERIO,1,[User should implement IO for traceless adoubles])
-fi
-
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################

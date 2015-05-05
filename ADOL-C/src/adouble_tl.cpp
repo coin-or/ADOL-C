@@ -39,7 +39,7 @@ enum Mode adouble::forward_mode = ADTL_FOV;
 
 size_t refcounter::refcnt = 0;
 
-#if !defined(ADTL_USERIO)
+
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
     if (likely(adouble::_do_val() && adouble::_do_adval())) {
@@ -77,7 +77,6 @@ istream& operator >> ( istream& in, adouble& a) {
     }
     return in;
 }
-#endif
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
 int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
