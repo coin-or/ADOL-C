@@ -13,8 +13,8 @@
 ---------------------------------------------------------------------------*/
 
 #include "oplate.h"
-#include <adolc/adalloc.h>
 #include "taping_p.h"
+#include <adolc/adalloc.h>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
 #include <adolc/checkpointing.h>

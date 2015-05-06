@@ -99,12 +99,6 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
 
-# Checks for library functions
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
-if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
-AC_DEFINE_UNQUOTED([calloc],[rpl_calloc],[Define to rpl_calloc if the replacement function should be used.])
-fi
 
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
@@ -139,6 +133,13 @@ ADOLC_PATCHLEVEL=ADOLC_LVL
 AC_SUBST(ADOLC_VERSION)
 AC_SUBST(ADOLC_SUBVERSION)
 AC_SUBST(ADOLC_PATCHLEVEL)
+
+# Checks for library functions
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
+AC_DEFINE_UNQUOTED([calloc],[rpl_calloc],[Define to rpl_calloc if the replacement function should be used.])
+fi
 
 AC_MSG_CHECKING(whether to use calloc or malloc for memory allocation)
 AC_ARG_ENABLE(use-calloc,[AS_HELP_STRING([--disable-use-calloc],
