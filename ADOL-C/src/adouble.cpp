@@ -209,6 +209,24 @@ double badouble::getValue() const {
     return ADOLC_GLOBAL_TAPE_VARS.store[loc()];
 }
 
+badouble::operator double const&() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+}
+
+badouble::operator double&&() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return (double&&)ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+}
+
+badouble::operator double() {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+}
+
 void badouble::setValue( const double x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;

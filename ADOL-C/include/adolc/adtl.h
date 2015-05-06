@@ -203,6 +203,9 @@ public:
 
     inline double getADValue(const unsigned int p) const;
     inline void setADValue(const unsigned int p, const double v);
+    inline explicit operator double const&();
+    inline explicit operator double&&();
+    inline explicit operator double();
 
 protected:
     inline const list<unsigned int>& get_pattern() const;
@@ -1591,6 +1594,31 @@ inline int operator <  (const double v, const adouble &a) {
 }
 
 /*******************  getter / setter  **************************************/
+inline adouble::operator double const & () {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    return val;
+}
+
+inline adouble::operator double && () {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    return (double&&)val;
+}
+
+inline adouble::operator double() {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    return val;
+}
+
+
 inline double adouble::getValue() const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");

@@ -103,6 +103,9 @@ public:
     inline double value() const {
         return getValue();
     }
+    explicit operator double();
+    explicit operator double const&();
+    explicit operator double&&();
     void setValue ( const double );
     /* badouble& operator = ( const adouble& );
        !!! olvo 991210: was the same as badouble-assignment */
@@ -305,7 +308,6 @@ public:
         ::delete[] (char*)p;
     }
 #endif
-
 };
 
 #endif /* __cplusplus */
