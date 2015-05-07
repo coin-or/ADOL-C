@@ -53,6 +53,7 @@ void edf_zero(ext_diff_fct_v2 *edf) {
   edf->nestedAdolc=false;
   edf->dp_x_changes=true;
   edf->dp_y_priorRequired=true;
+  edf->context = NULL;
   if (edf->allmem != NULL)
       free(edf->allmem);
   edf->allmem=NULL;
@@ -196,7 +197,7 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
             for(j=0;j<outsz[i];j++)
                 edfct->y[i][j] = y[i][j].getValue();
 
-    ret=edfct->function(iArrLen,iArr,nin,nout,insz,edfct->x,outsz,edfct->y);
+    ret=edfct->function(iArrLen,iArr,nin,nout,insz,edfct->x,outsz,edfct->y,edfct->context);
 
     if (edfct->nestedAdolc) {
         memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals, numVals*sizeof(double));
