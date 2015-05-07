@@ -22,6 +22,10 @@
 #include <list>
 #include <stdexcept>
 
+#if __cplusplus < 201103L
+#error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
+#endif
+
 using std::ostream;
 using std::istream;
 using std::list;

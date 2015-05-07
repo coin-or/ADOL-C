@@ -24,6 +24,9 @@
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
 #ifdef __cplusplus
+#if __cplusplus < 201103L
+#error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
+#endif
 
 #include <cstdio>
 #include <cstdlib>
