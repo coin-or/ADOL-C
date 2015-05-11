@@ -359,7 +359,7 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_V2_U edfct2->up
 # define ADOLC_EXT_FCT_V2_Z edfct2->zp
 # define ADOLC_EXT_FCT_V2_COMPLETE \
-  fos_reverse(iArrLength,iArr,nout,nin,outsz,edfct2->up,insz,edfct2->zp,edfct2->x,edfct2->y)
+    fos_reverse(iArrLength,iArr,nout,nin,outsz,edfct2->up,insz,edfct2->zp,edfct2->x,edfct2->y,edfct2->context)
 #else
 # define ADOLC_EXT_FCT_U edfct->dpp_U
 # define ADOLC_EXT_FCT_Z edfct->dpp_Z
@@ -373,7 +373,7 @@ int int_reverse_safe(
 # define ADOLC_EXT_FCT_V2_U edfct2->Up
 # define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 # define ADOLC_EXT_FCT_V2_COMPLETE \
-  fov_reverse(iArrLength,iArr,nout,nin,outsz,p,edfct2->Up,insz,edfct2->Zp,edfct2->x,edfct2->y)
+  fov_reverse(iArrLength,iArr,nout,nin,outsz,p,edfct2->Up,insz,edfct2->Zp,edfct2->x,edfct2->y, edfct2->context)
 #endif
 #if !defined(_INT_REV_)
     locint n, m;

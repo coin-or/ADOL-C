@@ -24,6 +24,9 @@
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
 #ifdef __cplusplus
+#if __cplusplus < 201103L
+#error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
+#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -103,6 +106,9 @@ public:
     inline double value() const {
         return getValue();
     }
+    explicit operator double();
+    explicit operator double const&();
+    explicit operator double&&();
     void setValue ( const double );
     /* badouble& operator = ( const adouble& );
        !!! olvo 991210: was the same as badouble-assignment */
@@ -305,7 +311,6 @@ public:
         ::delete[] (char*)p;
     }
 #endif
-
 };
 
 #endif /* __cplusplus */

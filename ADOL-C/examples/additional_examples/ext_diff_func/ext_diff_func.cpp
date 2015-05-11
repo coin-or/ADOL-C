@@ -131,7 +131,7 @@ int main()
   
     for(i=0;i<steps;i++)
       {
-	call_ext_fct(edf, 2, yp, y, 2, ynewp, ynew);
+	call_ext_fct(edf, 2, y, 2, ynew);
 	for(j=0;j<2;j++)
 	  y[j] = ynew[j];
       }

@@ -21,15 +21,15 @@
 
 BEGIN_C_DECLS
 
-typedef int (ADOLC_ext_fct_v2) (int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y);
-typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp);
-typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp);
-typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y);
-typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y);
+typedef int (ADOLC_ext_fct_v2) (int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y, void* ctx);
+typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp, void *ctx);
+typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
+typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx);
+typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx);
 
 /* The following two aren't implemented */
-typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp);
-typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp);
+typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
+typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp, void *ctx);
 
 typedef struct {
  /**
@@ -165,6 +165,11 @@ typedef struct {
    */
   char dp_y_priorRequired;
   /**
+   * This is a opaque context pointer that the user may set and use
+   * in his implementation of the above functions
+   */
+  void* context;
+  /**
    * This is an all-memory pointer for allocating and deallocating
    * all other pointers can point to memory within here.
    */
@@ -183,6 +188,10 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct_v2 *edfct,
                                    int *outsz, adouble **y);
 
 ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct_v2 *edfct);
+
+inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct, void *ctx) {
+    edfct->context = ctx;
+}
 
 #endif
 #endif
