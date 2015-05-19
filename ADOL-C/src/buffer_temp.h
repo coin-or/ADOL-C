@@ -40,6 +40,7 @@ BUFFER_TEMPLATE class Buffer {
     typedef struct SubBuffer {
         SubBufferElement elements[_subBufferSize];
         struct SubBuffer *nextSubBuffer;
+        SubBuffer();
     }
     SubBuffer;
 
@@ -77,12 +78,21 @@ void BUFFER::zeroAll(SubBufferElement* subBufferElement) {
 }
 
 BUFFER_TEMPLATE
+BUFFER::SubBuffer::SubBuffer() {
+   memset(elements,0,sizeof(SubBufferElement)*_subBufferSize);
+   nextSubBuffer = NULL;
+}
+
+BUFFER_TEMPLATE
 BUFFER::~Buffer() {
     SubBuffer *tmpSubBuffer = NULL;
 
     while (firstSubBuffer != NULL) {
         tmpSubBuffer = firstSubBuffer;
         firstSubBuffer = firstSubBuffer->nextSubBuffer;
+        for(int i = 0; i < subBufferSize; i++)
+            if (tmpSubBuffer->elements[i].allmem != NULL)
+                free(tmpSubBuffer->elements[i].allmem);
         delete tmpSubBuffer;
     }
 }
