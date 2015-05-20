@@ -499,10 +499,12 @@ AC_CONFIG_FILES(Makefile
 		ADOL-C/include/adolc/internal/adolc_settings.h
                 ADOL-C/include/adolc/drivers/Makefile 
                 ADOL-C/include/adolc/internal/Makefile
+                ADOL-C/include/adolc/lie/Makefile
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 
+                ADOL-C/src/lie/Makefile
                 ADOL-C/src/sparse/Makefile
                 ADOL-C/src/tapedoc/Makefile
                 ADOL-C/doc/version.tex
@@ -514,6 +516,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/ext_diff_func/Makefile
                 ADOL-C/examples/additional_examples/fixpoint_exam/Makefile
                 ADOL-C/examples/additional_examples/hessmat/Makefile
+                ADOL-C/examples/additional_examples/lie/Makefile
                 ADOL-C/examples/additional_examples/lufact/Makefile
                 ADOL-C/examples/additional_examples/openmp_exam/Makefile
                 ADOL-C/examples/additional_examples/scal/Makefile

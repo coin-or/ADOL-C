@@ -40,7 +40,7 @@ if BUILD_ADOLC_AMPI_SUPPORT
 lib@adolclib@_la_LIBADD  += src/libadolcampi.la
 endif
 
-lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la
+lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la src/lie/liblie.la
 
 if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la

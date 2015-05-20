@@ -18,7 +18,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        revolve.h advector.h \
                        adtl.h adoublecuda.h param.h externfcts2.h
 
-SUBDIRS = internal drivers tapedoc
+SUBDIRS = internal drivers tapedoc lie
 
 if SPARSE
 SUBDIRS += sparse

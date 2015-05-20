@@ -50,6 +50,7 @@ ADOL-C/examples/additional_examples/fixpoint_exam/*.tap
 ADOL-C/examples/additional_examples/helm/helm-auto
 ADOL-C/examples/additional_examples/helm/helm-diff
 ADOL-C/examples/additional_examples/hessmat/hessmat
+ADOL-C/examples/additional_examples/lie
 ADOL-C/examples/additional_examples/lighthouse/cubic
 ADOL-C/examples/additional_examples/lighthouse/cubic-2
 ADOL-C/examples/additional_examples/lighthouse/cubic-iter
