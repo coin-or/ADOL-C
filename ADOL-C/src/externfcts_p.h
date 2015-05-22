@@ -28,9 +28,6 @@ BEGIN_C_DECLS
 
 ext_diff_fct *get_ext_diff_fct(int index);
 ext_diff_fct_v2 *get_ext_diff_fct_v2(int index);
-char* populate_dpp(double ***const pointer, char *const memory,
-                   int n, int m);
-
 
 END_C_DECLS
 

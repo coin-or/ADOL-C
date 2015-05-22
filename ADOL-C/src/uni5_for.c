@@ -39,6 +39,7 @@
 #include "dvlparms.h"
 
 #include <math.h>
+#include <string.h>
 
 #if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
@@ -1030,6 +1031,8 @@ int  hov_forward(
     zos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, outsz, edfct2->y, edfct2->context)
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
+#   define ADOLC_EXT_SUBSCRIPT_START
+#   define ADOLC_EXT_COPY_TAYLORS(dest,src)
 #endif
     /* FOS_FORWARD */
 #if defined(_FOS_)
@@ -1048,6 +1051,8 @@ int  hov_forward(
 #   define ADOLC_EXT_V2_POINTER_Y edfct2->yp
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
+#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
+#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) src=dest
 #endif
     /* FOV_FORWARD */
 #if defined(_FOV_)
@@ -1066,6 +1071,8 @@ int  hov_forward(
 #   define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
 #   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
 #   define ADOLC_EXT_SUBSCRIPT [loop2]
+#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
+#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) 
 #endif
 
 #if defined(_EXTERN_)
@@ -6012,32 +6019,29 @@ int  hov_forward(
 
                 for(oloop=0;oloop<nin;++oloop) {
                     arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    memcpy(&edfct2->x[oloop][0],&dp_T0[arg],insz[oloop]*sizeof(double));
                     for(loop=0;loop<insz[oloop];++loop) {
                         if(edfct2->dp_x_changes) {
                             IF_KEEP_WRITE_TAYLOR(arg,keep,k,p);
                         }
-                        edfct2->x[oloop][loop] = dp_T0[arg];
 #if !defined(_ZOS_)
-                        ADOLC_EXT_LOOP
-                            ADOLC_EXT_V2_POINTER_X[oloop][loop]ADOLC_EXT_SUBSCRIPT =
-                            TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                        ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_V2_POINTER_X[oloop][loop],TAYLOR_BUFFER[arg]);
 #endif
                         ++arg;
                     }
                 }
                 for(oloop=0;oloop<nout;++oloop) {
                     arg=ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+                    memcpy(&edfct2->y[oloop][0],&dp_T0[arg],outsz[oloop]*sizeof(double));
                     for(loop=0;loop<outsz[oloop];++loop) {
                         if (edfct2->dp_y_priorRequired) {
                             IF_KEEP_WRITE_TAYLOR(arg,keep,k,p);
                         }
-                            edfct2->y[oloop][loop] = dp_T0[arg];
 #if !defined(_ZOS_)
-                            ADOLC_EXT_LOOP
-                                ADOLC_EXT_V2_POINTER_Y[oloop][loop]ADOLC_EXT_SUBSCRIPT =
-                                TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                       ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_V2_POINTER_Y[oloop][loop],TAYLOR_BUFFER[arg]);
 #endif
-                            ++arg;
+
+                        ++arg;
                     }
                 }
                 ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
@@ -6045,28 +6049,24 @@ int  hov_forward(
 
                 for(oloop=0;oloop<nin;++oloop) {
                     res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
-                    for(loop=0;loop<insz[oloop];++loop) {
-                        dp_T0[res] = edfct2->x[oloop][loop];
+                    memcpy(&dp_T0[res],&edfct2->x[oloop][0],insz[oloop]*sizeof(double));
 #if !defined(_ZOS_)
-                        ADOLC_EXT_LOOP
-                            TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                            ADOLC_EXT_V2_POINTER_X[oloop][loop]ADOLC_EXT_SUBSCRIPT;
-#endif
+                    for(loop=0;loop<insz[oloop];++loop) {
+                        ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_X[oloop][loop],TAYLOR_BUFFER[res]);
                         ++res;
                     }
+#endif
                 }
 
                 for(oloop=0;oloop<nout;++oloop) {
                     res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
-                    for(loop=0;loop<outsz[oloop];++loop) {
-                        dp_T0[res] = edfct2->y[oloop][loop];
+                    memcpy(&dp_T0[res],&edfct2->y[oloop][0],outsz[oloop]*sizeof(double));
 #if !defined(_ZOS_)
-                        ADOLC_EXT_LOOP
-                            TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                            ADOLC_EXT_V2_POINTER_Y[oloop][loop]ADOLC_EXT_SUBSCRIPT;
-#endif
+                    for(loop=0;loop<outsz[oloop];++loop) {
+                        ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_Y[oloop][loop],TAYLOR_BUFFER[res]);
                         ++res;
                     }
+#endif
                 }
 
                 free(insz);

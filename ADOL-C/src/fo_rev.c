@@ -468,10 +468,14 @@ int int_reverse_safe(
 # define ADJOINT_BUFFER rp_A
 # define ADJOINT_BUFFER_ARG_L rp_A[arg]
 # define ADJOINT_BUFFER_RES_L rp_A[res]
+# define ADJOINT_BUFFER_ARG rp_A[arg]
+# define ADJOINT_BUFFER_RES rp_A[res]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dp_U[loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dp_Z[loop]
-# define ADOLC_EXT_FCT_V2_U_L_LOOP edfct2->up[oloop][loop]
-# define ADOLC_EXT_FCT_V2_Z_L_LOOP edfct2->zp[oloop][loop]
+# define ADOLC_EXT_FCT_V2_U_LOOP edfct2->up[oloop][loop]
+# define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->zp[oloop][loop]
+# define ADOLC_EXT_FCT_V2_COPY_ADJOINTS(dest,src) dest=src
+# define ADOLC_EXT_FCT_V2_COPY_ADJOINTS_BACK(dest,src) src=dest
 
     /*--------------------------------------------------------------------------*/
 #else
@@ -500,10 +504,14 @@ int int_reverse_safe(
 # define ADJOINT_BUFFER rpp_A
 # define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
 # define ADJOINT_BUFFER_RES_L rpp_A[res][l]
+# define ADJOINT_BUFFER_ARG rpp_A[arg]
+# define ADJOINT_BUFFER_RES rpp_A[res]
 # define ADOLC_EXT_FCT_U_L_LOOP edfct->dpp_U[l][loop]
 # define ADOLC_EXT_FCT_Z_L_LOOP edfct->dpp_Z[l][loop]
-# define ADOLC_EXT_FCT_V2_U_L_LOOP edfct2->Up[l][oloop][loop]
-# define ADOLC_EXT_FCT_V2_Z_L_LOOP edfct2->Zp[l][oloop][loop]
+# define ADOLC_EXT_FCT_V2_U_LOOP edfct2->Up[oloop][loop]
+# define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->Zp[oloop][loop]
+# define ADOLC_EXT_FCT_V2_COPY_ADJOINTS(dest,src) dest=src
+# define ADOLC_EXT_FCT_V2_COPY_ADJOINTS_BACK(dest,src)
 #else
 #if defined _INT_REV_
     upp_A = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
@@ -2840,9 +2848,7 @@ int int_reverse_safe(
                 for (oloop=0;oloop<nout;++oloop) {
                     arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
                     for (loop = 0; loop < outsz[oloop]; ++loop) {
-                        FOR_0_LE_l_LT_p {
-                            ADOLC_EXT_FCT_V2_U_L_LOOP = ADJOINT_BUFFER_ARG_L;
-                        }
+                        ADOLC_EXT_FCT_V2_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_U_LOOP,ADJOINT_BUFFER_ARG);
                         edfct2->y[oloop][loop]=TARG;
                         ++arg;
                     }
@@ -2850,9 +2856,7 @@ int int_reverse_safe(
                 for (oloop=0;oloop<nin;++oloop) {
                     arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
                     for (loop =0; loop < insz[oloop]; ++loop) {
-                        FOR_0_LE_l_LT_p {
-                            ADOLC_EXT_FCT_V2_Z_L_LOOP = ADJOINT_BUFFER_ARG_L;
-                        }
+                        ADOLC_EXT_FCT_V2_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_Z_LOOP, ADJOINT_BUFFER_ARG);
                         edfct2->x[oloop][loop]=TARG;
                         ++arg;
                     }
@@ -2871,9 +2875,7 @@ int int_reverse_safe(
                 for (oloop=0;oloop<nin;++oloop) {
                     res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
                     for(loop = 0; loop<insz[oloop]; ++loop) {
-                        FOR_0_LE_l_LT_p {
-                            ADJOINT_BUFFER_RES_L = ADOLC_EXT_FCT_V2_Z_L_LOOP;
-                        }
+                        ADOLC_EXT_FCT_V2_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_V2_Z_LOOP,ADJOINT_BUFFER_RES);
                         ++res;
                     }
                 }

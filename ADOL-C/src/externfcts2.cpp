@@ -16,6 +16,7 @@
 #include <adolc/externfcts2.h>
 #include "externfcts_p.h"
 #include <adolc/adouble.h>
+#include <adolc/adalloc.h>
 #include "oplate.h"
 #include "buffer_temp.h"
 
@@ -26,6 +27,7 @@
 
 #define ADOLC_BUFFER_TYPE \
    Buffer< ext_diff_fct_v2, EDFCTS_BLOCK_SIZE >
+
 static ADOLC_BUFFER_TYPE buffer(edf_zero);
 
 void edf_zero(ext_diff_fct_v2 *edf) {
@@ -65,31 +67,6 @@ ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 *ext_fct) {
     return edf;
 }
 
-static char* populate_dppp(double ****const pointer, char *const memory, 
-                           int n, int m, int p) {
-    char* tmp;
-    double ***tmp1; double **tmp2; double *tmp3;
-    int i,j;
-    tmp = (char*) memory;
-    tmp1 = (double***) memory;
-    *pointer = tmp1;
-    tmp = (char*)(tmp1+n);
-    tmp2 = (double**)tmp;
-    for(i=0; i<n; i++) {
-        (*pointer)[i] = tmp2;
-        tmp2 += m;
-    }
-    tmp = (char*)tmp2;
-    tmp3 = (double*)tmp;
-    for(i=0;i<n;i++)
-        for(j=0;j<m;j++) {
-            (*pointer)[i][j] = tmp3;
-            tmp3 += p;
-        }
-    tmp = (char*)tmp3;
-    return tmp;
-}
-
 static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz, int *outsz) {
     int m_isz=0, m_osz=0;
     int i,j;
@@ -102,8 +79,9 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int
         size_t p = nin*m_isz, q = nout*m_osz;
         size_t totalmem =
             (3*nin*m_isz + 3*nout*m_osz
-             + nin*m_isz*p + nout*m_osz*p
-             + q*nout*m_osz + q*nin*m_isz)*sizeof(double)
+             // + nin*m_isz*p + nout*m_osz*p
+             // + q*nout*m_osz + q*nin*m_isz
+            )*sizeof(double)
             + (3*nin + 3*nout + nin*m_isz + nout*m_osz
                + q*nout + q*nin)*sizeof(double*)
             + (nin + nout + 2*q)*sizeof(double**);
@@ -117,10 +95,10 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int
         tmp = populate_dpp(&edfct->yp,tmp,nout,m_osz);
         tmp = populate_dpp(&edfct->up,tmp,nout,m_osz);
         tmp = populate_dpp(&edfct->zp,tmp,nin,m_isz);
-        tmp = populate_dppp(&edfct->Xp,tmp,nin,m_isz,p);
-        tmp = populate_dppp(&edfct->Yp,tmp,nout,m_osz,p);
-        tmp = populate_dppp(&edfct->Up,tmp,q,nout,m_osz);
-        tmp = populate_dppp(&edfct->Zp,tmp,q,nin,m_isz);
+        tmp = populate_dppp_nodata(&edfct->Xp,tmp,nin,m_isz);
+        tmp = populate_dppp_nodata(&edfct->Yp,tmp,nout,m_osz);
+        tmp = populate_dppp_nodata(&edfct->Up,tmp,nout,m_osz);
+        tmp = populate_dppp_nodata(&edfct->Zp,tmp,nin,m_isz);
     }
     edfct->max_nin=(edfct->max_nin<nin)?nin:edfct->max_nin;
     edfct->max_nout=(edfct->max_nout<nout)?nout:edfct->max_nout;

@@ -16,6 +16,7 @@
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
 #include <adolc/adouble.h>
+#include <adolc/adalloc.h>
 #include "oplate.h"
 #include "buffer_temp.h"
 
@@ -96,23 +97,6 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
   return edf;
 }
 
-char* populate_dpp(double ***const pointer, char *const memory,
-                   int n, int m) {
-    char* tmp;
-    double **tmp1; double *tmp2;
-    int i,j;
-    tmp = (char*) memory;
-    tmp1 = (double**)memory;
-    *pointer = tmp1;
-    tmp = (char*)(tmp1+n);
-    tmp2 = (double*)tmp;
-    for (i=0;i<n;i++) {
-        (*pointer)[i] = tmp2;
-        tmp2 += m;
-    }
-    tmp = (char*)tmp2;
-    return tmp;
-}
 /*
  * The externfcts.h had a comment previously that said the following:
  ****
