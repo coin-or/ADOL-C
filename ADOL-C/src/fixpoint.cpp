@@ -204,12 +204,6 @@ int fp_iteration ( int        sub_tape_num,
     // declare extern differentiated function and data
     ext_diff_fct *edf_iteration = reg_ext_fct(&iteration);
     data->edf_index = edf_iteration->index;
-    edf_iteration->dp_x     = new double[dim_x+dim_u];
-    edf_iteration->dp_y     = new double[dim_x];
-    edf_iteration->dp_X     = new double[dim_x+dim_u];
-    edf_iteration->dp_Y     = new double[dim_x];
-    edf_iteration->dp_U     = new double[dim_x];
-    edf_iteration->dp_Z     = new double[dim_x+dim_u];
     edf_iteration->zos_forward = &fp_zos_forward;
     edf_iteration->fos_forward = &fp_fos_forward;
     edf_iteration->fos_reverse = &fp_fos_reverse;

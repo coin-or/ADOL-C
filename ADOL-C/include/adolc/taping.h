@@ -106,6 +106,8 @@ ADOLC_DLL_EXPORT bool isTaping();
 
 ADOLC_DLL_EXPORT void skip_tracefile_cleanup(short tnum);
 
+ADOLC_DLL_EXPORT void set_nested_ctx(short tag, char nested);
+
 #include <vector>
 ADOLC_DLL_EXPORT void cachedTraceTags(std::vector<short>& result);
 
