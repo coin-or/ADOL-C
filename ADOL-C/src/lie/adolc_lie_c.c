@@ -12,9 +12,9 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-#include "adolc/adolc.h"
-#include "adolc/adouble.h"
-#include "adolc/lie/adolc_lie.h"
+#include <adolc/adolc.h>
+#include <adolc/adouble.h>
+#include <adolc/lie/drivers.h>
 #include "dvlparms.h"
 
 

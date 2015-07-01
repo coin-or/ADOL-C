@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     lie/adolc_lie.h
+ File:     lie/drivers.h
  Revision: $Id$
  Contents: functions for computation of Lie derivatives
  
@@ -12,8 +12,8 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-#if !defined(ADOLC_LIE_TOOL_H)
-#define ADOLC_LIE_TOOL_H
+#if !defined(ADOLC_LIE_DRIVER_H)
+#define ADOLC_LIE_DRIVER_H
 
 #include "adolc/internal/common.h"
 

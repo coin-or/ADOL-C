@@ -12,9 +12,8 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-#include "adolc/adolc.h"
-#include "adolc/adouble.h"
-#include "adolc/lie/adolc_lie.h"
+#include <adolc/adolc.h>
+#include <adolc/lie/drivers.h>
 
 
 int lie_scalar(short Tape_F, short Tape_H, short n, short m, double* x0,

@@ -10,7 +10,7 @@
 ## 
 ##############################################################################
 
-libdriversincludedir      = $(pkgincludedir)/lie
+libliedriversincludedir      = $(pkgincludedir)/lie
 
-libdriversinclude_HEADERS = adolc_lie.h
+libliedriversinclude_HEADERS = drivers.h
 

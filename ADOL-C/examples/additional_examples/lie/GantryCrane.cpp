@@ -25,7 +25,7 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 #include <adolc/adolc.h>
-#include <adolc/lie/adolc_lie.h>
+#include <adolc/lie/drivers.h>
 #include <iostream>
 
 /****************************************************************************/
