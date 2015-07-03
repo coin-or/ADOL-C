@@ -300,7 +300,7 @@ public:
     
     inline locint loc(void) const;
 
-#if defined(ADIC_ADOLC_TYPE)
+#if defined(ADOLC_DEFAULT_CONTIG_LOC)
     void *operator new[](size_t sz) {
         void *p = ::new char[sz];
         size_t n = (sz - sizeof(size_t))/sizeof(adouble);
