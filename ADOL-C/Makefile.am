@@ -46,6 +46,11 @@ if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
 endif
 
+BUILT_SOURCES = dummy.cpp
+
+dummy.cpp:
+	touch $@
+
 CC = $(saveCC)
 CXX = $(saveCXX)
 
