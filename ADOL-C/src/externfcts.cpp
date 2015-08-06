@@ -118,7 +118,7 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
        * dpp_U[m][m], dpp_Z[m][n]. We have no implementation for higher order
        * so leave it out.
        */
-      size_t totalmem = (3*n + 3*m + n*n + 2*n*m + m*m)*sizeof(double)
+      size_t totalmem = (3*n + 3*m /*+ n*n + 2*n*m + m*m*/)*sizeof(double)
                          + (3*m+n)*sizeof(double*);
       char *tmp;
       if (edfct->allmem != NULL) free(edfct->allmem);
@@ -131,10 +131,16 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       edfct->dp_U = edfct->dp_Y+m;
       edfct->dp_Z = edfct->dp_U+m;
       tmp = (char*)(edfct->dp_Z+n);
+      edfct->dpp_X = (double**)tmp;
+      edfct->dpp_Y = edfct->dpp_X + n;
+      edfct->dpp_U = edfct->dpp_Y + m;
+      edfct->dpp_Z = edfct->dpp_U + m;
+      /*
       tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
       tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
       tmp = populate_dpp(&edfct->dpp_U, tmp, m,m);
       tmp = populate_dpp(&edfct->dpp_Z, tmp, m,n);
+      */
   }
 
   edfct->max_n=(edfct->max_n<n)?n:edfct->max_n;

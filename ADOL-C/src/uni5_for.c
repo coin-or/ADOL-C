@@ -5853,9 +5853,7 @@ int  hov_forward(
                     }
                     edfct->dp_x[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT =
-                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop],TAYLOR_BUFFER[arg]);
 #endif
                     ++arg;
                 }
@@ -5866,9 +5864,7 @@ int  hov_forward(
                     }
                     edfct->dp_y[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT =
-                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop],TAYLOR_BUFFER[arg]);
 #endif
                     ++arg;
                 }
@@ -5880,9 +5876,7 @@ int  hov_forward(
                 for (loop=0; loop<n; ++loop) {
                     dp_T0[res]=edfct->dp_x[loop];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],TAYLOR_BUFFER[res]);
 #endif
                     ++res;
                 }
@@ -5890,9 +5884,7 @@ int  hov_forward(
                 for (loop=0; loop<m; ++loop) {
                     dp_T0[res]=edfct->dp_y[loop];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],TAYLOR_BUFFER[res]);
 #endif
                     ++res;
                 }
@@ -5934,9 +5926,7 @@ int  hov_forward(
                     }
                     edfct->dp_x[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT =
-                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop],TAYLOR_BUFFER[arg]);
 #endif
                     ++arg;
                 }
@@ -5947,9 +5937,7 @@ int  hov_forward(
                     }
                     edfct->dp_y[loop]=dp_T0[arg];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT =
-                        TAYLOR_BUFFER[arg]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop],TAYLOR_BUFFER[arg]);
 #endif
                     ++arg;
                 }
@@ -5961,9 +5949,7 @@ int  hov_forward(
                 for (loop=0; loop<n; ++loop) {
                     dp_T0[res]=edfct->dp_x[loop];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                        ADOLC_EXT_POINTER_X[loop]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],TAYLOR_BUFFER[res]);
 #endif
                     ++res;
                 }
@@ -5971,9 +5957,7 @@ int  hov_forward(
                 for (loop=0; loop<m; ++loop) {
                     dp_T0[res]=edfct->dp_y[loop];
 #if !defined(_ZOS_)
-                    ADOLC_EXT_LOOP
-                        TAYLOR_BUFFER[res]ADOLC_EXT_SUBSCRIPT =
-                        ADOLC_EXT_POINTER_Y[loop]ADOLC_EXT_SUBSCRIPT;
+                    ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],TAYLOR_BUFFER[res]);
 #endif
                     ++res;
                 }
