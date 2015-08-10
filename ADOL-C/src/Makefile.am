@@ -16,9 +16,9 @@ AM_CXXFLAGS          = @ac_adolc_cxxflags@ -DADOLC_INTERNAL=1
 AM_CPPFLAGS          = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/src
 
 if SPARSE
-SUBDIRS              = drivers sparse tapedoc
+SUBDIRS              = drivers sparse tapedoc lie
 else
-SUBDIRS              = drivers tapedoc
+SUBDIRS              = drivers tapedoc lie
 endif
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig adolc_config.h config.h.in

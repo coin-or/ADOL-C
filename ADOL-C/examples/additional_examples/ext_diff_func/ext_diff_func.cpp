@@ -167,7 +167,9 @@ int zos_for_euler_step(int n, double *yin, int m, double *yout)
 {
   int rc;
 
+  set_nested_ctx(tag_ext_fct,true);
   rc = zos_forward(tag_ext_fct, 2, 2, 0, yin, yout);
+  set_nested_ctx(tag_ext_fct,false);
 
   return rc;
 }
@@ -176,8 +178,10 @@ int fos_rev_euler_step(int n, double *u, int m, double *z, double */* unused */,
 {
   int rc;
 
+  set_nested_ctx(tag_ext_fct,true);
   zos_forward(tag_ext_fct, 2, 2, 1, edf->dp_x, edf->dp_y);
   rc = fos_reverse(tag_ext_fct, 2, 2, u, z);
+  set_nested_ctx(tag_ext_fct,false);
 
   return rc;
 }

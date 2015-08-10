@@ -43,11 +43,16 @@ lib@adolclib@_la_LDFLAGS += -Wl,-undefined,dynamic_lookup
 endif
 endif
 
-lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la
+lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la src/lie/liblie.la
 
 if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
 endif
+
+BUILD_SOURCES = dummy.cpp
+
+dummy.cpp:
+	touch $@
 
 CC = $(saveCC)
 CXX = $(saveCXX)

@@ -567,6 +567,11 @@ TapeInfos *getTapeInfos(short tapeID) {
     return tapeInfos;
 }
 
+void set_nested_ctx(short tag, char nested) {
+    TapeInfos* tiInfos = getTapeInfos(tag);
+    tiInfos->in_nested_ctx = nested;
+}
+
 void cachedTraceTags(std::vector<short>& result) {
     vector<TapeInfos *>::const_iterator tiIter;
     vector<short>::iterator tIdIter;
