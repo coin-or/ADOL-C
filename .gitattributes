@@ -75,6 +75,8 @@ ADOL-C/examples/additional_examples/ipopt/MittelmannDistCntrlNeumA_sparse/ADOL-C
 ADOL-C/examples/additional_examples/ipopt/MittelmannDistCntrlNeumA_sparse/Makefile -text
 ADOL-C/examples/additional_examples/ipopt/MittelmannDistCntrlNeumA_sparse/cpp_example.cpp -text
 ADOL-C/examples/additional_examples/ipopt/README -text
+ADOL-C/examples/additional_examples/lie/GantryCrane.cpp -text
+ADOL-C/examples/additional_examples/lie/Makefile.am -text
 ADOL-C/examples/additional_examples/lighthouse/Makefile.am -text
 ADOL-C/examples/additional_examples/lighthouse/Makefile.in -text
 ADOL-C/examples/additional_examples/lighthouse/README -text
@@ -219,6 +221,8 @@ ADOL-C/include/adolc/internal/adubfunc.h -text
 ADOL-C/include/adolc/internal/common.h -text
 ADOL-C/include/adolc/internal/paramfunc.h -text
 ADOL-C/include/adolc/internal/usrparms.h -text
+ADOL-C/include/adolc/lie/Makefile.am -text
+ADOL-C/include/adolc/lie/drivers.h -text
 ADOL-C/include/adolc/param.h -text
 ADOL-C/include/adolc/revolve.h -text
 ADOL-C/include/adolc/sparse/Makefile.am -text
@@ -284,6 +288,9 @@ ADOL-C/src/int_reverse_s.c -text
 ADOL-C/src/int_reverse_t.c -text
 ADOL-C/src/interfaces.cpp -text
 ADOL-C/src/interfacesf.c -text
+ADOL-C/src/lie/Makefile.am -text
+ADOL-C/src/lie/adolc_lie.cpp -text
+ADOL-C/src/lie/adolc_lie_c.c -text
 ADOL-C/src/malloc.c -text
 ADOL-C/src/malloc.h -text
 ADOL-C/src/nonl_ind_forward_s.c -text
