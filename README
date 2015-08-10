@@ -8,6 +8,7 @@ This new version of ADOL-C features new library functions for
   - optimal checkpointing
   - adapted differentiation of fixed point iterations
   - parallel differentiation of OpenMP-parallel loops
+  - Lie derivatives of scalar, vector and covector fields
     
 and many bug fixes. 
 

@@ -16,6 +16,7 @@
 #include <adolc/externfcts.h>
 #include "externfcts_p.h"
 #include <adolc/adouble.h>
+#include <adolc/adalloc.h>
 #include "oplate.h"
 #include "buffer_temp.h"
 
@@ -96,23 +97,6 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
   return edf;
 }
 
-char* populate_dpp(double ***const pointer, char *const memory,
-                   int n, int m) {
-    char* tmp;
-    double **tmp1; double *tmp2;
-    int i,j;
-    tmp = (char*) memory;
-    tmp1 = (double**)memory;
-    *pointer = tmp1;
-    tmp = (char*)(tmp1+n);
-    tmp2 = (double*)tmp;
-    for (i=0;i<n;i++) {
-        (*pointer)[i] = tmp2;
-        tmp2 += m;
-    }
-    tmp = (char*)tmp2;
-    return tmp;
-}
 /*
  * The externfcts.h had a comment previously that said the following:
  ****
@@ -134,7 +118,7 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
        * dpp_U[m][m], dpp_Z[m][n]. We have no implementation for higher order
        * so leave it out.
        */
-      size_t totalmem = (3*n + 3*m + n*n + 2*n*m + m*m)*sizeof(double)
+      size_t totalmem = (3*n + 3*m /*+ n*n + 2*n*m + m*m*/)*sizeof(double)
                          + (3*m+n)*sizeof(double*);
       char *tmp;
       if (edfct->allmem != NULL) free(edfct->allmem);
@@ -147,10 +131,16 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       edfct->dp_U = edfct->dp_Y+m;
       edfct->dp_Z = edfct->dp_U+m;
       tmp = (char*)(edfct->dp_Z+n);
+      edfct->dpp_X = (double**)tmp;
+      edfct->dpp_Y = edfct->dpp_X + n;
+      edfct->dpp_U = edfct->dpp_Y + m;
+      edfct->dpp_Z = edfct->dpp_U + m;
+      /*
       tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
       tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
       tmp = populate_dpp(&edfct->dpp_U, tmp, m,m);
       tmp = populate_dpp(&edfct->dpp_Z, tmp, m,n);
+      */
   }
 
   edfct->max_n=(edfct->max_n<n)?n:edfct->max_n;

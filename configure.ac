@@ -22,7 +22,7 @@ AC_CONFIG_AUX_DIR([autoconf])
 AC_CONFIG_MACRO_DIR([autoconf])
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
-AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign])
+AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects])
 AM_MAINTAINER_MODE([disable])
 AM_SILENT_RULES([yes])
 
@@ -61,17 +61,18 @@ if test x"${adolc_ampi_support}" = xyes ; then
 AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
 fi
 
+LT_PREREQ([2.2.6])
 # checks for programs
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 AC_PROG_CC
+AC_PROG_CC_C_O
 AC_PROG_CC_C99
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_LIBTOOL_WIN32_DLL
-AC_PROG_LIBTOOL
+LT_INIT([disable-static win32-dll dlopen])
 
 MPI_CONF_PRE
 
@@ -502,10 +503,12 @@ AC_CONFIG_FILES(Makefile
 		ADOL-C/include/adolc/internal/adolc_settings.h
                 ADOL-C/include/adolc/drivers/Makefile 
                 ADOL-C/include/adolc/internal/Makefile
+                ADOL-C/include/adolc/lie/Makefile
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
                 ADOL-C/src/Makefile
                 ADOL-C/src/drivers/Makefile 
+                ADOL-C/src/lie/Makefile
                 ADOL-C/src/sparse/Makefile
                 ADOL-C/src/tapedoc/Makefile
                 ADOL-C/doc/version.tex
@@ -517,6 +520,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/ext_diff_func/Makefile
                 ADOL-C/examples/additional_examples/fixpoint_exam/Makefile
                 ADOL-C/examples/additional_examples/hessmat/Makefile
+                ADOL-C/examples/additional_examples/lie/Makefile
                 ADOL-C/examples/additional_examples/lufact/Makefile
                 ADOL-C/examples/additional_examples/openmp_exam/Makefile
                 ADOL-C/examples/additional_examples/scal/Makefile

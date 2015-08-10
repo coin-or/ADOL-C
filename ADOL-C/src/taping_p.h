@@ -293,6 +293,7 @@ typedef struct TapeInfos {
 
     /* extern diff. fcts */
     locint ext_diff_fct_index;    /* set by forward and reverse (from tape) */
+    char in_nested_ctx;
 
     size_t numSwitches;
     locint* switchlocs;

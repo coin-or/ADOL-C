@@ -41,7 +41,68 @@ extern void adolc_exit(int errorcode, const char *what, const char* function, co
 
 /****************************************************************************/
 /*                                              MEMORY MANAGEMENT UTILITIES */
+/*--------------------------------------------------------------------------*/
+char* populate_dpp(double ***const pointer, char *const memory,
+                   int n, int m) {
+    char* tmp;
+    double **tmp1; double *tmp2;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double**)memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double*)tmp;
+    for (i=0;i<n;i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
+char* populate_dppp(double ****const pointer, char *const memory, 
+                           int n, int m, int p) {
+    char* tmp;
+    double ***tmp1; double **tmp2; double *tmp3;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double***) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double**)tmp;
+    for(i=0; i<n; i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    tmp3 = (double*)tmp;
+    for(i=0;i<n;i++)
+        for(j=0;j<m;j++) {
+            (*pointer)[i][j] = tmp3;
+            tmp3 += p;
+        }
+    tmp = (char*)tmp3;
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
+char* populate_dppp_nodata(double ****const pointer, char *const memory, 
+                           int n, int m) {
 
+    char* tmp;
+    double ***tmp1; double **tmp2;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double***) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double**)tmp;
+    for(i=0; i<n; i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    return tmp;
+}
 /*--------------------------------------------------------------------------*/
 double* myalloc1(size_t m) {
     double* A = NULL;  
@@ -61,22 +122,13 @@ double** myalloc2(size_t m, size_t n) {
     double **A=NULL;
     if (m>0 && n>0)  { 
       int i;
-      double *Adum = (double*)ADOLC_MALLOC(m*n,sizeof(double));
-      A = (double**)malloc(m*sizeof(double*));
+      char *Adum = (char*)ADOLC_MALLOC(m*n*sizeof(double)+m*sizeof(double*),1);
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
-                (size_t)(m*n*sizeof(double)));
+                (size_t)(m*n*sizeof(double)+m*sizeof(double*)));
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
-      if (A == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
-                (size_t)(m*sizeof(double*)));
-        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
-      }
-      for (i=0; i<m; i++) {
-        A[i] = Adum;
-        Adum += n;
-      }
+      populate_dpp(&A,Adum,m,n);
     }
     return A;
 }
@@ -86,31 +138,13 @@ double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-
     double  ***A = NULL;
     if (m>0 && n>0 && p > 0)  { 
       int i,j;
-      double *Adum = (double*) ADOLC_MALLOC(m*n*p,sizeof(double));
-      double **Apt = (double**)malloc(m*n*sizeof(double*));
-      A = (double***)malloc(m*sizeof(double**));
+      char *Adum = (char*) ADOLC_MALLOC(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**),1);
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
-                (size_t)(m*n*p*sizeof(double)));
+                (size_t)(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**)));
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
       }
-      if (Apt == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
-                (size_t)(m*n*sizeof(double*)));
-        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
-      }
-      if (A == NULL) {
-        fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
-                (size_t)(m*sizeof(double**)));
-        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
-      }
-      for (i=0; i<m; i++) {
-        A[i] = Apt;
-        for (j=0; j<n; j++) {
-	  *Apt++ =  Adum;
-	  Adum += p;
-        }
-      }
+      populate_dppp(&A,Adum,m,n,p);
     }
     return A;
 }
@@ -122,14 +156,11 @@ void myfree1(double   *A) {
 
 /*--------------------------------------------------------------------------*/
 void myfree2(double  **A) {
-    if (A && *A) free((char*)*A);
     if (A) free((char*) A);
 }
 
 /*--------------------------------------------------------------------------*/
 void myfree3(double ***A) {
-    if (A && *A && **A) free((char*)**A);
-    if (A && *A) free((char*)*A);
     if (A) free((char*) A);
 }
 
