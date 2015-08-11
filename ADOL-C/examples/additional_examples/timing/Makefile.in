@@ -112,8 +112,9 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
+am__dirstamp = $(am__leading_dot)dirstamp
 am_detexam_OBJECTS = sfunc_determinant.$(OBJEXT) sgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 detexam_OBJECTS = $(am_detexam_OBJECTS)
 detexam_LDADD = $(LDADD)
 detexam_DEPENDENCIES =
@@ -121,73 +122,73 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_eutrophexam_OBJECTS = vfunc_eutroph.$(OBJEXT) vgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+am_eutrophexam_OBJECTS = $(srcdir)/../ode/vfunc_eutroph.$(OBJEXT) \
+	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 eutrophexam_OBJECTS = $(am_eutrophexam_OBJECTS)
 eutrophexam_LDADD = $(LDADD)
 eutrophexam_DEPENDENCIES =
 am_experimental_OBJECTS = sfunc_experimental.$(OBJEXT) \
-	sgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 experimental_OBJECTS = $(am_experimental_OBJECTS)
 experimental_LDADD = $(LDADD)
 experimental_DEPENDENCIES =
-am_ficexam_OBJECTS = vfunc_fic.$(OBJEXT) vgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+am_ficexam_OBJECTS = $(srcdir)/../ode/vfunc_fic.$(OBJEXT) \
+	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 ficexam_OBJECTS = $(am_ficexam_OBJECTS)
 ficexam_LDADD = $(LDADD)
 ficexam_DEPENDENCIES =
 am_gearexam_OBJECTS = vfunc_gear.$(OBJEXT) vgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 gearexam_OBJECTS = $(am_gearexam_OBJECTS)
 gearexam_LDADD = $(LDADD)
 gearexam_DEPENDENCIES =
 am_griewankexam_OBJECTS = sfunc_griewank.$(OBJEXT) sgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 griewankexam_OBJECTS = $(am_griewankexam_OBJECTS)
 griewankexam_LDADD = $(LDADD)
 griewankexam_DEPENDENCIES =
 am_helmholtzexam_OBJECTS = sfunc_helmholtz.$(OBJEXT) \
-	sgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 helmholtzexam_OBJECTS = $(am_helmholtzexam_OBJECTS)
 helmholtzexam_LDADD = $(LDADD)
 helmholtzexam_DEPENDENCIES =
 am_michalewitzexam_OBJECTS = sfunc_michalewitz.$(OBJEXT) \
-	sgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 michalewitzexam_OBJECTS = $(am_michalewitzexam_OBJECTS)
 michalewitzexam_LDADD = $(LDADD)
 michalewitzexam_DEPENDENCIES =
 am_pargearexam_OBJECTS = vfunc_pargear.$(OBJEXT) rotations.$(OBJEXT) \
-	vgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 pargearexam_OBJECTS = $(am_pargearexam_OBJECTS)
 pargearexam_LDADD = $(LDADD)
 pargearexam_DEPENDENCIES =
 am_powexam_OBJECTS = sfunc_power.$(OBJEXT) sgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 powexam_OBJECTS = $(am_powexam_OBJECTS)
 powexam_LDADD = $(LDADD)
 powexam_DEPENDENCIES =
-am_robertsonexam_OBJECTS = vfunc_robertson.$(OBJEXT) \
-	vgenmain.$(OBJEXT) myclock.$(OBJEXT)
+am_robertsonexam_OBJECTS = $(srcdir)/../ode/vfunc_robertson.$(OBJEXT) \
+	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 robertsonexam_OBJECTS = $(am_robertsonexam_OBJECTS)
 robertsonexam_LDADD = $(LDADD)
 robertsonexam_DEPENDENCIES =
 am_rosenbrockexam_OBJECTS = sfunc_rosenbrock.$(OBJEXT) \
-	sgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 rosenbrockexam_OBJECTS = $(am_rosenbrockexam_OBJECTS)
 rosenbrockexam_LDADD = $(LDADD)
 rosenbrockexam_DEPENDENCIES =
 am_shuttlexam_OBJECTS = vfunc_shuttle.$(OBJEXT) vgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 shuttlexam_OBJECTS = $(am_shuttlexam_OBJECTS)
 shuttlexam_LDADD = $(LDADD)
 shuttlexam_DEPENDENCIES =
 am_simplevec_OBJECTS = vfunc_simplevec.$(OBJEXT) vgenmain.$(OBJEXT) \
-	myclock.$(OBJEXT)
+	$(srcdir)/../clock/myclock.$(OBJEXT)
 simplevec_OBJECTS = $(am_simplevec_OBJECTS)
 simplevec_LDADD = $(LDADD)
 simplevec_DEPENDENCIES =
 am_speelpenning_OBJECTS = sfunc_speelpenning.$(OBJEXT) \
-	sgenmain.$(OBJEXT) myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
 speelpenning_LDADD = $(LDADD)
 speelpenning_DEPENDENCIES =
@@ -514,10 +515,28 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+$(srcdir)/../clock/$(am__dirstamp):
+	@$(MKDIR_P) $(srcdir)/../clock
+	@: > $(srcdir)/../clock/$(am__dirstamp)
+$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(srcdir)/../clock/$(DEPDIR)
+	@: > $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
+$(srcdir)/../clock/myclock.$(OBJEXT):  \
+	$(srcdir)/../clock/$(am__dirstamp) \
+	$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
 
 detexam$(EXEEXT): $(detexam_OBJECTS) $(detexam_DEPENDENCIES) $(EXTRA_detexam_DEPENDENCIES) 
 	@rm -f detexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(detexam_OBJECTS) $(detexam_LDADD) $(LIBS)
+$(srcdir)/../ode/$(am__dirstamp):
+	@$(MKDIR_P) $(srcdir)/../ode
+	@: > $(srcdir)/../ode/$(am__dirstamp)
+$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(srcdir)/../ode/$(DEPDIR)
+	@: > $(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
+$(srcdir)/../ode/vfunc_eutroph.$(OBJEXT):  \
+	$(srcdir)/../ode/$(am__dirstamp) \
+	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 eutrophexam$(EXEEXT): $(eutrophexam_OBJECTS) $(eutrophexam_DEPENDENCIES) $(EXTRA_eutrophexam_DEPENDENCIES) 
 	@rm -f eutrophexam$(EXEEXT)
@@ -526,6 +545,9 @@ eutrophexam$(EXEEXT): $(eutrophexam_OBJECTS) $(eutrophexam_DEPENDENCIES) $(EXTRA
 experimental$(EXEEXT): $(experimental_OBJECTS) $(experimental_DEPENDENCIES) $(EXTRA_experimental_DEPENDENCIES) 
 	@rm -f experimental$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(experimental_OBJECTS) $(experimental_LDADD) $(LIBS)
+$(srcdir)/../ode/vfunc_fic.$(OBJEXT):  \
+	$(srcdir)/../ode/$(am__dirstamp) \
+	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 ficexam$(EXEEXT): $(ficexam_OBJECTS) $(ficexam_DEPENDENCIES) $(EXTRA_ficexam_DEPENDENCIES) 
 	@rm -f ficexam$(EXEEXT)
@@ -554,6 +576,9 @@ pargearexam$(EXEEXT): $(pargearexam_OBJECTS) $(pargearexam_DEPENDENCIES) $(EXTRA
 powexam$(EXEEXT): $(powexam_OBJECTS) $(powexam_DEPENDENCIES) $(EXTRA_powexam_DEPENDENCIES) 
 	@rm -f powexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(powexam_OBJECTS) $(powexam_LDADD) $(LIBS)
+$(srcdir)/../ode/vfunc_robertson.$(OBJEXT):  \
+	$(srcdir)/../ode/$(am__dirstamp) \
+	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 robertsonexam$(EXEEXT): $(robertsonexam_OBJECTS) $(robertsonexam_DEPENDENCIES) $(EXTRA_robertsonexam_DEPENDENCIES) 
 	@rm -f robertsonexam$(EXEEXT)
@@ -577,11 +602,16 @@ speelpenning$(EXEEXT): $(speelpenning_OBJECTS) $(speelpenning_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f $(srcdir)/../clock/*.$(OBJEXT)
+	-rm -f $(srcdir)/../ode/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/myclock.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../clock/$(DEPDIR)/myclock.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_eutroph.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_fic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_robertson.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotations.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_determinant.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_experimental.Po@am__quote@
@@ -592,91 +622,35 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_rosenbrock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_speelpenning.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sgenmain.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_eutroph.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_fic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_gear.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_pargear.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_robertson.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_shuttle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_simplevec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vgenmain.Po@am__quote@
 
 .cpp.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cpp.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
-myclock.o: $(srcdir)/../clock/myclock.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT myclock.o -MD -MP -MF $(DEPDIR)/myclock.Tpo -c -o myclock.o `test -f '$(srcdir)/../clock/myclock.cpp' || echo '$(srcdir)/'`$(srcdir)/../clock/myclock.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/myclock.Tpo $(DEPDIR)/myclock.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../clock/myclock.cpp' object='myclock.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o myclock.o `test -f '$(srcdir)/../clock/myclock.cpp' || echo '$(srcdir)/'`$(srcdir)/../clock/myclock.cpp
-
-myclock.obj: $(srcdir)/../clock/myclock.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT myclock.obj -MD -MP -MF $(DEPDIR)/myclock.Tpo -c -o myclock.obj `if test -f '$(srcdir)/../clock/myclock.cpp'; then $(CYGPATH_W) '$(srcdir)/../clock/myclock.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../clock/myclock.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/myclock.Tpo $(DEPDIR)/myclock.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../clock/myclock.cpp' object='myclock.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o myclock.obj `if test -f '$(srcdir)/../clock/myclock.cpp'; then $(CYGPATH_W) '$(srcdir)/../clock/myclock.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../clock/myclock.cpp'; fi`
-
-vfunc_eutroph.o: $(srcdir)/../ode/vfunc_eutroph.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_eutroph.o -MD -MP -MF $(DEPDIR)/vfunc_eutroph.Tpo -c -o vfunc_eutroph.o `test -f '$(srcdir)/../ode/vfunc_eutroph.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_eutroph.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_eutroph.Tpo $(DEPDIR)/vfunc_eutroph.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_eutroph.cpp' object='vfunc_eutroph.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_eutroph.o `test -f '$(srcdir)/../ode/vfunc_eutroph.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_eutroph.cpp
-
-vfunc_eutroph.obj: $(srcdir)/../ode/vfunc_eutroph.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_eutroph.obj -MD -MP -MF $(DEPDIR)/vfunc_eutroph.Tpo -c -o vfunc_eutroph.obj `if test -f '$(srcdir)/../ode/vfunc_eutroph.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_eutroph.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_eutroph.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_eutroph.Tpo $(DEPDIR)/vfunc_eutroph.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_eutroph.cpp' object='vfunc_eutroph.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_eutroph.obj `if test -f '$(srcdir)/../ode/vfunc_eutroph.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_eutroph.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_eutroph.cpp'; fi`
-
-vfunc_fic.o: $(srcdir)/../ode/vfunc_fic.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_fic.o -MD -MP -MF $(DEPDIR)/vfunc_fic.Tpo -c -o vfunc_fic.o `test -f '$(srcdir)/../ode/vfunc_fic.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_fic.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_fic.Tpo $(DEPDIR)/vfunc_fic.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_fic.cpp' object='vfunc_fic.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_fic.o `test -f '$(srcdir)/../ode/vfunc_fic.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_fic.cpp
-
-vfunc_fic.obj: $(srcdir)/../ode/vfunc_fic.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_fic.obj -MD -MP -MF $(DEPDIR)/vfunc_fic.Tpo -c -o vfunc_fic.obj `if test -f '$(srcdir)/../ode/vfunc_fic.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_fic.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_fic.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_fic.Tpo $(DEPDIR)/vfunc_fic.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_fic.cpp' object='vfunc_fic.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_fic.obj `if test -f '$(srcdir)/../ode/vfunc_fic.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_fic.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_fic.cpp'; fi`
-
-vfunc_robertson.o: $(srcdir)/../ode/vfunc_robertson.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_robertson.o -MD -MP -MF $(DEPDIR)/vfunc_robertson.Tpo -c -o vfunc_robertson.o `test -f '$(srcdir)/../ode/vfunc_robertson.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_robertson.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_robertson.Tpo $(DEPDIR)/vfunc_robertson.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_robertson.cpp' object='vfunc_robertson.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_robertson.o `test -f '$(srcdir)/../ode/vfunc_robertson.cpp' || echo '$(srcdir)/'`$(srcdir)/../ode/vfunc_robertson.cpp
-
-vfunc_robertson.obj: $(srcdir)/../ode/vfunc_robertson.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT vfunc_robertson.obj -MD -MP -MF $(DEPDIR)/vfunc_robertson.Tpo -c -o vfunc_robertson.obj `if test -f '$(srcdir)/../ode/vfunc_robertson.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_robertson.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_robertson.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vfunc_robertson.Tpo $(DEPDIR)/vfunc_robertson.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(srcdir)/../ode/vfunc_robertson.cpp' object='vfunc_robertson.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o vfunc_robertson.obj `if test -f '$(srcdir)/../ode/vfunc_robertson.cpp'; then $(CYGPATH_W) '$(srcdir)/../ode/vfunc_robertson.cpp'; else $(CYGPATH_W) '$(srcdir)/$(srcdir)/../ode/vfunc_robertson.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -796,6 +770,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-test -z "$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
+	-test -z "$(srcdir)/../clock/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(am__dirstamp)
+	-test -z "$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
+	-test -z "$(srcdir)/../ode/$(am__dirstamp)" || rm -f $(srcdir)/../ode/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -807,7 +785,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf $(srcdir)/../clock/$(DEPDIR) $(srcdir)/../ode/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -853,7 +831,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf $(srcdir)/../clock/$(DEPDIR) $(srcdir)/../ode/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
