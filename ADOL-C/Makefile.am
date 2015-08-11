@@ -49,7 +49,7 @@ if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
 endif
 
-BUILD_SOURCES = dummy.cpp
+BUILT_SOURCES = dummy.cpp
 
 dummy.cpp:
 	touch $@
