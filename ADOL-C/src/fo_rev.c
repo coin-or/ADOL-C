@@ -82,7 +82,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define RESULTS(l,indexi) results[l][indexi]
 #define LAGRANGE(l,indexd) lagrange[l][indexd]
-#define RESULTSTRANS(l,indexi) results[indexd][l]
+#define RESULTSTRANS(l,indexi) results[indexi][l]
 #define LAGRANGETRANS(l,indexd) lagrange[indexd][l]
 
 #else
@@ -95,7 +95,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #endif
 #define RESULTS(l,indexi)  results[l][indexi]
 #define LAGRANGE(l,indexd) lagrange[l][indexd]
-#define RESULTSTRANS(l,indexi) results[indexd][l]
+#define RESULTSTRANS(l,indexi) results[indexi][l]
 #define LAGRANGETRANS(l,indexd) lagrange[indexd][l]
 #else
 #error Error ! Define [_FOS_ | _FOV_ | _INT_REV_SAFE_ | _INT_REV_TIGHT_ ]
