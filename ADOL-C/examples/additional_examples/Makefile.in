@@ -157,7 +157,7 @@ ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = clock hessmat lufact ode sparse tapesave timing detexam \
 	helm lighthouse scal speelpenning taylor pow checkpointing \
-	ext_diff_func fixpoint_exam openmp_exam cuda param
+	ext_diff_func fixpoint_exam openmp_exam cuda param lie
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -327,12 +327,12 @@ MAINTAINERCLEANFILES = Makefile.in *~
 @ADDEXA_TRUE@SUBDIRS = clock hessmat lufact ode sparse tapesave timing \
 @ADDEXA_TRUE@                       detexam helm lighthouse scal speelpenning taylor pow \
 @ADDEXA_TRUE@                       checkpointing ext_diff_func fixpoint_exam openmp_exam \
-@ADDEXA_TRUE@                       cuda param
+@ADDEXA_TRUE@                       cuda param lie
 
 @PAREXA_TRUE@SUBDIRS = clock hessmat lufact ode sparse tapesave timing \
 @PAREXA_TRUE@                       detexam helm lighthouse scal speelpenning taylor pow \
 @PAREXA_TRUE@                       checkpointing ext_diff_func fixpoint_exam openmp_exam \
-@PAREXA_TRUE@                       cuda param
+@PAREXA_TRUE@                       cuda param lie
 
 all: all-recursive
 

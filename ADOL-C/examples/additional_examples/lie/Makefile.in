@@ -81,10 +81,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@ADDEXA_TRUE@noinst_PROGRAMS = hessmat$(EXEEXT)
-subdir = ADOL-C/examples/additional_examples/hessmat
+@ADDEXA_TRUE@noinst_PROGRAMS = GantryCrane$(EXEEXT)
+subdir = ADOL-C/examples/additional_examples/lie
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/autoconf/depcomp README
+	$(top_srcdir)/autoconf/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/autoconf/acx_builtin.m4 \
 	$(top_srcdir)/autoconf/ampi.m4 \
@@ -105,10 +105,10 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_hessmat_OBJECTS = hessmat.$(OBJEXT)
-hessmat_OBJECTS = $(am_hessmat_OBJECTS)
-hessmat_LDADD = $(LDADD)
-hessmat_DEPENDENCIES =
+am_GantryCrane_OBJECTS = GantryCrane.$(OBJEXT)
+GantryCrane_OBJECTS = $(am_GantryCrane_OBJECTS)
+GantryCrane_LDADD = $(LDADD)
+GantryCrane_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -147,8 +147,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(hessmat_SOURCES)
-DIST_SOURCES = $(hessmat_SOURCES)
+SOURCES = $(GantryCrane_SOURCES)
+DIST_SOURCES = $(GantryCrane_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -319,7 +319,7 @@ AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
 LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
-hessmat_SOURCES = hessmat.cpp
+GantryCrane_SOURCES = GantryCrane.cpp
 all: all-am
 
 .SUFFIXES:
@@ -333,9 +333,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/hessmat/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/lie/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/hessmat/Makefile
+	  $(AUTOMAKE) --foreign ADOL-C/examples/additional_examples/lie/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -364,9 +364,9 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-hessmat$(EXEEXT): $(hessmat_OBJECTS) $(hessmat_DEPENDENCIES) $(EXTRA_hessmat_DEPENDENCIES) 
-	@rm -f hessmat$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(hessmat_OBJECTS) $(hessmat_LDADD) $(LIBS)
+GantryCrane$(EXEEXT): $(GantryCrane_OBJECTS) $(GantryCrane_DEPENDENCIES) $(EXTRA_GantryCrane_DEPENDENCIES) 
+	@rm -f GantryCrane$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(GantryCrane_OBJECTS) $(GantryCrane_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -374,7 +374,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hessmat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GantryCrane.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
