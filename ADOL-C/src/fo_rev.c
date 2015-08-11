@@ -80,7 +80,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define _ADOLC_VECTOR_
 
-#define RESULTS(l,indexi) results[l][indexd]
+#define RESULTS(l,indexi) results[l][indexi]
 #define LAGRANGE(l,indexd) lagrange[l][indexd]
 #define RESULTSTRANS(l,indexi) results[indexd][l]
 #define LAGRANGETRANS(l,indexd) lagrange[indexd][l]
