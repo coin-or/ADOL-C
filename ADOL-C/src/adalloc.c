@@ -122,7 +122,7 @@ double** myalloc2(size_t m, size_t n) {
     double **A=NULL;
     if (m>0 && n>0)  { 
       int i;
-      char *Adum = (char*)ADOLC_MALLOC(m*n*sizeof(double)+m*sizeof(double*),1);
+      char *Adum = (char*)ADOLC_MALLOC(m*n*sizeof(double)+m*sizeof(double*),sizeof(char));
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
                 (size_t)(m*n*sizeof(double)+m*sizeof(double*)));
@@ -138,7 +138,7 @@ double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-
     double  ***A = NULL;
     if (m>0 && n>0 && p > 0)  { 
       int i,j;
-      char *Adum = (char*) ADOLC_MALLOC(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**),1);
+      char *Adum = (char*) ADOLC_MALLOC(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**),sizeof(char));
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
                 (size_t)(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**)));
