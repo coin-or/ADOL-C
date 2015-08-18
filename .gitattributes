@@ -294,8 +294,6 @@ ADOL-C/src/lie/Makefile.am -text
 ADOL-C/src/lie/Makefile.in -text
 ADOL-C/src/lie/adolc_lie.cpp -text
 ADOL-C/src/lie/adolc_lie_c.c -text
-ADOL-C/src/malloc.c -text
-ADOL-C/src/malloc.h -text
 ADOL-C/src/nonl_ind_forward_s.c -text
 ADOL-C/src/nonl_ind_forward_t.c -text
 ADOL-C/src/nonl_ind_old_forward_s.c -text
@@ -303,6 +301,8 @@ ADOL-C/src/nonl_ind_old_forward_t.c -text
 ADOL-C/src/oplate.h -text
 ADOL-C/src/param.cpp -text
 ADOL-C/src/revolve.c -text
+ADOL-C/src/rpl_malloc.c -text
+ADOL-C/src/rpl_malloc.h -text
 ADOL-C/src/sparse/Makefile.am -text
 ADOL-C/src/sparse/Makefile.in -text
 ADOL-C/src/sparse/sparse_fo_rev.cpp -text

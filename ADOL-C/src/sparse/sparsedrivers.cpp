@@ -12,12 +12,13 @@
  recipient's acceptance of the terms of the accompanying license file.  
   
 ----------------------------------------------------------------------------*/
-#include <adolc/sparse/sparsedrivers.h>
+#include "taping_p.h"
 #include "oplate.h"
+#include "dvlparms.h"
+
+#include <adolc/sparse/sparsedrivers.h>
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>
-#include "taping_p.h"
-#include "dvlparms.h"
 
 #if defined(ADOLC_INTERNAL)
 #    if HAVE_CONFIG_H
