@@ -13,7 +13,7 @@
  
 ----------------------------------------------------------------------------*/
 
-#include "malloc.h"
+#include "rpl_malloc.h"
 
 #undef ADOLC_NO_MALLOC
 #undef ADOLC_NO_REALLOC

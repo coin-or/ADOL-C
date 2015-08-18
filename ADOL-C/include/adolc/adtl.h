@@ -22,7 +22,9 @@
 #include <list>
 #include <stdexcept>
 
-#if __cplusplus < 201103L
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900)
+#define COMPILER_HAS_CXX11
+#else
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
