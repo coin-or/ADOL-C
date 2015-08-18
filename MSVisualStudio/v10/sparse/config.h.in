@@ -35,19 +35,22 @@
 #define ADOLC_VERSION @ADOLC_VERSION@
 
 /* Boost pool should not assume multithreading */
-#undef BOOST_POOL_NO_MT
+#define BOOST_POOL_NO_MT 1
 
 /* define if the Boost library is available */
-#undef HAVE_BOOST
+#define HAVE_BOOST
 
 /* Define to 1 if you have the <boost/pool/pool_alloc.hpp> header file. */
-#undef HAVE_BOOST_POOL_POOL_ALLOC_HPP
+#define HAVE_BOOST_POOL_POOL_ALLOC_HPP 1
 
 /* define if the Boost::System library is available */
-#undef HAVE_BOOST_SYSTEM
+#define HAVE_BOOST_SYSTEM
 
 /* Define if the compiler provides __builtin_expect */
 #define HAVE_BUILTIN_EXPECT 0
+
+/* define if the compiler supports basic C++11 syntax */
+#define HAVE_CXX11 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -124,7 +127,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the `trunc' function. */
-/* #undef HAVE_TRUNC */
+#define HAVE_TRUNC 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef HAVE_UNISTD_H */
