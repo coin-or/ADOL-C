@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="nosparse|Win32">
       <Configuration>nosparse</Configuration>
@@ -20,23 +20,29 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{43459339-26DA-B162-0783-4ED235513520}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='sparse|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='nosparse|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -191,7 +197,6 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_forward_t.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_s.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_t.c" />
-    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\malloc.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_s.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_t.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_old_forward_s.c" />
@@ -212,6 +217,7 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_pl_forward.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\param.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\indopro_forward_pl.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adalloc.h" />
@@ -245,12 +251,12 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adolc_settings.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\buffer_temp.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\externfcts_p.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\malloc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\taping_p.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adtl.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\param.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adubfunc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\paramfunc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
