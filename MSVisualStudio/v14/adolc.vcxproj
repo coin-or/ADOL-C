@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\adalloc.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\adouble.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\advector.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\checkpointing.cpp" />
@@ -197,6 +198,8 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_forward_t.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_s.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\int_reverse_t.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\lie\adolc_lie_c.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\lie\adolc_lie.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_s.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_forward_t.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\nonl_ind_old_forward_s.c" />
@@ -217,10 +220,10 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_pl_forward.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\param.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\indopro_forward_pl.c" />
-    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adalloc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adolc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adolc_openmp.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adolc_sparse.h" />
@@ -240,6 +243,7 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fixpoint.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\fortutils.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\interfaces.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\lie\drivers.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\oplate.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\revolve.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\sparse\sparsedrivers.h" />
@@ -256,7 +260,6 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\param.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adubfunc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\paramfunc.h" />
-    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\src\rpl_malloc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

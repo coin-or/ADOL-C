@@ -10,6 +10,8 @@
 ## 
 ##############################################################################
 
-EXTRA_DIST           = myclock.h
+noinst_LTLIBRARIES = libclock.la
+
+libclock_la_SOURCES  = myclock.h myclock.cpp
 
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig

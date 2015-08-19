@@ -15,7 +15,7 @@ AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@
 AM_CPPFLAGS             = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
 
-LDADD                   = -l${adolclib}
+LIBS                   = $(builddir)/../clock/libclock.la -l${adolclib}
 AM_LDFLAGS              = -L$(top_builddir)/ADOL-C
 
 CTRLFILES               = detexam.ctrl \
@@ -46,47 +46,38 @@ noinst_PROGRAMS         = detexam speelpenning griewankexam michalewitzexam \
                           robertsonexam ficexam experimental
 endif
 
-detexam_SOURCES         = sfunc_determinant.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+detexam_SOURCES         = sfunc_determinant.cpp sgenmain.cpp
 
-speelpenning_SOURCES    = sfunc_speelpenning.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+speelpenning_SOURCES    = sfunc_speelpenning.cpp sgenmain.cpp
 
-griewankexam_SOURCES    = sfunc_griewank.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+griewankexam_SOURCES    = sfunc_griewank.cpp sgenmain.cpp
 
-michalewitzexam_SOURCES = sfunc_michalewitz.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+michalewitzexam_SOURCES = sfunc_michalewitz.cpp sgenmain.cpp
 
-rosenbrockexam_SOURCES  = sfunc_rosenbrock.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+rosenbrockexam_SOURCES  = sfunc_rosenbrock.cpp sgenmain.cpp
 
-powexam_SOURCES         = sfunc_power.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+powexam_SOURCES         = sfunc_power.cpp sgenmain.cpp
 
-helmholtzexam_SOURCES   = sfunc_helmholtz.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+helmholtzexam_SOURCES   = sfunc_helmholtz.cpp sgenmain.cpp
 
-shuttlexam_SOURCES      = vfunc_shuttle.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+shuttlexam_SOURCES      = vfunc_shuttle.cpp vgenmain.cpp
 
-gearexam_SOURCES        = vfunc_gear.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+gearexam_SOURCES        = vfunc_gear.cpp vgenmain.cpp
 
-pargearexam_SOURCES     = vfunc_pargear.cpp rotations.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+pargearexam_SOURCES     = vfunc_pargear.cpp rotations.cpp vgenmain.cpp
 
-simplevec_SOURCES       = vfunc_simplevec.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+simplevec_SOURCES       = vfunc_simplevec.cpp vgenmain.cpp
 
-eutrophexam_SOURCES     = $(srcdir)/../ode/vfunc_eutroph.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+eutrophexam_SOURCES     = vgenmain.cpp
 
-robertsonexam_SOURCES   = $(srcdir)/../ode/vfunc_robertson.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+eutrophexam_LDADD       = $(builddir)/../ode/libeutroph.la
 
-ficexam_SOURCES         = $(srcdir)/../ode/vfunc_fic.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+robertsonexam_SOURCES   = vgenmain.cpp
 
-experimental_SOURCES    = sfunc_experimental.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
+robertsonexam_LDADD     = $(builddir)/../ode/librobertson.la
+
+ficexam_SOURCES         = vgenmain.cpp
+
+ficexam_LDADD           = $(builddir)/../ode/libfic.la
+
+experimental_SOURCES    = sfunc_experimental.cpp sgenmain.cpp

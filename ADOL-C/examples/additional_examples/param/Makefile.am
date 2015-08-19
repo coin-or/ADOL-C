@@ -14,7 +14,7 @@ AM_CFLAGS              = @ac_adolc_cflags@
 AM_CXXFLAGS            = @ac_adolc_cxxflags@
 AM_CPPFLAGS            = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/examples/additional_examples/clock
 
-LDADD                  = -l${adolclib}
+LIBS                  = $(builddir)/../clock/libclock.la -l${adolclib}
 AM_LDFLAGS             = -L$(top_builddir)/ADOL-C
 
 MAINTAINERCLEANFILES   = Makefile.in *~ *.orig
@@ -23,4 +23,4 @@ if ADDEXA
 noinst_PROGRAMS        = paramexam
 endif
 
-paramexam_SOURCES      = paramexam.cpp $(srcdir)/../clock/myclock.cpp
+paramexam_SOURCES      = paramexam.cpp 
