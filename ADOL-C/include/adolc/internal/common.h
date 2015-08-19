@@ -62,12 +62,12 @@
 #       endif /* HAVE_REALLOC */
 
 #       if defined(ADOLC_NO_MALLOC)
-#           include "malloc.h"
+#           include "rpl_malloc.h"
 #           define malloc rpl_malloc
 #           define calloc rpl_calloc
 #       endif /* ADOLC_NO_MALLOC */
 #       if defined(ADOLC_NO_REALLOC)
-#           include "malloc.h"
+#           include "rpl_malloc.h"
 #           define realloc rpl_realloc
 #       endif /* ADOLC_NO_REALLOC */
 
