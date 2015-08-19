@@ -125,9 +125,9 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@am_libadolcampi_la_rpath =
 libadolcsrc_la_LIBADD =
-am__libadolcsrc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
+am__libadolcsrc_la_SOURCES_DIST = adalloc.c rpl_malloc.c adouble.cpp \
 	convolut.c fortutils.c interfaces.cpp interfacesf.c taping.c \
-	tape_handling.cpp dvlparms.h oplate.h taping_p.h malloc.h \
+	tape_handling.cpp dvlparms.h oplate.h taping_p.h rpl_malloc.h \
 	storemanager.h externfcts_p.h checkpointing_p.h buffer_temp.h \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
@@ -147,7 +147,7 @@ am__libadolcsrc_la_SOURCES_DIST = adalloc.c malloc.c adouble.cpp \
 @SPARSE_TRUE@	nonl_ind_forward_t.lo nonl_ind_old_forward_s.lo \
 @SPARSE_TRUE@	nonl_ind_old_forward_t.lo int_reverse_s.lo \
 @SPARSE_TRUE@	int_reverse_t.lo
-am_libadolcsrc_la_OBJECTS = adalloc.lo malloc.lo adouble.lo \
+am_libadolcsrc_la_OBJECTS = adalloc.lo rpl_malloc.lo adouble.lo \
 	convolut.lo fortutils.lo interfaces.lo interfacesf.lo \
 	taping.lo tape_handling.lo zos_forward.lo fos_forward.lo \
 	fov_forward.lo hos_forward.lo hov_forward.lo hov_wk_forward.lo \
@@ -437,9 +437,9 @@ libadolcsrc_la_LDFLAGS =
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@libadolcampi_la_SOURCES = ampisupport.cpp ampisupportAdolc.cpp \
 @BUILD_ADOLC_AMPI_SUPPORT_TRUE@                           ampisupportAdolc.h
 
-libadolcsrc_la_SOURCES = adalloc.c malloc.c adouble.cpp convolut.c \
+libadolcsrc_la_SOURCES = adalloc.c rpl_malloc.c adouble.cpp convolut.c \
 	fortutils.c interfaces.cpp interfacesf.c taping.c \
-	tape_handling.cpp dvlparms.h oplate.h taping_p.h malloc.h \
+	tape_handling.cpp dvlparms.h oplate.h taping_p.h rpl_malloc.h \
 	storemanager.h externfcts_p.h checkpointing_p.h buffer_temp.h \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
@@ -561,13 +561,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/int_reverse_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfaces.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interfacesf.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nonl_ind_old_forward_t.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/param.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revolve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rpl_malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tape_handling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taping.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zos_forward.Plo@am__quote@
