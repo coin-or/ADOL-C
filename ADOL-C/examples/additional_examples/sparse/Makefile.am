@@ -14,7 +14,7 @@ AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@
 AM_CPPFLAGS             = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
 
-LDADD                   = -l${adolclib}
+LIBS                   = -l${adolclib}
 AM_LDFLAGS              = -L$(top_builddir)/ADOL-C
 
 MAINTAINERCLEANFILES    = Makefile.in *~ *.orig
@@ -28,5 +28,7 @@ sparse_jacobian_SOURCES = sparse_jacobian.cpp
 
 sparse_hessian_SOURCES  = sparse_hessian.cpp
 
-jacpatexam_SOURCES      = jacpatexam.cpp $(srcdir)/../clock/myclock.cpp
+jacpatexam_SOURCES      = jacpatexam.cpp
+
+jacpatexam_LDADD = $(builddir)/../clock/libclock.la
 endif
