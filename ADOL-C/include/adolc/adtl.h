@@ -49,7 +49,7 @@ class adouble;
 
 class refcounter {
 private:
-    static size_t refcnt;
+    ADOLC_DLL_EXPORT static size_t refcnt;
     friend void setNumDir(const size_t p);
     friend void setMode(enum Mode newmode);
     friend class adouble;
@@ -238,8 +238,8 @@ private:
     inline static bool _do_val();
     inline static bool _do_adval();
     inline static bool _do_indo();
-    static size_t numDir;
-    static enum Mode forward_mode;
+    ADOLC_DLL_EXPORT static size_t numDir;
+    ADOLC_DLL_EXPORT static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
     inline friend void setMode(enum Mode newmode);
 };
