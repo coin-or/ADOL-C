@@ -107,14 +107,11 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__jacpatexam_SOURCES_DIST = jacpatexam.cpp \
-	$(srcdir)/../clock/myclock.cpp
-am__dirstamp = $(am__leading_dot)dirstamp
-@SPARSE_TRUE@am_jacpatexam_OBJECTS = jacpatexam.$(OBJEXT) \
-@SPARSE_TRUE@	$(srcdir)/../clock/myclock.$(OBJEXT)
+am__jacpatexam_SOURCES_DIST = jacpatexam.cpp
+@SPARSE_TRUE@am_jacpatexam_OBJECTS = jacpatexam.$(OBJEXT)
 jacpatexam_OBJECTS = $(am_jacpatexam_OBJECTS)
-jacpatexam_LDADD = $(LDADD)
-jacpatexam_DEPENDENCIES =
+@SPARSE_TRUE@jacpatexam_DEPENDENCIES =  \
+@SPARSE_TRUE@	$(builddir)/../clock/libclock.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -123,12 +120,10 @@ am__sparse_hessian_SOURCES_DIST = sparse_hessian.cpp
 @SPARSE_TRUE@am_sparse_hessian_OBJECTS = sparse_hessian.$(OBJEXT)
 sparse_hessian_OBJECTS = $(am_sparse_hessian_OBJECTS)
 sparse_hessian_LDADD = $(LDADD)
-sparse_hessian_DEPENDENCIES =
 am__sparse_jacobian_SOURCES_DIST = sparse_jacobian.cpp
 @SPARSE_TRUE@am_sparse_jacobian_OBJECTS = sparse_jacobian.$(OBJEXT)
 sparse_jacobian_OBJECTS = $(am_sparse_jacobian_OBJECTS)
 sparse_jacobian_LDADD = $(LDADD)
-sparse_jacobian_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -241,7 +236,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@
+LIBS = -l${adolclib}
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -335,12 +330,12 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
 AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
-LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 @SPARSE_TRUE@sparse_jacobian_SOURCES = sparse_jacobian.cpp
 @SPARSE_TRUE@sparse_hessian_SOURCES = sparse_hessian.cpp
-@SPARSE_TRUE@jacpatexam_SOURCES = jacpatexam.cpp $(srcdir)/../clock/myclock.cpp
+@SPARSE_TRUE@jacpatexam_SOURCES = jacpatexam.cpp
+@SPARSE_TRUE@jacpatexam_LDADD = $(builddir)/../clock/libclock.la
 all: all-am
 
 .SUFFIXES:
@@ -384,15 +379,6 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-$(srcdir)/../clock/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock
-	@: > $(srcdir)/../clock/$(am__dirstamp)
-$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock/$(DEPDIR)
-	@: > $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-$(srcdir)/../clock/myclock.$(OBJEXT):  \
-	$(srcdir)/../clock/$(am__dirstamp) \
-	$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
 
 jacpatexam$(EXEEXT): $(jacpatexam_OBJECTS) $(jacpatexam_DEPENDENCIES) $(EXTRA_jacpatexam_DEPENDENCIES) 
 	@rm -f jacpatexam$(EXEEXT)
@@ -408,12 +394,10 @@ sparse_jacobian$(EXEEXT): $(sparse_jacobian_OBJECTS) $(sparse_jacobian_DEPENDENC
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(srcdir)/../clock/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../clock/$(DEPDIR)/myclock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jacpatexam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparse_hessian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparse_jacobian.Po@am__quote@
@@ -560,8 +544,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(srcdir)/../clock/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -573,7 +555,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -619,7 +601,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -112,86 +112,61 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__dirstamp = $(am__leading_dot)dirstamp
-am_detexam_OBJECTS = sfunc_determinant.$(OBJEXT) sgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_detexam_OBJECTS = sfunc_determinant.$(OBJEXT) sgenmain.$(OBJEXT)
 detexam_OBJECTS = $(am_detexam_OBJECTS)
 detexam_LDADD = $(LDADD)
-detexam_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_eutrophexam_OBJECTS = $(srcdir)/../ode/vfunc_eutroph.$(OBJEXT) \
-	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+am_eutrophexam_OBJECTS = vgenmain.$(OBJEXT)
 eutrophexam_OBJECTS = $(am_eutrophexam_OBJECTS)
-eutrophexam_LDADD = $(LDADD)
-eutrophexam_DEPENDENCIES =
+eutrophexam_DEPENDENCIES = $(builddir)/../ode/libeutroph.la
 am_experimental_OBJECTS = sfunc_experimental.$(OBJEXT) \
-	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT)
 experimental_OBJECTS = $(am_experimental_OBJECTS)
 experimental_LDADD = $(LDADD)
-experimental_DEPENDENCIES =
-am_ficexam_OBJECTS = $(srcdir)/../ode/vfunc_fic.$(OBJEXT) \
-	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+am_ficexam_OBJECTS = vgenmain.$(OBJEXT)
 ficexam_OBJECTS = $(am_ficexam_OBJECTS)
-ficexam_LDADD = $(LDADD)
-ficexam_DEPENDENCIES =
-am_gearexam_OBJECTS = vfunc_gear.$(OBJEXT) vgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+ficexam_DEPENDENCIES = $(builddir)/../ode/libfic.la
+am_gearexam_OBJECTS = vfunc_gear.$(OBJEXT) vgenmain.$(OBJEXT)
 gearexam_OBJECTS = $(am_gearexam_OBJECTS)
 gearexam_LDADD = $(LDADD)
-gearexam_DEPENDENCIES =
-am_griewankexam_OBJECTS = sfunc_griewank.$(OBJEXT) sgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_griewankexam_OBJECTS = sfunc_griewank.$(OBJEXT) sgenmain.$(OBJEXT)
 griewankexam_OBJECTS = $(am_griewankexam_OBJECTS)
 griewankexam_LDADD = $(LDADD)
-griewankexam_DEPENDENCIES =
 am_helmholtzexam_OBJECTS = sfunc_helmholtz.$(OBJEXT) \
-	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT)
 helmholtzexam_OBJECTS = $(am_helmholtzexam_OBJECTS)
 helmholtzexam_LDADD = $(LDADD)
-helmholtzexam_DEPENDENCIES =
 am_michalewitzexam_OBJECTS = sfunc_michalewitz.$(OBJEXT) \
-	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT)
 michalewitzexam_OBJECTS = $(am_michalewitzexam_OBJECTS)
 michalewitzexam_LDADD = $(LDADD)
-michalewitzexam_DEPENDENCIES =
 am_pargearexam_OBJECTS = vfunc_pargear.$(OBJEXT) rotations.$(OBJEXT) \
-	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	vgenmain.$(OBJEXT)
 pargearexam_OBJECTS = $(am_pargearexam_OBJECTS)
 pargearexam_LDADD = $(LDADD)
-pargearexam_DEPENDENCIES =
-am_powexam_OBJECTS = sfunc_power.$(OBJEXT) sgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_powexam_OBJECTS = sfunc_power.$(OBJEXT) sgenmain.$(OBJEXT)
 powexam_OBJECTS = $(am_powexam_OBJECTS)
 powexam_LDADD = $(LDADD)
-powexam_DEPENDENCIES =
-am_robertsonexam_OBJECTS = $(srcdir)/../ode/vfunc_robertson.$(OBJEXT) \
-	vgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+am_robertsonexam_OBJECTS = vgenmain.$(OBJEXT)
 robertsonexam_OBJECTS = $(am_robertsonexam_OBJECTS)
-robertsonexam_LDADD = $(LDADD)
-robertsonexam_DEPENDENCIES =
+robertsonexam_DEPENDENCIES = $(builddir)/../ode/librobertson.la
 am_rosenbrockexam_OBJECTS = sfunc_rosenbrock.$(OBJEXT) \
-	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT)
 rosenbrockexam_OBJECTS = $(am_rosenbrockexam_OBJECTS)
 rosenbrockexam_LDADD = $(LDADD)
-rosenbrockexam_DEPENDENCIES =
-am_shuttlexam_OBJECTS = vfunc_shuttle.$(OBJEXT) vgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_shuttlexam_OBJECTS = vfunc_shuttle.$(OBJEXT) vgenmain.$(OBJEXT)
 shuttlexam_OBJECTS = $(am_shuttlexam_OBJECTS)
 shuttlexam_LDADD = $(LDADD)
-shuttlexam_DEPENDENCIES =
-am_simplevec_OBJECTS = vfunc_simplevec.$(OBJEXT) vgenmain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_simplevec_OBJECTS = vfunc_simplevec.$(OBJEXT) vgenmain.$(OBJEXT)
 simplevec_OBJECTS = $(am_simplevec_OBJECTS)
 simplevec_LDADD = $(LDADD)
-simplevec_DEPENDENCIES =
 am_speelpenning_OBJECTS = sfunc_speelpenning.$(OBJEXT) \
-	sgenmain.$(OBJEXT) $(srcdir)/../clock/myclock.$(OBJEXT)
+	sgenmain.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
 speelpenning_LDADD = $(LDADD)
-speelpenning_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -313,7 +288,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@
+LIBS = $(builddir)/../clock/libclock.la -l${adolclib}
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -407,7 +382,6 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
 AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
-LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 CTRLFILES = detexam.ctrl \
                           eutrophexam.ctrl \
@@ -427,51 +401,24 @@ CTRLFILES = detexam.ctrl \
 
 EXTRA_DIST = rotations.h $(CTRLFILES)
 MAINTAINERCLEANFILES = Makefile.in in_tape.1 op_tape.1 vs_tape1 *~ *.orig
-detexam_SOURCES = sfunc_determinant.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-speelpenning_SOURCES = sfunc_speelpenning.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-griewankexam_SOURCES = sfunc_griewank.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-michalewitzexam_SOURCES = sfunc_michalewitz.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-rosenbrockexam_SOURCES = sfunc_rosenbrock.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-powexam_SOURCES = sfunc_power.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-helmholtzexam_SOURCES = sfunc_helmholtz.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-shuttlexam_SOURCES = vfunc_shuttle.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-gearexam_SOURCES = vfunc_gear.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-pargearexam_SOURCES = vfunc_pargear.cpp rotations.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-simplevec_SOURCES = vfunc_simplevec.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-eutrophexam_SOURCES = $(srcdir)/../ode/vfunc_eutroph.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-robertsonexam_SOURCES = $(srcdir)/../ode/vfunc_robertson.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-ficexam_SOURCES = $(srcdir)/../ode/vfunc_fic.cpp vgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
-experimental_SOURCES = sfunc_experimental.cpp sgenmain.cpp \
-                          $(srcdir)/../clock/myclock.cpp
-
+detexam_SOURCES = sfunc_determinant.cpp sgenmain.cpp
+speelpenning_SOURCES = sfunc_speelpenning.cpp sgenmain.cpp
+griewankexam_SOURCES = sfunc_griewank.cpp sgenmain.cpp
+michalewitzexam_SOURCES = sfunc_michalewitz.cpp sgenmain.cpp
+rosenbrockexam_SOURCES = sfunc_rosenbrock.cpp sgenmain.cpp
+powexam_SOURCES = sfunc_power.cpp sgenmain.cpp
+helmholtzexam_SOURCES = sfunc_helmholtz.cpp sgenmain.cpp
+shuttlexam_SOURCES = vfunc_shuttle.cpp vgenmain.cpp
+gearexam_SOURCES = vfunc_gear.cpp vgenmain.cpp
+pargearexam_SOURCES = vfunc_pargear.cpp rotations.cpp vgenmain.cpp
+simplevec_SOURCES = vfunc_simplevec.cpp vgenmain.cpp
+eutrophexam_SOURCES = vgenmain.cpp
+eutrophexam_LDADD = $(builddir)/../ode/libeutroph.la
+robertsonexam_SOURCES = vgenmain.cpp
+robertsonexam_LDADD = $(builddir)/../ode/librobertson.la
+ficexam_SOURCES = vgenmain.cpp
+ficexam_LDADD = $(builddir)/../ode/libfic.la
+experimental_SOURCES = sfunc_experimental.cpp sgenmain.cpp
 all: all-am
 
 .SUFFIXES:
@@ -515,28 +462,10 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-$(srcdir)/../clock/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock
-	@: > $(srcdir)/../clock/$(am__dirstamp)
-$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock/$(DEPDIR)
-	@: > $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-$(srcdir)/../clock/myclock.$(OBJEXT):  \
-	$(srcdir)/../clock/$(am__dirstamp) \
-	$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
 
 detexam$(EXEEXT): $(detexam_OBJECTS) $(detexam_DEPENDENCIES) $(EXTRA_detexam_DEPENDENCIES) 
 	@rm -f detexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(detexam_OBJECTS) $(detexam_LDADD) $(LIBS)
-$(srcdir)/../ode/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../ode
-	@: > $(srcdir)/../ode/$(am__dirstamp)
-$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../ode/$(DEPDIR)
-	@: > $(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
-$(srcdir)/../ode/vfunc_eutroph.$(OBJEXT):  \
-	$(srcdir)/../ode/$(am__dirstamp) \
-	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 eutrophexam$(EXEEXT): $(eutrophexam_OBJECTS) $(eutrophexam_DEPENDENCIES) $(EXTRA_eutrophexam_DEPENDENCIES) 
 	@rm -f eutrophexam$(EXEEXT)
@@ -545,9 +474,6 @@ eutrophexam$(EXEEXT): $(eutrophexam_OBJECTS) $(eutrophexam_DEPENDENCIES) $(EXTRA
 experimental$(EXEEXT): $(experimental_OBJECTS) $(experimental_DEPENDENCIES) $(EXTRA_experimental_DEPENDENCIES) 
 	@rm -f experimental$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(experimental_OBJECTS) $(experimental_LDADD) $(LIBS)
-$(srcdir)/../ode/vfunc_fic.$(OBJEXT):  \
-	$(srcdir)/../ode/$(am__dirstamp) \
-	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 ficexam$(EXEEXT): $(ficexam_OBJECTS) $(ficexam_DEPENDENCIES) $(EXTRA_ficexam_DEPENDENCIES) 
 	@rm -f ficexam$(EXEEXT)
@@ -576,9 +502,6 @@ pargearexam$(EXEEXT): $(pargearexam_OBJECTS) $(pargearexam_DEPENDENCIES) $(EXTRA
 powexam$(EXEEXT): $(powexam_OBJECTS) $(powexam_DEPENDENCIES) $(EXTRA_powexam_DEPENDENCIES) 
 	@rm -f powexam$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(powexam_OBJECTS) $(powexam_LDADD) $(LIBS)
-$(srcdir)/../ode/vfunc_robertson.$(OBJEXT):  \
-	$(srcdir)/../ode/$(am__dirstamp) \
-	$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
 
 robertsonexam$(EXEEXT): $(robertsonexam_OBJECTS) $(robertsonexam_DEPENDENCIES) $(EXTRA_robertsonexam_DEPENDENCIES) 
 	@rm -f robertsonexam$(EXEEXT)
@@ -602,16 +525,10 @@ speelpenning$(EXEEXT): $(speelpenning_OBJECTS) $(speelpenning_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(srcdir)/../clock/*.$(OBJEXT)
-	-rm -f $(srcdir)/../ode/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../clock/$(DEPDIR)/myclock.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_eutroph.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_fic.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../ode/$(DEPDIR)/vfunc_robertson.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotations.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_determinant.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sfunc_experimental.Po@am__quote@
@@ -770,10 +687,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(srcdir)/../clock/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(am__dirstamp)
-	-test -z "$(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../ode/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(srcdir)/../ode/$(am__dirstamp)" || rm -f $(srcdir)/../ode/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -785,7 +698,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) $(srcdir)/../ode/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -831,7 +744,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) $(srcdir)/../ode/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -105,12 +105,9 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__dirstamp = $(am__leading_dot)dirstamp
-am_speelpenning_OBJECTS = speelpenning.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+am_speelpenning_OBJECTS = speelpenning.$(OBJEXT)
 speelpenning_OBJECTS = $(am_speelpenning_OBJECTS)
 speelpenning_LDADD = $(LDADD)
-speelpenning_DEPENDENCIES =
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -224,7 +221,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@
+LIBS = $(builddir)/../clock/libclock.la -l${adolclib}
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -318,10 +315,9 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
 AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
-LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
-speelpenning_SOURCES = speelpenning.cpp $(srcdir)/../clock/myclock.cpp
+speelpenning_SOURCES = speelpenning.cpp
 all: all-am
 
 .SUFFIXES:
@@ -365,15 +361,6 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-$(srcdir)/../clock/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock
-	@: > $(srcdir)/../clock/$(am__dirstamp)
-$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock/$(DEPDIR)
-	@: > $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-$(srcdir)/../clock/myclock.$(OBJEXT):  \
-	$(srcdir)/../clock/$(am__dirstamp) \
-	$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
 
 speelpenning$(EXEEXT): $(speelpenning_OBJECTS) $(speelpenning_DEPENDENCIES) $(EXTRA_speelpenning_DEPENDENCIES) 
 	@rm -f speelpenning$(EXEEXT)
@@ -381,12 +368,10 @@ speelpenning$(EXEEXT): $(speelpenning_OBJECTS) $(speelpenning_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(srcdir)/../clock/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../clock/$(DEPDIR)/myclock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speelpenning.Po@am__quote@
 
 .cpp.o:
@@ -531,8 +516,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(srcdir)/../clock/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -544,7 +527,7 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -590,7 +573,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

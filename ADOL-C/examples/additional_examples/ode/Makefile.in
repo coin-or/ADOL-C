@@ -17,6 +17,7 @@
 ##############################################################################
 ##############################################################################
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -105,27 +106,30 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-PROGRAMS = $(noinst_PROGRAMS)
-am__dirstamp = $(am__leading_dot)dirstamp
-am_od2exam_OBJECTS = vfunc_eutroph.$(OBJEXT) vgenodemain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
-od2exam_OBJECTS = $(am_od2exam_OBJECTS)
-od2exam_LDADD = $(LDADD)
-od2exam_DEPENDENCIES =
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libeutroph_la_LIBADD =
+am_libeutroph_la_OBJECTS = vfunc_eutroph.lo
+libeutroph_la_OBJECTS = $(am_libeutroph_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_od3exam_OBJECTS = vfunc_fic.$(OBJEXT) vgenodemain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+libfic_la_LIBADD =
+am_libfic_la_OBJECTS = vfunc_fic.lo
+libfic_la_OBJECTS = $(am_libfic_la_OBJECTS)
+librobertson_la_LIBADD =
+am_librobertson_la_OBJECTS = vfunc_robertson.lo
+librobertson_la_OBJECTS = $(am_librobertson_la_OBJECTS)
+PROGRAMS = $(noinst_PROGRAMS)
+am_od2exam_OBJECTS = vgenodemain.$(OBJEXT)
+od2exam_OBJECTS = $(am_od2exam_OBJECTS)
+od2exam_DEPENDENCIES = libeutroph.la
+am_od3exam_OBJECTS = vgenodemain.$(OBJEXT)
 od3exam_OBJECTS = $(am_od3exam_OBJECTS)
-od3exam_LDADD = $(LDADD)
-od3exam_DEPENDENCIES =
-am_odexam_OBJECTS = vfunc_robertson.$(OBJEXT) vgenodemain.$(OBJEXT) \
-	$(srcdir)/../clock/myclock.$(OBJEXT)
+od3exam_DEPENDENCIES = libfic.la
+am_odexam_OBJECTS = vgenodemain.$(OBJEXT)
 odexam_OBJECTS = $(am_odexam_OBJECTS)
-odexam_LDADD = $(LDADD)
-odexam_DEPENDENCIES =
+odexam_DEPENDENCIES = librobertson.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -160,8 +164,12 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(od2exam_SOURCES) $(od3exam_SOURCES) $(odexam_SOURCES)
-DIST_SOURCES = $(od2exam_SOURCES) $(od3exam_SOURCES) $(odexam_SOURCES)
+SOURCES = $(libeutroph_la_SOURCES) $(libfic_la_SOURCES) \
+	$(librobertson_la_SOURCES) $(od2exam_SOURCES) \
+	$(od3exam_SOURCES) $(odexam_SOURCES)
+DIST_SOURCES = $(libeutroph_la_SOURCES) $(libfic_la_SOURCES) \
+	$(librobertson_la_SOURCES) $(od2exam_SOURCES) \
+	$(od3exam_SOURCES) $(odexam_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -235,7 +243,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@
+LIBS = $(builddir)/../clock/libclock.la -l${adolclib}
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
@@ -329,12 +337,18 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = @ac_adolc_cflags@
 AM_CXXFLAGS = @ac_adolc_cxxflags@
 AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
-LDADD = -l${adolclib}
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
-odexam_SOURCES = vfunc_robertson.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
-od2exam_SOURCES = vfunc_eutroph.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
-od3exam_SOURCES = vfunc_fic.cpp vgenodemain.cpp $(srcdir)/../clock/myclock.cpp
+noinst_LTLIBRARIES = librobertson.la libeutroph.la libfic.la
+librobertson_la_SOURCES = vfunc_robertson.cpp
+libeutroph_la_SOURCES = vfunc_eutroph.cpp
+libfic_la_SOURCES = vfunc_fic.cpp
+odexam_SOURCES = vgenodemain.cpp
+odexam_LDADD = librobertson.la
+od2exam_SOURCES = vgenodemain.cpp
+od2exam_LDADD = libeutroph.la
+od3exam_SOURCES = vgenodemain.cpp
+od3exam_LDADD = libfic.la
 all: all-am
 
 .SUFFIXES:
@@ -370,6 +384,26 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+
+libeutroph.la: $(libeutroph_la_OBJECTS) $(libeutroph_la_DEPENDENCIES) $(EXTRA_libeutroph_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK)  $(libeutroph_la_OBJECTS) $(libeutroph_la_LIBADD) $(LIBS)
+
+libfic.la: $(libfic_la_OBJECTS) $(libfic_la_DEPENDENCIES) $(EXTRA_libfic_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK)  $(libfic_la_OBJECTS) $(libfic_la_LIBADD) $(LIBS)
+
+librobertson.la: $(librobertson_la_OBJECTS) $(librobertson_la_DEPENDENCIES) $(EXTRA_librobertson_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(CXXLINK)  $(librobertson_la_OBJECTS) $(librobertson_la_LIBADD) $(LIBS)
+
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
@@ -378,15 +412,6 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-$(srcdir)/../clock/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock
-	@: > $(srcdir)/../clock/$(am__dirstamp)
-$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(srcdir)/../clock/$(DEPDIR)
-	@: > $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-$(srcdir)/../clock/myclock.$(OBJEXT):  \
-	$(srcdir)/../clock/$(am__dirstamp) \
-	$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
 
 od2exam$(EXEEXT): $(od2exam_OBJECTS) $(od2exam_DEPENDENCIES) $(EXTRA_od2exam_DEPENDENCIES) 
 	@rm -f od2exam$(EXEEXT)
@@ -402,15 +427,13 @@ odexam$(EXEEXT): $(odexam_OBJECTS) $(odexam_DEPENDENCIES) $(EXTRA_odexam_DEPENDE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(srcdir)/../clock/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(srcdir)/../clock/$(DEPDIR)/myclock.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_eutroph.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_fic.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_robertson.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_eutroph.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_fic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vfunc_robertson.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vgenodemain.Po@am__quote@
 
 .cpp.o:
@@ -527,7 +550,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -555,8 +578,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(DEPDIR)/$(am__dirstamp)
-	-test -z "$(srcdir)/../clock/$(am__dirstamp)" || rm -f $(srcdir)/../clock/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -564,11 +585,11 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
-	mostlyclean-am
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -614,7 +635,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf $(srcdir)/../clock/$(DEPDIR) ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -636,15 +657,15 @@ uninstall-am:
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
-	ctags-am distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	clean-libtool clean-noinstLTLIBRARIES clean-noinstPROGRAMS \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am
