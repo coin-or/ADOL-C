@@ -3,7 +3,8 @@ INCFILES=(adolc.h adalloc.h adouble.h adutils.h \
 	 adutilsc.h advector.h \
          convolut.h fortutils.h \
          interfaces.h taping.h \
-         externfcts.h checkpointing.h fixpoint.h \
+         externfcts.h externfcts2.h \
+         checkpointing.h fixpoint.h \
          adolc_sparse.h adolc_openmp.h \
          revolve.h adtl.h adoublecuda.h)
 INCFILES_SPARSE=(sparsedrivers.h sparse_fo_rev.h)
@@ -11,6 +12,8 @@ INCFILES_SPARSE=(sparsedrivers.h sparse_fo_rev.h)
 INCFILES_DRIVERS=(drivers.h odedrivers.h taylor.h)
 
 INCFILES_TAPEDOC=(tapedoc.h)
+
+INCFILES_LIE=(drivers.h)
 
 INCFILES_INTERNAL=(adolc_settings.h \
                    adubfunc.h paramfunc.h \
@@ -52,6 +55,7 @@ mkdir -p tmp/doc
 
 mkdir -p tmp/include/adolc/sparse
 mkdir -p tmp/include/adolc/drivers
+mkdir -p tmp/include/adolc/lie
 mkdir -p tmp/include/adolc/tapedoc
 mkdir -p tmp/include/adolc/internal
 
@@ -65,6 +69,10 @@ done
 
 for i in ${INCFILES_DRIVERS[*]} ; do
 	cp ../../ADOL-C/include/adolc/drivers/$i tmp/include/adolc/drivers
+done
+
+for i in ${INCFILES_LIE[*]} ; do
+	cp ../../ADOL-C/include/adolc/lie/$i tmp/include/adolc/lie
 done
 
 for i in ${INCFILES_TAPEDOC[*]} ; do
