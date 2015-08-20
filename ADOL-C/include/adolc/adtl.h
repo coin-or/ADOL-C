@@ -49,9 +49,9 @@ class adouble;
 
 class refcounter {
 private:
-    ADOLC_DLL_EXPORT static size_t refcnt;
-    friend void setNumDir(const size_t p);
-    friend void setMode(enum Mode newmode);
+    ADOLC_DLL_EXPIMP static size_t refcnt;
+    ADOLC_DLL_EXPORT friend void setNumDir(const size_t p);
+    ADOLC_DLL_EXPORT friend void setMode(enum Mode newmode);
     friend class adouble;
 public:
     refcounter() { ++refcnt; }
@@ -220,15 +220,15 @@ protected:
     inline void delete_pattern();
 
 public:
-    friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
-    friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-    friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+    ADOLC_DLL_EXPORT friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
 #if 0
-    friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
 #endif
     /*******************  i/o operations  *********************************/
-    friend ostream& operator << ( ostream&, const adouble& );
-    friend istream& operator >> ( istream&, adouble& );
+    ADOLC_DLL_EXPORT friend ostream& operator << ( ostream&, const adouble& );
+    ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
 
 private:
     double val;
@@ -238,26 +238,12 @@ private:
     inline static bool _do_val();
     inline static bool _do_adval();
     inline static bool _do_indo();
-    ADOLC_DLL_EXPORT static size_t numDir;
-    ADOLC_DLL_EXPORT static enum Mode forward_mode;
+    ADOLC_DLL_EXPIMP static size_t numDir;
+    ADOLC_DLL_EXPIMP static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
     inline friend void setMode(enum Mode newmode);
 };
 
-inline void setNumDir(const size_t p);
-inline void setMode(enum Mode newmode);
-
-int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt);
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-int ADOLC_get_sparse_jacobian(func_ad *const func,
-			      int n, int m, int repeat, double* basepoints, int *nnz,
-			      unsigned int **rind, unsigned int **cind,
-			      double **values);
-#if 0
-int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz,
-			      unsigned int *rind, unsigned int *cind,
-			      double *values);
-#endif
 }
 
 #include <cmath>
