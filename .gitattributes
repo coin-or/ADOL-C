@@ -328,7 +328,6 @@ ADOL-C/test/speelpenning.cpp -text
 /INSTALL -text
 /LICENSE -text
 MSVisualStudio/v14/ColPack.vcxproj -text
-MSVisualStudio/v14/ColPack_Readme_VC++.txt -text
 MSVisualStudio/v14/Readme_VC++.txt -text
 MSVisualStudio/v14/adolc.sln -text
 MSVisualStudio/v14/adolc.vcxproj -text
