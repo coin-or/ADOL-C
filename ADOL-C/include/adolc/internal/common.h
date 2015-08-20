@@ -86,13 +86,13 @@
 /*--------------------------------------------------------------------------*/
 /* windows dll exports/imports */
 #if defined(ADOLC_DLL)
-#	define ADOLC_DLL_EXPORT __declspec(dllexport)
+#   define ADOLC_DLL_EXPORT __declspec(dllexport)
 #   define ADOLC_DLL_EXPIMP __declspec(dllexport)
 #elif defined(_MSC_VER)
 #   define ADOLC_DLL_EXPORT
 #   define ADOLC_DLL_EXPIMP __declspec(dllimport)
 #else
-#	define ADOLC_DLL_EXPORT
+#   define ADOLC_DLL_EXPORT
 #   define ADOLC_DLL_EXPIMP
 #endif
 
