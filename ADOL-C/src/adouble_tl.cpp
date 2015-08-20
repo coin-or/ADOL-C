@@ -34,10 +34,10 @@ extern "C" void adolc_exit(int errorcode, const char *what, const char* function
 namespace adtl {
 
 
-ADOLC_DLL_EXPORT size_t adouble::numDir = 1;
-ADOLC_DLL_EXPORT enum Mode adouble::forward_mode = ADTL_FOV;
+size_t adouble::numDir = 1;
+enum Mode adouble::forward_mode = ADTL_FOV;
 
-ADOLC_DLL_EXPORT size_t refcounter::refcnt = 0;
+size_t refcounter::refcnt = 0;
 
 
 /*******************  i/o operations  ***************************************/
