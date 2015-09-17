@@ -20,10 +20,90 @@
 
 #include <math.h>
 
+
 BEGIN_C_DECLS
 
 /****************************************************************************/
 /*                                                 DRIVERS FOR PS FUNCTIONS */
+
+void *mycalloc2(size_t n, size_t m, size_t size){
+	uint8_t *temp;
+	uint8_t **res;
+	size_t i;
+
+	temp=(uint8_t *)calloc(n*m*size+n,sizeof(void*));
+	res=(uint8_t **)temp;
+	temp+=n*sizeof(void*);
+	for(i=0;i<n;i++){
+		res[i]=temp;
+		temp+=m*size;
+	}
+	return res;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/*                                              directional_active_gradient */
+/*                                                                          */
+int directional_active_gradient(short tag,     /* trace identifier */
+				int n,         /* number of independents */
+				double* x,     /* value of independents */
+				short *sigma,  /* sigma of x */
+				double* d,     /* direction */
+				double* g,     /* directional active gradient */
+				double** zgrad  /* gradients of switching variables */
+				)
+{
+  int i, j, p, k, s, max_dk;
+  double max_entry, y;
+  double *z;
+  double **myg;
+  double **E, **invE, **grad, **gradu;
+
+  short *sigma_g;
+
+  s=get_num_switches(tag);
+  
+  printf(" hier \n");
+  sigma_g=(short*)calloc(s,sizeof(short));
+  z = myalloc1(s);
+
+  myg= (double**)mycalloc2(1,n,sizeof(double));
+  E= (double**)mycalloc2(n,n,sizeof(double));
+  
+
+  max_dk=0;
+  max_entry = -1;
+  for(i=0;i<n;i++){
+    E[i][0] = d[i];
+    if(max_entry<fabs(d[i])){
+      max_dk=i;
+      max_entry = fabs(d[i]);
+    }
+  }
+
+  printf(" hier \n");
+
+  j = 0;
+  for(i=1;i<n;i++){
+    if(j==max_dk)
+      j++;
+    E[j][i]=1;
+    j++;
+  }
+	
+  printf(" hier \n");
+
+  fov_pl_sig_forward(tag,1,n,n-1,x,E,s,sigma,NULL,&y,myg,z,zgrad,sigma_g);
+
+  // myg **double und sigma_G *short nicht konsequent
+  
+  printf(" sigma_g \n");
+  for(i=0;i<s;i++)
+    printf(" %d ",sigma_g[i]);
+  printf("\n");
+
+}
 
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
@@ -77,6 +157,8 @@ int abs_normal(short tag,      /* tape identifier */
       cy[i] = cy[i]-Y[i][j]*sigma[j]*z[j];	
     }
   }
+
+  myfree2(res);
 }
 
 
