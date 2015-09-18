@@ -53,7 +53,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
   E = (double**)myalloc2(n,n);
 
 #if !defined(ADOLC_USE_CALLOC)
-    memset(E, 0, sizeof(E));
+  memset(&(E[0][0]), 0, n*n*sizeof(double));
 #endif
   
   max_dk=0;
