@@ -119,6 +119,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
 int abs_normal(short tag,      /* tape identifier */ 
                int m,          /* number od dependents   */             
                int n,          /* number of independents */
+               int swchk,      /* number of switches (check) */
                double *x,      /* base point */ 
                short *sigma,   /* sigma of x */
                double *y,      /* function value */
@@ -132,41 +133,48 @@ int abs_normal(short tag,      /* tape identifier */
 {
 
   int i,j,s;
-  double **res, tmp;
+  double *res, tmp;
   s=get_num_switches(tag);
+  
+  /* This check is required because the user is probably allocating his 
+   * arrays sigma, cz, Z, L, Y, J according to swchk */
+  if (s != swchk) {
+      fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
+              "match the one recorded on tape %d (%zu)\n", swchk, tag, s);
+      adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+  }
 
-  res=(double**)myalloc2(m+s,n+s);
+  res=(double*)myalloc1(n+s);
 
   zos_pl_forward(tag,m,n,1,x,y,z);
   for(i=0;i<m+s;i++){
-    fos_pl_reverse(tag,m,n,s,i,res[i]);
-  }
-
-  for(i=0;i<s;i++){
-    cz[i]=z[i];
-    for(j=0;j<n;j++){
-      Z[i][j]=res[i][j];
-    }
-    for(j=0;j<s;j++){
-      L[i][j]=res[i][j+n];	
-    }
-    for(j=0;j<i;j++){
-      cz[i] = cz[i]-L[i][j]*sigma[j]*z[j];	
-    }
-  }
-
-  for(i=0;i<m;i++){
-    cy[i]=y[i];
-    for(j=0;j<n;j++){
-      J[i][j]=res[i+s][j];	
-    }
-    for(j=0;j<s;j++){
-      Y[i][j]=res[i+s][j+n];	
-      cy[i] = cy[i]-Y[i][j]*sigma[j]*z[j];	
+    int l = i - s;
+    fos_pl_reverse(tag,m,n,s,i,res);
+    if ( l < 0 ) {
+        cz[i]=z[i];
+        for(j=0;j<n;j++){
+            Z[i][j]=res[j];
+        }
+        for(j=0;j<s;j++) { /* L[i][i] .. L[i][s] are theoretically zero,
+                            *  we probably don't need to copy them */
+            L[i][j]=res[j+n];	
+            if (j < i)
+                cz[i] = cz[i]-L[i][j]*sigma[j]*z[j];	
+        }
+    } else {
+        cy[l]=y[l];
+        for(j=0;j<n;j++){
+            J[l][j]=res[j];	
+        }
+        for(j=0;j<s;j++){
+            Y[l][j]=res[j+n];	
+            cy[l] = cy[l]-Y[l][j]*sigma[j]*z[j];	
+        }
     }
   }
 
-  myfree2(res);
+  myfree1(res);
+  return 0;
 }
 
 
