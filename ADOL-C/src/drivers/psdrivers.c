@@ -39,11 +39,13 @@ int directional_active_gradient(short tag,      /* trace identifier */
 				)
 {
   int i, j, p, k, s, max_dk, done, sum, keep;
-  double max_entry, y;
+  double max_entry, y, by;
   double *z;
   double **E, **invE, **grad, **gradu;
 
   keep = 1;
+  by = 1;
+
   s=get_num_switches(tag);
   
   z = myalloc1(s);
@@ -84,9 +86,10 @@ int directional_active_gradient(short tag,      /* trace identifier */
       
       if (sum == s)
 	{
+	  
 	  zos_pl_forward(tag,1,n,keep,x,&y,z);
-	  printf(" call reverse routine \n");
-	  done = 1;
+	  fos_pl_sig_reverse(tag,1,n,s,sigma_g, &by ,g);
+ 	  done = 1;
 	}
       else
 	{
@@ -95,7 +98,6 @@ int directional_active_gradient(short tag,      /* trace identifier */
 	  E[j][k]=1;
 	  j++;
 	  k++;
-	  printf(" hier \n");
 	}
     }  
 
