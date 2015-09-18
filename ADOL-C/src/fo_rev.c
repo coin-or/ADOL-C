@@ -453,7 +453,7 @@ int int_reverse_safe(
     indexi = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS] - 1;
     indexd = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS] - 1;
 
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
     if (! ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] ) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tape %d was not created compatible "
 		"with %s(..)\n              Please call enableMinMaxUsingAbs() "
@@ -1748,7 +1748,7 @@ int int_reverse_safe(
                 break;
 
                 /*--------------------------------------------------------------------------*/
-            case abs_val:                                              /* abs_val */
+            case abs_val:                                                        /* abs_val */
                 res   = get_locint_r();
                 arg   = get_locint_r();
 #if !defined(_NTIGHT_)
@@ -1772,7 +1772,7 @@ int int_reverse_safe(
 #elif defined(_ABS_NORM_SIG_) 
 		    aTmp = ARES;
 		    ARES_INC = 0.0;
-		    AARG_INC *= siggrad[switchnum];
+		    AARG_INC += siggrad[switchnum]*aTmp;
 		    switchnum--;
 #else
 #if !defined(_NTIGHT_)

@@ -88,14 +88,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
 	{
 	  
 	  zos_pl_forward(tag,1,n,keep,x,&y,z);
-	  printf(" hier \n");
 	  fos_pl_sig_reverse(tag,1,n,s,sigma_g, &by ,g);
-	  printf(" grad \n");
-	  for(i=0;i<n;i++)
-	    {
-	      printf(" %f ",g[i]);
-	    }
-	  printf("\n");
  	  done = 1;
 	}
       else
@@ -105,7 +98,6 @@ int directional_active_gradient(short tag,      /* trace identifier */
 	  E[j][k]=1;
 	  j++;
 	  k++;
-	  printf(" hier \n");
 	}
     }  
 
