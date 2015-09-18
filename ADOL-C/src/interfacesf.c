@@ -41,12 +41,10 @@ fint hos_forward_(fint* ftag,
     rc= hos_forward(tag,m,n,d,k,base,X,value,Y);
     pack2(m,d,Y,fy);
     pack1(m,value,fvalue);
-    free((char*)*X);
-    free((char*)X);
-    free((char*)*Y);
-    free((char*)Y);
-    free((char*)base);
-    free((char*)value);
+    myfree2(X);
+    myfree2(Y);
+    myfree1(base);
+    myfree1(value);
     return rc;
 }
 
@@ -64,8 +62,8 @@ fint zos_forward_(fint* ftag,
     spread1(n,fbase,base);
     rc=zos_forward(tag,m,n,k,base,value);
     pack1(m,value,fvalue);
-    free((char*)base);
-    free((char*)value);
+    myfree1(base);
+    myfree1(value);
     return rc;
 }
 
@@ -90,14 +88,10 @@ fint hov_forward_(fint* ftag,
     rc= hov_forward(tag,m,n,d,p,base,X,value,Y);
     pack3(m,p,d,Y,fy);
     pack1(m,value,fvalue);
-    free((char*)**X);
-    free((char*)*X);
-    free((char*)X);
-    free((char*)**Y);
-    free((char*)*Y);
-    free((char*)Y);
-    free((char*)base);
-    free((char*)value);
+    myfree3(X);
+    myfree3(Y);
+    myfree1(base);
+    myfree1(value);
     return rc;
 }
 
@@ -121,12 +115,10 @@ fint fov_forward_(fint* ftag,
     rc= fov_forward(tag,m,n,p,base,X,value,Y);
     pack2(m,p,Y,fy);
     pack1(m,value,fvalue);
-    free((char*)*X);
-    free((char*)X);
-    free((char*)*Y);
-    free((char*)Y);
-    free((char*)base);
-    free((char*)value);
+    myfree2(X);
+    myfree2(Y);
+    myfree1(base);
+    myfree1(value);
     return rc;
 }
 
@@ -145,9 +137,8 @@ fint hos_reverse_(fint* ftag,
     spread1(m,fu,u);
     rc=hos_reverse(tag,m,n,d,u,Z);
     pack2(n,d+1,Z,fz);
-    free((char*)*Z);
-    free((char*)Z);
-    free((char*)u);
+    myfree2(Z);
+    myfree1(u);
     return rc;
 }
 
@@ -166,10 +157,8 @@ fint hos_ti_reverse_(
     spread2(m,d+1,fu,U);
     rc=hos_ti_reverse(tag,m,n,d,U,Z);
     pack2(n,d+1,Z,fz);
-    free((char*)*Z);
-    free((char*)Z);
-    free((char*)*U);
-    free((char*)U);
+    myfree2(Z);
+    myfree2(U);
     return rc;
 }
 
@@ -186,8 +175,8 @@ fint fos_reverse_(fint* ftag,
     spread1(m,fu,u);
     rc=fos_reverse(tag,m,n,u,Z);
     pack1(n,Z,fz);
-    free((char*)Z);
-    free((char*)u);
+    myfree1(Z);
+    myfree1(u);
     return rc;
 }
 
@@ -207,11 +196,8 @@ fint hov_reverse_(fint* ftag,
     spread2(q,m,fu,U);
     rc=hov_reverse(tag,m,n,d,q,U,Z,nop);
     pack3(q,n,d+1,Z,fz);
-    free((char*)**Z);
-    free((char*)*Z);
-    free((char*)Z);
-    free((char*)*U);
-    free((char*)U);
+    myfree3(Z);
+    myfree2(U);
     return rc;
 }
 
@@ -232,12 +218,8 @@ fint hov_ti_reverse_(
     spread3(q,m,d+1,fu,U);
     rc=hov_ti_reverse(tag,m,n,d,q,U,Z,nop);
     pack3(q,n,d+1,Z,fz);
-    free((char*)**Z);
-    free((char*)*Z);
-    free((char*)Z);
-    free((char*)**U);
-    free((char*)*U);
-    free((char*)U);
+    myfree3(Z);
+    myfree3(U);
     return rc;
 }
 
@@ -255,10 +237,8 @@ fint fov_reverse_(fint* ftag,
     spread2(q,m,fu,U);
     rc=fov_reverse(tag,m,n,q,U,Z);
     pack2(q,n,Z,fz);
-    free((char*)*Z);
-    free((char*)Z);
-    free((char*)*U);
-    free((char*)U);
+    myfree2(Z);
+    myfree2(U);
     return rc;
 }
 

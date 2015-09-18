@@ -63,6 +63,9 @@ ADOL-C/examples/additional_examples/ode/odexam
 ADOL-C/examples/additional_examples/param/paramexam
 ADOL-C/examples/additional_examples/pow/powexam
 ADOL-C/examples/additional_examples/scal/scalexam
+ADOL-C/examples/additional_examples/sparse/jacpatexam
+ADOL-C/examples/additional_examples/sparse/sparse_jacobian
+ADOL-C/examples/additional_examples/sparse/sparse_hessian
 ADOL-C/examples/additional_examples/speelpenning/speelpenning
 ADOL-C/examples/additional_examples/tapesave/createTape
 ADOL-C/examples/additional_examples/tapesave/useTape
@@ -99,3 +102,4 @@ ADOL-C/doc/adolc-manual.log
 ADOL-C/doc/adolc-manual.out
 ADOL-C/doc/adolc-manual.toc
 ADOL-C/doc/adolc-manual.dvi
+ADOL-C/dummy.cpp
