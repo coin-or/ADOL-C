@@ -155,6 +155,7 @@ int abs_normal(short tag,      /* tape identifier */
   }
 
   myfree1(res);
+  return 0;
 }
 
 
