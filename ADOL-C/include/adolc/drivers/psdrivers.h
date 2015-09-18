@@ -33,8 +33,8 @@ ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,doub
 /*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
 /*                                                                          */
-ADOLC_DLL_EXPORT int abs_normal(short,int,int,double*,short*,double*,double*,double*,double*,double**,double**,double**,double**);
-ADOLC_DLL_EXPORT fint abs_normal_(fint,fint,fint,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble**,fdouble**,fdouble**,fdouble**);
+ADOLC_DLL_EXPORT int abs_normal(short,int,int,int,double*,short*,double*,double*,double*,double*,double**,double**,double**,double**);
+ADOLC_DLL_EXPORT fint abs_normal_(fint,fint,fint,fint,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble**,fdouble**,fdouble**,fdouble**);
 
 
 END_C_DECLS
