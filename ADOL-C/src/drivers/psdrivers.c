@@ -122,41 +122,39 @@ int abs_normal(short tag,      /* tape identifier */
 {
 
   int i,j,s;
-  double **res, tmp;
+  double *res, tmp;
   s=get_num_switches(tag);
 
-  res=(double**)myalloc2(m+s,n+s);
+  res=(double*)myalloc1(n+s);
 
   zos_pl_forward(tag,m,n,1,x,y,z);
   for(i=0;i<m+s;i++){
-    fos_pl_reverse(tag,m,n,s,i,res[i]);
-  }
-
-  for(i=0;i<s;i++){
-    cz[i]=z[i];
-    for(j=0;j<n;j++){
-      Z[i][j]=res[i][j];
-    }
-    for(j=0;j<s;j++){
-      L[i][j]=res[i][j+n];	
-    }
-    for(j=0;j<i;j++){
-      cz[i] = cz[i]-L[i][j]*sigma[j]*z[j];	
-    }
-  }
-
-  for(i=0;i<m;i++){
-    cy[i]=y[i];
-    for(j=0;j<n;j++){
-      J[i][j]=res[i+s][j];	
-    }
-    for(j=0;j<s;j++){
-      Y[i][j]=res[i+s][j+n];	
-      cy[i] = cy[i]-Y[i][j]*sigma[j]*z[j];	
+    int l = i - s;
+    fos_pl_reverse(tag,m,n,s,i,res);
+    if ( l < 0 ) {
+        cz[i]=z[i];
+        for(j=0;j<n;j++){
+            Z[i][j]=res[j];
+        }
+        for(j=0;j<s;j++) { /* L[i][i] .. L[i][s] are theoretically zero,
+                            *  we probably don't need to copy them */
+            L[i][j]=res[j+n];	
+            if (j < i)
+                cz[i] = cz[i]-L[i][j]*sigma[j]*z[j];	
+        }
+    } else {
+        cy[l]=y[l];
+        for(j=0;j<n;j++){
+            J[l][j]=res[j];	
+        }
+        for(j=0;j<s;j++){
+            Y[l][j]=res[j+n];	
+            cy[l] = cy[l]-Y[l][j]*sigma[j]*z[j];	
+        }
     }
   }
 
-  myfree2(res);
+  myfree1(res);
 }
 
 
