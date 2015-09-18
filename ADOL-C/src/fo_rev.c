@@ -66,7 +66,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #ifdef _ABS_NORM_
 #define GENERATED_FILENAME "fos_pl_reverse"
 #else
+#ifdef _ABS_NORM_SIG_
+#define GENERATED_FILENAME "fos_pl_sig_reverse"
+#else
 #define GENERATED_FILENAME "fos_reverse"
+#endif
 #endif
 
 #define RESULTS(l,indexi)  results[indexi]
@@ -311,7 +315,7 @@ int int_reverse_safe(
 #endif
 
     int indexi = 0,  indexd = 0;
-#if defined(_ABS_NORM_)
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
     int switchnum;
 #endif
 
@@ -1764,6 +1768,11 @@ int int_reverse_safe(
 			AARG = 0.0;
 			ARES = 0.0;
 		    }
+		    switchnum--;
+#elif defined(_ABS_NORM_SIG_) 
+		    aTmp = ARES;
+		    ARES_INC = 0.0;
+		    AARG_INC *= siggrad[switchnum];
 		    switchnum--;
 #else
 #if !defined(_NTIGHT_)
