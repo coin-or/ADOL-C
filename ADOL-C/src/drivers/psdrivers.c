@@ -45,32 +45,28 @@ void *mycalloc2(size_t n, size_t m, size_t size){
 /*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
-int directional_active_gradient(short tag,     /* trace identifier */
-				int n,         /* number of independents */
-				double* x,     /* value of independents */
-				short *sigma,  /* sigma of x */
-				double* d,     /* direction */
-				double* g,     /* directional active gradient */
-				double** zgrad  /* gradients of switching variables */
+int directional_active_gradient(short tag,      /* trace identifier */
+				int n,          /* number of independents */
+				double* x,      /* value of independents */
+				short *sigma_x, /* sigma of x */
+				double* d,      /* direction */
+				double* g,      /* directional active gradient */
+				short *sigma_g  /* sigma of g */
 				)
 {
-  int i, j, p, k, s, max_dk;
+  int i, j, p, k, s, max_dk, done, sum;
   double max_entry, y;
   double *z;
-  double **myg;
   double **E, **invE, **grad, **gradu;
-
-  short *sigma_g;
 
   s=get_num_switches(tag);
   
-  printf(" hier \n");
-  sigma_g=(short*)calloc(s,sizeof(short));
   z = myalloc1(s);
 
-  myg= (double**)mycalloc2(1,n,sizeof(double));
-  E= (double**)mycalloc2(n,n,sizeof(double));
-  
+  grad = (double**)mycalloc2(1,n,sizeof(double));
+  gradu = (double**)mycalloc2(s,n,sizeof(double));
+  E = (double**)mycalloc2(n,n,sizeof(double));
+
 
   max_dk=0;
   max_entry = -1;
@@ -82,26 +78,39 @@ int directional_active_gradient(short tag,     /* trace identifier */
     }
   }
 
-  printf(" hier \n");
-
+  k = 1; done = 0;
   j = 0;
-  for(i=1;i<n;i++){
-    if(j==max_dk)
-      j++;
-    E[j][i]=1;
-    j++;
-  }
-	
-  printf(" hier \n");
-
-  fov_pl_sig_forward(tag,1,n,n-1,x,E,s,sigma,NULL,&y,myg,z,zgrad,sigma_g);
-
-  // myg **double und sigma_G *short nicht konsequent
   
-  printf(" sigma_g \n");
-  for(i=0;i<s;i++)
-    printf(" %d ",sigma_g[i]);
-  printf("\n");
+  while((k<6) && (done == 0))
+    {
+      fov_pl_sig_forward(tag,1,n,n-1,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
+
+      printf(" sigma_g \n");
+      sum = 0;
+      for(i=0;i<s;i++)
+	{
+	  printf(" %d ",sigma_g[i]);
+	  printf("\n");
+	  sum += fabs(sigma_g[i]);
+	}
+      
+      if (sum == s)
+	{
+	  printf(" call reverse routine \n");
+	  done = 1;
+	}
+      else
+	{
+	  if(j==max_dk)
+	    j++;
+	  E[j][k]=1;
+	  j++;
+	  k++;
+	  printf(" hier \n");
+	}
+    }  
+
+  myfree1(z); free(E); free(grad); free(gradu);
 
 }
 

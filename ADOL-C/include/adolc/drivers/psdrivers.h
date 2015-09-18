@@ -26,8 +26,13 @@ BEGIN_C_DECLS
 /*                                                 DRIVERS FOR PS FUNCTIONS */
 
 /*--------------------------------------------------------------------------*/
+/*                                              directional_active_gradient */
+/*                                                                          */
+ADOLC_DLL_EXPORT int directional_active_gradient(short,int,double*,short*,double*,double*,short*);  
+ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,double*,double*,short*);  
+/*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
-/*                              */
+/*                                                                          */
 ADOLC_DLL_EXPORT int abs_normal(short,int,int,double*,short*,double*,double*,double*,double*,double**,double**,double**,double**);
 ADOLC_DLL_EXPORT fint abs_normal_(fint,fint,fint,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble**,fdouble**,fdouble**,fdouble**);
 
@@ -43,10 +48,22 @@ END_C_DECLS
 /*                                                 DRIVERS FOR PS FUNCTIONS */
 
 /*--------------------------------------------------------------------------*/
-/*                                                          abs-normal form */
+/*                                              directional_active_gradient */
+/*                                                                          */
+int directional_active_gradient(short tag,      /* trace identifier */
+				int n,          /* number of independents */
+				double* x,      /* value of independents */
+				short *sigma_x, /* sigma of x */
+				double* d,      /* direction */
+				double* g,      /* directional active gradient */
+				short *sigma_g  /* sigma of g */
+				);
 
+/*--------------------------------------------------------------------------*/
+/*                                                               abs_normal */
+/*                                                                          */
 int abs_normal(short tag,      /* tape identifier */ 
-               int m,          /* number od dependents   */             
+               int m,          /* number of dependents   */             
                int n,          /* number of independents */
                double *x,      /* base point */ 
                short *sigma_x, /* sigma of x */
@@ -58,6 +75,7 @@ int abs_normal(short tag,      /* tape identifier */
                double **b,
                double **Z, 
                double **L);
+
 
 #endif
 
