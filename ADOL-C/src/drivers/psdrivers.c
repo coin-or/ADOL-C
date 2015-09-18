@@ -54,11 +54,12 @@ int directional_active_gradient(short tag,      /* trace identifier */
 				short *sigma_g  /* sigma of g */
 				)
 {
-  int i, j, p, k, s, max_dk, done, sum;
+  int i, j, p, k, s, max_dk, done, sum, keep;
   double max_entry, y;
   double *z;
   double **E, **invE, **grad, **gradu;
 
+  keep = 1;
   s=get_num_switches(tag);
   
   z = myalloc1(s);
@@ -83,7 +84,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
   
   while((k<6) && (done == 0))
     {
-      fov_pl_sig_forward(tag,1,n,n-1,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
+      fov_pl_sig_forward(tag,1,n,n-1,keep,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
 
       printf(" sigma_g \n");
       sum = 0;
