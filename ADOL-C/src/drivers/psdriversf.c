@@ -6,7 +6,7 @@
            (with C and C++ callable interfaces including Fortran 
             callable versions).
 
- Copyright (c) Andrea Walther, Sabrina Fiege 
+ Copyright (c) Andrea Walther, Sabrina Fiege, Kshitij Kulshreshtha 
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduct ion, or distribution of the software constitutes 
@@ -17,6 +17,25 @@
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/adalloc.h>
 #include <adolc/fortutils.h>
+
+#if !defined(ADOLC_NO_MALLOC)
+#   define ADOLC_CALLOC(n,m) calloc(n,m)
+#else
+#   define ADOLC_CALLOC(n,m) rpl_calloc(n,m)
+#endif
+#if defined(ADOLC_USE_CALLOC)
+#  if !defined(ADOLC_NO_MALLOC)
+#     define ADOLC_MALLOC(n,m) calloc(n,m)
+#  else
+#     define ADOLC_MALLOC(n,m) rpl_calloc(n,m)
+#  endif
+#else
+#  if !defined(ADOLC_NO_MALLOC)
+#     define ADOLC_MALLOC(n,m) malloc(n*m)
+#  else
+#     define ADOLC_MALLOC(n,m) rpl_malloc(n*m)
+#  endif
+#endif
 
 BEGIN_C_DECLS
 
@@ -43,22 +62,25 @@ fint abs_normal_(fint* ftag,
                  fdouble* fL) {
     int rc = -1; 
     short tag = (short)*ftag;
-    int depen = (int)*fdepen, indep = (int)*findep, swchk=(int)*fswchk;
+    int m = (int)*fdepen, n = (int)*findep, s=(int)*fswchk;
     double **J, **Y, **Z, **L;
-    double *cy, *cz, *x, *sig, *y, *z;
+    double *cy, *cz, *x, *y, *z;
+    short *sig = (short*)ADOLC_MALLOC(s,sizeof(short));
+    int i;
+    for (i=0;i<s; i++) {
+        sig[i] = (short)*fsigma++;
+    }
     J = myalloc2(m,n);
     Y = myalloc2(m,s);
     Z = myalloc2(s,n);
     L = myalloc2(s,s);
     cy = myalloc1(m);
     cz = myalloc1(s);
-    x = myaloc1(n);
-    sig = myalloc1(s);
+    x = myalloc1(n);
     y = myalloc1(m);
     z = myalloc1(s);
     spread1(n,fx,x);
-    spread1(s,fsig,sig);
-    rc = abs_normal(tag,depen,indep,swchk,x,sig,y,z,cz,cy,J,Y,Z,L);
+    rc = abs_normal(tag,m,n,s,x,sig,y,z,cz,cy,J,Y,Z,L);
     pack1(m,y,fy);
     pack1(s,z,fz);
     pack1(s,cz,fcz);
@@ -74,7 +96,7 @@ fint abs_normal_(fint* ftag,
     myfree1(x);
     myfree1(y);
     myfree1(z);
-    myfree1(sig);
+    free((char*)sig);
     myfree1(cz);
     myfree1(cy);
     return rc;
