@@ -20,4 +20,4 @@ MAINTAINERCLEANFILES      = Makefile.in *~ *.orig
 noinst_LTLIBRARIES        = libdrivers.la
 
 libdrivers_la_SOURCES     = drivers.c driversf.c odedrivers.c odedriversf.c \
-                            taylor.c
+                            psdrivers.c taylor.c

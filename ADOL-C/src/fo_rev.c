@@ -232,6 +232,17 @@ int fos_pl_reverse(short  tnum,     /* tape id */
 		   int    swchk,    /* consistency chk on # of switches */
 		   int    rownum,   /* required row no. of abs-normal form */
 		   double *results) /*  coefficient vectors */
+#elif defined(_ABS_NORM_SIG_)
+/****************************************************************************/
+/* Abs-Normal extended adjoint row computation.                             */
+/****************************************************************************/
+int fos_pl_sig_reverse(short  tnum,     /* tape id */
+		   int    depen,     /* consistency chk on # of deps */
+		   int    indep,     /* consistency chk on # of indeps */
+		   int    swchk,    /* consistency chk on # of switches */
+   	           short   *siggrad,
+                   double  *lagrange,
+		   double *results) /*  coefficient vectors */
 #else
 int fos_reverse(short   tnum,       /* tape id */
                 int     depen,      /* consistency chk on # of deps */

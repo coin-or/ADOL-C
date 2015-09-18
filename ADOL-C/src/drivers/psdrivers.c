@@ -26,22 +26,6 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /*                                                 DRIVERS FOR PS FUNCTIONS */
 
-void *mycalloc2(size_t n, size_t m, size_t size){
-	uint8_t *temp;
-	uint8_t **res;
-	size_t i;
-
-	temp=(uint8_t *)calloc(n*m*size+n,sizeof(void*));
-	res=(uint8_t **)temp;
-	temp+=n*sizeof(void*);
-	for(i=0;i<n;i++){
-		res[i]=temp;
-		temp+=m*size;
-	}
-	return res;
-}
-
-
 /*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
@@ -64,11 +48,14 @@ int directional_active_gradient(short tag,      /* trace identifier */
   
   z = myalloc1(s);
 
-  grad = (double**)mycalloc2(1,n,sizeof(double));
-  gradu = (double**)mycalloc2(s,n,sizeof(double));
-  E = (double**)mycalloc2(n,n,sizeof(double));
+  grad = (double**)myalloc2(1,n);
+  gradu = (double**)myalloc2(s,n);
+  E = (double**)myalloc2(n,n);
 
-
+#if !defined(ADOLC_USE_CALLOC)
+    memset(E, 0, sizeof(E));
+#endif
+  
   max_dk=0;
   max_entry = -1;
   for(i=0;i<n;i++){
@@ -84,7 +71,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
   
   while((k<6) && (done == 0))
     {
-      fov_pl_sig_forward(tag,1,n,n-1,keep,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
+      fov_pl_sig_forward(tag,1,n,k,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
 
       printf(" sigma_g \n");
       sum = 0;
@@ -97,6 +84,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
       
       if (sum == s)
 	{
+	  zos_pl_forward(tag,1,n,keep,x,&y,z);
 	  printf(" call reverse routine \n");
 	  done = 1;
 	}
@@ -111,7 +99,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
 	}
     }  
 
-  myfree1(z); free(E); free(grad); free(gradu);
+  myfree1(z); myfree2(E); myfree2(grad); myfree2(gradu);
 
 }
 

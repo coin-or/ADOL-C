@@ -60,6 +60,8 @@
 #if defined(_ZOS_)
 #if defined(_ABS_NORM_)
 #  define GENERATED_FILENAME "zos_pl_forward"
+#elif defined(_ABS_NORM_SIG_)
+#  define GENERATED_FILENAME "zos_pl_sig_forward"
 #else
 #  define GENERATED_FILENAME "zos_forward"
 #endif
@@ -790,7 +792,6 @@ int  fov_pl_sig_forward(
     int           depcheck,    /* consistency chk on # of deps */
     int           indcheck,    /* consistency chk on # of indeps */
     int           p,           /* # of taylor series */
-    int           keep,        /* flag for reverse sweep */
     const double *basepoint,   /* independent variable values */
     double      **argument,    /* Taylor coefficients (input) */
     int           swcheck,     /* consistency chk in # of switches */
