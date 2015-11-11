@@ -436,6 +436,11 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n,	short m, double* x0, sho
 	myfree3(B);
 	myfree3(D);
 
+	myfree1(x);
+	myfree1(y);
+	myfree1(xp);
+	myfree1(yp);
+
 	return rc;
 }
 
@@ -550,6 +555,16 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 
 	accodec(n, 1.0, d-1, A, B, 0);      // explanation in odedrivers.c
 	acccov(n, d, B, Y, result);  
+
+	myfree2(X);
+	myfree2(Y);
+	myfree3(A);
+	myfree3(B);
+
+	myfree1(x);
+	myfree1(y);
+	myfree1(xp);
+	myfree1(yp);
 
 	return -1;
 }
