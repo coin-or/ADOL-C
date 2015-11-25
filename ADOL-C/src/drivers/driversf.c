@@ -41,8 +41,8 @@ fint function_(fint* ftag,
     spread1(n,fargument,argument);
     rc= function(tag,m,n,argument,result);
     pack1(m,result,fresult);
-    free((char*)argument);
-    free((char*)result);
+    myfree1(argument);
+    myfree1(result);
     return rc;
 }
 
@@ -61,8 +61,8 @@ fint gradient_(fint* ftag,
     spread1(n,fargument,argument);
     rc= gradient(tag,n,argument,result);
     pack1(n,result,fresult);
-    free((char*)result);
-    free((char*)argument);
+    myfree1(result);
+    myfree1(argument);
     return rc;
 }
 
@@ -86,9 +86,9 @@ fint vec_jac_(fint* ftag,
     spread1(n,fargument,argument);
     rc= vec_jac(tag,m,n,repeat,argument,lagrange, row);
     pack1(n,row,frow);
-    free((char*)argument);
-    free((char*)lagrange);
-    free((char*)row);
+    myfree1(argument);
+    myfree1(lagrange);
+    myfree1(row);
     return rc;
 }
 
@@ -108,9 +108,8 @@ fint jacobian_(fint* ftag,
     spread1(indep,fargument,argument);
     rc= jacobian(tag,depen,indep,argument,Jac);
     pack2(depen,indep,Jac,fjac);
-    free((char*)*Jac);
-    free((char*)Jac);
-    free((char*)argument);
+    myfree2(Jac);
+    myfree1(argument);
     return rc;
 }
 
@@ -133,9 +132,9 @@ fint jac_vec_(fint* ftag,
     spread1(n,fargument,argument);
     rc= jac_vec(tag,m,n,argument,tangent,column);
     pack1(m,column,fcolumn);
-    free((char*)argument);
-    free((char*)tangent);
-    free((char*)column);
+    myfree1(argument);
+    myfree1(tangent);
+    myfree1(column);
     return rc;
 }
 
@@ -157,9 +156,9 @@ fint hess_vec_(fint* ftag,
     spread1(n,ftangent,tangent);
     rc= hess_vec(tag,n,argument,tangent,result);
     pack1(n,result,fresult);
-    free((char*)argument);
-    free((char*)tangent);
-    free((char*)result);
+    myfree1(argument);
+    myfree1(tangent);
+    myfree1(result);
     return rc;
 }
 
@@ -180,9 +179,8 @@ fint hessian_(fint* ftag,
     spread1(n,fx,x);
     rc= hessian(tag,n,x,H);
     pack2(n,n,H,fh);
-    free((char*)*H);
-    free((char*)H);
-    free((char*)x);
+    myfree2(H);
+    myfree1(x);
     return rc;
 }
 
@@ -208,10 +206,10 @@ fint lagra_hess_vec_(fint* ftag,
     spread1(m,flagrange,lagrange);
     rc= lagra_hess_vec(tag,m,n,argument,tangent,lagrange,result);
     pack1(n,result,fresult);
-    free((char*)argument);
-    free((char*)tangent);
-    free((char*)lagrange);
-    free((char*)result);
+    myfree1(argument);
+    myfree1(tangent);
+    myfree1(lagrange);
+    myfree1(result);
     return rc;
 }
 
