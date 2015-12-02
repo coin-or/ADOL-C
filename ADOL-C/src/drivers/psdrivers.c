@@ -17,6 +17,7 @@
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
 #include "taping_p.h"
+#include "dvlparms.h"
 
 #include <math.h>
 
@@ -102,7 +103,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
     }  
 
   myfree1(z); myfree2(E); myfree2(grad); myfree2(gradu);
-
+  return 0;
 }
 
 /*--------------------------------------------------------------------------*/
