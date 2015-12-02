@@ -445,6 +445,7 @@ ADOLC_DLL_EXPORT int fov_pl_sig_forward(short,int,int,int,const double*,double**
 ADOLC_DLL_EXPORT int indopro_forward_absnormal(short,int,int,int,const double*,unsigned int**);
 /*--------------------------------------------------------------------------*/
 ADOLC_DLL_EXPORT int fos_pl_reverse(short,int,int,int,int,double*);
+ADOLC_DLL_EXPORT int fos_pl_sig_reverse(short,int,int,int,short*,double*,double*);
 
 END_C_DECLS
 
