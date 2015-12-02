@@ -218,6 +218,9 @@
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\zos_pl_forward.c" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\param.cpp" />
     <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\indopro_forward_pl.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\psdrivers.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\drivers\psdriversf.c" />
+    <ClCompile Include="$(ProjectDir)..\..\ADOL-C\src\fos_pl_sig_reverse.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\adalloc.h" />
@@ -258,6 +261,7 @@
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\param.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\adubfunc.h" />
     <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\internal\paramfunc.h" />
+    <ClInclude Include="$(ProjectDir)..\..\ADOL-C\include\adolc\drivers\psdrivers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
