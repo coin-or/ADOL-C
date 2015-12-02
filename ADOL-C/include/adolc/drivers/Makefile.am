@@ -12,5 +12,5 @@
 
 libdriversincludedir      = $(pkgincludedir)/drivers
 
-libdriversinclude_HEADERS = drivers.h odedrivers.h taylor.h
+libdriversinclude_HEADERS = drivers.h odedrivers.h psdrivers.h taylor.h
 

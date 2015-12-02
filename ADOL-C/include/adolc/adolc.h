@@ -43,6 +43,7 @@
 #include <adolc/drivers/drivers.h>    /* optimization & nonlinear equations */
 #include <adolc/drivers/taylor.h>     /* higher order tensors & inverse/implicit functions */
 #include <adolc/drivers/odedrivers.h> /* ordinary differential equations */
+#include <adolc/drivers/psdrivers.h> /* piecewise smooth functions */
 
 /*--------------------------------------------------------------------------*/
 /* interfaces to TAPEDOC package */

@@ -60,6 +60,8 @@
 #if defined(_ZOS_)
 #if defined(_ABS_NORM_)
 #  define GENERATED_FILENAME "zos_pl_forward"
+#elif defined(_ABS_NORM_SIG_)
+#  define GENERATED_FILENAME "zos_pl_sig_forward"
 #else
 #  define GENERATED_FILENAME "zos_forward"
 #endif
