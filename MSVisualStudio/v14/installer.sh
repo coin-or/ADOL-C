@@ -2,14 +2,14 @@
 INCFILES=(adolc.h adalloc.h adouble.h adutils.h \
 	 adutilsc.h advector.h \
          convolut.h fortutils.h \
-         interfaces.h taping.h \
+         interfaces.h param.h taping.h \
          externfcts.h externfcts2.h \
          checkpointing.h fixpoint.h \
          adolc_sparse.h adolc_openmp.h \
          revolve.h adtl.h adoublecuda.h)
 INCFILES_SPARSE=(sparsedrivers.h sparse_fo_rev.h)
 
-INCFILES_DRIVERS=(drivers.h odedrivers.h taylor.h)
+INCFILES_DRIVERS=(drivers.h odedrivers.h psdrivers.h taylor.h)
 
 INCFILES_TAPEDOC=(tapedoc.h)
 
