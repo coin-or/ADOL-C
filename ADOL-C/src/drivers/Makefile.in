@@ -106,7 +106,7 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdrivers_la_LIBADD =
 am_libdrivers_la_OBJECTS = drivers.lo driversf.lo odedrivers.lo \
-	odedriversf.lo taylor.lo
+	odedriversf.lo psdrivers.lo psdriversf.lo taylor.lo
 libdrivers_la_OBJECTS = $(am_libdrivers_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -319,7 +319,7 @@ AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include -I
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 noinst_LTLIBRARIES = libdrivers.la
 libdrivers_la_SOURCES = drivers.c driversf.c odedrivers.c odedriversf.c \
-                            taylor.c
+                            psdrivers.c psdriversf.c taylor.c
 
 all: all-am
 
@@ -380,6 +380,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/driversf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odedrivers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/odedriversf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/psdrivers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/psdriversf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taylor.Plo@am__quote@
 
 .c.o:
