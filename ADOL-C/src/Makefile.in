@@ -132,13 +132,13 @@ am__libadolcsrc_la_SOURCES_DIST = adalloc.c rpl_malloc.c adouble.cpp \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
 	hos_reverse.c hos_ov_reverse.c hov_reverse.c forward_partx.c \
-	zos_pl_forward.c fos_pl_reverse.c fos_pl_forward.c \
-	fov_pl_forward.c fos_pl_sig_forward.c fov_pl_sig_forward.c \
-	externfcts.cpp checkpointing.cpp fixpoint.cpp \
-	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
-	param.cpp externfcts2.cpp int_forward_s.c int_forward_t.c \
-	indopro_forward_s.c indopro_forward_t.c indopro_forward_pl.c \
-	nonl_ind_forward_s.c nonl_ind_forward_t.c \
+	zos_pl_forward.c fos_pl_reverse.c fos_pl_sig_reverse.c \
+	fos_pl_forward.c fov_pl_forward.c fos_pl_sig_forward.c \
+	fov_pl_sig_forward.c externfcts.cpp checkpointing.cpp \
+	fixpoint.cpp fov_offset_forward.c revolve.c advector.cpp \
+	adouble_tl.cpp param.cpp externfcts2.cpp int_forward_s.c \
+	int_forward_t.c indopro_forward_s.c indopro_forward_t.c \
+	indopro_forward_pl.c nonl_ind_forward_s.c nonl_ind_forward_t.c \
 	nonl_ind_old_forward_s.c nonl_ind_old_forward_t.c \
 	int_reverse_s.c int_reverse_t.c
 @SPARSE_TRUE@am__objects_1 = int_forward_s.lo int_forward_t.lo \
@@ -153,11 +153,11 @@ am_libadolcsrc_la_OBJECTS = adalloc.lo rpl_malloc.lo adouble.lo \
 	fov_forward.lo hos_forward.lo hov_forward.lo hov_wk_forward.lo \
 	fos_reverse.lo fov_reverse.lo hos_reverse.lo hos_ov_reverse.lo \
 	hov_reverse.lo forward_partx.lo zos_pl_forward.lo \
-	fos_pl_reverse.lo fos_pl_forward.lo fov_pl_forward.lo \
-	fos_pl_sig_forward.lo fov_pl_sig_forward.lo externfcts.lo \
-	checkpointing.lo fixpoint.lo fov_offset_forward.lo revolve.lo \
-	advector.lo adouble_tl.lo param.lo externfcts2.lo \
-	$(am__objects_1)
+	fos_pl_reverse.lo fos_pl_sig_reverse.lo fos_pl_forward.lo \
+	fov_pl_forward.lo fos_pl_sig_forward.lo fov_pl_sig_forward.lo \
+	externfcts.lo checkpointing.lo fixpoint.lo \
+	fov_offset_forward.lo revolve.lo advector.lo adouble_tl.lo \
+	param.lo externfcts2.lo $(am__objects_1)
 libadolcsrc_la_OBJECTS = $(am_libadolcsrc_la_OBJECTS)
 libadolcsrc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -444,11 +444,11 @@ libadolcsrc_la_SOURCES = adalloc.c rpl_malloc.c adouble.cpp convolut.c \
 	zos_forward.c fos_forward.c fov_forward.c hos_forward.c \
 	hov_forward.c hov_wk_forward.c fos_reverse.c fov_reverse.c \
 	hos_reverse.c hos_ov_reverse.c hov_reverse.c forward_partx.c \
-	zos_pl_forward.c fos_pl_reverse.c fos_pl_forward.c \
-	fov_pl_forward.c fos_pl_sig_forward.c fov_pl_sig_forward.c \
-	externfcts.cpp checkpointing.cpp fixpoint.cpp \
-	fov_offset_forward.c revolve.c advector.cpp adouble_tl.cpp \
-	param.cpp externfcts2.cpp $(am__append_2)
+	zos_pl_forward.c fos_pl_reverse.c fos_pl_sig_reverse.c \
+	fos_pl_forward.c fov_pl_forward.c fos_pl_sig_forward.c \
+	fov_pl_sig_forward.c externfcts.cpp checkpointing.cpp \
+	fixpoint.cpp fov_offset_forward.c revolve.c advector.cpp \
+	adouble_tl.cpp param.cpp externfcts2.cpp $(am__append_2)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -540,6 +540,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_sig_forward.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_pl_sig_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fos_reverse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_forward.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fov_offset_forward.Plo@am__quote@
