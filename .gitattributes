@@ -207,6 +207,7 @@ ADOL-C/include/adolc/drivers/Makefile.am -text
 ADOL-C/include/adolc/drivers/Makefile.in -text
 ADOL-C/include/adolc/drivers/drivers.h -text
 ADOL-C/include/adolc/drivers/odedrivers.h -text
+ADOL-C/include/adolc/drivers/psdrivers.h -text
 ADOL-C/include/adolc/drivers/taylor.h -text
 ADOL-C/include/adolc/externfcts.h -text
 ADOL-C/include/adolc/externfcts2.h -text
@@ -254,6 +255,8 @@ ADOL-C/src/drivers/drivers.c -text
 ADOL-C/src/drivers/driversf.c -text
 ADOL-C/src/drivers/odedrivers.c -text
 ADOL-C/src/drivers/odedriversf.c -text
+ADOL-C/src/drivers/psdrivers.c -text
+ADOL-C/src/drivers/psdriversf.c -text
 ADOL-C/src/drivers/taylor.c -text
 ADOL-C/src/dvlparms.h -text
 ADOL-C/src/externfcts.cpp -text
@@ -267,6 +270,7 @@ ADOL-C/src/fos_forward.c -text
 ADOL-C/src/fos_pl_forward.c -text
 ADOL-C/src/fos_pl_reverse.c -text
 ADOL-C/src/fos_pl_sig_forward.c -text
+ADOL-C/src/fos_pl_sig_reverse.c -text
 ADOL-C/src/fos_reverse.c -text
 ADOL-C/src/fov_forward.c -text
 ADOL-C/src/fov_offset_forward.c -text
