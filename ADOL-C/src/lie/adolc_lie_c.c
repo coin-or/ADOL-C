@@ -247,19 +247,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 
 	hos_forward(Tape_H, m, n, d, 0, x, X, y, Y);
 
-	//prepare output for hos_forward
-	for (i = 0; i < n; i++)
-	{
-		if (d > 1) 
-		{
-			for (k = d; k > 0; k--)
-			{
-				X[i][k] = X[i][k-1];
-			};
-			X[i][0] = x[i];
-		};
-	};
-
+	//postprocess output of hos_forward
 	for (i=0; i<m; i++) 
 	{
 		for (k = d; k > 0; k--)
@@ -384,35 +372,6 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n,	short m, double* x0, sho
 
 	hos_forward(Tape_H, m, n, d, d+1, x, X, y, Y);
 
-	//prepare output for hos_forward
-	for (i=0; i<n; i++)
-	{
-		if (d > 1) 
-		{
-			for (k=d; k>0; k--)
-			{
-				X[i][k] = X[i][k-1];
-			}
-			X[i][0] = x[i];
-		}
-	}
-
-	for (i=0; i<m; i++) 
-	{
-		if (d == 1)
-		{
-			Y[i][1] = yp[i];
-		}
-		else
-		{
-			for (k=d; k>0; k--)
-			{
-				Y[i][k] = Y[i][k-1];
-			}
-			Y[i][0] = y[i];
-		}
-	}
-
 	hov_reverse(Tape_H, m, n, d, m, Im, Pc, 0);  
 	accodeout(m, n, d, B, Pc, D);
 
@@ -536,14 +495,7 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 
 	hos_forward(Tape_W, m, n, d, d+1, x, X, y, Y);
 
-	//prepare output for hos_forward
-	for (i=0; i<n; i++)
-		if (d > 1) {
-			for (k=d; k>0; k--)
-				X[i][k] = X[i][k-1];
-			X[i][0] = x[i];
-		}
-
+	//postprocess output of hos_forward
 	for (i=0; i<m; i++) {
 		if (d == 1)
 			Y[i][1] = yp[i];
