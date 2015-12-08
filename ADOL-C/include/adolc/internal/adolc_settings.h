@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adolc_settings.h
- Revision: $Id$
+ Revision: $Id: adolc_settings.h.in 537 2014-08-15 14:10:48Z kulshres $
  Contents: ADOL-C Settings:
            These parameters might affect the performance of the ADOL-C
            system; and are set by the configure script during the build.

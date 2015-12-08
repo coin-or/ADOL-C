@@ -21,13 +21,13 @@
 
 /*--------------------------------------------------------------------------*/
 /* Buffer sizes */
-#define OBUFSIZE 524288 /* 16384 or  65536  */
-#define LBUFSIZE 524288 /* 16384 or  65536  */
-#define VBUFSIZE 524288 /* 16384 or  65536  */
+#define OBUFSIZE 50000000 /* 16384 or  65536  */
+#define LBUFSIZE 50000000 /* 16384 or  65536  */
+#define VBUFSIZE 50000000 /* 16384 or  65536  */
 
 /*--------------------------------------------------------------------------*/
 /* Buffer size for temporary Taylor store */
-#define TBUFSIZE  524288 /* 16384 or  65536  */
+#define TBUFSIZE 50000000 /* 16384 or  65536  */
 
 /*--------------------------------------------------------------------------*/
 /* Number of temporary Taylor stores*/
