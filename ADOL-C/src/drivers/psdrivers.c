@@ -152,7 +152,9 @@ int abs_normal(short tag,      /* tape identifier */
                             *  we probably don't need to copy them */
             L[i][j]=res[j+n];	
             if (j < i)
-                cz[i] = cz[i]-L[i][j]*sigma[j]*z[j];	
+	      {
+		cz[i] = cz[i]-L[i][j]*fabs(z[j]);
+	      }
         }
     } else {
         cy[l]=y[l];
@@ -160,8 +162,8 @@ int abs_normal(short tag,      /* tape identifier */
             J[l][j]=res[j];	
         }
         for(j=0;j<s;j++){
-            Y[l][j]=res[j+n];	
-            cy[l] = cy[l]-Y[l][j]*sigma[j]*z[j];	
+            Y[l][j]=res[j+n];
+            cy[l] = cy[l]-Y[l][j]*fabs(z[j]);
         }
     }
   }
