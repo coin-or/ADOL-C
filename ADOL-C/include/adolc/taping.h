@@ -53,6 +53,8 @@ ADOLC_DLL_EXPORT void skip_tracefile_cleanup(short tnum);
  * accessing the individual elements of the vector "tape_stats"! */
 ADOLC_DLL_EXPORT void tapestats(short tag, size_t *tape_stats);
 
+ADOLC_DLL_EXPORT void set_nested_ctx(short tag, char nested);
+
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
 
@@ -105,8 +107,6 @@ ADOLC_DLL_EXPORT int trace_on(short tnum, int keepTaylors,
 ADOLC_DLL_EXPORT void trace_off(int flag = 0);
 
 ADOLC_DLL_EXPORT bool isTaping();
-
-ADOLC_DLL_EXPORT void set_nested_ctx(short tag, char nested);
 
 #include <vector>
 ADOLC_DLL_EXPORT void cachedTraceTags(std::vector<short>& result);
