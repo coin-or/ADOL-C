@@ -1,11 +1,11 @@
-# spec file for package adolc (Version 2.5.3)
+# spec file for package adolc (Version 2.6.1)
 
 # norootforbuild
 
-%define packver 2.5.3-trunk
+%define packver 2.6.1-trunk
 
 Name:           adolc
-Version:        2.5.3
+Version:        2.6.1
 Release:        0.1
 License:        GPLv2 or CPL
 Summary:        Algorithmic Differentiation Library for C/C++
