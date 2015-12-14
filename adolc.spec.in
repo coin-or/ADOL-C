@@ -113,11 +113,13 @@ rm -rf %{_builddir}/%{name}-%{packver}
 %dir %{_includedir}/adolc/drivers
 %dir %{_includedir}/adolc/sparse
 %dir %{_includedir}/adolc/tapedoc
+%dir %{_libdir}/pkgconfig
 %{_includedir}/adolc/*.h
 %{_includedir}/adolc/drivers/*.h
 %{_includedir}/adolc/sparse/*.h
 %{_includedir}/adolc/tapedoc/*.h
 %{_libdir}/libadolc.so
+%{_libdir}/pkgconfig/adolc.pc
 
 %files doc
 %defattr(-,root,root)
