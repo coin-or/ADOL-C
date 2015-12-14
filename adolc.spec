@@ -12,8 +12,8 @@ Summary:        Algorithmic Differentiation Library for C/C++
 Url:            http://projects.coin-or.org/ADOL-C
 Group:          Development/Languages/C and C++
 Source:         %{name}-%{packver}.tar.bz2
-Source1:        ColPack.tar.gz
 BuildRequires:  gcc-c++ libstdc++-devel
+BuildRequires:  ColPack-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 AutoReqProv:    on
 
@@ -81,15 +81,8 @@ This package provides the user´s manual for adolc
 
 %prep
 %setup -q -n %{name}-%{packver} -b 1
-pushd ThirdParty
-mv %{_builddir}/ColPack/* ColPack/
-rm -rf %{_builddir}/ColPack
-popd
 
 %build
-pushd ThirdParty/ColPack
-make %{_smp_mflags}
-popd
 autoreconf -v --install --force
 %configure --prefix=/usr
 make %{_smp_mflags}
@@ -124,7 +117,6 @@ rm -rf %{_builddir}/%{name}-%{packver}
 %{_includedir}/adolc/sparse/*.h
 %{_includedir}/adolc/tapedoc/*.h
 %{_libdir}/libadolc.so
-%{_libdir}/libadolc.a
 
 %files doc
 %defattr(-,root,root)
