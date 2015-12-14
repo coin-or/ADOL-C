@@ -216,6 +216,7 @@ class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adubref;
     friend ADOLC_DLL_EXPORT class pdouble;
     friend adub* adubp_from_adub(const adub&);
+private:
     adub( adub const &) {
 	isInit = false;
         fprintf(DIAG_OUT,"ADOL-C error: illegal copy construction of adub"
