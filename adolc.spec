@@ -14,6 +14,7 @@ Group:          Development/Languages/C and C++
 Source:         %{name}-%{packver}.tar.bz2
 BuildRequires:  gcc-c++ libstdc++-devel
 BuildRequires:  ColPack-devel
+BuildRequires:  boost-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 AutoReqProv:    on
 
