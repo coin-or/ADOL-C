@@ -243,6 +243,7 @@ protected:
 
 public:
 
+    explicit operator adub*() const { return adubp_from_adub(*this); }
     /*--------------------------------------------------------------------------*/
     /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
     friend adub adolc_vec_dot(const adouble*const, const adouble*const, locint);

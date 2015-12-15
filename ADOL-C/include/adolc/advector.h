@@ -69,6 +69,12 @@ protected:
 		" variable from adub\n");
         exit(-2);
     }
+    adubref( const adubref& ) {
+        fprintf(DIAG_OUT,"ADOL-C error: illegal copy construction of adubref"
+               " variable\n");
+        exit(-2);
+    }
+    bool isInit;  // marker if the badouble is properly initialized
 public:
     /* adub prevents postfix operators to occur on the left
        side of an assignment which would not work  */
@@ -98,8 +104,9 @@ public:
     adubref& operator >>= ( double& );
     void declareDependent();
     operator adub() const;
-    friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&, const badouble&);
-    friend ADOLC_DLL_EXPORT void condassign(adubref, const badouble&, const badouble&);
+    friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&, const badouble&);
+    friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&);
+    ~adubref();
 };
 
 /* adolc_vec_copy(dest,src,size); */
