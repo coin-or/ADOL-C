@@ -26,31 +26,14 @@ BEGIN_C_DECLS
 /*                                                 DRIVERS FOR PS FUNCTIONS */
 
 /*--------------------------------------------------------------------------*/
-/*                                              directional_active_gradient */
+/*                                             directional_active_gradient_ */
 /*                                                                          */
-ADOLC_DLL_EXPORT int directional_active_gradient(short,int,double*,short*,double*,double*,short*);  
 ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,double*,double*,short*);  
 /*--------------------------------------------------------------------------*/
-/*                                                               abs_normal */
-/*                                                                          */
-ADOLC_DLL_EXPORT int abs_normal(short,int,int,int,double*,short*,double*,double*,double*,double*,double**,double**,double**,double**);
-ADOLC_DLL_EXPORT fint abs_normal_(fint*,fint*,fint*,fint*,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*);
-
-
-END_C_DECLS
-
-/****************************************************************************/
-/****************************************************************************/
-/*                                                       Now the C++ THINGS */
-#if defined(__cplusplus)
-
-/****************************************************************************/
-/*                                                 DRIVERS FOR PS FUNCTIONS */
-
-/*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
-int directional_active_gradient(short tag,      /* trace identifier */
+ADOLC_DLL_EXPORT int directional_active_gradient(
+                                short tag,      /* trace identifier */
 				int n,          /* number of independents */
 				double* x,      /* value of independents */
 				short *sigma_x, /* sigma of x */
@@ -62,22 +45,24 @@ int directional_active_gradient(short tag,      /* trace identifier */
 /*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
 /*                                                                          */
-int abs_normal(short tag,      /* tape identifier */ 
-               int m,          /* number of dependents   */             
-               int n,          /* number of independents */
-               double *x,      /* base point */ 
-               short *sigma_x, /* sigma of x */
-               double *y,      /* function value */
-               double *z,      /* switching variables */
-               double *cz,     /* first constant */
-               double *cy,     /* second constant */
-               double **a,      
-               double **b,
-               double **Z, 
-               double **L);
+ADOLC_DLL_EXPORT fint abs_normal_(fint*,fint*,fint*,fint*,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*);
+ADOLC_DLL_EXPORT int abs_normal(short tag,      /* tape identifier */ 
+                                int m,          /* number od dependents   */ 
+                                int n,          /* number of independents */
+                                int swchk,      /* number of switches (check) */
+                                double *x,      /* base point */ 
+                                short *sigma,   /* sigma of x */
+                                double *y,      /* function value */
+                                double *z,      /* switching variables */
+                                double *cz,     /* first constant */
+                                double *cy,     /* second constant */
+                                double **J,      
+                                double **Y,
+                                double **Z, 
+                                double **L);
 
 
-#endif
+END_C_DECLS
 
 /****************************************************************************/
 
