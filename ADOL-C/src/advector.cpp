@@ -33,6 +33,14 @@ adubref::adubref( locint lo, locint ref ) {
 		" vector subscript reference\n(passed ref = %d, stored refloc = %d)\n",ref,refloc);
 	adolc_exit(-2,"",__func__,__FILE__,__LINE__);
     }
+    isInit = true;
+}
+
+adubref::~adubref() {
+#ifdef adolc_overwrite
+    if (isInit)
+        free_loc(location);
+#endif
 }
 
 adubref::operator adub() const {
@@ -345,7 +353,7 @@ adubref& adubref::operator *= ( const badouble& y ) {
     return *this;
 }
 
-void condassign( adubref res,         const badouble &cond,
+void condassign( adubref& res,         const badouble &cond,
                  const badouble &arg1, const badouble &arg2 ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -369,7 +377,7 @@ void condassign( adubref res,         const badouble &cond,
         ADOLC_GLOBAL_TAPE_VARS.store[res.refloc] = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
 }
 
-void condassign( adubref res, const badouble &cond, const badouble &arg ) {
+void condassign( adubref& res, const badouble &cond, const badouble &arg ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.location,cond.location,arg.location);
