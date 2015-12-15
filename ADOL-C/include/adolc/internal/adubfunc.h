@@ -70,6 +70,7 @@
     friend ADOLC_DLL_EXPORT adub asinh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub acosh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub atanh ( const badouble& );
+    friend ADOLC_DLL_EXPORT adub erf   ( const badouble& );
 #endif
 
     friend ADOLC_DLL_EXPORT adub fabs  ( const badouble& );
@@ -85,7 +86,6 @@
 
     friend ADOLC_DLL_EXPORT adub ldexp ( const badouble&, int );
     friend ADOLC_DLL_EXPORT adub frexp ( const badouble&, int* );
-    friend ADOLC_DLL_EXPORT adub erf   ( const badouble& );
 
     /*--------------------------------------------------------------------------*/
 #endif
