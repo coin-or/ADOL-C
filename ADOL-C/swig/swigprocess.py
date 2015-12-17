@@ -6,6 +6,16 @@ import glob
 import shlex
 import shutil
 import subprocess
+import atexit
+
+noerrors = False
+
+@atexit.register
+def call_make_clean():
+    if noerrors:
+        pass
+    elif len(glob.glob('[Mm]akefile')) > 0:
+        subprocess.call(['make','clean'])
 
 def readFile(name):
     alllines = ''
@@ -42,7 +52,14 @@ def uncomment_local_includes(lines):
 def invoke_cpp(infile,outfile):
     s = 'c++ -std=c++11 -E -C -P -o ' + outfile + ' -Iinclude -nostdinc -DSWIGPRE ' + infile
     cmd = shlex.split(s)
-    subprocess.call(cmd)
+    try:
+        warn = subprocess.check_output(cmd,universal_newlines=True)
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print("error in cmd = ", e.cmd)
+        exit()
+    if len(warn) > 0:
+        print(warn)
 
 def reinstate_nonlocal_include(lines):
     s = r'//(#\s*include\s*<\S*>)'
@@ -65,33 +82,58 @@ def invoke_swig_compile(lang,infile,outfile,modname):
     if lang == 'R':
         s = 'swig -r -c++ -o ' + outfile + ' ' + infile
         cmd = shlex.split(s)
-        warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT)
+        warn = ''
+        try:
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
+            exit()
         s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc' + ' -Wl,-no-undefined'
         evars = os.environ 
         evars['PKG_CPPFLAGS'] = "-I../include -std=c++11" 
         cmd = shlex.split(s)
-        warn += subprocess.check_output(cmd,env=evars,stderr=subprocess.STDOUT)
+        try:
+            warn += subprocess.check_output(cmd,env=evars,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
+            exit()            
         shutil.move(modname + '.so', lang)
         shutil.move(modname + '.R', lang)
         writeOutput(warn,'warnings-r.txt')
     elif lang == 'python':
-        python_cflags = subprocess.check_output(['python-config','--cflags'])
-        python_ldflags = subprocess.check_output(['python-config','--ldflags'])
+        python_cflags = subprocess.check_output(['python-config','--cflags'],universal_newlines=True)
+        python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
+
         s = 'swig -python -c++ -o ' + outfile + ' ' + infile
         cmd = shlex.split(s)
-        warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT)
+        try:
+            warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
         s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() + ' -Wl,-no-undefined'
         cmd = shlex.split(s)
-        warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT)
+        try:
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
+            exit()            
         shutil.move('_' + modname + '.so', lang)
         shutil.move(modname + '.py', lang)
         writeOutput(warn,'warnings-python.txt')
 
-    os.remove(outfile)
+def finalClean(headfile,outfiles):
+    os.remove(headfile)
+    for f in outfiles:
+        os.remove(f)
     for f in glob.glob('*.o'):
         os.remove(f)
 
 def main():
+    atexit.register(call_make_clean)
     sys.path = [ os.getcwd() ] + sys.path
     p = os.getcwd() + '/../include/adolc'
     for (dp, dn, fn) in os.walk(p):
@@ -113,6 +155,9 @@ def main():
     cleanup('adolc_all_pre.h')
     invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
     invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
+    finalClean('adolc_all.h',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
+    global noerrors
+    noerrors = True
 
 if __name__ == '__main__':
     main()
