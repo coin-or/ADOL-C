@@ -48,6 +48,11 @@ pdouble::pdouble(locint idx) {
     }
 }
 
+pdouble::operator pdouble*() const {
+    pdouble* ret = new pdouble(_idx);
+    return ret;
+}
+
 pdouble mkparam(double pval) {
     locint _idx;
     ADOLC_OPENMP_THREAD_NUMBER;

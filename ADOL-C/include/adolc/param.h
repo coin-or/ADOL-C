@@ -19,12 +19,16 @@
 #include <cstdio>
 #include <stdexcept>
 
+#if !defined(SWIGPRE)
 using std::logic_error;
+#endif
 
 class pdouble;
 
+#if !defined(SWIGPRE)
 ADOLC_DLL_EXPORT pdouble mkparam(double pval);
 ADOLC_DLL_EXPORT pdouble getparam(locint index);
+#endif
 ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
 
 class ADOLC_DLL_EXPORT pdouble {
@@ -48,8 +52,11 @@ protected:
     pdouble(double pval);
     pdouble(locint index);
 public:
+#if !defined(SWIGPRE)
     friend pdouble mkparam(double pval);
     friend pdouble getparam(locint index);
+    explicit operator pdouble*() const;
+#endif
     friend locint mkparam_idx(double pval);
     operator adub() const;
 
@@ -102,6 +109,7 @@ inline int operator <  ( const pdouble& a, const badouble& b)
 { return (b > a); }
 #endif
 
+#if !defined(SWIGPRE)
 inline adub operator + ( const pdouble& a, const badouble& b)
 { return (b + a); }
 
@@ -150,6 +158,7 @@ inline adub fmin ( const pdouble& a, const badouble& b)
 
 inline adub fmin( const badouble& a, const pdouble& b)
 { return fmin(a,adub(b)); }
+#endif
 
 #endif
 

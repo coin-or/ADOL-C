@@ -56,7 +56,7 @@ typedef int (ADOLC_ext_fct_iArr_hov_reverse) (int iArrLength, int *iArr, int m, 
  * returned. Within reg_ext_fct the memberse function and index are properly set. 
  * is likely to be wrong in this case. Use pointers instead. 
  */
-typedef struct {
+typedef struct ext_diff_fct {
 
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
