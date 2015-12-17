@@ -3,21 +3,25 @@
 #include <adolc/adolc.h>
 %}
 
+%feature("novaluewrapper") badouble;
 %feature("novaluewrapper") adub;
 %feature("novaluewrapper") pdouble;
 %feature("novaluewrapper") adubref;
+%feature("novaluewrapper") adouble;
+%feature("novaluewrapper") advector;
 
-%rename(__le__) operator<=;
-%rename(__lt__) operator<;
-%rename(__ge__) operator>=;
-%rename(__gt__) operator>;
-%rename(__eq__) operator==;
-%rename(__ne__) operator!=;
-%rename(__pow__) pow;
+%ignore operator<<;
+%ignore operator>>;
+%ignore operator<=;
+%ignore operator<;
+%ignore operator>=;
+%ignore operator>;
+%ignore operator==;
+%ignore operator!=;
+%ignore pow;
 %ignore *::operator++;
 %ignore *::operator--;
 %ignore *::operator=;
-%ignore *::operator[];
 %ignore zos_forward_nk;
 %ignore fos_forward_nk;
 %ignore hos_forward_nk;
@@ -54,6 +58,7 @@
 %ignore spread3;
 %ignore pack3;
 %ignore *::operator[](const badouble&);
+%ignore *::operator[](size_t);
 
 %include "adolc_all.h"
 
@@ -75,13 +80,154 @@
     }
  }
 
-%rename(__add__) operator+;
-%rename(__neg__) operator-(const badouble&);
-%rename(__neg__) operator-(const pdouble&);
-%rename(__sub__) operator-;
-%rename(__mul__) operator*;
-%rename(__div__) operator/;
 %ignore frexp;
+%ignore operator+;
+%ignore operator-;
+%ignore operator*;
+%ignore operator/;
 
 %include "adubswigfuncs.h"
 
+%extend badouble {
+    int __ne__ (const badouble& a) const {
+        return (*($self)) != a;
+    }
+    int __eq__ (const badouble& a) const {
+        return (*($self)) == a;
+    }
+    int __le__ (const badouble& a) const {
+        return (*($self)) <= a;
+    }
+    int __ge__ (const badouble& a) const {
+        return (*($self)) >= a;
+    }
+    int __lt__ (const badouble& a) const {
+        return (*($self)) < a;
+    }
+    int __gt__ (const badouble& a) const {
+        return (*($self)) > a;
+    }
+    int __ne__ (double a) const {
+        return (*($self)) != a;
+    }
+    int __eq__ (double a) const {
+        return (*($self)) == a;
+    }
+    int __le__ (double a) const {
+        return (*($self)) <= a;
+    }
+    int __ge__ (double a) const {
+        return (*($self)) >= a;
+    }
+    int __lt__ (double a) const {
+        return (*($self)) < a;
+    }
+    int __gt__ (double a) const {
+        return (*($self)) > a;
+    }
+    adouble __pow__ (const badouble& a) {
+        return pow((*($self)),a);
+    }
+    adub* __pow__(double c) {
+        return (adub*) pow((*($self)),c);
+    }
+    adouble __rpow__(double c) {
+        return pow(c,(*($self)));
+    }
+    adub* __pow__ (const pdouble& a) {
+        return (adub*) pow((*($self)),a);
+    }
+    adub* __neg__() {
+        return (adub*)( - (*($self)));
+    }
+    adub* __add__ (const badouble& a) {
+        return (adub*) ((*($self)) + a);
+    }
+    adub* __add__ (double a) {
+        return (adub*) ((*($self)) + a);
+    }
+    adub* __radd__ (double a) {
+        return (adub*) (a + (*($self)));
+    }
+    adub* __add__ (const pdouble& a) {
+        return (adub*) ((*($self)) + a);
+    }
+    adub* __sub__ (const badouble& a) {
+        return (adub*) ((*($self)) - a);
+    }
+    adub* __sub__ (double a) {
+        return (adub*) ((*($self)) - a);
+    }
+    adub* __rsub__ (double a) {
+        return (adub*) (a - (*($self)));
+    }
+    adub* __sub__ (const pdouble& a) {
+        return (adub*) ((*($self)) - a);
+    }
+    adub* __mul__ (const badouble& a) {
+        return (adub*) ((*($self)) * a);
+    }
+    adub* __mul__ (double a) {
+        return (adub*) ((*($self)) * a);
+    }
+    adub* __rmul__ (double a) {
+        return (adub*) (a * (*($self)));
+    }
+    adub* __mul__ (const pdouble& a) {
+        return (adub*) ((*($self)) * a);
+    }
+    adub* __div__ (const badouble& a) {
+        return (adub*) ((*($self)) / a);
+    }
+    adub* __div__ (double a) {
+        return (adub*) ((*($self)) / a);
+    }
+    adub* __rdiv__ (double a) {
+        return (adub*) (a / (*($self)));
+    }
+    adub* __div__ (const pdouble& a) {
+        return (adub*) ((*($self)) / a);
+    }    
+}
+
+%extend pdouble {
+    adub* __neg__() {
+        return (adub*)( - (*($self)));
+    }
+    adub* __add__ (const badouble& a) {
+        return (adub*) ((*($self)) + a);
+    }
+    adub* __add__ (double a) {
+        return (adub*) ((*($self)) + a);
+    }
+    adub* __radd__ (double a) {
+        return (adub*) (a + (*($self)));
+    }
+    adub* __sub__ (const badouble& a) {
+        return (adub*) ((*($self)) - a);
+    }
+    adub* __sub__ (double a) {
+        return (adub*) ((*($self)) - a);
+    }
+    adub* __rsub__ (double a) {
+        return (adub*) (a - (*($self)));
+    }
+    adub* __mul__ (const badouble& a) {
+        return (adub*) ((*($self)) * a);
+    }
+    adub* __mul__ (double a) {
+        return (adub*) ((*($self)) * a);
+    }
+    adub* __rmul__ (double a) {
+        return (adub*) (a * (*($self)));
+    }
+    adub* __div__ (const badouble& a) {
+        return (adub*) ((*($self)) / a);
+    }
+    adub* __div__ (double a) {
+        return (adub*) ((*($self)) / a);
+    }
+    adub* __rdiv__ (double a) {
+        return (adub*) (a / (*($self)));
+    }
+}
