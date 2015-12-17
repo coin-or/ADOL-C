@@ -26,23 +26,6 @@ BEGIN_C_DECLS
 /*                                                 DRIVERS FOR PS FUNCTIONS */
 
 /*--------------------------------------------------------------------------*/
-/*                                             directional_active_gradient_ */
-/*                                                                          */
-ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,double*,double*,short*);  
-/*--------------------------------------------------------------------------*/
-/*                                              directional_active_gradient */
-/*                                                                          */
-ADOLC_DLL_EXPORT int directional_active_gradient(
-                                short tag,      /* trace identifier */
-				int n,          /* number of independents */
-				double* x,      /* value of independents */
-				short *sigma_x, /* sigma of x */
-				double* d,      /* direction */
-				double* g,      /* directional active gradient */
-				short *sigma_g  /* sigma of g */
-				);
-
-/*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
 /*                                                                          */
 ADOLC_DLL_EXPORT fint abs_normal_(fint*,fint*,fint*,fint*,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*);
