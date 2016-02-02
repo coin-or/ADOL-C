@@ -1452,7 +1452,7 @@ is reused such that only the values of the arrays are changed.
 Before calling {\sf sparse\_jac} or {\sf sparse\_hess} once more with {\sf
   repeat=0} the user is responsible for the deallocation of the array 
  {\sf r\_ind}, {\sf c\_ind}, and {\sf values} using the function {\sf
-   delete[]}!
+   free()}!
 
 For each driver the array {\sf options} can be used to adapted the 
 computation of the sparse derivative matrices to the special
