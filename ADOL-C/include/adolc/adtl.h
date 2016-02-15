@@ -305,7 +305,7 @@ inline void setNumDir(const size_t p) {
 
 inline void setMode(enum Mode newmode) {
     if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently exisiting adoubles = %zu\n", refcounter::refcnt);
+	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
     }
     adouble::forward_mode = newmode;
 }

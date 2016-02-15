@@ -605,7 +605,7 @@ void revolveError (CpInfos *cpInfos) {
                    cpInfos->checkpoints);
             break;
         case 12:
-            printf("   Error occured in numforw!\n");
+            printf("   Error occurred in numforw!\n");
             break;
         case 13:
             printf("   Enhancement of 'fine', 'snaps' checkpoints "
