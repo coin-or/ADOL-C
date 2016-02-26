@@ -61,6 +61,11 @@ int abs_normal(short tag,      /* tape identifier */
   res=(double*)myalloc1(n+s);
 
   zos_pl_forward(tag,m,n,1,x,y,z);
+  printf("y =  %f ",y[0]);
+  printf(" z = ");
+  for(i=0;i<s;i++)
+    printf(" %f ",z[i]);
+  printf("\n");
   for(i=0;i<m+s;i++){
     int l = i - s;
     fos_pl_reverse(tag,m,n,s,i,res);
@@ -94,4 +99,95 @@ int abs_normal(short tag,      /* tape identifier */
 }
 
 
+/*--------------------------------------------------------------------------*/
+/*                                              directional_active_gradient */
+/*                                                                          */
+int directional_active_gradient(short tag,      /* trace identifier */
+                                int n,          /* number of independents */
+                                double* x,      /* value of independents */
+                                short *sigma_x, /* sigma of x */
+                                double* d,      /* direction */
+                                double* g,      /* directional active gradient */
+                                double** grad_u,     
+                                short *sigma_g  /* sigma of g */
+                                )
+{
+  int i, j, p, k, s, max_dk, done, sum, keep;
+  double max_entry, y, by;
+  double *z;
+  double **E, **invE, **grad, **gradu;
+
+  keep = 1;
+  by = 1;
+
+  s=get_num_switches(tag);
+
+  z = myalloc1(s);
+
+  grad = (double**)myalloc2(1,n);
+  gradu = (double**)myalloc2(s,n);
+  E = (double**)myalloc2(n,n);
+
+#if !defined(ADOLC_USE_CALLOC)
+  memset(&(E[0][0]), 0, n*n*sizeof(double));
+#endif
+
+  max_dk=0;
+  max_entry = -1;
+  for(i=0;i<n;i++){
+    E[i][0] = d[i];
+    if(max_entry<fabs(d[i])){
+      max_dk=i;
+      max_entry = fabs(d[i]);
+    }
+  }
+
+  k = 1; done = 0;
+  j = 0;
+
+  while((k<6) && (done == 0))
+    {
+      fov_pl_sig_forward(tag,1,n,k,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
+
+      printf(" fov_pl_sig x: %f \n",y);
+      printf(" sigma_g \n");
+      sum = 0;
+      for(i=0;i<s;i++)
+        {
+          printf(" %d ",sigma_g[i]);
+          printf("\n");
+          sum += fabs(sigma_g[i]);
+        }
+
+      fov_pl_forward(tag,1,n,k,x,E,&y,grad,z,gradu);
+
+      printf(" fov_pl x: %f \n",y);
+
+
+       if (sum == s)
+        {
+
+          zos_pl_forward(tag,1,n,keep,x,&y,z);
+          fos_pl_sig_reverse(tag,1,n,s,sigma_g, &by ,g);
+          done = 1;
+        }
+      else
+        {
+          if(j==max_dk)
+            j++;
+          E[j][k]=1;
+          j++;
+          k++;
+        }
+    }
+
+  if (done == 0)
+    {
+      printf(" NOT ENOUGH DIRECTIONS !!!!\n");
+	exit(-1);
+    }
+
+  myfree1(z); myfree2(E); myfree2(grad); myfree2(gradu);
+  return 0;
+}
 END_C_DECLS
