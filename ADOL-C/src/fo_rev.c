@@ -739,7 +739,7 @@ int int_reverse_safe(
 
                 if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
                 FOR_0_LE_l_LT_p
-                    RESULTSTRANS(l,indexi) = ARES_INC;
+                    RESULTSTRANS(l,indexi) += ARES_INC;
                 } else {
                 FOR_0_LE_l_LT_p
                     RESULTS(l,indexi) = ARES_INC;
@@ -764,8 +764,10 @@ int int_reverse_safe(
 		    ARES = 0.0;
 #else
                 if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
-                FOR_0_LE_l_LT_p
-                    ARES_INC = LAGRANGETRANS(l,indexd);
+                    FOR_0_LE_l_LT_p {
+                        ARES_INC = LAGRANGETRANS(l,indexd);
+                        LAGRANGETRANS(l,indexd) = 0.0;
+                    }
                 } else {
                 FOR_0_LE_l_LT_p
                     ARES_INC = LAGRANGE(l,indexd);
