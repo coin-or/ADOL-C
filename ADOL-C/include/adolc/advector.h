@@ -106,6 +106,8 @@ public:
     operator adub() const;
     friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&, const badouble&);
     friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&);
+    friend ADOLC_DLL_EXPORT void condeqassign(adubref&, const badouble&, const badouble&, const badouble&);
+    friend ADOLC_DLL_EXPORT void condeqassign(adubref&, const badouble&, const badouble&);
     ~adubref();
 };
 

@@ -62,6 +62,10 @@ void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
 void ADOLC_DLL_EXPORT condassign( double &res, const double &cond,
                                   const double &arg );
 
+void ADOLC_DLL_EXPORT condeqassign( double &res, const double &cond,
+                                    const double &arg1, const double &arg2 );
+void ADOLC_DLL_EXPORT condeqassign( double &res, const double &cond,
+                                    const double &arg );
 
 /****************************************************************************/
 /*                                                           CLASS BADOUBLE */
@@ -184,6 +188,10 @@ public:
     friend ADOLC_DLL_EXPORT void condassign( adouble &res, const badouble &cond,
             const badouble &arg1, const badouble &arg2 );
     friend ADOLC_DLL_EXPORT void condassign( adouble &res, const badouble &cond,
+            const badouble &arg );
+    friend ADOLC_DLL_EXPORT void condeqassign( adouble &res, const badouble &cond,
+            const badouble &arg1, const badouble &arg2 );
+    friend ADOLC_DLL_EXPORT void condeqassign( adouble &res, const badouble &cond,
             const badouble &arg );
 
 #define _IN_CLASS_ 1
