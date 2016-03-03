@@ -81,6 +81,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
 
     if lang == 'R':
         s = 'swig -r -c++ -o ' + outfile + ' ' + infile
+        print('invoking:', s)
         cmd = shlex.split(s)
         warn = ''
         try:
@@ -92,6 +93,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc' + ' -Wl,-no-undefined'
         evars = os.environ 
         evars['PKG_CPPFLAGS'] = "-I../include -std=c++11" 
+        print('invoking:', s)
         cmd = shlex.split(s)
         try:
             warn += subprocess.check_output(cmd,env=evars,stderr=subprocess.STDOUT,universal_newlines=True)
@@ -101,12 +103,14 @@ def invoke_swig_compile(lang,infile,outfile,modname):
             exit()            
         shutil.move(modname + '.so', lang)
         shutil.move(modname + '.R', lang)
+        shutil.move(outfile,lang)
         writeOutput(warn,'warnings-r.txt')
     elif lang == 'python':
         python_cflags = subprocess.check_output(['python-config','--cflags'],universal_newlines=True)
         python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
 
         s = 'swig -python -c++ -o ' + outfile + ' ' + infile
+        print('invoking:', s)
         cmd = shlex.split(s)
         try:
             warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
@@ -114,6 +118,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
             print(e.output)
             print("error in cmd = ", e.cmd)
         s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() + ' -Wl,-no-undefined'
+        print('invoking:', s)
         cmd = shlex.split(s)
         try:
             warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
@@ -123,12 +128,14 @@ def invoke_swig_compile(lang,infile,outfile,modname):
             exit()            
         shutil.move('_' + modname + '.so', lang)
         shutil.move(modname + '.py', lang)
+        shutil.move(outfile,lang)
         writeOutput(warn,'warnings-python.txt')
 
 def finalClean(headfile,outfiles):
     os.remove(headfile)
     for f in outfiles:
-        os.remove(f)
+        if os.path.isfile(f):
+            os.remove(f)
     for f in glob.glob('*.o'):
         os.remove(f)
 
