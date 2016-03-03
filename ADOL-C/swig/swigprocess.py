@@ -63,6 +63,7 @@ def uncomment_local_includes(lines):
 
 def invoke_cpp(infile,outfile):
     s = 'c++ -std=c++11 -E -C -P -o ' + outfile + ' -Iinclude -nostdinc -DSWIGPRE ' + infile
+    print('invoking:', s)
     cmd = shlex.split(s)
     try:
         warn = subprocess.check_output(cmd,universal_newlines=True)
