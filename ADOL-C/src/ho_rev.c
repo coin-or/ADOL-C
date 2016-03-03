@@ -2280,6 +2280,78 @@ int hov_ti_reverse(
                 }
                 break;
 
+            case cond_eq_assign:                                      /* cond_eq_assign */
+                res   = get_locint_r();
+                arg2  = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_A(Aarg2, rpp_A[arg2])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                if (TARG >= 0.0) {
+                    if (res != arg1)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg1, k1)
+                          } else {
+                              if (coval < 0.0)
+                                  MINDEC(ret_c,2);
+                              MAXDEC(AARG1,ARES);
+                              ARES_INC = 0.0;
+                              AARG1_INC_O;
+                              FOR_0_LE_i_LT_k
+                              { AARG1_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                    }
+                    else
+                        FOR_0_LE_l_LT_p {
+                            if ((coval < 0.0) && (ARES))
+                            MINDEC(ret_c,2);
+                            HOV_INC(Ares,  k1)
+                        }
+                    } else /* TARG < 0.0 */
+            {
+                if (res != arg2)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg2, k1)
+                          } else {
+                                  if (coval < 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG2,ARES);
+                                  AARG2_INC_O;
+                              ARES_INC = 0.0;
+
+                              FOR_0_LE_i_LT_k
+                              { AARG2_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                      HOV_INC(Aarg1, k1)
+                    } else
+                        FOR_0_LE_l_LT_p {
+                            if (ARES) {
+                                    if (coval < 0.0)
+                                        MINDEC(ret_c,2);
+                            }
+                        HOV_INC(Ares,  k1)
+                        HOV_INC(Aarg1, k1)
+                        HOV_INC(Aarg2, k1)
+                    }
+                }
+                break;
+
                 /*--------------------------------------------------------------------------*/
             case cond_assign_s:                                  /* cond_assign_s */
                 res   = get_locint_r();
@@ -2324,6 +2396,45 @@ int hov_ti_reverse(
                         else
                             FOR_0_LE_l_LT_p {
                                 if ((coval <= 0.0) && (ARES))
+                                MINDEC(ret_c,2);
+                                HOV_INC(Ares,  k1)
+                            }
+                        }
+            break;
+            case cond_eq_assign_s:                                  /* cond_eq_assign_s */
+                res   = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                    if (TARG >= 0.0) {
+                        if (res != arg1)
+                            FOR_0_LE_l_LT_p
+                            { if  (0 == ARES) {
+                              HOV_INC(Ares,  k1)
+                                  HOV_INC(Aarg1, k1)
+                              } else {
+                                  if (coval < 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG1,ARES);
+                                  ARES_INC = 0.0;
+                                  AARG1_INC_O;
+                                  FOR_0_LE_i_LT_k
+                                  { (AARG1_INC) += ARES;
+                                    ARES_INC = 0;
+                                  }
+                              }
+                        }
+                        else
+                            FOR_0_LE_l_LT_p {
+                                if ((coval < 0.0) && (ARES))
                                 MINDEC(ret_c,2);
                                 HOV_INC(Ares,  k1)
                             }
@@ -2892,6 +3003,90 @@ int hov_ti_reverse(
                 }
 	    }
                 break;
+            case ref_cond_eq_assign:                                      /* cond_eq_assign */
+	    {   
+		revreal *Tref;
+		locint ref   = get_locint_r();
+                arg2  = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+		
+		ASSIGN_T(Tref, rpp_T[ref])
+
+#ifdef _HIGHER_ORDER_
+#define TREF  *Tref
+#else
+#define TREF   rpp_T[ref]
+#endif   
+
+		res = (size_t)trunc(fabs(TREF));
+#undef TREF
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_A(Aarg2, rpp_A[arg2])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                if (TARG >= 0.0) {
+                    if (res != arg1)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg1, k1)
+                          } else {
+                              if (coval < 0.0)
+                                  MINDEC(ret_c,2);
+                              MAXDEC(AARG1,ARES);
+                              ARES_INC = 0.0;
+                              AARG1_INC_O;
+                              FOR_0_LE_i_LT_k
+                              { AARG1_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                    }
+                    else
+                        FOR_0_LE_l_LT_p {
+                            if ((coval < 0.0) && (ARES))
+                            MINDEC(ret_c,2);
+                            HOV_INC(Ares,  k1)
+                        }
+                    } else /* TARG < 0.0 */
+            {
+                if (res != arg2)
+                        FOR_0_LE_l_LT_p
+                        { if (0 == ARES) {
+                          HOV_INC(Ares,  k1)
+                              HOV_INC(Aarg2, k1)
+                          } else {
+                                  if (coval < 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG2,ARES);
+                                  AARG2_INC_O;
+                              ARES_INC = 0.0;
+
+                              FOR_0_LE_i_LT_k
+                              { AARG2_INC += ARES;
+                                ARES_INC = 0;
+                              }
+                          }
+                      HOV_INC(Aarg1, k1)
+                    } else
+                        FOR_0_LE_l_LT_p {
+                            if (ARES) {
+                                    if (coval < 0.0)
+                                        MINDEC(ret_c,2);
+                            }
+                        HOV_INC(Ares,  k1)
+                        HOV_INC(Aarg1, k1)
+                        HOV_INC(Aarg2, k1)
+                    }
+                }
+	    }
+                break;
 
             case ref_cond_assign_s:                                  /* cond_assign_s */
                 arg2   = get_locint_r();
@@ -2939,6 +3134,49 @@ int hov_ti_reverse(
                         else
                             FOR_0_LE_l_LT_p {
                                 if ((coval <= 0.0) && (ARES))
+                                MINDEC(ret_c,2);
+                                HOV_INC(Ares,  k1)
+                            }
+                        }
+            break;
+
+            case ref_cond_eq_assign_s:                                  /* cond_eq_assign_s */
+                arg2   = get_locint_r();
+                arg1  = get_locint_r();
+                arg   = get_locint_r();
+                coval = get_val_r();
+		
+		ASSIGN_T(Targ2, rpp_T[arg2])
+		res = (size_t)trunc(fabs(TARG2));
+
+                GET_TAYL(res,k,p)
+
+                ASSIGN_A(Aarg1, rpp_A[arg1])
+                ASSIGN_A(Ares,  rpp_A[res])
+                ASSIGN_T(Targ,  rpp_T[arg])
+
+                /* olvo 980925 changed code a little bit */
+                    if (TARG >= 0.0) {
+                        if (res != arg1)
+                            FOR_0_LE_l_LT_p
+                            { if  (0 == ARES) {
+                              HOV_INC(Ares,  k1)
+                                  HOV_INC(Aarg1, k1)
+                              } else {
+                                  if (coval < 0.0)
+                                      MINDEC(ret_c,2);
+                                  MAXDEC(AARG1,ARES);
+                                  ARES_INC = 0.0;
+                                  AARG1_INC_O;
+                                  FOR_0_LE_i_LT_k
+                                  { (AARG1_INC) += ARES;
+                                    ARES_INC = 0;
+                                  }
+                              }
+                        }
+                        else
+                            FOR_0_LE_l_LT_p {
+                                if ((coval < 0.0) && (ARES))
                                 MINDEC(ret_c,2);
                                 HOV_INC(Ares,  k1)
                             }

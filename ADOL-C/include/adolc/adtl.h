@@ -151,6 +151,10 @@ public:
             const adouble &arg1, const adouble &arg2 );
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg );
+    inline friend void condeqassign( adouble &res, const adouble &cond,
+            const adouble &arg1, const adouble &arg2 );
+    inline friend void condeqassign( adouble &res, const adouble &cond,
+            const adouble &arg );
 
     /*******************  nontemporary results  ***************************/
     // assignment
@@ -1318,6 +1322,32 @@ inline void condassign( adouble &res, const adouble &cond,
     }
     if (do_val()) {
 	if (cond.getValue() > 0) 
+	    res = arg;
+    }
+}
+
+inline void condeqassign( adouble &res, const adouble &cond,
+                          const adouble &arg1, const adouble &arg2 ) {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    if (do_val()) {
+	if (cond.getValue() >= 0) 
+	    res = arg1;
+	else
+	    res = arg2;
+    }
+}
+
+inline void condeqassign( adouble &res, const adouble &cond,
+                          const adouble &arg ) {
+    if (no_do_val()) {
+	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    if (do_val()) {
+	if (cond.getValue() >= 0) 
 	    res = arg;
     }
 }

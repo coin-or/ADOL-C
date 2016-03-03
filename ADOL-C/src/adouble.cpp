@@ -44,6 +44,17 @@ void condassign( double &res, const double &cond,
 }
 
 /*--------------------------------------------------------------------------*/
+void condeqassign( double &res, const double &cond,
+                   const double &arg1, const double &arg2 ) {
+    res = cond >= 0 ? arg1 : arg2;
+}
+
+/*--------------------------------------------------------------------------*/
+void condeqassign( double &res, const double &cond,
+                   const double &arg) {
+    res = cond >= 0 ? arg : res;
+}
+/*--------------------------------------------------------------------------*/
 /* The remaining routines define the badouble, adub and adouble routines.   */
 /*--------------------------------------------------------------------------*/
 
@@ -2017,6 +2028,50 @@ void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
     }
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+        ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
+}
+/*--------------------------------------------------------------------------*/
+void condeqassign( adouble &res,         const badouble &cond,
+                   const badouble &arg1, const badouble &arg2 ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign(res.loc(),cond.loc(),arg1.loc(),
+        //		     arg2.loc());
+        put_op(cond_eq_assign);
+        ADOLC_PUT_LOCINT(cond.loc()); // = arg
+        ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
+        ADOLC_PUT_LOCINT(arg1.loc()); // = arg1
+        ADOLC_PUT_LOCINT(arg2.loc()); // = arg2
+        ADOLC_PUT_LOCINT(res.loc());  // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+    }
+
+    if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] >= 0)
+        ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg1.loc()];
+    else
+        ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
+}
+
+/*--------------------------------------------------------------------------*/
+void condeqassign( adouble &res, const badouble &cond, const badouble &arg ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.loc(),cond.loc(),arg.loc());
+        put_op(cond_eq_assign_s);
+        ADOLC_PUT_LOCINT(cond.loc()); // = arg
+        ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
+        ADOLC_PUT_LOCINT(arg.loc());  // = arg1
+        ADOLC_PUT_LOCINT(res.loc());  // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+    }
+
+    if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] >= 0)
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
 }
 

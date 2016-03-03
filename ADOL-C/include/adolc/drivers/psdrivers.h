@@ -28,19 +28,21 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                             directional_active_gradient_ */
 /*                                                                          */
-ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,double*,double*,short*);  
+ADOLC_DLL_EXPORT fint directional_active_gradient_(fint,fint,double*,short*,double*,double*,double**,short*);  
 /*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
 ADOLC_DLL_EXPORT int directional_active_gradient(
                                 short tag,      /* trace identifier */
-				int n,          /* number of independents */
-				double* x,      /* value of independents */
-				short *sigma_x, /* sigma of x */
-				double* d,      /* direction */
-				double* g,      /* directional active gradient */
-				short *sigma_g  /* sigma of g */
-				);
+                                int n,          /* number of independents */
+                                double* x,      /* value of independents */
+                                short *sigma_x, /* sigma of x */
+                                double* d,      /* direction */
+                                double* g,      /* directional active gradient */
+                                double** grad_u, 
+                                short *sigma_g  /* sigma of g */
+                                );
+
 
 /*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
