@@ -69,10 +69,6 @@
 %ignore ext_diff_fct_v2;
 %ignore CpInfos;
 
-
-%include <carrays.i>
-%array_class(double,swlocaldouble)
-
 %include "adolc_all.h"
 
 %ignore frexp;
