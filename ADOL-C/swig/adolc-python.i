@@ -3,8 +3,6 @@
  File:     adolc-python.i
  Revision: $Id$
  Contents: Provides all C/C++ interfaces of ADOL-C.
-           NOTICE: ALL C/C++ headers will be included DEPENDING ON 
-           whether the source code is plain C or C/C++ code. 
  
  Copyright (c) Kshitij Kulshreshtha
 

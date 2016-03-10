@@ -1,3 +1,17 @@
+/*----------------------------------------------------------------------------
+ ADOL-C -- Automatic Differentiation by Overloading in C++
+ File:     adolc-numpy-for.i
+ Revision: $Id$
+ Contents: Provides all NumPY forward interfaces of ADOL-C.
+ 
+ Copyright (c) Kshitij Kulshreshtha
+
+ This file is part of ADOL-C. This software is provided as open source.
+ Any use, reproduction, or distribution of the software constitutes 
+ recipient's acceptance of the terms of the accompanying license file.  
+ 
+----------------------------------------------------------------------------*/
+
 %rename (forward) npy_forward;
 %rename (zos_forward) npy_zos_forward;
 %rename (fos_forward) npy_fos_forward;
