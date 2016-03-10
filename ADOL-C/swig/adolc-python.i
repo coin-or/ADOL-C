@@ -260,3 +260,4 @@ import_array();
 }
 
 %include "adolc-numpy-for.i"
+%include "adolc-numpy-drv.i"
