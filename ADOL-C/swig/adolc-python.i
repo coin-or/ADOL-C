@@ -16,7 +16,14 @@
 
 %module adolc
 %{
+#define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
+%}
+
+%include "numpy.i"
+
+%init %{
+import_array();
 %}
 
 %feature("novaluewrapper") badouble;
@@ -39,8 +46,14 @@
 %ignore *::operator--;
 %ignore *::operator=;
 %ignore zos_forward_nk;
+%ignore zos_forward_partx;
 %ignore fos_forward_nk;
+%ignore fos_forward_partx;
 %ignore hos_forward_nk;
+%ignore hos_forward_partx;
+%ignore fov_forward_partx;
+%ignore fov_offset_forward;
+%ignore hov_forward_partx;
 %ignore function_;
 %ignore gradient_;
 %ignore jacobian_;
@@ -247,3 +260,5 @@
         return (adub*) (a / (*($self)));
     }
 }
+
+%include "adolc-numpy-for.i"

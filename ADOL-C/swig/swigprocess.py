@@ -103,7 +103,9 @@ def invoke_swig_compile(lang,infile,outfile,modname):
             print(e.output)
             print("error in cmd = ", e.cmd)
             exit()
-        s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc' + ' -Wl,-no-undefined'
+        s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc'
+        if sys.platform.startswith('linux'):
+            s += ' -Wl,-no-undefined'
         evars = os.environ 
         evars['PKG_CPPFLAGS'] = "-I../include -std=c++11" 
         print('invoking:', s)
@@ -121,16 +123,24 @@ def invoke_swig_compile(lang,infile,outfile,modname):
     elif lang == 'python':
         python_cflags = subprocess.check_output(['python-config','--cflags'],universal_newlines=True)
         python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
+        from numpy.distutils import misc_util as npy_dist
+        incp = npy_dist.get_numpy_include_dirs()
+        npy_cflags = ''
+        for p in incp:
+            npy_cflags += ' -I' + p 
 
         s = 'swig -python -c++ -o ' + outfile + ' ' + infile
         print('invoking:', s)
         cmd = shlex.split(s)
+        warn = ''
         try:
-            warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
         except subprocess.CalledProcessError as e:
             print(e.output)
             print("error in cmd = ", e.cmd)
-        s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() + ' -Wl,-no-undefined'
+        s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + npy_cflags + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() 
+        if sys.platform.startswith('linux'):
+            s += ' -Wl,-no-undefined'
         print('invoking:', s)
         cmd = shlex.split(s)
         try:
@@ -145,7 +155,8 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         writeOutput(warn,'warnings-python.txt')
 
 def finalClean(headfile,outfiles):
-    os.remove(headfile)
+    if os.path.isfile(headfile):
+        os.remove(headfile)
     for f in outfiles:
         if os.path.isfile(f):
             os.remove(f)
@@ -153,7 +164,6 @@ def finalClean(headfile,outfiles):
         os.remove(f)
 
 def main():
-    atexit.register(call_make_clean)
     sys.path = [ os.getcwd() ] + sys.path
     p = os.getcwd() + '/../include/adolc'
     for (dp, dn, fn) in os.walk(p):
