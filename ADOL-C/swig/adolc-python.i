@@ -3,8 +3,6 @@
  File:     adolc-python.i
  Revision: $Id$
  Contents: Provides all C/C++ interfaces of ADOL-C.
-           NOTICE: ALL C/C++ headers will be included DEPENDING ON 
-           whether the source code is plain C or C/C++ code. 
  
  Copyright (c) Kshitij Kulshreshtha
 
@@ -16,7 +14,14 @@
 
 %module adolc
 %{
+#define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
+%}
+
+%include "numpy.i"
+
+%init %{
+import_array();
 %}
 
 %feature("novaluewrapper") badouble;
@@ -39,8 +44,14 @@
 %ignore *::operator--;
 %ignore *::operator=;
 %ignore zos_forward_nk;
+%ignore zos_forward_partx;
 %ignore fos_forward_nk;
+%ignore fos_forward_partx;
 %ignore hos_forward_nk;
+%ignore hos_forward_partx;
+%ignore fov_forward_partx;
+%ignore fov_offset_forward;
+%ignore hov_forward_partx;
 %ignore function_;
 %ignore gradient_;
 %ignore jacobian_;
@@ -76,7 +87,7 @@
 %ignore *::operator[](const badouble&);
 %ignore *::operator[](size_t);
 
-%include "adolc_all.h"
+%include "adolc_all.hpp"
 
 %extend advector {
     adub* __getitem__(const badouble& index) const {
@@ -247,3 +258,6 @@
         return (adub*) (a / (*($self)));
     }
 }
+
+%include "adolc-numpy-for.i"
+%include "adolc-numpy-drv.i"

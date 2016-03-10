@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import atexit
 
-noerrors = False
+noerrors = True
 
 @atexit.register
 def call_make_clean():
@@ -103,7 +103,9 @@ def invoke_swig_compile(lang,infile,outfile,modname):
             print(e.output)
             print("error in cmd = ", e.cmd)
             exit()
-        s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc' + ' -Wl,-no-undefined'
+        s = 'R CMD SHLIB -o ' + modname + '.so ' + outfile + ' -L../.libs -ladolc'
+        if sys.platform.startswith('linux'):
+            s += ' -Wl,-no-undefined'
         evars = os.environ 
         evars['PKG_CPPFLAGS'] = "-I../include -std=c++11" 
         print('invoking:', s)
@@ -121,16 +123,24 @@ def invoke_swig_compile(lang,infile,outfile,modname):
     elif lang == 'python':
         python_cflags = subprocess.check_output(['python-config','--cflags'],universal_newlines=True)
         python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
+        from numpy.distutils import misc_util as npy_dist
+        incp = npy_dist.get_numpy_include_dirs()
+        npy_cflags = ''
+        for p in incp:
+            npy_cflags += ' -I' + p 
 
         s = 'swig -python -c++ -o ' + outfile + ' ' + infile
         print('invoking:', s)
         cmd = shlex.split(s)
+        warn = ''
         try:
-            warn = subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
         except subprocess.CalledProcessError as e:
             print(e.output)
             print("error in cmd = ", e.cmd)
-        s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() + ' -Wl,-no-undefined'
+        s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + npy_cflags + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() 
+        if sys.platform.startswith('linux'):
+            s += ' -Wl,-no-undefined'
         print('invoking:', s)
         cmd = shlex.split(s)
         try:
@@ -145,15 +155,17 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         writeOutput(warn,'warnings-python.txt')
 
 def finalClean(headfile,outfiles):
-    os.remove(headfile)
+    if os.path.isfile(headfile):
+        os.remove(headfile)
     for f in outfiles:
         if os.path.isfile(f):
             os.remove(f)
     for f in glob.glob('*.o'):
         os.remove(f)
 
-def main():
-    atexit.register(call_make_clean)
+def main(args):
+    global noerrors
+    noerrors = False
     sys.path = [ os.getcwd() ] + sys.path
     p = os.getcwd() + '/../include/adolc'
     for (dp, dn, fn) in os.walk(p):
@@ -168,16 +180,27 @@ def main():
                 pass
             writeOutput(lines, ndp + "/" + f)
     
-    invoke_cpp('adolc_all_in.h', 'adolc_all_pre.h')
-    lines = readFile('adolc_all_pre.h')
+    invoke_cpp('adolc_all_in.hpp', 'adolc_all_pre.hpp')
+    lines = readFile('adolc_all_pre.hpp')
     lines = reinstate_nonlocal_include(lines)
-    writeOutput(lines,'adolc_all.h')
-    cleanup('adolc_all_pre.h')
-    invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
-    invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
-    finalClean('adolc_all.h',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
-    global noerrors
+    writeOutput(lines,'adolc_all.hpp')
+    cleanup('adolc_all_pre.hpp')
+    if args.py or args.all:
+        invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
+    if args.r or args.all:
+        invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
+    finalClean('adolc_all.hpp',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
     noerrors = True
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Compile Swig Interfaces')
+    parser.add_argument('--py', '--python', action='store_true', 
+                        help='compile python interface')
+    parser.add_argument('--r', action='store_true',
+                        help='compile R interface')
+    parser.add_argument('--all', action='store_true', default=True,
+                        help='compile all interfaces (python and R) [default]')
+    args = parser.parse_args()
+    if args.py or args.r:
+        args.all = False
+    main(args)

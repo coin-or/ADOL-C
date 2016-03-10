@@ -60,6 +60,35 @@ char* populate_dpp(double ***const pointer, char *const memory,
     return tmp;
 }
 /*--------------------------------------------------------------------------*/
+char* populate_dpp_nodata(double ***const pointer, char *const memory,
+                          int n) {
+    char* tmp;
+    double **tmp1; double *tmp2;
+    int i,j;
+    tmp = (char*)memory;
+    tmp1 = (double**) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
+char* populate_dpp_with_contigdata(double ***const pointer, char *const memory,
+                                   int n, int m, double *const data) {
+    char* tmp;
+    double **tmp1; double *tmp2;
+    int i,j;
+    tmp = (char*)memory;
+    tmp1 = (double**) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = data;
+    for (i=0;i<n;i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
 char* populate_dppp(double ****const pointer, char *const memory, 
                            int n, int m, int p) {
     char* tmp;
@@ -101,6 +130,30 @@ char* populate_dppp_nodata(double ****const pointer, char *const memory,
         tmp2 += m;
     }
     tmp = (char*)tmp2;
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
+char* populate_dppp_with_contigdata(double ****const pointer, char *const memory, 
+                                    int n, int m, int p, double *const data) {
+    char* tmp;
+    double ***tmp1; double **tmp2; double *tmp3;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double***) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double**)tmp;
+    for(i=0; i<n; i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    tmp3 = data;
+    for(i=0;i<n;i++)
+        for(j=0;j<m;j++) {
+            (*pointer)[i][j] = tmp3;
+            tmp3 += p;
+        }
     return tmp;
 }
 /*--------------------------------------------------------------------------*/
