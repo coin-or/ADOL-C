@@ -180,16 +180,16 @@ def main(args):
                 pass
             writeOutput(lines, ndp + "/" + f)
     
-    invoke_cpp('adolc_all_in.h', 'adolc_all_pre.h')
-    lines = readFile('adolc_all_pre.h')
+    invoke_cpp('adolc_all_in.hpp', 'adolc_all_pre.hpp')
+    lines = readFile('adolc_all_pre.hpp')
     lines = reinstate_nonlocal_include(lines)
-    writeOutput(lines,'adolc_all.h')
-    cleanup('adolc_all_pre.h')
+    writeOutput(lines,'adolc_all.hpp')
+    cleanup('adolc_all_pre.hpp')
     if args.py or args.all:
         invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
     if args.r or args.all:
         invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
-    finalClean('adolc_all.h',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
+    finalClean('adolc_all.hpp',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
     noerrors = True
 
 if __name__ == '__main__':

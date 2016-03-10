@@ -87,7 +87,7 @@ import_array();
 %ignore *::operator[](const badouble&);
 %ignore *::operator[](size_t);
 
-%include "adolc_all.h"
+%include "adolc_all.hpp"
 
 %extend advector {
     adub* __getitem__(const badouble& index) const {
