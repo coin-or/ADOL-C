@@ -52,7 +52,9 @@
     int npy_forward(short t, int m, int n, int d, int keep, double* X, int n1, int d1, double* Y, int m2, int d2) {
         if (n1 != n || m2 != m || d2 != d+1 || d1 != d+1) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,%d), (%d,%d)",n,d,m,d
+                );
             return 1;
         } else {
             char *memory = (char*)malloc( (n1 + m2) * sizeof(double*) );
@@ -69,7 +71,9 @@
     int npy_forward(short t, int m, int n, int d, int keep, double* X, int n1, int d1, double* y, int d2) {
         if (n1 != n || d2 != d+1 || d1 != d+1) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,%d), (%d,)",n,d+1,d+1
+                );
             return 1;
         } else {
             char *memory = (char*)malloc( n1 * sizeof(double*) );
@@ -85,7 +89,9 @@
     int npy_forward(short t, int m, int n, int d, int keep, double* x, int n1, double* y, int m2) {
         if (n1 != n || m2 != m ) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,)",n,m
+                );
             return 1;
         } else {
             return forward(t,m,n,d,keep,x,y);
@@ -94,7 +100,9 @@
     int npy_forward(short t, int m, int n, int keep, double* x, int n1, double* y, int m2) {
         if (n1 != n || m2 != m ) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,)",n,m
+                );
             return 1;
         } else {
             return forward(t,m,n,keep,x,y);
@@ -103,7 +111,9 @@
     int npy_forward(short t, int m, int n, int d, int p, double* x, int n1, double* X, int n2, int p2, int d2, double* y, int m2, double* Y, int m3, int p3, int d3) {
         if (n1 != n || n2 != n || m2 != m || m3 != m || d2 != d || d3 != d || p2 != p || p3 != p ) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d,%d), (%d,), (%d,%d,%d)",n,n,p,d,m,m,p,d
+                );
             return 1;
         } else {
             char *memory = (char*) malloc( (n2 + m3) * sizeof(double**) + ((n2*p2) + (m3 *p3))*sizeof(double*));
@@ -120,7 +130,9 @@
     int npy_forward(short t, int m, int n, int p, double* x, int n1, double* X, int n2, int p2, double* y, int m2, double* Y, int m3, int p3) {
         if (n1 != n || n2 != n || m2 != m || m3 != m || p2 != p || p3 != p ) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d), (%d,), (%d,%d)",n,n,p,m,m,p
+                );
             return 1;
         } else {
             char *memory = (char*) malloc( (n2 + m3) * sizeof(double*) );
@@ -140,7 +152,9 @@ extern "C" {
     int npy_zos_forward(short t, int m, int n, int keep, double* x, int n1, double *y, int m2) {
         if (n1 != n || m2 != m) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,)",n,m
+                );
             return 1;
         } else {
             return zos_forward(t,m,n,keep,x,y);
@@ -149,7 +163,9 @@ extern "C" {
     int npy_fos_forward(short t, int m, int n, int keep, double* x, int n1, double* xp, int n2, double* y, int m2, double* yp, int m3) {
         if (n1 != n || n2 != n || m2 != m || m3 != m) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,), (%d,), (%d,)",n,n,m,m
+                );
             return 1;
         } else {
             return fos_forward(t,m,n,keep,x,xp,y,yp);
@@ -158,7 +174,9 @@ extern "C" {
     int npy_fov_forward(short t, int m, int n, int p, double* x, int n1, double* X, int n2, int p2, double* y, int m2, double* Y, int m3, int p3) {
         if (n1 != n || n2 != n || m2 != m || m3 != m || p2 != p || p3 != p) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d), (%d,), (%d,%d)",n,n,p,m,m,p
+                );
             return 1;
         } else {
             char *memory = (char*)malloc((n2 + m3) * sizeof(double*));
@@ -175,7 +193,9 @@ extern "C" {
     int npy_hos_forward(short t, int m, int n, int d, int keep, double* x, int n0, double* X, int n1, int d1, double* y, int m1, double* Y, int m2, int d2) {
         if (n0 != n || n1 != n || d1 != d || d2 != d || m1 != m || m2 != m) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d), (%d,), (%d,%d)",n,n,d,m,m,d
+                );
             return 1;
         } else {
             char *memory = (char*)malloc((n1 + m2) * sizeof(double*));
@@ -192,7 +212,9 @@ extern "C" {
     int npy_hov_forward(short t, int m, int n, int d, int p, double* x, int n1, double* X, int n2, int p2, int d2, double* y, int m2, double* Y, int m3, int p3, int d3) {
         if (n1 != n || n2 != n || d2 != d || d3 != d || m2 != m || m3 != m || p2 != p || p3 != p) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d,%d), (%d,), (%d,%d,%d)",n,n,p,d,m,m,p,d
+                );
             return 1;
         } else {
             char *memory = (char*)malloc((n2 + m3) * sizeof(double**) + (n2*p2 + m3*p3) * sizeof(double*) );
@@ -209,7 +231,9 @@ extern "C" {
     int npy_hov_wk_forward(short t, int m, int n, int d, int p, int keep, double* x, int n1, double* X, int n2, int p2, int d2, double* y, int m2, double* Y, int m3, int p3, int d3) {
         if (n1 != n || n2 != n || d2 != d || d3 != d || m2 != m || m3 != m || p2 != p || p3 != p) {
             PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions");
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,%d,%d), (%d,), (%d,%d,%d)",n,n,p,d,m,m,p,d
+                );
             return 1;
         } else {
             char *memory = (char*)malloc((n2 + m3) * sizeof(double**) + (n2*p2 + m3*p3) * sizeof(double*) );
