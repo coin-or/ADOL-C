@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import atexit
 
-noerrors = False
+noerrors = True
 
 @atexit.register
 def call_make_clean():
@@ -163,7 +163,9 @@ def finalClean(headfile,outfiles):
     for f in glob.glob('*.o'):
         os.remove(f)
 
-def main():
+def main(args):
+    global noerrors
+    noerrors = False
     sys.path = [ os.getcwd() ] + sys.path
     p = os.getcwd() + '/../include/adolc'
     for (dp, dn, fn) in os.walk(p):
@@ -183,11 +185,22 @@ def main():
     lines = reinstate_nonlocal_include(lines)
     writeOutput(lines,'adolc_all.h')
     cleanup('adolc_all_pre.h')
-    invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
-    invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
+    if args.py or args.all:
+        invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
+    if args.r or args.all:
+        invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
     finalClean('adolc_all.h',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
-    global noerrors
     noerrors = True
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Compile Swig Interfaces')
+    parser.add_argument('--py', '--python', action='store_true', 
+                        help='compile python interface')
+    parser.add_argument('--r', action='store_true',
+                        help='compile R interface')
+    parser.add_argument('--all', action='store_true', default=True,
+                        help='compile all interfaces (python and R) [default]')
+    args = parser.parse_args()
+    if args.py or args.r:
+        args.all = False
+    main(args)
