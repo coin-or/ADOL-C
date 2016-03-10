@@ -1,0 +1,98 @@
+--- R/adolc.R.old	2016-03-09 16:00:30.000000000 -0600
++++ R/adolc.R	2016-03-10 15:56:41.000000000 -0600
+@@ -8706,7 +8706,9 @@
+ attr(`Plus__SWIG_7`, "inputTypes") = c('_p_badouble', '_p_pdouble')
+ class(`Plus__SWIG_7`) = c("SWIGFunction", class('Plus__SWIG_7'))
+ 
+-`Plus` <- function(...) {
++`oldplus` <- `+`
++
++`+` <- function(...) {
+   argtypes <- mapply(class, list(...));
+   argv <- list(...);
+   argc <- length(argtypes);
+@@ -8736,9 +8738,11 @@
+     }
+     else if (( is.numeric(argv[[1]]) && length(argv[[1]]) == 1 ) && extends(argtypes[2], '_p_badouble') && length(argv[[2]]) == 1) {
+       f <- Plus__SWIG_2; 
++    } else {
++        f <- oldplus;
+     }
+   } else {
+-    stop("cannot find overloaded function for Plus with argtypes (",toString(argtypes),")");
++      f <- oldplus;
+   };
+   f(...);
+ }
+@@ -8811,7 +8815,9 @@
+ attr(`Minus__SWIG_8`, "inputTypes") = c('_p_pdouble', '_p_badouble')
+ class(`Minus__SWIG_8`) = c("SWIGFunction", class('Minus__SWIG_8'))
+ 
+-`Minus` <- function(...) {
++`oldminus` <- `-`
++
++`-` <- function(...) {
+   argtypes <- mapply(class, list(...));
+   argv <- list(...);
+   argc <- length(argtypes);
+@@ -8844,9 +8850,11 @@
+     }
+     else if (( is.numeric(argv[[1]]) && length(argv[[1]]) == 1 ) && extends(argtypes[2], '_p_badouble') && length(argv[[2]]) == 1) {
+       f <- Minus__SWIG_4; 
++    } else {
++        f <- oldminus;
+     }
+   } else {
+-    stop("cannot find overloaded function for Minus with argtypes (",toString(argtypes),")");
++      f <- oldminus;
+   };
+   f(...);
+ }
+@@ -8919,7 +8927,9 @@
+ attr(`Multiply__SWIG_6`, "inputTypes") = c('numeric', '_p_pdouble')
+ class(`Multiply__SWIG_6`) = c("SWIGFunction", class('Multiply__SWIG_6'))
+ 
+-`Multiply` <- function(...) {
++`oldmultiply` <- `*`
++
++`*` <- function(...) {
+   argtypes <- mapply(class, list(...));
+   argv <- list(...);
+   argc <- length(argtypes);
+@@ -8945,9 +8955,11 @@
+     }
+     else if (( is.numeric(argv[[1]]) && length(argv[[1]]) == 1 ) && extends(argtypes[2], '_p_pdouble') && length(argv[[2]]) == 1) {
+       f <- Multiply__SWIG_6; 
++    } else {
++        f <- oldmultiply;
+     }
+   } else {
+-    stop("cannot find overloaded function for Multiply with argtypes (",toString(argtypes),")");
++      f <- oldmultiply;
+   };
+   f(...);
+ }
+@@ -9036,7 +9048,9 @@
+ attr(`Divide__SWIG_6`, "inputTypes") = c('_p_pdouble', '_p_badouble')
+ class(`Divide__SWIG_6`) = c("SWIGFunction", class('Divide__SWIG_6'))
+ 
+-`Divide` <- function(...) {
++`olddivide` <- `/`
++
++`/` <- function(...) {
+   argtypes <- mapply(class, list(...));
+   argv <- list(...);
+   argc <- length(argtypes);
+@@ -9062,9 +9076,11 @@
+     }
+     else if (( is.numeric(argv[[1]]) && length(argv[[1]]) == 1 ) && extends(argtypes[2], '_p_pdouble') && length(argv[[2]]) == 1) {
+       f <- Divide__SWIG_4; 
++    } else {
++        f <- olddivide;
+     }
+   } else {
+-    stop("cannot find overloaded function for Divide with argtypes (",toString(argtypes),")");
++      f <- olddivide;
+   };
+   f(...);
+ }
