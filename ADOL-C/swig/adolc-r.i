@@ -65,6 +65,13 @@
 %ignore pack2;
 %ignore spread3;
 %ignore pack3;
+%ignore ext_diff_fct;
+%ignore ext_diff_fct_v2;
+%ignore CpInfos;
+
+
+%include <carrays.i>
+%array_class(double,swlocaldouble)
 
 %include "adolc_all.h"
 
