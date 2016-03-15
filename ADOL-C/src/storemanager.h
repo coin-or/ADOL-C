@@ -78,10 +78,11 @@
 #endif
 #include <adolc/internal/common.h>
 
-class Keeper;
+class GlobalTapeVarsCL;
+extern "C" void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
 
 class StoreManager {
-  friend class Keeper;
+  friend void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
 protected:
   static size_t const initialSize = 4;
   double myGcTriggerRatio;
