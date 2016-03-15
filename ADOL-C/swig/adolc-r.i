@@ -69,7 +69,7 @@
 %ignore ext_diff_fct_v2;
 %ignore CpInfos;
 
-%include "adolc_all.h"
+%include "adolc_all.hpp"
 
 %ignore frexp;
 

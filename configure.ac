@@ -328,9 +328,14 @@ COLPACK_CONF
 
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
+SPARSE_DRIVERS="#undef SPARSE_DRIVERS"
+
 if test x$sparse = xyes ; then
    AC_DEFINE(SPARSE,[1],[Define 1 if sparse derivative propagation is to be enabled])
+   SPARSE_DRIVERS="#define SPARSE_DRIVERS 1"
 fi
+
+AC_SUBST(SPARSE_DRIVERS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)

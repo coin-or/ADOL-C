@@ -30,4 +30,8 @@ typedef @REAL_TYPE@ revreal;
 /* Enable/disable advanced branching */
 @ADVBRANCH@
 
+/*--------------------------------------------------------------------------*/
+/* Sparse drivers have been compiled */
+@SPARSE_DRIVERS@
+
 #endif
