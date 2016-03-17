@@ -4636,6 +4636,114 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
 
+            case cond_eq_assign:                                      /* cond_eq_assign */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2  = get_locint_f();
+                res   = get_locint_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
+
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined (_INDO_)
+#if defined (_INDOPRO_)
+#if defined (_TIGHT_)
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+		    copy_index_domain(res, arg1, ind_dom);
+
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+		    copy_index_domain(res, arg2, ind_dom);
+                }
+#else
+		    combine_2_index_domains(res, arg1, arg2, ind_dom);
+#endif
+#endif
+#if defined (_NONLIND_)
+#ifdef _TIGHT_
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+		    arg_index[res] = arg_index[arg1];		
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+
+		    arg_index[res] = arg_index[arg2];		
+                }
+
+#else
+               arg_index[res] = opind++;		
+#endif
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+#ifdef _TIGHT_
+                coval = get_val_f();
+
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+#endif /* _TIGHT_ */
+#ifdef _NTIGHT_
+                FOR_0_LE_l_LT_pk
+                TRES_INC = TARG1_INC | TARG2_INC;
+#endif /* _NTIGHT_ */
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+#endif
+
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
                 /*--------------------------------------------------------------------------*/
             case cond_assign_s:                                  /* cond_assign_s */
                 arg   = get_locint_f();
@@ -4702,6 +4810,67 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
 
+
+            case cond_eq_assign_s:                                  /* cond_eq_assign_s */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                res   = get_locint_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
+
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+#ifdef _TIGHT_
+		if (dp_T0[arg] >= 0)
+		    copy_index_domain(res, arg1, ind_dom);
+#else
+		merge_2_index_domains(res, arg1, ind_dom);
+#endif
+#endif
+#if defined(_NONLIND_)
+                arg_index[res] = arg_index[arg1];		
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+#ifdef _TIGHT_
+                coval = get_val_f();
+
+                if (dp_T0[arg] >= 0)
+#endif /* _TIGHT_ */
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+
+#ifdef _TIGHT_
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                }
+#endif /* _TIGHT_ */
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+#endif
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                }
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
 
                 /*--------------------------------------------------------------------------*/
 		/* NEW CONDITIONALS */
@@ -5713,6 +5882,105 @@ int  hov_forward(
 		}
                 break;
 
+            case ref_cond_eq_assign:                                      /* cond_eq_assign */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2  = get_locint_f();
+		{ 
+#if !defined(_NTIGHT_)
+		    locint ref = 
+#endif
+		    get_locint_f();
+#if !defined(_NTIGHT_)
+		    coval = 
+#endif
+		    get_val_f();
+#if !defined(_NTIGHT_)
+		    res   = (size_t)trunc(fabs(dp_T0[ref]));
+
+		    IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+
+#if defined(_INDOPRO_)
+		    copy_index_domain(res, arg2, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg2];
+#endif
+                }
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+                ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+                FOR_0_LE_l_LT_pk
+                TRES_INC = TARG1_INC | TARG2_INC;
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+                else
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG2_INC;
+#endif
+
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                } else {
+                    if (coval >= 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg2];
+                }
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		adolc_exit(-2,"",__func__,__FILE__,__LINE__);
+#endif /* ALL_TOGETHER_AGAIN */
+		}
+                break;
+
             case ref_cond_assign_s:                                  /* cond_assign_s */
                 arg   = get_locint_f();
                 arg1  = get_locint_f();
@@ -5769,6 +6037,66 @@ int  hov_forward(
                 } else
                     if (dp_T0[arg] == 0)
                         MINDEC(ret_c,0);
+#endif
+#endif
+#else
+		fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does not work in safe mode, please use tight mode\n");
+		adolc_exit(-2,"",__func__,__FILE__,__LINE__);
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            case ref_cond_eq_assign_s:                                  /* cond_eq_assign_s */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2   = get_locint_f();
+#if !defined(_NTIGHT_)
+                coval = 
+#endif
+		get_val_f();
+
+#if !defined(_NTIGHT_)
+		res = (size_t)trunc(fabs(dp_T0[arg2]));
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+                /* olvo 980924 changed order to allow reflexive ops */
+#if defined(_INDO_)
+		if (dp_T0[arg] >= 0) {
+#if defined(_INDOPRO_)
+                    copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		    arg_index[res] = arg_index[arg1];
+#endif
+		}
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres,  TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+#endif /* ALL_TOGETHER_AGAIN */
+
+#ifdef _INT_FOR_
+                coval = get_val_f();
+
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                }
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                if (dp_T0[arg] >= 0)
+                    FOR_0_LE_l_LT_pk
+                    TRES_INC = TARG1_INC;
+#endif
+                if (dp_T0[arg] >= 0) {
+                    if (coval < 0.0)
+                        MINDEC(ret_c,2);
+                    dp_T0[res] = dp_T0[arg1];
+                }
 #endif
 #endif
 #else
