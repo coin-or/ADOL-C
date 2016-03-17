@@ -595,39 +595,39 @@ int sparse_hess(
     if (repeat == -1)
       return ret_val;
 
-//     this is the most efficient variant. However, there is somewhere a bug in hos_ov_reverse
-//     ret_val = hov_wk_forward(tag,1,indep,1,2,sHinfos.p,basepoint,sHinfos.Xppp,&y,sHinfos.Yppp);
-//     MINDEC(ret_val,hos_ov_reverse(tag,1,indep,1,sHinfos.p,sHinfos.Upp,sHinfos.Zppp));
-
-//     for (i = 0; i < sHinfos.p; ++i)
-//       for (l = 0; l < indep; ++l)
-// 	sHinfos.Hcomp[l][i] = sHinfos.Zppp[i][l][1];
-
-//
-//     therefore, we use hess_vec isntead of hess_mat
-
-    v    = (double*) malloc(indep*sizeof(double));
-    w    = (double*) malloc(indep*sizeof(double));
-    X = myalloc2(indep,2);
-//         sHinfos.Xppp = myalloc3(indep,sHinfos.p,1);
+//     this is the most efficient variant. However, there was somewhere a bug in hos_ov_reverse
+    ret_val = hov_wk_forward(tag,1,indep,1,2,sHinfos.p,basepoint,sHinfos.Xppp,&y,sHinfos.Yppp);
+    MINDEC(ret_val,hos_ov_reverse(tag,1,indep,1,sHinfos.p,sHinfos.Upp,sHinfos.Zppp));
 
     for (i = 0; i < sHinfos.p; ++i)
-      {
-	for (l = 0; l < indep; ++l)
-	  {
-	    v[l] = sHinfos.Xppp[l][i][0];
-	  }
-	ret_val = fos_forward(tag, 1, indep, 2, basepoint, v, &y, &yt);
-	MINDEC(ret_val, hos_reverse(tag, 1, indep, 1, &lag, X));
-	for (l = 0; l < indep; ++l)
-	  {
-	    sHinfos.Hcomp[l][i] = X[l][1];
-	  }
-      }
+      for (l = 0; l < indep; ++l)
+	sHinfos.Hcomp[l][i] = sHinfos.Zppp[i][l][1];
 
-    myfree1(v);
-    myfree1(w);
-    myfree2(X);   
+//     there used to be a bug in hos_ov_reverse
+//     therefore, we used hess_vec isntead of hess_mat before
+
+    // v    = (double*) malloc(indep*sizeof(double));
+    // w    = (double*) malloc(indep*sizeof(double));
+    // X = myalloc2(indep,2);
+//         sHinfos.Xppp = myalloc3(indep,sHinfos.p,1);
+
+    // for (i = 0; i < sHinfos.p; ++i)
+    //   {
+    //     for (l = 0; l < indep; ++l)
+    //       {
+    //         v[l] = sHinfos.Xppp[l][i][0];
+    //       }
+    //     ret_val = fos_forward(tag, 1, indep, 2, basepoint, v, &y, &yt);
+    //     MINDEC(ret_val, hos_reverse(tag, 1, indep, 1, &lag, X));
+    //     for (l = 0; l < indep; ++l)
+    //       {
+    //         sHinfos.Hcomp[l][i] = X[l][1];
+    //       }
+    //   }
+
+    // myfree1(v);
+    // myfree1(w);
+    // myfree2(X);   
 
 
     /* recover compressed Hessian => ColPack library */
