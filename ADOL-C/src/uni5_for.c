@@ -86,7 +86,7 @@
 #define GENERATED_FILENAME "fov_pl_forward"
 #elif defined(_ABS_NORM_SIG_)
 #define GENERATED_FILENAME "fov_pl_sig_forward"
-#if defined(_MSC_VER) && _MSC_VER < 1800
+#if defined(_MSC_VER) && _MSC_VER < 180
 #define fmin __min
 #define fmax __max
 #endif
@@ -2047,6 +2047,7 @@ int  hov_forward(
 
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
 
+		 
 #if !defined(_NTIGHT_)
                 dp_T0[res] = dp_T0[arg1] + dp_T0[arg2];
 #endif /* !_NTIGHT_ */
@@ -4393,7 +4394,7 @@ int  hov_forward(
 		y = FIRSTSIGN_P(dp_T0[arg],Targ);
 		COPYTAYL_P(swtaylors[switchnum],Targ);
 		FOR_0_LE_l_LT_p
-		    TRES_INC = y * TARG_INC;
+		    TRES_INC = fabs(dp_T0[arg]+TARG_INC)-fabs(dp_T0[arg]);
 #elif defined(_ABS_NORM_SIG_)
                 if (sigdir == NULL)
                     y = EXT_FIRSTSIGN2_P(sigbase[switchnum],dp_T0[arg],Targ);
@@ -6340,9 +6341,9 @@ int get_num_switches(short tapeID) {
 #endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
 short firstsign(int p, double *u, double* du) {
-    int i=0;
+    int i=1;
     short tmp;
-    tmp=(*u>0.0)?1.0:((*u<0.0)?-1.0:0.0);
+    tmp=((*u+*du)>0.0)?1.0:(((*u+*du)<0.0)?-1.0:0.0);
     while(i<p && tmp==0.0) {
 	tmp=(du[i]>0.0)?1.0:((du[i]<0.0)?-1.0:0.0);
 	i++;
