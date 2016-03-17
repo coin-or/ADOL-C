@@ -764,7 +764,7 @@ int  fov_offset_forward(
     int    indcheck,    /* consistency chk on # of indeps */
     int    p,           /* # of taylor series */
     int    offset,      /* offset for assignments */
-    double *basepoint,  /* independent variable values */
+    const double *basepoint,  /* independent variable values */
     double **argument,  /* Taylor coefficients (input) */
     double *valuepoint, /* Taylor coefficients (output) */
     double **taylors)   /* matrix of coifficient vectors */
@@ -833,7 +833,7 @@ int  hos_forward_nk(
 #if defined(_KEEP_)
     int    keep,        /* flag for reverse sweep */
 #endif
-    double *basepoint,  /* independent variable values */
+    const double *basepoint,  /* independent variable values */
     double **argument,  /* independant variable values */
     double *valuepoint, /* Taylor coefficients (output) */
     double **taylors)   /* matrix of coifficient vectors */
@@ -856,7 +856,7 @@ int  hov_forward(
     int    keep,        /* flag for reverse sweep */
 #endif
     int    p,           /* # of taylor series */
-    double *basepoint,  /* independent variable values */
+    const double *basepoint,  /* independent variable values */
     double ***argument, /* Taylor coefficients (input) */
     double *valuepoint, /* Taylor coefficients (output) */
     double ***taylors)  /* matrix of coifficient vectors */
