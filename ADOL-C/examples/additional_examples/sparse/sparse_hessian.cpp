@@ -228,7 +228,7 @@ double feval(double *x) {
     res = 0.5*(x[0] - 1)*(x[0] -1) + 0.8*(x[1] - 2)*(x[1] -2)  + 0.9*(x[2] - 3)*(x[2] -3);
     res += 5*x[0]*x[1];
     res += cos(x[3]);
-    res += sin(x[4])*x[1]*x[1];
+    res += sin(x[4])*pow(x[1],2);
     res += exp(x[5])*x[2];
     res += sin(x[4]*x[5]);
 
