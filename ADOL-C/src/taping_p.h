@@ -637,6 +637,8 @@ void reset_val_r();
 /* updates */
 int upd_resloc(locint temp, locint lhs);
 
+int upd_resloc_check(locint temp, locint lhs);
+
 int upd_resloc_inc_prod(locint temp, locint newlhs, unsigned char newop);
 
 /* special IEEE values */
