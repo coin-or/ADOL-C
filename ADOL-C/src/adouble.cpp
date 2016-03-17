@@ -169,12 +169,11 @@ adouble::adouble( const adub& a ) {
     int upd = 0;
     /* 981020 olvo  skip upd_resloc(..) if no tracing performed */
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
-        upd = upd_resloc(a_loc,loc());
+        upd = upd_resloc_check(a_loc,loc());
     if (upd) { /* olvo 980708 new n2l & 980921 changed interface */
-        revreal tempVal = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
-        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-            ADOLC_OVERWRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()],&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
-        ADOLC_GLOBAL_TAPE_VARS.store[loc()] = tempVal;
+        free_loc(location);
+        location = a_loc;
+        const_cast<adub&>(a).isInit = false;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(loc(),a_loc);
             put_op(assign_a);
