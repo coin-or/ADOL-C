@@ -1007,7 +1007,12 @@ bool isTaping() {
     return ADOLC_CURRENT_TAPE_INFOS.traceFlag != 0;
 }
 
-
+void checkInitialStoreSize(GlobalTapeVars *gtv) {
+    if (gtv->initialStoreSize > 
+        gtv->storeManagerPtr->initialSize)
+        gtv->storeManagerPtr->grow(
+            gtv->initialStoreSize);
+}
 
 /****************************************************************************/
 /* A class for initialization/finalization and OpenMP handling              */
@@ -1018,10 +1023,6 @@ class Keeper {
             dummy = 0;
             init();
             readConfigFile();
-            if (ADOLC_GLOBAL_TAPE_VARS.initialStoreSize > 
-                ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->initialSize)
-                ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->grow(
-                    ADOLC_GLOBAL_TAPE_VARS.initialStoreSize);
         }
         inline ~Keeper() {
             cleanUp();
