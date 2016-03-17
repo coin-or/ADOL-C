@@ -598,6 +598,7 @@ void readConfigFile() {
                         ADOLC_GLOBAL_TAPE_VARS.initialStoreSize = (locint)number;
                         fprintf(DIAG_OUT, "Found initial live variable store size : %u\n",
                                 (locint)number);
+                        checkInitialStoreSize(&ADOLC_GLOBAL_TAPE_VARS);
                     } else {
                         fprintf(DIAG_OUT, "ADOL-C warning: Unable to parse "
                                 "parameter name in .adolcrc!\n");
