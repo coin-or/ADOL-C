@@ -69,6 +69,68 @@
 %ignore ext_diff_fct_v2;
 %ignore CpInfos;
 
+%typemap(in) double ** {}
+
+%typemap(argout) double **
+{
+    {
+        int _rswiga[2];
+        _rswiga[0] = arg2;
+        _rswiga[1] = arg3;
+        SEXP _rswigarg;
+        PROTECT(_rswigarg = Rf_allocVector(INTSXP, 2));
+        memcpy(INTEGER(_rswigarg), _rswiga, 2 * sizeof(int));
+        Rf_setAttrib($input, R_DimSymbol, _rswigarg);
+        SEXP r_dim = Rf_getAttrib($input, R_DimSymbol);
+        int _rswiglen0 = _rswiga[0];
+        int _rswiglen1 = _rswiga[1];
+        int _rswigi, _rswigj;
+        for (_rswigi=0; _rswigi<_rswiglen0; _rswigi++) {
+            for (_rswigj=0; _rswigj<_rswiglen1; _rswigj++) {
+                REAL($input)[_rswigi*_rswiglen1+_rswigj] = $1[_rswigi][_rswigj];
+            }
+        }
+    }
+}
+
+%inline %{
+int sparse_jac
+(short, int , int, int, const double*, int *, unsigned int **, unsigned int **, double **,int*);
+%}
+
+%typemap(in) double **
+{
+    {
+        SEXP r_dim = Rf_getAttrib($input, R_DimSymbol) ;
+        int _rswiglen0 = INTEGER(r_dim)[0];
+        int _rswiglen1 = INTEGER(r_dim)[1];
+        int _rswigi, _rswigj;
+        $1 = %static_cast(malloc(sizeof($1_basetype)*_rswiglen0*_rswiglen1+ sizeof(size_t)*_rswiglen0), $1_ltype);
+        $1_basetype * $1_ltmp = %reinterpret_cast($1 + _rswiglen0, $1_basetype *);
+        for (_rswigi=0; _rswigi<_rswiglen0; _rswigi++) {
+            $1[_rswigi] = $1_ltmp + _rswigi *  _rswiglen1;
+            for (_rswigj=0; _rswigj<_rswiglen1; _rswigj++) {
+                $1[_rswigi][_rswigj] =  REAL($input)[_rswigi*_rswiglen1+_rswigj];
+            }
+        }
+    }
+}
+
+%typemap(argout) double **
+{
+    {
+        SEXP r_dim = Rf_getAttrib($input, R_DimSymbol) ;
+        int _rswiglen0 = INTEGER(r_dim)[0];
+        int _rswiglen1 = INTEGER(r_dim)[1];
+        int _rswigi, _rswigj;
+        for (_rswigi=0; _rswigi<_rswiglen0; _rswigi++) {
+            for (_rswigj=0; _rswigj<_rswiglen1; _rswigj++) {
+                REAL($input)[_rswigi*_rswiglen1+_rswigj] = $1[_rswigi][_rswigj];
+            }
+        }
+    }
+}
+
 %include "adolc_all.hpp"
 
 %ignore frexp;
