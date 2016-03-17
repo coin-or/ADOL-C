@@ -671,6 +671,8 @@ double get_val_r();
 /* tries to read a local config file containing, e.g., buffer sizes */
 void readConfigFile();
 
+void checkInitialStoreSize(GlobalTapeVars *gtv);
+
 /* clear the tapeBaseNames that were alocated above in readConfigFile() */
 void clearTapeBaseNames();
 
