@@ -2328,6 +2328,15 @@ int upd_resloc(locint temp, locint lhs) {
     return 0;
 }
 
+int upd_resloc_check(locint temp, locint lhs) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    if (ADOLC_CURRENT_TAPE_INFOS.currLoc - ADOLC_CURRENT_TAPE_INFOS.locBuffer < 1) return 0;
+    if (temp == *(ADOLC_CURRENT_TAPE_INFOS.currLoc - 1)) {
+        return 1;
+    }
+    return 0;
+}
 /****************************************************************************/
 /* Update locations and operations tape to remove special operations inv.   */
 /* temporary variables. e.g.  t = a * b ; y += t  =>  y += a * b            */
