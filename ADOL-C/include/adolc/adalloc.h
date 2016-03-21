@@ -25,18 +25,10 @@ BEGIN_C_DECLS
 /*                                              MEMORY MANAGEMENT UTILITIES */
 ADOLC_DLL_EXPORT char* populate_dpp(double ***const pointer, char *const memory,
                                     int n, int m);
-ADOLC_DLL_EXPORT char* populate_dpp_nodata(double ***const pointer, char *const memory,
-                                           int n);
-ADOLC_DLL_EXPORT char* populate_dpp_with_contigdata(double ***const pointer, char *const memory,
-                                                    int n, int m,
-                                                    double *const data);
 ADOLC_DLL_EXPORT char* populate_dppp(double ****const pointer, char *const memory,
                                      int n, int m, int p);
 ADOLC_DLL_EXPORT char* populate_dppp_nodata(double ****const pointer, char *const memory,
                                             int n, int m);
-ADOLC_DLL_EXPORT char* populate_dppp_with_contigdata(double ****const pointer, char *const memory,
-                                                     int n, int m, int p,
-                                                     double *const data);
 ADOLC_DLL_EXPORT double    *myalloc1(size_t);
 ADOLC_DLL_EXPORT double   **myalloc2(size_t, size_t);
 ADOLC_DLL_EXPORT double  ***myalloc3(size_t, size_t, size_t);
