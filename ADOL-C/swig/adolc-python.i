@@ -16,6 +16,7 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
+#include "matrixmemory.hpp"
 %}
 
 %include "numpy.i"
