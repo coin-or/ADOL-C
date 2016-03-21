@@ -86,7 +86,12 @@ import_array();
 %ignore pack3;
 %ignore *::operator[](const badouble&);
 %ignore *::operator[](size_t);
+%ignore sparse_jac;
+%ignore sparse_hess;
 
+%include "adolc-numpy-for.i"
+%include "adolc-numpy-rev.i"
+%include "adolc-numpy-drv.i"
 %include "adolc_all.hpp"
 
 %extend advector {
@@ -258,6 +263,3 @@ import_array();
         return (adub*) (a / (*($self)));
     }
 }
-
-%include "adolc-numpy-for.i"
-%include "adolc-numpy-drv.i"
