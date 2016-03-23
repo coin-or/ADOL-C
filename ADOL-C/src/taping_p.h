@@ -637,6 +637,8 @@ void reset_val_r();
 /* updates */
 int upd_resloc(locint temp, locint lhs);
 
+int upd_resloc_check(locint temp, locint lhs);
+
 int upd_resloc_inc_prod(locint temp, locint newlhs, unsigned char newop);
 
 /* special IEEE values */
@@ -670,6 +672,8 @@ double get_val_r();
 
 /* tries to read a local config file containing, e.g., buffer sizes */
 void readConfigFile();
+
+void checkInitialStoreSize(GlobalTapeVars *gtv);
 
 /* clear the tapeBaseNames that were alocated above in readConfigFile() */
 void clearTapeBaseNames();
