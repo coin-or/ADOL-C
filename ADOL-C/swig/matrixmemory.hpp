@@ -10,12 +10,13 @@
  Any use, reproduction, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
 
-/*--------------------------------------------------------------------------*/
+--------------------------------------------------------------------------*/
 #ifndef MATRIXMEMORY_HPP
 #define MATRIXMEMORY_HPP
 
+/*--------------------------------------------------------------------------*/
 template <typename Type>
-static char* populate_dpp_with_contigdata(Type ***const pointer, char *const memory,
+static inline char* populate_dpp_with_contigdata(Type ***const pointer, char *const memory,
                                    int n, int m, Type *const data) {
     char* tmp;
     Type **tmp1; Type *tmp2;
@@ -32,9 +33,8 @@ static char* populate_dpp_with_contigdata(Type ***const pointer, char *const mem
     return tmp;
 }
 /*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
 template <typename Type>
-static char* populate_dppp_with_contigdata(Type ****const pointer, char *const memory, 
+static inline char* populate_dppp_with_contigdata(Type ****const pointer, char *const memory, 
                                     int n, int m, int p, Type *const data) {
     char* tmp;
     Type ***tmp1; Type **tmp2; Type *tmp3;

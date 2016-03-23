@@ -87,8 +87,15 @@ import_array();
 %ignore pack3;
 %ignore *::operator[](const badouble&);
 %ignore *::operator[](size_t);
-%ignore sparse_jac;
-%ignore sparse_hess;
+%ignore *::operator[](const badouble&) const;
+%ignore *::operator[](size_t) const;
+%ignore *::operator double;
+%ignore *::operator double const&;
+%ignore *::operator double&&;
+%ignore *::operator adub;
+%ignore *::operator const std::vector<adouble>&;
+%ignore *::operator std::vector<adouble>&;
+%ignore *::operator adouble*;
 
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"

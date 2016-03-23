@@ -12,8 +12,8 @@
  
 ----------------------------------------------------------------------------*/
 
+%ignore tapestats;
 %ignore forward;
-%rename (forward) npy_forward;
 %ignore zos_forward;
 %rename (zos_forward) npy_zos_forward;
 %ignore fos_forward;
@@ -33,6 +33,63 @@
 %rename (indopro_forward_tight) npy_indopro_forward_tight;
 %rename (nonl_ind_forward_safe) npy_nonl_ind_forward_safe;
 %rename (nonl_ind_forward_tight) npy_nonl_ind_forward_tight;
+
+
+%pythoncode %{
+def tapestats(t):
+    import numpy as np
+    stats = np.empty((STAT_SIZE,), np.uintp)
+    npy_tapestats(t,stats)
+    return stats
+
+def get_dimensions(t):
+    stats = tapestats(t)
+    m = stats[NUM_DEPENDENTS]
+    n = stats[NUM_INDEPENDENTS]
+    return (m,n)
+
+def forward(t,m,n,**kwargs):
+    import numpy as np
+    d = 0
+    x = None
+    p = None
+    Xp = None
+    keep = 0
+    if 'd' in kwargs:
+        d = int(kwargs['d'])
+    if 'x' in kwargs:
+        x = kwargs['x']
+    if 'keep' in kwargs:
+        keep = int(kwargs['keep'])
+    if 'ndir' in kwargs:
+        p = int(kwargs['ndir'])
+        if keep:
+            import warnings as w
+            w.warn('Argument "keep" ignored because "ndir" given in forward')
+        if 'xdot' in kwargs:
+            Xp = kwargs['xdot']
+        else:
+            raise(NotImplementedError('Argument "ndir" given but not "xdot" in forward, both must be provided'))
+    if not x:
+        raise(NotImplementedError('Argument "x" missing in forward'))
+    xx = np.asanyarray(x)
+    if xx.ndim == 1 and not p:
+        if d != 0:
+            raise(ValueError('Wrong "x" dimension or degree "d" in forward'))
+        else: 
+            return zos_forward(t,m,n,keep,xx)
+    elif xx.ndim == 1 and p and Xp:
+        if d != 0:
+            return npy_forward(t,m,n,d,p,xx,Xp)
+        else:
+            return npy_forward(t,m,n,p,xx,Xp)
+    elif xx.ndim == 2:
+        if m == 1:
+            return npy_forward_2(t,n,d,keep,xx)
+        else:
+            return npy_forward_2(t,m,n,d,keep,xx)
+
+%}
 
 
 %apply (double** ARGOUTVIEWM_ARRAY1, int* DIM1) 
@@ -56,13 +113,25 @@
        {(double** Y, int* m3, int* p3, int* d3)};
 %apply (int* IN_ARRAY1, int DIM1) 
        {(int* ndim, int n0)};
+%apply (unsigned long INPLACE_ARRAY1[ANY]) {(unsigned long stats[STAT_SIZE])};
 
 %exception {
     $action
     if (PyErr_Occurred()) SWIG_fail;
 }
 %inline %{
-    void npy_forward(short t, int m, int n, int d, int keep, double* X, int n1, int d1, double** Y, int* m2, int* d2) {
+    void npy_tapestats(short t, unsigned long stats[STAT_SIZE]) {
+        tapestats(t,stats);
+    }
+
+#define DO_GET_DIMENSIONS \
+        size_t stats[STAT_SIZE]; \
+        int n, m; \
+        tapestats(t,stats); \
+        n = stats[NUM_INDEPENDENTS]; \
+        m = stats[NUM_DEPENDENTS];
+
+    void npy_forward_2(short t, int m, int n, int d, int keep, double* X, int n1, int d1, double** Y, int* m2, int* d2) {
         if (n1 != n || d1 != d+1) {
             PyErr_Format(PyExc_ValueError,
                          "Array lengths don't match expected dimensions"
@@ -84,7 +153,7 @@
             return;
         }
     }
-    void npy_forward(short t, int m, int n, int d, int keep, double* X, int n1, int d1, double** y, int* d2) {
+    void npy_forward_2(short t, int n, int d, int keep, double* X, int n1, int d1, double** y, int* d2) {
         if (n1 != n || d1 != d+1) {
             PyErr_Format(PyExc_ValueError,
                          "Array lengths don't match expected dimensions"
@@ -99,38 +168,8 @@
             double **Xp;
             int ret;
             tmp = populate_dpp_with_contigdata(&Xp,tmp,n1,d1, X);
-            ret = forward(t,m,n,d,keep,Xp,*y);
+            ret = forward(t,1,n,d,keep,Xp,*y);
             free(memory);
-            return;
-        }
-    }
-    void npy_forward(short t, int m, int n, int d, int keep, double* x, int n1, double** y, int* m2) {
-        if (n1 != n) {
-            PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions"
-                         "\nExpected shapes (%d,)",n
-                );
-            return;
-        } else {
-            int ret;
-            *m2 = m;
-            *y = (double*) malloc((*m2)*sizeof(double));
-            ret = forward(t,m,n,d,keep,x,*y);
-            return;
-        }
-    }
-    void npy_forward(short t, int m, int n, int keep, double* x, int n1, double** y, int* m2) {
-        if (n1 != n) {
-            PyErr_Format(PyExc_ValueError,
-                         "Array lengths don't match expected dimensions"
-                         "\nExpected shapes (%d,)",n
-                );
-            return;
-        } else {
-            int ret;
-            *m2 = m;
-            *y = (double*) malloc((*m2)*sizeof(double));
-            ret = forward(t,m,n,keep,x,*y);
             return;
         }
     }
@@ -335,4 +374,5 @@ extern "C" {
 %clear (double* X, int n2, int p2);
 %clear (double* Y, int m3, int p3);
 %clear (int* ndim, int n0);
+%clear (unsigned long stats[STAT_SIZE]);
 %exception ;

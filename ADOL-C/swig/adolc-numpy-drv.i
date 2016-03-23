@@ -74,13 +74,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define DO_GET_DIMENSIONS \
-        size_t stats[STAT_SIZE]; \
-        int n, m; \
-        tapestats(t,stats); \
-        n = stats[NUM_INDEPENDENTS]; \
-        m = stats[NUM_DEPENDENTS];
-
     void npy_function(short t, double* x, int n1, double** y, int* m1) {
         DO_GET_DIMENSIONS
         if (n1 != n) {
