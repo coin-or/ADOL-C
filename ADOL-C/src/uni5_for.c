@@ -784,7 +784,8 @@ int  fov_pl_forward(
     double       *valuepoint,  /* Taylor coefficients (output) */
     double      **taylors,     /* matrix of coifficient vectors */
     double       *swargs,
-    double      **swtaylors)
+    double      **swtaylors,
+    short        *sigsw)
 /* the order of the indices in argument and taylors is [var][taylor] */
 #elif defined(_ABS_NORM_SIG_)
 int  fov_pl_sig_forward(
@@ -1090,6 +1091,10 @@ int  hov_forward(
     int ext_retc;
     int nin, nout;
     locint *insz, *outsz;
+#endif
+
+#if defined(_ABS_NORM_)
+    short sig;
 #endif
 
 #ifdef ADOLC_AMPI_SUPPORT
@@ -4391,7 +4396,10 @@ int  hov_forward(
 #endif /* _NTIGHT_ */
 #else
 #ifdef _ABS_NORM_
-		y = FIRSTSIGN_P(dp_T0[arg],Targ);
+		sig = FIRSTSIGN_P(dp_T0[arg],Targ);
+#if defined(_FOV_)
+		sigsw[switchnum] = sig;
+#endif
 		COPYTAYL_P(swtaylors[switchnum],Targ);
 		FOR_0_LE_l_LT_p
 		    TRES_INC = fabs(dp_T0[arg]+TARG_INC)-fabs(dp_T0[arg]);
@@ -6669,9 +6677,9 @@ int get_num_switches(short tapeID) {
 #endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
 short firstsign(int p, double *u, double* du) {
-    int i=1;
+    int i=0;
     short tmp;
-    tmp=((*u+*du)>0.0)?1.0:(((*u+*du)<0.0)?-1.0:0.0);
+    tmp=((*u)>1e-12)?1.0:(((*u)<-1e-12)?-1.0:0.0);
     while(i<p && tmp==0.0) {
 	tmp=(du[i]>0.0)?1.0:((du[i]<0.0)?-1.0:0.0);
 	i++;

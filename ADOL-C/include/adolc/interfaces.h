@@ -439,7 +439,7 @@ ADOLC_DLL_EXPORT short firstsign(int, double*, double*);
 ADOLC_DLL_EXPORT short ext_firstsign(double,double,int,double*,double*);
 ADOLC_DLL_EXPORT short ext_firstsign2(double,int,double*,double*);
 ADOLC_DLL_EXPORT int fos_pl_forward(short,int,int,const double*,double*,double*,double*,double*,double*);
-ADOLC_DLL_EXPORT int fov_pl_forward(short,int,int,int,const double*,double**,double*,double**,double*,double**);
+ADOLC_DLL_EXPORT int fov_pl_forward(short,int,int,int,const double*,double**,double*,double**,double*,double**,short*);
 ADOLC_DLL_EXPORT int fos_pl_sig_forward(short,int,int,const double*,double*,int,short*,short*,double*,double*,double*,double*,short*);
 ADOLC_DLL_EXPORT int fov_pl_sig_forward(short,int,int,int,const double*,double**,int,short*,short*,double*,double**,double*,double**,short*);
 ADOLC_DLL_EXPORT int indopro_forward_absnormal(short,int,int,int,const double*,unsigned int**);
