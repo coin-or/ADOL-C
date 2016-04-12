@@ -1,0 +1,15 @@
+stages:
+ - build
+ - test
+
+build_job:
+ stage: build
+ script:
+    - autoreconf -fi
+    - ./configure  
+    - make
+
+test_job:
+ stage: test
+ script:
+    - make test
