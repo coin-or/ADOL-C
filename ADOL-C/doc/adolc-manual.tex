@@ -3353,26 +3353,16 @@ as extension of the scalar mode.
 %
 \subsubsection*{The scalar mode}
 %
-To use the tapeless forward mode, one has to include one
-of the header files \verb#adolc.h# or \verb#adouble.h#
-where the latter should be preferred since it does not include the
-tape based functions defined in other header files. Hence, including
-\verb#adouble.h# avoids mode mixtures, since
-\verb#adolc.h# is just a wrapper for including all public 
-  headers of the ADOL-C package and does not offer own functions. 
-Since the two ADOL-C forward mode variants tape-based and tapeless,
-are prototyped in the same header file, the compiler needs to know if a
-tapeless version is intended. This can be done by defining a
-preprocessor macro named {\sf ADOLC\_TAPELESS}. Note that it is 
-important to define this macro before the header file is included.
-Otherwise, the tape-based version of ADOL-C will be used. 
+To use the tapeless forward mode, one has to include only
+the header file \verb#adtl.h# since it does not include the
+tape based functions defined in other header files. 
 
 As in the tape based forward version of ADOL-C all derivative
 calculations are introduced by calls to overloaded
 operators. Therefore, similar to the tape-based version all
 independent, intermediate and dependent variables must be declared 
 with type {\sf adouble}. The whole tapeless functionality provided by
-\verb#adolc.h# was written as complete inline intended code
+\verb#adtl.h# was written as complete inline intended code
 due to run time aspects, where the real portion of inlined code can
 be influenced by switches for many compilers. Likely, the whole
 derivative code is inlined by default. Our experiments
@@ -3475,8 +3465,7 @@ given above.
 \> {\sf \#include $<$iostream$>$}\\
 \> {\sf using namespace std;}\\
 \> \\
-\> {\sf \#define ADOLC\_TAPELESS}\\
-\> {\sf \#include $<$adouble.h$>$}\\
+\> {\sf \#include $<$adolc/adtl.h$>$}\\
 \> {\sf typedef adtl::adouble adouble;}\\
 \\
 \> {\sf int main() \{}\\
@@ -3508,46 +3497,30 @@ In scalar mode only one direction element has to be stored per {\sf
   mode to cover the computations for the given $p$ directions. The
   resulting changes to the source code are described in this section. 
 
-Similar to tapeless scalar forward mode, the tapeless vector forward
-mode is used by defining {\sf ADOLC\_TAPELESS}. Furthermore, one has to define
-an additional preprocessor macro named {\sf NUMBER\_DIRECTIONS}. This
-macro takes the maximal number of directions to be used within the 
-resulting vector mode. Just as {\sf ADOLC\_TAPELESS} the new macro
-must be defined before including the \verb#<adolc.h/adouble.h>#
-header file since it is ignored otherwise. 
-
-In many situations recompiling the source code to get a new number of
-directions is at least undesirable. ADOL-C offers a function named
-{\sf setNumDir} to work around this problem partially. Calling this
-function, ADOL-C does not take the number of directions
-from the macro {\sf NUMBER\_DIRECTIONS} but from the argument of
-{\sf setNumDir}. A corresponding source code would contain the following lines:  
-\begin{center}
-  \begin{tabular}{l}
-    {\sf \#define NUMBER\_DIRECTIONS 10}\\
-    ...\\
-    {\sf adtl::setNumDir(5);}
-  \end{tabular}
-\end{center}
-Note that using this function does not
-change memory requirements that can be roughly determined by
-({\sf NUMBER\_DIRECTIONS}$+1$)*(number of {\sf adouble}s). 
-
+In order to use the vector mode one has to call
+\verb#adtl::setNumDir(N)#.  This function takes the maximal number of
+directions to be used within the resulting vector mode. Changing the
+number of directions in the middle of executing code containing active
+variables is undesirable and can lead to segmentation violations,
+hence such an operation will result in an
+error. \verb#adtl::setNumDir(N)# must therefore be called before
+declaring any \verb#adtl::adouble# objects.
+ 
 Compared to the scalar case setting and getting the derivative
 values, i.e. the directions, is more involved. Instead of
 working with single {\sf double} values, pointer to fields of {\sf
 double}s are used as illustrated by the following example: 
 \begin{center}
   \begin{tabular}{l}
-    {\sf \#define NUMBER\_DIRECTIONS 10}\\
-    ...\\
+    {\sf adtl::setNumDir(10);}\\
     {\sf adouble x, y;}\\
-    {\sf double *ptr=new double[NUMBER\_DIRECTIONS];}\\
+    {\sf double *ptr1 = new double[10];}\\
+    {\sf double *ptr2;}\\
       ...\\
     {\sf x1=2;}\\
-    {\sf x1.setADValue(ptr);}\\
+    {\sf x1.setADValue(ptr1);}\\
     ...\\
-    {\sf ptr=y.getADValue();}
+    {\sf ptr2=y.getADValue();}
   \end{tabular}
 \end{center}
 Additionally, the tapeless vector forward mode of ADOL-C offers two
@@ -3557,7 +3530,7 @@ mode the position of the desired vector element must be supplied in
 the argument list:
 \begin{center}
   \begin{tabular}{l}
-    {\sf \#define NUMBER\_DIRECTIONS 10}\\
+    {\sf adtl::setNumDir(10);}\\
     ...\\
     {\sf adouble x, y;}\\
     ...\\
@@ -3577,14 +3550,11 @@ shown in \autoref{fig:modcode2}
 \> {\sf \#include $<$iostream$>$}\\
 \> {\sf  using namespace std;}\\
 \\
-\> {\sf \#define ADOLC\_TAPELESS}\\
-\> {\sf \#define NUMBER\_DIRECTIONS 3}\\
-\> {\sf \#include $<$adouble.h$>$}\\
+\> {\sf \#include $<$adolc/adtl.h$>$}\\
 \> {\sf typedef adtl::adouble adouble;}\\
 \\
-\> {\sf ADOLC\_TAPELESS\_UNIQUE\_INTERNALS;}\\
-\\
 \> {\sf int main() \{}\\
+\> {\sf \rule{0.5cm}{0pt}adtl::setNumDir(3);}\\
 \> {\sf \rule{0.5cm}{0pt}adouble x[3], y[3];}\\
 \\
 \> {\sf \rule{0.5cm}{0pt}for (int i=0; i$<$3; ++i) \{}\\
@@ -3626,14 +3596,14 @@ The \verb#-I# option tells the compiler where to search for the ADOL-C
 header files. This option can be omitted when the headers are included
 with absolute path or if ADOL-C is installed in a ``global'' directory. 
 
-Since the tapeless forward version of ADOL-C is implemented in the
-header \verb#adouble.h# as complete inline intended version,
-the object files do not need to be linked against any external ADOL-C
-code or the ADOL-C library. Therefore, the example started above could be finished with the
+Although originally designed to be completely inline, certain global
+variables need to be initialised in the compiled part of the library
+and therefore the ADOL-C library must be linked with the compiled code.
+The example started above could be finished with the
 following command:
 \begin{center}
   \begin{tabular}{l}
-    {\sf g++ -o tapeless\_scalar tapeless\_scalar.o}
+    {\sf g++ -o tapeless\_scalar tapeless\_scalar.o -ladolc -L/home/username/adolc\_base/lib}
   \end{tabular}
 \end{center}
 The mentioned source codes {\sf tapeless\_scalar.c} and {\sf tapeless\_vector.c} 
@@ -3652,10 +3622,8 @@ can occur:
       \item Code speed\\
 	Increasing computation speed was one of the main aspects in writing
 	the tapeless code. In many cases higher performance can be
-	expected this way. 
-      \item Easier linking process\\
-	As another result from the code inlining the object code does
-	not need to be linked against an ADOL-C library.
+	expected this way. However this is not guarenteed for repeated
+        evaluations.
       \item Smaller overall memory requirements\\
 	Tapeless ADOL-C does not write tapes anymore, as the name
 	implies. Loop ''unrolling'' can be avoided this
