@@ -86,7 +86,7 @@ done
 cp $conf/adolc.dll tmp/bin
 cp $conf/adolc.lib tmp/lib
 cp ../../ADOL-C/doc/* tmp/doc
-cp $arch/vcredist_$suffix.exe tmp/
+cp $arch/vc_redist.$suffix.exe tmp/
 echo "@echo off" > tmp/setup.bat
 echo "vcredist_${suffix}.exe" >> tmp/setup.bat
 cd tmp
