@@ -1,5 +1,5 @@
 before_script:
-  - apt-get update -qq && apt-get install -y -qq libcolpack-dev libboost-dev
+  - apt-get update -qq && apt-get install -y -qq libcolpack-dev libboost-all-dev
 
 stages:
  - build
