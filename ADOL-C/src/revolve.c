@@ -66,7 +66,7 @@
 *         FINE      end of subrange currently being processed        *
 *         SNAPS     upper bound on number of checkpoints taken       *
 *         INFO      determines how much information will be printed  *
-*                   and contains information about an error occured  *
+*                   and contains information about an error occurred *
 *                                                                    *
 *   Since REVOLVE involves only a few integer operations its         *
 *   run-time is truly negligible within any nontrivial application.  *
