@@ -171,7 +171,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
   if (done == 0)
     {
       fprintf(DIAG_OUT," NOT ENOUGH DIRECTIONS !!!!\n");
-      adolc_exit(-1,__func__,__FILE__,__LINE__);
+      adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 
   return 0;
