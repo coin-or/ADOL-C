@@ -166,12 +166,13 @@ int directional_active_gradient(short tag,      /* trace identifier */
         }
     }
 
+  myfree1(z); myfree2(E); myfree2(grad); myfree2(gradu);
+
   if (done == 0)
     {
-      printf(" NOT ENOUGH DIRECTIONS !!!!\n");
-	exit(-1);
+      fprintf(DIAG_OUT," NOT ENOUGH DIRECTIONS !!!!\n");
+      adolc_exit(-1,__func__,__FILE__,__LINE__);
     }
 
-  myfree1(z); myfree2(E); myfree2(grad); myfree2(gradu);
   return 0;
 }
