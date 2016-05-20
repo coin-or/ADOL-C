@@ -3284,24 +3284,24 @@ by the example program \verb=openmp_exam.cpp= contained in \verb=examples/additi
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 %
-\section{Tapeless forward differentiation in ADOL-C}
+\section{Traceless forward differentiation in ADOL-C}
 \label{tapeless}
 %
 Up to version 1.9.0, the development of the ADOL-C software package
 was based on the decision to store all data necessary for derivative
-computation on tapes, where large applications require the tapes to be
+computation on traces (tapes), where large applications require the traces to be
 written out to corresponding files. In almost all cases this means
 a considerable drawback in terms of run time due to the excessive
-memory accesses. Using these tapes enables ADOL-C to offer multiple
+memory accesses. Using these traces enables ADOL-C to offer multiple
 functions. However, it is not necessary for all tasks of derivative
 computation to do that. 
 
-Starting with version 1.10.0, ADOL-C now features a tapeless forward
+Starting with version 1.10.0, ADOL-C now features a traceless forward
 mode for computing first order derivatives in scalar mode, i.e.,
 $\dot{y} = F'(x)\dot{x}$, and in vector mode, i.e., $\dot{Y} = F'(x)\dot{X}$. 
-This tapeless variant coexists with the more universal
-tape based mode in the package. The following subsections describe
-the source code modifications required to use the tapeless forward mode of
+This traceless variant coexists with the more universal
+trace based mode in the package. The following subsections describe
+the source code modifications required to use the traceless forward mode of
 ADOL-C.  
 %
 \subsection{Modifying the Source Code}
@@ -3314,7 +3314,7 @@ y_1  =  \sqrt{x_1^2 + x_2^2 + x_3^2},\qquad
 y_2  =  \arctan\left(\sqrt{x_1^2 + x_2^2}/x_3\right),\qquad
 y_3  =  \arctan(x_2/x_1),
 \end{eqnarray*}
-as an example. The corresponding source code is shown in \autoref{fig:tapeless}.
+as an example. The corresponding source code is shown in \autoref{fig:traceless}.
 \begin{figure}[htb]
 \framebox[\textwidth]{\parbox{\textwidth}{
 %\begin{center}
@@ -3342,38 +3342,38 @@ as an example. The corresponding source code is shown in \autoref{fig:tapeless}.
 %\end{flushleft}
 %\end{center}
 }}
-\caption{Example for tapeless forward mode}
-\label{fig:tapeless}
+\caption{Example for traceless forward mode}
+\label{fig:traceless}
 \end{figure}
 %
 Changes to the source code that are necessary for applying the
-tapeless forward ADOL-C are described in the following two
+traceless forward mode of ADOL-C are described in the following two
 subsections, where the vector mode version is described
 as extension of the scalar mode. 
 %
 \subsubsection*{The scalar mode}
 %
-To use the tapeless forward mode, one has to include only
+To use the traceless forward mode, one has to include only
 the header file \verb#adtl.h# since it does not include the
-tape based functions defined in other header files. 
+trace based functions defined in other header files. 
 
-As in the tape based forward version of ADOL-C all derivative
+As in the trace based forward version of ADOL-C all derivative
 calculations are introduced by calls to overloaded
-operators. Therefore, similar to the tape-based version all
+operators. Therefore, similar to the trace-based version all
 independent, intermediate and dependent variables must be declared 
-with type {\sf adouble}. The whole tapeless functionality provided by
+with type {\sf adouble}. The whole traceless functionality provided by
 \verb#adtl.h# was written as complete inline intended code
 due to run time aspects, where the real portion of inlined code can
 be influenced by switches for many compilers. Likely, the whole
 derivative code is inlined by default. Our experiments
-with the tapeless mode have produced complete inlined code by using
+with the traceless mode have produced complete inlined code by using
 standard switches (optimization) for GNU and Intel C++
 compiler.
 
 To avoid name conflicts
-resulting from the inlining the tapeless version has its own namespace
+resulting from the inlining the traceless version has its own namespace
 \verb#adtl#. As a result four possibilities of using the {\sf adouble}
-type are available for the tapeless version: 
+type are available for the traceless version: 
 \begin{itemize}
 \item Defining a new type
       \begin{center}
@@ -3406,7 +3406,7 @@ type are available for the tapeless version:
   \item Using the complete namespace
         \begin{center}
 	  \begin{tabular}{l}
-	    {\sf \#using namespace adtl;}\\
+	    {\sf using namespace adtl;}\\
 	    ...\\
 	    {\sf adouble tmp;}
 	  \end{tabular}
@@ -3417,15 +3417,16 @@ After defining the variables only two things are left to do. First
 one needs to initialize the values of the independent variables for the
 function evaluation. This can be done by assigning the variables a {\sf
 double} value. The {\sf ad}-value is set to zero in this case. 
-Additionally, the tapeless forward mode variant of ADOL-C
+Additionally, the traceless forward mode variant of ADOL-C
 offers a function named {\sf setValue} for setting the value without
 changing the {\sf ad}-value. To set the {\sf ad}-values of the independent
-variables ADOL-C offers two possibilities: 
+variables ADOL-C offers two possibilities:
 \begin{itemize}
   \item Using the constructor
         \begin{center}
 	  \begin{tabular}{l}
-	    {\sf adouble x1(2,1), x2(4,0), y;}
+        {\sf double seedOne = 1., seedZero = 0.;}\\
+	    {\sf adouble x1(2,\&seedOne), x2(4,\&seedZero), y;}
 	  \end{tabular}
 	\end{center}
 	This would create three adoubles $x_1$, $x_2$ and $y$. Obviously, the latter
@@ -3435,22 +3436,23 @@ variables ADOL-C offers two possibilities:
    \item Setting point values directly
          \begin{center}
 	   \begin{tabular}{l}
+         {\sf double seedOne = 1., seedZero = 0.;}\\
 	     {\sf adouble x1=2, x2=4, y;}\\
 	     ...\\
-	     {\sf x1.setADValue(1);}\\
-	     {\sf x2.setADValue(0);}
+	     {\sf x1.setADValue(\&seedOne);}\\
+	     {\sf x2.setADValue(\&seedZero);}
 	   \end{tabular}
 	 \end{center}
-	 The same example as above but now using {\sf setADValue}-method for initializing the derivative values.
+	 The same example as above but now using {\sf setADValue}-method for initializing the derivative values. It is important to note that in both cases the derivative values have to be set by passing an address of a variable or a pointer of the {\sf double} type (instead of passing the value directly). The reason for doing this will become clear in the next subsection. 
 \end{itemize}
 %
 The derivatives can be obtained at any time during the evaluation
-process by calling the {\sf getADValue}-method
+process by calling the {\sf getADValue}-method which returns a pointer (instead of a value), and therefore, it can be assigned to another pointer or it can be dereferenced immediately in order to read the value:
 \begin{center}
   \begin{tabular}{l}
     {\sf adouble y;}\\
     ...\\
-    {\sf cout $<<$ y.getADValue();}
+    {\sf cout $<<$ *(y.getADValue());}
   \end{tabular}
 \end{center}
 \autoref{fig:modcode} shows the resulting source code incorporating
@@ -3474,19 +3476,20 @@ given above.
 \> {\sf \rule{0.5cm}{0pt}for (int i=0; i$<$3; ++i)\hspace*{3cm}// Initialize $x_i$}\\
 \> {\sf \rule{1cm}{0pt}...}\\
 \\
-\> {\sf \rule{0.5cm}{0pt}x[0].setADValue(1);\hspace*{3cm}// derivative of f with respect to $x_1$}\\
+\> {\sf \rule{0.5cm}{0pt}double seed = 1.;}\\
+\> {\sf \rule{0.5cm}{0pt}x[0].setADValue(\&seed);\hspace*{3cm}// derivative of f with respect to $x_1$}\\
 \> {\sf \rule{0.5cm}{0pt}y[0] = sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]);}\\
 \> {\sf \rule{0.5cm}{0pt}y[1] = atan(sqrt(x[0]*x[0]+x[1]*x[1])/x[2]);}\\
 \> {\sf \rule{0.5cm}{0pt}y[2] = atan(x[1]/x[0]);}\\
 \\
 \> {\sf \rule{0.5cm}{0pt}cout $<<$ "y1=" $<<$ y[0].getValue() $<<$ " , y2=" $<<$ y[1].getValue ... ;}\\
-\> {\sf \rule{0.5cm}{0pt}cout $<<$ "dy2/dx1 = " $<<$ y[1].getADValue() $<<$ endl;}\\
+\> {\sf \rule{0.5cm}{0pt}cout $<<$ "dy2/dx1 = " $<<$ *(y[1].getADValue()) $<<$ endl;}\\
 \> {\sf \rule{0.5cm}{0pt}return 0;}\\
 \> {\sf \}}
 \end{tabbing}
 %\end{center}
 }}
-\caption{Example for tapeless scalar forward mode}
+\caption{Example for traceless scalar forward mode}
 \label{fig:modcode}
 \end{figure}
 %
@@ -3505,11 +3508,8 @@ variables is undesirable and can lead to segmentation violations,
 hence such an operation will result in an
 error. \verb#adtl::setNumDir(N)# must therefore be called before
 declaring any \verb#adtl::adouble# objects.
- 
-Compared to the scalar case setting and getting the derivative
-values, i.e. the directions, is more involved. Instead of
-working with single {\sf double} values, pointer to fields of {\sf
-double}s are used as illustrated by the following example: 
+
+Setting and getting the derivative values is done in the same manner as in the scalar case, by passing and retrieving the pointers, as illustrated in the following example:
 \begin{center}
   \begin{tabular}{l}
     {\sf adtl::setNumDir(10);}\\
@@ -3523,11 +3523,9 @@ double}s are used as illustrated by the following example:
     {\sf ptr2=y.getADValue();}
   \end{tabular}
 \end{center}
-Additionally, the tapeless vector forward mode of ADOL-C offers two
-new methods for setting/getting the derivative values. Similar
-to the scalar case, {\sf double} values are used but due to the vector
-mode the position of the desired vector element must be supplied in
-the argument list:
+Now using the pointers in the methods {\sf setADValue} and {\sf getADValue} makes more sense since the vector mode requires the field of $p$ elements per {\sf adouble} which holds the derivative values.
+Additionally, the traceless vector forward mode of ADOL-C offers two
+new methods for setting/getting the derivative values. Setting a derivative value of the desired vector element is possible by passing a {\sf double} value and its position in the vector ({\sf integer}). Getting a derivative value of the desired vector element requires as argument only its position in the vector. One can note that the pointers are not used in these cases, as illustrated in the following example:
 \begin{center}
   \begin{tabular}{l}
     {\sf adtl::setNumDir(10);}\\
@@ -3577,7 +3575,7 @@ shown in \autoref{fig:modcode2}
 \> {\sf \}}
 \end{tabbing}
 }}
-\caption{Example for tapeless vector forward mode}
+\caption{Example for traceless vector forward mode}
 \label{fig:modcode2}
 \end{figure}
 %
@@ -3589,7 +3587,7 @@ As long as the ADOL-C header files are not included in the absolute path
 the compile sequence should be similar to the following example:
 \begin{center}
   \begin{tabular}{l}
-    {\sf g++ -I/home/username/adolc\_base/include -c tapeless\_scalar.cpp}
+    {\sf g++ -I/home/username/adolc\_base/include -c traceless\_scalar.cpp}
   \end{tabular}
 \end{center}
 The \verb#-I# option tells the compiler where to search for the ADOL-C
@@ -3603,16 +3601,17 @@ The example started above could be finished with the
 following command:
 \begin{center}
   \begin{tabular}{l}
-    {\sf g++ -o tapeless\_scalar tapeless\_scalar.o -ladolc -L/home/username/adolc\_base/lib}
+    {\sf g++ -o traceless\_scalar traceless\_scalar.o}\\
+    {\sf -Wl,-{}-rpath -Wl,/home/username/adolc\_base/lib -L/home/username/adolc\_base/lib -ladolc}
   \end{tabular}
 \end{center}
-The mentioned source codes {\sf tapeless\_scalar.c} and {\sf tapeless\_vector.c} 
-illustrating the use of the for tapeless scalar and vector mode can be found in
+The mentioned source codes {\sf traceless\_scalar.c} and {\sf traceless\_vector.c} 
+illustrating the use of the for traceless scalar and vector mode can be found in
 the directory {\sf examples}. 
 %
-\subsection{Concluding Remarks for the Tapeless Forward Mode Variant}
+\subsection{Concluding Remarks for the Traceless Forward Mode Variant}
 %
-As many other AD methods the tapeless forward mode provided by the
+As many other AD methods the traceless forward mode provided by the
 ADOL-C package has its own strengths and drawbacks. Please read the
 following section carefully to become familiar with the things that
 can occur: 
@@ -3621,14 +3620,14 @@ can occur:
     \begin{itemize}
       \item Code speed\\
 	Increasing computation speed was one of the main aspects in writing
-	the tapeless code. In many cases higher performance can be
+	the traceless code. In many cases higher performance can be
 	expected this way. However this is not guarenteed for repeated
         evaluations.
       \item Smaller overall memory requirements\\
-	Tapeless ADOL-C does not write tapes anymore, as the name
+	Traceless ADOL-C does not write traces anymore, as the name
 	implies. Loop ''unrolling'' can be avoided this
 	way. Considered main memory plus disk space as overall memory
-	requirements the tapeless version can be 
+	requirements the traceless version can be 
 	executed in a more efficient way. 
     \end{itemize}
   \item Drawbacks:
@@ -3636,7 +3635,7 @@ can occur:
     \item Main memory limitations\\
       The ability to compute derivatives to a given function is
       bounded by the main memory plus swap size  when using
-      tapeless ADOL-C. Computation from swap should be avoided anyway
+      traceless ADOL-C. Computation from swap should be avoided anyway
       as far as possible since it slows down the computing time
       drastically. Therefore, if the program execution is  
       terminated without error message insufficient memory size can be
@@ -3649,17 +3648,17 @@ can occur:
       \end{itemize}
       where the storage size of all non {\sf adouble} based variables is described by $M_p$.
     \item Compile time\\
-      As discussed in the previous sections, the tapeless forward mode of
+      As discussed in the previous sections, the traceless forward mode of
       the ADOL-C package is implemented as inline intended version. Using
       this approach results in a higher source code size, since every
       operation involving at least one {\sf adouble} stands for the
       operation itself as well as for the corresponding derivative
       code after the inlining process. Therefore, the compilation time
-      needed for the tapeless version may be higher than that of the tape based code. 
+      needed for the traceless version may be higher than that of the trace based code. 
     \item Code Size\\
       A second drawback and result of the code inlining is the
       increase of code sizes for the binaries. The increase
-      factor compared to the corresponding tape based program is
+      factor compared to the corresponding trace based program is
       difficult to quantify as it is task dependent. Practical results
       have shown that values between 1.0 and 2.0 can be
       expected. Factors higher than 2.0 are possible too and even
