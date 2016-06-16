@@ -38,7 +38,10 @@ size_t adouble::numDir = 1;
 enum Mode adouble::forward_mode = ADTL_FOV;
 
 size_t refcounter::refcnt = 0;
-
+#if USE_BOOST_POOL
+boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
+boost::pool<boost::default_user_allocator_new_delete>(sizeof(double));
+#endif
 
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {

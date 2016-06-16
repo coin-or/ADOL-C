@@ -121,9 +121,12 @@ fi
 
 if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
     using_boost_pool=yes
+    USE_BOOST_POOL="#define USE_BOOST_POOL 1"
 else
     using_boost_pool=no
+    USE_BOOST_POOL="#define USE_BOOST_POOL 0"
 fi
+AC_SUBST(USE_BOOST_POOL)
 
 # substitutions
 AC_SUBST(ac_aux_dir)

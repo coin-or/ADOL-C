@@ -28,6 +28,10 @@
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
+#if USE_BOOST_POOL
+#include <boost/pool/pool_alloc.hpp>
+#endif
+
 using std::ostream;
 using std::istream;
 using std::list;
@@ -235,6 +239,9 @@ public:
     ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
 
 private:
+#if USE_BOOST_POOL
+    static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
+#endif
     double val;
     double *adval;
     list<unsigned int> pattern;
@@ -301,6 +308,13 @@ inline void setNumDir(const size_t p) {
 	abort();
     }
     adouble::numDir = p;
+#if USE_BOOST_POOL
+    if (adouble::advalpool != NULL) {
+        delete adouble::advalpool;
+        adouble::advalpool = NULL;
+    }
+    adouble::advalpool = new boost::pool<boost::default_user_allocator_new_delete>(adouble::numDir*sizeof(double));
+#endif
 }
 
 inline void setMode(enum Mode newmode) {
@@ -326,7 +340,11 @@ inline double makeInf() {
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
     if (do_indo()) {
      if (!pattern.empty())
           pattern.clear();
@@ -335,7 +353,11 @@ inline adouble::adouble() : val(0), adval(NULL) {
 
 inline adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
@@ -347,7 +369,11 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
 
 inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
@@ -359,7 +385,11 @@ inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL)
 
 inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
@@ -374,7 +404,11 @@ inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
 /*******************************  dtors  ************************************/
 inline adouble::~adouble() {
     if (adval != NULL)
+#if USE_BOOST_POOL
+        advalpool->free(adval);
+#else
 	delete[] adval;
+#endif
 #if 0
     if ( !pattern.empty() )
 	pattern.clear();
