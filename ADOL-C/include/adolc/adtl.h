@@ -301,7 +301,7 @@ inline bool adouble::_do_indo() {
 
 inline void setNumDir(const size_t p) {
     if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
     }
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
