@@ -5,7 +5,7 @@
  Contents: functions for computation of Lie derivatives
  
 
- Copyright (c) Siquian Wang, Klaus Röbenack, Jan Winkler, Mirko Franke
+ Copyright (c) Siquian Wang, Klaus Rï¿½benack, Jan Winkler, Mirko Franke
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -18,7 +18,7 @@
 #include "adolc/internal/common.h"
 
 
-// C++ declarations available only when compiling with C++
+/* C++ declarations available only when compiling with C++                  */
 #if defined(__cplusplus)
 
 ADOLC_DLL_EXPORT int lie_scalar(short, short, short, double*, short, double*);
@@ -30,7 +30,7 @@ ADOLC_DLL_EXPORT int lie_gradient(short, short, short, short, double*, short, do
 
 
 
-// C-declarations
+/* C-declarations                                                           */
 #if defined (__cplusplus)
 extern "C" {
 #endif
