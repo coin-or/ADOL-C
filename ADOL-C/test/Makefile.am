@@ -10,7 +10,7 @@
 ## 
 ##############################################################################
 
-noinst_PROGRAMS         = powexam speelpenning fminmax
+noinst_PROGRAMS         = powexam speelpenning fminmax ascii2tape
 
 speelpenning_SOURCES    = speelpenning.cpp
 
@@ -18,9 +18,12 @@ powexam_SOURCES         = powexam.cpp
 
 fminmax_SOURCES		= fminmax.cpp
 
+ascii2tape_SOURCES      = ascii2tape.cpp
+
 powexam_LDADD           = ../lib${adolclib}.la
 speelpenning_LDADD = ../lib${adolclib}.la
 fminmax_LDADD		= ../lib${adolclib}.la
+ascii2tape_LDADD        = ../lib${adolclib}.la
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@

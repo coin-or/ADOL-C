@@ -1,0 +1,9 @@
+{ op:assign_ind loc:10 } { op:assign_ind loc:12 }
+{ op:assign_d loc:11 val:21.12 }
+{ op:plus_a_a loc:10 loc:12 loc:9 } this adds location 10 to location 10 and 
+results in location 9
+nun auch für die Unicode Texte testen
+{ op:mult_d_a loc:11 loc:10 val:1.0 } this adds 2.0 to location 11 and results
+in location 10
+{ op:gen_quad loc:9 loc:10 val:1e+2 val:2.1e-2 }
+{op:assign_dep loc:10 }

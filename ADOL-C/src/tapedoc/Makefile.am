@@ -20,4 +20,4 @@ MAINTAINERCLEANFILES      = Makefile.in *~ *.orig
 
 noinst_LTLIBRARIES        = libtapedoc.la
 
-libtapedoc_la_SOURCES     = tapedoc.c
+libtapedoc_la_SOURCES     = tapedoc.c asciitapes.cpp
