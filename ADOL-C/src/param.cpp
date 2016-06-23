@@ -89,8 +89,8 @@ pdouble::operator adub() const {
     location = next_loc();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         put_op(assign_p);
-        ADOLC_PUT_LOCINT(location);
         ADOLC_PUT_LOCINT(_idx);
+        ADOLC_PUT_LOCINT(location);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -149,8 +149,8 @@ badouble& badouble::operator += (const pdouble& p) {
     loc = this->loc();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         put_op(eq_plus_p);
-        ADOLC_PUT_LOCINT(loc);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(loc);
         
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -167,8 +167,8 @@ adubref& adubref::operator += (const pdouble& p) {
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         put_op(ref_eq_plus_p);
-        ADOLC_PUT_LOCINT(location);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(location);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -184,8 +184,8 @@ badouble& badouble::operator -= (const pdouble& p) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_min_d,loc(),coval);
         put_op(eq_min_p);
-        ADOLC_PUT_LOCINT(loc());
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(loc());
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -201,8 +201,8 @@ adubref& adubref::operator -= (const pdouble& p) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_min_d,location,coval);
         put_op(ref_eq_min_p);
-        ADOLC_PUT_LOCINT(location);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(location);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -218,8 +218,8 @@ badouble& badouble::operator *= (const pdouble& p) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_mult_d,loc(),coval);
         put_op(eq_mult_p);
-        ADOLC_PUT_LOCINT(loc()); // = res
         ADOLC_PUT_LOCINT(p._idx);       // = coval
+        ADOLC_PUT_LOCINT(loc()); // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -235,8 +235,8 @@ adubref& adubref::operator *= (const pdouble& p) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_mult_d,location,coval);
         put_op(ref_eq_mult_p);
-        ADOLC_PUT_LOCINT(location);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(location);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -277,8 +277,8 @@ adub operator - (const badouble& a, const pdouble& p) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
         put_op(min_a_p);
         ADOLC_PUT_LOCINT(a.loc());
-        ADOLC_PUT_LOCINT(locat);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(locat);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -298,8 +298,8 @@ adub operator * (const badouble& a, const pdouble& p) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
         put_op(mult_a_p);
         ADOLC_PUT_LOCINT(a.loc());
-        ADOLC_PUT_LOCINT(locat);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(locat);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -319,8 +319,8 @@ adub operator / (const pdouble& p, const badouble& a) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
         put_op(div_p_a);
         ADOLC_PUT_LOCINT(a.loc());
-        ADOLC_PUT_LOCINT(locat);
         ADOLC_PUT_LOCINT(p._idx);
+        ADOLC_PUT_LOCINT(locat);
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -339,8 +339,8 @@ adub pow( const badouble& x, const pdouble& p) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(pow_op,locat,cocval,x.loc());
         put_op(pow_op_p);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
-        ADOLC_PUT_LOCINT(locat);      // = res
         ADOLC_PUT_LOCINT(p._idx);         // = coval
+        ADOLC_PUT_LOCINT(locat);      // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)

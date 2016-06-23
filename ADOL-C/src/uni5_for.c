@@ -1577,8 +1577,8 @@ int  hov_forward(
             case recipr_p:
             case assign_p:            /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
-                res   = get_locint_f();
                 arg   = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif
@@ -1783,8 +1783,8 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case eq_plus_p:            /* Add a floating point to an    eq_plus_p */
                 /* adouble. (+=) */
-                res   = get_locint_f();
                 arg   = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif
@@ -1852,8 +1852,8 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case eq_min_p:       /* Subtract a floating point from an    eq_min_p */
                 /* adouble. (-=) */
-                res = get_locint_f();
                 arg = get_locint_f();
+                res = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif
@@ -1935,8 +1935,8 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
                 /* flaoting point. (*=) */
-                res   = get_locint_f();
                 arg   = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif
@@ -2123,8 +2123,8 @@ int  hov_forward(
             case min_a_p:                /* Subtract an adouble from a    min_a_p */
                 /* (+) */
                 arg   = get_locint_f();
-                res   = get_locint_f();
                 arg1  = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -2483,8 +2483,8 @@ int  hov_forward(
             case mult_a_p:         /* Multiply an adouble by a double    mult_a_p */
                 /* (*) */
                 arg   = get_locint_f();
-                res   = get_locint_f();
                 arg1  = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -2662,8 +2662,8 @@ int  hov_forward(
             /*--------------------------------------------------------------------------*/
         case div_p_a:             /* Division double - adouble (/)    div_p_a */
                 arg   = get_locint_f();
-                res   = get_locint_f();
                 arg1  = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -3834,8 +3834,8 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case pow_op_p:                                                /* pow_op_p */
                 arg   = get_locint_f();
-                res   = get_locint_f();
                 arg1  = get_locint_f();
+                res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -4995,7 +4995,6 @@ int  hov_forward(
 #endif
 		get_val_f();
 		arg = get_locint_f();
-		res = get_locint_f();
 		{
 #if !defined(_NTIGHT_)
 		    size_t idx, numvar = (size_t)trunc(fabs(coval));
@@ -5003,6 +5002,7 @@ int  hov_forward(
 		    vectorloc = 
 #endif
 		    get_locint_f();
+                    res = get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    if (idx >= numvar)
@@ -5039,7 +5039,6 @@ int  hov_forward(
 #endif
 		get_val_f();
 		arg = get_locint_f();
-		res = get_locint_f();
 		{
 #if !defined(_NTIGHT_)
 		    size_t idx, numvar = (size_t)trunc(fabs(coval));
@@ -5047,6 +5046,7 @@ int  hov_forward(
 		    vectorloc = 
 #endif
 		    get_locint_f();
+                    res = get_locint_f();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(dp_T0[arg]));
 		    if (idx >= numvar)
@@ -5340,8 +5340,8 @@ int  hov_forward(
                 /*--------------------------------------------------------------------------*/
             case ref_eq_plus_p:            /* Add a floating point to an    eq_plus_p */
                 /* adouble. (+=) */
-                arg  = get_locint_f();
                 arg1  = get_locint_f();
+                arg  = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -5416,8 +5416,8 @@ int  hov_forward(
 
             case ref_eq_min_p:       /* Subtract a floating point from an    eq_min_p */
                 /* adouble. (-=) */
-                arg = get_locint_f();
                 arg1 = get_locint_f();
+                arg = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -5504,8 +5504,8 @@ int  hov_forward(
 
             case ref_eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
                 /* flaoting point. (*=) */
-                arg = get_locint_f();
                 arg1 = get_locint_f();
+                arg = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 #endif
@@ -5592,9 +5592,9 @@ int  hov_forward(
                 break;
 
             case vec_copy:
-                res = get_locint_f();
                 arg = get_locint_f();
                 size = get_locint_f();
+                res = get_locint_f();
 
                 for(qq=0;qq<size;qq++) {
                     IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);
@@ -5623,10 +5623,10 @@ int  hov_forward(
                 break;
 
             case vec_dot:
-                res = get_locint_f();
                 arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 size = get_locint_f();
+                res = get_locint_f();
                 IF_KEEP_WRITE_TAYLOR(res,keep,k,p);
 #if !defined(_NTIGHT_)
                 dp_T0[res] = 0;
@@ -5713,11 +5713,11 @@ int  hov_forward(
                 break;
 
             case vec_axpy:
-                res = get_locint_f();
                 arg = get_locint_f();
                 arg1 = get_locint_f();
                 arg2 = get_locint_f();
                 size = get_locint_f();
+                res = get_locint_f();
                 
                 for(qq=0;qq<size;qq++) {
                     IF_KEEP_WRITE_TAYLOR(res+qq,keep,k,p);

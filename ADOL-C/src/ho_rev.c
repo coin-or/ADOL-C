@@ -698,8 +698,8 @@ int hov_ti_reverse(
             case recipr_p:
             case assign_p:      /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -782,8 +782,8 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
         case eq_plus_p:            /* Add a floating point to an    eq_plus_p */
             /* adouble. (+=) */
-           arg   = get_locint_r();
            res   = get_locint_r();
+           arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 GET_TAYL(res,k,p)
@@ -825,8 +825,8 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
             case eq_min_p:       /* Subtract a floating point from an    eq_min_p */
                 /* adouble. (-=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 GET_TAYL(res,k,p)
@@ -877,8 +877,8 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
             case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
                 /* flaoting point. (*=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -981,8 +981,8 @@ int hov_ti_reverse(
             case plus_a_p:             /* Add an adouble and a double    plus_a_p */
             case min_a_p:                /* Subtract an adouble from a    min_a_p */
                 /* (+) */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
@@ -1271,8 +1271,8 @@ int hov_ti_reverse(
                 /*--------------------------------------------------------------------------*/
             case mult_a_p:         /* Multiply an adouble by a double    mult_a_p */
                 /* (*) */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
@@ -1410,8 +1410,8 @@ int hov_ti_reverse(
 
                 /****************************************************************************/
             case div_p_a:             /* Division double - adouble (/)    div_p_a */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
@@ -1795,8 +1795,8 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
             case pow_op_p:                                                /* pow_op_p */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
@@ -2475,8 +2475,8 @@ int hov_ti_reverse(
 		{
 		    size_t idx, numval = (size_t)trunc(fabs(coval));
 		    locint vectorloc;
-		    vectorloc = get_locint_r();
 		    res = get_locint_r();
+		    vectorloc = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    idx = (size_t)trunc(fabs(TARG));
@@ -2509,8 +2509,8 @@ int hov_ti_reverse(
 		{
 		    size_t idx, numval = (size_t)trunc(fabs(coval));
 		    locint vectorloc;
-		    vectorloc = get_locint_r();
 		    res = get_locint_r();
+		    vectorloc = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    ASSIGN_T(Tres, rpp_T[res])
@@ -2666,8 +2666,8 @@ int hov_ti_reverse(
 
         case ref_eq_plus_p:            /* Add a floating point to an    eq_plus_d */
             /* adouble. (+=) */
-                arg    = get_locint_r();
                 arg1   = get_locint_r();
+                arg    = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
 		res = (size_t)trunc(fabs(TARG1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
@@ -2796,9 +2796,9 @@ int hov_ti_reverse(
 
             case vec_copy:
 
+                res = get_locint_r();
                 size = get_locint_r();
                 arg = get_locint_r();
-                res = get_locint_r();
 
                 for(qq=0;qq<size;qq++) {
 
@@ -2827,10 +2827,10 @@ int hov_ti_reverse(
                 break;
 
         case vec_dot:
+                res = get_locint_r();
                 size = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
-                res = get_locint_r();
                 for (qq=0;qq<size;qq++) {
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2+qq])
@@ -2866,11 +2866,11 @@ int hov_ti_reverse(
                 break;
 
         case vec_axpy:
+                res = get_locint_r();
                 size = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
                 arg = get_locint_r();
-                res = get_locint_r();
                 for (qq=0;qq<size;qq++) {
                 ASSIGN_A(Ares,  rpp_A[res+qq])
                 ASSIGN_A(Aarg,  rpp_A[arg])
