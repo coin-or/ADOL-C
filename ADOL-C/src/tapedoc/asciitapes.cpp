@@ -805,7 +805,12 @@ void write_ascii_trace(const char *const fname, short tag) {
                 locint res  = get_locint_f();
                 double *d = get_val_v_f(size);
                 for (locint ls = 0; ls < size; ls++ )
-                    outstr << "{ op:" << opnames.at(assign_d) << " loc:" << res+ls << " val:" << d[ls] << " }\n";
+		    if (d[ls] == 0.0)
+			outstr << "{ op:" << opnames.at(assign_d_zero) << " loc:" << res+ls <<  " }\n";
+		    else if (d[ls] == 1.0)
+			outstr << "{ op:" << opnames.at(assign_d_one) << " loc:" << res+ls <<  " }\n";
+		    else
+			outstr << "{ op:" << opnames.at(assign_d) << " loc:" << res+ls << " val:" << d[ls] << " }\n";
             }
             break;
             case ext_diff_iArr:

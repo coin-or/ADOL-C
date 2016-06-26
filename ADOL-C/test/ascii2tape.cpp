@@ -62,9 +62,6 @@ int main(int argc, char **argv) {
 
 
     /*------------------------------------------------------------------------*/
-    /* Taping the computation of the determinant */
-    trace_on(tag);
-    /*------------------------------------------------------------------------*/
     /* Allocation und initialization of the system matrix */
     AA  = new adouble*[size];
     AAp = new adouble[size*size];
@@ -85,6 +82,9 @@ int main(int argc, char **argv) {
     }
 
 
+    /*------------------------------------------------------------------------*/
+    /* Taping the computation of the determinant */
+    trace_on(tag);
     /* marking indeps */
     for(i=0; i<size; i++)
         for(j=0; j<size; j++)
