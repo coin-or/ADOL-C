@@ -474,7 +474,7 @@ static const requiredargs_t num_req_val = {
     { end_of_val, 0 },
     { cond_assign, 1 },
     { cond_assign_s, 1 },
-    { take_stock_op, 0 },
+    { take_stock_op, 65536 },
     { assign_d_one, 0 },
     { assign_d_zero, 0 },
     { incr_a, 0 },
@@ -653,12 +653,12 @@ static void get_ascii_trace_elements(const std::string& instr) {
             locs.push_back(iarrlen);
             ++loca;
             auto nextlocat = loca;
-            for (locint i = 0; i < iarrlen + 1 ; i++) {
-                ++nextlocat;
+            for (locint i = 0; i < iarrlen + 1; i++) {
                 if (nextlocat == iend) {
                     fprintf(DIAG_OUT, "ADOL-C error: not enough locations given in ext_diff_v");
                     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
                 }
+                ++nextlocat;
             }
             locint nin = std::strtoul((*nextlocat)[1].str().c_str(),NULL,0);
             ++nextlocat;
@@ -666,6 +666,34 @@ static void get_ascii_trace_elements(const std::string& instr) {
             put_op_reserve(oper, 2*(nin+nout)+iarrlen);
             ADOLC_PUT_LOCINT(idx);
             ADOLC_PUT_LOCINT(iarrlen);
+        } if (oper == take_stock_op) {
+            // we really shouldn't have take_stock_op in our trace since
+            // trace_on() already writes one, so even if some externally
+            // written trace contains it, we'll make sure we use assign_d type
+            // operations instead.
+            locint start = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            locint number = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            while (maxloc < start+number) maxloc *= 2;
+            for (locint i=start; i < start+number; i++) {
+                if (vala == iend) {
+                    fprintf(DIAG_OUT, "ADOL-C error: not enough values given in take_stock_op");
+                    adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+                }
+                double val = strtod((*vala)[1].str().c_str(),NULL);
+                ++vala;
+                if (val == 0.0) {
+                    put_op(assign_d_zero);
+                    ADOLC_PUT_LOCINT(i);
+                } else if (val == 1.0) {
+                    put_op(assign_d_one);
+                    ADOLC_PUT_LOCINT(i);
+                } else {
+                    put_op(assign_d);
+                    ADOLC_PUT_LOCINT(i);
+                    ADOLC_PUT_VAL(val);
+                }
+            }
         } else 
             put_op(oper);
         while (loca != iend) {
@@ -680,13 +708,17 @@ static void get_ascii_trace_elements(const std::string& instr) {
             std::cout << "something went wrong, there are " << locctr << "locs in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
+        if (oper == take_stock_op && vala != iend) {
+            std::cout << "something went wrong, there are too many values in one tag for " << (*opa)[1].str() << "\n";
+            adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+        }
         while (vala != iend) {
             double val = std::strtod((*vala)[1].str().c_str(),NULL);
             ADOLC_PUT_VAL(val);
             ++vala;
             ++valctr;
         }
-        if (valctr > num_req_val.at(oper)) {
+        if (oper != take_stock_op && valctr > num_req_val.at(oper)) {
             std::cout << "something went wrong, there are " << valctr << "vales in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
