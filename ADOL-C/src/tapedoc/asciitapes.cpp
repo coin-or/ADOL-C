@@ -668,16 +668,6 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ADOLC_PUT_LOCINT(iarrlen);
         } else 
             put_op(oper);
-        while (vala != iend) {
-            double val = std::strtod((*vala)[1].str().c_str(),NULL);
-            ADOLC_PUT_VAL(val);
-            ++vala;
-            ++valctr;
-        }
-        if (valctr > num_req_val.at(oper)) {
-            std::cout << "something went wrong, there are " << valctr << "vales in one tag for " << (*opa)[1].str() << "\n";
-            adolc_exit(-1,"",__func__,__FILE__,__LINE__);
-        }
         while (loca != iend) {
             locint loc = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             while (maxloc < loc) maxloc *= 2;
@@ -686,8 +676,18 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++loca;
             ++locctr;
         }
-        if (locctr > num_req_loc.at(oper)) {
+        if (oper != ext_diff_iArr && oper != ext_diff_v2 && locctr > num_req_loc.at(oper)) {
             std::cout << "something went wrong, there are " << locctr << "locs in one tag for " << (*opa)[1].str() << "\n";
+            adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+        }
+        while (vala != iend) {
+            double val = std::strtod((*vala)[1].str().c_str(),NULL);
+            ADOLC_PUT_VAL(val);
+            ++vala;
+            ++valctr;
+        }
+        if (valctr > num_req_val.at(oper)) {
+            std::cout << "something went wrong, there are " << valctr << "vales in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
         handle_ops_stats(oper,locs);
