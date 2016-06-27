@@ -33,7 +33,7 @@ typedef @REAL_TYPE@ revreal;
 @ADVBRANCH@
 
 /*--------------------------------------------------------------------------*/
-/* Use Boost Library Pool allocator */
-@USE_BOOST_POOL@
+/* Use Boost Library */
+@USE_BOOST@
 
 #endif

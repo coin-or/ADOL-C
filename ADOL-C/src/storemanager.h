@@ -72,7 +72,7 @@
 #include <adolc/internal/adolc_settings.h>
 #include <forward_list>
 
-#if USE_BOOST_POOL 
+#if USE_BOOST
 #include <boost/pool/pool_alloc.hpp>
 #endif
 
@@ -149,7 +149,7 @@ protected:
     };
 
     std::forward_list<struct FreeBlock
-#if USE_BOOST_POOL
+#if USE_BOOST
                       , boost::fast_pool_allocator<struct FreeBlock> 
 #endif 
                       >  indexFree;

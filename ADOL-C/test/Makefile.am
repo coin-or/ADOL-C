@@ -10,7 +10,11 @@
 ## 
 ##############################################################################
 
-noinst_PROGRAMS         = powexam speelpenning fminmax ascii2tape
+noinst_PROGRAMS         = powexam speelpenning fminmax
+
+if USE_BOOST
+noinst_PROGRAMS        += ascii2tape
+endif
 
 speelpenning_SOURCES    = speelpenning.cpp
 

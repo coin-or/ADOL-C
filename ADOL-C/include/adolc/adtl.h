@@ -28,7 +28,7 @@
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
-#if USE_BOOST_POOL
+#if USE_BOOST
 #include <boost/pool/pool_alloc.hpp>
 #endif
 
@@ -239,7 +239,7 @@ public:
     ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
 
 private:
-#if USE_BOOST_POOL
+#if USE_BOOST
     static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
 #endif
     double val;
@@ -308,7 +308,7 @@ inline void setNumDir(const size_t p) {
 	abort();
     }
     adouble::numDir = p;
-#if USE_BOOST_POOL
+#if USE_BOOST
     if (adouble::advalpool != NULL) {
         delete adouble::advalpool;
         adouble::advalpool = NULL;
@@ -340,7 +340,7 @@ inline double makeInf() {
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
-#if USE_BOOST_POOL
+#if USE_BOOST
         adval = reinterpret_cast<double*>(advalpool->malloc());
 #else
 	adval = new double[adouble::numDir];
@@ -353,7 +353,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
 
 inline adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
-#if USE_BOOST_POOL
+#if USE_BOOST
         adval = reinterpret_cast<double*>(advalpool->malloc());
 #else
 	adval = new double[adouble::numDir];
@@ -369,7 +369,7 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
 
 inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
-#if USE_BOOST_POOL
+#if USE_BOOST
         adval = reinterpret_cast<double*>(advalpool->malloc());
 #else
 	adval = new double[adouble::numDir];
@@ -385,7 +385,7 @@ inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL)
 
 inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
-#if USE_BOOST_POOL
+#if USE_BOOST
         adval = reinterpret_cast<double*>(advalpool->malloc());
 #else
 	adval = new double[adouble::numDir];
@@ -404,7 +404,7 @@ inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
 /*******************************  dtors  ************************************/
 inline adouble::~adouble() {
     if (adval != NULL)
-#if USE_BOOST_POOL
+#if USE_BOOST
         advalpool->free(adval);
 #else
 	delete[] adval;

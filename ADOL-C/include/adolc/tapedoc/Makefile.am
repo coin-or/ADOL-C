@@ -12,4 +12,8 @@
 
 libtapedocincludedir      = $(pkgincludedir)/tapedoc
 
-libtapedocinclude_HEADERS = tapedoc.h asciitapes.h
+libtapedocinclude_HEADERS = tapedoc.h
+
+if USE_BOOST
+libtapedocinclude_HEADERS += asciitapes.h
+endif

@@ -305,21 +305,22 @@ AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
 AC_CHECK_HEADERS([boost/regex.hpp])
 AC_LANG_POP([C++])
-AX_BOOST_SYSTEM
 AX_BOOST_REGEX
+AX_BOOST_SYSTEM
 LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_REGEX_LIB"
 fi
 
-if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
-    using_boost_pool=yes
-    USE_BOOST_POOL="#define USE_BOOST_POOL 1"
+if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes -a "x$link_regex" = xyes; then
+    using_boost=yes
+    USE_BOOST="#define USE_BOOST 1"
 else
-    using_boost_pool=no
-    USE_BOOST_POOL="#define USE_BOOST_POOL 0"
+    using_boost=no
+    USE_BOOST="#define USE_BOOST 0"
 fi
-AC_SUBST(USE_BOOST_POOL)
+AC_SUBST(USE_BOOST)
+AM_CONDITIONAL(USE_BOOST,[test x$using_boost = xyes])
 
-if test "x$using_boost_pool" = xyes -a "x$ac_adolc_openmpflag" = x ; then
+if test "x$using_boost" = xyes -a "x$ac_adolc_openmpflag" = x ; then
    AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
 fi
 
