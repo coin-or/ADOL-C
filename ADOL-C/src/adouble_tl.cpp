@@ -40,7 +40,7 @@ enum Mode adouble::forward_mode = ADTL_FOV;
 size_t refcounter::refcnt = 0;
 #if USE_BOOST_POOL
 boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
-boost::pool<boost::default_user_allocator_new_delete>(sizeof(double));
+boost::pool<boost::default_user_allocator_new_delete>(adouble::numDir * sizeof(double));
 #endif
 
 /*******************  i/o operations  ***************************************/

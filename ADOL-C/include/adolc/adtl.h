@@ -60,6 +60,7 @@ private:
 public:
     refcounter() { ++refcnt; }
     ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
 };
 
 class func_ad {
@@ -252,6 +253,7 @@ private:
     ADOLC_DLL_EXPIMP static size_t numDir;
     ADOLC_DLL_EXPIMP static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
+    inline friend size_t getNumDir();
     inline friend void setMode(enum Mode newmode);
 };
 
@@ -317,6 +319,8 @@ inline void setNumDir(const size_t p) {
 #endif
 }
 
+inline size_t getNumDir() {return adouble::numDir;}
+
 inline void setMode(enum Mode newmode) {
     if (refcounter::refcnt > 0) {
 	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
@@ -332,7 +336,7 @@ inline double makeInf() {
     return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (int _i=0; _i < adouble::numDir; ++_i)
+#define FOR_I_EQ_0_LT_NUMDIR for (size_t _i=0; _i < adouble::numDir; ++_i)
 #define ADVAL_I              adval[_i]
 #define ADV_I                adv[_i]
 #define V_I                  v[_i]
