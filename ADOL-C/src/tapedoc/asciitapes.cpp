@@ -733,7 +733,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
 }
                         
 void read_ascii_trace(const char*const fname, short tag) {
-    char buf[1048576];
+    char buf[4194304];
     std::ifstream is;
 
     std::string pattern = "\\{\\s*op:[_a-z]+(\\s+loc:[0-9]+)+\\s*(\\s*val:[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
