@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adolc_settings.h
- Revision: $Id: adolc_settings.h.in 537 2014-08-15 14:10:48Z kulshres $
+ Revision: $Id$
  Contents: ADOL-C Settings:
            These parameters might affect the performance of the ADOL-C
            system; and are set by the configure script during the build.
@@ -17,6 +17,8 @@
 
 #if !defined(ADOLC_ADOLC_SETTINGS_H)
 #define ADOLC_ADOLC_SETTINGS_H 1
+
+#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* ADOL-C data types */
 typedef uint32_t locint;                /* ensure locint is unsigned */
@@ -29,5 +31,9 @@ typedef double revreal;
 /*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
 #undef ADOLC_ADVANCED_BRANCHING
+
+/*--------------------------------------------------------------------------*/
+/* Use Boost Library Pool allocator */
+#define USE_BOOST_POOL 1
 
 #endif

@@ -74,6 +74,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 LT_INIT([disable-static win32-dll dlopen])
 
+if test "x$enable_static" != "xno" ; then
+   AC_MSG_WARN([Linking a user program with static ADOL-C library will always result in a segmentation fault])
+fi
+
 MPI_CONF_PRE
 
 AC_CHECK_SIZEOF([void *])
@@ -107,22 +111,6 @@ AC_STRUCT_TM
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
 AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
-
-AX_BOOST_BASE([1.54],[boost_new=yes],[boost_new=no])
-if test x$boost_new = xyes ; then
-CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
-AC_LANG_POP([C++])
-AX_BOOST_SYSTEM
-LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
-fi
-
-if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
-    using_boost_pool=yes
-else
-    using_boost_pool=no
-fi
 
 # substitutions
 AC_SUBST(ac_aux_dir)
@@ -312,6 +300,25 @@ AC_ARG_WITH(openmp-flag,
              AC_MSG_RESULT($ac_adolc_openmpflag)],
             [ac_adolc_openmpflag=""
              AC_MSG_RESULT(none)])
+
+AX_BOOST_BASE([1.54],[boost_new=yes],[boost_new=no])
+if test x$boost_new = xyes ; then
+CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
+AC_LANG_POP([C++])
+AX_BOOST_SYSTEM
+LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
+fi
+
+if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
+    using_boost_pool=yes
+    USE_BOOST_POOL="#define USE_BOOST_POOL 1"
+else
+    using_boost_pool=no
+    USE_BOOST_POOL="#define USE_BOOST_POOL 0"
+fi
+AC_SUBST(USE_BOOST_POOL)
 
 if test "x$using_boost_pool" = xyes -a "x$ac_adolc_openmpflag" = x ; then
    AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
@@ -658,3 +665,10 @@ echo \
 "
 ;;
 esac
+if test "x$enable_static" != "xno" ; then
+echo \
+" Linking a user program with a static ADOL-C library will always result
+  in a segmentation fault. Please always use the shared library.
+*****************************************************************************
+"
+fi

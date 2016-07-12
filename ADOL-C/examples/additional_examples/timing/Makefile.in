@@ -318,6 +318,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 UINT_TYPE = @UINT_TYPE@
+USE_BOOST_POOL = @USE_BOOST_POOL@
 VERSION = @VERSION@
 _lib = @_lib@
 abs_builddir = @abs_builddir@
