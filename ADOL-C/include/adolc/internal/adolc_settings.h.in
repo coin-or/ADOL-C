@@ -17,6 +17,8 @@
 
 #if !defined(ADOLC_ADOLC_SETTINGS_H)
 #define ADOLC_ADOLC_SETTINGS_H 1
+
+#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* ADOL-C data types */
 typedef @UINT_TYPE@ locint;                /* ensure locint is unsigned */
@@ -29,5 +31,9 @@ typedef @REAL_TYPE@ revreal;
 /*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
 @ADVBRANCH@
+
+/*--------------------------------------------------------------------------*/
+/* Use Boost Library Pool allocator */
+@USE_BOOST_POOL@
 
 #endif

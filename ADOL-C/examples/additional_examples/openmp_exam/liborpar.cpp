@@ -27,7 +27,7 @@ using namespace std;
 #include <ctime>
 #include <cmath>
 
-#include "adolc.h"
+#include "adolc/adolc.h"
 
 #ifdef _OPENMP
 #include <omp.h>

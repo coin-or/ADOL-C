@@ -28,6 +28,10 @@
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
+#if USE_BOOST_POOL
+#include <boost/pool/pool_alloc.hpp>
+#endif
+
 using std::ostream;
 using std::istream;
 using std::list;
@@ -56,6 +60,7 @@ private:
 public:
     refcounter() { ++refcnt; }
     ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
 };
 
 class func_ad {
@@ -235,6 +240,9 @@ public:
     ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
 
 private:
+#if USE_BOOST_POOL
+    static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
+#endif
     double val;
     double *adval;
     list<unsigned int> pattern;
@@ -245,6 +253,7 @@ private:
     ADOLC_DLL_EXPIMP static size_t numDir;
     ADOLC_DLL_EXPIMP static enum Mode forward_mode;
     inline friend void setNumDir(const size_t p);
+    inline friend size_t getNumDir();
     inline friend void setMode(enum Mode newmode);
 };
 
@@ -294,14 +303,23 @@ inline bool adouble::_do_indo() {
 
 inline void setNumDir(const size_t p) {
     if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
     }
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
 	abort();
     }
     adouble::numDir = p;
+#if USE_BOOST_POOL
+    if (adouble::advalpool != NULL) {
+        delete adouble::advalpool;
+        adouble::advalpool = NULL;
+    }
+    adouble::advalpool = new boost::pool<boost::default_user_allocator_new_delete>(adouble::numDir*sizeof(double));
+#endif
 }
+
+inline size_t getNumDir() {return adouble::numDir;}
 
 inline void setMode(enum Mode newmode) {
     if (refcounter::refcnt > 0) {
@@ -318,7 +336,7 @@ inline double makeInf() {
     return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (int _i=0; _i < adouble::numDir; ++_i)
+#define FOR_I_EQ_0_LT_NUMDIR for (size_t _i=0; _i < adouble::numDir; ++_i)
 #define ADVAL_I              adval[_i]
 #define ADV_I                adv[_i]
 #define V_I                  v[_i]
@@ -326,7 +344,11 @@ inline double makeInf() {
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0), adval(NULL) {
     if (do_adval())
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
     if (do_indo()) {
      if (!pattern.empty())
           pattern.clear();
@@ -335,7 +357,11 @@ inline adouble::adouble() : val(0), adval(NULL) {
 
 inline adouble::adouble(const double v) : val(v), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I = 0.0;
     }
@@ -347,7 +373,11 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
 
 inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=ADV_I;
     }
@@ -359,7 +389,11 @@ inline adouble::adouble(const double v, const double* adv) : val(v), adval(NULL)
 
 inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
     if (do_adval()) {
+#if USE_BOOST_POOL
+        adval = reinterpret_cast<double*>(advalpool->malloc());
+#else
 	adval = new double[adouble::numDir];
+#endif
 	FOR_I_EQ_0_LT_NUMDIR
 	    ADVAL_I=a.ADVAL_I;
     }
@@ -374,7 +408,11 @@ inline adouble::adouble(const adouble& a) : val(a.val), adval(NULL) {
 /*******************************  dtors  ************************************/
 inline adouble::~adouble() {
     if (adval != NULL)
+#if USE_BOOST_POOL
+        advalpool->free(adval);
+#else
 	delete[] adval;
+#endif
 #if 0
     if ( !pattern.empty() )
 	pattern.clear();

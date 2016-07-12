@@ -463,9 +463,9 @@ adub advector::operator[](const badouble& index) const {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 	put_op(subscript);
 	ADOLC_PUT_LOCINT(index.loc());
-	ADOLC_PUT_LOCINT(locat);
 	ADOLC_PUT_VAL(n);
 	ADOLC_PUT_LOCINT(data[0].loc());
+	ADOLC_PUT_LOCINT(locat);
 
 	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
@@ -488,9 +488,9 @@ adubref advector::operator[](const badouble& index) {
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 	put_op(subscript_ref);
 	ADOLC_PUT_LOCINT(index.loc());
-	ADOLC_PUT_LOCINT(locat);
 	ADOLC_PUT_VAL(n);
 	ADOLC_PUT_LOCINT(data[0].loc());
+	ADOLC_PUT_LOCINT(locat);
 
 	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) 
@@ -526,9 +526,9 @@ void adolc_vec_copy(adouble *const dest, const adouble *const src, locint n) {
   if (dest[n-1].loc() - dest[0].loc()!=(unsigned)n-1 || src[n-1].loc()-src[0].loc()!=(unsigned)n-1) fail(ADOLC_VEC_LOCATIONGAP);
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
       put_op(vec_copy);
-      ADOLC_PUT_LOCINT(dest[0].loc());
       ADOLC_PUT_LOCINT(src[0].loc());
       ADOLC_PUT_LOCINT(n);
+      ADOLC_PUT_LOCINT(dest[0].loc());
       for (locint i=0; i<n; i++) {
           ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
           if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -547,10 +547,10 @@ adub adolc_vec_dot(const adouble *const x, const adouble *const y, locint n) {
   locint res = next_loc();
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
       put_op(vec_dot);
-      ADOLC_PUT_LOCINT(res);
       ADOLC_PUT_LOCINT(x[0].loc());
       ADOLC_PUT_LOCINT(y[0].loc());
       ADOLC_PUT_LOCINT(n);
+      ADOLC_PUT_LOCINT(res);
       ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2*n;
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -571,11 +571,11 @@ void adolc_vec_axpy(adouble *const res, const badouble& a, const adouble*const x
   locint a_loc = a.loc();
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
       put_op(vec_axpy);
-      ADOLC_PUT_LOCINT(res[0].loc());
       ADOLC_PUT_LOCINT(a_loc);
       ADOLC_PUT_LOCINT(x[0].loc());
       ADOLC_PUT_LOCINT(y[0].loc());
       ADOLC_PUT_LOCINT(n);
+      ADOLC_PUT_LOCINT(res[0].loc());
       ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2*n -1;
       for (locint i=0; i<n; i++) {
           ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;

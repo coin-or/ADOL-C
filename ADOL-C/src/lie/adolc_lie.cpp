@@ -5,7 +5,7 @@
  Contents: Implementation of a C++ Wrapper for adolc_lie C-function calls
  
 
- Copyright (c) Siquian Wang, Klaus Röbenack, Jan Winkler, Mirko Franke
+ Copyright (c) Siquian Wang, Klaus RÃ¶benack, Jan Winkler, Mirko Franke
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
