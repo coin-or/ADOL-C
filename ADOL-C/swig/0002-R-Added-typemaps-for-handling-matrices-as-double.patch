@@ -1,7 +1,7 @@
-From 8a50927884696bfabc5aa6bde93bd12b0861792b Mon Sep 17 00:00:00 2001
+From 85dfc93af5bf06abea6268b6757050bce9c27926 Mon Sep 17 00:00:00 2001
 From: Sri Hari Krishna Narayanan <sriharikrishna@gmail.com>
 Date: Wed, 9 Mar 2016 16:37:58 -0600
-Subject: [PATCH] R: Added typemaps for handling matrices as double**
+Subject: [PATCH 2/2] R: Added typemaps for handling matrices as double**
 
 ---
  Lib/r/r.swg     | 44 +++++++++++++++++++++++++++++++++++++++++---
@@ -9,7 +9,7 @@ Subject: [PATCH] R: Added typemaps for handling matrices as double**
  2 files changed, 59 insertions(+), 8 deletions(-)
 
 diff --git a/Lib/r/r.swg b/Lib/r/r.swg
-index a61bd37..01f962f 100644
+index 630c8ff..0eb6664 100644
 --- a/Lib/r/r.swg
 +++ b/Lib/r/r.swg
 @@ -80,7 +80,6 @@ SWIG_InitializeModule(0);
@@ -154,5 +154,5 @@ index 22639f2..9581c67 100644
   Just examining the values for a SWIGTYPE.
  
 -- 
-1.9.5 (Apple Git-50.3)
+2.6.6
 
