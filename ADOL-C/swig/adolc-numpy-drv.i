@@ -54,6 +54,8 @@ def as_adouble(arg):
 %rename (sparse_jac) npy_sparse_jac;
 %ignore sparse_hess;
 %rename (sparse_hess) npy_sparse_hess;
+%ignore set_param_vec;
+%rename (set_param_vec) npy_set_param_vec;
 
 %apply (double** ARGOUTVIEWM_ARRAY1, int* DIM1) 
        {(double** y, int* m1),
@@ -312,6 +314,17 @@ extern "C" {
                      "sparse_hess() has not been compiled in the ADOL-C library");
         return 0;
 #endif
+    }
+
+    void npy_set_param_vec(short t, int n, double* x, int n0) {
+        if (n0 != n) {
+            PyErr_Format(PyExc_ValueError,
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,)",n
+                );
+            return;
+        }
+        set_param_vec(t,n,x);
     }
 
 #ifdef __cplusplus
