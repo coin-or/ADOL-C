@@ -97,6 +97,14 @@ import_array();
 %ignore *::operator std::vector<adouble>&;
 %ignore *::operator adouble*;
 
+%typemap(in) locint {
+    $1 = PyLong_AsUnsignedLong($input);
+ }
+
+%typemap(out) locint {
+    $result = PyLong_FromUnsignedLong($1);
+ }
+
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
 %include "adolc-numpy-drv.i"
