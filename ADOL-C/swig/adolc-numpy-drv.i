@@ -12,6 +12,22 @@
  
 ----------------------------------------------------------------------------*/
 
+%pythoncode %{
+def as_adouble(arg):
+    import numpy as np
+    if np.isscalar(arg):
+        return adouble(arg)
+    elif isinstance(arg,badouble):
+        return adouble(x)
+    else:
+        arg = np.ascontiguousarray(arg,dtype=np.float64)
+        shp = np.shape(arg)
+        data = np.ravel(arg)
+        adata = np.array([adouble(val) for val in iter(data)])
+        ret = adata.reshape(shp)
+        return ret
+%}
+
 %ignore function;
 %rename (function) npy_function;
 %ignore gradient;
