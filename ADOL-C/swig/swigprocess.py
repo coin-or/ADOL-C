@@ -62,7 +62,7 @@ def uncomment_local_includes(lines):
     return newlines
 
 def invoke_cpp(infile,outfile):
-    s = 'c++ -std=c++11 -E -C -P -o ' + outfile + ' -Iinclude -nostdinc -DSWIGPRE ' + infile
+    s = os.environ['CXX'] + ' -std=c++11 -E -C -P -o ' + outfile + ' -Iinclude -nostdinc -DSWIGPRE ' + infile
     print('invoking:', s)
     cmd = shlex.split(s)
     try:
@@ -138,7 +138,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         except subprocess.CalledProcessError as e:
             print(e.output)
             print("error in cmd = ", e.cmd)
-        s = 'c++ -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + npy_cflags + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() 
+        s = os.environ['CXX'] + ' -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + npy_cflags + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() 
         if sys.platform.startswith('linux'):
             s += ' -Wl,-no-undefined'
         print('invoking:', s)
@@ -203,4 +203,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.py or args.r:
         args.all = False
+    try:
+        cxx = os.environ['CXX']
+    except KeyError:
+        os.environ['CXX'] = 'c++'
     main(args)
