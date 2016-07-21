@@ -18,7 +18,7 @@ def as_adouble(arg):
     if np.isscalar(arg):
         return adouble(arg)
     elif isinstance(arg,badouble):
-        return adouble(x)
+        return adouble(arg)
     else:
         arg = np.ascontiguousarray(arg,dtype=np.float64)
         shp = np.shape(arg)
