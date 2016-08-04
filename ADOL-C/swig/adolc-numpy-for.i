@@ -150,6 +150,7 @@ def forward(t,m,n,**kwargs):
             tmp = populate_dpp_with_contigdata(&Yp,tmp,*m2,*d2, *Y);
             ret = forward(t,m,n,d,keep,Xp,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"forward")
             return;
         }
     }
@@ -170,6 +171,7 @@ def forward(t,m,n,**kwargs):
             tmp = populate_dpp_with_contigdata(&Xp,tmp,n1,d1, X);
             ret = forward(t,1,n,d,keep,Xp,*y);
             free(memory);
+            CHECKEXCEPT(ret,"forward")
             return;
         }
     }
@@ -195,6 +197,7 @@ def forward(t,m,n,**kwargs):
             tmp = populate_dppp_with_contigdata(&Yp,tmp,*m3,*p3,*d3, *Y);
             ret = forward(t,m,n,d,p,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"forward")
             return;
         }
     }
@@ -219,6 +222,7 @@ def forward(t,m,n,**kwargs):
             tmp = populate_dpp_with_contigdata(&Yp,tmp,*m3,*p3, *Y);
             ret = forward(t,m,n,p,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"forward")
             return;
         }
     }
@@ -237,6 +241,7 @@ extern "C" {
             *m2 = m;
             *y = (double*)malloc((*m2)*sizeof(double));
             ret = zos_forward(t,m,n,keep,x,*y);
+            CHECKEXCEPT(ret,"zos_forward")
             return;
         }
     }
@@ -254,6 +259,7 @@ extern "C" {
             *y = (double*)malloc((*m2)*sizeof(double));
             *yp = (double*)malloc((*m3)*sizeof(double));
             ret = fos_forward(t,m,n,keep,x,xp,*y,*yp);
+            CHECKEXCEPT(ret,"fos_forward")
             return;
         }
     }
@@ -278,6 +284,7 @@ extern "C" {
             tmp = populate_dpp_with_contigdata(&Yp,tmp,*m3,*p3, *Y);
             ret = fov_forward(t,m,n,p,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"fov_forward")
             return;
         }
     }
@@ -302,6 +309,7 @@ extern "C" {
             tmp = populate_dpp_with_contigdata(&Yp,tmp,*m2,*d2, *Y);
             ret = hos_forward(t,m,n,d,keep,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"hos_forward")
             return;
         }
     }
@@ -327,6 +335,7 @@ extern "C" {
             tmp = populate_dppp_with_contigdata(&Yp,tmp,*m3,*p3,*d3, *Y);
             ret = hov_forward(t,m,n,d,p,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"hov_forward")
             return;
         }
     }
@@ -352,6 +361,7 @@ extern "C" {
             tmp = populate_dppp_with_contigdata(&Yp,tmp,*m3,*p3,*d3, *Y);
             ret = hov_wk_forward(t,m,n,d,p,keep,x,Xp,*y,Yp);
             free(memory);
+            CHECKEXCEPT(ret,"hov_wk_forward")
             return;
         }
     }

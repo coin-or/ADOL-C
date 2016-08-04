@@ -17,12 +17,20 @@
 #define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
 #include "matrixmemory.hpp"
+static PyObject* PyExc_AdolcException; 
 %}
 
 %include "numpy.i"
 
 %init %{
 import_array();
+PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.AdolcException", 
+"This exception is thrown if an error condition happens during the call"
+" to an ADOL-C library function, which in a pure C/C++ environment would be"
+" detected by the return value of that library function. This is generally"
+" a warning to retrace the original function at the current point", 
+                                NULL, NULL);
+PyDict_SetItemString(d,"AdolcException",PyExc_AdolcException);
 %}
 
 %feature("novaluewrapper") badouble;
@@ -104,6 +112,22 @@ import_array();
 %typemap(out) locint {
     $result = PyLong_FromUnsignedLong($1);
  }
+
+%pythoncode %{
+AdolcException = _adolc.AdolcException
+%}
+
+%inline %{
+#define CHECKEXCEPT(rc, func) \
+    if ((rc) < 0) {                                                     \
+        PyErr_Format(PyExc_AdolcException,                              \
+                     "An error has been detected in an ADOL-C library"  \
+                     "function (%s). It returned the code %d."          \
+                     " Look at previous messages"                       \
+                     " printed.",                                       \
+                     func, (rc));                                       \
+    }
+%}
 
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"

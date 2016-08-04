@@ -105,6 +105,7 @@ extern "C" {
         *m1 = m;
         *y = (double*)malloc((*m1)*sizeof(double));
         ret = function(t,m,n,x,*y);
+        CHECKEXCEPT(ret,"function")
     }
     void npy_gradient(short t, double* x, int n1, double** g, int* n2) {
         DO_GET_DIMENSIONS
@@ -119,6 +120,7 @@ extern "C" {
         *n2 = n;
         *g = (double*)malloc((*n2)*sizeof(double));
         ret = gradient(t,n,x,*g);
+        CHECKEXCEPT(ret,"gradient")
     }
     void npy_jacobian(short t, double* x, int n1, double** J, int* m2, int* n2) {
         DO_GET_DIMENSIONS
@@ -139,6 +141,7 @@ extern "C" {
         tmp = populate_dpp_with_contigdata(&Jp,tmp,*m2,*n2, *J);
         ret = jacobian(t,m,n,x,Jp);
         free(memory);
+        CHECKEXCEPT(ret,"jacobian")
     }
     void npy_large_jacobian(short t, int k, double* x, int n1, double* y, int m1, double** J, int* m2, int* n2) {
         DO_GET_DIMENSIONS
@@ -159,6 +162,7 @@ extern "C" {
         tmp = populate_dpp_with_contigdata(&Jp,tmp,*m2,*n2, *J);
         ret = large_jacobian(t,m,n,k,x,y,Jp);
         free(memory);
+        CHECKEXCEPT(ret,"large_jacobian")
     }
     void npy_jac_vec(short t, double* x, int n1, double* u, int n2, double** v, int* m2) {
         DO_GET_DIMENSIONS
@@ -173,6 +177,7 @@ extern "C" {
         *m2 = m;
         *v = (double*)malloc((*m2)*sizeof(double));
         ret = jac_vec(t,m,n,x,u,*v);
+        CHECKEXCEPT(ret,"jac_vec")
     }
     void npy_vec_jac(short t, int repeat, double* x, int n1, double* u, int m2, double** w, int* n2) {
         DO_GET_DIMENSIONS
@@ -187,6 +192,7 @@ extern "C" {
         *n2 = n;
         *w = (double*) malloc((*n2)*sizeof(double));
         ret = vec_jac(t,m,n,repeat,x,u,*w);
+        CHECKEXCEPT(ret,"vec_jac")
     }
     void npy_hessian(short t, double* x, int n1, double** H, int* n2, int* n3) {
         DO_GET_DIMENSIONS
@@ -207,6 +213,7 @@ extern "C" {
         tmp = populate_dpp_with_contigdata(&Hp,tmp,*n2,*n3, *H);
         ret = hessian(t,n,x,Hp);
         free(memory);
+        CHECKEXCEPT(ret,"hessian")
     }        
     void npy_hessian2(short t, double* x, int n1, double** H, int* n2, int* n3) {
         DO_GET_DIMENSIONS
@@ -227,6 +234,7 @@ extern "C" {
         tmp = populate_dpp_with_contigdata(&Hp,tmp,*n2,*n3, *H);
         ret = hessian2(t,n,x,Hp);
         free(memory);
+        CHECKEXCEPT(ret,"hessian2")
     }
     void npy_hess_vec(short t, double* x, int n1, double* u, int n2, double** w, int* n3) {
         DO_GET_DIMENSIONS
@@ -262,6 +270,7 @@ extern "C" {
         tmp = populate_dpp_with_contigdata(&Wp,tmp,*n2,*q2, *W);
         ret = hess_mat(t,n,q,x,Vp,Wp);
         free(memory);
+        CHECKEXCEPT(ret,"hess_mat")
     }
     void npy_lagra_hess_vec(short t, double* x, int n1, double* u, int n2, double* v, int m1, double** w, int* n3) {
         DO_GET_DIMENSIONS
@@ -276,6 +285,7 @@ extern "C" {
         *n3 = n;
         *w = (double*) malloc((*n3) *sizeof(double));
         ret = lagra_hess_vec(t,m,n,x,u,v,*w);
+        CHECKEXCEPT(ret,"lagra_hess_vec")
     }
 
     int npy_sparse_jac(short t, int m, int n, int repeat, double* x, int n1,
@@ -284,11 +294,12 @@ extern "C" {
                        unsigned int** cind, int* nnz2,
                        double** values, int* nnz3) {
 #if defined(SPARSE_DRIVERS)
-        int nnz;
-        sparse_jac(t,m,n,repeat,x,&nnz,rind,cind,values,options);
+        int nnz, rc;
+        rc = sparse_jac(t,m,n,repeat,x,&nnz,rind,cind,values,options);
         *nnz1 = nnz;
         *nnz2 = nnz;
         *nnz3 = nnz;
+        CHECKEXCEPT(rc,"sparse_jac")
         return nnz;
 #else
         PyErr_Format(PyExc_NotImplementedError,
@@ -303,11 +314,12 @@ extern "C" {
                         unsigned int** cind, int* nnz2,
                         double** values, int* nnz3) {
 #if defined(SPARSE_DRIVERS)
-        int nnz;
-        sparse_hess(t,n,repeat,x,&nnz,rind,cind,values,options);
+        int nnz, rc;
+        rc = sparse_hess(t,n,repeat,x,&nnz,rind,cind,values,options);
         *nnz1 = nnz;
         *nnz2 = nnz;
         *nnz3 = nnz;
+        CHECKEXCEPT(rc,"sparse_hess")
         return nnz;
 #else
         PyErr_Format(PyExc_NotImplementedError,
