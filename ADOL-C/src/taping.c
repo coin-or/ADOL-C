@@ -1455,7 +1455,7 @@ void set_param_vec(short tag, size_t numparam, revreal* paramvec) {
     /* make room for tapeInfos and read tape stats if necessary, keep value
      * stack information */
     openTape(tag, ADOLC_FORWARD);
-    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] != numparam) {
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] < numparam) {
         fprintf(DIAG_OUT, "ADOL-C error: Setting parameters on tape %d "
                 "aborted!\nNumber of parameters (%zu) passed"
                 " is inconsistent with number recorded on tape (%zu)\n",
@@ -1465,7 +1465,7 @@ void set_param_vec(short tag, size_t numparam, revreal* paramvec) {
     if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore == NULL)
         ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore = (double*)
             malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
-    for(i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]; i++)
+    for(i = 0; i < numparam; i++)
         ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[i] = paramvec[i];
     taylor_close(0);
     releaseTape();
