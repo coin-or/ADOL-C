@@ -592,19 +592,51 @@ static void handle_ops_stats(enum OPCODES operation,
             break; 
         case vec_axpy:
         {
-            locint n = *(locs.crbegin()++);
+            locint n = *(++locs.crbegin());
             ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2*n-1;
         }
             break;
         case vec_dot:
         {
-            locint n = *(locs.crbegin()++);
+            locint n = *(++locs.crbegin());
             ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2*n;
         }
             break;
         case abs_val:
             if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
                 ++ADOLC_CURRENT_TAPE_INFOS.numSwitches;
+            break;
+        case assign_p:
+        case recipr_p:
+        case neg_sign_p:
+        case eq_plus_p:
+        case eq_min_p:
+        case eq_mult_p:
+        case ref_eq_plus_p:
+        case ref_eq_min_p:
+        case ref_eq_mult_p:
+        {
+            locint n = *locs.cbegin();
+            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n+1;
+        }
+            break;
+        case plus_a_p:
+        case min_a_p:
+        case mult_a_p:
+        case pow_op_p:
+        case neq_a_p:
+        case eq_a_p:
+        case le_a_p:
+        case ge_a_p:
+        case lt_a_p:
+        case gt_a_p:
+        case ref_assign_p:
+        {
+            locint n = *(++locs.cbegin());
+            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n+1;
+        }
             break;
         default:
             break;
@@ -791,6 +823,10 @@ void read_ascii_trace(const char*const fname, short tag) {
         }
     }
     ADOLC_GLOBAL_TAPE_VARS.storeSize = maxloc;
+    if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) 
+        delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
+    ADOLC_GLOBAL_TAPE_VARS.pStore = new double[ADOLC_GLOBAL_TAPE_VARS.numparam];
+    memset(ADOLC_GLOBAL_TAPE_VARS.pStore,0,ADOLC_GLOBAL_TAPE_VARS.numparam*sizeof(double));
     trace_off();
     fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
         "Remember to run forward mode with correct setup first.\n");
