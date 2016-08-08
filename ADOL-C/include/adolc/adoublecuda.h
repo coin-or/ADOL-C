@@ -16,14 +16,10 @@
 #if !defined(ADOLC_ADOUBLECUDA_H)
 #define ADOLC_ADOUBLECUDA_H 1
 
-#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
-#include <limits>
 using std::cout;
-using std::cin;
-using std::cerr;
 using std::ostream;
 using std::istream;
 
@@ -33,12 +29,30 @@ using std::istream;
 namespace adtlc {
 
 
+#if defined(NUMBER_DIRECTIONS)
+__managed__ size_t ADOLC_numDir = NUMBER_DIRECTIONS;
+# if defined(DYNAMIC_DIRECTIONS)
+#  define ADVAL_DECL           *adval
+#  define ADVAL_TYPE_ADV       const double* adv
+# else
+#  define ADVAL_DECL           adval[NUMBER_DIRECTIONS]
+#  define ADVAL_TYPE_ADV       const double adv[NUMBER_DIRECTIONS]
+# endif
+#  define ADVAL_TYPE           double*
+#  define FOR_I_EQ_0_LT_NUMDIR for (size_t i = 0; i < ADOLC_numDir; i++)
+#  define ADVAL_I              adval[i]
+#  define ADV_I                adv[i]
+#  define V_I                  v[i]
+#else
+#  define ADVAL_DECL           adval
 #  define ADVAL                adval
+#  define ADVAL_TYPE_ADV       double adv
 #  define ADVAL_TYPE           double
 #  define FOR_I_EQ_0_LT_NUMDIR
 #  define ADVAL_I              adval
 #  define ADV_I                adv
 #  define V_I                  v
+#endif
 
 
 #define ADOLC_MATH_NSP std
@@ -52,172 +66,175 @@ inline __device__ double makeInf() {
 }
 
 
+#define CUDADEV __device__ inline
+#define CUDAHOST __host__ inline
+#define CUDAHOSTDEV __host__ __device__ inline
+
 class adouble {
 public:
     // ctors
-    __device__  inline adouble();
-    __device__  inline adouble(const double v);
-    __device__  inline adouble(const double v, ADVAL_TYPE adv);
-    __device__  inline adouble(const adouble& a);
+    CUDADEV adouble();
+    CUDADEV adouble(const double v);
+    CUDADEV adouble(const double v, ADVAL_TYPE_ADV);
+    CUDADEV adouble(const adouble& a);
 #if defined(DYNAMIC_DIRECTIONS)
-    inline ~adouble();
+    CUDADEV ~adouble();
 #endif
     /*******************  temporary results  ******************************/
     // sign
-    __device__  inline adouble operator - () const;
-    __device__  inline adouble operator + () const;
+    CUDADEV adouble operator - () const;
+    CUDADEV adouble operator + () const;
 
     // addition
-    __device__  inline adouble operator + (const double v) const;
-    __device__  inline adouble operator + (const adouble& a) const;
-    __device__  inline friend
+    CUDADEV adouble operator + (const double v) const;
+    CUDADEV adouble operator + (const adouble& a) const;
+    CUDADEV friend
     adouble operator + (const double v, const adouble& a);
 
     // substraction
-    __device__  inline adouble operator - (const double v) const;
-    __device__  inline adouble operator - (const adouble& a) const;
-    __device__  inline friend
+    CUDADEV adouble operator - (const double v) const;
+    CUDADEV adouble operator - (const adouble& a) const;
+    CUDADEV friend
     adouble operator - (const double v, const adouble& a);
 
     // multiplication
-    __device__  inline adouble operator * (const double v) const;
-    __device__  inline adouble operator * (const adouble& a) const;
-    __device__  inline friend
+    CUDADEV adouble operator * (const double v) const;
+    CUDADEV adouble operator * (const adouble& a) const;
+    CUDADEV friend
     adouble operator * (const double v, const adouble& a);
 
     // division
-    __device__  inline adouble operator / (const double v) const;
-    __device__  inline adouble operator / (const adouble& a) const;
-    __device__  inline friend
+    CUDADEV adouble operator / (const double v) const;
+    CUDADEV adouble operator / (const adouble& a) const;
+    CUDADEV friend
     adouble operator / (const double v, const adouble& a);
 
     // inc/dec
-    __device__  inline adouble operator ++ ();
-    __device__  inline adouble operator ++ (int);
-    __device__  inline adouble operator -- ();
-    __device__  inline adouble operator -- (int);
+    CUDADEV adouble operator ++ ();
+    CUDADEV adouble operator ++ (int);
+    CUDADEV adouble operator -- ();
+    CUDADEV adouble operator -- (int);
 
     // functions
-    __device__  inline friend adouble tan(const adouble &a);
-    __device__  inline friend adouble exp(const adouble &a);
-    __device__  inline friend adouble log(const adouble &a);
-    __device__  inline friend adouble sqrt(const adouble &a);
-    __device__  inline friend adouble sin(const adouble &a);
-    __device__  inline friend adouble cos(const adouble &a);
-    __device__  inline friend adouble asin(const adouble &a);
-    __device__  inline friend adouble acos(const adouble &a);
-    __device__  inline friend adouble atan(const adouble &a);
+    CUDADEV friend adouble tan(const adouble &a);
+    CUDADEV friend adouble exp(const adouble &a);
+    CUDADEV friend adouble log(const adouble &a);
+    CUDADEV friend adouble sqrt(const adouble &a);
+    CUDADEV friend adouble sin(const adouble &a);
+    CUDADEV friend adouble cos(const adouble &a);
+    CUDADEV friend adouble asin(const adouble &a);
+    CUDADEV friend adouble acos(const adouble &a);
+    CUDADEV friend adouble atan(const adouble &a);
 
-    __device__  inline friend adouble atan2(const adouble &a, const adouble &b);
-    __device__  inline friend adouble pow(const adouble &a, double v);
-    __device__  inline friend adouble pow(const adouble &a, const adouble &b);
-    __device__  inline friend adouble pow(double v, const adouble &a);
-    __device__  inline friend adouble log10(const adouble &a);
+    CUDADEV friend adouble atan2(const adouble &a, const adouble &b);
+    CUDADEV friend adouble pow(const adouble &a, double v);
+    CUDADEV friend adouble pow(const adouble &a, const adouble &b);
+    CUDADEV friend adouble pow(double v, const adouble &a);
+    CUDADEV friend adouble log10(const adouble &a);
 
-    __device__  inline friend adouble sinh (const adouble &a);
-    __device__  inline friend adouble cosh (const adouble &a);
-    __device__  inline friend adouble tanh (const adouble &a);
+    CUDADEV friend adouble sinh (const adouble &a);
+    CUDADEV friend adouble cosh (const adouble &a);
+    CUDADEV friend adouble tanh (const adouble &a);
 #if defined(ATRIG_ERF)
-    __device__  inline friend adouble asinh (const adouble &a);
-    __device__  inline friend adouble acosh (const adouble &a);
-    __device__  inline friend adouble atanh (const adouble &a);
+    CUDADEV friend adouble asinh (const adouble &a);
+    CUDADEV friend adouble acosh (const adouble &a);
+    CUDADEV friend adouble atanh (const adouble &a);
 #endif
-    __device__  inline friend adouble fabs (const adouble &a);
-    __device__  inline friend adouble ceil (const adouble &a);
-    __device__  inline friend adouble floor (const adouble &a);
-    __device__  inline friend adouble fmax (const adouble &a, const adouble &b);
-    __device__  inline friend adouble fmax (double v, const adouble &a);
-    __device__  inline friend adouble fmax (const adouble &a, double v);
-    __device__  inline friend adouble fmin (const adouble &a, const adouble &b);
-    __device__  inline friend adouble fmin (double v, const adouble &a);
-    __device__  inline friend adouble fmin (const adouble &a, double v);
-    __device__  inline friend adouble ldexp (const adouble &a, const adouble &b);
-    __device__  inline friend adouble ldexp (const adouble &a, const double v);
-    __device__  inline friend adouble ldexp (const double v, const adouble &a);
-    __device__  inline friend double frexp (const adouble &a, int* v);
+    CUDADEV friend adouble fabs (const adouble &a);
+    CUDADEV friend adouble ceil (const adouble &a);
+    CUDADEV friend adouble floor (const adouble &a);
+    CUDADEV friend adouble fmax (const adouble &a, const adouble &b);
+    CUDADEV friend adouble fmax (double v, const adouble &a);
+    CUDADEV friend adouble fmax (const adouble &a, double v);
+    CUDADEV friend adouble fmin (const adouble &a, const adouble &b);
+    CUDADEV friend adouble fmin (double v, const adouble &a);
+    CUDADEV friend adouble fmin (const adouble &a, double v);
+    CUDADEV friend adouble ldexp (const adouble &a, const adouble &b);
+    CUDADEV friend adouble ldexp (const adouble &a, const double v);
+    CUDADEV friend adouble ldexp (const double v, const adouble &a);
+    CUDADEV friend double frexp (const adouble &a, int* v);
 #if defined(ATRIG_ERF)
-    __device__  inline friend adouble erf (const adouble &a);
+    CUDADEV friend adouble erf (const adouble &a);
 #endif
 
 
     /*******************  nontemporary results  ***************************/
     // assignment
-    __device__  inline void operator = (const double v);
-    __device__  inline void operator = (const adouble& a);
+    CUDADEV void operator = (const double v);
+    CUDADEV void operator = (const adouble& a);
 
     // addition
-    __device__  inline void operator += (const double v);
-    __device__  inline void operator += (const adouble& a);
+    CUDADEV void operator += (const double v);
+    CUDADEV void operator += (const adouble& a);
 
     // substraction
-    __device__  inline void operator -= (const double v);
-    __device__  inline void operator -= (const adouble& a);
+    CUDADEV void operator -= (const double v);
+    CUDADEV void operator -= (const adouble& a);
 
     // multiplication
-    __device__  inline void operator *= (const double v);
-    __device__  inline void operator *= (const adouble& a);
+    CUDADEV void operator *= (const double v);
+    CUDADEV void operator *= (const adouble& a);
 
     // division
-    __device__  inline void operator /= (const double v);
-    __device__  inline void operator /= (const adouble& a);
+    CUDADEV void operator /= (const double v);
+    CUDADEV void operator /= (const adouble& a);
 
     // not
-    __device__  inline int operator ! () const;
+    CUDADEV int operator ! () const;
 
     // comparision
-    __device__  inline int operator != (const adouble&) const;
-    __device__  inline int operator != (const double) const;
-    __device__  inline friend int operator != (const double, const adouble&);
+    CUDADEV int operator != (const adouble&) const;
+    CUDADEV int operator != (const double) const;
+    CUDADEV friend int operator != (const double, const adouble&);
 
-    __device__  inline int operator == (const adouble&) const;
-    __device__  inline int operator == (const double) const;
-    __device__  inline friend int operator == (const double, const adouble&);
+    CUDADEV int operator == (const adouble&) const;
+    CUDADEV int operator == (const double) const;
+    CUDADEV friend int operator == (const double, const adouble&);
 
-    __device__  inline int operator <= (const adouble&) const;
-    __device__  inline int operator <= (const double) const;
-    __device__  inline friend int operator <= (const double, const adouble&);
+    CUDADEV int operator <= (const adouble&) const;
+    CUDADEV int operator <= (const double) const;
+    CUDADEV friend int operator <= (const double, const adouble&);
 
-    __device__  inline int operator >= (const adouble&) const;
-    __device__  inline int operator >= (const double) const;
-    __device__  inline friend int operator >= (const double, const adouble&);
+    CUDADEV int operator >= (const adouble&) const;
+    CUDADEV int operator >= (const double) const;
+    CUDADEV friend int operator >= (const double, const adouble&);
 
-    __device__  inline int operator >  (const adouble&) const;
-    __device__  inline int operator >  (const double) const;
-    __device__  inline friend int operator >  (const double, const adouble&);
+    CUDADEV int operator >  (const adouble&) const;
+    CUDADEV int operator >  (const double) const;
+    CUDADEV friend int operator >  (const double, const adouble&);
 
-    __device__  inline int operator <  (const adouble&) const;
-    __device__  inline int operator <  (const double) const;
-    __device__  inline friend int operator <  (const double, const adouble&);
+    CUDADEV int operator <  (const adouble&) const;
+    CUDADEV int operator <  (const double) const;
+    CUDADEV friend int operator <  (const double, const adouble&);
 
     /*******************  getter / setter  ********************************/
-    __device__  inline double getValue() const;
-    __device__  inline void setValue(const double v);
-    __device__  inline ADVAL_TYPE getADValue() const;
-    __device__  inline void setADValue(ADVAL_TYPE v);
+    CUDAHOSTDEV double getValue() const;
+    CUDAHOSTDEV void setValue(const double v);
+    CUDAHOSTDEV ADVAL_TYPE getADValue() const;
+    CUDAHOSTDEV void setADValue(ADVAL_TYPE v);
 #if defined(NUMBER_DIRECTIONS)
-    inline double getADValue(const unsigned int p) const;
-    inline void setADValue(const unsigned int p, const double v);
+    CUDAHOSTDEV double getADValue(const unsigned int p) const;
+    CUDAHOSTDEV void setADValue(const unsigned int p, const double v);
 #endif
 
     /*******************  i/o operations  *********************************/
-    inline friend ostream& operator << ( ostream&, const adouble& );
-    inline friend istream& operator >> ( istream&, adouble& );
-
+    CUDAHOST friend ostream& operator << ( ostream&, const adouble& );
+    CUDAHOST friend istream& operator >> ( istream&, adouble& );
 
 private:
     // internal variables
     double val;
-    double ADVAL;
+    double ADVAL_DECL;
 };
   
 /*******************************  ctors  ************************************/
-adouble::adouble() {
+CUDADEV adouble::adouble() {
 #if defined(DYNAMIC_DIRECTIONS)
     adval = new double[ADOLC_numDir];
 #endif
 }
 
-adouble::adouble(const double v) : val(v) {
+CUDADEV adouble::adouble(const double v) : val(v) {
 #if defined(DYNAMIC_DIRECTIONS)
     adval = new double[ADOLC_numDir];
 #endif
@@ -225,7 +242,7 @@ adouble::adouble(const double v) : val(v) {
     ADVAL_I = 0.0;
 }
 
-adouble::adouble(const double v, ADVAL_TYPE adv) : val(v) {
+CUDADEV adouble::adouble(const double v, ADVAL_TYPE_ADV) : val(v) {
 #if defined(DYNAMIC_DIRECTIONS)
     adval = new double[ADOLC_numDir];
 #endif
@@ -233,7 +250,7 @@ adouble::adouble(const double v, ADVAL_TYPE adv) : val(v) {
     ADVAL_I=ADV_I;
 }
 
-adouble::adouble(const adouble& a) : val(a.val) {
+CUDADEV adouble::adouble(const adouble& a) : val(a.val) {
 #if defined(DYNAMIC_DIRECTIONS)
     adval = new double[ADOLC_numDir];
 #endif
@@ -243,14 +260,14 @@ adouble::adouble(const adouble& a) : val(a.val) {
 
 /*******************************  dtors  ************************************/
 #if defined(DYNAMIC_DIRECTIONS)
-adouble::~adouble() {
+CUDADEV adouble::~adouble() {
     delete[] adval;
 }
 #endif
 
 /*************************  temporary results  ******************************/
 // sign
-adouble adouble::operator - () const {
+CUDADEV adouble adouble::operator - () const {
     adouble tmp;
     tmp.val=-val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -258,16 +275,16 @@ adouble adouble::operator - () const {
     return tmp;
 }
 
-adouble adouble::operator + () const {
+CUDADEV adouble adouble::operator + () const {
     return *this;
 }
 
 // addition
-adouble adouble::operator + (const double v) const {
+CUDADEV adouble adouble::operator + (const double v) const {
     return adouble(val+v, adval);
 }
 
-adouble adouble::operator + (const adouble& a) const {
+CUDADEV adouble adouble::operator + (const adouble& a) const {
     adouble tmp;
     tmp.val=val+a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -275,16 +292,16 @@ adouble adouble::operator + (const adouble& a) const {
     return tmp;
 }
 
-adouble operator + (const double v, const adouble& a) {
+CUDADEV adouble operator + (const double v, const adouble& a) {
     return adouble(v+a.val, a.adval);
 }
 
 // subtraction
-adouble adouble::operator - (const double v) const {
+CUDADEV adouble adouble::operator - (const double v) const {
     return adouble(val-v, adval);
 }
 
-adouble adouble::operator - (const adouble& a) const {
+CUDADEV adouble adouble::operator - (const adouble& a) const {
     adouble tmp;
     tmp.val=val-a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -292,7 +309,7 @@ adouble adouble::operator - (const adouble& a) const {
     return tmp;
 }
 
-adouble operator - (const double v, const adouble& a) {
+CUDADEV adouble operator - (const double v, const adouble& a) {
     adouble tmp;
     tmp.val=v-a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -301,7 +318,7 @@ adouble operator - (const double v, const adouble& a) {
 }
 
 // multiplication
-adouble adouble::operator * (const double v) const {
+CUDADEV adouble adouble::operator * (const double v) const {
     adouble tmp;
     tmp.val=val*v;
     FOR_I_EQ_0_LT_NUMDIR
@@ -309,7 +326,7 @@ adouble adouble::operator * (const double v) const {
     return tmp;
 }
 
-adouble adouble::operator * (const adouble& a) const {
+CUDADEV adouble adouble::operator * (const adouble& a) const {
     adouble tmp;
     tmp.val=val*a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -317,7 +334,7 @@ adouble adouble::operator * (const adouble& a) const {
     return tmp;
 }
 
-adouble operator * (const double v, const adouble& a) {
+CUDADEV adouble operator * (const double v, const adouble& a) {
     adouble tmp;
     tmp.val=v*a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -326,7 +343,7 @@ adouble operator * (const double v, const adouble& a) {
 }
 
 // division
-adouble adouble::operator / (const double v) const {
+CUDADEV adouble adouble::operator / (const double v) const {
     adouble tmp;
     tmp.val=val/v;
     FOR_I_EQ_0_LT_NUMDIR
@@ -334,7 +351,7 @@ adouble adouble::operator / (const double v) const {
     return tmp;
 }
 
-adouble adouble::operator / (const adouble& a) const {
+CUDADEV adouble adouble::operator / (const adouble& a) const {
     adouble tmp;
     tmp.val=val/a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -342,7 +359,7 @@ adouble adouble::operator / (const adouble& a) const {
     return tmp;
 }
 
-adouble operator / (const double v, const adouble& a) {
+CUDADEV adouble operator / (const double v, const adouble& a) {
     adouble tmp;
     tmp.val=v/a.val;
     FOR_I_EQ_0_LT_NUMDIR
@@ -351,12 +368,12 @@ adouble operator / (const double v, const adouble& a) {
 }
 
 // inc/dec
-adouble adouble::operator ++ () {
+CUDADEV adouble adouble::operator ++ () {
     ++val;
     return *this;
 }
 
-adouble adouble::operator ++ (int) {
+CUDADEV adouble adouble::operator ++ (int) {
     adouble tmp;
     tmp.val=val++;
     FOR_I_EQ_0_LT_NUMDIR
@@ -364,12 +381,12 @@ adouble adouble::operator ++ (int) {
     return tmp;
 }
 
-adouble adouble::operator -- () {
+CUDADEV adouble adouble::operator -- () {
     --val;
     return *this;
 }
 
-adouble adouble::operator -- (int) {
+CUDADEV adouble adouble::operator -- (int) {
     adouble tmp;
     tmp.val=val--;
     FOR_I_EQ_0_LT_NUMDIR
@@ -378,7 +395,7 @@ adouble adouble::operator -- (int) {
 }
 
 // functions
-adouble tan(const adouble& a) {
+CUDADEV adouble tan(const adouble& a) {
     adouble tmp;
     double tmp2;
     tmp.val=ADOLC_MATH_NSP::tan(a.val);
@@ -389,7 +406,7 @@ adouble tan(const adouble& a) {
     return tmp;
 }
 
-adouble exp(const adouble &a) {
+CUDADEV adouble exp(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::exp(a.val);
     FOR_I_EQ_0_LT_NUMDIR
@@ -397,7 +414,7 @@ adouble exp(const adouble &a) {
     return tmp;
 }
 
-adouble log(const adouble &a) {
+CUDADEV adouble log(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::log(a.val);
     FOR_I_EQ_0_LT_NUMDIR
@@ -409,7 +426,7 @@ adouble log(const adouble &a) {
     return tmp;
 }
 
-adouble sqrt(const adouble &a) {
+CUDADEV adouble sqrt(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
     FOR_I_EQ_0_LT_NUMDIR
@@ -422,7 +439,7 @@ adouble sqrt(const adouble &a) {
     return tmp;
 }
 
-adouble sin(const adouble &a) {
+CUDADEV adouble sin(const adouble &a) {
     adouble tmp;
     double tmp2;
     tmp.val=ADOLC_MATH_NSP::sin(a.val);
@@ -432,7 +449,7 @@ adouble sin(const adouble &a) {
     return tmp;
 }
 
-adouble cos(const adouble &a) {
+CUDADEV adouble cos(const adouble &a) {
     adouble tmp;
     double tmp2;
     tmp.val=ADOLC_MATH_NSP::cos(a.val);
@@ -442,7 +459,7 @@ adouble cos(const adouble &a) {
     return tmp;
 }
 
-adouble asin(const adouble &a) {
+CUDADEV adouble asin(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::asin(a.val);
     double tmp2=ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
@@ -451,7 +468,7 @@ adouble asin(const adouble &a) {
     return tmp;
 }
 
-adouble acos(const adouble &a) {
+CUDADEV adouble acos(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::acos(a.val);
     double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.val*a.val);
@@ -460,7 +477,7 @@ adouble acos(const adouble &a) {
     return tmp;
 }
 
-adouble atan(const adouble &a) {
+CUDADEV adouble atan(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::atan(a.val);
     double tmp2=1+a.val*a.val;
@@ -474,7 +491,7 @@ adouble atan(const adouble &a) {
     return tmp;
 }
 
-adouble atan2(const adouble &a, const adouble &b) {
+CUDADEV adouble atan2(const adouble &a, const adouble &b) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::atan2(a.val, b.val);
     double tmp2=a.val*a.val;
@@ -489,7 +506,7 @@ adouble atan2(const adouble &a, const adouble &b) {
     return tmp;
 }
 
-adouble pow(const adouble &a, double v) {
+CUDADEV adouble pow(const adouble &a, double v) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::pow(a.val, v);
     double tmp2=v*ADOLC_MATH_NSP::pow(a.val, v-1);
@@ -498,7 +515,7 @@ adouble pow(const adouble &a, double v) {
     return tmp;
 }
 
-adouble pow(const adouble &a, const adouble &b) {
+CUDADEV adouble pow(const adouble &a, const adouble &b) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::pow(a.val, b.val);
     double tmp2=b.val*ADOLC_MATH_NSP::pow(a.val, b.val-1);
@@ -508,7 +525,7 @@ adouble pow(const adouble &a, const adouble &b) {
     return tmp;
 }
 
-adouble pow(double v, const adouble &a) {
+CUDADEV adouble pow(double v, const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::pow(v, a.val);
     double tmp2=tmp.val*ADOLC_MATH_NSP::log(v);
@@ -517,7 +534,7 @@ adouble pow(double v, const adouble &a) {
     return tmp;
 }
 
-adouble log10(const adouble &a) {
+CUDADEV adouble log10(const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::log10(a.val);
     double tmp2=ADOLC_MATH_NSP::log((double)10)*a.val;
@@ -526,7 +543,7 @@ adouble log10(const adouble &a) {
     return tmp;
 }
 
-adouble sinh (const adouble &a) {
+CUDADEV adouble sinh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::sinh(a.val);
     double tmp2=ADOLC_MATH_NSP::cosh(a.val);
@@ -535,7 +552,7 @@ adouble sinh (const adouble &a) {
     return tmp;
 }
 
-adouble cosh (const adouble &a) {
+CUDADEV adouble cosh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::cosh(a.val);
     double tmp2=ADOLC_MATH_NSP::sinh(a.val);
@@ -544,7 +561,7 @@ adouble cosh (const adouble &a) {
     return tmp;
 }
 
-adouble tanh (const adouble &a) {
+CUDADEV adouble tanh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::tanh(a.val);
     double tmp2=ADOLC_MATH_NSP::cosh(a.val);
@@ -555,7 +572,7 @@ adouble tanh (const adouble &a) {
 }
 
 #if defined(ATRIG_ERF)
-adouble asinh (const adouble &a) {
+CUDADEV adouble asinh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val+1);
@@ -564,7 +581,7 @@ adouble asinh (const adouble &a) {
     return tmp;
 }
 
-adouble acosh (const adouble &a) {
+CUDADEV adouble acosh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::acosh(a.val);
     double tmp2=ADOLC_MATH_NSP::sqrt(a.val*a.val-1);
@@ -573,7 +590,7 @@ adouble acosh (const adouble &a) {
     return tmp;
 }
 
-adouble atanh (const adouble &a) {
+CUDADEV adouble atanh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::atanh(a.val);
     double tmp2=1-a.val*a.val;
@@ -583,7 +600,7 @@ adouble atanh (const adouble &a) {
 }
 #endif
 
-adouble fabs (const adouble &a) {
+CUDADEV adouble fabs (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::fabs(a.val);
     int as=0;
@@ -602,7 +619,7 @@ adouble fabs (const adouble &a) {
             return tmp;
 }
 
-adouble ceil (const adouble &a) {
+CUDADEV adouble ceil (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::ceil(a.val);
     FOR_I_EQ_0_LT_NUMDIR
@@ -610,7 +627,7 @@ adouble ceil (const adouble &a) {
     return tmp;
 }
 
-adouble floor (const adouble &a) {
+CUDADEV adouble floor (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP::floor(a.val);
     FOR_I_EQ_0_LT_NUMDIR
@@ -618,7 +635,7 @@ adouble floor (const adouble &a) {
     return tmp;
 }
 
-adouble fmax (const adouble &a, const adouble &b) {
+CUDADEV adouble fmax (const adouble &a, const adouble &b) {
     adouble tmp;
     double tmp2=a.val-b.val;
     if (tmp2<0) {
@@ -641,7 +658,7 @@ adouble fmax (const adouble &a, const adouble &b) {
 return tmp;
 }
 
-adouble fmax (double v, const adouble &a) {
+CUDADEV adouble fmax (double v, const adouble &a) {
     adouble tmp;
     double tmp2=v-a.val;
     if (tmp2<0) {
@@ -664,7 +681,7 @@ adouble fmax (double v, const adouble &a) {
 return tmp;
 }
 
-adouble fmax (const adouble &a, double v) {
+CUDADEV adouble fmax (const adouble &a, double v) {
     adouble tmp;
     double tmp2=a.val-v;
     if (tmp2<0) {
@@ -687,7 +704,7 @@ adouble fmax (const adouble &a, double v) {
 return tmp;
 }
 
-adouble fmin (const adouble &a, const adouble &b) {
+CUDADEV adouble fmin (const adouble &a, const adouble &b) {
     adouble tmp;
     double tmp2=a.val-b.val;
     if (tmp2<0) {
@@ -710,7 +727,7 @@ adouble fmin (const adouble &a, const adouble &b) {
 return tmp;
 }
 
-adouble fmin (double v, const adouble &a) {
+CUDADEV adouble fmin (double v, const adouble &a) {
     adouble tmp;
     double tmp2=v-a.val;
     if (tmp2<0) {
@@ -733,7 +750,7 @@ adouble fmin (double v, const adouble &a) {
 return tmp;
 }
 
-adouble fmin (const adouble &a, double v) {
+CUDADEV adouble fmin (const adouble &a, double v) {
     adouble tmp;
     double tmp2=a.val-v;
     if (tmp2<0) {
@@ -756,24 +773,24 @@ adouble fmin (const adouble &a, double v) {
 return tmp;
 }
 
-adouble ldexp (const adouble &a, const adouble &b) {
+CUDADEV adouble ldexp (const adouble &a, const adouble &b) {
     return a*pow(2.,b);
 }
 
-adouble ldexp (const adouble &a, const double v) {
+CUDADEV adouble ldexp (const adouble &a, const double v) {
     return a*ADOLC_MATH_NSP::pow(2.,v);
 }
 
-adouble ldexp (const double v, const adouble &a) {
+CUDADEV adouble ldexp (const double v, const adouble &a) {
     return v*pow(2.,a);
 }
 
-double frexp (const adouble &a, int* v) {
+CUDADEV double frexp (const adouble &a, int* v) {
     return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
 #if defined(ATRIG_ERF)
-adouble erf (const adouble &a) {
+CUDADEV adouble erf (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
     double tmp2 = 2.0 /
@@ -787,180 +804,178 @@ adouble erf (const adouble &a) {
 
 
 /*******************  nontemporary results  *********************************/
-void adouble::operator = (const double v) {
+CUDADEV void adouble::operator = (const double v) {
     val=v;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=0.0;
 }
 
-void adouble::operator = (const adouble& a) {
+CUDADEV void adouble::operator = (const adouble& a) {
     val=a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=a.ADVAL_I;
 }
 
-void adouble::operator += (const double v) {
+CUDADEV void adouble::operator += (const double v) {
     val+=v;
 }
 
-void adouble::operator += (const adouble& a) {
+CUDADEV void adouble::operator += (const adouble& a) {
     val=val+a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I+=a.ADVAL_I;
 }
 
-void adouble::operator -= (const double v) {
+CUDADEV void adouble::operator -= (const double v) {
     val-=v;
 }
 
-void adouble::operator -= (const adouble& a) {
+CUDADEV void adouble::operator -= (const adouble& a) {
     val=val-a.val;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I-=a.ADVAL_I;
 }
 
-void adouble::operator *= (const double v) {
+CUDADEV void adouble::operator *= (const double v) {
     val=val*v;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I*=v;
 }
 
-void adouble::operator *= (const adouble& a) {
+CUDADEV void adouble::operator *= (const adouble& a) {
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=ADVAL_I*a.val+val*a.ADVAL_I;
     val*=a.val;
 }
 
-void adouble::operator /= (const double v) {
+CUDADEV void adouble::operator /= (const double v) {
     val/=v;
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I/=v;
 }
 
-void adouble::operator /= (const adouble& a) {
+CUDADEV void adouble::operator /= (const adouble& a) {
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=(ADVAL_I*a.val-val*a.ADVAL_I)/(a.val*a.val);
     val=val/a.val;
 }
 
 // not
-int adouble::operator ! () const {
+CUDADEV int adouble::operator ! () const {
     return val==0.0;
 }
 
 // comparision
-int adouble::operator != (const adouble &a) const {
+CUDADEV int adouble::operator != (const adouble &a) const {
     return val!=a.val;
 }
 
-int adouble::operator != (const double v) const {
+CUDADEV int adouble::operator != (const double v) const {
     return val!=v;
 }
 
-int operator != (const double v, const adouble &a) {
+CUDADEV int operator != (const double v, const adouble &a) {
     return v!=a.val;
 }
 
-int adouble::operator == (const adouble &a) const {
+CUDADEV int adouble::operator == (const adouble &a) const {
     return val==a.val;
 }
 
-int adouble::operator == (const double v) const {
+CUDADEV int adouble::operator == (const double v) const {
     return val==v;
 }
 
-int operator == (const double v, const adouble &a) {
+CUDADEV int operator == (const double v, const adouble &a) {
     return v==a.val;
 }
 
-int adouble::operator <= (const adouble &a) const {
+CUDADEV int adouble::operator <= (const adouble &a) const {
     return val<=a.val;
 }
 
-int adouble::operator <= (const double v) const {
+CUDADEV int adouble::operator <= (const double v) const {
     return val<=v;
 }
 
-int operator <= (const double v, const adouble &a) {
+CUDADEV int operator <= (const double v, const adouble &a) {
     return v<=a.val;
 }
 
-int adouble::operator >= (const adouble &a) const {
+CUDADEV int adouble::operator >= (const adouble &a) const {
     return val>=a.val;
 }
 
-int adouble::operator >= (const double v) const {
+CUDADEV int adouble::operator >= (const double v) const {
     return val>=v;
 }
 
-int operator >= (const double v, const adouble &a) {
+CUDADEV int operator >= (const double v, const adouble &a) {
     return v>=a.val;
 }
 
-int adouble::operator >  (const adouble &a) const {
+CUDADEV int adouble::operator >  (const adouble &a) const {
     return val>a.val;
 }
 
-int adouble::operator >  (const double v) const {
+CUDADEV int adouble::operator >  (const double v) const {
     return val>v;
 }
 
-int operator >  (const double v, const adouble &a) {
+CUDADEV int operator >  (const double v, const adouble &a) {
     return v>a.val;
 }
 
-int adouble::operator <  (const adouble &a) const {
+CUDADEV int adouble::operator <  (const adouble &a) const {
     return val<a.val;
 }
 
-int adouble::operator <  (const double v) const {
+CUDADEV int adouble::operator <  (const double v) const {
     return val<v;
 }
 
-int operator <  (const double v, const adouble &a) {
+CUDADEV int operator <  (const double v, const adouble &a) {
     return v<a.val;
 }
 
 /*******************  getter / setter  **************************************/
-double adouble::getValue() const {
+CUDAHOSTDEV double adouble::getValue() const {
     return val;
 }
 
-void adouble::setValue(const double v) {
+CUDAHOSTDEV void adouble::setValue(const double v) {
     val=v;
 }
 
-ADVAL_TYPE adouble::getADValue() const {
-    return adval;
+CUDAHOSTDEV ADVAL_TYPE adouble::getADValue() const {
+    return (ADVAL_TYPE)adval;
 }
 
-void adouble::setADValue(ADVAL_TYPE v) {
+CUDAHOSTDEV void adouble::setADValue(ADVAL_TYPE v) {
     FOR_I_EQ_0_LT_NUMDIR
     ADVAL_I=V_I;
 }
 
 #  if defined(NUMBER_DIRECTIONS)
-double adouble::getADValue(const unsigned int p) const {
-    if (p>=NUMBER_DIRECTIONS) {
-        fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
-                " while \"getADValue(...)\"!!!\n");
-        exit(-1);
+CUDAHOSTDEV double adouble::getADValue(const unsigned int p) const {
+    unsigned int locp = p;
+    if (locp>=ADOLC_numDir) {
+	locp = ADOLC_numDir -1;
     }
-    return adval[p];
+    return adval[locp];
 }
 
-void adouble::setADValue(const unsigned int p, const double v) {
-    if (p>=NUMBER_DIRECTIONS) {
-        fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
-                " while \"setADValue(...)\"!!!\n");
-        exit(-1);
+CUDAHOSTDEV void adouble::setADValue(const unsigned int p, const double v) {
+    unsigned int locp = p;
+    if (locp>=ADOLC_numDir) {
+	locp = ADOLC_numDir - 1;
     }
-    adval[p]=v;
+    adval[locp]=v;
 }
 #  endif
 
 #if defined(NUMBER_DIRECTIONS)
-static void setNumDir(const unsigned int p) {
+void setNumDir(const unsigned int p) {
 #if !defined(DYNAMIC_DIRECTIONS)
     if (p>NUMBER_DIRECTIONS) ADOLC_numDir=NUMBER_DIRECTIONS;
     else ADOLC_numDir=p;
@@ -971,7 +986,7 @@ static void setNumDir(const unsigned int p) {
 #endif
 
 /*******************  i/o operations  ***************************************/
-ostream& operator << ( ostream& out, const adouble& a) {
+CUDAHOST ostream& operator << ( ostream& out, const adouble& a) {
     out << "Value: " << a.val;
 #if !defined(NUMBER_DIRECTIONS)
     out << " ADValue: ";
@@ -984,7 +999,7 @@ ostream& operator << ( ostream& out, const adouble& a) {
     return out;
 }
 
-istream& operator >> ( istream& in, adouble& a) {
+CUDAHOST istream& operator >> ( istream& in, adouble& a) {
     char c;
     do {
         in >> c;
