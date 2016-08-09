@@ -151,6 +151,57 @@ inline adub fmin ( const pdouble& a, const badouble& b)
 inline adub fmin( const badouble& a, const pdouble& b)
 { return fmin(a,adub(b)); }
 
+/* unary operators (friends) */
+inline adub exp  ( const pdouble& p)  { return exp(adub(p));   }
+inline adub log  ( const pdouble& p)  { return log(adub(p));   }
+inline adub sqrt ( const pdouble& p)  { return sqrt(adub(p));  }
+inline adub sin  ( const pdouble& p)  { return sin(adub(p));   }
+inline adub cos  ( const pdouble& p)  { return cos(adub(p));   }
+inline adub tan  ( const pdouble& p)  { return tan(adub(p));   }
+inline adub asin ( const pdouble& p)  { return asin(adub(p));  }
+inline adub acos ( const pdouble& p)  { return acos(adub(p));  }
+inline adub atan ( const pdouble& p)  { return atan(adub(p));  }
+
+/*--------------------------------------------------------------------------*/
+/* special operators (friends) */
+/* no internal use of condassign: */
+inline adub    pow   ( const pdouble& p, double q) { return pow(adub(p),q); }
+inline adub    log10 ( const pdouble& p) { return log10(adub(p)); }
+
+/* Additional ANSI C standard Math functions Added by DWJ on 8/6/90 */
+inline adub sinh  ( const pdouble& p) { return sinh(adub(p)); }
+inline adub cosh  ( const pdouble& p) { return cosh(adub(p)); }
+inline adub tanh  ( const pdouble& p) { return tanh(adub(p)); }
+#if defined(ATRIG_ERF)
+inline adub asinh ( const pdouble& p) { return asinh(adub(p)); }
+inline adub acosh ( const pdouble& p) { return acosh(adub(p)); }
+inline adub atanh ( const pdouble& p) { return atanh(adub(p)); }
+inline adub erf   ( const pdouble& p) { return erf(adub(p));   }
+#endif
+
+inline adub fabs  ( const pdouble& p) { return fabs(adub(p));  }
+inline adub ceil  ( const pdouble& p) { return ceil(adub(p));  }
+inline adub floor ( const pdouble& p) { return floor(adub(p)); }
+
+inline adub fmax ( const pdouble& p, const pdouble& q) 
+{ return fmax(adub(p),adub(q)); }
+inline adub fmax ( double p, const pdouble& q)
+{ return fmax(p,adub(q)); }
+inline adub fmax ( const pdouble& p, double q)
+{ return fmax(adub(p),q); }
+inline adub fmin ( const pdouble& p, const pdouble& q)
+{ return fmin(adub(p),adub(q)); }
+inline adub fmin ( double p, const pdouble& q)
+{ return fmin(p,adub(q)); }
+inline adub fmin ( const pdouble& p, double q)
+{ return fmin(adub(p),q); }
+
+inline adub ldexp ( const pdouble& p, int n)
+{ return ldexp(adub(p),n); }
+inline adub frexp ( const pdouble& p, int* n)
+{ return frexp(adub(p),n); }
+
+/*--------------------------------------------------------------------------*/
 #endif
 
 BEGIN_C_DECLS

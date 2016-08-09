@@ -83,10 +83,11 @@ class ADOLC_DLL_EXPORT badouble {
 protected:
     locint location;
     badouble( void ) {};
-    // must be public when using gcc >= 3.4 ( problems with value() )
+    // Copy constructor:
+    // must be public when using gcc >= 3.4 and gcc <= 4.3.0
     // (see GCC 3.4 Release Series - Changes, New Features, and Fixes)
-    //
-    // badouble( const badouble& a ) {location = a.location;};
+    // so we make it protected for newer compilers again.
+    badouble( const badouble& a ) {};           /* ctor */
     explicit badouble( locint lo ) {
         location = lo;
         isInit = true;
@@ -95,9 +96,7 @@ protected:
     bool isInit;  // marker if the badouble is properly initialized
 
 public:
-    /*--------------------------------------------------------------------------*/
-    badouble( const badouble& a ) {};           /* ctor */
-
+    /*--------------------------------------------------------------------------*/    
     inline locint loc( void ) const;                         /* Helpful stuff */
 
     /*------------------------------------------------------------------------*/
