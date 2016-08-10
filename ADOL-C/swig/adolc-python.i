@@ -310,7 +310,7 @@ def fmin(a,b):
     if np.isscalar(a) and np.isscalar(b):
         if a > b:
             return b
-        if b > a:
+        else:
             return a
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmin(a,b)
@@ -322,7 +322,7 @@ def fmax(a,b):
     if np.isscalar(a) and np.isscalar(b):
         if a < b:
             return b
-        if b < a:
+        else:
             return a
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmax(a,b)
