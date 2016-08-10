@@ -158,7 +158,6 @@ inline adub fmin ( const pdouble& a, const badouble& b)
 
 inline adub fmin( const badouble& a, const pdouble& b)
 { return fmin(a,adub(b)); }
-#endif
 
 /* unary operators (friends) */
 inline adub exp  ( const pdouble& p)  { return exp(adub(p));   }
@@ -209,6 +208,7 @@ inline adub ldexp ( const pdouble& p, int n)
 { return ldexp(adub(p),n); }
 inline adub frexp ( const pdouble& p, int* n)
 { return frexp(adub(p),n); }
+#endif
 
 /*--------------------------------------------------------------------------*/
 #endif

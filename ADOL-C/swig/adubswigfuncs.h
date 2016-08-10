@@ -129,6 +129,43 @@ adub* fmin ( const badouble&, const pdouble& );
 adub* ldexp ( const badouble&, int );
 adub* frexp ( const badouble&, int* );
 
+adub* exp  ( const pdouble& );
+adub* log  ( const pdouble& );
+adub* sqrt ( const pdouble& );
+adub* sin  ( const pdouble& );
+adub* cos  ( const pdouble& );
+adub* tan  ( const pdouble& );
+adub* asin ( const pdouble& );
+adub* acos ( const pdouble& );
+adub* atan ( const pdouble& );
+
+adub*    pow   ( const pdouble&, double );
+adub*    log10 ( const pdouble& );
+
+adub* sinh  ( const pdouble& );
+adub* cosh  ( const pdouble& );
+adub* tanh  ( const pdouble& );
+#if defined(ATRIG_ERF)
+adub* asinh ( const pdouble& );
+adub* acosh ( const pdouble& );
+adub* atanh ( const pdouble& );
+adub* erf   ( const pdouble& );
+#endif
+
+adub* fabs  ( const pdouble& );
+adub* ceil  ( const pdouble& );
+adub* floor ( const pdouble& );
+
+adub* fmax ( const pdouble&, const pdouble& );
+adub* fmax ( double, const pdouble& );
+adub* fmax ( const pdouble&, double );
+adub* fmin ( const pdouble&, const pdouble& );
+adub* fmin ( double, const pdouble& );
+adub* fmin ( const pdouble&, double );
+
+adub* ldexp ( const pdouble&, int );
+adub* frexp ( const pdouble&, int* );
+
 /*--------------------------------------------------------------------------*/
 adub* adolc_vec_dot(const adouble*const, const adouble*const, locint);
 
