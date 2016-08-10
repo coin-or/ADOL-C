@@ -84,10 +84,6 @@ def as_adouble(arg):
        {(unsigned int** rind, int* nnz1),
         (unsigned int** cind, int* nnz2)};
 
-%exception {
-    $action
-    if (PyErr_Occurred()) SWIG_fail;
-}
 %inline %{
 #ifdef __cplusplus
 extern "C" {
@@ -361,4 +357,3 @@ extern "C" {
 %clear (double** values, int* nnz3);
 %clear (unsigned int** rind, int* nnz1);
 %clear (unsigned int** cind, int* nnz2);
-%exception ;

@@ -100,10 +100,6 @@ def reverse(t,**kwargs):
 
 %}
 
-%exception {
-    $action
-    if (PyErr_Occurred()) SWIG_fail;
-}
 %inline %{
     void npy_reverse(short t, double u, double** Z, int* n2) {
         DO_GET_DIMENSIONS
@@ -379,5 +375,4 @@ extern "C" {
 %clear (double** Z, int* q2, int* n2);
 %clear (short* nz, int q3, int n3);
 %clear (double** Z, int* n2);
-%exception;
 

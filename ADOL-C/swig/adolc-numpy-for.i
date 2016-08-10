@@ -139,10 +139,6 @@ def forward(t,m,n,**kwargs):
        {(int* ndim, int n0)};
 %apply (unsigned long INPLACE_ARRAY1[ANY]) {(unsigned long stats[STAT_SIZE])};
 
-%exception {
-    $action
-    if (PyErr_Occurred()) SWIG_fail;
-}
 %inline %{
     void npy_tapestats(short t, unsigned long stats[STAT_SIZE]) {
         tapestats(t,stats);
@@ -409,4 +405,3 @@ extern "C" {
 %clear (double* Y, int m3, int p3);
 %clear (int* ndim, int n0);
 %clear (unsigned long stats[STAT_SIZE]);
-%exception ;

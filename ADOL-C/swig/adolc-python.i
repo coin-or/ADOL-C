@@ -17,6 +17,8 @@
 #define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
 #include "matrixmemory.hpp"
+#include <adolc/adolc_fatalerror.h>
+
 static PyObject* PyExc_AdolcException; 
 %}
 
@@ -30,7 +32,7 @@ PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.AdolcException",
 " detected by the return value of that library function. This is generally"
 " a warning to retrace the original function at the current point", 
                                 NULL, NULL);
-PyDict_SetItemString(d,"AdolcException",PyExc_AdolcException);
+PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 %}
 
 %feature("novaluewrapper") badouble;
@@ -39,6 +41,8 @@ PyDict_SetItemString(d,"AdolcException",PyExc_AdolcException);
 %feature("novaluewrapper") adubref;
 %feature("novaluewrapper") adouble;
 %feature("novaluewrapper") advector;
+
+%include "../include/adolc/adolc_fatalerror.h"
 
 %ignore operator<<;
 %ignore operator>>;
@@ -128,6 +132,19 @@ AdolcException = _adolc.AdolcException
                      func, (rc));                                       \
     }
 %}
+
+%exception {
+    try {
+        $action
+        if (PyErr_Occurred()) SWIG_fail;
+    } catch (FatalError &_e) {
+    SWIG_Python_Raise(SWIG_NewPointerObj(
+            (new FatalError(static_cast<const FatalError& >(_e))),  
+            SWIGTYPE_p_FatalError,SWIG_POINTER_OWN),
+        "FatalError", SWIGTYPE_p_FatalError); 
+    SWIG_fail;
+    }
+}
 
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
@@ -339,3 +356,5 @@ def fabs(a):
     else:
 	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 %}
+
+%exception;
