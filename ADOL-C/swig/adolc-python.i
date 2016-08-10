@@ -44,6 +44,12 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 
 %include "../include/adolc/adolc_fatalerror.h"
 
+%extend FatalError {
+    virtual const char* __str__() const throw() {
+        return (*($self)).what();
+    }
+}
+
 %ignore operator<<;
 %ignore operator>>;
 %ignore operator<=;
