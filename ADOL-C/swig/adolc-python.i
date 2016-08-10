@@ -303,3 +303,39 @@ AdolcException = _adolc.AdolcException
         return (adub*) (a / (*($self)));
     }
 }
+
+%pythoncode %{
+def fmin(a,b):
+    import numpy as np
+    if np.isscalar(a) and np.isscalar(b):
+        if a > b:
+            return b
+        if b > a:
+            return a
+    elif isinstance(a,badouble) or isinstance(b,badouble):
+        return _adolc.fmin(a,b)
+    else:
+	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+
+def fmax(a,b):
+    import numpy as np
+    if np.isscalar(a) and np.isscalar(b):
+        if a < b:
+            return b
+        if b < a:
+            return a
+    elif isinstance(a,badouble) or isinstance(b,badouble):
+        return _adolc.fmax(a,b)
+    else:
+	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+
+def fabs(a):
+    import numpy as np
+    import math as m
+    if np.isscalar(a):
+        return m.fabs(a)
+    elif isinstance(a,badouble):
+        return _adolc.fabs(a)
+    else:
+	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+%}
