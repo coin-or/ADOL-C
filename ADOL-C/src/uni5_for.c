@@ -2313,8 +2313,8 @@ int  hov_forward(
 		fod[opind].left = &fod[arg_index[arg1]];
 		fod[opind].right = &fod[arg_index[arg2]];
 		// first step: z = u*w, 
-		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
-		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg1]], nonl_dom, &fod[arg_index[arg2]], indcheck+1,maxopind+2);
+		traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[arg_index[arg1]], indcheck+1,maxopind+2);
 		opind++;
 		// second step: v = v+z, index domains
 		fod[opind].entry = maxopind+2;
