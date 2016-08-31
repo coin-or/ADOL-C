@@ -286,7 +286,7 @@ void fail( int error ) {
             break;
 	case ADOLC_WRONG_PLATFORM_32:
 	    fprintf(DIAG_OUT,
-		    "ADOL-C error: Trace was created on a 64-bit platfrom, cannot be opened on 32-bit platform!\n"
+		    "ADOL-C error: Trace was created on a 64-bit platform, cannot be opened on 32-bit platform!\n"
 		);
 	    break;
 	case ADOLC_WRONG_PLATFORM_64:
