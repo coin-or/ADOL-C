@@ -2599,6 +2599,17 @@ int hov_ti_reverse(
                 GET_TAYL(res,k,p)
                 break;
 
+           case ref_eq_min_p:            /* Add a floating point to an    eq_min_d */
+            /* adouble. (-=) */
+                arg1   = get_locint_r();
+                arg    = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+
+                GET_TAYL(res,k,p)
+                break;
+
             case ref_eq_min_a:        /* Subtract an adouble from another    eq_min_a */
                 /* adouble. (-=) */
                 arg1 = get_locint_r();
@@ -2630,6 +2641,26 @@ int hov_ti_reverse(
 		ASSIGN_T(Targ1, rpp_T[arg1])
 		res = (size_t)trunc(fabs(TARG1));
                 coval = get_val_r();
+
+                ASSIGN_A(Ares, rpp_A[res])
+
+                FOR_0_LE_l_LT_p
+                if ( 0 == ARES_INC )
+                    HOV_INC(Ares, k)
+                    else
+                        FOR_0_LE_i_LT_k
+                        ARES_INC *= coval;
+
+                GET_TAYL(res,k,p)
+                break;
+
+	    case ref_eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
+                /* flaoting point. (*=) */
+                arg1   = get_locint_r();
+                arg    = get_locint_r();
+		ASSIGN_T(Targ1, rpp_T[arg1])
+		res = (size_t)trunc(fabs(TARG1));
+                coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 ASSIGN_A(Ares, rpp_A[res])
 
