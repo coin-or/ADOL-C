@@ -74,6 +74,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 LT_INIT([disable-static win32-dll dlopen])
 
+if test "x$enable_static" != "xno" ; then
+   AC_MSG_WARN([Linking a user program with static ADOL-C library will always result in a segmentation fault])
+fi
+
 MPI_CONF_PRE
 
 AC_CHECK_SIZEOF([void *])
@@ -658,3 +662,10 @@ echo \
 "
 ;;
 esac
+if test "x$enable_static" != "xno" ; then
+echo \
+" Linking a user program with a static ADOL-C library will always result
+  in a segmentation fault. Please always use the shared library.
+*****************************************************************************
+"
+fi
