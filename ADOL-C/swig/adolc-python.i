@@ -283,6 +283,69 @@ AdolcException = _adolc.AdolcException
     adub* __div__ (const pdouble& a) {
         return (adub*) ((*($self)) / a);
     }    
+    adub* sin() {
+        return (adub*) sin(*($self));
+    }
+    adub* cos() {
+        return (adub*) cos(*($self));
+    }
+    adub* tan() {
+        return (adub*) tan(*($self));
+    }
+    adub* exp() {
+        return (adub*) exp(*($self));
+    }
+    adub* log() {
+        return (adub*) log(*($self));
+    }
+    adub* asin() {
+        return (adub*) asin(*($self));
+    }
+    adub* acos() {
+        return (adub*) acos(*($self));
+    }
+    adub* atan() {
+        return (adub*) atan(*($self));
+    }
+    adub* log10() {
+        return (adub*) log10(*($self));
+    }
+    adub* sinh() {
+        return (adub*) sinh(*($self));
+    }
+    adub* cosh() {
+        return (adub*) cosh(*($self));
+    }
+    adub* tanh() {
+        return (adub*) tanh(*($self));
+    }
+#if defined(ATRIG_ERF)
+    adub* asinh() {
+        return (adub*) asinh(*($self));
+    }
+    adub* acosh() {
+        return (adub*) acosh(*($self));
+    }
+    adub* atanh() {
+        return (adub*) atanh(*($self));
+    }
+    adub* erf() {
+        return (adub*) erf(*($self));
+    }
+#endif
+    adub* fabs() {
+        return (adub*) fabs(*($self));
+    }
+    adub* abs() {
+        return (adub*) fabs(*($self));
+    }
+    adub* ceil() {
+        return (adub*) ceil(*($self));
+    }
+    adub* floor() {
+        return (adub*) floor(*($self));
+    }
+
 }
 
 %extend pdouble {
@@ -325,6 +388,69 @@ AdolcException = _adolc.AdolcException
     adub* __rdiv__ (double a) {
         return (adub*) (a / (*($self)));
     }
+    adub* sin() {
+        return (adub*) sin(*($self));
+    }
+    adub* cos() {
+        return (adub*) cos(*($self));
+    }
+    adub* tan() {
+        return (adub*) tan(*($self));
+    }
+    adub* exp() {
+        return (adub*) exp(*($self));
+    }
+    adub* log() {
+        return (adub*) log(*($self));
+    }
+    adub* asin() {
+        return (adub*) asin(*($self));
+    }
+    adub* acos() {
+        return (adub*) acos(*($self));
+    }
+    adub* atan() {
+        return (adub*) atan(*($self));
+    }
+    adub* log10() {
+        return (adub*) log10(*($self));
+    }
+    adub* sinh() {
+        return (adub*) sinh(*($self));
+    }
+    adub* cosh() {
+        return (adub*) cosh(*($self));
+    }
+    adub* tanh() {
+        return (adub*) tanh(*($self));
+    }
+#if defined(ATRIG_ERF)
+    adub* asinh() {
+        return (adub*) asinh(*($self));
+    }
+    adub* acosh() {
+        return (adub*) acosh(*($self));
+    }
+    adub* atanh() {
+        return (adub*) atanh(*($self));
+    }
+    adub* erf() {
+        return (adub*) erf(*($self));
+    }
+#endif
+    adub* fabs() {
+        return (adub*) fabs(*($self));
+    }
+    adub* abs() {
+        return (adub*) fabs(*($self));
+    }
+    adub* ceil() {
+        return (adub*) ceil(*($self));
+    }
+    adub* floor() {
+        return (adub*) floor(*($self));
+    }
+
 }
 
 %pythoncode %{
