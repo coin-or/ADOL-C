@@ -533,15 +533,10 @@ int inverse_Taylor_prop( short tag, int n, int d,
        {
         if (nax)
          {
-            free(**A);
-            free(*A);
-            free(A);
-            free(*I);
-            free(I);
-            free(*W);
-            free(W);
-            free(*Xhelp);
-            free(Xhelp);
+            myfree3(A);
+            myfree2(I);
+            myfree2(W);
+            myfree2(Xhelp);
             free(w);
             free(xold);
             free(*nonzero);
@@ -738,10 +733,8 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
             }
         }
         free((char*) jm);
-        free((char*) *X);
-        free((char*) X);
-        free((char*) *Y);
-        free((char*) Y);
+        myfree2(X);
+        myfree2(Y);
     }
     for(i=0;i<n;i++)
         tensor[i][0] = x[i];
@@ -770,6 +763,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
     for (i=0; i<m; i++)
         for (j=0; j<dimten; j++)
             tensor[i][j] = 0;
+
     if (d == 0) {
         MINDEC(rc,zos_forward(tag,m,n,0,x,y));
     } else {
@@ -853,16 +847,13 @@ int tensor_eval( short tag, int m, int n, int d, int p,
                 }
             }
         }
+
         for (i=0; i<jmbd; i++)
             free((char*) *(jm+i));
         free((char*) jm);
-        free((char*) **X);
-        free((char*) *X);
-        free((char*) X);
-        free((char*) **Y);
-        free((char*) *Y);
-        free((char*) Y);
-    }
+        myfree3(X);
+        myfree3(Y);
+     }
     for(i=0;i<m;i++)
         tensor[i][0] = y[i];
     bd = jmbd;
