@@ -29,7 +29,7 @@ public:
     virtual int fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
-    virtual int call(int n, adouble *xa, int m, adouble *ya) {
+    int call(int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,n,xa,m,ya);
     }
 };
@@ -47,7 +47,7 @@ public:
     virtual int fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
-    virtual int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
+    int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,iArrLength,iArr,n,xa,m,ya);
     }
 };
@@ -65,7 +65,7 @@ public:
     virtual int fov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx) = 0;
     virtual int fos_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx) = 0;
     virtual int fov_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx) = 0;
-    virtual int call(int iArrLen, int* iArr, int nin, int nout, int *insz, adouble **x, int *outsz, adouble **y) {
+    int call(int iArrLen, int* iArr, int nin, int nout, int *insz, adouble **x, int *outsz, adouble **y) {
         return call_ext_fct(edf,iArrLen,iArr,nin,nout,insz,x,outsz,y);
     }
 };
