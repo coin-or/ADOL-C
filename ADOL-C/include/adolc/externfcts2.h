@@ -174,6 +174,11 @@ typedef struct ext_diff_fct_v2 {
    * all other pointers can point to memory within here.
    */
   char* allmem;
+  /**
+   * This is a reference to an object for the C++ object-oriented
+   * implementation of the external function ** do not touch **
+   */
+  void* obj;
 }
 ext_diff_fct_v2;
 
