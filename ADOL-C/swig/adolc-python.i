@@ -12,7 +12,8 @@
  
 ----------------------------------------------------------------------------*/
 
-%module adolc
+%module(directors="1") adolc
+//%module adolc
 %{
 #define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
@@ -114,6 +115,24 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 %ignore *::operator const std::vector<adouble>&;
 %ignore *::operator std::vector<adouble>&;
 %ignore *::operator adouble*;
+%ignore advector::advector(const std::vector<adouble>&);
+%ignore ext_diff_fct;
+%ignore ext_diff_fct_v2;
+%ignore reg_ext_fct;
+%ignore call_ext_fct;
+%ignore get_ext_diff_fct;
+%ignore get_ext_diff_fct_v2;
+%ignore EDFobject;
+%ignore EDFobject_iArr;
+%ignore EDFobject_v2;
+
+%feature("director") PyEDF;
+%feature("director") PyEDF_iArr;
+%feature("director") PyEDF_v2;
+
+%rename (EDFobject) PyEDF;
+%rename (EDFobject_iArr) PyEDF_iArr;
+%rename (EDFobject_v2) PyEDF_v2;
 
 %typemap(in) locint {
     $1 = PyLong_AsUnsignedLong($input);
@@ -126,6 +145,7 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 %pythoncode %{
 AdolcException = _adolc.AdolcException
 %}
+
 
 %inline %{
 #define CHECKEXCEPT(rc, func) \
@@ -155,23 +175,127 @@ AdolcException = _adolc.AdolcException
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
 %include "adolc-numpy-drv.i"
+
 %include "adolc_all.hpp"
+%inline %{
+#include "pyedfclasses.h"
+%}
+%include "pyedfclasses.h"
 
 %extend advector {
     adub* __getitem__(const badouble& index) const {
+        if (index.value() >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
         return (adub*) (*($self))[index];
+    fail:
+        return NULL;
     }
     adubref* __getitem__(const badouble& index) {
+        if (index.value() >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
         return (adubref*) (*($self))[index];
+    fail:
+        return NULL;
     }
-    adouble& __getitem__(size_t index) {
-        return (*($self))[index];
+    adouble* __getitem__(size_t index) {
+        if (index >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        return &((*($self))[index]);
+    fail:
+        return NULL;
     }
-    const adouble& __getitem__(size_t index) const {
-        return (*($self))[index];
+    const adouble* __getitem__(size_t index) const {
+        if (index >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        return &((*($self))[index]);
+    fail:
+        return NULL;
     }
     size_t __len__() const {
         return (*($self)).size();
+    }
+    // ADD __setitem__ and __iter__
+    void __setitem__(size_t index,double val) {
+        if (index >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        (*($self))[index] = val;
+    fail:
+        return;
+    }
+    void __setitem__(size_t index,const badouble& val) {
+        if (index >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        (*($self))[index] = val;
+    fail:
+        return;
+    }
+    void __setitem__(const badouble& index,double val) {
+        if (index.value() >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        (*($self))[index] = val;
+    fail:
+        return;
+    }
+    void __setitem__(const badouble& index,const badouble& val) {
+        if (index.value() >= (*($self)).size()) {
+            SWIG_exception_fail(SWIG_IndexError,"Index out of bounds");
+        }
+        (*($self))[index] = val;
+    fail:
+        return;
+    }
+    advector(PyObject* obj0) {
+        PyArrayObject *array0 = NULL;
+        int is_new_object0 = 0;
+        int dim_temp0;
+        advector * $self;
+        npy_intp size[1] = {
+            -1 
+        };
+        array0 = obj_to_array_allow_conversion(obj0,
+                                               NPY_OBJECT,
+                                               &is_new_object0);
+        if (!array0 || !require_dimensions(array0, 1) ||
+            !require_size(array0, size, 1)) SWIG_fail;
+        dim_temp0 = (int) array_size(array0,0);
+        $self = new advector(dim_temp0);
+        for (size_t i = 0; i < dim_temp0; i++) {
+            PyObject* elem = PyArray_GETITEM(array0, (const char*)PyArray_GetPtr(array0, (npy_intp*)&i));
+            void * argp1 = 0;
+            badouble* arg1 =  NULL;
+            double val1;
+            int res1 = SWIG_ConvertPtr(elem, &argp1,SWIGTYPE_p_badouble, 0 | 0);
+            int _v = SWIG_CheckState(res1);
+            if (_v) {
+                arg1 = reinterpret_cast<badouble*>(argp1);
+                (*($self))[i] = *arg1;
+            } else {
+                res1 = SWIG_AsVal_double(elem, &val1);
+                _v = SWIG_CheckState(res1);
+                if (_v) {
+                    (*($self))[i] = val1;
+                }
+                else {
+                    SWIG_exception_fail(SWIG_ArgError(res1), "in method '""new_advector""' ""input sequence must contain objects of type adouble or numbers");
+                }
+            }
+        }
+        if (is_new_object0 && array0) {
+            Py_DECREF(array0);
+        } 
+        return ($self);
+    fail:
+        if (is_new_object0 && array0) {
+            Py_DECREF(array0);
+        }
+        return NULL;
     }
  }
 

@@ -360,6 +360,39 @@ extern "C" {
         return;
     }
 
+    void npy_fov_reverse(short t, int m, int n, int q, double* u, int q1, int m1, double** Z, int* q2, int* n2) {
+        if (currently_nested(t)) {
+            if (q1 != m || m1 != q) {
+                PyErr_Format(PyExc_ValueError,
+                             "Array lengths don't match expected dimensions"
+                             "\nExpected shapes (%d,%d)",m,q
+                    );
+                return;
+            }
+            *q2 = n;
+            *n2 = q;
+        } else {
+            if (q1 != q || m1 == m) {
+                PyErr_Format(PyExc_ValueError,
+                             "Array lengths don't match expected dimensions"
+                             "\nExpected shapes (%d,%d)", q,m
+                );
+                return;
+            }
+            *q2 = q;
+            *n2 = n;
+        }
+        *Z = (double*) malloc((*q2)*(*n2)*sizeof(double));
+        char* memory = (char*)malloc(q1 + (*q2)*sizeof(double*));
+        char *tmp = memory;
+        double **Zp, **Up;
+        tmp = populate_dpp_with_contigdata(&Zp,tmp,*q2,*n2, *Z);
+        tmp = populate_dpp_with_contigdata(&Up,tmp,q1,m1, u);
+        fov_reverse(t,m,n,q,Up,Zp);
+        free(memory);
+        return;
+    }
+
 #ifdef __cplusplus
 }
 #endif

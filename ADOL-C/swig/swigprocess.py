@@ -129,7 +129,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         for p in incp:
             npy_cflags += ' -I' + p 
 
-        s = 'swig -python -c++ -o ' + outfile + ' ' + infile
+        s = 'swig -python -c++ -dirvtable -o ' + outfile + ' ' + infile
         print('invoking:', s)
         cmd = shlex.split(s)
         warn = ''
