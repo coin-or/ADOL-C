@@ -138,6 +138,8 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         except subprocess.CalledProcessError as e:
             print(e.output)
             print("error in cmd = ", e.cmd)
+        p = re.compile(r'(.*)\.cxx',re.M|re.S)
+        outhead = p.sub(r'\1.h',outfile)
         s = os.environ['CXX'] + ' -I../include -std=c++11 -fPIC -Wall -shared -o _' + modname + '.so ' + python_cflags.rstrip() + npy_cflags + ' ' + outfile + ' -L../.libs -ladolc ' + python_ldflags.rstrip() 
         if sys.platform.startswith('linux'):
             s += ' -Wl,-no-undefined'
@@ -152,6 +154,7 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         shutil.move('_' + modname + '.so', lang)
         shutil.move(modname + '.py', lang)
         shutil.move(outfile,lang)
+        shutil.move(outhead,lang)
         writeOutput(warn,'warnings-python.txt')
 
 def finalClean(headfile,outfiles):
@@ -189,7 +192,7 @@ def main(args):
         invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
     if args.r or args.all:
         invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
-    finalClean('adolc_all.hpp',['adolc_python_wrap.cxx','adolc_r_wrap.cpp'])
+    finalClean('adolc_all.hpp',['adolc_python_wrap.cxx','adolc_python_wrap.h','adolc_r_wrap.cpp'])
     noerrors = True
 
 if __name__ == '__main__':

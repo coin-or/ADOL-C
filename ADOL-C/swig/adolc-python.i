@@ -13,7 +13,6 @@
 ----------------------------------------------------------------------------*/
 
 %module(directors="1") adolc
-//%module adolc
 %{
 #define SWIG_FILE_WITH_INIT
 #include <adolc/adolc.h>
@@ -21,6 +20,35 @@
 #include <adolc/adolc_fatalerror.h>
 
 static PyObject* PyExc_AdolcException; 
+%}
+
+%{
+#if !defined(ATRIG_ERF)
+    adub asinh(const badouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub acosh(const badouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub atanh(const badouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub erf(const badouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub asinh(const pdouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub acosh(const pdouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub atanh(const pdouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+    adub erf(const pdouble&) {
+        throw FatalError(-1,"Not compiled in, reconfigure ADOL-C with --enable-atrig-erf",__func__,__FILE__,__LINE__);
+    }
+#endif
 %}
 
 %include "numpy.i"
@@ -172,12 +200,12 @@ AdolcException = _adolc.AdolcException
     }
 }
 
-%include "pyedfclasses.h"
+%include "pyedfclasses.hpp"
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
 %include "adolc-numpy-drv.i"
 %inline %{
-#include "pyedfclasses.h"
+#include "pyedfclasses.hpp"
 %}
 %include "adolc_all.hpp"
 
@@ -442,7 +470,6 @@ AdolcException = _adolc.AdolcException
     adub* tanh() {
         return (adub*) tanh(*($self));
     }
-#if defined(ATRIG_ERF)
     adub* asinh() {
         return (adub*) asinh(*($self));
     }
@@ -455,7 +482,6 @@ AdolcException = _adolc.AdolcException
     adub* erf() {
         return (adub*) erf(*($self));
     }
-#endif
     adub* fabs() {
         return (adub*) fabs(*($self));
     }
@@ -468,7 +494,6 @@ AdolcException = _adolc.AdolcException
     adub* floor() {
         return (adub*) floor(*($self));
     }
-
 }
 
 %extend pdouble {
@@ -547,7 +572,6 @@ AdolcException = _adolc.AdolcException
     adub* tanh() {
         return (adub*) tanh(*($self));
     }
-#if defined(ATRIG_ERF)
     adub* asinh() {
         return (adub*) asinh(*($self));
     }
@@ -560,7 +584,6 @@ AdolcException = _adolc.AdolcException
     adub* erf() {
         return (adub*) erf(*($self));
     }
-#endif
     adub* fabs() {
         return (adub*) fabs(*($self));
     }
@@ -573,7 +596,6 @@ AdolcException = _adolc.AdolcException
     adub* floor() {
         return (adub*) floor(*($self));
     }
-
 }
 
 %pythoncode %{

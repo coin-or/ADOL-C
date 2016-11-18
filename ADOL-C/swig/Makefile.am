@@ -12,7 +12,7 @@
 
 ACLOCAL_AMFLAGS = -I autoconf
 
-EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_in.hpp matrixmemory.hpp
+EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_in.hpp matrixmemory.hpp pyedfclasses.hpp
 
 clean-local:
-	-rm -rf python R *.cpp *.cxx *.o include
+	-rm -rf python R *.cpp *.cxx *.o *.h include
