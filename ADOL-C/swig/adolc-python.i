@@ -172,15 +172,14 @@ AdolcException = _adolc.AdolcException
     }
 }
 
+%include "pyedfclasses.h"
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
 %include "adolc-numpy-drv.i"
-
-%include "adolc_all.hpp"
 %inline %{
 #include "pyedfclasses.h"
 %}
-%include "pyedfclasses.h"
+%include "adolc_all.hpp"
 
 %extend advector {
     adub* __getitem__(const badouble& index) const {
