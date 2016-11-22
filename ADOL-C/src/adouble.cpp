@@ -1809,6 +1809,19 @@ adub fmax ( const badouble& x, double d ) {
 adub ldexp ( const badouble& x, int exp ) {
     return x*ldexp(1.0,exp);
 }
+/*--------------------------------------------------------------------------*/
+/* frexp Function */
+adub frexp ( const badouble& x, int* n) {
+    double v = frexp(x.value(), n);
+    adouble r = x - v;
+    adouble z = r - double(*n);
+    if (z == 0) {
+        return (x - double(*n));
+    } else {
+        fprintf(stderr,"ADOL-C warning: std::frexp() returned inconsistent results\n");
+        return (r - double(*n));
+    }
+}
 
 /*--------------------------------------------------------------------------*/
 /* Macro for user defined quadratures, example myquad is below.*/
