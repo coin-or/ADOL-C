@@ -27,7 +27,6 @@
 #include <vector>
 #include <stack>
 #include <errno.h>
-#include <exception>
 
 using namespace std;
 
@@ -1576,21 +1575,7 @@ void disableMinMaxUsingAbs() {
 		,__FUNCTION__);
 }
 
-class FatalError: public exception{
-protected:
-    static const int MAX_MSG_SIZE = 4*1024;
-    char msg[MAX_MSG_SIZE];
-
-public:
-    explicit FatalError(int errorcode, const char* what, const char* function, const char* file, int line) {
-        // need to use C-style functions that do not use exceptions themselves
-        snprintf(this->msg, MAX_MSG_SIZE, "errorcode=%d function=%s file=%s line=%d what=%s", errorcode, function, file, line, what);
-    }
-
-    virtual const char* what() const throw() {
-        return msg;
-    }
-};
+#include <adolc/adolc_fatalerror.h>
 
 void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line) {
     throw FatalError(errorcode, what, function, file, line);
