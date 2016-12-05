@@ -726,6 +726,17 @@ static void get_ascii_trace_elements(const std::string& instr) {
                     ADOLC_PUT_VAL(val);
                 }
             }
+        } if (oper == death_not) {
+            // we count maxlocs ourselves and trace_off() writes a death_not
+            // so here we should only check if the given value is bigger than
+            // the maxloc we've got
+            locint idx = std::strtoul((*loca)[1].str().c_str(),NULL,0); 
+            locs.push_back(idx);
+            ++loca;
+            idx = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            locs.push_back(idx);
+            ++loca;
+            if (idx > maxloc) maxloc *= 2;
         } else 
             put_op(oper);
         while (loca != iend) {
@@ -757,6 +768,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
         handle_ops_stats(oper,locs);
         ++opa;
         ++opctr;
+        locs.clear();
     }
     if (opctr > 1) {
         std::cout << "something went wrong, there are " << opctr << "ops in one tag\n";
