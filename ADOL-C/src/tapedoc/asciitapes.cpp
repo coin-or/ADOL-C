@@ -619,6 +619,7 @@ static void handle_ops_stats(enum OPCODES operation,
         case ref_eq_plus_p:
         case ref_eq_min_p:
         case ref_eq_mult_p:
+        case set_numparam:
         {
             locint n = *locs.cbegin();
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
@@ -636,7 +637,6 @@ static void handle_ops_stats(enum OPCODES operation,
         case lt_a_p:
         case gt_a_p:
         case ref_assign_p:
-        case set_numparam:
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
