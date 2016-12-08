@@ -971,6 +971,11 @@ void write_ascii_trace(const char *const fname, short tag) {
         file << outstr.str();
         operation=get_op_f();
     }
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0) {
+        std::ostringstream outstr;
+        outstr << "{ op:set_numparam " << "loc:" << ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] - 1 << " }\n";
+        file << outstr.str();
+    }
     end_sweep();
     file.close();
 }
