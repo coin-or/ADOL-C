@@ -86,6 +86,7 @@ enum OPCODES {
   ext_diff_v2,
   cond_eq_assign = 63,
   cond_eq_assign_s,
+  set_numparam = 65, /* This is only used on an ASCII Trace */
   subscript = 80,
   subscript_ref,
   ref_assign_d_zero,

@@ -99,6 +99,7 @@ static const std::unordered_map<std::string, enum OPCODES> opcodes =
   { "ext_diff_v", ext_diff_v2 },
   { "cond_eq_assign", cond_eq_assign },
   { "cond_eq_assign_s", cond_eq_assign_s },
+  { "set_numparam", set_numparam },
   { "subscript", subscript },
   { "subscript_ref", subscript_ref },
   { "ref_assign_d_zero", ref_assign_d_zero },
@@ -232,6 +233,7 @@ static const std::unordered_map<unsigned char, std::string> opnames = {
   { ext_diff_v2, "ext_diff_v" },
   { cond_eq_assign, "cond_eq_assign" },
   { cond_eq_assign_s, "cond_eq_assign_s" },
+  { set_numparam, "set_numparam" },
   { subscript, "subscript" },
   { subscript_ref, "subscript_ref" },
   { ref_assign_d_zero, "ref_assign_d_zero" },
@@ -367,6 +369,7 @@ static const requiredargs_t num_req_loc = {
     { ext_diff_v2, 65536 },
     { cond_eq_assign, 4 },
     { cond_eq_assign_s, 3 },
+    { set_numparam, 1 },
     { subscript, 3 },
     { subscript_ref, 3 },
     { ref_assign_d_zero, 1 },
@@ -500,6 +503,7 @@ static const requiredargs_t num_req_val = {
     { ext_diff_v2, 0 },
     { cond_eq_assign, 1 },
     { cond_eq_assign_s, 1 },
+    { set_numparam, 0 },
     { subscript, 1 },
     { subscript_ref, 1 },
     { ref_assign_d_zero, 0 },
@@ -632,6 +636,7 @@ static void handle_ops_stats(enum OPCODES operation,
         case lt_a_p:
         case gt_a_p:
         case ref_assign_p:
+        case set_numparam:
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
@@ -733,10 +738,17 @@ static void get_ascii_trace_elements(const std::string& instr) {
             locint idx = std::strtoul((*loca)[1].str().c_str(),NULL,0); 
             locs.push_back(idx);
             ++loca;
+            ++locctr;
             idx = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             locs.push_back(idx);
             ++loca;
+            ++locctr;
             if (idx > maxloc) maxloc *= 2;
+        } if (oper == set_numparam) {
+            locint idx = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            locs.push_back(idx);
+            ++loca;
+            ++locctr;
         } else 
             put_op(oper);
         while (loca != iend) {
@@ -769,6 +781,8 @@ static void get_ascii_trace_elements(const std::string& instr) {
         ++opa;
         ++opctr;
         locs.clear();
+        locctr = 0;
+        valctr = 0;
     }
     if (opctr > 1) {
         std::cout << "something went wrong, there are " << opctr << "ops in one tag\n";
