@@ -744,7 +744,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++loca;
             ++locctr;
             if (idx > maxloc) maxloc *= 2;
-        } if (oper == set_numparam) {
+        } else if (oper == set_numparam) {
             locint idx = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             locs.push_back(idx);
             ++loca;
