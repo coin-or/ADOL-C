@@ -120,6 +120,31 @@ def invoke_swig_compile(lang,infile,outfile,modname):
         shutil.move(modname + '.R', lang)
         shutil.move(outfile,lang)
         writeOutput(warn,'warnings-r.txt')
+    elif lang == 'octave':
+        s = 'swig -octave -c++ -o ' + outfile + ' ' + infile
+        print('invoking:', s)
+        cmd = shlex.split(s)
+        warn = ''
+        try:
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
+            exit()
+        s = 'mkoctfile -o ' + modname + '.oct ' + ' -I../include -std=c++11'  + ' -L../.libs -ladolc ' + outfile
+        if sys.platform.startswith('linux'):
+            s += ' -Wl,-no-undefined '
+        print('invoking:', s)
+        cmd = shlex.split(s)
+        try:
+            warn += subprocess.check_output(cmd,stderr=subprocess.STDOUT,universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            print("error in cmd = ", e.cmd)
+            exit()            
+        shutil.move(modname + '.oct', lang)
+        shutil.move(outfile,lang)
+        writeOutput(warn,'warnings-octave.txt')
     elif lang == 'python':
         python_cflags = subprocess.check_output(['python-config','--cflags'],universal_newlines=True)
         python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
@@ -192,6 +217,8 @@ def main(args):
         invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
     if args.r or args.all:
         invoke_swig_compile('R','adolc-r.i','adolc_r_wrap.cpp','adolc')
+    if args.oc or args.all:
+        invoke_swig_compile('octave','adolc-octave.i','adolc_octave_wrap.cpp','adolc')
     finalClean('adolc_all.hpp',['adolc_python_wrap.cxx','adolc_python_wrap.h','adolc_r_wrap.cpp'])
     noerrors = True
 
@@ -201,10 +228,12 @@ if __name__ == '__main__':
                         help='compile python interface')
     parser.add_argument('--r', action='store_true',
                         help='compile R interface')
+    parser.add_argument('--oc', '--octave', action='store_true',
+                        help='compile Octave interface')
     parser.add_argument('--all', action='store_true', default=True,
-                        help='compile all interfaces (python and R) [default]')
+                        help='compile all interfaces (python, R, octave) [default]')
     args = parser.parse_args()
-    if args.py or args.r:
+    if args.py or args.r or args.oc:
         args.all = False
     try:
         cxx = os.environ['CXX']

@@ -332,7 +332,7 @@ AdolcException = _adolc.AdolcException
 %ignore operator*;
 %ignore operator/;
 
-%include "adubswigfuncs.h"
+%include "adubswigfuncs.hpp"
 
 %extend badouble {
     int __ne__ (const badouble& a) const {

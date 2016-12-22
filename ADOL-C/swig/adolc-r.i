@@ -73,5 +73,5 @@
 
 %ignore frexp;
 
-%include "adubswigfuncs.h"
+%include "adubswigfuncs.hpp"
 
