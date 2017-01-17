@@ -61,11 +61,7 @@ int abs_normal(short tag,      /* tape identifier */
   res=(double*)myalloc1(n+s);
 
   zos_pl_forward(tag,m,n,1,x,y,z);
-  printf("y =  %f ",y[0]);
-  printf(" z = ");
-  for(i=0;i<s;i++)
-    printf(" %f ",z[i]);
-  printf("\n");
+
   for(i=0;i<m+s;i++){
     int l = i - s;
     fos_pl_reverse(tag,m,n,s,i,res);
@@ -105,10 +101,8 @@ int abs_normal(short tag,      /* tape identifier */
 int directional_active_gradient(short tag,      /* trace identifier */
                                 int n,          /* number of independents */
                                 double* x,      /* value of independents */
-                                short *sigma_x, /* sigma of x */
                                 double* d,      /* direction */
                                 double* g,      /* directional active gradient */
-                                double** grad_u,     
                                 short *sigma_g  /* sigma of g */
                                 )
 {
@@ -147,22 +141,13 @@ int directional_active_gradient(short tag,      /* trace identifier */
 
   while((k<6) && (done == 0))
     {
-      fov_pl_sig_forward(tag,1,n,k,x,E,s,sigma_x,NULL,&y,grad,z,gradu,sigma_g);
+      fov_pl_forward(tag,1,n,k,x,E,&y,grad,z,gradu,sigma_g);
 
-      printf(" fov_pl_sig x: %f \n",y);
-      printf(" sigma_g \n");
       sum = 0;
       for(i=0;i<s;i++)
         {
-          printf(" %d ",sigma_g[i]);
-          printf("\n");
           sum += fabs(sigma_g[i]);
         }
-
-      fov_pl_forward(tag,1,n,k,x,E,&y,grad,z,gradu);
-
-      printf(" fov_pl x: %f \n",y);
-
 
        if (sum == s)
         {
@@ -191,4 +176,3 @@ int directional_active_gradient(short tag,      /* trace identifier */
 
   return 0;
 }
-END_C_DECLS
