@@ -2,7 +2,7 @@
 
 # norootforbuild
 
-%define packver 2.6.3
+%define packver 2.6.3-stable
 
 Name:           adolc
 Version:        2.6.3
