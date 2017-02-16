@@ -31,6 +31,11 @@ ext_diff_fct_v2 *get_ext_diff_fct_v2(int index);
 
 END_C_DECLS
 
+#ifdef __cplusplus
+void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m);
+void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz, int *outsz);
+#endif
+
 /****************************************************************************/
 
 #endif /* ADOLC_EXTERNFCTS_P_H */

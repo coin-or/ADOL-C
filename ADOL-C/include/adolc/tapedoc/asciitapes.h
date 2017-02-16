@@ -25,7 +25,7 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /*                                                         read_ascii_trace */
 
-ADOLC_DLL_EXPORT void read_ascii_trace(const char *const fname, short tag);
+ADOLC_DLL_EXPORT short read_ascii_trace(const char *const fname, short tag);
 
 /****************************************************************************/
 /*                                                        write_ascii_trace */

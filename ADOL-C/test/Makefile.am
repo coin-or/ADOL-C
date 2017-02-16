@@ -13,7 +13,7 @@
 noinst_PROGRAMS         = powexam speelpenning fminmax
 
 if USE_BOOST
-noinst_PROGRAMS        += ascii2tape
+noinst_PROGRAMS        += ascii2tape subtracetest
 endif
 
 speelpenning_SOURCES    = speelpenning.cpp
@@ -24,10 +24,13 @@ fminmax_SOURCES		= fminmax.cpp
 
 ascii2tape_SOURCES      = ascii2tape.cpp
 
+subtracetest_SOURCES    = subtracetest.cpp
+
 powexam_LDADD           = ../lib${adolclib}.la
 speelpenning_LDADD = ../lib${adolclib}.la
 fminmax_LDADD		= ../lib${adolclib}.la
 ascii2tape_LDADD        = ../lib${adolclib}.la
+subtracetest_LDADD        = ../lib${adolclib}.la
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@

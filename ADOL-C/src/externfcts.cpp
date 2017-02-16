@@ -111,7 +111,7 @@ ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct) {
  * Doing this now internally saves the user from doing it, as well as updating
  * when using multiple problem sizes.
  */
-static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
+void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
   if (edfct->max_n<n || edfct->max_m<m) {
       /* We need memory stored in the edfct dp_x[n], dp_X[n], dp_Z[n], 
        * dp_y[m], dp_Y[m], dp_U[m], dpp_X[n][n], dpp_Y[m][n], 

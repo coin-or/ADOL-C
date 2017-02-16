@@ -23,5 +23,5 @@ noinst_LTLIBRARIES        = libtapedoc.la
 libtapedoc_la_SOURCES     = tapedoc.c 
 
 if USE_BOOST
-libtapedoc_la_SOURCES    += asciitapes.cpp
+libtapedoc_la_SOURCES    += asciitapes.cpp asciisubtapes.hpp asciisubtapes.cpp
 endif

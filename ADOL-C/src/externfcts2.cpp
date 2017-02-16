@@ -67,7 +67,7 @@ ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 *ext_fct) {
     return edf;
 }
 
-static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz, int *outsz) {
+void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz, int *outsz) {
     int m_isz=0, m_osz=0;
     int i,j;
     for(i=0;i<nin;i++)

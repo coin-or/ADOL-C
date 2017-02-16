@@ -32,6 +32,8 @@
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/regex.hpp>
 
+#include "asciisubtapes.hpp"
+
 static const std::unordered_map<std::string, enum OPCODES> opcodes = 
 {
   { "death_not", death_not },
@@ -571,6 +573,8 @@ static const requiredargs_t num_req_val = {
     { ampi_allreduce, 0 }
 };
 
+static std::unordered_map<std::string,Subtrace> subroutines;
+
 template<typename _Alloc>
 static void handle_ops_stats(enum OPCODES operation,
                              std::deque<locint, _Alloc>& locs) {
@@ -655,14 +659,16 @@ static locint maxloc = 4;
 static void get_ascii_trace_elements(const std::string& instr) {
     ADOLC_OPENMP_THREAD_NUMBER;
 
-    std::string oppat = "op:([_a-z]+)",
+    std::string oppat = "op:([_a-z]+)", namepat = "fname:\"([\\w.]+)\"",
         locpat = "loc:([0-9]+)",
         valpat = "val:([+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)";
     boost::regex opexp(oppat,boost::regex::perl|boost::regex::icase),
+        nameexp(namepat,boost::regex::perl|boost::regex::icase),
         locexp(locpat,boost::regex::perl|boost::regex::icase),
         valexp(valpat,boost::regex::perl|boost::regex::icase);
     boost::sregex_iterator iend;
     boost::sregex_iterator opa(instr.begin(), instr.end(), opexp, boost::match_default),
+        namea(instr.begin(), instr.end(), nameexp, boost::match_default),
         loca(instr.begin(), instr.end(), locexp, boost::match_default),
         vala(instr.begin(), instr.end(), valexp, boost::match_default);
     std::deque<locint,boost::fast_pool_allocator<locint> > locs;
@@ -673,8 +679,22 @@ static void get_ascii_trace_elements(const std::string& instr) {
         fprintf(DIAG_OUT, "ADOL-C error: get_ascii_trace_elements() called without starting a trace\n");
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
-
+    
     while(opa != iend) {
+        if ((*opa)[1].str().compare("call") == 0) {
+            std::string fname = (*namea)[1].str();
+            locint xstart, xnum, ystart, ynum;
+            xstart = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            xnum = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            ystart = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            ynum = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            ++namea;
+            subroutines.at(fname).dummycall(xstart,xnum,ystart,ynum);
+        } else {
         enum OPCODES oper = opcodes.at((*opa)[1].str());
         if (oper == ext_diff_iArr) {
             locint iarrlen = std::strtoul((*loca)[1].str().c_str(),NULL,0);
@@ -778,6 +798,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
         handle_ops_stats(oper,locs);
+        }
         ++opa;
         ++opctr;
         locs.clear();
@@ -789,12 +810,94 @@ static void get_ascii_trace_elements(const std::string& instr) {
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
 }
+
+static void create_one_subtrace(const std::string& instr, short& curtag) {
+    std::string namepat = "fname:\"([\\w.]+)\"";
+    boost::regex nameexp(namepat,boost::regex::perl|boost::regex::icase);
+    boost::sregex_iterator iend;
+    boost::sregex_iterator namea(instr.begin(), instr.end(), nameexp, boost::match_default);
+    while (namea != iend) {
+        std::string stname = (*namea)[1].str();
+        if (subroutines.find(stname) == subroutines.end()) {
+            // increase curtag
+            curtag++;
+            fprintf(DIAG_OUT, "creating subtrace : tag(%d), file = %s\n",curtag,stname.c_str());
+            subroutines.emplace(std::piecewise_construct,std::forward_as_tuple(stname),std::forward_as_tuple(curtag,stname));
+            curtag = subroutines.at(stname).read();
+        }
+        ++namea;
+    }
+}
+
+static void scan_subtraces(const char*const fname,short& curtag, char* buf, size_t bufsz) {
+    std::ifstream is;
+    is.open(fname);
+    if (! is.is_open() ) {
+        fprintf(DIAG_OUT, "ADOL-C error: cannot open file %s !\n", fname);
+        adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+    }
+    std::string pattern = "\\{\\s*op:call\\s+fname:\"[\\w.]+\"(\\s+loc:[0-9]+)+\\s*\\}";
+    // regular expression we're looking for
+    boost::regex outer_expr(pattern,boost::regex::perl|boost::regex::icase);
+    // buffer we'll be searching in:
+   // saved position of end of partial match:
+    const char* next_pos = buf + bufsz;
+    // flag to indicate whether there is more input to come:
+    bool have_more = true;
+
+    while(have_more) {
+        // how much do we copy forward from last try:
+        size_t leftover = (buf + bufsz) - next_pos;
+        // and how much is left to fill:
+        size_t size = next_pos - buf;
+        // copy forward whatever we have left:
+        std::memmove(buf, next_pos, leftover);
+        // fill the rest from the stream:
+        is.read(buf + leftover, size);
+        size_t read = is.gcount();
+        // check to see if we've run out of text:
+        have_more = read == size;
+        // reset next_pos:
+        next_pos = buf + bufsz;
+        // and then iterate:
+        boost::cregex_iterator a(
+            buf,
+            buf + read + leftover,
+            outer_expr,
+            boost::match_default | boost::match_partial | boost::match_single_line);
+        boost::cregex_iterator b;
+        
+        while(a != b) {
+            if((*a)[0].matched == false) {
+                // Partial match, save position and break:
+                next_pos = (*a)[0].first;
+                break;
+            }
+            else {
+                // full match:
+                create_one_subtrace(a->str(),curtag);
+            }
+            
+            // move to next match:
+            ++a;
+        }
+    }
+    is.close();
+}
                         
-void read_ascii_trace(const char*const fname, short tag) {
-    char buf[4194304];
+short read_ascii_trace(const char*const fname, short tag) {
+    short fintag = tag;
+    static char *buf = NULL;
+    static size_t bufsz = 4194304;
+    bool bufinithere = false;
+    if (buf == NULL) {
+        buf = new char[bufsz];
+        bufinithere = true;
+    }
+    scan_subtraces(fname,fintag,buf,bufsz);
     std::ifstream is;
 
-    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
+    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+fname:\"[\\w.]+\")?(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
 
     is.open(fname);
     if (! is.is_open() ) {
@@ -807,13 +910,13 @@ void read_ascii_trace(const char*const fname, short tag) {
     boost::regex outer_expr(pattern,boost::regex::perl|boost::regex::icase);
     // buffer we'll be searching in:
    // saved position of end of partial match:
-    const char* next_pos = buf + sizeof(buf);
+    const char* next_pos = buf + bufsz;
     // flag to indicate whether there is more input to come:
     bool have_more = true;
 
     while(have_more) {
         // how much do we copy forward from last try:
-        size_t leftover = (buf + sizeof(buf)) - next_pos;
+        size_t leftover = (buf + bufsz) - next_pos;
         // and how much is left to fill:
         size_t size = next_pos - buf;
         // copy forward whatever we have left:
@@ -824,7 +927,7 @@ void read_ascii_trace(const char*const fname, short tag) {
         // check to see if we've run out of text:
         have_more = read == size;
         // reset next_pos:
-        next_pos = buf + sizeof(buf);
+        next_pos = buf + bufsz;
         // and then iterate:
         boost::cregex_iterator a(
             buf,
@@ -856,6 +959,9 @@ void read_ascii_trace(const char*const fname, short tag) {
     trace_off();
     fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
         "Remember to run forward mode with correct setup first.\n");
+    if (bufinithere)
+        delete[] buf;
+    return fintag;
 }
 
 void write_ascii_trace(const char *const fname, short tag) {
