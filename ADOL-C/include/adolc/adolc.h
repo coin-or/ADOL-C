@@ -48,6 +48,9 @@
 /*--------------------------------------------------------------------------*/
 /* interfaces to TAPEDOC package */
 #include <adolc/tapedoc/tapedoc.h>
+/*--------------------------------------------------------------------------*/
+/* interfaces to asciitrace package */
+#include <adolc/tapedoc/asciitapes.h>
 
 /*--------------------------------------------------------------------------*/
 /* interfaces to SPARSE package */
