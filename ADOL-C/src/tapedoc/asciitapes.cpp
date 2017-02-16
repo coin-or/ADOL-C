@@ -619,6 +619,7 @@ static void handle_ops_stats(enum OPCODES operation,
         case ref_eq_plus_p:
         case ref_eq_min_p:
         case ref_eq_mult_p:
+        case set_numparam:
         {
             locint n = *locs.cbegin();
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
@@ -636,7 +637,6 @@ static void handle_ops_stats(enum OPCODES operation,
         case lt_a_p:
         case gt_a_p:
         case ref_assign_p:
-        case set_numparam:
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
@@ -744,7 +744,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++loca;
             ++locctr;
             if (idx > maxloc) maxloc *= 2;
-        } if (oper == set_numparam) {
+        } else if (oper == set_numparam) {
             locint idx = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             locs.push_back(idx);
             ++loca;
@@ -970,6 +970,11 @@ void write_ascii_trace(const char *const fname, short tag) {
         }
         file << outstr.str();
         operation=get_op_f();
+    }
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0) {
+        std::ostringstream outstr;
+        outstr << "{ op:set_numparam " << "loc:" << ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] - 1 << " }\n";
+        file << outstr.str();
     }
     end_sweep();
     file.close();
