@@ -69,6 +69,8 @@
 %feature("director") EDFobject_iArr;
 %feature("director") EDFobject_v2;
 
+%include "octave-types.i"
+%include "adolc-oct-drv.i"
 %include "adolc_all.hpp"
 
 %extend badouble {

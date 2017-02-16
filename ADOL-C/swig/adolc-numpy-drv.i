@@ -349,9 +349,9 @@ extern "C" {
 %clear (double* u, int n2);
 %clear (double* v, int m1);
 %clear (double* u, int m2);
-%clear (double* J, int m2, int n2);
-%clear (double* H, int n2, int n3);
-%clear (double* W, int n2, int q2);
+%clear (double** J, int* m2, int* n2);
+%clear (double** H, int* n2, int* n3);
+%clear (double** W, int* n2, int* q2);
 %clear (double* V, int n1, int q1);
 %clear (int* options, int nopt);
 %clear (double** values, int* nnz3);
