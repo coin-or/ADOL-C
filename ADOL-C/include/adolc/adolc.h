@@ -27,7 +27,6 @@
 /* Operator overloading things (active doubles & vectors) */
 #  include <adolc/adouble.h>
 #  include <adolc/externfcts.h>
-#  include <adolc/externfcts2.h>
 #  include <adolc/checkpointing.h>
 #  include <adolc/fixpoint.h>
 #endif
@@ -52,7 +51,7 @@
 
 /*--------------------------------------------------------------------------*/
 /* interfaces to SPARSE package */
-#if defined(SPARSE)
+#if defined(SPARSE_DRIVERS)
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/sparse/sparse_fo_rev.h>
 #endif

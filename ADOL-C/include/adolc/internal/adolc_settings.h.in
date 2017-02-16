@@ -33,6 +33,9 @@ typedef @REAL_TYPE@ revreal;
 @ADVBRANCH@
 
 /*--------------------------------------------------------------------------*/
+/* Sparse drivers have been compiled */
+@SPARSE_DRIVERS@
+
 /* Use Boost Library */
 @USE_BOOST@
 

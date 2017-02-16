@@ -1,0 +1,158 @@
+From 85dfc93af5bf06abea6268b6757050bce9c27926 Mon Sep 17 00:00:00 2001
+From: Sri Hari Krishna Narayanan <sriharikrishna@gmail.com>
+Date: Wed, 9 Mar 2016 16:37:58 -0600
+Subject: [PATCH 2/2] R: Added typemaps for handling matrices as double**
+
+---
+ Lib/r/r.swg     | 44 +++++++++++++++++++++++++++++++++++++++++---
+ Lib/r/rtype.swg | 23 ++++++++++++++++++-----
+ 2 files changed, 59 insertions(+), 8 deletions(-)
+
+diff --git a/Lib/r/r.swg b/Lib/r/r.swg
+index 630c8ff..0eb6664 100644
+--- a/Lib/r/r.swg
++++ b/Lib/r/r.swg
+@@ -80,7 +80,6 @@ SWIG_InitializeModule(0);
+ 
+ %typemap(in) float *, float[ANY],
+              double *, double[ANY]
+-             
+ {
+ {  int _rswigi;
+   int _rswiglen = LENGTH($input);
+@@ -91,6 +90,27 @@ SWIG_InitializeModule(0);
+ }
+ }
+ 
++%typemap(in) float **, float[ANY][ANY],
++double **, double[ANY][ANY]
++{
++{
++   SEXP r_dim = Rf_getAttrib($input, R_DimSymbol) ;
++   int _rswiglen0 = INTEGER(r_dim)[0];
++   int _rswiglen1 = INTEGER(r_dim)[1];
++   int _rswigi, _rswigj;
++   $1 = %static_cast(malloc(sizeof($1_basetype)*_rswiglen0*_rswiglen1+ sizeof(size_t)*_rswiglen0), $1_ltype);
++   $1_basetype * $1_ltmp = %reinterpret_cast($1 + _rswiglen0, $1_basetype *);
++   for (_rswigi=0; _rswigi<_rswiglen0; _rswigi++) {
++     $1[_rswigi] = $1_ltmp + _rswigi *  _rswiglen1;    
++     for (_rswigj=0; _rswigj<_rswiglen1; _rswigj++) {
++       $1[_rswigi][_rswigj] =  REAL($input)[_rswigi*_rswiglen1+_rswigj];
++     }
++   }
++}
++}
++
++
++
+ %typemap(argout) float *, float[ANY],
+              double *, double[ANY]
+ {
+@@ -103,7 +123,23 @@ SWIG_InitializeModule(0);
+ }
+ }
+ 
+-%typemap(freearg,noblock=1) int *, int[ANY], 
++%typemap(argout) float **, float[ANY][ANY],
++             double **, double[ANY][ANY]
++{
++{
++  SEXP r_dim = Rf_getAttrib($input, R_DimSymbol) ;
++  int _rswiglen0 = INTEGER(r_dim)[0];
++  int _rswiglen1 = INTEGER(r_dim)[1];
++  int _rswigi, _rswigj;
++  for (_rswigi=0; _rswigi<_rswiglen0; _rswigi++) {
++    for (_rswigj=0; _rswigj<_rswiglen1; _rswigj++) {
++      REAL($input)[_rswigi*_rswiglen1+_rswigj] = $1[_rswigi][_rswigj];
++    }
++  }
++}
++}
++
++%typemap(freearg,noblock=1) int *, int[ANY],
+ 	     signed int *, signed int[ANY],
+ 	     unsigned int *, unsigned int[ANY],
+              short *, short[ANY],
+@@ -116,7 +152,9 @@ SWIG_InitializeModule(0);
+              signed long long *, signed long long[ANY],
+              unsigned long long *, unsigned long long[ANY],
+              float *, float[ANY],
+-             double *, double[ANY]
++             double *, double[ANY],
++             float **, float[ANY][ANY],
++             double **, double[ANY][ANY]
+ %{             
+   free($1);
+ %}
+diff --git a/Lib/r/rtype.swg b/Lib/r/rtype.swg
+index 22639f2..9581c67 100644
+--- a/Lib/r/rtype.swg
++++ b/Lib/r/rtype.swg
+@@ -5,8 +5,8 @@
+ 
+ %typemap("rtype") int, int *, int &      "integer";
+ %typemap("rtype") long, long *, long &      "integer";
+-%typemap("rtype") float, float*, float & "numeric";
+-%typemap("rtype") double, double*, double & "numeric";
++%typemap("rtype") float, float*, float **, float & "numeric";
++%typemap("rtype") double, double*, double **, double & "numeric";
+ %typemap("rtype") char *, char ** "character";
+ %typemap("rtype") char            "character";
+ %typemap("rtype") string, string *, string & "character";
+@@ -31,7 +31,7 @@
+ 
+ %typemap("rtypecheck") float, double
+   %{ is.numeric($arg) && length($arg) == 1 %}
+-%typemap("rtypecheck") float *, double *
++%typemap("rtypecheck") float *, double *, float **, double **
+   %{ is.numeric($arg) %}
+ 
+ %typemap("rtypecheck") bool, bool &
+@@ -55,6 +55,8 @@
+ %typecheck(SWIG_TYPECHECK_INT32_PTR) int * {}
+ %typecheck(SWIG_TYPECHECK_FLOAT_PTR) float * {}
+ %typecheck(SWIG_TYPECHECK_DOUBLE_PTR) double * {}
++%typecheck(SWIG_TYPECHECK_FLOAT_PTR) float ** {}
++%typecheck(SWIG_TYPECHECK_DOUBLE_PTR) double ** {}
+ %typecheck(SWIG_TYPECHECK_CHAR_PTR) char * {}
+ 
+ %typecheck(SWIG_TYPECHECK_INT32_ARRAY) int[ANY] {}
+@@ -74,8 +76,8 @@
+   %{  $input = as.integer($input);     %}
+ %typemap(scoercein) long, long *, long &
+   %{  $input = as.integer($input);     %}
+-%typemap(scoercein) float, float*, float &,
+-  double, double *, double &
++%typemap(scoercein) float, float*, float**, float &,
++  double, double *, double **, double &
+   %{ %}
+ %typemap(scoercein) char, char *, char &
+   %{  $input = as($input, "character");     %}
+@@ -175,6 +177,8 @@ string &, std::string &
+ 		     double,
+ 		     float*,
+ 		     double*,
++             float**,
++             double**,
+ 		     float &,
+ 		     double &,
+                      int,
+@@ -293,6 +297,15 @@ unsigned char*}
+        bool[ANY]
+ }
+ 
++%apply float** {
++       float[][],
++       float[ANY][ANY]
++}
++%apply double ** {
++       double[][],
++       double[ANY][ANY]
++}
++
+ #if 0
+  Just examining the values for a SWIGTYPE.
+ 
+-- 
+2.6.6
+

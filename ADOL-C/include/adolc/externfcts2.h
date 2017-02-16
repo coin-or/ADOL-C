@@ -31,7 +31,7 @@ typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int
 typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
 typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp, void *ctx);
 
-typedef struct {
+typedef struct ext_diff_fct_v2 {
  /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
@@ -174,6 +174,11 @@ typedef struct {
    * all other pointers can point to memory within here.
    */
   char* allmem;
+  /**
+   * This is a reference to an object for the C++ object-oriented
+   * implementation of the external function ** do not touch **
+   */
+  void* obj;
 }
 ext_diff_fct_v2;
 
