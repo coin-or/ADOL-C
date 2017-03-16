@@ -688,9 +688,9 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++loca;
             xnum = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             ++loca;
-            ystart = std::strtoul((*loca)[1].str().c_str(),NULL,0);
-            ++loca;
             ynum = std::strtoul((*loca)[1].str().c_str(),NULL,0);
+            ++loca;
+            ystart = std::strtoul((*loca)[1].str().c_str(),NULL,0);
             ++loca;
             ++namea;
             subroutines.at(fname).dummycall(xstart,xnum,ystart,ynum);
