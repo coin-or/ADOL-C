@@ -2,8 +2,8 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adouble.cpp
  Revision: $Id$
- Contents: adtl.h contains that declaratins of procedures used to
-           define various tapeless adouble operations.
+ Contents: adtl_indo.h contains that declaratins of procedures used
+           for sparsity pattern recognition.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
@@ -14,8 +14,8 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#ifndef ADOLC_ADTL_H
-#define ADOLC_ADTL_H
+#ifndef ADOLC_ADTL_INDO_H
+#define ADOLC_ADTL_INDO_H
 
 #include <ostream>
 #include <adolc/internal/common.h>
@@ -28,16 +28,12 @@
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
-#if USE_BOOST_POOL
-#include <boost/pool/pool_alloc.hpp>
-#endif
-
 using std::ostream;
 using std::istream;
 using std::list;
 using std::logic_error;
 
-namespace adtl {
+namespace adtl_indo {
 
 double makeNaN();
 double makeInf();
@@ -194,28 +190,31 @@ public:
     /*******************  getter / setter  ********************************/
     inline double getValue() const;
     inline void setValue(const double v);
-    inline const double* const getADValue() const;
-    inline void setADValue(const double* v);
 
-    inline double getADValue(const unsigned int p) const;
-    inline void setADValue(const unsigned int p, const double v);
     inline explicit operator double const&() const;
     inline explicit operator double&&();
     inline explicit operator double();
 
+protected:
+    inline const list<unsigned int>& get_pattern() const;
+    inline void add_to_pattern(const list<unsigned int>& v);
+    inline size_t get_pattern_size() const;
+    inline void delete_pattern();
+
 public:
+    ADOLC_DLL_EXPORT friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+#if 0
+    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+#endif
     /*******************  i/o operations  *********************************/
     ADOLC_DLL_EXPORT friend ostream& operator << ( ostream&, const adouble& );
     ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
 
 private:
-#if USE_BOOST_POOL
-    static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
-#endif
-    double *adval;
-    ADOLC_DLL_EXPIMP static size_t numDir;
-    inline friend void setNumDir(const size_t p);
-    inline friend size_t getNumDir();
+    double val;
+    list<unsigned int> pattern;
 };
 
 }
@@ -224,25 +223,19 @@ private:
 #include <iostream>
 #include <limits>
 
-namespace adtl {
+namespace adtl_indo {
 
-inline void setNumDir(const size_t p) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
-    if (p < 1) {
-	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
-	abort();
-    }
-    adouble::numDir = p;
-#if USE_BOOST_POOL
-    if (adouble::advalpool != NULL) {
-        delete adouble::advalpool;
-        adouble::advalpool = NULL;
-    }
-    adouble::advalpool = new boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1)*sizeof(double));
+#if defined(HAVE_BUILTIN_EXPECT) && HAVE_BUILTIN_EXPECT
+#define likely(x)    __builtin_expect(!!(x), 1)
+#define unlikely(x)  __builtin_expect(!!(x), 0)
 #endif
-}
 
-inline size_t getNumDir() {return adouble::numDir;}
+#ifndef likely
+#define likely(x) (x)
+#endif
+#ifndef unlikely
+#define unlikely(x) (x)
+#endif
 
 inline double makeNaN() {
     return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
@@ -252,60 +245,39 @@ inline double makeInf() {
     return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LTEQ_NUMDIR  for (size_t _i=0; _i <= adouble::numDir; ++_i)
-#define FOR_I_EQ_1_LTEQ_NUMDIR  for (size_t _i=1; _i <= adouble::numDir; ++_i)
-#define ADVAL_I                 adval[_i]
-#define VAL                     adval[0]
+#define FOR_I_EQ_0_LT_NUMDIR for (size_t _i=0; _i < adouble::numDir; ++_i)
+#define ADVAL_I              adval[_i]
+#define ADV_I                adv[_i]
+#define V_I                  v[_i]
 
 /*******************************  ctors  ************************************/
-inline adouble::adouble() : adval(NULL) {
-#if USE_BOOST_POOL
-    adval = reinterpret_cast<double*>(advalpool->malloc());
-#else
-    adval = new double[adouble::numDir+1];
-#endif
-    VAL = 0.;
+inline adouble::adouble() : val(0) {
+    if (!pattern.empty())
+        pattern.clear();
 }
 
-inline adouble::adouble(const double v) : adval(NULL) {
-#if USE_BOOST_POOL
-    adval = reinterpret_cast<double*>(advalpool->malloc());
-#else
-	adval = new double[adouble::numDir+1];
-#endif
-    VAL = v;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I = 0.0;
+inline adouble::adouble(const double v) : val(v) {
+    if (!pattern.empty())
+        pattern.clear();
 }
 
-inline adouble::adouble(const double v, const double* adv) :  adval(NULL) {
-#if USE_BOOST_POOL
-    adval = reinterpret_cast<double*>(advalpool->malloc());
-#else
-	adval = new double[adouble::numDir+1];
-#endif
-    VAL = v;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=adv[_i-1];
+inline adouble::adouble(const double v, const double* adv) : val(v) {
+    if (!pattern.empty())
+        pattern.clear();
 }
 
-inline adouble::adouble(const adouble& a) : adval(NULL) {
-#if USE_BOOST_POOL
-    adval = reinterpret_cast<double*>(advalpool->malloc());
-#else
-	adval = new double[adouble::numDir+1];
-#endif
-    FOR_I_EQ_0_LTEQ_NUMDIR
-        ADVAL_I=a.ADVAL_I;
+inline adouble::adouble(const adouble& a) : val(a.val) {
+    if (!pattern.empty())
+        pattern.clear();
+
+    add_to_pattern(a.get_pattern());
 }
 
 /*******************************  dtors  ************************************/
 inline adouble::~adouble() {
-    if (adval != NULL)
-#if USE_BOOST_POOL
-        advalpool->free(adval);
-#else
-	delete[] adval;
+#if 0
+    if ( !pattern.empty() )
+	pattern.clear();
 #endif
 }
 
@@ -313,8 +285,8 @@ inline adouble::~adouble() {
 // sign
 inline adouble adouble::operator - () const {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=-ADVAL_I;
+	tmp.val=-val;
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
@@ -324,375 +296,295 @@ inline adouble adouble::operator + () const {
 
 // addition
 inline adouble adouble::operator + (const double v) const {
-    adouble tmp(VAL+v, adval+1);
+    adouble tmp(val+v);
+	tmp.add_to_pattern( get_pattern() ) ;
     return tmp;
 }
 
 inline adouble adouble::operator + (const adouble& a) const {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I+a.ADVAL_I;
+	tmp.val=val+a.val;
+	tmp.add_to_pattern( get_pattern()  );
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble operator + (const double v, const adouble& a) {
-    adouble tmp(v+a.VAL, a.adval+1);
+    adouble tmp(v+a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 // subtraction
 inline adouble adouble::operator - (const double v) const {
-    adouble tmp(VAL-v, adval+1);
+    adouble tmp(val-v);
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
 inline adouble adouble::operator - (const adouble& a) const {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I-a.ADVAL_I;
+	tmp.val=val-a.val;
+	tmp.add_to_pattern( get_pattern() );
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble operator - (const double v, const adouble& a) {
     adouble tmp;
-    tmp.VAL=v-a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=-a.ADVAL_I;
+	tmp.val=v-a.val;
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 // multiplication
 inline adouble adouble::operator * (const double v) const {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I*v;
+	tmp.val=val*v;
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
 inline adouble adouble::operator * (const adouble& a) const {
     adouble tmp;
-	tmp.VAL=VAL*a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I*a.VAL+VAL*a.ADVAL_I;
+	tmp.val=val*a.val;
+	tmp.add_to_pattern(   get_pattern() );
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble operator * (const double v, const adouble& a) {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=v*a.ADVAL_I;
+	tmp.val=v*a.val;
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 // division
 inline adouble adouble::operator / (const double v) const {
     adouble tmp;
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I/v;
+	tmp.val=val/v;
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
 inline adouble adouble::operator / (const adouble& a) const {
     adouble tmp;
-	tmp.VAL=VAL/a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=(ADVAL_I*a.VAL-VAL*a.ADVAL_I)/(a.VAL*a.VAL);
+	tmp.val=val/a.val;
+	tmp.add_to_pattern(   get_pattern() );
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble operator / (const double v, const adouble& a) {
     adouble tmp;
-	tmp.VAL=v/a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=(-v*a.ADVAL_I)/(a.VAL*a.VAL);
+	tmp.val=v/a.val;
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 // inc/dec
 inline adouble adouble::operator ++ () {
-	++VAL;
+	++val;
     return *this;
 }
 
 inline adouble adouble::operator ++ (int) {
     adouble tmp;
-	tmp.VAL=VAL++;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I;
+	tmp.val=val++;
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
 inline adouble adouble::operator -- () {
-	--VAL;
+	--val;
     return *this;
 }
 
 inline adouble adouble::operator -- (int) {
     adouble tmp;
-	tmp.VAL=VAL--;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I;
+	tmp.val=val--;
+	tmp.add_to_pattern( get_pattern() );
     return tmp;
 }
 
 // functions
 inline adouble tan(const adouble& a) {
     adouble tmp;
-    double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::tan(a.VAL);    
-	tmp2=ADOLC_MATH_NSP::cos(a.VAL);
-	tmp2*=tmp2;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP::tan(a.val);    
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble exp(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::exp(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp.VAL*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::exp(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble log(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::log(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    if (a.VAL>0) tmp.ADVAL_I=a.ADVAL_I/a.VAL;
-	    else if (a.VAL==0 && a.ADVAL_I != 0.0) {
-		int sign = (a.ADVAL_I < 0)  ? -1 : 1;
-		tmp.ADVAL_I=sign*makeInf();
-	    } else tmp.ADVAL_I=makeNaN();
+	tmp.val=ADOLC_MATH_NSP::log(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble sqrt(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::sqrt(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    if (a.VAL>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.VAL*2);
-	    else if (a.VAL==0.0 && a.ADVAL_I != 0.0) {
-		int sign = (a.ADVAL_I < 0) ? -1 : 1;
-		tmp.ADVAL_I=sign * makeInf();
-	    } else tmp.ADVAL_I=makeNaN();
+	tmp.val=ADOLC_MATH_NSP::sqrt(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble sin(const adouble &a) {
     adouble tmp;
-    double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::sin(a.VAL);
-	tmp2=ADOLC_MATH_NSP::cos(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::sin(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble cos(const adouble &a) {
     adouble tmp;
-    double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::cos(a.VAL);
-	tmp2=-ADOLC_MATH_NSP::sin(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::cos(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble asin(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::asin(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(1-a.VAL*a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP::asin(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble acos(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::acos(a.VAL);
-	double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.VAL*a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP::acos(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble atan(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::atan(a.VAL);
-	double tmp2=1+a.VAL*a.VAL;
-	tmp2=1/tmp2;
-	if (tmp2!=0)
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=a.ADVAL_I*tmp2;
-	else
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=0.0;
+	tmp.val=ADOLC_MATH_NSP::atan(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble atan2(const adouble &a, const adouble &b) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::atan2(a.VAL, b.VAL);
-	double tmp2=a.VAL*a.VAL;
-	double tmp3=b.VAL*b.VAL;
-	double tmp4=tmp3/(tmp2+tmp3);
-	if (tmp4!=0)
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=(a.ADVAL_I*b.VAL-a.VAL*b.ADVAL_I)/tmp3*tmp4;
-	else
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=0.0;
+	tmp.val=ADOLC_MATH_NSP::atan2(a.val, b.val);
+	tmp.add_to_pattern( a.get_pattern() );
+	tmp.add_to_pattern( b.get_pattern() );
     return tmp;
 }
 
 inline adouble pow(const adouble &a, double v) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(a.VAL, v);
-	double tmp2=v*ADOLC_MATH_NSP::pow(a.VAL, v-1);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::pow(a.val, v);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble pow(const adouble &a, const adouble &b) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(a.VAL, b.VAL);
-	double tmp2=b.VAL*ADOLC_MATH_NSP::pow(a.VAL, b.VAL-1);
-	double tmp3=ADOLC_MATH_NSP::log(a.VAL)*tmp.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I+tmp3*b.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::pow(a.val, b.val);
+	tmp.add_to_pattern( a.get_pattern() );
+	tmp.add_to_pattern( b.get_pattern() );
     return tmp;
 }
 
 inline adouble pow(double v, const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(v, a.VAL);
-	double tmp2=tmp.VAL*ADOLC_MATH_NSP::log(v);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP::pow(v, a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble log10(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::log10(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::log((double)10)*a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP::log10(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble sinh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::sinh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::cosh(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
+	tmp.val=ADOLC_MATH_NSP::sinh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble cosh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::cosh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sinh(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
+	tmp.val=ADOLC_MATH_NSP::cosh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble tanh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::tanh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::cosh(a.VAL);
-	tmp2*=tmp2;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP::tanh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 #if defined(ATRIG_ERF)
 inline adouble asinh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::asinh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(a.VAL*a.VAL+1);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble acosh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::acosh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(a.VAL*a.VAL-1);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP_ERF::acosh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble atanh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::atanh(a.VAL);
-	double tmp2=1-a.VAL*a.VAL;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
+	tmp.val=ADOLC_MATH_NSP_ERF::atanh(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 #endif
 
 inline adouble fabs (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::fabs(a.VAL);
-	int as=0;
-	if (a.VAL>0) as=1;
-	if (a.VAL<0) as=-1;
-	if (as!=0)
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=a.ADVAL_I*as;
-	else
-	    FOR_I_EQ_1_LTEQ_NUMDIR {
-		as=0;
-		if (a.ADVAL_I>0) as=1;
-		if (a.ADVAL_I<0) as=-1;
-                tmp.ADVAL_I=a.ADVAL_I*as;
-            }
+	tmp.val=ADOLC_MATH_NSP::fabs(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
 
 inline adouble ceil (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::ceil(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=0.0;
+	tmp.val=ADOLC_MATH_NSP::ceil(a.val);
     return tmp;
 }
 
 inline adouble floor (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::floor(a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=0.0;
+	tmp.val=ADOLC_MATH_NSP::floor(a.val);
     return tmp;
 }
 
 inline adouble fmax (const adouble &a, const adouble &b) {
     adouble tmp;
-    double tmp2=a.VAL-b.VAL;
+    double tmp2=a.val-b.val;
     if (tmp2<0) {
-	    tmp.VAL=b.VAL;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=b.ADVAL_I;
+	    tmp.val=b.val;
+	    tmp.add_to_pattern( b.get_pattern() );
     } else {
-	    tmp.VAL=a.VAL;
+	    tmp.val=a.val;
         if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=a.ADVAL_I;
+		    tmp.add_to_pattern( a.get_pattern() );
         } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I<b.ADVAL_I) tmp.ADVAL_I=b.ADVAL_I;
-		        else tmp.ADVAL_I=a.ADVAL_I;
-            }
+		    tmp.add_to_pattern( a.get_pattern() );
+		    tmp.add_to_pattern( b.get_pattern() );
 	    }
     }
     return tmp;
@@ -700,22 +592,15 @@ inline adouble fmax (const adouble &a, const adouble &b) {
 
 inline adouble fmax (double v, const adouble &a) {
     adouble tmp;
-    double tmp2=v-a.VAL;
+    double tmp2=v-a.val;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=a.ADVAL_I;
+	    tmp.val=a.val;
+	    tmp.add_to_pattern( a.get_pattern() );
     } else {
-	    tmp.VAL=v;
+	    tmp.val=v;
         if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=0.0;
         } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I>0) tmp.ADVAL_I=a.ADVAL_I;
-		        else tmp.ADVAL_I=0.0;
-            }
+		    tmp.add_to_pattern( a.get_pattern() );
 	    }
     }
     return tmp;
@@ -723,45 +608,29 @@ inline adouble fmax (double v, const adouble &a) {
 
 inline adouble fmax (const adouble &a, double v) {
     adouble tmp;
-    double tmp2=a.VAL-v;
+    double tmp2=a.val-v;
     if (tmp2<0) {
-	    tmp.VAL=v;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=0.0;
+	    tmp.val=v;
     } else {
-	    tmp.VAL=a.VAL;
-        if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=a.ADVAL_I;
-        } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I>0) tmp.ADVAL_I=a.ADVAL_I;
-		        else tmp.ADVAL_I=0.0;
-            }
-	    }
+	    tmp.val=a.val;
+		tmp.add_to_pattern( a.get_pattern() );
     }
     return tmp;
 }
 
 inline adouble fmin (const adouble &a, const adouble &b) {
     adouble tmp;
-    double tmp2=a.VAL-b.VAL;
+    double tmp2=a.val-b.val;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=a.ADVAL_I;
+	    tmp.val=a.val;
+	    tmp.add_to_pattern( a.get_pattern() );
     } else {
-	    tmp.VAL=b.VAL;
+	    tmp.val=b.val;
         if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=b.ADVAL_I;
+		    tmp.add_to_pattern( b.get_pattern() );
         } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I<b.ADVAL_I) tmp.ADVAL_I=a.ADVAL_I;
-		        else tmp.ADVAL_I=b.ADVAL_I;
-            }
+		    tmp.add_to_pattern( a.get_pattern() );
+		    tmp.add_to_pattern( b.get_pattern() );
 	    }
     }
     return tmp;
@@ -769,45 +638,27 @@ inline adouble fmin (const adouble &a, const adouble &b) {
 
 inline adouble fmin (double v, const adouble &a) {
     adouble tmp;
-    double tmp2=v-a.VAL;
+    double tmp2=v-a.val;
     if (tmp2<0) {
-	    tmp.VAL=v;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=0.0;
+	    tmp.val=v;
     } else {
-	    tmp.VAL=a.VAL;
-        if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=a.ADVAL_I;
-        } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I<0) tmp.ADVAL_I=a.ADVAL_I;
-		        else tmp.ADVAL_I=0.0;
-            }
-	    }
+	    tmp.val=a.val;
+		tmp.add_to_pattern( a.get_pattern() );
     }
     return tmp;
 }
 
 inline adouble fmin (const adouble &a, double v) {
     adouble tmp;
-    double tmp2=a.VAL-v;
+    double tmp2=a.val-v;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
-	    FOR_I_EQ_1_LTEQ_NUMDIR
-		    tmp.ADVAL_I=a.ADVAL_I;
+	    tmp.val=a.val;
+	    tmp.add_to_pattern( a.get_pattern() );
     } else {
-	    tmp.VAL=v;
+	    tmp.val=v;
         if (tmp2>0) {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		        tmp.ADVAL_I=0.0;
         } else {
-		    FOR_I_EQ_1_LTEQ_NUMDIR
-		    {
-		        if (a.ADVAL_I<0) tmp.ADVAL_I=a.ADVAL_I;
-		        else tmp.ADVAL_I=0.0;
-            }
+		    tmp.add_to_pattern( a.get_pattern() );
 	    }
     }
     return tmp;
@@ -815,6 +666,8 @@ inline adouble fmin (const adouble &a, double v) {
 
 inline adouble ldexp (const adouble &a, const adouble &b) {
     adouble tmp = a*pow(2.,b);
+	tmp.add_to_pattern( a.get_pattern() ) ;
+	tmp.add_to_pattern( b.get_pattern() ) ;
     return tmp;
 }
 
@@ -824,22 +677,19 @@ inline adouble ldexp (const adouble &a, const double v) {
 
 inline adouble ldexp (const double v, const adouble &a) {
     adouble tmp = v*pow(2.,a);
+	tmp.add_to_pattern( a.get_pattern() ) ;
     return tmp;
 }
 
 inline double frexp (const adouble &a, int* v) {
-    return ADOLC_MATH_NSP::frexp(a.VAL, v);
+    return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
 #if defined(ATRIG_ERF)
 inline adouble erf (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::erf(a.VAL);
-	double tmp2 = 2.0 /
-	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
-	    ADOLC_MATH_NSP_ERF::exp(-a.VAL*a.VAL);
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+	tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
+	tmp.add_to_pattern( a.get_pattern() ) ;
     return tmp;
 }
 #endif
@@ -876,193 +726,190 @@ inline void condeqassign( adouble &res, const adouble &cond,
 
 /*******************  nontemporary results  *********************************/
 inline adouble& adouble::operator = (const double v) {
-	VAL=v;
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=0.0;
+	val=v;
+	if (!pattern.empty()) pattern.clear();
     return *this;
 }
 
 inline adouble& adouble::operator = (const adouble& a) {
-    FOR_I_EQ_0_LTEQ_NUMDIR
-        ADVAL_I=a.ADVAL_I;
+	val=a.val;
+	if (!pattern.empty()) pattern.clear();
+	add_to_pattern( a.get_pattern() );
     return *this;
 }
 
 inline adouble& adouble::operator += (const double v) {
-	VAL+=v;
+	val+=v;
     return *this;
 }
 
 inline adouble& adouble::operator += (const adouble& a) {
-    FOR_I_EQ_0_LTEQ_NUMDIR
-        ADVAL_I+=a.ADVAL_I;
+	val=val+a.val;
+	add_to_pattern( a.get_pattern() );
     return *this;
 }
 
 inline adouble& adouble::operator -= (const double v) {
-	VAL-=v;
+	val-=v;
     return *this;
 }
 
 inline adouble& adouble::operator -= (const adouble& a) {
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    ADVAL_I-=a.ADVAL_I;
+	val=val-a.val;
+	add_to_pattern( a.get_pattern() ) ;
     return *this;
 }
 
 inline adouble& adouble::operator *= (const double v) {
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    ADVAL_I*=v;
+	val=val*v;
     return *this;
 }
 
 inline adouble& adouble::operator *= (const adouble& a) {
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=ADVAL_I*a.VAL+VAL*a.ADVAL_I;
-	VAL*=a.VAL;
+	val*=a.val;
+	add_to_pattern( a.get_pattern() ) ;
     return *this;
 }
 
 inline adouble& adouble::operator /= (const double v) {
-	FOR_I_EQ_0_LTEQ_NUMDIR
-	    ADVAL_I/=v;
+	val/=v;
     return *this;
 }
 
 inline adouble& adouble::operator /= (const adouble& a) {
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=(ADVAL_I*a.VAL-VAL*a.ADVAL_I)/(a.VAL*a.VAL);
-	VAL=VAL/a.VAL;
+	val=val/a.val;
+	add_to_pattern( a.get_pattern() ) ;
     return *this;
 }
 
 // not
 inline int adouble::operator ! () const {
-    return VAL==0.0;
+    return val==0.0;
 }
 
 // comparision
 inline int adouble::operator != (const adouble &a) const {
-    return VAL!=a.VAL;
+    return val!=a.val;
 }
 
 inline int adouble::operator != (const double v) const {
-    return VAL!=v;
+    return val!=v;
 }
 
 inline int operator != (const double v, const adouble &a) {
-    return v!=a.VAL;
+    return v!=a.val;
 }
 
 inline int adouble::operator == (const adouble &a) const {
-    return VAL==a.VAL;
+    return val==a.val;
 }
 
 inline int adouble::operator == (const double v) const {
-    return VAL==v;
+    return val==v;
 }
 
 inline int operator == (const double v, const adouble &a) {
-    return v==a.VAL;
+    return v==a.val;
 }
 
 inline int adouble::operator <= (const adouble &a) const {
-    return VAL<=a.VAL;
+    return val<=a.val;
 }
 
 inline int adouble::operator <= (const double v) const {
-    return VAL<=v;
+    return val<=v;
 }
 
 inline int operator <= (const double v, const adouble &a) {
-    return v<=a.VAL;
+    return v<=a.val;
 }
 
 inline int adouble::operator >= (const adouble &a) const {
-    return VAL>=a.VAL;
+    return val>=a.val;
 }
 
 inline int adouble::operator >= (const double v) const {
-    return VAL>=v;
+    return val>=v;
 }
 
 inline int operator >= (const double v, const adouble &a) {
-    return v>=a.VAL;
+    return v>=a.val;
 }
 
 inline int adouble::operator >  (const adouble &a) const {
-    return VAL>a.VAL;
+    return val>a.val;
 }
 
 inline int adouble::operator >  (const double v) const {
-    return VAL>v;
+    return val>v;
 }
 
 inline int operator >  (const double v, const adouble &a) {
-    return v>a.VAL;
+    return v>a.val;
 }
 
 inline int adouble::operator <  (const adouble &a) const {
-    return VAL<a.VAL;
+    return val<a.val;
 }
 
 inline int adouble::operator <  (const double v) const {
-    return VAL<v;
+    return val<v;
 }
 
 inline int operator <  (const double v, const adouble &a) {
-    return v<a.VAL;
+    return v<a.val;
 }
 
 /*******************  getter / setter  **************************************/
 inline adouble::operator double const & () const {
-    return VAL;
+    return val;
 }
 
 inline adouble::operator double && () {
-    return (double&&)VAL;
+    return (double&&)val;
 }
 
 inline adouble::operator double() {
-    return VAL;
+    return val;
 }
 
 
 inline double adouble::getValue() const {
-    return VAL;
+    return val;
 }
 
 inline void adouble::setValue(const double v) {
-    VAL=v;
+    val=v;
 }
 
-inline const double *const adouble::getADValue() const {
-    return (adval+1);
+inline const list<unsigned int>& adouble::get_pattern() const {
+    return pattern;
 }
 
-inline void adouble::setADValue(const double *const v) {
-    FOR_I_EQ_1_LTEQ_NUMDIR
-    ADVAL_I=v[_i-1];
+inline void adouble::delete_pattern() {
+    if ( !pattern.empty() )
+	pattern.clear();
 }
 
-inline double adouble::getADValue(const unsigned int p) const {
-    if (p>=adouble::numDir) 
-    {
-        fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
-                " while \"getADValue(...)\"!!!\n");
-        throw logic_error("incorrect function call, errorcode=-1");
+inline void adouble::add_to_pattern(const list<unsigned int>& v) {
+    if (likely( pattern != v)) {
+	if( !v.empty() ){
+	    list<unsigned int> cv = v;
+	    //pattern.splice(pattern.end(), cv);
+	    pattern.merge(cv);
+	    //if (pattern.size() > refcounter::refcnt) {
+	    //pattern.sort();
+	    pattern.unique();
+		//}
+	}
     }
-    return adval[p+1];
 }
 
-inline void adouble::setADValue(const unsigned int p, const double v) {
-    if (p>=adouble::numDir) 
-    {
-        fprintf(DIAG_OUT, "Derivative array accessed out of bounds"\
-                " while \"setADValue(...)\"!!!\n");
-        throw logic_error("incorrect function call, errorcode=-1");
-    }
-    adval[p+1]=v;
+inline size_t adouble::get_pattern_size() const {
+    size_t s=0;
+    if( !pattern.empty() )
+      s = pattern.size();
+    return s;
 }
 
 }

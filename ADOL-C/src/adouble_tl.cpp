@@ -35,32 +35,27 @@ namespace adtl {
 
 
 size_t adouble::numDir = 1;
-enum Mode adouble::forward_mode = ADTL_FOV;
 
-size_t refcounter::refcnt = 0;
 #if USE_BOOST_POOL
 boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
-boost::pool<boost::default_user_allocator_new_delete>(adouble::numDir * sizeof(double));
+boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1) * sizeof(double), 32, 10000);
 #endif
 
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
-    if (likely(adouble::_do_val() && adouble::_do_adval())) {
-	out << "Value: " << a.val;
+	out << "Value: " << a.VAL;
 	out << " ADValues (" << adouble::numDir << "): ";
-	FOR_I_EQ_0_LT_NUMDIR
+	FOR_I_EQ_1_LTEQ_NUMDIR
 	    out << a.ADVAL_I << " ";
 	out << "(a)";
-    }
     return out;
 }
 
 istream& operator >> ( istream& in, adouble& a) {
-    if(likely(adouble::_do_val() && adouble::_do_adval())) {
 	char c;
 	do in >> c;
 	while (c!=':' && !in.eof());
-	in >> a.val;
+	in >> a.VAL;
 	unsigned int num;
 	do in >> c;
 	while (c!='(' && !in.eof());
@@ -72,43 +67,11 @@ istream& operator >> ( istream& in, adouble& a) {
 	}
 	do in >> c;
 	while (c!=':' && !in.eof());
-	FOR_I_EQ_0_LT_NUMDIR
+	FOR_I_EQ_1_LTEQ_NUMDIR
 	    in >> a.ADVAL_I;
 	do in >> c;
 	while (c!=')' && !in.eof());
 	return in;
-    }
-    return in;
-}
-
-/**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
-int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
-    for(unsigned int i=0; i < n; i++) {
-	a[i].delete_pattern();
-	a[i].pattern.push_back( i+start_cnt );
-    }
-    return 3;
-}
-
-int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat) {
-    pat = (unsigned int**) malloc(m*sizeof(unsigned int*));
-    for( int i=0; i < m ; i++){
-	//const_cast<adouble&>(b[i]).pattern.sort();
-	//const_cast<adouble&>(b[i]).pattern.unique();
-      if ( b[i].get_pattern_size() > 0 ) {
-         pat[i] = (unsigned int*) malloc(sizeof(unsigned int) * (b[i].get_pattern_size() +1) );
-         pat[i][0] = b[i].get_pattern_size();
-         const list<unsigned int>& tmp_set = b[i].get_pattern();
-         list<unsigned int>::const_iterator it;
-         unsigned int l=1;
-         for(it = tmp_set.begin() ; it != tmp_set.end() ; it++,l++)
-             pat[i][l] = *it;
-       } else {
-          pat[i] = (unsigned int*) malloc(sizeof(unsigned int));
-          pat[i][0] =0;
-       }
-    }
-    return 3;
 }
 
 }
