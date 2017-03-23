@@ -6854,21 +6854,16 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
     merge_2_index_domains(res, arg2, ind_dom);
 }
 
-void translate_index_domain(locint arg, locint argnum, locint res, locint resnum, unsigned int **in_ind_dom, unsigned int **out_ind_dom) {
-    locint i, j, ires;
+void translate_index_domain(locint arg, locint argnum, locint res, locint resnum, unsigned int **in_crs, unsigned int **out_ind_dom) {
+    locint i, j, ires, iarg;
     fprintf(DIAG_OUT,"ADOL-C Diag: arg = %zu, argnum = %zu, res = %zu, resnum = %zu)\n", arg,argnum,res,resnum);
     for (i = 0, ires = res; i < resnum; i++, ires++) {
-        if (in_ind_dom[i][0] > out_ind_dom[ires][1])
-        {
-            free(out_ind_dom[ires]);
-            out_ind_dom[ires] = (locint *)  malloc(sizeof(locint) * 2*(in_ind_dom[i][0]+1));
-            out_ind_dom[ires][1] = 2*in_ind_dom[i][0];
+        for(j=1;j<=in_crs[i][0];j++) {
+            iarg = in_crs[i][j]+arg;
+            merge_2_index_domains(ires,iarg,out_ind_dom);
         }
-        out_ind_dom[ires][0] = in_ind_dom[i][0];
-        for(j=2;j<in_ind_dom[i][0]+2;j++)
-            out_ind_dom[ires][j] = in_ind_dom[i][j]+arg;
-        free(in_ind_dom[i]);
-        in_ind_dom[i] = NULL;
+        free(in_crs[i]);
+        in_crs[i] = NULL;
     }
 }
 
