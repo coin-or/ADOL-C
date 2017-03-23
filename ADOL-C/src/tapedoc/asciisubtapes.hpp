@@ -38,6 +38,7 @@ public:
     virtual int fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y);
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
+    virtual int indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom);
     virtual void dummycall(locint xstart, locint xnum, locint ystart, locint ynum);
 };
 

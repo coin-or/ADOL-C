@@ -79,6 +79,14 @@ int Subtrace::fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, d
     return ret;    
 }
 
+int Subtrace::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
+    int ret;
+    set_nested_ctx(tnum,1);
+    ret = ::indopro_forward_tight(tnum,m,n,dp_x,ind_dom);
+    set_nested_ctx(tnum,0);
+    return ret;
+}
+
 void Subtrace::dummycall(locint xstart, locint xnum, locint ystart, locint ynum) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;

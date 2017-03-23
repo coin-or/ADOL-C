@@ -154,7 +154,7 @@ void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
-
+void translate_index_domain(locint arg, locint numarg, locint res, locint numres, unsigned int **in_ind_dom, unsigned int **out_ind_dom);
 #define NUMNNZ 20
 #define FMIN_ADOLC(x,y)  ((y<x)?y:x)
 
@@ -1076,6 +1076,14 @@ int  hov_forward(
 #   define ADOLC_EXT_SUBSCRIPT [loop2]
 #   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
 #   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) 
+#endif
+
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_) && defined(_TIGHT_)
+#   define _EXTERN_ 1
+#   define ADOLC_EXT_FCT_POINTER indopro_forward_tight
+#   define ADOLC_EXT_FCT_COMPLETE \
+    indopro_forward_tight(n, edfct->dp_x, m, edfct->ind_dom)
+#   define ADOLC_EXT_POINTER_INDO edfct->ind_dom
 #endif
 
 #if defined(_EXTERN_)
@@ -6174,17 +6182,30 @@ int  hov_forward(
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
                 if (n>0) {
                     if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#if !defined(_ZOS_)
+#if !defined(_ZOS_) && !defined(_INDOPRO_)
                     if (ADOLC_EXT_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
                 if (m>0) {
                     if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#if !defined(_ZOS_)
+#if !defined(_ZOS_) && !defined(_INDOPRO_)
                     if (ADOLC_EXT_POINTER_Y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+#if defined(_INDOPRO_)
+                    if (ADOLC_EXT_POINTER_INDO==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
 
+#if defined(_INDOPRO_)
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
+                for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
+                    edfct->dp_x[loop]=dp_T0[arg];
+                    ++arg;
+                }
+#else
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
                     if (edfct->dp_x_changes) {
@@ -6207,10 +6228,19 @@ int  hov_forward(
 #endif
                     ++arg;
                 }
+#endif
 
                 ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
                 MINDEC(ret_c, ext_retc);
 
+#if defined(_INDOPRO_)
+                translate_index_domain(ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for,
+                                       n,
+                                       ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for,
+                                       m,
+                                       ADOLC_EXT_POINTER_INDO,
+                                       ind_dom);
+#else
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
                     dp_T0[res]=edfct->dp_x[loop];
@@ -6227,9 +6257,10 @@ int  hov_forward(
 #endif
                     ++res;
                 }
-
+#endif
                 break;
 
+#if !defined(_INDOPRO_)
             case ext_diff_iArr:                 /* extern differntiated function */
                 iArrLength=get_locint_f();
                 iArr=malloc(iArrLength*sizeof(int));
@@ -6302,6 +6333,7 @@ int  hov_forward(
                 }
                 free((void*)iArr); iArr=0;
                 break;
+
             case ext_diff_v2:
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 iArrLength = get_locint_f();
@@ -6400,6 +6432,7 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
                 break;
+#endif
 #endif
 
 #ifdef ADOLC_AMPI_SUPPORT
@@ -6821,7 +6854,23 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
     merge_2_index_domains(res, arg2, ind_dom);
 }
 
-
+void translate_index_domain(locint arg, locint argnum, locint res, locint resnum, unsigned int **in_ind_dom, unsigned int **out_ind_dom) {
+    locint i, j, ires;
+    fprintf(DIAG_OUT,"ADOL-C Diag: arg = %zu, argnum = %zu, res = %zu, resnum = %zu)\n", arg,argnum,res,resnum);
+    for (i = 0, ires = res; i < resnum; i++, ires++) {
+        if (in_ind_dom[i][0] > out_ind_dom[ires][1])
+        {
+            free(out_ind_dom[ires]);
+            out_ind_dom[ires] = (locint *)  malloc(sizeof(locint) * 2*(in_ind_dom[i][0]+1));
+            out_ind_dom[ires][1] = 2*in_ind_dom[i][0];
+        }
+        out_ind_dom[ires][0] = in_ind_dom[i][0];
+        for(j=2;j<in_ind_dom[i][0]+2;j++)
+            out_ind_dom[ires][j] = in_ind_dom[i][j]+arg;
+        free(in_ind_dom[i]);
+        in_ind_dom[i] = NULL;
+    }
+}
 
 #endif
 #endif

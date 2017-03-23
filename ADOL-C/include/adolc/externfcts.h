@@ -30,7 +30,7 @@ typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_
 typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
 typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
-
+typedef int (ADOLC_ext_fct_indopro_forward_tight) (int n, double *dp_x, int m, unsigned int **ind_dom); 
 /**
  * we add a second set of function pointers with a signature expanded by a an integer array iArr
  * and a parameter iArrLength motivated by externalizing sparse solvers where the sparsity format
@@ -134,6 +134,7 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_hov_reverse *hov_reverse; 
   ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
 
+  ADOLC_ext_fct_indopro_forward_tight *indopro_forward_tight;
 
   /**
    * The names of the variables below correspond to the formal parameters names in the call back 
@@ -212,6 +213,11 @@ typedef struct ext_diff_fct {
    * hov_reverse: non-zero pattern of dppp_Z, dimension [p][n], see also the hov_reverse ADOL-C driver 
    */
   short **spp_nz;
+
+  /**
+   * indopro_forward_tight: index domain information for sparsity pattern of jacobian
+   */
+  unsigned int **ind_dom;
 
   /**
    * track maximal value of n when function is invoked

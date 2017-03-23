@@ -32,6 +32,7 @@ public:
     virtual int fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
+    virtual int indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom);
     int call(int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,n,xa,m,ya);
     }

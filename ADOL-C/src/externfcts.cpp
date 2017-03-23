@@ -54,6 +54,7 @@ void edf_zero(ext_diff_fct *edf) {
   edf->fov_reverse_iArr=0;
   edf->hov_reverse=0;
   edf->hov_reverse_iArr=0;
+  edf->indopro_forward_tight=0;
 
   edf->dp_x=0; 
   edf->dp_X=0; 
@@ -71,6 +72,7 @@ void edf_zero(ext_diff_fct *edf) {
   edf->dppp_Z=0;
 
   edf->spp_nz=0;
+  edf->ind_dom=0;
 
   edf->max_n=0;
   edf->max_m=0;
@@ -119,7 +121,8 @@ void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
        * so leave it out.
        */
       size_t totalmem = (3*n + 3*m /*+ n*n + 2*n*m + m*m*/)*sizeof(double)
-                         + (3*m+n)*sizeof(double*);
+                         + (3*m+n)*sizeof(double*)
+                         + m*sizeof(unsigned int*);
       char *tmp;
       if (edfct->allmem != NULL) free(edfct->allmem);
       edfct->allmem = (char*)malloc(totalmem);
@@ -135,6 +138,8 @@ void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       edfct->dpp_Y = edfct->dpp_X + n;
       edfct->dpp_U = edfct->dpp_Y + m;
       edfct->dpp_Z = edfct->dpp_U + m;
+      tmp = (char*)(edfct->dpp_Z + m);
+      edfct->ind_dom = (unsigned int**)tmp;
       /*
       tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
       tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
@@ -322,6 +327,17 @@ static int edfoo_wrapper_fov_reverse(int m, int p, double **dpp_U, int n, double
     return ebase->fov_reverse(m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
 }
 
+static int edfoo_wrapper_indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->indopro_forward_tight(n,dp_x,m,ind_dom);
+}
+
 void EDFobject::init_edf(EDFobject* ebase) {
     edf = buffer.append();
     edf->obj = reinterpret_cast<void*>(ebase);
@@ -331,6 +347,7 @@ void EDFobject::init_edf(EDFobject* ebase) {
     edf->fov_forward = edfoo_wrapper_fov_forward;
     edf->fos_reverse = edfoo_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_wrapper_fov_reverse;    
+    edf->indopro_forward_tight = edfoo_wrapper_indopro_forward_tight;
 }
 
 static int edfoo_iarr_wrapper_function(int iArrLength, int *iArr, int n, double *x, int m, double* y) {
@@ -406,6 +423,17 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->fov_forward_iArr = edfoo_iarr_wrapper_fov_forward;
     edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
     edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;    
+}
+
+int EDFobject::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
+    for (locint i = 0; i < m; i++) {
+        ind_dom[i] = (unsigned int*) malloc((n+2)*sizeof(unsigned int));
+        ind_dom[i][1] = n+2;
+        ind_dom[i][0] = n;
+        for (locint j = 0; j < n; j++)
+            ind_dom[i][j+2] = j;
+    }
+    return 0;
 }
 
 /****************************************************************************/
