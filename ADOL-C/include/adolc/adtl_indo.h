@@ -28,22 +28,31 @@
 #error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
 #endif
 
+#include <adolc/adtl.h>
+
 using std::ostream;
 using std::istream;
 using std::list;
 using std::logic_error;
 
+template<typename T>
+class func_ad {
+public:
+    virtual int operator() (int n, T *x, int m, T *y) = 0;
+};
+
+namespace adtl_indo{
+class adouble;
+ADOLC_DLL_EXPORT int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+ADOLC_DLL_EXPORT int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
+}
+
+ADOLC_DLL_EXPORT int ADOLC_get_sparse_jacobian( func_ad<adtl::adouble> *const func, func_ad<adtl_indo::adouble> *const func_indo, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
+
 namespace adtl_indo {
 
 double makeNaN();
 double makeInf();
-
-class adouble;
-
-class func_ad {
-public:
-    virtual int operator() (int n, adouble *x, int m, adouble *y) = 0;
-};
 
 class adouble {
 public:
@@ -202,12 +211,8 @@ protected:
     inline void delete_pattern();
 
 public:
-    ADOLC_DLL_EXPORT friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
-    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian( func_ad *const func, int n, int m, int repeat, double* basepoints, int *nnz, unsigned int **rind, unsigned int **cind, double **values);
-#if 0
-    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
-#endif
+    friend int ADOLC_Init_sparse_pattern(adouble *a, int n,unsigned int start_cnt);
+    friend int ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
     /*******************  i/o operations  *********************************/
     ADOLC_DLL_EXPORT friend ostream& operator << ( ostream&, const adouble& );
     ADOLC_DLL_EXPORT friend istream& operator >> ( istream&, adouble& );
@@ -913,4 +918,5 @@ inline size_t adouble::get_pattern_size() const {
 }
 
 }
+
 #endif

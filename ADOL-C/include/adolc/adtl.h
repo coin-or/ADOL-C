@@ -42,12 +42,12 @@ namespace adtl {
 double makeNaN();
 double makeInf();
 
-class adouble;
+//class adouble;
 
-class func_ad {
-public:
-    virtual int operator() (int n, adouble *x, int m, adouble *y) = 0;
-};
+//class func_ad {
+//public:
+//    virtual int operator() (int n, adouble *x, int m, adouble *y) = 0;
+//};
 
 class adouble {
 public:
