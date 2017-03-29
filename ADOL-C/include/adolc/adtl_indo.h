@@ -250,11 +250,6 @@ inline double makeInf() {
     return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (size_t _i=0; _i < adouble::numDir; ++_i)
-#define ADVAL_I              adval[_i]
-#define ADV_I                adv[_i]
-#define V_I                  v[_i]
-
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : val(0) {
     if (!pattern.empty())

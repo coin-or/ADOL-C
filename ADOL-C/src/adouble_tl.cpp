@@ -43,7 +43,7 @@ boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1) * size
 
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
-	out << "Value: " << a.VAL;
+	out << "Value: " << a.PRIMAL_VALUE;
 	out << " ADValues (" << adouble::numDir << "): ";
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    out << a.ADVAL_I << " ";
@@ -55,7 +55,7 @@ istream& operator >> ( istream& in, adouble& a) {
 	char c;
 	do in >> c;
 	while (c!=':' && !in.eof());
-	in >> a.VAL;
+	in >> a.PRIMAL_VALUE;
 	unsigned int num;
 	do in >> c;
 	while (c!='(' && !in.eof());

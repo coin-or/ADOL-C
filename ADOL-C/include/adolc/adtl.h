@@ -255,7 +255,7 @@ inline double makeInf() {
 #define FOR_I_EQ_0_LTEQ_NUMDIR  for (size_t _i=0; _i <= adouble::numDir; ++_i)
 #define FOR_I_EQ_1_LTEQ_NUMDIR  for (size_t _i=1; _i <= adouble::numDir; ++_i)
 #define ADVAL_I                 adval[_i]
-#define VAL                     adval[0]
+#define PRIMAL_VALUE            adval[0]
 
 /*******************************  ctors  ************************************/
 inline adouble::adouble() : adval(NULL) {
@@ -264,7 +264,7 @@ inline adouble::adouble() : adval(NULL) {
 #else
     adval = new double[adouble::numDir+1];
 #endif
-    VAL = 0.;
+    PRIMAL_VALUE = 0.;
 }
 
 inline adouble::adouble(const double v) : adval(NULL) {
@@ -273,7 +273,7 @@ inline adouble::adouble(const double v) : adval(NULL) {
 #else
 	adval = new double[adouble::numDir+1];
 #endif
-    VAL = v;
+    PRIMAL_VALUE = v;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    ADVAL_I = 0.0;
 }
@@ -284,7 +284,7 @@ inline adouble::adouble(const double v, const double* adv) :  adval(NULL) {
 #else
 	adval = new double[adouble::numDir+1];
 #endif
-    VAL = v;
+    PRIMAL_VALUE = v;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    ADVAL_I=adv[_i-1];
 }
@@ -324,7 +324,7 @@ inline adouble adouble::operator + () const {
 
 // addition
 inline adouble adouble::operator + (const double v) const {
-    adouble tmp(VAL+v, adval+1);
+    adouble tmp(PRIMAL_VALUE+v, adval+1);
     return tmp;
 }
 
@@ -336,13 +336,13 @@ inline adouble adouble::operator + (const adouble& a) const {
 }
 
 inline adouble operator + (const double v, const adouble& a) {
-    adouble tmp(v+a.VAL, a.adval+1);
+    adouble tmp(v+a.PRIMAL_VALUE, a.adval+1);
     return tmp;
 }
 
 // subtraction
 inline adouble adouble::operator - (const double v) const {
-    adouble tmp(VAL-v, adval+1);
+    adouble tmp(PRIMAL_VALUE-v, adval+1);
     return tmp;
 }
 
@@ -355,7 +355,7 @@ inline adouble adouble::operator - (const adouble& a) const {
 
 inline adouble operator - (const double v, const adouble& a) {
     adouble tmp;
-    tmp.VAL=v-a.VAL;
+    tmp.PRIMAL_VALUE=v-a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=-a.ADVAL_I;
     return tmp;
@@ -371,9 +371,9 @@ inline adouble adouble::operator * (const double v) const {
 
 inline adouble adouble::operator * (const adouble& a) const {
     adouble tmp;
-	tmp.VAL=VAL*a.VAL;
+	tmp.PRIMAL_VALUE=PRIMAL_VALUE*a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=ADVAL_I*a.VAL+VAL*a.ADVAL_I;
+	    tmp.ADVAL_I=ADVAL_I*a.PRIMAL_VALUE+PRIMAL_VALUE*a.ADVAL_I;
     return tmp;
 }
 
@@ -394,42 +394,42 @@ inline adouble adouble::operator / (const double v) const {
 
 inline adouble adouble::operator / (const adouble& a) const {
     adouble tmp;
-	tmp.VAL=VAL/a.VAL;
+	tmp.PRIMAL_VALUE=PRIMAL_VALUE/a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=(ADVAL_I*a.VAL-VAL*a.ADVAL_I)/(a.VAL*a.VAL);
+	    tmp.ADVAL_I=(ADVAL_I*a.PRIMAL_VALUE-PRIMAL_VALUE*a.ADVAL_I)/(a.PRIMAL_VALUE*a.PRIMAL_VALUE);
     return tmp;
 }
 
 inline adouble operator / (const double v, const adouble& a) {
     adouble tmp;
-	tmp.VAL=v/a.VAL;
+	tmp.PRIMAL_VALUE=v/a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=(-v*a.ADVAL_I)/(a.VAL*a.VAL);
+	    tmp.ADVAL_I=(-v*a.ADVAL_I)/(a.PRIMAL_VALUE*a.PRIMAL_VALUE);
     return tmp;
 }
 
 // inc/dec
 inline adouble adouble::operator ++ () {
-	++VAL;
+	++PRIMAL_VALUE;
     return *this;
 }
 
 inline adouble adouble::operator ++ (int) {
     adouble tmp;
-	tmp.VAL=VAL++;
+	tmp.PRIMAL_VALUE=PRIMAL_VALUE++;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=ADVAL_I;
     return tmp;
 }
 
 inline adouble adouble::operator -- () {
-	--VAL;
+	--PRIMAL_VALUE;
     return *this;
 }
 
 inline adouble adouble::operator -- (int) {
     adouble tmp;
-	tmp.VAL=VAL--;
+	tmp.PRIMAL_VALUE=PRIMAL_VALUE--;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=ADVAL_I;
     return tmp;
@@ -439,8 +439,8 @@ inline adouble adouble::operator -- (int) {
 inline adouble tan(const adouble& a) {
     adouble tmp;
     double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::tan(a.VAL);    
-	tmp2=ADOLC_MATH_NSP::cos(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::tan(a.PRIMAL_VALUE);
+	tmp2=ADOLC_MATH_NSP::cos(a.PRIMAL_VALUE);
 	tmp2*=tmp2;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -449,18 +449,18 @@ inline adouble tan(const adouble& a) {
 
 inline adouble exp(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::exp(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::exp(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    tmp.ADVAL_I=tmp.VAL*a.ADVAL_I;
+	    tmp.ADVAL_I=tmp.PRIMAL_VALUE*a.ADVAL_I;
     return tmp;
 }
 
 inline adouble log(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::log(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::log(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    if (a.VAL>0) tmp.ADVAL_I=a.ADVAL_I/a.VAL;
-	    else if (a.VAL==0 && a.ADVAL_I != 0.0) {
+	    if (a.PRIMAL_VALUE>0) tmp.ADVAL_I=a.ADVAL_I/a.PRIMAL_VALUE;
+	    else if (a.PRIMAL_VALUE==0 && a.ADVAL_I != 0.0) {
 		int sign = (a.ADVAL_I < 0)  ? -1 : 1;
 		tmp.ADVAL_I=sign*makeInf();
 	    } else tmp.ADVAL_I=makeNaN();
@@ -469,10 +469,10 @@ inline adouble log(const adouble &a) {
 
 inline adouble sqrt(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::sqrt(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    if (a.VAL>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.VAL*2);
-	    else if (a.VAL==0.0 && a.ADVAL_I != 0.0) {
+	    if (a.PRIMAL_VALUE>0) tmp.ADVAL_I=a.ADVAL_I/(tmp.PRIMAL_VALUE*2);
+	    else if (a.PRIMAL_VALUE==0.0 && a.ADVAL_I != 0.0) {
 		int sign = (a.ADVAL_I < 0) ? -1 : 1;
 		tmp.ADVAL_I=sign * makeInf();
 	    } else tmp.ADVAL_I=makeNaN();
@@ -482,8 +482,8 @@ inline adouble sqrt(const adouble &a) {
 inline adouble sin(const adouble &a) {
     adouble tmp;
     double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::sin(a.VAL);
-	tmp2=ADOLC_MATH_NSP::cos(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::sin(a.PRIMAL_VALUE);
+	tmp2=ADOLC_MATH_NSP::cos(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
@@ -492,8 +492,8 @@ inline adouble sin(const adouble &a) {
 inline adouble cos(const adouble &a) {
     adouble tmp;
     double tmp2;
-	tmp.VAL=ADOLC_MATH_NSP::cos(a.VAL);
-	tmp2=-ADOLC_MATH_NSP::sin(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::cos(a.PRIMAL_VALUE);
+	tmp2=-ADOLC_MATH_NSP::sin(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
@@ -501,8 +501,8 @@ inline adouble cos(const adouble &a) {
 
 inline adouble asin(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::asin(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(1-a.VAL*a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::asin(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::sqrt(1-a.PRIMAL_VALUE*a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -510,8 +510,8 @@ inline adouble asin(const adouble &a) {
 
 inline adouble acos(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::acos(a.VAL);
-	double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.VAL*a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::acos(a.PRIMAL_VALUE);
+	double tmp2=-ADOLC_MATH_NSP::sqrt(1-a.PRIMAL_VALUE*a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -519,8 +519,8 @@ inline adouble acos(const adouble &a) {
 
 inline adouble atan(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::atan(a.VAL);
-	double tmp2=1+a.VAL*a.VAL;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::atan(a.PRIMAL_VALUE);
+	double tmp2=1+a.PRIMAL_VALUE*a.PRIMAL_VALUE;
 	tmp2=1/tmp2;
 	if (tmp2!=0)
 	    FOR_I_EQ_1_LTEQ_NUMDIR
@@ -533,13 +533,13 @@ inline adouble atan(const adouble &a) {
 
 inline adouble atan2(const adouble &a, const adouble &b) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::atan2(a.VAL, b.VAL);
-	double tmp2=a.VAL*a.VAL;
-	double tmp3=b.VAL*b.VAL;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::atan2(a.PRIMAL_VALUE, b.PRIMAL_VALUE);
+	double tmp2=a.PRIMAL_VALUE*a.PRIMAL_VALUE;
+	double tmp3=b.PRIMAL_VALUE*b.PRIMAL_VALUE;
 	double tmp4=tmp3/(tmp2+tmp3);
 	if (tmp4!=0)
 	    FOR_I_EQ_1_LTEQ_NUMDIR
-		tmp.ADVAL_I=(a.ADVAL_I*b.VAL-a.VAL*b.ADVAL_I)/tmp3*tmp4;
+		tmp.ADVAL_I=(a.ADVAL_I*b.PRIMAL_VALUE-a.PRIMAL_VALUE*b.ADVAL_I)/tmp3*tmp4;
 	else
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		tmp.ADVAL_I=0.0;
@@ -548,8 +548,8 @@ inline adouble atan2(const adouble &a, const adouble &b) {
 
 inline adouble pow(const adouble &a, double v) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(a.VAL, v);
-	double tmp2=v*ADOLC_MATH_NSP::pow(a.VAL, v-1);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, v);
+	double tmp2=v*ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, v-1);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
@@ -557,9 +557,9 @@ inline adouble pow(const adouble &a, double v) {
 
 inline adouble pow(const adouble &a, const adouble &b) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(a.VAL, b.VAL);
-	double tmp2=b.VAL*ADOLC_MATH_NSP::pow(a.VAL, b.VAL-1);
-	double tmp3=ADOLC_MATH_NSP::log(a.VAL)*tmp.VAL;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, b.PRIMAL_VALUE);
+	double tmp2=b.PRIMAL_VALUE*ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, b.PRIMAL_VALUE-1);
+	double tmp3=ADOLC_MATH_NSP::log(a.PRIMAL_VALUE)*tmp.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I+tmp3*b.ADVAL_I;
     return tmp;
@@ -567,8 +567,8 @@ inline adouble pow(const adouble &a, const adouble &b) {
 
 inline adouble pow(double v, const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::pow(v, a.VAL);
-	double tmp2=tmp.VAL*ADOLC_MATH_NSP::log(v);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::pow(v, a.PRIMAL_VALUE);
+	double tmp2=tmp.PRIMAL_VALUE*ADOLC_MATH_NSP::log(v);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
@@ -576,8 +576,8 @@ inline adouble pow(double v, const adouble &a) {
 
 inline adouble log10(const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::log10(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::log((double)10)*a.VAL;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::log10(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::log((double)10)*a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -585,8 +585,8 @@ inline adouble log10(const adouble &a) {
 
 inline adouble sinh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::sinh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::cosh(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::sinh(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
     return tmp;
@@ -594,8 +594,8 @@ inline adouble sinh (const adouble &a) {
 
 inline adouble cosh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::cosh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sinh(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::sinh(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I*tmp2;
     return tmp;
@@ -603,8 +603,8 @@ inline adouble cosh (const adouble &a) {
 
 inline adouble tanh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::tanh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::cosh(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::tanh(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
 	tmp2*=tmp2;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
@@ -614,8 +614,8 @@ inline adouble tanh (const adouble &a) {
 #if defined(ATRIG_ERF)
 inline adouble asinh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::asinh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(a.VAL*a.VAL+1);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::asinh(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE*a.PRIMAL_VALUE+1);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -623,8 +623,8 @@ inline adouble asinh (const adouble &a) {
 
 inline adouble acosh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::acosh(a.VAL);
-	double tmp2=ADOLC_MATH_NSP::sqrt(a.VAL*a.VAL-1);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::acosh(a.PRIMAL_VALUE);
+	double tmp2=ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE*a.PRIMAL_VALUE-1);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -632,8 +632,8 @@ inline adouble acosh (const adouble &a) {
 
 inline adouble atanh (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::atanh(a.VAL);
-	double tmp2=1-a.VAL*a.VAL;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::atanh(a.PRIMAL_VALUE);
+	double tmp2=1-a.PRIMAL_VALUE*a.PRIMAL_VALUE;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
@@ -642,10 +642,10 @@ inline adouble atanh (const adouble &a) {
 
 inline adouble fabs (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::fabs(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::fabs(a.PRIMAL_VALUE);
 	int as=0;
-	if (a.VAL>0) as=1;
-	if (a.VAL<0) as=-1;
+	if (a.PRIMAL_VALUE>0) as=1;
+	if (a.PRIMAL_VALUE<0) as=-1;
 	if (as!=0)
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		tmp.ADVAL_I=a.ADVAL_I*as;
@@ -661,7 +661,7 @@ inline adouble fabs (const adouble &a) {
 
 inline adouble ceil (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::ceil(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::ceil(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=0.0;
     return tmp;
@@ -669,7 +669,7 @@ inline adouble ceil (const adouble &a) {
 
 inline adouble floor (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP::floor(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::floor(a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=0.0;
     return tmp;
@@ -677,13 +677,13 @@ inline adouble floor (const adouble &a) {
 
 inline adouble fmax (const adouble &a, const adouble &b) {
     adouble tmp;
-    double tmp2=a.VAL-b.VAL;
+    double tmp2=a.PRIMAL_VALUE-b.PRIMAL_VALUE;
     if (tmp2<0) {
-	    tmp.VAL=b.VAL;
+	    tmp.PRIMAL_VALUE=b.PRIMAL_VALUE;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=b.ADVAL_I;
     } else {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=a.ADVAL_I;
@@ -700,13 +700,13 @@ inline adouble fmax (const adouble &a, const adouble &b) {
 
 inline adouble fmax (double v, const adouble &a) {
     adouble tmp;
-    double tmp2=v-a.VAL;
+    double tmp2=v-a.PRIMAL_VALUE;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=a.ADVAL_I;
     } else {
-	    tmp.VAL=v;
+	    tmp.PRIMAL_VALUE=v;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=0.0;
@@ -723,13 +723,13 @@ inline adouble fmax (double v, const adouble &a) {
 
 inline adouble fmax (const adouble &a, double v) {
     adouble tmp;
-    double tmp2=a.VAL-v;
+    double tmp2=a.PRIMAL_VALUE-v;
     if (tmp2<0) {
-	    tmp.VAL=v;
+	    tmp.PRIMAL_VALUE=v;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=0.0;
     } else {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=a.ADVAL_I;
@@ -746,13 +746,13 @@ inline adouble fmax (const adouble &a, double v) {
 
 inline adouble fmin (const adouble &a, const adouble &b) {
     adouble tmp;
-    double tmp2=a.VAL-b.VAL;
+    double tmp2=a.PRIMAL_VALUE-b.PRIMAL_VALUE;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=a.ADVAL_I;
     } else {
-	    tmp.VAL=b.VAL;
+	    tmp.PRIMAL_VALUE=b.PRIMAL_VALUE;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=b.ADVAL_I;
@@ -769,13 +769,13 @@ inline adouble fmin (const adouble &a, const adouble &b) {
 
 inline adouble fmin (double v, const adouble &a) {
     adouble tmp;
-    double tmp2=v-a.VAL;
+    double tmp2=v-a.PRIMAL_VALUE;
     if (tmp2<0) {
-	    tmp.VAL=v;
+	    tmp.PRIMAL_VALUE=v;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=0.0;
     } else {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=a.ADVAL_I;
@@ -792,13 +792,13 @@ inline adouble fmin (double v, const adouble &a) {
 
 inline adouble fmin (const adouble &a, double v) {
     adouble tmp;
-    double tmp2=a.VAL-v;
+    double tmp2=a.PRIMAL_VALUE-v;
     if (tmp2<0) {
-	    tmp.VAL=a.VAL;
+	    tmp.PRIMAL_VALUE=a.PRIMAL_VALUE;
 	    FOR_I_EQ_1_LTEQ_NUMDIR
 		    tmp.ADVAL_I=a.ADVAL_I;
     } else {
-	    tmp.VAL=v;
+	    tmp.PRIMAL_VALUE=v;
         if (tmp2>0) {
 		    FOR_I_EQ_1_LTEQ_NUMDIR
 		        tmp.ADVAL_I=0.0;
@@ -828,16 +828,16 @@ inline adouble ldexp (const double v, const adouble &a) {
 }
 
 inline double frexp (const adouble &a, int* v) {
-    return ADOLC_MATH_NSP::frexp(a.VAL, v);
+    return ADOLC_MATH_NSP::frexp(a.PRIMAL_VALUE, v);
 }
 
 #if defined(ATRIG_ERF)
 inline adouble erf (const adouble &a) {
     adouble tmp;
-	tmp.VAL=ADOLC_MATH_NSP_ERF::erf(a.VAL);
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::erf(a.PRIMAL_VALUE);
 	double tmp2 = 2.0 /
 	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
-	    ADOLC_MATH_NSP_ERF::exp(-a.VAL*a.VAL);
+	    ADOLC_MATH_NSP_ERF::exp(-a.PRIMAL_VALUE*a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
@@ -876,7 +876,7 @@ inline void condeqassign( adouble &res, const adouble &cond,
 
 /*******************  nontemporary results  *********************************/
 inline adouble& adouble::operator = (const double v) {
-	VAL=v;
+	PRIMAL_VALUE=v;
 	FOR_I_EQ_1_LTEQ_NUMDIR
 	    ADVAL_I=0.0;
     return *this;
@@ -889,7 +889,7 @@ inline adouble& adouble::operator = (const adouble& a) {
 }
 
 inline adouble& adouble::operator += (const double v) {
-	VAL+=v;
+	PRIMAL_VALUE+=v;
     return *this;
 }
 
@@ -900,7 +900,7 @@ inline adouble& adouble::operator += (const adouble& a) {
 }
 
 inline adouble& adouble::operator -= (const double v) {
-	VAL-=v;
+	PRIMAL_VALUE-=v;
     return *this;
 }
 
@@ -918,8 +918,8 @@ inline adouble& adouble::operator *= (const double v) {
 
 inline adouble& adouble::operator *= (const adouble& a) {
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=ADVAL_I*a.VAL+VAL*a.ADVAL_I;
-	VAL*=a.VAL;
+	    ADVAL_I=ADVAL_I*a.PRIMAL_VALUE+PRIMAL_VALUE*a.ADVAL_I;
+	PRIMAL_VALUE*=a.PRIMAL_VALUE;
     return *this;
 }
 
@@ -931,109 +931,109 @@ inline adouble& adouble::operator /= (const double v) {
 
 inline adouble& adouble::operator /= (const adouble& a) {
 	FOR_I_EQ_1_LTEQ_NUMDIR
-	    ADVAL_I=(ADVAL_I*a.VAL-VAL*a.ADVAL_I)/(a.VAL*a.VAL);
-	VAL=VAL/a.VAL;
+	    ADVAL_I=(ADVAL_I*a.PRIMAL_VALUE-PRIMAL_VALUE*a.ADVAL_I)/(a.PRIMAL_VALUE*a.PRIMAL_VALUE);
+	PRIMAL_VALUE=PRIMAL_VALUE/a.PRIMAL_VALUE;
     return *this;
 }
 
 // not
 inline int adouble::operator ! () const {
-    return VAL==0.0;
+    return PRIMAL_VALUE==0.0;
 }
 
 // comparision
 inline int adouble::operator != (const adouble &a) const {
-    return VAL!=a.VAL;
+    return PRIMAL_VALUE!=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator != (const double v) const {
-    return VAL!=v;
+    return PRIMAL_VALUE!=v;
 }
 
 inline int operator != (const double v, const adouble &a) {
-    return v!=a.VAL;
+    return v!=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator == (const adouble &a) const {
-    return VAL==a.VAL;
+    return PRIMAL_VALUE==a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator == (const double v) const {
-    return VAL==v;
+    return PRIMAL_VALUE==v;
 }
 
 inline int operator == (const double v, const adouble &a) {
-    return v==a.VAL;
+    return v==a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator <= (const adouble &a) const {
-    return VAL<=a.VAL;
+    return PRIMAL_VALUE<=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator <= (const double v) const {
-    return VAL<=v;
+    return PRIMAL_VALUE<=v;
 }
 
 inline int operator <= (const double v, const adouble &a) {
-    return v<=a.VAL;
+    return v<=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator >= (const adouble &a) const {
-    return VAL>=a.VAL;
+    return PRIMAL_VALUE>=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator >= (const double v) const {
-    return VAL>=v;
+    return PRIMAL_VALUE>=v;
 }
 
 inline int operator >= (const double v, const adouble &a) {
-    return v>=a.VAL;
+    return v>=a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator >  (const adouble &a) const {
-    return VAL>a.VAL;
+    return PRIMAL_VALUE>a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator >  (const double v) const {
-    return VAL>v;
+    return PRIMAL_VALUE>v;
 }
 
 inline int operator >  (const double v, const adouble &a) {
-    return v>a.VAL;
+    return v>a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator <  (const adouble &a) const {
-    return VAL<a.VAL;
+    return PRIMAL_VALUE<a.PRIMAL_VALUE;
 }
 
 inline int adouble::operator <  (const double v) const {
-    return VAL<v;
+    return PRIMAL_VALUE<v;
 }
 
 inline int operator <  (const double v, const adouble &a) {
-    return v<a.VAL;
+    return v<a.PRIMAL_VALUE;
 }
 
 /*******************  getter / setter  **************************************/
 inline adouble::operator double const & () const {
-    return VAL;
+    return PRIMAL_VALUE;
 }
 
 inline adouble::operator double && () {
-    return (double&&)VAL;
+    return (double&&)PRIMAL_VALUE;
 }
 
 inline adouble::operator double() {
-    return VAL;
+    return PRIMAL_VALUE;
 }
 
 
 inline double adouble::getValue() const {
-    return VAL;
+    return PRIMAL_VALUE;
 }
 
 inline void adouble::setValue(const double v) {
-    VAL=v;
+    PRIMAL_VALUE=v;
 }
 
 inline const double *const adouble::getADValue() const {
