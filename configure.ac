@@ -577,7 +577,7 @@ Configuration:
   CFLAGS:                             ${ac_adolc_cflags}
   CXXFLAGS:                           ${ac_adolc_cxxflags}
 
-  Use Boost pool allocator:           ${using_boost_pool}
+  Use Boost libraries:                ${using_boost}
   Use ADOL-C debug mode:              ${adolc_debug}
   Use ADOL-C hard debug mode:         ${adolc_harddebug}
   Zero value in adouble default ctor: ${adolc_stdczero}"
