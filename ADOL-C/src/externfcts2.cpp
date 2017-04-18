@@ -271,3 +271,7 @@ void EDFobject_v2::init_edf(EDFobject_v2* ebase) {
     edf->fos_reverse = edfoo_v2_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_v2_wrapper_fov_reverse;    
 }
+
+locint EDFobject_v2::get_index() {
+    return edf->index;
+}
