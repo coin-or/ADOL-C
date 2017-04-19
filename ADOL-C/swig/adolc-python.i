@@ -609,7 +609,7 @@ def fmin(a,b):
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmin(a,b)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 
 def fmax(a,b):
     import numpy as np
@@ -621,7 +621,7 @@ def fmax(a,b):
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmax(a,b)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 
 def fabs(a):
     import numpy as np
@@ -631,7 +631,7 @@ def fabs(a):
     elif isinstance(a,badouble):
         return _adolc.fabs(a)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 %}
 
 %exception;
