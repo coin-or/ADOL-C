@@ -59,13 +59,13 @@ from __future__ import print_function
 
 %init %{
 import_array();
-PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.AdolcException", 
+PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.BranchException", 
 "This exception is thrown if an error condition happens during the call"
 " to an ADOL-C library function, which in a pure C/C++ environment would be"
 " detected by the return value of that library function. This is generally"
 " a warning to retrace the original function at the current point", 
                                 NULL, NULL);
-PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
+PyModule_AddObject(m,"BranchException",PyExc_AdolcException);
 PyExc_AdolcFatalError = PyErr_NewExceptionWithDoc("adolc.FatalError", 
 "This exception is thrown if an error condition happens during the call"
 " to an ADOL-C library function, which in a pure C/C++ environment would be"
@@ -181,7 +181,7 @@ PyModule_AddObject(m,"FatalError",PyExc_AdolcFatalError);
  }
 
 %pythoncode %{
-AdolcException = _adolc.AdolcException
+BranchException = _adolc.BranchException
 FatalError = _adolc.FatalError
 %}
 
