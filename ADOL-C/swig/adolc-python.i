@@ -19,7 +19,11 @@
 #include "matrixmemory.hpp"
 #include <adolc/adolc_fatalerror.h>
 
-static PyObject* PyExc_AdolcException; 
+static PyObject *PyExc_AdolcException, *PyExc_AdolcFatalError;
+%}
+
+%pythonbegin %{
+from __future__ import print_function
 %}
 
 %{
@@ -62,6 +66,11 @@ PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.AdolcException",
 " a warning to retrace the original function at the current point", 
                                 NULL, NULL);
 PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
+PyExc_AdolcFatalError = PyErr_NewExceptionWithDoc("adolc.FatalError", 
+"This exception is thrown if an error condition happens during the call"
+" to an ADOL-C library function, which in a pure C/C++ environment would be"
+" flagged as a fatal error and stop execution.", NULL, NULL);
+PyModule_AddObject(m,"FatalError",PyExc_AdolcFatalError);
 %}
 
 %feature("novaluewrapper") badouble;
@@ -71,10 +80,11 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 %feature("novaluewrapper") adouble;
 %feature("novaluewrapper") advector;
 
+%rename (AdolcFatalError) FatalError;
 %include "../include/adolc/adolc_fatalerror.h"
 
 %extend FatalError {
-    virtual const char* __str__() const throw() {
+    virtual const char* __repr__() const throw() {
         return (*($self)).what();
     }
 }
@@ -172,6 +182,7 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 
 %pythoncode %{
 AdolcException = _adolc.AdolcException
+FatalError = _adolc.FatalError
 %}
 
 
@@ -192,10 +203,9 @@ AdolcException = _adolc.AdolcException
         $action
         if (PyErr_Occurred()) SWIG_fail;
     } catch (FatalError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj(
+        PyErr_SetObject(PyExc_AdolcFatalError,SWIG_NewPointerObj(
             (new FatalError(static_cast<const FatalError& >(_e))),  
-            SWIGTYPE_p_FatalError,SWIG_POINTER_OWN),
-        "FatalError", SWIGTYPE_p_FatalError); 
+            SWIGTYPE_p_FatalError,SWIG_POINTER_OWN));
     SWIG_fail;
     }
 }

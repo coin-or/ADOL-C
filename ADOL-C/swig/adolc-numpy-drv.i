@@ -22,8 +22,7 @@ def as_adouble(arg):
     else:
         arg = np.ascontiguousarray(arg,dtype=np.float64)
         shp = np.shape(arg)
-        data = np.ravel(arg)
-        adata = np.array([adouble(val) for val in iter(data)])
+        adata = np.array([adouble(val) for val in arg.flat])
         ret = adata.reshape(shp)
         return ret
 %}
