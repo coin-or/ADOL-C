@@ -19,7 +19,7 @@
 class EDFobject {
 protected:
     ext_diff_fct *edf;
-    virtual void init_edf(EDFobject *ebase);
+    void init_edf(EDFobject *ebase);
 public:
     EDFobject() { init_edf(this); }
     virtual ~EDFobject() { edf_zero(edf); }
@@ -37,7 +37,7 @@ public:
 class EDFobject_iArr {
 protected:
     ext_diff_fct *edf;
-    virtual void init_edf(EDFobject_iArr *ebase);
+    void init_edf(EDFobject_iArr *ebase);
 public:
     EDFobject_iArr() { init_edf(this); }
     virtual ~EDFobject_iArr() { edf_zero(edf); }
@@ -55,7 +55,7 @@ public:
 class EDFobject_v2 {
 protected:
     ext_diff_fct_v2 *edf;
-    virtual void init_edf(EDFobject_v2 *ebase);
+    void init_edf(EDFobject_v2 *ebase);
 public:
     EDFobject_v2() { init_edf(this); }
     virtual ~EDFobject_v2() { edf_zero(edf); }
