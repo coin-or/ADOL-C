@@ -59,6 +59,7 @@ void edf_zero(ext_diff_fct_v2 *edf) {
   if (edf->allmem != NULL)
       free(edf->allmem);
   edf->allmem=NULL;
+  edf->user_allocated_mem=0;
 }
 
 ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 *ext_fct) {
@@ -146,7 +147,8 @@ int call_ext_fct(ext_diff_fct_v2 *edfct,
         vals = new double[numVals];
         memcpy(vals,ADOLC_GLOBAL_TAPE_VARS.store, numVals*sizeof(double));
     }
-    update_ext_fct_memory(edfct,nin,nout,insz,outsz);
+    if (!edfct->user_allocated_mem)
+        update_ext_fct_memory(edfct,nin,nout,insz,outsz);
     if (oldTraceFlag != 0) {
         if (edfct->dp_x_changes)
             for(i=0;i<nin;i++)

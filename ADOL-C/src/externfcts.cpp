@@ -81,6 +81,7 @@ void edf_zero(ext_diff_fct *edf) {
   if (edf->allmem != NULL)
       free(edf->allmem);
   edf->allmem=NULL;
+  edf->user_allocated_mem=0;
 }
 
 ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct) {
@@ -177,7 +178,8 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct,
            numVals * sizeof(double));
   }
 
-  update_ext_fct_memory(edfct,n,m);
+  if (!edfct->user_allocated_mem)
+      update_ext_fct_memory(edfct,n,m);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.c */
