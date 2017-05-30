@@ -262,6 +262,12 @@ typedef struct ext_diff_fct {
    * implementation of the external function ** do not touch **
    */
   void* obj;
+
+  /**
+   * This flag indicates that user allocates memory and internally no 
+   * memory should be allocated
+   */
+  char user_allocated_mem;
 }
 ext_diff_fct;
 
