@@ -218,7 +218,7 @@ public:
 
     inline double getADValue(const unsigned int p) const;
     inline void setADValue(const unsigned int p, const double v);
-    inline explicit operator double const&();
+    inline explicit operator double const&() const;
     inline explicit operator double&&();
     inline explicit operator double();
 
@@ -1654,7 +1654,7 @@ inline int operator <  (const double v, const adouble &a) {
 }
 
 /*******************  getter / setter  **************************************/
-inline adouble::operator double const & () {
+inline adouble::operator double const & () const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Tapeless: Incorrect mode, call setMode(enum Mode mode)\n");
 	throw logic_error("incorrect function call, errorcode=1");
