@@ -267,6 +267,8 @@ ext_diff_fct;
 
 END_C_DECLS
 
+#include <adolc/externfcts2.h>
+
 #if defined(__cplusplus)
 /****************************************************************************/
 /*                                                          This is all C++ */
@@ -286,6 +288,8 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
  * zeros out the edf pointers and sets bools to defaults
  */
 ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct *edfct);
+
+#include <adolc/edfclasses.h>
 
 #endif /* __CPLUSPLUS */
 

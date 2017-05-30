@@ -20,7 +20,9 @@ AM_LDFLAGS             = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES   = Makefile.in *~ *.orig
 
 if ADDEXA
-noinst_PROGRAMS        = ext_diff_func
+noinst_PROGRAMS        = ext_diff_func edfootest
 endif
 
 ext_diff_func_SOURCES  = ext_diff_func.cpp 
+
+edfootest_SOURCES      = edfootest.cpp
