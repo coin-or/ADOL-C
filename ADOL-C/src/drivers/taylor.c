@@ -419,7 +419,7 @@ void GauszSolve( double** J, int n, int* RI, int* CI, double* b ) {
             b[CI[i]]-=J[RI[i]][CI[j]]*b[CI[j]];
         b[CI[i]]/=J[RI[i]][CI[i]];
     }
-    free(tmpZ);
+    myfree1(tmpZ);
 }
 
 
@@ -537,7 +537,7 @@ int inverse_Taylor_prop( short tag, int n, int d,
             myfree2(I);
             myfree2(W);
             myfree2(Xhelp);
-            free(w);
+            myfree1(w);
             free(xold);
             free(*nonzero);
             free(nonzero);
@@ -853,7 +853,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
         free((char*) jm);
         myfree3(X);
         myfree3(Y);
-     }
+    }
     for(i=0;i<m;i++)
         tensor[i][0] = y[i];
     bd = jmbd;
