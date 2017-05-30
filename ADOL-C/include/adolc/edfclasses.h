@@ -16,6 +16,9 @@
 #if !defined(ADOLC_EDFCLASSES_H)
 #define ADOLC_EDFCLASSES_H 1
 
+#include <adolc/externfcts.h>
+#include <adolc/externfcts2.h>
+
 class EDFobject {
 protected:
     ext_diff_fct *edf;
