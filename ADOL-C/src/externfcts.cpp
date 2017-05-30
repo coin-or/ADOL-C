@@ -81,6 +81,7 @@ void edf_zero(ext_diff_fct *edf) {
   if (edf->allmem != NULL)
       free(edf->allmem);
   edf->allmem=NULL;
+  edf->user_allocated_mem=0;
 }
 
 ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct) {
@@ -177,7 +178,8 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct,
            numVals * sizeof(double));
   }
 
-  update_ext_fct_memory(edfct,n,m);
+  if (!edfct->user_allocated_mem)
+      update_ext_fct_memory(edfct,n,m);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.c */
@@ -193,6 +195,7 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct,
 
   for (int i=0; i<n; ++i) edfct->dp_x[i]=xa[i].getValue();
   if (edfct->dp_y_priorRequired) for (int i=0; i<m; ++i) edfct->dp_y[i]=ya[i].getValue();
+  ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = edfct->index;
 }
 
 void call_ext_fct_commonPost(ext_diff_fct *edfct,
@@ -255,6 +258,156 @@ int call_ext_fct(ext_diff_fct *edfct,
 
 ext_diff_fct *get_ext_diff_fct( int index ) {
     return buffer.getElement(index);
+}
+
+static int edfoo_wrapper_function(int n, double *x, int m, double* y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->function(n,x,m,y);
+}
+static int edfoo_wrapper_zos_forward(int n, double *x, int m, double* y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->zos_forward(n,x,m,y);
+}
+
+static int edfoo_wrapper_fos_forward(int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->fos_forward(n,dp_x,dp_X,m,dp_y,dp_Y);
+}
+
+static int edfoo_wrapper_fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->fov_forward(n,dp_x,p,dpp_X,m,dp_y,dpp_Y);    
+}
+
+static int edfoo_wrapper_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->fos_reverse(m,dp_U,n,dp_Z,dp_x,dp_y);    
+}
+static int edfoo_wrapper_fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->fov_reverse(m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
+}
+
+void EDFobject::init_edf(EDFobject* ebase) {
+    edf = buffer.append();
+    edf->obj = reinterpret_cast<void*>(ebase);
+    edf->function = edfoo_wrapper_function;
+    edf->zos_forward = edfoo_wrapper_zos_forward;
+    edf->fos_forward = edfoo_wrapper_fos_forward;
+    edf->fov_forward = edfoo_wrapper_fov_forward;
+    edf->fos_reverse = edfoo_wrapper_fos_reverse;
+    edf->fov_reverse = edfoo_wrapper_fov_reverse;    
+}
+
+static int edfoo_iarr_wrapper_function(int iArrLength, int *iArr, int n, double *x, int m, double* y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->function(iArrLength,iArr,n,x,m,y);
+}
+static int edfoo_iarr_wrapper_zos_forward(int iArrLength, int *iArr, int n, double *x, int m, double* y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->zos_forward(iArrLength,iArr,n,x,m,y);
+}
+
+static int edfoo_iarr_wrapper_fos_forward(int iArrLength, int *iArr, int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->fos_forward(iArrLength,iArr,n,dp_x,dp_X,m,dp_y,dp_Y);
+}
+
+static int edfoo_iarr_wrapper_fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->fov_forward(iArrLength,iArr,n,dp_x,p,dpp_X,m,dp_y,dpp_Y);    
+}
+
+static int edfoo_iarr_wrapper_fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->fos_reverse(iArrLength,iArr,m,dp_U,n,dp_Z,dp_x,dp_y);    
+}
+static int edfoo_iarr_wrapper_fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->fov_reverse(iArrLength,iArr,m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
+}
+
+void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
+    edf = buffer.append();
+    edf->obj = reinterpret_cast<void*>(ebase);
+    edf->function = edfoo_wrapper_function;
+    edf->zos_forward_iArr = edfoo_iarr_wrapper_zos_forward;
+    edf->fos_forward_iArr = edfoo_iarr_wrapper_fos_forward;
+    edf->fov_forward_iArr = edfoo_iarr_wrapper_fov_forward;
+    edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
+    edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;    
 }
 
 /****************************************************************************/

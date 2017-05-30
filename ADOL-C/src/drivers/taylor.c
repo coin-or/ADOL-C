@@ -763,6 +763,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
     for (i=0; i<m; i++)
         for (j=0; j<dimten; j++)
             tensor[i][j] = 0;
+
     if (d == 0) {
         MINDEC(rc,zos_forward(tag,m,n,0,x,y));
     } else {
@@ -846,6 +847,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
                 }
             }
         }
+
         for (i=0; i<jmbd; i++)
             free((char*) *(jm+i));
         free((char*) jm);
