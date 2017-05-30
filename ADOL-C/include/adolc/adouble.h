@@ -112,7 +112,7 @@ public:
         return getValue();
     }
     explicit operator double();
-    explicit operator double const&();
+    explicit operator double const&() const;
     explicit operator double&&();
     void setValue ( const double );
     /* badouble& operator = ( const adouble& );
