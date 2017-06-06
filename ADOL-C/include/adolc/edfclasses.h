@@ -26,7 +26,6 @@ protected:
 public:
     EDFobject() { init_edf(this); }
     virtual ~EDFobject() { edf_zero(edf); }
-    locint get_index();
     virtual int function(int n, double *x, int m, double *y) = 0;
     virtual int zos_forward(int n, double *x, int m, double *y) = 0;
     virtual int fos_forward(int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) = 0;
@@ -34,11 +33,14 @@ public:
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
     virtual int indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom);
-    int call(int n, adouble *xa, int m, adouble *ya) {
+    inline int call(int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,n,xa,m,ya);
     }
-    int call(int n, advector& x, int m, advector& y) {
+    inline int call(int n, advector& x, int m, advector& y) {
         return call(n,x.operator adouble*(),m,y.operator adouble*());
+    }
+    inline locint get_index() {
+        return edf->index;
     }
 };
 
@@ -49,18 +51,20 @@ protected:
 public:
     EDFobject_iArr() { init_edf(this); }
     virtual ~EDFobject_iArr() { edf_zero(edf); }
-    locint get_index();
     virtual int function(int iArrLength, int *iArr, int n, double *x, int m, double *y) = 0;
     virtual int zos_forward(int iArrLength, int *iArr, int n, double *x, int m, double *y) = 0;
     virtual int fos_forward(int iArrLength, int *iArr, int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) = 0;
     virtual int fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
-    int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
+    inline int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,iArrLength,iArr,n,xa,m,ya);
     }
-    int call(int iArrLength,int* iArr,int n, advector& x, int m, advector& y) {
+    inline int call(int iArrLength,int* iArr,int n, advector& x, int m, advector& y) {
         return call(iArrLength,iArr,n,x.operator adouble*(),m,y.operator adouble*());
+    }
+    inline locint get_index() {
+        return edf->index;
     }
 };
 
@@ -71,7 +75,6 @@ protected:
 public:
     EDFobject_v2() { init_edf(this); }
     virtual ~EDFobject_v2() { edf_zero(edf); }
-    locint get_index();
     virtual int function(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y, void* ctx) = 0;
     virtual int zos_forward(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y, void* ctx) = 0;
     virtual int fos_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp, void *ctx) = 0;
@@ -81,6 +84,13 @@ public:
     int call(int iArrLen, int* iArr, int nin, int nout, int *insz, adouble **x, int *outsz, adouble **y) {
         return call_ext_fct(edf,iArrLen,iArr,nin,nout,insz,x,outsz,y);
     }
+    inline locint get_index() {
+        return edf->index;
+    }
+    inline int set_opaque_context(void *ctx) {
+        edf_set_opaque_context(edf,ctx);
+    }
+    void allocate_mem(int nin, int nout, int* insz, int* outsz);
 };
 
 #endif

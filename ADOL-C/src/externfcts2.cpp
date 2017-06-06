@@ -274,6 +274,6 @@ void EDFobject_v2::init_edf(EDFobject_v2* ebase) {
     edf->fov_reverse = edfoo_v2_wrapper_fov_reverse;    
 }
 
-locint EDFobject_v2::get_index() {
-    return edf->index;
+void EDFobject_v2::allocate_mem(int nin, int nout, int* insz, int* outsz) {
+    update_ext_fct_memory(edf, nin, nout, insz, outsz);
 }

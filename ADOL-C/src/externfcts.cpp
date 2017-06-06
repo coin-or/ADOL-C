@@ -427,14 +427,6 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;    
 }
 
-locint EDFobject::get_index() {
-    return edf->index;
-}
-
-locint EDFobject_iArr::get_index() {
-    return edf->index;
-}
-
 int EDFobject::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
     for (locint i = 0; i < m; i++) {
         ind_dom[i] = (unsigned int*) malloc((n+2)*sizeof(unsigned int));
