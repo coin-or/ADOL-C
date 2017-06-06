@@ -723,7 +723,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             put_op_reserve(oper, 2*(nin+nout)+iarrlen);
             ADOLC_PUT_LOCINT(idx);
             ADOLC_PUT_LOCINT(iarrlen);
-        } if (oper == take_stock_op) {
+        } else if (oper == take_stock_op) {
             // we really shouldn't have take_stock_op in our trace since
             // trace_on() already writes one, so even if some externally
             // written trace contains it, we'll make sure we use assign_d type
@@ -751,7 +751,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
                     ADOLC_PUT_VAL(val);
                 }
             }
-        } if (oper == death_not) {
+        } else if (oper == death_not) {
             // we count maxlocs ourselves and trace_off() writes a death_not
             // so here we should only check if the given value is bigger than
             // the maxloc we've got
