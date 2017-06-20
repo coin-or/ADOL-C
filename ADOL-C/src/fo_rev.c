@@ -508,8 +508,7 @@ int int_reverse_safe(
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
     for (j=0; j<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; j++) {
-        rpp_A[j] = Aqo;
-        Aqo += p;
+        rpp_A[j] = Aqo + j*p;
     }
     ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -3309,7 +3308,8 @@ int int_reverse_safe(
     free(rp_A);
 #endif
 #ifdef _FOV_
-    myfree2(rpp_A);
+    free(Aqo);
+    free(rpp_A);
 #endif
 #ifdef _INT_REV_
     free(upp_A);
