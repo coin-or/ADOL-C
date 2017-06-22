@@ -17,6 +17,7 @@ from distutils.core import setup, Extension
 from distutils.cmd import Command
 from distutils.command.build_ext import build_ext
 from distutils.command.build import build
+from distutils.command.install import install
 import os
 
 def compile_dynlib(prefix,colpackdir,boostdir):
@@ -41,7 +42,7 @@ def compile_dynlib(prefix,colpackdir,boostdir):
     except subprocess.CalledProcessError as e:
         print(e.output)
         print('cmd = ', e.cmd)
-        exit()
+        raise SystemExit()
 
 class build_adolc(Command):
     user_options = [
@@ -59,7 +60,7 @@ class build_adolc(Command):
         self.set_undefined_options('build',
                                    ('lib_prefix','lib_prefix'),
                                    ('colpack_dir', 'colpack_dir'),
-                                   ('boost_dir', 'boost_dir') )
+                                  ('boost_dir', 'boost_dir') )
 
     def run(self):
         compile_dynlib(self.lib_prefix,self.colpack_dir,self.boost_dir)
@@ -106,20 +107,39 @@ class buildthis(build,object):
         self.colpack_dir = None
         self.boost_dir = None
 
-    def finalize_options(self):
-        super(buildthis,self).finalize_options()
-        if self.lib_prefix is None:
-            self.lib_prefix = os.path.join(os.environ['HOME'],'adolc_base')
-        if self.colpack_dir is None:
-            self.colpack_dir = os.path.join(os.environ['HOME'],'adolc_base')
-        if self.boost_dir is None:
-            self.boost_dir = '/usr'
-
     #sub_commands = [ ('build_clib', clib_doesnot_exist),
     #                 ('build_ext', None) ]
     sub_commands = [ ('build_clib', None),
                      ('build_ext', None) ]
 
+class installthis(install,object):
+    command_name = 'install'
+    user_options = install.user_options + [
+        ('clib-prefix=', None, 'prefix to install adolc library'),
+        ('colpack-dir=', None, 'directory in which colpack is installed'),
+        ('boost-dir=', None, 'directory in which boost is installed') ]
+
+    def initialize_options(self):
+        self.clib_prefix = None
+        self.colpack_dir = None
+        self.boost_dir = None
+        super(installthis,self).initialize_options()
+
+    def finalize_options(self):
+        super(installthis,self).finalize_options()
+        if self.clib_prefix is None:
+            self.lib_prefix = os.path.join(os.environ['HOME'],'adolc_base')
+        if self.colpack_dir is None:
+            self.colpack_dir = os.path.join(os.environ['HOME'],'adolc_base')
+        if self.boost_dir is None:
+            self.boost_dir = '/usr'
+        self.finalized = 1
+        buildobj = self.distribution.get_command_obj('build')
+        buildobj.set_undefined_options('install',
+                                   ('clib_prefix','lib_prefix'),
+                                   ('colpack_dir', 'colpack_dir'),
+                                   ('boost_dir', 'boost_dir') )
+        
 incdirs = np_dist.get_numpy_include_dirs()
 
 adolc_mod = Extension('_adolc',
@@ -137,6 +157,7 @@ setup(name='adolc',
       version='2.7-trunk',
       cmdclass = { 'build_clib': build_adolc,
                    'build_ext': build_swigadolc,
-                   'build': buildthis
+                   'build': buildthis,
+                   'install': installthis
                }
 )
