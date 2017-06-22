@@ -64,12 +64,12 @@ PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.BranchException",
 " to an ADOL-C library function, which in a pure C/C++ environment would be"
 " detected by the return value of that library function. This is generally"
 " a warning to retrace the original function at the current point", 
-                                NULL, NULL);
+                                PyExc_RuntimeError, NULL);
 PyModule_AddObject(m,"BranchException",PyExc_AdolcException);
 PyExc_AdolcFatalError = PyErr_NewExceptionWithDoc("adolc.FatalError", 
 "This exception is thrown if an error condition happens during the call"
 " to an ADOL-C library function, which in a pure C/C++ environment would be"
-" flagged as a fatal error and stop execution.", NULL, NULL);
+" flagged as a fatal error and stop execution.", PyExc_RuntimeError, NULL);
 PyModule_AddObject(m,"FatalError",PyExc_AdolcFatalError);
 %}
 
@@ -459,6 +459,9 @@ FatalError = _adolc.FatalError
     adub* log() {
         return (adub*) log(*($self));
     }
+    adub* sqrt() {
+        return (adub*) sqrt(*($self));
+    }
     adub* asin() {
         return (adub*) asin(*($self));
     }
@@ -560,6 +563,9 @@ FatalError = _adolc.FatalError
     }
     adub* log() {
         return (adub*) log(*($self));
+    }
+    adub* sqrt() {
+        return (adub*) sqrt(*($self));
     }
     adub* asin() {
         return (adub*) asin(*($self));
