@@ -405,6 +405,7 @@ static int edfoo_iarr_wrapper_fos_reverse(int iArrLength, int *iArr, int m, doub
     ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
     return ebase->fos_reverse(iArrLength,iArr,m,dp_U,n,dp_Z,dp_x,dp_y);    
 }
+
 static int edfoo_iarr_wrapper_fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) {
     ext_diff_fct* edf;
     EDFobject_iArr* ebase;
@@ -416,6 +417,17 @@ static int edfoo_iarr_wrapper_fov_reverse(int iArrLength, int *iArr, int m, int 
     return ebase->fov_reverse(iArrLength,iArr,m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
 }
 
+static int edfoo_iarr_wrapper_indopro_forward_tight(int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->indopro_forward_tight(iArrLength,iArr,n,dp_x,m,ind_dom);
+}
+
 void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf = buffer.append();
     edf->obj = reinterpret_cast<void*>(ebase);
@@ -424,7 +436,8 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->fos_forward_iArr = edfoo_iarr_wrapper_fos_forward;
     edf->fov_forward_iArr = edfoo_iarr_wrapper_fov_forward;
     edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
-    edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;    
+    edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;
+    edf->indopro_forward_tight_iArr = edfoo_iarr_wrapper_indopro_forward_tight;
 }
 
 int EDFobject::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
@@ -438,6 +451,16 @@ int EDFobject::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **
     return 0;
 }
 
+int EDFobject_iArr::indopro_forward_tight(int iArrLength, int* iArr, int n, double *dp_x, int m, unsigned int **ind_dom) {
+    for (locint i = 0; i < m; i++) {
+        ind_dom[i] = (unsigned int*) malloc((n+2)*sizeof(unsigned int));
+        ind_dom[i][1] = n+2;
+        ind_dom[i][0] = n;
+        for (locint j = 0; j < n; j++)
+            ind_dom[i][j+2] = j;
+    }
+    return 0;
+}
 /****************************************************************************/
 /*                                                               THAT'S ALL */
 

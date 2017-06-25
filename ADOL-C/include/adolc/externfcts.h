@@ -49,6 +49,7 @@ typedef int (ADOLC_ext_fct_iArr_fos_reverse) (int iArrLength, int *iArr, int m, 
 typedef int (ADOLC_ext_fct_iArr_fov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_iArr_hos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, int d, double **dpp_Z);
 typedef int (ADOLC_ext_fct_iArr_hov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
+typedef int (ADOLC_ext_fct_iArr_indopro_forward_tight) (int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom); 
 
 
 /**
@@ -135,6 +136,7 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
 
   ADOLC_ext_fct_indopro_forward_tight *indopro_forward_tight;
+  ADOLC_ext_fct_iArr_indopro_forward_tight *indopro_forward_tight_iArr;
 
   /**
    * The names of the variables below correspond to the formal parameters names in the call back 

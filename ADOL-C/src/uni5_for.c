@@ -1081,8 +1081,11 @@ int  hov_forward(
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_) && defined(_TIGHT_)
 #   define _EXTERN_ 1
 #   define ADOLC_EXT_FCT_POINTER indopro_forward_tight
+#   define ADOLC_EXT_FCT_IARR_POINTER indopro_forward_tight_iArr
 #   define ADOLC_EXT_FCT_COMPLETE \
     indopro_forward_tight(n, edfct->dp_x, m, edfct->ind_dom)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    indopro_forward_tight_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->ind_dom)
 #   define ADOLC_EXT_POINTER_INDO edfct->ind_dom
 #endif
 
@@ -6260,7 +6263,6 @@ int  hov_forward(
 #endif
                 break;
 
-#if !defined(_INDOPRO_)
             case ext_diff_iArr:                 /* extern differntiated function */
                 iArrLength=get_locint_f();
                 iArr=malloc(iArrLength*sizeof(int));
@@ -6278,17 +6280,27 @@ int  hov_forward(
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
                 if (n>0) {
                     if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#if !defined(_ZOS_)
+#if !defined(_ZOS_) && !defined(_INDOPRO_)
                     if (ADOLC_EXT_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
                 if (m>0) {
                     if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#if !defined(_ZOS_)
+#if !defined(_ZOS_) && !defined(_INDOPRO_)
                     if (ADOLC_EXT_POINTER_Y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
 
+#if defined(_INDOPRO_)
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
+                for (loop=0; loop<n; ++loop) {
+                    if (edfct->dp_x_changes) {
+                      IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
+                    }
+                    edfct->dp_x[loop]=dp_T0[arg];
+                    ++arg;
+                }
+#else
                 arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
                     if (edfct->dp_x_changes) {
@@ -6311,10 +6323,19 @@ int  hov_forward(
 #endif
                     ++arg;
                 }
+#endif
 
                 ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
                 MINDEC(ret_c, ext_retc);
 
+#if defined(_INDOPRO_)
+                translate_index_domain(ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for,
+                                       n,
+                                       ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for,
+                                       m,
+                                       ADOLC_EXT_POINTER_INDO,
+                                       ind_dom);
+#else
                 res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
                 for (loop=0; loop<n; ++loop) {
                     dp_T0[res]=edfct->dp_x[loop];
@@ -6331,9 +6352,11 @@ int  hov_forward(
 #endif
                     ++res;
                 }
+#endif
                 free((void*)iArr); iArr=0;
                 break;
 
+#if !defined(_INDOPRO_)
             case ext_diff_v2:
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 iArrLength = get_locint_f();

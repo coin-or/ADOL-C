@@ -57,6 +57,7 @@ public:
     virtual int fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
+    virtual int indopro_forward_tight(int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom);
     inline int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,iArrLength,iArr,n,xa,m,ya);
     }
@@ -87,7 +88,7 @@ public:
     inline locint get_index() {
         return edf->index;
     }
-    inline int set_opaque_context(void *ctx) {
+    inline void set_opaque_context(void *ctx) {
         edf_set_opaque_context(edf,ctx);
     }
     void allocate_mem(int nin, int nout, int* insz, int* outsz);
