@@ -273,6 +273,8 @@ typedef struct ext_diff_fct {
 }
 ext_diff_fct;
 
+ADOLC_DLL_EXPORT int alloc_copy_current_params(double** params);
+
 END_C_DECLS
 
 #include <adolc/externfcts2.h>

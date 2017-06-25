@@ -29,6 +29,22 @@
    Buffer< ext_diff_fct, EDFCTS_BLOCK_SIZE >
 static ADOLC_BUFFER_TYPE buffer(edf_zero);
 
+/** This function is required to pass on parameter vectors from one trace to
+ *  the next one in case of nested adolc based external functions. This just 
+ *  basically allocates and copies the parameters out to the user, who can
+ *  then do whatever with them.
+ */
+int alloc_copy_current_params(double** params) {
+    int numparam, i;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    numparam = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
+    *params = (double*) calloc(numparam,sizeof(double));
+    for(i=0; i<numparam; i++) 
+        (*params)[i] = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[i];
+    return numparam;
+}
+
 void edf_zero(ext_diff_fct *edf) {
   // sanity settings
   edf->function=0;
