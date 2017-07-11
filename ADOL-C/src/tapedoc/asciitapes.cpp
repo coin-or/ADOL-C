@@ -819,8 +819,6 @@ static void create_one_subtrace(const std::string& instr, short& curtag) {
     while (namea != iend) {
         std::string stname = (*namea)[1].str();
         if (subroutines.find(stname) == subroutines.end()) {
-            // increase curtag
-            curtag++;
             fprintf(DIAG_OUT, "creating subtrace : tag(%d), file = %s\n",curtag,stname.c_str());
             subroutines.emplace(std::piecewise_construct,std::forward_as_tuple(stname),std::forward_as_tuple(curtag,stname));
             curtag = subroutines.at(stname).read();
@@ -959,9 +957,10 @@ short read_ascii_trace(const char*const fname, short tag) {
     trace_off();
     fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
         "Remember to run forward mode with correct setup first.\n");
-    if (bufinithere)
+    if (bufinithere) {
         delete[] buf;
-    buf = NULL;
+        buf = NULL;
+    }
     return fintag;
 }
 
