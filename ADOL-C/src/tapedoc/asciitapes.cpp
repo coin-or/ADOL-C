@@ -614,6 +614,13 @@ static void handle_ops_stats(enum OPCODES operation,
             if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
                 ++ADOLC_CURRENT_TAPE_INFOS.numSwitches;
             break;
+        case set_numparam:
+        {
+            locint n = *locs.cbegin();
+            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
+        }
+            break;
         case assign_p:
         case recipr_p:
         case neg_sign_p:
@@ -623,13 +630,6 @@ static void handle_ops_stats(enum OPCODES operation,
         case ref_eq_plus_p:
         case ref_eq_min_p:
         case ref_eq_mult_p:
-        case set_numparam:
-        {
-            locint n = *locs.cbegin();
-            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
-        }
-            break;
         case plus_a_p:
         case min_a_p:
         case mult_a_p:
@@ -644,7 +644,7 @@ static void handle_ops_stats(enum OPCODES operation,
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n + 1;
         }
             break;
         default:
