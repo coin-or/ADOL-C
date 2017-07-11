@@ -630,6 +630,12 @@ static void handle_ops_stats(enum OPCODES operation,
         case ref_eq_plus_p:
         case ref_eq_min_p:
         case ref_eq_mult_p:
+        {
+            locint n = *locs.cbegin();
+            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n + 1;
+        }
+            break;
         case plus_a_p:
         case min_a_p:
         case mult_a_p:
