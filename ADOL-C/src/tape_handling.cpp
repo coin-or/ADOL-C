@@ -1598,6 +1598,7 @@ void free_all_taping_params() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
+    ADOLC_GLOBAL_TAPE_VARS.numparam = 0;
     np = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
     if (ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->maxSize() > np) 
     // this is not true if we come in from reading an ascii trace
