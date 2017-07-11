@@ -627,7 +627,7 @@ static void handle_ops_stats(enum OPCODES operation,
         {
             locint n = *locs.cbegin();
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n+1;
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
         }
             break;
         case plus_a_p:
@@ -644,7 +644,7 @@ static void handle_ops_stats(enum OPCODES operation,
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n+1;
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
         }
             break;
         default:
@@ -886,7 +886,7 @@ static void scan_subtraces(const char*const fname,short& curtag, char* buf, size
 }
                         
 short read_ascii_trace(const char*const fname, short tag) {
-    short fintag = tag;
+    short fintag = tag + 1;
     static char *buf = NULL;
     static size_t bufsz = 4194304;
     bool bufinithere = false;
@@ -961,6 +961,7 @@ short read_ascii_trace(const char*const fname, short tag) {
         "Remember to run forward mode with correct setup first.\n");
     if (bufinithere)
         delete[] buf;
+    buf = NULL;
     return fintag;
 }
 
@@ -1079,7 +1080,7 @@ void write_ascii_trace(const char *const fname, short tag) {
     }
     if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0) {
         std::ostringstream outstr;
-        outstr << "{ op:set_numparam " << "loc:" << ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] - 1 << " }\n";
+        outstr << "{ op:set_numparam " << "loc:" << ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] << " }\n";
         file << outstr.str();
     }
     end_sweep();
