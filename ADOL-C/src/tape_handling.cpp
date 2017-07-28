@@ -42,6 +42,9 @@ END_C_DECLS
 
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
   store = NULL;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  actStore = NULL;
+#endif
   storeSize = 0;
   numLives = 0;
   nominmaxFlag = 0;
@@ -49,7 +52,11 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
   numparam = 0;
   maxparam = 0;
   initialStoreSize = 0;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  storeManagerPtr = new StoreManagerLocintBlock(store, actStore, storeSize, numLives);
+#else
   storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
+#endif
   paramStoreMgrPtr = new StoreManagerLocintBlock(pStore, maxparam, numparam);
 }
 
@@ -80,10 +87,18 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     initialStoreSize = gtv.initialStoreSize;
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
+#if defined(ADOLC_TRACK_ACTIVITY)
+    actStore = new char[storeSize];
+    memcpy(actStore, gtv.actStore, storeSize*sizeof(char));
+#endif
     storeManagerPtr = new
         StoreManagerLocintBlock(
             dynamic_cast<StoreManagerLocintBlock*>(gtv.storeManagerPtr),
-            store, storeSize, numLives);
+            store,
+#if defined(ADOLC_TRACK_ACTIVITY)
+            actStore,
+#endif
+            storeSize, numLives);
     paramStoreMgrPtr = new
         StoreManagerLocintBlock(
             dynamic_cast<StoreManagerLocintBlock*>(gtv.paramStoreMgrPtr),
@@ -91,8 +106,46 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     return *this;
 }
 
+#if defined(ADOLC_TRACK_ACTIVITY)
+
+char const* const StoreManagerLocint::nowhere = NULL;
+
+StoreManagerLocint::StoreManagerLocint(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+    activityTracking(1),
+    actStorePtr(actStorePtr),
+    indexFree(0),
+    head(0),
+    maxsize(size), currentfill(numlives)
+{
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+#endif
+}
+
+StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
+				       double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+    actStorePtr(actStorePtr),
+    activityTracking(1),
+    maxsize(size), currentfill(numlives)
+{
+#ifdef ADOLC_DEBUG
+    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+#endif
+    head = stm->head;
+    indexFree = new locint[maxsize];
+    for (size_t i = 0; i < maxsize; i++)
+	indexFree[i] = stm->indexFree[i];
+}
+#endif
+
 StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
+#if defined(ADOLC_TRACK_ACTIVITY)
+    activityTracking(0),
+    actStorePtr(const_cast<char*&>(nowhere)),
+#endif
     indexFree(0),
     head(0),
     maxsize(size), currentfill(numlives)
@@ -115,6 +168,11 @@ StoreManagerLocint::~StoreManagerLocint()
 	delete[] indexFree;
 	indexFree = 0;
     }
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (activityTracking && actStorePtr) {
+	delete[] actStorePtr;
+    }
+#endif
     maxsize = 0;
     currentfill = 0;
     head = 0;
@@ -123,6 +181,10 @@ StoreManagerLocint::~StoreManagerLocint()
 StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
 				       double * &storePtr, size_t &size, size_t &numlives) : 
     storePtr(storePtr),
+#if defined(ADOLC_TRACK_ACTIVITY)
+    activityTracking(0),
+    actStorePtr(const_cast<char*&>(nowhere)),
+#endif
     maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
@@ -180,6 +242,12 @@ void StoreManagerLocint::grow(size_t mingrow) {
 
     double *const oldStore = storePtr;
     locint *const oldIndex = indexFree;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    char * oldactStore;
+    if (activityTracking) {
+	oldactStore = actStorePtr;
+    }
+#endif
 
 #if defined(ADOLC_DEBUG)
     std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles " 
@@ -187,6 +255,10 @@ void StoreManagerLocint::grow(size_t mingrow) {
 #endif
     storePtr = new double[maxsize];
     indexFree = new locint[maxsize];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (activityTracking)
+	actStorePtr = new char[maxsize];
+#endif
     // we use index 0 as end-of-list marker
     size_t i = 1;
     storePtr[0] =  std::numeric_limits<double>::quiet_NaN();
@@ -201,7 +273,13 @@ void StoreManagerLocint::grow(size_t mingrow) {
       for (size_t j = i; j < oldMaxsize; ++j) {
 	storePtr[j] = oldStore[j];
       }
-
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (activityTracking) {
+	  for (size_t j = i; j < oldMaxsize; ++j) {
+	      actStorePtr[j] = oldactStore[j];
+	  }
+      }
+#endif
       // reset i to start of new slots (upper half)
       i = oldMaxsize;
 
@@ -211,6 +289,10 @@ void StoreManagerLocint::grow(size_t mingrow) {
 #endif
       delete [] oldStore;
       delete [] oldIndex;
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (activityTracking)
+	  delete [] oldactStore;
+#endif
     }
 
     head = i;
@@ -1259,8 +1341,56 @@ PersistantTapeInfos::~PersistantTapeInfos() {
     }
 }
 
+#if defined(ADOLC_TRACK_ACTIVITY)
+
+char const* const StoreManagerLocintBlock::nowhere = NULL;
+
+StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+    actStorePtr(actStorePtr),
+    activityTracking(1),
+    maxsize(size),
+    currentfill(numlives)
+#ifdef ADOLC_LOCDEBUG
+    ,ensure_blockCallsSinceLastConsolidateBlocks(0)
+#endif
+  {
+    indexFree.clear();
+#ifdef ADOLC_LOCDEBUG
+    std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
+#endif
+}
+
+StoreManagerLocintBlock::StoreManagerLocintBlock(
+    const StoreManagerLocintBlock *const stm,
+    double * &storePtr, char * &actStorePtr, size_t &size, size_t &numlives) :
+    storePtr(storePtr),
+#if defined(ADOLC_TRACK_ACTIVITY)
+    actStorePtr(actStorePtr),
+    activityTracking(1),
+#endif
+    maxsize(size),
+    currentfill(numlives)
+#ifdef ADOLC_LOCDEBUG
+    ,ensure_blockCallsSinceLastConsolidateBlocks(0)
+#endif
+  {
+#ifdef ADOLC_LOCDEBUG
+    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+#endif
+    indexFree.clear();
+    forward_list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
+    for (; iter != stm->indexFree.end(); iter++)
+	indexFree.emplace_front( *iter );
+}
+#endif
+
 StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
+#if defined(ADOLC_TRACK_ACTIVITY)
+    activityTracking(0),
+    actStorePtr(const_cast<char*&>(nowhere)),
+#endif
     maxsize(size),
     currentfill(numlives)
 #ifdef ADOLC_LOCDEBUG
@@ -1293,6 +1423,10 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
     const StoreManagerLocintBlock *const stm,
     double * &storePtr, size_t &size, size_t &numlives) :
     storePtr(storePtr),
+#if defined(ADOLC_TRACK_ACTIVITY)
+    activityTracking(0),
+    actStorePtr(const_cast<char*&>(nowhere)),
+#endif
     maxsize(size),
     currentfill(numlives)
 #ifdef ADOLC_LOCDEBUG
@@ -1412,13 +1546,23 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 #endif
 
     double *const oldStore = storePtr;
-
+#if defined(ADOLC_TRACK_ACTIVITY)
+    char * oldactStore;
+    if (activityTracking)
+	oldactStore = actStorePtr;
+#endif
 #if defined(ADOLC_LOCDEBUG)
     std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles\n";
 #endif
     storePtr = new double[maxsize];
     assert(storePtr);
     memset(storePtr, 0, maxsize*sizeof(double));
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (activityTracking) {
+	actStorePtr = new char[maxsize];
+	memset(actStorePtr,0,maxsize*sizeof(char));
+    }
+#endif
 
     if (oldStore != NULL) { // not the first time
 #if defined(ADOLC_LOCDEBUG)
@@ -1426,11 +1570,22 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 #endif
 
       memcpy(storePtr, oldStore, oldMaxsize*sizeof(double));
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (activityTracking) {
+	  memcpy(actStorePtr, oldactStore, oldMaxsize*sizeof(char));
+      }
+#endif
 
 #if defined(ADOLC_LOCDEBUG)
       std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double) << "\n";
 #endif
       delete [] oldStore;
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (activityTracking) {
+	  delete[] oldactStore;
+      }
+#endif
+
     }
 
     bool foundTail = false;
