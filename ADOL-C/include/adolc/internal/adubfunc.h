@@ -33,7 +33,7 @@
     /* binary operators (friends) */
     friend ADOLC_DLL_EXPORT adub operator + ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator + ( double, const badouble& );
-    friend ADOLC_DLL_EXPORT adub operator + ( const badouble&, double );
+    inline friend adub operator + ( const badouble&, double );
     friend ADOLC_DLL_EXPORT adub operator - ( const badouble&, const badouble& );
     inline friend adub operator - ( const badouble&, double );
     friend ADOLC_DLL_EXPORT adub operator - ( double, const badouble& );
