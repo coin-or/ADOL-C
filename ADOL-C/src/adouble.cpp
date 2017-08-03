@@ -229,7 +229,7 @@ double badouble::getValue() const {
     return ADOLC_GLOBAL_TAPE_VARS.store[loc()];
 }
 
-badouble::operator double const&() {
+badouble::operator double const&() const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     return ADOLC_GLOBAL_TAPE_VARS.store[loc()];
@@ -1808,6 +1808,19 @@ adub fmax ( const badouble& x, double d ) {
 /* Ldexp Function */
 adub ldexp ( const badouble& x, int exp ) {
     return x*ldexp(1.0,exp);
+}
+/*--------------------------------------------------------------------------*/
+/* frexp Function */
+adub frexp ( const badouble& x, int* n) {
+    double v = frexp(x.value(), n);
+    adouble r = x - v;
+    adouble z = r - double(*n);
+    if (z == 0) {
+        return (x - double(*n));
+    } else {
+        fprintf(stderr,"ADOL-C warning: std::frexp() returned inconsistent results\n");
+        return (r - double(*n));
+    }
 }
 
 /*--------------------------------------------------------------------------*/
