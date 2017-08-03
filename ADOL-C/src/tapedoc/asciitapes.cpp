@@ -614,6 +614,13 @@ static void handle_ops_stats(enum OPCODES operation,
             if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
                 ++ADOLC_CURRENT_TAPE_INFOS.numSwitches;
             break;
+        case set_numparam:
+        {
+            locint n = *locs.cbegin();
+            if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
+        }
+            break;
         case assign_p:
         case recipr_p:
         case neg_sign_p:
@@ -623,11 +630,10 @@ static void handle_ops_stats(enum OPCODES operation,
         case ref_eq_plus_p:
         case ref_eq_min_p:
         case ref_eq_mult_p:
-        case set_numparam:
         {
             locint n = *locs.cbegin();
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n + 1;
         }
             break;
         case plus_a_p:
@@ -644,7 +650,7 @@ static void handle_ops_stats(enum OPCODES operation,
         {
             locint n = *(++locs.cbegin());
             if (ADOLC_GLOBAL_TAPE_VARS.numparam <= n) 
-                ADOLC_GLOBAL_TAPE_VARS.numparam = n;
+                ADOLC_GLOBAL_TAPE_VARS.numparam = n + 1;
         }
             break;
         default:
@@ -819,8 +825,6 @@ static void create_one_subtrace(const std::string& instr, short& curtag) {
     while (namea != iend) {
         std::string stname = (*namea)[1].str();
         if (subroutines.find(stname) == subroutines.end()) {
-            // increase curtag
-            curtag++;
             fprintf(DIAG_OUT, "creating subtrace : tag(%d), file = %s\n",curtag,stname.c_str());
             subroutines.emplace(std::piecewise_construct,std::forward_as_tuple(stname),std::forward_as_tuple(curtag,stname));
             curtag = subroutines.at(stname).read();
@@ -959,9 +963,10 @@ short read_ascii_trace(const char*const fname, short tag) {
     trace_off();
     fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
         "Remember to run forward mode with correct setup first.\n");
-    if (bufinithere)
+    if (bufinithere) {
         delete[] buf;
-    buf = NULL;
+        buf = NULL;
+    }
     return fintag;
 }
 
