@@ -1094,7 +1094,7 @@ badouble& badouble::operator -= ( const badouble& y ) {
 	      ADOLC_PUT_LOCINT(loc()); // = res
 	      ADOLC_PUT_VAL(coval);
 	  } else {
-	      put_op(assign_a);
+	      put_op(neg_sign_a);
 	      ADOLC_PUT_LOCINT(y_loc); // = arg
 	      ADOLC_PUT_LOCINT(loc());      // = res
 	  }
@@ -1170,7 +1170,7 @@ badouble& badouble::operator -= ( const adub& a ) {
 		  ADOLC_PUT_LOCINT(loc()); // = res
 		  ADOLC_PUT_VAL(coval);
 	      } else {
-		  put_op(assign_a);
+		  put_op(neg_sign_a);
 		  ADOLC_PUT_LOCINT(a_loc); // = arg
 		  ADOLC_PUT_LOCINT(loc());      // = res
 	      }
@@ -1247,10 +1247,20 @@ badouble& badouble::operator *= ( const badouble& y ) {
 #if defined(ADOLC_TRACK_ACTIVITY)
       } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]) {
 	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
-	  put_op(mult_d_a);
-	  ADOLC_PUT_LOCINT(y_loc); // = arg
-	  ADOLC_PUT_LOCINT(loc()); // = res
-	  ADOLC_PUT_VAL(coval);
+	  if (coval == -1.0) {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	  } else if (coval == 1.0) {
+	      put_op(pos_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	  } else {
+              put_op(mult_d_a);
+              ADOLC_PUT_LOCINT(y_loc); // = arg
+              ADOLC_PUT_LOCINT(loc()); // = res
+              ADOLC_PUT_VAL(coval);
+          }
 
 	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
 	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
@@ -1499,6 +1509,7 @@ adub operator - ( const badouble& x ) {
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
 #if defined(ADOLC_TRACK_ACTIVITY)
       } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+          coval = - coval;
 	  if (coval == 0.0) {
 	      put_op(assign_d_zero);
 	      ADOLC_PUT_LOCINT(locat);
