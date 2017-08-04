@@ -1509,17 +1509,16 @@ adub operator - ( const badouble& x ) {
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
 #if defined(ADOLC_TRACK_ACTIVITY)
       } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
-          coval = - coval;
-	  if (coval == 0.0) {
+	  if (- coval == 0.0) {
 	      put_op(assign_d_zero);
 	      ADOLC_PUT_LOCINT(locat);
-	  } else if (coval == 1.0) {
+	  } else if (- coval == 1.0) {
 	      put_op(assign_d_one);
 	      ADOLC_PUT_LOCINT(locat);
 	  } else {
 	      put_op(assign_d);
 	      ADOLC_PUT_LOCINT(locat);
-	      ADOLC_PUT_VAL(coval);
+	      ADOLC_PUT_VAL(- coval);
 	  }
 
 	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
