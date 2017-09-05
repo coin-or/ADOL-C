@@ -210,6 +210,7 @@ FatalError = _adolc.FatalError
     }
 }
 
+%include "../include/adolc/edfclasses.h"
 %include "pyedfclasses.hpp"
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
