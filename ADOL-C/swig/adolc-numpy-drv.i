@@ -22,8 +22,7 @@ def as_adouble(arg):
     else:
         arg = np.ascontiguousarray(arg,dtype=np.float64)
         shp = np.shape(arg)
-        data = np.ravel(arg)
-        adata = np.array([adouble(val) for val in iter(data)])
+        adata = np.array([adouble(val) for val in arg.flat])
         ret = adata.reshape(shp)
         return ret
 %}
@@ -56,6 +55,10 @@ def as_adouble(arg):
 %rename (sparse_hess) npy_sparse_hess;
 %ignore set_param_vec;
 %rename (set_param_vec) npy_set_param_vec;
+%ignore directional_active_gradient;
+%rename (directional_active_gradient) npy_dir_act_grad;
+%ignore abs_normal;
+%rename (abs_normal) npy_abs_normal;
 
 %apply (double** ARGOUTVIEWM_ARRAY1, int* DIM1) 
        {(double** y, int* m1),
@@ -72,7 +75,11 @@ def as_adouble(arg):
 %apply (double** ARGOUTVIEWM_ARRAY2, int* DIM1, int* DIM2) 
        {(double** J, int* m2, int* n2),
         (double** H, int* n2, int* n3),
-        (double** W, int* n2, int* q2)}
+        (double** W, int* n2, int* q2),
+        (double** Yy, int* p1, int* q1),
+        (double** Jj, int* p2, int* q2),
+        (double** Zz, int* p3, int* q3),
+        (double** Ll, int* p4, int* q4)}
 %apply (double* IN_ARRAY2, int DIM1, int DIM2)
        {(double* V, int n1, int q)}
 
@@ -83,6 +90,8 @@ def as_adouble(arg):
 %apply (unsigned int** ARGOUTVIEWM_ARRAY1, int* DIM1)
        {(unsigned int** rind, int* nnz1),
         (unsigned int** cind, int* nnz2)};
+%apply (short** ARGOUTVIEWM_ARRAY1, int* DIM1) 
+       {(short** sigma, int* nn3)};
 
 %inline %{
 #ifdef __cplusplus
@@ -335,15 +344,72 @@ extern "C" {
         set_param_vec(t,n,x);
     }
 
+    void npy_dir_act_grad(short t, double* x, int n0, double* v, int m1, double** g, int* n2, short** sigma, int* nn3) {
+        DO_GET_DIMENSIONS
+        if (n0 != n || m1 != n ) {
+            PyErr_Format(PyExc_ValueError,
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,), (%d,)",n,n
+                );
+            return;
+        }
+        int ret;
+        *n2 = n;
+        *g = (double*) malloc( *n2 * sizeof(double));
+        *nn3 = get_num_switches(t);
+        *sigma = (short*) malloc( *nn3 * sizeof(short));
+        ret = directional_active_gradient(t,n,x,v,*g,*sigma);
+        CHECKEXCEPT(ret,"directional_active_gradient");
+    }
+
+    void npy_abs_normal(short t, double* x, int n0, double** y, int* m1, double** g, int* n2, double** v, int* m2, double** w, int* n3, double** Yy, int* p1, int* q1, double** Jj, int* p2, int* q2, double** Zz, int* p3, int* q3, double** Ll, int* p4, int* q4) {
+        DO_GET_DIMENSIONS
+        if (n0 != n) {
+            PyErr_Format(PyExc_ValueError,
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,)",n
+                );
+            return;
+        }
+        int ret;
+        double **Y, **J, **Z, **L;
+        double *z, *cz, *cy;
+        char *memory, *tmp;
+        int s = get_num_switches(t);
+        *m1 = m; *n2 = s; *m2 = s; *n3 = m;
+        *p1 = m; *q1 = n;
+        *p2 = m; *q2 = s;
+        *p3 = s; *q3 = n;
+        *p4 = s; *q4 = s;
+        *y = (double*) calloc( *m1, sizeof(double));
+        *g = (double*) calloc( *n2, sizeof(double));
+        *v = (double*) calloc( *m2, sizeof(double));
+        *w = (double*) calloc( *n3, sizeof(double));
+        *Yy = (double*) calloc( *p1 * *q1, sizeof(double));
+        *Jj = (double*) calloc( *p2 * *q2, sizeof(double));
+        *Zz = (double*) calloc( *p3 * *q3, sizeof(double));
+        *Ll = (double*) calloc( *p4 * *q4, sizeof(double));
+        z = *g; cz = *v; cy = *w;
+        memory = (char*) malloc( (*p1 + *p2 + *p3 + *p4) * sizeof(double*));
+        tmp = memory;
+        tmp = populate_dpp_with_contigdata(&Y,tmp,*p1,*q1, *Yy);
+        tmp = populate_dpp_with_contigdata(&J,tmp,*p2,*q2, *Jj);
+        tmp = populate_dpp_with_contigdata(&Z,tmp,*p3,*q3, *Zz);
+        tmp = populate_dpp_with_contigdata(&L,tmp,*p4,*q4, *Ll);
+        ret = abs_normal(t,m,n,s,x,*y,z,cz,cy,Y,J,Z,L);
+        free(memory);
+        CHECKEXCEPT(ret,"abs_normal");
+    }
+
 #ifdef __cplusplus
 }
 #endif
 %}
-%clear (double* y, int m1);
-%clear (double* g, int n2);
-%clear (double* v, int m2);
-%clear (double* w, int n2);
-%clear (double* w, int n3);
+%clear (double** y, int* m1);
+%clear (double** g, int* n2);
+%clear (double** v, int* m2);
+%clear (double** w, int* n2);
+%clear (double** w, int* n3);
 %clear (double* x, int n1);
 %clear (double* x, int n0);
 %clear (double* u, int n2);
@@ -357,3 +423,8 @@ extern "C" {
 %clear (double** values, int* nnz3);
 %clear (unsigned int** rind, int* nnz1);
 %clear (unsigned int** cind, int* nnz2);
+%clear (short** sigma, int* nn3);
+%clear (double** Yy, int* p1, int* q1);
+%clear (double** Jj, int* p2, int* q2);
+%clear (double** Zz, int* p3, int* q3);
+%clear (double** Ll, int* p4, int* q4);

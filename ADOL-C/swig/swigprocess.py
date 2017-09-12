@@ -191,9 +191,7 @@ def finalClean(headfile,outfiles):
     for f in glob.glob('*.o'):
         os.remove(f)
 
-def main(args):
-    global noerrors
-    noerrors = False
+def prepare_flat_header():
     sys.path = [ os.getcwd() ] + sys.path
     p = os.getcwd() + '/../include/adolc'
     for (dp, dn, fn) in os.walk(p):
@@ -213,6 +211,12 @@ def main(args):
     lines = reinstate_nonlocal_include(lines)
     writeOutput(lines,'adolc_all.hpp')
     cleanup('adolc_all_pre.hpp')
+
+
+def main(args):
+    global noerrors
+    noerrors = False
+    prepare_flat_header()
     if args.py or args.all:
         invoke_swig_compile('python','adolc-python.i','adolc_python_wrap.cxx','adolc')
     if args.r or args.all:

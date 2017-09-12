@@ -19,7 +19,11 @@
 #include "matrixmemory.hpp"
 #include <adolc/adolc_fatalerror.h>
 
-static PyObject* PyExc_AdolcException; 
+static PyObject *PyExc_AdolcException, *PyExc_AdolcFatalError;
+%}
+
+%pythonbegin %{
+from __future__ import print_function
 %}
 
 %{
@@ -55,13 +59,18 @@ static PyObject* PyExc_AdolcException;
 
 %init %{
 import_array();
-PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.AdolcException", 
+PyExc_AdolcException = PyErr_NewExceptionWithDoc("adolc.BranchException", 
 "This exception is thrown if an error condition happens during the call"
 " to an ADOL-C library function, which in a pure C/C++ environment would be"
 " detected by the return value of that library function. This is generally"
 " a warning to retrace the original function at the current point", 
-                                NULL, NULL);
-PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
+                                PyExc_RuntimeError, NULL);
+PyModule_AddObject(m,"BranchException",PyExc_AdolcException);
+PyExc_AdolcFatalError = PyErr_NewExceptionWithDoc("adolc.FatalError", 
+"This exception is thrown if an error condition happens during the call"
+" to an ADOL-C library function, which in a pure C/C++ environment would be"
+" flagged as a fatal error and stop execution.", PyExc_RuntimeError, NULL);
+PyModule_AddObject(m,"FatalError",PyExc_AdolcFatalError);
 %}
 
 %feature("novaluewrapper") badouble;
@@ -71,10 +80,11 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
 %feature("novaluewrapper") adouble;
 %feature("novaluewrapper") advector;
 
+%rename (AdolcFatalError) FatalError;
 %include "../include/adolc/adolc_fatalerror.h"
 
 %extend FatalError {
-    virtual const char* __str__() const throw() {
+    virtual const char* __repr__() const throw() {
         return (*($self)).what();
     }
 }
@@ -171,7 +181,8 @@ PyModule_AddObject(m,"AdolcException",PyExc_AdolcException);
  }
 
 %pythoncode %{
-AdolcException = _adolc.AdolcException
+BranchException = _adolc.BranchException
+FatalError = _adolc.FatalError
 %}
 
 
@@ -192,14 +203,14 @@ AdolcException = _adolc.AdolcException
         $action
         if (PyErr_Occurred()) SWIG_fail;
     } catch (FatalError &_e) {
-    SWIG_Python_Raise(SWIG_NewPointerObj(
+        PyErr_SetObject(PyExc_AdolcFatalError,SWIG_NewPointerObj(
             (new FatalError(static_cast<const FatalError& >(_e))),  
-            SWIGTYPE_p_FatalError,SWIG_POINTER_OWN),
-        "FatalError", SWIGTYPE_p_FatalError); 
+            SWIGTYPE_p_FatalError,SWIG_POINTER_OWN));
     SWIG_fail;
     }
 }
 
+%include "../include/adolc/edfclasses.h"
 %include "pyedfclasses.hpp"
 %include "adolc-numpy-for.i"
 %include "adolc-numpy-rev.i"
@@ -449,6 +460,9 @@ AdolcException = _adolc.AdolcException
     adub* log() {
         return (adub*) log(*($self));
     }
+    adub* sqrt() {
+        return (adub*) sqrt(*($self));
+    }
     adub* asin() {
         return (adub*) asin(*($self));
     }
@@ -551,6 +565,9 @@ AdolcException = _adolc.AdolcException
     adub* log() {
         return (adub*) log(*($self));
     }
+    adub* sqrt() {
+        return (adub*) sqrt(*($self));
+    }
     adub* asin() {
         return (adub*) asin(*($self));
     }
@@ -609,7 +626,7 @@ def fmin(a,b):
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmin(a,b)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 
 def fmax(a,b):
     import numpy as np
@@ -621,7 +638,7 @@ def fmax(a,b):
     elif isinstance(a,badouble) or isinstance(b,badouble):
         return _adolc.fmax(a,b)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 
 def fabs(a):
     import numpy as np
@@ -631,7 +648,7 @@ def fabs(a):
     elif isinstance(a,badouble):
         return _adolc.fabs(a)
     else:
-	raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
+        raise(NotImplementedError('Arguments must be scalars or ADOL-C types'))
 %}
 
 %exception;

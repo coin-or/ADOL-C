@@ -59,6 +59,8 @@ ADOLC_DLL_EXPORT char currently_nested(short tag);
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
 
+ADOLC_DLL_EXPORT void cleanUp();
+
 ADOLC_DLL_EXPORT int removeTape(short tapeID, short type);
 
 ADOLC_DLL_EXPORT void enableBranchSwitchWarnings();

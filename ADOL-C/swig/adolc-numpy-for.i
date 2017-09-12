@@ -45,26 +45,26 @@ def tapestats(t):
 
 def printTapeStats(t):
     s = tapestats(t)
-    print '*** TAPE STATS (tape ', t, ') **********'
-    print 'NUM_INDEPENDENTS = ', s[NUM_INDEPENDENTS] #                          /* # of independent variables */
-    print 'NUM_DEPENDENTS   = ', s[NUM_DEPENDENTS] #                              /* # of dependent variables */
-    print 'NUM_MAX_LIVES    = ', s[NUM_MAX_LIVES] #                                /* max # of live variables */
-    print 'TAY_STACK_SIZE   = ', s[TAY_STACK_SIZE] #               /* # of values in the taylor (value) stack */
-    print 'OP_BUFFER_SIZE   = ', s[OP_BUFFER_SIZE] #   /* # of operations per buffer == OBUFSIZE (usrparms.h) */
-    print 'NUM_OPERATIONS   = ', s[NUM_OPERATIONS] #                               /* overall # of operations */
-    print 'OP_FILE_ACCESS   = ', s[OP_FILE_ACCESS] #                        /* operations file written or not */
-    print 'NUM_LOCATIONS    = ', s[NUM_LOCATIONS] #                                 /* overall # of locations */
-    print 'LOC_FILE_ACCESS  = ', s[LOC_FILE_ACCESS] #                        /* locations file written or not */
-    print 'NUM_VALUES       = ', s[NUM_VALUES] #                                       /* overall # of values */
-    print 'VAL_FILE_ACCESS  = ', s[VAL_FILE_ACCESS] #                           /* values file written or not */
-    print 'LOC_BUFFER_SIZE  = ', s[LOC_BUFFER_SIZE] #   /* # of locations per buffer == LBUFSIZE (usrparms.h) */
-    print 'VAL_BUFFER_SIZE  = ', s[VAL_BUFFER_SIZE] #      /* # of values per buffer == CBUFSIZE (usrparms.h) */
-    print 'TAY_BUFFER_SIZE  = ', s[TAY_BUFFER_SIZE] #     /* # of taylors per buffer <= TBUFSIZE (usrparms.h) */
-    print 'NUM_EQ_PROD      = ', s[NUM_EQ_PROD] #                      /* # of eq_*_prod for sparsity pattern */
-    print 'NO_MIN_MAX       = ', s[NO_MIN_MAX] #  /* no use of min_op, deferred to abs_op for piecewise stuff */
-    print 'NUM_SWITCHES     = ', s[NUM_SWITCHES] #                   /* # of abs calls that can switch branch */
-    print 'NUM_PARAM        = ', s[NUM_PARAM] # /* no of parameters (doubles) interchangable without retaping */
-    print '**********************************'
+    print( '*** TAPE STATS (tape ', t, ') **********')
+    print( 'NUM_INDEPENDENTS = ', s[NUM_INDEPENDENTS]) #                          /* # of independent variables */
+    print( 'NUM_DEPENDENTS   = ', s[NUM_DEPENDENTS]) #                              /* # of dependent variables */
+    print( 'NUM_MAX_LIVES    = ', s[NUM_MAX_LIVES]) #                                /* max # of live variables */
+    print( 'TAY_STACK_SIZE   = ', s[TAY_STACK_SIZE]) #               /* # of values in the taylor (value) stack */
+    print( 'OP_BUFFER_SIZE   = ', s[OP_BUFFER_SIZE]) #   /* # of operations per buffer == OBUFSIZE (usrparms.h) */
+    print( 'NUM_OPERATIONS   = ', s[NUM_OPERATIONS]) #                               /* overall # of operations */
+    print( 'OP_FILE_ACCESS   = ', s[OP_FILE_ACCESS]) #                        /* operations file written or not */
+    print( 'NUM_LOCATIONS    = ', s[NUM_LOCATIONS]) #                                 /* overall # of locations */
+    print( 'LOC_FILE_ACCESS  = ', s[LOC_FILE_ACCESS]) #                        /* locations file written or not */
+    print( 'NUM_VALUES       = ', s[NUM_VALUES]) #                                       /* overall # of values */
+    print( 'VAL_FILE_ACCESS  = ', s[VAL_FILE_ACCESS]) #                           /* values file written or not */
+    print( 'LOC_BUFFER_SIZE  = ', s[LOC_BUFFER_SIZE]) #   /* # of locations per buffer == LBUFSIZE (usrparms.h) */
+    print( 'VAL_BUFFER_SIZE  = ', s[VAL_BUFFER_SIZE]) #      /* # of values per buffer == CBUFSIZE (usrparms.h) */
+    print( 'TAY_BUFFER_SIZE  = ', s[TAY_BUFFER_SIZE]) #     /* # of taylors per buffer <= TBUFSIZE (usrparms.h) */
+    print( 'NUM_EQ_PROD      = ', s[NUM_EQ_PROD]) #                      /* # of eq_*_prod for sparsity pattern */
+    print( 'NO_MIN_MAX       = ', s[NO_MIN_MAX]) #  /* no use of min_op, deferred to abs_op for piecewise stuff */
+    print( 'NUM_SWITCHES     = ', s[NUM_SWITCHES]) #                   /* # of abs calls that can switch branch */
+    print( 'NUM_PARAM        = ', s[NUM_PARAM]) # /* no of parameters (doubles) interchangable without retaping */
+    print( '**********************************')
 
 def get_dimensions(t):
     stats = tapestats(t)
