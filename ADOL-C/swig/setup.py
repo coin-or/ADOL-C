@@ -19,6 +19,7 @@ from distutils.command.build_ext import build_ext
 from distutils.command.build import build
 from distutils.command.install import install
 import os
+import subprocess
 
 def compile_dynlib(prefix,colpackdir,boostdir):
     import subprocess
@@ -141,6 +142,7 @@ class installthis(install,object):
                                    ('boost_dir', 'boost_dir') )
         
 incdirs = np_dist.get_numpy_include_dirs()
+python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
 
 adolc_mod = Extension('_adolc',
                       sources=['adolc-python.i'],
@@ -149,7 +151,7 @@ adolc_mod = Extension('_adolc',
                       libraries=['adolc'],
                       include_dirs=incdirs,
                       extra_compile_args=['-std=c++11', '-fPIC', '-w'],
-                      extra_link_args=['-Wl,-no-undefined'])
+                      extra_link_args=['-Wl,-no-undefined ' + python_ldflags.rstrip()])
 
 setup(name='adolc',
       ext_modules=[adolc_mod],
