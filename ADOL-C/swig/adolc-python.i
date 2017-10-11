@@ -218,6 +218,7 @@ FatalError = _adolc.FatalError
 %inline %{
 #include "pyedfclasses.hpp"
 %}
+%rename (arctan2) atan2;
 %include "adolc_all.hpp"
 
 %extend advector {
@@ -463,13 +464,13 @@ FatalError = _adolc.FatalError
     adub* sqrt() {
         return (adub*) sqrt(*($self));
     }
-    adub* asin() {
+    adub* arcsin() {
         return (adub*) asin(*($self));
     }
-    adub* acos() {
+    adub* arccos() {
         return (adub*) acos(*($self));
     }
-    adub* atan() {
+    adub* arctan() {
         return (adub*) atan(*($self));
     }
     adub* log10() {
@@ -484,13 +485,13 @@ FatalError = _adolc.FatalError
     adub* tanh() {
         return (adub*) tanh(*($self));
     }
-    adub* asinh() {
+    adub* arcsinh() {
         return (adub*) asinh(*($self));
     }
-    adub* acosh() {
+    adub* arccosh() {
         return (adub*) acosh(*($self));
     }
-    adub* atanh() {
+    adub* arctanh() {
         return (adub*) atanh(*($self));
     }
     adub* erf() {
@@ -500,6 +501,9 @@ FatalError = _adolc.FatalError
         return (adub*) fabs(*($self));
     }
     adub* abs() {
+        return (adub*) fabs(*($self));
+    }
+    adub* __abs__() {
         return (adub*) fabs(*($self));
     }
     adub* ceil() {
