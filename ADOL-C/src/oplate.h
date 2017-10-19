@@ -150,7 +150,8 @@ enum OPCODES {
   ampi_allgatherv,
   ampi_bcast,
   ampi_reduce,
-  ampi_allreduce
+  ampi_allreduce,
+  medi_call
 };
 
 /****************************************************************************/

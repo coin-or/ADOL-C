@@ -43,6 +43,10 @@ lib@adolclib@_la_LDFLAGS += -Wl,-undefined,dynamic_lookup
 endif
 endif
 
+if BUILD_ADOLC_MEDIPACK_SUPPORT
+lib@adolclib@_la_LIBADD  += src/libadolcmedipack.la
+endif
+
 lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la src/lie/liblie.la
 
 if SPARSE

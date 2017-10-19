@@ -6401,7 +6401,15 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
                 break;
 #endif
+#ifdef ADOLC_MEDIPACK_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case medi_call: {
+                locint temp = get_locint_f();
 
+                /* currently not supported */
+                break;
+            }
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case ampi_send: {
