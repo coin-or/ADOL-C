@@ -212,6 +212,9 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <math.h>
 #include <string.h>
 
+#ifdef ADOLC_MEDIPACK_SUPPORT
+#include "medipacksupport_p.h"
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
 #include "ampi/libCommon/modified.h"
@@ -3134,7 +3137,16 @@ int int_reverse_safe(
                 ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
                 break;
+#ifdef ADOLC_MEDIPACK_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case medi_call: {
+                locint index = get_locint_r();
+                short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
+                    mediCallHandle(tapeId, index, rp_T, ADJOINT_BUFFER);
+                break;
+             }
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case ampi_send: {

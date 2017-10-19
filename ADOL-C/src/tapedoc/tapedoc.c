@@ -1276,6 +1276,14 @@ void tape_doc(short tnum,         /* tape id */
                 get_locint_f(); /* nout again */
                 filewrite(operation, "extern diff v2",3, loc_a, val_a, 0, cst_d);
                 break;
+#ifdef ADOLC_MEDIPACK_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case medi_call:
+                loc_a[0] = get_locint_f();
+
+                /* currently not supported */
+                break;
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
             case ampi_send:
 	        loc_a[0] = get_locint_f();   /* start loc */

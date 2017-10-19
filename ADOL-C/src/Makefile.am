@@ -34,6 +34,12 @@ libadolcampi_la_SOURCES  = ampisupport.cpp ampisupportAdolc.cpp \
                            ampisupportAdolc.h
 endif
 
+if BUILD_ADOLC_MEDIPACK_SUPPORT
+noinst_LTLIBRARIES       += libadolcmedipack.la
+libadolcmedipack_la_SOURCES  = medipacksupport.cpp \
+                               medipacksupport_p.h
+endif
+
 
 libadolcsrc_la_SOURCES  = adalloc.c rpl_malloc.c adouble.cpp \
                        convolut.c fortutils.c \

@@ -22,7 +22,7 @@ AC_ARG_WITH(mpicc,
 
 if test x"$with_mpicc" != "x"; 
 then 
-  if test x"$adolc_ampi_support" = "xno";
+  if test x"$adolc_ampi_support" = "xno" && test x"$adolc_medipack_support" = "xno";
   then 
     AC_MSG_ERROR([if --with-mpicc is set one  must also --enable-ampi])
   fi
@@ -43,7 +43,7 @@ AC_ARG_WITH(mpicxx,
 
 if test x"$with_mpicxx" != "x"; 
 then 
-  if test x"$adolc_ampi_support" = "xno";
+  if test x"$adolc_ampi_support" = "xno" && test x"$adolc_medipack_support" = "xno";
   then 
     AC_MSG_ERROR([if --with-mpicxx is set one  must also --enable-ampi])
   fi
@@ -62,7 +62,7 @@ saveCXX="$CXX"
 AC_SUBST(saveCC)
 AC_SUBST(saveCXX)
 
-if test x"$adolc_ampi_support" = "xyes"; 
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then
   CC="$MPICC"
   CXX="$MPICXX"
@@ -74,7 +74,7 @@ AC_DEFUN([MPI_CONF_POST],
 [
 AC_PREREQ(2.59)
 
-if test x"$adolc_ampi_support" = "xyes";
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then
 
   AC_MSG_CHECKING([Linking of MPI C programs])
@@ -86,7 +86,7 @@ then
 
 fi
 
-if test x"$adolc_ampi_support" = "xyes";
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then 
 
   AC_LANG_PUSH([C++])
