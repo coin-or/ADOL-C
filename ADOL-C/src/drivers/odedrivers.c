@@ -52,27 +52,26 @@ int forodec(short tag,    /* tape identifier */
     int rc= 3;
     int i, j, k;
     double taut;
-    ADOLC_OPENMP_THREAD_NUMBER;
+    TapeInfos* tapeInfos;
 
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-    if ( n > ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_nax ||
-            deg > ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_dax )
+    tapeInfos = getTapeInfos(tag);
+    if ( n > tapeInfos->pTapeInfos.forodec_nax ||
+            deg > tapeInfos->pTapeInfos.forodec_dax )
     {
-        if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_nax) {
-            myfree1(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y);
-            myfree1(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_z);
-            myfree2(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_Z);
+        if (tapeInfos->pTapeInfos.forodec_nax) {
+            myfree1(tapeInfos->pTapeInfos.forodec_y);
+            myfree1(tapeInfos->pTapeInfos.forodec_z);
+            myfree2(tapeInfos->pTapeInfos.forodec_Z);
         }
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_Z = myalloc2(n, deg);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_z = myalloc1(n);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y = myalloc1(n);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_nax = n;
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_dax = deg;
+        tapeInfos->pTapeInfos.forodec_Z = myalloc2(n, deg);
+        tapeInfos->pTapeInfos.forodec_z = myalloc1(n);
+        tapeInfos->pTapeInfos.forodec_y = myalloc1(n);
+        tapeInfos->pTapeInfos.forodec_nax = n;
+        tapeInfos->pTapeInfos.forodec_dax = deg;
     }
 
     for (i = 0; i < n; ++i) {
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y[i] = Y[i][0];
+        tapeInfos->pTapeInfos.forodec_y[i] = Y[i][0];
         /*printf("y[%i] = %f\n",i,y[i]);*/
         for (k = 0; k < deg; ++k) {
             Y[i][k] = Y[i][k+1];
@@ -85,27 +84,27 @@ int forodec(short tag,    /* tape identifier */
         j = dol;                        /* j = 0 */
         k = (deg) * (j == deg-1 ) ;     /* keep death values in prepration */
         MINDEC(rc, zos_forward(tag, n, n, k,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_z));
+                    tapeInfos->pTapeInfos.forodec_y,
+                    tapeInfos->pTapeInfos.forodec_z));
         /* for  reverse called by jacode   */
         if(rc < 0) return rc;
         taut = tau / (1 + j);           /* only the last time through.     */
         for (i = 0; i < n; ++i)
-            Y[i][j] = taut * ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_z[i];
+            Y[i][j] = taut * tapeInfos->pTapeInfos.forodec_z[i];
         dol++;                          /* !!! */
     }
     for (j = dol; j < deg; ++j) {
         k = (deg)*(j == deg-1) ;        /* keep death values in prepration */
         MINDEC(rc, hos_forward(tag, n, n, j, k,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y,
-                    Y, ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_z,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_Z));
+                    tapeInfos->pTapeInfos.forodec_y,
+                    Y, tapeInfos->pTapeInfos.forodec_z,
+                    tapeInfos->pTapeInfos.forodec_Z));
         /* for  reverse called by jacode   */
         if( rc < 0) return rc;
         taut = tau / (1 + j);           /* only the last time through.     */
         for (i = 0; i < n; ++i)
             Y[i][j] = taut *
-                ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_Z[i][j-1];
+                tapeInfos->pTapeInfos.forodec_Z[i][j-1];
     }
     /******  Done                  ********/
 
@@ -114,7 +113,7 @@ int forodec(short tag,    /* tape identifier */
             Y[i][k] = Y[i][k-1];
             /*printf("Y[%i][%i] = %f\n",i,k,Y[i][k]);*/
         }
-        Y[i][0] = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.forodec_y[i];
+        Y[i][0] = tapeInfos->pTapeInfos.forodec_y[i];
         /*printf("Y[%i][0] = %f\n",i,Y[i][0]);*/
     }
 

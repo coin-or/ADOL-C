@@ -16,6 +16,7 @@
 #include "checkpointing_p.h"
 #include "dvlparms.h"
 #include <adolc/revolve.h>
+#include <adolc/adalloc.h>
 
 #include <cassert>
 #include <limits>
@@ -1253,6 +1254,20 @@ void PersistantTapeInfos::copy(const PersistantTapeInfos& pTInfos) {
 }
 
 PersistantTapeInfos::~PersistantTapeInfos() {
+    if (jacSolv_nax) {
+        free(jacSolv_ci);
+        free(jacSolv_ri);
+        myfree1(jacSolv_xold);
+        myfreeI2(jacSolv_nax, jacSolv_I);
+        myfree2(jacSolv_J);
+        jacSolv_nax = 0;
+    }
+    if (forodec_nax) {
+        myfree1(forodec_y);
+        myfree1(forodec_z);
+        myfree2(forodec_Z);
+        forodec_nax = 0;
+    }
     if (paramstore != NULL) {
         free(paramstore);
         paramstore = NULL;
