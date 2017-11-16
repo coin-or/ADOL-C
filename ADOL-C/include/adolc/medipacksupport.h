@@ -17,6 +17,7 @@
 #include "adouble.h"
 
 #include <medi/medi.hpp>
+#include <medi/adjointInterface.hpp>
 #include <medi/adToolImplCommon.hpp>
 #include <medi/ampi/types/indexTypeHelper.hpp>
 
@@ -26,7 +27,7 @@ void mediFinalizeStatic();
 
 struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, double, double, double, int> {
   typedef adouble Type;
-  typedef double AdjointType;
+  typedef void AdjointType;
   typedef double ModifiedType;
   typedef double PassiveType;
   typedef int IndexType;
@@ -34,9 +35,6 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
   static MPI_Datatype MpiType;
   static MPI_Datatype ModifiedMpiType;
   static MPI_Datatype AdjointMpiType;
-
-  static double* adjointBase;
-  static double* primalBase;
 
   typedef medi::MpiTypeDefault<AdolcTool> MediType;
   static MediType* MPI_TYPE;
@@ -117,36 +115,6 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     return operatorHelper.convertOperator(op);
   }
 
-  inline void getAdjoints(const IndexType* indices, AdjointType* adjoints, int elements) const {
-    for(int pos = 0; pos < elements; ++pos) {
-      adjoints[pos] = adjointBase[indices[pos]];
-      adjointBase[indices[pos]] = 0.0;
-    }
-  }
-
-  inline void updateAdjoints(const IndexType* indices, const AdjointType* adjoints, int elements) const {
-    for(int pos = 0; pos < elements; ++pos) {
-      adjointBase[indices[pos]] += adjoints[pos];
-    }
-  }
-
-  inline void setReverseValues(const IndexType* indices, const PassiveType* primals, int elements) const {
-    for(int pos = 0; pos < elements; ++pos) {
-      primalBase[indices[pos]] = primals[pos];
-    }
-  }
-
-  inline void combineAdjoints(AdjointType* buf, const int elements, const int ranks) const {
-    for(int curRank = 1; curRank < ranks; ++curRank) {
-      for(int curPos = 0; curPos < elements; ++curPos) {
-        buf[curPos] += buf[elements * curRank + curPos];
-      }
-    }
-  }
-
-  inline void createAdjointTypeBuffer(AdjointType* &buf, size_t size) const {
-    buf = new AdjointType[size];
-  }
 
   inline void createPassiveTypeBuffer(PassiveType* &buf, size_t size) const {
     buf = new PassiveType[size];
@@ -154,13 +122,6 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
 
   inline void createIndexTypeBuffer(IndexType* &buf, size_t size) const {
     buf = new IndexType[size];
-  }
-
-  inline void deleteAdjointTypeBuffer(AdjointType* &buf) const {
-    if(NULL != buf) {
-      delete [] buf;
-      buf = NULL;
-    }
   }
 
   inline void deletePassiveTypeBuffer(PassiveType* &buf) const {
