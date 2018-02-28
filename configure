@@ -816,6 +816,7 @@ enable_atrig_erf
 enable_ulong
 enable_double
 enable_advanced_branching
+enable_activity_tracking
 enable_debug
 enable_harddebug
 enable_stdczero
@@ -1498,6 +1499,16 @@ Optional Features:
                           boolean results but the active results may be used
                           to automatically switch branches in conjunction with
                           condassign or advector (see manual).
+  --enable-activity-tracking
+                          enable activity tracking to reduce trace size but
+                          increased tracing time [default=no]. Only the
+                          operations involving actual dependency relationships
+                          from the independent variables will be recorded on
+                          the trace, this however requires more checks to be
+                          performed during the tracing and increases tracing
+                          time. Useful only if memory is a constraint and
+                          tracing is done fewer times than derivative
+                          computations.
 
   --enable-debug          enable ADOL-C debug mode [default=no]
 
@@ -17322,6 +17333,23 @@ else
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable activity tracking" >&5
+$as_echo_n "checking whether to enable activity tracking... " >&6; }
+# Check whether --enable-activity-tracking was given.
+if test "${enable_activity_tracking+set}" = set; then :
+  enableval=$enable_activity_tracking; use_activities=$enableval
+else
+  use_activities=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_activities" >&5
+$as_echo "$use_activities" >&6; }
+
+if test x$use_activities = xyes ; then
+
+$as_echo "#define ADOLC_TRACK_ACTIVITY 1" >>confdefs.h
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use ADOL-C debug mode" >&5
 $as_echo_n "checking whether to use ADOL-C debug mode... " >&6; }
@@ -21270,7 +21298,7 @@ if [ "x${ac_adolc_openmpflag}" != "x" ] ; then
 fi
 
 echo \
-"  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+"  Use ADOL-C activity tracking:       ${use_activities}
   Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}

@@ -27,6 +27,9 @@
 /* ADOL-C thread save errno mode */
 #undef ADOLC_THREADSAVE_ERRNO
 
+/* ADOL-C activity tracking in live variables */
+#undef ADOLC_TRACK_ACTIVITY
+
 /* Use calloc instead of malloc for memory allocation */
 #undef ADOLC_USE_CALLOC
 
