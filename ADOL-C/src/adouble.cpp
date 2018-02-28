@@ -71,16 +71,25 @@ void adouble::initInternal(void) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(ADOLC_ADOUBLE_STDCZERO)
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(assign_d_zero);
-    ADOLC_PUT_LOCINT(location);   // = res
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+#endif
+	put_op(assign_d_zero);
+        ADOLC_PUT_LOCINT(location);   // = res
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
   }
 
-  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
-
   ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  ADOLC_GLOBAL_TAPE_VARS.actStore[location] = false;
+#endif
 #endif
   isInit = true;
 }
@@ -97,16 +106,24 @@ adouble::adouble() {
 
 #if defined(ADOLC_ADOUBLE_STDCZERO)
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-        put_op(assign_d_zero);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+#endif
+	put_op(assign_d_zero);
         ADOLC_PUT_LOCINT(location);   // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
     
-    
     ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[location] = false;
+#endif
 #endif
 }
 
@@ -118,6 +135,9 @@ adouble::adouble( double coval ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+#endif
         if (coval == 0) {
             put_op(assign_d_zero);
             ADOLC_PUT_LOCINT(location);   // = res
@@ -134,9 +154,15 @@ adouble::adouble( double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[location] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[location] = false;
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -146,17 +172,48 @@ adouble::adouble( const adouble& a ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
+
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
+#if defined(ADOLC_TRACK_ACTIVITY)
+     if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.location]) {
+#endif
         put_op(assign_a);
         ADOLC_PUT_LOCINT(a.location);   // = arg
         ADOLC_PUT_LOCINT(location);     // = res
 
-        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	   ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+
+#if defined(ADOLC_TRACK_ACTIVITY)
+     } else {
+	 if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+	     double coval = ADOLC_GLOBAL_TAPE_VARS.store[a.location];
+	     if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(location);   // = res
+	     } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(location); // = res
+	     } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(location); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	     }
+
+	     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
+
+	 }
+     }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[location] = ADOLC_GLOBAL_TAPE_VARS.store[a.location];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[location] = ADOLC_GLOBAL_TAPE_VARS.actStore[a.location];
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -176,6 +233,9 @@ adouble::adouble( const adub& a ) {
         const_cast<adub&>(a).isInit = false;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(loc(),a_loc);
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]) {
+#endif
             put_op(assign_a);
             ADOLC_PUT_LOCINT(a_loc);    // = arg
             ADOLC_PUT_LOCINT(loc()); // = res
@@ -183,8 +243,33 @@ adouble::adouble( const adub& a ) {
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+          } else {
+	    if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+	      if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(location);   // = res
+	      } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(location); // = res
+	      } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(location); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	    }
+	  }
+#endif
         }
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+	ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc];
+#endif
     }
 }
 
@@ -194,16 +279,18 @@ adouble::adouble( const adub& a ) {
 /*--------------------------------------------------------------------------*/
 adouble::~adouble() {
 #ifdef adolc_overwrite
-    if (isInit)
+    if (isInit) {
 	free_loc(location);
+    }
 #endif
 }
 
 /*--------------------------------------------------------------------------*/
 adub::~adub() {
 #ifdef adolc_overwrite
-    if (isInit)
+    if (isInit) {
 	free_loc(location);
+    }
 #endif
 }
 
@@ -262,6 +349,9 @@ badouble& badouble::operator = ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         if (coval == 0) {
             put_op(assign_d_zero);
             ADOLC_PUT_LOCINT(loc());   // = res
@@ -278,10 +368,16 @@ badouble& badouble::operator = ( double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] = coval;
-    return *this;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = false;
+#endif
+   return *this;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -309,6 +405,9 @@ badouble& badouble::operator <<= ( double coval ) {
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = true;
+#endif
     return *this;
 }
 
@@ -326,6 +425,9 @@ void badouble::declareIndependent() {
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
     }
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = true;
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -333,6 +435,28 @@ void badouble::declareIndependent() {
 badouble& badouble::operator >>= ( double& coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) as dependent.\n");
+	locint tmploc = loc();
+	double temp = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	if (temp == 0.0) {
+	    put_op(assign_d_zero);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else if (temp == 1.0) {
+	    put_op(assign_d_one);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else {
+	    put_op(assign_d);
+	    ADOLC_PUT_LOCINT(tmploc);
+	    ADOLC_PUT_VAL(temp);
+	}
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+    }
+#endif
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { 
         ADOLC_CURRENT_TAPE_INFOS.numDeps++;
 
@@ -347,6 +471,28 @@ badouble& badouble::operator >>= ( double& coval ) {
 void badouble::declareDependent() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) as dependent.\n");
+	locint tmploc = loc();
+	double temp = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	if (temp == 0.0) {
+	    put_op(assign_d_zero);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else if (temp == 1.0) {
+	    put_op(assign_d_one);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else {
+	    put_op(assign_d);
+	    ADOLC_PUT_LOCINT(tmploc);
+	    ADOLC_PUT_VAL(temp);
+	}
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+    }
+#endif
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
         ADOLC_CURRENT_TAPE_INFOS.numDeps++;
 
@@ -364,6 +510,9 @@ badouble& badouble::operator = ( const badouble& x ) {
     if (loc()!=x_loc)
         /* test this to avoid for x=x statements adjoint(x)=0 in reverse mode */
     { if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old:  write_assign_a(loc(),x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc]) {
+#endif
             put_op(assign_a);
             ADOLC_PUT_LOCINT(x_loc);    // = arg
             ADOLC_PUT_LOCINT(loc());   // = res
@@ -371,9 +520,34 @@ badouble& badouble::operator = ( const badouble& x ) {
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+          } else {
+	    if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+	      if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(location);   // = res
+	      } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(location); // = res
+	      } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(location); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	    }
+	  }
+#endif
         }
 
         ADOLC_GLOBAL_TAPE_VARS.store[loc()]=ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+	ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc];
+#endif
     }
     return *this;
 }
@@ -404,14 +578,27 @@ badouble& badouble::operator = ( const adub& a ) {
     int upd = 0;
     /* 981020 olvo  skip upd_resloc(..) if no tracing performed */
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
+#if defined(ADOLC_TRACK_ACTIVITY)
+	upd = upd_resloc_check(a_loc,loc());
+#else
         upd = upd_resloc(a_loc,loc());
+#endif
     if (upd) { /* olvo 980708 new n2l & 980921 changed interface */
+#if defined(ADOLC_TRACK_ACTIVITY)
+	free_loc(location);
+	location = a_loc;
+	const_cast<adub&>(a).isInit = false;
+#else
         revreal tempVal = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_OVERWRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()],&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] = tempVal;
+#endif
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(loc(),a_loc);
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]) {
+#endif
             put_op(assign_a);
             ADOLC_PUT_LOCINT(a_loc);    // = arg
             ADOLC_PUT_LOCINT(loc()); // = res
@@ -419,8 +606,33 @@ badouble& badouble::operator = ( const adub& a ) {
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+          } else {
+	    if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+	      if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(location);   // = res
+	      } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(location); // = res
+	      } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(location); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	    }
+	  }
+#endif
         }
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+	ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc];
+#endif
     }
 
     return *this;
@@ -455,6 +667,9 @@ std::istream& operator >> ( std::istream& in, const badouble& y ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     in >> coval;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_d(y.loc(),coval);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         if (coval == 0) {
             put_op(assign_d_zero);
             ADOLC_PUT_LOCINT(y.loc());   // = res
@@ -471,9 +686,15 @@ std::istream& operator >> ( std::istream& in, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] = false;
+#endif
     return in;
 }
 
@@ -488,6 +709,9 @@ adub adouble::operator++( int ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(locat,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(assign_a);
         ADOLC_PUT_LOCINT(loc()); // = arg
         ADOLC_PUT_LOCINT(locat);    // = res
@@ -495,17 +719,48 @@ adub adouble::operator++( int ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+	 if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	     double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	     if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(locat);   // = res
+	     } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(locat); // = res
+	     } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(locat); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	     }
+
+	     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+	 }
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[loc()];
+#endif
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(incr_a);
         ADOLC_PUT_LOCINT(loc()); // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()]++;
@@ -520,6 +775,9 @@ adub adouble::operator--( int ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(locat,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(assign_a);
         ADOLC_PUT_LOCINT(loc()); // = arg
         ADOLC_PUT_LOCINT(locat);    // = res
@@ -527,16 +785,47 @@ adub adouble::operator--( int ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+	 if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	     double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	     if (coval == 0) {
+		 put_op(assign_d_zero);
+		 ADOLC_PUT_LOCINT(locat);   // = res
+	     } else if (coval == 1.0) {
+		 put_op(assign_d_one);
+		 ADOLC_PUT_LOCINT(locat); // = res
+	     } else {
+		 put_op(assign_d);
+		 ADOLC_PUT_LOCINT(locat); // = res
+		 ADOLC_PUT_VAL(coval);       // = coval
+	     }
+
+	     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+	 }
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[loc()];
+#endif
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(decr_a,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(decr_a);
         ADOLC_PUT_LOCINT(loc()); // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()]--;
@@ -549,12 +838,18 @@ badouble& adouble::operator++() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(incr_a,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(incr_a);
         ADOLC_PUT_LOCINT(loc()); // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()]++;
@@ -567,12 +862,18 @@ badouble& adouble::operator--() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_incr_decr_a(decr_a,loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(decr_a);
         ADOLC_PUT_LOCINT(loc()); // = res
 
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()]--;
@@ -588,6 +889,9 @@ badouble& badouble::operator += ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_plus_d,loc(),coval);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_plus_d);
         ADOLC_PUT_LOCINT(loc()); // = res
         ADOLC_PUT_VAL(coval);       // = coval
@@ -595,6 +899,9 @@ badouble& badouble::operator += ( double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] += coval;
@@ -608,6 +915,9 @@ badouble& badouble::operator -= ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_min_d,loc(),coval);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_min_d);
         ADOLC_PUT_LOCINT(loc()); // = res
         ADOLC_PUT_VAL(coval);       // = coval
@@ -615,6 +925,9 @@ badouble& badouble::operator -= ( double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] -= coval;
@@ -628,6 +941,9 @@ badouble& badouble::operator += ( const badouble& y ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint y_loc = y.loc();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_plus_a,loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc] && ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_plus_a);
         ADOLC_PUT_LOCINT(y_loc); // = arg
         ADOLC_PUT_LOCINT(loc());   // = res
@@ -635,9 +951,43 @@ badouble& badouble::operator += ( const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	  if (coval) {
+	      put_op(plus_d_a);
+	      ADOLC_PUT_LOCINT(y_loc); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	      ADOLC_PUT_VAL(coval);
+	  } else {
+	      put_op(assign_a);
+	      ADOLC_PUT_LOCINT(y_loc); // = arg
+	      ADOLC_PUT_LOCINT(loc());      // = res
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+	  if (coval) {
+	      put_op(eq_plus_d);
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	      ADOLC_PUT_VAL(coval);       // = coval
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	  }
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] += ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]);
+#endif
     return *this;
 }
 
@@ -649,10 +999,17 @@ badouble& badouble::operator += ( const adub& a ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     int upd = 0;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
+#if defined(ADOLC_TRACK_ACTIVITY)
+     if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()])
+#endif
       {
         upd = upd_resloc_inc_prod(a_loc,loc(),eq_plus_prod);
       }
     if (upd) {
+	/* kk 20170720 Activity Tracking: This case only happens if both
+	   lhs and rhs have true in actStore, since previous operation
+	   that created rhs is mult_a_a and we checked lhs above.
+	   So no change is needed */
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
@@ -660,6 +1017,9 @@ badouble& badouble::operator += ( const adub& a ) {
 	++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod; 
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(loc(),a_loc);
+#if defined(ADOLC_TRACK_ACTIVITY)
+          if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc] && ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
             put_op(eq_plus_a);
             ADOLC_PUT_LOCINT(a_loc);    // = arg
             ADOLC_PUT_LOCINT(loc()); // = res
@@ -667,8 +1027,42 @@ badouble& badouble::operator += ( const adub& a ) {
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	      if (coval) {
+		  put_op(plus_d_a);
+		  ADOLC_PUT_LOCINT(a_loc); // = arg
+		  ADOLC_PUT_LOCINT(loc()); // = res
+		  ADOLC_PUT_VAL(coval);
+	      } else {
+		  put_op(assign_a);
+		  ADOLC_PUT_LOCINT(a_loc); // = arg
+		  ADOLC_PUT_LOCINT(loc());      // = res
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+	  } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+	      if (coval) {
+		  put_op(eq_plus_d);
+		  ADOLC_PUT_LOCINT(loc()); // = res
+		  ADOLC_PUT_VAL(coval);       // = coval
+
+		  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+		  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	      }
+	  }
+#endif
         }
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] += ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+	ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]);
+#endif
     }
 
     return *this;
@@ -681,6 +1075,9 @@ badouble& badouble::operator -= ( const badouble& y ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint y_loc = y.loc();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_min_a,loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc] && ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_min_a);
         ADOLC_PUT_LOCINT(y_loc); // = arg
         ADOLC_PUT_LOCINT(loc());   // = res
@@ -688,9 +1085,43 @@ badouble& badouble::operator -= ( const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	  if (coval) {
+	      put_op(min_d_a);
+	      ADOLC_PUT_LOCINT(y_loc); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	      ADOLC_PUT_VAL(coval);
+	  } else {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y_loc); // = arg
+	      ADOLC_PUT_LOCINT(loc());      // = res
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+	  if (coval) {
+	      put_op(eq_min_d);
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	      ADOLC_PUT_VAL(coval);       // = coval
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	  }
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] -= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]);
+#endif
     return *this;
 }
 
@@ -702,10 +1133,17 @@ badouble& badouble::operator -= ( const adub& a ) {
     locint a_loc = a.loc();
     int upd = 0;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
+#if defined(ADOLC_TRACK_ACTIVITY)
+     if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()])
+#endif
       {
         upd = upd_resloc_inc_prod(a_loc,loc(),eq_min_prod);
       }
     if (upd) {
+	/* kk 20170720 Activity Tracking: This case only happens if both
+	   lhs and rhs have true in actStore, since previous operation
+	   that created rhs is mult_a_a and we checked lhs above.
+	   So no change is needed */
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] -= ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
@@ -713,6 +1151,9 @@ badouble& badouble::operator -= ( const adub& a ) {
         ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
     } else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_assign_a(loc(),a_loc);
+#if defined(ADOLC_TRACK_ACTIVITY)
+          if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc] && ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
             put_op(eq_min_a);
             ADOLC_PUT_LOCINT(a_loc);    // = arg
             ADOLC_PUT_LOCINT(loc()); // = res
@@ -720,8 +1161,42 @@ badouble& badouble::operator -= ( const adub& a ) {
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	      if (coval) {
+		  put_op(min_d_a);
+		  ADOLC_PUT_LOCINT(a_loc); // = arg
+		  ADOLC_PUT_LOCINT(loc()); // = res
+		  ADOLC_PUT_VAL(coval);
+	      } else {
+		  put_op(neg_sign_a);
+		  ADOLC_PUT_LOCINT(a_loc); // = arg
+		  ADOLC_PUT_LOCINT(loc());      // = res
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+	  } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	      double coval = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+	      if (coval) {
+		  put_op(eq_min_d);
+		  ADOLC_PUT_LOCINT(loc()); // = res
+		  ADOLC_PUT_VAL(coval);       // = coval
+
+		  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+		  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+	      }
+	  }
+#endif
         }
         ADOLC_GLOBAL_TAPE_VARS.store[loc()] -= ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+	ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]);
+#endif
     }
 
     return *this;
@@ -733,6 +1208,9 @@ badouble& badouble::operator *= ( double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_d_same_arg(eq_mult_d,loc(),coval);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_mult_d);
         ADOLC_PUT_LOCINT(loc()); // = res
         ADOLC_PUT_VAL(coval);       // = coval
@@ -740,6 +1218,9 @@ badouble& badouble::operator *= ( double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] *= coval;
@@ -753,6 +1234,9 @@ badouble& badouble::operator *= ( const badouble& y ) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint y_loc = y.loc();
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_a_same_arg(eq_mult_a,loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc] && ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
         put_op(eq_mult_a);
         ADOLC_PUT_LOCINT(y_loc); // = arg
         ADOLC_PUT_LOCINT(loc());   // = res
@@ -760,9 +1244,45 @@ badouble& badouble::operator *= ( const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+	  if (coval == -1.0) {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	  } else if (coval == 1.0) {
+	      put_op(pos_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(loc()); // = res
+	  } else {
+              put_op(mult_d_a);
+              ADOLC_PUT_LOCINT(y_loc); // = arg
+              ADOLC_PUT_LOCINT(loc()); // = res
+              ADOLC_PUT_VAL(coval);
+          }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+	  put_op(eq_mult_d);
+	  ADOLC_PUT_LOCINT(loc()); // = res
+	  ADOLC_PUT_VAL(coval);       // = coval
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] *= ADOLC_GLOBAL_TAPE_VARS.store[y_loc];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y_loc]);
+#endif
     return *this;
 }
 
@@ -789,8 +1309,14 @@ int operator != ( const badouble& v, double coval ) {
         return (-coval+v != 0);
     else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] ? neq_zero : eq_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] != 0);
     }
@@ -805,8 +1331,14 @@ int operator == ( const badouble& v, double coval) {
         return (-coval+v == 0);
     else {
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] ? neq_zero : eq_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] == 0);
     }
@@ -822,8 +1354,14 @@ int operator <= ( const badouble& v, double coval ) {
     else {
         int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] <= 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(b ? le_zero : gt_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return b;
     }
@@ -839,8 +1377,14 @@ int operator >= ( const badouble& v, double coval ) {
     else {
         int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] >= 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(b ? ge_zero : lt_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return b;
     }
@@ -856,8 +1400,14 @@ int operator > ( const badouble& v, double coval ) {
     else {
         int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] > 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(b ? gt_zero : le_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return b;
     }
@@ -873,8 +1423,14 @@ int operator < ( const badouble& v, double coval ) {
     else {
         int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] < 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
+#endif
             put_op(b ? lt_zero : ge_zero);
             ADOLC_PUT_LOCINT(v.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  }
+#endif
         }
         return b;
     }
@@ -891,8 +1447,12 @@ adub operator + ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_pos_sign_a(locat,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(pos_sign_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -900,9 +1460,31 @@ adub operator + ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     return locat;
 }
 
@@ -912,8 +1494,12 @@ adub operator - ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_neg_sign_a(locat,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(neg_sign_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -921,9 +1507,31 @@ adub operator - ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (- coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (- coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(- coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = -ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = - coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     return locat;
 }
 
@@ -940,8 +1548,12 @@ adub operator + ( const badouble& x, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] + ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_two_a_rec(plus_a_a,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] && ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         put_op(plus_a_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -950,9 +1562,56 @@ adub operator + ( const badouble& x, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+	  put_op(plus_d_a);
+	  ADOLC_PUT_LOCINT(x.loc()); // = arg
+	  ADOLC_PUT_LOCINT(locat); // = res
+	  ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	  if (coval) {
+	      put_op(plus_d_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	      ADOLC_PUT_VAL(coval);
+	  } else {
+	      put_op(pos_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] + ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]);
+#endif
     return locat;
 }
 
@@ -962,71 +1621,52 @@ adub operator + ( double coval, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = coval + ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
-    /* olvo 980708 test coval to be zero */
-    if (coval) {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
+	 /* olvo 980708 test coval to be zero */
+	 if (coval) {
             put_op(plus_d_a);
             ADOLC_PUT_LOCINT(y.loc()); // = arg
             ADOLC_PUT_LOCINT(locat);      // = res
             ADOLC_PUT_VAL(coval);         // = coval
-
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
-
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval + ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-    } else {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_pos_sign_a(locat,y.loc());
+	 } else {
             put_op(pos_sign_a);
             ADOLC_PUT_LOCINT(y.loc()); // = arg
             ADOLC_PUT_LOCINT(locat);      // = res
+	 }
 
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
+	 ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	 if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	     ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
 
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    return locat;
-}
-
-/*--------------------------------------------------------------------------*/
-adub operator + ( const badouble& y, double coval) {
-    ADOLC_OPENMP_THREAD_NUMBER;
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
-    locint locat = next_loc();
-
-    /* olvo 980708 test coval to be zero */
-    if (coval) {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(plus_d_a,locat,coval,y.loc());
-            put_op(plus_d_a);
-            ADOLC_PUT_LOCINT(y.loc()); // = arg
-            ADOLC_PUT_LOCINT(locat);      // = res
-            ADOLC_PUT_VAL(coval);         // = coval
-
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
-
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval + ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-    } else {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_pos_sign_a(locat,y.loc());
-            put_op(pos_sign_a);
-            ADOLC_PUT_LOCINT(y.loc()); // = arg
-            ADOLC_PUT_LOCINT(locat);      // = res
-
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
-
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-    }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()];
+#endif
 
     return locat;
 }
@@ -1037,8 +1677,12 @@ adub operator - ( const badouble& x, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] - ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_two_a_rec(min_a_a,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] && ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         put_op(min_a_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1047,9 +1691,57 @@ adub operator - ( const badouble& x, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+	  double coval = - ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	  put_op(plus_d_a);
+	  ADOLC_PUT_LOCINT(x.loc()); // = arg
+	  ADOLC_PUT_LOCINT(locat); // = res
+	  ADOLC_PUT_VAL(coval);
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	  if (coval) {
+	      put_op(min_d_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat);  // = res
+	      ADOLC_PUT_VAL(coval);
+	  } else {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] - ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]);
+#endif
     return locat;
 }
 
@@ -1060,34 +1752,52 @@ adub operator - ( double coval, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = coval - ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
-    /* olvo 980708 test coval to be zero */
-    if (coval) {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(min_d_a,locat,coval,y.loc());
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(min_d_a,locat,coval,y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
+	 /* olvo 980708 test coval to be zero */
+	 if (coval) {
             put_op(min_d_a);
             ADOLC_PUT_LOCINT(y.loc()); // = arg
             ADOLC_PUT_LOCINT(locat);      // = res
             ADOLC_PUT_VAL(coval);         // = coval
-
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
-
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval - ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-    } else {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_neg_sign_a(locat,y.loc());
+	 } else {
             put_op(neg_sign_a);
             ADOLC_PUT_LOCINT(y.loc()); // = arg
             ADOLC_PUT_LOCINT(locat);      // = res
+	 }
 
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
+	 ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	 if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	     ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
 
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = -ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()];
+#endif
 
     return locat;
 }
@@ -1098,8 +1808,12 @@ adub operator * ( const badouble& x, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] * ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_two_a_rec(mult_a_a,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] && ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         put_op(mult_a_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1108,9 +1822,61 @@ adub operator * ( const badouble& x, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	  put_op(mult_d_a);
+	  ADOLC_PUT_LOCINT(x.loc()); // = arg
+	  ADOLC_PUT_LOCINT(locat); // = res
+	  ADOLC_PUT_VAL(coval);
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	  if (coval == -1.0) {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  } else if (coval == 1.0) {
+	      put_op(pos_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  } else {
+	      put_op(mult_d_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] * ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]);
+#endif
     return locat;
 }
 
@@ -1121,46 +1887,56 @@ adub operator * ( double coval, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = coval * ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
-    if ( coval == 1.0 ) {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_pos_sign_a(locat,y.loc());
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_pos_sign_a(locat,y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
+	 if ( coval == 1.0 ) {
             put_op(pos_sign_a);
             ADOLC_PUT_LOCINT(y.loc()); // = arg
             ADOLC_PUT_LOCINT(locat);      // = res
+	 } else if ( coval == -1.0 ) {
+	     put_op(neg_sign_a);
+	     ADOLC_PUT_LOCINT(y.loc()); // = arg
+	     ADOLC_PUT_LOCINT(locat);      // = res
+	 } else {
+	     put_op(mult_d_a);
+	     ADOLC_PUT_LOCINT(y.loc()); // = arg
+	     ADOLC_PUT_LOCINT(locat);      // = res
+	     ADOLC_PUT_VAL(coval);         // = coval
+	 }
 
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
+	 ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	 if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	     ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
 
-        ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-    } else
-        if ( coval == -1.0 ) {
-            if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_neg_sign_a(locat,y.loc());
-                put_op(neg_sign_a);
-                ADOLC_PUT_LOCINT(y.loc()); // = arg
-                ADOLC_PUT_LOCINT(locat);      // = res
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
+    }
 
-                ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-                if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-            }
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()];
+#endif
 
-            ADOLC_GLOBAL_TAPE_VARS.store[locat] = -ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-        } else {
-            if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(mult_d_a,locat,coval,y.loc());
-                put_op(mult_d_a);
-                ADOLC_PUT_LOCINT(y.loc()); // = arg
-                ADOLC_PUT_LOCINT(locat);      // = res
-                ADOLC_PUT_VAL(coval);         // = coval
-
-                ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-                if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-            }
-
-            ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval * ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
-        }
     return locat;
 }
 
@@ -1170,8 +1946,12 @@ adub operator / ( const badouble& x, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] / ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_two_a_rec(div_a_a,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] && ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         put_op(div_a_a);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1180,9 +1960,61 @@ adub operator / ( const badouble& x, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+	  double coval = 1.0/ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	  if (coval == -1.0) {
+	      put_op(neg_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  } else if (coval == 1.0) {
+	      put_op(pos_sign_a);
+	      ADOLC_PUT_LOCINT(y.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	  } else {
+	      put_op(mult_d_a);
+	      ADOLC_PUT_LOCINT(x.loc()); // = arg
+	      ADOLC_PUT_LOCINT(locat); // = res
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	  put_op(div_d_a);
+	  ADOLC_PUT_LOCINT(y.loc()); // = arg
+	  ADOLC_PUT_LOCINT(locat); // = res
+	  ADOLC_PUT_VAL(coval);
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()] / ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]);
+#endif
     return locat;
 }
 
@@ -1192,8 +2024,12 @@ adub operator / ( double coval, const badouble& y ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = coval / ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(div_d_a,locat,coval,y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+#endif
         put_op(div_d_a);
         ADOLC_PUT_LOCINT(y.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1202,9 +2038,31 @@ adub operator / ( double coval, const badouble& y ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval  / ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()];
+#endif
     return locat;
 }
 
@@ -1218,8 +2076,12 @@ adub exp ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::exp(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_single_op(exp_op,locat,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(exp_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1227,10 +2089,32 @@ adub exp ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::exp(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
+
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1241,8 +2125,12 @@ adub log ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::log(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_single_op(log_op,locat,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(log_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1250,10 +2138,31 @@ adub log ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::log(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1264,8 +2173,12 @@ adub sqrt ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::sqrt(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_single_op(sqrt_op,locat,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(sqrt_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1273,10 +2186,31 @@ adub sqrt ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] = 
-        ADOLC_MATH_NSP::sqrt(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1292,10 +2226,15 @@ adub sin ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval1 = ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    double coval2 = ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(sin_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(sin_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1306,12 +2245,52 @@ adub sin ( const badouble& x ) {
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
         }
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	      if (coval1 == 0.0) {
+		  put_op(assign_d_zero);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else if (coval1 == 1.0) {
+		  put_op(assign_d_one);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else {
+		  put_op(assign_d);
+		  ADOLC_PUT_LOCINT(locat);
+		  ADOLC_PUT_VAL(coval1);
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+	  }
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	      if (coval2 == 0.0) {
+		  put_op(assign_d_zero);
+		  ADOLC_PUT_LOCINT(y.loc());
+	      } else if (coval1 == 1.0) {
+		  put_op(assign_d_one);
+		  ADOLC_PUT_LOCINT(y.loc());
+	      } else {
+		  put_op(assign_d);
+		  ADOLC_PUT_LOCINT(y.loc());
+		  ADOLC_PUT_VAL(coval2);
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
+	  }
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
-    ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] =
-        ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval1;
+    ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
+
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1322,10 +2301,15 @@ adub cos ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval1 = ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    double coval2 = ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(cos_op, locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(cos_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1336,12 +2320,52 @@ adub cos ( const badouble& x ) {
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
         }
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	      if (coval1 == 0.0) {
+		  put_op(assign_d_zero);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else if (coval1 == 1.0) {
+		  put_op(assign_d_one);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else {
+		  put_op(assign_d);
+		  ADOLC_PUT_LOCINT(locat);
+		  ADOLC_PUT_VAL(coval1);
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+	  }
+	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]) {
+	      if (coval2 == 0.0) {
+		  put_op(assign_d_zero);
+		  ADOLC_PUT_LOCINT(y.loc());
+	      } else if (coval1 == 1.0) {
+		  put_op(assign_d_one);
+		  ADOLC_PUT_LOCINT(y.loc());
+	      } else {
+		  put_op(assign_d);
+		  ADOLC_PUT_LOCINT(y.loc());
+		  ADOLC_PUT_VAL(coval2);
+	      }
+
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[y.loc()]);
+	  }
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
-    ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] =
-        ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval1;
+    ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
+
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1358,10 +2382,14 @@ adub asin ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::asin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 1.0 / sqrt(1.0 - x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old:  write_quad(asin_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(asin_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1370,10 +2398,31 @@ adub asin ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::asin(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1384,10 +2433,14 @@ adub acos ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::acos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = -1.0 / sqrt(1.0 - x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(acos_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(acos_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1396,10 +2449,31 @@ adub acos ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::acos(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1410,10 +2484,14 @@ adub atan ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::atan(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 1.0 / (1.0 + x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(atan_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(atan_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1422,10 +2500,31 @@ adub atan ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::atan(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1449,8 +2548,12 @@ adub pow ( const badouble& x, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval2 = ADOLC_MATH_NSP::pow(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()],coval);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(pow_op,locat,cocval,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(pow_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1459,10 +2562,31 @@ adub pow ( const badouble& x, double coval ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval2 == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval2 == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval2);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP::pow(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()],coval);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval2;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1554,6 +2678,9 @@ adub ceil ( const badouble& x ) {
     double coval = ADOLC_MATH_NSP::ceil(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(ceil_op,locat,coval,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(ceil_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1562,9 +2689,31 @@ adub ceil ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     return locat;
 }
 
@@ -1579,6 +2728,9 @@ adub floor ( const badouble& x ) {
         ADOLC_MATH_NSP::floor(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_args_d_a(floor_op,locat,coval,x.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(floor_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg
         ADOLC_PUT_LOCINT(locat);      // = res
@@ -1587,9 +2739,31 @@ adub floor ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     return locat;
 }
 
@@ -1602,10 +2776,14 @@ adub asinh ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP_ERF::asinh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 1.0 / sqrt(1.0 + x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(asinh_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(asinh_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1614,10 +2792,31 @@ adub asinh ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP_ERF::asinh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1628,10 +2827,14 @@ adub acosh ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP_ERF::acosh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 1.0 / sqrt(x*x-1.0);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(acosh_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(acosh_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1640,10 +2843,31 @@ adub acosh ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP_ERF::acosh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1654,10 +2878,14 @@ adub atanh ( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP_ERF::atanh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 1.0 / (1.0 - x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(atanh_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(atanh_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1666,10 +2894,31 @@ adub atanh ( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP_ERF::atanh(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1680,11 +2929,15 @@ adub erf( const badouble& x ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP_ERF::erf(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
 
     adouble y = 2.0 /
         ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0))*exp(-x*x);
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(erf_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
         put_op(erf_op);
         ADOLC_PUT_LOCINT(x.loc()); // = arg1
         ADOLC_PUT_LOCINT(y.loc()); // = arg2
@@ -1693,10 +2946,31 @@ adub erf( const badouble& x ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
 
-    ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-        ADOLC_MATH_NSP_ERF::erf(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
@@ -1716,6 +2990,9 @@ adub fabs ( const badouble& x ) {
         coval = 0.0;
 
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { /*  write_args_d_a(abs_val,locat,coval,x.loc()); */
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
         put_op(abs_val);
         ADOLC_PUT_LOCINT(x.loc());   /* arg */
         ADOLC_PUT_LOCINT(locat);        /* res */
@@ -1726,8 +3003,30 @@ adub fabs ( const badouble& x ) {
 	    ++ADOLC_CURRENT_TAPE_INFOS.numSwitches;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (temp == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (temp == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(temp);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
     }
     ADOLC_GLOBAL_TAPE_VARS.store[locat] = temp;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
     return locat;
 }
 
@@ -1739,37 +3038,98 @@ adub fmin ( const badouble& x, const badouble& y ) { /* olvo 980702 tested: retu
     if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX])
 	return ((x + y - fabs(x - y))/2.0);
 
+#if defined(ADOLC_TRACK_ACTIVITY)
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    if ( ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] && ! ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] ) {
+	locint tmploc = x.loc();
+	double temp = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	if (temp == 0.0) {
+	    put_op(assign_d_zero);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else if (temp == 1.0) {
+	    put_op(assign_d_one);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else {
+	    put_op(assign_d);
+	    ADOLC_PUT_LOCINT(tmploc);
+	    ADOLC_PUT_VAL(temp);
+	}
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+    }
+    if ( ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] && ! ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] ) {
+	locint tmploc = y.loc();
+	double temp = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	if (temp == 0.0) {
+	    put_op(assign_d_zero);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else if (temp == 1.0) {
+	    put_op(assign_d_one);
+	    ADOLC_PUT_LOCINT(tmploc);
+	} else {
+	    put_op(assign_d);
+	    ADOLC_PUT_LOCINT(tmploc);
+	    ADOLC_PUT_VAL(temp);
+	}
+
+	++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	    ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+    }
+  }
+#endif
+
     locint locat = next_loc();
+    double coval, temp;
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[y.loc()] < ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]) {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_min_op(x.loc(),y.loc(),locat,0.0);
-            put_op(min_op);
-            ADOLC_PUT_LOCINT(x.loc()); // = arg1
-            ADOLC_PUT_LOCINT(y.loc()); // = arg2
-            ADOLC_PUT_LOCINT(locat);      // = res
-            ADOLC_PUT_VAL(0.0);           // = coval
-
-            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
-
-        ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
+	coval = 0.0;
+	temp = ADOLC_GLOBAL_TAPE_VARS.store[y.loc()];
     } else {
-        if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_min_op(x.loc(),y.loc(),locat,1.0);
+	coval = 1.0;
+	temp = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+    }
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_min_op(x.loc(),y.loc(),locat,0.0);
+#if defined(ADOLC_TRACK_ACTIVITY)
+	if ( ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()] ) {
+#endif
             put_op(min_op);
             ADOLC_PUT_LOCINT(x.loc()); // = arg1
             ADOLC_PUT_LOCINT(y.loc()); // = arg2
             ADOLC_PUT_LOCINT(locat);      // = res
-            ADOLC_PUT_VAL(1.0);           // = coval
+            ADOLC_PUT_VAL(coval);           // = coval
 
             ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
             if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
-        }
+#if defined(ADOLC_TRACK_ACTIVITY)
+	  } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	      if (temp == 0.0) {
+		  put_op(assign_d_zero);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else if (temp == 1.0) {
+		  put_op(assign_d_one);
+		  ADOLC_PUT_LOCINT(locat);
+	      } else {
+		  put_op(assign_d);
+		  ADOLC_PUT_LOCINT(locat);
+		  ADOLC_PUT_VAL(temp);
+	      }
 
-        ADOLC_GLOBAL_TAPE_VARS.store[locat]=ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
+	      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+		  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+	  }
+#endif
     }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat]=temp;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()] || ADOLC_GLOBAL_TAPE_VARS.actStore[y.loc()]);
+#endif
     return locat;
 }
 
@@ -2005,6 +3365,47 @@ void condassign( adouble &res,         const badouble &cond,
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign(res.loc(),cond.loc(),arg1.loc(),
         //		     arg2.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if ( ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg1.loc()] ) {
+            locint tmploc = arg1.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg1.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg2.loc()] ) {
+            locint tmploc = arg2.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+#endif
         put_op(cond_assign);
         ADOLC_PUT_LOCINT(cond.loc()); // = arg
         ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
@@ -2015,12 +3416,59 @@ void condassign( adouble &res,         const badouble &cond,
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+          locint x_loc;
+          if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+              x_loc = arg1.loc();
+          else
+              x_loc = arg2.loc();
+
+          if (ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc]) {
+              put_op(assign_a);
+              ADOLC_PUT_LOCINT(x_loc);    // = arg
+              ADOLC_PUT_LOCINT(res.loc());   // = res
+
+              ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+              if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+          } else {
+              if (ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()]) {
+                  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+                  if (coval == 0) {
+                      put_op(assign_d_zero);
+                      ADOLC_PUT_LOCINT(res.loc());   // = res
+                  } else if (coval == 1.0) {
+                      put_op(assign_d_one);
+                      ADOLC_PUT_LOCINT(res.loc()); // = res
+                  } else {
+                      put_op(assign_d);
+                      ADOLC_PUT_LOCINT(res.loc()); // = res
+                      ADOLC_PUT_VAL(coval);       // = coval
+                  }
+
+                  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+              }
+          }
+      }
+#endif
     }
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg1.loc()];
     else
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg1.loc()];
+        else
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg2.loc()];
+    } else
+        ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()];
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -2028,6 +3476,28 @@ void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.loc(),cond.loc(),arg.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if ( ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg.loc()] ) {
+            locint tmploc = arg.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+#endif
         put_op(cond_assign_s);
         ADOLC_PUT_LOCINT(cond.loc()); // = arg
         ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
@@ -2037,10 +3507,53 @@ void condassign( adouble &res, const badouble &cond, const badouble &arg ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+          locint x_loc;
+          if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0) {
+              x_loc = arg.loc();
+              if (ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc]) {
+                  put_op(assign_a);
+                  ADOLC_PUT_LOCINT(x_loc);    // = arg
+                  ADOLC_PUT_LOCINT(res.loc());   // = res
+
+                  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+              } else {
+                  if (ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()]) {
+                      double coval = ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+                      if (coval == 0) {
+                          put_op(assign_d_zero);
+                          ADOLC_PUT_LOCINT(res.loc());   // = res
+                      } else if (coval == 1.0) {
+                          put_op(assign_d_one);
+                          ADOLC_PUT_LOCINT(res.loc()); // = res
+                      } else {
+                          put_op(assign_d);
+                          ADOLC_PUT_LOCINT(res.loc()); // = res
+                          ADOLC_PUT_VAL(coval);       // = coval
+                      }
+
+                      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+                  }
+              }
+          }
+      }
+#endif
     }
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg.loc()];
+    } else
+        ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()];
+#endif
 }
 /*--------------------------------------------------------------------------*/
 void condeqassign( adouble &res,         const badouble &cond,
@@ -2049,6 +3562,47 @@ void condeqassign( adouble &res,         const badouble &cond,
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign(res.loc(),cond.loc(),arg1.loc(),
         //		     arg2.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if ( ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg1.loc()] ) {
+            locint tmploc = arg1.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg1.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg2.loc()] ) {
+            locint tmploc = arg2.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+#endif
         put_op(cond_eq_assign);
         ADOLC_PUT_LOCINT(cond.loc()); // = arg
         ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
@@ -2059,12 +3613,59 @@ void condeqassign( adouble &res,         const badouble &cond,
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+          locint x_loc;
+          if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+              x_loc = arg1.loc();
+          else
+              x_loc = arg2.loc();
+
+          if (ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc]) {
+              put_op(assign_a);
+              ADOLC_PUT_LOCINT(x_loc);    // = arg
+              ADOLC_PUT_LOCINT(res.loc());   // = res
+
+              ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+              if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                  ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+          } else {
+              if (ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()]) {
+                  double coval = ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+                  if (coval == 0) {
+                      put_op(assign_d_zero);
+                      ADOLC_PUT_LOCINT(res.loc());   // = res
+                  } else if (coval == 1.0) {
+                      put_op(assign_d_one);
+                      ADOLC_PUT_LOCINT(res.loc()); // = res
+                  } else {
+                      put_op(assign_d);
+                      ADOLC_PUT_LOCINT(res.loc()); // = res
+                      ADOLC_PUT_VAL(coval);       // = coval
+                  }
+
+                  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+              }
+          }
+      }
+#endif
     }
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] >= 0)
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg1.loc()];
     else
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg2.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg1.loc()];
+        else
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg2.loc()];
+    } else
+        ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()];
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -2072,6 +3673,28 @@ void condeqassign( adouble &res, const badouble &cond, const badouble &arg ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_condassign2(res.loc(),cond.loc(),arg.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if ( ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (! ADOLC_GLOBAL_TAPE_VARS.actStore[arg.loc()] ) {
+            locint tmploc = arg.loc();
+            double temp = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
+            if (temp == 0.0) {
+                put_op(assign_d_zero);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else if (temp == 1.0) {
+                put_op(assign_d_one);
+                ADOLC_PUT_LOCINT(tmploc);
+            } else {
+                put_op(assign_d);
+                ADOLC_PUT_LOCINT(tmploc);
+                ADOLC_PUT_VAL(temp);
+            }
+
+            ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+            if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tmploc]);
+        }
+#endif
         put_op(cond_eq_assign_s);
         ADOLC_PUT_LOCINT(cond.loc()); // = arg
         ADOLC_PUT_VAL(ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()]);
@@ -2081,10 +3704,53 @@ void condeqassign( adouble &res, const badouble &cond, const badouble &arg ) {
         ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
             ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else {
+          locint x_loc;
+          if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0) {
+              x_loc = arg.loc();
+              if (ADOLC_GLOBAL_TAPE_VARS.actStore[x_loc]) {
+                  put_op(assign_a);
+                  ADOLC_PUT_LOCINT(x_loc);    // = arg
+                  ADOLC_PUT_LOCINT(res.loc());   // = res
+
+                  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+              } else {
+                  if (ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()]) {
+                      double coval = ADOLC_GLOBAL_TAPE_VARS.store[x_loc];
+                      if (coval == 0) {
+                          put_op(assign_d_zero);
+                          ADOLC_PUT_LOCINT(res.loc());   // = res
+                      } else if (coval == 1.0) {
+                          put_op(assign_d_one);
+                          ADOLC_PUT_LOCINT(res.loc()); // = res
+                      } else {
+                          put_op(assign_d);
+                          ADOLC_PUT_LOCINT(res.loc()); // = res
+                          ADOLC_PUT_VAL(coval);       // = coval
+                      }
+
+                      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+                      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+                          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res.loc()]);
+                  }
+              }
+          }
+      }
+#endif
     }
 
     if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] >= 0)
         ADOLC_GLOBAL_TAPE_VARS.store[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.store[arg.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if ( ! ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()] ) {
+        if (ADOLC_GLOBAL_TAPE_VARS.store[cond.loc()] > 0)
+            ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] =  ADOLC_GLOBAL_TAPE_VARS.actStore[arg.loc()];
+    } else
+        ADOLC_GLOBAL_TAPE_VARS.actStore[res.loc()] = ADOLC_GLOBAL_TAPE_VARS.actStore[cond.loc()];
+#endif
 }
 
 /****************************************************************************/

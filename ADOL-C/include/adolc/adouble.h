@@ -415,6 +415,11 @@ inline int operator < ( double coval, const badouble& v ) {
 }
 
 /*--------------------------------------------------------------------------*/
+/* Adding a floating point from an adouble  */
+inline adub operator + ( const badouble& x , double coval ) {
+    return coval + x;
+}
+
 /* Subtract a floating point from an adouble  */
 inline adub operator - ( const badouble& x , double coval ) {
     return (-coval) + x;
