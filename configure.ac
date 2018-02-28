@@ -202,7 +202,21 @@ else
   ADVBRANCH="#undef ADOLC_ADVANCED_BRANCHING"
 fi
 AC_SUBST(ADVBRANCH)
-AC_SUBST(ADVBRANCH)
+
+AC_MSG_CHECKING(whether to enable activity tracking)
+AC_ARG_ENABLE(activity-tracking, [AS_HELP_STRING([--enable-activity-tracking],
+  [enable activity tracking to reduce trace size but increased tracing time [default=no].
+Only the operations involving actual dependency relationships from the
+independent variables will be recorded on the trace, this however
+requires more checks to be performed during the tracing and increases
+tracing time. Useful only if memory is a constraint and tracing is
+done fewer times than derivative computations.])],
+  [use_activities=$enableval],[use_activities=no])
+AC_MSG_RESULT($use_activities)
+
+if test x$use_activities = xyes ; then
+AC_DEFINE(ADOLC_TRACK_ACTIVITY,1,[ADOL-C activity tracking in live variables])
+fi
 
 AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
@@ -582,7 +596,7 @@ if [[ "x${ac_adolc_openmpflag}" != "x" ]] ; then
 fi
 
 echo \
-"  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+"  Use ADOL-C activity tracking:       ${use_activities}
   Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
