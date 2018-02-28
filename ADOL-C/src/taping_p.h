@@ -312,6 +312,9 @@ TapeInfos;
 
 typedef struct GlobalTapeVarsCL {
     double* store;              /* double store for calc. while taping */
+#if defined(ADOLC_TRACK_ACTIVITY)
+    char* actStore;              /* activity store for tracking while taping */
+#endif
     size_t storeSize;
     size_t numLives;
     locint maxLoc;

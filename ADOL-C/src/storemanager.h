@@ -108,6 +108,11 @@ public:
 class StoreManagerLocint : public StoreManager {
 protected:
   double * &storePtr;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  char activityTracking;
+  static char const* const nowhere;
+  char * &actStorePtr;
+#endif
   locint * indexFree;
   locint head;
   size_t &maxsize;
@@ -115,6 +120,10 @@ protected:
   virtual void grow(size_t mingrow = 0);
 public:
 
+#if defined(ADOLC_TRACK_ACTIVITY)
+  StoreManagerLocint(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives);
+  StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, char* &actStorePtr, size_t &size, size_t &numLives);
+#endif
   StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
   StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, size_t &size, size_t &numLives);
 
@@ -135,6 +144,11 @@ public:
 class StoreManagerLocintBlock : public StoreManager {
 protected:
     double * &storePtr;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    char activityTracking;
+    static char const* const nowhere;
+    char * &actStorePtr;
+#endif
     struct FreeBlock {
 	locint next; // next location
 	size_t size; // number of following free locations
@@ -166,6 +180,10 @@ protected:
      */
     virtual void grow(size_t minGrow=0 );
 public:
+#if defined(ADOLC_TRACK_ACTIVITY)
+    StoreManagerLocintBlock(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives);
+    StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, char* &actStorePtr, size_t &size, size_t &numLives);
+#endif
     StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
     StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
 
