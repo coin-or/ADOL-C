@@ -187,6 +187,8 @@ ADOL-C/examples/tapeless_scalar.cpp -text
 ADOL-C/examples/tapeless_scalar.vcxproj -text
 ADOL-C/examples/tapeless_vector.cpp -text
 ADOL-C/examples/tapeless_vector.vcxproj -text
+ADOL-C/examples/traceless_higher_order.cpp -text
+ADOL-C/examples/traceless_vector_indo.cpp -text
 ADOL-C/examples/winpackage.sh -text
 ADOL-C/include/Makefile.am -text
 ADOL-C/include/Makefile.in -text
@@ -200,6 +202,8 @@ ADOL-C/include/adolc/adolc_sparse.h -text
 ADOL-C/include/adolc/adouble.h -text
 ADOL-C/include/adolc/adoublecuda.h -text
 ADOL-C/include/adolc/adtl.h -text
+ADOL-C/include/adolc/adtl_hov.h -text
+ADOL-C/include/adolc/adtl_indo.h -text
 ADOL-C/include/adolc/adutils.h -text
 ADOL-C/include/adolc/adutilsc.h -text
 ADOL-C/include/adolc/advector.h -text
@@ -243,6 +247,8 @@ ADOL-C/src/Makefile.in -text
 ADOL-C/src/adalloc.c -text
 ADOL-C/src/adouble.cpp -text
 ADOL-C/src/adouble_tl.cpp -text
+ADOL-C/src/adouble_tl_hov.cpp -text
+ADOL-C/src/adouble_tl_indo.cpp -text
 ADOL-C/src/advector.cpp -text
 ADOL-C/src/ampisupport.cpp -text
 ADOL-C/src/ampisupportAdolc.cpp -text
