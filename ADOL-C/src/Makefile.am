@@ -49,7 +49,7 @@ libadolcsrc_la_SOURCES  = adalloc.c rpl_malloc.c adouble.cpp \
                        fos_pl_forward.c fov_pl_forward.c fos_pl_sig_forward.c \
                        fov_pl_sig_forward.c externfcts.cpp checkpointing.cpp \
                        fixpoint.cpp fov_offset_forward.c revolve.c \
-                       advector.cpp adouble_tl.cpp param.cpp externfcts2.cpp
+                       advector.cpp adouble_tl.cpp adouble_tl_indo.cpp adouble_tl_hov.cpp param.cpp externfcts2.cpp
 
 if SPARSE
 libadolcsrc_la_SOURCES  += int_forward_s.c int_forward_t.c \

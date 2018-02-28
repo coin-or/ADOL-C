@@ -967,6 +967,7 @@ int trace_on(short tnum, int keepTaylors,
 
     /* allocate memory for TapeInfos and update tapeStack */
     retval = initNewTape(tnum);
+    freeTapeResources(&ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_BUFFER_SIZE] = obs;
     ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] = lbs;
     ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE] = vbs;

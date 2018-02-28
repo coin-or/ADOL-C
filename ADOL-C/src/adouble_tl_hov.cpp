@@ -13,7 +13,7 @@
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Benjamin Letschert
+               Benjamin Letschert, Benjamin Jurgelucks
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -21,7 +21,7 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc/adtl.h>
+#include <adolc/adtl_hov.h>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -31,21 +31,23 @@ using std::cout;
 
 extern "C" void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line);
 
-namespace adtl {
+namespace adtl_hov {
 
 
 size_t adouble::numDir = 1;
+size_t adouble::degree = 1;
 
+/*
 #if USE_BOOST_POOL
 boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
 boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1) * sizeof(double), 32, 10000);
 #endif
-
+*/
 /*******************  i/o operations  ***************************************/
 ostream& operator << ( ostream& out, const adouble& a) {
-	out << "Value: " << a.PRIMAL_VALUE;
+	out << "Value: " << a.val;
 	out << " ADValues (" << adouble::numDir << "): ";
-	FOR_I_EQ_1_LTEQ_NUMDIR
+	FOR_I_EQ_0_LT_NUMDIR
 	    out << a.ADVAL_I << " ";
 	out << "(a)";
     return out;
@@ -55,7 +57,7 @@ istream& operator >> ( istream& in, adouble& a) {
 	char c;
 	do in >> c;
 	while (c!=':' && !in.eof());
-	in >> a.PRIMAL_VALUE;
+	in >> a.val;
 	unsigned int num;
 	do in >> c;
 	while (c!='(' && !in.eof());
@@ -67,7 +69,7 @@ istream& operator >> ( istream& in, adouble& a) {
 	}
 	do in >> c;
 	while (c!=':' && !in.eof());
-	FOR_I_EQ_1_LTEQ_NUMDIR
+	FOR_I_EQ_0_LT_NUMDIR
 	    in >> a.ADVAL_I;
 	do in >> c;
 	while (c!=')' && !in.eof());
