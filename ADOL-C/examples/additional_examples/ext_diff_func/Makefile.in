@@ -81,7 +81,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@ADDEXA_TRUE@noinst_PROGRAMS = ext_diff_func$(EXEEXT)
+@ADDEXA_TRUE@noinst_PROGRAMS = ext_diff_func$(EXEEXT) \
+@ADDEXA_TRUE@	edfootest$(EXEEXT)
 subdir = ADOL-C/examples/additional_examples/ext_diff_func
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/autoconf/depcomp README
@@ -105,13 +106,16 @@ CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_ext_diff_func_OBJECTS = ext_diff_func.$(OBJEXT)
-ext_diff_func_OBJECTS = $(am_ext_diff_func_OBJECTS)
-ext_diff_func_LDADD = $(LDADD)
+am_edfootest_OBJECTS = edfootest.$(OBJEXT)
+edfootest_OBJECTS = $(am_edfootest_OBJECTS)
+edfootest_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+am_ext_diff_func_OBJECTS = ext_diff_func.$(OBJEXT)
+ext_diff_func_OBJECTS = $(am_ext_diff_func_OBJECTS)
+ext_diff_func_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -146,8 +150,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(ext_diff_func_SOURCES)
-DIST_SOURCES = $(ext_diff_func_SOURCES)
+SOURCES = $(edfootest_SOURCES) $(ext_diff_func_SOURCES)
+DIST_SOURCES = $(edfootest_SOURCES) $(ext_diff_func_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -319,6 +323,7 @@ AM_CPPFLAGS = -I$(top_builddir)/ADOL-C/include -I$(top_srcdir)/ADOL-C/include
 AM_LDFLAGS = -L$(top_builddir)/ADOL-C
 MAINTAINERCLEANFILES = Makefile.in *~ *.orig
 ext_diff_func_SOURCES = ext_diff_func.cpp 
+edfootest_SOURCES = edfootest.cpp
 all: all-am
 
 .SUFFIXES:
@@ -363,6 +368,10 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+edfootest$(EXEEXT): $(edfootest_OBJECTS) $(edfootest_DEPENDENCIES) $(EXTRA_edfootest_DEPENDENCIES) 
+	@rm -f edfootest$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(edfootest_OBJECTS) $(edfootest_LDADD) $(LIBS)
+
 ext_diff_func$(EXEEXT): $(ext_diff_func_OBJECTS) $(ext_diff_func_DEPENDENCIES) $(EXTRA_ext_diff_func_DEPENDENCIES) 
 	@rm -f ext_diff_func$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(ext_diff_func_OBJECTS) $(ext_diff_func_LDADD) $(LIBS)
@@ -373,6 +382,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edfootest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ext_diff_func.Po@am__quote@
 
 .cpp.o:

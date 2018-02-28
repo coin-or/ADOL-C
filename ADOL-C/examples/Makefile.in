@@ -83,7 +83,9 @@ build_triplet = @build@
 host_triplet = @host@
 @DOCEXA_TRUE@noinst_PROGRAMS = detexam$(EXEEXT) speelpenning$(EXEEXT) \
 @DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) luexam$(EXEEXT) \
-@DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT)
+@DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT) \
+@DOCEXA_TRUE@	traceless_vector_indo$(EXEEXT) \
+@DOCEXA_TRUE@	traceless_higher_order$(EXEEXT)
 subdir = ADOL-C/examples
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/autoconf/depcomp README
@@ -132,6 +134,12 @@ tapeless_scalar_LDADD = $(LDADD)
 am_tapeless_vector_OBJECTS = tapeless_vector.$(OBJEXT)
 tapeless_vector_OBJECTS = $(am_tapeless_vector_OBJECTS)
 tapeless_vector_LDADD = $(LDADD)
+am_traceless_higher_order_OBJECTS = traceless_higher_order.$(OBJEXT)
+traceless_higher_order_OBJECTS = $(am_traceless_higher_order_OBJECTS)
+traceless_higher_order_LDADD = $(LDADD)
+am_traceless_vector_indo_OBJECTS = traceless_vector_indo.$(OBJEXT)
+traceless_vector_indo_OBJECTS = $(am_traceless_vector_indo_OBJECTS)
+traceless_vector_indo_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -168,10 +176,14 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
 	$(powexam_SOURCES) $(speelpenning_SOURCES) \
-	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES) \
+	$(traceless_higher_order_SOURCES) \
+	$(traceless_vector_indo_SOURCES)
 DIST_SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
 	$(powexam_SOURCES) $(speelpenning_SOURCES) \
-	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES)
+	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES) \
+	$(traceless_higher_order_SOURCES) \
+	$(traceless_vector_indo_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -398,6 +410,8 @@ odexam_SOURCES = odexam.cpp
 luexam_SOURCES = luexam.cpp
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 tapeless_vector_SOURCES = tapeless_vector.cpp
+traceless_vector_indo_SOURCES = traceless_vector_indo.cpp
+traceless_higher_order_SOURCES = traceless_higher_order.cpp
 all: all-recursive
 
 .SUFFIXES:
@@ -470,6 +484,14 @@ tapeless_vector$(EXEEXT): $(tapeless_vector_OBJECTS) $(tapeless_vector_DEPENDENC
 	@rm -f tapeless_vector$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tapeless_vector_OBJECTS) $(tapeless_vector_LDADD) $(LIBS)
 
+traceless_higher_order$(EXEEXT): $(traceless_higher_order_OBJECTS) $(traceless_higher_order_DEPENDENCIES) $(EXTRA_traceless_higher_order_DEPENDENCIES) 
+	@rm -f traceless_higher_order$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(traceless_higher_order_OBJECTS) $(traceless_higher_order_LDADD) $(LIBS)
+
+traceless_vector_indo$(EXEEXT): $(traceless_vector_indo_OBJECTS) $(traceless_vector_indo_DEPENDENCIES) $(EXTRA_traceless_vector_indo_DEPENDENCIES) 
+	@rm -f traceless_vector_indo$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(traceless_vector_indo_OBJECTS) $(traceless_vector_indo_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -483,6 +505,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speelpenning.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tapeless_scalar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tapeless_vector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/traceless_higher_order.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/traceless_vector_indo.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
