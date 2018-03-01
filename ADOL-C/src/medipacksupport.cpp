@@ -43,7 +43,7 @@ struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
 
     inline void deleteAdjointTypeBuffer(void* &b) const {
       if(NULL != b) {
-        double* buf = (double*)buf;
+        double* buf = (double*)b;
         delete [] buf;
         b = NULL;
       }

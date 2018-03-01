@@ -158,12 +158,18 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     value.setValue(modValue);
   }
 
-  static inline int registerValue(Type& value, PassiveType& oldPrimal) {
+  static void createIndex(Type& value, IndexType& index) {
     MEDI_UNUSED(value);
+    MEDI_UNUSED(index);
+
+    // do nothing indices are created in registerValue
+  }
+
+  static inline void registerValue(Type& value, PassiveType& oldPrimal, IndexType& index) {
     MEDI_UNUSED(oldPrimal);
     // do nothing value should have an index
 
-    return value.loc();
+    index = value.loc();
   }
 
   static PassiveType getPrimalFromMod(const ModifiedType& modValue) {
