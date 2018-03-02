@@ -34,7 +34,10 @@ endif
 
 if DOCEXA
 noinst_PROGRAMS         = detexam speelpenning powexam odexam luexam \
-                          tapeless_scalar tapeless_vector traceless_vector_indo traceless_higher_order
+                          tapeless_scalar tapeless_vector traceless_higher_order
+if SPARSE
+noinst_PROGRAMS        += traceless_vector_indo
+endif
 endif
 
 detexam_SOURCES         = detexam.cpp
