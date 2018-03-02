@@ -84,8 +84,8 @@ host_triplet = @host@
 @DOCEXA_TRUE@noinst_PROGRAMS = detexam$(EXEEXT) speelpenning$(EXEEXT) \
 @DOCEXA_TRUE@	powexam$(EXEEXT) odexam$(EXEEXT) luexam$(EXEEXT) \
 @DOCEXA_TRUE@	tapeless_scalar$(EXEEXT) tapeless_vector$(EXEEXT) \
-@DOCEXA_TRUE@	traceless_vector_indo$(EXEEXT) \
-@DOCEXA_TRUE@	traceless_higher_order$(EXEEXT)
+@DOCEXA_TRUE@	traceless_higher_order$(EXEEXT) $(am__EXEEXT_1)
+@DOCEXA_TRUE@@SPARSE_TRUE@am__append_1 = traceless_vector_indo
 subdir = ADOL-C/examples
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/autoconf/depcomp README
@@ -108,6 +108,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/ADOL-C/src/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+@DOCEXA_TRUE@@SPARSE_TRUE@am__EXEEXT_1 =  \
+@DOCEXA_TRUE@@SPARSE_TRUE@	traceless_vector_indo$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_detexam_OBJECTS = detexam.$(OBJEXT)
 detexam_OBJECTS = $(am_detexam_OBJECTS)
