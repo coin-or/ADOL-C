@@ -54,6 +54,8 @@ tapeless_scalar_SOURCES = tapeless_scalar.cpp
 
 tapeless_vector_SOURCES = tapeless_vector.cpp
 
+if SPARSE
 traceless_vector_indo_SOURCES = traceless_vector_indo.cpp
+endif
 
 traceless_higher_order_SOURCES= traceless_higher_order.cpp
