@@ -139,7 +139,9 @@ tapeless_vector_LDADD = $(LDADD)
 am_traceless_higher_order_OBJECTS = traceless_higher_order.$(OBJEXT)
 traceless_higher_order_OBJECTS = $(am_traceless_higher_order_OBJECTS)
 traceless_higher_order_LDADD = $(LDADD)
-am_traceless_vector_indo_OBJECTS = traceless_vector_indo.$(OBJEXT)
+am__traceless_vector_indo_SOURCES_DIST = traceless_vector_indo.cpp
+@SPARSE_TRUE@am_traceless_vector_indo_OBJECTS =  \
+@SPARSE_TRUE@	traceless_vector_indo.$(OBJEXT)
 traceless_vector_indo_OBJECTS = $(am_traceless_vector_indo_OBJECTS)
 traceless_vector_indo_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -185,7 +187,7 @@ DIST_SOURCES = $(detexam_SOURCES) $(luexam_SOURCES) $(odexam_SOURCES) \
 	$(powexam_SOURCES) $(speelpenning_SOURCES) \
 	$(tapeless_scalar_SOURCES) $(tapeless_vector_SOURCES) \
 	$(traceless_higher_order_SOURCES) \
-	$(traceless_vector_indo_SOURCES)
+	$(am__traceless_vector_indo_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -412,7 +414,7 @@ odexam_SOURCES = odexam.cpp
 luexam_SOURCES = luexam.cpp
 tapeless_scalar_SOURCES = tapeless_scalar.cpp
 tapeless_vector_SOURCES = tapeless_vector.cpp
-traceless_vector_indo_SOURCES = traceless_vector_indo.cpp
+@SPARSE_TRUE@traceless_vector_indo_SOURCES = traceless_vector_indo.cpp
 traceless_higher_order_SOURCES = traceless_higher_order.cpp
 all: all-recursive
 
