@@ -726,7 +726,7 @@ Several tapes may be generated and kept simultaneously.
 A tape array is used as a triplet of buffers or a tape file is generated if
 the length of any of the buffers exceeds the maximal array lengths of 
 {\sf OBUFSIZE}, {\sf VBUFSIZE} or {\sf LBUFSIZE}. These parameters are
-defined in the header file \verb=<adolc/usrparms.h>=
+defined in the header file \verb=<adolc/internal/usrparms.h>=
 and may be adjusted by the user in the header file before compiling
 the ADOL-C library, or on runtime using a file named \verb=.adolcrc=. 
 Lines in this file must have the form
@@ -752,7 +752,7 @@ This option takes effect if
 gradient evaluation by a call to a routine implementing the reverse mode
 as described in the \autoref{forw_rev_ad} and \autoref{forw_rev}. A
 file is used instead of an array if the size exceeds the maximal array
-length of {\sf TBUFSIZE} defined in \verb=<adolc/usrparms.h>= and may
+length of {\sf TBUFSIZE} defined in \verb=<adolc/internal/usrparms.h>= and may
 be adjusted in the same way like the other buffer sizes mentioned above.
 Alternatively, gradients may be evaluated by a call
 to {\sf gradient}, which includes a preparatory forward sweep
@@ -841,7 +841,7 @@ option {\sf keep} $>$ 0. Here
 the type {\sf revreal} is defined as {\sf double} or {\sf float}. The latter choice halves the storage
 requirement for the sequential data set, which stays in core if
 its length is less than {\sf TBUFSIZE} bytes and is otherwise written
-out to a temporary file. The parameter {\sf TBUFSIZE} is defined in the header file \verb=<adolc/usrparms.h>=.
+out to a temporary file. The parameter {\sf TBUFSIZE} is defined in the header file \verb=<adolc/internal/usrparms.h>=.
 The drawback of the economical 
 {\sf revreal} = {\sf float} choice is that subsequent calls to reverse mode implementations
 yield gradients and other adjoint vectors only in single-precision
@@ -859,7 +859,7 @@ the vector length.
 \label{Customizing}
 %
 Based on the information provided by the routine {\sf tapestats}, the user may alter the
-following types and constant dimensions in the header file \verb=<adolc/usrparms.h>=
+following types and constant dimensions in the header file \verb=<adolc/internal/usrparms.h>=
 to suit his problem and environment.
 
 \begin{description}
@@ -872,7 +872,7 @@ size. Primarily these values occur as an argument
 to {\sf malloc}, so that setting it unnecessarily large may have no
 ill effects, unless the operating system prohibits or penalizes large
 array allocations. It is however recommended to leave the values in
-\texttt{<adolc/usrparms.h>} unchanged and set them using the
+\texttt{<adolc/internal/usrparms.h>} unchanged and set them using the
 \texttt{.adolcrc} file in the current working directory at runtime.
 
 \item[{\sf TBUFSIZE}{\rm :}] This integer determines the length of the 
@@ -979,7 +979,7 @@ fashion.
 Whenever an {\sf adouble} is declared, the constructor for the type
 {\sf adouble} assigns it a nominal address, which we will refer to as
 its  {\em location}.  The location is of the type {\sf locint} defined
-in the header file \verb=<adolc/usrparms.h>=. Active vectors occupy
+in the header file \verb=<adolc/internal/usrparms.h>=. Active vectors occupy
 a range of contiguous locations. As long as the program execution
 never involves more than 65$\,$536 active variables, the type {\sf locint}
 may be defined as {\sf unsigned short}. Otherwise, the range may be
@@ -4098,7 +4098,7 @@ of the source.
                    whether the users source is C++ or C code.
 \end{tabular*}
 \\ \hline
-\verb=<adolc/usrparms.h>= &
+\verb=<adolc/internal/usrparms.h>= &
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                  & user customization of ADOL-C package (see
