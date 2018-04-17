@@ -22,7 +22,11 @@
 #include <cstdio>
 #endif
 
-class FatalError : public std::exception {
+class FatalError
+#ifndef SWIG
+                 : public std::exception 
+#endif
+{
 protected:
     static const int MAX_MSG_SIZE = 4*1024;
     char msg[MAX_MSG_SIZE];
