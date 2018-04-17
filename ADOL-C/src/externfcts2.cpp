@@ -38,6 +38,7 @@ void edf_zero(ext_diff_fct_v2 *edf) {
   edf->fov_forward=0;
   edf->fos_reverse=0;
   edf->fov_reverse=0;
+  edf->indopro_forward_tight=0;
   edf->x = 0;
   edf->y = 0;
   edf->xp = 0;
@@ -68,6 +69,29 @@ ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 *ext_fct) {
     return edf;
 }
 
+static char* populate_edf_v2_ind_dom(unsigned int *****p_ind_dom, char* memory, int nin, int nout, int m_isz, int m_osz) {
+    int i,j;
+    unsigned int ****tmp1, ***tmp2, **tmp3;
+    char* tmp = memory;
+    tmp1 = (unsigned int****) memory;
+    *p_ind_dom = tmp1;
+    tmp = (char*) (tmp1 + nout);
+    tmp2 = (unsigned int***) tmp;
+    for(i=0; i<nout; i++) {
+	(*p_ind_dom)[i] = tmp2;
+	tmp2 += nin;
+    }
+    tmp = (char*) tmp2;
+    tmp3 = (unsigned int**) tmp;
+    for(i=0; i<nout; i++)
+	for(j=0; j < nin; j++) {
+	    (*p_ind_dom)[i][j] = tmp3;
+	    tmp3 += m_osz;
+	}
+    tmp = (char*)tmp3;
+    return tmp;
+}
+
 void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz, int *outsz) {
     int m_isz=0, m_osz=0;
     int i,j;
@@ -79,6 +103,9 @@ void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz,
         char* tmp;
         size_t p = nin*m_isz, q = nout*m_osz;
         size_t totalmem =
+	    (nout*nin*m_osz)*sizeof(unsigned int*) +
+	    (nout*nin)*sizeof(unsigned int**) +
+	    (nout)*sizeof(unsigned int***) +
             (3*nin*m_isz + 3*nout*m_osz
              // + nin*m_isz*p + nout*m_osz*p
              // + q*nout*m_osz + q*nin*m_isz
@@ -100,6 +127,7 @@ void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz,
         tmp = populate_dppp_nodata(&edfct->Yp,tmp,nout,m_osz);
         tmp = populate_dppp_nodata(&edfct->Up,tmp,nout,m_osz);
         tmp = populate_dppp_nodata(&edfct->Zp,tmp,nin,m_isz);
+	tmp = populate_edf_v2_ind_dom(&edfct->ind_dom,tmp,nin,nout,m_isz,m_osz);
     }
     edfct->max_nin=(edfct->max_nin<nin)?nin:edfct->max_nin;
     edfct->max_nout=(edfct->max_nout<nout)?nout:edfct->max_nout;
@@ -263,6 +291,17 @@ static int edfoo_v2_wrapper_fov_reverse(int iArrLen, int* iArr, int nout, int ni
     return ebase->fov_reverse(iArrLen,iArr,nout,nin,outsz,dir,Up,insz,Zp,x,y,ctx);
 }
 
+static int edfoo_v2_wrapper_indopro_forward_tight(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx) {
+    ext_diff_fct* edf;
+    EDFobject_v2* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_v2*>(edf->obj);
+    return ebase->indopro_forward_tight(iArrLen,iArr,nin,nout,insz,x,outsz,ind_dom,ctx);
+}
+
 void EDFobject_v2::init_edf(EDFobject_v2* ebase) {
     edf = buffer.append();
     edf->obj = reinterpret_cast<void*>(ebase);
@@ -271,9 +310,24 @@ void EDFobject_v2::init_edf(EDFobject_v2* ebase) {
     edf->fos_forward = edfoo_v2_wrapper_fos_forward;
     edf->fov_forward = edfoo_v2_wrapper_fov_forward;
     edf->fos_reverse = edfoo_v2_wrapper_fos_reverse;
-    edf->fov_reverse = edfoo_v2_wrapper_fov_reverse;    
+    edf->fov_reverse = edfoo_v2_wrapper_fov_reverse;
+    edf->indopro_forward_tight = edfoo_v2_wrapper_indopro_forward_tight;
 }
 
 void EDFobject_v2::allocate_mem(int nin, int nout, int* insz, int* outsz) {
     update_ext_fct_memory(edf, nin, nout, insz, outsz);
+}
+
+int EDFobject_v2::indopro_forward_tight(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx) {
+    for (locint i = 0; i < nout; i++) {
+	for (locint j = 0; j < nin; j++) {
+	    for (locint k = 0; k < outsz[i]; k++) {
+		ind_dom[i][j][k] = (unsigned int*) malloc((insz[j]+2)*sizeof(unsigned int));
+		ind_dom[i][j][k][1] = insz[j]+2;
+		ind_dom[i][j][k][0] = insz[j];
+		for (locint l=0; l < insz[j]; l++)
+		    ind_dom[i][j][k][l+2] = l;
+	    }
+	}
+    }
 }

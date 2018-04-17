@@ -26,6 +26,7 @@ typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int 
 typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
 typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx);
 typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx);
+typedef int (ADOLC_ext_fct_v2_indopro_forward_tight)(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx);
 
 /* The following two aren't implemented */
 typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
@@ -83,6 +84,7 @@ typedef struct ext_diff_fct_v2 {
    */
   ADOLC_ext_fct_v2_fov_reverse *fov_reverse;
 
+  ADOLC_ext_fct_v2_indopro_forward_tight *indopro_forward_tight;
   /**
    * The names of the variables below correspond to the formal parameters names in the call back
    * functions above;
@@ -138,6 +140,10 @@ typedef struct ext_diff_fct_v2 {
    */
   double ***Zp;
 
+  /**
+   * indopro_forward_tight: index domain information for sparsity pattern of jacobian
+   */
+  unsigned int ****ind_dom;
   /**
    * track maximal dimensions when function is invoked
    */

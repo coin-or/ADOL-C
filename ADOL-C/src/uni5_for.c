@@ -155,6 +155,7 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void translate_index_domain(locint arg, locint numarg, locint res, locint numres, unsigned int **in_ind_dom, unsigned int **out_ind_dom);
+void translate_index_domain_v2(locint nin,locint* insz,locint* inlocs, locint nout, locint* outsz, locint* outlocs, unsigned int ****in_crs, unsigned int **out_ind_dom);
 #define NUMNNZ 20
 #define FMIN_ADOLC(x,y)  ((y<x)?y:x)
 
@@ -1086,7 +1087,10 @@ int  hov_forward(
     indopro_forward_tight(n, edfct->dp_x, m, edfct->ind_dom)
 #   define ADOLC_EXT_FCT_IARR_COMPLETE \
     indopro_forward_tight_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->ind_dom)
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    indopro_forward_tight(iArrLength, iArr, nin, nout, insz, edfct2->x, outsz, edfct2->ind_dom, edfct2->context)
 #   define ADOLC_EXT_POINTER_INDO edfct->ind_dom
+#   define ADOLC_EXT_POINTER_V2_INDO edfct2->ind_dom
 #endif
 
 #if defined(_EXTERN_)
@@ -6356,7 +6360,6 @@ int  hov_forward(
                 free((void*)iArr); iArr=0;
                 break;
 
-#if !defined(_INDOPRO_)
             case ext_diff_v2:
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 iArrLength = get_locint_f();
@@ -6384,17 +6387,33 @@ int  hov_forward(
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC);
                 if (nin>0) {
                     if (edfct2->x == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#if !defined(_ZOS_)
+#if !defined(_ZOS_) && !defined(_INDOPRO_)
                     if (ADOLC_EXT_V2_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
+#if !defined(_INDOPRO_)
                 if (nout>0) {
                     if (edfct2->y == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #if !defined(_ZOS_)
                     if (ADOLC_EXT_V2_POINTER_Y == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
 #endif
                 }
-
+#endif
+#if defined(_INDOPRO_)
+                    if (ADOLC_EXT_POINTER_V2_INDO==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+#endif
+#if defined(_INDOPRO_)
+                for(oloop=0;oloop<nin;++oloop) {
+                    arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+                    memcpy(&edfct2->x[oloop][0],&dp_T0[arg],insz[oloop]*sizeof(double));
+                    for(loop=0;loop<insz[oloop];++loop) {
+                        if(edfct2->dp_x_changes) {
+                            IF_KEEP_WRITE_TAYLOR(arg,keep,k,p);
+                        }
+                        ++arg;
+                    }
+                }
+#else
                 for(oloop=0;oloop<nin;++oloop) {
                     arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
                     memcpy(&edfct2->x[oloop][0],&dp_T0[arg],insz[oloop]*sizeof(double));
@@ -6422,9 +6441,19 @@ int  hov_forward(
                         ++arg;
                     }
                 }
+#endif
                 ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
                 MINDEC(ret_c,ext_retc);
-
+                
+#if defined(_INDOPRO_)
+                translate_index_domain_v2(nin,insz,
+                                          ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2,
+                                          nout,outsz,
+                                          ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2,
+                                          ADOLC_EXT_POINTER_V2_INDO,
+                                          ind_dom);
+                                          
+#else
                 for(oloop=0;oloop<nin;++oloop) {
                     res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
                     memcpy(&dp_T0[res],&edfct2->x[oloop][0],insz[oloop]*sizeof(double));
@@ -6446,7 +6475,7 @@ int  hov_forward(
                     }
 #endif
                 }
-
+#endif
                 free(insz);
                 free(iArr);
                 insz = 0;
@@ -6456,7 +6485,7 @@ int  hov_forward(
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
                 break;
 #endif
-#endif
+
 
 #ifdef ADOLC_AMPI_SUPPORT
                 /*--------------------------------------------------------------------------*/
@@ -6882,7 +6911,7 @@ void translate_index_domain(locint arg, locint argnum, locint res, locint resnum
     fprintf(DIAG_OUT,"ADOL-C Diag: arg = %zu, argnum = %zu, res = %zu, resnum = %zu)\n", arg,argnum,res,resnum);
     for (i = 0, ires = res; i < resnum; i++, ires++) {
         for(j=1;j<=in_crs[i][0];j++) {
-            iarg = in_crs[i][j]+arg;
+            iarg = in_crs[i][j+1]+arg;
             merge_2_index_domains(ires,iarg,out_ind_dom);
         }
         free(in_crs[i]);
@@ -6890,6 +6919,21 @@ void translate_index_domain(locint arg, locint argnum, locint res, locint resnum
     }
 }
 
+void translate_index_domain_v2(locint nin,locint* insz,locint* inlocs, locint nout, locint* outsz, locint* outlocs, unsigned int ****in_crs, unsigned int **out_ind_dom) {
+    locint i, j, ires, iarg, oloop, iloop;
+    for(oloop=0; oloop<nout; ++oloop) {
+        for(iloop=0; iloop<nin; ++iloop) {
+            for(i =0, ires = outlocs[oloop]; i < outsz[oloop]; i++, ires++) {
+                for (j=1; j<= in_crs[oloop][iloop][i][0]; j++) {
+                    iarg = in_crs[oloop][iloop][i][j+1]+inlocs[iloop];
+                    merge_2_index_domains(ires,iarg,out_ind_dom);
+                }
+                free(in_crs[oloop][iloop][i]);
+                in_crs[oloop][iloop][i] = NULL;
+            }
+        }
+    }
+}
 #endif
 #endif
 

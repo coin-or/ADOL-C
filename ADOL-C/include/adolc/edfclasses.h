@@ -82,6 +82,7 @@ public:
     virtual int fov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx) = 0;
     virtual int fos_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx) = 0;
     virtual int fov_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx) = 0;
+    virtual int indopro_forward_tight(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx);
     int call(int iArrLen, int* iArr, int nin, int nout, int *insz, adouble **x, int *outsz, adouble **y) {
         return call_ext_fct(edf,iArrLen,iArr,nin,nout,insz,x,outsz,y);
     }
