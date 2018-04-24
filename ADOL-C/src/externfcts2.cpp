@@ -110,9 +110,11 @@ void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz,
              // + nin*m_isz*p + nout*m_osz*p
              // + q*nout*m_osz + q*nin*m_isz
             )*sizeof(double)
-            + (3*nin + 3*nout + nin*m_isz + nout*m_osz
-               + q*nout + q*nin)*sizeof(double*)
-            + (nin + nout + 2*q)*sizeof(double**);
+            + (3*nin + 3*nout + 2*nin*m_isz + 2*nout*m_osz
+               // + q*nout + q*nin
+            )*sizeof(double*)
+            + (2*nin + 2*nout // + 2*q
+            )*sizeof(double**);
         if (edfct->allmem != NULL) free(edfct->allmem);
         edfct->allmem=(char*)malloc(totalmem);
         memset(edfct->allmem,0,totalmem);
@@ -292,12 +294,12 @@ static int edfoo_v2_wrapper_fov_reverse(int iArrLen, int* iArr, int nout, int ni
 }
 
 static int edfoo_v2_wrapper_indopro_forward_tight(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx) {
-    ext_diff_fct* edf;
+    ext_diff_fct_v2* edf;
     EDFobject_v2* ebase;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     // figure out which edf
-    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    edf = get_ext_diff_fct_v2(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
     ebase = reinterpret_cast<EDFobject_v2*>(edf->obj);
     return ebase->indopro_forward_tight(iArrLen,iArr,nin,nout,insz,x,outsz,ind_dom,ctx);
 }
