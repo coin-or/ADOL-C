@@ -6910,7 +6910,7 @@ void translate_index_domain(locint arg, locint argnum, locint res, locint resnum
     locint i, j, ires, iarg;
     fprintf(DIAG_OUT,"ADOL-C Diag: arg = %zu, argnum = %zu, res = %zu, resnum = %zu)\n", arg,argnum,res,resnum);
     for (i = 0, ires = res; i < resnum; i++, ires++) {
-        for(j=0;j< in_crs[i][0];j++) {
+        for(j=0;j < in_crs[i][0]; j++) {
             iarg = in_crs[i][j+1]+arg;
             merge_2_index_domains(ires,iarg,out_ind_dom);
         }
@@ -6925,7 +6925,7 @@ void translate_index_domain_v2(locint nin,locint* insz,locint* inlocs, locint no
         for(iloop=0; iloop<nin; ++iloop) {
             for(i =0, ires = outlocs[oloop]; i < outsz[oloop]; i++, ires++) {
                 for (j=0; j < in_crs[oloop][iloop][i][0]; j++) {
-                    iarg = in_crs[oloop][iloop][i][j+2]+inlocs[iloop];
+                    iarg = in_crs[oloop][iloop][i][j+1]+inlocs[iloop];
                     merge_2_index_domains(ires,iarg,out_ind_dom);
                 }
                 free(in_crs[oloop][iloop][i]);

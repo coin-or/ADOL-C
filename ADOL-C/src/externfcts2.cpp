@@ -324,11 +324,10 @@ int EDFobject_v2::indopro_forward_tight(int iArrLen, int *iArr, int nin, int nou
     for (locint i = 0; i < nout; i++) {
 	for (locint j = 0; j < nin; j++) {
 	    for (locint k = 0; k < outsz[i]; k++) {
-		ind_dom[i][j][k] = (unsigned int*) malloc((insz[j]+2)*sizeof(unsigned int));
-		ind_dom[i][j][k][1] = insz[j]+2;
+		ind_dom[i][j][k] = (unsigned int*) malloc((insz[j]+1)*sizeof(unsigned int));
 		ind_dom[i][j][k][0] = insz[j];
 		for (locint l=0; l < insz[j]; l++)
-		    ind_dom[i][j][k][l+2] = l;
+		    ind_dom[i][j][k][l+1] = l;
 	    }
 	}
     }

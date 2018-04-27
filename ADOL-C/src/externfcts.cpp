@@ -157,6 +157,7 @@ void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       edfct->dpp_Z = edfct->dpp_U + m;
       tmp = (char*)(edfct->dpp_Z + m);
       edfct->ind_dom = (unsigned int**)tmp;
+      tmp = (char*)(edfct->ind_dom+m);
       /*
       tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
       tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
@@ -458,22 +459,20 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
 
 int EDFobject::indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
     for (locint i = 0; i < m; i++) {
-        ind_dom[i] = (unsigned int*) malloc((n+2)*sizeof(unsigned int));
-        ind_dom[i][1] = n+2;
+        ind_dom[i] = (unsigned int*) malloc((n+1)*sizeof(unsigned int));
         ind_dom[i][0] = n;
         for (locint j = 0; j < n; j++)
-            ind_dom[i][j+2] = j;
+            ind_dom[i][j+1] = j;
     }
     return 0;
 }
 
 int EDFobject_iArr::indopro_forward_tight(int iArrLength, int* iArr, int n, double *dp_x, int m, unsigned int **ind_dom) {
     for (locint i = 0; i < m; i++) {
-        ind_dom[i] = (unsigned int*) malloc((n+2)*sizeof(unsigned int));
-        ind_dom[i][1] = n+2;
+        ind_dom[i] = (unsigned int*) malloc((n+1)*sizeof(unsigned int));
         ind_dom[i][0] = n;
         for (locint j = 0; j < n; j++)
-            ind_dom[i][j+2] = j;
+            ind_dom[i][j+1] = j;
     }
     return 0;
 }
