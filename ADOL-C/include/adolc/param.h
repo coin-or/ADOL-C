@@ -155,6 +155,7 @@ inline adub fmin( const badouble& a, const pdouble& b)
 inline adub exp  ( const pdouble& p)  { return exp(adub(p));   }
 inline adub log  ( const pdouble& p)  { return log(adub(p));   }
 inline adub sqrt ( const pdouble& p)  { return sqrt(adub(p));  }
+inline adub cbrt ( const pdouble& p)  { return cbrt(adub(p));  }
 inline adub sin  ( const pdouble& p)  { return sin(adub(p));   }
 inline adub cos  ( const pdouble& p)  { return cos(adub(p));   }
 inline adub tan  ( const pdouble& p)  { return tan(adub(p));   }
