@@ -42,7 +42,19 @@ namespace adtl {
 double makeNaN();
 double makeInf();
 
-//class adouble;
+class adouble;
+
+class refcounter {
+private:
+    ADOLC_DLL_EXPIMP static size_t refcnt;
+    ADOLC_DLL_EXPORT friend void setNumDir(const size_t p);
+    friend class adouble;
+public:
+    refcounter() { ++refcnt; }
+    ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
+};
+
 
 //class func_ad {
 //public:
@@ -213,6 +225,7 @@ private:
     static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
 #endif
     double *adval;
+    refcounter __rcnt;
     ADOLC_DLL_EXPIMP static size_t numDir;
     inline friend void setNumDir(const size_t p);
     inline friend size_t getNumDir();
@@ -227,7 +240,10 @@ private:
 namespace adtl {
 
 inline void setNumDir(const size_t p) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+  if (refcounter::refcnt > 0) {
+    fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+  }
+
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
 	abort();

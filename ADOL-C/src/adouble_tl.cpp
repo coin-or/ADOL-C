@@ -36,6 +36,9 @@ namespace adtl {
 
 size_t adouble::numDir = 1;
 
+size_t refcounter::refcnt = 0;
+
+
 #if USE_BOOST_POOL
 boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
 boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1) * sizeof(double), 32, 10000);
