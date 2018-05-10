@@ -60,6 +60,7 @@ private:
 public:
 //    refcounter() { ++refcnt; }
 //    ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
 };
 
 class func_ad {
