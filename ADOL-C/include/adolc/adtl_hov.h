@@ -50,6 +50,8 @@ enum Mode {
 
 class adouble;
 
+#ifdef USE_ADTL_REFCOUNTING
+
 class refcounter {
 private:
     ADOLC_DLL_EXPIMP static size_t refcnt;
@@ -58,9 +60,11 @@ private:
     ADOLC_DLL_EXPORT friend void setMode(enum Mode newmode);
     friend class adouble;
 public:
-//    refcounter() { ++refcnt; }
-//    ~refcounter() { --refcnt; }
+    refcounter() { ++refcnt; }
+    ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
 };
+#endif
 
 class func_ad {
 public:
@@ -250,7 +254,9 @@ private:
     double *adval;
     double **ho_deriv;
     list<unsigned int> pattern;
+#ifdef USE_ADTL_REFCOUNTING
     refcounter __rcnt;
+#endif
     inline static bool _do_val();
     inline static bool _do_adval();
     inline static bool _do_hoval();
@@ -318,9 +324,13 @@ return true;
 #define do_hoval() unlikely(adouble::_do_hoval())
 
 inline void setNumDir(const size_t p) {
+#ifdef USE_ADTL_REFCOUNTING
     if (refcounter::refcnt > 0) {
 	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
     }
+#else
+    fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+#endif
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
 	abort();
@@ -337,9 +347,13 @@ inline void setDegree(const size_t p) {
 }
 
 inline void setMode(enum Mode newmode) {
-    if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently exisiting adoubles = %zu\n", refcounter::refcnt);
-    }
+#ifdef USE_ADTL_REFCOUNTING
+  if (refcounter::refcnt > 0) {
+    fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently exisiting adoubles = %zu\n", refcounter::refcnt);
+  }
+#else
+  fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n");
+#endif
     adouble::forward_mode = newmode;
 }
 
