@@ -203,7 +203,7 @@ fi
 AC_SUBST(ADVBRANCH)
 
 AC_MSG_CHECKING(whether to enable reference counting for tapeless numbers)
-AC_ARG_ENABLE(tapeless_reference_counting, [AS_HELP_STRING([--enable-tapeless_reference_counting],
+AC_ARG_ENABLE(traceless-refcounting, [AS_HELP_STRING([--enable-traceless-refcounting],
   [enable reference counting for tapeless numbers [default=no].
 With this enabled some additional checks will be conducted when setting the
 number of directional derivatives for tapeless numbers using the SetNumDir()
