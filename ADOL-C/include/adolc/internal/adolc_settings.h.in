@@ -33,6 +33,10 @@ typedef @REAL_TYPE@ revreal;
 @ADVBRANCH@
 
 /*--------------------------------------------------------------------------*/
+/* Use reference counting for tapeless numbers */
+@ADTL_REFCNT@
+
+/*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */
 @USE_BOOST_POOL@
 

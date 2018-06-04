@@ -419,7 +419,7 @@ void GauszSolve( double** J, int n, int* RI, int* CI, double* b ) {
             b[CI[i]]-=J[RI[i]][CI[j]]*b[CI[j]];
         b[CI[i]]/=J[RI[i]][CI[i]];
     }
-    free(tmpZ);
+    myfree1(tmpZ);
 }
 
 
@@ -428,78 +428,78 @@ int jac_solv( unsigned short tag, int n, const double* x, double* b, unsigned sh
     double *y;
     int i, newX = 0;
     int rc = 3;
-    ADOLC_OPENMP_THREAD_NUMBER;
+    TapeInfos* tapeInfos;
 
-    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    tapeInfos = getTapeInfos(tag);
     y = myalloc1(n);
-    if (n != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_nax) {
-        if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_nax) {
-            free(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ci);
-            free(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ri);
-            myfree1(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_xold);
-            myfreeI2(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_nax,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_I);
-            myfree2(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J);
+    if (n != tapeInfos->pTapeInfos.jacSolv_nax) {
+        if (tapeInfos->pTapeInfos.jacSolv_nax) {
+            free(tapeInfos->pTapeInfos.jacSolv_ci);
+            free(tapeInfos->pTapeInfos.jacSolv_ri);
+            myfree1(tapeInfos->pTapeInfos.jacSolv_xold);
+            myfreeI2(tapeInfos->pTapeInfos.jacSolv_nax,
+                    tapeInfos->pTapeInfos.jacSolv_I);
+            myfree2(tapeInfos->pTapeInfos.jacSolv_J);
         }
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J = myalloc2(n,n);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_I = myallocI2(n);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_xold = myalloc1(n);
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ri =
+        tapeInfos->pTapeInfos.jacSolv_J = myalloc2(n,n);
+        tapeInfos->pTapeInfos.jacSolv_I = myallocI2(n);
+        tapeInfos->pTapeInfos.jacSolv_xold = myalloc1(n);
+        tapeInfos->pTapeInfos.jacSolv_ri =
             (int*)malloc(n*sizeof(int));
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ci =
+        tapeInfos->pTapeInfos.jacSolv_ci =
             (int*)malloc(n*sizeof(int));
 
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_modeold = 0;
-        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_nax = n;
+        tapeInfos->pTapeInfos.jacSolv_modeold = 0;
+        tapeInfos->pTapeInfos.jacSolv_nax = n;
     }
     for (i = 0; i < n; ++i)
-        if (x[i] != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_xold[i]) {
-            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_xold[i] = x[i];
+        if (x[i] != tapeInfos->pTapeInfos.jacSolv_xold[i]) {
+            tapeInfos->pTapeInfos.jacSolv_xold[i] = x[i];
             newX = 1;
         }
     switch(mode) {
         case 0:
             MINDEC(rc,zos_forward(tag, n, n, 1, x, y));
             MINDEC(rc,fov_reverse(tag, n, n, n,
-                        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_I,
-                        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J));
+                        tapeInfos->pTapeInfos.jacSolv_I,
+                        tapeInfos->pTapeInfos.jacSolv_J));
             break;
         case 1:
             MINDEC(rc,zos_forward(tag, n, n, 1, x, y));
             MINDEC(rc,fov_reverse(tag, n, n, n,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_I,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J));
+                            tapeInfos->pTapeInfos.jacSolv_I,
+                            tapeInfos->pTapeInfos.jacSolv_J));
             if (LUFactorization(
-                        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J, n,
-                        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ri,
-                        ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ci) < 0)
+                        tapeInfos->pTapeInfos.jacSolv_J, n,
+                        tapeInfos->pTapeInfos.jacSolv_ri,
+                        tapeInfos->pTapeInfos.jacSolv_ci) < 0)
             {
                 rc = -3;
                 break;
             }
-            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_modeold = 1;
+            tapeInfos->pTapeInfos.jacSolv_modeold = 1;
             break;
         case 2:
-            if ((ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_modeold < 1) ||
+            if ((tapeInfos->pTapeInfos.jacSolv_modeold < 1) ||
                     (newX == 1))
             {
                 MINDEC(rc,zos_forward(tag, n, n, 1, x, y));
                 MINDEC(rc,fov_reverse(tag, n, n, n,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_I,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J));
+                            tapeInfos->pTapeInfos.jacSolv_I,
+                            tapeInfos->pTapeInfos.jacSolv_J));
                 if (LUFactorization(
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J, n,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ri,
-                            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ci) < 0)
+                            tapeInfos->pTapeInfos.jacSolv_J, n,
+                            tapeInfos->pTapeInfos.jacSolv_ri,
+                            tapeInfos->pTapeInfos.jacSolv_ci) < 0)
                 {
                     rc = -3;
                     break;
                 }
             }
-            GauszSolve(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_J, n,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ri,
-                    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_ci, b);
-            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.jacSolv_modeold = 2;
+            GauszSolve(tapeInfos->pTapeInfos.jacSolv_J, n,
+                    tapeInfos->pTapeInfos.jacSolv_ri,
+                    tapeInfos->pTapeInfos.jacSolv_ci, b);
+            tapeInfos->pTapeInfos.jacSolv_modeold = 2;
             break;
     }
     myfree1(y);
@@ -533,16 +533,11 @@ int inverse_Taylor_prop( short tag, int n, int d,
        {
         if (nax)
          {
-            free(**A);
-            free(*A);
-            free(A);
-            free(*I);
-            free(I);
-            free(*W);
-            free(W);
-            free(*Xhelp);
-            free(Xhelp);
-            free(w);
+            myfree3(A);
+            myfree2(I);
+            myfree2(W);
+            myfree2(Xhelp);
+            myfree1(w);
             free(xold);
             free(*nonzero);
             free(nonzero);
@@ -738,10 +733,8 @@ int inverse_tensor_eval( short tag, int n, int d, int p,
             }
         }
         free((char*) jm);
-        free((char*) *X);
-        free((char*) X);
-        free((char*) *Y);
-        free((char*) Y);
+        myfree2(X);
+        myfree2(Y);
     }
     for(i=0;i<n;i++)
         tensor[i][0] = x[i];
@@ -770,6 +763,7 @@ int tensor_eval( short tag, int m, int n, int d, int p,
     for (i=0; i<m; i++)
         for (j=0; j<dimten; j++)
             tensor[i][j] = 0;
+
     if (d == 0) {
         MINDEC(rc,zos_forward(tag,m,n,0,x,y));
     } else {
@@ -853,15 +847,12 @@ int tensor_eval( short tag, int m, int n, int d, int p,
                 }
             }
         }
+
         for (i=0; i<jmbd; i++)
             free((char*) *(jm+i));
         free((char*) jm);
-        free((char*) **X);
-        free((char*) *X);
-        free((char*) X);
-        free((char*) **Y);
-        free((char*) *Y);
-        free((char*) Y);
+        myfree3(X);
+        myfree3(Y);
     }
     for(i=0;i<m;i++)
         tensor[i][0] = y[i];

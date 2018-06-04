@@ -508,8 +508,7 @@ int int_reverse_safe(
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
     for (j=0; j<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; j++) {
-        rpp_A[j] = Aqo;
-        Aqo += p;
+        rpp_A[j] = Aqo + j*p;
     }
     ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
     rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -692,8 +691,8 @@ int int_reverse_safe(
             case recipr_p:
             case assign_p:            /* assign an adouble variable a    assign_d */
                 /* double value. (=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif /* !_NTIGHT_ */
@@ -794,8 +793,8 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
             case eq_plus_p:            /* Add a floating point to an    eq_plus_d */
                 /* adouble. (+=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
@@ -838,8 +837,8 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
             case eq_min_p:       /* Subtract a floating point from an    eq_min_d */
                 /* adouble. (-=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
@@ -891,8 +890,8 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
             case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
                 /* flaoting point. (*=) */
-                arg   = get_locint_r();
                 res   = get_locint_r();
+                arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 #endif /* !_NTIGHT_ */
@@ -1008,8 +1007,8 @@ int int_reverse_safe(
             case plus_a_p:             /* Add an adouble and a double    plus_a_p */
             case min_a_p:                /* Subtract an adouble from a    min_d_a */
                 /* (+) */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
@@ -1208,8 +1207,8 @@ int int_reverse_safe(
                 /*--------------------------------------------------------------------------*/
             case mult_a_p:         /* Multiply an adouble by a double    mult_a_p */
                 /* (*) */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
@@ -1308,8 +1307,8 @@ int int_reverse_safe(
 
                 /****************************************************************************/
             case div_p_a:             /* Division double - adouble (/)    div_p_a */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
 
 #if !defined(_NTIGHT_)
@@ -1577,8 +1576,8 @@ int int_reverse_safe(
 
                 /*--------------------------------------------------------------------------*/
             case pow_op_p:                                                /* pow_op_p */
-                arg1  = get_locint_r();
                 res   = get_locint_r();
+                arg1  = get_locint_r();
                 arg   = get_locint_r();
 #if !defined(_NTIGHT_)
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
@@ -2161,13 +2160,13 @@ int int_reverse_safe(
 		    double val = 
 #endif
 		    get_val_r();
+		    res = get_locint_r();
 #if !defined(_NTIGHT_)
 		    size_t idx, numval = (size_t)trunc(fabs(val));
 		    locint vectorloc;
 		    vectorloc = 
 #endif
 		    get_locint_r();
-		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
@@ -2200,13 +2199,13 @@ int int_reverse_safe(
 		    double val = 
 #endif
 		    get_val_r();
+		    res = get_locint_r();
 #if !defined(_NTIGHT_)
 		    size_t idx, numval = (size_t)trunc(fabs(val));
 		    locint vectorloc;
 		    vectorloc = 
 #endif
 		    get_locint_r();
-		    res = get_locint_r();
 		    arg = get_locint_r();
 #if !defined(_NTIGHT_)
 		    idx = (size_t)trunc(fabs(TARG));
@@ -2402,8 +2401,8 @@ int int_reverse_safe(
 
             case ref_eq_plus_p:            /* Add a floating point to an    eq_plus_d */
                 /* adouble. (+=) */
-                arg    = get_locint_r();
                 arg1   = get_locint_r();
+                arg    = get_locint_r();
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(TARG1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
@@ -2456,8 +2455,8 @@ int int_reverse_safe(
 
             case ref_eq_min_p:       /* Subtract a floating point from an    eq_min_p */
                 /* adouble. (-=) */
-                arg    = get_locint_r();
                 arg1   = get_locint_r();
+                arg    = get_locint_r();
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(TARG1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
@@ -2516,8 +2515,8 @@ int int_reverse_safe(
 
             case ref_eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
                 /* flaoting point. (*=) */
-                arg    = get_locint_r();
                 arg1   = get_locint_r();
+                arg    = get_locint_r();
 #if !defined(_NTIGHT_)
 		res = (size_t)trunc(fabs(TARG1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
@@ -2565,9 +2564,9 @@ int int_reverse_safe(
 		break;
 
         case vec_copy:
+                res = get_locint_r();
                 size = get_locint_r();
                 arg = get_locint_r();
-                res = get_locint_r();
                 for (qq=0;qq<size;qq++) {
 
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg+qq])
@@ -2592,10 +2591,10 @@ int int_reverse_safe(
                 break;
 
         case vec_dot:
+                res = get_locint_r();
                 size = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
-                res = get_locint_r();
                 for (qq=0;qq<size;qq++) {
                     ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
                     ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
@@ -2619,11 +2618,11 @@ int int_reverse_safe(
                 break;
 
         case vec_axpy:
+                res = get_locint_r();
                 size = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
                 arg = get_locint_r();
-                res = get_locint_r();
                 for (qq=0;qq<size;qq++) {
                     ASSIGN_A( Ares,  ADJOINT_BUFFER[res])
                     ASSIGN_A( Aarg,  ADJOINT_BUFFER[arg])
@@ -3309,7 +3308,8 @@ int int_reverse_safe(
     free(rp_A);
 #endif
 #ifdef _FOV_
-    myfree2(rpp_A);
+    free(Aqo);
+    free(rpp_A);
 #endif
 #ifdef _INT_REV_
     free(upp_A);

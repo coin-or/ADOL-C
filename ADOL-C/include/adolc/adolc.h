@@ -28,6 +28,7 @@
 #  include <adolc/adouble.h>
 #  include <adolc/externfcts.h>
 #  include <adolc/externfcts2.h>
+#  include <adolc/edfclasses.h>
 #  include <adolc/checkpointing.h>
 #  include <adolc/fixpoint.h>
 #endif

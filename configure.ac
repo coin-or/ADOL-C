@@ -9,7 +9,7 @@
 ##############################################################################
 define([ADOLC_VER], [2])
 define([ADOLC_SUB], [6])
-define([ADOLC_LVL], [2])
+define([ADOLC_LVL], [3])
 
 AC_PREREQ(2.67)
 AC_INIT(adolc,
@@ -47,6 +47,8 @@ for i in $config_flags ; do
             ;;
     esac
 done
+
+AM_CONDITIONAL(DARWIN, [test "x${host_os#darwin}" != "x${host_os}"])
 
 AC_MSG_CHECKING(whether to build ADOL-C with adjoinable MPI (AMPI) support)
 AC_ARG_ENABLE(ampi,
@@ -108,25 +110,6 @@ AC_STRUCT_TM
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
 AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
-
-AX_BOOST_BASE([1.54],[boost_new=yes],[boost_new=no])
-if test x$boost_new = xyes ; then
-CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
-AC_LANG_POP([C++])
-AX_BOOST_SYSTEM
-LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
-fi
-
-if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
-    using_boost_pool=yes
-    USE_BOOST_POOL="#define USE_BOOST_POOL 1"
-else
-    using_boost_pool=no
-    USE_BOOST_POOL="#define USE_BOOST_POOL 0"
-fi
-AC_SUBST(USE_BOOST_POOL)
 
 # substitutions
 AC_SUBST(ac_aux_dir)
@@ -218,7 +201,37 @@ else
   ADVBRANCH="#undef ADOLC_ADVANCED_BRANCHING"
 fi
 AC_SUBST(ADVBRANCH)
-AC_SUBST(ADVBRANCH)
+
+AC_MSG_CHECKING(whether to enable reference counting for tapeless numbers)
+AC_ARG_ENABLE(traceless-refcounting, [AS_HELP_STRING([--enable-traceless-refcounting],
+  [enable reference counting for tapeless numbers [default=no].
+With this enabled some additional checks will be conducted when setting the
+number of directional derivatives for tapeless numbers using the SetNumDir()
+function. ])],
+  [use_adtl_refcnt=$enableval],[use_adtl_refcnt=no])
+AC_MSG_RESULT($use_adtl_refcnt)
+
+if test x$use_adtl_refcnt = xyes ; then
+  ADTL_REFCNT="#define USE_ADTL_REFCOUNTING 1"
+else
+  ADTL_REFCNT="#undef USE_ADTL_REFCOUNTING"
+fi
+AC_SUBST(ADTL_REFCNT)
+
+AC_MSG_CHECKING(whether to enable activity tracking)
+AC_ARG_ENABLE(activity-tracking, [AS_HELP_STRING([--enable-activity-tracking],
+  [enable activity tracking to reduce trace size but increased tracing time [default=no].
+Only the operations involving actual dependency relationships from the
+independent variables will be recorded on the trace, this however
+requires more checks to be performed during the tracing and increases
+tracing time. Useful only if memory is a constraint and tracing is
+done fewer times than derivative computations.])],
+  [use_activities=$enableval],[use_activities=no])
+AC_MSG_RESULT($use_activities)
+
+if test x$use_activities = xyes ; then
+AC_DEFINE(ADOLC_TRACK_ACTIVITY,1,[ADOL-C activity tracking in live variables])
+fi
 
 AC_MSG_CHECKING(whether to use ADOL-C debug mode)
 AC_ARG_ENABLE(debug,
@@ -316,6 +329,25 @@ AC_ARG_WITH(openmp-flag,
              AC_MSG_RESULT($ac_adolc_openmpflag)],
             [ac_adolc_openmpflag=""
              AC_MSG_RESULT(none)])
+
+AX_BOOST_BASE([1.54],[boost_new=yes],[boost_new=no])
+if test x$boost_new = xyes ; then
+CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/pool/pool_alloc.hpp])
+AC_LANG_POP([C++])
+AX_BOOST_SYSTEM
+LDFLAGS="$LDFLAGS $BOOST_LDFLAGS $BOOST_SYSTEM_LIB"
+fi
+
+if test "x$want_boost" = xyes -a "x$boost_new" = xyes -a "x$ac_cv_header_boost_pool_pool_alloc_hpp" = xyes -a "x$link_system" = xyes ; then
+    using_boost_pool=yes
+    USE_BOOST_POOL="#define USE_BOOST_POOL 1"
+else
+    using_boost_pool=no
+    USE_BOOST_POOL="#define USE_BOOST_POOL 0"
+fi
+AC_SUBST(USE_BOOST_POOL)
 
 if test "x$using_boost_pool" = xyes -a "x$ac_adolc_openmpflag" = x ; then
    AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
@@ -579,7 +611,7 @@ if [[ "x${ac_adolc_openmpflag}" != "x" ]] ; then
 fi
 
 echo \
-"  Use ADOL-C safe extern mode:        ${adolc_safe_extern}
+"  Use ADOL-C activity tracking:       ${use_activities}
   Use ADOL-C late init mode:          ${adolc_late_init}
 
   Build sparse drivers:               ${sparse}
