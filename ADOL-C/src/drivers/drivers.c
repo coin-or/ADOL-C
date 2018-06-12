@@ -213,7 +213,7 @@ int par_jacobian(short tag,
     }
     calcPartitioning(loc_part, loc_start, num_threads, depen);
     for (i = 0; i < num_threads; ++i)
-      printf("num_threads= %d, loc_part[%d] = %d , loc_start[%d] = %d \n", num_threads, i, loc_part[i], loc_start[i]);
+      printf("num_threads= %d, loc_part[%d] = %d , loc_start[%d] = %d \n", num_threads, i, loc_part[i], i, loc_start[i]);
   }
 
 #ifdef _OPENMP
