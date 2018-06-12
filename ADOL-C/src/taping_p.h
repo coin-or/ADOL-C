@@ -16,9 +16,11 @@
 
 #ifdef __cplusplus
 #include "storemanager.h"
+#include <stack>
 #endif
 #include <adolc/internal/common.h>
 #include <adolc/taping.h>
+#include <adolc/adolc_openmp.h>
 #include <errno.h>
 
 BEGIN_C_DECLS
@@ -135,7 +137,7 @@ extern void *failAdditionalInfo6;
 /****************************************************************************/
 
 #ifdef SPARSE
-typedef struct SparseJacInfos {
+typedef struct SparseJacInfosCl {
   void *g;
   void *jr1d;
 
@@ -146,9 +148,13 @@ typedef struct SparseJacInfos {
   unsigned int **JP;
 
   int depen, nnz_in, seed_clms, seed_rows;
+
+#ifdef __cplusplus
+  struct SparseJacInfosCl const& operator=(struct SparseJacInfosCl const& in);
+#endif
 } SparseJacInfos;
 
-typedef struct SparseHessInfos {
+typedef struct SparseHessInfosCl {
     void *g;
     void *hr;
 
@@ -161,6 +167,9 @@ typedef struct SparseHessInfos {
     unsigned int **HP;
 
   int nnz_in, indep, p;
+#ifdef __cplusplus
+  struct SparseHessInfosCl const& operator=(struct SparseHessInfosCl const& in);
+#endif
 } SparseHessInfos;
 #endif
 
@@ -179,7 +188,8 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
 
     SparseJacInfos sJinfos;
 
-    /* sparse Hessian matrices */
+    /* sparse Hessian m, depen, indep, repeat, basepoint, nnz, rind, cind, values, options);
+     * atrices */
 
     SparseHessInfos sHinfos;
 #endif
@@ -205,6 +215,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     PersistantTapeInfos();
     ~PersistantTapeInfos();
     void copy(const PersistantTapeInfos&);
+    const PersistantTapeInfos& operator= (const PersistantTapeInfos& in);
 #endif
 } PersistantTapeInfos;
 
@@ -304,8 +315,9 @@ typedef struct TapeInfos {
 #if defined(__cplusplus)
     TapeInfos();
     TapeInfos(short tapeID);
-    ~TapeInfos() {}
+    ~TapeInfos();
     void copy(const TapeInfos&);
+    const TapeInfos& operator= (const TapeInfos& in);
 #endif
 }
 TapeInfos;
@@ -351,6 +363,7 @@ GlobalTapeVars;
 
 extern int isParallel();
 
+/*
 #define ADOLC_TAPE_INFOS_BUFFER_DECL *tapeInfosBuffer
 #define ADOLC_TAPE_STACK_DECL *tapeStack
 #define ADOLC_CURRENT_TAPE_INFOS_DECL *currentTapeInfos
@@ -358,6 +371,7 @@ extern int isParallel();
 #define ADOLC_GLOBAL_TAPE_VARS_DECL *globalTapeVars
 #define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL *ADOLC_extDiffFctsBuffer
 #define ADOLC_CHECKPOINTS_STACK_DECL *ADOLC_checkpointsStack
+*/
 
 #define ADOLC_OPENMP_THREAD_NUMBER int ADOLC_threadNumber
 #if defined(ADOLC_THREADSAVE_ERRNO)
@@ -368,6 +382,7 @@ extern int isParallel();
 #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
 #endif
 
+/*
 #define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer[ADOLC_threadNumber]
 #define ADOLC_TAPE_STACK tapeStack[ADOLC_threadNumber]
 #define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos[ADOLC_threadNumber]
@@ -376,35 +391,45 @@ extern int isParallel();
 #define ADOLC_EXT_DIFF_FCTS_BUFFER ADOLC_extDiffFctsBuffer[ADOLC_threadNumber]
 #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack[ADOLC_threadNumber]
 #define REVOLVE_NUMBERS revolve_numbers[ADOLC_threadNumber]
-
+*/
 #else
-
-#define ADOLC_TAPE_INFOS_BUFFER_DECL tapeInfosBuffer
-#define ADOLC_TAPE_STACK_DECL tapeStack
-#define ADOLC_CURRENT_TAPE_INFOS_DECL currentTapeInfos
-#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL currentTapeInfos_fallBack
-#define ADOLC_GLOBAL_TAPE_VARS_DECL globalTapeVars
-#define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL ADOLC_extDiffFctsBuffer
-#define ADOLC_CHECKPOINTS_STACK_DECL ADOLC_checkpointsStack
 
 #define ADOLC_OPENMP_THREAD_NUMBER
 #define ADOLC_OPENMP_GET_THREAD_NUMBER
 #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
 
+#endif /* _OPENMP */
+
 #define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer
-#define ADOLC_TAPE_STACK tapeStack
-#define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos
-#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK currentTapeInfos_fallBack
-#define ADOLC_GLOBAL_TAPE_VARS globalTapeVars
+#define ADOLC_TAPE_STACK ADOLC_OpenMP.ctx->tapeStack
+#define ADOLC_CURRENT_TAPE_INFOS ADOLC_OpenMP.ctx->currentTapeInfos
+#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK ADOLC_OpenMP.ctx->currentTapeInfos_fallBack
+#define ADOLC_GLOBAL_TAPE_VARS ADOLC_OpenMP.ctx->globalTapeVars
 #define ADOLC_EXT_DIFF_FCTS_BUFFER ADOLC_extDiffFctsBuffer
 #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack
-#define REVOLVE_NUMBERS revolve_numbers
+#define REVOLVE_NUMBERS ADOLC_OpenMP.revolve_numbers
 
-#endif /* _OPENMP */
+#define ADOLC_TAPE_INFOS_BUFFER_DECL tapeInfosBuffer
+#define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL ADOLC_extDiffFctsBuffer
+#define ADOLC_CHECKPOINTS_STACK_DECL ADOLC_checkpointsStack
 
 extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
 extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
 extern GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
+
+
+struct ThreadContextCl {
+	TapeInfos currentTapeInfos;
+	TapeInfos currentTapeInfos_fallBack;
+	GlobalTapeVars globalTapeVars;
+
+#ifdef __cplusplus
+	/* stack of pointers to tape infos
+	 * represents the order of tape usage when doing nested taping */
+	std::stack<TapeInfos *> tapeStack;
+	void deepcopy(struct ThreadContextCl const* in);
+#endif
+};
 
 /****************************************************************************/
 /* C Function interfaces                                                    */

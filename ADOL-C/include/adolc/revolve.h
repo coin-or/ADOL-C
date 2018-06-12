@@ -19,24 +19,7 @@
 
 BEGIN_C_DECLS
 
-typedef struct {
-        int advances;
-        int takeshots;
-        int commands;
-        int  turn;
-        int reps;
-        int range;
-        int ch[ADOLC_CHECKUP];
-        int oldsnaps;
-        int oldfine;
-} revolve_nums;
-
-#ifndef _OPENMP
-    extern revolve_nums revolve_numbers;
-#else
-#include <omp.h>
-    extern revolve_nums *revolve_numbers;
-#endif
+#include <adolc/adolc_openmp.h>
 
 enum revolve_action {
     revolve_advance,

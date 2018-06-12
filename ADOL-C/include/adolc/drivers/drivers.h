@@ -43,6 +43,11 @@ ADOLC_DLL_EXPORT int jacobian(short,int,int,const double*,double**);
 ADOLC_DLL_EXPORT fint jacobian_(fint*,fint*,fint*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
+/*                                                             par_jacobian */
+/* par_jacobian(tag, m, n, x[n], J[m][n])                                   */
+ADOLC_DLL_EXPORT int par_jacobian(short,int,int,const double*,double**);
+
+/*--------------------------------------------------------------------------*/
 /*                                                           large_jacobian */
 /* large_jacobian(tag, m, n, k, x[n], y[m], J[m][n])                        */
 ADOLC_DLL_EXPORT int large_jacobian(short,int,int,int,double*,double*,double**);

@@ -76,43 +76,43 @@ int main() {
 /****************************************************************************/
 
     /* coordinate format for Jacobian */
-    unsigned int *rind  = NULL;        /* row indices    */
-    unsigned int *cind  = NULL;        /* column indices */
-    double       *values = NULL;       /* values         */
-    int nnz;
-    int options[4];
+     unsigned int *rind  = NULL;        /* row indices    */
+     unsigned int *cind  = NULL;        /* column indices */
+     double       *values = NULL;       /* values         */
+     int nnz;
+     int options[4];
 
-    options[0] = 0;          /* sparsity pattern by index domains (default) */ 
-    options[1] = 0;          /*                         safe mode (default) */ 
-    options[2] = 0;          /*              not required if options[0] = 0 */ 
-    options[3] = 0;          /*                column compression (default) */ 
+     options[0] = 0;          /* sparsity pattern by index domains (default) */
+     options[1] = 0;          /*                         safe mode (default) */
+     options[2] = 0;          /*              not required if options[0] = 0 */
+     options[3] = 0;          /*                column compression (default) */
 
-    sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-    printf("In sparse format:\n");
-    for (i=0;i<nnz;i++)
-        printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
-
-    free(rind); rind=NULL;
-    free(cind); cind=NULL;
-    free(values); values=NULL;
+//     sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
+//
+//     printf("In sparse format:\n");
+//     for (i=0;i<nnz;i++)
+//         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
+//
+//     free(rind); rind=NULL;
+//     free(cind); cind=NULL;
+//     free(values); values=NULL;
 /*--------------------------------------------------------------------------*/
 /*  same approach but using row compression                                 */
 /*--------------------------------------------------------------------------*/
 
-    options[3] = 1;                   /*   row compression => reverse mode, */ 
-                                      /* sometimes better than forward mode */ 
-                                      /* due to sparsity structure          */
-
-    sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-    printf("In sparse format (using row compression): \n");
-    for (i=0;i<nnz;i++)
-        printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
-
-    free(rind); rind=NULL;
-    free(cind); cind=NULL;
-    free(values); values=NULL;
+//     options[3] = 1;                   /*   row compression => reverse mode, */ 
+//                                       /* sometimes better than forward mode */ 
+//                                       /* due to sparsity structure          */
+// 
+//    sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
+// 
+//     printf("In sparse format (using row compression): \n");
+//     for (i=0;i<nnz;i++)
+//         printf("%2d %2d %10.6f\n\n",rind[i],cind[i],values[i]);
+// 
+//     free(rind); rind=NULL;
+//     free(cind); cind=NULL;
+//     free(values); values=NULL;
 /*--------------------------------------------------------------------------*/
 /*  change value of x, but not the sparsity pattern                         */
 /*--------------------------------------------------------------------------*/
@@ -128,8 +128,8 @@ int main() {
     printf("\n");
 
 /*  repeated call of sparse_jac with same sparsity pattern => repeat = 1 */
-
-    sparse_jac(tag, m, n, 1, x, &nnz, &rind, &cind, &values, options);
+/*
+   sparse_jac(tag, m, n, 1, x, &nnz, &rind, &cind, &values, options);
 
     printf("In sparse format:\n");
     for (i=0;i<nnz;i++)
@@ -137,7 +137,7 @@ int main() {
 
     free(rind); rind=NULL;
     free(cind); cind=NULL;
-    free(values); values=NULL;
+    free(values); values=NULL;*/
 /*--------------------------------------------------------------------------*/
 /*  same approach but using row compression                                 */
 /*--------------------------------------------------------------------------*/
@@ -146,7 +146,7 @@ int main() {
                                       /* sometimes better than forward mode */ 
                                       /* due to sparsity structure          */
 
-    sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
+ /*   sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
 
     printf("In sparse format (using row compression): \n");
     for (i=0;i<nnz;i++)
@@ -155,7 +155,7 @@ int main() {
     free(rind); rind=NULL;
     free(cind); cind=NULL;
     free(values); values=NULL;
-/****************************************************************************/
+/*****************************************************************************/
 /*******       sparse Jacobians, separate drivers             ***************/
 /****************************************************************************/
 
@@ -195,11 +195,11 @@ int main() {
     /* option = 0 column compression (default), 
        option = 1 rom compression                */
  
-    generate_seed_jac(m, n, JP, &Seed, &p, option);
+//    generate_seed_jac(m, n, JP, &Seed, &p, option);
 
-    printf(" p_J = %d \n",p);
-    printmat(" Seed matrix",n,p,Seed);
-    printf("\n");
+//    printf(" p_J = %d \n",p);
+//    printmat(" Seed matrix",n,p,Seed);
+//    printf("\n");
 
 /*--------------------------------------------------------------------------*/
 /*                                                      compressed Jacobian */
@@ -208,9 +208,9 @@ int main() {
     double **Jcomp;
     Jcomp = myalloc2(m,p);
 
-    fov_forward(tag,m,n,p,x,Seed,c,Jcomp);
-    printmat("compressed J:",m,p,Jcomp);
-    printf("\n");
+//    fov_forward(tag,m,n,p,x,Seed,c,Jcomp);
+//    printmat("compressed J:",m,p,Jcomp);
+//    printf("\n");
 
 
 /*--------------------------------------------------------------------------*/
@@ -223,23 +223,25 @@ int main() {
 /*  For comparisons: Full Jacobian                                          */
 
     jacobian(tag,m,n,x,J);
-
     printmat(" J",m,n,J);
     printf("\n");
 
-
-    fov_forward(tag,m,n,p,x,Seed,c,Jcomp);
-    printmat("compressed J:",m,p,Jcomp);
+    par_jacobian(tag,m,n,x,J);
+    printmat("par J",m,n,J);
     printf("\n");
 
+//    fov_forward(tag,m,n,p,x,Seed,c,Jcomp);
+//    printmat("compressed J:",m,p,Jcomp);
+//    printf("\n");
+
     for (i=0;i<m;i++)
-	free(JP[i]);
+      free(JP[i]);
     free(JP);
     myfree2(J);
 
-    for (i = 0; i < n; i++)
-        delete[] Seed[i];
-    delete[] Seed;
+//    for (i = 0; i < n; i++)
+ //       delete[] Seed[i];
+ //   delete[] Seed;
 
     myfree2(Jcomp);
 }

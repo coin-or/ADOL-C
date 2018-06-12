@@ -204,6 +204,43 @@ void myfreeI2(int n, double** I) {
 }
 
 /****************************************************************************/
+/*                                  PARTIAL SPECIAL IDENTITY REPRESENTATION */
+
+/*--------------------------------------------------------------------------*/
+//n * m matrix, ab p-ten Zeile Einsen
+double** myallocI2nmp(int n, int m, int start)
+{
+  int i;
+  double* Idum; // = (double*)ADOLC_MALLOC((2*m-1),sizeof(double));
+  double** I = (double**)calloc(n*sizeof(double*)+(2*m-1)*sizeof(double), sizeof(char));
+  if (NULL == I) {
+    fprintf(DIAG_OUT,"ADOL-C error: myallocI2nmp cannot allocate %i bytes\n",
+            (int)(n*sizeof(double*)+(2*m-1)*sizeof(double))
+            );
+    adolc_exit(-1,"",__func__,__FILE__,__LINE__);
+  }
+
+  Idum = (double*)I+n;
+  for (i = 1; i < m-start; i++)
+    *(Idum++) = 0.0;
+  *Idum = 1.0;
+  for (i = 1; i < m+start; i++)
+    *(++Idum) = 0.0;
+  Idum -= (m-1);
+  for (i = 0; i < n; i++) {
+    I[i] = Idum--;
+  }
+  return I;
+}
+
+/*--------------------------------------------------------------------------*/
+void myfreeI2nmp(int n, int m, int start, double** I) {
+  /* myfreeI2(m, I); */
+  free((char*)I);
+}
+
+
+/****************************************************************************/
 /*                              INTEGER VARIANT FOR BIT PATTERN PROPAGATION */
 
 /* ------------------------------------------------------------------------- */

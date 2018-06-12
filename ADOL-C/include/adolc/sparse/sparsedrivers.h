@@ -94,6 +94,12 @@ ADOLC_DLL_EXPORT void get_HP(
     int            indep,      /* number of independent variables         */
     unsigned int *** HP);
 
+ADOLC_DLL_EXPORT void deepcopy_HP(
+	unsigned int ***HPnew,		/* new pattern */
+	unsigned int **HP, 			/* old pattern */
+	int indep);             	/* size */
+
+
 /*--------------------------------------------------------------------------*/
 /*                                                   JACOBIAN BLOCK PATTERN */
 
