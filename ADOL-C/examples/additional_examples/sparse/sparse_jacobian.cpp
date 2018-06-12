@@ -225,9 +225,11 @@ int main() {
     jacobian(tag,m,n,x,J);
     printmat(" J",m,n,J);
     printf("\n");
-
-    par_jacobian(tag,m,n,x,J);
-    printmat("par J",m,n,J);
+    
+    double **parJ;
+    parJ = myalloc2(m,n);
+    par_jacobian(tag,m,n,x,parJ);
+    printmat("par J",m,n,parJ);
     printf("\n");
 
 //    fov_forward(tag,m,n,p,x,Seed,c,Jcomp);
