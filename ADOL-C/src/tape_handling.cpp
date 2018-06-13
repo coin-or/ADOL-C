@@ -755,7 +755,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
 }
 #endif
 
-void init_lib() {
+static void init_lib() {
     ADOLC_OPENMP_THREAD_NUMBER;
     errno = 0;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
