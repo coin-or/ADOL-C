@@ -755,7 +755,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
 }
 #endif
 
-void init() {
+void init_lib() {
     ADOLC_OPENMP_THREAD_NUMBER;
     errno = 0;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -792,6 +792,7 @@ void init() {
     adolc_id.address_size = sizeof(size_t);
 
     ADOLC_EXT_DIFF_FCTS_BUFFER.init(init_CpInfos);
+    readConfigFile();
 }
 
 static void clearCurrentTape() {
@@ -1104,8 +1105,7 @@ class Keeper {
     public:
         inline Keeper() {
             dummy = 0;
-            init();
-            readConfigFile();
+            init_lib();
         }
         inline ~Keeper() {
             cleanUp();
