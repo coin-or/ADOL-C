@@ -24,24 +24,41 @@
 /*                                                                 INCLUDES */
 #include "LU.h"
 
+void printmat(const char* name, int m, int n, double** M);
+int compareJacs(int m, int n, double** jac1, const char* name1, double** jac2,
+                const char* name2);
+
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
-int main() { /*------------------------------------------------------------------------*/
-    /* variables */
+/*--------------------------------------------------------------------------*/
+int main(int argc, char* argv []) {
+    int size  = 5;                       // system size
+    if (2 == argc) {
+       size = atoi(argv[1]);
+    }
+    if (1 > size) {
+      printf("Usage: OMP_NUM_THREADS=NUMTHREADS ./LUsolve [SIZE_SYSTEM]\n");
+      return 1;
+    }
+    printf("System size is %i.\n", size);
+
+  /* variables */
     const int tag   = 1;                       // tape tag
-    const int size  = 5;                       // system size
     const int indep = size*size+size;          // # of indeps
     const int depen = size;                    // # of deps
 
-    double  A[size][size], a1[size], a2[size], // passive variables
-    b[size], x[size];
+    // passive variables
+    double** A = myalloc2(size, size);
+    double* a1 = myalloc1(size);
+    double* a2 = myalloc1(size);
+    double* b = myalloc1(size);
+    double* x = myalloc1(size);
     adouble **AA, *AAp, *Abx;                  // active variables
     double *args = myalloc1(indep);            // arguments
     double **jac = myalloc2(depen,indep);      // the Jacobian
     double *laghessvec = myalloc1(indep);      // Hessian-vector product
 
     int i,j;
-
 
     /*------------------------------------------------------------------------*/
     /* Info */
@@ -98,21 +115,27 @@ int main() { /*-----------------------------------------------------------------
     /*------------------------------------------------------------------------*/
     /* Computation of Jacobian */
     jacobian(tag,depen,indep,args,jac);
-    fprintf(stdout," Jacobian:\n");
-    for (i=0; i<depen; i++) {
-        for (j=0; j<indep; j++)
-            fprintf(stdout," %14.6E",jac[i][j]);
-        fprintf(stdout,"\n");
-    }
+    if (6 > size)
+      printmat("Jacobian", depen, indep, jac);
+
+    double **parJ;
+    parJ = myalloc2(depen, indep);
+    par_jacobian(tag, depen, indep, args, parJ);
+    if (6 > size)
+      printmat("Par Jacobian", depen, indep, parJ);
+
+    compareJacs(depen, indep, jac, "jac", parJ, "parJac");
 
     /*------------------------------------------------------------------------*/
     /* Computation of Lagrange-Hessian-vector product */
     lagra_hess_vec(tag,depen,indep,args,args,x,laghessvec);
     fprintf(stdout," Part of Lagrange-Hessian-vector product:\n");
-    for (i=0; i<size; i++) {
-        for (j=0; j<size; j++)
-            fprintf(stdout," %14.6E",laghessvec[i*size+j]);
-        fprintf(stdout,"\n");
+    if (6 > size) {
+      for (i=0; i<size; i++) {
+          for (j=0; j<size; j++)
+              fprintf(stdout," %14.6E",laghessvec[i*size+j]);
+          fprintf(stdout,"\n");
+      }
     }
 
 
@@ -141,9 +164,40 @@ int main() { /*-----------------------------------------------------------------
 }
 
 
+/******************************************************************************/
+void printmat(const char* name, int m, int n, double** M)
+{
+  int i, j;
 
+  printf("%s \n",name);
+  for(i = 0; i < m ; ++i) {
+    printf("\n %d: ",i);
+      for( j = 0; j < n ; ++j)
+        printf(" %10.4f ", M[i][j]);
+  }
+  printf("\n");
+}
 
+/******************************************************************************/
+int compareJacs(int m, int n, double** jac1, const char* name1, double** jac2,
+                const char* name2)
+{
+  double eps = 1.E-10;
+  double f;
+  int i, j, ret(0);
 
+  printf("\nCompare %s and %s ...\n", name1, name2);
+  for(i = 0; i < m ; ++i) {
+    for( j = 0; j < n ; ++j) {
+      f = fabs(jac1[i][j] - jac2[i][j]);
+      if (f > eps) {
+        printf("\tunexpected answer: expected[%d][%d]=%.10f vs result=%.10f\n", i, j, jac1[i][j], jac2[i][j]);
+        ret = 1;
+      }
+    }
+  }
+  if (!ret)
+    printf("\t%s and %s are identical within eps=%.14E \n\n", name1, name2, eps);
 
-
-
+  return ret;
+}
