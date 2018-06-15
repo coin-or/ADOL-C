@@ -419,7 +419,7 @@ AC_ARG_WITH(cflags,
                 ac_adolc_cflags="-O2"
                 if test x${adolc_debug} == xyes ||
                    test x${adolc_harddebug} == xyes ; then
-                   ac_adolc_cflags="-g -O0 -Wall -ansi"
+                   ac_adolc_cflags="-g -O0 -Wall "
                 fi
              else
                 ac_adolc_cflags="$CFLAGS"
