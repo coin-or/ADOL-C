@@ -17,6 +17,12 @@
 
 #include <adolc/internal/common.h>
 
+/*--------------------------------------------------------------------------*/
+/*                                                             par_jacobian */
+/* par_jacobian(tag, m, n, x[n], J[m][n])                                   */
+ADOLC_DLL_EXPORT int par_jacobian(short,int,int,const double*,double**);
+
+
 typedef struct {
         int advances;
         int takeshots;
@@ -30,13 +36,12 @@ typedef struct {
 } revolve_nums;
 
 struct ThreadContextCl;
-extern struct ADOLC_OpenMP_CL{
+extern struct ADOLC_OpenMP_CL {
 	struct ThreadContextCl* ctx;
 	revolve_nums revolve_numbers;
 #ifdef __cplusplus
-	struct ADOLC_OpenMP_CL const& operator=(struct ADOLC_OpenMP_CL const& in);
+	struct ADOLC_OpenMP_CL& operator=(struct ADOLC_OpenMP_CL const& in);
 #endif
-
 } ADOLC_OpenMP;
 
 #ifdef _OPENMP

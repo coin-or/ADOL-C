@@ -84,7 +84,14 @@ const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv)
     inParallelRegion = gtv.inParallelRegion;
     newTape = gtv.newTape;
     branchSwitchWarning = gtv.branchSwitchWarning;
-    currentTapeInfosPtr = gtv.currentTapeInfosPtr;
+
+    if (NULL == gtv.currentTapeInfosPtr) {
+      currentTapeInfosPtr = NULL;
+    } else {
+      currentTapeInfosPtr = new TapeInfos();
+      *currentTapeInfosPtr = *gtv.currentTapeInfosPtr;
+    }
+
     initialStoreSize = gtv.initialStoreSize;
     store = new double[storeSize];
     memcpy(store, gtv.store, storeSize*sizeof(double));
@@ -334,44 +341,48 @@ vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
 /* ThreadContext */
 struct ADOLC_OpenMP_CL ADOLC_OpenMP;
-struct ADOLC_OpenMP_CL const& ADOLC_OpenMP_CL::operator=(struct ADOLC_OpenMP_CL const& in){
-	ctx->deepcopy(in.ctx);
-	revolve_numbers=in.revolve_numbers;
-	return *this;
-}
 
-void ThreadContextCl::deepcopy(struct ThreadContextCl const* in) {
-	currentTapeInfos=in->currentTapeInfos;
-	currentTapeInfos_fallBack=in->currentTapeInfos_fallBack;
-	globalTapeVars=in->globalTapeVars;
-	tapeStack = in->tapeStack;
-}
 
-const TapeInfos& TapeInfos::operator= (const TapeInfos& in)
+struct ADOLC_OpenMP_CL& ADOLC_OpenMP_CL::operator=(struct ADOLC_OpenMP_CL const& in)
 {
-	int i;
-	this->tapeID = in.tapeID;
-	this->inUse = in.inUse;
-	this->numInds = in.numInds;
-	this->numDeps = numDeps;
-	this->keepTaylors = in.keepTaylors;             /* == 1 - write taylor stack in taping mode */
-	for (i = 0; i < STAT_SIZE; ++i)
-		this->stats[i] = in.stats[i];
-	this->traceFlag = in.traceFlag;
-	this->tapingComplete = in.tapingComplete;
+  ctx = new ThreadContextCl();
+  ctx->deepcopy(in.ctx);
+  revolve_numbers = in.revolve_numbers;
+  return *this;
+}
 
-	/* operations tape */
-	this->op_file = in.op_file;
-	if (this->opBuffer)
-		free(this->opBuffer);
-	if (in.opBuffer) {
-		this->opBuffer = (unsigned char*) calloc(stats[OP_BUFFER_SIZE], sizeof(unsigned char));
-		memcpy(this->opBuffer, in.opBuffer, stats[OP_BUFFER_SIZE]*sizeof(unsigned char));
-		this->currOp = opBuffer;
-		this->lastOpP1 = opBuffer+stats[OP_BUFFER_SIZE];
-		this->numOps_Tape=in.numOps_Tape;
-		this->num_eq_prod=in.num_eq_prod;
-	}
+void ThreadContextCl::deepcopy(struct ThreadContextCl const* in)
+{
+  currentTapeInfos=in->currentTapeInfos;
+  currentTapeInfos_fallBack=in->currentTapeInfos_fallBack;
+  globalTapeVars=in->globalTapeVars;
+  tapeStack = in->tapeStack;
+}
+
+TapeInfos& TapeInfos::operator= (const TapeInfos& in)
+{
+  this->tapeID = in.tapeID;
+  this->inUse = in.inUse;
+  this->numInds = in.numInds;
+  this->numDeps = numDeps;
+  this->keepTaylors = in.keepTaylors;             /* == 1 - write taylor stack in taping mode */
+  for (int i = 0; i < STAT_SIZE; ++i)
+    this->stats[i] = in.stats[i];
+  this->traceFlag = in.traceFlag;
+  this->tapingComplete = in.tapingComplete;
+
+  /* operations tape */
+  this->op_file = in.op_file;
+  if (this->opBuffer)
+    free(this->opBuffer);
+  if (in.opBuffer) {
+    this->opBuffer = (unsigned char*) calloc(stats[OP_BUFFER_SIZE], sizeof(unsigned char));
+    memcpy(this->opBuffer, in.opBuffer, stats[OP_BUFFER_SIZE]*sizeof(unsigned char));
+    this->currOp = opBuffer;
+    this->lastOpP1 = opBuffer+stats[NUM_OPERATIONS]-1;
+    this->numOps_Tape = in.numOps_Tape;
+    this->num_eq_prod = in.num_eq_prod;
+  }
 	else {
 		this->opBuffer = NULL;
 		this->currOp = NULL;
@@ -388,84 +399,87 @@ const TapeInfos& TapeInfos::operator= (const TapeInfos& in)
 		this->valBuffer = (double*) calloc(stats[VAL_BUFFER_SIZE], sizeof(double));
 		memcpy(this->valBuffer, in.valBuffer, stats[VAL_BUFFER_SIZE]*sizeof(double));
 		this->currVal = valBuffer;
-		this->lastValP1 = valBuffer+stats[VAL_BUFFER_SIZE];
+		this->lastValP1 = valBuffer+stats[NUM_VALUES]-1;
 		this->numVals_Tape = in.numVals_Tape;
 	}
 	else {
-		this->valBuffer=NULL;
+		this->valBuffer = NULL;
 		this->currVal = NULL;
-		this->lastValP1=NULL;
+		this->lastValP1 = NULL;
 		this->numVals_Tape = 0;
 	}
 
-	/* locations tape */
-	this->loc_file = in.loc_file;
-	if(this->locBuffer)
-		free(locBuffer);
-	if (in.locBuffer) {
-		this->locBuffer  = (locint*) calloc(stats[LOC_BUFFER_SIZE], sizeof(locint));
-		memcpy(this->locBuffer, in.locBuffer, stats[LOC_BUFFER_SIZE]*sizeof(locint));
-		this->currLoc = locBuffer;
-		this->lastLocP1 = locBuffer+stats[LOC_BUFFER_SIZE];
-		this->numLocs_Tape = in.numLocs_Tape;
-	}
-	else {
-		this->locBuffer = NULL;
-		this->currLoc=NULL;
-		this->lastLocP1=NULL;
-		this->numLocs_Tape=0;
-	}
+  /* locations tape */
+  this->loc_file = in.loc_file;
+  if(this->locBuffer)
+    free(locBuffer);
+  if (in.locBuffer) {
+    this->locBuffer  = (locint*) calloc(stats[LOC_BUFFER_SIZE], sizeof(locint));
+    memcpy(this->locBuffer, in.locBuffer, stats[LOC_BUFFER_SIZE]*sizeof(locint));
+    this->currLoc = locBuffer;
+    this->lastLocP1 = locBuffer+stats[NUM_LOCATIONS]-1;
+    this->numLocs_Tape = in.numLocs_Tape;
+  }
+  else {
+    this->locBuffer = NULL;
+    this->currLoc=NULL;
+    this->lastLocP1=NULL;
+    this->numLocs_Tape=0;
+  }
 
-	/* taylor stack tape */
-	this->tay_file = in.tay_file;
-	if (this->tayBuffer)
-		free(this->tayBuffer);
-	int bufferSize = in.lastTayP1-in.tayBuffer;
-	if (bufferSize) {
-		this->tayBuffer = (revreal*) calloc(bufferSize, sizeof(revreal));
-		memcpy(this->tayBuffer, in.tayBuffer, bufferSize*sizeof(revreal));
-		this->currTay = tayBuffer;
-		this->lastTayP1 = tayBuffer+bufferSize;
-	}
-	else {
-		this->tayBuffer=NULL;
-		this->currTay=NULL;
-		this->lastTayP1=NULL;
-	}
-	this->numTays_Tape = in.numTays_Tape;
-	this->nextBufferNumber = in.nextBufferNumber;                   /* the next Buffer to read back */
-	this->lastTayBlockInCore = in.lastTayBlockInCore;      /* == 1 if last taylor buffer is still in
-											in core (first call of reverse) */
-	this->deg_save = in.deg_save;                 /* degree to save and saved respectively */
-	this->tay_numInds = in.tay_numInds;             /* # of independents for the taylor stack */
-	this->tay_numDeps = in.tay_numDeps;               /* # of dependents for the taylor stack */
+  /* taylor stack tape */
+  this->tay_file = in.tay_file;
+  if (this->tayBuffer)
+    free(this->tayBuffer);
+  int bufferSize = in.lastTayP1-in.tayBuffer;
+  if (bufferSize) {
+    this->tayBuffer = (revreal*) calloc(bufferSize, sizeof(revreal));
+    memcpy(this->tayBuffer, in.tayBuffer, bufferSize*sizeof(revreal));
+    this->currTay = tayBuffer;
+    this->lastTayP1 = tayBuffer+bufferSize;
+  }
+  else {
+    this->tayBuffer=NULL;
+    this->currTay=NULL;
+    this->lastTayP1=NULL;
+  }
+  this->numTays_Tape = in.numTays_Tape;
+  this->nextBufferNumber = in.nextBufferNumber;      /* the next Buffer to read back */
+  this->lastTayBlockInCore = in.lastTayBlockInCore;  /* == 1 if last taylor buffer is still in
+                                                        in core (first call of reverse) */
+  this->deg_save = in.deg_save;                 /* degree to save and saved respectively */
+  this->tay_numInds = in.tay_numInds;           /* # of independents for the taylor stack */
+  this->tay_numDeps = in.tay_numDeps;           /* # of dependents for the taylor stack */
 
-	/* checkpointing */
-	lowestXLoc_for = in.lowestXLoc_for;     /* location of the first ind. - forward mode */
-	lowestYLoc_for = in.lowestYLoc_for;     /* location of the first dep. - forward mode */
-	lowestXLoc_rev = in.lowestXLoc_rev;     /* location of the first ind. - reverse mode */
-	lowestYLoc_rev = in.lowestYLoc_rev;     /* location of the first dep. - reverse mode */
-	cpIndex = in.cpIndex;               /* index of the curr. cp function <- tape */
-	numDirs_rev = in.numDirs_rev;     /* # of directions for **v_reverse (checkpointing) */
+  /* checkpointing */
+  lowestXLoc_for = in.lowestXLoc_for;     /* location of the first ind. - forward mode */
+  lowestYLoc_for = in.lowestYLoc_for;     /* location of the first dep. - forward mode */
+  lowestXLoc_rev = in.lowestXLoc_rev;     /* location of the first ind. - reverse mode */
+  lowestYLoc_rev = in.lowestYLoc_rev;     /* location of the first dep. - reverse mode */
+  cpIndex = in.cpIndex;               /* index of the curr. cp function <- tape */
+  numDirs_rev = in.numDirs_rev;       /* # of directions for **v_reverse (checkpointing) */
 
-	this->lowestXLoc_ext_v2 = in.lowestXLoc_ext_v2;
-	this->lowestYLoc_ext_v2 = in.lowestYLoc_ext_v2;
+  this->lowestXLoc_ext_v2 = in.lowestXLoc_ext_v2;
+  this->lowestYLoc_ext_v2 = in.lowestYLoc_ext_v2;
 
-	/* extern diff. fcts */
-	this->ext_diff_fct_index = in.ext_diff_fct_index;    /* set by forward and reverse (from tape) */
-	this->in_nested_ctx = in.in_nested_ctx;
+  /* extern diff. fcts */
+  this->ext_diff_fct_index = in.ext_diff_fct_index;    /* set by forward and reverse (from tape) */
+  this->in_nested_ctx = in.in_nested_ctx;
 
-	this->numSwitches = in.numSwitches;
-	this->signature = in.signature;
+  this->numSwitches = in.numSwitches;
+  this->signature = in.signature;
 
-	this->pTapeInfos = in.pTapeInfos;
-    if (this->pTapeInfos.paramstore)
-    	free(this->pTapeInfos.paramstore);
-    //this->pTapeInfos.paramstore = (double*) malloc(this->stats[NUM_PARAM]*sizeof(double));
+  this->pTapeInfos = in.pTapeInfos;
+  if (this->pTapeInfos.paramstore)
+    free(this->pTapeInfos.paramstore);
+  if (this->stats[NUM_PARAM]) {
     this->pTapeInfos.paramstore = (double*) calloc(this->stats[NUM_PARAM], sizeof(double));
     memcpy(this->pTapeInfos.paramstore, in.pTapeInfos.paramstore,this->stats[NUM_PARAM]*sizeof(double));
+  } else {
+    this->pTapeInfos.paramstore = NULL;
+  }
 
-	return *this;
+  return *this;
 }
 
 const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeInfos& in)
@@ -875,30 +889,30 @@ void openTape(short tapeID, char mode) {
                     ADOLC_TAPE_STACK.push(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK);
                 }
 #ifdef _OPENMP
-#pragma omp critical
-{
-                ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = new TapeInfos();
-                *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = **tiIter;
-}
+#pragma omp critical // Only one thread writes to global memory!
+                {
+                  ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = new TapeInfos();
+                  *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = **tiIter;
+                }
 #pragma omp barrier
 #else
                 ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = *tiIter;
 #endif
                 ADOLC_CURRENT_TAPE_INFOS.copy(*ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
-#ifdef _OPENMP
-                fprintf(DIAG_OUT, "myid %d glob numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
-                		(*tiIter)->tay_numInds,
-						(*tiIter)->tay_numDeps,
-						(*tiIter)->numTays_Tape);
-                fprintf(DIAG_OUT, "myid %d ptr numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
-                		ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->tay_numInds,
-						ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->tay_numDeps,
-						ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->numTays_Tape);
-                fprintf(DIAG_OUT, "myid %d loc numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
-                		ADOLC_CURRENT_TAPE_INFOS.tay_numInds,
-						ADOLC_CURRENT_TAPE_INFOS.tay_numDeps,
-						ADOLC_CURRENT_TAPE_INFOS.numTays_Tape);
-#endif
+
+// Debug
+//#ifdef _OPENMP
+//                fprintf(DIAG_OUT, "myid %d glob numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
+//                        (*tiIter)->tay_numInds, (*tiIter)->tay_numDeps, (*tiIter)->numTays_Tape);
+//                fprintf(DIAG_OUT, "myid %d ptr numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
+//                        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->tay_numInds,
+//                		    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->tay_numDeps,
+//                		    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->numTays_Tape);
+//                fprintf(DIAG_OUT, "myid %d loc numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
+//                        ADOLC_CURRENT_TAPE_INFOS.tay_numInds,
+//                        ADOLC_CURRENT_TAPE_INFOS.tay_numDeps,
+//                        ADOLC_CURRENT_TAPE_INFOS.numTays_Tape);
+//#endif
                 return;
             }
         }
@@ -921,11 +935,11 @@ void openTape(short tapeID, char mode) {
 #ifdef _OPENMP
 #pragma omp barrier
 #pragma omp master
-{
-    TapeInfos* temp2TapeInfos = new TapeInfos();
-    *temp2TapeInfos = *tempTapeInfos;
-    ADOLC_TAPE_INFOS_BUFFER.push_back(temp2TapeInfos);
-}
+    { // Let the master thread write to global memory.
+      TapeInfos* temp2TapeInfos = new TapeInfos();
+      *temp2TapeInfos = *tempTapeInfos;
+      ADOLC_TAPE_INFOS_BUFFER.push_back(temp2TapeInfos);
+    }
 #else
     ADOLC_TAPE_INFOS_BUFFER.push_back(tempTapeInfos);
 #endif
@@ -944,14 +958,15 @@ void openTape(short tapeID, char mode) {
     ADOLC_CURRENT_TAPE_INFOS.copy(*tempTapeInfos);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = tempTapeInfos;
 #ifdef _OPENMP
-    fprintf(DIAG_OUT, "myid %d numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber, ADOLC_CURRENT_TAPE_INFOS.tay_numInds,
-    		ADOLC_CURRENT_TAPE_INFOS.tay_numDeps,
-			ADOLC_CURRENT_TAPE_INFOS.numTays_Tape);
+    fprintf(DIAG_OUT, "myid %d numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
+            ADOLC_CURRENT_TAPE_INFOS.tay_numInds, ADOLC_CURRENT_TAPE_INFOS.tay_numDeps,
+            ADOLC_CURRENT_TAPE_INFOS.numTays_Tape);
 #endif
 }
 
 /* release the current tape and give control to the previous one */
 void releaseTape() {
+#pragma omp barrier
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -985,7 +1000,11 @@ void releaseTape() {
         	adolc_exit(-3, "", __func__, __FILE__, __LINE__);
         }
 }
+#pragma omp barrier // Wait until master found the tape to release.
+#pragma omp master
+{
 	delete ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr;
+}
 #endif
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = ADOLC_TAPE_STACK.top();
     ADOLC_CURRENT_TAPE_INFOS.copy(*ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
@@ -1148,7 +1167,15 @@ void init() {
 //    revolve_numbers = new revolve_nums;
 //#endif /* _OPENMP */
 
-    ADOLC_OpenMP.ctx = new ThreadContextCl;
+#ifdef _OPENMP
+    omp_set_dynamic(0); // Disable dynamic adjustment of the number of threads in parallel regions.
+#pragma omp parallel
+    {
+      ADOLC_OpenMP.ctx = NULL;
+    }
+#endif
+    ADOLC_OpenMP.ctx = new ThreadContextCl();
+
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors = 0;
 
@@ -1187,12 +1214,12 @@ void cleanUp() {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     TapeInfos** tiIter;
-    clearCurrentTape();
-#ifdef _OPENMP
-#pragma omp barrier
-#pragma omp master
-#endif
-    {
+    //clearCurrentTape();
+//#ifdef _OPENMP
+//#pragma omp barrier
+//#pragma omp master
+//#endif
+//    {
     while (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
         tiIter = &ADOLC_TAPE_INFOS_BUFFER.back();
         ADOLC_TAPE_INFOS_BUFFER.pop_back();
@@ -1202,14 +1229,14 @@ void cleanUp() {
 
     cp_clearStack();
 
-    if (ADOLC_GLOBAL_TAPE_VARS.store != NULL) {
-        delete[] ADOLC_GLOBAL_TAPE_VARS.store;
-        ADOLC_GLOBAL_TAPE_VARS.store = NULL;
-    }
-    if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) {
-        delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
-        ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
-    }
+//    if (ADOLC_GLOBAL_TAPE_VARS.store != NULL) {
+//        delete[] ADOLC_GLOBAL_TAPE_VARS.store;
+//        ADOLC_GLOBAL_TAPE_VARS.store = NULL;
+//    }
+//    if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) {
+//        delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
+//        ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
+//    }
 
 //#if defined(_OPENMP)
 //    if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 0) {
@@ -1224,10 +1251,19 @@ void cleanUp() {
 //        delete tapeInfosBuffer;
 //    }
 //#endif
+//    } // omp
+    
+#ifdef _OPENMP
+#pragma omp parallel
+{
+    delete ADOLC_OpenMP.ctx;
+}
+#endif
 
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     clearTapeBaseNames();
-    } // omp
+    
+  
 }
 
 TapeInfos::~TapeInfos()

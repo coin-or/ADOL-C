@@ -317,7 +317,7 @@ typedef struct TapeInfos {
     TapeInfos(short tapeID);
     ~TapeInfos();
     void copy(const TapeInfos&);
-    const TapeInfos& operator= (const TapeInfos& in);
+    TapeInfos& operator= (const TapeInfos& in);
 #endif
 }
 TapeInfos;

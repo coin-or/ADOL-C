@@ -211,25 +211,34 @@ void myfreeI2(int n, double** I) {
 double** myallocI2nmp(int n, int m, int start)
 {
   int i;
-  double* Idum; // = (double*)ADOLC_MALLOC((2*m-1),sizeof(double));
-  double** I = (double**)calloc(n*sizeof(double*)+(2*m-1)*sizeof(double), sizeof(char));
+  double* Idum;
+  int nn = ( n < m) ? m : n;
+  double** I = (double**)calloc(n*sizeof(double*)+(2*nn-1)*sizeof(double),
+                                sizeof(char));
   if (NULL == I) {
     fprintf(DIAG_OUT,"ADOL-C error: myallocI2nmp cannot allocate %i bytes\n",
-            (int)(n*sizeof(double*)+(2*m-1)*sizeof(double))
-            );
+            (int)(n*sizeof(double*)+(2*m-1)*sizeof(double)));
     adolc_exit(-1,"",__func__,__FILE__,__LINE__);
   }
 
+  int p; p = nn + start;
+  int q; q = nn - start;
+  int r; r= (n < m) ? p : q;
+  int s; s= (n < m) ? q : p;
+
   Idum = (double*)I+n;
-  for (i = 1; i < m-start; i++)
+  for (i = 1; i < r; i++) {
     *(Idum++) = 0.0;
+  }
   *Idum = 1.0;
-  for (i = 1; i < m+start; i++)
+  for (i = 1; i < s; i++) {
     *(++Idum) = 0.0;
-  Idum -= (m-1);
+  }
+  Idum -= (nn-1);
   for (i = 0; i < n; i++) {
     I[i] = Idum--;
   }
+
   return I;
 }
 
