@@ -9,8 +9,8 @@
 void writeLocJac2globJac(double** loc_jacobian, double** jacobian, int depen,
                          int part, int loc_start)
 {
-  int i, j, k;
-  for (i = 0; i < depen; ++i) {
+  int j, k;
+  for (int i = 0; i < depen; ++i) {
     for (k = 0, j = loc_start; j < loc_start+part; ++k, ++j)
       jacobian[i][j] = loc_jacobian[i][k];
   }
@@ -31,11 +31,11 @@ void calcPartitioning(int* part, int* loc_start, int num_threads, int N)
   int tmppart = N / num_threads;
   for (int i = 0; i < num_threads; ++i)
     part[i] = tmppart;
-  for (int i=0; i < N%num_threads; ++i)
+  for (int i = 0; i < N%num_threads; ++i)
     ++part[i];
 
   loc_start[0] = 0;
-  for (int i=1; i < num_threads; ++i)
+  for (int i = 1; i < num_threads; ++i)
     loc_start[i] = loc_start[i-1] + part[i-1];
 }
 
