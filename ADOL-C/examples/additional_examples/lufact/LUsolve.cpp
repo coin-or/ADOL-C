@@ -116,15 +116,20 @@ int main(int argc, char* argv []) {
     /* Computation of Jacobian */
     jacobian(tag,depen,indep,args,jac);
     if (6 > size)
-      printmat("Jacobian", depen, indep, jac);
+        printmat("Jacobian", depen, indep, jac);
 
-    double **parJ;
+    /*------------------------------------------------------------------------*/
+    /* Parallel computation of Jacobian */
+    double** parJ;
     parJ = myalloc2(depen, indep);
     par_jacobian(tag, depen, indep, args, parJ);
     if (6 > size)
-      printmat("Par Jacobian", depen, indep, parJ);
+        printmat("Par Jacobian", depen, indep, parJ);
 
+    /*------------------------------------------------------------------------*/
+    /* Compare Jacobian and Parallel Jacobian*/
     compareJacs(depen, indep, jac, "jac", parJ, "parJac");
+
 
     /*------------------------------------------------------------------------*/
     /* Computation of Lagrange-Hessian-vector product */
@@ -167,37 +172,36 @@ int main(int argc, char* argv []) {
 /******************************************************************************/
 void printmat(const char* name, int m, int n, double** M)
 {
-  int i, j;
-
-  printf("%s \n",name);
-  for(i = 0; i < m ; ++i) {
-    printf("\n %d: ",i);
-      for( j = 0; j < n ; ++j)
-        printf(" %10.4f ", M[i][j]);
-  }
-  printf("\n");
+    printf("%s \n", name);
+    for(int i = 0; i < m ; ++i) {
+        printf("\n %d: ",i);
+        for(int j = 0; j < n ; ++j)
+            printf(" %10.4f ", M[i][j]);
+    }
+    printf("\n");
 }
 
 /******************************************************************************/
 int compareJacs(int m, int n, double** jac1, const char* name1, double** jac2,
                 const char* name2)
 {
-  double eps = 1.E-10;
-  double f;
-  int i, j, ret(0);
+    double eps = 1.E-10;
+    double f;
+    int i, j, ret(0);
 
-  printf("\nCompare %s and %s ...\n", name1, name2);
-  for(i = 0; i < m ; ++i) {
-    for( j = 0; j < n ; ++j) {
-      f = fabs(jac1[i][j] - jac2[i][j]);
-      if (f > eps) {
-        printf("\tunexpected answer: expected[%d][%d]=%.10f vs result=%.10f\n", i, j, jac1[i][j], jac2[i][j]);
-        ret = 1;
-      }
+    printf("\nCompare %s and %s ...\n", name1, name2);
+    for(i = 0; i < m ; ++i) {
+        for( j = 0; j < n ; ++j) {
+            f = fabs(jac1[i][j] - jac2[i][j]);
+            if (f > eps) {
+                printf("\tUnexpected value: expected[%d][%d]=%.10f vs result=%.10f\n",
+                       i, j, jac1[i][j], jac2[i][j]);
+                ret = 1;
+            }
+        }
     }
-  }
-  if (!ret)
-    printf("\t%s and %s are identical within eps=%.14E \n\n", name1, name2, eps);
+    if (!ret)
+        printf("\t%s and %s are identical within eps=%.14E \n\n", name1, name2, eps);
 
-  return ret;
+    return ret;
 }
