@@ -42,9 +42,6 @@ void calcPartitioning(int* part, int* loc_start, int num_threads, int N)
 /*--------------------------------------------------------------------------*/
 /*                                                        parallel jacobian */
 /* par_jacobian(tag, m, n, x[n], J[m][n])                                   */
-/*                                                                          */
-/* TODO                                                                     */
-/*   - Output number of used Threads                                        */
 /*--------------------------------------------------------------------------*/
 int par_jacobian(short tag,
                  int depen,
@@ -57,11 +54,12 @@ int par_jacobian(short tag,
   if (omp_get_max_threads() > depen) {
     num_threads = depen;
     omp_set_num_threads(num_threads);
-    printf("Set num threads to %i\n", num_threads);
   }
   else {
     num_threads = omp_get_max_threads();
   }
+  fprintf(DIAG_OUT,"ADOL-C info: Parallel Jacobian method uses %i threads.\n",
+          num_threads);
 #endif
 
   int rcg = 0;
