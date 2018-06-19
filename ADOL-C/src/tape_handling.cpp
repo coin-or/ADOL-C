@@ -364,7 +364,7 @@ TapeInfos& TapeInfos::operator= (const TapeInfos& in)
   this->tapeID = in.tapeID;
   this->inUse = in.inUse;
   this->numInds = in.numInds;
-  this->numDeps = numDeps;
+  this->numDeps = in.numDeps;
   this->keepTaylors = in.keepTaylors;             /* == 1 - write taylor stack in taping mode */
   for (int i = 0; i < STAT_SIZE; ++i)
     this->stats[i] = in.stats[i];
@@ -383,38 +383,38 @@ TapeInfos& TapeInfos::operator= (const TapeInfos& in)
     this->numOps_Tape = in.numOps_Tape;
     this->num_eq_prod = in.num_eq_prod;
   }
-	else {
-		this->opBuffer = NULL;
-		this->currOp = NULL;
-		this->lastOpP1 = NULL;
-		this->numOps_Tape = 0;
-		this->num_eq_prod = 0;
-	}
+  else {
+    this->opBuffer = NULL;
+    this->currOp = NULL;
+    this->lastOpP1 = NULL;
+    this->numOps_Tape = 0;
+    this->num_eq_prod = 0;
+  }
 
-	/* values (real) tape */
-	this->val_file = in.val_file;
-	if(this->valBuffer)
-		free(valBuffer);
-	if (in.valBuffer) {
-		this->valBuffer = (double*) calloc(stats[VAL_BUFFER_SIZE], sizeof(double));
-		memcpy(this->valBuffer, in.valBuffer, stats[VAL_BUFFER_SIZE]*sizeof(double));
-		this->currVal = valBuffer;
-		this->lastValP1 = valBuffer+stats[NUM_VALUES]-1;
-		this->numVals_Tape = in.numVals_Tape;
-	}
-	else {
-		this->valBuffer = NULL;
-		this->currVal = NULL;
-		this->lastValP1 = NULL;
-		this->numVals_Tape = 0;
-	}
+  /* values (real) tape */
+  this->val_file = in.val_file;
+  if(this->valBuffer)
+    free(valBuffer);
+  if (in.valBuffer) {
+    this->valBuffer = (double*) calloc(stats[VAL_BUFFER_SIZE], sizeof(double));
+    memcpy(this->valBuffer, in.valBuffer, stats[VAL_BUFFER_SIZE]*sizeof(double));
+    this->currVal = valBuffer;
+    this->lastValP1 = valBuffer+stats[NUM_VALUES]-1;
+    this->numVals_Tape = in.numVals_Tape;
+  }
+  else {
+    this->valBuffer = NULL;
+    this->currVal = NULL;
+    this->lastValP1 = NULL;
+    this->numVals_Tape = 0;
+  }
 
   /* locations tape */
   this->loc_file = in.loc_file;
   if(this->locBuffer)
     free(locBuffer);
   if (in.locBuffer) {
-    this->locBuffer  = (locint*) calloc(stats[LOC_BUFFER_SIZE], sizeof(locint));
+    this->locBuffer = (locint*) calloc(stats[LOC_BUFFER_SIZE], sizeof(locint));
     memcpy(this->locBuffer, in.locBuffer, stats[LOC_BUFFER_SIZE]*sizeof(locint));
     this->currLoc = locBuffer;
     this->lastLocP1 = locBuffer+stats[NUM_LOCATIONS]-1;
@@ -422,9 +422,9 @@ TapeInfos& TapeInfos::operator= (const TapeInfos& in)
   }
   else {
     this->locBuffer = NULL;
-    this->currLoc=NULL;
-    this->lastLocP1=NULL;
-    this->numLocs_Tape=0;
+    this->currLoc = NULL;
+    this->lastLocP1 = NULL;
+    this->numLocs_Tape = 0;
   }
 
   /* taylor stack tape */
@@ -480,90 +480,6 @@ TapeInfos& TapeInfos::operator= (const TapeInfos& in)
   }
 
   return *this;
-}
-
-const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeInfos& in)
-{
-    forodec_nax = in.forodec_nax;
-    forodec_dax = in.forodec_dax;
-    if (forodec_nax) {
-        if (forodec_y)
-            myfree1(forodec_y);
-        forodec_y = myalloc1(forodec_nax);
-        memcpy(forodec_y, in.forodec_y, forodec_nax);
-        if (forodec_z)
-            myfree1(forodec_z);
-        forodec_z = myalloc1(forodec_nax);
-        memcpy(forodec_z, in.forodec_z, forodec_nax);
-        if (forodec_Z)
-            myfree2(forodec_Z);
-        forodec_Z = myalloc2(forodec_nax, forodec_dax);
-        memcpy(&forodec_Z[0][0], &in.forodec_Z[0][0], forodec_dax*forodec_nax*sizeof(double));
-    }
-    jacSolv_nax = in.jacSolv_nax;
-
-    jacSolv_modeold = in.jacSolv_modeold;
-    jacSolv_cgd = in.jacSolv_cgd;
-    if (jacSolv_nax) {
-	if (jacSolv_J)
-		myfree2(jacSolv_J);
-	jacSolv_J = myalloc2(jacSolv_nax, jacSolv_nax);
-	memcpy(&jacSolv_J[0][0], &in.jacSolv_J[0][0], forodec_dax*forodec_nax*sizeof(double));
-
-	if(jacSolv_I)
-		myfreeI2(jacSolv_nax, jacSolv_I);
-	jacSolv_I = myallocI2(jacSolv_nax);
-	    double **jacSolv_I;
-	    double *jacSolv_xold;
-	if(jacSolv_ri)
-		free(jacSolv_ri);
-	jacSolv_ri = (int*) malloc(sizeof(int)*jacSolv_nax);
-	memcpy(jacSolv_ri, in.jacSolv_ri, sizeof(int)*jacSolv_nax);
-	if(jacSolv_ci)
-		free(jacSolv_ci);
-	jacSolv_ci = (int*) malloc(sizeof(int)*jacSolv_nax);
-	memcpy(jacSolv_ci, in.jacSolv_ci, sizeof(int)*jacSolv_nax);
-    }
-#ifdef SPARSE
-    /* sparse Jacobian matrices */
-
-    sJinfos = in.sJinfos;
-
-    /* sparse Hessian matrices */
-
-    sHinfos = in.sHinfos;
-#endif
-
-    /* file names */
-    if (in.op_fileName) {
-    if (op_fileName)
-        free(op_fileName);
-    op_fileName = (char*) malloc(sizeof(char) * (strlen(in.op_fileName)+1));
-    strncpy(op_fileName, in.op_fileName, strlen(in.op_fileName));
-    }
-    if (in.loc_fileName) {
-    if (loc_fileName)
-    	free(loc_fileName);
-    char *loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName)+1));;
-    strncpy(loc_fileName, in.loc_fileName, sizeof(char) * strlen(in.loc_fileName));
-    }    
-    if (in.val_fileName) {
-    if (val_fileName)
-    	free(val_fileName);
-    char *val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName)+1));;
-    strncpy(val_fileName, in.val_fileName, sizeof(char) * strlen(in.val_fileName));
-    }
-    if (in.tay_fileName) {    
-    if (tay_fileName)
-    	free(tay_fileName);
-    char *tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName)+1));;
-    strncpy(tay_fileName, in.tay_fileName, sizeof(char) * strlen(in.tay_fileName));
-    }
-    keepTape = in.keepTape;
-    skipFileCleanup = in.skipFileCleanup;
-
-
-    return *this;
 }
 
 #ifdef SPARSE
@@ -834,7 +750,7 @@ int initNewTape(short tapeID) {
 #ifdef _OPENMP
 #pragma omp master
     	{
-    		TapeInfos* tmp2TapeInfos = new TapeInfos();
+    		TapeInfos* tmp2TapeInfos = new TapeInfos(tapeID);
     		*tmp2TapeInfos = *newTapeInfos;
     		ADOLC_TAPE_INFOS_BUFFER.push_back(tmp2TapeInfos);
     	}
@@ -880,8 +796,8 @@ void openTape(short tapeID, char mode) {
                     read_tape_stats(*tiIter);
                }
                 if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-					ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
-					ADOLC_TAPE_STACK.push(
+                    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
+                    ADOLC_TAPE_STACK.push(
                             ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
                 } else {
                     ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
@@ -946,7 +862,7 @@ void openTape(short tapeID, char mode) {
 
     /* update tapeStack and save tapeInfos */
     if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-		ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
         ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
     } else {
         ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
@@ -958,7 +874,7 @@ void openTape(short tapeID, char mode) {
     ADOLC_CURRENT_TAPE_INFOS.copy(*tempTapeInfos);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = tempTapeInfos;
 #ifdef _OPENMP
-    fprintf(DIAG_OUT, "myid %d numInds %d numDeps %d numTays %d\n", ADOLC_threadNumber,
+    fprintf(DIAG_OUT, "myid %d numInds %u numDeps %u numTays %lu\n", ADOLC_threadNumber,
             ADOLC_CURRENT_TAPE_INFOS.tay_numInds, ADOLC_CURRENT_TAPE_INFOS.tay_numDeps,
             ADOLC_CURRENT_TAPE_INFOS.numTays_Tape);
 #endif
@@ -1743,7 +1659,7 @@ void TapeInfos::copy(const TapeInfos& tInfos) {
 
 PersistantTapeInfos::PersistantTapeInfos() {
     char *ptr = (char*)(&forodec_nax), *end = (char*)(&paramstore);
-    for (; ptr != end ; ptr++ )
+    for (; ptr != end ; ptr++)
         *ptr = 0;
     paramstore = NULL;
 }
@@ -1754,6 +1670,97 @@ void PersistantTapeInfos::copy(const PersistantTapeInfos& pTInfos) {
     for (; ptr != end ; ptr++, pTIptr++ )
         *ptr = *pTIptr;
     paramstore = pTInfos.paramstore;
+}
+
+const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeInfos& in)
+{
+    forodec_nax = in.forodec_nax;
+    forodec_dax = in.forodec_dax;
+    if (forodec_nax) {
+        if (forodec_y)
+            myfree1(forodec_y);
+        forodec_y = myalloc1(forodec_nax);
+        memcpy(forodec_y, in.forodec_y, forodec_nax);
+        if (forodec_z)
+            myfree1(forodec_z);
+        forodec_z = myalloc1(forodec_nax);
+        memcpy(forodec_z, in.forodec_z, forodec_nax);
+        if (forodec_Z)
+            myfree2(forodec_Z);
+        forodec_Z = myalloc2(forodec_nax, forodec_dax);
+        memcpy(&forodec_Z[0][0], &in.forodec_Z[0][0], forodec_dax*forodec_nax*sizeof(double));
+    }
+    jacSolv_nax = in.jacSolv_nax;
+
+    jacSolv_modeold = in.jacSolv_modeold;
+    jacSolv_cgd = in.jacSolv_cgd;
+    if (jacSolv_nax) {
+        if (jacSolv_J)
+            myfree2(jacSolv_J);
+        jacSolv_J = myalloc2(jacSolv_nax, jacSolv_nax);
+        memcpy(&jacSolv_J[0][0], &in.jacSolv_J[0][0], forodec_dax*forodec_nax*sizeof(double));
+
+        if(jacSolv_I)
+            myfreeI2(jacSolv_nax, jacSolv_I);
+        jacSolv_I = myallocI2(jacSolv_nax);
+//        double **jacSolv_I;
+//        double *jacSolv_xold;
+        if(jacSolv_ri)
+            free(jacSolv_ri);
+        jacSolv_ri = (int*) malloc(sizeof(int)*jacSolv_nax);
+        memcpy(jacSolv_ri, in.jacSolv_ri, sizeof(int)*jacSolv_nax);
+        if(jacSolv_ci)
+            free(jacSolv_ci);
+        jacSolv_ci = (int*) malloc(sizeof(int)*jacSolv_nax);
+        memcpy(jacSolv_ci, in.jacSolv_ci, sizeof(int)*jacSolv_nax);
+    }
+#ifdef SPARSE
+    /* sparse Jacobian matrices */
+
+    sJinfos = in.sJinfos;
+
+    /* sparse Hessian matrices */
+
+    sHinfos = in.sHinfos;
+#endif
+
+    /* file names */
+    if (in.op_fileName) {
+        if (op_fileName) {
+            free(op_fileName);
+            op_fileName = NULL;
+        }
+        op_fileName = (char*) malloc(sizeof(char)*(strlen(in.op_fileName) + 1));
+        strncpy(op_fileName, in.op_fileName, strlen(in.op_fileName));
+    }
+    if (in.loc_fileName) {
+        if (loc_fileName) {
+            free(loc_fileName);
+            loc_fileName = NULL;
+        }
+        char *loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName)+1));;
+        strncpy(loc_fileName, in.loc_fileName, sizeof(char) * strlen(in.loc_fileName));
+    }
+    if (in.val_fileName) {
+        if (val_fileName) {
+            free(val_fileName);
+            val_fileName = NULL;
+        }
+        char *val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName)+1));;
+        strncpy(val_fileName, in.val_fileName, sizeof(char) * strlen(in.val_fileName));
+    }
+    if (in.tay_fileName) {
+        if (tay_fileName) {
+            free(tay_fileName);
+            tay_fileName = NULL;
+        }
+        char *tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName)+1));;
+        strncpy(tay_fileName, in.tay_fileName, sizeof(char) * strlen(in.tay_fileName));
+    }
+    keepTape = in.keepTape;
+    skipFileCleanup = in.skipFileCleanup;
+
+    return *this;
 }
 
 PersistantTapeInfos::~PersistantTapeInfos() {
