@@ -1730,32 +1730,32 @@ const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeI
             free(op_fileName);
             op_fileName = NULL;
         }
-        op_fileName = (char*) malloc(sizeof(char)*(strlen(in.op_fileName) + 1));
-        strncpy(op_fileName, in.op_fileName, strlen(in.op_fileName));
+        op_fileName = (char*) malloc(sizeof(char) * strlen(in.op_fileName) + 1);
+        strncpy(op_fileName, in.op_fileName, strlen(in.op_fileName) + 1);
     }
     if (in.loc_fileName) {
         if (loc_fileName) {
             free(loc_fileName);
             loc_fileName = NULL;
         }
-        char *loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName)+1));;
-        strncpy(loc_fileName, in.loc_fileName, sizeof(char) * strlen(in.loc_fileName));
+        char *loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName) + 1));;
+        strncpy(loc_fileName, in.loc_fileName, sizeof(char) * strlen(in.loc_fileName) + 1);
     }
     if (in.val_fileName) {
         if (val_fileName) {
             free(val_fileName);
             val_fileName = NULL;
         }
-        char *val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName)+1));;
-        strncpy(val_fileName, in.val_fileName, sizeof(char) * strlen(in.val_fileName));
+        char *val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName) + 1));;
+        strncpy(val_fileName, in.val_fileName, sizeof(char) * strlen(in.val_fileName) + 1);
     }
     if (in.tay_fileName) {
         if (tay_fileName) {
             free(tay_fileName);
             tay_fileName = NULL;
         }
-        char *tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName)+1));;
-        strncpy(tay_fileName, in.tay_fileName, sizeof(char) * strlen(in.tay_fileName));
+        char *tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName) + 1));;
+        strncpy(tay_fileName, in.tay_fileName, sizeof(char) * strlen(in.tay_fileName) + 1);
     }
     keepTape = in.keepTape;
     skipFileCleanup = in.skipFileCleanup;
