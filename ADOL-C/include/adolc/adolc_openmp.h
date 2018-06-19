@@ -37,10 +37,10 @@ typedef struct {
 
 struct ThreadContextCl;
 extern struct ADOLC_OpenMP_CL {
-	struct ThreadContextCl* ctx;
-	revolve_nums revolve_numbers;
+  struct ThreadContextCl* ctx;
+  revolve_nums revolve_numbers;
 #ifdef __cplusplus
-	struct ADOLC_OpenMP_CL& operator=(struct ADOLC_OpenMP_CL const& in);
+  struct ADOLC_OpenMP_CL& operator=(struct ADOLC_OpenMP_CL const& in);
 #endif
 } ADOLC_OpenMP;
 
