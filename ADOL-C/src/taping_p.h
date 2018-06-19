@@ -419,15 +419,15 @@ extern GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
 
 
 struct ThreadContextCl {
-	TapeInfos currentTapeInfos;
-	TapeInfos currentTapeInfos_fallBack;
-	GlobalTapeVars globalTapeVars;
+  TapeInfos currentTapeInfos;
+  TapeInfos currentTapeInfos_fallBack;
+  GlobalTapeVars globalTapeVars;
 
 #ifdef __cplusplus
-	/* stack of pointers to tape infos
-	 * represents the order of tape usage when doing nested taping */
-	std::stack<TapeInfos *> tapeStack;
-	void deepcopy(struct ThreadContextCl const* in);
+  /* stack of pointers to tape infos
+   * represents the order of tape usage when doing nested taping */
+  std::stack<TapeInfos *> tapeStack;
+  void deepcopy(struct ThreadContextCl const* in);
 #endif
 };
 
