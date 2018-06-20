@@ -215,7 +215,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
     PersistantTapeInfos();
     ~PersistantTapeInfos();
     void copy(const PersistantTapeInfos&);
-    const PersistantTapeInfos& operator= (const PersistantTapeInfos& in);
+    PersistantTapeInfos& operator= (const PersistantTapeInfos& in);
 #endif
 } PersistantTapeInfos;
 

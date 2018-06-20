@@ -1709,7 +1709,7 @@ void PersistantTapeInfos::copy(const PersistantTapeInfos& pTInfos) {
     paramstore = pTInfos.paramstore;
 }
 
-const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeInfos& in)
+PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeInfos& in)
 {
     forodec_nax = in.forodec_nax;
     forodec_dax = in.forodec_dax;
