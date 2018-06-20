@@ -880,9 +880,35 @@ void openTape(short tapeID, char mode) {
 #endif
 }
 
+static void free_tapeNames_without_deleting_tape() {
+  if (ADOLC_OpenMP.ctx) {
+    if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr) {
+      if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.val_fileName) {
+        free(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.val_fileName);
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.val_fileName = NULL;
+      }
+      if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.tay_fileName) {
+        free(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.tay_fileName);
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.tay_fileName = NULL;
+      }
+      if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.op_fileName) {
+        free(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.op_fileName);
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.op_fileName = NULL;
+      }
+      if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.loc_fileName) {
+        free(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.loc_fileName);
+        ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->pTapeInfos.loc_fileName = NULL;
+      }
+      delete ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr;
+    }
+  }
+}
+
 /* release the current tape and give control to the previous one */
 void releaseTape() {
+#ifdef _OPENMP
 #pragma omp barrier
+#endif
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -895,9 +921,11 @@ void releaseTape() {
         ADOLC_CURRENT_TAPE_INFOS.inUse = 0;
     }
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
+
 #ifdef _OPENMP
 #pragma omp barrier
 #pragma omp master
+#endif
 {
     	 vector<TapeInfos *>::iterator tiIter;
         /* check if TapeInfos for tapeID exist */
@@ -916,12 +944,21 @@ void releaseTape() {
         	adolc_exit(-3, "", __func__, __FILE__, __LINE__);
         }
 }
+
+#ifdef _OPENMP
 #pragma omp barrier // Wait until master found the tape to release.
-#pragma omp master
-{
-	delete ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr;
-}
-#endif
+  if (!omp_in_parallel()) {
+    #pragma omp parallel
+    {
+      free_tapeNames_without_deleting_tape();
+    }
+  } else {
+    free_tapeNames_without_deleting_tape();
+  }
+#else
+  free_tapeNames_without_deleting_tape();
+#endif // OMP
+
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = ADOLC_TAPE_STACK.top();
     ADOLC_CURRENT_TAPE_INFOS.copy(*ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
     ADOLC_TAPE_STACK.pop();
@@ -1738,7 +1775,8 @@ const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeI
             free(loc_fileName);
             loc_fileName = NULL;
         }
-        char *loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName) + 1));;
+        //char *
+        loc_fileName = (char*) malloc(sizeof(char) * (strlen(in.loc_fileName) + 1));;
         strncpy(loc_fileName, in.loc_fileName, sizeof(char) * strlen(in.loc_fileName) + 1);
     }
     if (in.val_fileName) {
@@ -1746,7 +1784,8 @@ const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeI
             free(val_fileName);
             val_fileName = NULL;
         }
-        char *val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName) + 1));;
+        //char *
+        val_fileName = (char*) malloc(sizeof(char) * (strlen(in.val_fileName) + 1));;
         strncpy(val_fileName, in.val_fileName, sizeof(char) * strlen(in.val_fileName) + 1);
     }
     if (in.tay_fileName) {
@@ -1754,7 +1793,8 @@ const PersistantTapeInfos& PersistantTapeInfos::operator= (const PersistantTapeI
             free(tay_fileName);
             tay_fileName = NULL;
         }
-        char *tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName) + 1));;
+        //char *
+        tay_fileName = (char*) malloc(sizeof(char) * (strlen(in.tay_fileName) + 1));;
         strncpy(tay_fileName, in.tay_fileName, sizeof(char) * strlen(in.tay_fileName) + 1);
     }
     keepTape = in.keepTape;
