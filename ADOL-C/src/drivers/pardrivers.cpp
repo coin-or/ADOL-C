@@ -89,9 +89,12 @@ int par_jacobian(short tag,
     double* result = myalloc1(depen);
     rc[0] = zos_forward(tag, depen, indep, 1, argument, result);
     myfree1(result);
-    // Error handling
-    if (rc[0] < 0)
+    // Error handling.
+    if (rc[0] < 0) {
+      free(loc_start);
+      free(loc_part);
       return rc[0];
+    }
     else {
       for (int i = 1; i < num_threads; ++i)
         rc[i] = rc[0];
@@ -159,6 +162,9 @@ int par_jacobian(short tag,
   for (int i = 0; i < num_threads; ++i)
     MINDEC(rcg, rc[i]);
 
-  delete rc;
+  free(loc_start);
+  free(loc_part);
+  delete[] rc;
+
   return rcg;
 }
