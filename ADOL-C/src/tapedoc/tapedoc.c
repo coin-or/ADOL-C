@@ -462,6 +462,19 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation,"assign dep",1,loc_a,val_a,0,cst_d);
                 break;
 
+            case assign_p:           /* assign an adouble variable an    assign_a */
+                /* adouble value. (=) */
+                arg = get_locint_f();
+                res = get_locint_f();
+                loc_a[0]=arg;
+                loc_a[1]=res;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0] = arg;
+                dp_T0[res]=ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+                val_a[1]=dp_T0[res];
+#endif
+                filewrite(operation,"assign p",2,loc_a,val_a,0,cst_d);
+                break;
 
                 /****************************************************************************/
                 /*                                                   OPERATION + ASSIGNMENT */
