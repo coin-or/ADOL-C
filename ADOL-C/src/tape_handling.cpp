@@ -749,21 +749,19 @@ int initNewTape(short tapeID) {
     if (newTI) {
 #ifdef _OPENMP
 #pragma omp master
+#endif
     	{
     		TapeInfos* tmp2TapeInfos = new TapeInfos(tapeID);
     		*tmp2TapeInfos = *newTapeInfos;
     		ADOLC_TAPE_INFOS_BUFFER.push_back(tmp2TapeInfos);
     	}
-#else
-    	ADOLC_TAPE_INFOS_BUFFER.push_back(newTapeInfos);
-#endif
     }
 
     newTapeInfos->pTapeInfos.skipFileCleanup=0;
 
     /* set the new tape infos as current */
     ADOLC_CURRENT_TAPE_INFOS.copy(*newTapeInfos);
-    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = newTapeInfos;
+    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = new TapeInfos();
 
     return retval;
 }
@@ -796,23 +794,22 @@ void openTape(short tapeID, char mode) {
                     read_tape_stats(*tiIter);
                }
                 if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
-                    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
+                    *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = ADOLC_CURRENT_TAPE_INFOS;
                     ADOLC_TAPE_STACK.push(
                             ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
                 } else {
-                    ADOLC_CURRENT_TAPE_INFOS_FALLBACK.copy(
-                            ADOLC_CURRENT_TAPE_INFOS);
+                    ADOLC_CURRENT_TAPE_INFOS_FALLBACK = ADOLC_CURRENT_TAPE_INFOS;
                     ADOLC_TAPE_STACK.push(&ADOLC_CURRENT_TAPE_INFOS_FALLBACK);
                 }
 #ifdef _OPENMP
 #pragma omp critical // Only one thread writes to global memory!
+#endif
                 {
                   ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = new TapeInfos();
                   *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = **tiIter;
                 }
+#ifdef _OPENMP
 #pragma omp barrier
-#else
-                ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = *tiIter;
 #endif
                 ADOLC_CURRENT_TAPE_INFOS.copy(*ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
 
@@ -1385,8 +1382,10 @@ int removeTape(short tapeID, short type) {
     free(tapeInfos->pTapeInfos.op_fileName);
     free(tapeInfos->pTapeInfos.val_fileName);
     free(tapeInfos->pTapeInfos.loc_fileName);
-    if (tapeInfos->pTapeInfos.tay_fileName != NULL)
+    if (tapeInfos->pTapeInfos.tay_fileName != NULL) {
         free(tapeInfos->pTapeInfos.tay_fileName);
+        tapeInfos->pTapeInfos.tay_fileName = NULL;
+    }
 
     delete tapeInfos;
 
@@ -1672,6 +1671,10 @@ void initADOLC() {
 
 TapeInfos::TapeInfos() : pTapeInfos() {
     initTapeInfos(this);
+    pTapeInfos.op_fileName = NULL;
+    pTapeInfos.loc_fileName = NULL;
+    pTapeInfos.val_fileName = NULL;
+    pTapeInfos.tay_fileName = NULL;
 }
 
 TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
