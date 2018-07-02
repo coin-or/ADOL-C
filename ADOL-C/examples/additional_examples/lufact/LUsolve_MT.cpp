@@ -42,13 +42,17 @@
 #include <algorithm>
 #include <string>
 
+// Global counter to ensure, that every Trace has a unique tag.
+static int tagCntr = 0;
 
-struct Problem {
+class Problem
+{
+public:
   ~Problem() {
     myfree1(args);
     myfree1(x);
   }
-  int size = 0;
+  uint size = 0;
   int tag = -1;
   int depen = 0;
   int indep = 0;
@@ -57,12 +61,12 @@ struct Problem {
 };
 
 
-int calc_seq(const std::vector<size_t>& sizes);
-int calc_rand(const std::vector<size_t>& sizes);
+int calc_seq(const std::vector<uint>& sizes);
+int calc_rand(const std::vector<uint>& sizes);
 int compute_and_trace(Problem& p);
 int apply_drivers(Problem& p);
-void printmat(const std::string& name, const int m, const int n, double** M);
-int compareJacs(const int m, const int n, double** jac1, const std::string& name1,
+void mat_print(const std::string& name, const int m, const int n, double** M);
+int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
                 double** jac2, const std::string& name2);
 void usage()
 {
@@ -74,9 +78,9 @@ void usage()
 /*--------------------------------------------------------------------------*/
 int main(int argc, char* argv []) {
     int size;
-    std::vector<size_t> sizes;
+    std::vector<uint> sizes;
     if (2 <= argc) {
-      for (size_t i = 1; i < argc; ++i) {
+      for (int i = 1; i < argc; ++i) {
        size = atoi(argv[i]);
        if (1 > size) {
          usage();
@@ -90,7 +94,7 @@ int main(int argc, char* argv []) {
       return 0;
     }
 
-    // Since the tag numbering is identical to problem sizes, we remove duplicates.
+    // Remove duplicates
     std::sort(sizes.begin(), sizes.end());
     sizes.erase(std::unique(sizes.begin(), sizes.end()), sizes.end());
 
@@ -111,15 +115,15 @@ int main(int argc, char* argv []) {
     return 0;
 }
 
-int calc_rand(const std::vector<size_t>& sizes) {
+int calc_rand(const std::vector<uint>& sizes) {
   int ret = 0;
   std::vector<Problem> problems(sizes.size());
-  std::vector<size_t> shuffledSizes =  sizes;
+  std::vector<uint> shuffledSizes = sizes;
   std::random_shuffle(shuffledSizes.begin(), shuffledSizes.end());
 
   for (size_t i = 0; i < shuffledSizes.size(); ++i) {
-    std::cout << "=== System size is: " << shuffledSizes[i] << "\n";
-    problems[i].size = shuffledSizes[i]+1;
+    std::cout << "# System size is: " << shuffledSizes[i] << "\n";
+    problems[i] = Problem{shuffledSizes[i], tagCntr++};
     compute_and_trace(problems[i]);
     apply_drivers(problems[i]);
     std::cout << "\n";
@@ -128,13 +132,13 @@ int calc_rand(const std::vector<size_t>& sizes) {
   return ret;
 }
 
-int calc_seq(const std::vector<size_t>& sizes) {
+int calc_seq(const std::vector<uint>& sizes) {
   int ret = 0;
   std::vector<Problem> problems(sizes.size());
 
   for (size_t i = 0; i < sizes.size(); ++i) {
-    std::cout << "=== System size is: " << sizes[i] << "\n";
-    problems[i].size = sizes[i];
+    std::cout << "# System size is: " << sizes[i] << "\n";
+    problems[i] = Problem{sizes[i], tagCntr++};
     compute_and_trace(problems[i]);
     apply_drivers(problems[i]);
     std::cout << "\n";
@@ -154,7 +158,6 @@ int compute_and_trace(Problem& p) {
   if (0 >= size)
     return 1;
 
-  p.tag   = size;                    // tape tag
   p.indep = size*size+size;          // # of indeps
   p.depen = size;                    // # of deps
 
@@ -234,18 +237,18 @@ int apply_drivers(Problem& p) {
   double** jac = myalloc2(p.depen, p.indep);
   jacobian(p.tag, p.depen, p.indep, p.args, jac);
   if (6 > p.size)
-    printmat("Jacobian", p.depen, p.indep, jac);
+    mat_print("Jacobian", p.depen, p.indep, jac);
 
   /*------------------------------------------------------------------------*/
   /* Parallel computation of Jacobian */
   double** parJ = myalloc2(p.depen, p.indep);
   par_jacobian(p.tag, p.depen, p.indep, p.args, parJ);
   if (6 > p.size)
-    printmat("Par Jacobian", p.depen, p.indep, parJ);
+    mat_print("Par Jacobian", p.depen, p.indep, parJ);
 
   /*------------------------------------------------------------------------*/
   /* Compare Jacobian and Parallel Jacobian*/
-  compareJacs(p.depen, p.indep, jac, "jac", parJ, "parJac");
+  compare_mats(p.depen, p.indep, jac, "jac", parJ, "parJac");
 
 
   //    /*------------------------------------------------------------------------*/
@@ -280,7 +283,7 @@ int apply_drivers(Problem& p) {
             << "\n    maxlive                 " << tape_stats[NUM_MAX_LIVES]
             << "\n    valstack size           " << tape_stats[TAY_STACK_SIZE] << "\n\n";
 
-  myfree2(parJ);
+  //myfree2(parJ);
   myfree2(jac);
 
   /*------------------------------------------------------------------------*/
@@ -289,10 +292,10 @@ int apply_drivers(Problem& p) {
 }
 
 /******************************************************************************/
-void printmat(const std::string& name, const int m, const int n, double** M)
+void mat_print(const std::string& name, const int m, const int n, double** M)
 {
   //std::cout.precision(4);
-  std::cout << "\n Print matrix " << name << " (" << n << "x" << m << "):\n";
+  std::cout << "\n Print matrix " << name << " (" << m << "x" << n << "):\n";
   for(int i = 0; i < m ; ++i) {
     std::cout << "  " << i << ": ";
     for(int j = 0; j < n ; ++j)
@@ -303,7 +306,7 @@ void printmat(const std::string& name, const int m, const int n, double** M)
 }
 
 /******************************************************************************/
-int compareJacs(const int m, const int n, double** jac1, const std::string& name1,
+int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
                 double** jac2, const std::string& name2)
 {
   double eps = 1.E-10;
