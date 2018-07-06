@@ -6,6 +6,7 @@
 #include "taping_p.h"
 
 #include <iostream>
+#include <assert.h>
 
 static int get_thread_num()
 {
