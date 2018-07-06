@@ -73,6 +73,10 @@ GlobalTapeVarsCL::~GlobalTapeVarsCL() {
 }
 
 const GlobalTapeVarsCL& GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL& gtv) {
+    // Check for self assignment
+    if (&gtv == this)
+      return *this;
+
     storeSize = gtv.storeSize;
     numLives = gtv.numLives;
     maxLoc = gtv.maxLoc;
@@ -345,6 +349,10 @@ struct ADOLC_OpenMP_CL ADOLC_OpenMP;
 
 struct ADOLC_OpenMP_CL& ADOLC_OpenMP_CL::operator=(struct ADOLC_OpenMP_CL const& in)
 {
+  // Check for self assignment
+  if (&in == this)
+    return *this;
+
   ctx = new ThreadContextCl();
   ctx->deepcopy(in.ctx);
   revolve_numbers = in.revolve_numbers;
@@ -361,6 +369,10 @@ void ThreadContextCl::deepcopy(struct ThreadContextCl const* in)
 
 TapeInfos& TapeInfos::operator= (const TapeInfos& in)
 {
+  // Check for self assignment
+  if (&in == this)
+    return *this;
+
   this->tapeID = in.tapeID;
   this->inUse = in.inUse;
   this->numInds = in.numInds;
