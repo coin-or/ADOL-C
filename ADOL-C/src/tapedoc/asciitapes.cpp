@@ -786,7 +786,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++locctr;
         }
         if (oper != ext_diff_iArr && oper != ext_diff_v2 && locctr > num_req_loc.at(oper)) {
-            std::cout << "something went wrong, there are " << locctr << "locs in one tag for " << (*opa)[1].str() << "\n";
+            std::cout << "something went wrong, there are " << locctr << " locs in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
         if (oper == take_stock_op && vala != iend) {
@@ -800,7 +800,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++valctr;
         }
         if (oper != take_stock_op && valctr > num_req_val.at(oper)) {
-            std::cout << "something went wrong, there are " << valctr << "vales in one tag for " << (*opa)[1].str() << "\n";
+            std::cout << "something went wrong, there are " << valctr << " vals in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
         }
         handle_ops_stats(oper,locs);
@@ -828,6 +828,7 @@ static void create_one_subtrace(const std::string& instr, short& curtag) {
             fprintf(DIAG_OUT, "creating subtrace : tag(%d), file = %s\n",curtag,stname.c_str());
             subroutines.emplace(std::piecewise_construct,std::forward_as_tuple(stname),std::forward_as_tuple(curtag,stname));
             curtag = subroutines.at(stname).read();
+            fprintf(DIAG_OUT, "subroutine edf with index %d\n", subroutines.at(stname).get_index());
         }
         ++namea;
     }

@@ -193,6 +193,8 @@ typedef struct ext_diff_fct_v2 {
 }
 ext_diff_fct_v2;
 
+ADOLC_DLL_EXPORT ext_diff_fct_v2 *get_ext_diff_fct_v2( int index );
+
 END_C_DECLS
 #if defined(__cplusplus)
 
@@ -208,6 +210,5 @@ ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct_v2 *edfct);
 inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct, void *ctx) {
     edfct->context = ctx;
 }
-
 #endif
 #endif

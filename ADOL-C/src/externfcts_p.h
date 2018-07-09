@@ -20,16 +20,11 @@
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 
-BEGIN_C_DECLS
 /****************************************************************************/
 /*                                                         Now the C THINGS */
 
 #define EDFCTS_BLOCK_SIZE 10
 
-ext_diff_fct *get_ext_diff_fct(int index);
-ext_diff_fct_v2 *get_ext_diff_fct_v2(int index);
-
-END_C_DECLS
 
 #ifdef __cplusplus
 void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m);

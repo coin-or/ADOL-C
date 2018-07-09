@@ -275,6 +275,8 @@ ext_diff_fct;
 
 ADOLC_DLL_EXPORT int alloc_copy_current_params(double** params);
 
+ADOLC_DLL_EXPORT ext_diff_fct *get_ext_diff_fct( int index );
+
 END_C_DECLS
 
 #include <adolc/externfcts2.h>
@@ -293,7 +295,6 @@ ADOLC_DLL_EXPORT int call_ext_fct (ext_diff_fct *edfct,
                                    int iArrLength, int* iArr,
                                    int n, adouble *xa,
                                    int m, adouble *ya);
-
 /**
  * zeros out the edf pointers and sets bools to defaults
  */
