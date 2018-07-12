@@ -665,7 +665,7 @@ static locint maxloc = 4;
 static void get_ascii_trace_elements(const std::string& instr) {
     ADOLC_OPENMP_THREAD_NUMBER;
 
-    std::string oppat = "op:([_a-z]+)", namepat = "fname:\"([\\w.]+)\"",
+    std::string oppat = "op:([_a-z]+)", namepat = "fname:\"(.+?)\"",
         locpat = "loc:([0-9]+)",
         valpat = "val:([+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)";
     boost::regex opexp(oppat,boost::regex::perl|boost::regex::icase),
@@ -818,7 +818,7 @@ static void get_ascii_trace_elements(const std::string& instr) {
 }
 
 static void create_one_subtrace(const std::string& instr, short& curtag) {
-    std::string namepat = "fname:\"([\\w.]+)\"";
+    std::string namepat = "fname:\"(.+?)\"";
     boost::regex nameexp(namepat,boost::regex::perl|boost::regex::icase);
     boost::sregex_iterator iend;
     boost::sregex_iterator namea(instr.begin(), instr.end(), nameexp, boost::match_default);
@@ -841,7 +841,7 @@ static void scan_subtraces(const char*const fname,short& curtag, char* buf, size
         fprintf(DIAG_OUT, "ADOL-C error: cannot open file %s !\n", fname);
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
-    std::string pattern = "\\{\\s*op:call\\s+fname:\"[\\w.]+\"(\\s+loc:[0-9]+)+\\s*\\}";
+    std::string pattern = "\\{\\s*op:call\\s+fname:\".+?\"(\\s+loc:[0-9]+)+\\s*\\}";
     // regular expression we're looking for
     boost::regex outer_expr(pattern,boost::regex::perl|boost::regex::icase);
     // buffer we'll be searching in:
@@ -902,7 +902,7 @@ short read_ascii_trace(const char*const fname, short tag) {
     scan_subtraces(fname,fintag,buf,bufsz);
     std::ifstream is;
 
-    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+fname:\"[\\w.]+\")?(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
+    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+fname:\".+?\")?(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
 
     is.open(fname);
     if (! is.is_open() ) {
