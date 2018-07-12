@@ -67,7 +67,7 @@ void filewrite_start( int opcode ) {
     fprintf(fp,"\\headheight0cm\n");
     fprintf(fp,"\\headsep-1cm\n");
     fprintf(fp,"\\textheight25cm\n");
-    fprintf(fp,"\\oddsidemargin-1cm\n");
+    fprintf(fp,"\\oddsidemargin-2.5cm\n");
     fprintf(fp,"\\topmargin0cm\n");
     fprintf(fp,"\\textwidth18cm\n");
     fprintf(fp,"\\begin{document}\n");
@@ -1168,6 +1168,50 @@ void tape_doc(short tnum,         /* tape id */
                 val_a[2]=dp_T0[res];
 #endif
                 filewrite(operation,"cond assign s $\\longrightarrow$",3,loc_a,val_a,1,cst_d);
+                break;
+                /*--------------------------------------------------------------------------*/
+            case cond_eq_assign:                                      /* cond_assign */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                arg2  = get_locint_f();
+                res   = get_locint_f();
+                coval = get_val_f();
+                loc_a[0]=arg;
+                loc_a[1]=arg1;
+                loc_a[2]=arg2 ;
+                loc_a[3]=res;
+                cst_d[0]=coval;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0]=dp_T0[arg];
+                val_a[1]=dp_T0[arg1];
+                val_a[2]=dp_T0[arg2];
+                if (dp_T0[arg]>=0)
+                    dp_T0[res]=dp_T0[arg1];
+                else
+                    dp_T0[res]=dp_T0[arg2];
+                val_a[3]=dp_T0[res];
+#endif
+                filewrite(operation,"cond eq assign $\\longrightarrow$",4,loc_a,val_a,1,cst_d);
+                break;
+
+                /*--------------------------------------------------------------------------*/
+            case cond_eq_assign_s:                                  /* cond_assign_s */
+                arg   = get_locint_f();
+                arg1  = get_locint_f();
+                res   = get_locint_f();
+                coval = get_val_f();
+                loc_a[0]=arg;
+                loc_a[1]=arg1;
+                loc_a[2]=res;
+                cst_d[0]=coval;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0]=dp_T0[arg];
+                val_a[1]=dp_T0[arg1];
+                if (dp_T0[arg]>=0)
+                    dp_T0[res]=dp_T0[arg1];
+                val_a[2]=dp_T0[res];
+#endif
+                filewrite(operation,"cond eq assign s $\\longrightarrow$",3,loc_a,val_a,1,cst_d);
                 break;
 
             case vec_copy:
