@@ -23,7 +23,7 @@
 
 
 short Subtrace::read() {
-    short tag = read_ascii_trace(filename.c_str(),tnum);
+    short tag = read_ascii_trace_internal(filename.c_str(),tnum, true);
     return tag;
 }
 

@@ -42,4 +42,6 @@ public:
     virtual void dummycall(locint xstart, locint xnum, locint ystart, locint ynum);
 };
 
+short read_ascii_trace_internal(const char*const fname, short tag, bool issubroutine=false);
+
 #endif

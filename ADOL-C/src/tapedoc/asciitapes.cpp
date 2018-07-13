@@ -658,8 +658,6 @@ static void handle_ops_stats(enum OPCODES operation,
     }
 }
 
-BEGIN_C_DECLS
-
 static locint maxloc = 4;
 
 static void get_ascii_trace_elements(const std::string& instr) {
@@ -889,7 +887,7 @@ static void scan_subtraces(const char*const fname,short& curtag, char* buf, size
     is.close();
 }
                         
-short read_ascii_trace(const char*const fname, short tag) {
+short read_ascii_trace_internal(const char*const fname, short tag, bool issubroutine) {
     short fintag = tag + 1;
     static char *buf = NULL;
     static size_t bufsz = 4194304;
@@ -898,10 +896,13 @@ short read_ascii_trace(const char*const fname, short tag) {
         buf = new char[bufsz];
         bufinithere = true;
     }
+    if (!issubroutine) 
+        fprintf(DIAG_OUT,"ADOL-C info: creating main trace tag(%d), filename = %s\n",tag,fname);
+
     scan_subtraces(fname,fintag,buf,bufsz);
     std::ifstream is;
 
-    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+fname:\".+?\")?(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
+    std::string pattern = "\\{\\s*op:[_a-z]+(\\s+fname:\"[^\"]+\")?(\\s+loc:[0-9]+)+\\s*(\\s*val:[+-]?[0-9]+\\.?[0-9]*(e[+-][0-9]+)?)*\\s*\\}";
 
     is.open(fname);
     if (! is.is_open() ) {
@@ -961,13 +962,19 @@ short read_ascii_trace(const char*const fname, short tag) {
     ADOLC_GLOBAL_TAPE_VARS.pStore = new double[ADOLC_GLOBAL_TAPE_VARS.numparam];
     memset(ADOLC_GLOBAL_TAPE_VARS.pStore,0,ADOLC_GLOBAL_TAPE_VARS.numparam*sizeof(double));
     trace_off();
-    fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
-        "Remember to run forward mode with correct setup first.\n");
+    if (!issubroutine) 
+        fprintf(DIAG_OUT,"ADOL-C Warning: reading ascii trace creates no taylor stack\n"
+                "Remember to run forward mode with correct setup first.\n");
+
     if (bufinithere) {
         delete[] buf;
         buf = NULL;
     }
     return fintag;
+}
+
+short read_ascii_trace(const char*const fname, short tag) {
+    return read_ascii_trace_internal(fname,tag);
 }
 
 void write_ascii_trace(const char *const fname, short tag) {
@@ -1091,5 +1098,3 @@ void write_ascii_trace(const char *const fname, short tag) {
     end_sweep();
     file.close();
 }
-
-END_C_DECLS
