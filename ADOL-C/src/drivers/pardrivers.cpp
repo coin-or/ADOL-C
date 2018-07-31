@@ -56,8 +56,8 @@ static double** get_submat(const uint m, const uint n,
   return loc_mat;
 }
 
-/* Verallgemeinerung: write block back, not just rows or columns */
 /*
+ * Write submatrix back to matrix.
  * U : m, n
  */
 static void writeLocMat2globMat(const int m, const int n,
@@ -149,15 +149,6 @@ int par_jacobian(short tag,
     // for (i = 0; i < num_threads; ++i)
     //   printf("num_threads= %d, loc_part[%d] = %d , loc_start[%d] = %d \n",
     //          num_threads, i, loc_part[i], i, loc_start[i]);
-  }
-
-  // Dummy par. region prevents undef. behaviour w.r.t. threadprivate+copyin.
-  // Leave it, even the compiler will encourage you to remove it!
-  // Rationale: Reference threadprivate variable first, than copy value of
-  //            master thread via copyin clause.
-#pragma omp parallel
-  {
-    ADOLC_OpenMP;
   }
 
 #ifdef _OPENMP
@@ -337,15 +328,6 @@ int par_jac_mat(short tag, int m, int n, int p, const double* argument,
   }
   // Partitioning of columns of U
   calcPartitioning(loc_part, loc_start, num_threads, p);
-
-  // Dummy par. region prevents undef. behaviour w.r.t. threadprivate+copyin.
-  // Leave it, even the compiler will encourage you to remove it!
-  // Rationale: Reference threadprivate variable first, than copy value of
-  //            master thread via copyin clause.
-#pragma omp parallel
-  {
-    ADOLC_OpenMP;
-  }
 
 #ifdef _OPENMP
 #pragma omp parallel default(none) shared(tag, rc, argument, U, Z, num_threads, loc_part, loc_start, p) \
