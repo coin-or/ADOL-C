@@ -10,23 +10,25 @@
 
                      y += x1 * x2;
                      y -= x1 * x2;
-             
+
              * application of par_jacobian driver
-             * comparision of Jacobian obtained from jacobian and par_jacobian
+             * comparison of Jacobian obtained from jacobian and par_jacobian
              * handling several tapes while using par_jacobian
              * application of (parallel) drivers par_mat_jac and par_jac_mat
                (,i.e., U*J and J*U)
 
  Usage:
-   OMP_NUM_THREADS=N ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]]
+   see usage()
 
  First, the LU decomposition for the provided system sizes is traced. In a
  second step, the drivers jacobian and par_jacobian are called to obtain
  the Jacobian matrices. For each system size the matrices returned from
- jacobian and par_jacobian are compared.
+ jacobian and par_jacobian are compared. These steps are identical to
+ LUsolve_MT.
 
- jac_mat and mat_jac are called. To test the correctness of the result, the
- obtained jacobian matrix from a driver jacobian() is multiplied from right
+ In the main part, the new drivers par_jac_mat and par_mat_jac are called
+ each with two different matrices. To test the correctness of the results, the
+ obtained Jacobian matrix from a driver jacobian() is multiplied from right
  and left, respectively.
 
  After doing so in ascending order for system sizes (calc_seq), the drivers
@@ -36,11 +38,11 @@
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
                Martin Schroschk
-  
+
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
- 
+
 ---------------------------------------------------------------------------*/
 
 /****************************************************************************/
@@ -170,9 +172,6 @@ int calc_seq(const std::vector<uint>& sizes) {
   return ret;
 }
 
-/* [in]   size, tag
- * [out]  indep, depen, tag
- */
 int compute_and_trace(Problem& p) {
   int ret = 0;
 
@@ -181,7 +180,6 @@ int compute_and_trace(Problem& p) {
   if (0 >= size)
     return 1;
 
-  p.tag   = size;                    // tape tag
   p.indep = size*size+size;          // # of indeps
   p.depen = size;                    // # of deps
 
@@ -192,7 +190,7 @@ int compute_and_trace(Problem& p) {
   double* b = myalloc1(size);
   p.x = myalloc1(size);
   adouble **AA, *AAp, *Abx;         // active variables
-  p.args = myalloc1(p.indep);         // arguments
+  p.args = myalloc1(p.indep);       // arguments
 
 
   /*------------------------------------------------------------------------*/
@@ -221,10 +219,10 @@ int compute_and_trace(Problem& p) {
   /* Taping the computation of the determinant */
   trace_on(p.tag);
   /* marking indeps */
-  for(int i=0; i<size; i++)
-    for(int j=0; j<size; j++)
+  for (int i = 0; i < size; ++i)
+    for (int j = 0; j < size; ++j)
       AA[i][j] <<= (p.args[i*size+j] = A[i][j]);
-  for(int i=0; i<size; i++)
+  for (int i = 0; i < size; ++i)
     Abx[i] <<= (p.args[size*size+i] = b[i]);
   /* LU-factorization and computation of solution */
   LUfact(size,AA);
@@ -312,7 +310,7 @@ int apply_drivers(Problem& p) {
   /*------------------------------------------------------------------------*/
   /* Tape statistics */
   ulong tape_stats[STAT_SIZE];
-  tapestats(p.tag,tape_stats);
+  tapestats(p.tag, tape_stats);
 
   std::cout << "  Tape Statistics:\n";
   std::cout << "    independents            " << tape_stats[NUM_INDEPENDENTS]
