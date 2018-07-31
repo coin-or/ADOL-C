@@ -77,11 +77,12 @@ void usage()
 /*                                                             MAIN PROGRAM */
 /*--------------------------------------------------------------------------*/
 int main(int argc, char* argv []) {
-    int size;
+    
+    // Parse arguments/sizes
     std::vector<uint> sizes;
     if (2 <= argc) {
       for (int i = 1; i < argc; ++i) {
-       size = atoi(argv[i]);
+       int size = atoi(argv[i]);
        if (1 > size) {
          usage();
          return 1;
