@@ -10,7 +10,9 @@
 
                      y += x1 * x2;
                      y -= x1 * x2;
+
              * application of par_jacobian driver
+             * comparison of Jacobian obtained from jacobian and par_jacobian
              * handling several tapes while using par_jacobian
 
  Usage:
@@ -26,7 +28,8 @@
 
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Martin Schroschk
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 

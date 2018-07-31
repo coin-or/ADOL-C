@@ -10,8 +10,12 @@
 
                      y += x1 * x2;
                      y -= x1 * x2;
+             
              * application of par_jacobian driver
+             * comparision of Jacobian obtained from jacobian and par_jacobian
              * handling several tapes while using par_jacobian
+             * application of (parallel) drivers par_mat_jac and par_jac_mat
+               (,i.e., U*J and J*U)
 
  Usage:
    OMP_NUM_THREADS=N ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]]
@@ -30,7 +34,8 @@
 
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
-               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
+               Martin Schroschk
   
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes 
@@ -87,18 +92,19 @@ int compare_mats(const uint m, const uint n, constMat jac1,
                  const std::string& name2);
 void usage()
 {
-  std::cout << "Usage: OMP_NUM_THREADS=NUMTHREADS ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]] \n";
+  std::cout << "Usage: OMP_NUM_THREADS=N ./LUsolve_jacMat [SIZE1 [, SIZE2 [, SIZE3 ...]]] \n";
 }
 
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 /*--------------------------------------------------------------------------*/
 int main(int argc, char* argv []) {
-    int size;
+
+    // Parse arguments / sizes
     std::vector<uint> sizes;
     if (2 <= argc) {
       for (int i = 1; i < argc; ++i) {
-       size = atoi(argv[i]);
+       int size = atoi(argv[i]);
        if (1 > size) {
          usage();
          return 1;
