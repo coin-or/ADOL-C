@@ -130,10 +130,10 @@ int main(int argc, char* argv []) {
     std::cout << "=========================================================\n";
     calc_seq(sizes);
 
-    //std::cout << "=========================================================\n";
-    //std::cout << " Evaluation in alternate order \n";
-    //std::cout << "=========================================================\n";
-    //calc_rand(sizes);
+    std::cout << "=========================================================\n";
+    std::cout << " Evaluation in alternate order \n";
+    std::cout << "=========================================================\n";
+    calc_rand(sizes);
 
     return 0;
 }
