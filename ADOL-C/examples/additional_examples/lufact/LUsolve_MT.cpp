@@ -67,7 +67,7 @@ int compute_and_trace(Problem& p);
 int apply_drivers(Problem& p);
 void mat_print(const std::string& name, const int m, const int n, double** M);
 int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
-                double** jac2, const std::string& name2);
+                 double** jac2, const std::string& name2);
 void usage()
 {
   std::cout << "Usage: OMP_NUM_THREADS=NUMTHREADS ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]] \n";
@@ -147,9 +147,6 @@ int calc_seq(const std::vector<uint>& sizes) {
   return ret;
 }
 
-/* [in]   size, tag
- * [out]  indep, depen, tag
- */
 int compute_and_trace(Problem& p) {
   int ret = 0;
 
@@ -197,10 +194,10 @@ int compute_and_trace(Problem& p) {
   /* Taping the computation of the determinant */
   trace_on(p.tag);
   /* marking indeps */
-  for(int i=0; i<size; i++)
-    for(int j=0; j<size; j++)
+  for (int i = 0; i < size; ++i)
+    for (int j = 0; j < size; ++j)
       AA[i][j] <<= (p.args[i*size+j] = A[i][j]);
-  for(int i=0; i<size; i++)
+  for (int i = 0; i < size; ++i)
     Abx[i] <<= (p.args[size*size+i] = b[i]);
   /* LU-factorization and computation of solution */
   LUfact(size,AA);
@@ -250,28 +247,14 @@ int apply_drivers(Problem& p) {
   /* Compare Jacobian and Parallel Jacobian*/
   compare_mats(p.depen, p.indep, jac, "jac", parJ, "parJac");
 
-
-  //    /*------------------------------------------------------------------------*/
-  //    /* Computation of Lagrange-Hessian-vector product */
-  //    lagra_hess_vec(tag,depen,indep,args,args,x,laghessvec);
-  //    fprintf(stdout," Part of Lagrange-Hessian-vector product:\n");
-  //    if (6 > size) {
-  //      for (i=0; i<size; i++) {
-  //          for (j=0; j<size; j++)
-  //              fprintf(stdout," %14.6E",laghessvec[i*size+j]);
-  //          fprintf(stdout,"\n");
-  //      }
-  //    }
-  //
-  //
   /*------------------------------------------------------------------------*/
-  /* Tape-documentation */
+  /* Tape documentation */
   tape_doc(p.tag, p.depen, p.indep, p.args, p.x);
 
   /*------------------------------------------------------------------------*/
   /* Tape statistics */
   size_t tape_stats[STAT_SIZE];
-  tapestats(p.tag,tape_stats);
+  tapestats(p.tag, tape_stats);
 
   std::cout << "  Tape Statistics:\n";
   std::cout << "    independents            " << tape_stats[NUM_INDEPENDENTS]
@@ -283,7 +266,7 @@ int apply_drivers(Problem& p) {
             << "\n    maxlive                 " << tape_stats[NUM_MAX_LIVES]
             << "\n    valstack size           " << tape_stats[TAY_STACK_SIZE] << "\n\n";
 
-  //myfree2(parJ);
+  myfree2(parJ);
   myfree2(jac);
 
   /*------------------------------------------------------------------------*/
@@ -294,7 +277,6 @@ int apply_drivers(Problem& p) {
 /******************************************************************************/
 void mat_print(const std::string& name, const int m, const int n, double** M)
 {
-  //std::cout.precision(4);
   std::cout << "\n Print matrix " << name << " (" << m << "x" << n << "):\n";
   for(int i = 0; i < m ; ++i) {
     std::cout << "  " << i << ": ";
@@ -307,7 +289,7 @@ void mat_print(const std::string& name, const int m, const int n, double** M)
 
 /******************************************************************************/
 int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
-                double** jac2, const std::string& name2)
+                 double** jac2, const std::string& name2)
 {
   double eps = 1.E-10;
   double f;
