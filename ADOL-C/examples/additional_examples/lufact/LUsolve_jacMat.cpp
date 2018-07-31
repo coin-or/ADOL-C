@@ -284,7 +284,6 @@ int apply_drivers(Problem& p) {
   compute_JU(p.depen, p.indep, l, p, U, J);
   myfree2(U);
 
-
   /*------------------------------------------------------------------------*/
   /* Z = U*J with U(i,j) = i+j */
   std::cout << "  --------------------------------------\n";
@@ -300,15 +299,15 @@ int apply_drivers(Problem& p) {
 
   /*------------------------------------------------------------------------*/
   /* Z = U*J with random values in U */
-//  std::cout << "  -----------------------------------------------\n";
-//  std::cout << "  | Evaluate Z = U*J with U(i,j) = rand() % 100 |\n";
-//  std::cout << "  -----------------------------------------------\n";
-//  U = myalloc2(l, p.depen);
-//  mat_fill_rand(l, p.depen, U);
-//  if (6 > p.size)
-//    mat_print("U", l, p.indep, U);
-//  compute_UJ(l, p.depen, p.indep, p, U, J);
-//  myfree2(U);
+  std::cout << "  -----------------------------------------------\n";
+  std::cout << "  | Evaluate Z = U*J with U(i,j) = rand() % 100 |\n";
+  std::cout << "  -----------------------------------------------\n";
+  U = myalloc2(l, p.depen);
+  mat_fill_rand(l, p.depen, U);
+  if (6 > p.size)
+    mat_print("U", l, p.indep, U);
+  compute_UJ(l, p.depen, p.indep, p, U, J);
+  myfree2(U);
 
   /*------------------------------------------------------------------------*/
   /* Tape statistics */
