@@ -16,7 +16,7 @@
              * handling several tapes while using par_jacobian
 
  Usage:
-   OMP_NUM_THREADS=N ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]]
+   see usage()
 
  First, the LU decomposition for the provided system sizes is traced. In a
  second step, the drivers jacobian and par_jacobian are called to obtain
@@ -45,6 +45,10 @@
 #include <algorithm>
 #include <string>
 
+
+// At least some const correctness.
+typedef const double* const* constMat;
+
 // Global counter to ensure, that every Trace has a unique tag.
 static int tagCntr = 0;
 
@@ -57,8 +61,8 @@ public:
   }
   uint size = 0;
   int tag = -1;
-  int depen = 0;
-  int indep = 0;
+  uint depen = 0;
+  uint indep = 0;
   double* args = NULL ;
   double* x = NULL;
 };
@@ -68,20 +72,20 @@ int calc_seq(const std::vector<uint>& sizes);
 int calc_rand(const std::vector<uint>& sizes);
 int compute_and_trace(Problem& p);
 int apply_drivers(Problem& p);
-void mat_print(const std::string& name, const int m, const int n, double** M);
-int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
-                 double** jac2, const std::string& name2);
+void mat_print(const std::string& name, const uint m, const uint n, constMat M);
+int compare_mats(const uint m, const uint n, constMat jac1, const std::string& name1,
+                 constMat jac2, const std::string& name2);
 void usage()
 {
-  std::cout << "Usage: OMP_NUM_THREADS=NUMTHREADS ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]] \n";
+  std::cout << "Usage: OMP_NUM_THREADS=N ./LUsolve_MT [SIZE1 [, SIZE2 [, SIZE3 ...]]] \n";
 }
 
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 /*--------------------------------------------------------------------------*/
 int main(int argc, char* argv []) {
-    
-    // Parse arguments/sizes
+
+    // Parse arguments / sizes
     std::vector<uint> sizes;
     if (2 <= argc) {
       for (int i = 1; i < argc; ++i) {
@@ -98,7 +102,7 @@ int main(int argc, char* argv []) {
       return 0;
     }
 
-    // Remove duplicates
+    // Since the tag numbering is identical to problem sizes, we remove duplicates.
     std::sort(sizes.begin(), sizes.end());
     sizes.erase(std::unique(sizes.begin(), sizes.end()), sizes.end());
 
@@ -125,8 +129,8 @@ int calc_rand(const std::vector<uint>& sizes) {
   std::vector<uint> shuffledSizes = sizes;
   std::random_shuffle(shuffledSizes.begin(), shuffledSizes.end());
 
-  for (size_t i = 0; i < shuffledSizes.size(); ++i) {
-    std::cout << "# System size is: " << shuffledSizes[i] << "\n";
+  for (uint i = 0; i < shuffledSizes.size(); ++i) {
+    std::cout << "=== System size is: " << shuffledSizes[i] << "\n";
     problems[i] = Problem{shuffledSizes[i], tagCntr++};
     compute_and_trace(problems[i]);
     apply_drivers(problems[i]);
@@ -140,8 +144,8 @@ int calc_seq(const std::vector<uint>& sizes) {
   int ret = 0;
   std::vector<Problem> problems(sizes.size());
 
-  for (size_t i = 0; i < sizes.size(); ++i) {
-    std::cout << "# System size is: " << sizes[i] << "\n";
+  for (uint i = 0; i < sizes.size(); ++i) {
+    std::cout << "=== System size is: " << sizes[i] << "\n";
     problems[i] = Problem{sizes[i], tagCntr++};
     compute_and_trace(problems[i]);
     apply_drivers(problems[i]);
@@ -169,7 +173,7 @@ int compute_and_trace(Problem& p) {
   double* b = myalloc1(size);
   p.x = myalloc1(size);
   adouble **AA, *AAp, *Abx;         // active variables
-  p.args = myalloc1(p.indep);         // arguments
+  p.args = myalloc1(p.indep);       // arguments
 
 
   /*------------------------------------------------------------------------*/
@@ -257,7 +261,7 @@ int apply_drivers(Problem& p) {
 
   /*------------------------------------------------------------------------*/
   /* Tape statistics */
-  size_t tape_stats[STAT_SIZE];
+  ulong tape_stats[STAT_SIZE];
   tapestats(p.tag, tape_stats);
 
   std::cout << "  Tape Statistics:\n";
@@ -279,12 +283,12 @@ int apply_drivers(Problem& p) {
 }
 
 /******************************************************************************/
-void mat_print(const std::string& name, const int m, const int n, double** M)
+void mat_print(const std::string& name, const uint m, const uint n, constMat M)
 {
   std::cout << "\n Print matrix " << name << " (" << m << "x" << n << "):\n";
-  for(int i = 0; i < m ; ++i) {
+  for(uint i = 0; i < m ; ++i) {
     std::cout << "  " << i << ": ";
-    for(int j = 0; j < n ; ++j)
+    for(uint j = 0; j < n ; ++j)
       std::cout << std::setprecision(4) << std::fixed << M[i][j] << "  ";
     std::cout << "\n";
   }
@@ -292,16 +296,16 @@ void mat_print(const std::string& name, const int m, const int n, double** M)
 }
 
 /******************************************************************************/
-int compare_mats(const int m, const int n, double** jac1, const std::string& name1,
-                 double** jac2, const std::string& name2)
+int compare_mats(const uint m, const uint n, constMat jac1, const std::string& name1,
+                 constMat jac2, const std::string& name2)
 {
   double eps = 1.E-10;
   double f;
   int ret = 0;
 
   std::cout << "\n  Compare results:\n";
-  for (int i = 0; i < m ; ++i) {
-    for (int j = 0; j < n ; ++j) {
+  for (uint i = 0; i < m ; ++i) {
+    for (uint j = 0; j < n ; ++j) {
       f = fabs(jac1[i][j] - jac2[i][j]);
       if (f > eps) {
         std::cout << "\tUnexpected value: expected[" << i << "][" << j << "] = "
