@@ -1533,7 +1533,7 @@ inline adouble fabs (const adouble &a) {
 
         		int i,m;
         		double sum;
-        		int leading_sgn[adouble::degree];
+				int* leading_sgn = (int*)alloca(sizeof(int) * adouble::degree);
         		for(int l=0;l<adouble::numDir;l++)  //Init
         		{
         			leading_sgn[l]=1;
