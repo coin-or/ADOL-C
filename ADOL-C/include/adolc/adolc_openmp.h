@@ -14,16 +14,35 @@
 #if !defined(ADOLC_ADOLC_OPENMP_H)
 #define ADOLC_ADOLC_OPENMP_H 1
 
-#if !defined(__cplusplus)
-#warning ADOLC_OPENMP IS ONLY USEFUL WHEN COMPILED WITH C++ !!!
-#else
-
-#if !defined(_OPENMP)
-#error OPENMP NOT ENABLED AT COMPILE TIME !!!
-#else
 
 #include <adolc/internal/common.h>
 
+
+typedef struct {
+        int advances;
+        int takeshots;
+        int commands;
+        int  turn;
+        int reps;
+        int range;
+        int ch[ADOLC_CHECKUP];
+        int oldsnaps;
+        int oldfine;
+} revolve_nums;
+
+struct ThreadContextCl;
+extern struct ADOLC_OpenMP_CL {
+  struct ThreadContextCl* ctx;
+  revolve_nums revolve_numbers;
+#ifdef __cplusplus
+  struct ADOLC_OpenMP_CL& operator=(struct ADOLC_OpenMP_CL const& in);
+#endif
+} ADOLC_OpenMP;
+
+#ifdef _OPENMP
+#pragma omp threadprivate(ADOLC_OpenMP)
+#endif
+/*
 extern void beginParallel();
 extern void endParallel();
 
@@ -56,8 +75,7 @@ extern ADOLC_OpenMP_NC ADOLC_OpenMP_Handler_NC;
 
 #define ADOLC_OPENMP firstprivate(ADOLC_OpenMP_Handler)
 #define ADOLC_OPENMP_NC firstprivate(ADOLC_OpenMP_Handler_NC)
+*/
 
-#endif /* _OPENMP */
-#endif /* __cplusplus */
 #endif /* ADOLC_ADOLC_OPENMP_H */
 

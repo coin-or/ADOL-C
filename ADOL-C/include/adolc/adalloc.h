@@ -41,6 +41,8 @@ ADOLC_DLL_EXPORT void myfree3(double ***);
 /*                                          SPECIAL IDENTITY REPRESENTATION */
 ADOLC_DLL_EXPORT double   **myallocI2(int);
 ADOLC_DLL_EXPORT void myfreeI2(int, double**);
+ADOLC_DLL_EXPORT double   **myallocI2nmp(int n, int m, int start);
+ADOLC_DLL_EXPORT void myfreeI2nmp(int, int, int, double**);
 
 ADOLC_DLL_EXPORT unsigned int * myalloc1_uint(int);
 

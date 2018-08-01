@@ -238,15 +238,20 @@ void generate_seed_hess
 }
 #endif
 
-static void deepcopy_HP(unsigned int ***HPnew, unsigned int **HP, int indep)
+void deepcopy_HP(unsigned int ***HPnew, unsigned int **HP, int indep)
 {
     int i,j,s;
     *HPnew = (unsigned int **)malloc(indep*sizeof(unsigned int *));
     for (i=0; i<indep; i++) {
-       s=HP[i][0];
-       (*HPnew)[i] = (unsigned int *)malloc((s+1)*(sizeof(unsigned int)));
-       for (j=0; j<=s; j++)
-           (*HPnew)[i][j] = HP[i][j];
+    	if (HP[i]) {
+		   s=HP[i][0];
+		   (*HPnew)[i] = (unsigned int *)malloc((s+1)*(sizeof(unsigned int)));
+		   for (j=0; j<=s; j++)
+			   (*HPnew)[i][j] = HP[i][j];
+		}
+        else {
+        	(*HPnew)[i] = NULL;
+        }
     }
 }
 

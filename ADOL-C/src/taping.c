@@ -373,10 +373,10 @@ void clearTapeBaseNames() {
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
     char *numberString, *fileName, *extension = ".tap", *currPos;
-#if defined(_OPENMP)
+/*#if defined(_OPENMP)
     char *threadName = "thread-", *threadNumberString = NULL;
     int threadNumber, threadNumberStringLength = 0, threadNameLength = 0;
-#endif /* _OPENMP */
+#endif*/ /* _OPENMP */
     int tapeBaseNameLength, numberStringLength, fileNameLength;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -391,8 +391,9 @@ char *createFileName(short tapeID, int tapeType) {
     numberString = malloc(sizeof(char) * (numberStringLength + 1));
     if (numberString == NULL) fail(ADOLC_MALLOC_FAILED);
     sprintf(numberString, "%d", tapeID);
-#if defined(_OPENMP)
+
     /* determine length of the thread number string */
+    /*#if defined(_OPENMP)
     if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
         threadNameLength = strlen(threadName);
         threadNumber = omp_get_thread_num();
@@ -408,27 +409,27 @@ char *createFileName(short tapeID, int tapeType) {
         ++threadNumberStringLength;
         threadNumberString[threadNumberStringLength] = 0;
     }
-#endif /* _OPENMP */
+	#endif*/ /* _OPENMP */
 
     /* malloc and create */
     fileNameLength = tapeBaseNameLength + numberStringLength + 5;
-#if defined(_OPENMP)
+/*#if defined(_OPENMP)
     if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
         fileNameLength += threadNameLength + threadNumberStringLength;
-#endif /* _OPENMP */
+#endif*/ /* _OPENMP */
     fileName = (char *)malloc(sizeof(char) * fileNameLength);
     if (fileName == NULL) fail(ADOLC_MALLOC_FAILED);
     currPos = fileName;
     strncpy(currPos, tapeBaseNames[tapeType], tapeBaseNameLength);
     currPos += tapeBaseNameLength;
-#if defined(_OPENMP)
+/*#if defined(_OPENMP)
     if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
         strncpy(currPos, threadName, threadNameLength);
         currPos += threadNameLength;
         strncpy(currPos, threadNumberString, threadNumberStringLength);
         currPos += threadNumberStringLength;
     }
-#endif /* _OPENMP */
+#endif*/ /* _OPENMP */
     strncpy(currPos, numberString, numberStringLength);
     currPos += numberStringLength;
     strncpy(currPos, extension, 4);
@@ -436,10 +437,10 @@ char *createFileName(short tapeID, int tapeType) {
     *currPos = 0;
 
     free(numberString);
-#if defined(_OPENMP)
+/*#if defined(_OPENMP)
     if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
         free(threadNumberString);
-#endif /* _OPENMP */
+#endif*/ /* _OPENMP */
 
     return fileName;
 }

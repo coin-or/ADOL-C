@@ -23,9 +23,13 @@ EXTRA_DIST           = LU.h
 MAINTAINERCLEANFILES = Makefile.in tape.tex *~ *.orig
 
 if ADDEXA
-noinst_PROGRAMS      = LUsolve LUdet
+noinst_PROGRAMS      = LUsolve LUdet LUsolve_MT LUsolve_jacMat
 endif
 
 LUsolve_SOURCES      = LUsolve.cpp LU.cpp
+
+LUsolve_MT_SOURCES   = LUsolve_MT.cpp LU.cpp
+
+LUsolve_jacMat_SOURCES   = LUsolve_jacMat.cpp LU.cpp
 
 LUdet_SOURCES        = LUdet.cpp LU.cpp

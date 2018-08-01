@@ -188,11 +188,7 @@
 
 #define MAXINT 2147483647
 
-#ifndef _OPENMP
-revolve_nums revolve_numbers;
-#else
-revolve_nums *revolve_numbers = NULL;
-#endif
+#include <adolc/adolc_openmp.h>
 
 /* ************************************************************************* */
 

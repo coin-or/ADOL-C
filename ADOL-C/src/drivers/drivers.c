@@ -16,7 +16,7 @@
 #include <adolc/drivers/drivers.h>
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
-
+#include "taping_p.h"
 #include <math.h>
 
 BEGIN_C_DECLS
@@ -83,6 +83,16 @@ int vec_jac(short tag,
 /*                                                                 jacobian */
 /* jacobian(tag, m, n, x[n], J[m][n])                                       */
 
+void printvec(const char* name, int n, double* v)
+{
+	int i;
+	printf("%s \n", name);
+	for (i =0; i<n;++i){
+		printf(" %10.4f", v[i]);
+	}
+	printf("\n");
+}
+
 int jacobian(short tag,
              int depen,
              int indep,
@@ -101,6 +111,7 @@ int jacobian(short tag,
         I = myallocI2(depen);
         rc = zos_forward(tag,depen,indep,1,argument,result);
         if (rc < 0) return rc;
+
         MINDEC(rc,fov_reverse(tag,depen,indep,depen,I,jacobian));
         myfreeI2(depen, I);
     }
