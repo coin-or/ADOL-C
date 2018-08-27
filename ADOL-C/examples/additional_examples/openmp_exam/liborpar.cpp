@@ -178,17 +178,17 @@ int main(){
     int init = index*slot;
 
     trace_on(init);
-      for(int k=0;k<N;k++) 
+      for(int k=0;k<N;k++)
         La[k] <<= 0.050000;
-      for(int j=0;j<Nmat;j++) 
+      for(int j=0;j<Nmat;j++)
         za[j] <<= z[init][j];
-    
+
       path_calc(N,Nmat,delta,La,lambda,za);
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
 
       va >>= v[init];
     trace_off(1);
-    
+
     for(int l=init;l<init+slot;l++)
       {
         rv = gradient(init,N+Nmat,xp[l],grad[l]);
@@ -212,7 +212,24 @@ int main(){
       for(int i=0;i<N;i++)
         printf(" %f \n",gradtot[i]);
     }
+
+    delete[] La;
+    delete[] za;
   }
+
+  delete[] lambda;
+  delete[] v;
+  delete[] gradtot;
+
+  for (int i=0;i<npath;i++)
+    {
+      delete[] z[i];
+      delete[] grad[i];
+      delete[] xp[i];
+    }
+  delete[] z;
+  delete[] grad;
+  delete[] xp;
 
   return 0;
 }
