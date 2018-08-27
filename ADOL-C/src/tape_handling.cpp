@@ -25,7 +25,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <vector>
+#include <list>
 
 #include <errno.h>
 
@@ -336,7 +336,7 @@ void free_loc(locint loc) {
 }
 
 /* vector of tape infos for all tapes in use */
-vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
+list<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
 ///* stack of pointers to tape infos
 // * represents the order of tape usage when doing nested taping */
@@ -629,10 +629,85 @@ void initTapeInfos_keep(TapeInfos *newTapeInfos) {
     newTapeInfos->tay_file = tay_file;
 }
 
+static int initNewTapeSearchHelper(TapeInfos*& newTapeInfos, const struct TapeID tapeID)
+{
+    int retval = 0;
+    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
+        for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+            tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
+            ++tiIter) {
+            if ((*tiIter)->tapeID.tag == tapeID.tag) {
+                newTapeInfos=*tiIter;
+                if ((*tiIter)->inUse != 0) {
+                    if ((*tiIter)->tapingComplete == 0)
+                        fail(ADOLC_TAPING_TAPE_STILL_IN_USE);
+                    if ( (*tiIter)->stats[OP_FILE_ACCESS]  == 0 &&
+                            (*tiIter)->stats[LOC_FILE_ACCESS] == 0 &&
+                            (*tiIter)->stats[VAL_FILE_ACCESS] == 0  ) {
+    #              if defined(ADOLC_DEBUG)
+                        fprintf(DIAG_OUT, "\nADOL-C warning: Tape %d existed in main memory"
+                                " only and gets overwritten!\n\n", tapeID);
+    #              endif
+                        /* free associated resources */
+                        retval = 1;
+                    }
+                }
+                if ((*tiIter)->tay_file != NULL)
+                    rewind((*tiIter)->tay_file);
+                initTapeInfos_keep(*tiIter);
+                (*tiIter)->tapeID = tapeID;
+    #ifdef SPARSE
+                freeSparseJacInfos(newTapeInfos->pTapeInfos.sJinfos.y,
+                                   newTapeInfos->pTapeInfos.sJinfos.B,
+                                   newTapeInfos->pTapeInfos.sJinfos.JP,
+                                   newTapeInfos->pTapeInfos.sJinfos.g,
+                                   newTapeInfos->pTapeInfos.sJinfos.jr1d,
+                                   newTapeInfos->pTapeInfos.sJinfos.seed_rows,
+                                   newTapeInfos->pTapeInfos.sJinfos.seed_clms,
+                                   newTapeInfos->pTapeInfos.sJinfos.depen);
+                freeSparseHessInfos(newTapeInfos->pTapeInfos.sHinfos.Hcomp,
+                                    newTapeInfos->pTapeInfos.sHinfos.Xppp,
+                                    newTapeInfos->pTapeInfos.sHinfos.Yppp,
+                                    newTapeInfos->pTapeInfos.sHinfos.Zppp,
+                                    newTapeInfos->pTapeInfos.sHinfos.Upp,
+                                    newTapeInfos->pTapeInfos.sHinfos.HP,
+                                    newTapeInfos->pTapeInfos.sHinfos.g,
+                                    newTapeInfos->pTapeInfos.sHinfos.hr,
+                                    newTapeInfos->pTapeInfos.sHinfos.p,
+                                    newTapeInfos->pTapeInfos.sHinfos.indep);
+                newTapeInfos->pTapeInfos.sJinfos.B=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.y=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.g=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
+                newTapeInfos->pTapeInfos.sJinfos.depen=0;
+                newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
+                newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
+                newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
+                newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.g=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
+                newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
+                newTapeInfos->pTapeInfos.sHinfos.indep=0;
+                newTapeInfos->pTapeInfos.sHinfos.p=0;
+    #endif
+                break;
+            }
+        }
+    }
+    return retval;
+}
+
 /* inits a new tape and updates the tape stack (called from start_trace)
  * - returns 0 without error
  * - returns 1 if tapeID was already/still in use */
-int initNewTape(short tapeID) {
+int initNewTape(const struct TapeID tapeID) {
     TapeInfos *newTapeInfos = NULL;
 #ifdef _OPENMP
     TapeInfos* locNewTapeInfos = NULL;
@@ -644,91 +719,30 @@ int initNewTape(short tapeID) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if tape is in use */
+
+    if (1 < tapeID.numThreads) {
+        retval = initNewTapeSearchHelper(newTapeInfos, tapeID);
+    }
+    else {
 #ifdef _OPENMP
 #pragma omp barrier
 #pragma omp single copyprivate(newTapeInfos)
-    {
+      {
 #endif
-    vector<TapeInfos *>::iterator tiIter;
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID==tapeID) {
-                newTapeInfos=*tiIter;
-                if ((*tiIter)->inUse != 0) {
-                    if ((*tiIter)->tapingComplete == 0)
-                        fail(ADOLC_TAPING_TAPE_STILL_IN_USE);
-                    if ( (*tiIter)->stats[OP_FILE_ACCESS]  == 0 &&
-                            (*tiIter)->stats[LOC_FILE_ACCESS] == 0 &&
-                            (*tiIter)->stats[VAL_FILE_ACCESS] == 0  ) {
-#              if defined(ADOLC_DEBUG)
-                        fprintf(DIAG_OUT, "\nADOL-C warning: Tape %d existed in main memory"
-                                " only and gets overwritten!\n\n", tapeID);
-#              endif
-                        /* free associated resources */
-                        retval = 1;
-                    }
-                }
-                if ((*tiIter)->tay_file != NULL)
-                    rewind((*tiIter)->tay_file);
-                initTapeInfos_keep(*tiIter);
-                (*tiIter)->tapeID = tapeID;
-#ifdef SPARSE
-		freeSparseJacInfos(newTapeInfos->pTapeInfos.sJinfos.y,
-				   newTapeInfos->pTapeInfos.sJinfos.B,
-				   newTapeInfos->pTapeInfos.sJinfos.JP,
-				   newTapeInfos->pTapeInfos.sJinfos.g,
-				   newTapeInfos->pTapeInfos.sJinfos.jr1d,
-				   newTapeInfos->pTapeInfos.sJinfos.seed_rows,
-				   newTapeInfos->pTapeInfos.sJinfos.seed_clms,
-				   newTapeInfos->pTapeInfos.sJinfos.depen);
-		freeSparseHessInfos(newTapeInfos->pTapeInfos.sHinfos.Hcomp, 
-				    newTapeInfos->pTapeInfos.sHinfos.Xppp, 
-				    newTapeInfos->pTapeInfos.sHinfos.Yppp, 
-				    newTapeInfos->pTapeInfos.sHinfos.Zppp, 
-				    newTapeInfos->pTapeInfos.sHinfos.Upp, 
-				    newTapeInfos->pTapeInfos.sHinfos.HP,
-				    newTapeInfos->pTapeInfos.sHinfos.g, 
-				    newTapeInfos->pTapeInfos.sHinfos.hr, 
-				    newTapeInfos->pTapeInfos.sHinfos.p, 
-				    newTapeInfos->pTapeInfos.sHinfos.indep);	
-		newTapeInfos->pTapeInfos.sJinfos.B=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.y=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.g=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.jr1d=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.Seed=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.JP=NULL;
-		newTapeInfos->pTapeInfos.sJinfos.depen=0;
-		newTapeInfos->pTapeInfos.sJinfos.nnz_in=0;
-		newTapeInfos->pTapeInfos.sJinfos.seed_rows=0;
-		newTapeInfos->pTapeInfos.sJinfos.seed_clms=0;
-		newTapeInfos->pTapeInfos.sHinfos.Zppp=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.Yppp=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.Xppp=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.Upp=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.Hcomp=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.HP=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.g=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.hr=NULL;
-		newTapeInfos->pTapeInfos.sHinfos.nnz_in=0;
-		newTapeInfos->pTapeInfos.sHinfos.indep=0;
-		newTapeInfos->pTapeInfos.sHinfos.p=0;
-#endif
-                break;
-            }
-        }
-    }
+        retval = initNewTapeSearchHelper(newTapeInfos, tapeID);
 
 #ifdef _OPENMP
-    } // end single construct
+      } // end single construct
+#endif
+    } // else
+
+#ifdef _OPENMP
     if (NULL != newTapeInfos) {
         locNewTapeInfos = new TapeInfos();
         *locNewTapeInfos = *newTapeInfos;
         newTapeInfos = locNewTapeInfos;
     }
 #endif
-
 
     /* create new info struct and initialize it */
     if (newTapeInfos == NULL) {
@@ -759,14 +773,26 @@ int initNewTape(short tapeID) {
     }
 
     if (newTI) {
+        if (1 < tapeID.numThreads) {
+            TapeInfos* tmp2TapeInfos = new TapeInfos(tapeID);
+            *tmp2TapeInfos = *newTapeInfos;
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+            {
+              ADOLC_TAPE_INFOS_BUFFER.push_back(tmp2TapeInfos);
+            }
+        }
+        else {
 #ifdef _OPENMP
 #pragma omp master
 #endif
-    	{
-    		TapeInfos* tmp2TapeInfos = new TapeInfos(tapeID);
-    		*tmp2TapeInfos = *newTapeInfos;
-    		ADOLC_TAPE_INFOS_BUFFER.push_back(tmp2TapeInfos);
-    	}
+          {
+            TapeInfos* tmp2TapeInfos = new TapeInfos(tapeID);
+            *tmp2TapeInfos = *newTapeInfos;
+            ADOLC_TAPE_INFOS_BUFFER.push_back(tmp2TapeInfos);
+          }
+        }  // else
     }
 
     newTapeInfos->pTapeInfos.skipFileCleanup=0;
@@ -780,16 +806,18 @@ int initNewTape(short tapeID) {
 
 /* opens an existing tape or creates a new handle for a tape on hard disk
  * - called from init_for_sweep and init_rev_sweep */
-void openTape(short tapeID, char mode) {
+void openTape(short tag, char mode) {
     TapeInfos *tempTapeInfos=NULL;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
+    ADOLC_OPENMP_GET_NUM_THREADS;
+    TapeID tapeID = {tag, ADOLC_numThreads, ADOLC_threadNumber};
 
     /* check if tape information exist in memory */
-    vector<TapeInfos *>::iterator tiIter;
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+        for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
                 tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
                 ++tiIter) {
             if ((*tiIter)->tapeID == tapeID) {
@@ -845,7 +873,7 @@ void openTape(short tapeID, char mode) {
 
     /* tapeID not used so far */
     if (mode == ADOLC_REVERSE) {
-        failAdditionalInfo1 = tapeID;
+        failAdditionalInfo1 = tapeID.tag;
         fail(ADOLC_REVERSE_NO_TAYLOR_STACK);
     }
 
@@ -913,6 +941,25 @@ static void free_tapeNames_without_deleting_tape() {
   }
 }
 
+static void copyTapeInfosToShared()
+{
+   /* check if TapeInfos for tapeID exist */
+   if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
+       for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+               tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
+               ++tiIter) {
+           if ((*tiIter)->tapeID==ADOLC_CURRENT_TAPE_INFOS.tapeID) {
+             **tiIter = *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr;
+                   break;
+           }
+       }
+   }
+   else {
+     fprintf(DIAG_OUT, "ADOL-C-error: releaseTape() called before openTape()\n");
+     adolc_exit(-3, "", __func__, __FILE__, __LINE__);
+   }
+}
+
 /* release the current tape and give control to the previous one */
 void releaseTape() {
 #ifdef _OPENMP
@@ -933,26 +980,19 @@ void releaseTape() {
 
 #ifdef _OPENMP
 #pragma omp barrier
+#endif
+
+    if (1 < ADOLC_CURRENT_TAPE_INFOS.tapeID.numThreads) {
+      copyTapeInfosToShared();
+    }
+    else {
+#ifdef _OPENMP
 #pragma omp master
 #endif
 {
-    	 vector<TapeInfos *>::iterator tiIter;
-        /* check if TapeInfos for tapeID exist */
-        if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-            for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                    tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                    ++tiIter) {
-                if ((*tiIter)->tapeID==ADOLC_CURRENT_TAPE_INFOS.tapeID) {
-                	**tiIter = *ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr;
-                        break;
-                }
-            }
-        }
-        else {
-        	fprintf(DIAG_OUT, "ADOL-C-error: releaseTape() called before openTape()\n");
-        	adolc_exit(-3, "", __func__, __FILE__, __LINE__);
-        }
+    copyTapeInfosToShared();
 }
+    } // else
 
 #ifdef _OPENMP
 #pragma omp barrier // Wait until master found the tape to release.
@@ -977,16 +1017,19 @@ void releaseTape() {
 
 /* updates the tape infos for the given ID - a tapeInfos struct is created
  * and registered if non is found but its state will remain "not in use" */
-TapeInfos *getTapeInfos(short tapeID) {
+TapeInfos *getTapeInfos(short tag) {
     TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_NUM_THREADS;
+
+    TapeID tapeID = {tag, ADOLC_numThreads, ADOLC_threadNumber};
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+        for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
                 tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
@@ -1012,33 +1055,36 @@ void set_nested_ctx(short tag, char nested) {
 }
 
 void cachedTraceTags(std::vector<short>& result) {
-    vector<TapeInfos *>::const_iterator tiIter;
     vector<short>::iterator tIdIter;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     result.resize(ADOLC_TAPE_INFOS_BUFFER.size());
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for(tiIter=ADOLC_TAPE_INFOS_BUFFER.begin(), tIdIter=result.begin();
-            tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
+        auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+        tIdIter=result.begin();
+        for(; tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
             ++tiIter, ++tIdIter) {
-            *tIdIter = (*tiIter)->tapeID;
+            *tIdIter = (*tiIter)->tapeID.tag;
         }
     }
 }
 
 #ifdef SPARSE
 /* updates the tape infos on sparse Jac for the given ID  */
-void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
+void setTapeInfoJacSparse(short tag, SparseJacInfos sJinfos) {
     TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_NUM_THREADS;
+
+    TapeID tapeID = {tag, ADOLC_numThreads, ADOLC_threadNumber};
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+        for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
                 tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
@@ -1070,16 +1116,19 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 
 #ifdef SPARSE
 /* updates the tape infos on sparse Hess for the given ID  */
-void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
+void setTapeInfoHessSparse(short tag, SparseHessInfos sHinfos) {
     TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_NUM_THREADS;
+
+    TapeID tapeID = {tag, ADOLC_numThreads, ADOLC_threadNumber};
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
+        for (auto tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
                 tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
                 ++tiIter) {
             if ((*tiIter)->tapeID==tapeID) {
@@ -1337,71 +1386,65 @@ freeSparseHessInfos(pTapeInfos.sHinfos.Hcomp,
 	}
 }
 
-int removeTape(short tapeID, short type) {
+int removeTape(short tag, short type) {
     TapeInfos *tapeInfos = NULL;
-    vector<TapeInfos *>::iterator tiIter;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter = ADOLC_TAPE_INFOS_BUFFER.begin();
+        for (auto tiIter = ADOLC_TAPE_INFOS_BUFFER.begin();
                 tiIter != ADOLC_TAPE_INFOS_BUFFER.end();
                 ++tiIter)
         {
-            if ((*tiIter)->tapeID == tapeID) {
+            if ((*tiIter)->tapeID.tag == tag) {
                 tapeInfos = *tiIter;
-                if (tapeInfos->tapingComplete == 0) return -1;
-                ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
-                break;
+                if (tapeInfos->tapingComplete == 0)
+                    return -1;
+                tiIter = ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
+                --tiIter;
+                freeTapeResources(tapeInfos);
+            #ifdef SPARSE
+                freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
+                       tapeInfos->pTapeInfos.sJinfos.B,
+                       tapeInfos->pTapeInfos.sJinfos.JP,
+                       tapeInfos->pTapeInfos.sJinfos.g,
+                       tapeInfos->pTapeInfos.sJinfos.jr1d,
+                       tapeInfos->pTapeInfos.sJinfos.seed_rows,
+                       tapeInfos->pTapeInfos.sJinfos.seed_clms,
+                       tapeInfos->pTapeInfos.sJinfos.depen);
+                freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp,
+                  tapeInfos->pTapeInfos.sHinfos.Xppp,
+                  tapeInfos->pTapeInfos.sHinfos.Yppp,
+                  tapeInfos->pTapeInfos.sHinfos.Zppp,
+                  tapeInfos->pTapeInfos.sHinfos.Upp,
+                  tapeInfos->pTapeInfos.sHinfos.HP,
+                  tapeInfos->pTapeInfos.sHinfos.g,
+                  tapeInfos->pTapeInfos.sHinfos.hr,
+                  tapeInfos->pTapeInfos.sHinfos.p,
+                  tapeInfos->pTapeInfos.sHinfos.indep);
+            #endif
+
+                if (type == ADOLC_REMOVE_COMPLETELY) {
+                    remove(tapeInfos->pTapeInfos.op_fileName);
+                    remove(tapeInfos->pTapeInfos.loc_fileName);
+                    remove(tapeInfos->pTapeInfos.val_fileName);
+                }
+
+                free(tapeInfos->pTapeInfos.op_fileName);
+                free(tapeInfos->pTapeInfos.val_fileName);
+                free(tapeInfos->pTapeInfos.loc_fileName);
+                if (tapeInfos->pTapeInfos.tay_fileName != NULL) {
+                    free(tapeInfos->pTapeInfos.tay_fileName);
+                    tapeInfos->pTapeInfos.tay_fileName = NULL;
+                }
+
+                delete tapeInfos;
             }
         }
     }
 
-    if (tapeInfos == NULL) { // might be on disk only
-        tapeInfos = new TapeInfos(tapeID);
-        tapeInfos->tapingComplete = 1;
-    }
-
-    freeTapeResources(tapeInfos);
-#ifdef SPARSE
-    freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
-		       tapeInfos->pTapeInfos.sJinfos.B,
-		       tapeInfos->pTapeInfos.sJinfos.JP,
-		       tapeInfos->pTapeInfos.sJinfos.g,
-		       tapeInfos->pTapeInfos.sJinfos.jr1d,
-		       tapeInfos->pTapeInfos.sJinfos.seed_rows,
-		       tapeInfos->pTapeInfos.sJinfos.seed_clms,
-		       tapeInfos->pTapeInfos.sJinfos.depen);
-    freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
-			tapeInfos->pTapeInfos.sHinfos.Xppp, 
-			tapeInfos->pTapeInfos.sHinfos.Yppp, 
-			tapeInfos->pTapeInfos.sHinfos.Zppp, 
-			tapeInfos->pTapeInfos.sHinfos.Upp, 
-			tapeInfos->pTapeInfos.sHinfos.HP,
-			tapeInfos->pTapeInfos.sHinfos.g, 
-			tapeInfos->pTapeInfos.sHinfos.hr, 
-			tapeInfos->pTapeInfos.sHinfos.p, 
-			tapeInfos->pTapeInfos.sHinfos.indep);	
-#endif
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
-
-    if (type == ADOLC_REMOVE_COMPLETELY) {
-        remove(tapeInfos->pTapeInfos.op_fileName);
-        remove(tapeInfos->pTapeInfos.loc_fileName);
-        remove(tapeInfos->pTapeInfos.val_fileName);
-    }
-
-    free(tapeInfos->pTapeInfos.op_fileName);
-    free(tapeInfos->pTapeInfos.val_fileName);
-    free(tapeInfos->pTapeInfos.loc_fileName);
-    if (tapeInfos->pTapeInfos.tay_fileName != NULL) {
-        free(tapeInfos->pTapeInfos.tay_fileName);
-        tapeInfos->pTapeInfos.tay_fileName = NULL;
-    }
-
-    delete tapeInfos;
-
     return 0;
 }
 
@@ -1412,10 +1455,13 @@ int removeTape(short tapeID, short type) {
 int trace_on(short tnum, int keepTaylors) {
     int retval = 0;
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
-
+    ADOLC_OPENMP_GET_NUM_THREADS;
+    
     /* allocate memory for TapeInfos and update tapeStack */
-    retval = initNewTape(tnum);
+    TapeID tapeID = {tnum, ADOLC_numThreads, ADOLC_threadNumber};
+    retval = initNewTape(tapeID);
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors=keepTaylors;
     ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] =
 	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag;
@@ -1430,10 +1476,13 @@ int trace_on(short tnum, int keepTaylors,
 {
     int retval = 0;
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_NUM_THREADS;
 
     /* allocate memory for TapeInfos and update tapeStack */
-    retval = initNewTape(tnum);
+    TapeID tapeID = {tnum, ADOLC_numThreads, ADOLC_threadNumber};
+    retval = initNewTape(tapeID);
     freeTapeResources(&ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_BUFFER_SIZE] = obs;
     ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] = lbs;
@@ -1457,7 +1506,7 @@ void trace_off(int flag) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_TAPING) {
-	failAdditionalInfo1 = ADOLC_CURRENT_TAPE_INFOS.tapeID;
+	failAdditionalInfo1 = ADOLC_CURRENT_TAPE_INFOS.tapeID.tag;
 	fail(ADOLC_TAPING_NOT_ACTUALLY_TAPING);
     }
     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.keepTape = flag;
@@ -1689,7 +1738,7 @@ TapeInfos::TapeInfos() : pTapeInfos() {
     pTapeInfos.tay_fileName = NULL;
 }
 
-TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
+TapeInfos::TapeInfos(const TapeID& _tapeID) : pTapeInfos() {
     initTapeInfos(this);
     tapeID = _tapeID;
     pTapeInfos.op_fileName = createFileName(tapeID, OPERATIONS_TAPE);

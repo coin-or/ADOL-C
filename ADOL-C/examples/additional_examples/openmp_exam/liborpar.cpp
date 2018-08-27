@@ -112,13 +112,13 @@ int main(){
   double swaprates[]  = {.045,.05,.055,.045,.05,.055,.045,.05,
                          .055,.045,.05,.055,.045,.05,.055 };
 
-  int       i, j, N, Nmat, npath, nthreads, slot;
+  int       N, Nmat, npath, nthreads, slot;
   double    vtot, *v, *lambda, **z, **grad, *gradtot, **xp;
 
   Nmat = 40;
   N = Nmat+40;
   npath = 30;
-  nthreads = 5;
+  nthreads = omp_get_max_threads();
   slot = npath/nthreads;
 
   lambda   = new double[N];
@@ -127,32 +127,32 @@ int main(){
   z        = new double*[npath];
   grad     = new double*[npath];
   xp       = new double*[npath];
-  for (i=0;i<npath;i++) 
+  for (int i=0;i<npath;i++)
     {
       z[i] = new double[N];
       grad[i] = new double[N+Nmat];
       xp[i] = new double[N+Nmat];
-   }
+    }
 
-  for (i=0;i<N;i++) 
+  for (int i=0;i<N;i++)
     {
       gradtot[i] = 0.0;
       lambda[i] = 0.2;
     }
 
-  for (j=0; j<npath; j++)
+  for (int j=0; j<npath; j++)
     {
       v[j] = 0;
-      for (i=0; i<N; i++) 
-	  xp[j][i]=  0.05;
-      for (i=0; i<Nmat; i++) 
-	{
-	  z[j][i] = 0.3;
-	  xp[j][N+i]=  0.3;
-	}
+      for (int i=0; i<N; i++)
+        xp[j][i]=  0.05;
+      for (int i=0; i<Nmat; i++)
+        {
+          z[j][i] = 0.3;
+          xp[j][N+i]=  0.3;
+        }
     }
 
-  omp_set_num_threads(nthreads);
+  //omp_set_num_threads(nthreads);
 
   //----------------------------------------------------------//
   //                                                          //
@@ -163,57 +163,56 @@ int main(){
   //                                                          //
   //----------------------------------------------------------//
 
-#pragma omp parallel firstprivate(ADOLC_OpenMP_Handler)
-  {    
+#pragma omp parallel copyin(ADOLC_OpenMP) default(shared)
+  {
     // different paths for each thread
     int index = omp_get_thread_num();
-    int l,k;
+
     int rv = 0;
-    
+
     adouble *La, va, *za;
 
     La = new adouble[N];
-    za  = new adouble[Nmat];
+    za = new adouble[Nmat];
 
     int init = index*slot;
 
     trace_on(init);
-      for(k=0;k<N;k++) 
-	La[k] <<= 0.050000;
-      for(j=0;j<Nmat;j++) 
+      for(int k=0;k<N;k++) 
+        La[k] <<= 0.050000;
+      for(int j=0;j<Nmat;j++) 
         za[j] <<= z[init][j];
     
       path_calc(N,Nmat,delta,La,lambda,za);
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
-	
+
       va >>= v[init];
     trace_off(1);
     
-    for(l=init;l<init+slot;l++)
+    for(int l=init;l<init+slot;l++)
       {
-	rv = gradient(init,N+Nmat,xp[l],grad[l]);
+        rv = gradient(init,N+Nmat,xp[l],grad[l]);
       }
 
 #pragma omp barrier
   if (index==0)
     {
       vtot = 0;
-      for (l=0; l<npath; l++)
-	{
-	  vtot += v[l];
-	  for(k=0;k<N;k++)
-	    gradtot[k] += grad[l][k];
-	}
+      for (int l=0; l<npath; l++)
+        {
+          vtot += v[l];
+          for(int k=0;k<N;k++)
+            gradtot[k] += grad[l][k];
+        }
       vtot = vtot/npath;
-      for(k=0;k<N;k++)
-	gradtot[k] /= npath;
+      for(int k=0;k<N;k++)
+        gradtot[k] /= npath;
 
       printf("Gradient: \n");
-      for(i=0;i<N;i++)
-	printf(" %f \n",gradtot[i]);
+      for(int i=0;i<N;i++)
+        printf(" %f \n",gradtot[i]);
     }
-  }  
-
+  }
 
   return 0;
 }
