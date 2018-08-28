@@ -118,7 +118,13 @@ int main(){
   Nmat = 40;
   N = Nmat+40;
   npath = 30;
+
+#ifdef _OPENMP
   nthreads = omp_get_max_threads();
+#else
+  nthreads = 1;
+#endif
+
   slot = npath/nthreads;
 
   lambda   = new double[N];
@@ -166,7 +172,11 @@ int main(){
 #pragma omp parallel copyin(ADOLC_OpenMP) default(shared)
   {
     // different paths for each thread
+#ifdef _OPENMP
     int index = omp_get_thread_num();
+#else
+    int index = 0;
+#endif
 
     int rv = 0;
 
