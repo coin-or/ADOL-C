@@ -371,76 +371,86 @@ void clearTapeBaseNames() {
 /* the number fnum and ".tap" and returns a pointer to the resulting string.*/
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
-char *createFileName(short tapeID, int tapeType) {
+// tapeBaseName[type]-TAG-thread-THREADID-of-NUMTHREADS.tap'0'
+char *createFileName(struct TapeID tapeID, int tapeType) {
     char *numberString, *fileName, *extension = ".tap", *currPos;
-/*#if defined(_OPENMP)
-    char *threadName = "thread-", *threadNumberString = NULL;
-    int threadNumber, threadNumberStringLength = 0, threadNameLength = 0;
-#endif*/ /* _OPENMP */
+    char *threadName = "thread_", *threadNumberString = NULL, *numThreadString = NULL,
+         *threadConName = "of";
+    int threadNumberStringLength = 0, threadNameLength = 0, numThreadStringLength = 0, threadConLength=2;
     int tapeBaseNameLength, numberStringLength, fileNameLength;
     ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_NUM_THREADS;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_NUM_THREADS;
 
-    failAdditionalInfo1 = tapeID;
+    failAdditionalInfo1 = tapeID.tag;
     tapeBaseNameLength = strlen(tapeBaseNames[tapeType]);
     /* determine length of the number string */
-    if (tapeID != 0)
-        numberStringLength = (int)log10((double)tapeID);
-    else numberStringLength = 0;
-    ++numberStringLength;
+    if (tapeID.tag != 0)
+        numberStringLength = (int)log10((double)tapeID.tag);
+    else
+        numberStringLength = 0;
+    numberStringLength += 2;
     numberString = malloc(sizeof(char) * (numberStringLength + 1));
     if (numberString == NULL) fail(ADOLC_MALLOC_FAILED);
-    sprintf(numberString, "%d", tapeID);
+    sprintf(numberString, "%d_", tapeID.tag);
 
     /* determine length of the thread number string */
-    /*#if defined(_OPENMP)
-    if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
+    if (1 < tapeID.numThreads) {
         threadNameLength = strlen(threadName);
-        threadNumber = omp_get_thread_num();
-        if (threadNumber != 0)
-            threadNumberStringLength = (int)log10((double)threadNumber);
+        if (tapeID.threadNumber != 0)
+            threadNumberStringLength = (int)log10((double)tapeID.threadNumber);
         else threadNumberStringLength = 0;
         ++threadNumberStringLength;
         threadNumberString =
             malloc(sizeof(char) * (threadNumberStringLength + 2));
         if (threadNumberString == NULL) fail(ADOLC_MALLOC_FAILED);
-        sprintf(threadNumberString, "%d", threadNumber);
+        sprintf(threadNumberString, "%d", tapeID.threadNumber);
         threadNumberString[threadNumberStringLength] = '_';
         ++threadNumberStringLength;
         threadNumberString[threadNumberStringLength] = 0;
+
+        numThreadStringLength = (int)log10((double)tapeID.numThreads);
+        ++numThreadStringLength;
+        numThreadString = malloc(sizeof(char) * (numThreadStringLength + 2));
+        if (numThreadString == NULL) fail(ADOLC_MALLOC_FAILED);
+        numThreadString[0] = '_';
+        sprintf(numThreadString+1, "%d", tapeID.numThreads);
+        ++numThreadStringLength;
+        numThreadString[numThreadStringLength] = 0;
     }
-	#endif*/ /* _OPENMP */
 
     /* malloc and create */
     fileNameLength = tapeBaseNameLength + numberStringLength + 5;
-/*#if defined(_OPENMP)
-    if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-        fileNameLength += threadNameLength + threadNumberStringLength;
-#endif*/ /* _OPENMP */
+    if (1 < tapeID.numThreads)
+        fileNameLength += threadNameLength + threadNumberStringLength + numThreadStringLength + threadConLength;
     fileName = (char *)malloc(sizeof(char) * fileNameLength);
     if (fileName == NULL) fail(ADOLC_MALLOC_FAILED);
     currPos = fileName;
     strncpy(currPos, tapeBaseNames[tapeType], tapeBaseNameLength);
     currPos += tapeBaseNameLength;
-/*#if defined(_OPENMP)
-    if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
+    strncpy(currPos, numberString, numberStringLength);
+    currPos += numberStringLength;
+    if (1 < tapeID.numThreads) {
         strncpy(currPos, threadName, threadNameLength);
         currPos += threadNameLength;
         strncpy(currPos, threadNumberString, threadNumberStringLength);
         currPos += threadNumberStringLength;
+        strncpy(currPos, threadConName, threadConLength);
+        currPos += threadConLength;
+        strncpy(currPos, numThreadString, numThreadStringLength);
+        currPos += numThreadStringLength;
     }
-#endif*/ /* _OPENMP */
-    strncpy(currPos, numberString, numberStringLength);
-    currPos += numberStringLength;
+
     strncpy(currPos, extension, 4);
     currPos += 4;
     *currPos = 0;
 
     free(numberString);
-/*#if defined(_OPENMP)
-    if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-        free(threadNumberString);
-#endif*/ /* _OPENMP */
+    if (1 < tapeID.numThreads) {
+      free(numThreadString);
+      free(threadNumberString);
+    }
 
     return fileName;
 }
@@ -1499,7 +1509,7 @@ void read_tape_stats(TapeInfos *tapeInfos) {
     if (fread(tapeInfos->stats, STAT_SIZE * sizeof(size_t), 1, loc_file) != 1)
         fail(ADOLC_INTEGER_TAPE_FREAD_FAILED);
 
-    failAdditionalInfo1 = tapeInfos->tapeID;
+    failAdditionalInfo1 = tapeInfos->tapeID.tag;
     tapeVersion = 100 * tape_ADOLC_ID.adolc_ver +
             10 * tape_ADOLC_ID.adolc_sub +
             1  * tape_ADOLC_ID.adolc_lvl ;

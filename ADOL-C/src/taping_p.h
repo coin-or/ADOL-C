@@ -228,8 +228,28 @@ extern const int maxLocsPerOp;
 #define maxLocsPerOp 10
 #endif
 
+struct TapeID {
+  short tag;
+  short numThreads;
+  short threadNumber;
+#ifdef __cplusplus
+  // If num_threads == 1, not test for threadID necessary.
+  bool operator==(const TapeID& other) {
+    if (1 == numThreads)
+      return tag == other.tag;
+    return tag == other.tag && numThreads == other.numThreads && threadNumber == other.threadNumber;
+  }
+  TapeID& operator= (const TapeID& other) {
+    tag = other.tag;
+    numThreads = other.numThreads;
+    threadNumber = other.threadNumber;
+    return *this;
+  }
+#endif
+};
+
 typedef struct TapeInfos {
-    short tapeID;
+    struct TapeID tapeID;
     int inUse;
     uint numInds;
     uint numDeps;
@@ -314,7 +334,7 @@ typedef struct TapeInfos {
 
 #if defined(__cplusplus)
     TapeInfos();
-    TapeInfos(short tapeID);
+    TapeInfos(const TapeID& tapeID);
     ~TapeInfos();
     void copy(const TapeInfos&);
     TapeInfos& operator= (const TapeInfos& in);
@@ -380,6 +400,9 @@ extern int isParallel();
 #else
 #define ADOLC_OPENMP_GET_THREAD_NUMBER ADOLC_threadNumber = omp_get_thread_num()
 #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
+
+#define ADOLC_OPENMP_NUM_THREADS int ADOLC_numThreads
+#define ADOLC_OPENMP_GET_NUM_THREADS ADOLC_numThreads = omp_get_num_threads()
 #endif
 
 /*
@@ -394,9 +417,11 @@ extern int isParallel();
 */
 #else
 
-#define ADOLC_OPENMP_THREAD_NUMBER
-#define ADOLC_OPENMP_GET_THREAD_NUMBER
+#define ADOLC_OPENMP_THREAD_NUMBER int ADOLC_threadNumber
+#define ADOLC_OPENMP_GET_THREAD_NUMBER ADOLC_threadNumber = 0
 #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
+#define ADOLC_OPENMP_NUM_THREADS int ADOLC_numThreads
+#define ADOLC_OPENMP_GET_NUM_THREADS ADOLC_numThreads = 1
 
 #endif /* _OPENMP */
 
@@ -435,7 +460,7 @@ struct ThreadContextCl {
 /* C Function interfaces                                                    */
 /****************************************************************************/
 
-int initNewTape(short tapeID);
+int initNewTape(const struct TapeID tapeID);
 /* initializes a new tape
  * - returns 0 on success
  * - returns 1 in case tapeID is already/still in use */
@@ -585,7 +610,7 @@ void fail(int error);
 /* print an error message describing the error number */
 void printError();
 
-char *createFileName(short tapeID, int tapeType);
+char *createFileName(struct TapeID tapeID, int tapeType);
 /* create file name depending on tape type and number */
 
 

@@ -2,7 +2,7 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     liborser.cpp
  Revision: $Id$
- Contents: example for differentiation of OpemMP parallel programs
+ Contents: example for differentiation of OpenMP parallel programs
            serial version for comparisons
 
  Copyright (c) Andrea Walther
@@ -90,8 +90,8 @@ void portfolio(const int N, const int Nmat, const double delta,
   for (n=0; n<Nmat; n++)
     v = v/(1.0+delta*L[n]);
 
-  delete[](B); 
-  delete[](S); 
+  delete[](B);
+  delete[](S);
 }
 
 /* -------------------------------------------------------- */
@@ -136,12 +136,12 @@ int main(){
     {
       v[j] = 0;
       for (i=0; i<N; i++) 
-	  xp[j][i]=  0.05;
+        xp[j][i]=  0.05;
       for (i=0; i<Nmat; i++) 
-	{
-	  z[j][i] = 0.3;
-	  xp[j][N+i]=  0.3;
-	}
+        {
+          z[j][i] = 0.3;
+          xp[j][N+i]=  0.3;
+        }
     }
 
 
@@ -161,29 +161,29 @@ int main(){
 
 
     trace_on(1);
-      for(j=0;j<N;j++) 
+      for(j=0;j<N;j++)
         La[j] <<= 0.050000;
-      for(j=0;j<Nmat;j++) 
+      for(j=0;j<Nmat;j++)
         za[j] <<= z[0][j];
-    
+
       path_calc(N,Nmat,delta,La,lambda,za);
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
-	
-      va >>= v[i];
+
+      va >>= v[0];
     trace_off(1);
 
     for(i=0;i<npath;i++)
       gradient(1,N+Nmat,xp[i],grad[i]);
 
-
-    delete[] (La);
+    delete[] La;
+    delete[] za;
 
     vtot = 0;
     for (i=0; i<npath; i++)
       {
-	vtot += v[i];
-	for(j=0;j<N;j++)
-	  gradtot[j] += grad[i][j];
+        vtot += v[i];
+        for(j=0;j<N;j++)
+          gradtot[j] += grad[i][j];
       }
     vtot = vtot/npath;
     for(j=0;j<N;j++)
@@ -193,6 +193,19 @@ int main(){
     for(i=0;i<N;i++)
       printf(" %f \n",gradtot[i]);
 
+    delete[] lambda;
+    delete[] v;
+    delete[] gradtot;
+
+    for (int i=0;i<npath;i++)
+      {
+        delete[] z[i];
+        delete[] grad[i];
+        delete[] xp[i];
+      }
+    delete[] z;
+    delete[] grad;
+    delete[] xp;
     return 0;
 }
 
