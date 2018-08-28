@@ -161,22 +161,22 @@ int main(){
 
 
     trace_on(1);
-      for(j=0;j<N;j++) 
+      for(j=0;j<N;j++)
         La[j] <<= 0.050000;
-      for(j=0;j<Nmat;j++) 
+      for(j=0;j<Nmat;j++)
         za[j] <<= z[0][j];
-    
+
       path_calc(N,Nmat,delta,La,lambda,za);
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
 
-      va >>= v[i];
+      va >>= v[0];
     trace_off(1);
 
     for(i=0;i<npath;i++)
       gradient(1,N+Nmat,xp[i],grad[i]);
 
-
-    delete[] (La);
+    delete[] La;
+    delete[] za;
 
     vtot = 0;
     for (i=0; i<npath; i++)
@@ -193,6 +193,19 @@ int main(){
     for(i=0;i<N;i++)
       printf(" %f \n",gradtot[i]);
 
+    delete[] lambda;
+    delete[] v;
+    delete[] gradtot;
+
+    for (int i=0;i<npath;i++)
+      {
+        delete[] z[i];
+        delete[] grad[i];
+        delete[] xp[i];
+      }
+    delete[] z;
+    delete[] grad;
+    delete[] xp;
     return 0;
 }
 

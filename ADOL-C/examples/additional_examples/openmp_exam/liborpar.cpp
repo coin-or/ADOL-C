@@ -94,8 +94,9 @@ void portfolio(const int N, const int Nmat, const double delta,
   
   for (n=0; n<Nmat; n++)
     v = v/(1.0+delta*L[n]);
-  delete[](B); 
-  delete[](S);  
+
+  delete[](B);
+  delete[](S);
 }
 
 /* -------------------------------------------------------- */
@@ -125,6 +126,15 @@ int main(){
   nthreads = 1;
 #endif
 
+  if (npath % nthreads) {
+    printf("Warning: Please set the number of OpenMP threads to an aliquot "
+           "divisor (division\n"
+           "\t without rest) of %i. Otherwise, the program may run, but "
+           "give wrong\n"
+           "\t results compared to sequential version.\n\n",
+           npath);
+  }
+
   slot = npath/nthreads;
 
   lambda   = new double[N];
@@ -135,7 +145,7 @@ int main(){
   xp       = new double*[npath];
   for (int i=0;i<npath;i++)
     {
-      z[i] = new double[N];
+      z[i] = new double[Nmat];
       grad[i] = new double[N+Nmat];
       xp[i] = new double[N+Nmat];
     }
@@ -157,8 +167,6 @@ int main(){
           xp[j][N+i]=  0.3;
         }
     }
-
-  //omp_set_num_threads(nthreads);
 
   //----------------------------------------------------------//
   //                                                          //
