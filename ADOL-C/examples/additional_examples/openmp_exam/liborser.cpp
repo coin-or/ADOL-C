@@ -90,8 +90,8 @@ void portfolio(const int N, const int Nmat, const double delta,
   for (n=0; n<Nmat; n++)
     v = v/(1.0+delta*L[n]);
 
-  delete[](B); 
-  delete[](S); 
+  delete[](B);
+  delete[](S);
 }
 
 /* -------------------------------------------------------- */
@@ -136,12 +136,12 @@ int main(){
     {
       v[j] = 0;
       for (i=0; i<N; i++) 
-	  xp[j][i]=  0.05;
+        xp[j][i]=  0.05;
       for (i=0; i<Nmat; i++) 
-	{
-	  z[j][i] = 0.3;
-	  xp[j][N+i]=  0.3;
-	}
+        {
+          z[j][i] = 0.3;
+          xp[j][N+i]=  0.3;
+        }
     }
 
 
@@ -168,7 +168,7 @@ int main(){
     
       path_calc(N,Nmat,delta,La,lambda,za);
       portfolio(N,Nmat,delta,Nopt,maturities,swaprates,La,va);
-	
+
       va >>= v[i];
     trace_off(1);
 
@@ -181,9 +181,9 @@ int main(){
     vtot = 0;
     for (i=0; i<npath; i++)
       {
-	vtot += v[i];
-	for(j=0;j<N;j++)
-	  gradtot[j] += grad[i][j];
+        vtot += v[i];
+        for(j=0;j<N;j++)
+          gradtot[j] += grad[i][j];
       }
     vtot = vtot/npath;
     for(j=0;j<N;j++)
