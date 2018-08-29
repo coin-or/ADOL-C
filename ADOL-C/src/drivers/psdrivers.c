@@ -47,7 +47,7 @@ int abs_normal(short tag,      /* tape identifier */
 {
 
   int i,j,s;
-  double *res, tmp;
+  double *res;
   s=get_num_switches(tag);
   
   /* This check is required because the user is probably allocating his 
@@ -106,10 +106,10 @@ int directional_active_gradient(short tag,      /* trace identifier */
                                 short *sigma_g  /* sigma of g */
                                 )
 {
-  int i, j, p, k, s, max_dk, done, sum, keep;
+  int i, j, k, s, max_dk, done, sum, keep;
   double max_entry, y, by;
   double *z;
-  double **E, **invE, **grad, **gradu;
+  double **E, **grad, **gradu;
 
   keep = 1;
   by = 1;

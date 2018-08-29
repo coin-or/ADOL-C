@@ -46,7 +46,7 @@ char* populate_dpp(double ***const pointer, char *const memory,
                    int n, int m) {
     char* tmp;
     double **tmp1; double *tmp2;
-    int i,j;
+    int i;
     tmp = (char*) memory;
     tmp1 = (double**)memory;
     *pointer = tmp1;
@@ -90,7 +90,7 @@ char* populate_dppp_nodata(double ****const pointer, char *const memory,
 
     char* tmp;
     double ***tmp1; double **tmp2;
-    int i,j;
+    int i;
     tmp = (char*) memory;
     tmp1 = (double***) memory;
     *pointer = tmp1;
@@ -121,7 +121,6 @@ double* myalloc1(size_t m) {
 double** myalloc2(size_t m, size_t n) {
     double **A=NULL;
     if (m>0 && n>0)  { 
-      int i;
       char *Adum = (char*)ADOLC_MALLOC(m*n*sizeof(double)+m*sizeof(double*),sizeof(char));
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
@@ -137,7 +136,6 @@ double** myalloc2(size_t m, size_t n) {
 double*** myalloc3(size_t m, size_t n, size_t p) { /* This function allocates 3-tensors contiguously */
     double  ***A = NULL;
     if (m>0 && n>0 && p > 0)  { 
-      int i,j;
       char *Adum = (char*) ADOLC_MALLOC(m*n*p*sizeof(double)+m*n*sizeof(double*)+m*sizeof(double**),sizeof(char));
       if (Adum == NULL) {
         fprintf(DIAG_OUT,"ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
