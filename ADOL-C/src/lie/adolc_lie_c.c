@@ -51,14 +51,14 @@ void accodeout (int p, int n, int deg, double ***B,	double ***C, double ***D)
 						for (kp=0; kp<n; kp++)
 						{
 							x+=C[jp][kp][k-l]*B[kp][ip][l-1];
-						};
+						}
 						D[jp][ip][k]+=x;
-					};
-		};
-	};
-};
+					}
+		}
+	}
+}
 
-	
+
 
 /** Helper function for calculation of the Lie derivatives of a covector field
  *
@@ -98,14 +98,13 @@ void acccov(int n, int d, double ***B, double **C, double **D)
 					for (kp = 0; kp < n; kp++)
 					{
 						x+=C[kp][k-l]*B[kp][ip][l-1];
-					};
+					}
 					D[ip][k]+= Fak*x;
-				};
-			};
-		};
-	};
-};
-
+				}
+			}
+		}
+	}
+}
 	
 
 
@@ -145,14 +144,14 @@ void accadj(int n, int deg, double ***A, double ***Bs)
 						for (kp = 0; kp < n; kp++)
 						{
 							x+=A[kp][jp][k-l]*Bs[kp][ip][l-1];
-						};
+						}
 						Bs[jp][ip][k] -= x/(k+1);
-					};
-				};
-			};
-		};
-	};
-};
+					}
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -199,14 +198,14 @@ void accbrac(int n,	int d, double ***Bs, double **b, double **result)
 							x+=Bs[kp][jp][l-1]*b[kp][k-l];
 						}
 						result[jp][k]+=Fak*x;
-					};
-				};
-			};
-		};
-	};
-};
+					}
+				}
+			}
+		}
+	}
+}
 
-	
+
 
 
 
@@ -232,7 +231,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 	for (i = 0; i < n; i++) 
 	{
 		X[i][0] = x0[i];
-	};
+	}
 	
 	/* see odedrivers */
 	forodec(Tape_F, n, 1.0, 0, d, X);
@@ -253,9 +252,9 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 		for (k = d; k > 0; k--)
 		{
 			Y[i][k] = Y[i][k-1];
-		};
+		}
 		Y[i][0] = y[i];
-	};
+	}
 
 	/* prepare output for lie_Scalar */
 	for(j=0;j<m;j++)
@@ -552,7 +551,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 	for (i = 0; i < n; i++) 
 	{
 		X[i][0] = x0[i];
-	};
+	}
 	forodec(Tape_F, n, 1.0, 0, d+1, X);
 
 	/* for hov_reverse */
@@ -596,6 +595,6 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 	myfree3(Xs);
 	
 	return -1;
-};
+}
 
 
