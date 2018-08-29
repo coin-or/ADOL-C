@@ -146,7 +146,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
       sum = 0;
       for(i=0;i<s;i++)
         {
-          sum += fabs(sigma_g[i]);
+          sum += abs(sigma_g[i]);
         }
 
        if (sum == s)
