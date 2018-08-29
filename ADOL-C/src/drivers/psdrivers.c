@@ -54,7 +54,7 @@ int abs_normal(short tag,      /* tape identifier */
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != swchk) {
       fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
-              "match the one recorded on tape %d (%zu)\n", swchk, tag, s);
+              "match the one recorded on tape %d (%d)\n", swchk, tag, s);
       adolc_exit(-1,"",__func__,__FILE__,__LINE__);
   }
 
