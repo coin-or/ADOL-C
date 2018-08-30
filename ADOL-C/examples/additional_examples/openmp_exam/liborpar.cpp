@@ -20,7 +20,6 @@
    again based on code written by Zhao and Glasserman at 
    Columbia University  */
 
-using namespace std;
 
 #include <stdlib.h>
 #include <stdio.h>
