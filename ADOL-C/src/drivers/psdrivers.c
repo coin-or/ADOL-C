@@ -47,14 +47,14 @@ int abs_normal(short tag,      /* tape identifier */
 {
 
   int i,j,s;
-  double *res, tmp;
+  double *res;
   s=get_num_switches(tag);
   
   /* This check is required because the user is probably allocating his 
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != swchk) {
       fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
-              "match the one recorded on tape %d (%zu)\n", swchk, tag, s);
+              "match the one recorded on tape %d (%d)\n", swchk, tag, s);
       adolc_exit(-1,"",__func__,__FILE__,__LINE__);
   }
 
@@ -106,10 +106,10 @@ int directional_active_gradient(short tag,      /* trace identifier */
                                 short *sigma_g  /* sigma of g */
                                 )
 {
-  int i, j, p, k, s, max_dk, done, sum, keep;
+  int i, j, k, s, max_dk, done, sum, keep;
   double max_entry, y, by;
   double *z;
-  double **E, **invE, **grad, **gradu;
+  double **E, **grad, **gradu;
 
   keep = 1;
   by = 1;
@@ -146,7 +146,7 @@ int directional_active_gradient(short tag,      /* trace identifier */
       sum = 0;
       for(i=0;i<s;i++)
         {
-          sum += fabs(sigma_g[i]);
+          sum += abs(sigma_g[i]);
         }
 
        if (sum == s)

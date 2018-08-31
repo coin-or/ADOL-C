@@ -480,7 +480,7 @@ int sparse_hess(
     int ret_val=-1;
     GraphColoringInterface *g;
     TapeInfos *tapeInfos;
-    double *v, *w, **X, yt, lag=1;
+    // double *v, *w, **X, yt, lag=1; // See uncommented block below
     HessianRecovery *hr;
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -1159,7 +1159,6 @@ int ADOLC_get_sparse_jacobian( func_ad<adtl::adouble> *const fun, func_ad<adtl_i
 {
     int i;
     unsigned int j;
-    int dummy;
     int ret_val = -1;
     if (!repeat) {
     freeSparseJacInfos(sJinfos.y, sJinfos.B, sJinfos.JP, sJinfos.g, sJinfos.jr1d, sJinfos.seed_rows, sJinfos.seed_clms, sJinfos.depen);

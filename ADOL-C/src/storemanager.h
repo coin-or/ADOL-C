@@ -78,7 +78,7 @@
 
 #include <adolc/internal/common.h>
 
-class GlobalTapeVarsCL;
+struct GlobalTapeVarsCL;
 extern "C" void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
 
 class StoreManager {
