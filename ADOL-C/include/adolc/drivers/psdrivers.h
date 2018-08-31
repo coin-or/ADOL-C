@@ -45,13 +45,12 @@ ADOLC_DLL_EXPORT int directional_active_gradient(
 /*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
 /*                                                                          */
-ADOLC_DLL_EXPORT fint abs_normal_(fint*,fint*,fint*,fint*,fdouble*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*);
+ADOLC_DLL_EXPORT fint abs_normal_(fint*,fint*,fint*,fint*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*,fdouble*);
 ADOLC_DLL_EXPORT int abs_normal(short tag,      /* tape identifier */ 
                                 int m,          /* number od dependents   */ 
                                 int n,          /* number of independents */
                                 int swchk,      /* number of switches (check) */
                                 double *x,      /* base point */ 
-                                short *sigma,   /* sigma of x */
                                 double *y,      /* function value */
                                 double *z,      /* switching variables */
                                 double *cz,     /* first constant */
