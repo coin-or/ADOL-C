@@ -1,4 +1,18 @@
+/*----------------------------------------------------------------------------
+ ADOL-C -- Automatic Differentiation by Overloading in C++
+ File:     drivers/pardrivers.c
+ Revision: $Id$
+ Contents: Easy to use OpenMP-parallel drivers for optimization and nonlinear
+           equations (with C and C++ callable interfaces including Fortran
+           callable versions).
 
+ Copyright (c) Kshitij Kulshreshtha, Martin Schroschk
+
+ This file is part of ADOL-C. This software is provided as open source.
+ Any use, reproduction, or distribution of the software constitutes
+ recipient's acceptance of the terms of the accompanying license file.
+
+----------------------------------------------------------------------------*/
 
 #include <adolc/adolc_openmp.h>
 #include <adolc/interfaces.h>
@@ -7,6 +21,7 @@
 
 #include <iostream>
 #include <assert.h>
+
 
 static int get_thread_num()
 {
