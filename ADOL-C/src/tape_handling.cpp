@@ -1225,19 +1225,10 @@ void cleanUp() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-    TapeInfos** tiIter;
     //clearCurrentTape();
-//#ifdef _OPENMP
-//#pragma omp barrier
-//#pragma omp master
-//#endif
-//    {
-    while (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        tiIter = &ADOLC_TAPE_INFOS_BUFFER.back();
-        ADOLC_TAPE_INFOS_BUFFER.pop_back();
-            delete *tiIter;
-            *tiIter = NULL;
-    }
+
+    ADOLC_TAPE_INFOS_BUFFER.remove_if(
+        [](TapeInfos *theElement){delete theElement; return true;});
 
     cp_clearStack();
 
