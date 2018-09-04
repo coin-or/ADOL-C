@@ -29,7 +29,7 @@ OBJS =  cpp_example.o \
 
 # Definitions for ADOL-C
 # CHANGE THIS TO YOUR ADOL-C BASE DIRECTORY
-ADPATH = $(HOME)/AD/ADOL-C/adolc_base_210/include/adolc
+ADPATH = $(HOME)/AD/ADOL-C/adolc_base_210/include/
 ADLIBDIR = $(HOME)/AD/ADOL-C/adolc_base_210/lib
 
 # CHANGEME: Additional libraries

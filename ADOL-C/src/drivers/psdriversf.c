@@ -44,14 +44,13 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
-/* abs_normal(tag,m,n,s,x[n],sig[s],y[m],z[s],cz[s],cy[m],                  */
+/* abs_normal(tag,m,n,s,x[n],y[m],z[s],cz[s],cy[m],                         */
 /*            J[m][n],Y[m][s],Z[s][n],L[s][s])                              */
 fint abs_normal_(fint* ftag,
                  fint* fdepen,
                  fint* findep,
                  fint* fswchk,
                  fdouble* fx,
-                 fint* fsigma,
                  fdouble* fy,
                  fdouble* fz,
                  fdouble* fcz,
@@ -66,10 +65,6 @@ fint abs_normal_(fint* ftag,
     double **J, **Y, **Z, **L;
     double *cy, *cz, *x, *y, *z;
     short *sig = (short*)ADOLC_MALLOC(s,sizeof(short));
-    int i;
-    for (i=0;i<s; i++) {
-        sig[i] = (short)*fsigma++;
-    }
     J = myalloc2(m,n);
     Y = myalloc2(m,s);
     Z = myalloc2(s,n);
@@ -80,7 +75,7 @@ fint abs_normal_(fint* ftag,
     y = myalloc1(m);
     z = myalloc1(s);
     spread1(n,fx,x);
-    rc = abs_normal(tag,m,n,s,x,sig,y,z,cz,cy,J,Y,Z,L);
+    rc = abs_normal(tag,m,n,s,x,y,z,cz,cy,J,Y,Z,L);
     pack1(m,y,fy);
     pack1(s,z,fz);
     pack1(s,cz,fcz);

@@ -20,7 +20,6 @@
    again based on code written by Zhao and Glasserman at 
    Columbia University  */
 
-using namespace std;
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -186,8 +185,6 @@ int main(){
     int index = 0;
 #endif
 
-    int rv = 0;
-
     adouble *La, va, *za;
 
     La = new adouble[N];
@@ -208,9 +205,7 @@ int main(){
     trace_off(1);
 
     for(int l=init;l<init+slot;l++)
-      {
-        rv = gradient(init,N+Nmat,xp[l],grad[l]);
-      }
+        gradient(init,N+Nmat,xp[l],grad[l]);
 
 #pragma omp barrier
   if (index==0)

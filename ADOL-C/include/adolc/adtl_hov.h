@@ -1204,7 +1204,7 @@ inline adouble pow(const adouble &a, double v) {
 		}
 		else
 		{
-			int i,m;
+			int i;
 			double sum1=0.0, sum2=0.0;
 			for(int l=0;l<adouble::numDir;l++)
 			{
@@ -1545,9 +1545,7 @@ inline adouble fabs (const adouble &a) {
 
     	// TODO: do not forget to check the function value. it is the zero-th taylor coefficient
 
-        		int i,m;
-        		double sum;
-				int* leading_sgn = (int*)alloca(sizeof(int) * adouble::degree);
+     		int* leading_sgn = (int*)alloca(sizeof(int) * adouble::degree);
         		for(int l=0;l<adouble::numDir;l++)  //Init
         		{
         			leading_sgn[l]=1;
@@ -2120,7 +2118,6 @@ inline adouble& adouble::operator *= (const adouble& a) {
             {
         		int i,m;
         		double sum;
-        	    double sum1=0.0, sum2=0.0;
         		for(int l=0;l<adouble::numDir;l++)
         		{
         		     for(int k=0;k<degree;k++)
@@ -2173,9 +2170,8 @@ inline adouble& adouble::operator /= (const adouble& a) {
     if( do_hoval() ) // ADTL_HOV
             {
     			adouble tmp;
-        		int i,m;
+            int i;
         		double sum;
-        	    double sum1=0.0, sum2=0.0;
         		for(int l=0;l<adouble::numDir;l++)
         		{
         		    for(int k=0;k<degree;k++){
