@@ -55,8 +55,8 @@ int main() {
     /*--------------------------------------------------------------------------*/
     /* allocations and inits */
 
-    double* xp = new double[n];                      /* passive indeps        */
-    double* yp = new double[m];                      /* passive depends       */
+    double* xp = myalloc(n);                      /* passive indeps        */
+    double* yp = myalloc(m);                      /* passive depends       */
 
     /* vector x Hessian x matrix = Upp x H x XPPP */
 
@@ -238,6 +238,9 @@ int main() {
     myfree(yp);
     myfree(xp);
     myfree(Up);
+    delete[] x;
+    delete[] y;
+
     return 1;
 }
 
