@@ -221,6 +221,11 @@ void StoreManagerLocint::free_loc(locint loc) {
 #endif
 }
 
+void StoreManagerLocint::ensure_block(size_t n) {
+    fprintf(DIAG_OUT,"ADOL-C error: Location block required from singleton location store");
+    adolc_exit(-4,"ADOL-C error: Location blocks not alowed",__func__,__FILE__,__LINE__);
+}
+
 void StoreManagerLocint::grow(size_t mingrow) {
     if (maxsize == 0) maxsize += initialSize;
     size_t const oldMaxsize = maxsize;
@@ -1431,6 +1436,11 @@ StoreManagerLocintBlock::~StoreManagerLocintBlock()
     if (!indexFree.empty() ) {
 	indexFree.clear();
     }
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (activityTracking && actStorePtr) {
+	delete[] actStorePtr;
+    }
+#endif
     maxsize = 0;
     currentfill = 0;
 }
@@ -1761,4 +1771,51 @@ void free_all_taping_params() {
     np = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM];
     while ( np > 0 )
         ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->free_loc(--np);
+}
+
+void setStoreManagerType(unsigned char type) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+    if (ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->storeType() != type) {
+        if (ADOLC_GLOBAL_TAPE_VARS.numLives == 0) {
+            ADOLC_GLOBAL_TAPE_VARS.reallocStore(type);
+        } else {
+            fprintf(DIAG_OUT,"ADOL-C-warning: called %s after allocating %d active variables\n"
+                    "***  WILL NOT CHANGE ***\nto change type deallocate all active variables\n"
+                    "continuing ...\n"
+                    , __func__, ADOLC_GLOBAL_TAPE_VARS.numLives);
+        }
+    } else {
+            fprintf(DIAG_OUT,"ADOL-C-warning: called %s with same type as before\n"
+                    "***  NO CHANGE ***\ncontinuing ...\n",__func__);
+    }
+}
+
+void GlobalTapeVarsCL::reallocStore(unsigned char type) {
+    if (storeManagerPtr != NULL)
+        delete storeManagerPtr;
+
+    store = NULL;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    actStore = NULL;
+#endif
+    storeSize = 0;
+    numLives = 0;
+    switch (type) {
+        case ADOLC_LOCATION_BLOCKS:
+#if defined(ADOLC_TRACK_ACTIVITY)
+            storeManagerPtr = new StoreManagerLocintBlock(store, actStore, storeSize, numLives);
+#else
+            storeManagerPtr = new StoreManagerLocintBlock(store, storeSize, numLives);
+#endif
+            break;
+        case ADOLC_LOCATION_SINGLETONS:
+#if defined(ADOLC_TRACK_ACTIVITY)
+            storeManagerPtr = new StoreManagerLocint(store, actStore, storeSize, numLives);
+#else
+            storeManagerPtr = new StoreManagerLocint(store, storeSize, numLives);
+#endif
+            break;
+    }
 }

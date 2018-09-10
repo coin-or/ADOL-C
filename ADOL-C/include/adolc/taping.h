@@ -47,6 +47,11 @@ enum TapeRemovalType {
     ADOLC_REMOVE_COMPLETELY
 };
 
+enum LocationMgrType {
+    ADOLC_LOCATION_BLOCKS,     /* can allocate contiguous location blocks */
+    ADOLC_LOCATION_SINGLETONS  /* only singleton locations, no blocks */
+};
+
 ADOLC_DLL_EXPORT void skip_tracefile_cleanup(short tnum);
 
 /* Returns statistics on the tape "tag". Use enumeration StatEntries for
@@ -70,6 +75,8 @@ ADOLC_DLL_EXPORT void disableMinMaxUsingAbs();
  * happens when  the ratio between allocated and used locations exceeds gcTriggerRatio or
  * the allocated locations exceed gcTriggerMaxSize
  */
+ADOLC_DLL_EXPORT void setStoreManagerType(unsigned char loctypes);
+
 ADOLC_DLL_EXPORT void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize);
 
 END_C_DECLS
