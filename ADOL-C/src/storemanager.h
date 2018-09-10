@@ -77,6 +77,7 @@
 #endif
 
 #include <adolc/internal/common.h>
+#include <adolc/taping.h>
 
 class GlobalTapeVarsCL;
 extern "C" void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
@@ -97,12 +98,12 @@ public:
   void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) { myGcTriggerRatio=gcTriggerRatio; myGcTriggerMaxSize=gcTriggerMaxSize;}
   double gcTriggerRatio() const {return myGcTriggerRatio;}
   size_t gcTriggerMaxSize() const {return myGcTriggerMaxSize;}
-
 //   // effectively the current size of the store array
   virtual size_t maxSize() const = 0;
 
 //   // the number of slots currently in use
   virtual size_t size() const = 0;
+  virtual unsigned char storeType() const = 0;
 };
 
 class StoreManagerLocint : public StoreManager {
@@ -131,6 +132,7 @@ public:
   virtual inline size_t size() const { return currentfill; }
 
   virtual inline size_t maxSize() const { return maxsize; }
+  virtual inline unsigned char storeType() const { return ADOLC_LOCATION_SINGLETONS; }
 
   virtual inline bool realloc_on_next_loc() const { 
       return (head == 0);
@@ -138,7 +140,7 @@ public:
 
   virtual locint next_loc();
   virtual void free_loc(locint loc); 
-  virtual void ensure_block(size_t n) {}
+  virtual void ensure_block(size_t n);
 };
 
 class StoreManagerLocintBlock : public StoreManager {
@@ -191,6 +193,7 @@ public:
     virtual inline size_t size() const { return currentfill; }
 
     virtual inline size_t maxSize() const { return maxsize; }
+    virtual inline unsigned char storeType() const { return ADOLC_LOCATION_BLOCKS; }
 
     virtual locint next_loc();
     virtual void free_loc(locint loc);
