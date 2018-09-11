@@ -783,6 +783,11 @@ static void get_ascii_trace_elements(const std::string& instr) {
             ++loca;
             ++locctr;
         }
+        if (oper == ext_diff || oper == ext_diff_iArr) {
+            locs.push_back(0);
+            ADOLC_PUT_LOCINT(0);
+            ++locctr;
+        }
         if (oper != ext_diff_iArr && oper != ext_diff_v2 && locctr > num_req_loc.at(oper)) {
             std::cout << "something went wrong, there are " << locctr << " locs in one tag for " << (*opa)[1].str() << "\n";
             adolc_exit(-1,"",__func__,__FILE__,__LINE__);
