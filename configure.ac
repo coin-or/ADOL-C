@@ -321,15 +321,6 @@ if test x$adolc_tserrno == xyes ; then
 AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
 fi
 
-AC_MSG_CHECKING(which flag to use to enable OpenMP)
-AC_ARG_WITH(openmp-flag,
-            [AS_HELP_STRING([--with-openmp-flag=FLAG],
-                            [use FLAG to enable OpenMP at compile time [default=none]])],
-            [ac_adolc_openmpflag=$withval
-             AC_MSG_RESULT($ac_adolc_openmpflag)],
-            [ac_adolc_openmpflag=""
-             AC_MSG_RESULT(none)])
-
 AX_BOOST_BASE([1.54],[boost_new=yes],[boost_new=no])
 if test x$boost_new = xyes ; then
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
@@ -349,9 +340,6 @@ else
 fi
 AC_SUBST(USE_BOOST_POOL)
 
-if test "x$using_boost_pool" = xyes -a "x$ac_adolc_openmpflag" = x ; then
-   AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
-fi
 
 # ADOL-C Sparse facility
 AC_MSG_CHECKING(whether to build sparse drivers)
@@ -402,6 +390,36 @@ AC_ARG_ENABLE(parexa,
              AC_MSG_RESULT(no)])
 AM_CONDITIONAL(PAREXA,[test x${parexa} = xyes])
 
+AC_MSG_CHECKING(whether to enable OpenMP)
+AC_ARG_ENABLE(
+  [openmp],
+  AS_HELP_STRING([--enable-openmp],
+                 [enable OpenMP]),
+  [want_openmp=yes],
+  [want_openmp=no]
+)
+
+# OpenMP is needed if --enable-parexa or enable-openmp is specified
+# The OPENMP_CXXFLAGS, if found it is non-empty, is added later to the CFLAGS
+# and CXXFLAGS.
+AC_LANG_PUSH([C++])
+AS_IF([test "x$parexa" == xyes || test "x$want_openmp" == xyes],
+      [need_openmp=$enableval
+       AC_MSG_RESULT(yes)],
+      [need_openmp="no"
+       AC_MSG_RESULT(no)])
+if test "x$need_openmp" = xyes; then
+  AX_OPENMP([AC_MSG_RESULT([Found OpenMP $OPENMP_CXXFLAGS])],
+            [AC_MSG_RESULT([Not Found OpenMP $OPENMP_CXXFLAGS])])
+fi
+AC_LANG_POP([C++])
+
+# Boost.Pool disable multithreading
+if test "x$using_boost_pool" = xyes -a "x$need_openmp" = xyes ; then
+   AC_DEFINE(BOOST_POOL_NO_MT,1,[Boost pool should not assume multithreading])
+fi
+
+
 # ADOL-C Compilation flags
 AC_MSG_CHECKING(which CFLAGS to use)
 AC_ARG_WITH(cflags,
@@ -412,7 +430,7 @@ AC_ARG_WITH(cflags,
                 test x${adolc_harddebug} == xyes ; then
                 ac_adolc_cflags="$ac_adolc_cflags -g -O0"
              fi
-             ac_adolc_cflags="$ac_adolc_cflags $ac_adolc_openmpflag"
+             ac_adolc_cflags="$ac_adolc_cflags $OPENMP_CXXFLAGS"
              AC_SUBST(ac_adolc_cflags)
              AC_MSG_RESULT($ac_adolc_cflags)],
             [if test "$ac_shell_cflags" = "not_set"; then
@@ -424,7 +442,7 @@ AC_ARG_WITH(cflags,
              else
                 ac_adolc_cflags="$CFLAGS"
              fi
-             ac_adolc_cflags="$ac_adolc_cflags $ac_adolc_openmpflag"
+             ac_adolc_cflags="$ac_adolc_cflags $OPENMP_CXXFLAGS"
 
              AC_SUBST(ac_adolc_cflags)
              AC_MSG_RESULT($ac_adolc_cflags)])
@@ -438,7 +456,7 @@ AC_ARG_WITH(cxxflags,
                 test x${adolc_harddebug} == xyes ; then
                 ac_adolc_cxxflags="$ac_adolc_cxxflags -g -O0"
              fi
-             ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
+             ac_adolc_cxxflags="$ac_adolc_cxxflags $OPENMP_CXXFLAGS"
              AC_SUBST(ac_adolc_cxxflags)
              AC_MSG_RESULT($ac_adolc_cxxflags)],
             [if test "$ac_shell_cxxflags" = "not_set"; then
@@ -450,7 +468,7 @@ AC_ARG_WITH(cxxflags,
              else
                 ac_adolc_cxxflags="$CXXFLAGS"
              fi
-             ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
+             ac_adolc_cxxflags="$ac_adolc_cxxflags $OPENMP_CXXFLAGS"
             AC_SUBST(ac_adolc_cxxflags)
             AC_MSG_RESULT($ac_adolc_cxxflags)])
 
