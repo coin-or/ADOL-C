@@ -171,6 +171,9 @@ void mediCallHandle(short tapeId, locint index, double* primalVec, double* adjoi
 }
 
 void mediInitTape(short tapeId) {
+  if(NULL == adolcMediStatic) {
+    mediInitStatic();
+  }
   adolcMediStatic->initTape(tapeId);
 }
 
