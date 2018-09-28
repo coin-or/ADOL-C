@@ -340,6 +340,7 @@ typedef struct GlobalTapeVarsCL {
     GlobalTapeVarsCL();
     ~GlobalTapeVarsCL();
     const GlobalTapeVarsCL& operator=(const GlobalTapeVarsCL&);
+    void reallocStore(unsigned char type);
 #else
     void *paramStoreMgrPtr;
     void *storeManagerPtr;

@@ -212,6 +212,22 @@ else
 fi
 AC_SUBST(ADVBRANCH)
 
+AC_MSG_CHECKING(whether to enable reference counting for tapeless numbers)
+AC_ARG_ENABLE(traceless-refcounting, [AS_HELP_STRING([--enable-traceless-refcounting],
+  [enable reference counting for tapeless numbers [default=no].
+With this enabled some additional checks will be conducted when setting the
+number of directional derivatives for tapeless numbers using the SetNumDir()
+function. ])],
+  [use_adtl_refcnt=$enableval],[use_adtl_refcnt=no])
+AC_MSG_RESULT($use_adtl_refcnt)
+
+if test x$use_adtl_refcnt = xyes ; then
+  ADTL_REFCNT="#define USE_ADTL_REFCOUNTING 1"
+else
+  ADTL_REFCNT="#undef USE_ADTL_REFCOUNTING"
+fi
+AC_SUBST(ADTL_REFCNT)
+
 AC_MSG_CHECKING(whether to enable activity tracking)
 AC_ARG_ENABLE(activity-tracking, [AS_HELP_STRING([--enable-activity-tracking],
   [enable activity tracking to reduce trace size but increased tracing time [default=no].
