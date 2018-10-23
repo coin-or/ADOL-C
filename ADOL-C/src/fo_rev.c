@@ -3171,10 +3171,14 @@ int int_reverse_safe(
 #ifdef ADOLC_MEDIPACK_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case medi_call: {
-                locint index = get_locint_r();
+                locint mediIndex = get_locint_r();
                 short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
-                    mediCallHandle(tapeId, index, rp_T, ADJOINT_BUFFER);
+#if defined _FOS_
+                mediCallHandleReverse(tapeId, mediIndex, rp_T, &ADJOINT_BUFFER, 1);
+#elif defined _FOV_
+                mediCallHandleReverse(tapeId, mediIndex, rp_T, ADJOINT_BUFFER, p);
+#endif
                 break;
              }
 #endif

@@ -29,11 +29,12 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
   typedef adouble Type;
   typedef void AdjointType;
   typedef double ModifiedType;
-  typedef double PassiveType;
+  typedef double PrimalType;
   typedef int IndexType;
 
   static MPI_Datatype MpiType;
   static MPI_Datatype ModifiedMpiType;
+  static MPI_Datatype PrimalMpiType;
   static MPI_Datatype AdjointMpiType;
 
   typedef medi::MpiTypeDefault<AdolcTool> MediType;
@@ -48,6 +49,7 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     MPI_Type_commit(&MpiType);
 
     ModifiedMpiType = MPI_DOUBLE;
+    PrimalMpiType = MPI_DOUBLE;
     AdjointMpiType = MPI_DOUBLE;
   }
 
@@ -80,8 +82,8 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     finalizeTypes();
   }
 
-  AdolcTool(MPI_Datatype adjointMpiType) :
-    medi::ADToolImplCommon<AdolcTool, true, true, double, double, double, int>(adjointMpiType) {}
+  AdolcTool(MPI_Datatype primalMpiType, MPI_Datatype adjointMpiType) :
+    medi::ADToolImplCommon<AdolcTool, true, true, double, double, double, int>(primalMpiType, adjointMpiType) {}
 
 
   inline bool isActiveType() const {
@@ -116,15 +118,15 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
   }
 
 
-  inline void createPassiveTypeBuffer(PassiveType* &buf, size_t size) const {
-    buf = new PassiveType[size];
+  inline void createPrimalTypeBuffer(PrimalType* &buf, size_t size) const {
+    buf = new PrimalType[size];
   }
 
   inline void createIndexTypeBuffer(IndexType* &buf, size_t size) const {
     buf = new IndexType[size];
   }
 
-  inline void deletePassiveTypeBuffer(PassiveType* &buf) const {
+  inline void deletePrimalTypeBuffer(PrimalType* &buf) const {
     if(NULL != buf) {
       delete [] buf;
       buf = NULL;
@@ -146,7 +148,7 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     // do nothing
   }
 
-  static inline PassiveType getValue(const Type& value) {
+  static inline PrimalType getValue(const Type& value) {
     return value.value();
   }
 
@@ -165,18 +167,18 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     // do nothing indices are created in registerValue
   }
 
-  static inline void registerValue(Type& value, PassiveType& oldPrimal, IndexType& index) {
+  static inline void registerValue(Type& value, PrimalType& oldPrimal, IndexType& index) {
     MEDI_UNUSED(oldPrimal);
     // do nothing value should have an index
 
     index = value.loc();
   }
 
-  static PassiveType getPrimalFromMod(const ModifiedType& modValue) {
+  static PrimalType getPrimalFromMod(const ModifiedType& modValue) {
     return modValue;
   }
 
-  static void setPrimalToMod(ModifiedType& modValue, const PassiveType& value) {
+  static void setPrimalToMod(ModifiedType& modValue, const PrimalType& value) {
     modValue = value;
   }
 

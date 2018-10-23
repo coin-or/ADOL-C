@@ -22,26 +22,40 @@
 
 struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
 
-    double* adjointBase;
+    double** adjointBase;
     double* primalBase;
+    int vecSize;
 
-    AdolcMeDiAdjointInterface(double* adjointBase, double* primalBase) :
+    AdolcMeDiAdjointInterface(double** adjointBase, double* primalBase, int vecSize) :
       adjointBase(adjointBase),
-      primalBase(primalBase) {}
+      primalBase(primalBase),
+      vecSize(vecSize) {}
 
     int computeElements(int elements) const {
-      return elements;
+      return elements * vecSize;
     }
 
     int getVectorSize() const {
-      return 1;
+      return vecSize;
     }
 
     inline void createAdjointTypeBuffer(void* &buf, size_t size) const {
-      buf = (void*)new double[size];
+      buf = (void*)new double[size*vecSize];
     }
 
     inline void deleteAdjointTypeBuffer(void* &b) const {
+      if(NULL != b) {
+        double* buf = (double*)b;
+        delete [] buf;
+        b = NULL;
+      }
+    }
+
+    inline void createPrimalTypeBuffer(void* &buf, size_t size) const {
+      buf = (void*)new double[size];
+    }
+
+    inline void deletePrimalTypeBuffer(void* &b) const {
       if(NULL != b) {
         double* buf = (double*)b;
         delete [] buf;
@@ -54,8 +68,10 @@ struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
       int* indices = (int*)i;
 
       for(int pos = 0; pos < elements; ++pos) {
-        adjoints[pos] = adjointBase[indices[pos]];
-        adjointBase[indices[pos]] = 0.0;
+        for(int dim = 0; dim < vecSize; ++dim) {
+          adjoints[calcIndex(pos, dim)] = adjointBase[dim][indices[pos]];
+          adjointBase[dim][indices[pos]] = 0.0;
+        }
       }
     }
 
@@ -64,11 +80,13 @@ struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
       int* indices = (int*)i;
 
       for(int pos = 0; pos < elements; ++pos) {
-        adjointBase[indices[pos]] += adjoints[pos];
+        for(int dim = 0; dim < vecSize; ++dim) {
+          adjointBase[dim][indices[pos]] += adjoints[calcIndex(pos, dim)];
+        }
       }
     }
 
-    inline void setReverseValues(const void* i, const void* p, int elements) const {
+    inline void setPrimals(const void* i, const void* p, int elements) const {
       double* primals = (double*)p;
       int* indices = (int*)i;
 
@@ -77,13 +95,30 @@ struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
       }
     }
 
+    inline void getPrimals(const void* i, const void* p, int elements) const {
+      double* primals = (double*)p;
+      int* indices = (int*)i;
+
+      for(int pos = 0; pos < elements; ++pos) {
+        primals[pos] = primalBase[indices[pos]];
+      }
+    }
+
     inline void combineAdjoints(void* b, const int elements, const int ranks) const {
       double* buf = (double*)b;
       for(int curRank = 1; curRank < ranks; ++curRank) {
         for(int curPos = 0; curPos < elements; ++curPos) {
-          buf[curPos] += buf[elements * curRank + curPos];
+          for(int dim = 0; dim < vecSize; ++dim) {
+            buf[calcIndex(curPos, dim)] += buf[calcIndex(elements * curRank + curPos, dim)];
+          }
         }
       }
+    }
+
+  private:
+
+    inline int calcIndex(int pos, int dim) const {
+      return pos * vecSize + dim;
     }
 };
 
@@ -106,12 +141,28 @@ struct AdolcMediStatic {
       return *tapeHandles[tapeId];
     }
 
-    void callHandle(short tapeId, locint index, AdolcMeDiAdjointInterface& interface) {
+    void callHandleReverse(short tapeId, locint index, AdolcMeDiAdjointInterface& interface) {
       HandleVector& handleVec = getTapeVector(tapeId);
 
       medi::HandleBase* handle = handleVec[index];
 
-      handle->func(handle, &interface);
+      handle->funcReverse(handle, &interface);
+    }
+
+    void callHandleForward(short tapeId, locint index, AdolcMeDiAdjointInterface& interface) {
+      HandleVector& handleVec = getTapeVector(tapeId);
+
+      medi::HandleBase* handle = handleVec[index];
+
+      handle->funcForward(handle, &interface);
+    }
+
+    void callHandlePrimal(short tapeId, locint index, AdolcMeDiAdjointInterface& interface) {
+      HandleVector& handleVec = getTapeVector(tapeId);
+
+      medi::HandleBase* handle = handleVec[index];
+
+      handle->funcPrimal(handle, &interface);
     }
 
     void initTape(short tapeId) {
@@ -164,10 +215,22 @@ void mediAddHandle(medi::HandleBase* h) {
   ADOLC_PUT_LOCINT(index);
 }
 
-void mediCallHandle(short tapeId, locint index, double* primalVec, double* adjointVec) {
-  AdolcMeDiAdjointInterface interface(adjointVec, primalVec);
+void mediCallHandleReverse(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize) {
+  AdolcMeDiAdjointInterface interface(adjointVec, primalVec, vecSize);
 
-  adolcMediStatic->callHandle(tapeId, index, interface);
+  adolcMediStatic->callHandleReverse(tapeId, index, interface);
+}
+
+void mediCallHandleForward(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize) {
+  AdolcMeDiAdjointInterface interface(adjointVec, primalVec, vecSize);
+
+  adolcMediStatic->callHandleForward(tapeId, index, interface);
+}
+
+void mediCallHandlePrimal(short tapeId, locint index, double* primalVec) {
+  AdolcMeDiAdjointInterface interface(nullptr, primalVec, 1);
+
+  adolcMediStatic->callHandlePrimal(tapeId, index, interface);
 }
 
 void mediInitTape(short tapeId) {
@@ -187,6 +250,7 @@ void mediFinalizeStatic() {
 
 MPI_Datatype AdolcTool::MpiType;
 MPI_Datatype AdolcTool::ModifiedMpiType;
+MPI_Datatype AdolcTool::PrimalMpiType;
 MPI_Datatype AdolcTool::AdjointMpiType;
 AdolcTool::MediType* AdolcTool::MPI_TYPE;
 medi::AMPI_Datatype AdolcTool::MPI_INT_TYPE;

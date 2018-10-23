@@ -45,6 +45,9 @@
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
+#ifdef ADOLC_MEDIPACK_SUPPORT
+#include "medipacksupport_p.h"
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampisupportAdolc.h"
 #endif
@@ -6404,9 +6407,16 @@ int  hov_forward(
 #ifdef ADOLC_MEDIPACK_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case medi_call: {
-                locint temp = get_locint_f();
+                locint mediIndex = get_locint_f();
+                short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
-                /* currently not supported */
+#if defined(_ZOS_)
+                mediCallHandlePrimal(tapeId, mediIndex, dp_T0);
+#elif defined(_FOS_)
+                mediCallHandleForward(tapeId, mediIndex, dp_T0, &TAYLOR_BUFFER, 1);
+#elif defined(_FOV_)
+                mediCallHandleForward(tapeId, mediIndex, dp_T0, TAYLOR_BUFFER, p);
+#endif
                 break;
             }
 #endif
