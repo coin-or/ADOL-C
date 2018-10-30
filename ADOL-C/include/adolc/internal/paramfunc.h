@@ -73,6 +73,7 @@
     inline friend ADOLC_DLL_EXPORT adub exp  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub log  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub sqrt ( const pdouble& );
+    inline friend ADOLC_DLL_EXPORT adub cbrt ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub sin  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub cos  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub tan  ( const pdouble& );

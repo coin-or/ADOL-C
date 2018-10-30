@@ -1648,6 +1648,37 @@ int int_reverse_safe(
               break;
 
                 /*--------------------------------------------------------------------------*/
+            case cbrt_op:                                              /* cbrt_op */
+                res = get_locint_r();
+                arg = get_locint_r();
+
+                ASSIGN_A( Ares, ADJOINT_BUFFER[res])
+                ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
+
+#if !defined(_NTIGHT_)
+                if (TRES == 0.0)
+                    r0 = 0.0;
+                else
+                    r0 = 1.0 / (3.0 * TRES * TRES);
+#endif /* !_NTIGHT_ */
+
+                FOR_0_LE_l_LT_p {
+                    aTmp = ARES;
+#if defined(_INT_REV_)
+                    ARES_INC = 0;
+                    AARG_INC |= aTmp;
+#else
+                    ARES_INC = 0.0;
+                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
+#endif
+                }
+
+#if !defined(_NTIGHT_)
+                ADOLC_GET_TAYLOR(res);
+#endif /* !_NTIGHT_ */
+              break;
+
+                /*--------------------------------------------------------------------------*/
             case gen_quad:                                            /* gen_quad */
                 res   = get_locint_r();
                 arg2  = get_locint_r();
@@ -3140,10 +3171,14 @@ int int_reverse_safe(
 #ifdef ADOLC_MEDIPACK_SUPPORT
                 /*--------------------------------------------------------------------------*/
             case medi_call: {
-                locint index = get_locint_r();
+                locint mediIndex = get_locint_r();
                 short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
-                    mediCallHandle(tapeId, index, rp_T, ADJOINT_BUFFER);
+#if defined _FOS_
+                mediCallHandleReverse(tapeId, mediIndex, rp_T, &ADJOINT_BUFFER, 1);
+#elif defined _FOV_
+                mediCallHandleReverse(tapeId, mediIndex, rp_T, ADJOINT_BUFFER, p);
+#endif
                 break;
              }
 #endif
