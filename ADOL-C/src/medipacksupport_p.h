@@ -23,7 +23,9 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-  void mediCallHandle(short tapeId, locint index, double* primalVec, double* adjointVec);
+  void mediCallHandleReverse(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize);
+  void mediCallHandleForward(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize);
+  void mediCallHandlePrimal(short tapeId, locint index, double* primalVec);
 #if defined(__cplusplus)
 }
 #endif

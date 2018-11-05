@@ -119,7 +119,7 @@ AC_STRUCT_TM
 
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
-AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
+AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt cbrt strchr strtol trunc])
 
 # substitutions
 AC_SUBST(ac_aux_dir)

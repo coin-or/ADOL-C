@@ -2215,6 +2215,54 @@ adub sqrt ( const badouble& x ) {
     return locat;
 }
 
+/*--------------------------------------------------------------------------*/
+/* Compute cbrt of adouble */
+adub cbrt ( const badouble& x ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP::cbrt(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) {
+#endif
+        put_op(cbrt_op);
+        ADOLC_PUT_LOCINT(x.loc()); // = arg
+        ADOLC_PUT_LOCINT(locat);      // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
+    ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+    return locat;
+}
+
 /****************************************************************************/
 /*                                                          QUAD OPERATIONS */
 
