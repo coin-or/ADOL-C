@@ -1093,6 +1093,26 @@ int  hov_forward(
 #   define ADOLC_EXT_POINTER_V2_INDO edfct2->ind_dom
 #endif
 
+#if defined(_HOS_)
+#   define _EXTERN_ 1
+#   define ADOLC_EXT_FCT_POINTER hos_forward
+#   define ADOLC_EXT_FCT_IARR_POINTER hos_forward_iArr
+#   define ADOLC_EXT_FCT_COMPLETE \
+    hos_forward(n, edfct->dp_x, k, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    hos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, k, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+#   define ADOLC_EXT_POINTER_X edfct->dpp_X
+#   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    hos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, k, edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
+#   define ADOLC_EXT_V2_POINTER_X edfct2->Xp
+#   define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
+#   define ADOLC_EXT_LOOP
+#   define ADOLC_EXT_SUBSCRIPT
+#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
+#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src)
+#endif 
+
 #if defined(_EXTERN_)
     locint n, m;
     ext_diff_fct *edfct;

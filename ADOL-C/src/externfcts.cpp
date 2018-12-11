@@ -19,6 +19,7 @@
 #include <adolc/adalloc.h>
 #include "oplate.h"
 #include "buffer_temp.h"
+#include <adolc/adolc_fatalerror.h>
 
 #include <cstring>
 
@@ -325,6 +326,17 @@ static int edfoo_wrapper_fov_forward(int n, double *dp_x, int p, double **dpp_X,
     return ebase->fov_forward(n,dp_x,p,dpp_X,m,dp_y,dpp_Y);    
 }
 
+static int edfoo_wrapper_hos_forward(int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->hos_forward(n,dp_x,k,dpp_X,m,dp_y,dpp_Y);    
+}
+
 static int edfoo_wrapper_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     ext_diff_fct* edf;
     EDFobject* ebase;
@@ -364,6 +376,7 @@ void EDFobject::init_edf(EDFobject* ebase) {
     edf->zos_forward = edfoo_wrapper_zos_forward;
     edf->fos_forward = edfoo_wrapper_fos_forward;
     edf->fov_forward = edfoo_wrapper_fov_forward;
+    edf->hos_forward = edfoo_wrapper_hos_forward;
     edf->fos_reverse = edfoo_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_wrapper_fov_reverse;    
     edf->indopro_forward_tight = edfoo_wrapper_indopro_forward_tight;
@@ -412,6 +425,17 @@ static int edfoo_iarr_wrapper_fov_forward(int iArrLength, int *iArr, int n, doub
     return ebase->fov_forward(iArrLength,iArr,n,dp_x,p,dpp_X,m,dp_y,dpp_Y);    
 }
 
+static int edfoo_iarr_wrapper_hos_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->hos_forward(iArrLength,iArr,n,dp_x,k,dpp_X,m,dp_y,dpp_Y);    
+}
+
 static int edfoo_iarr_wrapper_fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     ext_diff_fct* edf;
     EDFobject_iArr* ebase;
@@ -452,6 +476,7 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->zos_forward_iArr = edfoo_iarr_wrapper_zos_forward;
     edf->fos_forward_iArr = edfoo_iarr_wrapper_fos_forward;
     edf->fov_forward_iArr = edfoo_iarr_wrapper_fov_forward;
+    edf->hos_forward_iArr = edfoo_iarr_wrapper_hos_forward;
     edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
     edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;
     edf->indopro_forward_tight_iArr = edfoo_iarr_wrapper_indopro_forward_tight;
@@ -475,6 +500,14 @@ int EDFobject_iArr::indopro_forward_tight(int iArrLength, int* iArr, int n, doub
             ind_dom[i][j+1] = j;
     }
     return 0;
+}
+
+int EDFobject::hos_forward(int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject::hos_forward",__FILE__,__LINE__);
+}
+
+int EDFobject_iArr::hos_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject_iArr::hos_forward",__FILE__,__LINE__);
 }
 /****************************************************************************/
 /*                                                               THAT'S ALL */

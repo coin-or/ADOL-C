@@ -24,6 +24,7 @@ BEGIN_C_DECLS
 typedef int (ADOLC_ext_fct_v2) (int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y, void* ctx);
 typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp, void *ctx);
 typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
+typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
 typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx);
 typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx);
 typedef int (ADOLC_ext_fct_v2_indopro_forward_tight)(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx);
@@ -85,6 +86,8 @@ typedef struct ext_diff_fct_v2 {
   ADOLC_ext_fct_v2_fov_reverse *fov_reverse;
 
   ADOLC_ext_fct_v2_indopro_forward_tight *indopro_forward_tight;
+
+  ADOLC_ext_fct_v2_hos_forward *hos_forward;
   /**
    * The names of the variables below correspond to the formal parameters names in the call back
    * functions above;

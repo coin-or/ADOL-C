@@ -59,6 +59,14 @@ int Subtrace::fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, dou
     return ret;
 }
 
+int Subtrace::hos_forward(int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
+    int ret;
+    set_nested_ctx(tnum,1);
+    ret = ::hos_forward_nk(tnum,m,n,k,dp_x,dpp_X,dp_y,dpp_Y);
+    set_nested_ctx(tnum,0);
+    return ret;
+}
+
 int Subtrace::fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     int ret;
     set_nested_ctx(tnum,1);
