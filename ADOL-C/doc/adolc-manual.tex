@@ -2924,7 +2924,6 @@ be coded in a different programming language or may a call to
 an external library. 
 In the former case one may want to differentiate the parts in 
 question with a different AD tool or provide hand written derivatives. 
-To integrate these 
 In practice, however, sophisticated projects usually evolve over a long period of time.
 Within this process, a heterogeneous code base for the project
 develops, which may include the incorporation of external solutions,
@@ -2932,35 +2931,35 @@ changes in programming paradigms or even of programming languages.
 Equally heterogeneous, the computation of derivative values appears.
 Hence, different \mbox{AD-tools} may be combined with hand-derived
 codes based on the same or different programming languages. 
-ADOL-C supports such settings  by  the concept of externally
+ADOL-C supports such settings by the concept of externally
 differentiated functions, that is, a function
 not differentiated by ADOL-C itself. The required derivatives
 have to be provided by the user.
 
 For this purpose, it is required that the externally differentiated
-function (for example named {\sf\em euler\_step} ) has the following signature.
+function (for example named {\sf\em euler\_step} ) has the following signature
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf int euler\_step(int n, double *x, int m, double *y);}
+\hspace*{2cm}{\sf int euler\_step(int n, double *x, int m, double *y);} .
 \medskip
 
 \noindent
-Note that the formal paraemters in the signature have {\sf double} type, that is, 
+Note that the formal paramters in the signature have {\sf double} type, that is, 
 they are not active as in the original program before the ADOL-C type change.
 The externally differentiated function has to
-be {\em registered}\footnote{we record the function pointer} using an \mbox{ADOL-C} method as follows. 
+be {\em registered}\footnote{we record the function pointer} using an \mbox{ADOL-C} method as follows
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf ext\_diff\_fct *edf = reg\_ext\_fct(euler\_step);}.
+\hspace*{2cm}{\sf ext\_diff\_fct *edf = reg\_ext\_fct(euler\_step);} .
 \smallskip
 
 \noindent
 This returns a pointer to an {\sf ext\_diff\_fct} instance specific to the registered function. 
-Then, the user has to supply the function pointers for the call back methods (for example here 
+Then, the user has to supply the function pointers for the callback methods (for example here 
 {\sf zos\_for\_euler\_step} and {\sf  fos\_rev\_euler\_step}) the user implemented 
-to compute the derivatives as follows.
+to compute the derivatives as follows:
 \begin{tabbing}
 \hspace*{2cm}\= {\sf edf-$>$zos\_forward = {\em zos\_for\_euler\_step};}\\
              \> {\sf // function pointer for computing
@@ -2976,17 +2975,21 @@ to compute the derivatives as follows.
 \end{tabbing}
 To facilitate the switch between active and passive versions of the parameters {\sf x} and {\sf y}
 one has to provide (allocate) both variants. I.e. if the call to {\sf euler\_step} was originally
+\smallskip
+
 \noindent
 \hspace*{2cm}{\sf rc=euler\_step(n, sOld, m, sNew);}
 \medskip
+
+\noindent
 then the ADOL-C typechange for the calling context will turn  {\sf sOld} and {\sf sNew} in {\sf adouble} pointers.
 To trigger the appropriate action for the derivative computation (i.e. creating an external differentiation entry on the trace) 
 the original call to the externally differentiated function 
 must be substituted by 
-\medskip
+\smallskip
 
 \noindent
-\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOldPassive, sOld, m, sNewPassive, sNew);}
+\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOldPassive, sOld, m, sNewPassive, sNew);} .
 \medskip
 
 \noindent
@@ -2995,8 +2998,8 @@ to the active arguments {\sf sNew} in {\sf adouble}.
 The usage of the external function facility is illustrated by the
 example \verb=ext_diff_func= contained in
 \verb=examples/additional_examples/ext_diff_func=.
-There,the external differentiated function is also a C code, but the
-handling as external differentiated functions also a decrease of the
+There, the external differentiated function is also a C code, but the
+handling as external differentiated function decreases the
 overall required tape size.
 
 %
