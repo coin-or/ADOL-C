@@ -232,6 +232,7 @@ ADOL-C/include/adolc/internal/usrparms.h -text
 ADOL-C/include/adolc/lie/Makefile.am -text
 ADOL-C/include/adolc/lie/Makefile.in -text
 ADOL-C/include/adolc/lie/drivers.h -text
+ADOL-C/include/adolc/medipacksupport.h -text
 ADOL-C/include/adolc/param.h -text
 ADOL-C/include/adolc/revolve.h -text
 ADOL-C/include/adolc/sparse/Makefile.am -text
@@ -306,6 +307,8 @@ ADOL-C/src/lie/Makefile.am -text
 ADOL-C/src/lie/Makefile.in -text
 ADOL-C/src/lie/adolc_lie.cpp -text
 ADOL-C/src/lie/adolc_lie_c.c -text
+ADOL-C/src/medipacksupport.cpp -text
+ADOL-C/src/medipacksupport_p.h -text
 ADOL-C/src/nonl_ind_forward_s.c -text
 ADOL-C/src/nonl_ind_forward_t.c -text
 ADOL-C/src/nonl_ind_old_forward_s.c -text
@@ -379,6 +382,7 @@ autoconf/ltoptions.m4 -text
 autoconf/ltsugar.m4 -text
 autoconf/ltversion.m4 -text
 autoconf/lt~obsolete.m4 -text
+autoconf/medipack.m4 -text
 autoconf/missing -text
 autoconf/mpi.m4 -text
 autoconf/stdcxx_11.m4 -text

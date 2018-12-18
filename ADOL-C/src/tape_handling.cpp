@@ -18,6 +18,10 @@
 #include <adolc/revolve.h>
 #include <adolc/adalloc.h>
 
+#ifdef ADOLC_MEDIPACK_SUPPORT
+#include "medipacksupport_p.h"
+#endif
+
 #include <cassert>
 #include <limits>
 #include <iostream>
@@ -1037,6 +1041,9 @@ int trace_on(short tnum, int keepTaylors) {
 
     /* allocate memory for TapeInfos and update tapeStack */
     retval = initNewTape(tnum);
+#ifdef ADOLC_MEDIPACK_SUPPORT
+    mediInitTape(tnum);
+#endif
     ADOLC_CURRENT_TAPE_INFOS.keepTaylors=keepTaylors;
     ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX] =
 	ADOLC_GLOBAL_TAPE_VARS.nominmaxFlag;
@@ -1055,6 +1062,9 @@ int trace_on(short tnum, int keepTaylors,
 
     /* allocate memory for TapeInfos and update tapeStack */
     retval = initNewTape(tnum);
+#ifdef ADOLC_MEDIPACK_SUPPORT
+    mediInitTape(tnum);
+#endif
     freeTapeResources(&ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_BUFFER_SIZE] = obs;
     ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] = lbs;

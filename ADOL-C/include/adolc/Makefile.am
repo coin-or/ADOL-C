@@ -22,6 +22,10 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        param.h externfcts2.h \
                        edfclasses.h
 
+if BUILD_ADOLC_MEDIPACK_SUPPORT
+pkginclude_HEADERS   += medipacksupport.h
+endif
+
 SUBDIRS = internal drivers tapedoc lie
 
 if SPARSE

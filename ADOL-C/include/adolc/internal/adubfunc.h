@@ -49,6 +49,7 @@
     friend ADOLC_DLL_EXPORT adub exp  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub log  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub sqrt ( const badouble& );
+    friend ADOLC_DLL_EXPORT adub cbrt ( const badouble& );
     friend ADOLC_DLL_EXPORT adub sin  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub cos  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub tan  ( const badouble& );

@@ -722,6 +722,8 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+BUILD_ADOLC_MEDIPACK_SUPPORT_FALSE
+BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE
 BUILD_ADOLC_AMPI_SUPPORT_FALSE
 BUILD_ADOLC_AMPI_SUPPORT_TRUE
 DARWIN_FALSE
@@ -775,6 +777,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -800,6 +803,7 @@ enable_option_checking
 enable_silent_rules
 enable_maintainer_mode
 enable_ampi
+enable_medipack
 enable_dependency_tracking
 enable_static
 enable_shared
@@ -834,6 +838,7 @@ enable_parexa
 with_cflags
 with_cxxflags
 with_ampi
+with_medipack
 with_soname
 enable_tapedoc_values
 '
@@ -888,6 +893,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1140,6 +1146,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1277,7 +1292,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1430,6 +1445,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1474,6 +1490,8 @@ Optional Features:
                           enable make rules and dependencies not useful (and
                           sometimes confusing) to the casual installer
   --enable-ampi           build ADOL-C with adjoinable MPI (AMPI) support
+                          [default=disabled]
+  --enable-medipack       build ADOL-C with MeDiPack (MPI) support
                           [default=disabled]
   --enable-dependency-tracking
                           do not reject slow dependency extractors
@@ -1571,6 +1589,8 @@ Optional Packages:
   --with-cxxflags=FLAGS   use CXXFLAGS=FLAGS (default: -O2)
   --with-ampi=AMPI_DIR    full path to the installation of adjoinable MPI
                           (AMPI)
+  --with-medipack=MEDIPACK_DIR
+                          full path to the installation of MeDiPack
   --with-soname=NAME      user can choose what to call his library here
                           [default: if ampi enabled then adolc_ampi otherwise
                           adolc]
@@ -2856,7 +2876,7 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 ac_config_headers="$ac_config_headers ADOL-C/src/config.h"
 
 
-am__api_version='1.13'
+am__api_version='1.15'
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -3048,7 +3068,7 @@ else
 $as_echo "$as_me: WARNING: 'missing' script is too old or missing" >&2;}
 fi
 
-if test x"${install_sh}" != xset; then
+if test x"${install_sh+set}" != xset; then
   case $am_aux_dir in
   *\ * | *\	*)
     install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
@@ -3376,8 +3396,8 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 # <http://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
 mkdir_p='$(MKDIR_P)'
 
-# We need awk for the "check" target.  The system "awk" is bad on
-# some platforms.
+# We need awk for the "check" target (and possibly the TAP driver).  The
+# system "awk" is bad on some platforms.
 # Always define AMTAR for backward compatibility.  Yes, it's still used
 # in the wild :-(  We should find a proper way to deprecate it ...
 AMTAR='$${TAR-tar}'
@@ -3392,6 +3412,48 @@ am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
 
 
 
+
+# POSIX will say in a future version that running "rm -f" with no argument
+# is OK; and we want to be able to make that assumption in our Makefile
+# recipes.  So use an aggressive probe to check that the usage we want is
+# actually supported "in the wild" to an acceptable degree.
+# See automake bug#10828.
+# To make any issue more visible, cause the running configure to be aborted
+# by default if the 'rm' program in use doesn't match our expectations; the
+# user can still override this though.
+if rm -f && rm -fr && rm -rf; then : OK; else
+  cat >&2 <<'END'
+Oops!
+
+Your 'rm' program seems unable to run without file operands specified
+on the command line, even when the '-f' option is present.  This is contrary
+to the behaviour of most rm programs out there, and not conforming with
+the upcoming POSIX standard: <http://austingroupbugs.net/view.php?id=542>
+
+Please tell bug-automake@gnu.org about your system, including the value
+of your $PATH and any error possibly output before this message.  This
+can help us improve future automake versions.
+
+END
+  if test x"$ACCEPT_INFERIOR_RM_PROGRAM" = x"yes"; then
+    echo 'Configuration will proceed anyway, since you have set the' >&2
+    echo 'ACCEPT_INFERIOR_RM_PROGRAM variable to "yes"' >&2
+    echo >&2
+  else
+    cat >&2 <<'END'
+Aborting the configuration process, to ensure you take notice of the issue.
+
+You can download and install GNU coreutils to get an 'rm' implementation
+that behaves properly: <http://www.gnu.org/software/coreutils/>.
+
+If you want to complete the configuration process using your problematic
+'rm' anyway, export the environment variable ACCEPT_INFERIOR_RM_PROGRAM
+to "yes", and re-run configure.
+
+END
+    as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
+  fi
+fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
@@ -3510,6 +3572,31 @@ fi
 if test x"${adolc_ampi_support}" = xyes ; then
 
 $as_echo "#define ADOLC_AMPI_SUPPORT 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build ADOL-C with MeDiPack (MPI) support" >&5
+$as_echo_n "checking whether to build ADOL-C with MeDiPack (MPI) support... " >&6; }
+# Check whether --enable-medipack was given.
+if test "${enable_medipack+set}" = set; then :
+  enableval=$enable_medipack; adolc_medipack_support=$enableval
+else
+  adolc_medipack_support=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $adolc_medipack_support" >&5
+$as_echo "$adolc_medipack_support" >&6; }
+ if test x${adolc_medipack_support} = xyes; then
+  BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE=
+  BUILD_ADOLC_MEDIPACK_SUPPORT_FALSE='#'
+else
+  BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE='#'
+  BUILD_ADOLC_MEDIPACK_SUPPORT_FALSE=
+fi
+
+if test x"${adolc_medipack_support}" = xyes ; then
+
+$as_echo "#define ADOLC_MEDIPACK_SUPPORT 1" >>confdefs.h
 
 fi
 
@@ -4874,6 +4961,65 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CC understands -c and -o together" >&5
+$as_echo_n "checking whether $CC understands -c and -o together... " >&6; }
+if ${am_cv_prog_cc_c_o+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+  # Make sure it works both with $CC and with simple cc.
+  # Following AC_PROG_CC_C_O, we do the test twice because some
+  # compilers refuse to overwrite an existing .o file with -o,
+  # though they will create one.
+  am_cv_prog_cc_c_o=yes
+  for am_i in 1 2; do
+    if { echo "$as_me:$LINENO: $CC -c conftest.$ac_ext -o conftest2.$ac_objext" >&5
+   ($CC -c conftest.$ac_ext -o conftest2.$ac_objext) >&5 2>&5
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&5
+   (exit $ac_status); } \
+         && test -f conftest2.$ac_objext; then
+      : OK
+    else
+      am_cv_prog_cc_c_o=no
+      break
+    fi
+  done
+  rm -f core conftest*
+  unset am_i
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_prog_cc_c_o" >&5
+$as_echo "$am_cv_prog_cc_c_o" >&6; }
+if test "$am_cv_prog_cc_c_o" != yes; then
+   # Losing compiler, so override with the script.
+   # FIXME: It is wrong to rewrite CC.
+   # But if we don't then we get into trouble of one sort or another.
+   # A longer-term fix would be to have automake use am__CC in this case,
+   # and then we could set am__CC="\$(top_srcdir)/compile \$(CC)"
+   CC="$am_aux_dir/compile $CC"
+fi
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 depcc="$CC"   am_compiler_list=
 
@@ -16434,7 +16580,7 @@ fi
 
 if test x"$with_mpicc" != "x";
 then
-  if test x"$adolc_ampi_support" = "xno";
+  if test x"$adolc_ampi_support" = "xno" && test x"$adolc_medipack_support" = "xno";
   then
     as_fn_error $? "if --with-mpicc is set one  must also --enable-ampi" "$LINENO" 5
   fi
@@ -16458,7 +16604,7 @@ fi
 
 if test x"$with_mpicxx" != "x";
 then
-  if test x"$adolc_ampi_support" = "xno";
+  if test x"$adolc_ampi_support" = "xno" && test x"$adolc_medipack_support" = "xno";
   then
     as_fn_error $? "if --with-mpicxx is set one  must also --enable-ampi" "$LINENO" 5
   fi
@@ -16477,7 +16623,7 @@ saveCXX="$CXX"
 
 
 
-if test x"$adolc_ampi_support" = "xyes";
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then
   CC="$MPICC"
   CXX="$MPICXX"
@@ -17056,7 +17202,7 @@ if test "$ac_res" != no; then :
 
 fi
 
-for ac_func in floor fmax fmin ftime pow sqrt strchr strtol trunc
+for ac_func in floor fmax fmin ftime pow sqrt cbrt strchr strtol trunc
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -18330,7 +18476,7 @@ fi
 
 
 
-if test x"$adolc_ampi_support" = "xyes";
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking Linking of MPI C programs" >&5
@@ -18362,7 +18508,7 @@ rm -f core conftest.err conftest.$ac_objext \
 
 fi
 
-if test x"$adolc_ampi_support" = "xyes";
+if test x"$adolc_ampi_support" = "xyes" || test x"$adolc_medipack_support" = "xyes";
 then
 
   ac_ext=cpp
@@ -18466,6 +18612,25 @@ rm -f core conftest.err conftest.$ac_objext \
 
   LIBS="$keepLIBS"
   adolclib=adolc_ampi
+fi
+
+
+
+
+
+# Check whether --with-medipack was given.
+if test "${with_medipack+set}" = set; then :
+  withval=$with_medipack;
+fi
+
+
+if test x"$with_medipack" != "x";
+then
+  if test x"$adolc_medipack_support" = "xno";
+  then
+    as_fn_error $? "if --with-medipack is set one  must also --enable-medipack" "$LINENO" 5
+  fi
+  CPPFLAGS="$CPPFLAGS -I$with_medipack/include"
 fi
 
 
@@ -18656,6 +18821,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_ADOLC_AMPI_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_AMPI_SUPPORT_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_ADOLC_AMPI_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_MEDIPACK_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_ADOLC_MEDIPACK_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
@@ -21303,6 +21472,7 @@ echo \
 
   Build sparse drivers:               ${sparse}
   Build with adjoinable MPI support:  ${adolc_ampi_support}
+  Build with MediPack support:        ${adolc_medipack_support}
   Build with ColPack:		      ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
     echo -e \

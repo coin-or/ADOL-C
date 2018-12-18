@@ -1020,6 +1020,21 @@ void tape_doc(short tnum,         /* tape id */
                 break;
 
                 /*--------------------------------------------------------------------------*/
+            case cbrt_op:                                              /* cbrt_op */
+                arg  = get_locint_f();
+                res  = get_locint_f();
+                loc_a[0]=arg;
+                loc_a[1]=res;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0]=dp_T0[arg];
+                dp_T0[res]= cbrt(dp_T0[arg]);
+                ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+                val_a[1]=dp_T0[res];
+#endif
+                filewrite(operation,"cbrt op",2,loc_a,val_a,0,cst_d);
+                break;
+
+                /*--------------------------------------------------------------------------*/
             case gen_quad:                                            /* gen_quad */
                 arg1  = get_locint_f();
                 arg2  = get_locint_f();
@@ -1276,6 +1291,14 @@ void tape_doc(short tnum,         /* tape id */
                 get_locint_f(); /* nout again */
                 filewrite(operation, "extern diff v2",3, loc_a, val_a, 0, cst_d);
                 break;
+#ifdef ADOLC_MEDIPACK_SUPPORT
+                /*--------------------------------------------------------------------------*/
+            case medi_call:
+                loc_a[0] = get_locint_f();
+
+                /* currently not supported */
+                break;
+#endif
 #ifdef ADOLC_AMPI_SUPPORT
             case ampi_send:
 	        loc_a[0] = get_locint_f();   /* start loc */
