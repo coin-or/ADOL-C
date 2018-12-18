@@ -61,6 +61,16 @@ if test x"${adolc_ampi_support}" = xyes ; then
 AC_DEFINE(ADOLC_AMPI_SUPPORT,1,[defined if adjoinable MPI support is to be compiled in])
 fi
 
+AC_MSG_CHECKING(whether to build ADOL-C with MeDiPack (MPI) support)
+AC_ARG_ENABLE(medipack,
+              [AS_HELP_STRING([--enable-medipack],[build ADOL-C with MeDiPack (MPI) support [default=disabled]])],
+	      [adolc_medipack_support=$enableval],[adolc_medipack_support=no])
+AC_MSG_RESULT($adolc_medipack_support)
+AM_CONDITIONAL(BUILD_ADOLC_MEDIPACK_SUPPORT,[test x${adolc_medipack_support} = xyes])
+if test x"${adolc_medipack_support}" = xyes ; then
+AC_DEFINE(ADOLC_MEDIPACK_SUPPORT,1,[defined if MeDiPack support is to be compiled in])
+fi
+
 LT_PREREQ([2.2.6])
 # checks for programs
 AC_PROG_CXX
@@ -110,7 +120,7 @@ AC_STRUCT_TM
 
 # Checks for libraries and fuctions
 AC_SEARCH_LIBS([pow], [m])
-AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt strchr strtol trunc])
+AC_CHECK_FUNCS([floor fmax fmin ftime pow sqrt cbrt strchr strtol trunc])
 
 # substitutions
 AC_SUBST(ac_aux_dir)
@@ -441,6 +451,7 @@ AC_ARG_WITH(cxxflags,
 
 MPI_CONF_POST
 AMPI_CONF
+MEDIPACK_CONF
 
 AC_ARG_WITH(soname,
             [AS_HELP_STRING([--with-soname=NAME],
@@ -601,6 +612,7 @@ echo \
 
   Build sparse drivers:               ${sparse}
   Build with adjoinable MPI support:  ${adolc_ampi_support}
+  Build with MediPack support:        ${adolc_medipack_support}
   Build with ColPack:		      ${have_colpack}"
 if test x$sparse = xyes && test x$have_colpack = xno; then
     echo -e \

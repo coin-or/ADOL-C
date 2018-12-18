@@ -152,7 +152,7 @@ Advanced differentiation techniques as the optimal checkpointing for
 time integrations, the exploitation of fixed point iterations, the usages
 of external differentiated functions and the differentiation of OpenMP
 parallel programs are described in \autoref{adv_ad}. 
-The tapeless forward mode is presented in \autoref{tapeless}.
+The traceless forward mode is presented in \autoref{traceless}.
 \autoref{install} details the installation and 
 use of the ADOL-C package. Finally, \autoref{example} 
 furnishes some example programs that incorporate the ADOL-C package to 
@@ -3285,7 +3285,7 @@ by the example program \verb=openmp_exam.cpp= contained in \verb=examples/additi
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 %
 \section{Traceless forward differentiation in ADOL-C}
-\label{tapeless}
+\label{traceless}
 %
 Up to version 1.9.0, the development of the ADOL-C software package
 was based on the decision to store all data necessary for derivative
@@ -3895,7 +3895,7 @@ well. In the example the following indices are used.
 
 For the calculation of derivatives the function evaluation has to be performed
 with {\sf adouble}s. Therefore the dependent and the independent variables
-have to be declared as {\sf adouble}s as in the other versions of ADOL-C (see, e.g., \autoref{tapeless}). 
+have to be declared as {\sf adouble}s as in the other versions of ADOL-C (see, e.g., \autoref{traceless}). 
 Similar to the traceless version without Cuda the namespace \verb#adtlc# is used. 
 Now each thread has to read out the point at which the function evaluation is 
 then performed. This is determined by the blockindex and the x-dimension of 
@@ -3915,7 +3915,7 @@ the derivatives is given by {\sf index1}.
 \end{center} 
 The functions for setting and getting the value and the derivative value of an 
 {\sf adouble} are the same as in the traceless version of ADOL-C for first 
-order derivatives (see \autoref{tapeless}).
+order derivatives (see \autoref{traceless}).
 The function evaluation is then performed with {\sf adouble x} on GPU and the results
 are saved in {\sf adouble y}. The function evaluation itself remains unchanged
 (see \autoref{fig:cudacode3}). Then we store the values of the function
