@@ -27,7 +27,7 @@ protected:
     PyEDFwrap* cobj;
 public:
     PyEDF();
-    virtual ~PyEDF() {}
+    virtual ~PyEDF();
     virtual int function(PyObject* args) {
         throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
     }
@@ -55,7 +55,7 @@ protected:
     PyEDF_iArr_wrap* cobj;
 public:
     PyEDF_iArr();
-    virtual ~PyEDF_iArr() {}
+    virtual ~PyEDF_iArr();
     virtual int function(PyObject* args) {
         throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
     }

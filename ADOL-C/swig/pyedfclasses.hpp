@@ -298,6 +298,17 @@ PyEDF::PyEDF() {
      cobj->setPyObj(this);
 }
 
+PyEDF::~PyEDF() {
+    delete cobj;
+}
+
+int PyEDF::call(int n, adouble *xa, int m, adouble *ya) {
+    return cobj->call(n,xa,m,ya);
+}
+int PyEDF::call(int n, advector& x, int m, advector& y) {
+    return cobj->call(n,x,m,y);
+}
+
 class PyEDF_iArr_wrap : public EDFobject_iArr {
 protected:
     PyEDF_iArr* pyobj;
@@ -650,16 +661,13 @@ public:
     }
 };
 
-int PyEDF::call(int n, adouble *xa, int m, adouble *ya) {
-    return cobj->call(n,xa,m,ya);
-}
-int PyEDF::call(int n, advector& x, int m, advector& y) {
-    return cobj->call(n,x,m,y);
-}
-
 PyEDF_iArr::PyEDF_iArr() {
     cobj = new PyEDF_iArr_wrap();
     cobj->setPyObj(this);
+}
+
+PyEDF_iArr::~PyEDF_iArr() {
+    delete cobj;
 }
 
 int PyEDF_iArr::call(int iArrLen, int* iArr, int n, adouble *xa, int m, adouble *ya) {
