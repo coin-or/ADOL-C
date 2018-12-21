@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 from adolc import *
 
@@ -19,12 +20,12 @@ if __name__ == '__main__':
     disableBranchSwitchWarnings()
     do_taping(1,x)
     g = gradient(1,x)
-    print g
+    print(g)
     x = [ -1, 2, 3]
     try:
        g = gradient(1,x)
-    except AdolcException: 
+    except BranchException: 
        do_taping(1,x)
        g = gradient(1,x)
-    print g
+    print(g)
     
