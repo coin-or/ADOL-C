@@ -18,29 +18,15 @@
 #define _ADOLC_PYEDFCLASSES_H_
 
 #include <adolc/edfclasses.h>
+#include "pydirectors.hpp"
 
-class PyEDF : public EDFobject {
+class PyEDFwrap : public EDFobject {
+protected:
+    PyEDF* pyobj;
 public:
-    PyEDF() : EDFobject() {}
-    virtual ~PyEDF() {}
-    virtual int function(PyObject* args) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int zos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
+    PyEDFwrap() : EDFobject() {}
+    virtual ~PyEDFwrap() {}
+    void setPyObj(PyEDF* o) { pyobj = o; }
     int function(int n, double *x, int m, double* y) {
         PyObject* args = NULL; 
         int rc;
@@ -66,7 +52,7 @@ public:
 #endif
         //args = Py_BuildValue("OOOO:PyEDFobject_function",no,xa,mo,ya);
         args = PyTuple_Pack(4,no,xa,mo,ya);
-        rc = this->function(args);
+        rc = pyobj->function(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -100,7 +86,7 @@ public:
 #endif
         //args = Py_BuildValue("OOOO:PyEDFobject_function",no,xa,mo,ya);
         args = PyTuple_Pack(4,no,xa,mo,ya);
-        rc = this->zos_forward(args);
+        rc = pyobj->zos_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -144,7 +130,7 @@ public:
         PyArray_SetBaseObject(ypaa,capyp);
 #endif
         args = PyTuple_Pack(6,no,xa,xpa,mo,ya,ypa);
-        rc = this->fos_forward(args);
+        rc = pyobj->fos_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -192,7 +178,7 @@ public:
         PyArray_SetBaseObject(ypaa,capyp);
 #endif
         args = PyTuple_Pack(7,no,xa,po,xpa,mo,ya,ypa);
-        rc = this->fov_forward(args);
+        rc = pyobj->fov_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -239,7 +225,7 @@ public:
         PyArray_SetBaseObject(zaa,capz);
 #endif
         args = PyTuple_Pack(6,mo,ua,no,za,xa,ya);
-        rc = this->fos_reverse(args);
+        rc = pyobj->fos_reverse(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -287,7 +273,7 @@ public:
         PyArray_SetBaseObject(zaa,capz);
 #endif
         args = PyTuple_Pack(7,mo,qo,ua,no,za,xa,ya);
-        rc = this->fov_reverse(args);
+        rc = pyobj->fov_reverse(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(xaa);
@@ -307,29 +293,18 @@ public:
     }
 };
 
+PyEDF::PyEDF() {
+     cobj = new PyEDFwrap();
+     cobj->setPyObj(this);
+}
 
-class PyEDF_iArr : public EDFobject_iArr {
+class PyEDF_iArr_wrap : public EDFobject_iArr {
+protected:
+    PyEDF_iArr* pyobj;
 public:
-    PyEDF_iArr() : EDFobject_iArr() {}
-    virtual ~PyEDF_iArr() {}
-    virtual int function(PyObject* args) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int zos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
+    PyEDF_iArr_wrap() : EDFobject_iArr() {}
+    virtual ~PyEDF_iArr_wrap() {}
+    void setPyObj(PyEDF_iArr* o) { pyobj = o; }
     int function(int iArrLen, int* iArr, int n, double *x, int m, double* y) {
         PyObject* args = NULL; 
         int rc;
@@ -362,7 +337,7 @@ public:
 #endif
         //args = Py_BuildValue("OOOO:PyEDFobject_function",no,xa,mo,ya);
         args = PyTuple_Pack(6,ial,iar,no,xa,mo,ya);
-        rc = this->function(args);
+        rc = pyobj->function(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -405,7 +380,7 @@ public:
 #endif
         //args = Py_BuildValue("OOOO:PyEDFobject_function",no,xa,mo,ya);
         args = PyTuple_Pack(6,ial,iar,no,xa,mo,ya);
-        rc = this->zos_forward(args);
+        rc = pyobj->zos_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -458,7 +433,7 @@ public:
         PyArray_SetBaseObject(ypaa,capyp);
 #endif
         args = PyTuple_Pack(8,ial,iar,no,xa,xpa,mo,ya,ypa);
-        rc = this->fos_forward(args);
+        rc = pyobj->fos_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -515,7 +490,7 @@ public:
         PyArray_SetBaseObject(ypaa,capyp);
 #endif
         args = PyTuple_Pack(9,ial,iar,no,xa,po,xpa,mo,ya,ypa);
-        rc = this->fov_forward(args);
+        rc = pyobj->fov_forward(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -571,7 +546,7 @@ public:
         PyArray_SetBaseObject(zaa,capz);
 #endif
         args = PyTuple_Pack(8,ial,iar,mo,ua,no,za,xa,ya);
-        rc = this->fos_reverse(args);
+        rc = pyobj->fos_reverse(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -628,7 +603,7 @@ public:
         PyArray_SetBaseObject(zaa,capz);
 #endif
         args = PyTuple_Pack(9,ial,iar,mo,qo,ua,no,za,xa,ya);
-        rc = this->fov_reverse(args);
+        rc = pyobj->fov_reverse(args);
         if (PyErr_Occurred()) rc = -1;
         Py_DECREF(args);
         Py_DECREF(iara);
@@ -674,5 +649,49 @@ public:
         return -1;
     }
 };
+
+int PyEDF::call(int n, adouble *xa, int m, adouble *ya) {
+    return cobj->call(n,xa,m,ya);
+}
+int PyEDF::call(int n, advector& x, int m, advector& y) {
+    return cobj->call(n,x,m,y);
+}
+
+PyEDF_iArr::PyEDF_iArr() {
+    cobj = new PyEDF_iArr_wrap();
+    cobj->setPyObj(this);
+}
+
+int PyEDF_iArr::call(int iArrLen, int* iArr, int n, adouble *xa, int m, adouble *ya) {
+    return cobj->call(iArrLen,iArr,n,xa,m,ya);
+}
+int PyEDF_iArr::call(int iArrLen, int* iArr, int n, advector& x, int m, advector& y) {
+    return cobj->call(iArrLen,iArr,n,x,m,y);
+}
+int PyEDF_iArr::call(int iArrLen, PyObject* pyarr, int n, advector& x, int m, advector& y) {
+    int rc;
+    PyArrayObject *array2 = NULL;
+    int is_new_object2 = 0;
+    npy_intp size[1] = {
+        iArrLen 
+    };
+    int *iArr = NULL;
+    array2 = obj_to_array_contiguous_allow_conversion(pyarr,
+                                                      NPY_INT,
+                                                      &is_new_object2);
+    if (!array2 || !require_dimensions(array2, 1) ||
+        !require_size(array2, size, 1)) SWIG_fail;
+    iArr = (int*) array_data(array2);
+    rc = cobj->call(iArrLen,iArr,n,x,m,y);
+    if (is_new_object2 && array2) {
+        Py_DECREF(array2);
+    }
+    return rc;
+  fail:
+    if (is_new_object2 && array2) {
+        Py_DECREF(array2);
+    }
+    return -1;
+}
 
 #endif
