@@ -139,7 +139,7 @@ void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
        * so leave it out.
        */
       size_t totalmem = (3*n + 3*m /*+ n*n + 2*n*m + m*m*/)*sizeof(double)
-                         + (3*m+n)*sizeof(double*)
+                         + (5*m+3*n)*sizeof(double*)
                          + m*sizeof(unsigned int*);
       char *tmp;
       if (edfct->allmem != NULL) free(edfct->allmem);
@@ -159,6 +159,11 @@ void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
       tmp = (char*)(edfct->dpp_Z + m);
       edfct->ind_dom = (unsigned int**)tmp;
       tmp = (char*)(edfct->ind_dom+m);
+      edfct->dppp_X = (double***)tmp;
+      edfct->dppp_Y = edfct->dppp_X + 2*n;
+      for (int i=0;i<n;i++) edfct->dppp_X[i] = (double**)(edfct->dppp_X + n + i);
+      for (int i=0;i<m;i++) edfct->dppp_Y[i] = (double**)(edfct->dppp_Y + m + i);
+      tmp = (char*)(edfct->dppp_Y + 2*m);
       /*
       tmp = populate_dpp(&edfct->dpp_X, tmp, n,n);
       tmp = populate_dpp(&edfct->dpp_Y, tmp, m,n);
@@ -337,6 +342,17 @@ static int edfoo_wrapper_hos_forward(int n, double *dp_x, int k, double **dpp_X,
     return ebase->hos_forward(n,dp_x,k,dpp_X,m,dp_y,dpp_Y);    
 }
 
+static int edfoo_wrapper_hov_forward(int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->hov_forward(n,dp_x,k,p,dppp_X,m,dp_y,dppp_Y);
+}
+
 static int edfoo_wrapper_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     ext_diff_fct* edf;
     EDFobject* ebase;
@@ -377,6 +393,7 @@ void EDFobject::init_edf(EDFobject* ebase) {
     edf->fos_forward = edfoo_wrapper_fos_forward;
     edf->fov_forward = edfoo_wrapper_fov_forward;
     edf->hos_forward = edfoo_wrapper_hos_forward;
+    edf->hov_forward = edfoo_wrapper_hov_forward;
     edf->fos_reverse = edfoo_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_wrapper_fov_reverse;    
     edf->indopro_forward_tight = edfoo_wrapper_indopro_forward_tight;
@@ -436,6 +453,17 @@ static int edfoo_iarr_wrapper_hos_forward(int iArrLength, int *iArr, int n, doub
     return ebase->hos_forward(iArrLength,iArr,n,dp_x,k,dpp_X,m,dp_y,dpp_Y);    
 }
 
+static int edfoo_iarr_wrapper_hov_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->hov_forward(iArrLength,iArr,n,dp_x,k,p,dppp_X,m,dp_y,dppp_Y);    
+}
+
 static int edfoo_iarr_wrapper_fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) {
     ext_diff_fct* edf;
     EDFobject_iArr* ebase;
@@ -477,6 +505,7 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->fos_forward_iArr = edfoo_iarr_wrapper_fos_forward;
     edf->fov_forward_iArr = edfoo_iarr_wrapper_fov_forward;
     edf->hos_forward_iArr = edfoo_iarr_wrapper_hos_forward;
+    edf->hov_forward_iArr = edfoo_iarr_wrapper_hov_forward;
     edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
     edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;
     edf->indopro_forward_tight_iArr = edfoo_iarr_wrapper_indopro_forward_tight;
@@ -508,6 +537,14 @@ int EDFobject::hos_forward(int n, double *dp_x, int k, double **dpp_X, int m, do
 
 int EDFobject_iArr::hos_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y) {
     throw FatalError(255,"Not Implemented","EDFobject_iArr::hos_forward",__FILE__,__LINE__);
+}
+
+int EDFobject::hov_forward(int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject::hov_forward",__FILE__,__LINE__);
+}
+
+int EDFobject_iArr::hov_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject_iArr::hov_forward",__FILE__,__LINE__);
 }
 /****************************************************************************/
 /*                                                               THAT'S ALL */

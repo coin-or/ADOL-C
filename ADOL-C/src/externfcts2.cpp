@@ -115,7 +115,9 @@ void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz,
                // + q*nout + q*nin
             )*sizeof(double*)
             + (2*nin + 2*nout // + 2*q
-            )*sizeof(double**);
+            )*sizeof(double**)
+            + (2*nin*m_isz + 2*nout*m_osz
+            )*sizeof(double***);
         if (edfct->allmem != NULL) free(edfct->allmem);
         edfct->allmem=(char*)malloc(totalmem);
         memset(edfct->allmem,0,totalmem);
@@ -130,6 +132,8 @@ void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout, int *insz,
         tmp = populate_dppp_nodata(&edfct->Yp,tmp,nout,m_osz);
         tmp = populate_dppp_nodata(&edfct->Up,tmp,nout,m_osz);
         tmp = populate_dppp_nodata(&edfct->Zp,tmp,nin,m_isz);
+        tmp = populate_dppp0_nodata(&edfct->Xpp,tmp,nin,m_isz);
+        tmp = populate_dppp0_nodata(&edfct->Ypp,tmp,nout,m_osz);
 	tmp = populate_edf_v2_ind_dom(&edfct->ind_dom,tmp,nin,nout,m_isz,m_osz);
     }
     edfct->max_nin=(edfct->max_nin<nin)?nin:edfct->max_nin;
@@ -283,6 +287,16 @@ static int edfoo_v2_wrapper_hos_forward(int iArrLen, int* iArr, int nin, int nou
     ebase = reinterpret_cast<EDFobject_v2*>(edf->obj);
     return ebase->hos_forward(iArrLen,iArr,nin,nout,insz,x,deg,Xp,outsz,y,Yp,ctx);
 }
+static int edfoo_v2_wrapper_hov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int deg, int ndir, double ****Xpp, int *outsz, double **y, double ****Ypp, void* ctx) {
+    ext_diff_fct_v2* edf;
+    EDFobject_v2* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct_v2(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_v2*>(edf->obj);
+    return ebase->hov_forward(iArrLen,iArr,nin,nout,insz,x,deg,ndir,Xpp,outsz,y,Ypp,ctx);
+}
 static int edfoo_v2_wrapper_fos_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx) {
     ext_diff_fct_v2* edf;
     EDFobject_v2* ebase;
@@ -323,6 +337,7 @@ void EDFobject_v2::init_edf(EDFobject_v2* ebase) {
     edf->fos_forward = edfoo_v2_wrapper_fos_forward;
     edf->fov_forward = edfoo_v2_wrapper_fov_forward;
     edf->hos_forward = edfoo_v2_wrapper_hos_forward;
+    edf->hov_forward = edfoo_v2_wrapper_hov_forward;
     edf->fos_reverse = edfoo_v2_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_v2_wrapper_fov_reverse;
     edf->indopro_forward_tight = edfoo_v2_wrapper_indopro_forward_tight;
@@ -347,4 +362,8 @@ int EDFobject_v2::indopro_forward_tight(int iArrLen, int *iArr, int nin, int nou
 
 int EDFobject_v2::hos_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int deg, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx) {
     throw FatalError(255,"Not Implemented","EDFobject_v2::hos_forward",__FILE__,__LINE__);
+}
+
+int EDFobject_v2::hov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int deg, int ndir, double ****Xpp, int *outsz, double **y, double ****Ypp, void* ctx) {
+    throw FatalError(255,"Not Implemented","EDFobject_v2::hov_forward",__FILE__,__LINE__);
 }

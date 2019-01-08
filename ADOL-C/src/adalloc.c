@@ -104,6 +104,30 @@ char* populate_dppp_nodata(double ****const pointer, char *const memory,
     return tmp;
 }
 /*--------------------------------------------------------------------------*/
+char* populate_dppp0_nodata(double *****const pointer, char *const memory, 
+                           int n, int m) {
+
+    char* tmp;
+    double ****tmp1; double ***tmp2; double **tmp3;
+    int i,j;
+    tmp = (char*) memory;
+    tmp1 = (double****) memory;
+    *pointer = tmp1;
+    tmp = (char*)(tmp1+n);
+    tmp2 = (double***)tmp;
+    for(i=0; i<n; i++) {
+        (*pointer)[i] = tmp2;
+        tmp2 += m;
+    }
+    tmp = (char*)tmp2;
+    tmp3 = (double**)tmp;
+    for(i=0;i<n;i++)
+        for(j=0;j<m;j++) 
+            (*pointer)[i][j] = tmp3++;
+    tmp = (char*)tmp3;
+    return tmp;
+}
+/*--------------------------------------------------------------------------*/
 double* myalloc1(size_t m) {
     double* A = NULL;  
     if (m>0) {

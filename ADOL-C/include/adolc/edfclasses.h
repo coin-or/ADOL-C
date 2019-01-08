@@ -31,6 +31,7 @@ public:
     virtual int fos_forward(int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) = 0;
     virtual int fov_forward(int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int hos_forward(int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+    virtual int hov_forward(int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
     virtual int indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom);
@@ -57,6 +58,7 @@ public:
     virtual int fos_forward(int iArrLength, int *iArr, int n, double *dp_x, double *dp_X, int m, double *dp_y, double *dp_Y) = 0;
     virtual int fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p, double **dpp_X, int m, double *dp_y, double **dpp_Y) = 0;
     virtual int hos_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, double **dpp_X, int m, double *dp_y, double **dpp_Y);
+    virtual int hov_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
     virtual int fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y) = 0;
     virtual int fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
     virtual int indopro_forward_tight(int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom);
@@ -83,6 +85,7 @@ public:
     virtual int fos_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp, void *ctx) = 0;
     virtual int fov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx) = 0;
     virtual int hos_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int deg, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
+    virtual int hov_forward(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int deg, int ndir, double ****Xpp, int *outsz, double **y, double ****Ypp, void* ctx);
     virtual int fos_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx) = 0;
     virtual int fov_reverse(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx) = 0;
     virtual int indopro_forward_tight(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx);

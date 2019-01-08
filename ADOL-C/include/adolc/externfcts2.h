@@ -24,14 +24,12 @@ BEGIN_C_DECLS
 typedef int (ADOLC_ext_fct_v2) (int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, double **y, void* ctx);
 typedef int (ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, double **xp, int *outsz, double **y, double **yp, void *ctx);
 typedef int (ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
-typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int ndir, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
 typedef int (ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, double **up, int *insz, double **zp, double **x, double **y, void *ctx);
 typedef int (ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int* iArr, int nout, int nin, int *outsz, int dir, double ***Up, int *insz, double ***Zp, double **x, double **y, void* ctx);
 typedef int (ADOLC_ext_fct_v2_indopro_forward_tight)(int iArrLen, int *iArr, int nin, int nout, int *insz, double **x, int *outsz, unsigned int ****ind_dom, void* ctx);
 
-/* The following two aren't implemented */
 typedef int (ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, double ***Xp, int *outsz, double **y, double ***Yp, void* ctx);
-typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xp, int *outsz, double **y, double ****Yp, void *ctx);
+typedef int (ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int* iArr, int nin, int nout, int *insz, double **x, int degree, int ndir, double ****Xpp, int *outsz, double **y, double ****Ypp, void *ctx);
 
 typedef struct ext_diff_fct_v2 {
  /**
@@ -88,6 +86,8 @@ typedef struct ext_diff_fct_v2 {
   ADOLC_ext_fct_v2_indopro_forward_tight *indopro_forward_tight;
 
   ADOLC_ext_fct_v2_hos_forward *hos_forward;
+
+  ADOLC_ext_fct_v2_hov_forward *hov_forward;
   /**
    * The names of the variables below correspond to the formal parameters names in the call back
    * functions above;
@@ -108,6 +108,7 @@ typedef struct ext_diff_fct_v2 {
    */
   double ***Xp;
 
+  double ****Xpp;
   /**
    * function and all _forward calls: function result, dimension nout*outsz[0..nout]
    */
@@ -123,6 +124,7 @@ typedef struct ext_diff_fct_v2 {
    */
   double ***Yp;
 
+  double ****Ypp;
   /**
    * fos_reverse and hos_reverse:  weight vector, dimension nout*outsz[0..nout]
    */

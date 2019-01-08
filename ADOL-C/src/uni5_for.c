@@ -122,8 +122,8 @@
 #define _ADOLC_VECTOR_
 #define _HIGHER_ORDER_
 
-#define ARGUMENT(indexi,l,i) argument[indexi][l][i]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
+#define ARGUMENT(indexi,l,i) (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx?argument[indexi][0][l*k+i]:argument[indexi][l][i])
+#define TAYLORS(indexd,l,i)  *(ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx?&taylors[indexd][0][l*k+i]:&taylors[indexd][l][i])
 
 /*--------------------------------------------------------------------------*/
 #else
@@ -1110,6 +1110,26 @@ int  hov_forward(
 #   define ADOLC_EXT_LOOP
 #   define ADOLC_EXT_SUBSCRIPT
 #   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
+#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src)
+#endif 
+
+#if defined(_HOV_)
+#   define _EXTERN_ 1
+#   define ADOLC_EXT_FCT_POINTER hov_forward
+#   define ADOLC_EXT_FCT_IARR_POINTER hov_forward_iArr
+#   define ADOLC_EXT_FCT_COMPLETE \
+    hov_forward(n, edfct->dp_x, k, p, edfct->dppp_X, m, edfct->dp_y, edfct->dppp_Y)
+#   define ADOLC_EXT_FCT_IARR_COMPLETE \
+    hov_forward_iArr(iArrLength, iArr, n, edfct->dp_x, k, p, edfct->dppp_X, m, edfct->dp_y, edfct->dppp_Y)
+#   define ADOLC_EXT_POINTER_X edfct->dppp_X
+#   define ADOLC_EXT_POINTER_Y edfct->dppp_Y
+#   define ADOLC_EXT_FCT_V2_COMPLETE \
+    hov_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, k, p, edfct2->Xpp, outsz, edfct2->y, edfct2->Ypp, edfct2->context)
+#   define ADOLC_EXT_V2_POINTER_X edfct2->Xpp
+#   define ADOLC_EXT_V2_POINTER_Y edfct2->Ypp
+#   define ADOLC_EXT_LOOP
+#   define ADOLC_EXT_SUBSCRIPT
+#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest[0]=src
 #   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src)
 #endif 
 
