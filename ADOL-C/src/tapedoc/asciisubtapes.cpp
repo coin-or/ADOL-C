@@ -79,8 +79,9 @@ int Subtrace::fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x
     int ret;
     set_nested_ctx(tnum,1);
     ret = ::zos_forward(tnum,m,n,1,dp_x,dp_y);
-    if (ret < 0) return ret;
-    MINDEC(ret,::fos_reverse(tnum,m,n,dp_U,dp_Z));
+    if (ret >= 0) {
+        MINDEC(ret,::fos_reverse(tnum,m,n,dp_U,dp_Z));
+    }
     set_nested_ctx(tnum,0);
     return ret;
 }
@@ -89,8 +90,42 @@ int Subtrace::fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, d
     int ret;
     set_nested_ctx(tnum,1);
     ret = ::zos_forward(tnum,m,n,1,dp_x,dp_y);
-    if (ret < 0) return ret;
-    MINDEC(ret,::fov_reverse(tnum,m,n,p,dpp_U,dpp_Z));
+    if (ret >= 0) {
+        MINDEC(ret,::fov_reverse(tnum,m,n,p,dpp_U,dpp_Z));
+    }
+    set_nested_ctx(tnum,0);
+    return ret;    
+}
+
+int Subtrace::hos_ti_reverse(int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    int ret;
+    set_nested_ctx(tnum,1);
+    ret = ::hos_forward(tnum,m,n,/*degree*/d,/*keep==degree+1*/d+1,dp_x,dpp_X,dp_y,dpp_Y);
+    if (ret >= 0) {
+        MINDEC(ret,::hos_ti_reverse(tnum,m,n,d,dpp_U,dpp_Z));
+    }
+    set_nested_ctx(tnum,0);
+    return ret;    
+}
+
+int Subtrace::hos_ov_reverse(int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y) {
+    int ret;
+    set_nested_ctx(tnum,1);
+    ret = ::hov_wk_forward(tnum,m,n,/*degree*/d,/*keep==degree+1*/d+1,p,dp_x,dppp_X,dp_y,dppp_Y);
+    if (ret >= 0) {
+        MINDEC(ret,::hos_ov_reverse(tnum,m,n,d,p,dpp_U,dppp_Z));
+    }
+    set_nested_ctx(tnum,0);
+    return ret;    
+}
+
+int Subtrace::hov_ti_reverse(int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    int ret;
+    set_nested_ctx(tnum,1);
+    ret = ::hos_forward(tnum,m,n,/*degree*/d,/*keep==degree+1*/d+1,dp_x,dpp_X,dp_y,dpp_Y);
+    if (ret >= 0) {
+        MINDEC(ret,::hov_ti_reverse(tnum,m,n,d,p,dppp_U,dppp_Z,NULL));
+    }
     set_nested_ctx(tnum,0);
     return ret;    
 }

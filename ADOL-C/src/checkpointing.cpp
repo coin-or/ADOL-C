@@ -40,8 +40,8 @@ ADOLC_ext_fct_hos_forward cp_hos_forward;
 ADOLC_ext_fct_hov_forward cp_hov_forward;
 ADOLC_ext_fct_fos_reverse cp_fos_reverse;
 ADOLC_ext_fct_fov_reverse cp_fov_reverse;
-ADOLC_ext_fct_hos_reverse cp_hos_reverse;
-ADOLC_ext_fct_hov_reverse cp_hov_reverse;
+ADOLC_ext_fct_hos_ti_reverse cp_hos_ti_reverse;
+ADOLC_ext_fct_hov_ti_reverse cp_hov_ti_reverse;
 void cp_takeshot(CpInfos *cpInfos);
 void cp_restore(CpInfos *cpInfos);
 void cp_release(CpInfos *cpInfos);
@@ -181,8 +181,8 @@ void init_edf(ext_diff_fct *edf) {
     edf->hov_forward=cp_hov_forward;
     edf->fos_reverse=cp_fos_reverse;
     edf->fov_reverse=cp_fov_reverse;
-    edf->hos_reverse=cp_hos_reverse;
-    edf->hov_reverse=cp_hov_reverse;
+    edf->hos_ti_reverse=cp_hos_ti_reverse;
+    edf->hov_ti_reverse=cp_hov_ti_reverse;
 }
 
 /****************************************************************************/
@@ -500,14 +500,13 @@ int cp_fov_reverse (int m, int p, double **dpp_U, int n, double **dpp_Z, double 
     return 0;
 }
 
-int cp_hos_reverse (int m, double *dp_U, int n, int d,  double **dpp_Z) {
+int cp_hos_ti_reverse (int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
     printf("WARNING: Checkpointing algorithm not "
            "implemented for the hos_reverse mode!\n");
     return 0;
 }
 
-int cp_hov_reverse (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z,
-                    short **spp_nz) {
+int cp_hov_ti_reverse (int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
     printf("WARNING: Checkpointing algorithm not "
            "implemented for the hov_reverse mode!\n");
     return 0;

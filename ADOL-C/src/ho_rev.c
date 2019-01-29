@@ -267,6 +267,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*                                                       NECESSARY INCLUDES */
 #include <adolc/interfaces.h>
 #include <adolc/adalloc.h>
+#include <adolc/externfcts.h>
 #include "oplate.h"
 #include "taping_p.h"
 #include <adolc/convolut.h>
@@ -274,9 +275,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #include <math.h>
 
-#if defined(ADOLC_DEBUG)
 #include <string.h>
-#endif /* ADOLC_DEBUG */
 
 BEGIN_C_DECLS
 
@@ -423,6 +422,64 @@ int hov_ti_reverse(
     int q = 1;
 #endif
 	locint qq;
+
+#if defined(_HOS_)
+# define ADOLC_EXT_FCT_U edfct->dpp_U
+# define ADOLC_EXT_FCT_Z edfct->dpp_Z
+# define ADOLC_EXT_POINTER_X edfct->dpp_X
+# define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+# define ADOLC_EXT_FCT_SET_P_U
+# define ADOLC_EXT_FCT_SET_P_Z
+# define ADOLC_EXT_FCT_POINTER hos_ti_reverse
+# define ADOLC_EXT_FCT_IARR_POINTER hos_ti_reverse_iArr
+# define ADOLC_EXT_FCT_COMPLETE \
+  hos_ti_reverse(m, degre, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dpp_X, edfct->dp_y, edfct->dpp_Y)
+# define ADOLC_EXT_FCT_IARR_COMPLETE \
+  hos_ti_reverse_iArr(iArrLength,iArr, m, degre, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dpp_X, edfct->dp_y, edfct->dpp_Y)
+# define ADOLC_EXT_FCT_SAVE_NUMDIRS
+# define ADOLC_EXT_FCT_COPY_TAYS(dest,src) memcpy(dest,src+1,degre*sizeof(revreal))
+#elif defined(_HOV_)
+# define ADOLC_EXT_FCT_U edfct->dpp_U
+# define ADOLC_EXT_FCT_Z edfct->dpp_Z
+# define ADOLC_EXT_POINTER_X edfct->dpp_X
+# define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+# define ADOLC_EXT_FCT_SET_P_U edfct->dppp_U = &edfct->dpp_U
+# define ADOLC_EXT_FCT_SET_P_Z edfct->dppp_Z = &edfct->dpp_Z
+# define ADOLC_EXT_FCT_POINTER hov_ti_reverse
+# define ADOLC_EXT_FCT_IARR_POINTER hov_ti_reverse_iArr
+# define ADOLC_EXT_FCT_COMPLETE \
+  hov_ti_reverse(m, p, degre, edfct->dppp_U, n, edfct->dppp_Z, edfct->dp_x, edfct->dpp_X, edfct->dp_y, edfct->dpp_Y)
+# define ADOLC_EXT_FCT_IARR_COMPLETE \
+  hov_ti_reverse_iArr(iArrLength,iArr, m, p, degre, edfct->dppp_U, n, edfct->dppp_Z, edfct->dp_x, edfct->dpp_X, edfct->dp_y, edfct->dpp_Y)
+# define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
+# define ADOLC_EXT_FCT_COPY_TAYS(dest,src) memcpy(dest,src+1,degre*sizeof(revreal))
+#elif defined(_HOS_OV_)
+# define ADOLC_EXT_FCT_U edfct->dpp_U
+# define ADOLC_EXT_FCT_Z edfct->dpp_Z
+# define ADOLC_EXT_POINTER_X edfct->dppp_X
+# define ADOLC_EXT_POINTER_Y edfct->dppp_Y
+# define ADOLC_EXT_FCT_SET_P_U
+# define ADOLC_EXT_FCT_SET_P_Z edfct->dppp_Z = &edfct->dpp_Z
+# define ADOLC_EXT_FCT_POINTER hos_ov_reverse
+# define ADOLC_EXT_FCT_IARR_POINTER hos_ov_reverse_iArr
+# define ADOLC_EXT_FCT_COMPLETE \
+  hos_ov_reverse(m, degre, edfct->dpp_U, n, p, edfct->dppp_Z, edfct->dp_x, edfct->dppp_X, edfct->dp_y, edfct->dppp_Y)
+# define ADOLC_EXT_FCT_IARR_COMPLETE \
+  hos_ov_reverse_iArr(iArrLength,iArr, m, degre, edfct->dpp_U, n, p, edfct->dppp_Z, edfct->dp_x, edfct->dppp_X, edfct->dp_y, edfct->dppp_Y)
+# define ADOLC_EXT_FCT_SAVE_NUMDIRS
+# define ADOLC_EXT_FCT_COPY_TAYS(dest,src) \
+        for (l=0; l<p; l++) \
+        memcpy(dest[0]+degre*l,src+k*l+1,degre*sizeof(revreal))
+#endif
+# define ADOLC_EXT_FCT_COPY_ADJOINTS(dest,src) dest=src
+# define ADOLC_EXT_FCT_COPY_TAY_0(dest,src) dest=src[0]
+    ext_diff_fct *edfct;
+    int n,m;
+    int loop;
+    int iArrLength;
+    int *iArr;
+    int ext_retc;
+    int oldTraceFlag;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -730,6 +787,27 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
 
+              if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
+#if defined(_HOV_) || defined(_HOS_OV_) 
+                  ASSIGN_A(Aarg, results[0][indexi])
+#elif defined(_HOS_)
+                  ASSIGN_A(Aarg, results[indexi])
+#endif
+                FOR_0_LE_l_LT_p
+                if  (0 == ARES) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Ares, k1)
+                } else {
+                    MAXDEC(AARG,ARES);
+                    AARG_INC_O;
+                    ARES_INC = 0.0;
+                    FOR_0_LE_i_LT_k
+                    { /* ! no tempory */
+                        AARG_INC += ARES;
+                        ARES_INC = 0.0;
+                    }
+                }
+              } else {
                 FOR_0_LE_l_LT_p
                 {
 #ifdef _HOV_
@@ -740,6 +818,7 @@ int hov_ti_reverse(
                     FOR_0_LE_i_LT_k
                         RESULTS(l,indexi,i) = ARES_INC;
                 }
+              }
 
                 GET_TAYL(res,k,p)
                     indexi--;
@@ -751,8 +830,28 @@ int hov_ti_reverse(
                 res = get_locint_r();
 
                 ASSIGN_A(Ares, rpp_A[res])
+              if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
+#if defined(_HOV_)
+                  ASSIGN_A(Aarg, lagrange[0][indexd])
+#elif defined(_HOS_) || defined(_HOS_OV_)
+                  ASSIGN_A(Aarg, lagrange[indexd])
+#endif
+                FOR_0_LE_l_LT_p
+                if  (0 == AARG) {
+                    HOV_INC(Aarg, k1)
+                    HOV_INC(Ares, k1)
+                } else {
+                    MAXDEC(ARES,AARG);
+                    ARES_INC_O;
+                    AARG_INC = 0.0;
+                    FOR_0_LE_i_LT_k
+                    { /* ! no tempory */
+                        ARES_INC = AARG;
+                        AARG_INC = 0.0;
+                    }
+                }
+              } else {
                 ASSIGN_A(Aarg, rpp_A[res])   /* just a helpful pointers */
-
                 FOR_0_LE_l_LT_p
                 { ARES_INC_O;
                   dc = -1;
@@ -763,6 +862,7 @@ int hov_ti_reverse(
                   AARG = (dc < 0)? 0.0 : (dc > 0)? 2.0 : 1.0;
                   HOV_INC(Aarg, k1)
                 }
+              }
                 indexd--;
             break;
 
@@ -3250,6 +3350,217 @@ int hov_ti_reverse(
                 for (j=arg1;j<=arg2;j++)
                     GET_TAYL(j,k,p)
 
+                break;
+            case ext_diff:
+                ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
+                m = get_locint_r();
+                n = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+                ADOLC_EXT_FCT_SAVE_NUMDIRS;
+                edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+
+                oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+
+                if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+                if (m>0) {
+                    if (ADOLC_EXT_FCT_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (ADOLC_EXT_POINTER_Y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    ADOLC_EXT_FCT_SET_P_U;
+                }
+                if (n>0) {
+                    if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (ADOLC_EXT_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    ADOLC_EXT_FCT_SET_P_Z;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop) {
+                    ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop],rpp_A[arg]);
+                    ++arg;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop) {
+                    ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop],rpp_A[arg]);
+                    ++arg;
+                }
+                {
+#if defined(_HOS_) || defined(_HOV_)
+                revreal* tmpmem = malloc((n+m)*degre*sizeof(revreal));
+#elif defined(_HOS_OV_)
+                revreal* tmpmem = malloc((n+m)*(1+p*degre)*sizeof(revreal));
+#endif
+                revreal* tmp = tmpmem;
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop,++arg) {
+#if defined(_HOS_) || defined(_HOV_)
+                    ADOLC_EXT_POINTER_X[loop] = tmp;
+#elif defined(_HOS_OV_)
+                    ADOLC_EXT_POINTER_X[loop] = (revreal**)tmp++;
+                    ADOLC_EXT_POINTER_X[loop][0] = tmp;
+#endif
+                    ADOLC_EXT_FCT_COPY_TAY_0(edfct->dp_x[loop],rpp_T[arg]);
+                    ADOLC_EXT_FCT_COPY_TAYS(ADOLC_EXT_POINTER_X[loop],rpp_T[arg]);
+#if defined(_HOS_) || defined(_HOV_)
+                    tmp += degre;
+#elif defined(_HOS_OV_)
+                    tmp += p*degre;
+#endif
+                }
+                
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop,++arg) {
+#if defined(_HOS_) || defined(_HOV_)
+                    ADOLC_EXT_POINTER_Y[loop] = tmp;
+#elif defined(_HOS_OV_)
+                    ADOLC_EXT_POINTER_Y[loop] = (revreal**)tmp++;
+                    ADOLC_EXT_POINTER_Y[loop][0] = tmp;
+#endif
+                 /* ADOLC_EXT_FCT_COPY_TAY_0(edfct->dp_y[loop],rpp_T[arg]);
+                    ADOLC_EXT_FCT_COPY_TAYS(ADOLC_EXT_POINTER_Y[loop],rpp_T[arg]); 
+                  /* The copying of taylors is probably unnecessary
+                   * as long as we're calling a nested ADOLC trace
+                   **/
+#if defined(_HOS_) || defined(_HOV_)
+                    tmp += degre;
+#elif defined(_HOS_OV_)
+                    tmp += p*degre;
+#endif
+                } 
+                ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+                free(tmpmem);
+                }
+                /* In fo_rev.c we now zero out the used adjoints of dpp_U
+                 * however in ho_rev.c the assign_ind and assign_dep for the
+                 * nested case take care of that zeroing out.
+                 **/
+
+                if (edfct->dp_y_priorRequired) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                    for (loop = 0; loop < m; ++loop, --res) {
+                        GET_TAYL(res,k,p)
+                    }
+                }
+                if (edfct->dp_x_changes) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev+n-1;
+                    for (loop = 0; loop < n; ++loop, --res) {
+                        GET_TAYL(res,k,p)
+                    }
+                }
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+                break;
+
+            case ext_diff_iArr:
+                ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
+                m = get_locint_r();
+                n = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+                iArrLength=get_locint_r();
+                iArr=(int*)malloc(iArrLength*sizeof(int));
+                for (loop=iArrLength-1;loop>=0;--loop) iArr[loop]=get_locint_r();
+                get_locint_r(); /* get it again */
+                ADOLC_EXT_FCT_SAVE_NUMDIRS;
+                edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+
+                oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+
+                if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+                if (m>0) {
+                    if (ADOLC_EXT_FCT_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (ADOLC_EXT_POINTER_Y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    ADOLC_EXT_FCT_SET_P_U;
+                }
+                if (n>0) {
+                    if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (ADOLC_EXT_POINTER_X==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    ADOLC_EXT_FCT_SET_P_Z;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop) {
+                    ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop],rpp_A[arg]);
+                    ++arg;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop) {
+                    ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop],rpp_A[arg]);
+                    ++arg;
+                }
+                {
+#if defined(_HOS_) || defined(_HOV_)
+                revreal* tmpmem = malloc((n+m)*degre*sizeof(revreal));
+#elif defined(_HOS_OV_)
+                revreal* tmpmem = malloc((n+m)*(1+p*degre)*sizeof(revreal));
+#endif
+                revreal* tmp = tmpmem;
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (loop = 0; loop < n; ++loop,++arg) {
+#if defined(_HOS_) || defined(_HOV_)
+                    ADOLC_EXT_POINTER_X[loop] = tmp;
+#elif defined(_HOS_OV_)
+                    ADOLC_EXT_POINTER_X[loop] = (revreal**)tmp++;
+                    ADOLC_EXT_POINTER_X[loop][0] = tmp;
+#endif
+                    ADOLC_EXT_FCT_COPY_TAY_0(edfct->dp_x[loop],rpp_T[arg]);
+                    ADOLC_EXT_FCT_COPY_TAYS(ADOLC_EXT_POINTER_X[loop],rpp_T[arg]);
+#if defined(_HOS_) || defined(_HOV_)
+                    tmp += degre;
+#elif defined(_HOS_OV_)
+                    tmp += p*degre;
+#endif
+                }
+                
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                for (loop = 0; loop < m; ++loop,++arg) {
+#if defined(_HOS_) || defined(_HOV_)
+                    ADOLC_EXT_POINTER_Y[loop] = tmp;
+#elif defined(_HOS_OV_)
+                    ADOLC_EXT_POINTER_X[loop] = (revreal**)tmp++;
+                    ADOLC_EXT_POINTER_X[loop][0] = tmp;
+#endif
+                 /* ADOLC_EXT_FCT_COPY_TAY_0(edfct->dp_y[loop],rpp_T[arg]);
+                    ADOLC_EXT_FCT_COPY_TAYS(ADOLC_EXT_POINTER_Y[loop],rpp_T[arg]); 
+                  /* The copying of taylors is probably unnecessary
+                   * as long as we're calling a nested ADOLC trace
+                   **/
+#if defined(_HOS_) || defined(_HOV_)
+                    tmp += degre;
+#elif defined(_HOS_OV_)
+                    tmp += p*degre;
+#endif
+                } 
+                ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+                free(tmpmem);
+                }
+                /* In fo_rev.c we now zero out the used adjoints of dpp_U
+                 * however in ho_rev.c the assign_ind and assign_dep for the
+                 * nested case take care of that zeroing out.
+                 **/
+
+                if (edfct->dp_y_priorRequired) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                    for (loop = 0; loop < m; ++loop, --res) {
+                        GET_TAYL(res,k,p)
+                    }
+                }
+                if (edfct->dp_x_changes) {
+                    res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev+n-1;
+                    for (loop = 0; loop < n; ++loop, --res) {
+                        GET_TAYL(res,k,p)
+                    }
+                }
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
                 break;
 
                 /*--------------------------------------------------------------------------*/

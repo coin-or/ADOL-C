@@ -65,12 +65,14 @@ void edf_zero(ext_diff_fct *edf) {
 
   edf->fos_reverse=0;
   edf->fos_reverse_iArr=0;
-  edf->hos_reverse=0;
-  edf->hos_reverse_iArr=0;
+  edf->hos_ti_reverse=0;
+  edf->hos_ti_reverse_iArr=0;
+  edf->hos_ov_reverse=0;
+  edf->hos_ov_reverse_iArr=0;
   edf->fov_reverse=0;
   edf->fov_reverse_iArr=0;
-  edf->hov_reverse=0;
-  edf->hov_reverse_iArr=0;
+  edf->hov_ti_reverse=0;
+  edf->hov_ti_reverse_iArr=0;
   edf->indopro_forward_tight=0;
 
   edf->dp_x=0; 
@@ -88,7 +90,6 @@ void edf_zero(ext_diff_fct *edf) {
   edf->dpp_Z=0; 
   edf->dppp_Z=0;
 
-  edf->spp_nz=0;
   edf->ind_dom=0;
 
   edf->max_n=0;
@@ -374,6 +375,39 @@ static int edfoo_wrapper_fov_reverse(int m, int p, double **dpp_U, int n, double
     return ebase->fov_reverse(m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
 }
 
+static int edfoo_wrapper_hos_ti_reverse(int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->hos_ti_reverse(m,d,dpp_U,n,dpp_Z,dp_x,dpp_X,dp_y,dpp_Y);
+}
+
+static int edfoo_wrapper_hos_ov_reverse(int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->hos_ov_reverse(m,d,dpp_U,n,p,dppp_Z,dp_x,dppp_X,dp_y,dppp_Y);
+}
+
+static int edfoo_wrapper_hov_ti_reverse(int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject*>(edf->obj);
+    return ebase->hov_ti_reverse(m,d,p,dppp_U,n,dppp_Z,dp_x,dpp_X,dp_y,dpp_Y);
+}
+
 static int edfoo_wrapper_indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom) {
     ext_diff_fct* edf;
     EDFobject* ebase;
@@ -396,6 +430,9 @@ void EDFobject::init_edf(EDFobject* ebase) {
     edf->hov_forward = edfoo_wrapper_hov_forward;
     edf->fos_reverse = edfoo_wrapper_fos_reverse;
     edf->fov_reverse = edfoo_wrapper_fov_reverse;    
+    edf->hos_ti_reverse = edfoo_wrapper_hos_ti_reverse;
+    edf->hos_ov_reverse = edfoo_wrapper_hos_ov_reverse;
+    edf->hov_ti_reverse = edfoo_wrapper_hov_ti_reverse;
     edf->indopro_forward_tight = edfoo_wrapper_indopro_forward_tight;
 }
 
@@ -486,6 +523,39 @@ static int edfoo_iarr_wrapper_fov_reverse(int iArrLength, int *iArr, int m, int 
     return ebase->fov_reverse(iArrLength,iArr,m,p,dpp_U,n,dpp_Z,dp_x,dp_y);    
 }
 
+static int edfoo_iarr_wrapper_hos_ti_reverse(int iArrLength, int *iArr, int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->hos_ti_reverse(iArrLength,iArr,m,d,dpp_U,n,dpp_Z,dp_x,dpp_X,dp_y,dpp_Y);
+}
+
+static int edfoo_iarr_wrapper_hos_ov_reverse(int iArrLength, int *iArr, int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->hos_ov_reverse(iArrLength,iArr,m,d,dpp_U,n,p,dppp_Z,dp_x,dppp_X,dp_y,dppp_Y);
+}
+
+static int edfoo_iarr_wrapper_hov_ti_reverse(int iArrLength, int *iArr, int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    ext_diff_fct* edf;
+    EDFobject_iArr* ebase;
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    // figure out which edf
+    edf = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+    ebase = reinterpret_cast<EDFobject_iArr*>(edf->obj);
+    return ebase->hov_ti_reverse(iArrLength,iArr,m,d,p,dppp_U,n,dppp_Z,dp_x,dpp_X,dp_y,dpp_Y);
+}
+
 static int edfoo_iarr_wrapper_indopro_forward_tight(int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom) {
     ext_diff_fct* edf;
     EDFobject_iArr* ebase;
@@ -508,6 +578,9 @@ void EDFobject_iArr::init_edf(EDFobject_iArr* ebase) {
     edf->hov_forward_iArr = edfoo_iarr_wrapper_hov_forward;
     edf->fos_reverse_iArr = edfoo_iarr_wrapper_fos_reverse;
     edf->fov_reverse_iArr = edfoo_iarr_wrapper_fov_reverse;
+    edf->hos_ti_reverse_iArr = edfoo_iarr_wrapper_hos_ti_reverse;
+    edf->hos_ov_reverse_iArr = edfoo_iarr_wrapper_hos_ov_reverse;
+    edf->hov_ti_reverse_iArr = edfoo_iarr_wrapper_hov_ti_reverse;
     edf->indopro_forward_tight_iArr = edfoo_iarr_wrapper_indopro_forward_tight;
 }
 
@@ -545,6 +618,30 @@ int EDFobject::hov_forward(int n, double *dp_x, int k, int p, double ***dppp_X, 
 
 int EDFobject_iArr::hov_forward(int iArrLength, int *iArr, int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y) {
     throw FatalError(255,"Not Implemented","EDFobject_iArr::hov_forward",__FILE__,__LINE__);
+}
+
+int EDFobject::hos_ti_reverse(int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject::hos_ti_reverse",__FILE__,__LINE__);
+}
+
+int EDFobject_iArr::hos_ti_reverse(int iArrLength, int *iArr, int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject_iArr::hos_ti_reverse",__FILE__,__LINE__);
+}
+
+int EDFobject::hos_ov_reverse(int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject::hos_ov_reverse",__FILE__,__LINE__);
+}
+
+int EDFobject_iArr::hos_ov_reverse(int iArrlength, int *iArr,int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject_iArr::hos_ov_reverse",__FILE__,__LINE__);
+}
+
+int EDFobject::hov_ti_reverse(int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject::hov_ti_reverse",__FILE__,__LINE__);
+}
+
+int EDFobject_iArr::hov_ti_reverse(int iArrLength, int *iArr, int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y) {
+    throw FatalError(255,"Not Implemented","EDFobject_iArr::hov_ti_reverse",__FILE__,__LINE__);
 }
 /****************************************************************************/
 /*                                                               THAT'S ALL */

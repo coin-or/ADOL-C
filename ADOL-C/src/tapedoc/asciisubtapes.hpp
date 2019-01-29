@@ -40,6 +40,9 @@ public:
     virtual int hov_forward(int n, double *dp_x, int k, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
     virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
     virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
+    virtual int hos_ti_reverse(int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y);
+    virtual int hos_ov_reverse(int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y);
+    virtual int hov_ti_reverse(int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y);
     virtual int indopro_forward_tight(int n, double *dp_x, int m, unsigned int **ind_dom);
     virtual void dummycall(locint xstart, locint xnum, locint ystart, locint ynum);
 };

@@ -28,8 +28,9 @@ typedef int (ADOLC_ext_fct_hos_forward) (int n, double *dp_x, int d, double **dp
 typedef int (ADOLC_ext_fct_hov_forward) (int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
 typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
-typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
-typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
+typedef int (ADOLC_ext_fct_hos_ti_reverse) (int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y); 
+typedef int (ADOLC_ext_fct_hos_ov_reverse) (int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y); 
+typedef int (ADOLC_ext_fct_hov_ti_reverse) (int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y);
 typedef int (ADOLC_ext_fct_indopro_forward_tight) (int n, double *dp_x, int m, unsigned int **ind_dom); 
 /**
  * we add a second set of function pointers with a signature expanded by a an integer array iArr
@@ -47,8 +48,9 @@ typedef int (ADOLC_ext_fct_iArr_hos_forward) (int iArrLength, int *iArr, int n, 
 typedef int (ADOLC_ext_fct_iArr_hov_forward) (int iArrLength, int *iArr, int n, double *dp_x, int d, int p, double ***dppp_X, int m, double *dp_y, double ***dppp_Y);
 typedef int (ADOLC_ext_fct_iArr_fos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_iArr_fov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
-typedef int (ADOLC_ext_fct_iArr_hos_reverse) (int iArrLength, int *iArr, int m, double *dp_U, int n, int d, double **dpp_Z);
-typedef int (ADOLC_ext_fct_iArr_hov_reverse) (int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
+typedef int (ADOLC_ext_fct_iArr_hos_ti_reverse) (int iArrLength, int *iArr, int m, int d, double **dpp_U, int n, double **dpp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y); 
+typedef int (ADOLC_ext_fct_iArr_hos_ov_reverse) (int iArrLength, int *iArr, int m, int d, double **dpp_U, int n, int p, double ***dppp_Z, double *dp_x, double ***dppp_X, double *dp_y, double ***dppp_Y); 
+typedef int (ADOLC_ext_fct_iArr_hov_ti_reverse) (int iArrLength, int *iArr, int m, int d, int p, double ***dppp_U, int n, double ***dppp_Z, double *dp_x, double **dpp_X, double *dp_y, double **dpp_Y);
 typedef int (ADOLC_ext_fct_iArr_indopro_forward_tight) (int iArrLength, int *iArr, int n, double *dp_x, int m, unsigned int **ind_dom); 
 
 
@@ -127,13 +129,18 @@ typedef struct ext_diff_fct {
   /** 
    * higher order scalar reverse for external functions  is currently not implemented in ho_rev.c
    */
-  ADOLC_ext_fct_hos_reverse *hos_reverse; 
-  ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr;
+  ADOLC_ext_fct_hos_ti_reverse *hos_ti_reverse; 
+  ADOLC_ext_fct_iArr_hos_ti_reverse *hos_ti_reverse_iArr;
+  /** 
+   * higher order scalar reverse (on vectors) for external functions  is currently not implemented in ho_rev.c
+   */
+  ADOLC_ext_fct_hos_ov_reverse *hos_ov_reverse; 
+  ADOLC_ext_fct_iArr_hos_ov_reverse *hos_ov_reverse_iArr;
   /** 
    * higher order vector reverse for external functions  is currently not implemented in ho_rev.c
    */
-  ADOLC_ext_fct_hov_reverse *hov_reverse; 
-  ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
+  ADOLC_ext_fct_hov_ti_reverse *hov_ti_reverse; 
+  ADOLC_ext_fct_iArr_hov_ti_reverse *hov_ti_reverse_iArr;
 
   ADOLC_ext_fct_indopro_forward_tight *indopro_forward_tight;
   ADOLC_ext_fct_iArr_indopro_forward_tight *indopro_forward_tight_iArr;
@@ -186,12 +193,13 @@ typedef struct ext_diff_fct {
   double ***dppp_Y;
 
   /**
-   * fos_reverse and hos_reverse:  weight vector, dimension [m]
+   * fos_reverse  weight vector, dimension [m]
    */
   double *dp_U;
  
   /**
-   * fov_reverse and hov_reverse: p weight vectors, dimensions [p][m]
+   * fov_reverse: p weight vectors, dimensions [p][m]
+   * hos_ti_reverse: adjoint Taylor polynomial coefficients up to order d, dimensions [m][d+2]
    */
   double **dpp_U;       
 
@@ -202,19 +210,19 @@ typedef struct ext_diff_fct {
 
   /** 
    * fov_reverse: Jacobian projection for p weight vectors, dimensions [p][n]
-   * hos_reverse: adjoint Taylor polynomial coefficients up to order d, dimensions [n][d+1] 
+   * hos_ti_reverse adjoint Taylor polynomial coefficients up to order d, dimensions [n][d+2] 
+   *
    */
   double **dpp_Z;   
-
   /**
-   * hov_reverse:  adjoint Taylor polynomial coefficients up to order d for p weight vectors, dimension [p][n][d+1]
+   * hov_ti_reverse:  adjoint Taylor polynomial coefficients up to order d for p weight vectors, dimension [p][m][d+2], for nested allocated as [m][p*(d+2)] = &dpp_U
+   */
+
+  double ***dppp_U;       
+  /**
+   * hov_ti_reverse:  adjoint Taylor polynomial coefficients up to order d for p weight vectors, dimension [p][n][d+2], for nested allocated as [n][p*(d+2)] = &dpp_Z, contains structural pattern in first element of each subarray
    */
   double ***dppp_Z; 
-
-  /** 
-   * hov_reverse: non-zero pattern of dppp_Z, dimension [p][n], see also the hov_reverse ADOL-C driver 
-   */
-  short **spp_nz;
 
   /**
    * indopro_forward_tight: index domain information for sparsity pattern of jacobian

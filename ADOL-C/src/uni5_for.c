@@ -133,8 +133,8 @@
 #define _ADOLC_VECTOR_
 #define _HIGHER_ORDER_
 
-#define ARGUMENT(indexi,l,i) argument[indexi][l][i]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
+#define ARGUMENT(indexi,l,i) (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx?argument[indexi][0][l*k+i]:argument[indexi][l][i])
+#define TAYLORS(indexd,l,i)  *(ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx?&taylors[indexd][0][l*k+i]:&taylors[indexd][l][i])
 
 /*--------------------------------------------------------------------------*/
 #else
