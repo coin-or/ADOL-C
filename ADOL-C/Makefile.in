@@ -235,7 +235,7 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src . test include examples
+DIST_SUBDIRS = src . test include swig examples
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/autoconf/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
@@ -316,6 +316,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -339,6 +340,7 @@ REAL_TYPE = @REAL_TYPE@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SPARSE_DRIVERS = @SPARSE_DRIVERS@
 STRIP = @STRIP@
 UINT_TYPE = @UINT_TYPE@
 USE_BOOST_POOL = @USE_BOOST_POOL@
@@ -405,11 +407,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_FALSE@SUBDIRS = src . test include
+@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_FALSE@SUBDIRS = src . test include \
+@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_FALSE@	swig
 @ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_TRUE@SUBDIRS = src . test examples \
-@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_TRUE@	include
-@ADDEXA_TRUE@@DOCEXA_FALSE@SUBDIRS = src . test examples include
-@DOCEXA_TRUE@SUBDIRS = src . test examples include
+@ADDEXA_FALSE@@DOCEXA_FALSE@@PAREXA_TRUE@	include swig
+@ADDEXA_TRUE@@DOCEXA_FALSE@SUBDIRS = src . test examples include swig
+@DOCEXA_TRUE@SUBDIRS = src . test examples include swig
 MAINTAINERCLEANFILES = Makefile.in 
 lib_LTLIBRARIES = lib@adolclib@.la
 lib@adolclib@_la_LDFLAGS = -version-info 3:0:1 -no-undefined \

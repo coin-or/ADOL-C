@@ -15,6 +15,9 @@
 /* ADOL-C hard debug mode */
 #undef ADOLC_HARDDEBUG
 
+/* defined if MeDiPack support is to be compiled in */
+#undef ADOLC_MEDIPACK_SUPPORT
+
 /* ADOL-C Patchlevel */
 #undef ADOLC_PATCHLEVEL
 
@@ -50,6 +53,9 @@
 
 /* Define if the compiler provides __builtin_expect */
 #undef HAVE_BUILTIN_EXPECT
+
+/* Define to 1 if you have the `cbrt' function. */
+#undef HAVE_CBRT
 
 /* define if the compiler supports basic C++11 syntax */
 #undef HAVE_CXX11
@@ -137,8 +143,7 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
