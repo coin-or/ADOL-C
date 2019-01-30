@@ -4265,6 +4265,29 @@ on the chosen programming language the header files provide
 the right ADOL-C prototypes. 
 For linking the resulting object codes the library \verb=libadolc.*= 
 must be used (see \autoref{genlib}). 
+\subsection{Interfacing with Python and R}
+For generating the SWIG based interface to Python and R programming
+languages the prerequisite is an installation of the SWIG tool (at
+least newer than vesion 3.0.8). Furthermore, for installing and using
+the R interface please refer to the documentation and software at
+\verb=https://github.com/sriharikrishna/radolc=.
+Installation of the Python interface can be done by changung into the
+\verb=ADOL-C/swig= subdirectory of the ADOL-C source code and calling
+the command
+\begin{center}
+\verb=python setup.py install --user=
+\end{center}
+This will internally cause the compilation and installtion of the
+ADOL-C library and header files using default configuration options as
+described in \autoref{genlib}.
+
+For a description on the working of these interfaces refer to the
+following article.\\[1ex]
+K. Kulshreshtha, S.H.K. Narayanan, J. Bessac and K. MacIntyre:
+Efficient computation of derivatives for solving optimizaiton problems
+in R and Python using SWIG generated interfaces to
+ADOL-C. \emph{Optimisation Methods and Software}, 33(4-6),
+pp1173-1191. 2018.
 %
 \subsection{Adding Quadratures as Special Functions}
 %

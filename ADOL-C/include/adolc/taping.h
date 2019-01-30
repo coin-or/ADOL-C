@@ -60,8 +60,11 @@ ADOLC_DLL_EXPORT void tapestats(short tag, size_t *tape_stats);
 
 ADOLC_DLL_EXPORT void set_nested_ctx(short tag, char nested);
 
+ADOLC_DLL_EXPORT char currently_nested(short tag);
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
+
+ADOLC_DLL_EXPORT void cleanUp();
 
 ADOLC_DLL_EXPORT int removeTape(short tapeID, short type);
 

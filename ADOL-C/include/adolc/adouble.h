@@ -36,12 +36,14 @@
 #include <cmath>
 #include <stdexcept>
 
+#if !defined(SWIGPRE)
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::ostream;
 using std::istream;
 using std::logic_error;
+#endif
 
 #include <adolc/internal/common.h>
 
@@ -213,16 +215,21 @@ public:
         is "freed" when the adub goes out of scope (at destruction time).
    ---- operates just like a badouble, but it has a destructor defined for it.
 */
+#if !defined(SWIGPRE)
 ADOLC_DLL_EXPORT adub* adubp_from_adub(const adub&);
 /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
 ADOLC_DLL_EXPORT adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
+#endif
 
 class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adouble;
     friend ADOLC_DLL_EXPORT class advector;
     friend ADOLC_DLL_EXPORT class adubref;
     friend ADOLC_DLL_EXPORT class pdouble;
+
+#if !defined(SWIGPRE)
     friend adub* adubp_from_adub(const adub&);
+#endif
 private:
     adub( adub const &) {
 	isInit = false;
@@ -249,11 +256,14 @@ protected:
    adub( locint lo ) : badouble(lo) {} 
 
 public:
-
+#if !defined(SWIGPRE)
     explicit operator adub*() const { return adubp_from_adub(*this); }
+#endif 
     /*--------------------------------------------------------------------------*/
+#if !defined(SWIGPRE)
     /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
     friend adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
+#endif
     /* Functions friends with both badouble and adub */
 #define _IN_CLASS_ 1
 #define _IN_ADUB_ 1
@@ -296,8 +306,13 @@ public:
     adouble( double );
     /* adub prevents postfix operators to occur on the left
        side of an assignment which would not work  */
+#if !defined(SWIGPRE)
     adub operator++( int );
     adub operator--( int );
+#else
+    adub* operator++( int );
+    adub* operator--( int );
+#endif
     badouble& operator++( void );
     badouble& operator--( void );
     /*   inline double value(); */
@@ -414,6 +429,7 @@ inline int operator < ( double coval, const badouble& v ) {
         return (v > 0);
 }
 
+#if !defined(SWIGPRE)
 /*--------------------------------------------------------------------------*/
 /* Adding a floating point from an adouble  */
 inline adub operator + ( const badouble& x , double coval ) {
@@ -436,12 +452,14 @@ inline adub operator * (const badouble& x, double coval) {
 inline adub operator / (const badouble& x, double coval) {
     return (1.0/coval) * x;
 }
+#endif
 
 
 inline badouble& badouble::operator /= (const pdouble& p) {
     *this *= recipr(p);
     return *this;
 }
+
 /****************************************************************************/
 /*                                                                THAT'S ALL*/
 #endif /* __cplusplus */

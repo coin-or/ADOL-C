@@ -362,9 +362,14 @@ COLPACK_CONF
 
 AM_CONDITIONAL(SPARSE,[test x${sparse} = xyes])
 
+SPARSE_DRIVERS="#undef SPARSE_DRIVERS"
+
 if test x$sparse = xyes ; then
    AC_DEFINE(SPARSE,[1],[Define 1 if sparse derivative propagation is to be enabled])
+   SPARSE_DRIVERS="#define SPARSE_DRIVERS 1"
 fi
+
+AC_SUBST(SPARSE_DRIVERS)
 
 # ADOL-C Examples
 AC_MSG_CHECKING(whether to build documented examples)
@@ -568,6 +573,7 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/examples/additional_examples/timing/Makefile
                 ADOL-C/examples/additional_examples/param/Makefile
                 ADOL-C/test/Makefile
+                ADOL-C/swig/Makefile
                 MSVisualStudio/v14/sparse/config.h
                 MSVisualStudio/v14/nosparse/config.h
                 MSVisualStudio/v14/x64/sparse/config.h

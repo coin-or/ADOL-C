@@ -35,15 +35,14 @@ int abs_normal(short tag,      /* tape identifier */
                int n,          /* number of independents */
                int swchk,      /* number of switches (check) */
                double *x,      /* base point */
-               short *sigma,   /* sigma of x */
                double *y,      /* function value */
                double *z,      /* switching variables */
                double *cz,     /* first constant */
                double *cy,     /* second constant */
-               double **J,
-               double **Y,
-               double **Z,
-               double **L)
+               double **Y,     /* m times n */
+               double **J,     /* m times s */
+               double **Z,     /* s times n */
+               double **L)     /* s times s (lowtri) */
 {
 
   int i,j,s;
@@ -81,11 +80,11 @@ int abs_normal(short tag,      /* tape identifier */
     } else {
         cy[l]=y[l];
         for(j=0;j<n;j++){
-            J[l][j]=res[j];
+            Y[l][j]=res[j];
         }
         for(j=0;j<s;j++){
-            Y[l][j]=res[j+n];
-            cy[l] = cy[l]-Y[l][j]*fabs(z[j]);
+            J[l][j]=res[j+n];
+            cy[l] = cy[l]-J[l][j]*fabs(z[j]);
         }
     }
   }
