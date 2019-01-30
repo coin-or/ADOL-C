@@ -40,6 +40,7 @@ typedef @REAL_TYPE@ revreal;
 /* Sparse drivers have been compiled */
 @SPARSE_DRIVERS@
 
+/*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */
 @USE_BOOST_POOL@
 

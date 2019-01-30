@@ -34,7 +34,11 @@ int abs_normal(short tag,      /* tape identifier */
                int m,          /* number od dependents   */             
                int n,          /* number of independents */
                int swchk,      /* number of switches (check) */
+<<<<<<< HEAD
                double *x,      /* base point */ 
+=======
+               double *x,      /* base point */
+>>>>>>> svn
                double *y,      /* function value */
                double *z,      /* switching variables */
                double *cz,     /* first constant */
@@ -80,7 +84,7 @@ int abs_normal(short tag,      /* tape identifier */
     } else {
         cy[l]=y[l];
         for(j=0;j<n;j++){
-            Y[l][j]=res[j];	
+            Y[l][j]=res[j];
         }
         for(j=0;j<s;j++){
             J[l][j]=res[j+n];
