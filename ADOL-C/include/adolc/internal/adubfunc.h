@@ -11,12 +11,11 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-
 #if defined(_IN_CLASS_) && _IN_CLASS_
 #if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_)
     /*--------------------------------------------------------------------------*/
     /* Comparison (friends) */
-#if defined(ADOLC_ADVANCED_BRANCHING)
+#if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator == ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator <= ( const badouble&, const badouble& );
@@ -24,6 +23,8 @@
     friend ADOLC_DLL_EXPORT adub operator >  ( const badouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub operator <  ( const badouble&, const badouble& );
 #endif
+
+#if !defined(SWIGPRE)
     /*--------------------------------------------------------------------------*/
     /* sign operators (friends) */
     friend ADOLC_DLL_EXPORT adub operator + ( const badouble& x );
@@ -89,5 +90,6 @@
     friend ADOLC_DLL_EXPORT adub frexp ( const badouble&, int* );
 
     /*--------------------------------------------------------------------------*/
+#endif
 #endif
 #endif

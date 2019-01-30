@@ -78,8 +78,13 @@ protected:
 public:
     /* adub prevents postfix operators to occur on the left
        side of an assignment which would not work  */
+#if !defined(SWIGPRE)
     adub operator++( int );
     adub operator--( int );
+#else
+    adub* operator++( int );
+    adub* operator--( int );
+#endif
     adubref& operator++( void );
     adubref& operator--( void );
     adubref& operator = ( double );
@@ -104,6 +109,9 @@ public:
     adubref& operator >>= ( double& );
     void declareDependent();
     operator adub() const;
+#if !defined(SWIGPRE)
+    explicit operator adubref*() const;
+#endif
     friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&, const badouble&);
     friend ADOLC_DLL_EXPORT void condassign(adubref&, const badouble&, const badouble&);
     friend ADOLC_DLL_EXPORT void condeqassign(adubref&, const badouble&, const badouble&, const badouble&);
@@ -137,8 +145,13 @@ public:
     ADOLC_DLL_EXPORT operator const std::vector<adouble>&() const { return data; }
     ADOLC_DLL_EXPORT operator std::vector<adouble>&() { return data; }
     ADOLC_DLL_EXPORT operator adouble*() { return data.data(); }
+#if !defined(SWIGPRE)
     ADOLC_DLL_EXPORT adub operator[](const badouble& index) const;
     ADOLC_DLL_EXPORT adubref operator[](const badouble& index);
+#else
+    ADOLC_DLL_EXPORT adub* operator[](const badouble& index) const;
+    ADOLC_DLL_EXPORT adubref* operator[](const badouble& index);
+#endif
     ADOLC_DLL_EXPORT adouble& operator[](size_t i) { return data[i]; }
     ADOLC_DLL_EXPORT const adouble& operator[](size_t i) const { return data[i]; }
     ADOLC_DLL_EXPORT adouble lookupindex(const badouble& x, const badouble& y) const;

@@ -26,7 +26,7 @@ endif
 endif
 endif
 
-SUBDIRS += include
+SUBDIRS += include swig
 
 MAINTAINERCLEANFILES = Makefile.in 
 

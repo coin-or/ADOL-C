@@ -1,0 +1,52 @@
+From f3e458c6443b6579a43e3add9b913091ee95b52d Mon Sep 17 00:00:00 2001
+From: Kshitij Kulshreshtha <kshitij@math.upb.de>
+Date: Wed, 9 Mar 2016 17:01:05 +0100
+Subject: [PATCH 1/2] R: add typemap(argout) and fix code generation
+
+without this from functions that take arrays and work on them inplace
+the results are not copied back to the R workspace
+
+Signed-off-by: Kshitij Kulshreshtha <kshitij@math.upb.de>
+---
+ Lib/r/r.swg          | 12 ++++++++++++
+ Source/Modules/r.cxx |  1 +
+ 2 files changed, 13 insertions(+)
+
+diff --git a/Lib/r/r.swg b/Lib/r/r.swg
+index cf1cfc8..630c8ff 100644
+--- a/Lib/r/r.swg
++++ b/Lib/r/r.swg
+@@ -91,6 +91,18 @@ SWIG_InitializeModule(0);
+ }
+ }
+ 
++%typemap(argout) float *, float[ANY],
++             double *, double[ANY]
++{
++{
++  int _rswigi;
++  int _rswiglen = LENGTH($input);
++  for (_rswigi=0; _rswigi<_rswiglen; _rswigi++) {
++     REAL($input)[_rswigi] = $1[_rswigi];
++  }
++}
++}
++
+ %typemap(freearg,noblock=1) int *, int[ANY], 
+ 	     signed int *, signed int[ANY],
+ 	     unsigned int *, unsigned int[ANY],
+diff --git a/Source/Modules/r.cxx b/Source/Modules/r.cxx
+index 301b49f..855088a 100644
+--- a/Source/Modules/r.cxx
++++ b/Source/Modules/r.cxx
+@@ -1934,6 +1934,7 @@ int R::functionWrapper(Node *n) {
+       Replaceall(tm,"$target", lname);
+       Replaceall(tm,"$source", name);
+       Replaceall(tm,"$input", name);
++      Setattr(p, "emit:input", name);
+ 
+       if (Getattr(p,"wrap:disown") || (Getattr(p,"tmap:in:disown"))) {
+ 	Replaceall(tm,"$disown","SWIG_POINTER_DISOWN");
+-- 
+2.6.6
+

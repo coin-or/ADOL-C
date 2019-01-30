@@ -53,7 +53,7 @@
 
 /*--------------------------------------------------------------------------*/
 /* interfaces to SPARSE package */
-#if defined(SPARSE)
+#if defined(SPARSE_DRIVERS)
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/sparse/sparse_fo_rev.h>
 #endif
