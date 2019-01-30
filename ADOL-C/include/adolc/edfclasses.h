@@ -35,6 +35,9 @@ public:
     int call(int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,n,xa,m,ya);
     }
+    int call(int n, advector& x, int m, advector& y) {
+        return call(n,x.operator adouble*(),m,y.operator adouble*());
+    }
 };
 
 class EDFobject_iArr {
@@ -52,6 +55,9 @@ public:
     virtual int fov_reverse(int iArrLength, int *iArr, int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y) = 0;
     int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
         return call_ext_fct(edf,iArrLength,iArr,n,xa,m,ya);
+    }
+    int call(int iArrLength,int* iArr,int n, advector& x, int m, advector& y) {
+        return call(iArrLength,iArr,n,x.operator adouble*(),m,y.operator adouble*());
     }
 };
 

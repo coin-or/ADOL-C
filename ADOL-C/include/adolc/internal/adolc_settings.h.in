@@ -33,6 +33,14 @@ typedef @REAL_TYPE@ revreal;
 @ADVBRANCH@
 
 /*--------------------------------------------------------------------------*/
+/* Use reference counting for tapeless numbers */
+@ADTL_REFCNT@
+
+/*--------------------------------------------------------------------------*/
+/* Sparse drivers have been compiled */
+@SPARSE_DRIVERS@
+
+/*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */
 @USE_BOOST_POOL@
 

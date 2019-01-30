@@ -43,6 +43,14 @@ adubref::~adubref() {
 #endif
 }
 
+adubref::operator adubref*() const {
+    locint locat = location;
+    locint refl = refloc;
+    const_cast<adubref&>(*this).isInit = false;
+    adubref *retp = new adubref(locat,refl);
+    return retp;
+}
+
 adubref::operator adub() const {
     locint locat = next_loc();
     ADOLC_OPENMP_THREAD_NUMBER;

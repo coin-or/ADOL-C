@@ -15,7 +15,7 @@
 #if defined(_IN_CLASS_) && _IN_CLASS_
 #if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_) || defined(_IN_PDOUBLE_)
 
-#if defined(ADOLC_ADVANCED_BRANCHING)
+#if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
     inline friend adub operator != ( const pdouble&, const badouble&);
     friend ADOLC_DLL_EXPORT adub operator != ( const badouble&, const pdouble&);
     inline friend adub operator == ( const pdouble&, const badouble&);
@@ -44,6 +44,8 @@
     inline friend int operator <  ( const badouble&, const pdouble&);
 #endif
 #endif
+
+#if !defined(SWIGPRE)
     inline friend adub operator + ( const pdouble&, const badouble&);
     inline friend adub operator + ( const pdouble&, double);
     inline friend adub operator + ( double, const pdouble&);
@@ -63,7 +65,6 @@
     inline friend adub operator / ( const pdouble&, double );
     friend ADOLC_DLL_EXPORT adub operator / ( const pdouble&, const badouble& );
     friend ADOLC_DLL_EXPORT adub    pow   ( const badouble&, const pdouble& );
-    friend ADOLC_DLL_EXPORT adouble pow   ( const pdouble&, const badouble& );
     inline friend adub fmax ( const pdouble&, const badouble& );
     inline friend adub fmax ( const badouble&, const pdouble& );
     inline friend adub fmin ( const pdouble&, const badouble& );
@@ -114,5 +115,7 @@
 
     /*--------------------------------------------------------------------------*/
 
+#endif
+    friend ADOLC_DLL_EXPORT adouble pow   ( const pdouble&, const badouble& );
 #endif
 #endif
