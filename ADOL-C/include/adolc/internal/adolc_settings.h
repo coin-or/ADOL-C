@@ -33,6 +33,14 @@ typedef double revreal;
 #undef ADOLC_ADVANCED_BRANCHING
 
 /*--------------------------------------------------------------------------*/
+/* Use reference counting for tapeless numbers */
+@ADTL_REFCNT@
+
+/*--------------------------------------------------------------------------*/
+/* Sparse drivers have been compiled */
+#undef SPARSE_DRIVERS
+
+/*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */
 #define USE_BOOST_POOL 1
 
