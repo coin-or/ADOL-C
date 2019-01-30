@@ -34,11 +34,7 @@ int abs_normal(short tag,      /* tape identifier */
                int m,          /* number od dependents   */             
                int n,          /* number of independents */
                int swchk,      /* number of switches (check) */
-<<<<<<< HEAD
-               double *x,      /* base point */ 
-=======
                double *x,      /* base point */
->>>>>>> svn
                double *y,      /* function value */
                double *z,      /* switching variables */
                double *cz,     /* first constant */
