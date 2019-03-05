@@ -1,4 +1,5 @@
 * text=auto !eol
+.coin-or/projDesc.xml -text
 ADOL-C/Makefile.am -text
 ADOL-C/Makefile.in -text
 ADOL-C/doc/absdrivers.tex -text
