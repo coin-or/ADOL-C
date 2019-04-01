@@ -103,3 +103,4 @@ ADOL-C/doc/adolc-manual.out
 ADOL-C/doc/adolc-manual.toc
 ADOL-C/doc/adolc-manual.dvi
 ADOL-C/dummy.cpp
+ADOL-C/boost-test/build/*
