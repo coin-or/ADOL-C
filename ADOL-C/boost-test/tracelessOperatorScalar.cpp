@@ -15,9 +15,10 @@ BOOST_AUTO_TEST_SUITE( traceless_scalar )
 /* Author: Philipp Schuette        */
 /***********************************/
 
-/* Naming convention for test cases: Operatorname_Operator_Primal for primal
- * function value; Operatorname_Operator_Derivative(_WrtX)
- * for function derivative (or partial derivative wrt variable X). */
+/* Naming convention for test cases:  Operatorname_Operator_Primal for primal
+ * function value.  Operatorname_Operator_Derivative(_WrtX) for function
+ * derivative (or partial derivative wrt variable X).
+ */
 
 
 BOOST_AUTO_TEST_CASE(ExpOperatorPrimal)
@@ -36,11 +37,12 @@ BOOST_AUTO_TEST_CASE(ExpOperatorDerivative)
   double a = 2.;
   adouble ad = a;
 
-  double aDerivative = std::exp(a); /* derivative value is exp(a) * adot */
+  /* Derivative value is exp(a)*adot. */
+  double aDerivative = std::exp(a);
 
-  
-  ad.setADValue(0,1.); /* fast syntax for setting the 0th derivate direction; in scalar mode this is
-              * the only one required. default derivative value is 0.0 */
+  /* Fast syntax for setting the 0th derivate direction; in scalar mode this
+   * is the only one required.  Default derivative value is 0.0. */
+  ad.setADValue(0, 1.);
   ad = adtl::exp(ad);
 
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
@@ -57,7 +59,9 @@ BOOST_AUTO_TEST_CASE(MultOperatorPrimal)
   BOOST_TEST(cd.getValue() == c, tt::tolerance(tol));
 }
 
-/* first case with multiple active input variables; all partial derivatives are tested */
+/* First case with multiple active input variables.  All partial
+ * derivatives are tested.
+ */
 
 BOOST_AUTO_TEST_CASE(MultOperatorDerivativeWrtA)
 {
@@ -66,11 +70,11 @@ BOOST_AUTO_TEST_CASE(MultOperatorDerivativeWrtA)
 
   double cDerivative = 3.5; 
   
-  ad.setADValue(0,1.);
+  ad.setADValue(0, 1.);
   adouble cd = ad * bd;
 
-  /* the expected value is cdot = a * bdot + adot * b = b, because
-   * adot = 1., bdot = 0. (by default) */
+  /* The expected derivative value is cdot = a*bdot + adot*b = b, because
+   * adot = 1., bdot = 0. (by default). */
   BOOST_TEST(cd.getADValue(0) == cDerivative, tt::tolerance(tol)); 
 }
 
@@ -103,7 +107,7 @@ BOOST_AUTO_TEST_CASE(AddOperatorDerivativeWrtA)
   double a = 2.5, b = 3.;
   adouble ad = a, bd = b;
 
-  /* expected derivate value is cdot = 1. * adot + 1. * bdot */
+  /* Expected derivate value is cdot = 1.*adot + 1.*bdot. */
   double cDerivative = 1.;
 
   ad.setADValue(0, 1.);
@@ -130,7 +134,7 @@ BOOST_AUTO_TEST_CASE(AddOperatorDerivativeWrtAB)
   double a = 2.5, b = 3.;
   adouble ad = a, bd = b;
 
-  /* for diversity, check derivative calculation with adot = 4., bdot = 5.5 */
+  /* For diversity, check derivative calculation with adot = 4., bdot = 5.5. */
   double cDerivative = 1. * 4. + 1. * 5.5;
 
   ad.setADValue(0, 4.);
@@ -156,7 +160,7 @@ BOOST_AUTO_TEST_CASE(SubOperatorDerivateWrtA)
   double a = 1.5, b = 3.2;
   adouble ad = a, bd = b;
 
-  /* derivate value is cdot = 1. * adot - 1. * bdot */
+  /* Derivate value is cdot = 1.*adot - 1.*bdot. */
   double cDerivative = 1.;
 
   ad.setADValue(0, 1.);
@@ -208,7 +212,7 @@ BOOST_AUTO_TEST_CASE(DivOperatorDerivativeWrtA)
   double a = 0.5, b = 4.5;
   adouble ad = a, bd = b;
 
-  /* derivative value cdot = (adot / b) - (c / b) * bdot */
+  /* Derivative value cdot = (adot/b) - (c/b)*bdot. */
   double cDerivative = 1. / b;
 
   ad.setADValue(0, 1.);
@@ -263,7 +267,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivative)
   adouble ad = a;
 
   a = std::tan(a);
-  /* derivative value tan = sin / cos --> tan_prime = 1. / (cos * cos) = 1 + tan * tan */
+  /* Derivative value: tan = sin/cos --> tan_prime = 1./(cos*cos) = 1 + tan*tan. */
   double aDerivative = (1. + a * a);
 
   ad.setADValue(0, 1.);
@@ -288,7 +292,7 @@ BOOST_AUTO_TEST_CASE(SinOperatorDerivative)
   double a = 1.2;
   adouble ad = a;
 
-  /* derivative value cos */
+  /* Derivative of sin is cos. */
   double aDerivative = std::cos(a);
 
   ad.setADValue(0, 1.);
@@ -313,7 +317,7 @@ BOOST_AUTO_TEST_CASE(CosOperatorDerivative)
   double a = 1.2;
   adouble ad = a;
 
-  /* derivative value -sin */
+  /* Derivative of cos is -sin. */
   double aDerivative = -1. * std::sin(a);
 
   ad.setADValue(0, 1.);
@@ -339,7 +343,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperatorDerivative)
   adouble ad = a;
 
   a = std::sqrt(a);
-  /* derivative value 1. / (2 * sqrt) */
+  /* Derivative value is 1./(2*sqrt). */
   double aDerivative = 1. / (2 * a);
 
   ad.setADValue(0, 1.);
@@ -364,7 +368,7 @@ BOOST_AUTO_TEST_CASE(LogOperatorDerivative)
   double a = 4.9;
   adouble ad = a;
 
-  /* derivative 1. / a */
+  /* Derivative value is 1./a. */
   double aDerivative = 1. / a;
 
   ad.setADValue(0, 1.);
@@ -389,7 +393,7 @@ BOOST_AUTO_TEST_CASE(SinhOperatorDerivative)
   double a = 4.;
   adouble ad = a;
 
-  /* derivative value cosh */
+  /* Derivative of sinh is cosh. */
   double aDerivative = std::cosh(a);
 
   ad.setADValue(0, 1.);
@@ -414,7 +418,7 @@ BOOST_AUTO_TEST_CASE(CoshOperatorDerivative)
   double a = 4.;
   adouble ad = a;
 
-  /* derivative value sinh */
+  /* Derivative of cosh is sinh. */
   double aDerivative = std::sinh(a);
 
   ad.setADValue(0, 1.);
@@ -440,7 +444,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivative)
   adouble ad = a;
 
   a = std::tanh(a);
-  /* derivative value 1. / (cosh * cosh) = 1 - tanh * tanh */
+  /* Derivative value 1./(cosh*cosh) = 1 - tanh*tanh. */
   double aDerivative = 1 - a * a;
 
   ad.setADValue(0, 1.);
@@ -465,8 +469,8 @@ BOOST_AUTO_TEST_CASE(AsinOperatorDerivative)
   double a = 0.9;
   adouble ad = a;
 
-  /* derivative value 1. / sqrt(1 - a * a) */
-  double aDerivative = 1. / (std::sqrt(1. - a * a));
+  /* Derivative value 1./sqrt(1 - a*a). */
+  double aDerivative = 1. / (std::sqrt(1. - a*a));
 
   ad.setADValue(0, 1.);
   ad = adtl::asin(ad);
@@ -490,7 +494,7 @@ BOOST_AUTO_TEST_CASE(AcosOperatorDerivative)
   double a = 0.8;
   adouble ad = a;
 
-  /* derivative value -1. / sqrt(1. - a * a) */
+  /* Derivative value -1./sqrt(1. - a*a). */
   double aDerivative = -1. / (std::sqrt(1. - a * a));
 
   ad.setADValue(0, 1.);
@@ -515,8 +519,8 @@ BOOST_AUTO_TEST_CASE(AtanOperatorDerivative)
   double a = 9.8;
   adouble ad = a;
 
-  /* derivative value 1. / (1. + a * a) */
-  double aDerivative = 1. / (1. + a * a);
+  /* Derivative value 1./(1. + a*a). */
+  double aDerivative = 1. / (1. + a*a);
 
   ad.setADValue(0, 1.);
   ad = adtl::atan(ad);
@@ -540,7 +544,7 @@ BOOST_AUTO_TEST_CASE(Log10OperatorDerivative)
   double a = 12.3;
   adouble ad = a;
 
-  /* derivative value 1. / (log(10) * a), because log10(a) = log(a) / log(10) */
+  /* Derivative value 1. / (log(10)*a), because log10(a) = log(a)/log(10). */
   double aDerivative = 1. / (a * std::log(10));
 
   ad.setADValue(0, 1.);
@@ -719,7 +723,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperatorDerivative)
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
 }
 
-/* atan2(a, b) = atan(a / b) */
+/* The atan2 operator is defined as atan2(a, b) = atan(a/b). */
 BOOST_AUTO_TEST_CASE(Atan2OperatorPrimal)
 {
   double a = 12.3, b = 2.1;
@@ -736,7 +740,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtA)
   double a = 12.3, b = 2.1;
   adouble ad = a, bd = b;
 
-  /* partial derivative wrt a of atan2(a, b) is b / (a * a + b * b) */
+  /* Partial derivative wrt a of atan2(a, b) is b/(a*a + b*b). */
   double c = b / (a * a + b * b);
 
   ad.setADValue(0, 1.);
@@ -750,7 +754,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtB)
   double a = 12.3, b = 2.1;
   adouble ad = a, bd = b;
 
-  /* partial derivative wrt b of atan2(a, b) is -a / (a * a + b * b) */
+  /* Partial derivative wrt b of atan2(a, b) is -a/(a*a + b*b). */
   double c = -a / (a * a + b * b);
 
   bd.setADValue(0, 1.);
@@ -759,14 +763,14 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtB)
   BOOST_TEST(cd.getADValue(0) == c, tt::tolerance(tol));
 }
 
-/* for the pow operator (pow(x, n) = x^n), ADOL-C provides three different options with
+/* For the pow operator (pow(x, n) = x^n), ADOL-C provides three different options with
  * the following signatures:
  *
  * (1) adouble pow(adouble, double)  --> can be differentiated wrt the base adouble
  * (2) adouble pow(adouble, adouble) --> can be differentiated wrt both base and exponent
  * (3) adouble pow(double, adouble)  --> can be differentiated wrt the exponent adouble
  *
- * tests for these three are implemented separately for both primal and derivative value
+ * tests for these three are implemented separately for both primal and derivative value.
  */
 
 BOOST_AUTO_TEST_CASE(PowOperatorPrimal_1)
@@ -774,7 +778,8 @@ BOOST_AUTO_TEST_CASE(PowOperatorPrimal_1)
   double a = 2.3;
   adouble ad = a;
 
-  double e = 3.5; /* common exponent for both std:: and adtl:: */
+  /* Common exponent for both std:: and adtl:: */
+  double e = 3.5;
 
   a = std::pow(a, e);
   ad = adtl::pow(ad, e);
@@ -787,7 +792,8 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivative_1)
   double a = 2.3;
   adouble ad = a;
 
-  double e = 3.5; /* common exponent for both std:: and adtl:: */
+  /* Common exponent for both std:: and adtl:: */
+  double e = 3.5;
 
   double aDerivative = e * std::pow(a, e - 1.);
 
@@ -826,7 +832,7 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivative_2_WrtB)
   double a = 2.3, e = 3.5;
   adouble ad = a, ed = e;
 
-  /* for derivative calculation use pow(a, e) = exp(e * log(a)) */
+  /* For derivative calculation use pow(a, e) = exp(e*log(a)). */
   double eDerivative = std::log(a) * std::pow(a, e);
 
   ed.setADValue(0, 1.);
@@ -840,7 +846,8 @@ BOOST_AUTO_TEST_CASE(PowOperatorPrimal_3)
   double e = 3.5;
   adouble ed = e;
 
-  double a = 2.3; /* common base for both std:: and adtl:: */
+  /* Common base for both std:: and adtl:: */
+  double a = 2.3;
 
   e = std::pow(a, e);
   ed = adtl::pow(a, ed);
@@ -853,7 +860,8 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivative_3)
   double e = 3.5;
   adouble ed = e;
 
-  double a = 2.3; /* common base for both std:: and adtl:: */
+  /* Common base for both std:: and adtl:: */
+  double a = 2.3;
 
   double eDerivative = std::log(a) * std::pow(a, e);
 
@@ -864,7 +872,7 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivative_3)
 }
 
 /* Only the primitive value of frexp has to be tested, as this function
- * is not differentiable
+ * is not differentiable.
  */
 BOOST_AUTO_TEST_CASE(FrexpOperatorPrimal_Derivative)
 {
@@ -881,7 +889,7 @@ BOOST_AUTO_TEST_CASE(FrexpOperatorPrimal_Derivative)
   ad = adtl::frexp(ad, n);
 
   BOOST_TEST(ad.getValue() == aValue, tt::tolerance(tol));
-  /* ADValue is 0., because the output of frexp() is double, not adouble */
+  /* ADValue is 0., because the output of frexp() is double, not adouble. */
   BOOST_TEST(ad.getADValue(0) == 0., tt::tolerance(tol));
 }
 
@@ -972,9 +980,9 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivative_3)
 
 /* For the absolute value operator, the following test cases are implemented:
  *
- * (1) Primal value is tested on positive, negative and zero
- * (2) Derivative value is tested on positive value, negative value
- * (3) Derivative value is tested on zero in positive direction, negative direction
+ * (1) Primal value is tested on positive, negative and zero;
+ * (2) Derivative value is tested on positive value, negative value;
+ * (3) Derivative value is tested on zero in positive direction, negative direction.
  */
 
 BOOST_AUTO_TEST_CASE(FabsOperatorPrimal)
@@ -1053,7 +1061,8 @@ BOOST_AUTO_TEST_CASE(CeilOperatorDerivative)
 
   double aDerivative = 0.0;
 
-  ad.setADValue(0, 1.1);  /* slight variation in derivative direction value */
+  /* Slight variation in derivative direction value. */
+  ad.setADValue(0, 1.1);
   ad = adtl::ceil(ad);
 
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
@@ -1084,7 +1093,7 @@ BOOST_AUTO_TEST_CASE(FloorOperatorDerivative)
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
 }
 
-/* for the fmax and fmin operators, ADOL-C provides three different options with the
+/* For the fmax and fmin operators, ADOL-C provides three different options with the
  * following signatures:
  *
  * (1) adouble fmax(adouble, adouble)  --> can be differentiated wrt both variables
@@ -1092,7 +1101,7 @@ BOOST_AUTO_TEST_CASE(FloorOperatorDerivative)
  * (3) adouble fmax(adouble, double)  --> can be differentiated wrt the first variable
  *
  * tests for these three are implemented separately for both primal and
- * derivative value
+ * derivative value.
  */
 
 BOOST_AUTO_TEST_CASE(FmaxOperatorPrimal_1)
@@ -1106,14 +1115,14 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorPrimal_1)
   BOOST_TEST(cd.getValue() == c, tt::tolerance(tol));
 }
 
-/* If a > b, then the derivative is calculated as fmax(a, b) = a; similarly
- * for b > a. If a = b, then the greater derivative direction is adopted as
- * the derivative value. Thus, the cases a > b and a = b are tested
+/* If a > b, then the derivative is calculated as fmax(a, b) = a;  similarly
+ * for b > a.  If a = b, then the greater derivative direction is adopted as
+ * the derivative value.  Thus, the cases a > b and a = b are tested.
  */
 
 BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_1)
 {
-  /* first partial derivative, a > b */
+  /* First partial derivative, a > b. */
   double a1 = 4., b1 = 3.2;
   adouble a1d = a1, b1d = b1;
 
@@ -1124,7 +1133,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_1)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* second partial derivative, a > b */
+  /* Second partial derivative, a > b. */
   double a2 = 4., b2 = 3.2;
   adouble a2d = a2, b2d = b2;
 
@@ -1135,7 +1144,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_1)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* derivative for a = b, with a.ADVal < b.ADVal */
+  /* Derivative for a = b, with a.ADVal < b.ADVal. */
   double a3 = 2.5, b3 = 2.5;
   adouble a3d = a3, b3d = b3;
 
@@ -1162,12 +1171,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorPrimal_2)
 /* If a < b, then fmax(double a, adouble b) behaves like case (1);
  * if a > b, then the derivative is set to 0.0 (a is not active!).
  * If a = b, fmax carries through a positive derivative value of b and
- * introduces 0.0 as derivative value for negative b.ADVal
+ * introduces 0.0 as derivative value for negative b.ADVal.
  */
 
 BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_2)
 {
-  /* case a > b */
+  /* Case a > b. */
   double a1 = 4., b1 = 3.2;
   adouble b1d = b1;
 
@@ -1178,7 +1187,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_2)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* case a < b */
+  /* Case a < b. */
   double a2 = 4., b2 = 5.2;
   adouble b2d = b2;
 
@@ -1189,7 +1198,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_2)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* case a = b */
+  /* Case a = b. */
   double a3 = 4.5, b3 = 4.5;
   adouble b3d = b3;
 
@@ -1212,13 +1221,13 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorPrimal_3)
   BOOST_TEST(cd.getValue() == c, tt::tolerance(tol));
 }
 
-/* signature fmax(adouble, double) works basically the same as
+/* Signature fmax(adouble, double) works basically the same as
  * signature fmax(double, adouble).
  */
 
 BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_3)
 {
-  /* case a > b */
+  /* Case a > b. */
   double a1 = 4., b1 = 3.2;
   adouble a1d = a1;
 
@@ -1229,7 +1238,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_3)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* case a < b */
+  /* Case a < b. */
   double a2 = 4., b2 = 5.2;
   adouble a2d = a2;
 
@@ -1240,7 +1249,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_3)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* case a = b */
+  /* Case a = b. */
   double a3 = 4.5, b3 = 4.5;
   adouble a3d = a3;
 
@@ -1252,7 +1261,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperatorDerivative_3)
   BOOST_TEST(c3d.getADValue(0) == derivative3, tt::tolerance(tol));
 }
 
-/* The procedure for fmin() is completely analogous to that for fmax() */
+/* The procedure for fmin() is completely analogous to that for fmax(). */
 
 BOOST_AUTO_TEST_CASE(FminOperatorPrimal_1)
 {
@@ -1267,7 +1276,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorPrimal_1)
 
 BOOST_AUTO_TEST_CASE(FminOperatorDerivative_1)
 {
-  /* first partial derivative, a > b */
+  /* First partial derivative, a > b. */
   double a1 = 4., b1 = 3.2;
   adouble a1d = a1, b1d = b1;
 
@@ -1278,7 +1287,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_1)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* second partial derivative, a > b */
+  /* Second partial derivative, a > b. */
   double a2 = 4., b2 = 3.2;
   adouble a2d = a2, b2d = b2;
 
@@ -1289,7 +1298,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_1)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* derivative for a = b, with a.ADVal < b.ADVal */
+  /* Derivative for a = b, with a.ADVal < b.ADVal. */
   double a3 = 2.5, b3 = 2.5;
   adouble a3d = a3, b3d = b3;
 
@@ -1315,7 +1324,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorPrimal_2)
 
 BOOST_AUTO_TEST_CASE(FminOperatorDerivative_2)
 {
-  /* case a > b */
+  /* Case a > b. */
   double a1 = 4., b1 = 3.2;
   adouble b1d = b1;
 
@@ -1326,7 +1335,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_2)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* case a < b */
+  /* Case a < b. */
   double a2 = 4., b2 = 5.2;
   adouble b2d = b2;
 
@@ -1337,7 +1346,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_2)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* case a = b */
+  /* Case a = b. */
   double a3 = 4.5, b3 = 4.5;
   adouble b3d = b3;
 
@@ -1362,7 +1371,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorPrimal_3)
 
 BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
 {
-  /* case a > b */
+  /* Case a > b. */
   double a1 = 4., b1 = 3.2;
   adouble a1d = a1;
 
@@ -1373,7 +1382,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
   
   BOOST_TEST(c1d.getADValue(0) == derivative1, tt::tolerance(tol));
 
-  /* case a < b */
+  /* Case a < b. */
   double a2 = 4., b2 = 5.2;
   adouble a2d = a2;
 
@@ -1384,7 +1393,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
   
   BOOST_TEST(c2d.getADValue(0) == derivative2, tt::tolerance(tol));
 
-  /* case a = b */
+  /* Case a = b. */
   double a3 = 4.5, b3 = 4.5;
   adouble a3d = a3;
 
@@ -1397,13 +1406,13 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
 }
 
 /* The constant ATRIG_ERF activates/deactives the implementations for asinh,
- * acosh, atanh, erf. It is defined/undefined in
+ * acosh, atanh, erf.  It is defined/undefined in
  * /home/philippschuette/Documents/shk_walther/adol-c/ADOL-C/include/adolc/internal
- * in the header file adolc_settings.h
+ * in the header file adolc_settings.h.
  */
 #if defined(ATRIG_ERF)
 /* The error function erf(a) is defined as
- * 2. / sqrt(pi) * int_{0, a} (exp(- t^2))dt
+ * 2. / sqrt(pi) * int_{0, a} (exp(- t^2))dt.
  */
 BOOST_AUTO_TEST_CASE(ErfOperatorPrimal)
 {
@@ -1421,8 +1430,8 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivative)
   double a = 7.1;
   adouble ad = a;
 
-  /* the inverse cosine is used for pi so that no additional math library
-   * import is necessary, see also the implementation in adtl.h
+  /* The inverse cosine is used for pi so that no additional math library
+   * import is necessary, see also the implementation in adtl.h.
    */
   double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
 
@@ -1433,7 +1442,7 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivative)
 }
 #endif
 
-/* Test the primitive non-temporary operations =, +=, -=, *=, /= */
+/* Test the primitive non-temporary operations =, +=, -=, *=, /=. */
 
 BOOST_AUTO_TEST_CASE(EqOperatorPrimal_Derivative)
 {
