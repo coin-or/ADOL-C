@@ -10,16 +10,17 @@ typedef adtl::adouble adouble;
 
 BOOST_AUTO_TEST_SUITE( traceless_scalar )
 
+
 /***********************************/
 /* Tests for traceless scalar mode */
 /* Author: Philipp Schuette        */
 /***********************************/
 
+
 /* Naming convention for test cases:  Operatorname_Operator_Primal for primal
  * function value.  Operatorname_Operator_Derivative(_WrtX) for function
  * derivative (or partial derivative wrt variable X).
  */
-
 
 BOOST_AUTO_TEST_CASE(ExpOperatorPrimal)
 {
@@ -41,7 +42,8 @@ BOOST_AUTO_TEST_CASE(ExpOperatorDerivative)
   double aDerivative = std::exp(a);
 
   /* Fast syntax for setting the 0th derivate direction; in scalar mode this
-   * is the only one required.  Default derivative value is 0.0. */
+   * is the only one required.  Default derivative value is 0.0.
+   */
   ad.setADValue(0, 1.);
   ad = adtl::exp(ad);
 
@@ -74,7 +76,8 @@ BOOST_AUTO_TEST_CASE(MultOperatorDerivativeWrtA)
   adouble cd = ad * bd;
 
   /* The expected derivative value is cdot = a*bdot + adot*b = b, because
-   * adot = 1., bdot = 0. (by default). */
+   * adot = 1., bdot = 0. (by default).
+   */
   BOOST_TEST(cd.getADValue(0) == cDerivative, tt::tolerance(tol)); 
 }
 
@@ -1687,6 +1690,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperatorPrimal)
   BOOST_TEST(p.getValue() == arg1.getValue(), tt::tolerance(tol));
   BOOST_TEST(p.getADValue(0) == arg1.getADValue(0), tt::tolerance(tol));
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
