@@ -508,6 +508,57 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_3)
 
 /* Frexp is not differentiable and so does not need to be tested. */
 
+BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_1)
+{
+  double a = 3., b = 4.;
+  adouble ad = a, bd = b;
+
+  ad.setADValue(0, 1.);
+  bd.setADValue(1, 1.);
+
+  double aDerivative = std::pow(2., b);
+  double bDerivative = a * std::log(2.) * std::pow(2., b);
+
+  adouble cd = adtl::ldexp(ad, bd);
+
+  BOOST_TEST(cd.getADValue(0) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == bDerivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_2)
+{
+  double a = 3., b = 4.;
+  adouble ad = a;
+
+  for(size_t j = 0; j < numDir; j++) {
+    ad.setADValue(j, 1. + j*1.);
+  }
+
+  double aDerivative = std::pow(2., b);
+  ad = adtl::ldexp(ad, b);
+
+  for(size_t j = 0; j < numDir; j++) { 
+    BOOST_TEST(ad.getADValue(j) == aDerivative*(1. + j*1.), tt::tolerance(tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_3)
+{
+  double a = 3., b = 4.;
+  adouble bd = b;
+
+  for(size_t j = 0; j < numDir; j++) {
+    bd.setADValue(j, 1. - j*1.);
+  }
+
+  double bDerivative = a * std::log(2.) * std::pow(2., b);
+  bd = adtl::ldexp(a, bd);
+
+  for(size_t j = 0; j < numDir; j++) { 
+    BOOST_TEST(bd.getADValue(j) == bDerivative*(1. - j*1.), tt::tolerance(tol));
+  }
+}
+
 
 
 
