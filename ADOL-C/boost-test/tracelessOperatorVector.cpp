@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_SUITE( traceless_vector )
 
 
 /* For consistency, the primitive traceless mode functions of ADOL-C
- * are tested in vector mode in the same order as in scalar mode.
+ * are tested in vector mode in the same order as in scalar mode.  For
+ * implementation details, please refer to the scalar mode tests.
  */
 
 BOOST_AUTO_TEST_CASE(ExpOperatorDerivativeVectorMode)
@@ -556,6 +557,83 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_3)
 
   for(size_t j = 0; j < numDir; j++) { 
     BOOST_TEST(bd.getADValue(j) == bDerivative*(1. - j*1.), tt::tolerance(tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(FabsOperatorDerivativeVectorMode_NonZero)
+{
+  double a = 1.4, b = -5.;
+  adouble ad = a, bd = b;
+
+  for(size_t j = 0; j < numDir; j++) {
+  	ad.setADValue(j, 1. + std::pow(2., j));
+  }
+  for(size_t j = 0; j < numDir; j++) {
+  	bd.setADValue(j, 1. + std::pow(3., j));
+  }
+
+  double aDerivative = 1.;
+  double bDerivative = -1.;
+
+  ad = adtl::fabs(ad);
+  bd = adtl::fabs(bd);
+
+  for(size_t j = 0; j < numDir; j++) {
+  	BOOST_TEST(ad.getADValue(j) == aDerivative*(1. + std::pow(2., j)), tt::tolerance(tol));
+  }
+  for(size_t j = 0; j < numDir; j++) {
+  	BOOST_TEST(bd.getADValue(j) == bDerivative*(1. + std::pow(3., j)), tt::tolerance(tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(FabsOperatorDerivativeVectorMode_AtZero)
+{
+  double c = 0.;
+  adouble cd = c;
+
+  cd.setADValue(0, 2.5);
+  cd.setADValue(1, -3.5);
+
+  double posDerivative = 2.5;
+  double negDerivative = 3.5;
+
+  cd = adtl::fabs(cd);
+
+  BOOST_TEST(cd.getADValue(0) == posDerivative, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == negDerivative, tt::tolerance(tol));  
+}
+
+BOOST_AUTO_TEST_CASE(CeilOperatorDerivativeVectorMode)
+{
+  double a = 4.617;
+  adouble ad = a;
+
+  for(size_t j = 0; j < numDir; j++) {
+  	ad.setADValue(j, std::pow(j, 10.));
+  }
+
+  double aDerivative = 0.;
+  ad = adtl::ceil(ad);
+
+  for(size_t j = 0; j < numDir; j++) {
+    BOOST_TEST(ad.getADValue(j) == aDerivative, tt::tolerance(tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(FloorOperatorDerivativeVectorMode)
+{
+  double a = 9.989;
+  adouble ad = a;
+
+  for(size_t j = 0; j < numDir; j++) {
+  	ad.setADValue(j, std::pow(j, 5.5));
+  }
+
+  double aDerivative = 0.;
+  ad = adtl::floor(ad);
+
+  for(size_t j = 0; j < numDir; j++) {
+    BOOST_TEST(ad.getADValue(j) == aDerivative, tt::tolerance(tol));
   }
 }
 
