@@ -637,7 +637,305 @@ BOOST_AUTO_TEST_CASE(FloorOperatorDerivativeVectorMode)
   }
 }
 
+BOOST_AUTO_TEST_CASE(FmaxOperatorDerivativeVectorMode_1)
+{
+  /* Derivative for a proper maximum of two input values. */
+  double a = 4., b = 3.2;
+  adouble ad = a, bd = b;
 
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  ad.setADValue(0, 1.);
+  bd.setADValue(1, 1.);
+
+  adouble cd = adtl::fmax(ad, bd);
+  
+  BOOST_TEST(cd.getADValue(0) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == bDerivative, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  ad = a, bd = b;
+
+  double Derivative1 = 3.7;
+  double Derivative2 = 2.1;
+
+  ad.setADValue(0, 1.3);
+  bd.setADValue(0, 3.7);
+  ad.setADValue(1, 2.1);
+  bd.setADValue(1, 1.1);
+  adouble ed = adtl::fmax(ad, bd);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(FmaxOperatorDerivativeVectorMode_2)
+{
+  /* Derivative for a proper maximum of two input values. */
+  double a = 4., b = 3.2;
+  adouble bd = b;
+
+  double bDerivative = 0.;
+
+  bd.setADValue(0, 1.);
+  bd.setADValue(1, 3.21);
+
+  adouble cd = adtl::fmax(a, bd);
+  
+  BOOST_TEST(cd.getADValue(0) == bDerivative*1.0, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == bDerivative*3.21, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  bd = b;
+
+  double Derivative1 = 3.7;
+  double Derivative2 = 0.0;
+
+  bd.setADValue(0, 3.7);
+  bd.setADValue(1, -1.1);
+  adouble ed = adtl::fmax(a, bd);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(FmaxOperatorDerivativeVectorMode_3)
+{
+  /* Derivative for a proper maximum of two input values. */
+  double a = 4., b = 3.2;
+  adouble ad = a;
+
+  double aDerivative = 1.;
+
+  ad.setADValue(0, 1.);
+  ad.setADValue(1, 3.21);
+
+  adouble cd = adtl::fmax(ad, b);
+  
+  BOOST_TEST(cd.getADValue(0) == aDerivative*1.0, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == aDerivative*3.21, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  ad = a;
+
+  double Derivative1 = 3.7;
+  double Derivative2 = 0.0;
+
+  ad.setADValue(0, 3.7);
+  ad.setADValue(1, -1.1);
+  adouble ed = adtl::fmax(ad, b);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(FminOperatorDerivativeVectorMode_1)
+{
+  /* Derivative for a proper minimum of two input values. */
+  double a = 4., b = 3.2;
+  adouble ad = a, bd = b;
+
+  double aDerivative = 0.;
+  double bDerivative = 1.;
+
+  ad.setADValue(0, 1.);
+  bd.setADValue(1, 1.);
+
+  adouble cd = adtl::fmin(ad, bd);
+  
+  BOOST_TEST(cd.getADValue(0) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == bDerivative, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  ad = a, bd = b;
+
+  double Derivative1 = 1.3;
+  double Derivative2 = 1.1;
+
+  ad.setADValue(0, 1.3);
+  bd.setADValue(0, 3.7);
+  ad.setADValue(1, 2.1);
+  bd.setADValue(1, 1.1);
+  adouble ed = adtl::fmin(ad, bd);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(FminOperatorDerivativeVectorMode_2)
+{
+  /* Derivative for a proper minimum of two input values. */
+  double a = 4., b = 3.2;
+  adouble bd = b;
+
+  double bDerivative = 1.;
+
+  bd.setADValue(0, 1.);
+  bd.setADValue(1, 3.21);
+
+  adouble cd = adtl::fmin(a, bd);
+  
+  BOOST_TEST(cd.getADValue(0) == bDerivative*1.0, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == bDerivative*3.21, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  bd = b;
+
+  double Derivative1 = -7.3;
+  double Derivative2 = 0.0;
+
+  bd.setADValue(0, -7.3);
+  bd.setADValue(1, 5.2);
+  adouble ed = adtl::fmin(a, bd);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(FminOperatorDerivativeVectorMode_3)
+{
+  /* Derivative for a proper minimum of two input values. */
+  double a = 4., b = 3.2;
+  adouble ad = a;
+
+  double aDerivative = 0.;
+
+  ad.setADValue(0, 1.);
+  ad.setADValue(1, 3.21);
+
+  adouble cd = adtl::fmin(ad, b);
+  
+  BOOST_TEST(cd.getADValue(0) == aDerivative*1.0, tt::tolerance(tol));
+  BOOST_TEST(cd.getADValue(1) == aDerivative*3.21, tt::tolerance(tol));
+
+  /* Derivative for equal input values. */
+  a = 2.5, b = 2.5;
+  ad = a;
+
+  double Derivative1 = -7.3;
+  double Derivative2 = 0.0;
+
+  ad.setADValue(0, -7.3);
+  ad.setADValue(1, 5.2);
+  adouble ed = adtl::fmin(ad, b);
+
+  BOOST_TEST(ed.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+#if defined(ATRIG_ERF)
+BOOST_AUTO_TEST_CASE(ErfOperatorDerivativeVectorMode)
+{
+  double a = 7.1;
+  adouble ad = a;
+
+  double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
+
+  ad.setADValue(0, 1.);
+  ad.setADValue(1, -2.5);
+  ad = adtl::erf(ad);
+
+  BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == aDerivative*(-2.5), tt::tolerance(tol));
+}
+#endif
+
+BOOST_AUTO_TEST_CASE(EqOperatorDerivativeVectorMode)
+{
+  double a = 10.01;
+  adouble ad = a;
+
+  BOOST_TEST(ad.getADValue(0) == 0.0, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == 0.0, tt::tolerance(tol));
+
+  ad.setADValue(0, 5.147);
+  ad.setADValue(1, -9.919);
+
+  BOOST_TEST(ad.getADValue(0) == 5.147, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == -9.919, tt::tolerance(tol));
+
+  adouble bd = ad;
+
+  BOOST_TEST(ad.getADValue(0) == bd.getADValue(0), tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == bd.getADValue(1), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(EqPlusOperatorDerivativeVectorMode)
+{
+  double a = 5.132;
+  adouble ad = a;
+
+  ad.setADValue(0, 1.0);
+  ad.setADValue(1, 2.1);
+  ad += 5.2;
+
+  BOOST_TEST(ad.getADValue(0) == 1.0, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == 2.1, tt::tolerance(tol));
+
+  adouble bd;
+  bd.setValue(1.1);
+  bd.setADValue(0, 11.1);
+  bd.setADValue(1, -2.6);
+
+  ad += bd;
+  BOOST_TEST(ad.getADValue(0) == (1.0 + 11.1), tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == (2.1 - 2.6), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(EqMinusOperatorDerivativeVectorMode)
+{
+  double a = 5.132;
+  adouble ad = a;
+
+  ad.setADValue(0, 1.0);
+  ad.setADValue(1, 2.1);
+  ad -= 5.2;
+
+  BOOST_TEST(ad.getADValue(0) == 1.0, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == 2.1, tt::tolerance(tol));
+
+  adouble bd;
+  bd.setValue(9.312);
+  bd.setADValue(0, 11.1);
+  bd.setADValue(1, -2.6);
+
+  ad -= bd;
+  BOOST_TEST(ad.getADValue(0) == (1.0 - 11.1), tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == (2.1 - (-2.6)), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(EqTimesOperatorDerivativeVectorMode)
+{
+  double a = 5.132;
+  adouble ad = a;
+
+  ad.setADValue(0, 1.0);
+  ad.setADValue(1, -7.1);
+  ad *= 5.2;
+
+  BOOST_TEST(ad.getADValue(0) == (5.2 * 1.0), tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == (5.2 * (-7.1)), tt::tolerance(tol));
+
+  adouble bd;
+  bd.setValue(1.1);
+  bd.setADValue(0, 11.1);
+  bd.setADValue(1, -2.1);
+
+  ad *= bd;
+  BOOST_TEST(ad.getADValue(0) == (5.132*5.2*11.1 + 1.1*5.2*1.0), tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == (5.132*5.2*(-2.1) + 1.1*5.2*(-7.1)), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(EqDivOperatorDerivativeVectorMode)
+{
+  
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()
