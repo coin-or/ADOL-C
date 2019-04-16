@@ -934,7 +934,80 @@ BOOST_AUTO_TEST_CASE(EqTimesOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(EqDivOperatorDerivativeVectorMode)
 {
-  
+  double a = 5.132;
+  adouble ad = a;
+
+  a /= 5.2;
+  ad.setADValue(0, 1.0);
+  ad.setADValue(1, -2.1);
+  ad /= 5.2;
+
+  BOOST_TEST(ad.getADValue(0) == (1.0 / 5.2) * 1.0, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == (1.0 / 5.2) * (-2.1), tt::tolerance(tol));
+
+  adouble bd;
+  bd.setValue(1.1);
+  bd.setADValue(0, 1.0);
+  bd.setADValue(1, 11.1);
+
+  ad /= bd;
+  double Derivative1 = (1.0/1.1)*(1.0/5.2) - (5.132/(5.2*1.1*1.1)*1.0);
+  double Derivative2 = (1.0/1.1)*(-2.1/5.2) - (5.132/(5.2*1.1*1.1)*11.1);
+  BOOST_TEST(ad.getADValue(0) == Derivative1, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == Derivative2, tt::tolerance(tol));
+}
+
+/* The not, neq and eq comparison operators have no effect on the derivatives, so
+ * the scalar tests suffice for them.  The same holds for leq, geq, greater and less.
+ */
+
+BOOST_AUTO_TEST_CASE(CondassignOperatorDerivativeVectorMode)
+{
+  adouble cond = 1., arg1 = 3.5, arg2 = 5.3;
+  adouble p;
+
+  arg1.setADValue(0, 3.5);
+  arg2.setADValue(1, -7.0);
+  arg2.setADValue(0, 5.3);
+  arg2.setADValue(1, -10.6);
+
+  condassign(p, cond, arg1, arg2);
+
+  BOOST_TEST(p.getADValue(0) == arg1.getADValue(0), tt::tolerance(tol));
+  BOOST_TEST(p.getADValue(1) == arg1.getADValue(1), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(CondeqassignOperatorDerivativeVectorMode)
+{
+  adouble cond = 1., arg1 = 3.5, arg2 = 5.3;
+  adouble p;
+
+  arg1.setADValue(0, 3.5);
+  arg1.setADValue(1, -7.0);
+  arg2.setADValue(0, 5.3);
+  arg2.setADValue(1, -10.6);
+
+  condeqassign(p, cond, arg1, arg2);
+
+  BOOST_TEST(p.getADValue(0) == arg1.getADValue(0), tt::tolerance(tol));
+  BOOST_TEST(p.getADValue(1) == arg1.getADValue(1), tt::tolerance(tol));
+}
+
+/* Test the derivative value assignment by pointer. */
+BOOST_AUTO_TEST_CASE(SetADValueOperatorVectorMode)
+{
+  adouble ad = 0.0;
+  double *aDerivative = new double[numDir];
+
+  for(size_t i = 0; i < numDir; i++) {
+  	*(aDerivative + i) = 1.0 + std::exp(10*i)*std::sqrt(2.5*i);
+  }
+
+  ad.setADValue(aDerivative);
+
+  for(size_t j = 0; j < numDir; j++) {
+  	BOOST_TEST(ad.getADValue(j) == *(aDerivative + j), tt::tolerance(tol));
+  }
 }
 
 

@@ -1465,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(EqOperatorPrimal_Derivative)
 
   BOOST_TEST(ad.getValue() == bd.getValue(), tt::tolerance(tol));
   BOOST_TEST(ad.getADValue(0) == bd.getADValue(0), tt::tolerance(tol));
-} 
+}
 
 BOOST_AUTO_TEST_CASE(EqPlusOperatorPrimal_Derivative)
 {
