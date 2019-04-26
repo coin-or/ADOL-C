@@ -1410,8 +1410,7 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
 
 /* The constant ATRIG_ERF activates/deactives the implementations for asinh,
  * acosh, atanh, erf.  It is defined/undefined in
- * /home/philippschuette/Documents/shk_walther/adol-c/ADOL-C/include/adolc/internal
- * in the header file adolc_settings.h.
+ * adol-c/ADOL-C/include/adolc/internal in the header file adolc_settings.h.
  */
 #if defined(ATRIG_ERF)
 /* The error function erf(a) is defined as
