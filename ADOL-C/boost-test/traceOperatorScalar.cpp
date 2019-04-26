@@ -2463,7 +2463,614 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse)
   myfree1(z);
 }
 
+BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1)
+{
+  double a = 2.3, e = 3.5, aout;
+  adouble ad;
 
+  trace_on(1);
+  ad <<= a;
+
+  ad = pow(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::pow(a, e);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 2.3;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1)
+{
+  double a = 2.3, e = 3.5, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = pow(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = e * std::pow(a, e - 1.);
+  a = std::pow(a, e);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 2.3;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+/*
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
+{
+  double a = 2.3, e = 3.5, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = pow(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = e * std::pow(a, e - 1.);
+  a = std::pow(a, e);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+*/
+BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2)
+{
+  double a = 2.3, b = 3.5, out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = pow(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  a = std::pow(a, b);
+
+  BOOST_TEST(out == a, tt::tolerance(tol));
+
+  double *x = myalloc1(2);
+  double *y = myalloc1(1);
+
+  *x = 2.3;
+  *(x + 1) = 3.5;
+  
+  zos_forward(1, 1, 2, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2)
+{
+  double a = 2.3, b = 3.5, out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = pow(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = b * std::pow(a, b - 1.);
+  double bDerivative = std::log(a) * std::pow(a, b);
+  a = std::pow(a, b);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  /* Test partial derivative wrt a. */
+  *x = 2.3;
+  *(x + 1) = 3.5;
+  *xd = 1.;
+  *(xd + 1) = 0.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  /* Test partial derivative wrt b. */
+  *xd = 0.;
+  *(xd + 1) = 1.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2)
+{
+  double a = 2.3, b = 3.5, out;
+  adouble ad, bd;
+
+  trace_on(1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = pow(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = b * std::pow(a, b - 1.);
+  double bDerivative = std::log(a) * std::pow(a, b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(2);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 2, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3)
+{
+  double a = 2.3, e = 3.5, eout;
+  adouble ed;
+
+  trace_on(1);
+  ed <<= e;
+
+  ed = pow(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  e = std::pow(a, e);
+
+  BOOST_TEST(eout == e, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 3.5;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == e, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3)
+{
+  double a = 2.3, e = 3.5, eout;
+  adouble ed;
+
+  trace_on(1);
+  ed <<= e;
+
+  ed = pow(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  double eDerivative = std::log(a) * std::pow(a, e);
+  e = std::pow(a, e);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 3.5;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == e, tt::tolerance(tol));
+  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3)
+{
+  double a = 2.3, e = 3.5, eout;
+  adouble ed;
+
+  trace_on(1, 1);
+  ed <<= e;
+
+  ed = pow(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  double eDerivative = std::log(a) * std::pow(a, e);
+  e = std::pow(a, e);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+/* Frexp does not need to be tested, because it is non-differentiable. */
+/*
+BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_1)
+{
+  double a = 4., b = 3., out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = ldexp(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  a = a * std::pow(2., b);
+
+  BOOST_TEST(out == a, tt::tolerance(tol));
+
+  double *x = myalloc1(2);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+  *(x + 1) = 3.;
+  
+  zos_forward(1, 1, 2, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
+{
+  double a = 4., b = 3., out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = ldexp(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = std::pow(2., b);
+  double bDerivative = a * std::log(2.) * std::pow(2., b);
+  a = a * std::pow(2., b);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 4.;
+  *(x + 1) = 3.;
+  *xd = 1.;
+  *(xd + 1) = 0.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  *xd = 0.;
+  *(xd + 1) = 1.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
+{
+  double a = 4., b = 3., out;
+  adouble ad, bd;
+
+  trace_on(1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = ldexp(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = std::pow(2., b);
+  double bDerivative = a * std::log(2.) * std::pow(2., b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(2);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 2, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+*/
+BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2)
+{
+  double a = 4., e = 3., aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = ldexp(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  a = a * std::pow(2., e);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2)
+{
+  double a = 4., e = 3., aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = ldexp(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::pow(2., e);
+  a = a * std::pow(2., e);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 4.;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2)
+{
+  double a = 4., e = 3., aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = ldexp(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::pow(2., e);
+  a = a * std::pow(2., e);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+/*
+BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
+{
+  double a = 4., e = 3., eout;
+  adouble ed;
+
+  trace_on(1);
+  ed <<= e;
+
+  ed = ldexp(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  e = a * std::pow(2., e);
+
+  BOOST_TEST(eout == e, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 3.;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == e, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
+{
+  double a = 4., e = 3., eout;
+  adouble ed;
+
+  trace_on(1);
+  ed <<= e;
+
+  ed = ldexp(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  e = std::pow(a, e);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 3.;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == e, tt::tolerance(tol));
+  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
+{
+  double a = 4., e = 3., eout;
+  adouble ed;
+
+  trace_on(1, 1);
+  ed <<= e;
+
+  ed = ldexp(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  e = a * std::pow(2., e);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+*/
+
+
+
+
+/* Implementation of PowOperator_FOS_Reverse_1 does not work.  Why?
+ * Apparently, PowOperator_FOS_Reverse_3 works fine (for some reason...).
+ * Also, the implementations for LdexpOperator_1 and LdexpOperator_3 do
+ * not work. It seems, that no implementations of ldexp(double, adouble)
+ * and ldexp(adouble, adouble) exist.
+ */
 
 
 BOOST_AUTO_TEST_SUITE_END()
