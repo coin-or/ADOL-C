@@ -3454,6 +3454,164 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse)
   myfree1(z);
 }
 
+BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward)
+{
+  double a = 4., b = 3.2, out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = fmax(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  a = std::fmax(a, b);
+
+  BOOST_TEST(out == a, tt::tolerance(tol));
+
+  double *x = myalloc1(2);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+  *(x + 1) = 3.2;
+  
+  zos_forward(1, 1, 2, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward)
+{
+  double a = 4., b = 3.2, out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = fmax(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+  a = std::fmax(a, b);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  /* Test partial derivative wrt a. */
+  *x = 4.;
+  *(x + 1) = 3.2;
+  *xd = 1.;
+  *(xd + 1) = 0.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  /* Test partial derivative wrt b. */
+  *xd = 0.;
+  *(xd + 1) = 1.;
+  
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative value for a = b. */
+  double *x1 = myalloc1(2);
+  double *xd1 = myalloc1(2);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *(x1 + 1) = 2.5;
+  *xd1 = 1.3;
+  *(xd1 + 1) = 3.7;
+  
+  fos_forward(1, 1, 2, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == 2.5, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == 3.7, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse)
+{
+  double a = 4., b = 3.2, out;
+  adouble ad, bd;
+
+  trace_on(1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = fmax(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(2);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 2, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test reverse derivative value for a = b. */
+  double a1 = 2.5, b1 = 2.5, out1;
+  adouble ad1, bd1;
+
+  trace_on(1, 1);
+  ad1 <<= a1;
+  bd1 <<= b1;
+
+  ad1 = fmax(ad1, bd1);
+
+  ad1 >>= out1;
+  trace_off();
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(2);
+
+  *u1 = 1.;
+  
+  fos_reverse(1, 1, 2, u1, z1);
+
+  BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
+  BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
 
 
 
@@ -3468,6 +3626,8 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse)
  * not work. It seems, that no implementations of ldexp(double, adouble)
  * and ldexp(adouble, adouble) exist.
  */
+
+/* What does reverse mode do for fmax() with a = b? */
 
 
 BOOST_AUTO_TEST_SUITE_END()
