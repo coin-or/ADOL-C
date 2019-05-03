@@ -3268,7 +3268,198 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero)
   myfree1(z);
 }
 
+BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward)
+{
+  double a = 3.573, aout;
+  adouble ad;
 
+  trace_on(1);
+  ad <<= a;
+
+  ad = ceil(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::ceil(a);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 3.573;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward)
+{
+  double a = 3.573, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = ceil(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+  a = std::ceil(a);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 3.573;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse)
+{
+  double a = 3.573, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = ceil(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward)
+{
+  double a = 4.483, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = floor(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::floor(a);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 4.483;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward)
+{
+  double a = 4.483, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = floor(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+  a = std::floor(a);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 4.483;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse)
+{
+  double a = 4.483, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = ceil(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+
+
+
+/* fmax, fmin, erf, eq, eqplus, eqminus, eqtimes, eqdiv, not, comp1 - comp6,
+ * condassign, condeqassign.
+ */
 
 
 /* Implementation of PowOperator_FOS_Reverse_1 does not work.  Why?
