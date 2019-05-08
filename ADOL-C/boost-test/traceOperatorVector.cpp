@@ -536,6 +536,288 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward)
+{
+  double a = 0.9, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = asin(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (std::sqrt(1. - a*a));
+  a = std::asin(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 0.9;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i*(i + 1.7)*4.3;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. + 2.7*4.3), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Forward)
+{
+  double a = 0.8, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = acos(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = -1. / (std::sqrt(1. - a*a));
+  a = std::acos(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 0.8;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i*(i + 0.7)*3.4;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 1.7*3.4), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(AtanOperator_FOV_Forward)
+{
+  double a = 9.8, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = atan(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (1. + a*a);
+  a = std::atan(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 9.8;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i*(i - 0.3)*4.3;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 0.7*4.3), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(Log10Operator_FOV_Forward)
+{
+  double a = 12.3, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = log10(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (a * std::log(10));
+  a = std::log10(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 12.3;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i*9.9;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. + 9.9), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+#if defined(ATRIG_ERF)
+BOOST_AUTO_TEST_CASE(AsinhOperator_FOV_Forward)
+{
+  double a = 0.6, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = asinh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (std::sqrt(a*a + 1.));
+  a = std::asinh(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 0.6;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i*6.2;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 6.2), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(AcoshOperator_FOV_Forward)
+{
+  double a = 1.7, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = acosh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (std::sqrt(a*a - 1.));
+  a = std::acosh(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 1.7;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i*3.1;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. + 3.1), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(AtanhOperator_FOV_Forward)
+{
+  double a = 0.6, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = atanh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (1. - a*a);
+  a = std::atanh(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 0.6;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i*2.2;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. + 2.2), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+#endif
+
 
 
 

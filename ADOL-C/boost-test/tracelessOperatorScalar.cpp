@@ -497,8 +497,8 @@ BOOST_AUTO_TEST_CASE(AcosOperatorDerivative)
   double a = 0.8;
   adouble ad = a;
 
-  /* Derivative value -1./sqrt(1. - a*a). */
-  double aDerivative = -1. / (std::sqrt(1. - a * a));
+  /* Derivative value -1. / sqrt(1. - a*a). */
+  double aDerivative = -1. / (std::sqrt(1. - a*a));
 
   ad.setADValue(0, 1.);
   ad = adtl::acos(ad);
@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperatorDerivative)
   double a = 0.6;
   adouble ad = a;
 
-  double aDerivative = 1. / (std::sqrt(a * a + 1.));
+  double aDerivative = 1. / (std::sqrt(a*a + 1.));
   
   ad.setADValue(0, 1.);
   ad = adtl::asinh(ad);
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperatorDerivative)
   double a = 1.7;
   adouble ad = a;
 
-  double aDerivative = 1. / (std::sqrt(a * a - 1.));
+  double aDerivative = 1. / (std::sqrt(a*a - 1.));
   
   ad.setADValue(0, 1.);
   ad = adtl::acosh(ad);
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivative)
   double a = 0.6;
   adouble ad = a;
 
-  double aDerivative = 1. / (1. - a * a);
+  double aDerivative = 1. / (1. - a*a);
   
   ad.setADValue(0, 1.);
   ad = adtl::atanh(ad);
