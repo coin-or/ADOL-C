@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivative)
 
   a = std::tan(a);
   /* Derivative value: tan = sin/cos --> tan_prime = 1./(cos*cos) = 1 + tan*tan. */
-  double aDerivative = (1. + a * a);
+  double aDerivative = (1. + a*a);
 
   ad.setADValue(0, 1.);
   ad = adtl::tan(ad);
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivative)
 
   a = std::tanh(a);
   /* Derivative value 1./(cosh*cosh) = 1 - tanh*tanh. */
-  double aDerivative = 1 - a * a;
+  double aDerivative = 1 - a*a;
 
   ad.setADValue(0, 1.);
   ad = adtl::tanh(ad);
@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(AsinOperatorDerivative)
   double a = 0.9;
   adouble ad = a;
 
-  /* Derivative value 1./sqrt(1 - a*a). */
+  /* Derivative value 1. / sqrt(1. - a*a). */
   double aDerivative = 1. / (std::sqrt(1. - a*a));
 
   ad.setADValue(0, 1.);
