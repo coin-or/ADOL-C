@@ -1566,7 +1566,7 @@ BOOST_AUTO_TEST_CASE(NotOperatorPrimal)
   BOOST_TEST(!a == 0.0, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp1OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompNeqOperatorPrimal)
 {
   double a = 1.5, b = 0.5;
   adouble ad = a, bd = b;
@@ -1582,7 +1582,7 @@ BOOST_AUTO_TEST_CASE(Comp1OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp2OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompEqOperatorPrimal)
 {
   double a = 0.5, b = 1.5;
   adouble ad = a, bd = b;
@@ -1598,7 +1598,7 @@ BOOST_AUTO_TEST_CASE(Comp2OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp3OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompLeqOperatorPrimal)
 {
   double a = 1.0, b = 0.99;
   adouble ad = a, bd = b;
@@ -1614,7 +1614,7 @@ BOOST_AUTO_TEST_CASE(Comp3OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp4OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompGeqOperatorPrimal)
 {
   double a = 1.2, b = 2.5;
   adouble ad = a, bd = b;
@@ -1630,7 +1630,7 @@ BOOST_AUTO_TEST_CASE(Comp4OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp5OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompLeOperatorPrimal)
 {
   double a = 1.1, b = 1.1;
   adouble ad = a, bd = b;
@@ -1646,7 +1646,7 @@ BOOST_AUTO_TEST_CASE(Comp5OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp6OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompGeOperatorPrimal)
 {
   double a = 1.7, b = 7.5;
   adouble ad = a, bd = b;
