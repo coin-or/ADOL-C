@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtA)
   adouble ad = a, bd = b;
 
   /* Partial derivative wrt a of atan2(a, b) is b/(a*a + b*b). */
-  double c = b / (a * a + b * b);
+  double c = b / (a*a + b*b);
 
   ad.setADValue(0, 1.);
   adouble cd = adtl::atan2(ad, bd);
@@ -758,7 +758,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtB)
   adouble ad = a, bd = b;
 
   /* Partial derivative wrt b of atan2(a, b) is -a/(a*a + b*b). */
-  double c = -a / (a * a + b * b);
+  double c = -a / (a*a + b*b);
 
   bd.setADValue(0, 1.);
   adouble cd = adtl::atan2(ad, bd);
