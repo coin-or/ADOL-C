@@ -1194,6 +1194,96 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3)
   myfree2(yd);
 }
 
+/* Frexp operator is not differentiable and does not have to be tested. */
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_1)
+{
+  double a = 4., b = 3., out;
+  adouble ad, bd;
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = ad * pow(2., bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = std::pow(2., b);
+  double bDerivative = a * std::log(2.) * std::pow(2., b);
+  a = a * std::pow(2., b);
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 4.;
+  x[1] = 3.;
+  
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2)
+{
+  double a = 4., e = 3., aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = ldexp(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::pow(2., e);
+  a = std::ldexp(a, e);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 4.;
+  
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i;
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * 2., tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 
 
 
