@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 2.0;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i;
   }
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward)
   /* Test partial derivative wrt a and b. */
   x[0] = 2.;
   x[1] = 3.5;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOV_Forward)
   /* Test partial derivative wrt a and b. */
   x[0] = 2.5;
   x[1] = 3.;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward)
   /* Test partial derivative wrt a and b. */
   x[0] = 1.5;
   x[1] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOV_Forward)
   /* Test partial derivative wrt a and b. */
   x[0] = 0.5;
   x[1] = 4.5;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 0.7;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + std::pow(2, i);
   }
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i * (-2.0);
   }
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i * 2.;
   }
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 2.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. * std::pow(2, i);
   }
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.9;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i * 5.5;
   }
@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - std::sqrt(2.*i);
   }
@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i * 3.2;
   }
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - 1.3*i;
   }
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 0.9;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*(i + 1.7)*4.3;
   }
@@ -628,7 +628,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 0.8;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*(i + 0.7)*3.4;
   }
@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 9.8;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*(i - 0.3)*4.3;
   }
@@ -706,7 +706,7 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 12.3;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*9.9;
   }
@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 0.6;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*6.2;
   }
@@ -785,7 +785,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.7;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*3.1;
   }
@@ -824,7 +824,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 0.6;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*2.2;
   }
@@ -864,7 +864,7 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 5.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*4.2;
   }
@@ -903,7 +903,7 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 5.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*4.2;
   }
@@ -942,7 +942,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.5;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*0.8;
   }
@@ -981,7 +981,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.5;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*0.8;
   }
@@ -1024,7 +1024,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Forward)
   /* Test partial derivative wrt a and b. */
   x[0] = 12.3;
   x[1] = 2.1;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -1068,7 +1068,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1)
   double **yd = myalloc2(1, 2);
 
   x[0] = 2.3;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*0.5;
   }
@@ -1111,7 +1111,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2)
   /* Test partial derivative wrt a and b. */
   x[0] = 2.3;
   x[1] = 3.5;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -1155,7 +1155,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3)
   double **yd = myalloc2(1, 2);
 
   x[0] = 3.5;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*0.5;
   }
@@ -1200,7 +1200,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_1)
   /* Test partial derivative wrt a and b. */
   x[0] = 4.;
   x[1] = 3.;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -1244,7 +1244,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i;
   }
@@ -1283,7 +1283,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3)
   double **yd = myalloc2(1, 2);
 
   x[0] = 3.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i;
   }
@@ -1322,7 +1322,7 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 1.4;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*1.5;
   }
@@ -1345,7 +1345,7 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Forward)
   BOOST_TEST(yd[0][1] == aDerivative * (1. - 1.5), tt::tolerance(tol));
 
   x[0] = 0.;
-  
+
   xd[0][0] = 2.5;
   xd[0][1] = -3.5;
 
@@ -1383,7 +1383,7 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 3.573;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. + i*5.8;
   }
@@ -1422,7 +1422,7 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.483;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*5.8;
   }
@@ -1465,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_1)
   /* Test partial derivative wrt a and b. */
   x[0] = 4.;
   x[1] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -1527,7 +1527,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_2)
   double **yd = myalloc2(1, 2);
 
   x[0] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1539,7 +1539,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_2)
   BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 5.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1554,7 +1554,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_2)
   BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 4.5;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1596,7 +1596,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1608,7 +1608,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3)
   BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 2.3;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1623,7 +1623,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3)
   BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1669,7 +1669,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1)
   /* Test partial derivative wrt a and b. */
   x[0] = 4.;
   x[1] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 2; j++) {
       if (i == j)
@@ -1731,7 +1731,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_2)
   double **yd = myalloc2(1, 2);
 
   x[0] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1743,7 +1743,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_2)
   BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 5.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1758,7 +1758,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_2)
   BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 4.5;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1800,7 +1800,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3)
   double **yd = myalloc2(1, 2);
 
   x[0] = 4.;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1812,7 +1812,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3)
   BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 2.3;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1827,7 +1827,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3)
   BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
 
   x[0] = 3.2;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = 1. - i*2.1;
   }
@@ -1870,7 +1870,7 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Forward)
   double **yd = myalloc2(1, 2);
 
   x[0] = 7.1;
-  
+
   for (int i = 0; i < 2; i++) {
     xd[0][i] = std::pow(3., i*2.);
   }
@@ -1887,6 +1887,264 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Forward)
   myfree2(yd);
 }
 #endif
+
+BOOST_AUTO_TEST_CASE(EqPlusOperator_FOV_Forward)
+{
+  double a = 5.132, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad += 5.2;
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  a += 5.2;
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 5.132;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = std::pow(4., i*1.5);
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * std::pow(4., 1.5), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(EqMinusOperator_FOV_Forward)
+{
+  double a = 5.132, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad -= 5.2;
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  a -= 5.2;
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 5.132;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = std::pow(4., i*1.5);
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * std::pow(4., 1.5), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(EqTimesOperator_FOV_Forward)
+{
+  double a = 5.132, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad *= 5.2;
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 5.2;
+  a *= 5.2;
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 5.132;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = std::pow(4., i*1.5);
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * std::pow(4., 1.5), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(EqDivOperator_FOV_Forward)
+{
+  double a = 5.132, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad /= 5.2;
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / 5.2;
+  a /= 5.2;
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 5.132;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = std::pow(4., i*1.5);
+  }
+
+  fov_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * std::pow(4., 1.5), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(CondassignOperator_FOV_Forward)
+{
+  double out;
+  adouble cond, arg1, arg2;
+  adouble p;
+
+  trace_on(1);
+  cond <<= 1.;
+  arg1 <<= 3.5;
+  arg2 <<= 5.3;
+
+  condassign(p, cond, arg1, arg2);
+
+  p >>= out;
+  trace_off();
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 1.;
+  x[1] = 3.5;
+  x[2] = 5.3;
+  xd[0][0] = 0.;
+  xd[0][1] = 0.;
+  xd[1][0] = 0.1;
+  xd[1][1] = 1.;
+  xd[2][0] = 0.2;
+  xd[2][1] = 2.;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i;
+  }
+
+  fov_forward(1, 1, 3, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == 3.5, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == 0.1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == 1., tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOV_Forward)
+{
+  double out;
+  adouble cond, arg1, arg2;
+  adouble p;
+
+  trace_on(1);
+  cond <<= 1.;
+  arg1 <<= 3.5;
+  arg2 <<= 5.3;
+
+  condeqassign(p, cond, arg1, arg2);
+
+  p >>= out;
+  trace_off();
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 1.;
+  x[1] = 3.5;
+  x[2] = 5.3;
+  xd[0][0] = 0.;
+  xd[0][1] = 0.;
+  xd[1][0] = 0.1;
+  xd[1][1] = 1.;
+  xd[2][0] = 0.2;
+  xd[2][1] = 2.;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. + i;
+  }
+
+  fov_forward(1, 1, 3, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == 3.5, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == 0.1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == 1., tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* This concludes the tests for elementary operations. The next tests
+ * involve more complicated compositions of elementary functions with
+ * higher numbers of independent (and possibly dependent) variables.
+ *
+ * Before every test, a short comment explains the structure of the
+ * tested composite function and states the expected analytic derivative.
+ */
 
 
 
