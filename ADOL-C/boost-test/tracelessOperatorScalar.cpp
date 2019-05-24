@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivative)
 
   a = std::tan(a);
   /* Derivative value: tan = sin/cos --> tan_prime = 1./(cos*cos) = 1 + tan*tan. */
-  double aDerivative = (1. + a * a);
+  double aDerivative = (1. + a*a);
 
   ad.setADValue(0, 1.);
   ad = adtl::tan(ad);
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivative)
 
   a = std::tanh(a);
   /* Derivative value 1./(cosh*cosh) = 1 - tanh*tanh. */
-  double aDerivative = 1 - a * a;
+  double aDerivative = 1 - a*a;
 
   ad.setADValue(0, 1.);
   ad = adtl::tanh(ad);
@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(AsinOperatorDerivative)
   double a = 0.9;
   adouble ad = a;
 
-  /* Derivative value 1./sqrt(1 - a*a). */
+  /* Derivative value 1. / sqrt(1. - a*a). */
   double aDerivative = 1. / (std::sqrt(1. - a*a));
 
   ad.setADValue(0, 1.);
@@ -497,8 +497,8 @@ BOOST_AUTO_TEST_CASE(AcosOperatorDerivative)
   double a = 0.8;
   adouble ad = a;
 
-  /* Derivative value -1./sqrt(1. - a*a). */
-  double aDerivative = -1. / (std::sqrt(1. - a * a));
+  /* Derivative value -1. / sqrt(1. - a*a). */
+  double aDerivative = -1. / (std::sqrt(1. - a*a));
 
   ad.setADValue(0, 1.);
   ad = adtl::acos(ad);
@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperatorDerivative)
   double a = 0.6;
   adouble ad = a;
 
-  double aDerivative = 1. / (std::sqrt(a * a + 1.));
+  double aDerivative = 1. / (std::sqrt(a*a + 1.));
   
   ad.setADValue(0, 1.);
   ad = adtl::asinh(ad);
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperatorDerivative)
   double a = 1.7;
   adouble ad = a;
 
-  double aDerivative = 1. / (std::sqrt(a * a - 1.));
+  double aDerivative = 1. / (std::sqrt(a*a - 1.));
   
   ad.setADValue(0, 1.);
   ad = adtl::acosh(ad);
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivative)
   double a = 0.6;
   adouble ad = a;
 
-  double aDerivative = 1. / (1. - a * a);
+  double aDerivative = 1. / (1. - a*a);
   
   ad.setADValue(0, 1.);
   ad = adtl::atanh(ad);
@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtA)
   adouble ad = a, bd = b;
 
   /* Partial derivative wrt a of atan2(a, b) is b/(a*a + b*b). */
-  double c = b / (a * a + b * b);
+  double c = b / (a*a + b*b);
 
   ad.setADValue(0, 1.);
   adouble cd = adtl::atan2(ad, bd);
@@ -758,7 +758,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeWrtB)
   adouble ad = a, bd = b;
 
   /* Partial derivative wrt b of atan2(a, b) is -a/(a*a + b*b). */
-  double c = -a / (a * a + b * b);
+  double c = -a / (a*a + b*b);
 
   bd.setADValue(0, 1.);
   adouble cd = adtl::atan2(ad, bd);
@@ -1566,7 +1566,7 @@ BOOST_AUTO_TEST_CASE(NotOperatorPrimal)
   BOOST_TEST(!a == 0.0, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp1OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompNeqOperatorPrimal)
 {
   double a = 1.5, b = 0.5;
   adouble ad = a, bd = b;
@@ -1582,7 +1582,7 @@ BOOST_AUTO_TEST_CASE(Comp1OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp2OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompEqOperatorPrimal)
 {
   double a = 0.5, b = 1.5;
   adouble ad = a, bd = b;
@@ -1598,7 +1598,7 @@ BOOST_AUTO_TEST_CASE(Comp2OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp3OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompLeqOperatorPrimal)
 {
   double a = 1.0, b = 0.99;
   adouble ad = a, bd = b;
@@ -1614,7 +1614,7 @@ BOOST_AUTO_TEST_CASE(Comp3OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp4OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompGeqOperatorPrimal)
 {
   double a = 1.2, b = 2.5;
   adouble ad = a, bd = b;
@@ -1630,7 +1630,7 @@ BOOST_AUTO_TEST_CASE(Comp4OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp5OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompLeOperatorPrimal)
 {
   double a = 1.1, b = 1.1;
   adouble ad = a, bd = b;
@@ -1646,7 +1646,7 @@ BOOST_AUTO_TEST_CASE(Comp5OperatorPrimal)
   BOOST_TEST(k == l, tt::tolerance(tol));
 }
 
-BOOST_AUTO_TEST_CASE(Comp6OperatorPrimal)
+BOOST_AUTO_TEST_CASE(CompGeOperatorPrimal)
 {
   double a = 1.7, b = 7.5;
   adouble ad = a, bd = b;

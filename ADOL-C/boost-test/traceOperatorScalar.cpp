@@ -141,6 +141,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward)
   double *x = myalloc1(2);
   double *y = myalloc1(1);
 
+  //x[0] = 2.;
   *x = 2.;
   *(x + 1) = 3.5;
   
@@ -5278,7 +5279,41 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward)
   myfree1(y);
   myfree1(yd);
 }
+/*
+BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
+{
+  double out;
+  adouble cond, arg1, arg2;
+  adouble p;
 
+  trace_on(1);
+  cond <<= 1.;
+  arg1 <<= 3.5;
+  arg2 <<= 5.3;
+
+  condassign(p, cond, arg1, arg2);
+
+  p >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(3);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 3, u, z);
+
+  BOOST_TEST(*z == 0., tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 2) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+*/
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward)
 {
   double out;
@@ -5352,20 +5387,161 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward)
   myfree1(y);
   myfree1(yd);
 }
+/*
+BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
+{
+  double out;
+  adouble cond, arg1, arg2;
+  adouble p;
 
+  trace_on(1);
+  cond <<= 1.;
+  arg1 <<= 3.5;
+  arg2 <<= 5.3;
 
-/* What tests to implement for boolean operators not, comp1 - comp6? */
+  condeqassign(p, cond, arg1, arg2);
+
+  p >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(3);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 3, u, z);
+
+  BOOST_TEST(*z == 0., tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 2) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+*/
+
+/* Boolean operations only alter the trace, if advanced branching is
+ * activated.  This advanced branching is not tested here.
+ */
+
+BOOST_AUTO_TEST_CASE(TraceNotOperatorPrimal)
+{
+  double a = 1.0;
+  adouble ad = a;
+
+  BOOST_TEST(!a == 0.0, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompNeqOperatorPrimal)
+{
+  double a = 1.5, b = 0.5;
+  adouble ad = a, bd = b;
+
+  int n = (ad != bd);
+  int m = (a != b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad != a);
+  int l = (a != a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompEqOperatorPrimal)
+{
+  double a = 0.5, b = 1.5;
+  adouble ad = a, bd = b;
+
+  int n = (ad == bd);
+  int m = (a == b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad == a);
+  int l = (a == a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompLeqOperatorPrimal)
+{
+  double a = 1.0, b = 0.99;
+  adouble ad = a, bd = b;
+
+  int n = (ad <= bd);
+  int m = (a <= b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad <= a);
+  int l = (a <= a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompGeqOperatorPrimal)
+{
+  double a = 1.2, b = 2.5;
+  adouble ad = a, bd = b;
+
+  int n = (ad >= bd);
+  int m = (a >= b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad >= a);
+  int l = (a >= a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompLeOperatorPrimal)
+{
+  double a = 1.1, b = 1.1;
+  adouble ad = a, bd = b;
+
+  int n = (ad < bd);
+  int m = (a < b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad < a);
+  int l = (a < a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(TraceCompGeOperatorPrimal)
+{
+  double a = 1.7, b = 7.5;
+  adouble ad = a, bd = b;
+
+  int n = (ad > bd);
+  int m = (a > b);
+
+  BOOST_TEST(n == m, tt::tolerance(tol));
+
+  int k = (ad > a);
+  int l = (a > a);
+
+  BOOST_TEST(k == l, tt::tolerance(tol));
+}
 
 /* Implementation of PowOperator_FOS_Reverse_1 does not work.  Why?
  * Apparently, PowOperator_FOS_Reverse_3 works fine (for some reason...).
  * Also, the implementations for LdexpOperator_1 and LdexpOperator_3 do
  * not work. It seems, that no implementations of ldexp(double, adouble)
  * and ldexp(adouble, adouble) exist.
+ * Implementation for CondeqassignOperator_FOS_Reverse and
+ * CondassignOperator_FOS_Reverse do not work either (same error message)
+ * as for PowOperator_FOS_Reverse_1...).
  */
 
 /* What does reverse mode do for fmax(), fmin() with a = b? */
-
-/* Is there a reverse mode implementation for condassign and condeqassign? */
 
 
 BOOST_AUTO_TEST_SUITE_END()
