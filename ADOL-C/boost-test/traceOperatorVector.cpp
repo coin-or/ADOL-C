@@ -2448,6 +2448,62 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward)
   myfree2(yd);
 }
 
+/* Tested function: sqrt(pow(x1, 2))*x2
+ * Gradient vector: (
+                      x2,
+                      x1
+                    )
+ */
+BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward)
+{
+  double x1 = 3.77, x2 = -21.12, out;
+  adouble ax1, ax2;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ax1 = sqrt(pow(ax1, 2))*ax2;
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = x2;
+  double x2Derivative = x1;
+  x1 = std::sqrt(std::pow(x1, 2))*x2;
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt x1 and x2. */
+  x[0] = 3.77;
+  x[1] = -21.12;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
