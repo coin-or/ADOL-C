@@ -2143,10 +2143,256 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOV_Forward)
  * higher numbers of independent (and possibly dependent) variables.
  *
  * Before every test, a short comment explains the structure of the
- * tested composite function and states the expected analytic derivative.
+ * tested composite function and states the expected analytic
+ * derivative.
  */
 
+/* Tested function: sin(x1)*sin(x1) + cos(x1)*cos(x1) + x2
+ * Gradient vector: (
+                      0.0,
+                      1.0
+                    )
+ */
+BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward)
+{
+  double x1 = 0.289, x2 = 1.927, out;
+  adouble ax1, ax2;
 
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ax1 = sin(ax1)*sin(ax1) + cos(ax1)*cos(ax1) + ax2;
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 0.;
+  double x2Derivative = 1.;
+  x1 = std::sin(x1)*std::sin(x1) + std::cos(x1)*std::cos(x1) + x2;
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt x1 and x2. */
+  x[0] = 0.289;
+  x[1] = 1.927;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: 2*sin(cos(x1))*exp(x2) - pow(cos(x3), 2)*sin(x2)
+ * Gradient vector: (
+                      -2*cos(cos(x1))*exp(x2)*sin(x1),
+                      2*sin(cos(x1))*exp(x2) - pow(cos(x3), 2)*cos(x2)
+                      2*cos(x3)*sin(x3)*sin(x2)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward)
+{
+  double x1 = 1.11, x2 = 2.22, x3 = 3.33, out;
+  adouble ax1, ax2, ax3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = 2*sin(cos(ax1))*exp(ax2) - pow(cos(ax3), 2)*sin(ax2);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = -2*std::cos(std::cos(x1))*std::exp(x2)*std::sin(x1);
+  double x2Derivative = 2*std::sin(std::cos(x1))*std::exp(x2)
+                        - std::pow(std::cos(x3), 2)*std::cos(x2);
+  double x3Derivative = 2*std::cos(x3)*std::sin(x3)*std::sin(x2);
+  x1 = 2*std::sin(std::cos(x1))*std::exp(x2)
+       - std::pow(std::cos(x3), 2)*std::sin(x2);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2 and x3. */
+  x[0] = 1.11;
+  x[1] = 2.22;
+  x[2] = 3.33;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: pow(sin(x1), cos(x1) - x2)*x3
+ * Gradient vector: (
+                      pow(sin(x1), cos(x1) - x2)*x3*(-sin(x1)*log(sin(x1))
+                      + (cos(x1) - x2)*cos(x1)/sin(x1)),
+                      -log(sin(x1))*pow(sin(x1), cos(x1) - x2)*x3
+                      pow(sin(x1), cos(x1) - x2)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward)
+{
+  double x1 = 0.516, x2 = 9.89, x3 = 0.072, out;
+  adouble ax1, ax2, ax3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = pow(sin(ax1), cos(ax1) - ax2)*ax3;
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::pow(std::sin(x1), std::cos(x1) - x2) * x3
+                        * (-std::sin(x1)*std::log(std::sin(x1))
+                        + (std::cos(x1) - x2)*std::cos(x1)/std::sin(x1));
+  double x2Derivative = -std::log(std::sin(x1))
+                        * std::pow(std::sin(x1), std::cos(x1) - x2) * x3;
+  double x3Derivative = std::pow(std::sin(x1), std::cos(x1) - x2);
+  x1 = std::pow(std::sin(x1), std::cos(x1) - x2)*x3;
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2 and x3. */
+  x[0] = 0.516;
+  x[1] = 9.89;
+  x[2] = 0.072;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: x1 + x2 - x3 + pow(x1, 2) - 10 + sqrt(x4*x5)
+ * Gradient vector: (
+                      1.0 + 2*x1,
+                      1.0,
+                      -1.0,
+                      0.5 * sqrt(x5/x4),
+                      0.5 * sqrt(x4/x5)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward)
+{
+  double x1 = 0.11, x2 = -2.27, x3 = 81.7, x4 = 0.444, x5 = 4.444, out;
+  adouble ax1, ax2, ax3, ax4, ax5;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = ax1 + ax2 - ax3 + pow(ax1, 2) - 10 + sqrt(ax4*ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 1. + 2*x1;
+  double x2Derivative = 1.;
+  double x3Derivative = -1.;
+  double x4Derivative = 0.5 * std::sqrt(x5/x4);
+  double x5Derivative = 0.5 * std::sqrt(x4/x5);
+  x1 = x1 + x2 - x3 + std::pow(x1, 2) - 10 + std::sqrt(x4*x5);
+
+  double *x = myalloc1(5);
+  double **xd = myalloc2(5, 5);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 5);
+
+  /* Test partial derivative wrt x1, x2, x3, x4 and x5. */
+  x[0] = 0.11;
+  x[1] = -2.27;
+  x[2] = 81.7;
+  x[3] = 0.444;
+  x[4] = 4.444;
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 5; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 5, 5, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][4] == x5Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()
