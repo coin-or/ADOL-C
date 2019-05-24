@@ -1764,6 +1764,7 @@ int int_reverse_safe(
 				      AARG1_INC |= aTmp;
 #else
 				      aTmp = ARES / 2.0;
+              fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal arguments, adjoints might be incorrect.\n");
                                       ARES_INC = 0.0;
                                       AARG2_INC += aTmp;
                                       AARG1_INC += aTmp;
