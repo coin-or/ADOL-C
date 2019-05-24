@@ -2325,6 +2325,60 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward)
   myfree2(yd);
 }
 
+/* Tested function: atan(tan(x1))*exp(x2)
+ * Gradient vector: (
+                      exp(x2)
+                      x1*exp(x2)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward)
+{
+  double x1 = 1.56, x2 = 8.99, out;
+  adouble ax1, ax2;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ax1 = atan(tan(ax1))*exp(ax2);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::exp(x2);
+  double x2Derivative = x1*std::exp(x2);
+  x1 = x1*exp(x2);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2 and x3. */
+  x[0] = 1.56;
+  x[1] = 8.99;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 /* Tested function: x1 + x2 - x3 + pow(x1, 2) - 10 + sqrt(x4*x5)
  * Gradient vector: (
                       1.0 + 2*x1,
