@@ -2502,6 +2502,140 @@ BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward)
   myfree2(yd);
 }
 
+/* Tested function: exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)
+ * Gradient vector: (
+                      exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)
+                      + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
+                      exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
+                      + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
+                      exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
+                      + exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)*log(x1 + x2)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward)
+{
+  double x1 = 0.642, x2 = 6.42, x3 = 0.528, out;
+  adouble ax1, ax2, ax3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = exp(ax1 + exp(ax2 + ax3))*pow(ax1 + ax2, ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::exp(x1 + std::exp(x2 + x3))*std::pow(x1 + x2, x3)
+                        + std::exp(x1 + std::exp(x2 + x3))
+                        * x3 * std::pow(x1 + x2, x3 - 1);
+  double x2Derivative = std::exp(x1 + std::exp(x2 + x3))*std::exp(x2 + x3)
+                        * std::pow(x1 + x2, x3)
+                        + std::exp(x1 + std::exp(x2 + x3))
+                        * x3 * std::pow(x1 + x2, x3 - 1);
+  double x3Derivative = std::exp(x1 + std::exp(x2 + x3))*std::exp(x2 + x3)
+                        * std::pow(x1 + x2, x3)
+                        + std::exp(x1 + std::exp(x2 + x3))
+                        * std::pow(x1 + x2, x3)*std::log(x1 + x2);
+  x1 = std::exp(x1 + std::exp(x2 + x3))*std::pow(x1 + x2, x3);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2 and x3. */
+  x[0] = 0.642;
+  x[1] = 6.42;
+  x[2] = 0.528;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: sqrt(sqrt(x1*x2 + 2*x3))*x4
+ * Gradient vector: (
+                      0.25*pow(x1*x2 + 2*x3, -0.75)*x2*x4,
+                      0.25*pow(x1*x2 + 2*x3, -0.75)*x1*x4,
+                      0.25*pow(x1*x2 + 2*x3, -0.75)*2*x4,
+                      pow(x1*x2 + 2*x3, 0.25)
+                    )
+ */
+BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward)
+{
+  double x1 = -2.14, x2 = -2.22, x3 = 50.05, x4 = 0.104, out;
+  adouble ax1, ax2, ax3, ax4;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+
+  ax1 = sqrt(sqrt(ax1*ax2 + 2*ax3))*ax4;
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 0.25*std::pow(x1*x2 + 2*x3, -0.75)*x2*x4;
+  double x2Derivative = 0.25*std::pow(x1*x2 + 2*x3, -0.75)*x1*x4;
+  double x3Derivative = 0.25*std::pow(x1*x2 + 2*x3, -0.75)*2.0*x4;
+  double x4Derivative = std::pow(x1*x2 + 2*x3, 0.25);
+  x1 = std::sqrt(std::sqrt(x1*x2 + 2*x3))*x4;
+
+  double *x = myalloc1(4);
+  double **xd = myalloc2(4, 4);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 4);
+
+  /* Test partial derivative wrt x1, x2, x3 and x4. */
+  x[0] = -2.14;
+  x[1] = -2.22;
+  x[2] = 50.05;
+  x[3] = 0.104;
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 4, 4, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][3] == x4Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 
 
 
