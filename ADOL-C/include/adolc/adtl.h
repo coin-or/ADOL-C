@@ -178,32 +178,32 @@ public:
     inline adouble& operator /= (const adouble& a);
 
     // not
-    inline int operator ! () const;
+    inline bool operator ! () const;
 
-    // comparision
-    inline int operator != (const adouble&) const;
-    inline int operator != (const double) const;
-    inline friend int operator != (const double, const adouble&);
+    // comparison
+    inline bool operator != (const adouble&) const;
+    inline bool operator != (const double) const;
+    inline friend bool operator != (const double, const adouble&);
 
-    inline int operator == (const adouble&) const;
-    inline int operator == (const double) const;
-    inline friend int operator == (const double, const adouble&);
+    inline bool operator == (const adouble&) const;
+    inline bool operator == (const double) const;
+    inline friend bool operator == (const double, const adouble&);
 
-    inline int operator <= (const adouble&) const;
-    inline int operator <= (const double) const;
-    inline friend int operator <= (const double, const adouble&);
+    inline bool operator <= (const adouble&) const;
+    inline bool operator <= (const double) const;
+    inline friend bool operator <= (const double, const adouble&);
 
-    inline int operator >= (const adouble&) const;
-    inline int operator >= (const double) const;
-    inline friend int operator >= (const double, const adouble&);
+    inline bool operator >= (const adouble&) const;
+    inline bool operator >= (const double) const;
+    inline friend bool operator >= (const double, const adouble&);
 
-    inline int operator >  (const adouble&) const;
-    inline int operator >  (const double) const;
-    inline friend int operator >  (const double, const adouble&);
+    inline bool operator >  (const adouble&) const;
+    inline bool operator >  (const double) const;
+    inline friend bool operator >  (const double, const adouble&);
 
-    inline int operator <  (const adouble&) const;
-    inline int operator <  (const double) const;
-    inline friend int operator <  (const double, const adouble&);
+    inline bool operator <  (const adouble&) const;
+    inline bool operator <  (const double) const;
+    inline friend bool operator <  (const double, const adouble&);
 
     /*******************  getter / setter  ********************************/
     inline double getValue() const;
@@ -961,80 +961,80 @@ inline adouble& adouble::operator /= (const adouble& a) {
 }
 
 // not
-inline int adouble::operator ! () const {
+inline bool adouble::operator ! () const {
     return PRIMAL_VALUE==0.0;
 }
 
-// comparision
-inline int adouble::operator != (const adouble &a) const {
+// comparison
+inline bool adouble::operator != (const adouble &a) const {
     return PRIMAL_VALUE!=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator != (const double v) const {
+inline bool adouble::operator != (const double v) const {
     return PRIMAL_VALUE!=v;
 }
 
-inline int operator != (const double v, const adouble &a) {
+inline bool operator != (const double v, const adouble &a) {
     return v!=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator == (const adouble &a) const {
+inline bool adouble::operator == (const adouble &a) const {
     return PRIMAL_VALUE==a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator == (const double v) const {
+inline bool adouble::operator == (const double v) const {
     return PRIMAL_VALUE==v;
 }
 
-inline int operator == (const double v, const adouble &a) {
+inline bool operator == (const double v, const adouble &a) {
     return v==a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <= (const adouble &a) const {
+inline bool adouble::operator <= (const adouble &a) const {
     return PRIMAL_VALUE<=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <= (const double v) const {
+inline bool adouble::operator <= (const double v) const {
     return PRIMAL_VALUE<=v;
 }
 
-inline int operator <= (const double v, const adouble &a) {
+inline bool operator <= (const double v, const adouble &a) {
     return v<=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >= (const adouble &a) const {
+inline bool adouble::operator >= (const adouble &a) const {
     return PRIMAL_VALUE>=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >= (const double v) const {
+inline bool adouble::operator >= (const double v) const {
     return PRIMAL_VALUE>=v;
 }
 
-inline int operator >= (const double v, const adouble &a) {
+inline bool operator >= (const double v, const adouble &a) {
     return v>=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >  (const adouble &a) const {
+inline bool adouble::operator >  (const adouble &a) const {
     return PRIMAL_VALUE>a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >  (const double v) const {
+inline bool adouble::operator >  (const double v) const {
     return PRIMAL_VALUE>v;
 }
 
-inline int operator >  (const double v, const adouble &a) {
+inline bool operator >  (const double v, const adouble &a) {
     return v>a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <  (const adouble &a) const {
+inline bool adouble::operator <  (const adouble &a) const {
     return PRIMAL_VALUE<a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <  (const double v) const {
+inline bool adouble::operator <  (const double v) const {
     return PRIMAL_VALUE<v;
 }
 
-inline int operator <  (const double v, const adouble &a) {
+inline bool operator <  (const double v, const adouble &a) {
     return v<a.PRIMAL_VALUE;
 }
 
