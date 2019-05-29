@@ -2707,6 +2707,126 @@ BOOST_AUTO_TEST_CASE(CompositeHyperb_FOV_Forward)
   myfree2(yd);
 }
 
+/* Tested function: fmax(x1*pow(x3, 2), x2*pow(x3, 2))*exp(x3)
+ * Gradient vector: (
+ *                    pow(x3, 2)*exp(x3),
+ *                    0.0,
+ *                    2.0*x1*x3*exp(x3) + x1*pow(x3, 2)*exp(x3)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeFmax_FOV_Forward)
+{
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  adouble ax1, ax2, ax3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = fmax(ax1*pow(ax3, 2), ax2*pow(ax3, 2))*exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::pow(x3, 2)*std::exp(x3);
+  double x2Derivative = 0.0;
+  double x3Derivative = 2.0*x1*x3*std::exp(x3)
+                        + x1*std::pow(x3, 2)*std::exp(x3);
+  x1 = std::fmax(x1*std::pow(x3, 2), x2*std::pow(x3, 2))*std::exp(x3);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2, and x3. */
+  x[0] = 2.31;
+  x[1] = 1.32;
+  x[2] = 3.21;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: fmin(x1*pow(x3, 2), x2*pow(x3, 2))*exp(x3)
+ * Gradient vector: (
+ *                    0.0,
+ *                    pow(x3, 2)*exp(x3),
+ *                    2.0*x2*x3*exp(x3) + x2*pow(x3, 2)*exp(x3)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeFmin_FOV_Forward)
+{
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  adouble ax1, ax2, ax3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = fmin(ax1*pow(ax3, 2), ax2*pow(ax3, 2))*exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 0.0;
+  double x2Derivative = std::pow(x3, 2)*std::exp(x3);
+  double x3Derivative = 2.0*x2*x3*std::exp(x3)
+                        + x2*std::pow(x3, 2)*std::exp(x3);
+  x1 = std::fmin(x1*std::pow(x3, 2), x2*std::pow(x3, 2))*std::exp(x3);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2, and x3. */
+  x[0] = 2.31;
+  x[1] = 1.32;
+  x[2] = 3.21;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 
 
 
