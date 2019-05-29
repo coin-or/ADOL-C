@@ -737,7 +737,35 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(LogOperator_FOV_Reverse)
+{
+  double a = 4.9, aout;
+  adouble ad;
 
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = log(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / a;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::exp(-1.);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::exp(-1.), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward)
 {
@@ -776,6 +804,36 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Reverse)
+{
+  double a = 4., aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = sinh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::cosh(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::cosh(3.5);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::cosh(3.5), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Forward)
@@ -817,6 +875,36 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Reverse)
+{
+  double a = 4., aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = cosh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::sinh(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::sinh(3.5);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::sinh(3.5), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward)
 {
   double a = 4., aout;
@@ -854,6 +942,37 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Reverse)
+{
+  double a = 4., aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = tanh(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::tanh(a);
+  double aDerivative = 1. - a*a;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 5.4;
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 5.4*aDerivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward)
@@ -894,6 +1013,8 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward)
   myfree1(y);
   myfree2(yd);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Forward)
 {
