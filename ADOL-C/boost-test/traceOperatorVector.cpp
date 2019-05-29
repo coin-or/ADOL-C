@@ -2149,9 +2149,9 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOV_Forward)
 
 /* Tested function: sin(x1)*sin(x1) + cos(x1)*cos(x1) + x2
  * Gradient vector: (
-                      0.0,
-                      1.0
-                    )
+ *                    0.0,
+ *                    1.0
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward)
 {
@@ -2203,10 +2203,10 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward)
 
 /* Tested function: 2*sin(cos(x1))*exp(x2) - pow(cos(x3), 2)*sin(x2)
  * Gradient vector: (
-                      -2*cos(cos(x1))*exp(x2)*sin(x1),
-                      2*sin(cos(x1))*exp(x2) - pow(cos(x3), 2)*cos(x2)
-                      2*cos(x3)*sin(x3)*sin(x2)
-                    )
+ *                    -2*cos(cos(x1))*exp(x2)*sin(x1),
+ *                    2*sin(cos(x1))*exp(x2) - pow(cos(x3), 2)*cos(x2),
+ *                    2*cos(x3)*sin(x3)*sin(x2)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward)
 {
@@ -2264,11 +2264,11 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward)
 
 /* Tested function: pow(sin(x1), cos(x1) - x2)*x3
  * Gradient vector: (
-                      pow(sin(x1), cos(x1) - x2)*x3*(-sin(x1)*log(sin(x1))
-                      + (cos(x1) - x2)*cos(x1)/sin(x1)),
-                      -log(sin(x1))*pow(sin(x1), cos(x1) - x2)*x3
-                      pow(sin(x1), cos(x1) - x2)
-                    )
+ *                    pow(sin(x1), cos(x1) - x2)*x3*(-sin(x1)*log(sin(x1))
+ *                    + (cos(x1) - x2)*cos(x1)/sin(x1)),
+ *                    -log(sin(x1))*pow(sin(x1), cos(x1) - x2)*x3,
+ *                    pow(sin(x1), cos(x1) - x2)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward)
 {
@@ -2327,9 +2327,9 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward)
 
 /* Tested function: atan(tan(x1))*exp(x2)
  * Gradient vector: (
-                      exp(x2)
-                      x1*exp(x2)
-                    )
+ *                    exp(x2)
+ *                    x1*exp(x2)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward)
 {
@@ -2381,12 +2381,12 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward)
 
 /* Tested function: x1 + x2 - x3 + pow(x1, 2) - 10 + sqrt(x4*x5)
  * Gradient vector: (
-                      1.0 + 2*x1,
-                      1.0,
-                      -1.0,
-                      0.5 * sqrt(x5/x4),
-                      0.5 * sqrt(x4/x5)
-                    )
+ *                    1.0 + 2*x1,
+ *                    1.0,
+ *                    -1.0,
+ *                    0.5 * sqrt(x5/x4),
+ *                    0.5 * sqrt(x4/x5)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward)
 {
@@ -2450,9 +2450,9 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward)
 
 /* Tested function: sqrt(pow(x1, 2))*x2
  * Gradient vector: (
-                      x2,
-                      x1
-                    )
+ *                    x2,
+ *                    x1
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward)
 {
@@ -2504,13 +2504,13 @@ BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward)
 
 /* Tested function: exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)
  * Gradient vector: (
-                      exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)
-                      + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
-                      exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
-                      + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
-                      exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
-                      + exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)*log(x1 + x2)
-                    )
+ *                    exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)
+ *                    + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
+ *                    exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
+ *                    + exp(x1 + exp(x2 + x3))*x3*pow(x1 + x2, x3 - 1),
+ *                    exp(x1 + exp(x2 + x3))*exp(x2 + x3)*pow(x1 + x2, x3)
+ *                    + exp(x1 + exp(x2 + x3))*pow(x1 + x2, x3)*log(x1 + x2)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward)
 {
@@ -2574,11 +2574,11 @@ BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward)
 
 /* Tested function: sqrt(sqrt(x1*x2 + 2*x3))*x4
  * Gradient vector: (
-                      0.25*pow(x1*x2 + 2*x3, -0.75)*x2*x4,
-                      0.25*pow(x1*x2 + 2*x3, -0.75)*x1*x4,
-                      0.25*pow(x1*x2 + 2*x3, -0.75)*2*x4,
-                      pow(x1*x2 + 2*x3, 0.25)
-                    )
+ *                    0.25*pow(x1*x2 + 2*x3, -0.75)*x2*x4,
+ *                    0.25*pow(x1*x2 + 2*x3, -0.75)*x1*x4,
+ *                    0.25*pow(x1*x2 + 2*x3, -0.75)*2*x4,
+ *                    pow(x1*x2 + 2*x3, 0.25)
+ *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward)
 {
@@ -2612,6 +2612,77 @@ BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward)
   x[1] = -2.22;
   x[2] = 50.05;
   x[3] = 0.104;
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 4, 4, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][3] == x4Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+/* Tested function: tanh(acos(pow(x1, 2) + 1)*sin(x2))*x3 + exp(cosh(x4))
+ * Gradient vector: (
+ *                    (1 - pow(tanh(acos(pow(x1, 2) + 1)*sin(x2)), 2))
+ *                    * x3 * sin(x2) * 2. * x1 / sqrt(1. - pow(x1, 4)),
+ *                    (1 - pow(tanh(acos(pow(x1, 2) + 1)*sin(x2)), 2))
+ *                    * x3 * acos(pow(x1, 2) + 1) * cos(x2),
+ *                    tanh(acos(pow(x1, 2) + 1)*sin(x2)),
+ *                    exp(cosh(x4)) * sinh(x4)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeHyperb_FOV_Forward)
+{
+  double x1 = 0.0, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
+  adouble ax1, ax2, ax3, ax4;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+
+  ax1 = tanh(acos(pow(ax1, 2) + 1.)*sin(ax2))*ax3 + exp(cosh(ax4));
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1.)
+                        * std::sin(x2)), 2)) * x3 * std::sin(x2) * 2.
+                        * x1 / std::sqrt(1. - std::pow(x1, 4));
+  double x2Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1)
+                        * std::sin(x2)), 2)) * x3 * std::acos(std::pow(x1, 2)
+                        + 1) * std::cos(x2);
+  double x3Derivative = std::tanh(std::acos(std::pow(x1, 2) + 1)*std::sin(x2));
+  double x4Derivative = std::exp(std::cosh(x4))*std::sinh(x4);
+  x1 = std::tanh(std::acos(std::pow(x1, 2) + 1.)*std::sin(x2))*x3
+       + std::exp(std::cosh(x4));
+
+  double *x = myalloc1(4);
+  double **xd = myalloc2(4, 4);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 4);
+
+  /* Test partial derivative wrt x1, x2, x3 and x4. */
+  x[0] = 0.0;
+  x[1] = 5.099;
+  x[2] = 5.5;
+  x[3] = 4.73;
 
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
