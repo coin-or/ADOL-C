@@ -530,7 +530,35 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(SinOperator_FOV_Reverse)
+{
+  double a = 1.2, aout;
+  adouble ad;
 
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = sin(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::cos(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::tan(4.4);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::tan(4.4), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOV_Forward)
 {
@@ -569,6 +597,36 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOV_Forward)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(CosOperator_FOV_Reverse)
+{
+  double a = 1.2, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = cos(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = -std::sin(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::log(2.);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::log(2.), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Forward)
@@ -610,6 +668,36 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Reverse)
+{
+  double a = 2.2, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = sqrt(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1. / (2.*std::sqrt(a));
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::exp(2.);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::exp(2.), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward)
 {
   double a = 4.9, aout;
@@ -648,6 +736,8 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward)
   myfree1(y);
   myfree2(yd);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward)
 {
