@@ -63,6 +63,36 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Reverse)
+{
+  double a = 2., aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = exp(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = std::exp(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = std::exp(3.);
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::exp(3.), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward)
 {
   double a = 2., b = 3.5, out;
