@@ -2827,7 +2827,95 @@ BOOST_AUTO_TEST_CASE(CompositeFmin_FOV_Forward)
   myfree2(yd);
 }
 
+#if defined(ATRIG_ERF)
+/* Tested function: erf(fabs(x1 - x2)*sinh(x3 - x4))*sin(x5)
+ * Gradient vector: (
+ *                    -2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * sinh(x3 - x4),
+ *                    2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * sinh(x3 - x4),
+ *                    2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * fabs(x1 - x2)
+ *                    * cosh(x3 - x4),
+ *                    -2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * fabs(x1 - x2)
+ *                    * cosh(x3 - x4),
+ *                    erf(fabs(x1 - x2)*sinh(x3 - x4))*cos(x5)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward)
+{
+  double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
+  adouble ax1, ax2, ax3, ax4, ax5;
 
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = erf(fabs(ax1 - ax2)*sinh(ax3 - ax4))*sin(ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = -2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::sinh(x3 - x4);
+  double x2Derivative = 2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::sinh(x3 - x4);
+  double x3Derivative = 2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::fabs(x1 - x2) * std::cosh(x3 - x4);
+  double x4Derivative = -2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::fabs(x1 - x2) * std::cosh(x3 - x4);
+  double x5Derivative = std::erf(std::fabs(x1 - x2)*std::sinh(x3 - x4))
+                        * std::cos(x5);
+  x1 = std::erf(std::fabs(x1 - x2)*std::sinh(x3 - x4))*std::sin(x5);
+
+  double *x = myalloc1(5);
+  double **xd = myalloc2(5, 5);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 5);
+
+  /* Test partial derivative wrt x1, x2, x3, x4 and x5. */
+  x[0] = 4.56;
+  x[1] = 5.46;
+  x[2] = 4.65;
+  x[3] = 6.54;
+  x[4] = 6.45;
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 5; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 1, 5, 5, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][4] == x5Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+#endif
 
 
 BOOST_AUTO_TEST_SUITE_END()
