@@ -1637,7 +1637,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Forward)
   myfree2(yd);
 }
 
-BOOST_AUTO_TEST_CASE(SignPlusperator_FOV_Reverse)
+BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Reverse)
 {
   double a = 1.5, aout;
   adouble ad;
@@ -1706,7 +1706,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Forward)
   myfree2(yd);
 }
 
-BOOST_AUTO_TEST_CASE(SignMinusperator_FOV_Reverse)
+BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Reverse)
 {
   double a = 1.5, aout;
   adouble ad;
@@ -1784,6 +1784,40 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Reverse)
+{
+  double a = 12.3, b = 2.1, aout;
+  adouble ad, bd;
+
+  trace_on(1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = atan2(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = b / (a*a + b*b);
+  double bDerivative = -a / (a*a + b*b);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 2);
+
+  u[0][0] = 1.;
+  u[1][0] = std::exp(1.);
+
+  fov_reverse(1, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative*std::exp(1.), tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == bDerivative*std::exp(1.), tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1)
 {
   double a = 2.3, e = 3.5, aout;
@@ -1822,7 +1856,37 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1)
   myfree1(y);
   myfree2(yd);
 }
+/*
+BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1)
+{
+  double a = 2.3, e = 3.5, aout;
+  adouble ad;
 
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = pow(ad, e);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = e * std::pow(a, e - 1.);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = -1.1;
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == -1.1*aDerivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+*/
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2)
 {
   double a = 2.3, b = 3.5, out;
@@ -1871,6 +1935,40 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_2)
+{
+  double a = 2.3, b = 3.5, aout;
+  adouble ad, bd;
+
+  trace_on(1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = pow(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = b * std::pow(a, b - 1.);
+  double bDerivative = std::pow(a, b)*std::log(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 2);
+
+  u[0][0] = 1.;
+  u[1][0] = 2.;
+
+  fov_reverse(1, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 2.*aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == 2.*bDerivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3)
 {
   double a = 2.3, e = 3.5, eout;
@@ -1908,6 +2006,36 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_3)
+{
+  double a = 2.3, e = 3.4, eout;
+  adouble ed;
+
+  trace_on(1, 1);
+  ed <<= e;
+
+  ed = pow(a, ed);
+
+  ed >>= eout;
+  trace_off();
+
+  double eDerivative = std::pow(a, e)*std::log(a);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = -1.1;
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == -1.1*eDerivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 /* Frexp operator is not differentiable and does not have to be tested. */
@@ -3654,6 +3782,12 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward)
   myfree2(yd);
 }
 #endif
+
+
+/* The test PowOperator_FOV_Reverse_1 is not working, but gives an error
+ * 'memory access violation: no mapping at fault adress'.  What is the
+ * problem here?
+ */
 
 
 BOOST_AUTO_TEST_SUITE_END()
