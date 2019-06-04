@@ -4131,6 +4131,40 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(CompositeTrig4Operator_FOV_Reverse)
+{
+  double x1 = 1.56, x2 = 8.99, out;
+  adouble ax1, ax2;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ax1 = atan(tan(ax1))*exp(ax2);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::exp(x2);
+  double x2Derivative = x1*std::exp(x2);
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 2);
+
+  u[0][0] = 1.;
+  u[1][0] = -1.;
+
+  fov_reverse(1, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == -1.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == -1.*x2Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 /* Tested function: x1 + x2 - x3 + pow(x1, 2) - 10 + sqrt(x4*x5)
  * Gradient vector: (
  *                    1.0 + 2*x1,
@@ -4198,6 +4232,70 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(LongSumOperator_FOV_Reverse)
+{
+  double x1 = 0.11, x2 = -2.27, x3 = 81.7, x4 = 0.444, x5 = 4.444, out;
+  adouble ax1, ax2, ax3, ax4, ax5;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = ax1 + ax2 - ax3 + pow(ax1, 2) - 10 + sqrt(ax4*ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 1. + 2*x1;
+  double x2Derivative = 1.;
+  double x3Derivative = -1.;
+  double x4Derivative = 0.5 * std::sqrt(x5/x4);
+  double x5Derivative = 0.5 * std::sqrt(x4/x5);
+
+  double **u = myalloc2(5, 1);
+  double **z = myalloc2(5, 5);
+
+  u[0][0] = 1.;
+  u[1][0] = 2.;
+  u[2][0] = 3.;
+  u[3][0] = 4.;
+  u[4][0] = 5.;
+
+  fov_reverse(1, 1, 5, 5, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][4] == x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 2.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == 2.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == 2.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][3] == 2.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][4] == 2.*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == 3.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == 3.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == 3.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][3] == 3.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][4] == 3.*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][0] == 4.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][1] == 4.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][2] == 4.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][3] == 4.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][4] == 4.*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][0] == 5.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][1] == 5.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][2] == 5.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][3] == 5.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][4] == 5.*x5Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 /* Tested function: sqrt(pow(x1, 2))*x2
