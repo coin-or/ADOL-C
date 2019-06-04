@@ -2430,7 +2430,35 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Forward)
   myfree2(yd);
 }
 
+BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Reverse)
+{
+  double a = 3.573, aout;
+  adouble ad;
 
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = ceil(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward)
 {
@@ -2469,6 +2497,36 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward)
   myfree2(xd);
   myfree1(y);
   myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Reverse)
+{
+  double a = 4.483, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = floor(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(1, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_1)
