@@ -5044,7 +5044,82 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward)
   myfree2(yd);
 }
 
-/* TODO */
+BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse)
+{
+  double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
+  adouble ax1, ax2, ax3, ax4, ax5;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = erf(fabs(ax1 - ax2)*sinh(ax3 - ax4))*sin(ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = -2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::sinh(x3 - x4);
+  double x2Derivative = 2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::sinh(x3 - x4);
+  double x3Derivative = 2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::fabs(x1 - x2) * std::cosh(x3 - x4);
+  double x4Derivative = -2./std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - x2)
+                        * std::sinh(x3 - x4), 2)) * std::sin(x5)
+                        * std::fabs(x1 - x2) * std::cosh(x3 - x4);
+  double x5Derivative = std::erf(std::fabs(x1 - x2)*std::sinh(x3 - x4))
+                        * std::cos(x5);
+
+  double **u = myalloc2(5, 1);
+  double **z = myalloc2(5, 5);
+
+  u[0][0] = 1.;
+  u[1][0] = std::sqrt(5.);
+  u[2][0] = -std::sqrt(2.);
+  u[3][0] = 7.;
+  u[4][0] = -9.;
+
+  fov_reverse(1, 1, 5, 5, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][4] == x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == std::sqrt(5.)*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == std::sqrt(5.)*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == std::sqrt(5.)*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][3] == std::sqrt(5.)*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][4] == std::sqrt(5.)*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == -std::sqrt(2.)*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == -std::sqrt(2.)*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == -std::sqrt(2.)*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][3] == -std::sqrt(2.)*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][4] == -std::sqrt(2.)*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][0] == 7.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][1] == 7.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][2] == 7.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][3] == 7.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][4] == 7.*x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][0] == -9.*x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][1] == -9.*x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][2] == -9.*x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][3] == -9.*x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][4] == -9.*x5Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
 #endif
 
 
