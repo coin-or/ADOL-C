@@ -1378,8 +1378,8 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse)
  * Gradient vector: (
  *                    5. * exp(sin(x1)*cos(x1)) * (cos(x1)*cos(x1)
  *                    - sin(x1)*sin(x1)) * pow(sqrt(x2), x3),
- *                    5. * exp(sin(x1)*cos(x1)) * x3 * pow(sqrt(x2), x3 - 1.)
- *                    * (1. / 2.*sqrt(x2)),
+ *                    5. * exp(sin(x1)*cos(x1)) * x3
+ *                    * pow(sqrt(x2), x3 - 1.) * (1. / 2.*sqrt(x2)),
  *                    5. * exp(sin(x1)*cos(x1)) * pow(sqrt(x2), x3)
  *                    * log(sqrt(x2))
  *                  )
@@ -1487,6 +1487,167 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrtFabsOperator_FOV_Reverse)
   BOOST_TEST(z[2][0] == -5.*x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[2][1] == -5.*x2Derivative, tt::tolerance(tol));
   BOOST_TEST(z[2][2] == -5.*x3Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+/* The next test functions emphasize the number of dependents being
+ * greater than 1, which yields more interesting tests for reverse mode.
+ */
+
+/* Tested function: y1 = sqrt(x1*x1 + x2*x2 + x3*x3)
+ *                  y2 = atan(sqrt(x1*x1 + x2*x2)/x3)
+ *                  y3 = atan(x2/x1)
+ * Jacobian matrix: (
+ *                    (x1/sqrt(x1*x1 + x2*x2 + x3*x3),
+ *                     x2/sqrt(x1*x1 + x2*x2 + x3*x3),
+ *                     x3/sqrt(x1*x1 + x2*x2 + x3*x3)),
+ *                    (x1*x3/((x1*x1 + x2*x2 + x3*x3)*sqrt(x1*x1 + x2*x2)),
+ *                     x2*x3/((x1*x1 + x2*x2 + x3*x3)*sqrt(x1*x1 + x2*x2)),
+ *                     -sqrt(x1*x1 + x2*x2)/(x1*x1 + x2*x2 + x3*x3)),
+ *                    (-x2/(x1*x1 + x2*x2), x1/(x1*x1 + x2*x2), 0.0)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward)
+{
+  double x1 = 8.17, x2 = -3.41, x3 = 10.01, out1, out2, out3;
+  double y1, y2, y3;
+  adouble ax1, ax2, ax3;
+  adouble ay1, ay2, ay3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay1 = sqrt(ax1*ax1 + ax2*ax2 + ax3*ax3);
+  ay2 = atan(sqrt(ax1*ax1 + ax2*ax2)/ax3);
+  ay3 = atan(ax2/ax1);
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  trace_off();
+
+/* The obvious naming convention is applied here:  The derivative of
+ * component yi in the direction xj is saved in yixjDerivative.
+ */
+  double y1x1Derivative = x1 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y1x2Derivative = x2 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y1x3Derivative = x3 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y2x1Derivative = x1*x3 / ((x1*x1 + x2*x2 + x3*x3)
+                          * std::sqrt(x1*x1 + x2*x2));
+  double y2x2Derivative = x2*x3 / ((x1*x1 + x2*x2 + x3*x3)
+                          * std::sqrt(x1*x1 + x2*x2));
+  double y2x3Derivative = -std::sqrt(x1*x1 + x2*x2) / (x1*x1 + x2*x2 + x3*x3);
+  double y3x1Derivative = -x2 / (x1*x1 + x2*x2);
+  double y3x2Derivative = x1 / (x1*x1 + x2*x2);
+  double y3x3Derivative = 0.0;
+
+  y1 = std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  y2 = std::atan(std::sqrt(x1*x1 + x2*x2)/x3);
+  y3 = std::atan(x2/x1);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(3);
+  double **yd = myalloc2(3, 3);
+
+  /* Test all entries of Jacobian matrix. */
+  x[0] = 8.17;
+  x[1] = -3.41;
+  x[2] = 10.01;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(y[0] == y1, tt::tolerance(tol));
+  BOOST_TEST(y[1] == y2, tt::tolerance(tol));
+  BOOST_TEST(y[2] == y3, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][2] == y2x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][2] == y3x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse)
+{
+  double x1 = 8.17, x2 = -3.41, x3 = 10.01, out1, out2, out3;
+  double y1, y2, y3;
+  adouble ax1, ax2, ax3;
+  adouble ay1, ay2, ay3;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay1 = sqrt(ax1*ax1 + ax2*ax2 + ax3*ax3);
+  ay2 = atan(sqrt(ax1*ax1 + ax2*ax2)/ax3);
+  ay3 = atan(ax2/ax1);
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  trace_off();
+
+/* The obvious naming convention is applied here:  The derivative of
+ * component yi in the direction xj is saved in yixjDerivative.
+ */
+  double y1x1Derivative = x1 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y1x2Derivative = x2 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y1x3Derivative = x3 / std::sqrt(x1*x1 + x2*x2 + x3*x3);
+  double y2x1Derivative = x1*x3 / ((x1*x1 + x2*x2 + x3*x3)
+                          * std::sqrt(x1*x1 + x2*x2));
+  double y2x2Derivative = x2*x3 / ((x1*x1 + x2*x2 + x3*x3)
+                          * std::sqrt(x1*x1 + x2*x2));
+  double y2x3Derivative = -std::sqrt(x1*x1 + x2*x2) / (x1*x1 + x2*x2 + x3*x3);
+  double y3x1Derivative = -x2 / (x1*x1 + x2*x2);
+  double y3x2Derivative = x1 / (x1*x1 + x2*x2);
+  double y3x3Derivative = 0.0;
+
+  double **u = myalloc2(3, 3);
+  double **z = myalloc2(3, 3);
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        u[i][j] = 1.;
+      else
+        u[i][j] = 0.;
+    }
+  }
+
+  fov_reverse(1, 3, 3, 3, u, z);
+
+  BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == y2x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == y3x3Derivative, tt::tolerance(tol));
 
   myfree2(u);
   myfree2(z);
