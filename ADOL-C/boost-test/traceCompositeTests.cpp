@@ -1653,6 +1653,148 @@ BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse)
   myfree2(z);
 }
 
+/* Tested function: y1 = x2*x3
+ *                  y2 = x1*x3
+ *                  y3 = x1*x2
+ * Jacobian matrix: (
+ *                    (0.0, x3, x2),
+ *                    (x3, 0.0, x1),
+ *                    (x2, x1, 0.0)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward)
+{
+  double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
+  double y1, y2, y3;
+  adouble ax1, ax2, ax3;
+  adouble ay1, ay2, ay3;
+
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay1 = ax2*ax3;
+  ay2 = ax1*ax3;
+  ay3 = ax1*ax2;
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  trace_off();
+
+  double y1x1Derivative = 0.0;
+  double y1x2Derivative = x3;
+  double y1x3Derivative = x2;
+  double y2x1Derivative = x3;
+  double y2x2Derivative = 0.0;
+  double y2x3Derivative = x1;
+  double y3x1Derivative = x2;
+  double y3x2Derivative = x1;
+  double y3x3Derivative = 0.0;
+
+  y1 = x2*x3;
+  y2 = x1*x3;
+  y3 = x1*x2;
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(3);
+  double **yd = myalloc2(3, 3);
+
+  x[0] = 2.52;
+  x[1] = 5.22;
+  x[2] = -2.25;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(y[0] == y1, tt::tolerance(tol));
+  BOOST_TEST(y[1] == y2, tt::tolerance(tol));
+  BOOST_TEST(y[2] == y3, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][2] == y2x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][2] == y3x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse)
+{
+  double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
+  double y1, y2, y3;
+  adouble ax1, ax2, ax3;
+  adouble ay1, ay2, ay3;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay1 = ax2*ax3;
+  ay2 = ax1*ax3;
+  ay3 = ax1*ax2;
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  trace_off();
+
+  double y1x1Derivative = 0.0;
+  double y1x2Derivative = x3;
+  double y1x3Derivative = x2;
+  double y2x1Derivative = x3;
+  double y2x2Derivative = 0.0;
+  double y2x3Derivative = x1;
+  double y3x1Derivative = x2;
+  double y3x2Derivative = x1;
+  double y3x3Derivative = 0.0;
+
+  double **u = myalloc2(3, 3);
+  double **z = myalloc2(3, 3);
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        u[i][j] = 1.;
+      else
+        u[i][j] = 0.;
+    }
+  }
+
+  fov_reverse(1, 3, 3, 3, u, z);
+
+  BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == y2x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == y3x3Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
