@@ -2274,7 +2274,160 @@ BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse)
   myfree2(z);
 }
 
+/* Tested function: y1 = sinh(x1*x1)*cosh(x2*x2*x2)
+ *                  y2 = pow(cosh(pow(x1, 4)), 2)
+ *                       - pow(cosh(pow(x1, 4)), 2)
+ *                  y3 = -cosh(sqrt(x1)*x2)*x2
+ *                  y4 = cosh(x1)/sinh(x2)
+ * Jacobian matrix: (
+ *                    (2*x1*cosh(x1*x1)*cosh(x2*x2*x2),
+ *                     3*x2*x2*sinh(x1*x1)*sinh(x2*x2*x2)),
+ *                    (0.0, 0.0),
+ *                    (-0.5*sinh(sqrt(x1)*x2)*x2*x2/sqrt(x1),
+ *                     -sinh(sqrt(x1)*x2)*sqrt(x1)*x2 - cosh(sqrt(x1)*x2)),
+ *                    (sinh(x1)/sinh(x2), -cosh(x1)/(sinh(x2)*cosh(x2)))
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward)
+{
+  double x1 = 1., x2 = 0.1, out1, out2, out3, out4;
+  double y1, y2, y3, y4;
+  adouble ax1, ax2;
+  adouble ay1, ay2, ay3, ay4;
 
+  trace_on(1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = sinh(ax1*ax1)*cosh(ax2*ax2*ax2);
+  ay2 = pow(cosh(pow(ax1, 4.)), 2.) - pow(cosh(pow(ax1, 4.)), 2.);
+  ay3 = -cosh(sqrt(ax1)*ax2)*ax2;
+  ay4 = cosh(ax1)/sinh(ax2);
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  ay4 >>= out4;
+  trace_off();
+
+  double y1x1Derivative = 2.*x1*std::cosh(x1*x1)*std::cosh(x2*x2*x2);
+  double y1x2Derivative = 3.*x2*x2*std::sinh(x1*x1)*std::sinh(x2*x2*x2);
+  double y2x1Derivative = 0.0;
+  double y2x2Derivative = 0.0;
+  double y3x1Derivative = -0.5*std::sinh(std::sqrt(x1)*x2)*x2*x2
+                          / std::sqrt(x1);
+  double y3x2Derivative = -std::sinh(std::sqrt(x1)*x2)*std::sqrt(x1)*x2
+                          - std::cosh(std::sqrt(x1)*x2);
+  double y4x1Derivative = std::sinh(x1)/std::sinh(x2);
+  double y4x2Derivative = -std::cosh(x1)*std::cosh(x2)
+                          / std::pow(std::sinh(x2), 2.);
+
+  y1 = std::sinh(x1*x1)*std::cosh(x2*x2*x2);
+  y2 = std::pow(std::cosh(std::pow(x1, 4)), 2)
+       - std::pow(std::cosh(std::pow(x1, 4)), 2);
+  y3 = -std::cosh(std::sqrt(x1)*x2)*x2;
+  y4 = std::cosh(x1)/std::sinh(x2);;
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(4);
+  double **yd = myalloc2(4, 2);
+
+  x[0] = 1.;
+  x[1] = 0.1;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(1, 4, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(y[0] == y1, tt::tolerance(tol));
+  BOOST_TEST(y[1] == y2, tt::tolerance(tol));
+  BOOST_TEST(y[2] == y3, tt::tolerance(tol));
+  BOOST_TEST(y[3] == y4, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[3][0] == y4x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[3][1] == y4x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse)
+{
+  double x1 = 1., x2 = 0.1, out1, out2, out3, out4;
+  double y1, y2, y3, y4;
+  adouble ax1, ax2;
+  adouble ay1, ay2, ay3, ay4;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = sinh(ax1*ax1)*cosh(ax2*ax2*ax2);
+  ay2 = pow(cosh(pow(ax1, 4.)), 2.) - pow(cosh(pow(ax1, 4.)), 2.);
+  ay3 = -cosh(sqrt(ax1)*ax2)*ax2;
+  ay4 = cosh(ax1)/sinh(ax2);
+
+  ay1 >>= out1;
+  ay2 >>= out2;
+  ay3 >>= out3;
+  ay4 >>= out4;
+  trace_off();
+
+  double y1x1Derivative = 2.*x1*std::cosh(x1*x1)*std::cosh(x2*x2*x2);
+  double y1x2Derivative = 3.*x2*x2*std::sinh(x1*x1)*std::sinh(x2*x2*x2);
+  double y2x1Derivative = 0.0;
+  double y2x2Derivative = 0.0;
+  double y3x1Derivative = -0.5*std::sinh(std::sqrt(x1)*x2)*x2*x2
+                          / std::sqrt(x1);
+  double y3x2Derivative = -std::sinh(std::sqrt(x1)*x2)*std::sqrt(x1)*x2
+                          - std::cosh(std::sqrt(x1)*x2);
+  double y4x1Derivative = std::sinh(x1)/std::sinh(x2);
+  double y4x2Derivative = -std::cosh(x1)*std::cosh(x2)
+                          / std::pow(std::sinh(x2), 2.);
+
+  double **u = myalloc2(4, 4);
+  double **z = myalloc2(4, 2);
+
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (i == j)
+        u[i][j] = 1.;
+      else
+        u[i][j] = 0.;
+    }
+  }
+
+  fov_reverse(1, 4, 2, 4, u, z);
+
+  BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == y3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == y3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][0] == y4x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][1] == y4x2Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+/* TODO */
 
 
 BOOST_AUTO_TEST_SUITE_END()
