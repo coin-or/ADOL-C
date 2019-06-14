@@ -109,6 +109,48 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4_Traceless)
   BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(LongSum_Traceless)
+{
+  double x1 = 6.091, x2 = -0.004, out;
+  adouble ax1 = x1, ax2 = x2;
+
+  ax1.setADValue(0, 1.);
+  ax2.setADValue(1, 1.);
+
+  ax1 = std::pow(2., 10.)*ax1 + ax2 + std::sqrt(2.)*ax1 + (-3.5)*ax1 - 9.9*ax2
+        - 10000.001;
+
+  double x1Derivative = std::pow(2., 10.) + std::sqrt(2.) - 3.5;
+  double x2Derivative = 1. - 9.9;
+
+  x1 = std::pow(2., 10.)*x1 + x2 + std::sqrt(2.)*x1 + (-3.5)*x1 - 9.9*x2
+       - 10000.001;
+
+  BOOST_TEST(ax1.getValue() == x1, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(0) == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(InverseFunc_Traceless)
+{
+  double x1 = 3.77, x2 = -21.12, out;
+  adouble ax1 = x1, ax2 = x2;
+
+  ax1.setADValue(0, 1.);
+  ax2.setADValue(1, 1.);
+
+  ax1 = adtl::sqrt(adtl::pow(ax1, 2.))*ax2;
+
+  double x1Derivative = x2;
+  double x2Derivative = x1;
+
+  x1 = x1*x2;
+
+  BOOST_TEST(ax1.getValue() == x1, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(0) == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
+}
+
 
 
 
