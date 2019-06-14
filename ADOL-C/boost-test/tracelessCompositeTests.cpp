@@ -195,6 +195,30 @@ BOOST_AUTO_TEST_CASE(CompositeSqrt_Traceless)
   BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(CompositeHyper_Traceless)
+{
+  double x1 = 0.1, x2 = 5.099, out;
+  adouble ax1 = x1, ax2 = x2;
+
+  ax1.setADValue(0, 1.);
+  ax2.setADValue(1, 1.);
+
+  ax1 = adtl::tanh(adtl::acos(adtl::pow(ax1, 2) + 0.5)*adtl::sin(ax2));
+
+  double x1Derivative = -(1. - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
+                        * std::sin(x2)), 2)) * std::sin(x2) * 2. * x1
+                        / (std::sqrt(1. - std::pow(std::pow(x1, 2) + 0.5, 2)));
+  double x2Derivative = (1. - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
+                        * std::sin(x2)), 2)) * std::cos(x2)
+                        * std::acos(std::pow(x1, 2) + 0.5);
+
+  x1 = std::tanh(std::acos(std::pow(x1, 2) + 0.5)*std::sin(x2));
+
+  BOOST_TEST(ax1.getValue() == x1, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(0) == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
+}
+
 
 
 

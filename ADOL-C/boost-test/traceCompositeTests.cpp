@@ -886,7 +886,7 @@ BOOST_AUTO_TEST_CASE(CompositeSqrtOperator_FOV_Reverse)
  */
 BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward)
 {
-  double x1 = 0.0, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
+  double x1 = 0.1, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
   adouble ax1, ax2, ax3, ax4;
 
   trace_on(1);
@@ -895,20 +895,20 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward)
   ax3 <<= x3;
   ax4 <<= x4;
 
-  ax1 = tanh(acos(pow(ax1, 2) + 1.)*sin(ax2))*ax3 + exp(cosh(ax4));
+  ax1 = tanh(acos(pow(ax1, 2) + 0.5)*sin(ax2))*ax3 + exp(cosh(ax4));
 
   ax1 >>= out;
   trace_off();
 
-  double x1Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1.)
-                        * std::sin(x2)), 2)) * x3 * std::sin(x2) * 2.
-                        * x1 / std::sqrt(1. - std::pow(x1, 4));
-  double x2Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1)
+  double x1Derivative = -(1 - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
+                        * std::sin(x2)), 2)) * x3 * std::sin(x2) * 2. * x1
+                        / (std::sqrt(1. - std::pow(std::pow(x1, 2) + 0.5, 2)));
+  double x2Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
                         * std::sin(x2)), 2)) * x3 * std::acos(std::pow(x1, 2)
-                        + 1) * std::cos(x2);
-  double x3Derivative = std::tanh(std::acos(std::pow(x1, 2) + 1)*std::sin(x2));
+                        + 0.5) * std::cos(x2);
+  double x3Derivative = std::tanh(std::acos(std::pow(x1, 2)+0.5)*std::sin(x2));
   double x4Derivative = std::exp(std::cosh(x4))*std::sinh(x4);
-  x1 = std::tanh(std::acos(std::pow(x1, 2) + 1.)*std::sin(x2))*x3
+  x1 = std::tanh(std::acos(std::pow(x1, 2) + 0.5)*std::sin(x2))*x3
        + std::exp(std::cosh(x4));
 
   double *x = myalloc1(4);
@@ -917,7 +917,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward)
   double **yd = myalloc2(1, 4);
 
   /* Test partial derivative wrt x1, x2, x3 and x4. */
-  x[0] = 0.0;
+  x[0] = 0.1;
   x[1] = 5.099;
   x[2] = 5.5;
   x[3] = 4.73;
@@ -947,7 +947,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward)
 
 BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse)
 {
-  double x1 = 0.0, x2 = 5.099, x3 = -0.0, x4 = 4.73, out;
+  double x1 = 0.1, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
   adouble ax1, ax2, ax3, ax4;
 
   trace_on(1, 1);
@@ -956,18 +956,18 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse)
   ax3 <<= x3;
   ax4 <<= x4;
 
-  ax1 = tanh(acos(pow(ax1, 2) + 1.)*sin(ax2))*ax3 + exp(cosh(ax4));
+  ax1 = tanh(acos(pow(ax1, 2) + 0.5)*sin(ax2))*ax3 + exp(cosh(ax4));
 
   ax1 >>= out;
   trace_off();
 
-  double x1Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1.)
-                        * std::sin(x2)), 2)) * x3 * std::sin(x2) * 2.
-                        * x1 / std::sqrt(1. - std::pow(x1, 4));
-  double x2Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 1)
+  double x1Derivative = -(1 - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
+                        * std::sin(x2)), 2)) * x3 * std::sin(x2) * 2. * x1
+                        / (std::sqrt(1. - std::pow(std::pow(x1, 2) + 0.5, 2)));
+  double x2Derivative = (1 - std::pow(std::tanh(std::acos(std::pow(x1, 2)+0.5)
                         * std::sin(x2)), 2)) * x3 * std::acos(std::pow(x1, 2)
-                        + 1) * std::cos(x2);
-  double x3Derivative = std::tanh(std::acos(std::pow(x1, 2) + 1)*std::sin(x2));
+                        + 0.5) * std::cos(x2);
+  double x3Derivative = std::tanh(std::acos(std::pow(x1, 2)+0.5)*std::sin(x2));
   double x4Derivative = std::exp(std::cosh(x4))*std::sinh(x4);
 
   double **u = myalloc2(4, 1);
