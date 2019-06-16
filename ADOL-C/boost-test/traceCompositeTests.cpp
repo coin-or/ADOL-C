@@ -2326,7 +2326,7 @@ BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward)
   y2 = std::pow(std::cosh(std::pow(x1, 4)), 2)
        - std::pow(std::cosh(std::pow(x1, 4)), 2);
   y3 = -std::cosh(std::sqrt(x1)*x2)*x2;
-  y4 = std::cosh(x1)/std::sinh(x2);;
+  y4 = std::cosh(x1)/std::sinh(x2);
 
   double *x = myalloc1(2);
   double **xd = myalloc2(2, 2);
@@ -2426,8 +2426,6 @@ BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse)
   myfree2(u);
   myfree2(z);
 }
-
-/* TODO */
 
 
 BOOST_AUTO_TEST_SUITE_END()
