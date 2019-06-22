@@ -329,6 +329,97 @@ BOOST_AUTO_TEST_CASE(CustomHyperbProd_HOS)
   myfree2(H);
 }
 
+/* Tested function: pow(sin(x1), cos(x2))
+ * First derivatives: (pow(sin(x1), cos(x2))*cos(x2)*cos(x1)/sin(x1),
+ *                     -pow(sin(x1), cos(x2))*sin(x2)*log(sin(x1))
+ *                    )
+ * Second derivatives: (pow(sin(x1), cos(x2))*cos(x2)
+ *                      * (-1 + pow(cos(x1)/sin(x1), 2)*(cos(x2) - 1)),
+ *                      -pow(sin(x1), cos(x2))*sin(x2)
+ *                      * (cos(x1)/sin(x1) + log(sin(x1))*cos(x2)
+ *                         *cos(x1)/sin(x1)),
+ *                      -pow(sin(x1), cos(x2))*sin(x2)
+ *                      * (cos(x1)/sin(x1) + log(sin(x1))*cos(x2)
+ *                         *cos(x1)/sin(x1)),
+ *                      pow(sin(x1), cos(x2))*log(sin(x1))
+ *                      * (-cos(x2) + pow(sin(x2), 2)*log(sin(x1)))
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomPowTrig_HOS)
+{
+  double x1 = 0.531, x2 = 3.12;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = pow(sin(ax1), cos(ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::pow(std::sin(x1), std::cos(x2));
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = std::pow(std::sin(x1), std::cos(x2))
+                      * std::cos(x2)*std::cos(x1)/std::sin(x1);
+  yDerivative[0][1] = -std::pow(std::sin(x1), std::cos(x2))
+                      *std::sin(x2)*std::log(std::sin(x1))
+                      + 0.5*(std::pow(std::sin(x1), std::cos(x2))*std::cos(x2)
+                             *(-1 + std::pow(std::cos(x1)/std::sin(x1), 2)
+                               *(std::cos(x2) - 1)));
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = std::pow(std::sin(x1), std::cos(x2))*std::cos(x2)
+                           *(-1 + std::pow(std::cos(x1)/std::sin(x1), 2)
+                             *(std::cos(x2) - 1));
+  double yx1x2Derivative = -std::pow(std::sin(x1), std::cos(x2))*std::sin(x2)
+                           *(std::cos(x1)/std::sin(x1) + std::log(std::sin(x1))
+                             *std::cos(x2)*std::cos(x1)/std::sin(x1));
+  double yx2x2Derivative = std::pow(std::sin(x1), std::cos(x2))
+                           *std::log(std::sin(x1))*(-std::cos(x2)
+                            +std::pow(std::sin(x2), 2)*std::log(std::sin(x1)));
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 
 
 /* TODO */
