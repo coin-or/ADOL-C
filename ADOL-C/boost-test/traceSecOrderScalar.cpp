@@ -607,6 +607,175 @@ BOOST_AUTO_TEST_CASE(CustomExpSum_HOS)
   myfree2(H);
 }
 
+#if defined(ATRIG_ERF)
+/* Tested function: exp(tanh(x1)*erf(x2))
+ * First derivatives: (exp(tanh(x1)*erf(x2))*(1 - pow(tanh(x1), 2))*erf(x2),
+ *                     exp(tanh(x1)*erf(x2))*tanh(x1)*exp(-x2*x2)
+ *                     *2/sqrt(acos(-1))
+ *                    )
+ * Second derivatives: (exp(tanh(x1)*erf(x2))*(1 - pow(tanh(x1), 2))*erf(x2)
+ *                      *((1 - pow(tanh(x1), 2))*erf(x2) - 2*tanh(x1)),
+ *                      exp(tanh(x1)*erf(x2))*exp(-x2*x2)
+ *                      *(1 - pow(tanh(x1), 2))*2/sqrt(acos(-1))
+ *                      *(1 + tanh(x1)*erf(x2)),
+ *                      exp(tanh(x1)*erf(x2))*exp(-x2*x2)
+ *                      *(1 - pow(tanh(x2), 2))*2/sqrt(acos(-1))
+ *                      *(1 + tanh(x1)*erf(x2)),
+ *                      exp(tanh(x1)*erf(x2))*tanh(x1)*exp(-x2*x2)
+ *                      *(4*tanh(x1)/acos(-1) - 4*x2/sqrt(acos(-1)))
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomHypErf_HOS)
+{
+  double x1 = 5.55, x2 = 9.99;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = exp(tanh(ax1)*erf(ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::exp(std::tanh(x1)*std::erf(x2));
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = std::exp(std::tanh(x1)*std::erf(x2))
+                      *(1 - std::pow(std::tanh(x1), 2))*std::erf(x2);
+  yDerivative[0][1] = std::exp(std::tanh(x1)*std::erf(x2))*std::tanh(x1)
+                      *std::exp(-x2*x2)*2/std::sqrt(std::acos(-1))
+                      + 0.5*std::exp(std::tanh(x1)*std::erf(x2))
+                      *(1 - std::pow(std::tanh(x1), 2))*std::erf(x2)
+                      *((1 - std::pow(std::tanh(x1), 2))*std::erf(x2)
+                        - 2*std::tanh(x1));
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = std::exp(std::tanh(x1)*std::erf(x2))
+                           *(1 - std::pow(std::tanh(x1), 2))*std::erf(x2)
+                           *((1 - std::pow(std::tanh(x1), 2))*std::erf(x2)
+                             - 2*std::tanh(x1));
+  double yx1x2Derivative = std::exp(std::tanh(x1)*std::erf(x2))
+                           *std::exp(-x2*x2)*(1 - std::pow(std::tanh(x1), 2))
+                           *2/std::sqrt(std::acos(-1))
+                           *(1 + std::tanh(x1)*std::erf(x2));
+  double yx2x2Derivative = std::exp(std::tanh(x1)*std::erf(x2))*std::tanh(x1)
+                           *std::exp(-2*x2*x2)*(4*std::tanh(x1)/std::acos(-1)
+                             - 4*x2*std::exp(x2*x2)/std::sqrt(std::acos(-1)));
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+#endif
+
+/* Tested function: (pow(cosh(x1), 2) - pow(sinh(x1), 2))*atan(x2)
+ * First derivatives: (0, 1./(1. + x2*x2)
+ *                    )
+ * Second derivatives: (0, 0,
+ *                      0, -2.*x2/pow(1. + x2*x2, 2)
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomHypAtan_HOS)
+{
+  double x1 = 7.19, x2 = -4.32;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = (pow(cosh(ax1), 2) - pow(sinh(ax1), 2))*atan(ax2);
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = (std::pow(std::cosh(x1), 2) - std::pow(std::sinh(x1), 2))
+                 *std::atan(x2);
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 0.;
+  yDerivative[0][1] = 1./(1. + x2*x2) + 0.5*0.;
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = 0.;
+  double yx1x2Derivative = 0.;
+  double yx2x2Derivative = -2.*x2/std::pow(1. + x2*x2, 2);
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 
 
 /* TODO */
