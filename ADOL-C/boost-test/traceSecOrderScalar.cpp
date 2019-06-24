@@ -776,6 +776,90 @@ BOOST_AUTO_TEST_CASE(CustomHypAtan_HOS)
   myfree2(H);
 }
 
+/* Tested function: 1. + x1 + x1*x1 + x2*x2 + x2*x2*x2 + x3*x3*x3 + x3*x3*x3*x3
+ * First derivatives: (1. + 2.*x1, 2.*x2 + 3.*x2*x2, 3.*x3*x3 + 4.*x3*x3*x3
+ *                    )
+ * Second derivatives: (2., 0., 0.,
+ *                      0., 2. + 6.*x2, 0.,
+ *                      0., 0., 6.*x3 + 12.*x3*x3
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomLongSum_HOS)
+{
+  double x1 = 99.99, x2 = std::exp(-0.44), x3 = std::sqrt(2);
+  adouble ax1, ax2, ax3, ax4;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay = 1. + ax1 + ax1*ax1 + ax2*ax2 + ax2*ax2*ax2
+       + ax3*ax3*ax3 + ax3*ax3*ax3*ax3;
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = 1. + x1 + x1*x1 + x2*x2 + x2*x2*x2 + x3*x3*x3 + x3*x3*x3*x3;
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 1. + 2.*x1 - 0.01*(3.*x3*x3 + 4.*x3*x3*x3);
+  yDerivative[0][1] = 0.3*(2.*x2 + 3.*x2*x2)
+                      + 0.5*(2. + 0.01*0.01*(6.*x3 + 12.*x3*x3));
+
+  double* x;
+  x = myalloc1(3);
+  x[0] = x1;
+  x[1] = x2;
+  x[2] = x3;
+
+  double** X;
+  X = myalloc2(3, 2);
+  X[0][0] = 1.;
+  X[1][0] = 0.;
+  X[2][0] = -0.01;
+  X[0][1] = 0.;
+  X[1][1] = 0.3;
+  X[2][1] = 0.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 3, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(3, 3);
+
+  double yx1x1Derivative = 2.;
+  double yx2x1Derivative = 0.;
+  double yx3x1Derivative = 0.;
+  double yx2x2Derivative = 2. + 6.*x2;
+  double yx3x2Derivative = 0.;
+  double yx3x3Derivative = 6.*x3 + 12.*x3*x3;
+
+  hessian(1, 3, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x1Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x1Derivative == H[2][0], tt::tolerance(tol));
+  BOOST_TEST(yx3x2Derivative == H[2][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x3Derivative == H[2][2], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 
 
 /* TODO */
