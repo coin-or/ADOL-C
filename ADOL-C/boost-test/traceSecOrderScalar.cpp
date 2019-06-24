@@ -1025,6 +1025,99 @@ BOOST_AUTO_TEST_CASE(CustomInvHyperb_HOS)
 }
 #endif
 
+/* Tested function: fmax(fmin(x1, x2), fabs(x3))*x4
+ * First derivatives: (0., 0., -x4, -x3)
+ * Second derivatives: (0., 0., 0., 0.,
+ *                      0., 0., 0., 0.,
+ *                      0., 0., 0., -1.,
+ *                      0., 0., -1., 0.)
+ */
+BOOST_AUTO_TEST_CASE(CustomFminFmaxFabs_HOS)
+{
+  double x1 = 1., x2 = 2.5, x3 = -4.5, x4 = -1.;
+  adouble ax1, ax2, ax3, ax4;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+
+  ay = fmax(fmin(ax1, ax2), fabs(ax3))*ax4;
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::fmax(std::fmin(x1, x2), std::fabs(x3))*x4;
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 0.01*x3;
+  yDerivative[0][1] = -0.2*x4 + 0.5*0.;
+
+  double* x;
+  x = myalloc1(4);
+  x[0] = x1;
+  x[1] = x2;
+  x[2] = x3;
+  x[3] = x4;
+
+  double** X;
+  X = myalloc2(4, 2);
+  X[0][0] = 1.;
+  X[1][0] = 0.1;
+  X[2][0] = 0.;
+  X[3][0] = -0.01;
+  X[0][1] = 0.;
+  X[1][1] = 1.;
+  X[2][1] = 0.2;
+  X[3][1] = 0.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 4, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(4, 4);
+
+  double yx1x1Derivative = 0.;
+  double yx2x1Derivative = 0.;
+  double yx3x1Derivative = 0.;
+  double yx4x1Derivative = 0.;
+  double yx2x2Derivative = 0.;
+  double yx3x2Derivative = 0.;
+  double yx4x2Derivative = 0.;
+  double yx3x3Derivative = 0.;
+  double yx4x3Derivative = -1.;
+  double yx4x4Derivative = 0.;
+
+  hessian(1, 4, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x1Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x1Derivative == H[2][0], tt::tolerance(tol));
+  BOOST_TEST(yx3x2Derivative == H[2][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x3Derivative == H[2][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x1Derivative == H[3][0], tt::tolerance(tol));
+  BOOST_TEST(yx4x2Derivative == H[3][1], tt::tolerance(tol));
+  BOOST_TEST(yx4x3Derivative == H[3][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x4Derivative == H[3][3], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 
 
 /* TODO */
