@@ -1299,6 +1299,148 @@ BOOST_AUTO_TEST_CASE(CustomInvTrig2_HOS)
   myfree2(H);
 }
 
+/* Tested function: fmax(fabs(x1*x1), fabs(x2*x2))
+ * First derivatives: (2.*x1, 0.
+ *                    )
+ * Second derivatives: (2., 0., 0., 0.
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomFabsFmax_HOS)
+{
+  double x1 = 9.9, x2 = -4.7;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = fmax(fabs(ax1*ax1), fabs(ax2*ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::fmax(std::fabs(x1*x1), std::fabs(x2*x2));
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 2.*x1;
+  yDerivative[0][1] = 0.5*2.;
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = 2.;
+  double yx1x2Derivative = 0.;
+  double yx2x2Derivative = 0.;
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
+/* Tested function: fmin(fabs(x1*x1), fabs(x2*x2))
+ * First derivatives: (0., 2.*x2
+ *                    )
+ * Second derivatives: (0., 0., 0., 2.
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomFabsFmin_HOS)
+{
+  double x1 = 9.9, x2 = -4.7;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = fmin(fabs(ax1*ax1), fabs(ax2*ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::fmin(std::fabs(x1*x1), std::fabs(x2*x2));
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 0.;
+  yDerivative[0][1] = 1.5*2.*x2;
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = 0.;
+  double yx1x2Derivative = 0.;
+  double yx2x2Derivative = 2.;
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
+
+
 /* TODO: combine trig, invtrig, hyperb, invhypber, fmax, fmin, fabs! */
 
 
