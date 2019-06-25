@@ -1118,9 +1118,188 @@ BOOST_AUTO_TEST_CASE(CustomFminFmaxFabs_HOS)
   myfree2(H);
 }
 
+/* Tested function: 3.*asin(sin(x1 + x2))*sin(x3)*cos(x4)
+ * First derivatives: (3.*sin(x3)*cos(x4), 3.*sin(x3)*cos(x4),
+ *                     3.*(x1 + x2)*cos(x3)*cos(x4),
+ *                     -3.*(x1 + x2)*sin(x3)*sin(x4)
+ *                    )
+ * Second derivatives: (0., 0., 3*cos(x3)*cos(x4), -3.*sin(x3)*sin(x4),
+ *                      0., 0., 3*cos(x3)*cos(x4), -3.*sin(x3)*sin(x4),
+ *                      3.*cos(x3)*cos(x4), 3.*cos(x3)*cos(x4),
+ *                      -3.*(x1 + x2)*sin(x3)*cos(x4),
+ *                      -3.*(x1 + x2)*cos(x3)*sin(x4),
+ *                      -3.*sin(x3)*sin(x4), -3.*sin(x3)*sin(x4),
+ *                      -3.*(x1 + x2)*cos(x3)*sin(x4),
+ *                      -3.*(x1 + x2)*sin(x3)*cos(x4)
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomInvTrig_HOS)
+{
+  double x1 = 0.11, x2 = 0.33, x3 = 0.1*std::acos(0.), x4 = std::exp(-1.);
+  adouble ax1, ax2, ax3, ax4;
+  double y;
+  adouble ay;
 
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
 
-/* TODO */
+  ay = 3.*asin(sin(ax1 + ax2))*sin(ax3)*cos(ax4);
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = 3.*std::asin(std::sin(x1 + x2))*std::sin(x3)*std::cos(x4);
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 3.*std::sin(x3)*std::cos(x4)
+                      + 0.1*3.*std::sin(x3)*std::cos(x4)
+                      + 0.01*3.*(x1 + x2)*std::sin(x3)*std::sin(x4);
+  yDerivative[0][1] = 3.*std::sin(x3)*std::cos(x4)
+                      + 0.2*3.*(x1 + x2)*std::cos(x3)*std::cos(x4)
+                      - 0.5*0.01*(-2.*3.*std::sin(x3)*std::sin(x4)
+                        - 0.2*3.*std::sin(x3)*std::sin(x4)
+                        + 0.01*3.*(x1 + x2)*std::sin(x3)*std::cos(x4));
+
+  double* x;
+  x = myalloc1(4);
+  x[0] = x1;
+  x[1] = x2;
+  x[2] = x3;
+  x[3] = x4;
+
+  double** X;
+  X = myalloc2(4, 2);
+  X[0][0] = 1.;
+  X[1][0] = 0.1;
+  X[2][0] = 0.;
+  X[3][0] = -0.01;
+  X[0][1] = 0.;
+  X[1][1] = 1.;
+  X[2][1] = 0.2;
+  X[3][1] = 0.;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 4, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(4, 4);
+
+  double yx1x1Derivative = 0.;
+  double yx2x1Derivative = 0.;
+  double yx3x1Derivative = 3*std::cos(x3)*std::cos(x4);
+  double yx4x1Derivative = -3.*sin(x3)*sin(x4);
+  double yx2x2Derivative = 0.;
+  double yx3x2Derivative = 3.*std::cos(x3)*std::cos(x4);
+  double yx4x2Derivative = -3.*std::sin(x3)*std::sin(x4);
+  double yx3x3Derivative = -3.*(x1 + x2)*std::sin(x3)*std::cos(x4);
+  double yx4x3Derivative = -3.*(x1 + x2)*std::cos(x3)*std::sin(x4);
+  double yx4x4Derivative = -3.*(x1 + x2)*std::sin(x3)*std::cos(x4);
+
+  hessian(1, 4, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x1Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x1Derivative == H[2][0], tt::tolerance(tol));
+  BOOST_TEST(yx3x2Derivative == H[2][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x3Derivative == H[2][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x1Derivative == H[3][0], tt::tolerance(tol));
+  BOOST_TEST(yx4x2Derivative == H[3][1], tt::tolerance(tol));
+  BOOST_TEST(yx4x3Derivative == H[3][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x4Derivative == H[3][3], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
+/* Tested function: atan(x1)*asin(x2)
+ * First derivatives: (asin(x2)/(1. + x1*x1), atan(x1)/sqrt(1. - x2*x2)
+ *                    )
+ * Second derivatives: (-2.*x1*asin(x2)/pow(1. + x1*x1, 2),
+ *                      1./((1. + x1*x1)*sqrt(1. - x2*x2)),
+ *                      1./((1. + x1*x1)*sqrt(1. - x2*x2)),
+ *                      atan(x1)*x2/pow(sqrt(1. - x2*x2), 3)
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomInvTrig2_HOS)
+{
+  double x1 = 0.53, x2 = -0.01;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = atan(ax1)*asin(ax2);
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::atan(x1)*std::asin(x2);
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = std::asin(x2)/(1. + x1*x1);
+  yDerivative[0][1] = 1.5*std::atan(x1)/std::sqrt(1. - x2*x2)
+                      - 0.5*2.*x1*std::asin(x2)/std::pow(1. + x1*x1, 2);
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = -2.*x1*std::asin(x2)/std::pow(1. + x1*x1, 2);
+  double yx1x2Derivative = 1./((1. + x1*x1)*std::sqrt(1. - x2*x2));
+  double yx2x2Derivative = std::atan(x1)*x2/std::pow(std::sqrt(1. - x2*x2), 3);
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
+/* TODO: combine trig, invtrig, hyperb, invhypber, fmax, fmin, fabs! */
 
 
 BOOST_AUTO_TEST_SUITE_END()
