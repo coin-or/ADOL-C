@@ -1512,7 +1512,87 @@ BOOST_AUTO_TEST_CASE(CustomFmaxTrigExp_HOS)
   myfree2(H);
 }
 
+/* Tested function: fmin(x1*x1*cos(x2), sin(x1)*cos(x2*exp(x2)))
+ * First derivatives: (cos(x1)*cos(x2*exp(x2)),
+ *                     -sin(x1)*sin(x2*exp(x2))*(1. + x2)*exp(x2)
+ *                    )
+ * Second derivatives: (-sin(x1)*cos(x2*exp(x2)),
+ *                      -cos(x1)*sin(x2*exp(x2))*(1. + x2)*exp(x2),
+ *                      -cos(x1)*sin(x2*exp(x2))*(1. + x2)*exp(x2),
+ *                      -sin(x1)*cos(x2*exp(x2))*pow((1. + x2)*exp(x2), 2)
+ *                      - sin(x1)*sin(x2*exp(x2))*(2. + x2)*exp(x2)
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomFminTrigExp_HOS)
+{
+  double x1 = 21.07, x2 = 1.5;
+  adouble ax1, ax2;
+  double y;
+  adouble ay;
 
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = fmin(ax1*ax1*cos(ax2), sin(ax1)*cos(ax2*exp(ax2)));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::fmin(
+    x1*x1*std::cos(x2), std::sin(x1)*std::cos(x2*std::exp(x2))
+  );
+
+  double** yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = std::cos(x1)*std::cos(x2*std::exp(x2));
+  yDerivative[0][1] = -1.5*sin(x1)*sin(x2*exp(x2))*(1. + x2)*exp(x2)
+                      - 0.5*std::sin(x1)*std::cos(x2*std::exp(x2));
+
+  double* x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double** X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double** Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(1, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double** H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = -std::sin(x1)*std::cos(x2*std::exp(x2));
+  double yx1x2Derivative = -std::cos(x1)*std::sin(x2*std::exp(x2))
+                           *(1. + x2)*std::exp(x2);
+  double yx2x2Derivative = -std::sin(x1)*std::cos(x2*std::exp(x2))
+                           *std::pow((1. + x2)*std::exp(x2), 2)
+                           - std::sin(x1)*std::sin(x2*std::exp(x2))
+                           *(2. + x2)*std::exp(x2);
+
+  hessian(1, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()
