@@ -1916,9 +1916,13 @@ BOOST_AUTO_TEST_CASE(CustomConstant_HOS)
 }
 
 
-/* Next, tests for the ADOL-C driver hos_reverse are implemented. They
+/* Next, tests for the ADOL-C driver hos_reverse are implemented.  They
  * are stated separately in order not to clutter the hos_forward and
- * hessian driver test cases.
+ * hessian driver test cases.  Analytical derivatives are not state
+ * separately, as the following tests require several different partial
+ * derivatives.  The derivative values can instead be found in the
+ * variables yixj for first order partial derivatives and yixjxk for
+ * second order partial derivatives.
  *
  * Before calling hos_reverse, one needs to call fos_forward or
  * hos_forward with appropriate keep parameter.
@@ -1998,6 +2002,196 @@ BOOST_AUTO_TEST_CASE(customSimpleSum_HOS_Reverse)
   /* The second derivative tensor is tested against u from the left and
    * xd from the right!
    */
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x1x3Derivative, tt::tolerance(tol));
+
+  u[0] = 0.;
+  u[1] = 1.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y2x3Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y2x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y2x1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y2x1x3Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+  xd[2] = 0.;
+
+  fos_forward(1, 2, 3, 2, x, xd, y, yd);
+
+  u[0] = 1.;
+  u[1] = 0.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x2x3Derivative, tt::tolerance(tol));
+
+  u[0] = 0.;
+  u[1] = 1.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y2x3Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y2x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y2x2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y2x2x3Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 0.;
+  xd[2] = 1.;
+
+  fos_forward(1, 2, 3, 2, x, xd, y, yd);
+
+  u[0] = 1.;
+  u[1] = 0.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x3x3Derivative, tt::tolerance(tol));
+
+  u[0] = 0.;
+  u[1] = 1.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y2x3Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y2x3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y2x3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y2x3x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
+BOOST_AUTO_TEST_CASE(customTrigExp_HOS_Reverse)
+{
+  double x1 = 1.78, x2 = -7.81, x3 = 0.03;
+  adouble ax1, ax2, ax3;
+  double y1, y2;
+  adouble ay1, ay2;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ay1 = ax1*exp(sin(ax2)*cos(ax3) + sqrt(2) + 3.*ax3);
+  ay2 = 2.*ax1*ax1 + 3.*ax2*ax2 + 4.*ax3*ax3 + ax1*ax2*ax3;
+
+  ay1 >>= y1;
+  ay2 >>= y2;
+  trace_off();
+
+  double y1x1Derivative = std::exp(std::sin(x2)*std::cos(x3)
+                            + std::sqrt(2) + 3.*x3);
+  double y1x2Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                            + std::sqrt(2) + 3.*x3)
+                          * std::cos(x2)*std::cos(x3);
+  double y1x3Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                            + std::sqrt(2) + 3.*x3)
+                          * (3. - std::sin(x2)*std::sin(x3));
+  double y2x1Derivative = 4.*x1 + x2*x3;
+  double y2x2Derivative = 6.*x2 + x1*x3;
+  double y2x3Derivative = 8.*x3 + x1*x2;
+
+  double y1x1x1Derivative = 0.;
+  double y1x1x2Derivative = std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * std::cos(x2)*std::cos(x3);
+  double y1x1x3Derivative = std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * (3. - std::sin(x2)*std::sin(x3));
+  double y2x1x1Derivative = 4.;
+  double y2x1x2Derivative = x3;
+  double y2x1x3Derivative = x2;
+  double y1x2x1Derivative = std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * std::cos(x2)*std::cos(x3);
+  double y1x2x2Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * (std::cos(x2) * std::cos(x3)
+                              * std::cos(x2)*std::cos(x3)
+                              - std::sin(x2)*std::cos(x3));
+  double y1x2x3Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * (std::cos(x2) * std::cos(x3)
+                              * (-std::sin(x2)*std::sin(x3) + 3.)
+                              - std::cos(x2)*std::sin(x3));
+  double y2x2x1Derivative = x3;
+  double y2x2x2Derivative = 6.;
+  double y2x2x3Derivative = x1;
+  double y1x3x1Derivative = std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * (3. - std::sin(x2)*std::sin(x3));
+  double y1x3x2Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * (std::cos(x2) * std::cos(x3)
+                              * (-std::sin(x2)*std::sin(x3) + 3.)
+                              - std::cos(x2)*std::sin(x3));
+  double y1x3x3Derivative = x1 * std::exp(std::sin(x2)*std::cos(x3)
+                              + std::sqrt(2) + 3.*x3)
+                            * ((3. - std::sin(x2)*std::sin(x3))
+                              * (3. - std::sin(x2)*std::sin(x3))
+                              - std::sin(x2)*std::cos(x3));
+
+  double y2x3x1Derivative = x2;
+  double y2x3x2Derivative = x1;
+  double y2x3x3Derivative = 8.;
+
+  double *x = myalloc1(3);
+  double *xd = myalloc1(3);
+  double *y = myalloc1(2);
+  double *yd = myalloc1(2);
+
+  x[0] = 1.78;
+  x[1] = -7.81;
+  x[2] = 0.03;
+  xd[0] = 1.;
+  xd[1] = 0.;
+  xd[2] = 0.;
+
+  fos_forward(1, 2, 3, 2, x, xd, y, yd);
+
+  double *u = myalloc1(2);
+  double **Z = myalloc2(3, 2);
+
+  u[0] = 1.;
+  u[1] = 0.;
+
+  hos_reverse(1, 2, 3, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
 
   BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
