@@ -2456,6 +2456,55 @@ BOOST_AUTO_TEST_CASE(customPowPow_HOS_Reverse)
   myfree2(Z);
 }
 
+BOOST_AUTO_TEST_CASE(customCube_HOS_Reverse)
+{
+  double x1 = 3.;
+  adouble ax1;
+  double y1;
+  adouble ay1;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+
+  ay1 = 2.*ax1*ax1*ax1;
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 6.*x1*x1;
+
+  double y1x1x1Derivative = 12.*x1;
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 3.;
+  xd[0] = 1.;
+
+  fos_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(1, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(1, 1, 1, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
