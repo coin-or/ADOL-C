@@ -12,7 +12,8 @@ BOOST_AUTO_TEST_SUITE( trace_sec_order )
 
 /**************************************/
 /* Tests for ADOL-C trace scalar mode */
-/* drivers hos_forward, hessian       */
+/* drivers hos_forward, hessian and   */
+/* hos_reverse                        */
 /* Author: Philipp Schuette           */
 /**************************************/
 
@@ -1299,8 +1300,6 @@ BOOST_AUTO_TEST_CASE(CustomInvTrig2_HOS)
   myfree2(H);
 }
 
-//TODO
-
 /* Tested function: fmax(fabs(x1*x1), fabs(x2*x2))
  * First derivatives: (2.*x1, 0.
  *                    )
@@ -1370,6 +1369,8 @@ BOOST_AUTO_TEST_CASE(CustomFabsFmax_HOS)
   myfree2(Y);
   myfree2(H);
 }
+
+//TODO
 
 /* Tested function: fmin(fabs(x1*x1), fabs(x2*x2))
  * First derivatives: (0., 2.*x2
