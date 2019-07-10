@@ -952,8 +952,6 @@ BOOST_AUTO_TEST_CASE(CustomExpSqrt_HOS)
   myfree2(H);
 }
 
-//TODO
-
 #if defined(ATRIG_ERF)
 /* Tested function: 2.*acosh(cosh(x1*x1))*atanh(x2)
  * First derivatives: (4.*x1*atanh(x2), 2.*x1*x1/(1. - x2*x2)
@@ -1026,6 +1024,8 @@ BOOST_AUTO_TEST_CASE(CustomInvHyperb_HOS)
   myfree2(H);
 }
 #endif
+
+//TODO
 
 /* Tested function: fmax(fmin(x1, x2), fabs(x3))*x4
  * First derivatives: (0., 0., -x4, -x3)
@@ -3399,6 +3399,78 @@ BOOST_AUTO_TEST_CASE(customExpSqrt_HOS_Reverse)
   myfree1(u);
   myfree2(Z);
 }
+
+#if defined(ATRIG_ERF)
+BOOST_AUTO_TEST_CASE(customInvHyperb_HOS_Reverse)
+{
+  double x1 = -3.03, x2 = 0.11;
+  adouble ax1, ax2;
+  double y1;
+  adouble ay1;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = 2.*acosh(cosh(ax1*ax1))*atanh(ax2);
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 4.*x1*atanh(x2);
+  double y1x2Derivative = 2.*x1*x1/(1. - x2*x2);
+
+  double y1x1x1Derivative = 4.*atanh(x2);
+  double y1x1x2Derivative = 4.*x1/(1. - x2*x2);
+  double y1x2x1Derivative = 4.*x1/(1. - x2*x2);
+  double y1x2x2Derivative = 4.*x1*x1*x2/pow(1. - x2*x2, 2);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = -3.03;
+  x[1] = 0.11;
+  xd[0] = 1.;
+  xd[1] = 0.;
+
+  fos_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(2, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(1, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+
+  fos_forward(1, 1, 2, 2, x, xd, y, yd);
+
+  hos_reverse(1, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+#endif
 
 
 
