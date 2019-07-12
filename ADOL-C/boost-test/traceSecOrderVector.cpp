@@ -32,7 +32,6 @@ BOOST_AUTO_TEST_SUITE( trace_sec_order_vec )
  * First derivative: 2.*3.*x*x
  * Second derivative: 2.*3.*2.*x
  */
-/*
 BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
 {
   double x1 = 3.;
@@ -80,7 +79,7 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
   double*** Y;
   Y = myalloc3(1, 3, 2);
 
-  hov_forward(1, 1, 1, 2, 3, x, X, y, Y)
+  hov_forward(1, 1, 1, 2, 3, x, X, y, Y);
 
   BOOST_TEST(y[0] == yprim[0], tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == yDerivative[0][0][0], tt::tolerance(tol));
@@ -96,7 +95,6 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
   myfree3(X);
   myfree3(Y);
 }
-*/
 
 BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse)
 {
@@ -148,12 +146,7 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse)
   myfree3(Z);
 }
 
-/* TODO:
- * First test (template) for hov_forward does not work yet
- * --> error message when compiling!
- * What is the actual error here? Does the analogous procedure work
- * in reverse mode?
- */
+
 
 
 BOOST_AUTO_TEST_SUITE_END()
