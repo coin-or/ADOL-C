@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_SUITE( trace_sec_order_vec )
  * First derivative: 2.*3.*x*x
  * Second derivative: 2.*3.*2.*x
  */
+/*
 BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
 {
   double x1 = 3.;
@@ -95,10 +96,61 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
   myfree3(X);
   myfree3(Y);
 }
+*/
+
+BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse)
+{
+  double x1 = 3.;
+  adouble ax1;
+  double y1;
+  adouble ay1;
+
+  trace_on(1, 1);
+  ax1 <<= x1;
+
+  ay1 = 2.*ax1*ax1*ax1;
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 6.*x1*x1;
+
+  double y1x1x1Derivative = 12.*x1;
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 3.;
+  xd[0] = 1.;
+
+  fos_forward(1, 1, 1, 2, x, xd, y, yd);
+
+  double** U = myalloc2(1, 1);
+  double*** Z = myalloc3(1, 1, 2);
+  short int** nz = (short int**)malloc(sizeof(short int*)*1);
+
+  nz[0] = (short int*)malloc(sizeof(short int)*1);
+  nz[0][0] = 1;
+  U[0][0] = 1.;
+
+  hov_reverse(1, 1, 1, 1, 1, U, Z, nz);
+
+  BOOST_TEST(Z[0][0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[0][0][1] == y1x1x1Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree2(U);
+  myfree3(Z);
+}
 
 /* TODO:
- * First test (template) does not work yet --> error message when
- * compiling!
+ * First test (template) for hov_forward does not work yet
+ * --> error message when compiling!
  * What is the actual error here? Does the analogous procedure work
  * in reverse mode?
  */
