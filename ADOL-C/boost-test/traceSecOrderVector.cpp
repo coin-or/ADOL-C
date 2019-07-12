@@ -125,18 +125,24 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse)
 
   fos_forward(1, 1, 1, 2, x, xd, y, yd);
 
-  double** U = myalloc2(1, 1);
-  double*** Z = myalloc3(1, 1, 2);
-  short int** nz = (short int**)malloc(sizeof(short int*)*1);
+  double** U = myalloc2(2, 1);
+  double*** Z = myalloc3(2, 1, 2);
+  short int** nz = (short int**)malloc(sizeof(short int*)*2);
 
   nz[0] = (short int*)malloc(sizeof(short int)*1);
+  nz[1] = (short int*)malloc(sizeof(short int)*1);
   nz[0][0] = 1;
-  U[0][0] = 1.;
+  nz[1][0] = 1;
 
-  hov_reverse(1, 1, 1, 1, 1, U, Z, nz);
+  U[0][0] = 1.;
+  U[1][0] = 5.;
+
+  hov_reverse(1, 1, 1, 1, 2, U, Z, nz);
 
   BOOST_TEST(Z[0][0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[0][0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0][0] == 5.*y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0][1] == 5.*y1x1x1Derivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree1(xd);
@@ -144,6 +150,10 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse)
   myfree1(yd);
   myfree2(U);
   myfree3(Z);
+
+  free(nz[0]);
+  free(nz[1]);
+  free(nz);
 }
 
 
