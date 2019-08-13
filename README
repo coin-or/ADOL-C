@@ -100,5 +100,11 @@ ADOL-C/examples/Readme_VC++.txt for the documented examples.
 
 
 
+Unit tests
+==========
+
+ADOL-C provides more than 400 unit tests to verify its basic functionality.
+For more information how to run the tests, please check the README file in ADOL-C/boost-test directory.
+
 Enjoy this new version!
 
