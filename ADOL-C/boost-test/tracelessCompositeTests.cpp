@@ -8,9 +8,6 @@ typedef adtl::adouble adouble;
 
 #include "const.h"
 
-//number of directions = 2
-const size_t numDir = adtl::getNumDir();
-
 BOOST_AUTO_TEST_SUITE( traceless_composite )
 
 

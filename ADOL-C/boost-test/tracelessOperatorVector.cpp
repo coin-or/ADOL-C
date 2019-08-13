@@ -8,10 +8,6 @@ typedef adtl::adouble adouble;
 
 #include "const.h"
 
-//number of directions = 2
-const size_t numDir = adtl::getNumDir();
-
-
 BOOST_AUTO_TEST_SUITE( traceless_vector )
 
 
@@ -28,6 +24,7 @@ BOOST_AUTO_TEST_SUITE( traceless_vector )
 
 BOOST_AUTO_TEST_CASE(ExpOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 2.;
   adouble ad = a;
 
@@ -113,6 +110,7 @@ BOOST_AUTO_TEST_CASE(DivOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(TanOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 0.8;
   adouble ad = a;
 
@@ -132,6 +130,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(SinOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 0.72;
   adouble ad = a;
 
@@ -149,6 +148,7 @@ BOOST_AUTO_TEST_CASE(SinOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(CosOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = -1.12;
   adouble ad = a;
 
@@ -166,6 +166,7 @@ BOOST_AUTO_TEST_CASE(CosOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(SqrtOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 6.1;
   adouble ad = a;
 
@@ -183,6 +184,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(LogOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 9.4;
   adouble ad = a;
 
@@ -200,6 +202,7 @@ BOOST_AUTO_TEST_CASE(LogOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(SinhOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 40.;
   adouble ad = a;
 
@@ -217,6 +220,7 @@ BOOST_AUTO_TEST_CASE(SinhOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(CoshOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 40.;
   adouble ad = a;
 
@@ -234,6 +238,7 @@ BOOST_AUTO_TEST_CASE(CoshOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(TanhOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 40.0;
   adouble ad = a;
 
@@ -252,6 +257,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(AsinOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 0.91;
   adouble ad = a;
 
@@ -269,6 +275,7 @@ BOOST_AUTO_TEST_CASE(AsinOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(AcosOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 0.35;
   adouble ad = a;
 
@@ -286,6 +293,7 @@ BOOST_AUTO_TEST_CASE(AcosOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(AtanOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 16.3;
   adouble ad = a;
 
@@ -303,6 +311,7 @@ BOOST_AUTO_TEST_CASE(AtanOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(Log10OperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 13.2;
   adouble ad = a;
 
@@ -321,6 +330,7 @@ BOOST_AUTO_TEST_CASE(Log10OperatorDerivativeVectorMode)
 #if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(AsinhOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 1.6;
   adouble ad = a;
 
@@ -338,6 +348,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(AcoshOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 1.7;
   adouble ad = a;
 
@@ -355,6 +366,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(AtanhOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 0.75;
   adouble ad = a;
 
@@ -373,6 +385,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(InclOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 5.5;
   adouble ad = a;
 
@@ -390,6 +403,7 @@ BOOST_AUTO_TEST_CASE(InclOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(DeclOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 5.;
   adouble ad = a;
 
@@ -407,6 +421,7 @@ BOOST_AUTO_TEST_CASE(DeclOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(SignPlusOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 1.6;
   adouble ad = a;
 
@@ -424,6 +439,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(SignMinusOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 1.6;
   adouble ad = a;
 
@@ -458,6 +474,7 @@ BOOST_AUTO_TEST_CASE(Atan2OperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_1)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 2.3, e = 5.3;
   adouble ad = a;
 
@@ -492,6 +509,7 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_2)
 
 BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_3)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 2.3, e = 5.3;
   adouble ed = e;
 
@@ -528,6 +546,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_1)
 
 BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_2)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 3., b = 4.;
   adouble ad = a;
 
@@ -545,6 +564,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_2)
 
 BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_3)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 3., b = 4.;
   adouble bd = b;
 
@@ -562,6 +582,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_3)
 
 BOOST_AUTO_TEST_CASE(FabsOperatorDerivativeVectorMode_NonZero)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 1.4, b = -5.;
   adouble ad = a, bd = b;
 
@@ -605,6 +626,7 @@ BOOST_AUTO_TEST_CASE(FabsOperatorDerivativeVectorMode_AtZero)
 
 BOOST_AUTO_TEST_CASE(CeilOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 4.617;
   adouble ad = a;
 
@@ -622,6 +644,7 @@ BOOST_AUTO_TEST_CASE(CeilOperatorDerivativeVectorMode)
 
 BOOST_AUTO_TEST_CASE(FloorOperatorDerivativeVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   double a = 9.989;
   adouble ad = a;
 
@@ -996,6 +1019,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperatorDerivativeVectorMode)
 /* Test the derivative value assignment by pointer. */
 BOOST_AUTO_TEST_CASE(SetADValueOperatorVectorMode)
 {
+  const size_t numDir = adtl::getNumDir();
   adouble ad = 0.0;
   double *aDerivative = new double[numDir];
 
