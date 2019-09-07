@@ -224,7 +224,7 @@ public:
 
 private:
 #if USE_BOOST_POOL
-    static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
+    ADOLC_DLL_EXPIMP static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
 #endif
     double *adval;
 #ifdef USE_ADTL_REFCOUNTING
