@@ -497,6 +497,8 @@ if test x$tapedoc_values == xyes; then
 AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
+AM_PATH_PYTHON([2.7],[python_found=yes],[python_found=no])
+AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes])
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
@@ -640,6 +642,13 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
 "  \033@<:@1;31mCompressed sparse structures will not be available
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
+fi
+if test x$sparse = xyes && test x$python_found = xyes; then
+   echo \
+"  Build with python swig module:      yes"
+else
+   echo \
+"  Build with python swig module:      no"
 fi
 echo
 

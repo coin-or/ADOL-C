@@ -16,3 +16,10 @@ EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_i
 
 clean-local:
 	-rm -rf python R *.cpp *.cxx *.o *.h include
+
+if PYTHONFOUND
+if SPARSE
+install:
+	${PYTHON} setup.py install --prefix=${prefix} --only-swig
+endif
+endif
