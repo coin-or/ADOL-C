@@ -42,7 +42,21 @@ namespace adtl {
 double makeNaN();
 double makeInf();
 
-//class adouble;
+#ifdef USE_ADTL_REFCOUNTING
+class adouble;
+
+class refcounter {
+private:
+    ADOLC_DLL_EXPIMP static size_t refcnt;
+    ADOLC_DLL_EXPORT friend void setNumDir(const size_t p);
+    friend class adouble;
+public:
+    refcounter() { ++refcnt; }
+    ~refcounter() { --refcnt; }
+    inline static size_t getNumLiveVar() {return refcnt;}
+};
+#endif
+
 
 //class func_ad {
 //public:
@@ -164,32 +178,32 @@ public:
     inline adouble& operator /= (const adouble& a);
 
     // not
-    inline int operator ! () const;
+    inline bool operator ! () const;
 
-    // comparision
-    inline int operator != (const adouble&) const;
-    inline int operator != (const double) const;
-    inline friend int operator != (const double, const adouble&);
+    // comparison
+    inline bool operator != (const adouble&) const;
+    inline bool operator != (const double) const;
+    inline friend bool operator != (const double, const adouble&);
 
-    inline int operator == (const adouble&) const;
-    inline int operator == (const double) const;
-    inline friend int operator == (const double, const adouble&);
+    inline bool operator == (const adouble&) const;
+    inline bool operator == (const double) const;
+    inline friend bool operator == (const double, const adouble&);
 
-    inline int operator <= (const adouble&) const;
-    inline int operator <= (const double) const;
-    inline friend int operator <= (const double, const adouble&);
+    inline bool operator <= (const adouble&) const;
+    inline bool operator <= (const double) const;
+    inline friend bool operator <= (const double, const adouble&);
 
-    inline int operator >= (const adouble&) const;
-    inline int operator >= (const double) const;
-    inline friend int operator >= (const double, const adouble&);
+    inline bool operator >= (const adouble&) const;
+    inline bool operator >= (const double) const;
+    inline friend bool operator >= (const double, const adouble&);
 
-    inline int operator >  (const adouble&) const;
-    inline int operator >  (const double) const;
-    inline friend int operator >  (const double, const adouble&);
+    inline bool operator >  (const adouble&) const;
+    inline bool operator >  (const double) const;
+    inline friend bool operator >  (const double, const adouble&);
 
-    inline int operator <  (const adouble&) const;
-    inline int operator <  (const double) const;
-    inline friend int operator <  (const double, const adouble&);
+    inline bool operator <  (const adouble&) const;
+    inline bool operator <  (const double) const;
+    inline friend bool operator <  (const double, const adouble&);
 
     /*******************  getter / setter  ********************************/
     inline double getValue() const;
@@ -210,9 +224,12 @@ public:
 
 private:
 #if USE_BOOST_POOL
-    static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
+    ADOLC_DLL_EXPIMP static boost::pool<boost::default_user_allocator_new_delete>* advalpool;
 #endif
     double *adval;
+#ifdef USE_ADTL_REFCOUNTING
+    refcounter __rcnt;
+#endif
     ADOLC_DLL_EXPIMP static size_t numDir;
     inline friend void setNumDir(const size_t p);
     inline friend size_t getNumDir();
@@ -227,7 +244,14 @@ private:
 namespace adtl {
 
 inline void setNumDir(const size_t p) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+#ifdef USE_ADTL_REFCOUNTING
+  if (refcounter::refcnt > 0) {
+    fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+  }
+#else
+  fprintf(DIAG_OUT, "ADOL-C Warning: Tapeless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+#endif
+
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Tapeless: You are being a moron now.\n");
 	abort();
@@ -937,80 +961,80 @@ inline adouble& adouble::operator /= (const adouble& a) {
 }
 
 // not
-inline int adouble::operator ! () const {
+inline bool adouble::operator ! () const {
     return PRIMAL_VALUE==0.0;
 }
 
-// comparision
-inline int adouble::operator != (const adouble &a) const {
+// comparison
+inline bool adouble::operator != (const adouble &a) const {
     return PRIMAL_VALUE!=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator != (const double v) const {
+inline bool adouble::operator != (const double v) const {
     return PRIMAL_VALUE!=v;
 }
 
-inline int operator != (const double v, const adouble &a) {
+inline bool operator != (const double v, const adouble &a) {
     return v!=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator == (const adouble &a) const {
+inline bool adouble::operator == (const adouble &a) const {
     return PRIMAL_VALUE==a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator == (const double v) const {
+inline bool adouble::operator == (const double v) const {
     return PRIMAL_VALUE==v;
 }
 
-inline int operator == (const double v, const adouble &a) {
+inline bool operator == (const double v, const adouble &a) {
     return v==a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <= (const adouble &a) const {
+inline bool adouble::operator <= (const adouble &a) const {
     return PRIMAL_VALUE<=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <= (const double v) const {
+inline bool adouble::operator <= (const double v) const {
     return PRIMAL_VALUE<=v;
 }
 
-inline int operator <= (const double v, const adouble &a) {
+inline bool operator <= (const double v, const adouble &a) {
     return v<=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >= (const adouble &a) const {
+inline bool adouble::operator >= (const adouble &a) const {
     return PRIMAL_VALUE>=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >= (const double v) const {
+inline bool adouble::operator >= (const double v) const {
     return PRIMAL_VALUE>=v;
 }
 
-inline int operator >= (const double v, const adouble &a) {
+inline bool operator >= (const double v, const adouble &a) {
     return v>=a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >  (const adouble &a) const {
+inline bool adouble::operator >  (const adouble &a) const {
     return PRIMAL_VALUE>a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator >  (const double v) const {
+inline bool adouble::operator >  (const double v) const {
     return PRIMAL_VALUE>v;
 }
 
-inline int operator >  (const double v, const adouble &a) {
+inline bool operator >  (const double v, const adouble &a) {
     return v>a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <  (const adouble &a) const {
+inline bool adouble::operator <  (const adouble &a) const {
     return PRIMAL_VALUE<a.PRIMAL_VALUE;
 }
 
-inline int adouble::operator <  (const double v) const {
+inline bool adouble::operator <  (const double v) const {
     return PRIMAL_VALUE<v;
 }
 
-inline int operator <  (const double v, const adouble &a) {
+inline bool operator <  (const double v, const adouble &a) {
     return v<a.PRIMAL_VALUE;
 }
 

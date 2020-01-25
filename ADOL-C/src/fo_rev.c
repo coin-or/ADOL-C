@@ -247,7 +247,7 @@ int fos_pl_sig_reverse(short  tnum,     /* tape id */
 		   int    depen,     /* consistency chk on # of deps */
 		   int    indep,     /* consistency chk on # of indeps */
 		   int    swchk,    /* consistency chk on # of switches */
-	           short   *siggrad,
+   	           short   *siggrad,
                    double  *lagrange,
 		   double *results) /*  coefficient vectors */
 #else
@@ -1764,6 +1764,7 @@ int int_reverse_safe(
 				      AARG1_INC |= aTmp;
 #else
 				      aTmp = ARES / 2.0;
+              fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal arguments, adjoints might be incorrect.\n");
                                       ARES_INC = 0.0;
                                       AARG2_INC += aTmp;
                                       AARG1_INC += aTmp;
@@ -1804,7 +1805,7 @@ int int_reverse_safe(
 			ARES = 0.0;
 		    }
 		    switchnum--;
-#elif defined(_ABS_NORM_SIG_)
+#elif defined(_ABS_NORM_SIG_) 
 		    aTmp = ARES;
 		    ARES_INC = 0.0;
 		    AARG_INC += siggrad[switchnum]*aTmp;

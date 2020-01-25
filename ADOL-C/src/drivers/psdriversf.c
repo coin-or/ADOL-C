@@ -3,15 +3,15 @@
  File:     drivers/psdrivers.c
  Revision: $Id$
  Contents: Easy to use drivers for piecewise smooth functions
-           (with C and C++ callable interfaces including Fortran
+           (with C and C++ callable interfaces including Fortran 
             callable versions).
 
- Copyright (c) Andrea Walther, Sabrina Fiege, Kshitij Kulshreshtha
+ Copyright (c) Andrea Walther, Sabrina Fiege, Kshitij Kulshreshtha 
 
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduct ion, or distribution of the software constitutes
+ Any use, reproduct ion, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
-
+  
 ----------------------------------------------------------------------------*/
 
 #include <adolc/drivers/psdrivers.h>
@@ -59,7 +59,7 @@ fint abs_normal_(fint* ftag,
                  fdouble* fY,
                  fdouble* fZ,
                  fdouble* fL) {
-    int rc = -1;
+    int rc = -1; 
     short tag = (short)*ftag;
     int m = (int)*fdepen, n = (int)*findep, s=(int)*fswchk;
     double **J, **Y, **Z, **L;

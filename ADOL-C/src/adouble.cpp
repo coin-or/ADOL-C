@@ -1302,7 +1302,7 @@ badouble& badouble::operator /= (const badouble& y) {
 /*                                                               COMPARISON */
 /*--------------------------------------------------------------------------*/
 /*   The Not Equal Operator (!=) */
-int operator != ( const badouble& v, double coval ) {
+bool operator != ( const badouble& v, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
@@ -1324,7 +1324,7 @@ int operator != ( const badouble& v, double coval ) {
 
 /*--------------------------------------------------------------------------*/
 /*   The Equal Operator (==) */
-int operator == ( const badouble& v, double coval) {
+bool operator == ( const badouble& v, double coval) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
@@ -1346,13 +1346,13 @@ int operator == ( const badouble& v, double coval) {
 
 /*--------------------------------------------------------------------------*/
 /*   The Less than or Equal Operator (<=)      */
-int operator <= ( const badouble& v, double coval ) {
+bool operator <= ( const badouble& v, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
         return (-coval+v <= 0);
     else {
-        int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] <= 0);
+        bool b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] <= 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
 	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
@@ -1369,13 +1369,13 @@ int operator <= ( const badouble& v, double coval ) {
 
 /*--------------------------------------------------------------------------*/
 /*   The Greater than or Equal Operator (>=)      */
-int operator >= ( const badouble& v, double coval ) {
+bool operator >= ( const badouble& v, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
         return (-coval+v >= 0);
     else {
-        int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] >= 0);
+        bool b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] >= 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
 	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
@@ -1392,13 +1392,13 @@ int operator >= ( const badouble& v, double coval ) {
 
 /*--------------------------------------------------------------------------*/
 /*   The Greater than Operator (>)      */
-int operator > ( const badouble& v, double coval ) {
+bool operator > ( const badouble& v, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
         return (-coval+v > 0);
     else {
-        int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] > 0);
+        bool b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] > 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
 	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
@@ -1415,13 +1415,13 @@ int operator > ( const badouble& v, double coval ) {
 
 /*--------------------------------------------------------------------------*/
 /*   The Less than Operator (<)      */
-int operator < ( const badouble& v, double coval ) {
+bool operator < ( const badouble& v, double coval ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     if (coval)
         return (-coval+v < 0);
     else {
-        int b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] < 0);
+        bool b = (ADOLC_GLOBAL_TAPE_VARS.store[v.loc()] < 0);
         if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
 	  if (ADOLC_GLOBAL_TAPE_VARS.actStore[v.loc()]) {
