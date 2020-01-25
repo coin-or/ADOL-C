@@ -49,22 +49,28 @@ class build_adolc(Command):
     user_options = [
         ('lib-prefix=', None, 'prefix to install adolc library'),
         ('colpack-dir=', None, 'directory in which colpack is installed'),
-        ('boost-dir=', None, 'directory in which boost is installed') ]
+        ('boost-dir=', None, 'directory in which boost is installed'),
+        ('only-swig', None, 'only install this swig module, not adolc library') ]
     command_name = 'build_lib'
 
     def initialize_options(self):
         self.lib_prefix = None
         self.colpack_dir = None
         self.boost_dir = None
+        self.only_swig = None
 
     def finalize_options(self):
         self.set_undefined_options('build',
                                    ('lib_prefix','lib_prefix'),
                                    ('colpack_dir', 'colpack_dir'),
-                                  ('boost_dir', 'boost_dir') )
+                                   ('boost_dir', 'boost_dir'),
+                                   ('only_swig', 'only_swig') )
 
     def run(self):
-        compile_dynlib(self.lib_prefix,self.colpack_dir,self.boost_dir)
+        if not self.only_swig:
+            compile_dynlib(self.lib_prefix,self.colpack_dir,self.boost_dir)
+        else:
+            print('skipping build of ADOL-C')
 
 
 class build_swigadolc(build_ext,object):
@@ -92,7 +98,8 @@ class buildthis(build,object):
     user_options = build.user_options + [
         ('lib-prefix=', None, 'prefix to install adolc library'),
         ('colpack-dir=', None, 'directory in which colpack is installed'),
-        ('boost-dir=', None, 'directory in which boost is installed') ]
+        ('boost-dir=', None, 'directory in which boost is installed'),
+        ('only-swig', None, 'only install this swig module, not adolc library') ]
 
     def lib_doesnot_exist(self):
         from distutils.ccompiler import new_compiler
@@ -107,6 +114,7 @@ class buildthis(build,object):
         self.lib_prefix = None
         self.colpack_dir = None
         self.boost_dir = None
+        self.only_swig = None
 
     #sub_commands = [ ('build_lib', lib_doesnot_exist),
     #                 ('build_ext', None) ]
@@ -118,12 +126,14 @@ class installthis(install,object):
     user_options = install.user_options + [
         ('lib-prefix=', None, 'prefix to install adolc library'),
         ('colpack-dir=', None, 'directory in which colpack is installed'),
-        ('boost-dir=', None, 'directory in which boost is installed') ]
+        ('boost-dir=', None, 'directory in which boost is installed'),
+        ('only-swig', None, 'only install this swig module, not adolc library')]
 
     def initialize_options(self):
         self.lib_prefix = None
         self.colpack_dir = None
         self.boost_dir = None
+        self.only_swig = None
         super(installthis,self).initialize_options()
 
     def finalize_options(self):
@@ -134,12 +144,15 @@ class installthis(install,object):
             self.colpack_dir = os.path.join(os.environ['HOME'],'adolc_base')
         if self.boost_dir is None:
             self.boost_dir = '/usr'
+        if self.only_swig is None:
+            self.only_swig = False
         self.finalized = 1
         buildobj = self.distribution.get_command_obj('build')
         buildobj.set_undefined_options('install',
-                                   ('lib_prefix','lib_prefix'),
-                                   ('colpack_dir', 'colpack_dir'),
-                                   ('boost_dir', 'boost_dir') )
+                                       ('lib_prefix','lib_prefix'),
+                                       ('colpack_dir', 'colpack_dir'),
+                                       ('boost_dir', 'boost_dir'),
+                                       ('only_swig', 'only_swig'))
         
 incdirs = np_dist.get_numpy_include_dirs()
 python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)

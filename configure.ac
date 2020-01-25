@@ -23,7 +23,6 @@ AC_CONFIG_MACRO_DIR([autoconf])
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects])
-AM_MAINTAINER_MODE([disable])
 AM_SILENT_RULES([yes])
 
 
@@ -212,6 +211,22 @@ else
   ADVBRANCH="#undef ADOLC_ADVANCED_BRANCHING"
 fi
 AC_SUBST(ADVBRANCH)
+
+AC_MSG_CHECKING(whether to enable reference counting for tapeless numbers)
+AC_ARG_ENABLE(traceless-refcounting, [AS_HELP_STRING([--enable-traceless-refcounting],
+  [enable reference counting for tapeless numbers [default=no].
+With this enabled some additional checks will be conducted when setting the
+number of directional derivatives for tapeless numbers using the SetNumDir()
+function. ])],
+  [use_adtl_refcnt=$enableval],[use_adtl_refcnt=no])
+AC_MSG_RESULT($use_adtl_refcnt)
+
+if test x$use_adtl_refcnt = xyes ; then
+  ADTL_REFCNT="#define USE_ADTL_REFCOUNTING 1"
+else
+  ADTL_REFCNT="#undef USE_ADTL_REFCOUNTING"
+fi
+AC_SUBST(ADTL_REFCNT)
 
 AC_MSG_CHECKING(whether to enable activity tracking)
 AC_ARG_ENABLE(activity-tracking, [AS_HELP_STRING([--enable-activity-tracking],
@@ -482,6 +497,8 @@ if test x$tapedoc_values == xyes; then
 AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
+AM_PATH_PYTHON([2.7],[python_found=yes],[python_found=no])
+AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes])
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
@@ -537,14 +554,14 @@ AC_CONFIG_FILES(Makefile
                 ADOL-C/Makefile
                 ADOL-C/include/Makefile
                 ADOL-C/include/adolc/Makefile
-		ADOL-C/include/adolc/internal/adolc_settings.h
+                ADOL-C/include/adolc/internal/adolc_settings.h
                 ADOL-C/include/adolc/drivers/Makefile 
                 ADOL-C/include/adolc/internal/Makefile
                 ADOL-C/include/adolc/lie/Makefile
                 ADOL-C/include/adolc/sparse/Makefile
                 ADOL-C/include/adolc/tapedoc/Makefile
                 ADOL-C/src/Makefile
-                ADOL-C/src/drivers/Makefile 
+                ADOL-C/src/drivers/Makefile
                 ADOL-C/src/lie/Makefile
                 ADOL-C/src/sparse/Makefile
                 ADOL-C/src/tapedoc/Makefile
@@ -578,7 +595,7 @@ AC_CONFIG_FILES(Makefile
                 MSVisualStudio/v14/nosparse/config.h
                 MSVisualStudio/v14/x64/sparse/config.h
                 MSVisualStudio/v14/x64/nosparse/config.h
-		adolc.spec
+                adolc.spec
                 adolclib.pc
 )
 
@@ -625,6 +642,13 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
 "  \033@<:@1;31mCompressed sparse structures will not be available
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
+fi
+if test x$sparse = xyes && test x$python_found = xyes; then
+   echo \
+"  Build with python swig module:      yes"
+else
+   echo \
+"  Build with python swig module:      no"
 fi
 echo
 
