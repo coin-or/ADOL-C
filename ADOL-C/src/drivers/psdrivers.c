@@ -3,15 +3,15 @@
  File:     drivers/psdrivers.c
  Revision: $Id$
  Contents: Easy to use drivers for piecewise smooth functions
-           (with C and C++ callable interfaces including Fortran
+           (with C and C++ callable interfaces including Fortran 
             callable versions).
 
- Copyright (c) Andrea Walther, Sabrina Fiege
+ Copyright (c) Andrea Walther, Sabrina Fiege 
 
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduct ion, or distribution of the software constitutes
+ Any use, reproduct ion, or distribution of the software constitutes 
  recipient's acceptance of the terms of the accompanying license file.
-
+  
 ----------------------------------------------------------------------------*/
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/interfaces.h>
@@ -30,8 +30,8 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
 
-int abs_normal(short tag,      /* tape identifier */
-               int m,          /* number od dependents   */
+int abs_normal(short tag,      /* tape identifier */ 
+               int m,          /* number od dependents   */             
                int n,          /* number of independents */
                int swchk,      /* number of switches (check) */
                double *x,      /* base point */
@@ -48,8 +48,8 @@ int abs_normal(short tag,      /* tape identifier */
   int i,j,s;
   double *res, tmp;
   s=get_num_switches(tag);
-
-  /* This check is required because the user is probably allocating his
+  
+  /* This check is required because the user is probably allocating his 
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != swchk) {
       fprintf(DIAG_OUT, "ADOL-C error: Number of switches passed %d does not "
@@ -71,7 +71,7 @@ int abs_normal(short tag,      /* tape identifier */
         }
         for(j=0;j<s;j++) { /* L[i][i] .. L[i][s] are theoretically zero,
                             *  we probably don't need to copy them */
-            L[i][j]=res[j+n];
+            L[i][j]=res[j+n];	
             if (j < i)
 	      {
 		cz[i] = cz[i]-L[i][j]*fabs(z[j]);

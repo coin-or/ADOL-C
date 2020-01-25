@@ -2,6 +2,18 @@
 .coin-or/projDesc.xml -text
 ADOL-C/Makefile.am -text
 ADOL-C/Makefile.in -text
+ADOL-C/boost-test/CMakeLists.txt -text
+ADOL-C/boost-test/README -text
+ADOL-C/boost-test/const.h -text
+ADOL-C/boost-test/main.cpp -text
+ADOL-C/boost-test/traceCompositeTests.cpp -text
+ADOL-C/boost-test/traceOperatorScalar.cpp -text
+ADOL-C/boost-test/traceOperatorVector.cpp -text
+ADOL-C/boost-test/traceSecOrderScalar.cpp -text
+ADOL-C/boost-test/traceSecOrderVector.cpp -text
+ADOL-C/boost-test/tracelessCompositeTests.cpp -text
+ADOL-C/boost-test/tracelessOperatorScalar.cpp -text
+ADOL-C/boost-test/tracelessOperatorVector.cpp -text
 ADOL-C/doc/absdrivers.tex -text
 ADOL-C/doc/adolc-manual.pdf -text
 ADOL-C/doc/adolc-manual.ps -text
@@ -369,7 +381,7 @@ ADOL-C/test/speelpenning.cpp -text
 /INSTALL -text
 /LICENSE -text
 MSVisualStudio/v14/ColPack.vcxproj -text
-MSVisualStudio/v14/Readme_VC++.txt -text
+MSVisualStudio/v14/README_VC++.md -text
 MSVisualStudio/v14/adolc.sln -text
 MSVisualStudio/v14/adolc.vcxproj -text
 MSVisualStudio/v14/installer.sh -text

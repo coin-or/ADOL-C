@@ -239,7 +239,7 @@ operates.
 
 
 ***********************************************************************
-*              INSTALLING ADOL-C ON WINDOWS PLATFORMS                 *
+*              INSTALLING ADOL-C ON WINDOWS USING MINGW               *
 ***********************************************************************
 
 Preperations
@@ -247,14 +247,8 @@ Preperations
 
 The provided makefile set is optimized for the GNU-make system. Although
 other make systems may work too we strongly recommened using the GNU
-version. The later can be obtained from the download section of the MinGW
-project page located at
+version.
 
-http://www.mingw.org/download.shtml
-
-or from the files section of the SourceForge project page
-
-http://sourceforge.net/projects/mingw/
 
 Of the "mingw32-make*" package one only needs the executable from the "bin"
 sub-directory ( sub-folder ;-) ). To install it two ways are possible
@@ -282,23 +276,29 @@ the files "winflags_dll" and "winflags_exa" accordingly.
 
 COMPILING
 =========
+Use the MINGW shell to do the following:
 
-ADOL-C features a Windows compilation script named "comp_win.bat" that
-should be used. It is a simple wrapper that calls the make program with
-appropriate arguments. The script itself accepts a small number of
-switches what results in the following ways of calling it:
+ 1) Run
+      $autoconf -fi
+ 2) Run
+      $ ./configure --with-boost="/path/to/boost" --prefix="path/to/PREFIX"
+    Since Windows has no standard location for boost we need to provide it.
+    There are precompiled boost libraries available or build it yourself.
+    Also provide a prefix for the looks of it.
 
- 1) "comp_win" or "comp_win library"
+    The boost structure should look like
+      |- boost/
+         |- lib/                      // boost lib files
+            |- libboost_system.a
+            |- libboost_system.dll.a
+            |- libboost_system.dll
+            | ...
+         |- boost/                    // boost sub folders and headers go here
+            |- pool/
+            |- ...
 
-    Compiles the library only.
-
- 2) "comp_win --with-exa"
-
-    Compiles the library and all examples.
-
- 3) "comp_win clean"
-
-    Removes all created files including the library.
+ 3) $ make
+ 4) $ make install
 
 There is (currently) no automatic way of installing the relevant headers
 and the library in the Windows file hirarchy after completing the compile
@@ -327,15 +327,20 @@ linking against ADOL-C in the following way:
 Hints:
 ======
 
-* It is possible to create a "static" library, too. Changes to "winflags_dll"
-  are required to achieve this behaviour. The fourth line creates a variable
-  named "AR" with the default value of "Change_Me". It should be set to the
-  command name for building the static library. The value of "ARFLAGS" should
-  be set accordingly.
+* It is possible to create a "static" library, too.
 
 * It should be possible to use ADOL-C from within graphical programming
   environments but we will not provide support for this constellation (due to
   missing test systems :-) )
+
+
+***********************************************************************
+*              INSTALLING ADOL-C ON WINDOWS USING MSVC                *
+***********************************************************************
+
+Please refer to the file windows/Readme_VC++.txt for building the library and
+ADOL-C/examples/Readme_VC++.txt for the documented examples.
+
 
 
 
