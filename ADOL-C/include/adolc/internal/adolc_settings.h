@@ -34,11 +34,11 @@ typedef double revreal;
 
 /*--------------------------------------------------------------------------*/
 /* Use reference counting for tapeless numbers */
-@ADTL_REFCNT@
+#undef USE_ADTL_REFCOUNTING
 
 /*--------------------------------------------------------------------------*/
 /* Sparse drivers have been compiled */
-#undef SPARSE_DRIVERS
+#define SPARSE_DRIVERS 1
 
 /*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */

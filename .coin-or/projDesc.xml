@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type = "text/xsl" href = "http://www.coin-or.org/projects/autoGen.xsl"?>
+<projectData xmlns="coin-or.org" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="coin-or.org http://www.coin-or.org/projects/autoGen.xsd">
+
+	<projectBasics>
+
+		<projectName> ADOL-C </projectName>
+
+		<projectDescription>
+                ADOL-C is an open-source package for the automatic
+                differentiation of C and C++ programs.  The resulting 
+                evaluation routines for first and higher-order
+                derivatives may be called from C, C++, Fortran, or any other
+                language that can be linked with C.
+                The numerical values of derivative vectors are obtained free
+                of truncation errors at a small multiple of the run time and
+                random access memory required by the given function evaluation program.
+                Derivative matrices are obtained by columns, by rows or in sparse format. 
+                For solution curves defined by ordinary differential equations,
+                special routines are provided that evaluate the Taylor coefficient vectors
+                and their Jacobians with respect to the current state vector.
+                For explicitly or implicitly defined functions derivative tensors are 
+                obtained with a complexity that grows only quadratically in their
+                degree.
+                </projectDescription>
+
+		<projectShortDescription>
+		  A package for the automatic differentiation of C and C++ programs.
+		</projectShortDescription>
+
+		<projectManager> andrea dot walther at uni-paderborn dot de </projectManager>
+
+		<projectHomePage>https://projects.coin-or.org/ADOL-C</projectHomePage>
+
+		<projectLicense>  Eclipse Public License 1.0 or GNU General Public License 2.0</projectLicense>
+		<projectLicenseURL>http://www.opensource.org/licenses/alphabetical</projectLicenseURL>
+
+		<coinLinkedProjects>
+			<coinProject>
+				<repoName></repoName>
+			</coinProject>
+		</coinLinkedProjects>
+
+		<otherLinkedPackages>
+			<otherPackage>
+				<packageName>ColPack
+                                </packageName>
+					<packageURL>http://cscapes.cs.purdue.edu/coloringpage/software.htm</packageURL>
+				<requiredOrOptional>Optional (for exploitation of sparsity)
+                                </requiredOrOptional>
+			</otherPackage>
+
+		</otherLinkedPackages>
+
+		<projectLanguage>C and C++</projectLanguage>
+
+		<developmentStatus>
+
+			<activityStatus>Active</activityStatus>
+
+			<maturityLevel>4</maturityLevel>
+
+                        <!-- Do not use these unless you need to override the
+			     automated system.  lh, 141124
+
+			<stableVersionNumber>2.0</stableVersionNumber>
+
+			<releaseNumber>2.1.5</releaseNumber>
+
+                        -->
+
+		</developmentStatus>
+
+		<testedPlatforms>
+
+		       <platform> 
+		          <operatingSystem>Linux</operatingSystem>
+		          <compiler>g++</compiler>                
+		       </platform>
+
+		       <platform> 
+		          <operatingSystem>Linux</operatingSystem>
+		          <compiler>Intel icpc</compiler>                
+		       </platform>
+
+		       <platform> 
+		          <operatingSystem>Mac OSX</operatingSystem>    
+		          <compiler>g++</compiler>                      
+		       </platform>
+
+		       <platform> 
+		          <operatingSystem>Microsoft Windows</operatingSystem>    
+		          <compiler>CYGWIN/icl</compiler>                      
+		       </platform>
+		       <platform> 
+		          <operatingSystem>Microsoft Windows</operatingSystem>    
+		          <compiler>MSVC++/cl</compiler>                      
+		       </platform>
+		</testedPlatforms>
+		
+		<projectCategories>
+
+			    <category>                                     
+			        Optimization utility                       
+			    </category>                                    
+			
+		</projectCategories>
+		
+	</projectBasics>
+
+	<leftMenuLinks>
+
+
+		<documentation> </documentation>
+		<sourceCodeDownload>http://www.coin-or.org/download/source/ADOL-C/</sourceCodeDownload>
+
+		<binaryDownload></binaryDownload>
+
+		<mailingList>http://list.coin-or.org/mailman/listinfo/adol-c</mailingList>
+
+	</leftMenuLinks>
+
+</projectData>
