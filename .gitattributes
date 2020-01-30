@@ -348,6 +348,7 @@ ADOL-C/src/zos_pl_forward.c -text
 ADOL-C/swig/0001-R-add-typemap-argout-and-fix-code-generation.patch -text
 ADOL-C/swig/0002-R-Added-typemaps-for-handling-matrices-as-double.patch -text
 ADOL-C/swig/Makefile.am -text
+ADOL-C/swig/Makefile.in -text
 ADOL-C/swig/adolc-R-manual-changes.diff -text
 ADOL-C/swig/adolc-numpy-drv.i -text
 ADOL-C/swig/adolc-numpy-for.i -text
