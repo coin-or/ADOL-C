@@ -390,10 +390,12 @@ MSVisualStudio/v14/nosparse/config.h -text
 MSVisualStudio/v14/nosparse/config.h.in -text
 MSVisualStudio/v14/sparse/config.h -text
 MSVisualStudio/v14/sparse/config.h.in -text
+MSVisualStudio/v14/vc_redist.x86.exe -text svneol=unset#unset
 MSVisualStudio/v14/x64/nosparse/config.h -text
 MSVisualStudio/v14/x64/nosparse/config.h.in -text
 MSVisualStudio/v14/x64/sparse/config.h -text
 MSVisualStudio/v14/x64/sparse/config.h.in -text
+MSVisualStudio/v14/x64/vc_redist.x64.exe -text svneol=unset#unset
 /Makefile.am -text
 /Makefile.in -text
 /NEWS -text
