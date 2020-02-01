@@ -410,6 +410,7 @@ autoconf/ampi.m4 -text
 autoconf/ax_boost_base.m4 -text
 autoconf/ax_boost_system.m4 -text
 autoconf/colpack.m4 -text
+autoconf/compile -text
 autoconf/config.guess -text
 autoconf/config.sub -text
 autoconf/depcomp -text
