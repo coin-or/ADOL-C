@@ -24,6 +24,7 @@ AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects])
 AM_SILENT_RULES([yes])
+AM_MAINTAINER_MODE([disable])
 
 
 adolclib=adolc
@@ -498,7 +499,8 @@ AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
 AM_PATH_PYTHON([2.7],[python_found=yes],[python_found=no])
-AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes])
+AC_PATH_PROG(SWIG, swig, [no])
+AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes && test x$SWIG != xno])
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
@@ -643,12 +645,22 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
 fi
-if test x$sparse = xyes && test x$python_found = xyes; then
+if test x$sparse = xyes && test x$python_found = xyes && test x$SWIG != xno; then
    echo \
 "  Build with python swig module:      yes"
 else
-   echo \
-"  Build with python swig module:      no"
+   echo -n \
+"  Build with python swig module:      no "
+   if test x$sparse = xno && test x$python_found = xyes && test x$SWIG != xno; then
+     echo \
+"(due to sparse drivers disabled)"
+  elif test x$sparse = xyes && ( $test x$python_found = xno || test x$SWIG = xno ); then
+     echo \
+"(due to python/swig missing)"
+  else
+    echo \
+"(due to sparse drivers disabled and python/swig missing)"
+  fi
 fi
 echo
 
