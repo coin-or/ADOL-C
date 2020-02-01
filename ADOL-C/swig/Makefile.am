@@ -20,6 +20,6 @@ clean-local:
 if PYTHONFOUND
 if SPARSE
 install:
-	${PYTHON} setup.py install --prefix=${prefix} --only-swig
+	CXX=${CXX} ${PYTHON} setup.py install --prefix=${prefix} --only-swig
 endif
 endif
