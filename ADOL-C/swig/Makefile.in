@@ -189,6 +189,7 @@ LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
+MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -218,6 +219,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SPARSE_DRIVERS = @SPARSE_DRIVERS@
 STRIP = @STRIP@
+SWIG = @SWIG@
 UINT_TYPE = @UINT_TYPE@
 USE_BOOST_POOL = @USE_BOOST_POOL@
 VERSION = @VERSION@
@@ -291,7 +293,7 @@ EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_i
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -315,9 +317,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
@@ -485,7 +487,7 @@ clean-local:
 	-rm -rf python R *.cpp *.cxx *.o *.h include
 
 @PYTHONFOUND_TRUE@@SPARSE_TRUE@install:
-@PYTHONFOUND_TRUE@@SPARSE_TRUE@	${PYTHON} setup.py install --prefix=${prefix} --only-swig
+@PYTHONFOUND_TRUE@@SPARSE_TRUE@	CXX=${CXX} ${PYTHON} setup.py install --prefix=${prefix} --only-swig
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
