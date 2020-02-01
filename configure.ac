@@ -24,6 +24,7 @@ AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
 AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects])
 AM_SILENT_RULES([yes])
+AM_MAINTAINER_MODE([disable])
 
 
 adolclib=adolc
