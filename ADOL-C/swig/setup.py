@@ -155,7 +155,7 @@ class installthis(install,object):
                                        ('only_swig', 'only_swig'))
         
 incdirs = np_dist.get_numpy_include_dirs()
-python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
+#python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)
 
 adolc_mod = Extension('_adolc',
                       sources=['adolc-python.i'],
@@ -164,7 +164,8 @@ adolc_mod = Extension('_adolc',
                       libraries=['adolc'],
                       include_dirs=incdirs,
                       extra_compile_args=['-std=c++11', '-fPIC', '-w'],
-                      extra_link_args=['-Wl,-no-undefined ' + python_ldflags.rstrip()])
+                      #extra_link_args=[python_ldflags.rstrip() + ' -Wl,-no-undefined']
+)
 
 setup(name='adolc',
       ext_modules=[adolc_mod],
