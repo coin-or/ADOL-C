@@ -3357,7 +3357,7 @@ int int_reverse_safe(
 #endif
 #ifdef _FOV_
     free(Aqo);
-    free(rpp_A);
+    myfree2(rpp_A);
 #endif
 #ifdef _INT_REV_
     free(upp_A);
