@@ -33,14 +33,14 @@ void accodeout (int p, int n, int deg, double ***B,	double ***C, double ***D)
 {
 	int i, j, k, l, ip, jp, kp;
 
-	// D_k:=C_k (1. summation step)
+	/* D_k:=C_k (1. summation step)  */
 	for (k=0; k <= deg; k++)
 	{
 		for (j=0; j < p; j++)
 			for (i=0; i < n; i++)
 				D[j][i][k]=C[j][i][k];
 		
-		// add sum if necessary
+		/* add sum if necessary    */
 		if (k >= 1)
 		{
 			for (l=1; l<=k; l++)
@@ -72,10 +72,10 @@ void acccov(int n, int d, double ***B, double **C, double **D)
 {
 	int i, k, l, ip, kp;
 
-	// factorial      
+	/* factorial     */
 	int Fak = 1;
 	
-	// D_k:=Fak*C_k (1. summation step)
+	/* D_k:=Fak*C_k (1. summation step)   */
 	for (k = 0; k <= d; k++)
 	{
 		if(k == 0)
@@ -86,7 +86,7 @@ void acccov(int n, int d, double ***B, double **C, double **D)
 		for (i = 0; i < n; i++)
 			D[i][k]=Fak*C[i][k];
 
-		// add sum if necessary
+		/* add sum if necessary   */
 		if (k>=1)
 		{
 			double x;
@@ -120,7 +120,7 @@ void accadj(int n, int deg, double ***A, double ***Bs)
 {
 	int i, j, k, l, ip, jp, kp;
 
-	// (1. summation step)
+	/* (1. summation step)   */
 	for (k = 0; k <= deg; k++)
 	{
 		for (j = 0; j < n; j++)
@@ -131,7 +131,7 @@ void accadj(int n, int deg, double ***A, double ***Bs)
 			}
 		}
 			
-		// add sum if necessary
+		/* add sum if necessary   */
 		if (k >= 1)
 		{
 			double x = 0.0;
@@ -168,10 +168,10 @@ void accbrac(int n,	int d, double ***Bs, double **b, double **result)
 {
 	int i, j, k, l, jp, kp;
 
-	// factorial      
+	/* factorial      */
 	int Fak = 1;
 
-	// formula 3.58
+	/* formula 3.58  */
 	for (k = 0; k <= d; k++)
 	{
 		if(k == 0)
@@ -222,8 +222,8 @@ void accbrac(int n,	int d, double ***Bs, double **b, double **result)
  */
 int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short d,	double** result) 
 {
-	double** X = myalloc2(n, d+1);   // Taylorcoeff. expansion x(t)
-	double** Y = myalloc2(m, d+1);   // Taylorcoeff. expansion y(t)
+        double** X = myalloc2(n, d+1);   /* Taylorcoeff. expansion x(t)   */
+        double** Y = myalloc2(m, d+1);   /* Taylorcoeff. expansion y(t)  */
 	double*  x = myalloc1(n);
 	double*  y = myalloc1(m);
 	int i=0, j=0, k=0;
@@ -234,10 +234,10 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 		X[i][0] = x0[i];
 	};
 	
-	//see odedrivers
+	/* see odedrivers    */
 	forodec(Tape_F, n, 1.0, 0, d, X);
 
-	//prepare for input
+	/*  prepare for input  */
 	for (i = 0; i < n; i++) 
 	{
 		x[i] = X[i][0];
@@ -247,7 +247,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 
 	hos_forward(Tape_H, m, n, d, 0, x, X, y, Y);
 
-	//postprocess output of hos_forward
+	/*  postprocess output of hos_forward  */
 	for (i=0; i<m; i++) 
 	{
 		for (k = d; k > 0; k--)
@@ -257,7 +257,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double* x0, short
 		Y[i][0] = y[i];
 	};
 
-	// prepare output for lie_Scalar
+	/* prepare output for lie_Scalar   */
 	for(j=0;j<m;j++)
 	{
 		for (i = 0; i <= d; i++)
@@ -350,10 +350,10 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n,	short m, double* x0, sho
 		Im = myallocI2(depax_m = m);
 	}
 
-	hov_reverse(Tape_F,n,n,d-1,n,In,A,0);// explanation in interfaces.cpp
-	accodec(n, 1.0, d-1, A, B, 0);		 // explanation in odedrivers.c
+	hov_reverse(Tape_F,n,n,d-1,n,In,A,0);    /* explanation in interfaces.cpp  */
+	accodec(n, 1.0, d-1, A, B, 0);		 /* explanation in odedrivers.c    */
 
-	//prepare for input
+	/* prepare for input   */
 	for (i=0; i<n; i++) 
 	{
 		x[i] = X[i][0];
@@ -449,8 +449,8 @@ int lie_gradientc(short Tape_F,	short Tape_H, short n, double* x0, short d,	doub
 int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, short int d, double** result)
 {
 	int m=n;                   
-	double** X = myalloc2(n, d+1);   // Taylorcoeff. expansion x(t)
-	double** Y = myalloc2(m, d+1);   // Taylorcoeff. expansion y(t)
+	double** X = myalloc2(n, d+1);   /* Taylorcoeff. expansion x(t)  */
+	double** Y = myalloc2(m, d+1);   /* Taylorcoeff. expansion y(t)  */
 
 	double***A = myalloc3(n, n, d);    
 	double***B = myalloc3(n, n, d+1);
@@ -481,9 +481,9 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 		Im = myallocI2(depax_m = m);
 	}
 
-	hov_reverse(Tape_F,n,n,d-1,n,In,A,0);	// explanation in interfaces.cpp
+	hov_reverse(Tape_F,n,n,d-1,n,In,A,0);	/* explanation in interfaces.cpp  */
 
-	//prepare for input
+	/* prepare for input */
 	for (i=0; i<n; i++) {
 		x[i] = X[i][0];
 		if (d == 1)
@@ -495,7 +495,7 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 
 	hos_forward(Tape_W, m, n, d, d+1, x, X, y, Y);
 
-	//postprocess output of hos_forward
+	/* postprocess output of hos_forward  */
 	for (i=0; i<m; i++) {
 		if (d == 1)
 			Y[i][1] = yp[i];
@@ -505,7 +505,7 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 		Y[i][0] = y[i];
 	}
 
-	accodec(n, 1.0, d-1, A, B, 0);      // explanation in odedrivers.c
+	accodec(n, 1.0, d-1, A, B, 0);      /*  explanation in odedrivers.c */
 	acccov(n, d, B, Y, result);  
 
 	myfree2(X);
@@ -535,8 +535,8 @@ int lie_covector( short int Tape_F, short int Tape_W, short int n, double* x0, s
 int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, short int d, double** result)
 {
 	int m = n;                     
-	double  **X  = myalloc2(n, d+2);   // Taylorcoeff. expansion x(t)
-	double  **Y  = myalloc2(m, d+2);   // Taylorcoeff. expansion y(t)
+	double  **X  = myalloc2(n, d+2);   /* Taylorcoeff. expansion x(t) */
+	double  **Y  = myalloc2(m, d+2);   /* Taylorcoeff. expansion y(t)  */
 	double ***A  = myalloc3(n, n, d+1);    
 	double ***Xs = myalloc3(n, n, d+1);
 
@@ -544,7 +544,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 
 	int i, k;
 
-	//static identity matrix for hov_reverse
+	/* static identity matrix for hov_reverse  */
 	static int      depax_n = 0;
 	static double** In      = NULL;
 
@@ -555,7 +555,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 	};
 	forodec(Tape_F, n, 1.0, 0, d+1, X);
 
-	// for hov_reverse
+	/* for hov_reverse  */
 	if (n > depax_n) 
 	{
 		if (depax_n)
@@ -566,7 +566,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 	}
 	hov_reverse(Tape_F, n, n, d, n, In, A, 0);
 
-	//prepare for input
+	/* prepare for input  */
 	for (i = 0; i < n; i++) 
 	{
 		for (k = 0; k < d; k++)
@@ -576,7 +576,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double* x0, sho
 	}
 	hos_forward(Tape_G, m, n, d+1, d+2, x0, X, y, Y);
 
-	//postprocess output of hos_forward
+	/* postprocess output of hos_forward  */
 	for (i = 0; i < m; i++) 
 	{
 		for (k = d; k > 0; k--)

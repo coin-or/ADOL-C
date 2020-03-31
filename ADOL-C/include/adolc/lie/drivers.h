@@ -18,7 +18,7 @@
 #include "adolc/internal/common.h"
 
 
-// C++ declarations available only when compiling with C++
+/* C++ declarations available only when compiling with C++  */
 #if defined(__cplusplus)
 
 ADOLC_DLL_EXPORT int lie_scalar(short, short, short, double*, short, double*);
@@ -30,7 +30,7 @@ ADOLC_DLL_EXPORT int lie_gradient(short, short, short, short, double*, short, do
 
 
 
-// C-declarations
+/* C-declarations           */
 #if defined (__cplusplus)
 extern "C" {
 #endif
