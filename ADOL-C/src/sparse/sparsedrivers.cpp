@@ -475,7 +475,6 @@ int sparse_hess(
     int ret_val=-1;
     GraphColoringInterface *g;
     TapeInfos *tapeInfos;
-    double *v, *w, **X, yt, lag=1;
     HessianRecovery *hr;
 
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -602,40 +601,6 @@ int sparse_hess(
     for (i = 0; i < sHinfos.p; ++i)
       for (l = 0; l < indep; ++l)
 	sHinfos.Hcomp[l][i] = sHinfos.Zppp[i][l][1];
-
-//     there used to be a bug in hos_ov_reverse
-//     therefore, we used hess_vec isntead of hess_mat before
-
-    // v    = (double*) malloc(indep*sizeof(double));
-    // w    = (double*) malloc(indep*sizeof(double));
-    // X = myalloc2(indep,2);
-//         sHinfos.Xppp = myalloc3(indep,sHinfos.p,1);
-
-    // for (i = 0; i < sHinfos.p; ++i)
-    //   {
-    //     for (l = 0; l < indep; ++l)
-    //       {
-    //         v[l] = sHinfos.Xppp[l][i][0];
-    //       }
-    //     ret_val = fos_forward(tag, 1, indep, 2, basepoint, v, &y, &yt);
-    //     MINDEC(ret_val, hos_reverse(tag, 1, indep, 1, &lag, X));
-    //     for (l = 0; l < indep; ++l)
-    //       {
-    //         sHinfos.Hcomp[l][i] = X[l][1];
-    //       }
-    //   }
-
-    // myfree1(v);
-    // myfree1(w);
-    // myfree2(X);   
-
-
-    /* recover compressed Hessian => ColPack library */
-
-//      if (options[1] == 0)
-//        HessianRecovery::IndirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
-//      else
-//        HessianRecovery::DirectRecover_CoordinateFormat(g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
  
     if (*values != NULL && *rind != NULL && *cind != NULL) {
      // everything is preallocated, we assume correctly
@@ -1154,7 +1119,6 @@ int ADOLC_get_sparse_jacobian( func_ad<adtl::adouble> *const fun, func_ad<adtl_i
 {
     int i;
     unsigned int j;
-    int dummy;
     int ret_val = -1;
     if (!repeat) {
     freeSparseJacInfos(sJinfos.y, sJinfos.B, sJinfos.JP, sJinfos.g, sJinfos.jr1d, sJinfos.seed_rows, sJinfos.seed_clms, sJinfos.depen);
@@ -1224,15 +1188,15 @@ int ADOLC_get_sparse_jacobian( func_ad<adtl::adouble> *const fun, func_ad<adtl_i
 
     for (i=0; i < n ; i++){
       x[i] = basepoints[i];
-      for (j=0; j < sJinfos.seed_clms; j++)
-	  x[i].setADValue(j,sJinfos.Seed[i][j]);
+      for (int jj=0; jj < sJinfos.seed_clms; jj++)
+	  x[i].setADValue(jj,sJinfos.Seed[i][jj]);
     }
 
     ret_val = (*fun)(n,x,m,y);
 
     for (i=0;i<m;i++)
-       for (j=0; j< sJinfos.seed_clms;j++)
-          sJinfos.B[i][j] = y[i].getADValue(j);
+       for (int jj=0; jj< sJinfos.seed_clms;jj++)
+          sJinfos.B[i][jj] = y[i].getADValue(jj);
 
 	delete[] x;
 	delete[] y;
