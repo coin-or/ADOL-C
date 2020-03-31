@@ -12,7 +12,7 @@
 
 ACLOCAL_AMFLAGS = -I autoconf
 
-EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_in.hpp matrixmemory.hpp pyedfclasses.hpp
+EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.hpp adolc_all_in.hpp matrixmemory.hpp pyedfclasses.hpp
 
 clean-local:
 	-rm -rf python R *.cpp *.cxx *.o *.h include
@@ -20,6 +20,6 @@ clean-local:
 if PYTHONFOUND
 if SPARSE
 install:
-	CXX=${CXX} ${PYTHON} setup.py install --prefix=${prefix} --only-swig
+	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig --lib-prefix=${prefix} @python_srcbase@ install --prefix=${prefix}
 endif
 endif

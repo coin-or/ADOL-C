@@ -10,6 +10,7 @@
 ## 
 ##############################################################################
 
+from __future__ import print_function
 import re
 import os.path
 import sys
@@ -191,22 +192,25 @@ def finalClean(headfile,outfiles):
     for f in glob.glob('*.o'):
         os.remove(f)
 
-def prepare_flat_header():
-    sys.path = [ os.getcwd() ] + sys.path
-    p = os.getcwd() + '/../include/adolc'
-    for (dp, dn, fn) in os.walk(p):
-        ndp = re.sub(r'\.\./',r'',dp)
-        for f in iter(fn):
-            lines = readFile(dp + "/" + f)
-            lines = comment_all_includes(lines)
-            lines = uncomment_local_includes(lines)
-            try:
-                os.makedirs(ndp)
-            except:
-                pass
-            writeOutput(lines, ndp + "/" + f)
+def prepare_flat_header(src_base='.'):
+    pl = [ os.getcwd() + '/../include/adolc' ]
+    print('src_base = ', src_base)
+    if src_base != '.':
+        pl = [ src_base + '/../include/adolc' ] + pl
+    for p in iter(pl):
+        for (dp, dn, fn) in os.walk(p):
+            ndp = re.sub(r'^.*\.\./',r'',dp)
+            for f in iter(fn):
+                lines = readFile(dp + "/" + f)
+                lines = comment_all_includes(lines)
+                lines = uncomment_local_includes(lines)
+                try:
+                    os.makedirs(ndp)
+                except:
+                    pass
+                writeOutput(lines, ndp + "/" + f)
     
-    invoke_cpp('adolc_all_in.hpp', 'adolc_all_pre.hpp')
+    invoke_cpp(src_base + '/' + 'adolc_all_in.hpp', 'adolc_all_pre.hpp')
     lines = readFile('adolc_all_pre.hpp')
     lines = reinstate_nonlocal_include(lines)
     writeOutput(lines,'adolc_all.hpp')

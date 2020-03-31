@@ -11,6 +11,10 @@
 ##############################################################################
 
 from __future__ import print_function
+import sys, os
+
+sys.path = [ os.path.dirname(os.path.abspath(__file__)) ] + sys.path
+
 from swigprocess import prepare_flat_header
 from numpy.distutils import misc_util as np_dist
 from distutils.core import setup, Extension
@@ -18,7 +22,6 @@ from distutils.cmd import Command
 from distutils.command.build_ext import build_ext
 from distutils.command.build import build
 from distutils.command.install import install
-import os
 import subprocess
 
 def compile_dynlib(prefix,colpackdir,boostdir):
@@ -88,14 +91,34 @@ class build_swigadolc(build_ext,object):
         prefix = self.lib_prefix
         print('prefix = ', prefix)
         self.include_dirs.append(os.path.join(prefix,'include'))
-        self.library_dirs.append(os.path.join(prefix,'lib64'))
-        self.rpath.append(os.path.join(prefix,'lib64'))
-        prepare_flat_header()
+        import ctypes as c
+        plen = c.sizeof(c.c_void_p(0))
+        if plen == 8:
+            self.library_dirs.append(os.path.join(prefix,'lib64'))
+            self.rpath.append(os.path.join(prefix,'lib64'))
+        else:
+            self.library_dirs.append(os.path.join(prefix,'lib'))
+            self.rpath.append(os.path.join(prefix,'lib'))
+        buildobj = self.get_finalized_command('build')
+        self.src = buildobj.src
+        prepare_flat_header(self.src)
+        self.swig_opts = ['-c++', '-I' + self.src]
+        self.finalized = 1
 
+    def build_extension(self, ext):
+        if self.src != '.':
+            import shutil
+            sources = ext.sources
+            newSrc = []
+            for s in iter(sources):
+                shutil.copy(self.src + '/' + s, '.')
+            ext.include_dirs.append(self.src)
+        super(build_swigadolc,self).build_extension(ext)
 
 class buildthis(build,object):
     command_name = 'build'
     user_options = build.user_options + [
+        ('src=', None, 'path of the source directory of swig module'),
         ('lib-prefix=', None, 'prefix to install adolc library'),
         ('colpack-dir=', None, 'directory in which colpack is installed'),
         ('boost-dir=', None, 'directory in which boost is installed'),
@@ -111,10 +134,25 @@ class buildthis(build,object):
 
     def initialize_options(self):
         super(buildthis,self).initialize_options()
+        self.src = None
         self.lib_prefix = None
         self.colpack_dir = None
         self.boost_dir = None
         self.only_swig = None
+
+    def finalize_options(self):
+        super(buildthis,self).finalize_options()
+        if self.src is None:
+            self.src = '.'
+        if self.lib_prefix is None:
+            self.lib_prefix = os.path.join(os.environ['HOME'],'adolc_base')
+        if self.colpack_dir is None:
+            self.colpack_dir = os.path.join(os.environ['HOME'],'adolc_base')
+        if self.boost_dir is None:
+            self.boost_dir = '/usr'
+        if self.only_swig is None:
+            self.only_swig = False
+        self.finalized = 1
 
     #sub_commands = [ ('build_lib', lib_doesnot_exist),
     #                 ('build_ext', None) ]
@@ -137,22 +175,13 @@ class installthis(install,object):
         super(installthis,self).initialize_options()
 
     def finalize_options(self):
+        self.set_undefined_options('build',
+                                   ('lib_prefix','lib_prefix'),
+                                   ('colpack_dir', 'colpack_dir'),
+                                   ('boost_dir', 'boost_dir'),
+                                   ('only_swig', 'only_swig'))
         super(installthis,self).finalize_options()
-        if self.lib_prefix is None:
-            self.lib_prefix = os.path.join(os.environ['HOME'],'adolc_base')
-        if self.colpack_dir is None:
-            self.colpack_dir = os.path.join(os.environ['HOME'],'adolc_base')
-        if self.boost_dir is None:
-            self.boost_dir = '/usr'
-        if self.only_swig is None:
-            self.only_swig = False
         self.finalized = 1
-        buildobj = self.distribution.get_command_obj('build')
-        buildobj.set_undefined_options('install',
-                                       ('lib_prefix','lib_prefix'),
-                                       ('colpack_dir', 'colpack_dir'),
-                                       ('boost_dir', 'boost_dir'),
-                                       ('only_swig', 'only_swig'))
         
 incdirs = np_dist.get_numpy_include_dirs()
 #python_ldflags = subprocess.check_output(['python-config','--ldflags'],universal_newlines=True)

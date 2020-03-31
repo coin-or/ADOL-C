@@ -501,6 +501,12 @@ fi
 AM_PATH_PYTHON([2.7],[python_found=yes],[python_found=no])
 AC_PATH_PROG(SWIG, swig, [no])
 AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes && test x$SWIG != xno])
+if test ${abs_top_srcdir} != ${abs_top_builddir} ; then
+   python_srcbase='--src=${abs_srcdir}'
+else
+   python_srcbase=''
+fi
+AC_SUBST(python_srcbase)
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
