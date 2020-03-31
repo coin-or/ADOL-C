@@ -334,6 +334,7 @@ prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
 pyexecdir = @pyexecdir@
+python_srcbase = @python_srcbase@
 pythondir = @pythondir@
 runstatedir = @runstatedir@
 saveCC = @saveCC@
