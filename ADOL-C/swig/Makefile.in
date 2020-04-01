@@ -276,6 +276,7 @@ prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
 pyexecdir = @pyexecdir@
+python_srcbase = @python_srcbase@
 pythondir = @pythondir@
 runstatedir = @runstatedir@
 saveCC = @saveCC@
@@ -289,7 +290,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I autoconf
-EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.h adolc_all_in.hpp matrixmemory.hpp pyedfclasses.hpp
+EXTRA_DIST = swigprocess.py adolc-r.i adolc-python.i adubswigfuncs.hpp adolc_all_in.hpp matrixmemory.hpp pyedfclasses.hpp
 all: all-am
 
 .SUFFIXES:
@@ -487,7 +488,7 @@ clean-local:
 	-rm -rf python R *.cpp *.cxx *.o *.h include
 
 @PYTHONFOUND_TRUE@@SPARSE_TRUE@install:
-@PYTHONFOUND_TRUE@@SPARSE_TRUE@	CXX=${CXX} ${PYTHON} setup.py install --prefix=${prefix} --only-swig
+@PYTHONFOUND_TRUE@@SPARSE_TRUE@	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig --lib-prefix=${prefix} @python_srcbase@ install --prefix=${prefix}
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

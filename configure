@@ -637,6 +637,7 @@ ac_includes_default="\
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+python_srcbase
 PYTHONFOUND_FALSE
 PYTHONFOUND_TRUE
 SWIG
@@ -19656,6 +19657,12 @@ fi
 else
   PYTHONFOUND_TRUE='#'
   PYTHONFOUND_FALSE=
+fi
+
+if test ${abs_top_srcdir} != ${abs_top_builddir} ; then
+   python_srcbase='--src=${abs_srcdir}'
+else
+   python_srcbase=''
 fi
 
 ###########################################################################
