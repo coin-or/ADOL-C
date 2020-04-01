@@ -102,7 +102,6 @@ class build_swigadolc(build_ext,object):
         buildobj = self.get_finalized_command('build')
         self.src = buildobj.src
         prepare_flat_header(self.src)
-        self.swig_opts = ['-c++', '-I' + self.src]
         self.finalized = 1
 
     def build_extension(self, ext):
@@ -113,6 +112,7 @@ class build_swigadolc(build_ext,object):
             for s in iter(sources):
                 shutil.copy(self.src + '/' + s, '.')
             ext.include_dirs.append(self.src)
+            ext.swig_opts += ['-I' + self.src]
         super(build_swigadolc,self).build_extension(ext)
 
 class buildthis(build,object):
