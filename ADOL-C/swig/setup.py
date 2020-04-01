@@ -105,7 +105,7 @@ class build_swigadolc(build_ext,object):
         self.finalized = 1
 
     def build_extension(self, ext):
-        if self.src != '.':
+        if os.path.abspath(os.path.realpath(self.src)) != os.path.abspath('.'):
             import shutil
             sources = ext.sources
             newSrc = []
