@@ -243,7 +243,7 @@ void fail( int error ) {
         case ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT:
             fprintf(DIAG_OUT,
                     "ADOL-C error: Got at least one null pointer as argument to"
-                    " extern differnetiated function!\n");
+                    " extern differentiated function!\n");
             break;
         case ADOLC_EXT_DIFF_WRONG_FUNCTION_INDEX:
             fprintf(DIAG_OUT,
