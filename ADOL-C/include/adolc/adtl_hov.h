@@ -23,11 +23,6 @@
 #include <stdexcept>
 #include <adolc/adalloc.h>  //for myalloc2
 
-#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900)
-#define COMPILER_HAS_CXX11
-#else
-#error "please use -std=c++11 compiler flag with a C++11 compliant compiler"
-#endif
 
 using std::ostream;
 using std::istream;
