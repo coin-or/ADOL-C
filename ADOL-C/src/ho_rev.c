@@ -269,6 +269,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/adalloc.h>
 #include "oplate.h"
 #include "taping_p.h"
+#include <adolc/externfcts.h>
+#include "externfcts_p.h"
 #include <adolc/convolut.h>
 #include "dvlparms.h"
 
@@ -412,6 +414,14 @@ int hov_ti_reverse(
     int p = nrows;
 #endif
 
+    /****************************************************************************/
+    /*                                          extern diff. function variables */
+#if defined(_HOS_)
+# define ADOLC_EXT_FCT_U edfct->dp_U
+# define ADOLC_EXT_FCT_Z edfct->dp_Z
+# define ADOLC_EXT_FCT_POINTER hos_reverse
+#endif
+
 #ifdef _HOV_
     int pk1 = p*k1;
     int q = 1;
@@ -489,6 +499,10 @@ int hov_ti_reverse(
     rp_Atemp2 = (revreal *)malloc(k1 * sizeof(revreal));
     rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
     ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_REVERSE;
+    
+    locint n, m;
+    ext_diff_fct *edfct;
+    int oldTraceFlag;
     /*----------------------------------------------------------------------*/
 #elif _HOV_                                                          /* HOV */
     rpp_A = (revreal**)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
@@ -3251,7 +3265,34 @@ int hov_ti_reverse(
                     GET_TAYL(j,k,p)
 
                 break;
+#ifdef _HOS_                                                         /* HOS */
 
+                /*--------------------------------------------------------------------------*/
+            case ext_diff:                       /* extern differntiated function */
+                ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
+                m = get_locint_r();
+                n = get_locint_r();
+                ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+                edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+
+                oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+
+                if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
+                    fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+                if (m>0) {
+                    if (ADOLC_EXT_FCT_U == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_y==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+                if (n>0) {
+                    if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                    if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+                }
+		printf(" n = %d m = %d \n",n,m);
+                break;
+#endif		
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */
