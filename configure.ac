@@ -71,6 +71,17 @@ if test x"${adolc_medipack_support}" = xyes ; then
 AC_DEFINE(ADOLC_MEDIPACK_SUPPORT,1,[defined if MeDiPack support is to be compiled in])
 fi
 
+
+AC_MSG_CHECKING(whether to build ADOL-C with python/swig support)
+AC_ARG_ENABLE(python,
+              [AS_HELP_STRING([--enable-python],[build ADOL-C with python/swig support [default=disabled]])],
+	      [adolc_python_support=$enableval],[adolc_python_support=no])
+AC_MSG_RESULT($adolc_python_support)
+AM_CONDITIONAL(BUILD_ADOLC_python_SUPPORT,[test x${adolc_python_support} = xyes])
+if test x"${adolc_python_support}" = xyes ; then
+AC_DEFINE(ADOLC_python_SUPPORT,1,[defined if python/swig support is to be compiled in])
+fi
+
 LT_PREREQ([2.2.6])
 # checks for programs
 AC_PROG_CXX
@@ -651,6 +662,10 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033@<:@0m"
     warn=true
 fi
+echo \
+"  Build with python:		      ${adolc_python_support}"
+
+if test x$adolc_python_support = xyes ; then
 if test x$sparse = xyes && test x$python_found = xyes && test x$SWIG != xno; then
    echo \
 "  Build with python swig module:      yes"
@@ -660,7 +675,7 @@ else
    if test x$sparse = xno && test x$python_found = xyes && test x$SWIG != xno; then
      echo \
 "(due to sparse drivers disabled)"
-  elif test x$sparse = xyes && ( $test x$python_found = xno || test x$SWIG = xno ); then
+  elif test x$sparse = xyes && ( test x$python_found = xno || test x$SWIG = xno ); then
      echo \
 "(due to python/swig missing)"
   else
@@ -668,6 +683,8 @@ else
 "(due to sparse drivers disabled and python/swig missing)"
   fi
 fi
+fi
+
 echo
 
 echo \
