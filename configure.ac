@@ -519,11 +519,11 @@ else
    python_srcbase=''
 fi
 else
-   AM_CONDITIONAL(PYTHONFOUND, [test x$adolc_python_support])
+   AM_CONDITIONAL(PYTHONFOUND, [test x$adolc_python_support = xyes])
    python_srcbase=''
 fi
 AC_SUBST(python_srcbase)
-end
+
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
 ###########################################################################
