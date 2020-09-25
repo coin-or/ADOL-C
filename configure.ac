@@ -624,6 +624,8 @@ AC_CONFIG_FILES(Makefile
                 adolclib.pc
 )
 
+AC_CONFIG_COMMANDS([ADOL-C/dummy.cpp], [touch ADOL-C/dummy.cpp])
+
 AC_OUTPUT
 
 #call libtool for cygwin 

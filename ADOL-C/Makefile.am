@@ -32,7 +32,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 lib_LTLIBRARIES = lib@adolclib@.la
 lib@adolclib@_la_LDFLAGS  = -version-info 4:0:2 -no-undefined
-lib@adolclib@_la_SOURCES  = dummy.cpp
+nodist_lib@adolclib@_la_SOURCES  = ${builddir}/dummy.cpp
 
 lib@adolclib@_la_LIBADD = src/libadolcsrc.la
 
@@ -52,11 +52,6 @@ lib@adolclib@_la_LIBADD  += src/drivers/libdrivers.la src/tapedoc/libtapedoc.la 
 if SPARSE
 lib@adolclib@_la_LIBADD   += src/sparse/libsparse.la
 endif
-
-BUILT_SOURCES = dummy.cpp
-
-dummy.cpp:
-	touch $@
 
 CC = $(saveCC)
 CXX = $(saveCXX)
