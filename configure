@@ -738,6 +738,8 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+BUILD_ADOLC_python_SUPPORT_FALSE
+BUILD_ADOLC_python_SUPPORT_TRUE
 BUILD_ADOLC_MEDIPACK_SUPPORT_FALSE
 BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE
 BUILD_ADOLC_AMPI_SUPPORT_FALSE
@@ -820,6 +822,7 @@ enable_silent_rules
 enable_maintainer_mode
 enable_ampi
 enable_medipack
+enable_python
 enable_dependency_tracking
 enable_static
 enable_shared
@@ -1512,6 +1515,8 @@ Optional Features:
   --enable-ampi           build ADOL-C with adjoinable MPI (AMPI) support
                           [default=disabled]
   --enable-medipack       build ADOL-C with MeDiPack (MPI) support
+                          [default=disabled]
+  --enable-python         build ADOL-C with python/swig support
                           [default=disabled]
   --enable-dependency-tracking
                           do not reject slow dependency extractors
@@ -3629,6 +3634,32 @@ fi
 if test x"${adolc_medipack_support}" = xyes ; then
 
 $as_echo "#define ADOLC_MEDIPACK_SUPPORT 1" >>confdefs.h
+
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build ADOL-C with python/swig support" >&5
+$as_echo_n "checking whether to build ADOL-C with python/swig support... " >&6; }
+# Check whether --enable-python was given.
+if test "${enable_python+set}" = set; then :
+  enableval=$enable_python; adolc_python_support=$enableval
+else
+  adolc_python_support=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $adolc_python_support" >&5
+$as_echo "$adolc_python_support" >&6; }
+ if test x${adolc_python_support} = xyes; then
+  BUILD_ADOLC_python_SUPPORT_TRUE=
+  BUILD_ADOLC_python_SUPPORT_FALSE='#'
+else
+  BUILD_ADOLC_python_SUPPORT_TRUE='#'
+  BUILD_ADOLC_python_SUPPORT_FALSE=
+fi
+
+if test x"${adolc_python_support}" = xyes ; then
+
+$as_echo "#define ADOLC_python_SUPPORT 1" >>confdefs.h
 
 fi
 
@@ -19349,6 +19380,7 @@ $as_echo "#define ADOLC_TAPE_DOC_VALUES 1" >>confdefs.h
 
 fi
 
+if test x$adolc_python_support == xyes; then
 
 
 
@@ -19390,7 +19422,7 @@ if ${am_cv_pathless_PYTHON+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python3 python3.3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
+	for am_cv_pathless_PYTHON in python python2 python3 python3.8 python3.7 python3.6 python3.5 python3.4 python3.3 python3.2 python3.1 python3.0 python2.7  python2.6 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
 	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
@@ -19664,6 +19696,18 @@ if test ${abs_top_srcdir} != ${abs_top_builddir} ; then
 else
    python_srcbase=''
 fi
+else
+    if test x$adolc_python_support = xyes; then
+  PYTHONFOUND_TRUE=
+  PYTHONFOUND_FALSE='#'
+else
+  PYTHONFOUND_TRUE='#'
+  PYTHONFOUND_FALSE=
+fi
+
+   python_srcbase=''
+fi
+
 
 ###########################################################################
 #                      COIN_PATCH_LIBTOOL_CYGWIN                          #
@@ -19684,6 +19728,9 @@ fi
 
 # output
 ac_config_files="$ac_config_files Makefile ADOL-C/Makefile ADOL-C/include/Makefile ADOL-C/include/adolc/Makefile ADOL-C/include/adolc/internal/adolc_settings.h ADOL-C/include/adolc/drivers/Makefile ADOL-C/include/adolc/internal/Makefile ADOL-C/include/adolc/lie/Makefile ADOL-C/include/adolc/sparse/Makefile ADOL-C/include/adolc/tapedoc/Makefile ADOL-C/src/Makefile ADOL-C/src/drivers/Makefile ADOL-C/src/lie/Makefile ADOL-C/src/sparse/Makefile ADOL-C/src/tapedoc/Makefile ADOL-C/doc/version.tex ADOL-C/examples/Makefile ADOL-C/examples/additional_examples/Makefile ADOL-C/examples/additional_examples/cuda/Makefile ADOL-C/examples/additional_examples/clock/Makefile ADOL-C/examples/additional_examples/checkpointing/Makefile ADOL-C/examples/additional_examples/ext_diff_func/Makefile ADOL-C/examples/additional_examples/fixpoint_exam/Makefile ADOL-C/examples/additional_examples/hessmat/Makefile ADOL-C/examples/additional_examples/lie/Makefile ADOL-C/examples/additional_examples/lufact/Makefile ADOL-C/examples/additional_examples/openmp_exam/Makefile ADOL-C/examples/additional_examples/scal/Makefile ADOL-C/examples/additional_examples/speelpenning/Makefile ADOL-C/examples/additional_examples/taylor/Makefile ADOL-C/examples/additional_examples/detexam/Makefile ADOL-C/examples/additional_examples/helm/Makefile ADOL-C/examples/additional_examples/lighthouse/Makefile ADOL-C/examples/additional_examples/ode/Makefile ADOL-C/examples/additional_examples/sparse/Makefile ADOL-C/examples/additional_examples/tapesave/Makefile ADOL-C/examples/additional_examples/pow/Makefile ADOL-C/examples/additional_examples/timing/Makefile ADOL-C/examples/additional_examples/param/Makefile ADOL-C/test/Makefile ADOL-C/swig/Makefile MSVisualStudio/v14/sparse/config.h MSVisualStudio/v14/nosparse/config.h MSVisualStudio/v14/x64/sparse/config.h MSVisualStudio/v14/x64/nosparse/config.h adolc.spec adolclib.pc"
+
+
+ac_config_commands="$ac_config_commands ADOL-C/dummy.cpp"
 
 
 cat >confcache <<\_ACEOF
@@ -19827,6 +19874,10 @@ if test -z "${BUILD_ADOLC_MEDIPACK_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_MEDI
   as_fn_error $? "conditional \"BUILD_ADOLC_MEDIPACK_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${BUILD_ADOLC_python_SUPPORT_TRUE}" && test -z "${BUILD_ADOLC_python_SUPPORT_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_ADOLC_python_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
   as_fn_error $? "conditional \"AMDEP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -19857,6 +19908,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${PAREXA_TRUE}" && test -z "${PAREXA_FALSE}"; then
   as_fn_error $? "conditional \"PAREXA\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${PYTHONFOUND_TRUE}" && test -z "${PYTHONFOUND_FALSE}"; then
+  as_fn_error $? "conditional \"PYTHONFOUND\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${PYTHONFOUND_TRUE}" && test -z "${PYTHONFOUND_FALSE}"; then
@@ -20888,6 +20943,7 @@ do
     "MSVisualStudio/v14/x64/nosparse/config.h") CONFIG_FILES="$CONFIG_FILES MSVisualStudio/v14/x64/nosparse/config.h" ;;
     "adolc.spec") CONFIG_FILES="$CONFIG_FILES adolc.spec" ;;
     "adolclib.pc") CONFIG_FILES="$CONFIG_FILES adolclib.pc" ;;
+    "ADOL-C/dummy.cpp") CONFIG_COMMANDS="$CONFIG_COMMANDS ADOL-C/dummy.cpp" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -22288,6 +22344,7 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
+    "ADOL-C/dummy.cpp":C) touch ADOL-C/dummy.cpp ;;
 
   esac
 done # for ac_tag
@@ -22403,6 +22460,10 @@ if test x$sparse = xyes && test x$have_colpack = xno; then
   Only sparsity patterns can be computed\033[0m"
     warn=true
 fi
+echo \
+"  Build with python:		      ${adolc_python_support}"
+
+if test x$adolc_python_support = xyes ; then
 if test x$sparse = xyes && test x$python_found = xyes && test x$SWIG != xno; then
    echo \
 "  Build with python swig module:      yes"
@@ -22412,7 +22473,7 @@ else
    if test x$sparse = xno && test x$python_found = xyes && test x$SWIG != xno; then
      echo \
 "(due to sparse drivers disabled)"
-  elif test x$sparse = xyes && ( $test x$python_found = xno || test x$SWIG = xno ); then
+  elif test x$sparse = xyes && ( test x$python_found = xno || test x$SWIG = xno ); then
      echo \
 "(due to python/swig missing)"
   else
@@ -22420,6 +22481,8 @@ else
 "(due to sparse drivers disabled and python/swig missing)"
   fi
 fi
+fi
+
 echo
 
 echo \
