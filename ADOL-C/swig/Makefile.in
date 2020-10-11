@@ -488,7 +488,7 @@ clean-local:
 	-rm -rf python R *.cpp *.cxx *.o *.h include
 
 @PYTHONFOUND_TRUE@@SPARSE_TRUE@install:
-@PYTHONFOUND_TRUE@@SPARSE_TRUE@	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig --lib-prefix=${prefix} @python_srcbase@ install --prefix=${prefix}
+@PYTHONFOUND_TRUE@@SPARSE_TRUE@	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig  --lib-libdir=${libdir} --lib-prefix=${prefix} @python_srcbase@ install --prefix=${prefix}
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
