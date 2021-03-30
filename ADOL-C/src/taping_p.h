@@ -16,6 +16,8 @@
 
 #ifdef __cplusplus
 #include "storemanager.h"
+#else
+#include <threads.h>
 #endif
 #include <adolc/internal/common.h>
 #include <adolc/taping.h>
@@ -378,6 +380,10 @@ extern int isParallel();
 #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack[ADOLC_threadNumber]
 #define REVOLVE_NUMBERS revolve_numbers[ADOLC_threadNumber]
 
+extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
+extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
+extern GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
+
 #else
 
 #define ADOLC_TAPE_INFOS_BUFFER_DECL tapeInfosBuffer
@@ -401,11 +407,11 @@ extern int isParallel();
 #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack
 #define REVOLVE_NUMBERS revolve_numbers
 
-#endif /* _OPENMP */
-
-extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
-extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
+extern thread_local TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
+extern thread_local TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
 extern GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
+
+#endif /* _OPENMP */
 
 /****************************************************************************/
 /* C Function interfaces                                                    */

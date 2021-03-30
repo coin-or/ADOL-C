@@ -10,17 +10,22 @@
 ## 
 ##############################################################################
 
-noinst_PROGRAMS         = powexam speelpenning fminmax
+noinst_PROGRAMS         = powexam speelpenning fminmax parallel
 
 speelpenning_SOURCES    = speelpenning.cpp
 
 powexam_SOURCES         = powexam.cpp
+
+parallel_SOURCES        = parallel.cpp
 
 fminmax_SOURCES		= fminmax.cpp
 
 powexam_LDADD           = ../lib${adolclib}.la
 speelpenning_LDADD = ../lib${adolclib}.la
 fminmax_LDADD		= ../lib${adolclib}.la
+parallel_LDADD		= ../lib${adolclib}.la
+
+parallel_CXXFLAGS				= -pthread
 
 AM_CFLAGS               = @ac_adolc_cflags@
 AM_CXXFLAGS             = @ac_adolc_cxxflags@
@@ -35,7 +40,7 @@ EXTRA_DIST = run_tests
 # on Cygwin
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/inc
 
-test:	powexam speelpenning 
+test:	powexam speelpenning parallel
 	chmod u+x $(srcdir)/run_tests
 	$(srcdir)/run_tests
 
