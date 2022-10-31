@@ -1943,6 +1943,16 @@ int hov_ti_reverse(
                 break;
 
                 /*--------------------------------------------------------------------------*/
+            case cbrt_op:                                              /* cbrt_op */
+                res = get_locint_r();
+                arg = get_locint_r();
+		fprintf(DIAG_OUT, "ADOL-C error: higher order mode of cbrt not implemented yet\n");
+		adolc_exit(-2,"",__func__,__FILE__,__LINE__);     
+
+              break;
+
+
+	      /*--------------------------------------------------------------------------*/
             case gen_quad:                                            /* gen_quad */
                 res   = get_locint_r();
                 arg2  = get_locint_r();

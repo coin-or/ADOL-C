@@ -4079,7 +4079,83 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                     break;
 
-            /*--------------------------------------------------------------------------*/
+                /*--------------------------------------------------------------------------*/
+            case cbrt_op:                                              /* sqrt_op */
+                arg = get_locint_f();
+                res = get_locint_f();
+
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+#if !defined(_NTIGHT_)
+                dp_T0[res] = cbrt(dp_T0[arg]);
+#endif /* !_NTIGHT_ */
+
+                ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                copy_index_domain(res, arg, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif
+#if defined(_NONLIND_OLD_)
+                extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
+#endif
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_FOINC = TARG_INC;
+#else
+                FOR_0_LE_l_LT_p
+                { TargOP = Targ;
+                  if (dp_T0[arg] == 0.0)
+                  /* Note: <=> dp_T0[res] == 0.0 */
+		    { r0 = 0.0;
+		      FOR_0_LE_i_LT_k
+			{ if (TARG>0.0) {
+			    r0 = make_inf();
+                            VEC_INC(Targ, k-i)
+			      BREAK_FOR_I
+			      } else
+                            if (TARG<0.0) {
+			      r0 = make_nan();
+			      VEC_INC(Targ, k-i)
+                                BREAK_FOR_I
+				} else
+			      Targ++;
+			}
+		    }
+                  else {
+		    r0 = 1.0/(3*dp_T0[res]*dp_T0[res]);
+                  }
+                  Targ = TargOP;
+
+#if defined(_HIGHER_ORDER_)
+                  even = 1;
+#endif
+                  FOR_0_LE_i_LT_k
+                  { TRES_FOINC = r0 * TARG_INC;
+#if defined(_HIGHER_ORDER_)
+		fprintf(DIAG_OUT, "ADOL-C error: higher order mode of cbrt not implemented yet\n");
+		adolc_exit(-2,"",__func__,__FILE__,__LINE__);     
+#endif /* _HIGHER_ORDER_ */
+                      }
+                    }
+#endif
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                    break;
+
+		    /*--------------------------------------------------------------------------*/
         case gen_quad:                                            /* gen_quad */
             arg1 = get_locint_f();
                 arg2 = get_locint_f();
