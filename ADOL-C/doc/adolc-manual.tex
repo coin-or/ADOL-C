@@ -9,6 +9,17 @@
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 \documentclass[11pt,twoside]{article}
+
+\usepackage[maxbibnames=99,  % Never write 'et al.' in a bibliography
+            sortcites=true,  % Sort citations when there are more than one
+            natbib=true,     % Allow commands like \citet and \citep
+            backend=biber]{biblatex}
+            \addbibresource{adolc-manual.bib}
+            
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}   % For underbraces
+\usetikzlibrary{arrows.meta}   % For nicer arrow tips
+
 \usepackage{hyperref}
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage{graphicx}
@@ -19,7 +30,6 @@
 \usepackage{color}
 
 \pagestyle{headings} 
-\bibliographystyle{plain}
 \parskip=6pt
 
 \setlength{\textwidth}{433.6pt}
@@ -3141,6 +3151,34 @@ checkpointing facilities. It can be found in the directory \verb=examples/additi
 %
 \subsection{Advanced algorithmic differentiation of fixed point iterations}
 %
+One has to note that AD computes exact derivative information of the representation of
+$F$ given by the computer program. Hence, in numerous cases AD provides exactly
+what the user of AD requires, but one has to keep this difference in
+mind. This is especially important if the computer program to evaluate $F(x)$
+contains an iterative process, as for example a Newton iteration or a fixed
+point iteration. In these cases, the black-box application of AD may not yield
+the derivative information with the required accuracy. Furthermore, the
+resulting memory requirement may be unacceptable for real-world problems as
+for example large CFD codes to simulate a flow over an aircraft wing. For these
+large scale applications, frequently one introduces a pseudo timestepping to compute
+a quasi-steady state using a given set of design parameters.
+This simulation forms one main ingredient to optimize the airfoil for a
+particular flight scenario. Hence, derivatives with respect
+to the design parameters are required if a calculus-based
+optimization method is applied. For this purpose, the pseudo timestepping can be
+interpreted as a fixed point iteration. Then, it is possible
+to control the accuracy of the derivatives and to reduce the memory
+requirement using either a two-hase approach or the
+piggyback method as described for example in~\cite[Section~11.4]{GrWa08}.
+
+The method of Reverse Accumulation proposed and analysed in detail by
+Christianson \cite{Chr94} as one example for a two-phase approach.
+The Reverse Accumulation is available in ADOL-C. Runtime measurements for a large
+scale application, namely the derivative computation for the CFD code TAUij
+provided by the DLR Braunschweig \cite{Hei06}, are
+presented and analysed in~\cite{SWGH08}.
+
+\subsubsection{Iterative evaluation of derivatives of fixed point iterations}
 Quite often, the state of the considered system denoted by $x\in\R^n$
 depends on some design parameters denoted by $u\in\R^m$. One example for this setting
 forms the flow over an aircraft wing. Here, the shape of the wing that
@@ -3172,6 +3210,264 @@ $\phi(u)$ is a fixed point of $F$ according to a control
 $u$. To optimize the system described by the state vector $x=\phi(u)$ with respect to
 the design vector $u$, derivatives of $\phi$ with respect
 to $u$ are of particular interest.
+ 
+%
+\subsubsection{Forward and reverse derivative iterations}
+%
+Applying the chain rule of differentiation to Equation~\eqref{eq:fixedpoint} yields
+\begin{equation}
+\label{eq:numderiv}
+ \frac{d\phi}{du}(u) =
+ \frac{dx_*}{du} = \frac{dF}{dx}(x_*,u)\frac{dx_*}{du} +
+                       \frac{dF}{du}(x_*,u).
+\end{equation}
+This formula is a fixed point equation for the derivative
+$\frac{d\phi}{du}(u) = \frac{dx_*}{du}$.
+Analytically, the derivative $\frac{d\phi}{du}(u)$
+can be expressed as
+\begin{equation}
+\label{eq:anderiv}
+ \frac{d\phi}{du}(u) =
+ \left(I - \frac{dF}{dx}(\phi(u),u)\right)^{-1}
+ \frac{dF}{du}(\phi(u),u).
+\end{equation}
+However, a numerical computation according to this
+formula is not appropriate. Using Automatic Differentiation (AD),
+directional derivatives $\dot \phi = \frac{d\phi}{du}\dot u \in \R^{n}$
+are evaluated for a given $\dot u \in \R^m$ with the forward mode. The reverse
+mode yields adjoints $\bar u^T = \bar x^T \frac{d\phi}{du} \in \R^{m}$
+for a given $\dot u \in \R^m$.
+Denoting $\dot x_k = \frac{dx_k}{du}\dot u$ for $k=0,1,\ldots$ and applying
+the forward mode differentiation,
+we obtain a fixed-point iteration for Equation~\eqref{eq:numderiv}
+\begin{equation}
+\label{eq:xdot}
+  \dot x_{k1} = \frac{dF}{dx}(x_*,u) \dot x_k +
+                 \frac{dF}{du}(x_*,u)\dot u
+   = F'(x_*,u)
+    \begin{pmatrix} \dot x_k \\ \dot u \end{pmatrix}.
+\end{equation}
+If the derivative $\frac{dF}{dx}(x_*,u)$ decribes a contraction, this iteration
+converges to the unique fixpoint $\dot x_*=\frac{d\phi(u)}{du}\dot u$.
+As analyzed already in \cite{Chr94},  Equation~\eqref{eq:anderiv} yields,
+for any given $\bar x\in\R^n$, the identity
+$$
+\bar x^T\frac{dx_*}{du} = \bar x^T
+  \left(I - \frac{dF}{dx}(x_*,u)\right)^{-1}
+  \frac{dF}{du}(x_*,u).
+$$
+Setting $\zeta^T := \bar x^T\left(I - \frac{dF}{dx}(x_*,u)\right)^{-1}$,
+we get the fixed point equation
+$$
+  \zeta_*^T = \zeta_*^T\frac{dF(x_*,u)}{dx} + \bar x^T
+$$
+for the adjoint information. Hence, one obtains for $k=0,1,\ldots$ the iteration
+\begin{align}
+ \nonumber
+ (\zeta_{k+1}^T, \bar u_{k+1}^T)
+ & =
+  \left(\zeta_k^T\frac{dF(x_*,u)}{dx} + \bar x^T, \;
+        \zeta_k^T\frac{dF(x_*,u)}{du}\right) \\
+ %
+ \label{eq:ubar}
+ & =
+ \zeta_k^T F'(x_*,u) + (\bar x^T, 0^T).
+\end{align}
+which converges to the unique fixed point consisting of
+$\zeta_*^T=\bar x^T\left(I - \frac{dF}{dx}(x_*,u)\right)^{-1}$
+and
+$\bar u_* = \zeta_*^T\frac{dF}{du}(x_*,u) = \bar x^T\frac{dx_*}{du} $.
+As shown in \cite{Chr94}, the uniform rate of convergence of the
+derivative fixed point iteration \eqref{eq:ubar} equals the
+asymptotic rate of convergence of the original fixed point iteration
+\eqref{eq:iteration}.
+
+Using not a black-box approach but a slightly advanced technique, AD
+provides for the fixed point iteration \eqref{eq:iteration} given
+as a computer program the efficient evaluation of the terms $F'\dot x$
+and $\zeta^TF'$ in equation \eqref{eq:xdot} and \eqref{eq:ubar}) respectively.
+For this purpose, we apply a two-phase approach,
+i.e., a splitting of the original iteration \eqref{eq:iteration}
+and the derivative iteration \eqref{eq:xdot} and \eqref{eq:ubar}
+respectively. Then the iterations computing the derivaives use information
+of $F(x_*,u)$ at the previously computed fixed point $x_*$. This approach to
+compute adjoint information was
+proposed in \cite{Chr94} and applied for example in \cite{GKS03}.
+As alternative, the derivative information can be computed in combination with
+the original iteration to evaluate $x_*$. This is the so-called
+piggy-back approach~\cite{GrWa08}.
+
+\subsubsection{Embedded fixed point iteration}
+\label{sec:emb}
+%
+Ususally fixed point iterations are part of a larger computational
+context. This fact can be described in a mathematical way as a composition of
+mappings
+\begin{equation}
+\label{forwmapping}
+ \underbrace{p \stackrel{\tau}{\mapsto} (x_0,u)
+   \stackrel{\phi}{\mapsto} (x_*,u)
+   \stackrel{\chi}{\mapsto}  y}_{y = J(p)},
+\end{equation}
+where to $p$ is a set of given parameters.
+We refer $\tau$ as \emph{initialization} calculating the initial value
+$x_0$ of the fixed point iteration and the design vector $u$ from the
+parameter values $p$. The function $\phi$ denotes the \emph{fixed point iteration},
+and $\chi$ represents the \emph{evaluation} of a target function to compute the target value
+$y$. In the remainder of this subsection, we describe the application of the reverse
+mode of AD to the computational procedure \eqref{forwmapping}.
+The forward mode can be derived analogously.
+
+The differentiation of $J(p) = (\chi\circ\phi\circ\tau)(p)$ using the reverse
+mode of AD for a weight vector $\bar{y}$ yields the value $\bar p =
+\bar{y}^T\bar{J}(p)$. Its computation can be seen as a composition
+of the following functions:
+\begin{align*}
+     (\bar x_*, \bar u) &  = \bar{y}^T\bar \chi (x_*,u), \\
+    \bar u             & = \bar u + \bar \phi (u,\bar x_*), \\
+    \bar p             &  = \bar \tau (p,\bar u).
+\end{align*}
+
+Applying ADOL-C in a ``black-box'' fashion to the
+computation of $J(p) = (\chi\circ\phi\circ\tau)(p)$ is not efficient since
+it neglegts any structure of the fixed point iteration in $\phi$.
+According to the evaluation of $\bar \phi(u,\bar x_*) = \bar u$ in \eqref{eq:ubar},
+we only require the repeated evaluation of the terms $\zeta_k^TF'(x_*,u)$.
+Therefore the taping process is stopped during the evaluation of the fixed point
+iteration $\phi()$. An internal function representation
+of $F(x_*,u)$ is created only for the last iterate, which is assumed to
+be sufficiently close to $x_*$. This internal representation of one iteration
+of the fixed point process can be seen as a subtape.
+An illustration of this advanced taping approach in comparison to the basic
+taping, i.e., the black-box application of ADOL-C, is given in Figure~\ref{fig:bas_tap_iteration}.
+\begin{figure}
+ \begin{center}
+  \begin{tikzpicture}[scale=0.5]
+   % Basic taping
+   \definecolor{gray102}{RGB}{102,102,102};
+   \definecolor{gray153}{RGB}{153,153,153};
+   \definecolor{gray204}{RGB}{204,204,204};
+
+   \draw [fill,color=gray153] (0,0) rectangle ++(3,1.5);
+   \draw [fill,color=gray204] (3,0) rectangle ++(2,1.5);
+   \draw [fill,color=gray204] (7,0) rectangle ++(1,1.5);
+   \draw [fill,color=gray102] (8,0) rectangle ++(3,1.5);
+
+   \draw (0,0) rectangle ++(11,1.5);
+   \foreach \x in {3,4,5,7,8}
+     \draw (\x,0) -- ++(0,1.5);
+
+   \foreach \x in {5.5,6,6.5}
+     \node[circle,draw,color=black,fill=black,inner sep=0pt,minimum size=2] at (\x,0.75) {};
+
+   \draw [-{Stealth[length=2.5mm]}] (0,2) to [edge label={tape generation}] (11,2);
+
+
+   \draw [
+    thick,
+    decorate, decoration={brace, mirror, raise=0.1cm}
+   ] (0,0) -- (3,0) node [pos=0.5,anchor=north,yshift=-0.25cm] {$\tau$};
+
+   \draw [
+    thick,
+    decoration={brace, mirror, raise=0.1cm}, decorate
+   ] (3,0) -- (8,0) node [pos=0.5,anchor=north,yshift=-0.2cm] {$\phi$};
+   \draw [
+    thick,
+    decoration={brace, mirror, raise=0.1cm},
+    decorate
+   ] (8,0) -- (11,0) node [pos=0.5,anchor=north,yshift=-0.25cm] {$\chi$};
+
+   \node at (5.5,-4) {Basic taping process};
+
+   % Advanced taping
+   \draw [fill,color=gray153] (13,0) rectangle ++(3,1.5);
+   \draw [fill,color=gray102]    (21,0) rectangle ++(3,1.5);
+
+   \draw (13,0) rectangle ++(11,1.5);
+    \foreach \x in {3,4,5,7,8}
+     \draw (13+\x,0) -- ++(0,1.5);
+
+   \draw [fill=gray204] (20,-2.8) rectangle ++(1,1.5);
+   \draw [-{Stealth[length=2.5mm]}] (20,0) -- ++(0,-1.3);
+   \draw [-{Stealth[length=2.5mm]}] (21,-1.3) -- ++(0,1.3);
+
+   \foreach \x in {5.5,6,6.5}
+     \node[circle,draw,color=black,fill=black,inner sep=0pt,minimum size=2] at (13+\x,0.75) {};
+
+   \draw [-{Stealth[length=2.5mm]}] (13,2) to [edge label={tape generation}] (24,2);
+
+   \node at (18.5,-4) {Advanced taping process};
+  \end{tikzpicture}
+
+ \end{center}
+\caption{Different taping approaches}
+\label{fig:bas_tap_iteration}
+\end{figure}
+During the evaluation of the adjoint information $\bar p = \bar{y}^T\bar{J}(p)$
+the tape is interpreted in the reverse order starting at the end.
+Exploiting the advanced taping mechanism, the original derivative computation is interrupted
+when the fixed point iteration is reached. The reverse mode differentiation
+of the fixed point iteration according to (\ref{eq:ubar}) is performed
+by repeatedly computing the reverse mode of $F(x_*,u)$ for different
+weight vectors $\zeta_k$. After the computation of $\bar u$, the original
+derivative computation is started again to evaluate the overall derivative
+information $\bar p$.
+This nested tape evaluation is illustrated in
+Figure \ref{fig:deriv_calc}.
+\begin{figure}
+ \begin{center}
+  \begin{tikzpicture}[scale=0.8]
+   % Basic taping
+   \definecolor{gray102}{RGB}{102,102,102};
+   \definecolor{gray153}{RGB}{153,153,153};
+   \definecolor{gray204}{RGB}{204,204,204};
+   \draw [fill,color=gray153] (0,0) rectangle ++(3,1.5);
+   \draw [fill,color=gray102] (8,0) rectangle ++(3,1.5);
+
+   \draw (0,0) rectangle ++(11,1.5);
+   \foreach \x in {3,8}
+     \draw (\x,0) -- ++(0,1.5);
+
+   \draw [{Stealth[length=2.5mm]}-] (0,2) to [edge label={derivative computation}] (11,2);
+
+
+   \draw [
+    thick,
+    decoration={brace, mirror, raise=0.1cm}, decorate
+   ] (0,0) -- (3,0) node [pos=0.5,anchor=north,yshift=-0.25cm] {$\bar \tau$};
+
+   \draw [
+    thick,
+    decoration={brace, mirror, raise=0.1cm}, decorate
+   ] (4,-3.3) -- (7,-3.3) node [pos=0.5,anchor=north,yshift=-0.2cm] {$\bar \phi$};
+   \draw [
+    thick,
+    decoration={brace, mirror, raise=0.1cm},
+    decorate
+   ] (8,0) -- (11,0) node [pos=0.5,anchor=north,yshift=-0.25cm] {$\bar \chi$};
+
+   \draw [dashed] (7.5,-2.2) -- (8.2,-2.2);
+   \draw [dotted] (7.5,-3.0) -- (8.2,-3.0);
+
+   \node at (8.2,-2.2) [anchor=west] {switching the differentiation context};
+   \node at (8.2,-3.0) [anchor=west] {reverse accumulation};
+
+   % Advanced taping
+   \draw  (4.5,-2.6) rectangle ++(2,2.1);
+   \draw [fill=gray204] (5,-2.3) rectangle ++(1,1.5);
+   \draw [-{Stealth[length=2.5mm]}, dashed] (4.5,-0.5) -- ++(-1.5,0.5);
+   \draw [-{Stealth[length=2.5mm]}, dashed]      (8,0) -- ++(-1.5,-0.5);
+
+   \draw [{Stealth[length=2.5mm]}-,dotted] (4.5,-0.5) arc[start angle=130, end angle=410,radius=1.55];
+  \end{tikzpicture}
+ \end{center}
+\caption{Derivative computation exploiting the fixed point structure}
+\label{fig:deriv_calc}
+\end{figure}
+%
+\subsubsection{Implementation}
+
 
 To exploit the advanced algorithmic differentiation  of such fixed point iterations
 ADOL-C provides the special functions {\tt fp\_iteration(...)}.
@@ -3179,22 +3475,26 @@ It has the following interface:
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
 \>{\sf int
-  fp\_iteration(}\={\sf sub\_tape\_num,double\_F,adouble\_F,norm,norm\_deriv,eps,eps\_deriv,}\\
+  fp\_iteration(}\={\sf sub\_tape\_num,double\_F,adouble\_F,norm,norm\_deriv,epsilon,epsilon\_deriv,}\\
 \>              \>{\sf N\_max,N\_max\_deriv,x\_0,u,x\_fix,dim\_x,dim\_u)}\\
 \hspace{0.5in}\={\sf short int tag;} \hspace{0.9in}\= \kill    % define tab position
-\>{\sf short int sub\_tape\_num;}         \> // tape identification for sub\_tape \\
-\>{\sf int *double\_F;}         \> // pointer to a function that compute for $x$ and $u$ \\
-\>                              \> // the value $y=F(x,u)$ for {\sf double} arguments\\             
-\>{\sf int *adouble\_F;}        \> // pointer to a function that compute for $x$ and $u$ \\
-\>                              \> // the value $y=F(x,u)$ for {\sf double} arguments\\             
-\>{\sf int *norm;}              \> // pointer to a function that computes\\
-\>                              \> // the norm of a vector\\
+\>{\sf int sub\_tape\_num;}         \> // tape identification for sub\_tape \\
+\>{\sf int (*double\_F)(double*, double* ,double*, int, int);}     \\
+\>                              \> // pointer to a function that computes for $x$ and $u$ \\
+\>                              \> // the value $y=F(x,u)$ for {\sf double} arguments\\
+\>{\sf int (*adouble\_F)(adouble*, adouble*, adouble*, int, int);} \\
+\>                              \> // pointer to a function that computes for $x$ and $u$ \\
+\>                              \> // the value $y=F(x,u)$ for {\sf adouble} arguments\\
+\>{\sf double (*norm)(double*, int);}    \\
+\>                              \> // pointer to a function that computes\\
+\>{\sf double (*norm\_deriv)(double*, int);} \\
+\>                              \> // pointer to a function that computes\\
 \>{\sf int *norm\_deriv;}       \> // pointer to a function that computes\\
 \>                              \> // the norm of a vector\\
-\>{\sf double eps;}             \> // termination criterion for fixed point iteration\\
-\>{\sf double eps\_deriv;}      \> // termination criterion for adjoint fixed point iteration\\
-\>{\sf N\_max;}                 \> // maximal number of itertions for state computation\\
-\>{\sf N\_max\_deriv;}          \> // maximal number of itertions for adjoint computation\\
+\>{\sf double epsilon;}         \> // termination criterion for fixed point iteration\\
+\>{\sf double epsilon\_deriv;}  \> // termination criterion for adjoint fixed point iteration\\
+\>{\sf int N\_max;}             \> // maximal number of iterations for state computation\\
+\>{\sf int N\_max\_deriv;}      \> // maximal number of iterations for adjoint computation\\
 \>{\sf adouble *x\_0;}          \> // inital state of fixed point iteration\\
 \>{\sf adouble *u;}             \> // value of $u$\\
 \>{\sf adouble *x\_fic;}        \> // final state of fixed point iteration\\
@@ -4737,93 +5037,8 @@ Tom Epperly, Bruce Christianson, David Gay,  David Juedes,
 Brad Karp, Koichi Kubota, Bob Olson,  Marcela Rosemblun, Dima
 Shiriaev, Jay Srinivasan, Chuck Tyner, Jean Utke, and Duane Yoder for helping in
 various ways with the development and documentation of ADOL-C. 
-%
-\begin{thebibliography}{10}
 
-\bibitem{BeKh96}
-Christian~H. Bischof, Peyvand~M. Khademi, Ali Bouaricha and Alan Carle.
-\newblock {\em Efficient computation of gradients and Jacobians by dynamic 
-  exploitation of sparsity in automatic differentiation}.
-\newblock Optimization Methods and Software 7(1):1-39, 1996.
+\printbibliography
 
-\bibitem{Chri91a}
-Bruce Christianson.
-\newblock {\em Reverse accumulation and accurate rounding error estimates for
-Taylor series}.
-\newblock  Optimization Methods and Software 1:81--94, 1992.
-
-\bibitem{GeMaPo05}
-Assefaw Gebremedhin, Fredrik Manne, and Alex Pothen.
-\newblock {\em What color is your {J}acobian? {G}raph coloring for computing
-  derivatives}.
-\newblock SIAM Review 47(4):629--705, 2005.
-
-\bibitem{GePoTaWa06}
-Assefaw Gebremedhin, Alex Pothen, Arijit Tarafdar and Andrea Walther. 
-{\em Efficient Computation of Sparse Hessians: An Experimental Study
-  using ADOL-C}. Tech. Rep. (2006). To appear in INFORMS Journal on Computing.
-
-\bibitem{GePoWa08} Assefaw Gebremedhin, Alex Pothen, and Andrea
-  Walther. 
-{\em Exploiting  Sparsity  in Jacobian Computation via Coloring and Automatic Differentiation: 
-a Case Study in a Simulated Moving Bed Process}. 
-In Chr. Bischof et al., eds.,  {\em Proceedings AD 2008 conference}, LNCSE 64, pp. 327 -- 338, Springer (2008).
-
-\bibitem{GeTaMaPo07}
-Assefaw Gebremedhin, Arijit Tarafdar, Fredrik Manne, and Alex Pothen,
-{\em New Acyclic and Star Coloring Algorithms with Applications to Hessian Computation}.
-SIAM Journal on Scientific Computing 29(3):1042--1072, 2007.
-
-\bibitem{Griewank13}
-Andreas Griewank,
-{\em On stable piecewise linearization and generalized algorithmic differentiation}.
-Optimization Methods and Software 28(6):1139--1178, 2013.
-
-\bibitem{GrWa08}
-Andreas Griewank and Andrea Walther: {\em Evaluating Derivatives, Principles and Techniques of
-  Algorithmic Differentiation. Second edition}. SIAM, 2008.
-
-
-\bibitem{Griewank97}
-Andreas Griewank, Jean Utke, and Andrea Walther.
-\newblock {\em Evaluating higher derivative tensors by forward propagation 
-          of univariate Taylor series}.
-\newblock Mathematics of Computation, 69:1117--1130, 2000.
-
-\bibitem{GrWa00} 
-Andreas Griewank and Andrea Walther. {\em Revolve: An Implementation of Checkpointing for the Reverse
-                 or Adjoint Mode of Computational Differentiation},
-		 ACM Transaction on Mathematical Software 26:19--45, 2000.
-
-\bibitem{HW}
-    Ernst Hairer and Gerhard Wanner.
-    {\it Solving Ordinary Differential Equations II.\/}
-    Springer-Verlag, Berlin, 1991.
-
-\bibitem{Knuth73}
-Donald~E. Knuth.
-\newblock {\em The Art of Computer Programming. Second edition.}
-\newblock Addison-Wesley, Reading, 1973.
-
-\bibitem{Roeb05}
-Klaus R\"{o}benack.
-\newblock{\em Computation of Lie Derivatives of Tensor Fields Required for
-	 Nonlinear Controller and Observer Design Employing Automatic Differentiation. }
-\newblock PAMM, 5(1): 181-184, 2005.
-
-\bibitem{Roeb11}
-Klaus R\"{o}benack, Jan Winkler and Siqian Wang.
-\newblock {\em LIEDRIVERS - A Toolbox for the Efficient Computation of Lie
-	  Derivatives Based on the Object-Oriented Algorithmic Differentiation 
-	  Package ADOL-C. }
-\newblock Proc. of the 4th International Workshop on Equation-Based Object-Oriented
-          Modeling Languages and Tools, F. E. Cellier and D. Broman and P. Fritzson 
-	  and E. A. Lee, editors, volume 56 of Link\"oping Electronic Conference Proceedings,
-	  pages 57-66, Zurich 2011.
-\bibitem{Wa05a}
-Andrea Walther.
-\newblock {\em Computing Sparse Hessians with Automatic Differentiation}.
-\newblock Transaction on Mathematical Software, 34(1), Artikel 3 (2008).
-\end{thebibliography}
 \end{document}
 
