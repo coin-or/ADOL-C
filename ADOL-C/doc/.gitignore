@@ -1,0 +1,21 @@
+# LaTeX temporary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.log
+*.out
+*.run.xml
+*.toc
+
+# latexmk temporary files
+*.fdb_latexmk
+*.fls
+
+# Editor files etc
+*.backup
+*.synctex.gz
+
+# Final document
+# (no need to ignore it, because it is tracked in git)
+#adolc-manual.pdf
