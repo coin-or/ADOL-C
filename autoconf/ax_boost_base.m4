@@ -95,7 +95,7 @@ if test "x$want_boost" = "xyes"; then
       x86_64)
         libsubdirs="lib64 libx32 lib lib64"
         ;;
-      ppc64|s390x|sparc64|aarch64|ppc64le)
+      ppc64|s390x|sparc64|aarch64|ppc64le|riscv64)
         libsubdirs="lib64 lib lib64 ppc64le"
         ;;
     esac
