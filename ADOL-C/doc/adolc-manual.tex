@@ -3000,12 +3000,10 @@ must be substituted by
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOldPassive, sOld, m, sNewPassive, sNew);} .
+\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOld, m, sNew);} .
 \medskip
 
 \noindent
-Here, {\sf sOldPassive} and {\sf sNewPassive} are the passive counterparts ({\sf double} pointers allocated to length {\sf n} and {\sf m}, respectively)  
-to the active arguments {\sf sNew} in {\sf adouble}.
 The usage of the external function facility is illustrated by the
 example \verb=ext_diff_func= contained in
 \verb=examples/additional_examples/ext_diff_func=.
