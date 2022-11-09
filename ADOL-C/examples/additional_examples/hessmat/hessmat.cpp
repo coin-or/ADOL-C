@@ -197,7 +197,7 @@ int main() {
 
     hos_ov_reverse(1,m,n,keep-1,q,Upp,Zppp);
 
-    printf("\n Results of hosv_reverse:\n");
+    printf("\n Results of hos_ov_reverse:\n");
 
     for (l=0; l<q; l++) {
         for (i=0; i<=d; i++) {
