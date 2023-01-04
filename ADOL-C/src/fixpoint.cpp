@@ -119,7 +119,7 @@ static int fp_fos_forward ( int dim_xu, double *xu, double *xu_dot,
         err = (*current->norm)(xu,dim_x);
         for (i=0; i<dim_x; i++) xu_dot[i] = x_fix_dot[i] -  xu_dot[i];
         err_deriv = (*current->norm_deriv)(xu_dot,dim_x);
-        if ((err<current->epsilon)&(err_deriv<current->epsilon_deriv)) {
+        if ((err<current->epsilon)&&(err_deriv<current->epsilon_deriv)) {
             return k;
         }
     }
