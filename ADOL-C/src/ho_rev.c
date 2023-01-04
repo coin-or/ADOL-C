@@ -1408,7 +1408,7 @@ int hov_ti_reverse(
                       conv0(k, rp_Ttemp,
                            Tres, rp_Atemp);
                       VEC_COMPUTED_END
-                      deconvZeroR(k,Ares,rp_Atemp,Aarg);
+                      deconv0(k,Ares,rp_Atemp,Aarg);
 
                       HOV_INC(Ares, k)
                       HOV_INC(Aarg, k)
@@ -1459,7 +1459,7 @@ int hov_ti_reverse(
                       conv0(k, rp_Ttemp,
                            Tres, rp_Atemp);
                       VEC_COMPUTED_END
-                      deconvZeroR(k,Ares,rp_Atemp,Aarg);
+                      deconv0(k,Ares,rp_Atemp,Aarg);
 
                       HOV_INC(Ares, k)
                       HOV_INC(Aarg, k)

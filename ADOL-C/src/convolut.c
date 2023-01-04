@@ -133,20 +133,6 @@ void deconv1( int dim, revreal *a, revreal *b, revreal *c ) {
     }
 }
 
-/*--------------------------------------------------------------------------*/
-/* Decrements truncated convolution of a and b to c and sets a to zero */
-void deconvZeroR( int dim, revreal *a, revreal *b, revreal *c ) {
-    double tmpVal;
-    int i,j;
-    for (i=dim-1; i>=0; i--) {
-        tmpVal = a[i]*b[0];
-        a[i] = 0;
-        for (j=1; j<=i; j++)
-            tmpVal += a[i-j]*b[j];
-        c[i] -= tmpVal;
-    }
-}
-
 /****************************************************************************/
 /*                                                    OTHER USEFUL ROUTINES */
 
