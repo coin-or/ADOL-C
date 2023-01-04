@@ -454,42 +454,34 @@ if (keep){\
 #endif
 
 #if defined(_HOV_)
-#define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
-#define INC_pk_1(T)      T += pk-1;
-#define VEC_INC(T,inc)   T += inc;
-#define HOV_INC(T,inc)   T += inc;
+#  define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
+#  define INC_pk_1(T)      T += pk-1;
+#  define VEC_INC(T,inc)   T += inc;
+#  define HOV_INC(T,inc)   T += inc;
+#elif defined(_HOV_WK_)
+#  define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
+#  define INC_pk_1(T)      T += pk-1;
+#  define VEC_INC(T,inc)   T += inc;
+#  define HOV_INC(T,inc)   T += inc;
+#elif defined(_FOV_)
+#  define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
+#  define INC_pk_1(T)      T += p-1;
+#  define VEC_INC(T,inc)   T++;
+#  define HOV_INC(T,inc)
+#elif defined(_HOS_)
+#  define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
+#  define INC_pk_1(T)      T += k-1;
+#  define VEC_INC(T,inc)
+#  define HOV_INC(T,inc)
+#elif defined(_INT_FOR_)
+#  define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
+#  define INC_pk_1(T)      T += p-1;
+#  define VEC_INC(T,inc)   T++;
 #else
-#if defined(_HOV_WK_)
-#define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
-#define INC_pk_1(T)      T += pk-1;
-#define VEC_INC(T,inc)   T += inc;
-#define HOV_INC(T,inc)   T += inc;
-#else
-#if defined(_FOV_)
-#define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
-#define INC_pk_1(T)      T += p-1;
-#define VEC_INC(T,inc)   T++;
-#define HOV_INC(T,inc)
-#else
-#if defined(_HOS_)
-#define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
-#define INC_pk_1(T)      T += k-1;
-#define VEC_INC(T,inc)
-#define HOV_INC(T,inc)
-#else
-#if defined(_INT_FOR_)
-#define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
-#define INC_pk_1(T)      T += p-1;
-#define VEC_INC(T,inc)   T++;
-#else
-#define FOR_0_LE_l_LT_pk
-#define INC_pk_1(T)
-#define VEC_INC(T,inc)
-#define HOV_INC(T,inc)
-#endif
-#endif
-#endif
-#endif
+#  define FOR_0_LE_l_LT_pk
+#  define INC_pk_1(T)
+#  define VEC_INC(T,inc)
+#  define HOV_INC(T,inc)
 #endif
 
 /*--------------------------------------------------------------------------*/
