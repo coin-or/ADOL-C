@@ -61,119 +61,112 @@
 
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
-#if defined(_ABS_NORM_)
-#  define GENERATED_FILENAME "zos_pl_forward"
-#elif defined(_ABS_NORM_SIG_)
-#  define GENERATED_FILENAME "zos_pl_sig_forward"
-#else
-#  define GENERATED_FILENAME "zos_forward"
-#endif
+#  if defined(_ABS_NORM_)
+#    define GENERATED_FILENAME "zos_pl_forward"
+#  elif defined(_ABS_NORM_SIG_)
+#    define GENERATED_FILENAME "zos_pl_sig_forward"
+#  else
+#    define GENERATED_FILENAME "zos_forward"
+#  endif
 /*--------------------------------------------------------------------------*/
-#else
-#if defined(_FOS_)
-#if defined(_ABS_NORM_)
-#define GENERATED_FILENAME "fos_pl_forward"
-#elif defined(_ABS_NORM_SIG_)
-#define GENERATED_FILENAME "fos_pl_sig_forward"
-#else
-#define GENERATED_FILENAME "fos_forward"
-#endif
+#elif defined(_FOS_)
+#  if defined(_ABS_NORM_)
+#    define GENERATED_FILENAME "fos_pl_forward"
+#  elif defined(_ABS_NORM_SIG_)
+#    define GENERATED_FILENAME "fos_pl_sig_forward"
+#  else
+#    define GENERATED_FILENAME "fos_forward"
+#  endif
 
-#define ARGUMENT(indexi,l,i) argument[indexi]
-#define TAYLORS(indexd,l,i)   taylors[indexd]
-
-/*--------------------------------------------------------------------------*/
-#else
-#if defined(_FOV_)
-#if defined(_ABS_NORM_)
-#define GENERATED_FILENAME "fov_pl_forward"
-#elif defined(_ABS_NORM_SIG_)
-#define GENERATED_FILENAME "fov_pl_sig_forward"
-#if defined(_MSC_VER) && _MSC_VER < 180
-#define fmin __min
-#define fmax __max
-#endif
-#else
-#define GENERATED_FILENAME "fov_forward"
-#endif
-
-#define _ADOLC_VECTOR_
-
-#if defined(_CHUNKED_)
-#define ARGUMENT(indexi,l,i) argument[indexi][l+offset]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l+offset]
-#else
-#define ARGUMENT(indexi,l,i) argument[indexi][l]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l]
-#endif
+#  define ARGUMENT(indexi,l,i) argument[indexi]
+#  define TAYLORS(indexd,l,i)   taylors[indexd]
 
 /*--------------------------------------------------------------------------*/
-#else
-#if defined(_HOS_)
-#define GENERATED_FILENAME "hos_forward"
+#elif defined(_FOV_)
+#  if defined(_ABS_NORM_)
+#    define GENERATED_FILENAME "fov_pl_forward"
+#  elif defined(_ABS_NORM_SIG_)
+#    define GENERATED_FILENAME "fov_pl_sig_forward"
+#    if defined(_MSC_VER) && _MSC_VER < 180
+#      define fmin __min
+#      define fmax __max
+#    endif
+#  else
+#    define GENERATED_FILENAME "fov_forward"
+#  endif
 
-#define _HIGHER_ORDER_
+#  define _ADOLC_VECTOR_
 
-#define ARGUMENT(indexi,l,i) argument[indexi][i]
-#define TAYLORS(indexd,l,i)   taylors[indexd][i]
-
-/*--------------------------------------------------------------------------*/
-#else
-#if defined(_HOV_)
-#define GENERATED_FILENAME "hov_forward"
-
-#define _ADOLC_VECTOR_
-#define _HIGHER_ORDER_
-
-#define ARGUMENT(indexi,l,i) argument[indexi][l][i]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
-
-/*--------------------------------------------------------------------------*/
-#else
-#if defined(_HOV_WK_)
-#define GENERATED_FILENAME "hov_wk_forward"
-
-#define _ADOLC_VECTOR_
-#define _HIGHER_ORDER_
-
-#define ARGUMENT(indexi,l,i) argument[indexi][l][i]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
+#  if defined(_CHUNKED_)
+#    define ARGUMENT(indexi,l,i) argument[indexi][l+offset]
+#    define TAYLORS(indexd,l,i)   taylors[indexd][l+offset]
+#  else
+#    define ARGUMENT(indexi,l,i) argument[indexi][l]
+#    define TAYLORS(indexd,l,i)   taylors[indexd][l]
+#  endif
 
 /*--------------------------------------------------------------------------*/
-#else
-#if defined(_INT_FOR_)
-#if defined(_TIGHT_)
-#define GENERATED_FILENAME "int_forward_t"
-#endif
-#if defined(_NTIGHT_)
-#define GENERATED_FILENAME "int_forward_s"
-#endif
-#define ARGUMENT(indexi,l,i) argument[indexi][l]
-#define TAYLORS(indexd,l,i)   taylors[indexd][l]
+#elif defined(_HOS_)
+#  define GENERATED_FILENAME "hos_forward"
+
+#  define _HIGHER_ORDER_
+
+#  define ARGUMENT(indexi,l,i) argument[indexi][i]
+#  define TAYLORS(indexd,l,i)   taylors[indexd][i]
+
 /*--------------------------------------------------------------------------*/
-#else
-#if defined(_INDO_)
+#elif defined(_HOV_)
+#  define GENERATED_FILENAME "hov_forward"
+
+#  define _ADOLC_VECTOR_
+#  define _HIGHER_ORDER_
+
+#  define ARGUMENT(indexi,l,i) argument[indexi][l][i]
+#  define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
+
+/*--------------------------------------------------------------------------*/
+#elif defined(_HOV_WK_)
+#  define GENERATED_FILENAME "hov_wk_forward"
+
+#  define _ADOLC_VECTOR_
+#  define _HIGHER_ORDER_
+
+#  define ARGUMENT(indexi,l,i) argument[indexi][l][i]
+#  define TAYLORS(indexd,l,i)   taylors[indexd][l][i]
+
+/*--------------------------------------------------------------------------*/
+#elif defined(_INT_FOR_)
+#  if defined(_TIGHT_)
+#    define GENERATED_FILENAME "int_forward_t"
+#  endif
+#  if defined(_NTIGHT_)
+#    define GENERATED_FILENAME "int_forward_s"
+#  endif
+#  define ARGUMENT(indexi,l,i) argument[indexi][l]
+#  define TAYLORS(indexd,l,i)   taylors[indexd][l]
+/*--------------------------------------------------------------------------*/
+#elif defined(_INDO_)
 void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 
-#define NUMNNZ 20
-#define FMIN_ADOLC(x,y)  ((y<x)?y:x)
+#  define NUMNNZ 20
+#  define FMIN_ADOLC(x,y)  ((y<x)?y:x)
 
-#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-#if defined(_TIGHT_)
-#define GENERATED_FILENAME "indopro_forward_t"
-#endif
-#if defined(_NTIGHT_)
-#if defined(_ABS_NORM_)
-#define GENERATED_FILENAME "indopro_forward_pl"
-#else
-#define GENERATED_FILENAME "indopro_forward_s"
-#endif
-#endif
-#endif
-#if defined(_NONLIND_)
+#  if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+#    if defined(_TIGHT_)
+#      define GENERATED_FILENAME "indopro_forward_t"
+#    endif
+#    if defined(_NTIGHT_)
+#      if defined(_ABS_NORM_)
+#        define GENERATED_FILENAME "indopro_forward_pl"
+#      else
+#        define GENERATED_FILENAME "indopro_forward_s"
+#      endif
+#    endif
+#  endif
+#  if defined(_NONLIND_)
 
 typedef struct IndexElement {
     locint  entry;
@@ -192,13 +185,13 @@ void free_tree(IndexElement* nlf, int num);
 void traverse_crs(IndexElement* fod2, IndexElement_sod* sod, int num);
 void traverse_unary(IndexElement* fod, IndexElement* nonl_dom,  IndexElement* fodi, int num, int maxopind);
 
-#if defined(_TIGHT_)
-#define GENERATED_FILENAME "nonl_ind_forward_t"
-#elif defined(_NTIGHT_)
-#define GENERATED_FILENAME "nonl_ind_forward_s"
-#endif
-#endif
-#if defined(_NONLIND_OLD_)
+#    if defined(_TIGHT_)
+#      define GENERATED_FILENAME "nonl_ind_forward_t"
+#    elif defined(_NTIGHT_)
+#      define GENERATED_FILENAME "nonl_ind_forward_s"
+#    endif
+#  endif
+#  if defined(_NONLIND_OLD_)
 
 /*
  * This is the type used for the list elements. The entry is either a counter
@@ -213,26 +206,19 @@ void extend_nonlinearity_domain_binary
 (int arg1, int arg2, locint **ind_dom, locint **nonl_dom);
 
 
-#if defined(_TIGHT_)
-#define GENERATED_FILENAME "nonl_ind_old_forward_t"
-#endif
-#if defined(_NTIGHT_)
-#define GENERATED_FILENAME "nonl_ind_old_forward_s"
-#endif
-#endif
+#    if defined(_TIGHT_)
+#      define GENERATED_FILENAME "nonl_ind_old_forward_t"
+#    endif
+#    if defined(_NTIGHT_)
+#      define GENERATED_FILENAME "nonl_ind_old_forward_s"
+#    endif
+#  endif
 
 
 /*--------------------------------------------------------------------------*/
 #else
-#error Error ! Define [_ZOS_ | _FOS_ |\
+#  error Error ! Define [_ZOS_ | _FOS_ |\
    _HOS_ | _FOV_ | _HOV_ | _HOV_WK_  | _INT_FOR_SAFE_ | _INT_FOR_TIGHT_ | _INDOPRO_ | _NONLIND_ ] [{_KEEP_}]
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
 #endif
 
 /*--------------------------------------------------------------------------*/
@@ -624,9 +610,7 @@ int int_forward_tight(
      p = indep / bits_per_long + ((indep % bits_per_long) != 0)
      and pass a bit pattern version of the identity matrix as an argument   */
 
-
-#endif
-#if defined (_NTIGHT_)
+#elif defined (_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
@@ -1000,19 +984,15 @@ int  hov_forward(
 #endif
 
 #if defined(_HIGHER_ORDER_)
-    int k = gdegree;
+    const int k = gdegree;
 #endif
 
 #if defined(_KEEP_)
     int taylbuf=0;
 #endif
 
-#if defined(_HOV_)
-    int pk = k*p;
-#else
-#if defined(_HOV_WK_)
-    int pk = k*p;
-#endif
+#if defined(_HOV_) || defined(_HOV_WK_)
+    const int pk = k*p;
 #endif
 
     locint switchnum = 0;
