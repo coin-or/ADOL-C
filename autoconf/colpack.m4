@@ -10,16 +10,15 @@ AS_HELP_STRING([--with-colpack=DIR],[path to the colpack library and headers [de
 colpack=$withval
 COLPACK_CFLAGS="-I$colpack/include"
 if test x${_lib} != xlib ; then
-   D[[0]]="$colpack/${_lib}"
-   D[[1]]="$colpack/lib"
+   D="$colpack/${_lib} $colpack/lib"
 else
-   D[[0]]="$colpack/${_lib}"
+   D="$colpack/${_lib}"
 fi
 ],
 [
 COLPACK_CFLAGS=""
 COLPACK_LIBS="-lColPack"
-D[[0]]=""
+D=""
 ])
 
 AC_LANG_PUSH([C++])
@@ -33,8 +32,7 @@ have_colpackheaders=no
 CPPFLAGS="$save_CPPFLAGS"
 CXXFLAGS="$save_CXXFLAGS"
 ])
-for ((i=0; i < ${#D[@]} ; i++)); do
-COLPACK_LIBDIR="${D[[$i]]}"
+for COLPACK_LIBDIR in $D; do
 if test -n "$COLPACK_LIBDIR" ; then
 COLPACK_LIBS="-L$COLPACK_LIBDIR -lColPack -Wl,-rpath,$COLPACK_LIBDIR"
 fi

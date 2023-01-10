@@ -22,19 +22,19 @@ AC_CONFIG_AUX_DIR([autoconf])
 AC_CONFIG_MACRO_DIR([autoconf])
 AC_CONFIG_HEADERS([ADOL-C/src/config.h])
 AC_PREFIX_DEFAULT(${HOME}/adolc_base)
-AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects])
+AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign subdir-objects -Wall])
 AM_SILENT_RULES([yes])
 AM_MAINTAINER_MODE([disable])
 
 
 adolclib=adolc
 
-if test "x$CFLAGS" == x ; then
+if test "x$CFLAGS" = x ; then
     ac_shell_cflags="not_set"
 else
     ac_shell_cflags="$CFLAGS"
 fi
-if test "x$CXXFLAGS" == x ; then
+if test "x$CXXFLAGS" = x ; then
     ac_shell_cxxflags="not_set"
 else
     ac_shell_cxxflags="$CXXFLAGS"
@@ -282,12 +282,12 @@ AS_HELP_STRING([--enable-harddebug],[enable ADOL-C hard debug mode
    AC_MSG_RESULT(no)
    ])
 
-if test x$adolc_harddebug == xyes ; then
+if test x$adolc_harddebug = xyes ; then
 adolc_debug=yes
 AC_DEFINE(ADOLC_HARDDEBUG,1,[ADOL-C hard debug mode])
 fi
 
-if test x$adolc_debug == xyes ; then
+if test x$adolc_debug = xyes ; then
 AC_DEFINE(ADOLC_DEBUG,1,[ADOL-C debug mode])
 fi
 
@@ -305,7 +305,7 @@ AS_HELP_STRING([--disable-stdczero],[adouble default constructor does not initia
   AC_MSG_RESULT(yes)
   ])
 
-if test x$adolc_stdczero == xyes; then
+if test x$adolc_stdczero = xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_STDCZERO,1,[ADOL-C adouble zeroing mode])
 fi
 
@@ -322,7 +322,7 @@ AS_HELP_STRING([--enable-lateinit],[adouble constructors need to be called. With
   AC_MSG_RESULT(no)
   ])
 
-if test x$adolc_late_init == xyes; then
+if test x$adolc_late_init = xyes; then
 AC_DEFINE(ADOLC_ADOUBLE_LATEINIT,1,[ADOL-C adouble late initialization mode])
 fi
 
@@ -339,7 +339,7 @@ AS_HELP_STRING([--enable-tserrno],[use errno as thread number cache [default=no]
   AC_MSG_RESULT(no)
   ])
 
-if test x$adolc_tserrno == xyes ; then
+if test x$adolc_tserrno = xyes ; then
 AC_DEFINE(ADOLC_THREADSAVE_ERRNO,1,[ADOL-C thread save errno mode])
 fi
 
@@ -435,8 +435,8 @@ AC_ARG_WITH(cflags,
             [AS_HELP_STRING([--with-cflags=FLAGS],
                             [use CFLAGS=FLAGS (default: -O2)])],
             [ac_adolc_cflags="$withval"
-             if test x${adolc_debug} == xyes ||
-                test x${adolc_harddebug} == xyes ; then
+             if test x${adolc_debug} = xyes ||
+                test x${adolc_harddebug} = xyes ; then
                 ac_adolc_cflags="$ac_adolc_cflags -g -O0"
              fi
              ac_adolc_cflags="$ac_adolc_cflags $ac_adolc_openmpflag"
@@ -444,8 +444,8 @@ AC_ARG_WITH(cflags,
              AC_MSG_RESULT($ac_adolc_cflags)],
             [if test "$ac_shell_cflags" = "not_set"; then
                 ac_adolc_cflags="-O2"
-                if test x${adolc_debug} == xyes ||
-                   test x${adolc_harddebug} == xyes ; then
+                if test x${adolc_debug} = xyes ||
+                   test x${adolc_harddebug} = xyes ; then
                    ac_adolc_cflags="-g -O0 -Wall -ansi"
                 fi
              else
@@ -461,8 +461,8 @@ AC_ARG_WITH(cxxflags,
             [AS_HELP_STRING([--with-cxxflags=FLAGS],
                             [use CXXFLAGS=FLAGS (default: -O2)])],
             [ac_adolc_cxxflags="$withval"
-             if test x${adolc_debug} == xyes ||
-                test x${adolc_harddebug} == xyes ; then
+             if test x${adolc_debug} = xyes ||
+                test x${adolc_harddebug} = xyes ; then
                 ac_adolc_cxxflags="$ac_adolc_cxxflags -g -O0"
              fi
              ac_adolc_cxxflags="$ac_adolc_cxxflags $ac_adolc_openmpflag"
@@ -470,8 +470,8 @@ AC_ARG_WITH(cxxflags,
              AC_MSG_RESULT($ac_adolc_cxxflags)],
             [if test "$ac_shell_cxxflags" = "not_set"; then
                 ac_adolc_cxxflags="-O2"
-                if test x${adolc_debug} == xyes ||
-                   test x${adolc_harddebug} == xyes ; then
+                if test x${adolc_debug} = xyes ||
+                   test x${adolc_harddebug} = xyes ; then
                    ac_adolc_cxxflags="-g -O0 -Wall"
                 fi
              else
@@ -505,7 +505,7 @@ AC_ARG_ENABLE(tapedoc_values,
   ])
 AC_MSG_RESULT($tapedoc_values)
 
-if test x$tapedoc_values == xyes; then
+if test x$tapedoc_values = xyes; then
 AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
@@ -716,7 +716,7 @@ while test "x${pdir}" != "x/" ; do
         break
     fi
 done
-if test "x${pdir}" == "x/" ; then
+if test "x${pdir}" = "x/" ; then
     writable=false
 fi
 if ! ${writable} ; then
@@ -731,7 +731,7 @@ fi
 case ${prefix} in 
    ${HOME}|${HOME}/*)
 if $warn ; then
-    for (( i=5; i>0; i-- )); do
+    for i in `seq 5 -1 1`; do
         echo -ne "\rPlease read the above messages carefully, continuing in ${i} seconds"
         sleep 1
     done
