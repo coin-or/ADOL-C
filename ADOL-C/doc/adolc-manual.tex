@@ -756,7 +756,7 @@ For simple usage, {\sf trace\_on} may be called with only the tape
 without argument. The optional integer argument {\sf keep} of 
 {\sf trace\_on} determines whether the numerical values of all
 active variables are recorded in a buffered temporary array or file
-called the taylor stack. 
+called the Taylor stack. 
 This option takes effect if
 {\sf keep} = 1 and prepares the scene for an immediately following
 gradient evaluation by a call to a routine implementing the reverse mode
@@ -768,7 +768,7 @@ Alternatively, gradients may be evaluated by a call
 to {\sf gradient}, which includes a preparatory forward sweep
 for the creation of the temporary file. If omitted, the argument 
 {\sf  keep} defaults to 0, so that no temporary
-taylor stack file is generated. 
+Taylor stack file is generated. 
 
 By setting the optional integer argument {\sf file} of 
 {\sf  trace\_off} to 1, the user may force a numbered  tape
@@ -820,7 +820,7 @@ At any point in the program, one may call the routine
 \begin{center}
 {\sf void tapestats(unsigned short tag, size\_t* counts)}
 \end{center}
-with {\sf counts} beeing an array of at least eleven integers.
+with {\sf counts} being an array of at least eleven integers.
 The first argument {\sf tag} specifies the particular tape of
 interest. The components of {\sf counts} represent
 \[
@@ -828,7 +828,7 @@ interest. The components of {\sf counts} represent
 {\sf counts[0]}: & the number of independents, i.e.~calls to \boldmath $\ll=$ \unboldmath, \\
 {\sf counts[1]}: & the number of dependents, i.e.~calls to \boldmath $\gg=$ \unboldmath,\\ 
 {\sf counts[2]}: & the maximal number of live active variables,\\
-{\sf counts[3]}: & the size of taylor stack (number of overwrites),\\
+{\sf counts[3]}: & the size of Taylor stack (number of overwrites),\\
 {\sf counts[4]}: & the buffer size (a multiple of eight),
 \end{tabular}
 \]
@@ -886,9 +886,9 @@ array allocations. It is however recommended to leave the values in
 \texttt{.adolcrc} file in the current working directory at runtime.
 
 \item[{\sf TBUFSIZE}{\rm :}] This integer determines the length of the 
-in\-ter\-nal buf\-fer for a taylor stack (default: 524$\,$288). 
+in\-ter\-nal buf\-fer for a Taylor stack (default: 524$\,$288).
 
-\item[{\sf TBUFNUM}{\rm :}] This integer determines the maximal number of taylor stacks (default: 32).
+\item[{\sf TBUFNUM}{\rm :}] This integer determines the maximal number of Taylor stacks (default: 32).
 
 \item[{\sf fint}{\rm :}] The integer data type used by Fortran callable versions of functions.
 
@@ -1493,7 +1493,7 @@ component & value &  \\ \hline
 The component {\sf options[1]} determines
 the usage of the safe or tight mode of sparsity computation.
 The first, more conservative option is the default. It accounts for all 
-dependences that might occur for any value of the
+dependencies that might occur for any value of the
 independent variables. For example, the intermediate 
 {\sf c}~$=$~{\sf max}$(${\sf a}$,${\sf b}$)$ is
 always assumed to depend on all independent variables that {\sf a} or {\sf b}
@@ -1593,7 +1593,7 @@ The value of {\sf options[0]} selects the way to compute the sparsity
 pattern. The component {\sf options[1]} determines
 the usage of the safe or tight mode of bit pattern propagation.
 The first, more conservative option is the default. It accounts for all 
-dependences that might occur for any value of the
+dependencies that might occur for any value of the
 independent variables. For example, the intermediate 
 {\sf c}~$=$~{\sf max}$(${\sf a}$,${\sf b}$)$ is
 always assumed to depend on all independent variables that {\sf a} or {\sf b}
@@ -2353,7 +2353,7 @@ flag {\sf keep} plays a similar role as in the call to
 the first Taylor coefficients of all intermediate quantities into a buffered
 temporary file, i.e., the value stack, in preparation for a subsequent 
 reverse mode evaluation. The value {\sf keep} $=1$
-prepares for {\sf fos\_reverse} or {\sf fov\_reverse} as exlained below.
+prepares for {\sf fos\_reverse} or {\sf fov\_reverse} as explained below.
 
 To compute first-order derivatives, one has
 \begin{tabbing}
@@ -2376,7 +2376,7 @@ $0\leq\text{\sf keep}\leq 2$, where
        2 & \text{prepares for {\sf hos\_reverse} or {\sf hov\_reverse}}
        \end{array}\right.
 \end{align*}
-as exlained below. For the {\bf f}irst-{\bf o}rder {\bf v}ector forward mode,
+as explained below. For the {\bf f}irst-{\bf o}rder {\bf v}ector forward mode,
 ADOL-C provides
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
@@ -2444,7 +2444,7 @@ There are also overloaded versions providing a general {\sf forward}-call.
 Details of the appropriate calling sequences are given in \autoref{forw_rev}.
 
 Once, the required information is generated due to a forward mode evaluation
-with an approriate value of the parameter {\sf keep}, one may use the
+with an appropriate value of the parameter {\sf keep}, one may use the
 following implementation variants of the reverse mode. To compute first-order derivatives
 one can use
 \begin{tabbing}
@@ -2648,7 +2648,7 @@ in the previous \autoref{forw_rev_ad}.
 The return values of {\sf reverse} calls can be interpreted according
 to \autoref{retvalues}, but negative return values are not
 valid, since the corresponding forward sweep would have
-stopped without completing the necessary taylor file. 
+stopped without completing the necessary Taylor file. 
 The return value of {\sf reverse} may be higher 
 than that of the preceding {\sf forward} call because some operations 
 that were evaluated  at a critical argument during the forward sweep
@@ -2774,7 +2774,7 @@ respectively, with $\tilde{Y}\in\{0,1\}^{m\times\left(sp\right)}$
 and $\tilde{U}\in\{0,1\}^{\left(sq\right)\times n}$.
 In general, the application of the bit pattern versions of
 {\sf forward} or {\sf reverse} can be interpreted as 
-propagating dependences between variables forward or backward, therefore 
+propagating dependencies between variables forward or backward, therefore 
 both the propagated integer matrices and the corresponding
 Boolean matrices are called {\em dependence structures}.
  
@@ -2863,7 +2863,7 @@ parameters. One important such use case is Lagrange Multipliers in a
 nonlinear optimization problem. Declaring such variables as
 \verb=adouble= and marking them as independent results in the
 evaluation of superfluous derivative information and increases
-runtime. However, if the parameters are not defined as \verb=adouble=
+run time. However, if the parameters are not defined as \verb=adouble=
 type variables they get hard coded as constants onto the ADOL-C
 trace. One may want to change these parameters for some evaluations,
 however the overhead of retracing the function may be very high. In
@@ -2903,7 +2903,7 @@ mkparam\_idx()\\
 \end{tabbing}
 
 The above three functions work only during the creation of the trace,
-i.e., between the invokation of \verb=trace_on()= and \verb=trace_off()=.
+i.e., between the invocation of \verb=trace_on()= and \verb=trace_off()=.
 
 For all following derivative computations using the drivers described
 in the preceding sections, the saved parameter values will be used,
@@ -2955,7 +2955,7 @@ function (for example named {\sf\em euler\_step} ) has the following signature
 \medskip
 
 \noindent
-Note that the formal paramters in the signature have {\sf double} type, that is, 
+Note that the formal parameters in the signature have {\sf double} type, that is, 
 they are not active as in the original program before the ADOL-C type change.
 The externally differentiated function has to
 be {\em registered}\footnote{we record the function pointer} using an \mbox{ADOL-C} method as follows
@@ -3051,7 +3051,7 @@ taping approach as implemented in ADOL-C so far are shown in the left part of
 As can be seen, the iterative process is completely
 unrolled due to the taping process. That is, the tape contains an internal representation of each 
 time step. Hence, the overall tape comprises a serious amount of redundant
-information as illustrated by the light grey rectangles in
+information as illustrated by the light gray rectangles in
 \autoref{fig:bas_tap}.  
 
 To overcome the repeated storage of essentially the same information, 
@@ -3160,23 +3160,23 @@ point iteration. In these cases, the black-box application of AD may not yield
 the derivative information with the required accuracy. Furthermore, the
 resulting memory requirement may be unacceptable for real-world problems as
 for example large CFD codes to simulate a flow over an aircraft wing. For these
-large scale applications, frequently one introduces a pseudo timestepping to compute
+large scale applications, frequently one introduces a pseudo time-stepping to compute
 a quasi-steady state using a given set of design parameters.
 This simulation forms one main ingredient to optimize the airfoil for a
 particular flight scenario. Hence, derivatives with respect
 to the design parameters are required if a calculus-based
-optimization method is applied. For this purpose, the pseudo timestepping can be
+optimization method is applied. For this purpose, the pseudo time-stepping can be
 interpreted as a fixed point iteration. Then, it is possible
 to control the accuracy of the derivatives and to reduce the memory
-requirement using either a two-hase approach or the
+requirement using either a two-phase approach or the
 piggyback method as described for example in~\cite[Section~11.4]{GrWa08}.
 
-The method of Reverse Accumulation proposed and analysed in detail by
+The method of Reverse Accumulation proposed and analyzed in detail by
 Christianson \cite{Chr94} as one example for a two-phase approach.
-The Reverse Accumulation is available in ADOL-C. Runtime measurements for a large
+The Reverse Accumulation is available in ADOL-C. Run time measurements for a large
 scale application, namely the derivative computation for the CFD code TAUij
 provided by the DLR Braunschweig \cite{Hei06}, are
-presented and analysed in~\cite{SWGH08}.
+presented and analyzed in~\cite{SWGH08}.
 
 \subsubsection{Iterative evaluation of derivatives of fixed point iterations}
 Quite often, the state of the considered system denoted by $x\in\R^n$
@@ -3199,7 +3199,7 @@ Assume that one can apply the iteration
  x_{k+1} = F(x_k,u)
 \end{align}
 to obtain a linear converging sequence $\{x_k\}$ generated
-for any given control $u\in\R^n$. Then the limit point $x_*\in\R^n$ fulfils the fixed
+for any given control $u\in\R^n$. Then the limit point $x_*\in\R^n$ fulfills the fixed
 point equation~\eqref{eq:fixedpoint}. Moreover,
 suppose that $\|\frac{dF}{dx}(x_*,u)\|<1$ holds for any pair
 $(x_*,u)$ satisfying equation \eqref{eq:fixedpoint}.
@@ -3247,8 +3247,8 @@ we obtain a fixed-point iteration for Equation~\eqref{eq:numderiv}
    = F'(x_*,u)
     \begin{pmatrix} \dot x_k \\ \dot u \end{pmatrix}.
 \end{equation}
-If the derivative $\frac{dF}{dx}(x_*,u)$ decribes a contraction, this iteration
-converges to the unique fixpoint $\dot x_*=\frac{d\phi(u)}{du}\dot u$.
+If the derivative $\frac{dF}{dx}(x_*,u)$ describes a contraction, this iteration
+converges to the unique fixed point $\dot x_*=\frac{d\phi(u)}{du}\dot u$.
 As analyzed already in \cite{Chr94},  Equation~\eqref{eq:anderiv} yields,
 for any given $\bar x\in\R^n$, the identity
 $$
@@ -3289,7 +3289,7 @@ and $\zeta^TF'$ in equation \eqref{eq:xdot} and \eqref{eq:ubar}) respectively.
 For this purpose, we apply a two-phase approach,
 i.e., a splitting of the original iteration \eqref{eq:iteration}
 and the derivative iteration \eqref{eq:xdot} and \eqref{eq:ubar}
-respectively. Then the iterations computing the derivaives use information
+respectively. Then the iterations computing the derivatives use information
 of $F(x_*,u)$ at the previously computed fixed point $x_*$. This approach to
 compute adjoint information was
 proposed in \cite{Chr94} and applied for example in \cite{GKS03}.
@@ -3300,7 +3300,7 @@ piggy-back approach~\cite{GrWa08}.
 \subsubsection{Embedded fixed point iteration}
 \label{sec:emb}
 %
-Ususally fixed point iterations are part of a larger computational
+Usually fixed point iterations are part of a larger computational
 context. This fact can be described in a mathematical way as a composition of
 mappings
 \begin{equation}
@@ -3330,7 +3330,7 @@ of the following functions:
 
 Applying ADOL-C in a ``black-box'' fashion to the
 computation of $J(p) = (\chi\circ\phi\circ\tau)(p)$ is not efficient since
-it neglegts any structure of the fixed point iteration in $\phi$.
+it neglects any structure of the fixed point iteration in $\phi$.
 According to the evaluation of $\bar \phi(u,\bar x_*) = \bar u$ in \eqref{eq:ubar},
 we only require the repeated evaluation of the terms $\zeta_k^TF'(x_*,u)$.
 Therefore the taping process is stopped during the evaluation of the fixed point
@@ -3495,7 +3495,7 @@ It has the following interface:
 \>{\sf double epsilon\_deriv;}  \> // termination criterion for adjoint fixed point iteration\\
 \>{\sf int N\_max;}             \> // maximal number of iterations for state computation\\
 \>{\sf int N\_max\_deriv;}      \> // maximal number of iterations for adjoint computation\\
-\>{\sf adouble *x\_0;}          \> // inital state of fixed point iteration\\
+\>{\sf adouble *x\_0;}          \> // initial state of fixed point iteration\\
 \>{\sf adouble *u;}             \> // value of $u$\\
 \>{\sf adouble *x\_fic;}        \> // final state of fixed point iteration\\
 \>{\sf int dim\_x;}             \> // dimension of $x$\\
@@ -3898,7 +3898,7 @@ header files. This option can be omitted when the headers are included
 with absolute path or if ADOL-C is installed in a ``global'' directory. 
 
 Although originally designed to be completely inline, certain global
-variables need to be initialised in the compiled part of the library
+variables need to be initialized in the compiled part of the library
 and therefore the ADOL-C library must be linked with the compiled code.
 The example started above could be finished with the
 following command:
@@ -3924,7 +3924,7 @@ can occur:
       \item Code speed\\
 	Increasing computation speed was one of the main aspects in writing
 	the traceless code. In many cases higher performance can be
-	expected this way. However this is not guarenteed for repeated
+	expected this way. However this is not guaranteed for repeated
         evaluations.
       \item Smaller overall memory requirements\\
 	Traceless ADOL-C does not write traces anymore, as the name
@@ -3979,7 +3979,7 @@ in many different points. More precisely, to calculate the Jacobian for
 a function $F:\mathbb{R}^n\rightarrow \mathbb{R}^m$ in $M$ points, $M$
 function evaluations are needed for the traceless vector mode and even 
 $M*n$ for the traceless scalar mode. Depending on the size of the function 
-this can result in a long runtime. To achieve a better performance one can
+this can result in a long run time. To achieve a better performance one can
 use parallelisation techniques as the same operations are
 performed during a function evaluation. One possibility is to use GPUs 
 since they are optimized for data parallel computation. Starting with 
@@ -3997,7 +3997,7 @@ the web page {\sf www.nvidia.com}. To solve the problem of calculating
 the Jacobian of $F$ at $M$ points it is possible to let each thread perform a 
 function evaluation and thus the computation of derivatives for one direction 
 at one point. The advantage is that the function is evaluated in different points
-in parallel which can result in a faster wallclock runtime.
+in parallel which can result in a faster wall-clock run time.
 
 The following subsection describes the source code modifications required to use 
 the traceless forward mode of ADOL-C with Cuda.  
@@ -4017,7 +4017,7 @@ The source code for one point is shown in \autoref{fig:traceless}. This example
 has no real application but can still be used to show the combination of the traceless version
 of ADOL-C and Cuda.
 
-For the use of this mode a Cuda toolkit, which is suitable for the grafic card used,
+For the use of this mode a Cuda toolkit, which is suitable for the graphic card used,
 has to be installed. Furthermore, it is important to check that the graphic card
 used supports double precision (for details see e.g. NVIDIA CUDA C Programming Guide).
 Otherwise the data type employed inside of the {\sf adouble} class has to be adapted
@@ -4031,7 +4031,7 @@ second header file is needed for the use of Cuda.
 One possibility to solve the problem above is the following. First of all
 three {\sf double} arrays are needed: {\sf x} for the independent variables, 
 {\sf y} for the dependent variables and {\sf deriv} for the values of the 
-Jacobian matrices. The independent variables have to be initialised, therefore 
+Jacobian matrices. The independent variables have to be initialized, therefore 
 the points at which the function should be evaluated are saved in a row in the 
 same array of length $3*M$. For the computation on GPUs one also has to allocate memory
 on this device. Using the syntax in Cuda one can allocate an array of 
@@ -4340,7 +4340,7 @@ AdjoinableMPI support is compiled into {\sf ADOL-C} the generated
 library will be unsuitable for linking with non-MPI
 programs and is called \verb=libadolc_ampi=. Therefore the user
 programs should use the flag \verb=-ladolc_ampi= instead of
-\verb=-ladolc= in this case. An advanced user may infact specify
+\verb=-ladolc= in this case. An advanced user may in fact specify
 whatever name the resulting {\sf ADOL-C} library should have using the
 \verb?--with-soname=SONAME? option.
 
@@ -4421,7 +4421,7 @@ The second way is meant for the more advanced ADOL-C user: Some source code
 includes only those interfaces used by the particular application. 
 The respectively needed header files are indicated
 throughout the manual.
-Existing application determined dependences between the provided 
+Existing application determined dependencies between the provided 
 ADOL-C routines are realized by automatic includes of headers in order 
 to maintain easy use. The header files important to the user are described
 in the \autoref{importantHeaders1} and \autoref{importantHeaders2}.
@@ -4568,23 +4568,23 @@ must be used (see \autoref{genlib}).
 \subsection{Interfacing with Python and R}
 For generating the SWIG based interface to Python and R programming
 languages the prerequisite is an installation of the SWIG tool (at
-least newer than vesion 3.0.8). Furthermore, for installing and using
+least newer than version 3.0.8). Furthermore, for installing and using
 the R interface please refer to the documentation and software at
 \verb=https://github.com/sriharikrishna/radolc=.
-Installation of the Python interface can be done by changung into the
+Installation of the Python interface can be done by changing into the
 \verb=ADOL-C/swig= subdirectory of the ADOL-C source code and calling
 the command
 \begin{center}
 \verb=python setup.py install --user=
 \end{center}
-This will internally cause the compilation and installtion of the
+This will internally cause the compilation and installation of the
 ADOL-C library and header files using default configuration options as
 described in \autoref{genlib}.
 
 For a description on the working of these interfaces refer to the
 following article.\\[1ex]
 K. Kulshreshtha, S.H.K. Narayanan, J. Bessac and K. MacIntyre:
-Efficient computation of derivatives for solving optimizaiton problems
+Efficient computation of derivatives for solving optimization problems
 in R and Python using SWIG generated interfaces to
 ADOL-C. \emph{Optimisation Methods and Software}, 33(4-6),
 pp1173-1191. 2018.
