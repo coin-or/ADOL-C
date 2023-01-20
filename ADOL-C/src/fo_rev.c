@@ -258,8 +258,7 @@ int fos_reverse(short   tnum,       /* tape id */
                 double  *results)   /*  coefficient vectors */
 
 #endif
-#else
-#if _FOV_
+#elif _FOV_
 /****************************************************************************/
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
@@ -271,8 +270,7 @@ int fov_reverse(short   tnum,        /* tape id */
                 double  **lagrange,  /* domain weight vector */
                 double  **results)   /* matrix of coefficient vectors */
 
-#else
-#if defined(_INT_REV_)
+#elif defined(_INT_REV_)
 #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
@@ -285,8 +283,7 @@ int int_reverse_tight(
         unsigned long int **lagrange,/* domain weight vector[var][row](in)*/
         unsigned long int **results) /* matrix of coeff. vectors[var][row]*/
 
-#endif
-#if defined(_NTIGHT_)
+#elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
@@ -297,8 +294,8 @@ int int_reverse_safe(
         int               nrows, /* # of Jacobian rows being calculated   */
         unsigned long int **lagrange,/* domain weight vector[var][row](in)*/
         unsigned long int **results) /* matrix of coeff. vectors[var][row]*/
-#endif
-#endif
+#else
+#  error Neither _TIGHT_ nor _NTIGHT_ defined
 #endif
 #endif
 {

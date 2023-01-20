@@ -376,7 +376,7 @@ ADOLC_DLL_EXPORT fint hos_ti_reverse_(
 
 /*--------------------------------------------------------------------------*/
 /*                                                                   HOS_OV */
-/*  hos_ov_reverse(tag, m, n, d, u[m], Z[n][d+1])                           */
+/*  hos_ov_reverse(tag, m, n, d, U[p][m], Z[n][d+1])                        */
 /* (defined  in ho_rev.mc)                                                  */
 ADOLC_DLL_EXPORT int hos_ov_reverse(short,int,int,int,int,double**,double***);
 
