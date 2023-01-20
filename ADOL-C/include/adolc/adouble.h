@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <cmath>
 #include <stdexcept>
 
@@ -454,6 +455,71 @@ inline badouble& badouble::operator /= (const pdouble& p) {
     *this *= recipr(p);
     return *this;
 }
+
+/* numeric_limits<adouble> specialization
+ *
+ * All methods return double instead of adouble, because these values
+ * never depend on the independent variables.
+ */
+template<>
+struct std::numeric_limits<adouble>
+{
+    static constexpr bool is_specialized = true;
+
+    static constexpr double
+    min() noexcept { return std::numeric_limits<double>::min(); }
+
+    static constexpr double
+    max() noexcept { return std::numeric_limits<double>::max(); }
+
+    static constexpr double
+    lowest() noexcept { return std::numeric_limits<double>::lowest(); }
+
+    static constexpr int digits = std::numeric_limits<double>::digits;
+    static constexpr int digits10 = std::numeric_limits<double>::digits10;
+    static constexpr int max_digits10 = std::numeric_limits<double>::max_digits10;
+    static constexpr bool is_signed = std::numeric_limits<double>::is_signed;
+    static constexpr bool is_integer = std::numeric_limits<double>::is_integer;
+    static constexpr bool is_exact = std::numeric_limits<double>::is_exact;
+    static constexpr int radix = std::numeric_limits<double>::radix;
+
+    static constexpr double
+    epsilon() noexcept { return std::numeric_limits<double>::epsilon(); }
+
+    static constexpr double
+    round_error() noexcept { return std::numeric_limits<double>::round_error(); }
+
+    static constexpr int min_exponent = std::numeric_limits<double>::min_exponent;
+    static constexpr int min_exponent10 = std::numeric_limits<double>::min_exponent10;
+    static constexpr int max_exponent = std::numeric_limits<double>::max_exponent;
+    static constexpr int max_exponent10 = std::numeric_limits<double>::max_exponent10;
+
+    static constexpr bool has_infinity = std::numeric_limits<double>::has_infinity;
+    static constexpr bool has_quiet_NaN = std::numeric_limits<double>::has_quiet_NaN;
+    static constexpr bool has_signaling_NaN = std::numeric_limits<double>::has_signaling_NaN;
+    static constexpr float_denorm_style has_denorm = std::numeric_limits<double>::has_denorm;
+    static constexpr bool has_denorm_loss = std::numeric_limits<double>::has_denorm_loss;
+
+    static constexpr double
+    infinity() noexcept { return std::numeric_limits<double>::infinity(); }
+
+    static constexpr double
+    quiet_NaN() noexcept { return std::numeric_limits<double>::quiet_NaN(); }
+
+    static constexpr double
+    signaling_NaN() noexcept { return std::numeric_limits<double>::signaling_NaN(); }
+
+    static constexpr double
+    denorm_min() noexcept { return std::numeric_limits<double>::denorm_min(); }
+
+    static constexpr bool is_iec559 = std::numeric_limits<double>::is_iec559;
+    static constexpr bool is_bounded = std::numeric_limits<double>::is_bounded;
+    static constexpr bool is_modulo = std::numeric_limits<double>::is_modulo;
+
+    static constexpr bool traps = std::numeric_limits<double>::traps;
+    static constexpr bool tinyness_before = std::numeric_limits<double>::tinyness_before;
+    static constexpr float_round_style round_style = std::numeric_limits<double>::round_style;
+};
 
 /****************************************************************************/
 /*                                                                THAT'S ALL*/

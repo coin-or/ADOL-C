@@ -55,6 +55,7 @@ include_directories(${Boost_INCLUDE_DIRS} ${ADOLC_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS} ${ADOLC_LIBRARY_DIR})
 
 set(SOURCE_FILES
+    adouble.cpp
     main.cpp
     traceCompositeTests.cpp
     tracelessCompositeTests.cpp
