@@ -54,7 +54,17 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS} ${ADOLC_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS} ${ADOLC_LIBRARY_DIR})
 
-set(SOURCE_FILES main.cpp tracelessOperatorScalar.cpp tracelessOperatorVector.cpp tracelessCompositeTests.cpp traceOperatorScalar.cpp traceOperatorVector.cpp traceCompositeTests.cpp traceSecOrderScalar.cpp traceSecOrderVector.cpp)
+set(SOURCE_FILES
+    main.cpp
+    traceCompositeTests.cpp
+    tracelessCompositeTests.cpp
+    tracelessOperatorScalar.cpp
+    tracelessOperatorVector.cpp
+    traceOperatorScalar.cpp
+    traceOperatorVector.cpp
+    traceSecOrderScalar.cpp
+    traceSecOrderVector.cpp
+    )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 
 target_link_libraries(boost-test-adolc -ladolc -lboost_system -lboost_unit_test_framework)
