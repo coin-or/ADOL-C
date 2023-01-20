@@ -863,6 +863,29 @@ forward mode implementation.
 The storage requirements of the vector versions of the forward mode and
 reverse mode implementation are equal to that of the scalar versions multiplied by
 the vector length.
+
+The function
+\begin{center}
+{\sf printTapeStats(FILE* stream, short tag)}
+\end{center}
+can be used to write the information above in human-readable form to the specified stream.
+
+The function
+\begin{center}
+{\sf tape\_doc(short tag, int n, int m, double* x, double* y)}
+\end{center}
+\[
+\begin{tabular}{ll}
+{\sf tag}: & tape number, \\
+{\sf n}: & number of dependents \\
+{\sf m}: & number if independents \\
+{\sf x}: & {\sf n} values of dependents \\
+{\sf y}: & {\sf m} values of indepentens
+\end{tabular}
+\]
+can be used to write the recorded tape to a \LaTeX{} document named {\sf tape\_TAG.tex} with {\sf TAG} being the tape number.
+This should only be used for small tapes to keep the size of the generated document within reasonable limits.
+
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Customizing ADOL-C}
