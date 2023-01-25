@@ -376,12 +376,12 @@ int hov_ti_reverse(
     revreal **rpp_A, *AP1, *AP2;
 
     /*----------------------------------------------------------------------*/
-    int k = degre + 1;
-    int k1 = k + 1;
+    const int k = degre + 1;
+    const int k1 = k + 1;
     revreal comp;
 
 #ifdef _ADOLC_VECTOR_
-    int p = nrows;
+    const int p = nrows;
 #endif
 
     /****************************************************************************/
@@ -393,14 +393,14 @@ int hov_ti_reverse(
 #endif
 
 #ifdef _HOV_
-    int pk1 = p*k1;
-    int q = 1;
+    const int pk1 = p*k1;
+    const int q = 1;
 #elif _HOS_OV_
-    int p = nrows;
-    int pk1 = p*k1;
-    int q = p;
+    const int p = nrows;
+    const int pk1 = p*k1;
+    const int q = p;
 #else
-    int q = 1;
+    const int q = 1;
 #endif
 	locint qq;
 
