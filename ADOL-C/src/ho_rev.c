@@ -192,7 +192,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_q l = 0;
 #endif
 
-#define TARG      *Targ
 #define TARG1     *Targ1
 #define TARG2     *Targ2
 
@@ -2216,7 +2215,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG > 0.0) {
+                if (*Targ > 0.0) {
                     if (res != arg1)
                         FOR_0_LE_l_LT_p
                         { if (0 == ARES) {
@@ -2248,7 +2247,7 @@ int hov_ti_reverse(
                           HOV_INC(Ares,  k1)
                               HOV_INC(Aarg2, k1)
                           } else {
-                              if (TARG == 0.0) /* we are at the tie */
+                              if (*Targ == 0.0) /* we are at the tie */
                               { MINDEC(ret_c,0);
                                   AARG1 = 5.0;
                                   AARG2_INC = 5.0;
@@ -2269,7 +2268,7 @@ int hov_ti_reverse(
                     } else
                         FOR_0_LE_l_LT_p {
                             if (ARES) {
-                            if (TARG == 0.0) /* we are at the tie */
+                            if (*Targ == 0.0) /* we are at the tie */
                                 { MINDEC(ret_c,0);
                                     AARG1 = 5.0;
                                     AARG2 = 5.0;
@@ -2299,7 +2298,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG >= 0.0) {
+                if (*Targ >= 0.0) {
                     if (res != arg1)
                         FOR_0_LE_l_LT_p
                         { if (0 == ARES) {
@@ -2370,7 +2369,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG == 0.0) /* we are at the tie */
+                if (*Targ == 0.0) /* we are at the tie */
                 { FOR_0_LE_l_LT_p
                     { if  (ARES)
                       AARG1 = 5.0;
@@ -2379,7 +2378,7 @@ int hov_ti_reverse(
                     }
                     MINDEC(ret_c,0);
                 } else
-                    if (TARG > 0.0) {
+                    if (*Targ > 0.0) {
                         if (res != arg1)
                             FOR_0_LE_l_LT_p
                             { if  (0 == ARES) {
@@ -2418,7 +2417,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                    if (TARG >= 0.0) {
+                    if (*Targ >= 0.0) {
                         if (res != arg1)
                             FOR_0_LE_l_LT_p
                             { if  (0 == ARES) {
@@ -2483,7 +2482,7 @@ int hov_ti_reverse(
 		    vectorloc = get_locint_r();
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
-		    idx = (size_t)trunc(fabs(TARG));
+		    idx = (size_t)trunc(fabs(*Targ));
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = vectorloc+idx;
@@ -2518,7 +2517,7 @@ int hov_ti_reverse(
 		    arg = get_locint_r();
 		    ASSIGN_T(Targ, rpp_T[arg])
 		    ASSIGN_T(Tres, rpp_T[res])
-		    idx = (size_t)trunc(fabs(TARG));
+		    idx = (size_t)trunc(fabs(*Targ));
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
 		    arg1 = (size_t)trunc(fabs(*Tres));
@@ -2966,7 +2965,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG > 0.0) {
+                if (*Targ > 0.0) {
                     if (res != arg1)
                         FOR_0_LE_l_LT_p
                         { if (0 == ARES) {
@@ -2998,7 +2997,7 @@ int hov_ti_reverse(
                           HOV_INC(Ares,  k1)
                               HOV_INC(Aarg2, k1)
                           } else {
-                              if (TARG == 0.0) /* we are at the tie */
+                              if (*Targ == 0.0) /* we are at the tie */
                               { MINDEC(ret_c,0);
                                   AARG1 = 5.0;
                                   AARG2_INC = 5.0;
@@ -3019,7 +3018,7 @@ int hov_ti_reverse(
                     } else
                         FOR_0_LE_l_LT_p {
                             if (ARES) {
-                            if (TARG == 0.0) /* we are at the tie */
+                            if (*Targ == 0.0) /* we are at the tie */
                                 { MINDEC(ret_c,0);
                                     AARG1 = 5.0;
                                     AARG2 = 5.0;
@@ -3054,7 +3053,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG >= 0.0) {
+                if (*Targ >= 0.0) {
                     if (res != arg1)
                         FOR_0_LE_l_LT_p
                         { if (0 == ARES) {
@@ -3128,7 +3127,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                if (TARG == 0.0) /* we are at the tie */
+                if (*Targ == 0.0) /* we are at the tie */
                 { FOR_0_LE_l_LT_p
                     { if  (ARES)
                       AARG1 = 5.0;
@@ -3137,7 +3136,7 @@ int hov_ti_reverse(
                     }
                     MINDEC(ret_c,0);
                 } else
-                    if (TARG > 0.0) {
+                    if (*Targ > 0.0) {
                         if (res != arg1)
                             FOR_0_LE_l_LT_p
                             { if  (0 == ARES) {
@@ -3180,7 +3179,7 @@ int hov_ti_reverse(
                 ASSIGN_T(Targ,  rpp_T[arg])
 
                 /* olvo 980925 changed code a little bit */
-                    if (TARG >= 0.0) {
+                    if (*Targ >= 0.0) {
                         if (res != arg1)
                             FOR_0_LE_l_LT_p
                             { if  (0 == ARES) {
