@@ -2946,10 +2946,7 @@ int hov_ti_reverse(
 		
 		Tref = rpp_T[ref];
 
-#define TREF  *Tref
-
-		res = (size_t)trunc(fabs(TREF));
-#undef TREF
+		res = (size_t)trunc(fabs(*Tref));
                 GET_TAYL(res,k,p)
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
