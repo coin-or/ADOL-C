@@ -205,7 +205,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_p_GT_l_GE_0                         /* why ? not used here */
 #endif
 
-#define FOR_0_LE_i_LT_k for (i=0; i<k; i++)
+#define FOR_0_LE_i_LT_k for (int i=0; i<k; i++)
 
 #ifdef _HOV_
 #define FOR_0_LE_l_LT_pk1 for (l=0; l<pk1; l++)
@@ -271,9 +271,9 @@ int hos_reverse(short   tnum,        /* tape id */
                 int     degre,       /* highest derivative degree  */
                 double  *lagrange,   /* range weight vector       */
                 double  **results)   /* matrix of coefficient vectors */
-{ int i, j, rc;
+{ int j, rc;
     double** L = myalloc2(depen,degre+1);
-    for ( i = 0; i < depen; ++i ) {
+    for ( int i = 0; i < depen; ++i ) {
         L[i][0] = lagrange[i];
         for ( j = 1; j <= degre; ++j )
             L[i][j] = 0.0;
@@ -316,10 +316,10 @@ int hov_reverse(short   tnum,        /* tape id */
                 double  **lagrange,  /* domain weight vector */
                 double  ***results,  /* matrix of coefficient vectors */
                 short   **nonzero )  /* structural sparsity  pattern  */
-{ int i, j, k, rc;
+{ int j, k, rc;
     double*** L = myalloc3(nrows,depen,degre+1);
     for ( k = 0; k < nrows; ++k )
-        for ( i = 0; i < depen; ++i ) {
+        for ( int i = 0; i < depen; ++i ) {
             L[k][i][0] = lagrange[k][i];
             for ( j = 1; j <= degre; ++j )
                 L[k][i][j] = 0.0;
@@ -358,7 +358,7 @@ int hov_ti_reverse(
     int indexi = 0,  indexd = 0;
 
     /* loop indices */
-    int i, j, l, ls;
+    int j, l, ls;
 
     /* other necessary variables */
     double *x;
@@ -455,7 +455,7 @@ int hov_ti_reverse(
     Aqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * k1 *
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_A[i] = Aqo;
         Aqo += k1;
     }
@@ -465,7 +465,7 @@ int hov_ti_reverse(
     Tqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             k * sizeof(revreal));
     if (Tqo ==NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_T[i] = Tqo;
         Tqo += k;
     }
@@ -485,7 +485,7 @@ int hov_ti_reverse(
     Aqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * pk1 *
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_A[i] = Aqo;
         Aqo += pk1;
     }
@@ -495,7 +495,7 @@ int hov_ti_reverse(
     Tqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             k * sizeof(revreal));
     if (Tqo == NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_T[i] = Tqo;
         Tqo += k;
     }
@@ -511,7 +511,7 @@ int hov_ti_reverse(
     Aqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * pk1 *
             sizeof(revreal));
     if (Aqo == NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_A[i] = Aqo;
         Aqo += pk1;
     }
@@ -521,7 +521,7 @@ int hov_ti_reverse(
     Tqo = (revreal*)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
             p * k * sizeof(revreal));
     if (Tqo == NULL) fail(ADOLC_MALLOC_FAILED);
-    for (i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
+    for (int i=0; i<ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
         rpp_T[i] = Tqo;
         Tqo += p*k;
     }
@@ -1715,7 +1715,7 @@ int hov_ti_reverse(
                     VEC_COMPUTED_CHECK
                     if (fabs(Targ[0]) > ADOLC_EPS) {
                         divide(k,Tres,Targ,rp_Ttemp);
-                        for (i=0;i<k;i++) {
+                        for (int i=0;i<k;i++) {
                             rp_Ttemp[i] *= coval;
                             /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
                         }
@@ -1730,7 +1730,6 @@ int hov_ti_reverse(
                         } else {
                             /* coval not a whole number */
                             if (coval - floor(coval) != 0) {
-                                i = 0;
                                 FOR_0_LE_i_LT_k
                                 {
                                     if (coval - i > 1) {
@@ -1816,7 +1815,7 @@ int hov_ti_reverse(
                     VEC_COMPUTED_CHECK
                     if (fabs(Targ[0]) > ADOLC_EPS) {
                         divide(k,Tres,Targ,rp_Ttemp);
-                        for (i=0;i<k;i++) {
+                        for (int i=0;i<k;i++) {
                             rp_Ttemp[i] *= coval;
                             /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
                         }
@@ -1831,7 +1830,6 @@ int hov_ti_reverse(
                         } else {
                             /* coval not a whole number */
                             if (coval - floor(coval) != 0) {
-                                i = 0;
                                 FOR_0_LE_i_LT_k
                                 {
                                     if (coval - i > 1) {
@@ -2001,7 +1999,7 @@ int hov_ti_reverse(
                     arg = 0;
                 } else /* both are equal */ /* must be changed for hos_ov, but how? */
                     /* seems to influence the return value */
-                    for (i=1;i<k;i++) {
+                    for (int i=1;i<k;i++) {
                             if (Targ1[i] > Targ2[i]) {
                                 FOR_0_LE_l_LT_p
                                 { if (*AP2)
@@ -2037,7 +2035,7 @@ int hov_ti_reverse(
                           else
                               MAXDEC(*AP1,aTmp);
                           AP1++;
-                          for (i=0;i<k;i++) {
+                          for (int i=0;i<k;i++) {
                               aTmp = ARES;
                               ARES_INC = 0.0;
                               *AP1++ += aTmp;
@@ -2058,7 +2056,7 @@ int hov_ti_reverse(
                           MAXDEC(AARG2,aTmp);
                           AARG1_INC_O;
                           AARG2_INC_O;
-                          for (i=0;i<k;i++) {
+                          for (int i=0;i<k;i++) {
                               aTmp = ARES;
                               ARES_INC = 0.0;
                               AARG1_INC += aTmp/2;
@@ -2089,7 +2087,7 @@ int hov_ti_reverse(
                 {
                     x[l] = 0.0;
                     jj[l] = 0;
-                    for (i=0;i<k;i++)
+                    for (int i=0;i<k;i++)
                     if ( (x[l] == 0.0) && (Targ[i] != 0.0) ) {
                         jj[l] = i;
                             if (Targ[i] < 0.0)
@@ -2116,10 +2114,10 @@ int hov_ti_reverse(
                       }
                       if(Targ[0] == 0.0)
                           MINDEC(ret_c,1);
-                      for (i=0;i<jj[l];i++)
+                      for (int i=0;i<jj[l];i++)
                           ARES_INC = 0.0;
                       Aarg += jj[l];
-                      for (i=jj[l];i<k;i++) {
+                      for (int i=jj[l];i<k;i++) {
                           aTmp = ARES;
                           ARES_INC = 0.0;
                           if ( (coval) && (x[l]<0) && (aTmp) )
@@ -3230,7 +3228,7 @@ int hov_ti_reverse(
                     ASSIGN_A(Aarg1, rpp_A[j])
 
                     FOR_0_LE_l_LT_p
-                    for (i=0; i<k1; i++)
+                    for (int i=0; i<k1; i++)
                         AARG1_INC = 0.0;
                 }
                 
