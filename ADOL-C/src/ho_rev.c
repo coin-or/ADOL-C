@@ -192,8 +192,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_q l = 0;
 #endif
 
-#define ASSIGN_T(a,b)  a = b;
-
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
@@ -894,8 +892,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
                 ASSIGN_A(Aqo,  rp_Atemp)
-                ASSIGN_T(Tres, rpp_T[res])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Tres = rpp_T[res];
+                Targ = rpp_T[arg];
 
                 FOR_0_LE_l_LT_p {
                     if (0 == ARES) {
@@ -1101,8 +1099,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ1, rpp_T[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ1 = rpp_T[arg1];
+                Targ2 = rpp_T[arg2];
 
                 FOR_0_LE_l_LT_p
                 if (0 == ARES) {
@@ -1141,11 +1139,11 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ1, rpp_T[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ1 = rpp_T[arg1];
+                Targ2 = rpp_T[arg2];
 
                 /* RECOMPUTATION */
-                ASSIGN_T( Tres,  rpp_T[res])
+                Tres = rpp_T[res];
 #if !defined(_HOS_OV_)
                 deconv1(k,Targ1,Targ2,Tres);
 #endif
@@ -1191,11 +1189,11 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ1, rpp_T[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ1 = rpp_T[arg1];
+                Targ2 = rpp_T[arg2];
 
                 /* RECOMPUTATION */
-                ASSIGN_T( Tres,  rpp_T[res])
+                Tres = rpp_T[res];
 #if !defined(_HOS_OV_)
                 inconv1(k,Targ1,Targ2,Tres);
 #endif
@@ -1298,8 +1296,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Tres,  rpp_T[res])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Tres =  rpp_T[res];
+                Targ2 = rpp_T[arg2];
 
                 /* olvo 980922 allows reflexive operation */
                 if (arg2 == res) {
@@ -1356,8 +1354,8 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Tres, rpp_T[res])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Tres = rpp_T[res];
+                Targ = rpp_T[arg];
 
                 /* olvo 980922 allows reflexive operation */
                 if (arg == res) {
@@ -1407,8 +1405,8 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Tres, rpp_T[res])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Tres = rpp_T[res];
+                Targ = rpp_T[arg];
 
                 /* olvo 980922 allows reflexive operation */
                 if (arg == res) {
@@ -1517,8 +1515,8 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Tres, rpp_T[res])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Tres = rpp_T[res];
+                Targ = rpp_T[arg];
 
                 FOR_0_LE_l_LT_p
                 { if (0 == ARES) {
@@ -1550,7 +1548,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ2 = rpp_T[arg2];
 
                 FOR_0_LE_l_LT_p
                 { if (0 == ARES) {
@@ -1584,7 +1582,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ2 = rpp_T[arg2];
 
                 FOR_0_LE_l_LT_p
                 { if (0 == ARES) {
@@ -1626,7 +1624,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ2 = rpp_T[arg2];
 
                 FOR_0_LE_l_LT_p
                 { if (0 == ARES) {
@@ -1657,7 +1655,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 VEC_COMPUTED_INIT
                 FOR_0_LE_l_LT_p
@@ -1689,8 +1687,8 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = get_val_r();
 
-                ASSIGN_T(Targ, rpp_T[arg])
-                ASSIGN_T(Tres, rpp_T[res])
+                Targ = rpp_T[arg];
+                Tres = rpp_T[res];
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -1790,8 +1788,8 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg1];
 
-                ASSIGN_T(Targ, rpp_T[arg])
-                ASSIGN_T(Tres, rpp_T[res])
+                Targ = rpp_T[arg];
+                Tres = rpp_T[res];
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -1891,7 +1889,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Tres, rpp_T[res])
+                Tres = rpp_T[res];
 
                 VEC_COMPUTED_INIT
                 FOR_0_LE_l_LT_p
@@ -1938,7 +1936,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ2 = rpp_T[arg2];
 
                 FOR_0_LE_l_LT_p
                 if (0 == ARES) {
@@ -1979,8 +1977,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Ares,  rpp_A[res])
-                ASSIGN_T(Targ1, rpp_T[arg1])
-                ASSIGN_T(Targ2, rpp_T[arg2])
+                Targ1 = rpp_T[arg1];
+                Targ2 = rpp_T[arg2];
                 ASSIGN_A(AP1,   NULL)
                 ASSIGN_A(AP2,   Ares)
 
@@ -2085,7 +2083,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 FOR_0_LE_l_LT_q
                 {
@@ -2101,7 +2099,7 @@ int hov_ti_reverse(
                         }
                     HOS_OV_INC(Targ,k)
             }
-                ASSIGN_T(Targ, rpp_T[arg])
+                Targ = rpp_T[arg];
                 FOR_0_LE_l_LT_p
                 { if (0 == ARES) {
                   HOV_INC(Aarg, k1)
@@ -2209,7 +2207,7 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ > 0.0) {
@@ -2292,7 +2290,7 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ >= 0.0) {
@@ -2363,7 +2361,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ == 0.0) /* we are at the tie */
@@ -2411,7 +2409,7 @@ int hov_ti_reverse(
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                     if (*Targ >= 0.0) {
@@ -2478,7 +2476,7 @@ int hov_ti_reverse(
 		    res = get_locint_r();
 		    vectorloc = get_locint_r();
 		    arg = get_locint_r();
-		    ASSIGN_T(Targ, rpp_T[arg])
+		    Targ = rpp_T[arg];
 		    idx = (size_t)trunc(fabs(*Targ));
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting n=%zu, idx=%zu\n", numval, idx);
@@ -2512,8 +2510,8 @@ int hov_ti_reverse(
 		    res = get_locint_r();
 		    vectorloc = get_locint_r();
 		    arg = get_locint_r();
-		    ASSIGN_T(Targ, rpp_T[arg])
-		    ASSIGN_T(Tres, rpp_T[res])
+		    Targ = rpp_T[arg];
+		    Tres = rpp_T[res];
 		    idx = (size_t)trunc(fabs(*Targ));
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
@@ -2535,7 +2533,7 @@ int hov_ti_reverse(
 		res = get_locint_r();
 		arg1 = get_locint_r();
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		arg = (size_t)trunc(fabs(*Targ1));
 
 		ASSIGN_A(Ares, rpp_A[res])
@@ -2562,7 +2560,7 @@ int hov_ti_reverse(
             case ref_decr_a:                        /* Increment an adouble    decr_a */
                 arg1   = get_locint_r();
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
 
                 GET_TAYL(res,k,p)
@@ -2576,7 +2574,7 @@ int hov_ti_reverse(
             case ref_assign_d_one:  /* double value. (=)           assign_d_one */
                 arg1   = get_locint_r();
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2592,7 +2590,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2608,7 +2606,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Aarg, rpp_A[arg])
@@ -2635,7 +2633,7 @@ int hov_ti_reverse(
             case ref_assign_ind:       /* assign an adouble variable an    assign_ind */
                 /* independent double value (<<=) */
                 arg1 = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
 
@@ -2657,7 +2655,7 @@ int hov_ti_reverse(
         case ref_eq_plus_d:            /* Add a floating point to an    eq_plus_d */
             /* adouble. (+=) */
                 arg1   = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
@@ -2668,7 +2666,7 @@ int hov_ti_reverse(
             /* adouble. (+=) */
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
@@ -2680,7 +2678,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
 
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
@@ -2703,7 +2701,7 @@ int hov_ti_reverse(
 	    case ref_eq_min_d:       /* Subtract a floating point from an    eq_min_d */
                 /* adouble. (-=) */
                 arg1   = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
@@ -2714,7 +2712,7 @@ int hov_ti_reverse(
             /* adouble. (-=) */
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
@@ -2726,7 +2724,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
 		
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
@@ -2749,7 +2747,7 @@ int hov_ti_reverse(
 	    case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
                 /* floating point. (*=) */
                 arg1   = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
@@ -2769,7 +2767,7 @@ int hov_ti_reverse(
                 /* floating point. (*=) */
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
@@ -2789,7 +2787,7 @@ int hov_ti_reverse(
                 /* (*=) */
                 arg1 = get_locint_r();
                 arg = get_locint_r();
-		ASSIGN_T(Targ1, rpp_T[arg1])
+		Targ1 = rpp_T[arg1];
 		res = (size_t)trunc(fabs(*Targ1));
 
                 GET_TAYL(res,k,p)
@@ -2797,8 +2795,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
                 ASSIGN_A(Aqo,  rp_Atemp)
-                ASSIGN_T(Tres, rpp_T[res])
-                ASSIGN_T(Targ, rpp_T[arg])
+                Tres = rpp_T[res];
+                Targ = rpp_T[arg];
 
                 FOR_0_LE_l_LT_p {
                     if (0 == ARES) {
@@ -2866,8 +2864,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2+qq])
                 ASSIGN_A(Aarg1, rpp_A[arg1+qq])
-                ASSIGN_T(Targ1, rpp_T[arg1+qq])
-                ASSIGN_T(Targ2, rpp_T[arg2+qq])
+                Targ1 = rpp_T[arg1+qq];
+                Targ2 = rpp_T[arg2+qq];
 		FOR_0_LE_l_LT_p {
                 if (0 == ARES) {
                     HOV_INC(Aarg1, k1)
@@ -2907,8 +2905,8 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg,  rpp_A[arg])
                 ASSIGN_A(Aarg2, rpp_A[arg2+qq])
                 ASSIGN_A(Aarg1, rpp_A[arg1+qq])
-                ASSIGN_T(Targ,  rpp_T[arg])
-                ASSIGN_T(Targ1, rpp_T[arg1+qq])
+                Targ =  rpp_T[arg];
+                Targ1 = rpp_T[arg1+qq];
                 if (0 == ARES) {
                     HOV_INC(Aarg, k1)
                     HOV_INC(Aarg1, k1)
@@ -2948,7 +2946,7 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = get_val_r();
 		
-		ASSIGN_T(Tref, rpp_T[ref])
+		Tref = rpp_T[ref];
 
 #define TREF  *Tref
 
@@ -2959,7 +2957,7 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ > 0.0) {
@@ -3039,7 +3037,7 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = get_val_r();
 		
-		ASSIGN_T(Tref, rpp_T[ref])
+		Tref = rpp_T[ref];
 
 		res = (size_t)trunc(fabs(*Tref));
                 GET_TAYL(res,k,p)
@@ -3047,7 +3045,7 @@ int hov_ti_reverse(
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ >= 0.0) {
@@ -3114,14 +3112,14 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = get_val_r();
 		
-		ASSIGN_T(Targ2, rpp_T[arg2])
+		Targ2 = rpp_T[arg2];
 		res = (size_t)trunc(fabs(*Targ2));
 
                 GET_TAYL(res,k,p)
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                 if (*Targ == 0.0) /* we are at the tie */
@@ -3166,14 +3164,14 @@ int hov_ti_reverse(
                 arg   = get_locint_r();
                 coval = get_val_r();
 		
-		ASSIGN_T(Targ2, rpp_T[arg2])
+		Targ2 = rpp_T[arg2];
 		res = (size_t)trunc(fabs(*Targ2));
 
                 GET_TAYL(res,k,p)
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
                 ASSIGN_A(Ares,  rpp_A[res])
-                ASSIGN_T(Targ,  rpp_T[arg])
+                Targ = rpp_T[arg];
 
                 /* olvo 980925 changed code a little bit */
                     if (*Targ >= 0.0) {
