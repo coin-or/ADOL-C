@@ -225,10 +225,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #ifdef _HIGHER_ORDER_
 #define FOR_0_LE_i_LT_k for (i=0; i<k; i++)
-#define FOR_k_GT_i_GE_0 for (i=k-1; i>=0; i--)
 #else
 #define FOR_0_LE_i_LT_k
-#define FOR_k_GT_i_GE_0
 #endif
 
 #ifdef _HOV_
