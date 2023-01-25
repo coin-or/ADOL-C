@@ -205,8 +205,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_p_GT_l_GE_0                         /* why ? not used here */
 #endif
 
-#define FOR_0_LE_i_LT_k for (int i=0; i<k; i++)
-
 #ifdef _HOV_
 #define FOR_0_LE_l_LT_pk1 for (l=0; l<pk1; l++)
 #define FOR_0_LE_l_LT_pk for (l=0; l<k; l++)
@@ -657,7 +655,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC = 0.0;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
@@ -725,7 +723,7 @@ int hov_ti_reverse(
                     nonzero[l][indexi] = (int)ARES;
 #endif /* _HOV_ */
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                         RESULTS(l,indexi,i) = ARES_INC;
                 }
 
@@ -744,7 +742,7 @@ int hov_ti_reverse(
                 FOR_0_LE_l_LT_p
                 { ARES_INC_O;
                   dc = -1;
-                  FOR_0_LE_i_LT_k
+                  for (int i=0; i<k; i++)
                   { ARES_INC = LAGRANGE(l,indexd,i);
                     if (LAGRANGE(l,indexd,i)) dc = i;
                   }
@@ -794,7 +792,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     AARG_INC += ARES_INC;
                 }
 
@@ -837,7 +835,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     AARG_INC -= ARES_INC;
                 }
 
@@ -856,7 +854,7 @@ int hov_ti_reverse(
                 if ( 0 == ARES_INC )
                     HOV_INC(Ares, k)
                     else
-                        FOR_0_LE_i_LT_k
+                        for (int i=0; i<k; i++)
                         ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
@@ -875,7 +873,7 @@ int hov_ti_reverse(
                 if ( 0 == ARES_INC )
                     HOV_INC(Ares, k)
                     else
-                        FOR_0_LE_i_LT_k
+                        for (int i=0; i<k; i++)
                         ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
@@ -907,10 +905,10 @@ int hov_ti_reverse(
                         conv(k,Ares,Targ,rp_Atemp);
                         if(arg != res) {
                             inconv(k,Ares,Tres,Aarg);
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             ARES_INC = AQO_INC;
                         } else
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             ARES_INC = 2.0 * AQO_INC;
                         HOV_INC(Aarg,k)
                         HOS_OV_INC(Tres,k)
@@ -954,7 +952,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG2,aTmp);
                     AARG2_INC_O;
                     AARG1_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG1_INC += aTmp;
@@ -986,7 +984,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC += aTmp;
@@ -1015,7 +1013,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC += aTmp;
@@ -1048,7 +1046,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG2,aTmp);
                     AARG2_INC_O;
                     AARG1_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG1_INC += aTmp;
@@ -1078,7 +1076,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC -= aTmp;
@@ -1246,7 +1244,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC += coval * aTmp;
@@ -1276,7 +1274,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC += coval * aTmp;
@@ -1467,7 +1465,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC += aTmp;
@@ -1494,7 +1492,7 @@ int hov_ti_reverse(
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { aTmp = ARES;
                       ARES_INC = 0.0;
                       AARG_INC -= aTmp;
@@ -1722,7 +1720,7 @@ int hov_ti_reverse(
                         inconv0(k,Ares,rp_Ttemp,Aarg);
                     } else {
                         if (coval <= 0.0) {
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             {
                                 Aarg[i] = make_nan();
                                 Ares[i] = 0;
@@ -1730,7 +1728,7 @@ int hov_ti_reverse(
                         } else {
                             /* coval not a whole number */
                             if (coval - floor(coval) != 0) {
-                                FOR_0_LE_i_LT_k
+                                for (int i=0; i<k; i++)
                                 {
                                     if (coval - i > 1) {
                                     Aarg[i] = 0;
@@ -1747,7 +1745,7 @@ int hov_ti_reverse(
                                 }
                             } else {
                                 if (coval == 1) {
-                                    FOR_0_LE_i_LT_k
+                                    for (int i=0; i<k; i++)
                                     { /* ! no temporary */
                                         Aarg[i] += Ares[i];
                                         Ares[i] = 0.0;
@@ -1762,7 +1760,7 @@ int hov_ti_reverse(
                                     inconv(k,rp_Atemp,Targ,Aarg);
                                     if (coval == 3) {
                                         conv(k,Aarg,Targ,rp_Atemp);
-                                        FOR_0_LE_i_LT_k
+                                        for (int i=0; i<k; i++)
                                         Aarg[i] = 2.0 * rp_Atemp[i];
                                    }
                                 }
@@ -1822,7 +1820,7 @@ int hov_ti_reverse(
                         inconv0(k,Ares,rp_Ttemp,Aarg);
                     } else {
                         if (coval <= 0.0) {
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             {
                                 Aarg[i] = make_nan();
                                 Ares[i] = 0;
@@ -1830,7 +1828,7 @@ int hov_ti_reverse(
                         } else {
                             /* coval not a whole number */
                             if (coval - floor(coval) != 0) {
-                                FOR_0_LE_i_LT_k
+                                for (int i=0; i<k; i++)
                                 {
                                     if (coval - i > 1) {
                                     Aarg[i] = 0;
@@ -1847,7 +1845,7 @@ int hov_ti_reverse(
                                 }
                             } else {
                                 if (coval == 1) {
-                                    FOR_0_LE_i_LT_k
+                                    for (int i=0; i<k; i++)
                                     { /* ! no temporary */
                                         Aarg[i] += Ares[i];
                                         Ares[i] = 0.0;
@@ -1862,7 +1860,7 @@ int hov_ti_reverse(
                                     inconv(k,rp_Atemp,Targ,Aarg);
                                     if (coval == 3) {
                                         conv(k,Aarg,Targ,rp_Atemp);
-                                        FOR_0_LE_i_LT_k
+                                        for (int i=0; i<k; i++)
                                         Aarg[i] = 2.0 * rp_Atemp[i];
                                    }
                                 }
@@ -2150,7 +2148,7 @@ int hov_ti_reverse(
                 } else {
                     ARES_INC = 0.0;
                     AARG_INC = 5.0;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { if ((coval) && (ARES))
                       MINDEC(ret_c,2);
                       ARES_INC = 0.0;
@@ -2179,7 +2177,7 @@ int hov_ti_reverse(
                 } else {
                     ARES = 0.0;
                     AARG_INC = 5.0;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { if ( (coval) && (ARES) )
                       MINDEC(ret_c,2);
                       ARES_INC = 0.0;
@@ -2220,7 +2218,7 @@ int hov_ti_reverse(
                               MAXDEC(AARG1,ARES);
                               ARES_INC = 0.0;
                               AARG1_INC_O;
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG1_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -2252,7 +2250,7 @@ int hov_ti_reverse(
                               }
                               ARES_INC = 0.0;
 
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG2_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -2303,7 +2301,7 @@ int hov_ti_reverse(
                               MAXDEC(AARG1,ARES);
                               ARES_INC = 0.0;
                               AARG1_INC_O;
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG1_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -2329,7 +2327,7 @@ int hov_ti_reverse(
                                   AARG2_INC_O;
                               ARES_INC = 0.0;
 
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG2_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -2383,7 +2381,7 @@ int hov_ti_reverse(
                                   MAXDEC(AARG1,ARES);
                                   ARES_INC = 0.0;
                                   AARG1_INC_O;
-                                  FOR_0_LE_i_LT_k
+                                  for (int i=0; i<k; i++)
                                   { (AARG1_INC) += ARES;
                                     ARES_INC = 0;
                                   }
@@ -2422,7 +2420,7 @@ int hov_ti_reverse(
                                   MAXDEC(AARG1,ARES);
                                   ARES_INC = 0.0;
                                   AARG1_INC_O;
-                                  FOR_0_LE_i_LT_k
+                                  for (int i=0; i<k; i++)
                                   { (AARG1_INC) += ARES;
                                     ARES_INC = 0;
                                   }
@@ -2490,7 +2488,7 @@ int hov_ti_reverse(
 			MAXDEC(AARG1,ARES);
 			AARG1_INC_O;
 			ARES_INC = 0.0;
-			FOR_0_LE_i_LT_k
+			for (int i=0; i<k; i++)
 			{
 			    AARG1_INC += ARES;
 			    ARES_INC = 0.0;
@@ -2545,7 +2543,7 @@ int hov_ti_reverse(
 		    MAXDEC(AARG,ARES);
 		    AARG_INC_O;
 		    ARES_INC = 0.0;
-		    FOR_0_LE_i_LT_k
+		    for (int i=0; i<k; i++)
 		    {
 			AARG_INC += ARES;
 			ARES_INC = 0.0;
@@ -2618,7 +2616,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC = 0.0;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
@@ -2642,7 +2640,7 @@ int hov_ti_reverse(
                     nonzero[l][indexi] = (int)ARES;
 #endif /* _HOV_ */
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                         RESULTS(l,indexi,i) = ARES_INC;
                 }
 
@@ -2689,7 +2687,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     AARG_INC += ARES_INC;
                 }
 
@@ -2735,7 +2733,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC_O;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     AARG_INC -= ARES_INC;
                 }
 
@@ -2755,7 +2753,7 @@ int hov_ti_reverse(
                 if ( 0 == ARES_INC )
                     HOV_INC(Ares, k)
                     else
-                        FOR_0_LE_i_LT_k
+                        for (int i=0; i<k; i++)
                         ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
@@ -2775,7 +2773,7 @@ int hov_ti_reverse(
                 if ( 0 == ARES_INC )
                     HOV_INC(Ares, k)
                     else
-                        FOR_0_LE_i_LT_k
+                        for (int i=0; i<k; i++)
                         ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
@@ -2808,10 +2806,10 @@ int hov_ti_reverse(
                         conv(k,Ares,Targ,rp_Atemp);
                         if(arg != res) {
                             inconv(k,Ares,Tres,Aarg);
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             ARES_INC = AQO_INC;
                         } else
-                            FOR_0_LE_i_LT_k
+                            for (int i=0; i<k; i++)
                             ARES_INC = 2.0 * AQO_INC;
                         HOV_INC(Aarg,k)
                         HOS_OV_INC(Tres,k)
@@ -2840,7 +2838,7 @@ int hov_ti_reverse(
                     MAXDEC(AARG,ARES);
                     AARG_INC_O;
                     ARES_INC = 0.0;
-                    FOR_0_LE_i_LT_k
+                    for (int i=0; i<k; i++)
                     { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
@@ -2922,7 +2920,7 @@ int hov_ti_reverse(
                     copyAndZeroset(k,Ares,rp_Atemp);
                     inconv(k,rp_Atemp,Targ1,Aarg);
                     inconv(k,rp_Atemp,Targ,Aarg1);
-                    FOR_0_LE_i_LT_k 
+                    for (int i=0; i<k; i++)
                         AARG2_INC += *rp_Atemp++;
 
                     HOV_INC(Ares,k)
@@ -2967,7 +2965,7 @@ int hov_ti_reverse(
                               MAXDEC(AARG1,ARES);
                               ARES_INC = 0.0;
                               AARG1_INC_O;
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG1_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -2999,7 +2997,7 @@ int hov_ti_reverse(
                               }
                               ARES_INC = 0.0;
 
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG2_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -3055,7 +3053,7 @@ int hov_ti_reverse(
                               MAXDEC(AARG1,ARES);
                               ARES_INC = 0.0;
                               AARG1_INC_O;
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG1_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -3081,7 +3079,7 @@ int hov_ti_reverse(
                                   AARG2_INC_O;
                               ARES_INC = 0.0;
 
-                              FOR_0_LE_i_LT_k
+                              for (int i=0; i<k; i++)
                               { AARG2_INC += ARES;
                                 ARES_INC = 0;
                               }
@@ -3138,7 +3136,7 @@ int hov_ti_reverse(
                                   MAXDEC(AARG1,ARES);
                                   ARES_INC = 0.0;
                                   AARG1_INC_O;
-                                  FOR_0_LE_i_LT_k
+                                  for (int i=0; i<k; i++)
                                   { (AARG1_INC) += ARES;
                                     ARES_INC = 0;
                                   }
@@ -3181,7 +3179,7 @@ int hov_ti_reverse(
                                   MAXDEC(AARG1,ARES);
                                   ARES_INC = 0.0;
                                   AARG1_INC_O;
-                                  FOR_0_LE_i_LT_k
+                                  for (int i=0; i<k; i++)
                                   { (AARG1_INC) += ARES;
                                     ARES_INC = 0;
                                   }
