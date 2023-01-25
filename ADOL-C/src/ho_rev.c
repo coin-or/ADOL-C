@@ -192,9 +192,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_q l = 0;
 #endif
 
-#define TARG1     *Targ1
-#define TARG2     *Targ2
-
 #define ASSIGN_T(a,b)  a = b;
 
 /*--------------------------------------------------------------------------*/
@@ -2539,7 +2536,7 @@ int hov_ti_reverse(
 		arg1 = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		arg = (size_t)trunc(fabs(TARG1));
+		arg = (size_t)trunc(fabs(*Targ1));
 
 		ASSIGN_A(Ares, rpp_A[res])
 		ASSIGN_A(Aarg, rpp_A[arg])
@@ -2566,7 +2563,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
 
                 GET_TAYL(res,k,p)
                 break;
@@ -2580,7 +2577,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Ares, rpp_A[res])
 
@@ -2596,7 +2593,7 @@ int hov_ti_reverse(
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Ares, rpp_A[res])
 
@@ -2612,7 +2609,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
 
                 ASSIGN_A(Aarg, rpp_A[arg])
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2639,7 +2636,7 @@ int hov_ti_reverse(
                 /* independent double value (<<=) */
                 arg1 = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
 
                 FOR_0_LE_l_LT_p
@@ -2661,7 +2658,7 @@ int hov_ti_reverse(
             /* adouble. (+=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
                 GET_TAYL(res,k,p)
@@ -2672,7 +2669,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 GET_TAYL(res,k,p)
@@ -2684,7 +2681,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -2707,7 +2704,7 @@ int hov_ti_reverse(
                 /* adouble. (-=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
                 GET_TAYL(res,k,p)
@@ -2718,7 +2715,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 GET_TAYL(res,k,p)
@@ -2730,7 +2727,7 @@ int hov_ti_reverse(
                 arg = get_locint_r();
 		
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 ASSIGN_A(Ares, rpp_A[res])
                 ASSIGN_A(Aarg, rpp_A[arg])
 
@@ -2753,7 +2750,7 @@ int hov_ti_reverse(
                 /* floating point. (*=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = get_val_r();
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2773,7 +2770,7 @@ int hov_ti_reverse(
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
                 ASSIGN_A(Ares, rpp_A[res])
@@ -2793,7 +2790,7 @@ int hov_ti_reverse(
                 arg1 = get_locint_r();
                 arg = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
-		res = (size_t)trunc(fabs(TARG1));
+		res = (size_t)trunc(fabs(*Targ1));
 
                 GET_TAYL(res,k,p)
 
@@ -3118,7 +3115,7 @@ int hov_ti_reverse(
                 coval = get_val_r();
 		
 		ASSIGN_T(Targ2, rpp_T[arg2])
-		res = (size_t)trunc(fabs(TARG2));
+		res = (size_t)trunc(fabs(*Targ2));
 
                 GET_TAYL(res,k,p)
 
@@ -3170,7 +3167,7 @@ int hov_ti_reverse(
                 coval = get_val_r();
 		
 		ASSIGN_T(Targ2, rpp_T[arg2])
-		res = (size_t)trunc(fabs(TARG2));
+		res = (size_t)trunc(fabs(*Targ2));
 
                 GET_TAYL(res,k,p)
 
