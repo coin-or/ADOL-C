@@ -47,7 +47,7 @@ results   valued function      Taylor-Jacobians        times Jacobian
 	      = nrows ,           degre > 0 ,            degre = 0 ,
 	    degre = 0 )           nrows = 1 )            nrows > 0 )
  
-double*** full family of         ------------          weigth matrix x
+double*** full family of         ------------          weight matrix x
 results   Taylor-Jacobians       ------------          Taylor Jacobians
  
 *****************************************************************************/
@@ -290,7 +290,7 @@ BEGIN_C_DECLS
 int hos_reverse(short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
-                int     degre,       /* highest derivative degre  */
+                int     degre,       /* highest derivative degree  */
                 double  *lagrange,   /* range weight vector       */
                 double  **results)   /* matrix of coefficient vectors */
 { int i, j, rc;
@@ -682,7 +682,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC = 0.0;
                     FOR_0_LE_i_LT_k
-                    { /* ! no tempory */
+                    { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
                     }
@@ -870,7 +870,7 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
             case eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 res   = get_locint_r();
                 coval = get_val_r();
 
@@ -888,7 +888,7 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
             case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 res   = get_locint_r();
                 arg   = get_locint_r();
                 coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
@@ -1773,7 +1773,7 @@ int hov_ti_reverse(
                             } else {
                                 if (coval == 1) {
                                     FOR_0_LE_i_LT_k
-                                    { /* ! no tempory */
+                                    { /* ! no temporary */
                                         Aarg[i] += Ares[i];
                                         Ares[i] = 0.0;
                                     }
@@ -1874,7 +1874,7 @@ int hov_ti_reverse(
                             } else {
                                 if (coval == 1) {
                                     FOR_0_LE_i_LT_k
-                                    { /* ! no tempory */
+                                    { /* ! no temporary */
                                         Aarg[i] += Ares[i];
                                         Ares[i] = 0.0;
                                     }
@@ -2645,7 +2645,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC = 0.0;
                     FOR_0_LE_i_LT_k
-                    { /* ! no tempory */
+                    { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
                     }
@@ -2769,7 +2769,7 @@ int hov_ti_reverse(
                 break;
 
 	    case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 arg1   = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
 		res = (size_t)trunc(fabs(TARG1));
@@ -2788,7 +2788,7 @@ int hov_ti_reverse(
                 break;
 
 	    case ref_eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 arg1   = get_locint_r();
                 arg    = get_locint_r();
 		ASSIGN_T(Targ1, rpp_T[arg1])
@@ -2867,7 +2867,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC = 0.0;
                     FOR_0_LE_i_LT_k
-                    { /* ! no tempory */
+                    { /* ! no temporary */
                         AARG_INC += ARES;
                         ARES_INC = 0.0;
                     }
@@ -3276,7 +3276,7 @@ int hov_ti_reverse(
 #ifdef _HOS_                                                         /* HOS */
 
                 /*--------------------------------------------------------------------------*/
-            case ext_diff:                       /* extern differntiated function */
+            case ext_diff:                       /* extern differentiated function */
                 ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
                 ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
