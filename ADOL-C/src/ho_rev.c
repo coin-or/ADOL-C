@@ -360,7 +360,6 @@ int hov_ti_reverse(
     int *jj;
     int taycheck;
     int numdep,numind;
-    double aTmp;
 
     /*----------------------------------------------------------------------*/
     /* Taylor stuff */
@@ -943,7 +942,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Aarg2, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG1,aTmp);
                     MAXDEC(AARG2,aTmp);
@@ -977,7 +976,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1006,7 +1005,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1037,7 +1036,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Aarg2, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG1,aTmp);
                     MAXDEC(AARG2,aTmp);
@@ -1069,7 +1068,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1237,7 +1236,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1267,7 +1266,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1309,7 +1308,7 @@ int hov_ti_reverse(
                       HOV_INC(Aarg1, k1)
                       HOV_INC(Aarg2, k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG1,3.0);
                       MAXDEC(AARG1,aTmp);
@@ -1366,7 +1365,7 @@ int hov_ti_reverse(
                   HOV_INC(Ares, k1)
                       HOV_INC(Aarg, k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG,aTmp);
                       MAXDEC(AARG,3.0);
@@ -1417,7 +1416,7 @@ int hov_ti_reverse(
                   HOV_INC(Ares, k1)
                       HOV_INC(Aarg, k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG,aTmp);
                       MAXDEC(AARG,3.0);
@@ -1458,7 +1457,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1485,7 +1484,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k1)
                     HOV_INC(Aarg, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     AARG_INC_O;
@@ -1518,7 +1517,7 @@ int hov_ti_reverse(
                   HOV_INC(Aarg, k1)
                       HOV_INC(Ares, k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG,aTmp);
                       MAXDEC(AARG,4.0);
@@ -1550,7 +1549,7 @@ int hov_ti_reverse(
                   HOV_INC(Aarg1, k1)
                       HOV_INC(Ares,  k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG1,aTmp);
                       MAXDEC(AARG1,4.0);
@@ -1584,7 +1583,7 @@ int hov_ti_reverse(
                   HOV_INC(Aarg1, k1)
                       HOV_INC(Ares,  k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG1,aTmp);
                       MAXDEC(AARG1,4.0);
@@ -1626,7 +1625,7 @@ int hov_ti_reverse(
                   HOV_INC(Aarg1, k1)
                       HOV_INC(Ares,  k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG1,aTmp);
                       MAXDEC(AARG1,4.0);
@@ -1658,7 +1657,7 @@ int hov_ti_reverse(
                   HOV_INC(Aarg, k1)
                       HOV_INC(Ares, k1)
                   } else {
-                      aTmp = ARES;
+                      double aTmp = ARES;
                       ARES_INC = 0.0;
                       MAXDEC(AARG,aTmp);
                       MAXDEC(AARG,4.0);
@@ -1701,7 +1700,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg, k1)
                     HOV_INC(Ares, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     MAXDEC(AARG,4.0);
@@ -1801,7 +1800,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg, k1)
                     HOV_INC(Ares, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     MAXDEC(AARG,4.0);
@@ -1890,7 +1889,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg, k1)
                     HOV_INC(Ares, k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG,aTmp);
                     MAXDEC(AARG,4.0);
@@ -1936,7 +1935,7 @@ int hov_ti_reverse(
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Ares,  k1)
                 } else {
-                    aTmp = ARES;
+                    double aTmp = ARES;
                     ARES_INC = 0.0;
                     MAXDEC(AARG1,aTmp);
                     MAXDEC(AARG1,4.0);
@@ -2023,7 +2022,7 @@ int hov_ti_reverse(
                       HOV_INC(AP1, k1)
                           HOV_INC(Ares,k1);
                       } else {
-                          aTmp = ARES;
+                          double aTmp = ARES;
                           ARES_INC = 0.0;
                           if (arg)  /* we are at the tie */
                               *AP1 = 5.0;
@@ -2045,7 +2044,7 @@ int hov_ti_reverse(
                           HOV_INC(Aarg2,k1)
                           HOV_INC(Ares, k1)
                       } else {
-                          aTmp = ARES;
+                          double aTmp = ARES;
                           ARES_INC = 0.0;
                           MAXDEC(AARG1,aTmp);  /*assume sthg like fmin(x,x) */
                           MAXDEC(AARG2,aTmp);
@@ -2102,7 +2101,7 @@ int hov_ti_reverse(
                           ARES_INC = 0.0;
                           AARG_INC = 5.0;
                       } else {
-                          aTmp = ARES;
+                          double aTmp = ARES;
                           ARES_INC = 0.0;
                           MAXDEC(AARG,aTmp);
                           AARG_INC_O;
@@ -2113,7 +2112,7 @@ int hov_ti_reverse(
                           ARES_INC = 0.0;
                       Aarg += jj[l];
                       for (int i=jj[l];i<k;i++) {
-                          aTmp = ARES;
+                          double aTmp = ARES;
                           ARES_INC = 0.0;
                           if ( (coval) && (x[l]<0) && (aTmp) )
                               MINDEC(ret_c,2);
