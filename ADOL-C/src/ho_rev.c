@@ -271,11 +271,11 @@ int hos_reverse(short   tnum,        /* tape id */
                 int     degre,       /* highest derivative degree  */
                 double  *lagrange,   /* range weight vector       */
                 double  **results)   /* matrix of coefficient vectors */
-{ int j, rc;
+{ int rc;
     double** L = myalloc2(depen,degre+1);
     for ( int i = 0; i < depen; ++i ) {
         L[i][0] = lagrange[i];
-        for ( j = 1; j <= degre; ++j )
+        for ( int j = 1; j <= degre; ++j )
             L[i][j] = 0.0;
     }
     rc = hos_ti_reverse(tnum,depen,indep,degre,L,results);
@@ -316,12 +316,12 @@ int hov_reverse(short   tnum,        /* tape id */
                 double  **lagrange,  /* domain weight vector */
                 double  ***results,  /* matrix of coefficient vectors */
                 short   **nonzero )  /* structural sparsity  pattern  */
-{ int j, k, rc;
+{ int k, rc;
     double*** L = myalloc3(nrows,depen,degre+1);
     for ( k = 0; k < nrows; ++k )
         for ( int i = 0; i < depen; ++i ) {
             L[k][i][0] = lagrange[k][i];
-            for ( j = 1; j <= degre; ++j )
+            for ( int j = 1; j <= degre; ++j )
                 L[k][i][j] = 0.0;
         }
     rc = hov_ti_reverse(tnum,depen,indep,degre,nrows,L,results,nonzero);
@@ -358,7 +358,7 @@ int hov_ti_reverse(
     int indexi = 0,  indexd = 0;
 
     /* loop indices */
-    int j, l, ls;
+    int l, ls;
 
     /* other necessary variables */
     double *x;
@@ -3224,7 +3224,7 @@ int hov_ti_reverse(
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
 
-                for (j=arg1;j<=arg2;j++) {
+                for (int j=arg1;j<=arg2;j++) {
                     ASSIGN_A(Aarg1, rpp_A[j])
 
                     FOR_0_LE_l_LT_p
@@ -3232,7 +3232,7 @@ int hov_ti_reverse(
                         AARG1_INC = 0.0;
                 }
                 
-                for (j=arg1;j<=arg2;j++)
+                for (int j=arg1;j<=arg2;j++)
                     GET_TAYL(j,k,p)
 
                 break;
