@@ -192,23 +192,12 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_q l = 0;
 #endif
 
-#ifdef _HIGHER_ORDER_
-
 #define TRES      *Tres                  /* why ? not used here */
 #define TARG      *Targ
 #define TARG1     *Targ1
 #define TARG2     *Targ2
 
 #define ASSIGN_T(a,b)  a = b;
-#else
-
-#define TRES       rpp_T[res]
-#define TARG       rpp_T[arg]
-#define TARG1      rpp_T[arg1]
-#define TARG2      rpp_T[arg2]
-
-#define ASSIGN_T(a,b)
-#endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
@@ -223,11 +212,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_p_GT_l_GE_0                         /* why ? not used here */
 #endif
 
-#ifdef _HIGHER_ORDER_
 #define FOR_0_LE_i_LT_k for (i=0; i<k; i++)
-#else
-#define FOR_0_LE_i_LT_k
-#endif
 
 #ifdef _HOV_
 #define FOR_0_LE_l_LT_pk1 for (l=0; l<pk1; l++)
@@ -441,9 +426,7 @@ int hov_ti_reverse(
     fprintf(DIAG_OUT,"Call of %s(..) with tag: %d, n: %d, m %d,\n",
             GENERATED_FILENAME, tnum, indep, depen);
 
-#ifdef _HIGHER_ORDER_
     fprintf(DIAG_OUT,"                    degree: %d\n",degre);
-#endif
 #ifdef _ADOLC_VECTOR_
     fprintf(DIAG_OUT,"                    p: %d\n\n",nrows);
 #endif
@@ -2972,11 +2955,7 @@ int hov_ti_reverse(
 		
 		ASSIGN_T(Tref, rpp_T[ref])
 
-#ifdef _HIGHER_ORDER_
 #define TREF  *Tref
-#else
-#define TREF   rpp_T[ref]
-#endif   
 
 		res = (size_t)trunc(fabs(TREF));
 #undef TREF
@@ -3067,14 +3046,7 @@ int hov_ti_reverse(
 		
 		ASSIGN_T(Tref, rpp_T[ref])
 
-#ifdef _HIGHER_ORDER_
-#define TREF  *Tref
-#else
-#define TREF   rpp_T[ref]
-#endif   
-
-		res = (size_t)trunc(fabs(TREF));
-#undef TREF
+		res = (size_t)trunc(fabs(*Tref));
                 GET_TAYL(res,k,p)
 
                 ASSIGN_A(Aarg1, rpp_A[arg1])
