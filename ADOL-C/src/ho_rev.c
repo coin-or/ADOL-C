@@ -192,7 +192,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_q l = 0;
 #endif
 
-#define TRES      *Tres                  /* why ? not used here */
 #define TARG      *Targ
 #define TARG1     *Targ1
 #define TARG2     *Targ2
@@ -2522,7 +2521,7 @@ int hov_ti_reverse(
 		    idx = (size_t)trunc(fabs(TARG));
 		    if (idx >= numval)
 			fprintf(DIAG_OUT, "ADOL-C warning: index out of bounds while subscripting (ref) n=%zu, idx=%zu\n", numval, idx);
-		    arg1 = (size_t)trunc(fabs(TRES));
+		    arg1 = (size_t)trunc(fabs(*Tres));
 		    /*
 		     * This is actually NOP
                      * basically all we need is that arg1 == vectorloc[idx]
