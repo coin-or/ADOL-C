@@ -166,7 +166,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define ASSIGN_A(a,b)  a = b;
 #define HOS_OV_ASSIGN_A(a, b) a = b;
-#define FOR_0_LE_l_LT_q for(l=0;l<q;l++)
+#define FOR_0_LE_l_LT_q for (int l=0;l<q;l++)
 
 #else  /* _FOV_, _HOS_, _HOV_ */
 #define ARES       *Ares
@@ -189,16 +189,16 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define ASSIGN_A(a,b)  a = b;
 #define HOS_OV_ASSIGN_A(Aqo, Atemp)
-#define FOR_0_LE_l_LT_q l = 0;
+#define FOR_0_LE_l_LT_q int l = 0;
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
-#define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)  /* why ? not used here */
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)
+#define FOR_p_GT_l_GE_0 for (int l=p-1; l>=0; l--)  /* why ? not used here */
 #elif _HOS_OV_
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)
 #define FOR_p_GT_l_GE_0                         /* why ? not used here */
 #else
 #define FOR_0_LE_l_LT_p
@@ -206,17 +206,17 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #endif
 
 #ifdef _HOV_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<pk1; l++)
-#define FOR_0_LE_l_LT_pk for (l=0; l<k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l=0; l<pk1; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
 #elif _FOV_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<p; l++)
-#define FOR_0_LE_l_LT_pk for (l=0; l<k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l=0; l<p; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
 #elif _HOS_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<k1; l++)
-#define FOR_0_LE_l_LT_pk for (l=0; l<k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l=0; l<k1; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
 #elif _HOS_OV_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<pk1; l++)
-#define FOR_0_LE_l_LT_pk for (l=0; l<p*k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l=0; l<pk1; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<p*k; l++)
 #else
 #define FOR_0_LE_l_LT_pk1
 #define FOR_0_LE_l_LT_pk
@@ -356,7 +356,7 @@ int hov_ti_reverse(
     int indexi = 0,  indexd = 0;
 
     /* loop indices */
-    int l, ls;
+    int ls;
 
     /* other necessary variables */
     double *x;
