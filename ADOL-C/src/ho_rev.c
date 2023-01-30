@@ -793,7 +793,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC_O;
                     for (int i=0; i<k; i++)
-                    AARG_INC += ARES_INC;
+                      AARG_INC += ARES_INC;
                 }
 
                 GET_TAYL(res,k,p)
@@ -836,7 +836,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC_O;
                     for (int i=0; i<k; i++)
-                    AARG_INC -= ARES_INC;
+                      AARG_INC -= ARES_INC;
                 }
 
                 GET_TAYL(res,k,p)
@@ -855,7 +855,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k)
                     else
                         for (int i=0; i<k; i++)
-                        ARES_INC *= coval;
+                          ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
                 break;
@@ -874,7 +874,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k)
                     else
                         for (int i=0; i<k; i++)
-                        ARES_INC *= coval;
+                          ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
                 break;
@@ -906,10 +906,10 @@ int hov_ti_reverse(
                         if(arg != res) {
                             inconv(k,Ares,Tres,Aarg);
                             for (int i=0; i<k; i++)
-                            ARES_INC = AQO_INC;
+                              ARES_INC = AQO_INC;
                         } else
                             for (int i=0; i<k; i++)
-                            ARES_INC = 2.0 * AQO_INC;
+                              ARES_INC = 2.0 * AQO_INC;
                         HOV_INC(Aarg,k)
                         HOS_OV_INC(Tres,k)
                         HOS_OV_INC(Targ,k)
@@ -1761,7 +1761,7 @@ int hov_ti_reverse(
                                     if (coval == 3) {
                                         conv(k,Aarg,Targ,rp_Atemp);
                                         for (int i=0; i<k; i++)
-                                        Aarg[i] = 2.0 * rp_Atemp[i];
+                                          Aarg[i] = 2.0 * rp_Atemp[i];
                                    }
                                 }
                             }
@@ -1861,7 +1861,7 @@ int hov_ti_reverse(
                                     if (coval == 3) {
                                         conv(k,Aarg,Targ,rp_Atemp);
                                         for (int i=0; i<k; i++)
-                                        Aarg[i] = 2.0 * rp_Atemp[i];
+                                          Aarg[i] = 2.0 * rp_Atemp[i];
                                    }
                                 }
                             }
@@ -2688,7 +2688,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC_O;
                     for (int i=0; i<k; i++)
-                    AARG_INC += ARES_INC;
+                      AARG_INC += ARES_INC;
                 }
 
                 GET_TAYL(res,k,p)
@@ -2734,7 +2734,7 @@ int hov_ti_reverse(
                     AARG_INC_O;
                     ARES_INC_O;
                     for (int i=0; i<k; i++)
-                    AARG_INC -= ARES_INC;
+                      AARG_INC -= ARES_INC;
                 }
 
                 GET_TAYL(res,k,p)
@@ -2754,7 +2754,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k)
                     else
                         for (int i=0; i<k; i++)
-                        ARES_INC *= coval;
+                          ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
                 break;
@@ -2774,7 +2774,7 @@ int hov_ti_reverse(
                     HOV_INC(Ares, k)
                     else
                         for (int i=0; i<k; i++)
-                        ARES_INC *= coval;
+                          ARES_INC *= coval;
 
                 GET_TAYL(res,k,p)
                 break;
@@ -2807,10 +2807,10 @@ int hov_ti_reverse(
                         if(arg != res) {
                             inconv(k,Ares,Tres,Aarg);
                             for (int i=0; i<k; i++)
-                            ARES_INC = AQO_INC;
+                              ARES_INC = AQO_INC;
                         } else
                             for (int i=0; i<k; i++)
-                            ARES_INC = 2.0 * AQO_INC;
+                              ARES_INC = 2.0 * AQO_INC;
                         HOV_INC(Aarg,k)
                         HOS_OV_INC(Tres,k)
                         HOS_OV_INC(Targ,k)
