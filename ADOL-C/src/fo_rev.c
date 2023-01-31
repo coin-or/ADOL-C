@@ -1798,7 +1798,6 @@ int int_reverse_safe(
 			AARG = 1.0;
 		    } else {
 			results[indep+switchnum] = ARES;
-			AARG = 0.0;
 			ARES = 0.0;
 		    }
 		    switchnum--;

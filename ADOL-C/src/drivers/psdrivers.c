@@ -61,9 +61,11 @@ int abs_normal(short tag,      /* tape identifier */
 
   zos_pl_forward(tag,m,n,1,x,y,z);
 
+
   for(i=0;i<m+s;i++){
     int l = i - s;
     fos_pl_reverse(tag,m,n,s,i,res);
+
     if ( l < 0 ) {
         cz[i]=z[i];
         for(j=0;j<n;j++){
