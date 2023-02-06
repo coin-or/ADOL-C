@@ -175,24 +175,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
-#define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
 #else
 #ifdef _INT_REV_
 #define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
-#define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
 #else
 #define FOR_0_LE_l_LT_p
-#define FOR_p_GT_l_GE_0
-#endif
-#endif
-
-#ifdef _FOV_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<p; l++)
-#else
-#ifdef _INT_REV_
-#define FOR_0_LE_l_LT_pk1 for (l=0; l<p; l++)
-#else
-#define FOR_0_LE_l_LT_pk1
 #endif
 #endif
 
