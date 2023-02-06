@@ -174,10 +174,10 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)
 #else
 #ifdef _INT_REV_
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)  // Apparently not used
 #else
 #define FOR_0_LE_l_LT_p
 #endif
@@ -307,12 +307,6 @@ int int_reverse_safe(
 #endif
 
     /* loop indices */
-#if defined(_FOV_)
-    int l;
-#endif
-#if defined(_INT_REV_)
-    int l;
-#endif
     int j, ls;
 
     /* other necessary variables */
