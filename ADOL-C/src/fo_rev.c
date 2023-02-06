@@ -900,9 +900,8 @@ int int_reverse_safe(
                 AARG_INC |= ARES_INC;
 #else
                 { revreal aTmp = *Ares;
-                  /* olvo 980713 nn: ARES = 0.0; */
-                  ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
-                  AARG_INC += (aTmp==0)?0:(aTmp * TRES);
+                  ARES_INC =  aTmp * TARG;
+                  AARG_INC += aTmp * TRES;
                 }
 #endif      
 		break;
@@ -1098,8 +1097,8 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG2_INC += (aTmp==0)?0:(aTmp * TARG1);
-                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
+                  AARG2_INC += aTmp * TARG1;
+                  AARG1_INC += aTmp * TARG2;
 #endif
             }
                 break;
@@ -1183,7 +1182,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(coval * aTmp);
+                  AARG_INC += coval * aTmp;
 #endif
             }
 
@@ -1214,7 +1213,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(coval * aTmp);
+                  AARG_INC += coval * aTmp;
 #endif
             }
 
@@ -1252,8 +1251,8 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG1_INC += (aTmp==0)?0:(aTmp * r0);
-                  AARG2_INC += (aTmp==0)?0:(aTmp * r_0);
+                  AARG1_INC += aTmp * r0;
+                  AARG2_INC += aTmp * r_0;
 #endif
             }
 
@@ -1288,7 +1287,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                  AARG_INC += aTmp * r0;
 #endif
                 }
 
@@ -1329,7 +1328,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                  AARG_INC += aTmp * r0;
 #endif
                 }
 
@@ -1416,7 +1415,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(aTmp*TRES);
+                  AARG_INC += aTmp*TRES;
 #endif
             }
 
@@ -1443,7 +1442,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
+                  AARG1_INC += aTmp * TARG2;
 #endif
             }
 
@@ -1472,7 +1471,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG1_INC -= (aTmp==0)?0:(aTmp * TARG2);
+                  AARG1_INC -= aTmp * TARG2;
 #endif
             }
 
@@ -1511,7 +1510,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
+                  AARG1_INC += aTmp * TARG2;
 #endif
                 }
                 break;
@@ -1541,7 +1540,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                  AARG_INC += aTmp * r0;
 #endif
             }
                 break;
@@ -1576,7 +1575,7 @@ int int_reverse_safe(
 #else
                     revreal aTmp = *Ares;
                     ARES_INC = 0.0;
-                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                    AARG_INC += aTmp * r0;
 #endif
             }
 
@@ -1616,7 +1615,7 @@ int int_reverse_safe(
 #else
                     revreal aTmp = *Ares;
                     ARES_INC = 0.0;
-                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                    AARG_INC += aTmp * r0;
 #endif
             }
 
@@ -1648,7 +1647,7 @@ int int_reverse_safe(
 #else
                     revreal aTmp = *Ares;
                     ARES_INC = 0.0;
-                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                    AARG_INC += aTmp * r0;
 #endif
                 }
 
@@ -1680,7 +1679,7 @@ int int_reverse_safe(
 #else
                     revreal aTmp = *Ares;
                     ARES_INC = 0.0;
-                    AARG_INC += (aTmp==0)?0:(aTmp * r0);
+                    AARG_INC += aTmp * r0;
 #endif
                 }
 
@@ -1711,7 +1710,7 @@ int int_reverse_safe(
 #else
                   revreal aTmp = *Ares;
                   ARES_INC = 0.0;
-                  AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
+                  AARG1_INC += aTmp * TARG2;
 #endif
             }
 
@@ -2609,9 +2608,8 @@ int int_reverse_safe(
                 AARG_INC |= ARES_INC;
 #else
                 { revreal aTmp = *Ares;
-                  /* olvo 980713 nn: *Ares = 0.0; */
-		    ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
-		    AARG_INC += (aTmp==0)?0:(aTmp * TRES);
+		    ARES_INC = aTmp * TARG;
+		    AARG_INC += aTmp * TRES;
                 }
 #endif      
 #else
