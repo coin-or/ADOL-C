@@ -320,11 +320,9 @@ int int_reverse_safe(
     /* Adjoint stuff */
 #ifdef _FOS_
     revreal *rp_A;
-    revreal aTmp;
 #endif
 #ifdef _FOV_
     revreal **rpp_A, *Aqo;
-    revreal aTmp;
 #endif
 #if !defined(_NTIGHT_)
     revreal *rp_T;
@@ -334,7 +332,6 @@ int int_reverse_safe(
 #else
     unsigned long int **upp_A;
     unsigned long int *Ares, *Aarg, *Aarg1, *Aarg2;
-    unsigned long int aTmp;
 #endif
 
     /*--------------------------------------------------------------------------*/
@@ -905,7 +902,7 @@ int int_reverse_safe(
 #if defined(_INT_REV_)
                 AARG_INC |= ARES_INC;
 #else
-                { aTmp = ARES;
+                { revreal aTmp = ARES;
                   /* olvo 980713 nn: ARES = 0.0; */
                   ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
                   AARG_INC += (aTmp==0)?0:(aTmp * TRES);
@@ -938,12 +935,14 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
                   AARG2_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += aTmp;
                   AARG2_INC += aTmp;
@@ -968,11 +967,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += aTmp;
 #endif
@@ -998,11 +999,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += aTmp;
 #endif
@@ -1025,12 +1028,14 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg2, ADJOINT_BUFFER[arg2])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
                   AARG2_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += aTmp;
                   AARG2_INC -= aTmp;
@@ -1055,11 +1060,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC -= aTmp;
 #endif
@@ -1085,12 +1092,14 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG2_INC |= aTmp;
                   AARG1_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG2_INC += (aTmp==0)?0:(aTmp * TARG1);
                   AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
@@ -1169,11 +1178,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
 		  AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(coval * aTmp);
 #endif
@@ -1198,11 +1209,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
 		  AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(coval * aTmp);
 #endif
@@ -1233,12 +1246,14 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
                   AARG2_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += (aTmp==0)?0:(aTmp * r0);
                   AARG2_INC += (aTmp==0)?0:(aTmp * r_0);
@@ -1268,11 +1283,13 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1307,11 +1324,13 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1336,11 +1355,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += aTmp;
 #endif
@@ -1360,11 +1381,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC -= aTmp;
 #endif
@@ -1388,11 +1411,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg, ADJOINT_BUFFER[arg])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(aTmp*TRES);
 #endif
@@ -1413,11 +1438,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
@@ -1440,11 +1467,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC -= (aTmp==0)?0:(aTmp * TARG2);
 #endif
@@ -1477,11 +1506,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
@@ -1505,11 +1536,13 @@ int int_reverse_safe(
 #endif
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1539,11 +1572,12 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p {
-                    aTmp = ARES;
 #if defined(_INT_REV_)
+                    unsigned long int aTmp = ARES;
                     ARES_INC = 0;
                     AARG_INC |= aTmp;
 #else
+                    revreal aTmp = ARES;
                     ARES_INC = 0.0;
                     AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1578,11 +1612,12 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p {
-                    aTmp = ARES;
 #if defined(_INT_REV_)
+                    unsigned long int aTmp = ARES;
                     ARES_INC = 0;
                     AARG_INC |= aTmp;
 #else
+                    revreal aTmp = ARES;
                     ARES_INC = 0.0;
                     AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1609,11 +1644,12 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p {
-                    aTmp = ARES;
 #if defined(_INT_REV_)
+                    unsigned long int aTmp = ARES;
                     ARES_INC = 0;
                     AARG_INC |= aTmp;
 #else
+                    revreal aTmp = ARES;
                     ARES_INC = 0.0;
                     AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1640,11 +1676,12 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
                 FOR_0_LE_l_LT_p {
-                    aTmp = ARES;
 #if defined(_INT_REV_)
+                    unsigned long int aTmp = ARES;
                     ARES_INC = 0;
                     AARG_INC |= aTmp;
 #else
+                    revreal aTmp = ARES;
                     ARES_INC = 0.0;
                     AARG_INC += (aTmp==0)?0:(aTmp * r0);
 #endif
@@ -1669,11 +1706,13 @@ int int_reverse_safe(
                 ASSIGN_A( Aarg1, ADJOINT_BUFFER[arg1])
 
                 FOR_0_LE_l_LT_p
-                { aTmp = ARES;
+                {
 #if defined(_INT_REV_)
+                  unsigned long int aTmp = ARES;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
 #else
+                  revreal aTmp = ARES;
                   ARES_INC = 0.0;
                   AARG1_INC += (aTmp==0)?0:(aTmp * TARG2);
 #endif
@@ -1702,10 +1741,12 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
                 if (TARG1 > TARG2)
                     FOR_0_LE_l_LT_p
-                    { aTmp = ARES;
+                    {
 #if defined(_INT_REV_)
+                      unsigned long int aTmp = ARES;
                       ARES_INC = 0;
 #else
+                      revreal aTmp = ARES;
                       ARES_INC = 0.0;
 #endif
                       if ((coval) && (aTmp))
@@ -1718,10 +1759,12 @@ int int_reverse_safe(
                     } else
                         if (TARG1 < TARG2)
                                 FOR_0_LE_l_LT_p
-                                { aTmp = ARES;
+                                {
 #if defined(_INT_REV_)
+                                  unsigned long int aTmp = ARES;
                                   ARES_INC = 0;
 #else
+                                  revreal aTmp = ARES;
                                   ARES_INC = 0.0;
 #endif
                                   if ((!coval) && (aTmp))
@@ -1740,7 +1783,7 @@ int int_reverse_safe(
 				      AARG2_INC |= aTmp;
 				      AARG1_INC |= aTmp;
 #else
-				      aTmp = ARES / 2.0;
+				      revreal aTmp = ARES / 2.0;
               fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal arguments, adjoints might be incorrect.\n");
                                       ARES_INC = 0.0;
                                       AARG2_INC += aTmp;
@@ -1782,7 +1825,7 @@ int int_reverse_safe(
 		    }
 		    switchnum--;
 #elif defined(_ABS_NORM_SIG_) 
-		    aTmp = ARES;
+		    revreal aTmp = ARES;
 		    ARES_INC = 0.0;
 		    AARG_INC += siggrad[switchnum]*aTmp;
 		    switchnum--;
@@ -1790,10 +1833,12 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
                 if (TARG < 0.0)
                     FOR_0_LE_l_LT_p
-                    { aTmp = ARES;
+                    {
 #if defined(_INT_REV_)
+                      unsigned long int aTmp = ARES;
                       ARES_INC = 0;
 #else
+                      revreal aTmp = ARES;
                       ARES_INC = 0.0;
 #endif
                       if ((coval) && (aTmp))
@@ -1806,10 +1851,12 @@ int int_reverse_safe(
                     } else
                         if (TARG > 0.0)
                                 FOR_0_LE_l_LT_p
-                                { aTmp = ARES;
+                                {
 #if defined(_INT_REV_)
+                                  unsigned long int aTmp = ARES;
                                   ARES_INC = 0;
 #else
+                                  revreal aTmp = ARES;
                                   ARES_INC = 0.0;
 #endif
                                   if ((!coval) && (aTmp))
@@ -1821,10 +1868,11 @@ int int_reverse_safe(
 #endif
                                 } else
                                     FOR_0_LE_l_LT_p {
-                                        aTmp = ARES;
 #if defined(_INT_REV_)
+                                        unsigned long int aTmp = ARES;
                                         ARES_INC = 0;
 #else
+                                        revreal aTmp = ARES;
                                         ARES_INC = 0.0;
 #endif
                                         if (aTmp)
@@ -1832,7 +1880,8 @@ int int_reverse_safe(
                                         }
 #else
                                             FOR_0_LE_l_LT_p
-                                            { aTmp = ARES;
+                                            {
+                                              unsigned long int aTmp = ARES;
                                               ARES_INC = 0;
                                               AARG_INC |= aTmp;
                                             }
@@ -2562,7 +2611,7 @@ int int_reverse_safe(
 #if defined(_INT_REV_)
                 AARG_INC |= ARES_INC;
 #else
-                { aTmp = ARES;
+                { revreal aTmp = ARES;
                   /* olvo 980713 nn: ARES = 0.0; */
 		    ARES_INC =  (aTmp==0)?0:(aTmp * TARG);
 		    AARG_INC += (aTmp==0)?0:(aTmp * TRES);
