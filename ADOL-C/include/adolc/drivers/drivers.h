@@ -27,7 +27,7 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                 function */
 /* function(tag, m, n, x[n], y[m])                                          */
-ADOLC_DLL_EXPORT int function(short,int,int,double*,double*);
+ADOLC_DLL_EXPORT int function(short,int,int,const double*,double*);
 ADOLC_DLL_EXPORT fint function_(fint*,fint*,fint*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
@@ -52,21 +52,21 @@ ADOLC_DLL_EXPORT fint large_jacobian_(fint*,fint*,fint*,fint*,fdouble*,fdouble*,
 /*--------------------------------------------------------------------------*/
 /*                                                         vector_jacobian  */
 /* vec_jac(tag, m, n, repeat, x[n], u[m], v[n])                             */
-ADOLC_DLL_EXPORT int vec_jac(short,int,int,int,double*,double*,double*);
+ADOLC_DLL_EXPORT int vec_jac(short,int,int,int,const double*,double*,double*);
 ADOLC_DLL_EXPORT fint vec_jac_(fint*,fint*,fint*,fint*,
                                fdouble*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
 /*                                                          jacobian_vector */
 /* jac_vec(tag, m, n, x[n], v[n], u[m]);                                    */
-ADOLC_DLL_EXPORT int jac_vec(short,int,int,double*,double*,double*);
+ADOLC_DLL_EXPORT int jac_vec(short,int,int,const double*,const double*,double*);
 ADOLC_DLL_EXPORT fint jac_vec_(fint*,fint*,fint*,fdouble*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  hessian */
 /* hessian(tag, n, x[n], lower triangle of H[n][n])                         */
 /* uses Hessian-vector product                                              */
-ADOLC_DLL_EXPORT int hessian(short,int,double*,double**);
+ADOLC_DLL_EXPORT int hessian(short,int,const double*,double**);
 ADOLC_DLL_EXPORT fint hessian_(fint*,fint*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
@@ -79,21 +79,21 @@ ADOLC_DLL_EXPORT fint hessian2_(fint*,fint*,fdouble*,fdouble*);
 /*--------------------------------------------------------------------------*/
 /*                                                           hessian_vector */
 /* hess_vec(tag, n, x[n], v[n], w[n])                                       */
-ADOLC_DLL_EXPORT int hess_vec(short,int,double*,double*,double*);
+ADOLC_DLL_EXPORT int hess_vec(short,int,const double*,const double*,double*);
 ADOLC_DLL_EXPORT fint hess_vec_(fint*,fint*,fdouble*,fdouble*,fdouble*);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           hessian_matrix */
 /* hess_mat(tag, n, q, x[n], V[n][q], W[n][q])                              */
-ADOLC_DLL_EXPORT int hess_mat(short,int,int,double*,double**,double**);
+ADOLC_DLL_EXPORT int hess_mat(short,int,int,const double*,const double**,double**);
 ADOLC_DLL_EXPORT fint hess_mat_(fint*,fint*,fint*,
                                 fdouble*,fdouble**,fdouble**);
 
 /*--------------------------------------------------------------------------*/
 /*                                                  lagrange_hessian_vector */
 /* lagra_hess_vec(tag, m, n, x[n], v[n], u[m], w[n])                        */
-ADOLC_DLL_EXPORT int lagra_hess_vec(short,int,int,double*,
-                                    double*,double*,double*);
+ADOLC_DLL_EXPORT int lagra_hess_vec(short,int,int,const double*,
+                                    const double*,const double*,double*);
 ADOLC_DLL_EXPORT fint lagra_hess_vec_(fint*,fint*,fint*,
                                       fdouble*,fdouble*,fdouble*,fdouble*);
 

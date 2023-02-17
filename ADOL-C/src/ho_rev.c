@@ -267,7 +267,7 @@ int hos_reverse(short   tnum,        /* tape id */
                 int     depen,       /* consistency chk on # of deps */
                 int     indep,       /* consistency chk on # of indeps */
                 int     degre,       /* highest derivative degree  */
-                double  *lagrange,   /* range weight vector       */
+                const double  *lagrange,   /* range weight vector       */
                 double  **results)   /* matrix of coefficient vectors */
 {
     double** L = myalloc2(depen,degre+1);

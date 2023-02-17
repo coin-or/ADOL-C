@@ -199,12 +199,12 @@ ADOLC_DLL_EXPORT int zos_forward_partx(short,int,int,int*,double**,double*);
 /* fos_forward(tag, m, n, keep, x[n], X[n], y[m], Y[m])                     */
 /* (defined in uni5_for.mc)                                                 */
 ADOLC_DLL_EXPORT int fos_forward(
-    short,int,int,int,const double*,double*,double*,double*);
+    short,int,int,int,const double*,const double*,double*,double*);
 
 /* fos_forward_nk(tag,m,n,x[n],X[n],y[m],Y[m])                              */
 /* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
 ADOLC_DLL_EXPORT int fos_forward_nk(
-    short,int,int,const double*,double*,double*,double*);
+    short,int,int,const double*,const double*,double*,double*);
 
 /* fos_forward_partx(tag, m, n, ndim[n], x[n][][2], y[m][2])                */
 /* (based on fos_forward)                                                   */
@@ -359,7 +359,7 @@ ADOLC_DLL_EXPORT fint fos_reverse_(fint*,fint*,fint*,fdouble*,fdouble*);
 /*                                                                      HOS */
 /*  hos_reverse(tag, m, n, d, u[m], Z[n][d+1])                              */
 /* (defined  in ho_rev.mc)                                                  */
-ADOLC_DLL_EXPORT int hos_reverse(short,int,int,int,double*,double**);
+ADOLC_DLL_EXPORT int hos_reverse(short,int,int,int,const double*,double**);
 
 /* now pack the arrays into vectors for Fortran calling                     */
 ADOLC_DLL_EXPORT fint hos_reverse_(fint*,fint*,fint*,fint*,fdouble*,fdouble*);

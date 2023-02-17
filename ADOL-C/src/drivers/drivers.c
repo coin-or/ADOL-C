@@ -30,7 +30,7 @@ BEGIN_C_DECLS
 int function(short tag,
              int m,
              int n,
-             double* argument,
+             const double* argument,
              double* result) {
     int rc= -1;
 
@@ -63,7 +63,7 @@ int vec_jac(short tag,
             int m,
             int n,
             int repeat,
-            double* argument,
+            const double* argument,
             double* lagrange,
             double* row) {
     int rc= -1;
@@ -147,8 +147,8 @@ int large_jacobian(short tag,
 int jac_vec(short tag,
             int m,
             int n,
-            double* argument,
-            double* tangent,
+            const double* argument,
+            const double* tangent,
             double* column) {
     int rc= -1;
     double *y;
@@ -166,8 +166,8 @@ int jac_vec(short tag,
 /* hess_vec(tag, n, x[n], v[n], w[n])                                       */
 int hess_vec(short tag,
              int n,
-             double *argument,
-             double *tangent,
+             const double *argument,
+             const double *tangent,
              double *result) {
     double one = 1.0;
     return lagra_hess_vec(tag,1,n,argument,tangent,&one,result);
@@ -179,8 +179,8 @@ int hess_vec(short tag,
 int hess_mat(short tag,
              int n,
              int q,
-             double *argument,
-             double **tangent,
+             const double *argument,
+             const double **tangent,
              double **result) {
     int rc;
     int i,j;
@@ -223,7 +223,7 @@ int hess_mat(short tag,
 /* uses Hessian-vector product                                              */
 int hessian(short tag,
             int n,
-            double* argument,
+            const double* argument,
             double** hess) {
     int rc= 3;
     int i,j;
@@ -297,9 +297,9 @@ int hessian2(short tag,
 int lagra_hess_vec(short tag,
                    int m,
                    int n,
-                   double *argument,
-                   double *tangent,
-                   double *lagrange,
+                   const double *argument,
+                   const double *tangent,
+                   const double *lagrange,
                    double *result) {
     int rc=-1;
     int i;

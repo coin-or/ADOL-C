@@ -575,7 +575,7 @@ int  fos_forward_nk(
     int    keep,        /* flag for reverse sweep */
 #endif
     const double *basepoint,  /* independent variable values */
-    double *argument,   /* Taylor coefficients (input) */
+    const double *argument,   /* Taylor coefficients (input) */
     double *valuepoint, /* Taylor coefficients (output) */
     double *taylors)    /* matrix of coefficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
