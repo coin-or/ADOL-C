@@ -997,7 +997,7 @@ int int_reverse_safe(
                 FOR_0_LE_l_LT_p
                 {
 #if defined(_INT_REV_)
-                  unsigned long int aTmp = ARES;
+                  unsigned long int aTmp = *Ares;
                   ARES_INC = 0;
                   AARG_INC |= aTmp;
 #else
@@ -1176,7 +1176,7 @@ int int_reverse_safe(
                 FOR_0_LE_l_LT_p
                 {
 #if defined(_INT_REV_)
-                  unsigned long int aTmp = ARES;
+                  unsigned long int aTmp = *Ares;
                   ARES_INC = 0;
 		  AARG_INC |= aTmp;
 #else
@@ -1244,7 +1244,7 @@ int int_reverse_safe(
                 FOR_0_LE_l_LT_p
                 {
 #if defined(_INT_REV_)
-                  unsigned long int aTmp = ARES;
+                  unsigned long int aTmp = *Ares;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
                   AARG2_INC |= aTmp;
@@ -1436,7 +1436,7 @@ int int_reverse_safe(
                 FOR_0_LE_l_LT_p
                 {
 #if defined(_INT_REV_)
-                  unsigned long int aTmp = ARES;
+                  unsigned long int aTmp = *Ares;
                   ARES_INC = 0;
                   AARG1_INC |= aTmp;
 #else
@@ -1774,7 +1774,7 @@ int int_reverse_safe(
                                     FOR_0_LE_l_LT_p
                                     { 
 #if defined(_INT_REV_)
-                                      aTmp = *Ares;
+                                      unsigned long int aTmp = *Ares;
 				      ARES_INC = 0;
 				      AARG2_INC |= aTmp;
 				      AARG1_INC |= aTmp;
@@ -1791,7 +1791,7 @@ int int_reverse_safe(
                                     }
 #else
                     FOR_0_LE_l_LT_p
-                    { aTmp = ARES;
+                    { unsigned long int aTmp = *Ares;
                       ARES_INC = 0;
                       AARG1_INC |= aTmp;
                       AARG2_INC |= aTmp;
@@ -2166,7 +2166,7 @@ int int_reverse_safe(
 #else
                     if (res != arg1)
                         FOR_0_LE_l_LT_p
-                        { AARG1 |= ARES;
+                        { AARG1 |= *Ares;
                           ARES_INC = 0;
                         }
 #endif /* !_NTIGHT_ */
