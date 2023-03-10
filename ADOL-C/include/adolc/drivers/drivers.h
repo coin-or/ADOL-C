@@ -85,7 +85,7 @@ ADOLC_DLL_EXPORT fint hess_vec_(fint*,fint*,fdouble*,fdouble*,fdouble*);
 /*--------------------------------------------------------------------------*/
 /*                                                           hessian_matrix */
 /* hess_mat(tag, n, q, x[n], V[n][q], W[n][q])                              */
-ADOLC_DLL_EXPORT int hess_mat(short,int,int,const double*,const double**,double**);
+ADOLC_DLL_EXPORT int hess_mat(short,int,int,const double*, double**,double**);
 ADOLC_DLL_EXPORT fint hess_mat_(fint*,fint*,fint*,
                                 fdouble*,fdouble**,fdouble**);
 
