@@ -421,8 +421,8 @@ if (keep){\
 /*--------------------------------------------------------------------------*/
 /*                                                               loop stuff */
 #if defined(_ADOLC_VECTOR_)
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
-#define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)
+#define FOR_p_GT_l_GE_0 for (int l=p-1; l>=0; l--)
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
 #define FIRSTSIGN_P(x,y) firstsign(p,&(x),y)
 #define COPYTAYL_P(x,y)  FOR_0_LE_l_LT_p x[l] = y[l]
@@ -446,39 +446,39 @@ if (keep){\
 #endif
 
 #if defined(_HIGHER_ORDER_)
-#define FOR_0_LE_i_LT_k for (i=0; i<k; i++)
-#define FOR_k_GT_i_GE_0 for (i=k-1; i>=0; i--)
+#define FOR_0_LE_i_LT_k for (int i=0; i<k; i++)
+#define FOR_k_GT_i_GE_0 for (int i=k-1; i>=0; i--)
 #else
-#define FOR_0_LE_i_LT_k
-#define FOR_k_GT_i_GE_0
+#define FOR_0_LE_i_LT_k for (int i=0; i<1; i++)
+#define FOR_k_GT_i_GE_0 for (int i=0; i>=0; i--)
 #endif
 
 #if defined(_HOV_)
-#define FOR_0_LE_l_LT_pk for (l=0; l<pk; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
 #define INC_pk_1(T)      T += pk-1;
 #define VEC_INC(T,inc)   T += inc;
 #define HOV_INC(T,inc)   T += inc;
 #else
 #if defined(_HOV_WK_)
-#define FOR_0_LE_l_LT_pk for (l=0; l<pk; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<pk; l++)
 #define INC_pk_1(T)      T += pk-1;
 #define VEC_INC(T,inc)   T += inc;
 #define HOV_INC(T,inc)   T += inc;
 #else
 #if defined(_FOV_)
-#define FOR_0_LE_l_LT_pk for (l=0; l<p; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
 #define INC_pk_1(T)      T += p-1;
 #define VEC_INC(T,inc)   T++;
 #define HOV_INC(T,inc)
 #else
 #if defined(_HOS_)
-#define FOR_0_LE_l_LT_pk for (l=0; l<k; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<k; l++)
 #define INC_pk_1(T)      T += k-1;
 #define VEC_INC(T,inc)
 #define HOV_INC(T,inc)
 #else
 #if defined(_INT_FOR_)
-#define FOR_0_LE_l_LT_pk for (l=0; l<p; l++)
+#define FOR_0_LE_l_LT_pk for (int l=0; l<p; l++)
 #define INC_pk_1(T)      T += p-1;
 #define VEC_INC(T,inc)   T++;
 #else
@@ -879,26 +879,7 @@ int  hov_forward(
     int indexi = 0,  indexd = 0;
 
     /* loop indices */
-#if !defined (_ZOS_)
-#if !defined (_INT_FOR_)
-    int i;
-#if !defined (_INDO_)
-    int ii;
-#endif
-#endif
-#endif
-#if defined (_HIGHER_ORDER_)
-    int j, l=0;
-#endif
     int ls;
-#if defined(_ADOLC_VECTOR_)
-#if !defined (_HIGHER_ORDER_)
-    int l=0;
-#endif
-#endif
-#if defined (_INT_FOR_)
-    int l=0;
-#endif
 #if defined (_INDO_)
 #if defined(_INDOPRO_)
     int l=0;
@@ -916,7 +897,6 @@ int  hov_forward(
     IndexElement_sod* temp1;
     int maxopind;
     int opind;
-    int ii;
 #endif
 #if defined(_NONLIND_OLD_)
     /* nonlinear interaction domains */
@@ -929,9 +909,6 @@ int  hov_forward(
 #if !defined (_INDO_)
 #if !defined (_INT_FOR_)
     double r0=0.0, x, y, divs;
-#if defined(_HIGHER_ORDER_)
-    int even;
-#endif
 #endif
 #endif
 #endif
@@ -1988,7 +1965,7 @@ int  hov_forward(
                   TresOP = Tres-i;
                   TargOP = Targ;
 
-                  for (j=0;j<i;j++)
+                  for (int j=0;j<i;j++)
                   *Tres += (*TresOP++) * (*TargOP--);
                   Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -2267,7 +2244,7 @@ int  hov_forward(
                   Targ1OP = Targ1-i+1;
                   Targ2OP = Targ2;
 
-                  for (j=0;j<i;j++) {
+                  for (int j=0;j<i;j++) {
                   *Tres += (*Targ1OP++) * (*Targ2OP--);
                   }
                   Tres--;
@@ -2338,7 +2315,7 @@ int  hov_forward(
                   Targ1OP = Targ1-i+1;
                   Targ2OP = Targ2;
 
-                  for (j=0;j<i;j++)
+                  for (int j=0;j<i;j++)
                   *Tres += (*Targ1OP++) * (*Targ2OP--);
                   Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -2408,7 +2385,7 @@ int  hov_forward(
                   Targ1OP = Targ1-i+1;
                   Targ2OP = Targ2;
 
-                  for (j=0;j<i;j++)
+                  for (int j=0;j<i;j++)
                   *Tres -= (*Targ1OP++) * (*Targ2OP--);
                   Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -2559,7 +2536,7 @@ int  hov_forward(
 #if defined(_HIGHER_ORDER_)
                     TresOP = Tres-i;
 
-                    for (j=0;j<i;j++)
+                    for (int j=0;j<i;j++)
                     *Tres += (*TresOP++) * (*zOP--);
                     Tres++;
 #endif /* _HIGHER_ORDER_ */
@@ -2630,7 +2607,7 @@ int  hov_forward(
 #if defined(_HIGHER_ORDER_)
                     TresOP = Tres-i;
 
-                    for (j=0;j<i;j++)
+                    for (int j=0;j<i;j++)
                     *Tres += (*TresOP++) * (*zOP--);
                     Tres++;
 #endif /* _HIGHER_ORDER_ */
@@ -2703,7 +2680,7 @@ int  hov_forward(
 #if defined(_HIGHER_ORDER_)
                     TresOP = Tres-i;
 
-                    for (j=0;j<i;j++)
+                    for (int j=0;j<i;j++)
                     *Tres += (*TresOP++) * (*zOP--);
                     Tres++;
 #endif /* _HIGHER_ORDER_ */
@@ -2834,7 +2811,7 @@ int  hov_forward(
                     TresOP = Tres-i;
 
                     *Tres *= (i+1);
-                    for (j=0;j<i;j++)
+                    for (int j=0;j<i;j++)
                     *Tres += (*TresOP++) * (*zOP--);
                     *Tres++ /= (i+1); /* important only for i>0 */
 #endif /* _HIGHER_ORDER_ */
@@ -2907,7 +2884,7 @@ int  hov_forward(
 
                     *Tres  *= (i+1);
                     *Targ2 *= (i+1);
-                    for (j=0;j<i;j++) {
+                    for (int j=0;j<i;j++) {
                     *Tres  += (*Targ2OP++) * (*zOP);
                         *Targ2 -= (*TresOP++)  * (*zOP--);
                     }
@@ -2983,7 +2960,7 @@ int  hov_forward(
 
                     *Tres  *= (i+1);
                     *Targ2 *= (i+1);
-                    for (j=0;j<i;j++) {
+                    for (int j=0;j<i;j++) {
                     *Tres  -= (*Targ2OP++) * (*zOP);
                         *Targ2 += (*TresOP++)  * (*zOP--);
                     }
@@ -3048,7 +3025,7 @@ int  hov_forward(
                       Targ2OP = Targ2;
 
                       *Tres *= (i+1);
-                      for (j=0;j<i;j++)
+                      for (int j=0;j<i;j++)
                       *Tres  += (*Targ2OP++) * (*zOP--);
                       *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -3150,7 +3127,7 @@ int  hov_forward(
                                 Targ2OP = Targ2;
 
                                 *Tres *= (i+1);
-                                for (j=0;j<i;j++)
+                                for (int j=0;j<i;j++)
                                 *Tres += (*Targ2OP++) * (*zOP--);
                                 *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -3252,7 +3229,7 @@ int  hov_forward(
                                 Targ2OP = Targ2;
 
                                 *Tres *= (i+1);
-                                for (j=0;j<i;j++)
+                                for (int j=0;j<i;j++)
                                 *Tres += (*Targ2OP++) * (*zOP--);
                                 *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -3637,7 +3614,7 @@ int  hov_forward(
 
                     (*zOP--) = *Tres;
                     (*Tres) *= i+1;
-                    for (j=0;j<i;j++)
+                    for (int j=0;j<i;j++)
                     (*Tres) -= (*zOP--) * (*TresOP++) * (j+1);
                     *Tres++ /= i+1;
 #endif /* _HIGHER_ORDER_ */
@@ -3715,7 +3692,6 @@ int  hov_forward(
                         if (coval - floor(coval) != 0) {
                             FOR_0_LE_l_LT_p
                             {
-                                i = 0;
                                 FOR_0_LE_i_LT_k
                                 {
                                     if (coval - i > 1)
@@ -3747,11 +3723,11 @@ int  hov_forward(
 #if defined(_HIGHER_ORDER_)
                                         if (i == k-1) {
                                         zOP = dp_z+k-1;
-                                        for(j=k-1;j>=0;j--) {
+                                        for (int j=k-1;j>=0;j--) {
                                                 (*zOP--) = (*Targ--);
                                             }
                                         }
-                                        for (j=0;j<i;j++) {
+                                        for (int j=0;j<i;j++) {
                                         *Tres += dp_z[j] *
                                                      dp_z[i-j-1];
                                         }
@@ -3759,7 +3735,7 @@ int  hov_forward(
 #endif /* _HIGHER_ORDER_ */
                                     }
                                 }
-                                for(ii=3;ii<=coval;ii++) {
+                                for (int ii=3;ii<=coval;ii++) {
                                     ASSIGN_T(Tres, TAYLOR_BUFFER[res])
                                     ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
                                     INC_pk_1(Targ)
@@ -3773,7 +3749,7 @@ int  hov_forward(
                                             DEC_TRES_FO
 #if defined(_HIGHER_ORDER_)
                                             TresOP = Tres-i;
-                                            for (j=0;j<i;j++)
+                                            for (int j=0;j<i;j++)
                                             *Tres += TresOP[j] * dp_z[i-j-1];
                                             Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -3801,7 +3777,7 @@ int  hov_forward(
 
                     (*Tres) *= i+1;
                     y = coval*i -1;
-                    for (j=0;j<i;j++) {
+                    for (int j=0;j<i;j++) {
                         *Tres += (*TresOP++) * (*zOP--) * y;
                             y -= coval + 1;
                         }
@@ -3875,7 +3851,6 @@ int  hov_forward(
                         if (coval - floor(coval) != 0) {
                             FOR_0_LE_l_LT_p
                             {
-                                i = 0;
                                 FOR_0_LE_i_LT_k
                                 {
                                     if (coval - i > 1)
@@ -3907,11 +3882,11 @@ int  hov_forward(
 #if defined(_HIGHER_ORDER_)
                                         if (i == k-1) {
                                         zOP = dp_z+k-1;
-                                        for(j=k-1;j>=0;j--) {
+                                        for (int j=k-1;j>=0;j--) {
                                                 (*zOP--) = (*Targ--);
                                             }
                                         }
-                                        for (j=0;j<i;j++) {
+                                        for (int j=0;j<i;j++) {
                                         *Tres += dp_z[j] *
                                                      dp_z[i-j-1];
                                         }
@@ -3919,7 +3894,7 @@ int  hov_forward(
 #endif /* _HIGHER_ORDER_ */
                                     }
                                 }
-                                for(ii=3;ii<=coval;ii++) {
+                                for (int ii=3;ii<=coval;ii++) {
                                     ASSIGN_T(Tres, TAYLOR_BUFFER[res])
                                     ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
                                     INC_pk_1(Targ)
@@ -3933,7 +3908,7 @@ int  hov_forward(
                                             DEC_TRES_FO
 #if defined(_HIGHER_ORDER_)
                                             TresOP = Tres-i;
-                                            for (j=0;j<i;j++)
+                                            for (int j=0;j<i;j++)
                                             *Tres += TresOP[j] * dp_z[i-j-1];
                                             Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -3961,7 +3936,7 @@ int  hov_forward(
 
                     (*Tres) *= i+1;
                     y = coval*i -1;
-                    for (j=0;j<i;j++) {
+                    for (int j=0;j<i;j++) {
                         *Tres += (*TresOP++) * (*zOP--) * y;
                             y -= coval + 1;
                         }
@@ -4035,7 +4010,7 @@ int  hov_forward(
                   Targ = TargOP;
 
 #if defined(_HIGHER_ORDER_)
-                  even = 1;
+                  int even = 1;
 #endif
                   FOR_0_LE_i_LT_k
                   { TRES_FOINC = r0 * TARG_INC;
@@ -4044,7 +4019,7 @@ int  hov_forward(
                     TresOP2 = Tres-1;
 
                     x = 0;
-                    for (j=1;2*j-1<i;j++)
+                    for (int j=1;2*j-1<i;j++)
                     x += (*TresOP++) * (*TresOP2--);
                     x *= 2;
                     if (!even)
@@ -4119,9 +4094,6 @@ int  hov_forward(
                   }
                   Targ = TargOP;
 
-#if defined(_HIGHER_ORDER_)
-                  even = 1;
-#endif
                   FOR_0_LE_i_LT_k
                   { TRES_FOINC = r0 * TARG_INC;
 #if defined(_HIGHER_ORDER_)
@@ -4191,7 +4163,7 @@ int  hov_forward(
                       Targ2OP = Targ2;
 
                       *Tres *= (i+1);
-                      for (j=0;j<i;j++)
+                      for (int j=0;j<i;j++)
                       *Tres += (*Targ2OP++) * (*zOP--);
                       *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -5635,7 +5607,7 @@ int  hov_forward(
                   TresOP = Tres-i;
                   TargOP = Targ;
 
-                  for (j=0;j<i;j++)
+                  for (int j=0;j<i;j++)
                   *Tres += (*TresOP++) * (*TargOP--);
                   Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -5757,7 +5729,7 @@ int  hov_forward(
                   Targ1OP = Targ1-i+1;
                   Targ2OP = Targ2;
 
-                  for (j=0;j<i;j++)
+                  for (int j=0;j<i;j++)
                   *Tres += (*Targ1OP++) * (*Targ2OP--);
                   Tres--;
 #endif /* _HIGHER_ORDER_ */
@@ -5828,7 +5800,7 @@ int  hov_forward(
                     Targ1OP = Targ - i + 1;
                     Targ2OP = Targ1;
 
-                    for (j=0;j<i;j++) {
+                    for (int j=0;j<i;j++) {
                         *Tres += (*Targ1OP++) * (*Targ2OP--);
                     }
                     Tres--;
@@ -6698,7 +6670,7 @@ int  hov_forward(
       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (sod[i].entry+1));
       crs[i][0] = sod[i].entry;
       temp = sod[i].left;
-      for( ii=1; ii <=sod[i].entry; ii++)
+      for(int ii=1; ii <=sod[i].entry; ii++)
 	{
 	  crs[i][ii] = temp->entry;
 	  temp1 = temp->left;
