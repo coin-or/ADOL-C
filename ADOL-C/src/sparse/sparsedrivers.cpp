@@ -53,7 +53,7 @@ int jac_pat(
     short          tag,       /* tape identification                       */
     int            depen,     /* number of dependent variables             */
     int            indep,     /* number of independent variables           */
-    const double  *basepoint, /* independant variable values               */
+    const double  *basepoint, /* independent variable values               */
     unsigned int **crs,
     /* returned compressed row block-index storage                         */
     int          *options
@@ -110,7 +110,7 @@ int absnormal_jac_pat(
     int            depen,     /* number of dependent variables             */
     int            indep,     /* number of independent variables           */
     int            numsw,     /* number of switches                        */
-    const double  *basepoint, /* independant variable values               */
+    const double  *basepoint, /* independent variable values               */
     unsigned int **crs
     /* returned compressed row block-index storage                         */
     ) {
@@ -168,7 +168,7 @@ void generate_seed_jac
 int hess_pat(
     short          tag,        /* tape identification                        */
     int            indep,      /* number of independent variables            */
-    const double  *basepoint,  /* independant variable values                */
+    const double  *basepoint,  /* independent variable values                */
     unsigned int **crs,
     /* returned compressed row block-index storage                         */
     int          option
@@ -259,7 +259,7 @@ int sparse_jac(
     int            depen,      /* number of dependent variables           */
     int            indep,      /* number of independent variables         */
     int            repeat,     /* indicated repeated call with same seed  */
-    const double  *basepoint,  /* independant variable values             */
+    const double  *basepoint,  /* independent variable values             */
     int           *nnz,        /* number of nonzeros                      */
     unsigned int **rind,       /* row index                               */
     unsigned int **cind,       /* column index                            */
@@ -448,7 +448,7 @@ int sparse_hess(
     short          tag,        /* tape identification                     */
     int            indep,      /* number of independent variables         */
     int            repeat,     /* indicated repeated call with same seed  */
-    const double  *basepoint,  /* independant variable values             */
+    const double  *basepoint,  /* independent variable values             */
     int           *nnz,        /* number of nonzeros                      */
     unsigned int **rind,       /* row index                               */
     unsigned int **cind,       /* column index                            */
@@ -703,7 +703,7 @@ int bit_vector_propagation(
     short          tag,        /* tape identification                */
     int            depen,      /* number of dependent variables      */
     int            indep,      /* number of independent variables    */
-    const double  *basepoint, /* independant variable values         */
+    const double  *basepoint, /* independent variable values         */
     unsigned int **crs,
     /* compressed block row storage                                  */
     int *options       /* control options                            */

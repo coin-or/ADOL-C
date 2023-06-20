@@ -528,7 +528,7 @@ int  zos_forward_nk(
 #if defined(_KEEP_)
     int    keep,              /* flag for reverse sweep */
 #endif
-    const double *basepoint,  /* independant variable values */
+    const double *basepoint,  /* independent variable values */
     double       *valuepoint) /* dependent variable values */
 
 #endif
@@ -822,7 +822,7 @@ int  hos_forward_nk(
     int    keep,        /* flag for reverse sweep */
 #endif
     const double *basepoint,  /* independent variable values */
-    double **argument,  /* independant variable values */
+    double **argument,  /* independent variable values */
     double *valuepoint, /* Taylor coefficients (output) */
     double **taylors)   /* matrix of coifficient vectors */
 
@@ -1888,7 +1888,7 @@ int  hov_forward(
 
                 /*--------------------------------------------------------------------------*/
             case eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 res   = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = 
@@ -1917,7 +1917,7 @@ int  hov_forward(
 
                 /*--------------------------------------------------------------------------*/
             case eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 arg   = get_locint_f();
                 res   = get_locint_f();
 #if !defined(_NTIGHT_)
@@ -5532,7 +5532,7 @@ int  hov_forward(
                 break;
 
             case ref_eq_mult_d:              /* Multiply an adouble by a    eq_mult_d */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 arg = get_locint_f();
 #if !defined(_NTIGHT_)
                 coval = 
@@ -5562,7 +5562,7 @@ int  hov_forward(
                 break;
 
             case ref_eq_mult_p:              /* Multiply an adouble by a    eq_mult_p */
-                /* flaoting point. (*=) */
+                /* floating point. (*=) */
                 arg1 = get_locint_f();
                 arg = get_locint_f();
 #if !defined(_NTIGHT_)
@@ -6220,7 +6220,7 @@ int  hov_forward(
 
                 /*--------------------------------------------------------------------------*/
 #if defined(_EXTERN_) /* ZOS,  FOS, FOV up to now */
-            case ext_diff:                       /* extern differntiated function */
+            case ext_diff:                       /* extern differentiated function */
                 ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index=get_locint_f();
                 n=get_locint_f();
                 m=get_locint_f();
@@ -6289,7 +6289,7 @@ int  hov_forward(
 
                 break;
 
-            case ext_diff_iArr:                 /* extern differntiated function */
+            case ext_diff_iArr:                 /* extern differentiated function */
                 iArrLength=get_locint_f();
                 iArr=malloc(iArrLength*sizeof(int));
                 for (loop=0;loop<iArrLength;++loop) iArr[loop]=get_locint_f();

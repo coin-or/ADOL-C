@@ -26,7 +26,7 @@ BEGIN_C_DECLS
 /*                                                              STRUCT ITEM */
 struct item {
     int a;                 /* address in array of derivatives */
-    int b;                 /* absolute value of the correspondig multiindex i */
+    int b;                 /* absolute value of the corresponding multiindex i */
     double c;              /* value of the coefficient c_{i,j} */
     struct item *next;     /* next item */
 };
@@ -55,7 +55,7 @@ void freecoefflist( int dim, struct item *coeff_list ) {
 double* tensoriglob;
 
 /*--------------------------------------------------------------------------*/
-/* Allcoate space for symmetric derivative tensors
+/* Allocate space for symmetric derivative tensors
    of up to order d in n variables, derivatives are  */
 void* tensorpoint( int n, int d ) {
     int i;

@@ -678,7 +678,7 @@ locint keep_stock() {
         ADOLC_PUT_LOCINT(loc2); /* highest loc */
 
         ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += ADOLC_GLOBAL_TAPE_VARS.storeSize;
-        /* now really do it if keepTaylors ist set */
+        /* now really do it if keepTaylors is set */
         if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
             do {
                 ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc2]);
@@ -1447,7 +1447,7 @@ static void read_params(TapeInfos* tapeInfos) {
 
 /****************************************************************************/
 /* Overrides the parameters for the next evaluations. This will invalidate  */
-/* the taylor stack, so next reverse call will fail, if not preceeded by a  */
+/* the taylor stack, so next reverse call will fail, if not preceded by a   */
 /* forward call after setting the parameters.                               */
 /****************************************************************************/
 void set_param_vec(short tag, size_t numparam, revreal* paramvec) {

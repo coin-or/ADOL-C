@@ -227,7 +227,7 @@ void StoreManagerLocint::free_loc(locint loc) {
 
 void StoreManagerLocint::ensure_block(size_t n) {
     fprintf(DIAG_OUT,"ADOL-C error: Location block required from singleton location store");
-    adolc_exit(-4,"ADOL-C error: Location blocks not alowed",__func__,__FILE__,__LINE__);
+    adolc_exit(-4,"ADOL-C error: Location blocks not allowed",__func__,__FILE__,__LINE__);
 }
 
 void StoreManagerLocint::grow(size_t mingrow) {
@@ -344,7 +344,7 @@ stack<TapeInfos *> ADOLC_TAPE_STACK_DECL;
 TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
 TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
 
-/* global tapeing variables */
+/* global taping variables */
 GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
 
 #if defined(_OPENMP)

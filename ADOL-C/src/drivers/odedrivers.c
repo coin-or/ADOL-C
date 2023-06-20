@@ -140,7 +140,7 @@ void accodec(int n,              /* space dimension */
         has exactly the same format, except that it-s k-th matrix slice
         represents a partial derivative in that the indirect dependence
         of the k-th coefficient vector on the base point via the (k-1)-st
-        and other lower Taylor coeffcients has not been taken into account.
+        and other lower Taylor coefficients has not been taken into account.
         The B's are compute from the A's by the chainrule with the parameter
         tau thrown in for scaling. The calculation is performed so that
         A may directly be overwritten by B i.e. their pointers arguments may
@@ -157,7 +157,7 @@ void accodec(int n,              /* space dimension */
      
         In other words we only allow the sparsity of the matrices A[.][.][k]
         to be increasing in that A[.][.][1] is possibly sparser than A[.][.][0]
-        and all subseqent A[.][.][k] with k > 0 have the same sparsity pattern.
+        and all subsequent A[.][.][k] with k > 0 have the same sparsity pattern.
         That is the typical situation since A[.][.][k] is the k-th
         Taylor coefficient in the time expansion of the Jacobian of the
         right hand side. The entries of this square matrix tend to be either
@@ -170,7 +170,7 @@ void accodec(int n,              /* space dimension */
      
         Assuming that the diagonal entries A[i][i][0] are structurally nonzero
         we find that the matrices B[.][.][k=1..] can only lose sparsity
-        as k increase. Therfore, we can redefine the nonpositive values 
+        as k increase. Therefore, we can redefine the nonpositive values
         nonzero[i][j] so that on exit
      
     	    k <= -nonzero[i][j]  implies     B[i][j][k] = 0 

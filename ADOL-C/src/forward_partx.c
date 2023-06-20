@@ -101,7 +101,7 @@ int hos_forward_partx(short tag, int m, int n, int *ndim, int d, double ***x, do
     double *x0;        /* base point */
     double **xtay;     /* Taylor coefficients */
     double *y0;        /* result */
-    double **ytay;     /* derivaties */
+    double **ytay;     /* derivatives */
     int i,j,k,ind,sum_n, rc;
 
     sum_n = 0;
