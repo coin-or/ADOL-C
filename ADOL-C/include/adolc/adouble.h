@@ -212,7 +212,6 @@ public:
    ---- operates just like a badouble, but it has a destructor defined for it.
 */
 #if !defined(SWIGPRE)
-ADOLC_DLL_EXPORT adub* adubp_from_adub(const adub&);
 /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
 ADOLC_DLL_EXPORT adub adolc_vec_dot(const adouble*const, const adouble*const, locint);
 #endif
@@ -223,9 +222,6 @@ class ADOLC_DLL_EXPORT adub:public badouble {
     friend ADOLC_DLL_EXPORT class adubref;
     friend ADOLC_DLL_EXPORT class pdouble;
 
-#if !defined(SWIGPRE)
-    friend adub* adubp_from_adub(const adub&);
-#endif
 private:
     adub( adub const &) {
 	isInit = false;
@@ -252,9 +248,6 @@ protected:
    adub( locint lo ) : badouble(lo) {} 
 
 public:
-#if !defined(SWIGPRE)
-    explicit operator adub*() const { return adubp_from_adub(*this); }
-#endif 
     /*--------------------------------------------------------------------------*/
 #if !defined(SWIGPRE)
     /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
