@@ -94,6 +94,9 @@ protected:
     bool isInit;  // marker if the badouble is properly initialized
 
 public:
+
+    ~badouble();
+
     /*--------------------------------------------------------------------------*/    
     inline locint loc( void ) const;                         /* Helpful stuff */
 
@@ -248,8 +251,6 @@ public:
 #include <adolc/internal/paramfunc.h>
 #undef _IN_ADUB_
 #undef _IN_CLASS_
-
-    ~adub();
 };
 
 BEGIN_C_DECLS
@@ -286,7 +287,6 @@ public:
     badouble& operator++( void );
     badouble& operator--( void );
     /*   inline double value(); */
-    ~adouble();
 
     adouble& operator = ( double );
     adouble& operator = ( const badouble& );

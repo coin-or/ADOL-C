@@ -277,16 +277,7 @@ adouble::adouble( const adub& a ) {
 /*                                                              DESTRUCTORS */
 
 /*--------------------------------------------------------------------------*/
-adouble::~adouble() {
-#ifdef adolc_overwrite
-    if (isInit) {
-	free_loc(location);
-    }
-#endif
-}
-
-/*--------------------------------------------------------------------------*/
-adub::~adub() {
+badouble::~badouble() {
 #ifdef adolc_overwrite
     if (isInit) {
 	free_loc(location);
