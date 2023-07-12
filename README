@@ -2,7 +2,7 @@
      ADOL-C
 
 This new version of ADOL-C features new library functions for
-
+ 
   - sparse Jacobians and sparse Hessians
   - external differentiated functions
   - optimal checkpointing
