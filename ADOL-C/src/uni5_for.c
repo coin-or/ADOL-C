@@ -431,8 +431,8 @@ if (keep){\
 #endif
 #else
 #if defined(_INT_FOR_)
-#define FOR_0_LE_l_LT_p for (l=0; l<p; l++)
-#define FOR_p_GT_l_GE_0 for (l=p-1; l>=0; l--)
+#define FOR_0_LE_l_LT_p for (int l=0; l<p; l++)
+#define FOR_p_GT_l_GE_0 for (int l=p-1; l>=0; l--)
 #else
 #define FOR_0_LE_l_LT_p
 #define FOR_p_GT_l_GE_0
@@ -1206,7 +1206,7 @@ int  hov_forward(
     ind_dom = (locint **)  malloc(sizeof(locint*) * ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
     max_ind_dom = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES];
 
-    for(i=0;i<max_ind_dom;i++)
+    for(int i=0;i<max_ind_dom;i++)
     {
         ind_dom[i] = (locint *)  malloc(sizeof(locint) * (NUMNNZ+2));
         ind_dom[i][0] = 0;
@@ -1224,7 +1224,7 @@ int  hov_forward(
         opind = 0;
 	sod = (struct IndexElement_sod*) malloc(sizeof(struct IndexElement_sod) * indcheck);
 
-	for(i=0;i<indcheck;i++)
+	for(int i=0;i<indcheck;i++)
 	  {
 	    sod[i].entry = 0;
 	    sod[i].left = NULL;
@@ -1236,7 +1236,7 @@ int  hov_forward(
 #if defined(_NONLIND_OLD_)
 
     nonl_dom = (locint**) malloc(sizeof(locint*) * indcheck);
-    for(i=0;i<indcheck;i++){
+    for(int i=0;i<indcheck;i++){
           nonl_dom[i] = (locint*) malloc(sizeof(locint)*(NUMNNZ+2));
           nonl_dom[i][0]=0;
           nonl_dom[i][1]=NUMNNZ;
@@ -3363,7 +3363,7 @@ int  hov_forward(
                           }
                   TRES_INC = r0;
 #if defined(_HIGHER_ORDER_)
-                  for (i=1;i<k;i++)
+                  for (int i=1;i<k;i++)
                   *Tres++ = make_nan();
 #endif /* _HIGHER_ORDER_ */
                 } else
@@ -3381,7 +3381,7 @@ int  hov_forward(
                             Targ2OP = Targ2;
 
                             *Tres *= (i+1);
-                            for (j=0;j<i;j++)
+                            for (int j=0;j<i;j++)
                                 *Tres += (*Targ2OP++) * (*zOP--);
                                 *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -3449,7 +3449,7 @@ int  hov_forward(
                           }
                   TRES_INC = r0;
 #if defined(_HIGHER_ORDER_)
-                  for (i=1;i<k;i++)
+                  for (int i=1;i<k;i++)
                   *Tres++ = make_nan();
 #endif /* _HIGHER_ORDER_ */
                 } else
@@ -3471,7 +3471,7 @@ int  hov_forward(
                                   }
                   TRES_INC = r0;
 #if defined(_HIGHER_ORDER_)
-                  for (i=1;i<k;i++)
+                  for (int i=1;i<k;i++)
                   *Tres++ = make_nan();
 #endif /* _HIGHER_ORDER_ */
                         } else
@@ -3489,7 +3489,7 @@ int  hov_forward(
                                     Targ2OP = Targ2;
 
                                     *Tres *= (i+1);
-                                    for (j=0;j<i;j++)
+                                    for (int j=0;j<i;j++)
                                         *Tres += (*Targ2OP++) * (*zOP--);
                                         *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -3549,7 +3549,7 @@ int  hov_forward(
                       Targ2OP = Targ2;
 
                       *Tres *= (i+1);
-                      for (j=0;j<i;j++)
+                      for (int j=0;j<i;j++)
                       *Tres += (*Targ2OP++) * (*zOP--);
                       *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
@@ -4382,7 +4382,7 @@ int  hov_forward(
                 if (ind_dom[arg][0] != 0) {
                     crs[switchnum] = (unsigned int*) malloc(sizeof(unsigned int)* (ind_dom[arg][0]+1));
                     crs[switchnum][0] = ind_dom[arg][0];
-                    for(l=1;l<crs[switchnum][0];i++) {
+                    for(l=1;l<crs[switchnum][0];l++) {
                         crs[switchnum][l] = ind_dom[arg][l+1];
                     }
                 } else {
@@ -6657,14 +6657,14 @@ int  hov_forward(
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
-    for(i=0;i<max_ind_dom;i++)
+    for(int i=0;i<max_ind_dom;i++)
       {
 	free(ind_dom[i]);
       }
     free(ind_dom);
 #endif
 #if defined(_NONLIND_)
-    for( i=0; i < indcheck; i++) {
+    for(int i=0; i < indcheck; i++) {
       traverse_crs(&nonl_dom[i],&sod[i],indcheck+1);
       free_tree(&nonl_dom[i],indcheck+1);
       crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (sod[i].entry+1));
@@ -6687,7 +6687,7 @@ int  hov_forward(
 #endif
 #if defined(_NONLIND_OLD_)
 
-    for( i=0; i < indcheck; i++) {
+    for(int i=0; i < indcheck; i++) {
        crs[i] = (unsigned int*) malloc(sizeof(unsigned int) * (nonl_dom[i][0]+1));
        crs[i][0] = nonl_dom[i][0];
        for(l=1; l < crs[i][0]+1; l++)
