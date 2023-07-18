@@ -3295,7 +3295,7 @@ int  hov_forward(
                       Targ2OP = Targ2;
 
                       *Tres *= (i+1);
-                      for (j=0;j<i;j++)
+                      for (int j=0;j<i;j++)
                       *Tres += (*Targ2OP++) * (*zOP--);
                       *Tres++ /= (i+1);
 #endif /* _HIGHER_ORDER_ */
