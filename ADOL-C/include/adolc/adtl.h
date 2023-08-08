@@ -3,7 +3,7 @@
  File:     adouble.cpp
  Revision: $Id$
  Contents: adtl.h contains that declaratins of procedures used to
-           define various tapeless adouble operations.
+           define various traceless adouble operations.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
@@ -254,7 +254,9 @@ inline void setNumDir(const size_t p) {
 #if USE_BOOST_POOL
     if (adouble::advalpool != NULL) {
         delete adouble::advalpool;
-        adouble::advalpool = NULL;
+        adouble::advalpool = NULL;#else
+  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+
     }
     adouble::advalpool = new boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1)*sizeof(double));
 #endif

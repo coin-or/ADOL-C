@@ -29,7 +29,7 @@ CONTENTS OF THE DIRECTORY
                             problem
   powexam.cpp          ---> Computation of n-th power
   speelpenning.cpp     ---> Speelpenning's product
-  traceless_scalar.cpp ---> coordinate transform with tapeless
+  traceless_scalar.cpp ---> coordinate transform with traceless
                             scalar forward mode
-  traceless_vector.cpp ---> coordinate with tapeless
+  traceless_vector.cpp ---> coordinate with traceless
                             vector forward mode
