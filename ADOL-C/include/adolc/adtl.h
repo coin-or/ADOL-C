@@ -254,9 +254,7 @@ inline void setNumDir(const size_t p) {
 #if USE_BOOST_POOL
     if (adouble::advalpool != NULL) {
         delete adouble::advalpool;
-        adouble::advalpool = NULL;#else
-  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
-
+        adouble::advalpool = NULL;
     }
     adouble::advalpool = new boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1)*sizeof(double));
 #endif
