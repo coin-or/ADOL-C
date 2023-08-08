@@ -1,4 +1,4 @@
-NAMES=(detexam odexam powexam speelpenning tapeless_scalar tapeless_vector)
+NAMES=(detexam odexam powexam speelpenning traceless_scalar traceless_vector)
 
 if [[ $# < 1 ]]; then
 	echo "usage: $0 config [arch]"

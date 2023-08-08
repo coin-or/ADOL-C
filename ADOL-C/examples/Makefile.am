@@ -21,7 +21,7 @@ MAINTAINERCLEANFILES    = Makefile.in *~ *.orig ADOLC-*.tap
 
 EXTRA_DIST              = adolc_examples.sln \
                           detexam.vcxproj speelpenning.vcxproj odexam.vcxproj \
-                          tapeless_scalar.vcxproj tapeless_vector.vcxproj \
+                          traceless_scalar.vcxproj traceless_vector.vcxproj \
                           Readme_VC++.txt
 
 if ADDEXA
@@ -34,7 +34,7 @@ endif
 
 if DOCEXA
 noinst_PROGRAMS         = detexam speelpenning powexam odexam luexam \
-                          tapeless_scalar tapeless_vector traceless_higher_order
+                          traceless_scalar traceless_vector traceless_higher_order
 if SPARSE
 noinst_PROGRAMS        += traceless_vector_indo
 endif
@@ -50,9 +50,9 @@ odexam_SOURCES          = odexam.cpp
 
 luexam_SOURCES          = luexam.cpp
 
-tapeless_scalar_SOURCES = tapeless_scalar.cpp
+traceless_scalar_SOURCES = traceless_scalar.cpp
 
-tapeless_vector_SOURCES = tapeless_vector.cpp
+traceless_vector_SOURCES = traceless_vector.cpp
 
 if SPARSE
 traceless_vector_indo_SOURCES = traceless_vector_indo.cpp
