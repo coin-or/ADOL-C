@@ -37,7 +37,7 @@ if(ADOLC_BASE)
   endif()
   
   unset(ADOLC_LIBRARY CACHE)
-  find_library(ADOLC_LIBRARY NAMES adolc PATHS ${ADOLC_BASE}/lib64 ${ADOLC_BASE}/lib NO_DEFAULT_PATHS)
+  find_library(ADOLC_LIBRARY NAMES adolc PATHS ${ADOLC_BASE}/lib64 ${ADOLC_BASE}/lib NO_DEFAULT_PATH)
   if(NOT ADOLC_LIBRARY)
     message(FATAL_ERROR "Fatal error: ADOL-C library not found, check if ADOLC_BASE path is correct")
   endif()
