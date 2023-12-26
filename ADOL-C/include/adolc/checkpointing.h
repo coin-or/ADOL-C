@@ -62,7 +62,7 @@ CpInfos *reg_timestep_fct(ADOLC_TimeStepFuncion timeStepFunction);
 
 ADOLC_DLL_EXPORT int checkpointing (CpInfos *cpInfos);
 
-/* if tape with one program and use the tapes with another programm call this
+/* if tape with one program and use the tapes with another program call this
  * function within the latter                                               */
 ADOLC_DLL_EXPORT void reinit_checkpointing();
 

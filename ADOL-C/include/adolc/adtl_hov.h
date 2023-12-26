@@ -85,7 +85,7 @@ public:
     inline friend
     adouble operator + (const double v, const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble operator - (const double v) const;
     inline adouble operator - (const adouble& a) const;
     inline friend
@@ -169,7 +169,7 @@ public:
     inline adouble& operator += (const double v);
     inline adouble& operator += (const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble& operator -= (const double v);
     inline adouble& operator -= (const adouble& a);
 
@@ -184,7 +184,7 @@ public:
     // not
     inline int operator ! () const;
 
-    // comparision
+    // comparison
     inline int operator != (const adouble&) const;
     inline int operator != (const double) const;
     inline friend int operator != (const double, const adouble&);
@@ -321,10 +321,10 @@ return true;
 inline void setNumDir(const size_t p) {
 #ifdef USE_ADTL_REFCOUNTING
     if (refcounter::refcnt > 0) {
-	fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+	fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erroneous results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
     }
 #else
-    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erroneous results\n or memory corruption\n");
 #endif
     if (p < 1) {
 	fprintf(DIAG_OUT, "ADOL-C Error: Traceless: You are being a moron now.\n");
@@ -344,10 +344,10 @@ inline void setDegree(const size_t p) {
 inline void setMode(enum Mode newmode) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
-    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n Number of currently exisiting adoubles = %zu\n", refcounter::refcnt);
+    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erroneous results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
   }
 #else
-  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erronious results\n or memory corruption\n");
+  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting mode will the change the mode of\n computation in previously computed variables and may lead to erroneous results\n or memory corruption\n");
 #endif
     adouble::forward_mode = newmode;
 }
@@ -377,7 +377,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
     //double** ho_deriv= new double*[adouble::degree];
 //    std::cout << " do_hoval() is :  "<< do_hoval() << std::endl;
     if(do_hoval()) // ADTL_HOV
-//    	std::cout << "constucting adtl:   degree: " << adouble::degree << "  numDir: " << adouble::numDir << std::endl;
+//    	std::cout << "constructing adtl:   degree: " << adouble::degree << "  numDir: " << adouble::numDir << std::endl;
 {
     ho_deriv = myalloc2( adouble::degree, adouble::numDir);
 }
@@ -2201,7 +2201,7 @@ inline int adouble::operator ! () const {
     return val==0.0;
 }
 
-// comparision
+// comparison
 inline int adouble::operator != (const adouble &a) const {
     if (no_do_val()) {
 	fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call setMode(enum Mode mode)\n");

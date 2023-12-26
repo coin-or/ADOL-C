@@ -43,7 +43,7 @@
 #   if HAVE_CONFIG_H
 #       include "config.h"
 
-/*      malloc/calloc/realloc replacments */
+/*      malloc/calloc/realloc replacements */
 #       undef ADOLC_NO_MALLOC
 #       undef ADOLC_NO_REALLOC
 #       if !defined(HAVE_MALLOC)

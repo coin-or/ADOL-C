@@ -67,7 +67,7 @@ public:
     inline friend
     adouble operator + (const double v, const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble operator - (const double v) const;
     inline adouble operator - (const adouble& a) const;
     inline friend
@@ -151,7 +151,7 @@ public:
     inline adouble& operator += (const double v);
     inline adouble& operator += (const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble& operator -= (const double v);
     inline adouble& operator -= (const adouble& a);
 
@@ -166,7 +166,7 @@ public:
     // not
     inline int operator ! () const;
 
-    // comparision
+    // comparison
     inline int operator != (const adouble&) const;
     inline int operator != (const double) const;
     inline friend int operator != (const double, const adouble&);
@@ -782,7 +782,7 @@ inline int adouble::operator ! () const {
     return val==0.0;
 }
 
-// comparision
+// comparison
 inline int adouble::operator != (const adouble &a) const {
     return val!=a.val;
 }

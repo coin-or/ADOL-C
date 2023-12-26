@@ -91,7 +91,7 @@ public:
     CUDADEV friend
     adouble operator + (const double v, const adouble& a);
 
-    // substraction
+    // subtraction
     CUDADEV adouble operator - (const double v) const;
     CUDADEV adouble operator - (const adouble& a) const;
     CUDADEV friend
@@ -167,7 +167,7 @@ public:
     CUDADEV void operator += (const double v);
     CUDADEV void operator += (const adouble& a);
 
-    // substraction
+    // subtraction
     CUDADEV void operator -= (const double v);
     CUDADEV void operator -= (const adouble& a);
 
@@ -182,7 +182,7 @@ public:
     // not
     CUDADEV int operator ! () const;
 
-    // comparision
+    // comparison
     CUDADEV int operator != (const adouble&) const;
     CUDADEV int operator != (const double) const;
     CUDADEV friend int operator != (const double, const adouble&);
@@ -865,7 +865,7 @@ CUDADEV int adouble::operator ! () const {
     return val==0.0;
 }
 
-// comparision
+// comparison
 CUDADEV int adouble::operator != (const adouble &a) const {
     return val!=a.val;
 }

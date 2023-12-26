@@ -847,7 +847,7 @@ int  hov_forward(
     const double *basepoint,  /* independent variable values */
     double ***argument, /* Taylor coefficients (input) */
     double *valuepoint, /* Taylor coefficients (output) */
-    double ***taylors)  /* matrix of coifficient vectors */
+    double ***taylors)  /* matrix of coefficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor][deriv] */
 
 #endif

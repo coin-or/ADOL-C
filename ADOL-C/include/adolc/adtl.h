@@ -75,7 +75,7 @@ public:
     inline friend
     adouble operator + (const double v, const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble operator - (const double v) const;
     inline adouble operator - (const adouble& a) const;
     inline friend
@@ -159,7 +159,7 @@ public:
     inline adouble& operator += (const double v);
     inline adouble& operator += (const adouble& a);
 
-    // substraction
+    // subtraction
     inline adouble& operator -= (const double v);
     inline adouble& operator -= (const adouble& a);
 
@@ -240,10 +240,10 @@ namespace adtl {
 inline void setNumDir(const size_t p) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
-    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erronious results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
+    fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erroneous results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
   }
 #else
-  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erronious results\n or memory corruption\n");
+  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erroneous results\n or memory corruption\n");
 #endif
 
     if (p < 1) {

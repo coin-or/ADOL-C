@@ -4,8 +4,8 @@
  Revision: $Id$
  Contents: User parameters:
            These parameters might affect the performance of the ADOL-C
-           system; they are intended to be tweeked by users and local
-           maintainence personal.
+           system; they are intended to be tweaked by users and local
+           maintenance personal.
  
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
@@ -39,7 +39,7 @@
 #define fdouble    double
 
 /*--------------------------------------------------------------------------*/
-/* Definionion of inf and NaN */
+/* Definition of inf and NaN */
 #define inf_num    1.0     /* don't undefine these;  on non-IEEE machines */
 #define inf_den    0.0     /* change the values to get small fractions    */
 #define non_num    0.0     /* (inf_num/inf_den) and (non_num/non_den)     */

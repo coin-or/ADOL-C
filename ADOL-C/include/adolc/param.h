@@ -223,7 +223,7 @@ ADOLC_DLL_EXPORT size_t get_num_param(short tag);
 
 /****************************************************************************/
 /* Overrides the parameters for the next evaluations. This will invalidate  */
-/* the taylor stack, so next reverse call will fail, if not preceeded by a  */
+/* the taylor stack, so next reverse call will fail, if not preceded by a   */
 /* forward call after setting the parameters.                               */
 /****************************************************************************/
 ADOLC_DLL_EXPORT void set_param_vec(short tag, size_t numparam, revreal* paramvec);

@@ -262,7 +262,7 @@ int hessian2(short tag,
 
     double*** Xppp = myalloc3(n,n,1);   /* matrix on right-hand side  */
     double*   y    = myalloc1(1);       /* results of function evaluation */
-    double*** Yppp = myalloc3(1,n,1);   /* results of hos_wk_forward  */
+    double*** Yppp = myalloc3(1,n,1);   /* results of hov_wk_forward  */
     double*** Zppp = myalloc3(n,n,2);   /* result of Up x H x XPPP */
     double**  Upp  = myalloc2(1,2);     /* vector on left-hand side */
 

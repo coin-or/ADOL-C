@@ -4,7 +4,7 @@
  Revision: $Id$
  Contents: adouble.h contains the basis for the class of adouble
            included here are all the possible functions defined on
-           the adouble class.  Notice that, as opposed to ealier versions,
+           the adouble class.  Notice that, as opposed to earlier versions,
            both the class adub and the class adouble are derived from a base
            class (badouble).  See below for further explanation.
 

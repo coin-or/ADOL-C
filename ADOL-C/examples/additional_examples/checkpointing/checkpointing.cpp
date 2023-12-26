@@ -43,7 +43,7 @@ int main()
   // target value;
   double f;
 
-  //variables for derivative caluclation
+  //variables for derivative calculation
   double grad[2];
 
   int i;

@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE( trace_vector )
 
 
 /* Naming convention for test cases:  Operatorname_Operator_FOV_Forward for
- * foward derivative evulation in vector mode.
+ * forward derivative evaluation in vector mode.
  *
  * For documentation of concrete test implementation, check traceless scalar
  * mode test implementation.  The testing order is consistent with that file

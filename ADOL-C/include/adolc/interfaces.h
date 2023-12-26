@@ -25,7 +25,7 @@
                  interfacesC.C
                  interfacesf.c
               
-           ADOL-C Abreviations :
+           ADOL-C Abbreviations :
                  zos : zero-order-scalar mode   
                  fos : first-order-scalar mode
                  hos : higher-order-scalar mode
