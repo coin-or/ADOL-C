@@ -55,13 +55,10 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /****************************************************************************/
 /*                                                                   MACROS */
 #undef _ADOLC_VECTOR_
-#undef _HIGHER_ORDER_
 
 /*--------------------------------------------------------------------------*/
 #ifdef _HOS_
 #define GENERATED_FILENAME "hos_reverse"
-
-#define _HIGHER_ORDER_
 
 #define RESULTS(l,indexi,k) results[indexi][k]
 #define LAGRANGE(l,indexd,k)  lagrange[indexd][k]
@@ -78,8 +75,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*--------------------------------------------------------------------------*/
 #elif _HOS_OV_
 #define GENERATED_FILENAME "hos_ov_reverse"
-
-#define _HIGHER_ORDER_
 
 #define RESULTS(l,indexi,k) results[l][indexi][k]
 #define LAGRANGE(l,indexd,k)  lagrange[indexd][k]
@@ -98,7 +93,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GENERATED_FILENAME "hov_reverse"
 
 #define _ADOLC_VECTOR_
-#define _HIGHER_ORDER_
 
 #define RESULTS(l,indexi,k) results[l][indexi][k]
 #define LAGRANGE(l,indexd,k)  lagrange[l][indexd][k]
