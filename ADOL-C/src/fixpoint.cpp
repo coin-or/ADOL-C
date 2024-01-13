@@ -43,20 +43,20 @@ typedef struct {
 fpi_data;
 
 
-static vector<fpi_data*> fpi_stack;
+static vector<fpi_data> fpi_stack;
 
 
 static int iteration ( int dim_xu, double *xu, int dim_x, double *x_fix ) {
     int i, k;
     double err;
-    fpi_data *current = fpi_stack.back();
+    const fpi_data& current = fpi_stack.back();
     for (i=0; i<dim_x; i++) x_fix[i] = xu[i];
-    for (k=1; k<=current->N_max; k++) {
+    for (k=1; k<=current.N_max; k++) {
         for (i=0; i<dim_x; i++) xu[i] = x_fix[i];
-        (*current->double_F)( xu, xu+dim_x, x_fix, dim_x, dim_xu-dim_x );
+        (*current.double_F)( xu, xu+dim_x, x_fix, dim_x, dim_xu-dim_x );
         for (i=0; i<dim_x; i++) xu[i] = x_fix[i] - xu[i];
-        err = (*current->norm)(xu,dim_x);
-        if (err<current->epsilon) return k;
+        err = (*current.norm)(xu,dim_x);
+        if (err<current.epsilon) return k;
     }
     return -1;
 }
@@ -68,12 +68,12 @@ static int fp_zos_forward ( int dim_xu, double *xu, int dim_x, double *x_fix ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    fpi_data *current=0;
-    vector<fpi_data*>::iterator fpi_stack_iterator;
+    vector<fpi_data>::iterator current=fpi_stack.end();
+    vector<fpi_data>::iterator fpi_stack_iterator;
     for (fpi_stack_iterator=fpi_stack.begin();
             fpi_stack_iterator!=fpi_stack.end();
             ++fpi_stack_iterator) {
-        current = *fpi_stack_iterator;
+        current = fpi_stack_iterator;
         if (edf_index==current->edf_index) break;
     }
     if (fpi_stack_iterator==fpi_stack.end()) {
@@ -99,12 +99,12 @@ static int fp_fos_forward ( int dim_xu, double *xu, double *xu_dot,
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    fpi_data *current=0;
-    vector<fpi_data*>::iterator fpi_stack_iterator;
+    vector<fpi_data>::iterator current=fpi_stack.end();
+    vector<fpi_data>::iterator fpi_stack_iterator;
     for (fpi_stack_iterator=fpi_stack.begin();
             fpi_stack_iterator!=fpi_stack.end();
             ++fpi_stack_iterator) {
-        current = *fpi_stack_iterator;
+        current = fpi_stack_iterator;
         if (edf_index==current->edf_index) break;
     }
     if (fpi_stack_iterator==fpi_stack.end()) {
@@ -133,12 +133,12 @@ static int fp_hos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    fpi_data *current=0;
-    vector<fpi_data*>::iterator fpi_stack_iterator;
+    vector<fpi_data>::iterator current=fpi_stack.end();
+    vector<fpi_data>::iterator fpi_stack_iterator;
     for (fpi_stack_iterator=fpi_stack.begin();
             fpi_stack_iterator!=fpi_stack.end();
             ++fpi_stack_iterator) {
-        current = *fpi_stack_iterator;
+        current = fpi_stack_iterator;
         if (edf_index==current->edf_index) break;
     }
     if (fpi_stack_iterator==fpi_stack.end()) {
@@ -178,12 +178,12 @@ static int fp_fos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    fpi_data *current=0;
-    vector<fpi_data*>::iterator fpi_stack_iterator;
+    vector<fpi_data>::iterator current=fpi_stack.end();
+    vector<fpi_data>::iterator fpi_stack_iterator;
     for (fpi_stack_iterator=fpi_stack.begin();
             fpi_stack_iterator!=fpi_stack.end();
             ++fpi_stack_iterator) {
-        current = *fpi_stack_iterator;
+        current = fpi_stack_iterator;
         if (edf_index==current->edf_index) break;
     }
     if (fpi_stack_iterator==fpi_stack.end()) {
@@ -232,26 +232,27 @@ ADOLC_DLL_EXPORT int fp_iteration ( int        sub_tape_num,
                    int        dim_u ) {
     int i, k;
     double dummy;
-    // add new fp information
-    fpi_data *data = new fpi_data;
-    data->sub_tape_num = sub_tape_num;
-    data->double_F     = double_F;
-    data->adouble_F    = adouble_F;
-    data->norm         = norm;
-    data->norm_deriv   = norm_deriv;
-    data->epsilon      = epsilon;
-    data->epsilon_deriv = epsilon_deriv;
-    data->N_max        = N_max;
-    data->N_max_deriv  = N_max_deriv;
-    fpi_stack.push_back(data);
 
     // declare extern differentiated function and data
     ext_diff_fct *edf_iteration = reg_ext_fct(&iteration);
-    data->edf_index = edf_iteration->index;
     edf_iteration->zos_forward = &fp_zos_forward;
     edf_iteration->fos_forward = &fp_fos_forward;
     edf_iteration->fos_reverse = &fp_fos_reverse;
     edf_iteration->fos_reverse = &fp_hos_reverse;
+
+    // add new fp information
+    fpi_data data;
+    data.sub_tape_num  = sub_tape_num;
+    data.double_F      = double_F;
+    data.adouble_F     = adouble_F;
+    data.norm          = norm;
+    data.norm_deriv    = norm_deriv;
+    data.epsilon       = epsilon;
+    data.epsilon_deriv = epsilon_deriv;
+    data.N_max         = N_max;
+    data.N_max_deriv   = N_max_deriv;
+    data.edf_index     = edf_iteration->index;
+    fpi_stack.push_back(data);
 
     // put x and u together
     adouble   *xu      = new adouble[dim_x+dim_u];
