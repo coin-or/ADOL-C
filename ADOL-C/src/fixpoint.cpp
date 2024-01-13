@@ -19,6 +19,7 @@
 #include <adolc/fixpoint.h>
 #include "dvlparms.h"
 
+#include <algorithm>
 #include <vector>
 
 using namespace std;
@@ -68,18 +69,15 @@ static int fp_zos_forward ( int dim_xu, double *xu, int dim_x, double *x_fix ) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    vector<fpi_data>::iterator current=fpi_stack.end();
-    vector<fpi_data>::iterator fpi_stack_iterator;
-    for (fpi_stack_iterator=fpi_stack.begin();
-            fpi_stack_iterator!=fpi_stack.end();
-            ++fpi_stack_iterator) {
-        current = fpi_stack_iterator;
-        if (edf_index==current->edf_index) break;
-    }
-    if (fpi_stack_iterator==fpi_stack.end()) {
+
+    // Find fpi_stack element with index 'edf_index'.
+    auto current = std::find_if(fpi_stack.begin(), fpi_stack.end(), [&](auto&& v){return v.edf_index == edf_index;});
+
+    if (current==fpi_stack.end()) {
         fprintf(stderr,"ADOL-C Error! No edf found for fixpoint iteration.\n");
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
+
     for (i=0; i<dim_x; i++) x_fix[i] = xu[i];
     for (k=1; k<=current->N_max; k++) {
         for (i=0; i<dim_x; i++) xu[i] = x_fix[i];
@@ -99,15 +97,11 @@ static int fp_fos_forward ( int dim_xu, double *xu, double *xu_dot,
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    vector<fpi_data>::iterator current=fpi_stack.end();
-    vector<fpi_data>::iterator fpi_stack_iterator;
-    for (fpi_stack_iterator=fpi_stack.begin();
-            fpi_stack_iterator!=fpi_stack.end();
-            ++fpi_stack_iterator) {
-        current = fpi_stack_iterator;
-        if (edf_index==current->edf_index) break;
-    }
-    if (fpi_stack_iterator==fpi_stack.end()) {
+
+    // Find fpi_stack element with index 'edf_index'.
+    auto current = std::find_if(fpi_stack.begin(), fpi_stack.end(), [&](auto&& v){return v.edf_index == edf_index;});
+
+    if (current==fpi_stack.end()) {
         fprintf(stderr,"ADOL-C Error! No edf found for fixpoint iteration.\n");
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
@@ -133,15 +127,11 @@ static int fp_hos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    vector<fpi_data>::iterator current=fpi_stack.end();
-    vector<fpi_data>::iterator fpi_stack_iterator;
-    for (fpi_stack_iterator=fpi_stack.begin();
-            fpi_stack_iterator!=fpi_stack.end();
-            ++fpi_stack_iterator) {
-        current = fpi_stack_iterator;
-        if (edf_index==current->edf_index) break;
-    }
-    if (fpi_stack_iterator==fpi_stack.end()) {
+
+    // Find fpi_stack element with index 'edf_index'.
+    auto current = std::find_if(fpi_stack.begin(), fpi_stack.end(), [&](auto&& v){return v.edf_index == edf_index;});
+
+    if (current==fpi_stack.end()) {
         fprintf(stderr,"ADOL-C Error! No edf found for fixpoint iteration.\n");
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
@@ -178,15 +168,11 @@ static int fp_fos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     locint edf_index = ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index;
-    vector<fpi_data>::iterator current=fpi_stack.end();
-    vector<fpi_data>::iterator fpi_stack_iterator;
-    for (fpi_stack_iterator=fpi_stack.begin();
-            fpi_stack_iterator!=fpi_stack.end();
-            ++fpi_stack_iterator) {
-        current = fpi_stack_iterator;
-        if (edf_index==current->edf_index) break;
-    }
-    if (fpi_stack_iterator==fpi_stack.end()) {
+
+    // Find fpi_stack element with index 'edf_index'.
+    auto current = std::find_if(fpi_stack.begin(), fpi_stack.end(), [&](auto&& v){return v.edf_index == edf_index;});
+
+    if (current==fpi_stack.end()) {
         fprintf(stderr,"ADOL-C Error! No edf found for fixpoint iteration.\n");
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
