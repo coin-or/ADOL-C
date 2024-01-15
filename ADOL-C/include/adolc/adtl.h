@@ -242,8 +242,6 @@ inline void setNumDir(const size_t p) {
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir will not change the number of\n directional derivative in existing adoubles and may lead to erroneous results\n or memory corruption\n Number of currently existing adoubles = %zu\n", refcounter::refcnt);
   }
-#else
-  fprintf(DIAG_OUT, "ADOL-C Warning: Traceless: Setting numDir could change memory allocation of\n derivatives in existing adoubles and may lead to erroneous results\n or memory corruption\n");
 #endif
 
     if (p < 1) {
