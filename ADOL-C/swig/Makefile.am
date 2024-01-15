@@ -20,6 +20,6 @@ clean-local:
 if PYTHONFOUND
 if SPARSE
 install:
-	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig --lib-prefix=${prefix} --lib-libdir=${libdir} @python_srcbase@ install --prefix=${prefix}
+	CXX=${CXX} ${PYTHON} ${srcdir}/setup.py build --only-swig --lib-prefix=${prefix} --lib-libdir=${libdir} @python_srcbase@ install --prefix=${DESTDIR}/${prefix}
 endif
 endif
