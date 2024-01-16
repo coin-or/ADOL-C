@@ -1802,7 +1802,7 @@ void setStoreManagerType(unsigned char type) {
         if (ADOLC_GLOBAL_TAPE_VARS.numLives == 0) {
             ADOLC_GLOBAL_TAPE_VARS.reallocStore(type);
         } else {
-            fprintf(DIAG_OUT,"ADOL-C-warning: called %s after allocating %d active variables\n"
+            fprintf(DIAG_OUT,"ADOL-C-warning: called %s after allocating %ld active variables\n"
                     "***  WILL NOT CHANGE ***\nto change type deallocate all active variables\n"
                     "continuing ...\n"
                     , __func__, ADOLC_GLOBAL_TAPE_VARS.numLives);
