@@ -89,6 +89,7 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward)
   BOOST_TEST(Y[0][2][0] == yDerivative[0][2][0], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][1] == yDerivative[0][2][1], tt::tolerance(tol));
 
+  myfree1(yprim);
   myfree3(yDerivative);
   myfree1(x);
   myfree1(y);
@@ -235,6 +236,7 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward)
   BOOST_TEST(Y[0][2][0] == yDerivative[0][2][0], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][1] == yDerivative[0][2][1], tt::tolerance(tol));
 
+  myfree1(yprim);
   myfree3(yDerivative);
   myfree1(x);
   myfree1(y);

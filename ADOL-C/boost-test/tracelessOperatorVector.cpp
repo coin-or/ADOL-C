@@ -1,4 +1,7 @@
 #define BOOST_TEST_DYN_LINK
+
+#include <vector>
+
 #include <boost/test/unit_test.hpp>
 
 namespace tt = boost::test_tools;
@@ -1021,16 +1024,16 @@ BOOST_AUTO_TEST_CASE(SetADValueOperatorVectorMode)
 {
   const size_t numDir = adtl::getNumDir();
   adouble ad = 0.0;
-  double *aDerivative = new double[numDir];
+  std::vector<double> aDerivative(numDir);
 
   for(size_t i = 0; i < numDir; i++) {
-  	*(aDerivative + i) = 1.0 + std::exp(10*i)*std::sqrt(2.5*i);
+      aDerivative[i] = 1.0 + std::exp(10*i)*std::sqrt(2.5*i);
   }
 
-  ad.setADValue(aDerivative);
+  ad.setADValue(aDerivative.data());
 
   for(size_t j = 0; j < numDir; j++) {
-  	BOOST_TEST(ad.getADValue(j) == *(aDerivative + j), tt::tolerance(tol));
+  	BOOST_TEST(ad.getADValue(j) == aDerivative[j], tt::tolerance(tol));
   }
 }
 
