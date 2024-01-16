@@ -48,13 +48,11 @@ public:
     inline Buffer() {
         firstSubBuffer = NULL;
         numEntries = 0;
-        subBufferSize = _subBufferSize;
         initFunction = zeroAll;
     }
     inline Buffer(InitFunctionPointer _initFunction) {
         firstSubBuffer = NULL;
         numEntries = 0;
-        subBufferSize = _subBufferSize;
         initFunction = _initFunction;
     }
     inline ~Buffer();
@@ -68,7 +66,6 @@ public:
 private:
     SubBuffer *firstSubBuffer;
     InitFunctionPointer initFunction;
-    IndexType subBufferSize;
     IndexType numEntries;
 };
 
@@ -90,7 +87,7 @@ BUFFER::~Buffer() {
     while (firstSubBuffer != NULL) {
         tmpSubBuffer = firstSubBuffer;
         firstSubBuffer = firstSubBuffer->nextSubBuffer;
-        for(int i = 0; i < subBufferSize; i++)
+        for(IndexType i = 0; i < _subBufferSize; i++)
             if (tmpSubBuffer->elements[i].allmem != NULL)
                 free(tmpSubBuffer->elements[i].allmem);
         delete tmpSubBuffer;
@@ -102,10 +99,10 @@ SubBufferElement *BUFFER::append() {
     SubBuffer *currentSubBuffer=firstSubBuffer, *previousSubBuffer=NULL;
     IndexType index, tmp=numEntries;
 
-    while (tmp>=subBufferSize) {
+    while (tmp>=_subBufferSize) {
         previousSubBuffer=currentSubBuffer;
         currentSubBuffer=currentSubBuffer->nextSubBuffer;
-        tmp-=subBufferSize;
+        tmp-=_subBufferSize;
     }
     if (currentSubBuffer==NULL) {
         currentSubBuffer=new SubBuffer;
@@ -130,9 +127,9 @@ SubBufferElement *BUFFER::getElement(IndexType index) {
     SubBuffer *currentSubBuffer=firstSubBuffer;
 
     if (index>=numEntries) fail(ADOLC_BUFFER_INDEX_TO_LARGE);
-    while (index>=subBufferSize) {
+    while (index>=_subBufferSize) {
         currentSubBuffer=currentSubBuffer->nextSubBuffer;
-        index-=subBufferSize;
+        index-=_subBufferSize;
     }
     return &currentSubBuffer->elements[index];
 }
