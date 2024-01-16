@@ -1134,9 +1134,15 @@ static void save_params() {
 
     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore =
             malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
-    memcpy(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
-           ADOLC_GLOBAL_TAPE_VARS.pStore,
-           ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
+
+    // Sometimes we have pStore == nullptr and stats[NUM_PARAM] == 0.
+    // Calling memcpy with that is undefined behavior, and sanitizers will issue a warning.
+    if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0)
+    {
+        memcpy(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
+               ADOLC_GLOBAL_TAPE_VARS.pStore,
+               ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
+    }
     free_all_taping_params();
     if (ADOLC_CURRENT_TAPE_INFOS.currVal +
         ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] <
