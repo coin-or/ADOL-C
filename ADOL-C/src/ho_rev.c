@@ -377,9 +377,17 @@ int hov_ti_reverse(
     /****************************************************************************/
     /*                                          extern diff. function variables */
 #if defined(_HOS_)
-# define ADOLC_EXT_FCT_U edfct->dp_U
-# define ADOLC_EXT_FCT_Z edfct->dp_Z
-# define ADOLC_EXT_FCT_POINTER hos_reverse
+# define ADOLC_EXT_FCT_U dpp_U
+# define ADOLC_EXT_FCT_Z dpp_Z
+# define ADOLC_EXT_FCT_POINTER hos_ti_reverse
+# define ADOLC_EXT_FCT_COMPLETE \
+  hos_ti_reverse(m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
+#else
+# define ADOLC_EXT_FCT_U dppp_U
+# define ADOLC_EXT_FCT_Z dppp_Z
+# define ADOLC_EXT_FCT_POINTER hov_reverse
+# define ADOLC_EXT_FCT_COMPLETE \
+  hov_reverse(m, p, edfct->dpp_U, n, degre, edfct->dppp_Z, edfct->spp_nz)
 #endif
 
 #ifdef _HOV_
@@ -3248,6 +3256,7 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
             case ext_diff:                       /* extern differentiated function */
+            {
                 ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
                 ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
                 ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
@@ -3259,6 +3268,11 @@ int hov_ti_reverse(
                 oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
                 ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
 
+                /* degree is not known when registering external functions,
+                   so do memory allocation here (at least for now) */
+                double** dpp_U = malloc(sizeof(double*)*m);
+                double** dpp_Z = malloc(sizeof(double*)*n);
+
                 if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
                     fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
                 if (m>0) {
@@ -3269,9 +3283,86 @@ int hov_ti_reverse(
                     if (ADOLC_EXT_FCT_Z == NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
                     if (edfct->dp_x==NULL) fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
                 }
-		printf(" n = %d m = %d \n",n,m);
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                for (int loop = 0; loop < m; ++loop) {
+                    // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
+                    dpp_U[loop] = rpp_A[arg] + 1;
+                    ++arg;
+                }
+
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (int loop = 0; loop < n; ++loop) {
+                    // This should copy data in case `revreal` is not double.
+                    // (Note: copy back below doesn't actually do anything until this is changed to a copy.)
+                    // (Note: first entry is alg. dependency which we just skip here for now.)
+                    dpp_Z[loop] = rpp_A[arg]+1;
+                    ++arg;
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                double** dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
+                for (int loop = 0; loop < n; ++loop,++arg) {
+                  // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
+                  // edfct->dp_x[loop] = rpp_T[arg];
+                }
+                arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                double** dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
+                for (int loop = 0; loop < m; ++loop,++arg) {
+                  // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
+                  // edfct->dp_y[loop] = rpp_T[arg];
+                }
+                int ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
+                MINDEC(ret_c, ext_retc);
+
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+                // Ares = A[res];
+                for (int loop = 0; loop < m; ++loop) {
+                    FOR_0_LE_l_LT_q {
+                      // ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */
+                      //rpp_T[res][l] = 0.0;
+                      rpp_A[res][l] = 0.0;
+                    }
+                    ++res;
+                }
+                res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+                for (int loop = 0; loop < n; ++loop) {
+                    // ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],ADJOINT_BUFFER_RES);
+                    // Hmm, ist das nicht falsch? Wir sollten rpp_T vermutlich nicht anfassen.
+                    // Sonst ändert sich ja das Ergebnis wenn man das Band nochmal abspielt?
+                    //rpp_T[res] = dpp_Z[loop];
+                    // Assume non-smooth?
+                    rpp_A[res][0] = 5.0;
+                    for (int i=0; i<k; i++) {
+                      // `i+1` to do something similar a `ARES_INC_O`
+                      // I still don't understand this ARES_INC_O,
+                      // but apparently the first place is used to store
+                      // some flag or so I don't understand (see me wondering
+                      // in mult_a_a...)
+                      rpp_A[res][i+1] = dpp_Z[loop][i];
+                    }
+                    ++res;
+                }
+                if (edfct->dp_y_priorRequired) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev+m-1;
+                  for (int loop = 0; loop < m; ++loop,--arg) {
+                    // ADOLC_GET_TAYLOR(arg);
+                    GET_TAYL(arg, k, p);
+                  }
+                }
+                if (edfct->dp_x_changes) {
+                  arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev+n-1;
+                  for (int loop = 0; loop < n; ++loop,--arg) {
+                    // ADOLC_GET_TAYLOR(arg);
+                    GET_TAYL(arg, k, p);
+                  }
+                }
+                ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+
+                free(dpp_Z);
+                free(dpp_U);
+
                 break;
-#endif		
+            }
+#endif
                 /*--------------------------------------------------------------------------*/
             default:                                                   /* default */
                 /*             Die here, we screwed up     */

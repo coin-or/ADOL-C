@@ -29,6 +29,8 @@ typedef int (ADOLC_ext_fct_hov_forward) (int n, double *dp_x, int d, int p, doub
 typedef int (ADOLC_ext_fct_fos_reverse) (int m, double *dp_U, int n, double *dp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_fov_reverse) (int m, int p, double **dpp_U, int n, double **dpp_Z, double *dp_x, double *dp_y);
 typedef int (ADOLC_ext_fct_hos_reverse) (int m, double *dp_U, int n, int d, double **dpp_Z); 
+// dpp_x: {x_{0,0}, x{0,1}, ..., x_{0,keep}}, {x1,0, ..., x_1,keep}, ...} ; n Taylor polynomials of degree keep (i.e., array of size n * (keep+1))
+typedef int (ADOLC_ext_fct_hos_ti_reverse) (int m, double **dp_U, int n, int d, double **dpp_Z, double **dpp_x, double **dpp_y);
 typedef int (ADOLC_ext_fct_hov_reverse) (int m, int p, double **dpp_U, int n, int d, double ***dppp_Z, short **spp_nz);
 
 /**
@@ -128,6 +130,9 @@ typedef struct ext_diff_fct {
    */
   ADOLC_ext_fct_hos_reverse *hos_reverse; 
   ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr;
+
+  ADOLC_ext_fct_hos_ti_reverse *hos_ti_reverse;
+
   /** 
    * higher order vector reverse for external functions  is currently not implemented in ho_rev.c
    */
