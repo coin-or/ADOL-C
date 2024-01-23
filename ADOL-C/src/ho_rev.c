@@ -1077,35 +1077,63 @@ int hov_ti_reverse(
 
                 /*--------------------------------------------------------------------------*/
             case mult_a_a:               /* Multiply two adoubles (*)    mult_a_a */
+                /* Obtain indices for result and argument variables. */
                 res  = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
 
+                /* Read Taylor polynomial into rpp_T. */
                 GET_TAYL(res,k,p)
 
+                /* Set pointer to result and argument variables. */
                 ASSIGN_A(Ares,  rpp_A[res])
                 ASSIGN_A(Aarg2, rpp_A[arg2])
                 ASSIGN_A(Aarg1, rpp_A[arg1])
+
+                /* Set pointer to Taylor polynomial for argument variables. */
                 Targ1 = rpp_T[arg1];
                 Targ2 = rpp_T[arg2];
 
+                /* Loop over all input weight vectors (in vector mode).
+                   In scalar mode this loop is trivial. */
                 FOR_0_LE_l_LT_p
                 if (0 == ARES) {
+                    /* This branch is taken if the input of this operation is independent of the
+                     * independent variables.  For example if it is some constant that happens to be
+                     * stored as an adouble.  The derivative of that is zero.
+                     */
                     HOV_INC(Aarg1, k1)
                     HOV_INC(Aarg2, k1)
                     HOV_INC(Ares,  k1)
                 } else {
+                    /* The output includes the functional relation between
+                       input and output.  For multiplication this is at
+                       least polynomial unless the input already has a more
+                       generic relation on its own inputs (e.g., rational,
+                       trancendental or non-smooth).
+                       See the parameter `nz` of `hov_reverse` and the table of values in page 44 of the manual.
+                       */
                     comp = (ARES > 2.0) ? ARES : 2.0 ;
                     ARES_INC = 0.0;
                     MAXDEC(AARG1,comp);
                     MAXDEC(AARG2,comp);
+                    /* Skip first value of input: these again represent
+                       functional relation. */
                     AARG1_INC_O;
                     AARG2_INC_O;
 
+                    /* Copy to a temporary variables in case one of the
+                       arguments uses the same storage as the result. */
                     copyAndZeroset(k,Ares,rp_Atemp);
+
+                    // Aarg2 += convolution of rp_Atemp with Targ1
                     inconv(k,rp_Atemp,Targ1,Aarg2);
+
+                    // Aarg1 += convolution of rp_Atemp with Targ2
                     inconv(k,rp_Atemp,Targ2,Aarg1);
 
+                    /* Vector mode: update pointers for next loop iteration
+                       (see loop above) */
                     HOV_INC(Ares,  k)
                     HOV_INC(Aarg1, k)
                     HOV_INC(Aarg2, k)
