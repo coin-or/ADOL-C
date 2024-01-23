@@ -362,10 +362,6 @@ int hov_ti_reverse(
 
     /*----------------------------------------------------------------------*/
     /* Adjoint stuff */
-#ifdef _FOS_
-    double Atemp;
-# define A_TEMP Atemp
-#endif
     revreal *Ares, *Aarg=NULL, *Aarg1, *Aarg2, *Aqo, *rp_Atemp, *rp_Atemp2;
     revreal **rpp_A, *AP1, *AP2;
 
