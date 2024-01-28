@@ -433,16 +433,16 @@ FatalError = _adolc.FatalError
     adub* __mul__ (const pdouble& a) {
         return (adub*) ((*($self)) * a);
     }
-    adub* __div__ (const badouble& a) {
+    adub* __truediv__ (const badouble& a) {
         return (adub*) ((*($self)) / a);
     }
-    adub* __div__ (double a) {
+    adub* __truediv__ (double a) {
         return (adub*) ((*($self)) / a);
     }
-    adub* __rdiv__ (double a) {
+    adub* __rtruediv__ (double a) {
         return (adub*) (a / (*($self)));
     }
-    adub* __div__ (const pdouble& a) {
+    adub* __truediv__ (const pdouble& a) {
         return (adub*) ((*($self)) / a);
     }    
     adub* sin() {
@@ -544,13 +544,13 @@ FatalError = _adolc.FatalError
     adub* __rmul__ (double a) {
         return (adub*) (a * (*($self)));
     }
-    adub* __div__ (const badouble& a) {
+    adub* __truediv__ (const badouble& a) {
         return (adub*) ((*($self)) / a);
     }
-    adub* __div__ (double a) {
+    adub* __truediv__ (double a) {
         return (adub*) ((*($self)) / a);
     }
-    adub* __rdiv__ (double a) {
+    adub* __rtruediv__ (double a) {
         return (adub*) (a / (*($self)));
     }
     adub* sin() {

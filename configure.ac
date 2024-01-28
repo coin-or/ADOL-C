@@ -510,7 +510,7 @@ AC_DEFINE(ADOLC_TAPE_DOC_VALUES,1,[ADOL-C tape_doc routine computes values])
 fi
 
 if test x$adolc_python_support == xyes; then
-AM_PATH_PYTHON([2.7],[python_found=yes],[python_found=no])
+AM_PATH_PYTHON([3.8],[python_found=yes],[python_found=no])
 AC_PATH_PROG(SWIG, swig, [no])
 AM_CONDITIONAL(PYTHONFOUND, [test x$python_found = xyes && test x$SWIG != xno])
 if test ${abs_top_srcdir} != ${abs_top_builddir} ; then
