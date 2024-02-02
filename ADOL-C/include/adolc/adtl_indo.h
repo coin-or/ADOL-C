@@ -96,6 +96,7 @@ public:
     inline friend adouble exp(const adouble &a);
     inline friend adouble log(const adouble &a);
     inline friend adouble sqrt(const adouble &a);
+    inline friend adouble cbrt(const adouble &a);
     inline friend adouble sin(const adouble &a);
     inline friend adouble cos(const adouble &a);
     inline friend adouble asin(const adouble &a);
@@ -432,7 +433,15 @@ inline adouble sqrt(const adouble &a) {
     return tmp;
 }
 
-inline adouble sin(const adouble &a) {
+inline adouble cbrt(const adouble &a) {
+    adouble tmp;
+	tmp.val=ADOLC_MATH_NSP::cbrt(a.val);
+	tmp.add_to_pattern( a.get_pattern() );
+    return tmp;
+}
+
+
+  inline adouble sin(const adouble &a) {
     adouble tmp;
 	tmp.val=ADOLC_MATH_NSP::sin(a.val);
 	tmp.add_to_pattern( a.get_pattern() );

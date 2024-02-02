@@ -114,6 +114,7 @@ public:
     inline friend adouble exp(const adouble &a);
     inline friend adouble log(const adouble &a);
     inline friend adouble sqrt(const adouble &a);
+    inline friend adouble cbrt(const adouble &a);
     inline friend adouble sin(const adouble &a);
     inline friend adouble cos(const adouble &a);
     inline friend adouble asin(const adouble &a);
@@ -962,6 +963,11 @@ inline adouble sqrt(const adouble &a) {
     return tmp;
 }
 
+inline adouble cbrt(const adouble &a) {
+   fprintf(DIAG_OUT, "ADOL-C error: higher order mode of cbrt not implemented yet\n");
+   throw logic_error("incorrect function call, errorcode=1");
+}
+  
 inline adouble sin(const adouble &a) {
     adouble tmp;
     adouble tmp2;

@@ -104,6 +104,7 @@ public:
     inline friend adouble exp(const adouble &a);
     inline friend adouble log(const adouble &a);
     inline friend adouble sqrt(const adouble &a);
+    inline friend adouble cbrt(const adouble &a);
     inline friend adouble sin(const adouble &a);
     inline friend adouble cos(const adouble &a);
     inline friend adouble asin(const adouble &a);
@@ -495,6 +496,19 @@ inline adouble sqrt(const adouble &a) {
     return tmp;
 }
 
+inline adouble cbrt(const adouble &a) {
+    adouble tmp;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP::cbrt(a.PRIMAL_VALUE);
+	FOR_I_EQ_1_LTEQ_NUMDIR
+	   if (a.PRIMAL_VALUE!=0.0)
+	     tmp.ADVAL_I=a.ADVAL_I/(tmp.PRIMAL_VALUE*tmp.PRIMAL_VALUE*3);
+	   else if (a.PRIMAL_VALUE==0.0 && a.ADVAL_I != 0.0) {
+		int sign = (a.ADVAL_I < 0) ? -1 : 1;
+		tmp.ADVAL_I=sign * makeInf();
+	    } else tmp.ADVAL_I=makeNaN();
+    return tmp;
+}
+  
 inline adouble sin(const adouble &a) {
     adouble tmp;
     double tmp2;
