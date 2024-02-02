@@ -20,7 +20,7 @@
 
 BEGIN_C_DECLS
 
-int fp_iteration ( int        sub_tape_num,
+ADOLC_DLL_EXPORT int fp_iteration ( int        sub_tape_num,
                    int      (*double_F)(double*, double* ,double*, int, int),
                    int      (*adouble_F)(adouble*, adouble*, adouble*, int, int),
                    double   (*norm)(double*, int),
