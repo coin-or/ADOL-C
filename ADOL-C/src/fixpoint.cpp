@@ -216,7 +216,7 @@ static int fp_fos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
     return -1;
 }
 
-ADOLC_DLL_EXPORT int fp_iteration ( int        sub_tape_num,
+int fp_iteration ( int        sub_tape_num,
                    int      (*double_F)(double*, double* ,double*, int, int),
                    int      (*adouble_F)(adouble*, adouble*, adouble*, int, int),
                    double   (*norm)(double*, int),
