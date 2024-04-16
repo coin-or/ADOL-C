@@ -4027,7 +4027,7 @@ int  hov_forward(
                     break;
 
                 /*--------------------------------------------------------------------------*/
-            case cbrt_op:                                              /* sqrt_op */
+            case cbrt_op:                                              /* cbrt_op */
                 arg = get_locint_f();
                 res = get_locint_f();
 
