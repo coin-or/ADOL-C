@@ -44,7 +44,7 @@ endif
 libadolcsrc_la_SOURCES  = adalloc.c rpl_malloc.c adouble.cpp \
                        convolut.c fortutils.c \
                        interfaces.cpp interfacesf.c \
-                       taping.c tape_handling.cpp \
+                       taping.c tape_handling.cpp storemanager.cpp \
                        dvlparms.h oplate.h taping_p.h rpl_malloc.h storemanager.h \
                        externfcts_p.h checkpointing_p.h buffer_temp.h \
                        zos_forward.c fos_forward.c fov_forward.c \
