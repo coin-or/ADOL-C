@@ -124,7 +124,7 @@ StoreManagerLocint::StoreManagerLocint(double * &storePtr, char* &actStorePtr, s
     maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
 #endif
 }
 
@@ -136,7 +136,7 @@ StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
     maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
 #endif
     head = stm->head;
     indexFree = new locint[maxsize];
@@ -156,14 +156,14 @@ StoreManagerLocint::StoreManagerLocint(double * &storePtr, size_t &size, size_t 
     maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
 #endif
 }
 
 StoreManagerLocint::~StoreManagerLocint() 
 {
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::~StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocint::~StoreManagerLocint()\n";
 #endif
     if (storePtr) {
 	delete[] storePtr;
@@ -193,7 +193,7 @@ StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
     maxsize(size), currentfill(numlives)
 {
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
 #endif
     head = stm->head;
     indexFree = new locint[maxsize];
@@ -245,7 +245,7 @@ void StoreManagerLocint::grow(size_t mingrow) {
     }
 
 #ifdef ADOLC_DEBUG
-    std::cerr << "StoreManagerInteger::grow(): increase size from " << oldMaxsize
+    std::cerr << "StoreManagerLocint::grow(): increase size from " << oldMaxsize
 	 << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
     assert(oldMaxsize == initialSize or size() == oldMaxsize);
 #endif
@@ -260,7 +260,7 @@ void StoreManagerLocint::grow(size_t mingrow) {
 #endif
 
 #if defined(ADOLC_DEBUG)
-    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles " 
+    std::cerr << "StoreManagerLocint::grow(): allocate " << maxsize * sizeof(double) << " B doubles "
 	 << "and " << maxsize * sizeof(locint) << " B locints\n";
 #endif
     storePtr = new double[maxsize];
@@ -275,7 +275,7 @@ void StoreManagerLocint::grow(size_t mingrow) {
 
     if (oldMaxsize != initialSize) { // not the first time
 #if defined(ADOLC_DEBUG)
-      std::cerr << "StoreManagerInteger::grow(): copy values\n";
+      std::cerr << "StoreManagerLocint::grow(): copy values\n";
 #endif
       for (size_t j = i; j < oldMaxsize; ++j) {
 	indexFree[j] = oldIndex[j];
@@ -294,7 +294,7 @@ void StoreManagerLocint::grow(size_t mingrow) {
       i = oldMaxsize;
 
 #if defined(ADOLC_DEBUG)
-      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double)
+      std::cerr << "StoreManagerLocint::grow(): free " << oldMaxsize * sizeof(double)
 		<< " + " << oldMaxsize * sizeof(locint) << " B\n";
 #endif
       delete [] oldStore;
@@ -1399,7 +1399,7 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, char* &actS
   {
     indexFree.clear();
 #ifdef ADOLC_LOCDEBUG
-    std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
+    std::cerr << "StoreManagerLocintBlock::StoreManagerLocIntBlock()\n";
 #endif
 }
 
@@ -1418,7 +1418,7 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
 #endif
   {
 #ifdef ADOLC_LOCDEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocintBlock::StoreManagerLocintBlock()\n";
 #endif
     indexFree.clear();
     forward_list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
@@ -1441,14 +1441,14 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(double * &storePtr, size_t &siz
   {
     indexFree.clear();
 #ifdef ADOLC_LOCDEBUG
-    std::cerr << "StoreManagerIntegerBlock::StoreManagerIntegerBlock()\n";
+    std::cerr << "StoreManagerLocintBlock::StoreManagerLocintBlock()\n";
 #endif
 }
 
 StoreManagerLocintBlock::~StoreManagerLocintBlock()
 {
 #ifdef ADOLC_LOCDEBUG
-    std::cerr << "StoreManagerIntegerBlock::~StoreManagerIntegerBlock()\n";
+    std::cerr << "StoreManagerLocintBlock::~StoreManagerLocintBlock()\n";
 #endif
     if (storePtr != NULL) {
      delete[] storePtr;
@@ -1481,7 +1481,7 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(
 #endif
   {
 #ifdef ADOLC_LOCDEBUG
-    std::cerr << "StoreManagerInteger::StoreManagerInteger()\n";
+    std::cerr << "StoreManagerLocintBlock::StoreManagerLocintBlock()\n";
 #endif
     indexFree.clear();
     forward_list<struct FreeBlock>::const_iterator iter = stm->indexFree.begin();
@@ -1521,7 +1521,7 @@ void StoreManagerLocintBlock::ensure_block(size_t n) {
     bool found = false;
 #ifdef ADOLC_LOCDEBUG
     ++ensure_blockCallsSinceLastConsolidateBlocks;
-    std::cerr << "StoreManagerLocintBlock::ensure_Block: required " << n << " ... ";
+    std::cerr << "StoreManagerLocintBlock::ensure_block: required " << n << " ... ";
     std::cerr << "searching for big enough block " << endl;
 #endif
     if (maxSize()-size()>n) {
@@ -1588,7 +1588,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 
 #ifdef ADOLC_LOCDEBUG
     // index 0 is not used, means one slot less
-    std::cerr << "StoreManagerIntegerBlock::grow(): increase size from " << oldMaxsize
+    std::cerr << "StoreManagerLocintBlock::grow(): increase size from " << oldMaxsize
       << " to " << maxsize << " entries (currently " << size() << " entries used)\n";
 #endif
 
@@ -1599,7 +1599,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 	oldactStore = actStorePtr;
 #endif
 #if defined(ADOLC_LOCDEBUG)
-    std::cerr << "StoreManagerInteger::grow(): allocate " << maxsize * sizeof(double) << " B doubles\n";
+    std::cerr << "StoreManagerLocintBlock::grow(): allocate " << maxsize * sizeof(double) << " B doubles\n";
 #endif
     storePtr = new double[maxsize];
     assert(storePtr);
@@ -1613,7 +1613,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 
     if (oldStore != NULL) { // not the first time
 #if defined(ADOLC_LOCDEBUG)
-      std::cerr << "StoreManagerInteger::grow(): copy values\n";
+      std::cerr << "StoreManagerLocintBlock::grow(): copy values\n";
 #endif
 
       memcpy(storePtr, oldStore, oldMaxsize*sizeof(double));
@@ -1624,7 +1624,7 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
 #endif
 
 #if defined(ADOLC_LOCDEBUG)
-      std::cerr << "StoreManagerInteger::grow(): free " << oldMaxsize * sizeof(double) << "\n";
+      std::cerr << "StoreManagerLocintBlock::grow(): free " << oldMaxsize * sizeof(double) << "\n";
 #endif
       delete [] oldStore;
 #if defined(ADOLC_TRACK_ACTIVITY)
