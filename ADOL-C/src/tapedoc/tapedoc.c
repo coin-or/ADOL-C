@@ -221,7 +221,7 @@ void filewrite_end( int opcode ) {
 void tape_doc(short tnum,         /* tape id */
               int depcheck,       /* consistency chk on # of dependents */
               int indcheck,       /* consistency chk on # of independents */
-              double *basepoint,  /* independent variable values */
+              const double *basepoint,  /* independent variable values */
               double *valuepoint) /* dependent variable values */
 {
     /****************************************************************************/

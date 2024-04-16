@@ -24,7 +24,7 @@ BEGIN_C_DECLS
 /*                                                                 tape_doc */
 /* tape_doc(tag, m, n, x[n], y[m])                                          */
 
-ADOLC_DLL_EXPORT void tape_doc(short, int, int, double*, double*);
+ADOLC_DLL_EXPORT void tape_doc(short, int, int, const double*, double*);
 
 
 /****************************************************************************/
