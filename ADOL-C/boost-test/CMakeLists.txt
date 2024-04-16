@@ -61,6 +61,7 @@ set(SOURCE_FILES
     tracelessCompositeTests.cpp
     tracelessOperatorScalar.cpp
     tracelessOperatorVector.cpp
+    traceFixedPointScalarTests.cpp
     traceOperatorScalar.cpp
     traceOperatorVector.cpp
     traceSecOrderScalar.cpp
