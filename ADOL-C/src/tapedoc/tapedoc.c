@@ -247,7 +247,6 @@ void tape_doc(short tnum,         /* tape id */
     /* interface temporaries */
     int loc_a[maxLocsPerOp];
     double val_a[4]={0,0,0,0}, cst_d[2]={0,0};
-    const char* opName;
 #ifdef ADOLC_TAPE_DOC_VALUES
 	locint qq;
 #endif
