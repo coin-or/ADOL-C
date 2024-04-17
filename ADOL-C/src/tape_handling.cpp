@@ -197,12 +197,11 @@ int initNewTape(short tapeID) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if tape is in use */
-    vector<TapeInfos *>::iterator tiIter;
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID==tapeID) {
+    vector<TapeInfos *>::iterator tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                                                        ADOLC_TAPE_INFOS_BUFFER.end(),
+                                                        [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    if (tiIter != ADOLC_TAPE_INFOS_BUFFER.end()) {
                 newTapeInfos=*tiIter;
                 if ((*tiIter)->inUse != 0) {
                     if ((*tiIter)->tapingComplete == 0)
@@ -263,9 +262,6 @@ int initNewTape(short tapeID) {
 		newTapeInfos->pTapeInfos.sHinfos.indep=0;
 		newTapeInfos->pTapeInfos.sHinfos.p=0;
 #endif
-                break;
-            }
-        }
     }
 
     /* create new info struct and initialize it */
@@ -315,12 +311,12 @@ void openTape(short tapeID, char mode) {
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if tape information exist in memory */
-    vector<TapeInfos *>::iterator tiIter;
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID == tapeID) {
+    vector<TapeInfos *>::iterator tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                                                        ADOLC_TAPE_INFOS_BUFFER.end(),
+                                                        [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    if (tiIter != ADOLC_TAPE_INFOS_BUFFER.end())
+    {
                 /* tape has been used before (in the current program) */
                 if ((*tiIter)->inUse == 0) {
                     /* forward sweep */
@@ -347,8 +343,6 @@ void openTape(short tapeID, char mode) {
                 ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = *tiIter;
                 return;
             }
-        }
-    }
 
     /* tapeID not used so far */
     if (mode == ADOLC_REVERSE) {
@@ -407,26 +401,25 @@ void releaseTape() {
 /* updates the tape infos for the given ID - a tapeInfos struct is created
  * and registered if non is found but its state will remain "not in use" */
 TapeInfos *getTapeInfos(short tapeID) {
-    TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if TapeInfos for tapeID exist */
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID==tapeID) {
-                tapeInfos=*tiIter;
-                if (tapeInfos->inUse==0) read_tape_stats(tapeInfos);
-                return tapeInfos;
-            }
-        }
+    auto tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                               ADOLC_TAPE_INFOS_BUFFER.end(),
+                               [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    // Return the tapeInfos pointer if it has been found.
+    if (tiIter!=ADOLC_TAPE_INFOS_BUFFER.end()) {
+        TapeInfos *tapeInfos = *tiIter;
+        if (tapeInfos->inUse==0)
+            read_tape_stats(tapeInfos);
+        return tapeInfos;
     }
+
     /* create new TapeInfos, initialize and update tapeInfosBuffer */
-    tapeInfos = new TapeInfos(tapeID);
+    TapeInfos *tapeInfos = new TapeInfos(tapeID);
     ADOLC_TAPE_INFOS_BUFFER.push_back(tapeInfos);
     tapeInfos->traceFlag=1;
     tapeInfos->inUse=0;
@@ -471,17 +464,16 @@ void cachedTraceTags(std::vector<short>& result) {
 /* updates the tape infos on sparse Jac for the given ID  */
 void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
     TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if TapeInfos for tapeID exist */
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID==tapeID) {
+    vector<TapeInfos *>::iterator tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                                                        ADOLC_TAPE_INFOS_BUFFER.end(),
+                                                        [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    if (tiIter != ADOLC_TAPE_INFOS_BUFFER.end()) {
                 tapeInfos=*tiIter;
 		// free memory of tape entry that had been used previously
 		freeSparseJacInfos(tapeInfos->pTapeInfos.sJinfos.y,
@@ -502,8 +494,6 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 		tapeInfos->pTapeInfos.sJinfos.seed_rows=sJinfos.seed_rows;
 		tapeInfos->pTapeInfos.sJinfos.g=sJinfos.g;
 		tapeInfos->pTapeInfos.sJinfos.jr1d=sJinfos.jr1d;
-            }
-        }
     }
 }
 #endif
@@ -512,17 +502,16 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 /* updates the tape infos on sparse Hess for the given ID  */
 void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
     TapeInfos *tapeInfos;
-    vector<TapeInfos *>::iterator tiIter;
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if TapeInfos for tapeID exist */
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter=ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter!=ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter) {
-            if ((*tiIter)->tapeID==tapeID) {
+    vector<TapeInfos *>::iterator tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                                                        ADOLC_TAPE_INFOS_BUFFER.end(),
+                                                        [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    if (tiIter != ADOLC_TAPE_INFOS_BUFFER.end()) {
                 tapeInfos=*tiIter;
 		// free memory of tape entry that had been used previously
                     freeSparseHessInfos(tapeInfos->pTapeInfos.sHinfos.Hcomp, 
@@ -546,8 +535,6 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
 		    tapeInfos->pTapeInfos.sHinfos.p=sHinfos.p;
 		    tapeInfos->pTapeInfos.sHinfos.g=sHinfos.g;
 		    tapeInfos->pTapeInfos.sHinfos.hr=sHinfos.hr;
-            }
-        }
     }
 }
 #endif
@@ -754,23 +741,18 @@ void cleanUp() {
 
 int removeTape(short tapeID, short type) {
     TapeInfos *tapeInfos = NULL;
-    vector<TapeInfos *>::iterator tiIter;
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
     /* check if TapeInfos for tapeID exist */
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
-        for (tiIter = ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter != ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter)
-        {
-            if ((*tiIter)->tapeID == tapeID) {
+    vector<TapeInfos *>::iterator tiIter = std::find_if(ADOLC_TAPE_INFOS_BUFFER.begin(),
+                                                        ADOLC_TAPE_INFOS_BUFFER.end(),
+                                                        [&tapeID](auto&& ti){return ti->tapeID == tapeID;});
+
+    if (tiIter != ADOLC_TAPE_INFOS_BUFFER.end()) {
                 tapeInfos = *tiIter;
                 if (tapeInfos->tapingComplete == 0) return -1;
                 ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
-                break;
-            }
-        }
     }
 
     if (tapeInfos == NULL) { // might be on disk only
