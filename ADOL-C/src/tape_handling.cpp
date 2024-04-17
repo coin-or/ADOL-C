@@ -1103,7 +1103,7 @@ void TapeInfos::copy(const TapeInfos& tInfos) {
     end = (char *)(&this->pTapeInfos);
     for ( ; ptr != end ; ptr++, tIptr++ )
         *ptr = *tIptr;
-    this->pTapeInfos.copy(tInfos.pTapeInfos);
+    pTapeInfos = tInfos.pTapeInfos;
 }
 
 PersistantTapeInfos::PersistantTapeInfos() {
@@ -1111,14 +1111,6 @@ PersistantTapeInfos::PersistantTapeInfos() {
     for (; ptr != end ; ptr++ )
         *ptr = 0;
     paramstore = NULL;
-}
-
-void PersistantTapeInfos::copy(const PersistantTapeInfos& pTInfos) {
-    char *ptr = (char*)(&this->forodec_nax), *end = (char*)(&this->paramstore);
-    char const* pTIptr = (char const*)(&pTInfos.forodec_nax);
-    for (; ptr != end ; ptr++, pTIptr++ )
-        *ptr = *pTIptr;
-    paramstore = pTInfos.paramstore;
 }
 
 PersistantTapeInfos::~PersistantTapeInfos() {

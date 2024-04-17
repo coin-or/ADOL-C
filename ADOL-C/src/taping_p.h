@@ -206,7 +206,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
 #ifdef __cplusplus
     PersistantTapeInfos();
     ~PersistantTapeInfos();
-    void copy(const PersistantTapeInfos&);
+    PersistantTapeInfos& operator=(const PersistantTapeInfos&) = default;
 #endif
 } PersistantTapeInfos;
 
