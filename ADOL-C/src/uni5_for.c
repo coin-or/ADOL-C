@@ -984,9 +984,6 @@ int  hov_forward(
     zos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y)
 #   define ADOLC_EXT_FCT_V2_COMPLETE \
     zos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, outsz, edfct2->y, edfct2->context)
-#   define ADOLC_EXT_LOOP
-#   define ADOLC_EXT_SUBSCRIPT
-#   define ADOLC_EXT_SUBSCRIPT_START
 #   define ADOLC_EXT_COPY_TAYLORS(dest,src)
 #endif
     /* FOS_FORWARD */
@@ -1004,8 +1001,6 @@ int  hov_forward(
     fos_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)
 #   define ADOLC_EXT_V2_POINTER_X edfct2->xp
 #   define ADOLC_EXT_V2_POINTER_Y edfct2->yp
-#   define ADOLC_EXT_LOOP
-#   define ADOLC_EXT_SUBSCRIPT
 #   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
 #   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) src=dest
 #endif
@@ -1024,8 +1019,6 @@ int  hov_forward(
     fov_forward(iArrLength, iArr, nin, nout, insz, edfct2->x, p, edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
 #   define ADOLC_EXT_V2_POINTER_X edfct2->Xp
 #   define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
-#   define ADOLC_EXT_LOOP for (loop2 = 0; loop2 < p; ++loop2)
-#   define ADOLC_EXT_SUBSCRIPT [loop2]
 #   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
 #   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) 
 #endif
@@ -1037,9 +1030,6 @@ int  hov_forward(
     int loop,oloop;
     int iArrLength;
     int *iArr;
-#   if defined(_FOV_)
-        int loop2;
-#   endif
     int ext_retc;
     int nin, nout;
     locint *insz, *outsz;
