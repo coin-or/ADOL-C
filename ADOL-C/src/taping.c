@@ -712,10 +712,9 @@ void taylor_begin(uint bufferSize, int degreeSave) {
     }
 
     /* initial setups */
-    if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer != NULL)
-        free(ADOLC_CURRENT_TAPE_INFOS.tayBuffer);
-    ADOLC_CURRENT_TAPE_INFOS.tayBuffer = (revreal *)
-            malloc(sizeof(revreal) * bufferSize);
+    if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer == NULL)
+        ADOLC_CURRENT_TAPE_INFOS.tayBuffer = (revreal *) malloc(sizeof(revreal) * bufferSize);
+
     if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer == NULL)
         fail(ADOLC_TAPING_TBUFFER_ALLOCATION_FAILED);
     ADOLC_CURRENT_TAPE_INFOS.deg_save = degreeSave;
