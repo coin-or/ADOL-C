@@ -968,12 +968,6 @@ storage requirement during reverse sweeps. This can be done by passing
   undefined) by passing \texttt{--enable-atrig-erf}
   to \texttt{./configure}
 
-\item[{\sf ADOLC\_USE\_CALLOC}{\rm :}] Selects the memory allocation routine
-  used by ADOL-C. {\sf Malloc} will be used if this variable is
-  undefined. {\sf ADOLC\_USE\_CALLOC} is defined by default to avoid incorrect
-  result caused by uninitialized memory. It can be set undefined by
-  passing \texttt{--disable-use-calloc} to \texttt{./configure}.
-
 \item[{\sf ADOLC\_ADVANCED\_BRANCHING}{\rm :}] Enables routines
   required for automatic branch selection (default: disabled). The
   boolean valued comparison operators with two \texttt{adouble} type

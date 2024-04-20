@@ -154,18 +154,6 @@ if test x$ac_cv_func_malloc_0_nonnull != xyes ; then
 AC_DEFINE_UNQUOTED([calloc],[rpl_calloc],[Define to rpl_calloc if the replacement function should be used.])
 fi
 
-AC_MSG_CHECKING(whether to use calloc or malloc for memory allocation)
-AC_ARG_ENABLE(use-calloc,[AS_HELP_STRING([--disable-use-calloc],
-  [disable use of calloc and use malloc instead for memory allocation [default=calloc is used]])],
-  [use_calloc=$enableval],[use_calloc=yes])
-
-if test x$use_calloc = xyes ; then
-AC_MSG_RESULT(calloc)
-AC_DEFINE(ADOLC_USE_CALLOC,1,[Use calloc instead of malloc for memory allocation])
-else
-AC_MSG_RESULT(malloc)
-fi
-
 AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
 AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
   [enable 64-bit locations (only available on 64-bit systems) [default=32-bit]])],

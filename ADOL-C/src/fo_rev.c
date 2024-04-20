@@ -489,12 +489,6 @@ int int_reverse_safe(
             sizeof(revreal));
     if (rp_T == NULL) fail(ADOLC_MALLOC_FAILED);
     ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
-#if !defined(ADOLC_USE_CALLOC)
-    c_Ptr = (char *) ADOLC_GLOBAL_TAPE_VARS.dpp_A;
-    *c_Ptr = 0;
-    memcpy(c_Ptr + 1, c_Ptr, sizeof(double) * p *
-            ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] - 1);
-#endif
 # define ADJOINT_BUFFER rpp_A
 # define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
 # define ADJOINT_BUFFER_RES_L rpp_A[res][l]
