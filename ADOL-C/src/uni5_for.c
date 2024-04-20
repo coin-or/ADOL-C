@@ -956,10 +956,6 @@ int  hov_forward(
     const int k = gdegree;
 #endif
 
-#if defined(_KEEP_)
-    int taylbuf=0;
-#endif
-
 #if defined(_HOV_) || defined(_HOV_WK_)
     const int pk = k*p;
 #endif
@@ -1145,7 +1141,7 @@ int  hov_forward(
 #endif
 #if defined(_KEEP_)
     if (keep) {
-      taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
+        const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
 
         taylor_begin(taylbuf,keep-1);
     }
@@ -1169,7 +1165,7 @@ int  hov_forward(
 # define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
     if (keep) {
-        taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
+        const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
         taylor_begin(taylbuf,keep-1);
     }
 #endif
@@ -1251,7 +1247,7 @@ int  hov_forward(
 # define T_TEMP dp_Ttemp;
 #if defined(_KEEP_)
     if (keep) {
-        taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
+        const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
         taylor_begin(taylbuf,keep-1);
     }
 #endif
@@ -1269,7 +1265,7 @@ int  hov_forward(
 # define T_TEMP dp_Ttemp;
 #if defined(_KEEP_)
     if (keep) {
-        taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
+        const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
         taylor_begin(taylbuf,keep-1);
     }
 #endif
