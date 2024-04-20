@@ -900,7 +900,7 @@ int  hov_forward(
 #if !defined (_ZOS_)
 #if !defined (_INDO_)
 #if !defined (_INT_FOR_)
-    double r0=0.0, x, y, divs;
+    double r0=0.0, divs;
 #endif
 #endif
 #endif
@@ -3758,7 +3758,7 @@ int  hov_forward(
                     TresOP = Tres-i;
 
                     (*Tres) *= i+1;
-                    y = coval*i -1;
+                    double y = coval*i -1;
                     for (int j=0;j<i;j++) {
                         *Tres += (*TresOP++) * (*zOP--) * y;
                             y -= coval + 1;
@@ -3917,7 +3917,7 @@ int  hov_forward(
                     TresOP = Tres-i;
 
                     (*Tres) *= i+1;
-                    y = coval*i -1;
+                    double y = coval*i -1;
                     for (int j=0;j<i;j++) {
                         *Tres += (*TresOP++) * (*zOP--) * y;
                             y -= coval + 1;
@@ -4000,7 +4000,7 @@ int  hov_forward(
                     TresOP  = Tres-i;
                     TresOP2 = Tres-1;
 
-                    x = 0;
+                    double x = 0;
                     for (int j=1;2*j-1<i;j++)
                     x += (*TresOP++) * (*TresOP2--);
                     x *= 2;
@@ -4417,6 +4417,7 @@ int  hov_forward(
 		FOR_0_LE_l_LT_p
 		    TRES_INC = fabs(dp_T0[arg]+TARG_INC)-fabs(dp_T0[arg]);
 #elif defined(_ABS_NORM_SIG_)
+                double y;
                 if (sigdir == NULL)
                     y = EXT_FIRSTSIGN2_P(sigbase[switchnum],dp_T0[arg],Targ);
                 else
@@ -4426,7 +4427,7 @@ int  hov_forward(
 		FOR_0_LE_l_LT_p
 		    TRES_INC = y * TARG_INC;
 #else
-                y = 0.0;
+                double y = 0.0;
                 if (dp_T0[arg] != 0.0) {
                     if (dp_T0[arg] < 0.0)
                         y = -1.0;
@@ -4435,7 +4436,7 @@ int  hov_forward(
                 }
 
                 FOR_0_LE_l_LT_p
-                { x = y;
+                { double x = y;
                   FOR_0_LE_i_LT_k
                   { if ((x == 0.0) && (TARG != 0.0)) {
                     MINDEC(ret_c,1);
