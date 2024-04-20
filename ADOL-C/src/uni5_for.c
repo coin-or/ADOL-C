@@ -229,7 +229,7 @@ void extend_nonlinearity_domain_binary
 #define IF_KEEP_TAYLOR_CLOSE \
 if (keep){\
   fprintf(DIAG_OUT,"Succeeding reverse sweep will fail!\n");\
-  taylor_close(0);\
+  taylor_close(false);\
 }
 #define IF_KEEP_WRITE_TAYLOR(res,keep,k,p) \
     { \
@@ -249,7 +249,7 @@ if (keep){\
 #define IF_KEEP_TAYLOR_CLOSE \
 if (keep){\
   fprintf(DIAG_OUT,"Otherwise succeeding reverse sweep will fail!\n");\
-  taylor_close(0);\
+  taylor_close(false);\
 }
 #if defined(_ZOS_)
 #define IF_KEEP_WRITE_TAYLOR(res,keep,k,p) \
@@ -6611,7 +6611,8 @@ int  hov_forward(
 #endif /* ADOLC_DEBUG */
 
 #if defined(_KEEP_)
-    if (keep) taylor_close(taylbuf);
+    if (keep)
+        taylor_close(true);
 #endif
 
     /* clean up */

@@ -14,6 +14,8 @@
 #if !defined(ADOLC_TAPING_P_H)
 #define ADOLC_TAPING_P_H 1
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 #include "storemanager.h"
 #endif
@@ -452,7 +454,7 @@ void free_loc(locint loc);
 void taylor_begin(uint bufferSize, int degreeSave);
 /* set up statics for writing taylor data */
 
-void taylor_close(uint buffer);
+void taylor_close(bool resetData);
 /* close taylor file if necessary and refill buffer if possible */
 
 void taylor_back(short tag, int* dep, int* ind, int* degree);

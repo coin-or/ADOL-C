@@ -701,7 +701,7 @@ void taylor_begin(uint bufferSize, int degreeSave) {
                     " found that will be overwritten !!!\n\n",
                     ADOLC_CURRENT_TAPE_INFOS.tapeID);
         #     endif
-        taylor_close(0);
+        taylor_close(false);
     } else { /* check if new buffer is allowed */
         if (numTBuffersInUse == ADOLC_GLOBAL_TAPE_VARS.maxNumberTaylorBuffers)
             fail(ADOLC_TAPING_TO_MANY_TAYLOR_BUFFERS);
@@ -730,11 +730,11 @@ void taylor_begin(uint bufferSize, int degreeSave) {
 /****************************************************************************/
 /* Close the taylor file, reset data.                                       */
 /****************************************************************************/
-void taylor_close(uint buffer) {
+void taylor_close(bool resetData) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-    if (buffer == 0) {
+    if (resetData == false) {
         /* enforces failure of reverse => retaping */
         ADOLC_CURRENT_TAPE_INFOS.deg_save = -1;
         if (ADOLC_CURRENT_TAPE_INFOS.tay_file != NULL) {
@@ -1187,7 +1187,7 @@ void stop_trace(int flag) {
 	ADOLC_CURRENT_TAPE_INFOS.numSwitches;
 
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-	taylor_close(ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE]);
+	taylor_close(true);
 
     ADOLC_CURRENT_TAPE_INFOS.stats[TAY_STACK_SIZE] =
         ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
@@ -1479,7 +1479,7 @@ void set_param_vec(short tag, size_t numparam, revreal* paramvec) {
             malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]*sizeof(double));
     for(i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]; i++)
         ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[i] = paramvec[i];
-    taylor_close(0);
+    taylor_close(false);
     releaseTape();
 }
 
