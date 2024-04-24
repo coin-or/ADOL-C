@@ -65,7 +65,6 @@ set(SOURCE_FILES
     traceOperatorVector.cpp
     traceSecOrderScalar.cpp
     traceSecOrderVector.cpp
-    traceExtDiff.cpp
     )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 
