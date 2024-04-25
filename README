@@ -20,9 +20,23 @@ platform.
 The complete documentation can be found in the subdirectory "doc".
 
 
+Local installation using CMake
+==============================
 
-LOCAL INSTALLATION
-==================
+1. Create a build directory somewhere, and move into that directory
+
+2. Call CMake:
+
+  cmake -DCMAKE_INSTALL_PREFIX=/path/you/want/to/install/in path/to/adolc/sources
+
+3. Build and install:
+
+  make
+  make install
+
+
+Local installation using the AutoTools
+======================================
 
 1. Type autoreconf -fi
 
@@ -55,7 +69,7 @@ LOCAL INSTALLATION
    ${PREFIX}/include. You can specify another installation directory by using
    the --prefix-option in the configure call.
 
-This procedure provides all makefiles required in the approporate directories.
+This procedure provides all makefiles required in the appropriate directories.
 Execute 'configure --help' for more details on other available option.
 
 

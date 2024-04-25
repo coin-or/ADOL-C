@@ -1,0 +1,31 @@
+install(FILES
+        adalloc.h
+        adolc_fatalerror.h
+        adolc.h
+        adolc_openmp.h
+        adolc_sparse.h
+        adoublecuda.h
+        adouble.h
+        adtl.h
+        adtl_hov.h
+        adtl_indo.h
+        adutilsc.h
+        adutils.h
+        advector.h
+        checkpointing.h
+        convolut.h
+        edfclasses.h
+        externfcts2.h
+        externfcts.h
+        fixpoint.h
+        fortutils.h
+        interfaces.h
+        param.h
+        revolve.h
+        taping.h
+        DESTINATION "include/adolc")
+
+add_subdirectory(drivers)
+add_subdirectory(internal)
+add_subdirectory(lie)
+add_subdirectory(tapedoc)
