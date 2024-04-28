@@ -166,19 +166,6 @@ else
 AC_MSG_RESULT(malloc)
 fi
 
-AC_MSG_CHECKING(whether to enable atrig/erf functions)
-AC_ARG_ENABLE(atrig-erf,[AS_HELP_STRING([--enable-atrig-erf],
-  [enable atrig and erf functions in ADOL-C [default=no]])],
-  [use_atrig_erf=$enableval],[use_atrig_erf=no])
-AC_MSG_RESULT($use_atrig_erf)
-
-if test x$use_atrig_erf = xyes ; then
-  ATRIG_ERF="#define ATRIG_ERF 1"
-else
-  ATRIG_ERF="#undef ATRIG_ERF"
-fi
-AC_SUBST(ATRIG_ERF)
-
 AC_MSG_CHECKING(whether to use 32-bit or 64-bit locations)
 AC_ARG_ENABLE(ulong,[AS_HELP_STRING([--enable-ulong],
   [enable 64-bit locations (only available on 64-bit systems) [default=32-bit]])],

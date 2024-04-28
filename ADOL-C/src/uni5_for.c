@@ -3219,8 +3219,6 @@ int  hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
                         break;
 
-#ifdef ATRIG_ERF
-
             /*--------------------------------------------------------------------------*/
         case asinh_op:                                            /* asinh_op */
                 arg1 = get_locint_f();
@@ -3280,9 +3278,9 @@ int  hov_forward(
                   }
                   HOV_INC(Targ2, k)
                 }
-#endif
-#endif
-#endif /* ALL_TOGETHER_AGAIN */
+#endif // #ifdef _INT_FOR_ ... #else ...
+#endif // #if !defined(_ZOS_)
+#endif // #if defined(_INDO_)
                 break;
 
             /*--------------------------------------------------------------------------*/
@@ -3538,8 +3536,6 @@ int  hov_forward(
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
                 break;
-
-#endif
 
             /*--------------------------------------------------------------------------*/
         case log_op:                                                /* log_op */

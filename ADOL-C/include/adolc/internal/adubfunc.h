@@ -68,12 +68,10 @@
     friend ADOLC_DLL_EXPORT adub sinh  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub cosh  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub tanh  ( const badouble& );
-#if defined(ATRIG_ERF)
     friend ADOLC_DLL_EXPORT adub asinh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub acosh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub atanh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub erf   ( const badouble& );
-#endif
 
     friend ADOLC_DLL_EXPORT adub fabs  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub ceil  ( const badouble& );

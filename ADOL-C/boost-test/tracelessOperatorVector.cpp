@@ -330,7 +330,6 @@ BOOST_AUTO_TEST_CASE(Log10OperatorDerivativeVectorMode)
   }
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(AsinhOperatorDerivativeVectorMode)
 {
   const size_t numDir = adtl::getNumDir();
@@ -384,7 +383,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivativeVectorMode)
     BOOST_TEST(ad.getADValue(j) == aDerivative*(1. + j*1.3), tt::tolerance(tol));
   }
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(InclOperatorDerivativeVectorMode)
 {
@@ -855,7 +853,6 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivativeVectorMode_3)
   BOOST_TEST(ed.getADValue(1) == Derivative2, tt::tolerance(tol));
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(ErfOperatorDerivativeVectorMode)
 {
   double a = 7.1;
@@ -870,7 +867,6 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivativeVectorMode)
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
   BOOST_TEST(ad.getADValue(1) == aDerivative*(-2.5), tt::tolerance(tol));
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(EqOperatorDerivativeVectorMode)
 {

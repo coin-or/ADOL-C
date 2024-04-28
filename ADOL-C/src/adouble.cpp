@@ -2794,9 +2794,6 @@ adub floor ( const badouble& x ) {
     return locat;
 }
 
-#ifdef ATRIG_ERF
-/* NOTE: enable if your compiler knows asinh, acosh, atanh, erf */
-
 /*--------------------------------------------------------------------------*/
 /* Asinh value -- really a quadrature */
 adub asinh ( const badouble& x ) {
@@ -3001,8 +2998,6 @@ adub erf( const badouble& x ) {
     ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
     return locat;
 }
-
-#endif
 
 /*--------------------------------------------------------------------------*/
 /* Fabs Function (NOTE: This function is also nondifferentiable at x=0) */

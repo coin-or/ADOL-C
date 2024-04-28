@@ -181,13 +181,10 @@ inline adub    log10 ( const pdouble& p) { return log10(adub(p)); }
 inline adub sinh  ( const pdouble& p) { return sinh(adub(p)); }
 inline adub cosh  ( const pdouble& p) { return cosh(adub(p)); }
 inline adub tanh  ( const pdouble& p) { return tanh(adub(p)); }
-#if defined(ATRIG_ERF)
 inline adub asinh ( const pdouble& p) { return asinh(adub(p)); }
 inline adub acosh ( const pdouble& p) { return acosh(adub(p)); }
 inline adub atanh ( const pdouble& p) { return atanh(adub(p)); }
 inline adub erf   ( const pdouble& p) { return erf(adub(p));   }
-#endif
-
 inline adub fabs  ( const pdouble& p) { return fabs(adub(p));  }
 inline adub ceil  ( const pdouble& p) { return ceil(adub(p));  }
 inline adub floor ( const pdouble& p) { return floor(adub(p)); }

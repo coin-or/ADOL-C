@@ -256,7 +256,6 @@ BOOST_AUTO_TEST_CASE(CompositeFmin_Traceless)
   BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(CompositeErfFabs_Traceless)
 {
   double x1 = 4.56, x2 = 6.45;
@@ -282,7 +281,6 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_Traceless)
   BOOST_TEST(ax1.getADValue(0) == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(ExpTrigSqrt_Traceless)
 {

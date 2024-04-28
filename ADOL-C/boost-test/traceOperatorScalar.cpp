@@ -1693,7 +1693,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse)
   myfree1(z);
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward)
 {
   double a = 0.6, aout;
@@ -1975,7 +1974,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse)
   myfree1(u);
   myfree1(z);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward)
 {
@@ -4423,7 +4421,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3)
   myfree1(z1);
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward)
 {
   double a = 7.1, aout;
@@ -4516,7 +4513,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse)
   myfree1(u);
   myfree1(z);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward)
 {

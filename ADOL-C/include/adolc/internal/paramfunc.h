@@ -92,12 +92,10 @@
     inline friend ADOLC_DLL_EXPORT adub sinh  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub cosh  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub tanh  ( const pdouble& );
-#if defined(ATRIG_ERF)
     inline friend ADOLC_DLL_EXPORT adub asinh ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub acosh ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub atanh ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub erf   ( const pdouble& );
-#endif
 
     inline friend ADOLC_DLL_EXPORT adub fabs  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub ceil  ( const pdouble& );

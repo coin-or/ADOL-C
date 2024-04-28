@@ -104,12 +104,10 @@ adub*    pow   ( const badouble&, const pdouble& );
 adub* sinh  ( const badouble& );
 adub* cosh  ( const badouble& );
 adub* tanh  ( const badouble& );
-#if defined(ATRIG_ERF)
 adub* asinh ( const badouble& );
 adub* acosh ( const badouble& );
 adub* atanh ( const badouble& );
 adub* erf   ( const badouble& );
-#endif
 
 adub* fabs  ( const badouble& );
 adub* ceil  ( const badouble& );
@@ -145,12 +143,10 @@ adub*    log10 ( const pdouble& );
 adub* sinh  ( const pdouble& );
 adub* cosh  ( const pdouble& );
 adub* tanh  ( const pdouble& );
-#if defined(ATRIG_ERF)
 adub* asinh ( const pdouble& );
 adub* acosh ( const pdouble& );
 adub* atanh ( const pdouble& );
 adub* erf   ( const pdouble& );
-#endif
 
 adub* fabs  ( const pdouble& );
 adub* ceil  ( const pdouble& );

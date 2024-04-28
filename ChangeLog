@@ -1,3 +1,10 @@
+Version 2.7.3
+
+  20240428 sander - The configure option --enable-atrig-erf has been removed.
+                    Instead, support for the 'erf', 'asinh', 'acosh' and 'atanh'
+                    functions is now always built. This seems reasonable,
+                    given that they are all part of the C99 standard.
+
 Version 2.1.0
 ------->
 

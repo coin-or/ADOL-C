@@ -608,7 +608,6 @@ BOOST_AUTO_TEST_CASE(CustomExpSum_HOS)
   myfree2(H);
 }
 
-#if defined(ATRIG_ERF)
 /* Tested function: exp(tanh(x1)*erf(x2))
  * First derivatives: (exp(tanh(x1)*erf(x2))*(1 - pow(tanh(x1), 2))*erf(x2),
  *                     exp(tanh(x1)*erf(x2))*tanh(x1)*exp(-x2*x2)
@@ -703,7 +702,6 @@ BOOST_AUTO_TEST_CASE(CustomHypErf_HOS)
   myfree2(Y);
   myfree2(H);
 }
-#endif
 
 /* Tested function: (pow(cosh(x1), 2) - pow(sinh(x1), 2))*atan(x2)
  * First derivatives: (0, 1./(1. + x2*x2)
@@ -953,7 +951,6 @@ BOOST_AUTO_TEST_CASE(CustomExpSqrt_HOS)
   myfree2(H);
 }
 
-#if defined(ATRIG_ERF)
 /* Tested function: 2.*acosh(cosh(x1*x1))*atanh(x2)
  * First derivatives: (4.*x1*atanh(x2), 2.*x1*x1/(1. - x2*x2)
  *                    )
@@ -1024,7 +1021,6 @@ BOOST_AUTO_TEST_CASE(CustomInvHyperb_HOS)
   myfree2(Y);
   myfree2(H);
 }
-#endif
 
 /* Tested function: fmax(fmin(x1, x2), fabs(x3))*x4
  * First derivatives: (0., 0., -x4, -x3)
@@ -3040,7 +3036,6 @@ BOOST_AUTO_TEST_CASE(customExpSum_HOS_Reverse)
   myfree2(Z);
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(customHypErf_HOS_Reverse)
 {
   double x1 = 5.55, x2 = 9.99;
@@ -3125,7 +3120,6 @@ BOOST_AUTO_TEST_CASE(customHypErf_HOS_Reverse)
   myfree1(u);
   myfree2(Z);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(customHypAtan_HOS_Reverse)
 {
@@ -3399,7 +3393,6 @@ BOOST_AUTO_TEST_CASE(customExpSqrt_HOS_Reverse)
   myfree2(Z);
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(customInvHyperb_HOS_Reverse)
 {
   double x1 = -3.03, x2 = 0.11;
@@ -3469,7 +3462,6 @@ BOOST_AUTO_TEST_CASE(customInvHyperb_HOS_Reverse)
   myfree1(u);
   myfree2(Z);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(customFminFmaxFabs_HOS_Reverse)
 {

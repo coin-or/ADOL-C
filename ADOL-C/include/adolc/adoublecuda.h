@@ -135,11 +135,9 @@ public:
     CUDADEV friend adouble sinh (const adouble &a);
     CUDADEV friend adouble cosh (const adouble &a);
     CUDADEV friend adouble tanh (const adouble &a);
-#if defined(ATRIG_ERF)
     CUDADEV friend adouble asinh (const adouble &a);
     CUDADEV friend adouble acosh (const adouble &a);
     CUDADEV friend adouble atanh (const adouble &a);
-#endif
     CUDADEV friend adouble fabs (const adouble &a);
     CUDADEV friend adouble ceil (const adouble &a);
     CUDADEV friend adouble floor (const adouble &a);
@@ -153,9 +151,7 @@ public:
     CUDADEV friend adouble ldexp (const adouble &a, const double v);
     CUDADEV friend adouble ldexp (const double v, const adouble &a);
     CUDADEV friend double frexp (const adouble &a, int* v);
-#if defined(ATRIG_ERF)
     CUDADEV friend adouble erf (const adouble &a);
-#endif
 
 
     /*******************  nontemporary results  ***************************/
@@ -571,7 +567,6 @@ CUDADEV adouble tanh (const adouble &a) {
     return tmp;
 }
 
-#if defined(ATRIG_ERF)
 CUDADEV adouble asinh (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::asinh(a.val);
@@ -598,7 +593,6 @@ CUDADEV adouble atanh (const adouble &a) {
     tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
 }
-#endif
 
 CUDADEV adouble fabs (const adouble &a) {
     adouble tmp;
@@ -789,7 +783,6 @@ CUDADEV double frexp (const adouble &a, int* v) {
     return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
-#if defined(ATRIG_ERF)
 CUDADEV adouble erf (const adouble &a) {
     adouble tmp;
     tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
@@ -800,7 +793,6 @@ CUDADEV adouble erf (const adouble &a) {
     tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
 }
-#endif
 
 
 /*******************  nontemporary results  *********************************/

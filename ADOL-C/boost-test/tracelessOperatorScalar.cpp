@@ -556,7 +556,6 @@ BOOST_AUTO_TEST_CASE(Log10OperatorDerivative)
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));  
 }
 
-#if defined(ATRIG_ERF)
 BOOST_AUTO_TEST_CASE(AsinhOperatorPrimal)
 {
   double a = 0.6;
@@ -628,7 +627,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivative)
   
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));  
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(InclOperatorPrimal)
 {
@@ -1408,11 +1406,6 @@ BOOST_AUTO_TEST_CASE(FminOperatorDerivative_3)
   BOOST_TEST(c3d.getADValue(0) == derivative3, tt::tolerance(tol));
 }
 
-/* The constant ATRIG_ERF activates/deactives the implementations for asinh,
- * acosh, atanh, erf.  It is defined/undefined in
- * adol-c/ADOL-C/include/adolc/internal in the header file adolc_settings.h.
- */
-#if defined(ATRIG_ERF)
 /* The error function erf(a) is defined as
  * 2. / sqrt(pi) * int_{0, a} (exp(- t^2))dt.
  */
@@ -1442,7 +1435,6 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivative)
 
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
 }
-#endif
 
 /* Test the primitive non-temporary operations =, +=, -=, *=, /=. */
 

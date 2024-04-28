@@ -896,8 +896,6 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation,"acos op",3,loc_a,val_a,0,cst_d);
                 break;
 
-#ifdef ATRIG_ERF
-
                 /*--------------------------------------------------------------------------*/
             case asinh_op:                                            /* asinh_op */
                 arg1  = get_locint_f();
@@ -970,7 +968,6 @@ void tape_doc(short tnum,         /* tape id */
                 filewrite(operation,"erf op",3,loc_a,val_a,0,cst_d);
                 break;
 
-#endif
                 /*--------------------------------------------------------------------------*/
             case log_op:                                                /* log_op */
                 arg  = get_locint_f();

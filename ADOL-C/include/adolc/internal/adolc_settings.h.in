@@ -25,10 +25,6 @@ typedef @UINT_TYPE@ locint;                /* ensure locint is unsigned */
 typedef @REAL_TYPE@ revreal;
 
 /*--------------------------------------------------------------------------*/
-/* Enable/disable asinh, acosh,atanh, erf */
-@ATRIG_ERF@
-
-/*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
 @ADVBRANCH@
 

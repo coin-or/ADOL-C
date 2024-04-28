@@ -1207,7 +1207,6 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse)
   myfree2(z);
 }
 
-#if defined(ATRIG_ERF)
 /* Tested function: erf(fabs(x1 - x2)*sinh(x3 - x4))*sin(x5)
  * Gradient vector: (
  *                    -2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
@@ -1372,7 +1371,6 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse)
   myfree2(u);
   myfree2(z);
 }
-#endif
 
 /* Tested function: 5.*exp(sin(x1)*cos(x1))*pow(sqrt(x2), x3)
  * Gradient vector: (

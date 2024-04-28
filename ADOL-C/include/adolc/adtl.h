@@ -120,11 +120,9 @@ public:
     inline friend adouble sinh (const adouble &a);
     inline friend adouble cosh (const adouble &a);
     inline friend adouble tanh (const adouble &a);
-#if defined(ATRIG_ERF)
     inline friend adouble asinh (const adouble &a);
     inline friend adouble acosh (const adouble &a);
     inline friend adouble atanh (const adouble &a);
-#endif
     inline friend adouble fabs (const adouble &a);
     inline friend adouble ceil (const adouble &a);
     inline friend adouble floor (const adouble &a);
@@ -138,9 +136,7 @@ public:
     inline friend adouble ldexp (const adouble &a, const double v);
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
-#if defined(ATRIG_ERF)
     inline friend adouble erf (const adouble &a);
-#endif
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
@@ -641,7 +637,6 @@ inline adouble tanh (const adouble &a) {
     return tmp;
 }
 
-#if defined(ATRIG_ERF)
 inline adouble asinh (const adouble &a) {
     adouble tmp;
 	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::asinh(a.PRIMAL_VALUE);
@@ -668,7 +663,6 @@ inline adouble atanh (const adouble &a) {
 	    tmp.ADVAL_I=a.ADVAL_I/tmp2;
     return tmp;
 }
-#endif
 
 inline adouble fabs (const adouble &a) {
     adouble tmp;
@@ -861,7 +855,6 @@ inline double frexp (const adouble &a, int* v) {
     return ADOLC_MATH_NSP::frexp(a.PRIMAL_VALUE, v);
 }
 
-#if defined(ATRIG_ERF)
 inline adouble erf (const adouble &a) {
     adouble tmp;
 	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::erf(a.PRIMAL_VALUE);
@@ -872,7 +865,6 @@ inline adouble erf (const adouble &a) {
 	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
     return tmp;
 }
-#endif
 
 inline void condassign( adouble &res, const adouble &cond,
 			const adouble &arg1, const adouble &arg2 ) {

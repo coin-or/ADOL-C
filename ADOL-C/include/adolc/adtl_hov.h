@@ -130,11 +130,9 @@ public:
     inline friend adouble sinh (const adouble &a);
     inline friend adouble cosh (const adouble &a);
     inline friend adouble tanh (const adouble &a);
-#if defined(ATRIG_ERF)
     inline friend adouble asinh (const adouble &a);
     inline friend adouble acosh (const adouble &a);
     inline friend adouble atanh (const adouble &a);
-#endif
     inline friend adouble fabs (const adouble &a);
     inline friend adouble ceil (const adouble &a);
     inline friend adouble floor (const adouble &a);
@@ -148,9 +146,7 @@ public:
     inline friend adouble ldexp (const adouble &a, const double v);
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
-#if defined(ATRIG_ERF)
     inline friend adouble erf (const adouble &a);
-#endif
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
@@ -1441,7 +1437,6 @@ inline adouble tanh (const adouble &a) {
     return tmp;
 }
 
-#if defined(ATRIG_ERF)
 inline adouble asinh (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -1513,7 +1508,6 @@ inline adouble atanh (const adouble &a) {
 	tmp.add_to_pattern( a.get_pattern() );
     return tmp;
 }
-#endif
 
 inline adouble fabs (const adouble &a) {
     adouble tmp;
@@ -1923,7 +1917,6 @@ inline double frexp (const adouble &a, int* v) {
     return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
-#if defined(ATRIG_ERF)
 inline adouble erf (const adouble &a) {
     adouble tmp;
     if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -1943,7 +1936,6 @@ inline adouble erf (const adouble &a) {
 	tmp.add_to_pattern( a.get_pattern() ) ;
     return tmp;
 }
-#endif
 
 inline void condassign( adouble &res, const adouble &cond,
 			const adouble &arg1, const adouble &arg2 ) {
