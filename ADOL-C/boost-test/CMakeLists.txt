@@ -61,11 +61,11 @@ set(SOURCE_FILES
     tracelessCompositeTests.cpp
     tracelessOperatorScalar.cpp
     tracelessOperatorVector.cpp
-    traceFixedPointScalarTests.cpp
     traceOperatorScalar.cpp
     traceOperatorVector.cpp
     traceSecOrderScalar.cpp
     traceSecOrderVector.cpp
+    traceFixedPointScalarTests.cpp
     )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 
