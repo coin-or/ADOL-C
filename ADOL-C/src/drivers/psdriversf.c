@@ -18,25 +18,6 @@
 #include <adolc/adalloc.h>
 #include <adolc/fortutils.h>
 
-#if !defined(ADOLC_NO_MALLOC)
-#   define ADOLC_CALLOC(n,m) calloc(n,m)
-#else
-#   define ADOLC_CALLOC(n,m) rpl_calloc(n,m)
-#endif
-#if defined(ADOLC_USE_CALLOC)
-#  if !defined(ADOLC_NO_MALLOC)
-#     define ADOLC_MALLOC(n,m) calloc(n,m)
-#  else
-#     define ADOLC_MALLOC(n,m) rpl_calloc(n,m)
-#  endif
-#else
-#  if !defined(ADOLC_NO_MALLOC)
-#     define ADOLC_MALLOC(n,m) malloc(n*m)
-#  else
-#     define ADOLC_MALLOC(n,m) rpl_malloc(n*m)
-#  endif
-#endif
-
 BEGIN_C_DECLS
 
 /****************************************************************************/
