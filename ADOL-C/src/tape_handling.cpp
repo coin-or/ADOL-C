@@ -18,6 +18,8 @@
 #include <adolc/revolve.h>
 #include <adolc/adalloc.h>
 
+#include <mutex>
+
 #ifdef ADOLC_MEDIPACK_SUPPORT
 #include "medipacksupport_p.h"
 #endif
@@ -118,10 +120,21 @@ vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 stack<TapeInfos *> ADOLC_TAPE_STACK_DECL;
 
 /* the main tape info buffer and its fallback */
+#if defined(_OPENMP)
+
 TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
 TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
 
-/* global taping variables */
+#else
+
+std::mutex tape_mutex;
+
+thread_local TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
+thread_local TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
+
+#endif
+
+/* global tapeing variables */
 GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
 
 #if defined(_OPENMP)
@@ -195,6 +208,10 @@ int initNewTape(short tapeID) {
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
 
     /* check if tape is in use */
     vector<TapeInfos *>::iterator tiIter;
@@ -314,6 +331,10 @@ void openTape(short tapeID, char mode) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
+
     /* check if tape information exist in memory */
     vector<TapeInfos *>::iterator tiIter;
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
@@ -394,6 +415,10 @@ void releaseTape() {
         ADOLC_CURRENT_TAPE_INFOS.inUse = 0;
     }
 
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
+
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
             ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = ADOLC_TAPE_STACK.top();
@@ -412,6 +437,10 @@ TapeInfos *getTapeInfos(short tapeID) {
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
@@ -457,6 +486,10 @@ void cachedTraceTags(std::vector<short>& result) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
+
     result.resize(ADOLC_TAPE_INFOS_BUFFER.size());
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
         for(tiIter=ADOLC_TAPE_INFOS_BUFFER.begin(), tIdIter=result.begin();
@@ -475,6 +508,10 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
@@ -516,6 +553,10 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
 
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
 
     /* check if TapeInfos for tapeID exist */
     if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
@@ -606,6 +647,10 @@ static void clearCurrentTape() {
 void cleanUp() {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+#if !defined(_OPENMP)
+    std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
 
     TapeInfos** tiIter;
     clearCurrentTape();
@@ -758,20 +803,29 @@ int removeTape(short tapeID, short type) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-    /* check if TapeInfos for tapeID exist */
-    if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
+#if !defined(_OPENMP)
+    {
+      std::lock_guard<std::mutex> tape_lock(tape_mutex);
+#endif
+
+      /* check if TapeInfos for tapeID exist */
+      if (!ADOLC_TAPE_INFOS_BUFFER.empty()) {
         for (tiIter = ADOLC_TAPE_INFOS_BUFFER.begin();
-                tiIter != ADOLC_TAPE_INFOS_BUFFER.end();
-                ++tiIter)
+             tiIter != ADOLC_TAPE_INFOS_BUFFER.end();
+             ++tiIter)
         {
-            if ((*tiIter)->tapeID == tapeID) {
-                tapeInfos = *tiIter;
-                if (tapeInfos->tapingComplete == 0) return -1;
-                ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
-                break;
-            }
+          if ((*tiIter)->tapeID == tapeID) {
+            tapeInfos = *tiIter;
+            if (tapeInfos->tapingComplete == 0) return -1;
+            ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
+            break;
+          }
         }
+      }
+
+#if !defined(_OPENMP)
     }
+#endif
 
     if (tapeInfos == NULL) { // might be on disk only
         tapeInfos = new TapeInfos(tapeID);
