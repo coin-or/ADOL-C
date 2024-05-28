@@ -180,7 +180,7 @@ int hess_mat(short tag,
              int n,
              int q,
              const double *argument,
-             double **tangent,
+             const double * const *tangent,
              double **result) {
     int rc;
     int i,j;
