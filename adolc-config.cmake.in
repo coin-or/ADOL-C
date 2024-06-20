@@ -1,0 +1,28 @@
+set(ADOLC_VERSION @adol-c_VERSION@)
+
+@PACKAGE_INIT@
+
+set(ADOLC_INCLUDE_DIR   "@CMAKE_INSTALL_FULL_INCLUDEDIR@" )
+set(ADOLC_DATA_DIR      "@CMAKE_INSTALL_PREFIX@/@RELATIVE_DATA_INSTALL_DIR@" )
+
+include(CMakeFindDependencyMacro)
+
+set(ENABLE_MEDIPACK @ENABLE_MEDIPACK@)
+if(ENABLE_MEDIPACK)
+  find_dependency(MPI)
+  find_dependency(MeDiPack)
+endif()
+
+set(ENABLE_PYTHON @ENABLE_PYTHON@)
+if(ENABLE_PYTHON)
+  find_dependency(Python3 3.8)
+  find_dependency(SWIG COMPONENTS python)
+endif()
+
+set(WITH_BOOST @WITH_BOOST@)
+if(WITH_BOOST)
+  find_dependency(Boost 1.54 REQUIRED COMPONENTS system)
+endif()
+
+# Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/adolc-targets.cmake")
