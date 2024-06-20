@@ -22,6 +22,7 @@
 #include "medipacksupport_p.h"
 #endif
 
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 #ifdef HAVE_UNISTD_H
