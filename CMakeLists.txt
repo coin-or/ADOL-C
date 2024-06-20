@@ -76,18 +76,25 @@ target_include_directories(adolc
 # define options
 # --------------
 
+include(FeatureSummary)
+
+# Whether to build ADOL-C with MeDiPack (MPI) support
 option(ENABLE_MEDIPACK "Build ADOL-C with MeDiPack (MPI) support" FALSE)
+add_feature_info(ENABLE_MEDIPACK ENABLE_MEDIPACK "MeDiPack: MPI wrapper for Algorithmic Differentiation tools.")
+
 option(ENABLE_PYTHON "Build ADOL-C with python/swig support" FALSE)
 
 # The boolean valued comparison operators with two adouble arguments will
 # not return boolean results but the active results may be used to automatically
 # switch branches in conjunction with condassign or advector (see manual).
 option(ENABLE_ADVANCED_BRANCHING "Enable advanced branching operations to reduce retaping" FALSE)
+add_feature_info(ENABLE_ADVANCED_BRANCHING ENABLE_ADVANCED_BRANCHING "Advanced branching operations to reduce retaping.")
 
 # With this enabled some additional checks will be conducted when setting the
 # number of directional derivatives for tapeless numbers using the SetNumDir()
 # function.
 option(ENABLE_TRACELESS_REFCOUNTING "Enable reference counting for tapeless numbers" FALSE)
+add_feature_info(ENABLE_TRACELESS_REFCOUNTING ENABLE_TRACELESS_REFCOUNTING "Reference counting for tapeless numbers.")
 
 # Only the operations involving actual dependency relationships from the
 # independent variables will be recorded on the trace, this however
@@ -95,8 +102,10 @@ option(ENABLE_TRACELESS_REFCOUNTING "Enable reference counting for tapeless numb
 # tracing time. Useful only if memory is a constraint and tracing is
 # done fewer times than derivative computations.
 option(ENABLE_ACTIVITY_TRACKING "Enable activity tracking to reduce trace size but increased tracing time" FALSE)
+add_feature_info(ENABLE_ACTIVITY_TRACKING ENABLE_ACTIVITY_TRACKING "Activity tracking to reduce trace size but increased tracing time.")
 
 option(ENABLE_HARDDEBUG "Enable ADOL-C hard debug mode" FALSE)
+add_feature_info(ENABLE_HARDDEBUG ENABLE_HARDDEBUG "Hard debug mode.")
 if (ENABLE_HARDDEBUG)
   set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 endif (ENABLE_HARDDEBUG)
@@ -104,13 +113,38 @@ endif (ENABLE_HARDDEBUG)
 # adouble constructors need to be called. With malloc or realloc that is not the case.
 # With this option the adouble can do a late initialization.)
 option(ENABLE_LATEINIT "Whether the adouble variables have a late initialize option for functions like malloc/realloc" FALSE)
+add_feature_info(ENABLE_LATEINIT ENABLE_LATEINIT "adouble can do a late initialization.")
 
-option(DISABLE_USE_CALLOC "Disable use of calloc and use malloc instead for memory allocation" FALSE)
 option(DISABLE_STDCZERO "adouble default constructor does not initialize the value to zero" FALSE)
+add_feature_info(DISABLE_STDCZERO DISABLE_STDCZERO "Do not initialize the values to zero.")
+
+# Whether errno is thread save
+option(ENABLE_TSERRNO "Use errno as thread number cache" FALSE)
+add_feature_info(ENABLE_TSERRNO ENABLE_TSERRNO "Use errno as thread number cache.")
+
+
+# Whether to build documented examples
+option(ENABLE_DOCEXA "build documented examples" FALSE)
+add_feature_info(ENABLE_DOCEXA ENABLE_DOCEXA "build documented examples")
+
+# Whether to build additional examples
+option(ENABLE_ADDEXA "build additional examples" FALSE)
+add_feature_info(ENABLE_ADDEXA ENABLE_ADDEXA "build additional examples")
+
+# Whether to build parallel example
+include(CMakeDependentOption)
+cmake_dependent_option(ENABLE_PAREXA "build parallel example" FALSE ENABLE_OPENMP FALSE)
+add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
+
+# Whether tape_doc should compute values as it prints the tape contents
+option(DISABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents" TRUE)
+add_feature_info(DISABLE_TAPEDOC_VALUES DISABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents")
+
 
 option(ENABLE_BOOST_POOL "Enable the use of boost pool." FALSE)
 
-option(ENABLE_SPARSE "NOT SUPPORTED!: Build with Colpack to enable sparse AD.")
+option(ENABLE_SPARSE "NOT SUPPORTED!: Build with Colpack to enable sparse AD." FALSE)
+add_feature_info(ENABLE_SPARSE ENABLE_SPARSE "build sparse drivers (colpack required!)")
 
 # build the c interface
 option(BUILD_INTERFACE OFF)
@@ -118,13 +152,18 @@ option(BUILD_INTERFACE OFF)
 # build the tests
 option(BUILD_TESTS OFF)
 
+
+# Whether to enable OpenMP
+option(ENABLE_OPENMP "Enable OpenMP" FALSE)
+add_feature_info(ENABLE_OPENMP ENABLE_OPENMP "Enable OpenMP.")
+
+
 # handle the options
 # ------------------
 
 # Whether to build ADOL-C with adjoinable MPI (AMPI) or MeDiPack (MPI) support
 target_compile_definitions(adolc PRIVATE
   $<$<BOOL:${ENABLE_MEDIPACK}>:ADOLC_MEDIPACK_SUPPORT=1>)
-
 if(ENABLE_MEDIPACK)
   find_package(MPI REQUIRED)
   find_package(MeDiPack 1.0...<1.2 REQUIRED)                  # cmake >= 3.19
@@ -143,11 +182,19 @@ endif()
 if (ENABLE_BOOST_POOL)
   find_package(Boost 1.54 REQUIRED COMPONENTS system)
   target_link_libraries(adolc PUBLIC Boost::boost Boost::system)
+  set(USE_BOOST_POOL "#define USE_BOOST_POOL 1")
 endif()
 
 if (ENABLE_SPARSE)
-  # TODO add colpack to 
+  find_package(ColPack REQUIRED) # TODO add colpack installation
+  # target_link_libraries(...)
 endif()
+
+if(ENABLE_OPENMP)
+  find_package(OpenMP REQUIRED)
+  target_link_libraries(adolc PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 
 
 # Set the macros
@@ -158,14 +205,11 @@ target_compile_definitions(adolc PRIVATE
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
-  $<$<NOT:$<BOOL:${DISABLE_STDCZERO}>>:ADOLC_ADOUBLE_STDCZERO=1>)
-
-
-# Debug mode enabled
-target_compile_definitions(adolc PRIVATE
-  $<$<OR:$<CONFIG:Debug>,$<BOOL:${ENABLE_HARDDEBUG}>>:ADOLC_DEBUG=1>
-  $<$<BOOL:${ENABLE_HARDDEBUG}>:ADOLC_HARDDEBUG=1>)
-
+  $<$<NOT:$<BOOL:${DISABLE_STDCZERO}>>:ADOLC_ADOUBLE_STDCZERO=1>
+  $<$<BOOL:${ENABLE_TSERRNO}>:ADOLC_THREADSAVE_ERRNO=1>
+  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1
+  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1
+  $<$<NOT:$<BOOL:${DISABLE_TAPEDOC_VALUES}>>:ADOLC_TAPE_DOC_VALUES=1>)
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------

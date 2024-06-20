@@ -13,10 +13,9 @@ if(ENABLE_MEDIPACK)
   find_dependency(MeDiPack)
 endif()
 
-set(ENABLE_PYTHON @ENABLE_PYTHON@)
-if(ENABLE_PYTHON)
-  find_dependency(Python3 3.8)
-  find_dependency(SWIG COMPONENTS python)
+set(ENABLE_OPENMP @ENABLE_OPENMP@)
+if(ENABLE_OPENMP)
+  find_dependency(OpenMP)
 endif()
 
 set(WITH_BOOST @WITH_BOOST@)
