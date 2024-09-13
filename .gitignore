@@ -49,3 +49,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 cmake_install.cmake
+install_manifest.txt
+*.dylib
+*.so
+*.dll

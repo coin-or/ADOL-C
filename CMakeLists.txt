@@ -66,7 +66,7 @@ install(EXPORT adolcTargets
 # build the ADOL-C C Interface
 # ----------------------------
 
-option(CINTERFACE "if the c interface is built" OFF)
+option(CINTERFACE "if ON, the c interface is built" OFF)
 if(CINTERFACE)
   add_subdirectory(ADOL-C/c_interface)
 endif()
