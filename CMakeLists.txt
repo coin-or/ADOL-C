@@ -61,3 +61,12 @@ install(EXPORT adolcTargets
   FILE adolc-targets.cmake
   NAMESPACE adolc::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+
+
+# build the ADOL-C C Interface
+# ----------------------------
+
+option(CINTERFACE "if the c interface is built" OFF)
+if(CINTERFACE)
+  add_subdirectory(ADOL-C/c_interface)
+endif()
