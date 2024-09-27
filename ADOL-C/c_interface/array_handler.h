@@ -1,3 +1,5 @@
+#ifndef ARRAY_HANDLER_H
+#define ARRAY_HANDLER_H
 
 #ifdef __cplusplus
 extern "C"
@@ -15,3 +17,5 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+#endif // ARRAY_HANDLER_H

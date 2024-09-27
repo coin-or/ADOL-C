@@ -1,3 +1,5 @@
+#ifdef ADOLC_TL_INTERFACE_H
+#define ADOLC_TL_INTERFACE_H
 
 #ifdef __cplusplus
 extern "C"
@@ -123,3 +125,5 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+#endif // ADOLC_TL_INTERFACE_H
