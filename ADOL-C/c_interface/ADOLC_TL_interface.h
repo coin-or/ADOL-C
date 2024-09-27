@@ -1,4 +1,4 @@
-#ifdef ADOLC_TL_INTERFACE_H
+#ifndef ADOLC_TL_INTERFACE_H
 #define ADOLC_TL_INTERFACE_H
 
 #ifdef __cplusplus

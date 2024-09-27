@@ -1,5 +1,5 @@
 #include <adolc/adtl.h>
-#include "ADOLCTLInterface.h"
+#include "ADOLC_TL_interface.h"
 
 /*
 Constructor & Destructor for class tape-less adouble
