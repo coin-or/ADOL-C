@@ -70,15 +70,11 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 install(TARGETS adolc EXPORT adolcTargets)
-install(TARGETS ADOLCInterface EXPORT ADOLCInterfaceTargets)
 install(EXPORT adolcTargets
   FILE adolc-targets.cmake
   NAMESPACE adolc::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
-
-install(EXPORT ADOLCInterfaceTargets 
- DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
 
 
