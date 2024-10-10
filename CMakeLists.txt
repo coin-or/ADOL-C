@@ -6,7 +6,7 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
 
@@ -50,9 +50,13 @@ set(USE_BOOST_POOL "#undef USE_BOOST_POOL")
 
 add_subdirectory(ADOL-C)
 
-option(BUILD_INTERFACE OFF)
 
+# include the c interface of adolc
+# ----------------------------------------------------------------
+option(BUILD_INTERFACE OFF)
 if(BUILD_INTERFACE)
+    # set rpath for execution to the install location of adolc
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     add_subdirectory(ADOL-C/c_interface)
 endif()
 
