@@ -1,5 +1,5 @@
 #include <adolc/adolc.h>
-#include "ADOLC_TB_Interface.h"
+#include "ADOLC_TB_interface.h"
 
 /*
 Constructor & Destructor for class tape-based adouble
