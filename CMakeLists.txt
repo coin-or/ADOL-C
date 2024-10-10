@@ -58,6 +58,9 @@ if(BUILD_INTERFACE)
     # set rpath for execution to the install location of adolc
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     add_subdirectory(ADOL-C/c_interface)
+    install(TARGETS ADOLCInterface EXPORT ADOLCInterfaceTargets)
+    install(EXPORT ADOLCInterfaceTargets 
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 endif()
 
 # export the targets
