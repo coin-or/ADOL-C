@@ -18,6 +18,16 @@ target_compile_definitions(adolc PRIVATE
   ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
   ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
 
+
+# win specific flags
+if (WIN32)
+  target_compile_definitions(adolc PRIVATE     
+      # handles __declspec
+      ADOLC_DLL
+  )   
+endif(WIN32) 
+
+
 # Set the public include directory containing headers that will be installed
 target_include_directories(adolc
   PUBLIC
