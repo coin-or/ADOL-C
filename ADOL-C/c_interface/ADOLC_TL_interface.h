@@ -5,7 +5,7 @@
 extern "C"
 {
 #endif
-    // Used to handle Tape-based adouble as void*
+    // Used to handle Tape-Less adouble as void*
     typedef void *TLAdoubleHandle;
 #ifdef __cplusplus
 }
@@ -19,7 +19,7 @@ extern "C"
 {
 #endif
     // Constructor
-    TLAdoubleHandle create_tl_adouble(double x);
+    TLAdoubleHandle create_tl_adouble(const double x);
     TLAdoubleHandle create_tl_adouble_with_ad(const double val, const double *ad_val);
     TLAdoubleHandle create_tl_adouble_empty();
 
@@ -30,7 +30,7 @@ extern "C"
 #endif
 
 /*
-Utilities for adouble
+Utilities for tape-less adouble
 */
 #ifdef __cplusplus
 extern "C"
@@ -48,58 +48,58 @@ extern "C"
 #endif
 
 /*
-Arithmetics for class tl adouble
+Arithmetics for class tape-less adouble
 */
 #ifdef __cplusplus
 extern "C"
 {
 #endif
     TLAdoubleHandle add_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle add_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle add_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle add_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle add_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle mult_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle mult_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle mult_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle mult_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle mult_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle subtr_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle subtr_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle subtr_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle subtr_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle subtr_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle div_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle div_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle div_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle div_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle div_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle max_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle max_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle max_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle max_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle max_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle min_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle min_double_tl_adouble(double x, TLAdoubleHandle b);
-    TLAdoubleHandle min_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle min_double_tl_adouble(const double x, TLAdoubleHandle b);
+    TLAdoubleHandle min_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle pow_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    TLAdoubleHandle pow_tl_adouble_double(TLAdoubleHandle a, double x);
+    TLAdoubleHandle pow_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     bool ge_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    bool ge_double_tl_adouble(double x, TLAdoubleHandle b);
-    bool ge_tl_adouble_double(TLAdoubleHandle a, double x);
+    bool ge_double_tl_adouble(const double x, TLAdoubleHandle b);
+    bool ge_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     bool g_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    bool g_double_tl_adouble(double x, TLAdoubleHandle b);
-    bool g_tl_adouble_double(TLAdoubleHandle a, double x);
+    bool g_double_tl_adouble(const double x, TLAdoubleHandle b);
+    bool g_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     bool le_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    bool le_double_tl_adouble(double x, TLAdoubleHandle b);
-    bool le_tl_adouble_double(TLAdoubleHandle a, double x);
+    bool le_double_tl_adouble(const double x, TLAdoubleHandle b);
+    bool le_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     bool l_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    bool l_double_tl_adouble(double x, TLAdoubleHandle b);
-    bool l_tl_adouble_double(TLAdoubleHandle a, double x);
+    bool l_double_tl_adouble(const double x, TLAdoubleHandle b);
+    bool l_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     bool eq_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b);
-    bool eq_double_tl_adouble(double x, TLAdoubleHandle b);
-    bool eq_tl_adouble_double(TLAdoubleHandle a, double x);
+    bool eq_double_tl_adouble(const double x, TLAdoubleHandle b);
+    bool eq_tl_adouble_double(TLAdoubleHandle a, const double x);
 
     TLAdoubleHandle tl_abs(TLAdoubleHandle a);
     TLAdoubleHandle tl_sqrt(TLAdoubleHandle a);
@@ -120,7 +120,7 @@ extern "C"
     TLAdoubleHandle tl_atanh(TLAdoubleHandle a);
     TLAdoubleHandle tl_ceil(TLAdoubleHandle a);
     TLAdoubleHandle tl_floor(TLAdoubleHandle a);
-    TLAdoubleHandle tl_ldexp(TLAdoubleHandle a, int n);
+    TLAdoubleHandle tl_ldexp(TLAdoubleHandle a, const int n);
     TLAdoubleHandle tl_erf(TLAdoubleHandle a);
 #ifdef __cplusplus
 }

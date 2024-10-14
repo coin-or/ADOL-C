@@ -6,7 +6,6 @@ Constructor & Destructor for class tape-less adouble
 */
 extern "C"
 {
-    // Constructor
     TLAdoubleHandle create_tl_adouble(const double x)
     {
         return new adtl::adouble(x);
@@ -19,7 +18,6 @@ extern "C"
     {
         return new adtl::adouble(val, ad_val);
     }
-    // Destructor
     void free_tl_adouble(TLAdoubleHandle a)
     {
         return delete static_cast<adtl::adouble *>(a);
@@ -46,20 +44,20 @@ extern "C"
         return static_cast<adtl::adouble *>(a)->setADValue(val);
     }
 
-    void set_tl_ad_value_idx(TLAdoubleHandle a, size_t pos, const double val)
+    void set_tl_ad_value_idx(TLAdoubleHandle a, const size_t pos, const double val)
     {
         return static_cast<adtl::adouble *>(a)->setADValue(pos, val);
     }
 
-    double get_tl_value(TLAdoubleHandle a)
+    double get_tl_value(const TLAdoubleHandle a)
     {
         return static_cast<adtl::adouble *>(a)->getValue();
     }
-    const double *get_tl_ad_values(TLAdoubleHandle a)
+    const double *get_tl_ad_values(const TLAdoubleHandle a)
     {
         return (static_cast<adtl::adouble *>(a))->getADValue();
     }
-    double get_tl_ad_value_idx(TLAdoubleHandle a, const size_t pos)
+    double get_tl_ad_value_idx(const TLAdoubleHandle a, const size_t pos)
     {
         return static_cast<adtl::adouble *>(a)->getADValue(pos);
     }
@@ -70,15 +68,15 @@ Arithmetics for class adouble
 */
 extern "C"
 {
-    TLAdoubleHandle add_tl_adouble(const TLAdoubleHandle a, const TLAdoubleHandle b)
+    TLAdoubleHandle add_tl_adouble(TLAdoubleHandle a, TLAdoubleHandle b)
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) + *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle add_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle add_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(x + *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle add_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle add_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) + x);
     }
@@ -86,11 +84,11 @@ extern "C"
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) * *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle mult_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle mult_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(x * *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle mult_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle mult_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) * x);
     }
@@ -98,11 +96,11 @@ extern "C"
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) - *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle subtr_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle subtr_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(x - *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle subtr_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle subtr_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) - x);
     }
@@ -110,11 +108,11 @@ extern "C"
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) / *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle div_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle div_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(x / *static_cast<adtl::adouble *>(b));
     }
-    TLAdoubleHandle div_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle div_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(*static_cast<adtl::adouble *>(a) / x);
     }
@@ -122,11 +120,11 @@ extern "C"
     {
         return new adtl::adouble(fmax(*static_cast<adtl::adouble *>(a), *static_cast<adtl::adouble *>(b)));
     }
-    TLAdoubleHandle max_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle max_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(fmax(x, *static_cast<adtl::adouble *>(b)));
     }
-    TLAdoubleHandle max_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle max_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(fmax(*static_cast<adtl::adouble *>(a), x));
     }
@@ -134,11 +132,11 @@ extern "C"
     {
         return new adtl::adouble(fmin(*static_cast<adtl::adouble *>(a), *static_cast<adtl::adouble *>(b)));
     }
-    TLAdoubleHandle min_double_tl_adouble(double x, TLAdoubleHandle b)
+    TLAdoubleHandle min_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return new adtl::adouble(fmin(x, *static_cast<adtl::adouble *>(b)));
     }
-    TLAdoubleHandle min_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle min_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(fmin(*static_cast<adtl::adouble *>(a), x));
     }
@@ -146,7 +144,7 @@ extern "C"
     {
         return new adtl::adouble(pow(*static_cast<adtl::adouble *>(a), *static_cast<adtl::adouble *>(b)));
     }
-    TLAdoubleHandle pow_tl_adouble_double(TLAdoubleHandle a, double x)
+    TLAdoubleHandle pow_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return new adtl::adouble(pow(*static_cast<adtl::adouble *>(a), x));
     }
@@ -154,11 +152,11 @@ extern "C"
     {
         return *static_cast<adtl::adouble *>(a) >= *static_cast<adtl::adouble *>(b);
     }
-    bool ge_double_tl_adouble(double x, TLAdoubleHandle b)
+    bool ge_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return x >= *static_cast<adtl::adouble *>(b);
     }
-    bool ge_tl_adouble_double(TLAdoubleHandle a, double x)
+    bool ge_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return *static_cast<adtl::adouble *>(a) >= x;
     }
@@ -166,11 +164,11 @@ extern "C"
     {
         return *static_cast<adtl::adouble *>(a) > *static_cast<adtl::adouble *>(b);
     }
-    bool g_double_tl_adouble(double x, TLAdoubleHandle b)
+    bool g_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return x > *static_cast<adtl::adouble *>(b);
     }
-    bool g_tl_adouble_double(TLAdoubleHandle a, double x)
+    bool g_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return *static_cast<adtl::adouble *>(a) > x;
     }
@@ -178,11 +176,11 @@ extern "C"
     {
         return *static_cast<adtl::adouble *>(a) <= *static_cast<adtl::adouble *>(b);
     }
-    bool le_double_tl_adouble(double x, TLAdoubleHandle b)
+    bool le_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return x <= *static_cast<adtl::adouble *>(b);
     }
-    bool le_tl_adouble_double(TLAdoubleHandle a, double x)
+    bool le_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return *static_cast<adtl::adouble *>(a) <= x;
     }
@@ -190,11 +188,11 @@ extern "C"
     {
         return *static_cast<adtl::adouble *>(a) < *static_cast<adtl::adouble *>(b);
     }
-    bool l_double_tl_adouble(double x, TLAdoubleHandle b)
+    bool l_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return x < *static_cast<adtl::adouble *>(b);
     }
-    bool l_tl_adouble_double(TLAdoubleHandle a, double x)
+    bool l_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return *static_cast<adtl::adouble *>(a) < x;
     }
@@ -202,11 +200,11 @@ extern "C"
     {
         return *static_cast<adtl::adouble *>(a) == *static_cast<adtl::adouble *>(b);
     }
-    bool eq_double_tl_adouble(double x, TLAdoubleHandle b)
+    bool eq_double_tl_adouble(const double x, TLAdoubleHandle b)
     {
         return x == *static_cast<adtl::adouble *>(b);
     }
-    bool eq_tl_adouble_double(TLAdoubleHandle a, double x)
+    bool eq_tl_adouble_double(TLAdoubleHandle a, const double x)
     {
         return *static_cast<adtl::adouble *>(a) == x;
     }
@@ -286,7 +284,7 @@ extern "C"
     {
         return new adtl::adouble(floor(*static_cast<adtl::adouble *>(a)));
     }
-    TLAdoubleHandle tl_ldexp(TLAdoubleHandle a, int n)
+    TLAdoubleHandle tl_ldexp(TLAdoubleHandle a, const int n)
     {
         return new adtl::adouble(ldexp(*static_cast<adtl::adouble *>(a), n));
     }

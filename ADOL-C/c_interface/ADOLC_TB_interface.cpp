@@ -6,8 +6,7 @@ Constructor & Destructor for class tape-based adouble
 */
 extern "C"
 {
-    // Constructor
-    TBAdoubleHandle create_tb_adouble(double x)
+    TBAdoubleHandle create_tb_adouble(const double x)
     {
         return new adouble(x);
     }
@@ -16,7 +15,6 @@ extern "C"
         return new adouble();
     }
 
-    // Destructor
     void free_tb_adouble(TBAdoubleHandle a)
     {
         return delete static_cast<adouble *>(a);
@@ -43,11 +41,11 @@ extern "C"
     {
         return new adouble(*static_cast<adouble *>(a) + *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle add_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle add_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(x + *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle add_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle add_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(*static_cast<adouble *>(a) + x);
     }
@@ -55,11 +53,11 @@ extern "C"
     {
         return new adouble(*static_cast<adouble *>(a) * *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle mult_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle mult_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(x * *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle mult_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle mult_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(*static_cast<adouble *>(a) * x);
     }
@@ -67,11 +65,11 @@ extern "C"
     {
         return new adouble(*static_cast<adouble *>(a) - *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle subtr_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle subtr_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(x - *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle subtr_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle subtr_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(*static_cast<adouble *>(a) - x);
     }
@@ -79,11 +77,11 @@ extern "C"
     {
         return new adouble(*static_cast<adouble *>(a) / *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle div_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle div_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(x / *static_cast<adouble *>(b));
     }
-    TBAdoubleHandle div_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle div_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(*static_cast<adouble *>(a) / x);
     }
@@ -91,11 +89,11 @@ extern "C"
     {
         return new adouble(fmax(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
     }
-    TBAdoubleHandle max_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle max_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(fmax(x, *static_cast<adouble *>(b)));
     }
-    TBAdoubleHandle max_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle max_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(fmax(*static_cast<adouble *>(a), x));
     }
@@ -103,11 +101,11 @@ extern "C"
     {
         return new adouble(fmin(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
     }
-    TBAdoubleHandle min_double_tb_adouble(double x, TBAdoubleHandle b)
+    TBAdoubleHandle min_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return new adouble(fmin(x, *static_cast<adouble *>(b)));
     }
-    TBAdoubleHandle min_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle min_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(fmin(*static_cast<adouble *>(a), x));
     }
@@ -115,7 +113,7 @@ extern "C"
     {
         return new adouble(pow(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
     }
-    TBAdoubleHandle pow_tb_adouble_double(TBAdoubleHandle a, double x)
+    TBAdoubleHandle pow_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return new adouble(pow(*static_cast<adouble *>(a), x));
     }
@@ -123,11 +121,11 @@ extern "C"
     {
         return *static_cast<adouble *>(a) >= *static_cast<adouble *>(b);
     }
-    bool ge_double_tb_adouble(double x, TBAdoubleHandle b)
+    bool ge_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return x >= *static_cast<adouble *>(b);
     }
-    bool ge_tb_adouble_double(TBAdoubleHandle a, double x)
+    bool ge_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return *static_cast<adouble *>(a) >= x;
     }
@@ -135,11 +133,11 @@ extern "C"
     {
         return *static_cast<adouble *>(a) > *static_cast<adouble *>(b);
     }
-    bool g_double_tb_adouble(double x, TBAdoubleHandle b)
+    bool g_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return x > *static_cast<adouble *>(b);
     }
-    bool g_tb_adouble_double(TBAdoubleHandle a, double x)
+    bool g_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return *static_cast<adouble *>(a) > x;
     }
@@ -147,11 +145,11 @@ extern "C"
     {
         return *static_cast<adouble *>(a) <= *static_cast<adouble *>(b);
     }
-    bool le_double_tb_adouble(double x, TBAdoubleHandle b)
+    bool le_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return x <= *static_cast<adouble *>(b);
     }
-    bool le_tb_adouble_double(TBAdoubleHandle a, double x)
+    bool le_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return *static_cast<adouble *>(a) <= x;
     }
@@ -159,11 +157,11 @@ extern "C"
     {
         return *static_cast<adouble *>(a) < *static_cast<adouble *>(b);
     }
-    bool l_double_tb_adouble(double x, TBAdoubleHandle b)
+    bool l_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return x < *static_cast<adouble *>(b);
     }
-    bool l_tb_adouble_double(TBAdoubleHandle a, double x)
+    bool l_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return *static_cast<adouble *>(a) < x;
     }
@@ -171,11 +169,11 @@ extern "C"
     {
         return *static_cast<adouble *>(a) == *static_cast<adouble *>(b);
     }
-    bool eq_double_tb_adouble(double x, TBAdoubleHandle b)
+    bool eq_double_tb_adouble(const double x, TBAdoubleHandle b)
     {
         return x == *static_cast<adouble *>(b);
     }
-    bool eq_tb_adouble_double(TBAdoubleHandle a, double x)
+    bool eq_tb_adouble_double(TBAdoubleHandle a, const double x)
     {
         return *static_cast<adouble *>(a) == x;
     }
@@ -255,7 +253,7 @@ extern "C"
     {
         return new adouble(floor(*static_cast<adouble *>(a)));
     }
-    TBAdoubleHandle tb_ldexp(TBAdoubleHandle a, int n)
+    TBAdoubleHandle tb_ldexp(TBAdoubleHandle a, const int n)
     {
         return new adouble(ldexp(*static_cast<adouble *>(a), n));
     }
@@ -278,7 +276,7 @@ extern "C"
     {
         return trace_off(flag);
     }
-    void create_independent(TBAdoubleHandle a, double x)
+    void create_independent(TBAdoubleHandle a, const double x)
     {
         *static_cast<adouble *>(a) <<= x;
     }
