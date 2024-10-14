@@ -20,7 +20,7 @@ jobs:
       # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
       # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, clang]
         cpp_compiler: [g++, clang++]
