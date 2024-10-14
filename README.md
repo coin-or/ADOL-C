@@ -1,5 +1,4 @@
-
-     ADOL-C
+# ADOL-C
 
 This new version of ADOL-C features new library functions for
  
