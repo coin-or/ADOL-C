@@ -6,6 +6,7 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
+
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
 
@@ -16,6 +17,16 @@ target_compile_definitions(adolc PRIVATE
   ADOLC_VERSION=${adol-c_VERSION_MAJOR}
   ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
   ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
+
+
+# win specific flags
+if (WIN32)
+  target_compile_definitions(adolc PRIVATE     
+      # handles __declspec
+      ADOLC_DLL
+  )   
+endif(WIN32) 
+
 
 # Set the public include directory containing headers that will be installed
 target_include_directories(adolc
@@ -50,6 +61,18 @@ set(USE_BOOST_POOL "#undef USE_BOOST_POOL")
 add_subdirectory(ADOL-C)
 
 
+# include the c interface of adolc
+# ----------------------------------------------------------------
+option(BUILD_INTERFACE OFF)
+if(BUILD_INTERFACE)
+    # set rpath for execution to the install location of adolc
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    add_subdirectory(ADOL-C/c_interface)
+    install(TARGETS ADOLCInterface EXPORT ADOLCInterfaceTargets)
+    install(EXPORT ADOLCInterfaceTargets 
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+endif()
+
 # export the targets
 # ------------------
 
@@ -61,3 +84,7 @@ install(EXPORT adolcTargets
   FILE adolc-targets.cmake
   NAMESPACE adolc::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+
+
+
+
