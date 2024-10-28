@@ -31,13 +31,11 @@ jobs:
           run: |
             sudo apt-get install libboost-all-dev
 
-        - name: Build Boost-Test
+        - name: Build and Run Boost-Test
           shell: bash
           run: |
             cd ADOL-C/boost-test
             mkdir build && cd build
             cmake ../ -DADOLC_BASE=${{ github.workspace }}
+            ./boost-test-adolc
         
-        - name: Run Boost-Test
-          shell: bash
-          run: ./boost-test-adolc
