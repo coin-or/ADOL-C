@@ -40,4 +40,4 @@ jobs:
         
         - name: Run Boost-Test
           shell: bash
-          run: ./build/boost-test-adolc
+          run: ./boost-test-adolc
