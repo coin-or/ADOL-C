@@ -11,23 +11,20 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v4
-        - name: Set reusable strings
-          # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-          id: strings
-          shell: bash
-          run: |
-            echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
   
         - name: Configure CMake ADOL-C
           run: >  
-            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            cmake
             -DCMAKE_CXX_COMPILER=g++
             -DCMAKE_C_COMPILER=gcc
             -DCMAKE_BUILD_TYPE=Release
             -S ${{ github.workspace }}
+            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} 
 
         - name: Build ADOLC
-          run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+          run: |
+            make
+            make install
         
         - name: Install Boost
           shell: bash
@@ -40,4 +37,4 @@ jobs:
             ls build/ADOL-C
             cd ADOL-C/boost-test
             mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ steps.strings.outputs.build-output-dir }}/ADOL-C
+            cmake ../ -DADOLC_BASE=${{ github.workspace }}
