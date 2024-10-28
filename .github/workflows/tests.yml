@@ -1,0 +1,31 @@
+
+name: Run Tests
+on:
+    push:
+      branches: [ "master" ]
+    pull_request:
+      branches: [ "master" ]
+
+jobs: 
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Build Boost
+          shell: bash
+          run: |
+            sudo apt-get install libboost-all-dev
+        - name: Test Boost
+          shell: bash
+          run: |
+            echo "#include <iostream>
+            #include <boost/array.hpp>
+
+            using namespace std;
+            int main(){
+            boost::array<int, 4> arr = {{1,2,3,4}};
+            cout << "hi" << arr[0];
+            return 0;
+            }
+            " > test.cpp 
+            g++ -o test test.cpp
+            ./test
