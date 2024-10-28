@@ -34,7 +34,10 @@ jobs:
         - name: Build Boost-Test
           shell: bash
           run: |
-            ls ${{ github.workspace }}
             cd ADOL-C/boost-test
             mkdir build && cd build
             cmake ../ -DADOLC_BASE=${{ github.workspace }}
+        
+        - name: Run Boost-Test
+          shell: bash
+          run: ./build/boost-test-adolc
