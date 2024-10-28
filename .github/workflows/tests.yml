@@ -10,22 +10,24 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-        - name: Build Boost
+        - uses: actions/checkout@v4
+        - name: Build ADOL-C
+          run: >  
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            -DCMAKE_CXX_COMPILER=g++
+            -DCMAKE_C_COMPILER=gcc
+            -DCMAKE_BUILD_TYPE=Release
+            -S ${{ github.workspace }}
+    
+        - name: Install Boost
           shell: bash
           run: |
             sudo apt-get install libboost-all-dev
-        - name: Test Boost
+
+        - name: Build Boost-Test
           shell: bash
           run: |
-            echo "#include <iostream>
-            #include <boost/array.hpp>
-
-            using namespace std;
-            int main(){
-            boost::array<int, 4> arr = {{1,2,3,4}};
-            cout << 'h' << arr[0];
-            return 0;
-            }
-            " > test.cpp 
-            g++ -o test test.cpp
-            ./test
+            ls
+            cd ADOL-C/ADOL-C/boost-test
+            mkdir build && cd build
+            cmake ../ -DADOLC_BASE=${{ github.workspace }}
