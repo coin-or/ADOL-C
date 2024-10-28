@@ -25,7 +25,7 @@ jobs:
             -DCMAKE_C_COMPILER=gcc
             -DCMAKE_BUILD_TYPE=Release
             -S ${{ github.workspace }}
-            
+
         - name: Build ADOLC
           run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
         
@@ -37,7 +37,7 @@ jobs:
         - name: Build Boost-Test
           shell: bash
           run: |
-            ls build
+            ls build/ADOL-C
             cd ADOL-C/boost-test
             mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ steps.strings.outputs.build-output-dir }}
+            cmake ../ -DADOLC_BASE=${{ steps.strings.outputs.build-output-dir }}/ADOL-C
