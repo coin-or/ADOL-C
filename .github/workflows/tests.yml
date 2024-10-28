@@ -18,14 +18,17 @@ jobs:
           run: |
             echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
   
-        - name: Build ADOL-C
+        - name: Configure CMake ADOL-C
           run: >  
             cmake -B ${{ steps.strings.outputs.build-output-dir }}
             -DCMAKE_CXX_COMPILER=g++
             -DCMAKE_C_COMPILER=gcc
             -DCMAKE_BUILD_TYPE=Release
             -S ${{ github.workspace }}
-    
+            - name: Build
+        - name: Build ADOLC
+          run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+        
         - name: Install Boost
           shell: bash
           run: |
@@ -34,7 +37,7 @@ jobs:
         - name: Build Boost-Test
           shell: bash
           run: |
-            ls
-            cd ADOL-C/ADOL-C/boost-test
+            ls build
+            cd ADOL-C/boost-test
             mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ github.workspace }}
+            cmake ../ -DADOLC_BASE=${{ steps.strings.outputs.build-output-dir }}
