@@ -2,9 +2,9 @@
 name: Run Tests
 on:
     push:
-      branches: [ "workflow" ]
+      branches: [ "workflows" ]
     pull_request:
-      branches: [ "workflow" ]
+      branches: [ "workflows" ]
 
 jobs: 
     build:
