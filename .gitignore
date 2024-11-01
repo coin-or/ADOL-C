@@ -34,6 +34,9 @@ stamp-h1
 ltmain.sh
 .libs/
 .deps/
+.cache/
+.vscode/
+.DS_Store
 *.la
 *.o
 *.lo
