@@ -41,14 +41,12 @@ static double norm(double* x, int dim)
 
 static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double argument)
 {
-  trace_on(tapeNumber);
-  adouble u;
-  u <<= argument;
 
-  //ax1 = sqrt(ax1);
+  double out;
   adouble x = 2.5;  // Initial iterate
-  adouble y;
-
+  adouble y, u;
+  trace_on(tapeNumber);
+  u <<= argument;
   fp_iteration(subTapeNumber,
                iteration<double>,
                iteration<adouble>,
@@ -63,8 +61,6 @@ static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double
                &y,    // [out] Final state of the iteration
                1,     // Size of the vector x_0
                1);    // Number of parameters
-
-  double out;
   y >>= out;
   trace_off();
 
