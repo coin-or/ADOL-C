@@ -8,12 +8,11 @@ Instructions for compiling the test suite with cmake:
 
 1) Create the 'build' directory inside the boost-test directory (it is ignored by git).
 
-2) In 'boost-test/build' type: 'cmake ..' or 'cmake-gui ..'
+2) In 'boost-test/build' type: 'cmake .. -DADOLC_BASE=/PATH/TO/INSTALLED/ADOLC' or 'cmake-gui ..' followed by 'make'
 
 3) Cmake will search for the system installed version of BOOST. If the minimum required version is not satisfied, please enter the path where an appropriate BOOST version is installed in '3RDPARTY_BOOST_DIR'.
 
 4) ADOL-C has to be compiled with the same version of BOOST defined in 3). When using a different BOOST version than the one provided by the operating system, ADOL-C can be configured with --with-boost flag before compiling the ADOL-C sources.
 
-5) In cmake, specify ADOLC_BASE directory where ADOL-C is installed.
 
 Run the executable boost-test-adolc.
