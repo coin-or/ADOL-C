@@ -6,6 +6,8 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
