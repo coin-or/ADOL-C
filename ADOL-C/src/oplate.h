@@ -152,7 +152,8 @@ enum OPCODES {
   ampi_reduce,
   ampi_allreduce,
   medi_call,
-  cbrt_op
+  cbrt_op,
+  erfc_op
 };
 
 /****************************************************************************/

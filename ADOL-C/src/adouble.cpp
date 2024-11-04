@@ -2999,6 +2999,56 @@ adub erf( const badouble& x ) {
     return locat;
 }
 
+adub erfc( const badouble& x ) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    locint locat = next_loc();
+    double coval = ADOLC_MATH_NSP_ERF::erfc(ADOLC_GLOBAL_TAPE_VARS.store[x.loc()]);
+
+    adouble y = -2.0 /
+        ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0))*exp(-x*x);
+
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) { // old: write_quad(erfc_op,locat,x.loc(),y.loc());
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()]) { // y will have same activity as x and can be considered as second input here
+#endif
+        put_op(erfc_op);
+        ADOLC_PUT_LOCINT(x.loc()); // = arg1
+        ADOLC_PUT_LOCINT(y.loc()); // = arg2
+        ADOLC_PUT_LOCINT(locat);      // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[locat]) {
+	  if (coval == 0.0) {
+	      put_op(assign_d_zero);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else if (coval == 1.0) {
+	      put_op(assign_d_one);
+	      ADOLC_PUT_LOCINT(locat);
+	  } else {
+	      put_op(assign_d);
+	      ADOLC_PUT_LOCINT(locat);
+	      ADOLC_PUT_VAL(coval);
+	  }
+
+	  ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+	  if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+	      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      }
+#endif
+    }
+
+    ADOLC_GLOBAL_TAPE_VARS.store[locat] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[locat] = ADOLC_GLOBAL_TAPE_VARS.actStore[x.loc()];
+#endif
+    ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+    return locat;
+}
+
 /*--------------------------------------------------------------------------*/
 /* Fabs Function (NOTE: This function is also nondifferentiable at x=0) */
 adub fabs ( const badouble& x ) {

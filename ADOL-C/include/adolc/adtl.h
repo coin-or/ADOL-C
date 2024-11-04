@@ -137,6 +137,7 @@ public:
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
     inline friend adouble erf (const adouble &a);
+    inline friend adouble erfc (const adouble &a);
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
@@ -859,6 +860,17 @@ inline adouble erf (const adouble &a) {
     adouble tmp;
 	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::erf(a.PRIMAL_VALUE);
 	double tmp2 = 2.0 /
+	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
+	    ADOLC_MATH_NSP_ERF::exp(-a.PRIMAL_VALUE*a.PRIMAL_VALUE);
+	FOR_I_EQ_1_LTEQ_NUMDIR
+	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+    return tmp;
+}
+
+inline adouble erfc (const adouble &a) {
+    adouble tmp;
+	tmp.PRIMAL_VALUE=ADOLC_MATH_NSP_ERF::erfc(a.PRIMAL_VALUE);
+	double tmp2 = -2.0 /
 	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
 	    ADOLC_MATH_NSP_ERF::exp(-a.PRIMAL_VALUE*a.PRIMAL_VALUE);
 	FOR_I_EQ_1_LTEQ_NUMDIR

@@ -3538,6 +3538,66 @@ int  hov_forward(
                 break;
 
             /*--------------------------------------------------------------------------*/
+        case erfc_op:                                                /* erf_op */
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                res  = get_locint_f();
+
+                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+
+#if !defined(_NTIGHT_)
+                dp_T0[res] = erfc(dp_T0[arg1]);
+#endif /* !_NTIGHT_ */
+
+                ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+#if defined(_INDO_)
+#if defined(_INDOPRO_)
+                copy_index_domain(res, arg1, ind_dom);
+#endif
+#if defined(_NONLIND_)
+		fod[opind].entry = maxopind+2;
+		fod[opind].left = &fod[arg_index[arg1]];
+		fod[opind].right = NULL;
+		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
+                arg_index[res] = opind++;		
+#endif        
+#else
+#if !defined(_ZOS_) /* BREAK_ZOS */
+                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+                ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
+#ifdef _INT_FOR_
+                FOR_0_LE_l_LT_p
+                TRES_FOINC = TARG1_FOINC;
+#else
+                ASSIGN_T(Targ2,TAYLOR_BUFFER[arg2])
+
+                FOR_0_LE_l_LT_p
+                { FOR_0_LE_i_LT_k
+                  { /* olvo 980921 changed order to allow x = erfc(x) */
+#if defined(_HIGHER_ORDER_)
+                      zOP      = dp_z+i;
+                      (*zOP--) = (i+1) * (*Targ1);
+#endif /* _HIGHER_ORDER_ */
+
+                      TRES_FOINC = dp_T0[arg2] * TARG1_INC;
+
+#if defined(_HIGHER_ORDER_)
+                      Targ2OP = Targ2;
+
+                      *Tres *= (i+1);
+                      for (int j=0;j<i;j++)
+                      *Tres += (*Targ2OP++) * (*zOP--);
+                      *Tres++ /= (i+1);
+#endif /* _HIGHER_ORDER_ */
+                  }
+                  HOV_INC(Targ2, k)
+                }
+#endif
+#endif
+#endif /* ALL_TOGETHER_AGAIN */
+                break;
+
+            /*--------------------------------------------------------------------------*/
         case log_op:                                                /* log_op */
                 arg = get_locint_f();
                 res = get_locint_f();

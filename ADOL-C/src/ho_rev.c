@@ -1635,6 +1635,7 @@ int hov_ti_reverse(
             case acosh_op:                                            /* acosh_op */
             case atanh_op:                                            /* atanh_op */
             case erf_op:                                              /* erf_op   */
+            case erfc_op:                                             /* erfc_op  */
                 res  = get_locint_r();
                 arg2 = get_locint_r();
                 arg1 = get_locint_r();
