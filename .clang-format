@@ -155,7 +155,7 @@ IndentCaseBlocks: false
 IndentCaseLabels: false
 IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
-IndentPPDirectives: AfterHash 
+IndentPPDirectives: BeforeHash 
 IndentRequiresClause: true
 IndentWidth:     2
 IndentWrappedFunctionNames: false
