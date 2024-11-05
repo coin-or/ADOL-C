@@ -143,12 +143,11 @@ int directional_active_gradient(short tag,      /* trace identifier */
       sum = 0;
       for(i=0;i<s;i++)
         {
-          sum += fabs(sigma_g[i]);
+          sum += abs(sigma_g[i]);
         }
 
        if (sum == s)
         {
-
           zos_pl_forward(tag,1,n,keep,x,&y,z);
           fos_pl_sig_reverse(tag,1,n,s,sigma_g, &by ,g);
           done = 1;
