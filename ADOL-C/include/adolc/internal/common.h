@@ -84,12 +84,6 @@ typedef unsigned int uint;
   #include <adolc/internal/usrparms.h>
 
   /*--------------------------------------------------------------------------*/
-  /* detect windows and set macro */
-  #if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) ||              \
-      defined(__MINGW32__) || defined(_MSC_VER)
-    #define _WINDOWS
-  #endif
-
   /* windows dll exports/imports */
   #if defined(ADOLC_DLL)
     #define ADOLC_DLL_EXPORT __declspec(dllexport)
