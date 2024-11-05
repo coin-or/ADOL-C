@@ -43,14 +43,14 @@ and _NTIGHT__
 #include <string.h>
 
 #if defined(ADOLC_DEBUG) || defined(_ZOS_)
-#  include <string.h>
+  #include <string.h>
 #endif /* ADOLC_DEBUG */
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
-#  include "medipacksupport_p.h"
+  #include "medipacksupport_p.h"
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
-#  include "ampisupportAdolc.h"
+  #include "ampisupportAdolc.h"
 #endif
 
 /****************************************************************************/
@@ -60,89 +60,89 @@ and _NTIGHT__
 
 /*--------------------------------------------------------------------------*/
 #if defined(_ZOS_)
-#  if defined(_ABS_NORM_)
-#    define GENERATED_FILENAME "zos_pl_forward"
-#  elif defined(_ABS_NORM_SIG_)
-#    define GENERATED_FILENAME "zos_pl_sig_forward"
-#  else
-#    define GENERATED_FILENAME "zos_forward"
-#  endif
+  #if defined(_ABS_NORM_)
+    #define GENERATED_FILENAME "zos_pl_forward"
+  #elif defined(_ABS_NORM_SIG_)
+    #define GENERATED_FILENAME "zos_pl_sig_forward"
+  #else
+    #define GENERATED_FILENAME "zos_forward"
+  #endif
 /*--------------------------------------------------------------------------*/
 #elif defined(_FOS_)
-#  if defined(_ABS_NORM_)
-#    define GENERATED_FILENAME "fos_pl_forward"
-#  elif defined(_ABS_NORM_SIG_)
-#    define GENERATED_FILENAME "fos_pl_sig_forward"
-#  else
-#    define GENERATED_FILENAME "fos_forward"
-#  endif
+  #if defined(_ABS_NORM_)
+    #define GENERATED_FILENAME "fos_pl_forward"
+  #elif defined(_ABS_NORM_SIG_)
+    #define GENERATED_FILENAME "fos_pl_sig_forward"
+  #else
+    #define GENERATED_FILENAME "fos_forward"
+  #endif
 
-#  define ARGUMENT(indexi, l, i) argument[indexi]
-#  define TAYLORS(indexd, l, i) taylors[indexd]
+  #define ARGUMENT(indexi, l, i) argument[indexi]
+  #define TAYLORS(indexd, l, i) taylors[indexd]
 
 /*--------------------------------------------------------------------------*/
 #elif defined(_FOV_)
-#  if defined(_ABS_NORM_)
-#    define GENERATED_FILENAME "fov_pl_forward"
-#  elif defined(_ABS_NORM_SIG_)
-#    define GENERATED_FILENAME "fov_pl_sig_forward"
-#    if defined(_MSC_VER) && _MSC_VER < 180
-#      define fmin __min
-#      define fmax __max
-#    endif
-#  else
-#    define GENERATED_FILENAME "fov_forward"
-#  endif
+  #if defined(_ABS_NORM_)
+    #define GENERATED_FILENAME "fov_pl_forward"
+  #elif defined(_ABS_NORM_SIG_)
+    #define GENERATED_FILENAME "fov_pl_sig_forward"
+    #if defined(_MSC_VER) && _MSC_VER < 180
+      #define fmin __min
+      #define fmax __max
+    #endif
+  #else
+    #define GENERATED_FILENAME "fov_forward"
+  #endif
 
-#  define _ADOLC_VECTOR_
+  #define _ADOLC_VECTOR_
 
-#  if defined(_CHUNKED_)
-#    define ARGUMENT(indexi, l, i) argument[indexi][l + offset]
-#    define TAYLORS(indexd, l, i) taylors[indexd][l + offset]
-#  else
-#    define ARGUMENT(indexi, l, i) argument[indexi][l]
-#    define TAYLORS(indexd, l, i) taylors[indexd][l]
-#  endif
+  #if defined(_CHUNKED_)
+    #define ARGUMENT(indexi, l, i) argument[indexi][l + offset]
+    #define TAYLORS(indexd, l, i) taylors[indexd][l + offset]
+  #else
+    #define ARGUMENT(indexi, l, i) argument[indexi][l]
+    #define TAYLORS(indexd, l, i) taylors[indexd][l]
+  #endif
 
 /*--------------------------------------------------------------------------*/
 #elif defined(_HOS_)
-#  define GENERATED_FILENAME "hos_forward"
+  #define GENERATED_FILENAME "hos_forward"
 
-#  define _HIGHER_ORDER_
+  #define _HIGHER_ORDER_
 
-#  define ARGUMENT(indexi, l, i) argument[indexi][i]
-#  define TAYLORS(indexd, l, i) taylors[indexd][i]
+  #define ARGUMENT(indexi, l, i) argument[indexi][i]
+  #define TAYLORS(indexd, l, i) taylors[indexd][i]
 
 /*--------------------------------------------------------------------------*/
 #elif defined(_HOV_)
-#  define GENERATED_FILENAME "hov_forward"
+  #define GENERATED_FILENAME "hov_forward"
 
-#  define _ADOLC_VECTOR_
-#  define _HIGHER_ORDER_
+  #define _ADOLC_VECTOR_
+  #define _HIGHER_ORDER_
 
-#  define ARGUMENT(indexi, l, i) argument[indexi][l][i]
-#  define TAYLORS(indexd, l, i) taylors[indexd][l][i]
+  #define ARGUMENT(indexi, l, i) argument[indexi][l][i]
+  #define TAYLORS(indexd, l, i) taylors[indexd][l][i]
 
 /*--------------------------------------------------------------------------*/
 #elif defined(_HOV_WK_)
-#  define GENERATED_FILENAME "hov_wk_forward"
+  #define GENERATED_FILENAME "hov_wk_forward"
 
-#  define _ADOLC_VECTOR_
-#  define _HIGHER_ORDER_
+  #define _ADOLC_VECTOR_
+  #define _HIGHER_ORDER_
 
-#  define ARGUMENT(indexi, l, i) argument[indexi][l][i]
-#  define TAYLORS(indexd, l, i) taylors[indexd][l][i]
+  #define ARGUMENT(indexi, l, i) argument[indexi][l][i]
+  #define TAYLORS(indexd, l, i) taylors[indexd][l][i]
 
 /*--------------------------------------------------------------------------*/
 #elif defined(_INT_FOR_)
-#  if defined(_TIGHT_)
-#    define GENERATED_FILENAME "int_forward_t"
-#  endif
-#  if defined(_NTIGHT_)
-#    define GENERATED_FILENAME "int_forward_s"
-#  endif
-#  define ARGUMENT(indexi, l, i) argument[indexi][l]
-#  define TAYLORS(indexd, l, i) taylors[indexd][l]
+  #if defined(_TIGHT_)
+    #define GENERATED_FILENAME "int_forward_t"
+  #endif
+  #if defined(_NTIGHT_)
+    #define GENERATED_FILENAME "int_forward_s"
+  #endif
+  #define ARGUMENT(indexi, l, i) argument[indexi][l]
+  #define TAYLORS(indexd, l, i) taylors[indexd][l]
 /*--------------------------------------------------------------------------*/
 #elif defined(_INDO_)
 void copy_index_domain(int res, int arg, locint **ind_dom);
@@ -150,22 +150,22 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 
-#  define NUMNNZ 20
-#  define FMIN_ADOLC(x, y) ((y < x) ? y : x)
+  #define NUMNNZ 20
+  #define FMIN_ADOLC(x, y) ((y < x) ? y : x)
 
-#  if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-#    if defined(_TIGHT_)
-#      define GENERATED_FILENAME "indopro_forward_t"
-#    endif
-#    if defined(_NTIGHT_)
-#      if defined(_ABS_NORM_)
-#        define GENERATED_FILENAME "indopro_forward_pl"
-#      else
-#        define GENERATED_FILENAME "indopro_forward_s"
-#      endif
-#    endif
-#  endif
-#  if defined(_NONLIND_)
+  #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+    #if defined(_TIGHT_)
+      #define GENERATED_FILENAME "indopro_forward_t"
+    #endif
+    #if defined(_NTIGHT_)
+      #if defined(_ABS_NORM_)
+        #define GENERATED_FILENAME "indopro_forward_pl"
+      #else
+        #define GENERATED_FILENAME "indopro_forward_s"
+      #endif
+    #endif
+  #endif
+  #if defined(_NONLIND_)
 
 typedef struct IndexElement {
   locint entry;
@@ -183,13 +183,13 @@ void traverse_crs(IndexElement *fod2, IndexElement_sod *sod, int num);
 void traverse_unary(IndexElement *fod, IndexElement *nonl_dom,
                     IndexElement *fodi, int num, int maxopind);
 
-#    if defined(_TIGHT_)
-#      define GENERATED_FILENAME "nonl_ind_forward_t"
-#    elif defined(_NTIGHT_)
-#      define GENERATED_FILENAME "nonl_ind_forward_s"
-#    endif
-#  endif
-#  if defined(_NONLIND_OLD_)
+    #if defined(_TIGHT_)
+      #define GENERATED_FILENAME "nonl_ind_forward_t"
+    #elif defined(_NTIGHT_)
+      #define GENERATED_FILENAME "nonl_ind_forward_s"
+    #endif
+  #endif
+  #if defined(_NONLIND_OLD_)
 
 /*
  * This is the type used for the list elements. The entry is either a counter
@@ -204,17 +204,17 @@ void extend_nonlinearity_domain_unary(int arg, locint **ind_dom,
 void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
                                        locint **nonl_dom);
 
-#    if defined(_TIGHT_)
-#      define GENERATED_FILENAME "nonl_ind_old_forward_t"
-#    endif
-#    if defined(_NTIGHT_)
-#      define GENERATED_FILENAME "nonl_ind_old_forward_s"
-#    endif
-#  endif
+    #if defined(_TIGHT_)
+      #define GENERATED_FILENAME "nonl_ind_old_forward_t"
+    #endif
+    #if defined(_NTIGHT_)
+      #define GENERATED_FILENAME "nonl_ind_old_forward_s"
+    #endif
+  #endif
 
 /*--------------------------------------------------------------------------*/
 #else
-#  error Error ! Define [_ZOS_ | _FOS_ |\
+  #error Error ! Define [_ZOS_ | _FOS_ |\
    _HOS_ | _FOV_ | _HOV_ | _HOV_WK_  | _INT_FOR_SAFE_ | _INT_FOR_TIGHT_ | _INDOPRO_ | _NONLIND_ ] [{_KEEP_}]
 #endif
 
@@ -222,13 +222,13 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
 /*                                                               KEEP stuff */
 #if defined(_KEEP_)
 
-#  if defined(_HOV_WK_) /* keep in this vector mode */
-#    define IF_KEEP_TAYLOR_CLOSE                                               \
+  #if defined(_HOV_WK_) /* keep in this vector mode */
+    #define IF_KEEP_TAYLOR_CLOSE                                               \
       if (keep) {                                                              \
         fprintf(DIAG_OUT, "Succeeding reverse sweep will fail!\n");            \
         taylor_close(false);                                                   \
       }
-#    define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                              \
+    #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                              \
       {                                                                        \
         UPDATE_TAYLORWRITTEN(keep *k *p)                                       \
         if (keep) {                                                            \
@@ -237,27 +237,27 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
             write_taylors(res, (keep - 1), k, p);                              \
         }                                                                      \
       }
-#  else
-#    if defined(_ADOLC_VECTOR_) /* otherwise no keep */
-#      define IF_KEEP_TAYLOR_CLOSE
-#      define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
-#    else /* _ZOS_, _FOS_, _HOS_ */
-#      define IF_KEEP_TAYLOR_CLOSE                                             \
+  #else
+    #if defined(_ADOLC_VECTOR_) /* otherwise no keep */
+      #define IF_KEEP_TAYLOR_CLOSE
+      #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
+    #else /* _ZOS_, _FOS_, _HOS_ */
+      #define IF_KEEP_TAYLOR_CLOSE                                             \
         if (keep) {                                                            \
           fprintf(DIAG_OUT,                                                    \
                   "Otherwise succeeding reverse sweep will fail!\n");          \
           taylor_close(false);                                                 \
         }
-#      if defined(_ZOS_)
-#        define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                          \
+      #if defined(_ZOS_)
+        #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                          \
           {                                                                    \
             UPDATE_TAYLORWRITTEN(keep)                                         \
             if (keep)                                                          \
               ADOLC_WRITE_SCAYLOR(dp_T0[res]);                                 \
           }
-#      else
-#        if defined(_FOS_)
-#          define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                        \
+      #else
+        #if defined(_FOS_)
+          #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                        \
             {                                                                  \
               UPDATE_TAYLORWRITTEN(keep)                                       \
               if (keep) {                                                      \
@@ -266,9 +266,9 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
                   ADOLC_WRITE_SCAYLOR(dp_T[res]);                              \
               }                                                                \
             }
-#        else
-#          if defined(_HOS_)
-#            define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                      \
+        #else
+          #if defined(_HOS_)
+            #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                      \
               {                                                                \
                 UPDATE_TAYLORWRITTEN(keep)                                     \
                 if (keep) {                                                    \
@@ -277,214 +277,214 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
                     write_taylor(res, keep - 1);                               \
                 }                                                              \
               }
-#          endif
-#        endif
-#      endif
-#    endif
-#  endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 
 #else /* no _KEEP_ */
-#  define IF_KEEP_TAYLOR_CLOSE
-#  define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
+  #define IF_KEEP_TAYLOR_CLOSE
+  #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                      access to variables */
 #if !defined(_ZOS_)
-#  if defined(_FOS_)
-#    define TRES *Tres
-#    define TARG *Targ
-#    define TARG1 *Targ1
-#    define TARG2 *Targ2
-#    define TQO *Tqo
+  #if defined(_FOS_)
+    #define TRES *Tres
+    #define TARG *Targ
+    #define TARG1 *Targ1
+    #define TARG2 *Targ2
+    #define TQO *Tqo
 
-#    define TRES_INC *Tres
-#    define TARG_INC *Targ
-#    define TARG1_INC *Targ1
-#    define TARG2_INC *Targ2
-#    define TQO_INC *Tqo
+    #define TRES_INC *Tres
+    #define TARG_INC *Targ
+    #define TARG1_INC *Targ1
+    #define TARG2_INC *Targ2
+    #define TQO_INC *Tqo
 
-#    define TRES_DEC *Tres
-#    define TARG_DEC *Targ
-#    define TARG1_DEC *Targ1
-#    define TARG2_DEC *Targ2
-#    define TQO_DEC *Tqo
+    #define TRES_DEC *Tres
+    #define TARG_DEC *Targ
+    #define TARG1_DEC *Targ1
+    #define TARG2_DEC *Targ2
+    #define TQO_DEC *Tqo
 
-#    define TRES_FOINC *Tres
-#    define TARG_FOINC *Targ
-#    define TARG1_FOINC *Targ1
-#    define TARG2_FOINC *Targ2
-#    define TQO_FOINC *Tqo
+    #define TRES_FOINC *Tres
+    #define TARG_FOINC *Targ
+    #define TARG1_FOINC *Targ1
+    #define TARG2_FOINC *Targ2
+    #define TQO_FOINC *Tqo
 
-#    define TRES_FODEC *Tres
-#    define DEC_TRES_FO
-#    define TARG_FODEC *Targ
-#    define TARG1_FODEC *Targ1
-#    define TARG2_FODEC *Targ2
-#    define TQO_FODEC *Tqo
+    #define TRES_FODEC *Tres
+    #define DEC_TRES_FO
+    #define TARG_FODEC *Targ
+    #define TARG1_FODEC *Targ1
+    #define TARG2_FODEC *Targ2
+    #define TQO_FODEC *Tqo
 
-#    define ASSIGN_T(a, b) a = &b;
+    #define ASSIGN_T(a, b) a = &b;
 
-#  else
-#    if defined(_INT_FOR_)
-#      define TRES *Tres
-#      define TARG *Targ
-#      define TARG1 *Targ1
-#      define TARG2 *Targ2
-#      define TQO *Tqo
+  #else
+    #if defined(_INT_FOR_)
+      #define TRES *Tres
+      #define TARG *Targ
+      #define TARG1 *Targ1
+      #define TARG2 *Targ2
+      #define TQO *Tqo
 
-#      define TRES_INC *Tres++
-#      define TARG_INC *Targ++
-#      define TARG1_INC *Targ1++
-#      define TARG2_INC *Targ2++
-#      define TQO_INC *Tqo++
+      #define TRES_INC *Tres++
+      #define TARG_INC *Targ++
+      #define TARG1_INC *Targ1++
+      #define TARG2_INC *Targ2++
+      #define TQO_INC *Tqo++
 
-#      define TRES_DEC *Tres--
-#      define TARG_DEC *Targ--
-#      define TARG1_DEC *Targ1--
-#      define TARG2_DEC *Targ2--
-#      define TQO_DEC *Tqo--
+      #define TRES_DEC *Tres--
+      #define TARG_DEC *Targ--
+      #define TARG1_DEC *Targ1--
+      #define TARG2_DEC *Targ2--
+      #define TQO_DEC *Tqo--
 
-#      define TRES_FOINC *Tres++
-#      define TARG_FOINC *Targ++
-#      define TARG1_FOINC *Targ1++
-#      define TARG2_FOINC *Targ2++
-#      define TQO_FOINC *Tqo++
+      #define TRES_FOINC *Tres++
+      #define TARG_FOINC *Targ++
+      #define TARG1_FOINC *Targ1++
+      #define TARG2_FOINC *Targ2++
+      #define TQO_FOINC *Tqo++
 
-#      define TRES_FODEC *Tres--
-#      define TARG_FODEC *Targ--
-#      define TARG1_FODEC *Targ1--
-#      define TARG2_FODEC *Targ2--
-#      define TQO_FODEC *Tqo--
+      #define TRES_FODEC *Tres--
+      #define TARG_FODEC *Targ--
+      #define TARG1_FODEC *Targ1--
+      #define TARG2_FODEC *Targ2--
+      #define TQO_FODEC *Tqo--
 
-#      define ASSIGN_T(a, b) a = b;
+      #define ASSIGN_T(a, b) a = b;
 
-#    else /* _HOS_, _FOV_, _HOV_, _HOV_WK */
-#      define TRES *Tres
-#      define TARG *Targ
-#      define TARG1 *Targ1
-#      define TARG2 *Targ2
-#      define TQO *Tqo
+    #else /* _HOS_, _FOV_, _HOV_, _HOV_WK */
+      #define TRES *Tres
+      #define TARG *Targ
+      #define TARG1 *Targ1
+      #define TARG2 *Targ2
+      #define TQO *Tqo
 
-#      define TRES_INC *Tres++
-#      define TARG_INC *Targ++
-#      define TARG1_INC *Targ1++
-#      define TARG2_INC *Targ2++
-#      define TQO_INC *Tqo++
+      #define TRES_INC *Tres++
+      #define TARG_INC *Targ++
+      #define TARG1_INC *Targ1++
+      #define TARG2_INC *Targ2++
+      #define TQO_INC *Tqo++
 
-#      define TRES_DEC *Tres--
-#      define TARG_DEC *Targ--
-#      define TARG1_DEC *Targ1--
-#      define TARG2_DEC *Targ2--
-#      define TQO_DEC *Tqo--
+      #define TRES_DEC *Tres--
+      #define TARG_DEC *Targ--
+      #define TARG1_DEC *Targ1--
+      #define TARG2_DEC *Targ2--
+      #define TQO_DEC *Tqo--
 
-#      if defined(_FOV_)
-#        define TRES_FOINC *Tres++
-#        define TARG_FOINC *Targ++
-#        define TARG1_FOINC *Targ1++
-#        define TARG2_FOINC *Targ2++
-#        define TQO_FOINC *Tqo++
+      #if defined(_FOV_)
+        #define TRES_FOINC *Tres++
+        #define TARG_FOINC *Targ++
+        #define TARG1_FOINC *Targ1++
+        #define TARG2_FOINC *Targ2++
+        #define TQO_FOINC *Tqo++
 
-#        define TRES_FODEC *Tres
-#        define DEC_TRES_FO Tres--;
-#        define TARG_FODEC *Targ--
-#        define TARG1_FODEC *Targ1--
-#        define TARG2_FODEC *Targ2--
-#        define TQO_FODEC *Tqo--
-#      else /* _HOS_, _HOV_, _HOV_WK */
-#        define TRES_FOINC *Tres
-#        define TARG_FOINC *Targ
-#        define TARG1_FOINC *Targ1
-#        define TARG2_FOINC *Targ2
-#        define TQO_FOINC *Tqo
+        #define TRES_FODEC *Tres
+        #define DEC_TRES_FO Tres--;
+        #define TARG_FODEC *Targ--
+        #define TARG1_FODEC *Targ1--
+        #define TARG2_FODEC *Targ2--
+        #define TQO_FODEC *Tqo--
+      #else /* _HOS_, _HOV_, _HOV_WK */
+        #define TRES_FOINC *Tres
+        #define TARG_FOINC *Targ
+        #define TARG1_FOINC *Targ1
+        #define TARG2_FOINC *Targ2
+        #define TQO_FOINC *Tqo
 
-#        define TRES_FODEC *Tres
-#        define DEC_TRES_FO
-#        define TARG_FODEC *Targ
-#        define TARG1_FODEC *Targ1
-#        define TARG2_FODEC *Targ2
-#        define TQO_FODEC *Tqo
-#      endif
-#    endif
+        #define TRES_FODEC *Tres
+        #define DEC_TRES_FO
+        #define TARG_FODEC *Targ
+        #define TARG1_FODEC *Targ1
+        #define TARG2_FODEC *Targ2
+        #define TQO_FODEC *Tqo
+      #endif
+    #endif
 
-#    define ASSIGN_T(a, b) a = b;
-#  endif
+    #define ASSIGN_T(a, b) a = b;
+  #endif
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                               loop stuff */
 #if defined(_ADOLC_VECTOR_)
-#  define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-#  define FOR_p_GT_l_GE_0 for (int l = p - 1; l >= 0; l--)
-#  if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-#    define FIRSTSIGN_P(x, y) firstsign(p, &(x), y)
-#    define COPYTAYL_P(x, y) FOR_0_LE_l_LT_p x[l] = y[l]
-#    define EXT_FIRSTSIGN_P(sigx, sigd, x, y)                                  \
+  #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
+  #define FOR_p_GT_l_GE_0 for (int l = p - 1; l >= 0; l--)
+  #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
+    #define FIRSTSIGN_P(x, y) firstsign(p, &(x), y)
+    #define COPYTAYL_P(x, y) FOR_0_LE_l_LT_p x[l] = y[l]
+    #define EXT_FIRSTSIGN_P(sigx, sigd, x, y)                                  \
       ext_firstsign(sigx, sigd, p, &(x), y)
-#    define EXT_FIRSTSIGN2_P(sigx, x, y) ext_firstsign2(sigx, p, &(x), y)
-#  endif
+    #define EXT_FIRSTSIGN2_P(sigx, x, y) ext_firstsign2(sigx, p, &(x), y)
+  #endif
 #else
-#  if defined(_INT_FOR_)
-#    define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-#    define FOR_p_GT_l_GE_0 for (int l = p - 1; l >= 0; l--)
-#  else
-#    define FOR_0_LE_l_LT_p
-#    define FOR_p_GT_l_GE_0
-#    if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-#      define FIRSTSIGN_P(x, y) firstsign(1, &(x), y)
-#      define COPYTAYL_P(x, y) x = *y
-#      define EXT_FIRSTSIGN_P(sigx, sigd, x, y)                                \
+  #if defined(_INT_FOR_)
+    #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
+    #define FOR_p_GT_l_GE_0 for (int l = p - 1; l >= 0; l--)
+  #else
+    #define FOR_0_LE_l_LT_p
+    #define FOR_p_GT_l_GE_0
+    #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
+      #define FIRSTSIGN_P(x, y) firstsign(1, &(x), y)
+      #define COPYTAYL_P(x, y) x = *y
+      #define EXT_FIRSTSIGN_P(sigx, sigd, x, y)                                \
         ext_firstsign(sigx, sigd, 1, &(x), y)
-#      define EXT_FIRSTSIGN2_P(sigx, x, y) ext_firstsign2(sigx, 1, &(x), y)
-#    endif
-#  endif
+      #define EXT_FIRSTSIGN2_P(sigx, x, y) ext_firstsign2(sigx, 1, &(x), y)
+    #endif
+  #endif
 #endif
 
 #if defined(_HIGHER_ORDER_)
-#  define FOR_0_LE_i_LT_k for (int i = 0; i < k; i++)
-#  define FOR_k_GT_i_GE_0 for (int i = k - 1; i >= 0; i--)
+  #define FOR_0_LE_i_LT_k for (int i = 0; i < k; i++)
+  #define FOR_k_GT_i_GE_0 for (int i = k - 1; i >= 0; i--)
 #else
-#  define FOR_0_LE_i_LT_k for (int i = 0; i < 1; i++)
-#  define FOR_k_GT_i_GE_0 for (int i = 0; i >= 0; i--)
+  #define FOR_0_LE_i_LT_k for (int i = 0; i < 1; i++)
+  #define FOR_k_GT_i_GE_0 for (int i = 0; i >= 0; i--)
 #endif
 
 #if defined(_HOV_)
-#  define FOR_0_LE_l_LT_pk for (int l = 0; l < pk; l++)
-#  define INC_pk_1(T) T += pk - 1;
-#  define VEC_INC(T, inc) T += inc;
-#  define HOV_INC(T, inc) T += inc;
+  #define FOR_0_LE_l_LT_pk for (int l = 0; l < pk; l++)
+  #define INC_pk_1(T) T += pk - 1;
+  #define VEC_INC(T, inc) T += inc;
+  #define HOV_INC(T, inc) T += inc;
 #elif defined(_HOV_WK_)
-#  define FOR_0_LE_l_LT_pk for (int l = 0; l < pk; l++)
-#  define INC_pk_1(T) T += pk - 1;
-#  define VEC_INC(T, inc) T += inc;
-#  define HOV_INC(T, inc) T += inc;
+  #define FOR_0_LE_l_LT_pk for (int l = 0; l < pk; l++)
+  #define INC_pk_1(T) T += pk - 1;
+  #define VEC_INC(T, inc) T += inc;
+  #define HOV_INC(T, inc) T += inc;
 #elif defined(_FOV_)
-#  define FOR_0_LE_l_LT_pk for (int l = 0; l < p; l++)
-#  define INC_pk_1(T) T += p - 1;
-#  define VEC_INC(T, inc) T++;
-#  define HOV_INC(T, inc)
+  #define FOR_0_LE_l_LT_pk for (int l = 0; l < p; l++)
+  #define INC_pk_1(T) T += p - 1;
+  #define VEC_INC(T, inc) T++;
+  #define HOV_INC(T, inc)
 #elif defined(_HOS_)
-#  define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
-#  define INC_pk_1(T) T += k - 1;
-#  define VEC_INC(T, inc)
-#  define HOV_INC(T, inc)
+  #define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
+  #define INC_pk_1(T) T += k - 1;
+  #define VEC_INC(T, inc)
+  #define HOV_INC(T, inc)
 #elif defined(_INT_FOR_)
-#  define FOR_0_LE_l_LT_pk for (int l = 0; l < p; l++)
-#  define INC_pk_1(T) T += p - 1;
-#  define VEC_INC(T, inc) T++;
+  #define FOR_0_LE_l_LT_pk for (int l = 0; l < p; l++)
+  #define INC_pk_1(T) T += p - 1;
+  #define VEC_INC(T, inc) T++;
 #else
-#  define FOR_0_LE_l_LT_pk
-#  define INC_pk_1(T)
-#  define VEC_INC(T, inc)
-#  define HOV_INC(T, inc)
+  #define FOR_0_LE_l_LT_pk
+  #define INC_pk_1(T)
+  #define VEC_INC(T, inc)
+  #define HOV_INC(T, inc)
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                        higher order case */
 #if defined(_HIGHER_ORDER_)
-#  define BREAK_FOR_I break;
+  #define BREAK_FOR_I break;
 #else
-#  define BREAK_FOR_I ;
+  #define BREAK_FOR_I ;
 #endif
 
 /* END Macros */
@@ -492,67 +492,67 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
 BEGIN_C_DECLS
 
 #if defined(_ZOS_)
-/****************************************************************************/
-/* Zero Order Scalar version of the forward mode.                           */
-/****************************************************************************/
-#  if defined(_ABS_NORM_)
+  /****************************************************************************/
+  /* Zero Order Scalar version of the forward mode.                           */
+  /****************************************************************************/
+  #if defined(_ABS_NORM_)
 int zos_pl_forward(short tnum, int depcheck, int indcheck, int keep,
                    const double *basepoint, double *valuepoint, double *swargs)
-#  else
-#    if defined(_KEEP_)
+  #else
+    #if defined(_KEEP_)
 int zos_forward(
-#    else
+    #else
 int zos_forward_nk(
-#    endif
+    #endif
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of deps */
     int indcheck, /* consistency chk on # of indeps */
-#    if defined(_KEEP_)
+    #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#    endif
+    #endif
     const double *basepoint, /* independent variable values */
     double *valuepoint)      /* dependent variable values */
 
-#  endif
+  #endif
 
 #else
-#  if defined(_FOS_)
-/****************************************************************************/
-/* First Order Scalar version of the forward mode.                          */
-/****************************************************************************/
-#    if defined(_ABS_NORM_)
+  #if defined(_FOS_)
+    /****************************************************************************/
+    /* First Order Scalar version of the forward mode. */
+    /****************************************************************************/
+    #if defined(_ABS_NORM_)
 int fos_pl_forward(short tnum, int depcheck, int indcheck,
                    const double *basepoint, double *argument,
                    double *valuepoint, double *taylors, double *swargs,
                    double *swtaylors)
-#    elif defined(_ABS_NORM_SIG_)
+    #elif defined(_ABS_NORM_SIG_)
 int fos_pl_sig_forward(short tnum, int depcheck, int indcheck,
                        const double *basepoint, double *argument, int swcheck,
                        short *sigbase, short *sigdir, double *valuepoint,
                        double *taylors, double *swargs, double *swtaylors,
                        short *sigsw)
-#    else
-#      if defined(_KEEP_)
+    #else
+      #if defined(_KEEP_)
 int fos_forward(
-#      else
+      #else
 int fos_forward_nk(
-#      endif
+      #endif
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of deps */
     int indcheck, /* consistency chk on # of indeps */
-#      if defined(_KEEP_)
+      #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#      endif
+      #endif
     const double *basepoint, /* independent variable values */
     const double *argument,  /* Taylor coefficients (input) */
     double *valuepoint,      /* Taylor coefficients (output) */
     double *taylors)         /* matrix of coefficient vectors */
-/* the order of the indices in argument and taylors is [var][taylor] */
-#    endif
+    /* the order of the indices in argument and taylors is [var][taylor] */
+    #endif
 
-#  else
-#    if defined(_INT_FOR_)
-#      if defined(_TIGHT_)
+  #else
+    #if defined(_INT_FOR_)
+      #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
@@ -566,20 +566,21 @@ int int_forward_tight(
     double *valuepoint,           /* dependent variable values    (out)*/
     unsigned long int **taylors)  /* matrix of coefficient vectors(out)*/
 
-/* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
+      /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
-     nBV = number of Boolean Vectors to be packed
-                      (see Chapter Dependence Analysis, ADOL-C Documentation)
-     bits_per_long = 8*sizeof(unsigned long int)
-     p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )
+           nBV = number of Boolean Vectors to be packed
+                            (see Chapter Dependence Analysis, ADOL-C
+         Documentation) bits_per_long = 8*sizeof(unsigned long int) p = nBV /
+         bits_per_long + ( (nBV % bits_per_long) != 0 )
 
-     The order of the indices in argument and taylors is [var][taylor]
+           The order of the indices in argument and taylors is [var][taylor]
 
-     For the full Jacobian matrix set
-     p = indep / bits_per_long + ((indep % bits_per_long) != 0)
-     and pass a bit pattern version of the identity matrix as an argument   */
+           For the full Jacobian matrix set
+           p = indep / bits_per_long + ((indep % bits_per_long) != 0)
+           and pass a bit pattern version of the identity matrix as an argument
+       */
 
-#      elif defined(_NTIGHT_)
+      #elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
@@ -591,22 +592,22 @@ int int_forward_safe(
     unsigned long int **argument, /* Taylor coeff.                  (in)*/
     unsigned long int **taylors)  /* matrix of coefficient vectors (out)*/
 
-/* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
+      /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 
-nBV = number of Boolean Vectors to be packed
-(see Chapter Dependence Analysis, ADOL-C Documentation)
-bits_per_long = 8*sizeof(unsigned long int)
-p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )
+      nBV = number of Boolean Vectors to be packed
+      (see Chapter Dependence Analysis, ADOL-C Documentation)
+      bits_per_long = 8*sizeof(unsigned long int)
+      p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )
 
-The order of the indices in argument and taylors is [var][taylor]
+      The order of the indices in argument and taylors is [var][taylor]
 
-For the full Jacobian matrix set
-p = indep / bits_per_long + ((indep % bits_per_long) != 0)
-and pass a bit pattern version of the identity matrix as an argument    */
-#      endif
-#    else
-#      if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-#        if defined(_TIGHT_)
+      For the full Jacobian matrix set
+      p = indep / bits_per_long + ((indep % bits_per_long) != 0)
+      and pass a bit pattern version of the identity matrix as an argument    */
+      #endif
+    #else
+      #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+        #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
@@ -617,12 +618,12 @@ int indopro_forward_tight(
     const double *basepoint, /* independent variable values   (in)   */
     unsigned int **crs)      /* returned row index storage (out)     */
 
-/* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
+        /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
 
-  */
-#        endif
-#        if defined(_NTIGHT_)
-#          if defined(_ABS_NORM_)
+          */
+        #endif
+        #if defined(_NTIGHT_)
+          #if defined(_ABS_NORM_)
     int indopro_forward_absnormal(
         short tnum,              /* tape id                              */
         int depcheck,            /* consistency chk on # of dependents   */
@@ -631,9 +632,9 @@ int indopro_forward_tight(
         const double *basepoint, /* independent variable values   (in)   */
         unsigned int **crs)      /* returned row index storage (out)     */
 
-/* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
- */
-#          else
+          /* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
+           */
+          #else
     /****************************************************************************/
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
@@ -644,14 +645,14 @@ int indopro_forward_tight(
         const double *basepoint, /* independent variable values   (in)   */
         unsigned int **crs)      /* returned row index storage (out)     */
 
-/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
+          /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
-  */
-#          endif
-#        endif
-#      else
-#        if defined(_NONLIND_)
-#          if defined(_TIGHT_)
+            */
+          #endif
+        #endif
+      #else
+        #if defined(_NONLIND_)
+          #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
@@ -662,8 +663,8 @@ int nonl_ind_forward_tight(
     const double *basepoint, /* independent variable values   (in)   */
     unsigned int **crs)      /* returned row index storage (out)     */
 
-#          endif
-#          if defined(_NTIGHT_)
+          #endif
+          #if defined(_NTIGHT_)
     /****************************************************************************/
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
@@ -674,13 +675,13 @@ int nonl_ind_forward_tight(
         const double *basepoint, /* independent variable values   (in)   */
         unsigned int **crs)      /* returned row index storage (out)     */
 
-/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
+          /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
-  */
-#          endif
-#        else
-#          if defined(_NONLIND_OLD_)
-#            if defined(_TIGHT_)
+            */
+          #endif
+        #else
+          #if defined(_NONLIND_OLD_)
+            #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
@@ -691,8 +692,8 @@ int nonl_ind_old_forward_tight(
     const double *basepoint, /* independent variable values   (in)   */
     unsigned int **crs)      /* returned row index storage (out)     */
 
-#            endif
-#            if defined(_NTIGHT_)
+            #endif
+            #if defined(_NTIGHT_)
     /****************************************************************************/
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
@@ -703,13 +704,13 @@ int nonl_ind_old_forward_tight(
         const double *basepoint, /* independent variable values   (in)   */
         unsigned int **crs)      /* returned row index storage (out)     */
 
-/* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
+            /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
-  */
-#            endif
-#          else
-#            if defined(_FOV_)
-#              if defined(_CHUNKED_)
+              */
+            #endif
+          #else
+            #if defined(_FOV_)
+              #if defined(_CHUNKED_)
 /****************************************************************************/
 /* First Order Vector version of the forward mode with p-offset in          */
 /* **argument and **taylors                                                 */
@@ -724,12 +725,13 @@ int fov_offset_forward(
     double **argument,       /* Taylor coefficients (input) */
     double *valuepoint,      /* Taylor coefficients (output) */
     double **taylors)        /* matrix of coifficient vectors */
-/* the order of the indices in argument and taylors is [var][taylor] */
-#              else
-/****************************************************************************/
-/* First Order Vector version of the forward mode.                          */
-/****************************************************************************/
-#                if defined(_ABS_NORM_)
+              /* the order of the indices in argument and taylors is
+               * [var][taylor] */
+              #else
+                /****************************************************************************/
+                /* First Order Vector version of the forward mode. */
+                /****************************************************************************/
+                #if defined(_ABS_NORM_)
 int fov_pl_forward(short tnum,              /* tape id */
                    int depcheck,            /* consistency chk on # of deps */
                    int indcheck,            /* consistency chk on # of indeps */
@@ -739,8 +741,9 @@ int fov_pl_forward(short tnum,              /* tape id */
                    double *valuepoint,      /* Taylor coefficients (output) */
                    double **taylors,        /* matrix of coifficient vectors */
                    double *swargs, double **swtaylors, short *sigsw)
-/* the order of the indices in argument and taylors is [var][taylor] */
-#                elif defined(_ABS_NORM_SIG_)
+                /* the order of the indices in argument and taylors is
+                 * [var][taylor] */
+                #elif defined(_ABS_NORM_SIG_)
 int fov_pl_sig_forward(
     short tnum,              /* tape id */
     int depcheck,            /* consistency chk on # of deps */
@@ -754,7 +757,7 @@ int fov_pl_sig_forward(
     double *valuepoint,      /* Taylor coefficients (output) */
     double **taylors,        /* matrix of coifficient vectors */
     double *swargs, double **swtaylors, short *sigsw)
-#                else
+                #else
 int fov_forward(short tnum,              /* tape id */
                 int depcheck,            /* consistency chk on # of deps */
                 int indcheck,            /* consistency chk on # of indeps */
@@ -763,62 +766,64 @@ int fov_forward(short tnum,              /* tape id */
                 double **argument,       /* Taylor coefficients (input) */
                 double *valuepoint,      /* Taylor coefficients (output) */
                 double **taylors)        /* matrix of coifficient vectors */
-/* the order of the indices in argument and taylors is [var][taylor] */
-#                endif
-#              endif
+                /* the order of the indices in argument and taylors is
+                 * [var][taylor] */
+                #endif
+              #endif
 
-#            else
-#              if defined(_HOS_)
-/****************************************************************************/
-/* Higher Order Scalar version of the forward mode.                         */
-/****************************************************************************/
-#                if defined(_KEEP_)
+            #else
+              #if defined(_HOS_)
+                /****************************************************************************/
+                /* Higher Order Scalar version of the forward mode. */
+                /****************************************************************************/
+                #if defined(_KEEP_)
 int hos_forward(
-#                else
+                #else
 int hos_forward_nk(
-#                endif
+                #endif
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of dependents */
     int indcheck, /* consistency chk on # of independents */
     int gdegree,  /* highest derivative degree */
-#                if defined(_KEEP_)
+                #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#                endif
+                #endif
     const double *basepoint, /* independent variable values */
     double **argument,       /* independent variable values */
     double *valuepoint,      /* Taylor coefficients (output) */
     double **taylors)        /* matrix of coifficient vectors */
 
-#              else
-/****************************************************************************/
-/* Higher Order Vector version of the forward mode.                         */
-/****************************************************************************/
-#                if defined(_KEEP_)
+              #else
+                /****************************************************************************/
+                /* Higher Order Vector version of the forward mode. */
+                /****************************************************************************/
+                #if defined(_KEEP_)
 int hov_wk_forward(
-#                else
+                #else
 int hov_forward(
-#                endif
+                #endif
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of deps */
     int indcheck, /* consistency chk on # of indeps */
     int gdegree,  /* highest derivative degree */
-#                if defined(_KEEP_)
+                #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#                endif
+                #endif
     int p,                   /* # of taylor series */
     const double *basepoint, /* independent variable values */
     double ***argument,      /* Taylor coefficients (input) */
     double *valuepoint,      /* Taylor coefficients (output) */
     double ***taylors)       /* matrix of coefficient vectors */
-/* the order of the indices in argument and taylors is [var][taylor][deriv] */
+              /* the order of the indices in argument and taylors is
+               * [var][taylor][deriv] */
 
-#              endif
-#            endif
-#          endif
-#        endif
-#      endif
-#    endif
-#  endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 {
   /****************************************************************************/
@@ -843,13 +848,13 @@ int hov_forward(
   /* loop indices */
   int ls;
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
   int l = 0;
   int max_ind_dom;
   /* index domains */
   locint **ind_dom;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
   /* nonlinear interaction domains */
   locint *arg_index;
   IndexElement *fod;
@@ -859,67 +864,67 @@ int hov_forward(
   IndexElement_sod *temp1;
   int maxopind;
   int opind;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
   /* nonlinear interaction domains */
   locint **nonl_dom;
-#  endif
+  #endif
 #endif
 
   /* other necessary variables */
 #if !defined(_ZOS_)
-#  if !defined(_INDO_)
-#    if !defined(_INT_FOR_)
+  #if !defined(_INDO_)
+    #if !defined(_INT_FOR_)
   double r0 = 0.0, divs;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif
 
 #if defined(_INT_FOR_)
-#  ifdef _TIGHT_
+  #ifdef _TIGHT_
   double *dp_T0;
   double y;
-#  endif /* _TIGHT_ */
+  #endif /* _TIGHT_ */
 
   /* Taylor stuff */
   unsigned long int **up_T;
 
   unsigned long int *Tres, *Targ, *Targ1, *Targ2;
-#  ifdef _TIGHT_
+  #ifdef _TIGHT_
   unsigned long int *Tqo;
   unsigned long int *Targ1OP, *Targ2OP;
-#  endif
+  #endif
 
-#  define T0res T0temp
+  #define T0res T0temp
 #else
-#  if defined(_INDO_)
-#    ifdef _TIGHT_
+  #if defined(_INDO_)
+    #ifdef _TIGHT_
   double *dp_T0;
-#    endif /* _TIGHT_ */
-#    define T0res T0temp
-#    define T0arg T0temp
+    #endif /* _TIGHT_ */
+    #define T0res T0temp
+    #define T0arg T0temp
 
-#  else
+  #else
   double *dp_T0;
-#    if !defined(_ZOS_)
-#      if defined(_FOS_)
+    #if !defined(_ZOS_)
+      #if defined(_FOS_)
   double *dp_T;
-#        define T_TEMP Ttemp;
-#      else
+        #define T_TEMP Ttemp;
+      #else
   double *dp_Ttemp, **dpp_T;
-#      endif
+      #endif
   double *Tres, *Targ, *Targ1, *Targ2, *Tqo;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
   double *TresOP, *TresOP2, *zOP;
   double *dp_z;
-#      endif
+      #endif
   double *TargOP, *Targ1OP, *Targ2OP;
   double T0temp;
-#    endif
-#    define T0res T0temp
-#    define T0arg T0temp
-#  endif
+    #endif
+    #define T0res T0temp
+    #define T0arg T0temp
+  #endif
 #endif
 
 #if defined(_HIGHER_ORDER_)
@@ -937,62 +942,62 @@ int hov_forward(
 
   /* extern diff. function variables */
 #if defined(_EXTERN_)
-#  undef(_EXTERN_)
+  #undef(_EXTERN_)
 #endif
   /* ZOS_FORWARD */
 #if defined(_ZOS_)
-#  define _EXTERN_ 1
-#  define ADOLC_EXT_FCT_POINTER zos_forward
-#  define ADOLC_EXT_FCT_IARR_POINTER zos_forward_iArr
-#  define ADOLC_EXT_FCT_COMPLETE zos_forward(n, edfct->dp_x, m, edfct->dp_y)
-#  define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
+  #define _EXTERN_ 1
+  #define ADOLC_EXT_FCT_POINTER zos_forward
+  #define ADOLC_EXT_FCT_IARR_POINTER zos_forward_iArr
+  #define ADOLC_EXT_FCT_COMPLETE zos_forward(n, edfct->dp_x, m, edfct->dp_y)
+  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
     zos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y)
-#  define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
     zos_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x,           \
                 (int *)outsz, edfct2->y, edfct2->context)
-#  define ADOLC_EXT_COPY_TAYLORS(dest, src)
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src)
 #endif
   /* FOS_FORWARD */
 #if defined(_FOS_)
-#  define _EXTERN_ 1
-#  define ADOLC_EXT_FCT_POINTER fos_forward
-#  define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
-#  define ADOLC_EXT_FCT_COMPLETE                                               \
+  #define _EXTERN_ 1
+  #define ADOLC_EXT_FCT_POINTER fos_forward
+  #define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
+  #define ADOLC_EXT_FCT_COMPLETE                                               \
     fos_forward(n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
-#  define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
+  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
     fos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, edfct->dp_X, m,         \
                      edfct->dp_y, edfct->dp_Y)
-#  define ADOLC_EXT_POINTER_X edfct->dp_X
-#  define ADOLC_EXT_POINTER_Y edfct->dp_Y
-#  define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+  #define ADOLC_EXT_POINTER_X edfct->dp_X
+  #define ADOLC_EXT_POINTER_Y edfct->dp_Y
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
     fos_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x,           \
                 edfct2->xp, (int *)outsz, edfct2->y, edfct2->yp,               \
                 edfct2->context)
-#  define ADOLC_EXT_V2_POINTER_X edfct2->xp
-#  define ADOLC_EXT_V2_POINTER_Y edfct2->yp
-#  define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
-#  define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src) src = dest
+  #define ADOLC_EXT_V2_POINTER_X edfct2->xp
+  #define ADOLC_EXT_V2_POINTER_Y edfct2->yp
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
+  #define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src) src = dest
 #endif
   /* FOV_FORWARD */
 #if defined(_FOV_)
-#  define _EXTERN_ 1
-#  define ADOLC_EXT_FCT_POINTER fov_forward
-#  define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
-#  define ADOLC_EXT_FCT_COMPLETE                                               \
+  #define _EXTERN_ 1
+  #define ADOLC_EXT_FCT_POINTER fov_forward
+  #define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
+  #define ADOLC_EXT_FCT_COMPLETE                                               \
     fov_forward(n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
-#  define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
+  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
     fov_forward_iArr(iArrLength, iArr, n, edfct->dp_x, p, edfct->dpp_X, m,     \
                      edfct->dp_y, edfct->dpp_Y)
-#  define ADOLC_EXT_POINTER_X edfct->dpp_X
-#  define ADOLC_EXT_POINTER_Y edfct->dpp_Y
-#  define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+  #define ADOLC_EXT_POINTER_X edfct->dpp_X
+  #define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
     fov_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x, p,        \
                 edfct2->Xp, (int *)outsz, edfct2->y, edfct2->Yp,               \
                 edfct2->context)
-#  define ADOLC_EXT_V2_POINTER_X edfct2->Xp
-#  define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
-#  define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
-#  define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src)
+  #define ADOLC_EXT_V2_POINTER_X edfct2->Xp
+  #define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
+  #define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src)
 #endif
 
 #if defined(_EXTERN_)
@@ -1032,15 +1037,15 @@ int hov_forward(
   /*                                                           DEBUG MESSAGES */
   fprintf(DIAG_OUT, "Call of %s(..) with tag: %d, n: %d, m %d,\n",
           GENERATED_FILENAME, tnum, indcheck, depcheck);
-#  if defined(_KEEP_)
+  #if defined(_KEEP_)
   fprintf(DIAG_OUT, "                    keep: %d\n", keep);
-#  endif
-#  if defined(_HIGHER_ORDER_)
+  #endif
+  #if defined(_HIGHER_ORDER_)
   fprintf(DIAG_OUT, "                    degree: %d\n", gdegree);
-#  endif
-#  if defined(_ADOLC_VECTOR_)
+  #endif
+  #if defined(_ADOLC_VECTOR_)
   fprintf(DIAG_OUT, "                    p: %d\n\n", p);
-#  endif
+  #endif
 
 #endif
 
@@ -1075,7 +1080,7 @@ int hov_forward(
             tnum, __FUNCTION__, tnum);
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
-#  if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
+  #if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
   if (swcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
     fprintf(DIAG_OUT,
             "ADOL-C error: forward sweep on tape %d  aborted!\n"
@@ -1085,7 +1090,7 @@ int hov_forward(
             tnum, swcheck, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
-#  endif
+  #endif
 #endif
   /****************************************************************************/
   /*                                                        MEMORY ALLOCATION */
@@ -1111,54 +1116,54 @@ int hov_forward(
 #endif             /* !_NTIGHT_ */
 #if defined(_ZOS_) /* ZOS */
 
-#  if defined(_KEEP_)
+  #if defined(_KEEP_)
   if (keep > 1) {
     fprintf(DIAG_OUT, "\n ADOL-C error: zero order scalar forward cannot save"
                       " more\nthan zero order taylor coefficients!\n");
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
-#  endif
-#  if defined(_KEEP_)
+  #endif
+  #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
 
     taylor_begin(taylbuf, keep - 1);
   }
-#  endif
+  #endif
 
   /*--------------------------------------------------------------------------*/
 #else /* FOS */
-#  if defined(_FOS_)
-#    if defined(_KEEP_)
+  #if defined(_FOS_)
+    #if defined(_KEEP_)
   if (keep > 2) {
     fprintf(DIAG_OUT, "\n ADOL-C error: first order scalar forward cannot save"
                       " more  \nthan first order taylor coefficients!\n");
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
-#    endif
+    #endif
   dp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T;
   ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
   ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_FORWARD;
-#    define TAYLOR_BUFFER dp_T
-#    if defined(_KEEP_)
+    #define TAYLOR_BUFFER dp_T
+    #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
     taylor_begin(taylbuf, keep - 1);
   }
-#    endif
+    #endif
 
-  /*--------------------------------------------------------------------------*/
-#  else /* INF_FOR */
-#    if defined(_INT_FOR_)
+    /*--------------------------------------------------------------------------*/
+  #else /* INF_FOR */
+    #if defined(_INT_FOR_)
   up_T = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
-#      define TAYLOR_BUFFER up_T
+      #define TAYLOR_BUFFER up_T
 
-  /*--------------------------------------------------------------------------*/
-#    else /* INDOPRO */
-#      if defined(_INDO_)
-#        if defined(_INDOPRO_)
+      /*--------------------------------------------------------------------------*/
+    #else /* INDOPRO */
+      #if defined(_INDO_)
+        #if defined(_INDOPRO_)
   /* index domains */
   ind_dom = (locint **)malloc(sizeof(locint *) *
                               ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
@@ -1169,11 +1174,11 @@ int hov_forward(
     ind_dom[i][0] = 0;
     ind_dom[i][1] = NUMNNZ;
   }
-#          if defined(_ABS_NORM_)
+          #if defined(_ABS_NORM_)
   indexd = swcheck;
-#          endif
-#        endif
-#        if defined(_NONLIND_)
+          #endif
+        #endif
+        #if defined(_NONLIND_)
   maxopind = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS] +
              ADOLC_CURRENT_TAPE_INFOS.stats[NUM_EQ_PROD];
   fod = (struct IndexElement *)malloc(sizeof(struct IndexElement) * maxopind);
@@ -1192,8 +1197,8 @@ int hov_forward(
     nonl_dom[i].left = NULL;
     nonl_dom[i].right = NULL;
   }
-#        endif
-#        if defined(_NONLIND_OLD_)
+        #endif
+        #if defined(_NONLIND_OLD_)
 
   nonl_dom = (locint **)malloc(sizeof(locint *) * indcheck);
   for (int i = 0; i < indcheck; i++) {
@@ -1201,61 +1206,61 @@ int hov_forward(
     nonl_dom[i][0] = 0;
     nonl_dom[i][1] = NUMNNZ;
   }
-#        endif
+        #endif
 
-  /*--------------------------------------------------------------------------*/
-#      else /* FOV */
-#        if defined(_FOV_)
+        /*--------------------------------------------------------------------------*/
+      #else /* FOV */
+        #if defined(_FOV_)
   dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
   ADOLC_CURRENT_TAPE_INFOS.numTay = p;
   ADOLC_CURRENT_TAPE_INFOS.gDegree = 1;
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_FORWARD;
-#          define TAYLOR_BUFFER dpp_T
+          #define TAYLOR_BUFFER dpp_T
   dp_Ttemp = myalloc1(p);
-#          define T_TEMP dp_Ttemp;
+          #define T_TEMP dp_Ttemp;
 
-  /*--------------------------------------------------------------------------*/
-#        else /* HOS */
-#          if defined(_HOS_)
+          /*--------------------------------------------------------------------------*/
+        #else /* HOS */
+          #if defined(_HOS_)
   dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
   ADOLC_CURRENT_TAPE_INFOS.numTay = 1;
   ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_FORWARD;
-#            define TAYLOR_BUFFER dpp_T
+            #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(k);
-#            define T_TEMP dp_Ttemp;
-#            if defined(_KEEP_)
+            #define T_TEMP dp_Ttemp;
+            #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
     taylor_begin(taylbuf, keep - 1);
   }
-#            endif
+            #endif
 
-  /*--------------------------------------------------------------------------*/
-#          else /* HOV and HOV_WK */
+            /*--------------------------------------------------------------------------*/
+          #else /* HOV and HOV_WK */
   dpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p * k);
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = dpp_T;
   ADOLC_CURRENT_TAPE_INFOS.numTay = p;
   ADOLC_CURRENT_TAPE_INFOS.gDegree = k;
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_FORWARD;
-#            define TAYLOR_BUFFER dpp_T
+            #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(p * k);
-#            define T_TEMP dp_Ttemp;
-#            if defined(_KEEP_)
+            #define T_TEMP dp_Ttemp;
+            #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = ADOLC_CURRENT_TAPE_INFOS.stats[TAY_BUFFER_SIZE];
     taylor_begin(taylbuf, keep - 1);
   }
-#            endif
-#          endif
-#        endif
-#      endif
-#    endif
-#  endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
   /****************************************************************************/
   /*                                                            FORWARD SWEEP */
@@ -1266,9 +1271,9 @@ int hov_forward(
   unsigned int countPerOperation[256], taylorPerOperation[256];
   memset(countPerOperation, 0, 1024);
   memset(taylorPerOperation, 0, 1024);
-#  define UPDATE_TAYLORWRITTEN(X) taylorPerOperation[operation] += X;
+  #define UPDATE_TAYLORWRITTEN(X) taylorPerOperation[operation] += X;
 #else
-#  define UPDATE_TAYLORWRITTEN(X)
+  #define UPDATE_TAYLORWRITTEN(X)
 #endif /* ADOLC_DEBUG */
 
   operation = get_op_f();
@@ -1439,19 +1444,19 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1471,21 +1476,21 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1511,21 +1516,21 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1541,21 +1546,21 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1571,22 +1576,22 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
 
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1602,26 +1607,26 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 1;
       ind_dom[res][2] = indexi;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = indexi;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_INC = ARGUMENT(indexi, l, i);
-#    else
+    #else
       FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TRES_INC = ARGUMENT(indexi, l, i);
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       ++indexi;
       break;
@@ -1632,14 +1637,14 @@ int hov_forward(
       res = get_locint_f();
 
 #if !defined(_INDO_)
-#  if !defined(_NTIGHT_)
+  #if !defined(_NTIGHT_)
       if (valuepoint != NULL)
         valuepoint[indexd] = dp_T0[res];
-#  endif /* !_NTIGHT_ */
+  #endif /* !_NTIGHT_ */
 #endif
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+  #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
       if (ind_dom[res][0] != 0) {
         crs[indexd] = (unsigned int *)malloc(sizeof(unsigned int) *
                                              (ind_dom[res][0] + 1));
@@ -1651,19 +1656,19 @@ int hov_forward(
         crs[indexd] = (unsigned int *)malloc(sizeof(unsigned int));
         crs[indexd][0] = 0;
       }
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       if (taylors != 0) /* ??? question: why here? */
         FOR_0_LE_l_LT_p TAYLORS(indexd, l, i) = TRES_INC;
-#    else
+    #else
       if (taylors != 0) /* ??? question: why here? */
         FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TAYLORS(indexd, l, i) = TRES_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       indexd++;
       break;
@@ -1716,26 +1721,26 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC |= TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC += TARG_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1784,26 +1789,26 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC |= TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC -= TARG_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1823,14 +1828,14 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if !defined(_INDO_)
-#  if !defined(_ZOS_) /* BREAK_ZOS */
-#    if !defined(_INT_FOR_)
+  #if !defined(_ZOS_) /* BREAK_ZOS */
+    #if !defined(_INT_FOR_)
 
       FOR_0_LE_l_LT_pk ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
           FOR_0_LE_l_LT_pk TRES_INC *= coval;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1850,14 +1855,14 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if !defined(_INDO_)
-#  if !defined(_ZOS_) /* BREAK_ZOS */
-#    if !defined(_INT_FOR_)
+  #if !defined(_ZOS_) /* BREAK_ZOS */
+    #if !defined(_INT_FOR_)
 
       FOR_0_LE_l_LT_pk ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
           FOR_0_LE_l_LT_pk TRES_INC *= coval;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1870,10 +1875,10 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
@@ -1882,34 +1887,34 @@ int hov_forward(
       traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]],
                      indcheck + 1, maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
       INC_pk_1(Tres) INC_pk_1(Targ)
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
           FOR_p_GT_l_GE_0 TRES_FODEC |= TARG_DEC;
-#    else
+    #else
           FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
         TRES_FODEC = dp_T0[res] * TARG_DEC + TRES * dp_T0[arg];
         DEC_TRES_FO
-#      ifdef _HIGHER_ORDER_
+      #ifdef _HIGHER_ORDER_
         TresOP = Tres - i;
         TargOP = Targ;
 
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*TargOP--);
         Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] *= dp_T0[arg];
@@ -1955,27 +1960,27 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = &fod[arg_index[arg2]];
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC + TARG2_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -1996,19 +2001,19 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2033,19 +2038,19 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2063,27 +2068,27 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = &fod[arg_index[arg2]];
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC - TARG2_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2104,23 +2109,23 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = -TARG_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2133,10 +2138,10 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = &fod[arg_index[arg2]];
@@ -2145,26 +2150,26 @@ int hov_forward(
       traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[arg_index[arg1]],
                      indcheck + 1, maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG2_INC | TARG1_INC;
-#    else
+    #else
       /* olvo 980915 now in reverse order to allow x = x*x etc. */
       INC_pk_1(Tres) INC_pk_1(Targ1) INC_pk_1(Targ2)
 
           FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
         TRES_FODEC = dp_T0[arg1] * TARG2_DEC + TARG1_DEC * dp_T0[arg2];
         DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         Targ1OP = Targ1 - i + 1;
         Targ2OP = Targ2;
 
@@ -2172,10 +2177,10 @@ int hov_forward(
           *Tres += (*Targ1OP++) * (*Targ2OP--);
         }
         Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] = dp_T0[arg1] * dp_T0[arg2];
@@ -2191,10 +2196,10 @@ int hov_forward(
       res = get_locint_f();
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       merge_3_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       // operation: v = v+u*w
       // first step: z = u*w, index domains
       fod[opind].entry = maxopind + 2;
@@ -2212,36 +2217,36 @@ int hov_forward(
       fod[opind].right = &fod[opind - 1];
       // second step: v = v+z,
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC |= TARG2_INC | TARG1_INC;
-#    else
+    #else
       /* olvo 980915 now in reverse order to allow x = x*x etc. */
       INC_pk_1(Tres) INC_pk_1(Targ1) INC_pk_1(Targ2)
 
           FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
         TRES_FODEC += dp_T0[arg1] * TARG2_DEC + TARG1_DEC * dp_T0[arg2];
         DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         Targ1OP = Targ1 - i + 1;
         Targ2OP = Targ2;
 
         for (int j = 0; j < i; j++)
           *Tres += (*Targ1OP++) * (*Targ2OP--);
         Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] += dp_T0[arg1] * dp_T0[arg2];
@@ -2257,10 +2262,10 @@ int hov_forward(
       res = get_locint_f();
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       merge_3_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       // operation: v = v-u*w
       // first step: z = u*w, index domains
       fod[opind].entry = maxopind + 2;
@@ -2278,36 +2283,36 @@ int hov_forward(
       fod[opind].right = &fod[opind - 1];
       // second step: v = v-z,
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC |= TARG2_INC | TARG1_INC;
-#    else
+    #else
       /* olvo 980915 now in reverse order to allow x = x*x etc. */
       INC_pk_1(Tres) INC_pk_1(Targ1) INC_pk_1(Targ2)
 
           FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
         TRES_FODEC -= dp_T0[arg1] * TARG2_DEC + TARG1_DEC * dp_T0[arg2];
         DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         Targ1OP = Targ1 - i + 1;
         Targ2OP = Targ2;
 
         for (int j = 0; j < i; j++)
           *Tres -= (*Targ1OP++) * (*Targ2OP--);
         Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 
 #if !defined(_NTIGHT_)
@@ -2332,23 +2337,23 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC * coval;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2369,23 +2374,23 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC * coval;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2399,18 +2404,18 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
 #if !defined(_NTIGHT_)
-#  if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
+  #if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
       divs = 1.0 / dp_T0[arg2];
-#  endif /* ALL_TOGETHER_AGAIN */
+  #endif /* ALL_TOGETHER_AGAIN */
 
       dp_T0[res] = dp_T0[arg1] / dp_T0[arg2];
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = &fod[arg_index[arg2]];
@@ -2419,39 +2424,39 @@ int hov_forward(
       traverse_unary(&fod[arg_index[arg2]], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(arg1, arg2, ind_dom, nonl_dom);
       extend_nonlinearity_domain_unary(arg2, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_INC | TARG2_FOINC;
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980922 changed order to allow x = y/x */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = -(*Targ2) * divs;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         TRES_FOINC = TARG1_INC * divs + dp_T0[res] * (-TARG2_INC * divs);
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
 
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*zOP--);
         Tres++;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2473,55 +2478,55 @@ int hov_forward(
       } */
 
 #if !defined(_NTIGHT_)
-#  if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
+  #if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
       divs = 1.0 / dp_T0[arg];
-#  endif /* ALL_TOGETHER_AGAIN */
+  #endif /* ALL_TOGETHER_AGAIN */
 
       dp_T0[res] = coval / dp_T0[arg];
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_FOINC;
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980922 changed order to allow x = d/x */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = -(*Targ) * divs;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         TRES_FOINC = dp_T0[res] * (-TARG_INC * divs);
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
 
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*zOP--);
         Tres++;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2544,55 +2549,55 @@ int hov_forward(
       } */
 
 #if !defined(_NTIGHT_)
-#  if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
+  #if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
       divs = 1.0 / dp_T0[arg];
-#  endif /* ALL_TOGETHER_AGAIN */
+  #endif /* ALL_TOGETHER_AGAIN */
 
       dp_T0[res] = coval / dp_T0[arg];
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_FOINC;
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980922 changed order to allow x = d/x */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = -(*Targ) * divs;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         TRES_FOINC = dp_T0[res] * (-TARG_INC * divs);
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
 
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*zOP--);
         Tres++;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2612,19 +2617,19 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2640,23 +2645,23 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_pk TRES_INC = -TARG_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2678,49 +2683,49 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_FOINC;
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980915 changed order to allow x = exp(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = (i + 1) * (*Targ);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         TRES_FOINC = dp_T0[res] * TARG_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
 
         *Tres *= (i + 1);
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*zOP--);
         *Tres++ /= (i + 1); /* important only for i>0 */
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
 
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2742,44 +2747,44 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p { /* olvo 980923 changed order to allow x = sin(x) */
         TARG2_FOINC = TARG1;
         TRES_FOINC = TARG1_FOINC;
       }
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = sin(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         /* Note: always arg2 != arg1 */
         TARG2_FOINC = -dp_T0[res] * TARG1;
         TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
         Targ2OP = Targ2 - i;
 
@@ -2791,10 +2796,10 @@ int hov_forward(
         }
         *Targ2++ /= (i + 1);
         *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2816,45 +2821,45 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p { /* olvo 980923 changed order to allow x = cos(x) */
         TARG2_FOINC = TARG1;
         TRES_FOINC = TARG1_FOINC;
       }
-#    else
+    #else
       FOR_0_LE_l_LT_p
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = cos(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         zOP = dp_z + i;
         (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
         /* Note: always arg2 != arg1 */
         TARG2_FOINC = dp_T0[res] * TARG1;
         TRES_FOINC = -dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         TresOP = Tres - i;
         Targ2OP = Targ2 - i;
 
@@ -2866,10 +2871,10 @@ int hov_forward(
         }
         *Targ2++ /= (i + 1);
         *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2888,51 +2893,51 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       FOR_0_LE_l_LT_p {
         FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = atan(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           zOP = dp_z + i;
           (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ2OP = Targ2;
 
           *Tres *= (i + 1);
           for (int j = 0; j < i; j++)
             *Tres += (*Targ2OP++) * (*zOP--);
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
         HOV_INC(Targ2, k)
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -2951,27 +2956,27 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       if (dp_T0[arg1] == 1.0)
@@ -3015,26 +3020,26 @@ int hov_forward(
       else
         FOR_0_LE_l_LT_p {
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = asin(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             zOP = dp_z + i;
             (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
             TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             Targ2OP = Targ2;
 
             *Tres *= (i + 1);
             for (int j = 0; j < i; j++)
               *Tres += (*Targ2OP++) * (*zOP--);
             *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
           }
           HOV_INC(Targ2, k)
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3053,27 +3058,27 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       if (dp_T0[arg1] == 1.0)
@@ -3117,26 +3122,26 @@ int hov_forward(
       else
         FOR_0_LE_l_LT_p {
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = acos(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             zOP = dp_z + i;
             (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
             TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             Targ2OP = Targ2;
 
             *Tres *= (i + 1);
             for (int j = 0; j < i; j++)
               *Tres += (*Targ2OP++) * (*zOP--);
             *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
           }
           HOV_INC(Targ2, k)
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3155,51 +3160,51 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       FOR_0_LE_l_LT_p {
         FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = asinh(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           zOP = dp_z + i;
           (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ2OP = Targ2;
 
           *Tres *= (i + 1);
           for (int j = 0; j < i; j++)
             *Tres += (*Targ2OP++) * (*zOP--);
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
         HOV_INC(Targ2, k)
       }
-#    endif   // #ifdef _INT_FOR_ ... #else ...
-#  endif     // #if !defined(_ZOS_)
+    #endif   // #ifdef _INT_FOR_ ... #else ...
+  #endif     // #if !defined(_ZOS_)
 #endif       // #if defined(_INDO_)
       break;
 
@@ -3218,27 +3223,27 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       if (dp_T0[arg1] == 1.0)
@@ -3258,35 +3263,35 @@ int hov_forward(
             Targ1++;
           }
           TRES_INC = r0;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           for (int i = 1; i < k; i++)
             *Tres++ = make_nan();
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       else
         FOR_0_LE_l_LT_p {
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = acosh(x)
                              */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             zOP = dp_z + i;
             (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
             TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             Targ2OP = Targ2;
 
             *Tres *= (i + 1);
             for (int j = 0; j < i; j++)
               *Tres += (*Targ2OP++) * (*zOP--);
             *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
           }
           HOV_INC(Targ2, k)
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3305,27 +3310,27 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg1, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       if (dp_T0[arg1] == 1.0)
@@ -3345,10 +3350,10 @@ int hov_forward(
             Targ1++;
           }
           TRES_INC = r0;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           for (int i = 1; i < k; i++)
             *Tres++ = make_nan();
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       else if (dp_T0[arg1] == -1.0)
         FOR_0_LE_l_LT_p {
@@ -3367,35 +3372,35 @@ int hov_forward(
             Targ1++;
           }
           TRES_INC = r0;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           for (int i = 1; i < k; i++)
             *Tres++ = make_nan();
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       else
         FOR_0_LE_l_LT_p {
           FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = atanh(x)
                              */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             zOP = dp_z + i;
             (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
             TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
             Targ2OP = Targ2;
 
             *Tres *= (i + 1);
             for (int j = 0; j < i; j++)
               *Tres += (*Targ2OP++) * (*zOP--);
             *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
           }
           HOV_INC(Targ2, k)
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3413,48 +3418,48 @@ int hov_forward(
 
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       FOR_0_LE_l_LT_p {
         FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = erf(x) */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           zOP = dp_z + i;
           (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ2OP = Targ2;
 
           *Tres *= (i + 1);
           for (int j = 0; j < i; j++)
             *Tres += (*Targ2OP++) * (*zOP--);
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
         HOV_INC(Targ2, k)
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3466,28 +3471,28 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_INC;
-#    else
+    #else
       divs = 1.0 / dp_T0[arg];
       FOR_0_LE_l_LT_p {
         if (dp_T0[arg] == 0.0) {
@@ -3503,7 +3508,7 @@ int hov_forward(
         /* olvo 980921 changed order to allow x = log(x) */
         FOR_0_LE_i_LT_k {
           TRES_FOINC = TARG_INC * divs;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           TresOP = Tres - i;
           zOP = dp_z + i;
 
@@ -3512,11 +3517,11 @@ int hov_forward(
           for (int j = 0; j < i; j++)
             (*Tres) -= (*zOP--) * (*TresOP++) * (j + 1);
           *Tres++ /= i + 1;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] = log(dp_T0[arg]);
@@ -3544,39 +3549,39 @@ int hov_forward(
 
 #if !defined(_NTIGHT_)
 
-#  ifndef _ZOS_ /* BREAK_ZOS */
-#    if !defined(_INT_FOR_) && !defined(_INDO_)
+  #ifndef _ZOS_ /* BREAK_ZOS */
+    #if !defined(_INT_FOR_) && !defined(_INDO_)
       T0arg = dp_T0[arg];
-#    endif
-#  endif /* ALL_TOGETHER_AGAIN */
+    #endif
+  #endif /* ALL_TOGETHER_AGAIN */
 
       dp_T0[res] = pow(dp_T0[arg], coval);
 #endif /* !_NTIGHT_ */
 
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  ifndef _ZOS_ /* BREAK_ZOS */
+  #ifndef _ZOS_ /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_INC;
-#    else
+    #else
       if (T0arg == 0.0) {
         if (coval <= 0.0)
           FOR_0_LE_l_LT_pk TRES_INC = make_nan();
@@ -3607,7 +3612,7 @@ int hov_forward(
                 FOR_k_GT_i_GE_0 {
                   *Tres = 0;
                   DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
                   if (i == k - 1) {
                     zOP = dp_z + k - 1;
                     for (int j = k - 1; j >= 0; j--) {
@@ -3618,7 +3623,7 @@ int hov_forward(
                     *Tres += dp_z[j] * dp_z[i - j - 1];
                   }
                   Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
                 }
               }
               for (int ii = 3; ii <= coval; ii++) {
@@ -3630,12 +3635,12 @@ int hov_forward(
                   FOR_k_GT_i_GE_0 {
                     *Tres = 0;
                     DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
                     TresOP = Tres - i;
                     for (int j = 0; j < i; j++)
                       *Tres += TresOP[j] * dp_z[i - j - 1];
                     Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
                   }
                 }
               }
@@ -3646,14 +3651,14 @@ int hov_forward(
         r0 = 1.0 / T0arg;
         FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow
                                              x = pow(x,n) */
-#      ifdef _HIGHER_ORDER_
+      #ifdef _HIGHER_ORDER_
           zOP = dp_z + i;
           (*zOP--) = (*Targ) * r0;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[res] * TARG_INC * coval * r0;
 
-#      ifdef _HIGHER_ORDER_
+      #ifdef _HIGHER_ORDER_
           TresOP = Tres - i;
 
           (*Tres) *= i + 1;
@@ -3663,11 +3668,11 @@ int hov_forward(
             y -= coval + 1;
           }
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3689,39 +3694,39 @@ int hov_forward(
 
 #if !defined(_NTIGHT_)
 
-#  ifndef _ZOS_ /* BREAK_ZOS */
-#    if !defined(_INT_FOR_) && !defined(_INDO_)
+  #ifndef _ZOS_ /* BREAK_ZOS */
+    #if !defined(_INT_FOR_) && !defined(_INDO_)
       T0arg = dp_T0[arg];
-#    endif
-#  endif /* ALL_TOGETHER_AGAIN */
+    #endif
+  #endif /* ALL_TOGETHER_AGAIN */
 
       dp_T0[res] = pow(dp_T0[arg], coval);
 #endif /* !_NTIGHT_ */
 
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  ifndef _ZOS_ /* BREAK_ZOS */
+  #ifndef _ZOS_ /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_INC;
-#    else
+    #else
       if (T0arg == 0.0) {
         if (coval <= 0.0)
           FOR_0_LE_l_LT_pk TRES_INC = make_nan();
@@ -3752,7 +3757,7 @@ int hov_forward(
                 FOR_k_GT_i_GE_0 {
                   *Tres = 0;
                   DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
                   if (i == k - 1) {
                     zOP = dp_z + k - 1;
                     for (int j = k - 1; j >= 0; j--) {
@@ -3763,7 +3768,7 @@ int hov_forward(
                     *Tres += dp_z[j] * dp_z[i - j - 1];
                   }
                   Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
                 }
               }
               for (int ii = 3; ii <= coval; ii++) {
@@ -3775,12 +3780,12 @@ int hov_forward(
                   FOR_k_GT_i_GE_0 {
                     *Tres = 0;
                     DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
                     TresOP = Tres - i;
                     for (int j = 0; j < i; j++)
                       *Tres += TresOP[j] * dp_z[i - j - 1];
                     Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
                   }
                 }
               }
@@ -3791,14 +3796,14 @@ int hov_forward(
         r0 = 1.0 / T0arg;
         FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow
                                              x = pow(x,n) */
-#      ifdef _HIGHER_ORDER_
+      #ifdef _HIGHER_ORDER_
           zOP = dp_z + i;
           (*zOP--) = (*Targ) * r0;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[res] * TARG_INC * coval * r0;
 
-#      ifdef _HIGHER_ORDER_
+      #ifdef _HIGHER_ORDER_
           TresOP = Tres - i;
 
           (*Tres) *= i + 1;
@@ -3808,11 +3813,11 @@ int hov_forward(
             y -= coval + 1;
           }
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3830,28 +3835,28 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_p {
         TargOP = Targ;
         if (dp_T0[arg] == 0.0)
@@ -3875,12 +3880,12 @@ int hov_forward(
         }
         Targ = TargOP;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
         int even = 1;
-#      endif
+      #endif
         FOR_0_LE_i_LT_k {
           TRES_FOINC = r0 * TARG_INC;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           TresOP = Tres - i;
           TresOP2 = Tres - 1;
 
@@ -3892,11 +3897,11 @@ int hov_forward(
             x += (*TresOP) * (*TresOP2); /* !!! */
           even = !even;
           *Tres++ -= r0 * x;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -3914,28 +3919,28 @@ int hov_forward(
       ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       copy_index_domain(res, arg, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg]];
       fod[opind].right = NULL;
       traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
                      maxopind + 2);
       arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_unary(arg, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG_INC;
-#    else
+    #else
       FOR_0_LE_l_LT_p {
         TargOP = Targ;
         if (dp_T0[arg] == 0.0)
@@ -3961,16 +3966,16 @@ int hov_forward(
 
         FOR_0_LE_i_LT_k {
           TRES_FOINC = r0 * TARG_INC;
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           fprintf(
               DIAG_OUT,
               "ADOL-C error: higher order mode of cbrt not implemented yet\n");
           adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4007,37 +4012,37 @@ int hov_forward(
       end_sweep();
       return -2;
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
-#    else
+    #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
       FOR_0_LE_l_LT_p {
         FOR_0_LE_i_LT_k { /* olvo 980922 changed order to allow x = gen_quad(x)
                            */
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           zOP = dp_z + i;
           (*zOP--) = (i + 1) * (*Targ1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ2OP = Targ2;
 
           *Tres *= (i + 1);
           for (int j = 0; j < i; j++)
             *Tres += (*Targ2OP++) * (*zOP--);
           *Tres++ /= (i + 1);
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
         HOV_INC(Targ2, k)
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4068,8 +4073,8 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    if defined(_TIGHT_)
+  #if defined(_INDOPRO_)
+    #if defined(_TIGHT_)
       if (dp_T0[arg1] < dp_T0[arg2])
         copy_index_domain(res, arg1, ind_dom);
       else {
@@ -4078,12 +4083,12 @@ int hov_forward(
         else
           combine_2_index_domains(res, arg1, arg2, ind_dom);
       }
-#    else
+    #else
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
-#    ifdef _TIGHT_
+    #endif
+  #endif
+  #if defined(_NONLIND_)
+    #ifdef _TIGHT_
       if (dp_T0[arg1] < dp_T0[arg2]) {
         fod[opind].entry = maxopind + 2;
         fod[opind].left = &fod[arg_index[arg1]];
@@ -4103,22 +4108,22 @@ int hov_forward(
           arg_index[res] = opind++;
         }
       }
-#    else
+    #else
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[arg1]];
       fod[opind].right = &fod[arg_index[arg2]];
       arg_index[res] = opind++;
       arg_index[res] = opind++;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#    ifdef _INT_FOR_
-#      ifdef _TIGHT_
+    #ifdef _INT_FOR_
+      #ifdef _TIGHT_
       Tqo = NULL;
       if (dp_T0[arg1] > dp_T0[arg2])
         Tqo = Targ2;
@@ -4148,11 +4153,11 @@ int hov_forward(
       }
 
       dp_T0[res] = MIN_ADOLC(dp_T0[arg1], dp_T0[arg2]);
-#      endif /* _TIGHT_ */
-#      ifdef _NTIGHT_
+      #endif /* _TIGHT_ */
+      #ifdef _NTIGHT_
       TRES_INC = TARG1_INC | TARG2_INC;
-#      endif /* _NTIGHT_ */
-#    else
+      #endif /* _NTIGHT_ */
+    #else
       Tqo = NULL;
       if (dp_T0[arg1] > dp_T0[arg2])
         Tqo = Targ2;
@@ -4192,8 +4197,8 @@ int hov_forward(
           VEC_INC(Tqo, k)
         }
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] = MIN_ADOLC(dp_T0[arg1], dp_T0[arg2]);
@@ -4224,15 +4229,15 @@ int hov_forward(
       }
       if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
         signature[switchnum] = dp_T0[arg];
-#  if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
+  #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
         swargs[switchnum] = dp_T0[arg];
-#  endif
+  #endif
       }
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    if defined(_ABS_NORM_)
+  #if defined(_INDOPRO_)
+    #if defined(_ABS_NORM_)
       if (ind_dom[arg][0] != 0) {
         crs[switchnum] = (unsigned int *)malloc(sizeof(unsigned int) *
                                                 (ind_dom[arg][0] + 1));
@@ -4246,20 +4251,20 @@ int hov_forward(
       }
       ind_dom[res][0] = 1;
       ind_dom[res][2] = indcheck + switchnum;
-#    else
+    #else
       copy_index_domain(res, arg, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
+    #endif
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#    ifdef _INT_FOR_
-#      ifdef _TIGHT_
+    #ifdef _INT_FOR_
+      #ifdef _TIGHT_
       y = 0.0;
       if (dp_T0[arg] != 0.0) {
         if (dp_T0[arg] < 0.0)
@@ -4275,19 +4280,19 @@ int hov_forward(
       }
 
       dp_T0[res] = fabs(dp_T0[arg]);
-#      endif /* _TIGHT_ */
-#      ifdef _NTIGHT_
+      #endif /* _TIGHT_ */
+      #ifdef _NTIGHT_
       FOR_0_LE_l_LT_p TRES_INC = TARG_INC;
-#      endif /* _NTIGHT_ */
-#    else
-#      ifdef _ABS_NORM_
+      #endif /* _NTIGHT_ */
+    #else
+      #ifdef _ABS_NORM_
       sig = FIRSTSIGN_P(dp_T0[arg], Targ);
-#        if defined(_FOV_)
+        #if defined(_FOV_)
       sigsw[switchnum] = sig;
-#        endif
+        #endif
       COPYTAYL_P(swtaylors[switchnum], Targ);
       FOR_0_LE_l_LT_p TRES_INC = fabs(dp_T0[arg] + TARG_INC) - fabs(dp_T0[arg]);
-#      elif defined(_ABS_NORM_SIG_)
+      #elif defined(_ABS_NORM_SIG_)
       double y;
       if (sigdir == NULL)
         y = EXT_FIRSTSIGN2_P(sigbase[switchnum], dp_T0[arg], Targ);
@@ -4297,7 +4302,7 @@ int hov_forward(
       COPYTAYL_P(swtaylors[switchnum], Targ);
       sigsw[switchnum] = y;
       FOR_0_LE_l_LT_p TRES_INC = y * TARG_INC;
-#      else
+      #else
       double y = 0.0;
       if (dp_T0[arg] != 0.0) {
         if (dp_T0[arg] < 0.0)
@@ -4319,9 +4324,9 @@ int hov_forward(
           TRES_INC = x * TARG_INC;
         }
       }
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
       dp_T0[res] = fabs(dp_T0[arg]);
@@ -4349,22 +4354,22 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    ifdef _TIGHT_
+  #if defined(_INDOPRO_)
+    #ifdef _TIGHT_
       ind_dom[res][0] = 0;
-#    else
+    #else
       copy_index_domain(res, arg, ind_dom);
-#    endif /* _TIGHT_ */
-#  endif
-#  if defined(_NONLIND_)
+    #endif /* _TIGHT_ */
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0.0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4387,22 +4392,22 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    ifdef _TIGHT_
+  #if defined(_INDOPRO_)
+    #ifdef _TIGHT_
       ind_dom[res][0] = 0;
-#    else
+    #else
       copy_index_domain(res, arg, ind_dom);
-#    endif /* _TIGHT_ */
-#  endif
-#  if defined(_NONLIND_)
+    #endif /* _TIGHT_ */
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0.0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4425,8 +4430,8 @@ int hov_forward(
 
       /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    if defined(_TIGHT_)
+  #if defined(_INDOPRO_)
+    #if defined(_TIGHT_)
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
           MINDEC(ret_c, 2);
@@ -4442,12 +4447,12 @@ int hov_forward(
         dp_T0[res] = dp_T0[arg2];
         copy_index_domain(res, arg2, ind_dom);
       }
-#    else
+    #else
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
-#    ifdef _TIGHT_
+    #endif
+  #endif
+  #if defined(_NONLIND_)
+    #ifdef _TIGHT_
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
           MINDEC(ret_c, 2);
@@ -4464,19 +4469,19 @@ int hov_forward(
         arg_index[res] = arg_index[arg2];
       }
 
-#    else
+    #else
       arg_index[res] = opind++;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
-#  endif              /* ALL_TOGETHER_AGAIN */
+  #endif              /* ALL_TOGETHER_AGAIN */
 
-#  ifdef _INT_FOR_
-#    ifdef _TIGHT_
+  #ifdef _INT_FOR_
+    #ifdef _TIGHT_
       coval = get_val_f();
 
       if (dp_T0[arg] > 0)
@@ -4495,17 +4500,17 @@ int hov_forward(
           MINDEC(ret_c, 0);
         dp_T0[res] = dp_T0[arg2];
       }
-#    endif /* _TIGHT_ */
-#    ifdef _NTIGHT_
+    #endif /* _TIGHT_ */
+    #ifdef _NTIGHT_
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    endif /* _NTIGHT_ */
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif /* _NTIGHT_ */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] > 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
       else
         FOR_0_LE_l_LT_pk TRES_INC = TARG2_INC;
-#    endif
+    #endif
 
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
@@ -4518,7 +4523,7 @@ int hov_forward(
           MINDEC(ret_c, 0);
         dp_T0[res] = dp_T0[arg2];
       }
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4536,8 +4541,8 @@ int hov_forward(
 
       /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    if defined(_TIGHT_)
+  #if defined(_INDOPRO_)
+    #if defined(_TIGHT_)
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
           MINDEC(ret_c, 2);
@@ -4551,12 +4556,12 @@ int hov_forward(
         dp_T0[res] = dp_T0[arg2];
         copy_index_domain(res, arg2, ind_dom);
       }
-#    else
+    #else
       combine_2_index_domains(res, arg1, arg2, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
-#    ifdef _TIGHT_
+    #endif
+  #endif
+  #if defined(_NONLIND_)
+    #ifdef _TIGHT_
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
           MINDEC(ret_c, 2);
@@ -4571,19 +4576,19 @@ int hov_forward(
         arg_index[res] = arg_index[arg2];
       }
 
-#    else
+    #else
       arg_index[res] = opind++;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
-#  endif              /* ALL_TOGETHER_AGAIN */
+  #endif              /* ALL_TOGETHER_AGAIN */
 
-#  ifdef _INT_FOR_
-#    ifdef _TIGHT_
+  #ifdef _INT_FOR_
+    #ifdef _TIGHT_
       coval = get_val_f();
 
       if (dp_T0[arg] >= 0)
@@ -4600,17 +4605,17 @@ int hov_forward(
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg2];
       }
-#    endif /* _TIGHT_ */
-#    ifdef _NTIGHT_
+    #endif /* _TIGHT_ */
+    #ifdef _NTIGHT_
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    endif /* _NTIGHT_ */
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif /* _NTIGHT_ */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] >= 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
       else
         FOR_0_LE_l_LT_pk TRES_INC = TARG2_INC;
-#    endif
+    #endif
 
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
@@ -4621,7 +4626,7 @@ int hov_forward(
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg2];
       }
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4639,51 +4644,51 @@ int hov_forward(
 
       /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    ifdef _TIGHT_
+  #if defined(_INDOPRO_)
+    #ifdef _TIGHT_
       if (dp_T0[arg] > 0)
         copy_index_domain(res, arg1, ind_dom);
-#    else
+    #else
       merge_2_index_domains(res, arg1, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
+    #endif
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg1];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#  endif              /* ALL_TOGETHER_AGAIN */
+  #endif              /* ALL_TOGETHER_AGAIN */
 
-#  ifdef _INT_FOR_
-#    ifdef _TIGHT_
+  #ifdef _INT_FOR_
+    #ifdef _TIGHT_
       coval = get_val_f();
 
       if (dp_T0[arg] > 0)
-#    endif /* _TIGHT_ */
+    #endif /* _TIGHT_ */
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
 
-#    ifdef _TIGHT_
+    #ifdef _TIGHT_
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       } else if (dp_T0[arg] == 0)
         MINDEC(ret_c, 0);
-#    endif /* _TIGHT_ */
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif /* _TIGHT_ */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] > 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#    endif
+    #endif
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       } else if (dp_T0[arg] == 0)
         MINDEC(ret_c, 0);
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4700,49 +4705,49 @@ int hov_forward(
 
       /* olvo 980924 changed order to allow reflexive ops */
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
-#    ifdef _TIGHT_
+  #if defined(_INDOPRO_)
+    #ifdef _TIGHT_
       if (dp_T0[arg] >= 0)
         copy_index_domain(res, arg1, ind_dom);
-#    else
+    #else
       merge_2_index_domains(res, arg1, ind_dom);
-#    endif
-#  endif
-#  if defined(_NONLIND_)
+    #endif
+  #endif
+  #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg1];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#  endif              /* ALL_TOGETHER_AGAIN */
+  #endif              /* ALL_TOGETHER_AGAIN */
 
-#  ifdef _INT_FOR_
-#    ifdef _TIGHT_
+  #ifdef _INT_FOR_
+    #ifdef _TIGHT_
       coval = get_val_f();
 
       if (dp_T0[arg] >= 0)
-#    endif /* _TIGHT_ */
+    #endif /* _TIGHT_ */
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
 
-#    ifdef _TIGHT_
+    #ifdef _TIGHT_
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       }
-#    endif /* _TIGHT_ */
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif /* _TIGHT_ */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] >= 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#    endif
+    #endif
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       }
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4762,14 +4767,14 @@ int hov_forward(
     case ge_a_p:
     case lt_a_p:
     case gt_a_p:
-#  if !defined(_NTIGHT_)
+  #if !defined(_NTIGHT_)
       coval =
-#  endif
+  #endif
           get_val_f();
       arg = get_locint_f();
       arg1 = get_locint_f();
       res = get_locint_f();
-#  if !defined(_NTIGHT_)
+  #if !defined(_NTIGHT_)
       {
         revreal retval = -1;
         const char *opname = "";
@@ -4844,24 +4849,24 @@ int hov_forward(
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = retval;
       }
-#  endif
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #endif
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
-#    endif
-#  endif /* ALL_TOGETHER_AGAIN */
+    #endif
+  #endif /* ALL_TOGETHER_AGAIN */
 
       break;
 #endif /* ADVANCED_BRANCHING */
@@ -4891,21 +4896,21 @@ int hov_forward(
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = dp_T0[arg1];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
         copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
         arg_index[res] = arg_index[arg1];
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
         ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
         fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in "
                           "safe mode, please use tight mode\n");
@@ -4953,21 +4958,21 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
       dp_T0[res] = dp_T0[arg1];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       arg_index[res] = arg_index[arg1];
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5012,23 +5017,23 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p)
       dp_T0[arg1] = coval;
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[arg1][0] = 0;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[arg1] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_)
+    #endif
+  #else
+    #if !defined(_ZOS_)
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
 
       FOR_0_LE_l_LT_pk TARG1_INC = 0;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5047,23 +5052,23 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p)
       dp_T0[arg1] = coval;
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[arg1][0] = 0;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[arg1] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_)
+    #endif
+  #else
+    #if !defined(_ZOS_)
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
 
       FOR_0_LE_l_LT_pk TARG1_INC = 0;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5078,23 +5083,23 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p)
       dp_T0[arg1] = 0.0;
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[arg1][0] = 0;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[arg1] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_)
+    #endif
+  #else
+    #if !defined(_ZOS_)
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
 
       FOR_0_LE_l_LT_pk TARG1_INC = 0;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5109,23 +5114,23 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p)
       dp_T0[arg1] = 1.0;
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[arg1][0] = 0;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[arg1] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_)
+    #endif
+  #else
+    #if !defined(_ZOS_)
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
 
       FOR_0_LE_l_LT_pk TARG1_INC = 0;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5142,21 +5147,21 @@ int hov_forward(
       arg1 = (size_t)trunc(fabs(dp_T0[res]));
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p)
       dp_T0[arg1] = dp_T0[arg];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       copy_index_domain(arg1, arg, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       arg_index[arg1] = arg_index[arg];
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
 
       FOR_0_LE_l_LT_pk TARG1_INC = TARG_INC;
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5172,28 +5177,28 @@ int hov_forward(
       res = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] = basepoint[indexi];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       ind_dom[res][0] = 1;
       ind_dom[res][2] = indexi;
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = indexi;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-#      ifdef _INT_FOR_
+      #ifdef _INT_FOR_
       FOR_0_LE_l_LT_p TRES_INC = ARGUMENT(indexi, l, i);
-#      else
+      #else
       FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TRES_INC = ARGUMENT(indexi, l, i);
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5251,28 +5256,28 @@ int hov_forward(
       res = (size_t)trunc(fabs(dp_T0[arg1]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] += dp_T0[arg];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
       arg_index[res] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#      ifdef _INT_FOR_
+      #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC |= TARG_INC;
-#      else
+      #else
       FOR_0_LE_l_LT_pk TRES_INC += TARG_INC;
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5328,28 +5333,28 @@ int hov_forward(
       res = (size_t)trunc(fabs(dp_T0[arg1]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] -= dp_T0[arg];
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
       arg_index[res] = opind++;
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
-#      ifdef _INT_FOR_
+      #ifdef _INT_FOR_
       FOR_0_LE_l_LT_pk TRES_INC |= TARG_INC;
-#      else
+      #else
       FOR_0_LE_l_LT_pk TRES_INC -= TARG_INC;
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5369,16 +5374,16 @@ int hov_forward(
       res = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] *= coval;
-#  if !defined(_INDO_)
-#    if !defined(_ZOS_) /* BREAK_ZOS */
-#      if !defined(_INT_FOR_)
+  #if !defined(_INDO_)
+    #if !defined(_ZOS_) /* BREAK_ZOS */
+      #if !defined(_INT_FOR_)
 
       FOR_0_LE_l_LT_pk ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
           FOR_0_LE_l_LT_pk TRES_INC *= coval;
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5398,16 +5403,16 @@ int hov_forward(
       res = (size_t)trunc(fabs(dp_T0[arg]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] *= coval;
-#  if !defined(_INDO_)
-#    if !defined(_ZOS_) /* BREAK_ZOS */
-#      if !defined(_INT_FOR_)
+  #if !defined(_INDO_)
+    #if !defined(_ZOS_) /* BREAK_ZOS */
+      #if !defined(_INT_FOR_)
 
       FOR_0_LE_l_LT_pk ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
           FOR_0_LE_l_LT_pk TRES_INC *= coval;
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5423,11 +5428,11 @@ int hov_forward(
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(dp_T0[arg1]));
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
-#  if defined(_INDO_)
-#    if defined(_INDOPRO_)
+  #if defined(_INDO_)
+    #if defined(_INDOPRO_)
       merge_2_index_domains(res, arg, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = &fod[arg_index[res]];
       fod[opind].right = &fod[arg_index[arg]];
@@ -5436,35 +5441,35 @@ int hov_forward(
       traverse_unary(&fod[arg_index[arg]], nonl_dom, &fod[arg_index[res]],
                      indcheck + 1, maxopind + 2);
       arg_index[res] = opind++;
-#    endif
-#    if defined(_NONLIND_OLD_)
+    #endif
+    #if defined(_NONLIND_OLD_)
       extend_nonlinearity_domain_binary(res, arg, ind_dom, nonl_dom);
-#    endif
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+    #endif
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
 
       INC_pk_1(Tres) INC_pk_1(Targ)
 
-#      ifdef _INT_FOR_
+      #ifdef _INT_FOR_
           FOR_p_GT_l_GE_0 TRES_FODEC |= TARG_DEC;
-#      else
+      #else
           FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
         TRES_FODEC = dp_T0[res] * TARG_DEC + TRES * dp_T0[arg];
         DEC_TRES_FO
-#        ifdef _HIGHER_ORDER_
+        #ifdef _HIGHER_ORDER_
         TresOP = Tres - i;
         TargOP = Targ;
 
         for (int j = 0; j < i; j++)
           *Tres += (*TresOP++) * (*TargOP--);
         Tres--;
-#        endif /* _HIGHER_ORDER_ */
+        #endif /* _HIGHER_ORDER_ */
       }
-#      endif
-#    endif
-#  endif
+      #endif
+    #endif
+  #endif
       dp_T0[res] *= dp_T0[arg];
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
@@ -5485,19 +5490,19 @@ int hov_forward(
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
         copy_index_domain(res + qq, arg + qq, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
         arg_index[res + qq] = arg_index[arg + qq];
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Targ, TAYLOR_BUFFER[arg + qq])
         ASSIGN_T(Tres, TAYLOR_BUFFER[res + qq])
 
         FOR_0_LE_l_LT_pk TRES_INC = TARG_INC;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       }
 
@@ -5513,28 +5518,28 @@ int hov_forward(
       dp_T0[res] = 0;
 #endif
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
       ind_dom[res][0] = 0;
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
       fod[opind].entry = maxopind + 2;
       fod[opind].left = NULL;
       fod[opind].right = NULL;
       arg_index[res] = opind++;
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
       FOR_0_LE_l_LT_pk TRES_INC = 0;
-#  endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
       for (qq = 0; qq < size; qq++) {
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
         merge_3_index_domains(res, arg1 + qq, arg2 + qq, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
         // operation: v = v+u*w
         // first step: z = u*w, index domains
         fod[opind].entry = maxopind + 2;
@@ -5552,20 +5557,20 @@ int hov_forward(
         fod[opind].right = &fod[opind - 1];
         // second step: v = v+z,
         arg_index[res] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
         extend_nonlinearity_domain_binary(arg1 + qq, arg2 + qq, ind_dom,
                                           nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Tres, TAYLOR_BUFFER[res])
         ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1 + qq])
         ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2 + qq])
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
         FOR_0_LE_l_LT_p TRES_FOINC |= TARG2_INC | TARG1_INC;
-#    else
+    #else
         /* olvo 980915 now in reverse order to allow x = x*x etc. */
         INC_pk_1(Tres) INC_pk_1(Targ1) INC_pk_1(Targ2)
 
@@ -5573,17 +5578,17 @@ int hov_forward(
           TRES_FODEC +=
               dp_T0[arg1 + qq] * TARG2_DEC + TARG1_DEC * dp_T0[arg2 + qq];
           DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ1OP = Targ1 - i + 1;
           Targ2OP = Targ2;
 
           for (int j = 0; j < i; j++)
             *Tres += (*Targ1OP++) * (*Targ2OP--);
           Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
         dp_T0[res] += dp_T0[arg1 + qq] * dp_T0[arg2 + qq];
@@ -5601,11 +5606,11 @@ int hov_forward(
       for (qq = 0; qq < size; qq++) {
         IF_KEEP_WRITE_TAYLOR(res + qq, keep, k, p);
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
         combine_2_index_domains(res + qq, arg, arg1 + qq, ind_dom);
         merge_2_index_domains(res + qq, arg2 + qq, ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
         // operation: v = u*w + y
         // first step: z = u*w, index domains
         fod[opind].entry = maxopind + 2;
@@ -5623,25 +5628,25 @@ int hov_forward(
         fod[opind].right = &fod[arg_index[arg2 + qq]];
         // second step: v = v+z,
         arg_index[res + qq] = opind++;
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
         extend_nonlinearity_domain_binary(arg, arg1 + qq, ind_dom, nonl_dom);
-#  endif
+  #endif
 #else
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Targ, TAYLOR_BUFFER[arg])
         ASSIGN_T(Tres, TAYLOR_BUFFER[res + qq])
         ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1 + qq])
         ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2 + qq])
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
         FOR_0_LE_l_LT_p TRES_FOINC = TARG2_INC | TARG1_INC | TARG_INC;
-#    else
+    #else
         INC_pk_1(Tres) INC_pk_1(Targ) INC_pk_1(Targ1) INC_pk_1(Targ2)
             FOR_p_GT_l_GE_0 FOR_k_GT_i_GE_0 {
           TRES_FODEC =
               dp_T0[arg] * TARG1_DEC + TARG_DEC * dp_T0[arg1 + qq] + TARG2_DEC;
           DEC_TRES_FO
-#      if defined(_HIGHER_ORDER_)
+      #if defined(_HIGHER_ORDER_)
           Targ1OP = Targ - i + 1;
           Targ2OP = Targ1;
 
@@ -5649,10 +5654,10 @@ int hov_forward(
             *Tres += (*Targ1OP++) * (*Targ2OP--);
           }
           Tres--;
-#      endif /* _HIGHER_ORDER_ */
+      #endif /* _HIGHER_ORDER_ */
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
 #if !defined(_NTIGHT_)
         dp_T0[res + qq] = dp_T0[arg] * dp_T0[arg1 + qq] + dp_T0[arg2 + qq];
@@ -5679,18 +5684,18 @@ int hov_forward(
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
         /* olvo 980924 changed order to allow reflexive ops */
-#  if defined(_INDO_)
+  #if defined(_INDO_)
         if (dp_T0[arg] > 0) {
           if (coval <= 0.0)
             MINDEC(ret_c, 2);
           dp_T0[res] = dp_T0[arg1];
 
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
           copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
           arg_index[res] = arg_index[arg1];
-#    endif
+    #endif
         } else {
           if (coval > 0.0)
             MINDEC(ret_c, 2);
@@ -5698,21 +5703,21 @@ int hov_forward(
             MINDEC(ret_c, 0);
           dp_T0[res] = dp_T0[arg2];
 
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
           copy_index_domain(res, arg2, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
           arg_index[res] = arg_index[arg2];
-#    endif
+    #endif
         }
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Tres, TAYLOR_BUFFER[res])
         ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
         ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
-#    endif              /* ALL_TOGETHER_AGAIN */
+    #endif              /* ALL_TOGETHER_AGAIN */
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
         coval = get_val_f();
 
         if (dp_T0[arg] > 0)
@@ -5732,13 +5737,13 @@ int hov_forward(
           dp_T0[res] = dp_T0[arg2];
         }
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    else
-#      if !defined(_ZOS_) /* BREAK_ZOS */
+    #else
+      #if !defined(_ZOS_) /* BREAK_ZOS */
         if (dp_T0[arg] > 0)
           FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
         else
           FOR_0_LE_l_LT_pk TRES_INC = TARG2_INC;
-#      endif
+      #endif
 
         if (dp_T0[arg] > 0) {
           if (coval <= 0.0)
@@ -5751,8 +5756,8 @@ int hov_forward(
             MINDEC(ret_c, 0);
           dp_T0[res] = dp_T0[arg2];
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #else
         fprintf(DIAG_OUT,
                 "ADOL-C error: active vector element referencing does not work "
@@ -5781,38 +5786,38 @@ int hov_forward(
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
         /* olvo 980924 changed order to allow reflexive ops */
-#  if defined(_INDO_)
+  #if defined(_INDO_)
         if (dp_T0[arg] >= 0) {
           if (coval < 0.0)
             MINDEC(ret_c, 2);
           dp_T0[res] = dp_T0[arg1];
 
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
           copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
           arg_index[res] = arg_index[arg1];
-#    endif
+    #endif
         } else {
           if (coval >= 0.0)
             MINDEC(ret_c, 2);
           dp_T0[res] = dp_T0[arg2];
 
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
           copy_index_domain(res, arg2, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
           arg_index[res] = arg_index[arg2];
-#    endif
+    #endif
         }
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Tres, TAYLOR_BUFFER[res])
         ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
         ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
-#    endif              /* ALL_TOGETHER_AGAIN */
+    #endif              /* ALL_TOGETHER_AGAIN */
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
         coval = get_val_f();
 
         if (dp_T0[arg] >= 0)
@@ -5830,13 +5835,13 @@ int hov_forward(
           dp_T0[res] = dp_T0[arg2];
         }
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC | TARG2_INC;
-#    else
-#      if !defined(_ZOS_) /* BREAK_ZOS */
+    #else
+      #if !defined(_ZOS_) /* BREAK_ZOS */
         if (dp_T0[arg] >= 0)
           FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
         else
           FOR_0_LE_l_LT_pk TRES_INC = TARG2_INC;
-#      endif
+      #endif
 
         if (dp_T0[arg] >= 0) {
           if (coval < 0.0)
@@ -5847,8 +5852,8 @@ int hov_forward(
             MINDEC(ret_c, 2);
           dp_T0[res] = dp_T0[arg2];
         }
-#    endif
-#  endif
+    #endif
+  #endif
 #else
         fprintf(DIAG_OUT,
                 "ADOL-C error: active vector element referencing does not work "
@@ -5872,22 +5877,22 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
       /* olvo 980924 changed order to allow reflexive ops */
-#  if defined(_INDO_)
+  #if defined(_INDO_)
       if (dp_T0[arg] > 0) {
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
         copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
         arg_index[res] = arg_index[arg1];
-#    endif
+    #endif
       }
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    endif              /* ALL_TOGETHER_AGAIN */
+    #endif              /* ALL_TOGETHER_AGAIN */
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       coval = get_val_f();
 
       if (dp_T0[arg] > 0)
@@ -5899,19 +5904,19 @@ int hov_forward(
         dp_T0[res] = dp_T0[arg1];
       } else if (dp_T0[arg] == 0)
         MINDEC(ret_c, 0);
-#    else
-#      if !defined(_ZOS_) /* BREAK_ZOS */
+    #else
+      #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] > 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#      endif
+      #endif
       if (dp_T0[arg] > 0) {
         if (coval <= 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       } else if (dp_T0[arg] == 0)
         MINDEC(ret_c, 0);
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5933,22 +5938,22 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
       /* olvo 980924 changed order to allow reflexive ops */
-#  if defined(_INDO_)
+  #if defined(_INDO_)
       if (dp_T0[arg] >= 0) {
-#    if defined(_INDOPRO_)
+    #if defined(_INDOPRO_)
         copy_index_domain(res, arg1, ind_dom);
-#    endif
-#    if defined(_NONLIND_)
+    #endif
+    #if defined(_NONLIND_)
         arg_index[res] = arg_index[arg1];
-#    endif
+    #endif
       }
-#  else
-#    if !defined(_ZOS_) /* BREAK_ZOS */
+  #else
+    #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
       ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
-#    endif              /* ALL_TOGETHER_AGAIN */
+    #endif              /* ALL_TOGETHER_AGAIN */
 
-#    ifdef _INT_FOR_
+    #ifdef _INT_FOR_
       coval = get_val_f();
 
       if (dp_T0[arg] >= 0)
@@ -5959,18 +5964,18 @@ int hov_forward(
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       }
-#    else
-#      if !defined(_ZOS_) /* BREAK_ZOS */
+    #else
+      #if !defined(_ZOS_) /* BREAK_ZOS */
       if (dp_T0[arg] >= 0)
         FOR_0_LE_l_LT_pk TRES_INC = TARG1_INC;
-#      endif
+      #endif
       if (dp_T0[arg] >= 0) {
         if (coval < 0.0)
           MINDEC(ret_c, 2);
         dp_T0[res] = dp_T0[arg1];
       }
-#    endif
-#  endif
+    #endif
+  #endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -5996,16 +6001,16 @@ int hov_forward(
         dp_T0[res] = *d;
 #endif /* !_NTIGHT_ */
 #if !defined(_INDO_)
-#  if !defined(_ZOS_) /* BREAK_ZOS */
+  #if !defined(_ZOS_) /* BREAK_ZOS */
         ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
         FOR_0_LE_l_LT_pk TRES_INC = 0;
 
-#  endif /* ALL_TOGETHER_AGAIN */
+  #endif /* ALL_TOGETHER_AGAIN */
         res++;
-#  if !defined(_NTIGHT_)
+  #if !defined(_NTIGHT_)
         d++;
-#  endif /* !_NTIGHT_ */
+  #endif /* !_NTIGHT_ */
 #endif
       }
       break;
@@ -6040,18 +6045,18 @@ int hov_forward(
       if (n > 0) {
         if (edfct->dp_x == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
       if (m > 0) {
         if (edfct->dp_y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
 
       arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
@@ -6060,9 +6065,9 @@ int hov_forward(
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
         edfct->dp_x[loop] = dp_T0[arg];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop], TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
         ++arg;
       }
       arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
@@ -6071,9 +6076,9 @@ int hov_forward(
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
         edfct->dp_y[loop] = dp_T0[arg];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop], TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
         ++arg;
       }
 
@@ -6083,19 +6088,19 @@ int hov_forward(
       res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
       for (loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
                                     TAYLOR_BUFFER[res]);
-#  endif
+  #endif
         ++res;
       }
       res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
       for (loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
                                     TAYLOR_BUFFER[res]);
-#  endif
+  #endif
         ++res;
       }
 
@@ -6120,18 +6125,18 @@ int hov_forward(
       if (n > 0) {
         if (edfct->dp_x == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
       if (m > 0) {
         if (edfct->dp_y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
 
       arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
@@ -6140,9 +6145,9 @@ int hov_forward(
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
         edfct->dp_x[loop] = dp_T0[arg];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop], TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
         ++arg;
       }
       arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
@@ -6151,9 +6156,9 @@ int hov_forward(
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
         edfct->dp_y[loop] = dp_T0[arg];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop], TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
         ++arg;
       }
 
@@ -6163,19 +6168,19 @@ int hov_forward(
       res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
       for (loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
                                     TAYLOR_BUFFER[res]);
-#  endif
+  #endif
         ++res;
       }
       res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for;
       for (loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
                                     TAYLOR_BUFFER[res]);
-#  endif
+  #endif
         ++res;
       }
       free((void *)iArr);
@@ -6210,18 +6215,18 @@ int hov_forward(
       if (nin > 0) {
         if (edfct2->x == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_X == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
       if (nout > 0) {
         if (edfct2->y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_Y == NULL)
           fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
-#  endif
+  #endif
       }
 
       for (oloop = 0; oloop < nin; ++oloop) {
@@ -6231,10 +6236,10 @@ int hov_forward(
           if (edfct2->dp_x_changes) {
             IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
           }
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
           ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_V2_POINTER_X[oloop][loop],
                                  TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
           ++arg;
         }
       }
@@ -6246,10 +6251,10 @@ int hov_forward(
           if (edfct2->dp_y_priorRequired) {
             IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
           }
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
           ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_V2_POINTER_Y[oloop][loop],
                                  TAYLOR_BUFFER[arg]);
-#  endif
+  #endif
 
           ++arg;
         }
@@ -6260,26 +6265,26 @@ int hov_forward(
       for (oloop = 0; oloop < nin; ++oloop) {
         res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
         memcpy(&dp_T0[res], &edfct2->x[oloop][0], insz[oloop] * sizeof(double));
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         for (loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_X[oloop][loop],
                                       TAYLOR_BUFFER[res]);
           ++res;
         }
-#  endif
+  #endif
       }
 
       for (oloop = 0; oloop < nout; ++oloop) {
         res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
         memcpy(&dp_T0[res], &edfct2->y[oloop][0],
                outsz[oloop] * sizeof(double));
-#  if !defined(_ZOS_)
+  #if !defined(_ZOS_)
         for (loop = 0; loop < outsz[oloop]; ++loop) {
           ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_Y[oloop][loop],
                                       TAYLOR_BUFFER[res]);
           ++res;
         }
-#  endif
+  #endif
       }
 
       free(insz);
@@ -6297,13 +6302,13 @@ int hov_forward(
       locint mediIndex = get_locint_f();
       short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
-#  if defined(_ZOS_)
+  #if defined(_ZOS_)
       mediCallHandlePrimal(tapeId, mediIndex, dp_T0);
-#  elif defined(_FOS_)
+  #elif defined(_FOS_)
       mediCallHandleForward(tapeId, mediIndex, dp_T0, &TAYLOR_BUFFER, 1);
-#  elif defined(_FOV_)
+  #elif defined(_FOV_)
       mediCallHandleForward(tapeId, mediIndex, dp_T0, TAYLOR_BUFFER, p);
-#  endif
+  #endif
       break;
     }
 #endif
@@ -6421,16 +6426,16 @@ int hov_forward(
   free(dp_T0);
 #endif /* !_NTIGHT_ */
 #if !defined(_INDO_)
-#  if !defined(_ZOS_)
-#    if defined(_FOS_)
+  #if !defined(_ZOS_)
+    #if defined(_FOS_)
   free(dp_T);
-#    else
-#      if !defined(_INT_FOR_)
+    #else
+      #if !defined(_INT_FOR_)
   myfree2(dpp_T);
   free(dp_Ttemp);
-#      endif /* !_NTIGHT_ */
-#    endif
-#  endif
+      #endif /* !_NTIGHT_ */
+    #endif
+  #endif
 #endif
 #if defined(_HIGHER_ORDER_)
   free(dp_z);
@@ -6440,13 +6445,13 @@ int hov_forward(
   end_sweep();
 
 #if defined(_INDO_)
-#  if defined(_INDOPRO_)
+  #if defined(_INDOPRO_)
   for (int i = 0; i < max_ind_dom; i++) {
     free(ind_dom[i]);
   }
   free(ind_dom);
-#  endif
-#  if defined(_NONLIND_)
+  #endif
+  #if defined(_NONLIND_)
   for (int i = 0; i < indcheck; i++) {
     traverse_crs(&nonl_dom[i], &sod[i], indcheck + 1);
     free_tree(&nonl_dom[i], indcheck + 1);
@@ -6466,8 +6471,8 @@ int hov_forward(
   free(fod);
   free(arg_index);
 
-#  endif
-#  if defined(_NONLIND_OLD_)
+  #endif
+  #if defined(_NONLIND_OLD_)
 
   for (int i = 0; i < indcheck; i++) {
     crs[i] =
@@ -6479,7 +6484,7 @@ int hov_forward(
   }
   free(nonl_dom);
 
-#  endif
+  #endif
 #endif
   return ret_c;
 }
@@ -6548,7 +6553,7 @@ short ext_firstsign2(double sigbase, int p, double *u, double *du) {
 /*--------------------------------------------------------------------------*/
 /* operations on index domains                                              */
 
-#  if defined(_TIGHT_)
+  #if defined(_TIGHT_)
 void copy_index_domain(int res, int arg, locint **ind_dom) {
 
   int i;
@@ -6637,11 +6642,11 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
   merge_2_index_domains(res, arg2, ind_dom);
 }
 
-#  endif
+  #endif
 #endif
 
 #if defined(_NONLIND_)
-#  if defined(_TIGHT_)
+  #if defined(_TIGHT_)
 
 void free_tree(IndexElement *tree, int num) {
 
@@ -6731,11 +6736,11 @@ void traverse_unary(IndexElement *tree, IndexElement *nonl_dom,
   }
 }
 
-#  endif
+  #endif
 #endif
 
 #if defined(_NONLIND_OLD_)
-#  if defined(_TIGHT_)
+  #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
                                             locint **ind_dom,
@@ -6818,6 +6823,6 @@ void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
   extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }
 
-#  endif
+  #endif
 #endif
 END_C_DECLS
