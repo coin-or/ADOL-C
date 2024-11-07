@@ -56,3 +56,6 @@ install_manifest.txt
 *.dylib
 *.so
 *.dll
+
+# Nix build results
+result*
