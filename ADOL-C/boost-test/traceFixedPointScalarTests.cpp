@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward)
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
 
   double value[1];
-
+  ensureContiguousLocations(100);
   zos_forward(1, // Tape number
               1, // Number of dependent variables
               1, // Number of indepdent variables
