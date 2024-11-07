@@ -144,7 +144,6 @@ static int fp_hos_reverse ( int dim_x, double *x_fix_bar, int dim_xu, double *xu
         for (i=0; i<dim_x; i++) U[i] += x_fix_bar[i];
         for (i=0; i<dim_x; i++) xi[i] = U[i] - xi[i];
         err = (*current->norm_deriv)(xi,dim_x);
-        printf(" fp_fos_reverse: k = %d  err = %e\n",k,err);
         if (err<current->epsilon_deriv) {
             for (i=0; i<dim_xu-dim_x; i++) {
                 xu_bar[dim_x+i] += U[dim_x+i];
