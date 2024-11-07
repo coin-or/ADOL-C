@@ -76,6 +76,7 @@ static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double
  */
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward)
 {
+  ensureContiguousLocations(100);
   // Compute the square root of 2.0
   const double argument[1] = {2.0};
   double out = traceNewtonForSquareRoot(1,       // tape number
@@ -86,7 +87,6 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward)
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
 
   double value[1];
-  ensureContiguousLocations(100);
   zos_forward(1, // Tape number
               1, // Number of dependent variables
               1, // Number of indepdent variables
