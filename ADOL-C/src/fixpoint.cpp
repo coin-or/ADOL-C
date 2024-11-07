@@ -184,7 +184,6 @@ ADOLC_DLL_EXPORT int fp_iteration ( int        sub_tape_num,
     edf_iteration->zos_forward = &fp_zos_forward;
     edf_iteration->fos_forward = &fp_fos_forward;
     edf_iteration->fos_reverse = &fp_fos_reverse;
-    edf_iteration->fos_reverse = &fp_hos_reverse;
 
     // add new fp information
     fpi_data data;
