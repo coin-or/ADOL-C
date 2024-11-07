@@ -106,8 +106,10 @@ static int fp_fos_forward ( int dim_xu, double *xu, double *xu_dot,
         adolc_exit(-1,"",__func__,__FILE__,__LINE__);
     }
     for (k=1; (k<current->N_max_deriv)|(k<current->N_max); k++) {
+        if (k > 1){
         for (i=0; i<dim_x; i++) xu[i] = x_fix[i];
         for (i=0; i<dim_x; i++) xu_dot[i] = x_fix_dot[i];
+        }
         fos_forward ( current->sub_tape_num, dim_x, dim_xu, 0, xu, xu_dot, x_fix, x_fix_dot);
         for (i=0; i<dim_x; i++)  xu[i] = x_fix[i] - xu[i];
         err = (*current->norm)(xu,dim_x);
