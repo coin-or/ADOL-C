@@ -4514,6 +4514,99 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse)
   myfree1(z);
 }
 
+BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward)
+{
+  double a = 7.1, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = erfc(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::erfc(a);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 7.1;
+  
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward)
+{
+  double a = 7.1, aout;
+  adouble ad;
+
+  trace_on(1);
+  ad <<= a;
+
+  ad = erfc(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
+  a = std::erfc(a);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 7.1;
+  *xd = 1.;
+  
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+}
+
+BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse)
+{
+  double a = 7.1, aout;
+  adouble ad;
+
+  trace_on(1, 1);
+  ad <<= a;
+
+  ad = erfc(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+  
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
 BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward)
 {
   double a = 10.01, aout;

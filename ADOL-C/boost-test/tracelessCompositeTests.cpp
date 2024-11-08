@@ -282,6 +282,32 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_Traceless)
   BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(CompositeErfcFabs_Traceless)
+{
+  double x1 = 4.56, x2 = 6.45;
+  adouble ax1 = x1, ax2 = x2;
+
+  ax1.setADValue(0, 1.);
+  ax2.setADValue(1, 1.);
+
+  ax1 = adtl::erfc(adtl::fabs(ax1 - 2.)*adtl::sinh(ax2));
+
+  double x1Derivative = -2. / std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - 2.)
+                            * std::sinh(x2), 2))
+                        * std::sinh(x2);
+  double x2Derivative = -2. / std::sqrt(std::acos(-1.))
+                        * std::exp(-std::pow(std::fabs(x1 - 2.)
+                            * std::sinh(x2), 2))
+                        * std::fabs(x1 - 2.) * std::cosh(x2);
+
+  x1 = std::erfc(std::fabs(x1 - 2.)*std::sinh(x2));
+
+  BOOST_TEST(ax1.getValue() == x1, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(0) == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(ax1.getADValue(1) == x2Derivative, tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(ExpTrigSqrt_Traceless)
 {
   double x1 = 1.2, x2 = 2.1;

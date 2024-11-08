@@ -147,6 +147,7 @@ public:
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
     inline friend adouble erf (const adouble &a);
+    inline friend adouble erfc (const adouble &a);
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
@@ -1927,6 +1928,26 @@ inline adouble erf (const adouble &a) {
 	tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
     if (likely(adouble::_do_adval() && adouble::_do_val())) {
 	double tmp2 = 2.0 /
+	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
+	    ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
+	FOR_I_EQ_0_LT_NUMDIR
+	    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+    }
+    if (do_indo()) 
+	tmp.add_to_pattern( a.get_pattern() ) ;
+    return tmp;
+}
+
+inline adouble erfc (const adouble &a) {
+    adouble tmp;
+    if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
+	fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call setMode(enum Mode mode)\n");
+	throw logic_error("incorrect function call, errorcode=1");
+    }
+    if (do_val()) 
+	tmp.val=ADOLC_MATH_NSP_ERF::erfc(a.val);
+    if (likely(adouble::_do_adval() && adouble::_do_val())) {
+	double tmp2 = -2.0 /
 	    ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
 	    ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
 	FOR_I_EQ_0_LT_NUMDIR

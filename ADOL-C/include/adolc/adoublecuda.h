@@ -152,6 +152,7 @@ public:
     CUDADEV friend adouble ldexp (const double v, const adouble &a);
     CUDADEV friend double frexp (const adouble &a, int* v);
     CUDADEV friend adouble erf (const adouble &a);
+    CUDADEV friend adouble erfc (const adouble &a);
 
 
     /*******************  nontemporary results  ***************************/
@@ -794,6 +795,16 @@ CUDADEV adouble erf (const adouble &a) {
     return tmp;
 }
 
+CUDADEV adouble erfc (const adouble &a) {
+    adouble tmp;
+    tmp.val=ADOLC_MATH_NSP_ERF::erfc(a.val);
+    double tmp2 = -2.0 /
+        ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
+        ADOLC_MATH_NSP_ERF::exp(-a.val*a.val);
+    FOR_I_EQ_0_LT_NUMDIR
+    tmp.ADVAL_I=tmp2*a.ADVAL_I;
+    return tmp;
+}
 
 /*******************  nontemporary results  *********************************/
 CUDADEV void adouble::operator = (const double v) {
