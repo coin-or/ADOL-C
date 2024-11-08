@@ -1436,6 +1436,36 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivative)
   BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
 }
 
+/* The complementary error function erfc(a) is defined as
+ * 1.0 - erf(a).
+ */
+BOOST_AUTO_TEST_CASE(ErfcOperatorPrimal)
+{
+  double a = 7.1;
+  adouble ad = a;
+
+  a = std::erfc(a);
+  ad = adtl::erfc(ad);
+
+  BOOST_TEST(ad.getValue() == a, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ErfcOperatorDerivative)
+{
+  double a = 7.1;
+  adouble ad = a;
+
+  /* The inverse cosine is used for pi so that no additional math library
+   * import is necessary, see also the implementation in adtl.h.
+   */
+  double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
+
+  ad.setADValue(0, 1.);
+  ad = adtl::erfc(ad);
+
+  BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
+}
+
 /* Test the primitive non-temporary operations =, +=, -=, *=, /=. */
 
 BOOST_AUTO_TEST_CASE(EqOperatorPrimal_Derivative)

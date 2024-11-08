@@ -115,6 +115,7 @@ extern "C"
     TBAdoubleHandle tb_floor(TBAdoubleHandle a);
     TBAdoubleHandle tb_ldexp(TBAdoubleHandle a, int n);
     TBAdoubleHandle tb_erf(TBAdoubleHandle a);
+    TBAdoubleHandle tb_erfc(TBAdoubleHandle a);
 #ifdef __cplusplus
 }
 #endif

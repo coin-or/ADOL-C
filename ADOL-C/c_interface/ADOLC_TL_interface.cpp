@@ -292,4 +292,8 @@ extern "C"
     {
         return new adtl::adouble(erf(*static_cast<adtl::adouble *>(a)));
     }
+    TLAdoubleHandle tl_erfc(TLAdoubleHandle a)
+    {
+        return new adtl::adouble(erfc(*static_cast<adtl::adouble *>(a)));
+    }
 }

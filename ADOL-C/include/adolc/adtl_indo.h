@@ -129,6 +129,7 @@ public:
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
     inline friend adouble erf (const adouble &a);
+    inline friend adouble erfc (const adouble &a);
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
@@ -686,6 +687,13 @@ inline double frexp (const adouble &a, int* v) {
 inline adouble erf (const adouble &a) {
     adouble tmp;
 	tmp.val=ADOLC_MATH_NSP_ERF::erf(a.val);
+	tmp.add_to_pattern( a.get_pattern() ) ;
+    return tmp;
+}
+
+inline adouble erfc (const adouble &a) {
+    adouble tmp;
+	tmp.val=ADOLC_MATH_NSP_ERF::erfc(a.val);
 	tmp.add_to_pattern( a.get_pattern() ) ;
     return tmp;
 }

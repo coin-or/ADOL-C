@@ -122,6 +122,7 @@ extern "C"
     TLAdoubleHandle tl_floor(TLAdoubleHandle a);
     TLAdoubleHandle tl_ldexp(TLAdoubleHandle a, const int n);
     TLAdoubleHandle tl_erf(TLAdoubleHandle a);
+    TLAdoubleHandle tl_erfc(TLAdoubleHandle a);
 #ifdef __cplusplus
 }
 #endif

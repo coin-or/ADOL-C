@@ -969,6 +969,25 @@ void tape_doc(short tnum,         /* tape id */
                 break;
 
                 /*--------------------------------------------------------------------------*/
+            case erfc_op:                                               /* erfc_op */
+                arg1 = get_locint_f();
+                arg2 = get_locint_f();
+                res  = get_locint_f();
+                loc_a[0]=arg1;
+                loc_a[1]=arg2;
+                loc_a[2]=res;
+#ifdef ADOLC_TAPE_DOC_VALUES
+                val_a[0]=dp_T0[arg1];
+                dp_T0[res] = erfc(dp_T0[arg1]);
+                ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+                val_a[1]=dp_T0[arg2];
+                val_a[2]=dp_T0[res];
+#endif
+                filewrite(operation,"erfc op",3,loc_a,val_a,0,cst_d);
+                break;
+
+
+                /*--------------------------------------------------------------------------*/
             case log_op:                                                /* log_op */
                 arg  = get_locint_f();
                 res  = get_locint_f();
