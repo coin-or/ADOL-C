@@ -96,7 +96,7 @@
     inline friend ADOLC_DLL_EXPORT adub acosh ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub atanh ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub erf   ( const pdouble& );
-    inline friend ADOLC_DLL_EXPORT adub erfc   ( const pdouble& );
+    inline friend ADOLC_DLL_EXPORT adub erfc  ( const pdouble& );
 
     inline friend ADOLC_DLL_EXPORT adub fabs  ( const pdouble& );
     inline friend ADOLC_DLL_EXPORT adub ceil  ( const pdouble& );

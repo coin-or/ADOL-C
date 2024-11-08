@@ -185,7 +185,7 @@ inline adub asinh ( const pdouble& p) { return asinh(adub(p)); }
 inline adub acosh ( const pdouble& p) { return acosh(adub(p)); }
 inline adub atanh ( const pdouble& p) { return atanh(adub(p)); }
 inline adub erf   ( const pdouble& p) { return erf(adub(p));   }
-inline adub erfc   ( const pdouble& p) { return erfc(adub(p));   }
+inline adub erfc  ( const pdouble& p) { return erfc(adub(p));  }
 inline adub fabs  ( const pdouble& p) { return fabs(adub(p));  }
 inline adub ceil  ( const pdouble& p) { return ceil(adub(p));  }
 inline adub floor ( const pdouble& p) { return floor(adub(p)); }

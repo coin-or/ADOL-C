@@ -72,7 +72,7 @@
     friend ADOLC_DLL_EXPORT adub acosh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub atanh ( const badouble& );
     friend ADOLC_DLL_EXPORT adub erf   ( const badouble& );
-    friend ADOLC_DLL_EXPORT adub erfc   ( const badouble& );
+    friend ADOLC_DLL_EXPORT adub erfc  ( const badouble& );
 
     friend ADOLC_DLL_EXPORT adub fabs  ( const badouble& );
     friend ADOLC_DLL_EXPORT adub ceil  ( const badouble& );
