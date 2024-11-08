@@ -147,7 +147,7 @@ public:
     inline friend adouble ldexp (const double v, const adouble &a);
     inline friend double frexp (const adouble &a, int* v);
     inline friend adouble erf (const adouble &a);
-	inline friend adouble erfc (const adouble &a);
+    inline friend adouble erfc (const adouble &a);
 
     inline friend void condassign( adouble &res, const adouble &cond,
             const adouble &arg1, const adouble &arg2 );
