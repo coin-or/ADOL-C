@@ -952,9 +952,10 @@ int hov_forward(
   #define ADOLC_EXT_FCT_COMPLETE zos_forward(n, edfct->dp_x, m, edfct->dp_y)
   #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
     zos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y)
-#   define ADOLC_EXT_FCT_V2_COMPLETE \
-    zos_forward(iArrLength, iArr, nin, nout, (int*)insz, edfct2->x, (int*)outsz, edfct2->y, edfct2->context)
-#   define ADOLC_EXT_COPY_TAYLORS(dest,src)
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+    zos_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x,           \
+                (int *)outsz, edfct2->y, edfct2->context)
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src)
 #endif
   /* FOS_FORWARD */
 #if defined(_FOS_)
@@ -963,34 +964,40 @@ int hov_forward(
   #define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
   #define ADOLC_EXT_FCT_COMPLETE                                               \
     fos_forward(n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
-#   define ADOLC_EXT_FCT_IARR_COMPLETE \
-    fos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
-#   define ADOLC_EXT_POINTER_X edfct->dp_X
-#   define ADOLC_EXT_POINTER_Y edfct->dp_Y
-#   define ADOLC_EXT_FCT_V2_COMPLETE \
-    fos_forward(iArrLength, iArr, nin, nout, (int*)insz, edfct2->x, edfct2->xp, (int*)outsz, edfct2->y, edfct2->yp, edfct2->context)
-#   define ADOLC_EXT_V2_POINTER_X edfct2->xp
-#   define ADOLC_EXT_V2_POINTER_Y edfct2->yp
-#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
-#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) src=dest
+  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
+    fos_forward_iArr(iArrLength, iArr, n, edfct->dp_x, edfct->dp_X, m,         \
+                     edfct->dp_y, edfct->dp_Y)
+  #define ADOLC_EXT_POINTER_X edfct->dp_X
+  #define ADOLC_EXT_POINTER_Y edfct->dp_Y
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+    fos_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x,           \
+                edfct2->xp, (int *)outsz, edfct2->y, edfct2->yp,               \
+                edfct2->context)
+  #define ADOLC_EXT_V2_POINTER_X edfct2->xp
+  #define ADOLC_EXT_V2_POINTER_Y edfct2->yp
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
+  #define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src) src = dest
 #endif
   /* FOV_FORWARD */
 #if defined(_FOV_)
-#   define _EXTERN_ 1
-#   define ADOLC_EXT_FCT_POINTER fov_forward
-#   define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
-#   define ADOLC_EXT_FCT_COMPLETE \
-    fov_forward(n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
-#   define ADOLC_EXT_FCT_IARR_COMPLETE \
-    fov_forward_iArr(iArrLength, iArr, n, edfct->dp_x,p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
-#   define ADOLC_EXT_POINTER_X edfct->dpp_X
-#   define ADOLC_EXT_POINTER_Y edfct->dpp_Y
-#   define ADOLC_EXT_FCT_V2_COMPLETE \
-    fov_forward(iArrLength, iArr, nin, nout, (int*)insz, edfct2->x, p, edfct2->Xp, (int*)outsz, edfct2->y, edfct2->Yp, edfct2->context)
-#   define ADOLC_EXT_V2_POINTER_X edfct2->Xp
-#   define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
-#   define ADOLC_EXT_COPY_TAYLORS(dest,src) dest=src
-#   define ADOLC_EXT_COPY_TAYLORS_BACK(dest,src) 
+  #define _EXTERN_ 1
+  #define ADOLC_EXT_FCT_POINTER fov_forward
+  #define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
+  #define ADOLC_EXT_FCT_COMPLETE                                               \
+    fov_forward(n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
+  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
+    fov_forward_iArr(iArrLength, iArr, n, edfct->dp_x, p, edfct->dpp_X, m,     \
+                     edfct->dp_y, edfct->dpp_Y)
+  #define ADOLC_EXT_POINTER_X edfct->dpp_X
+  #define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
+    fov_forward(iArrLength, iArr, nin, nout, (int *)insz, edfct2->x, p,        \
+                edfct2->Xp, (int *)outsz, edfct2->y, edfct2->Yp,               \
+                edfct2->context)
+  #define ADOLC_EXT_V2_POINTER_X edfct2->Xp
+  #define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
+  #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
+  #define ADOLC_EXT_COPY_TAYLORS_BACK(dest, src)
 #endif
 
 #if defined(_EXTERN_)
@@ -3431,73 +3438,71 @@ int hov_forward(
     #else
       ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-                FOR_0_LE_l_LT_p
-                { FOR_0_LE_i_LT_k
-                  { /* olvo 980921 changed order to allow x = erf(x) */
-#if defined(_HIGHER_ORDER_)
-                      zOP      = dp_z+i;
-                      (*zOP--) = (i+1) * (*Targ1);
-#endif /* _HIGHER_ORDER_ */
+      FOR_0_LE_l_LT_p {
+        FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = erf(x) */
+      #if defined(_HIGHER_ORDER_)
+          zOP = dp_z + i;
+          (*zOP--) = (i + 1) * (*Targ1);
+      #endif /* _HIGHER_ORDER_ */
 
-                      TRES_FOINC = dp_T0[arg2] * TARG1_INC;
+          TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
-#if defined(_HIGHER_ORDER_)
-                      Targ2OP = Targ2;
+      #if defined(_HIGHER_ORDER_)
+          Targ2OP = Targ2;
 
-                      *Tres *= (i+1);
-                      for (int j=0;j<i;j++)
-                      *Tres += (*Targ2OP++) * (*zOP--);
-                      *Tres++ /= (i+1);
-#endif /* _HIGHER_ORDER_ */
-                  }
-                  HOV_INC(Targ2, k)
-                }
-#endif
-#endif
+          *Tres *= (i + 1);
+          for (int j = 0; j < i; j++)
+            *Tres += (*Targ2OP++) * (*zOP--);
+          *Tres++ /= (i + 1);
+      #endif /* _HIGHER_ORDER_ */
+        }
+        HOV_INC(Targ2, k)
+      }
+    #endif
+  #endif
 #endif /* ALL_TOGETHER_AGAIN */
-                break;
+      break;
 
-            /*--------------------------------------------------------------------------*/
-        case erfc_op:                                                /* erf_op */
-                arg1 = get_locint_f();
-                arg2 = get_locint_f();
-                res  = get_locint_f();
+      /*--------------------------------------------------------------------------*/
+    case erfc_op: /* erf_op */
+      arg1 = get_locint_f();
+      arg2 = get_locint_f();
+      res = get_locint_f();
 
-                IF_KEEP_WRITE_TAYLOR(res,keep,k,p)
+      IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
 #if !defined(_NTIGHT_)
-                dp_T0[res] = erfc(dp_T0[arg1]);
+      dp_T0[res] = erfc(dp_T0[arg1]);
 #endif /* !_NTIGHT_ */
 
-                ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 #if defined(_INDO_)
-#if defined(_INDOPRO_)
-                copy_index_domain(res, arg1, ind_dom);
-#endif
-#if defined(_NONLIND_)
-		fod[opind].entry = maxopind+2;
-		fod[opind].left = &fod[arg_index[arg1]];
-		fod[opind].right = NULL;
-		traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck+1,maxopind+2);
-                arg_index[res] = opind++;		
-#endif        
+  #if defined(_INDOPRO_)
+      copy_index_domain(res, arg1, ind_dom);
+  #endif
+  #if defined(_NONLIND_)
+      fod[opind].entry = maxopind + 2;
+      fod[opind].left = &fod[arg_index[arg1]];
+      fod[opind].right = NULL;
+      traverse_unary(&fod[opind], nonl_dom, &fod[opind], indcheck + 1,
+                     maxopind + 2);
+      arg_index[res] = opind++;
+  #endif
 #else
-#if !defined(_ZOS_) /* BREAK_ZOS */
-                ASSIGN_T(Tres, TAYLOR_BUFFER[res])
-                ASSIGN_T(Targ1,TAYLOR_BUFFER[arg1])
-#ifdef _INT_FOR_
-                FOR_0_LE_l_LT_p
-                TRES_FOINC = TARG1_FOINC;
-#else
-                ASSIGN_T(Targ2,TAYLOR_BUFFER[arg2])
+  #if !defined(_ZOS_) /* BREAK_ZOS */
+      ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+      ASSIGN_T(Targ1, TAYLOR_BUFFER[arg1])
+    #ifdef _INT_FOR_
+      FOR_0_LE_l_LT_p TRES_FOINC = TARG1_FOINC;
+    #else
+      ASSIGN_T(Targ2, TAYLOR_BUFFER[arg2])
 
-                FOR_0_LE_l_LT_p
-                { FOR_0_LE_i_LT_k
-                  { /* olvo 980921 changed order to allow x = erfc(x) */
-#if defined(_HIGHER_ORDER_)
-                      zOP      = dp_z+i;
-                      (*zOP--) = (i+1) * (*Targ1);
-#endif /* _HIGHER_ORDER_ */
+      FOR_0_LE_l_LT_p {
+        FOR_0_LE_i_LT_k { /* olvo 980921 changed order to allow x = erfc(x) */
+      #if defined(_HIGHER_ORDER_)
+          zOP = dp_z + i;
+          (*zOP--) = (i + 1) * (*Targ1);
+      #endif /* _HIGHER_ORDER_ */
 
           TRES_FOINC = dp_T0[arg2] * TARG1_INC;
 
@@ -6475,7 +6480,7 @@ int hov_forward(
     taylor_close(true);
 #endif
 
-  /* clean up */
+    /* clean up */
 #if !defined(_NTIGHT_)
   free(dp_T0);
 #endif /* !_NTIGHT_ */

@@ -8,8 +8,8 @@
            The first purpose is to actual compute the function, just as
            the same code written for double precision (single precision -
            complex - interval) arithmetic would.  The second purpose is
-           to compute directional derivatives in forward mode of 
-	   automatic differentiation.
+           to compute directional derivatives in forward mode of
+           automatic differentiation.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
@@ -21,18 +21,18 @@
 
 ----------------------------------------------------------------------------*/
 
+#include "dvlparms.h"
 #include <adolc/adtl.h>
 #include <cmath>
 #include <iostream>
 #include <limits>
-#include "dvlparms.h"
 
 using std::cout;
 
-extern "C" void adolc_exit(int errorcode, const char *what, const char* function, const char *file, int line);
+extern "C" void adolc_exit(int errorcode, const char *what,
+                           const char *function, const char *file, int line);
 
 namespace adtl {
-
 
 size_t adouble::numDir = 1;
 
@@ -40,43 +40,46 @@ size_t adouble::numDir = 1;
 size_t refcounter::refcnt = 0;
 #endif
 
-
 #if USE_BOOST_POOL
-boost::pool<boost::default_user_allocator_new_delete>* adouble::advalpool = new
-boost::pool<boost::default_user_allocator_new_delete>((adouble::numDir+1) * sizeof(double), 32, 10000);
+boost::pool<boost::default_user_allocator_new_delete> *adouble::advalpool =
+    new boost::pool<boost::default_user_allocator_new_delete>(
+        (adouble::numDir + 1) * sizeof(double), 32, 10000);
 #endif
 
 /*******************  i/o operations  ***************************************/
-ostream& operator << ( ostream& out, const adouble& a) {
-	out << "Value: " << a.PRIMAL_VALUE;
-	out << " ADValues (" << adouble::numDir << "): ";
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    out << a.ADVAL_I << " ";
-	out << "(a)";
-    return out;
+ostream &operator<<(ostream &out, const adouble &a) {
+  out << "Value: " << a.PRIMAL_VALUE;
+  out << " ADValues (" << adouble::numDir << "): ";
+  FOR_I_EQ_1_LTEQ_NUMDIR
+  out << a.ADVAL_I << " ";
+  out << "(a)";
+  return out;
 }
 
-istream& operator >> ( istream& in, adouble& a) {
-	char c;
-	do in >> c;
-	while (c!=':' && !in.eof());
-	in >> a.PRIMAL_VALUE;
-	unsigned int num;
-	do in >> c;
-	while (c!='(' && !in.eof());
-	in >> num;
-	if (num>adouble::numDir)
-	{
-	    cout << "ADOL-C error: to many directions in input\n";
-	    adolc_exit(-1,"",__func__,__FILE__,__LINE__);
-	}
-	do in >> c;
-	while (c!=':' && !in.eof());
-	FOR_I_EQ_1_LTEQ_NUMDIR
-	    in >> a.ADVAL_I;
-	do in >> c;
-	while (c!=')' && !in.eof());
-	return in;
+istream &operator>>(istream &in, adouble &a) {
+  char c;
+  do
+    in >> c;
+  while (c != ':' && !in.eof());
+  in >> a.PRIMAL_VALUE;
+  unsigned int num;
+  do
+    in >> c;
+  while (c != '(' && !in.eof());
+  in >> num;
+  if (num > adouble::numDir) {
+    cout << "ADOL-C error: to many directions in input\n";
+    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  }
+  do
+    in >> c;
+  while (c != ':' && !in.eof());
+  FOR_I_EQ_1_LTEQ_NUMDIR
+  in >> a.ADVAL_I;
+  do
+    in >> c;
+  while (c != ')' && !in.eof());
+  return in;
 }
 
-}
+} // namespace adtl

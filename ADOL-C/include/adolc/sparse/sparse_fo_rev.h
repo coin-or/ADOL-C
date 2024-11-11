@@ -2,22 +2,23 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sparse/sparse_fo_rev.h
  Revision: $Id$
- Contents: This file contains some "Easy To Use" interfaces of the sparse package.
- 
- 
+ Contents: This file contains some "Easy To Use" interfaces of the sparse
+package.
+
+
  Copyright (c) Andrea Walther, Christo Mitev
 
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
- recipient's acceptance of the terms of the accompanying license file.  
- 
+ Any use, reproduction, or distribution of the software constitutes
+ recipient's acceptance of the terms of the accompanying license file.
+
 ----------------------------------------------------------------------------*/
-#if !defined (ADOLC_SPARSE_SPARSE_H)
-#define ADOLC_SPARSE_SPARSE_H 1
+#if !defined(ADOLC_SPARSE_SPARSE_H)
+  #define ADOLC_SPARSE_SPARSE_H 1
 
-#include <adolc/internal/common.h>
+  #include <adolc/internal/common.h>
 
-#if defined(__cplusplus)
+  #if defined(__cplusplus)
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
 /*                                                                          */
@@ -35,18 +36,17 @@
 /*                                                                          */
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p], mode) : intfov       */
 
-ADOLC_DLL_EXPORT int forward
-(short, int, int, int, double*, unsigned long int**,
- double*, unsigned long int**, char =0);
+ADOLC_DLL_EXPORT int forward(short, int, int, int, double *,
+                             unsigned long int **, double *,
+                             unsigned long int **, char = 0);
 
 /*--------------------------------------------------------------------------*/
 /*  Bit pattern propagation call, d = 1, safe version (no x[] and y[])      */
 /*                                                                          */
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode) : intfov                   */
 
-ADOLC_DLL_EXPORT int forward
-(short, int, int, int, unsigned long int**, unsigned long int**, char =0);
-
+ADOLC_DLL_EXPORT int forward(short, int, int, int, unsigned long int **,
+                             unsigned long int **, char = 0);
 
 /****************************************************************************/
 /*                                           REVERSE MODE, overloaded calls */
@@ -66,10 +66,10 @@ ADOLC_DLL_EXPORT int forward
 /*                                                                          */
 /* reverse(tag, m, n, q, U[q][m], Z[q][n], mode) : intfov                   */
 
-ADOLC_DLL_EXPORT int reverse
-(short, int, int, int, unsigned long int**, unsigned long int**, char =0);
+ADOLC_DLL_EXPORT int reverse(short, int, int, int, unsigned long int **,
+                             unsigned long int **, char = 0);
 
-#endif
+  #endif
 
 /****************************************************************************/
 

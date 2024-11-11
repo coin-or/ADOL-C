@@ -12,25 +12,27 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_MEDISUPPORTADOLCP_H)
-#define ADOLC_MEDISUPPORTADOLCP_H 1
+  #define ADOLC_MEDISUPPORTADOLCP_H 1
 
-#ifdef ADOLC_MEDIPACK_SUPPORT
+  #ifdef ADOLC_MEDIPACK_SUPPORT
 
-#if defined(__cplusplus)
-#include <adolc/medipacksupport.h>
-#endif
+    #if defined(__cplusplus)
+      #include <adolc/medipacksupport.h>
+    #endif
 
-#if defined(__cplusplus)
+    #if defined(__cplusplus)
 extern "C" {
-#endif
-  void mediCallHandleReverse(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize);
-  void mediCallHandleForward(short tapeId, locint index, double* primalVec, double** adjointVec, int vecSize);
-  void mediCallHandlePrimal(short tapeId, locint index, double* primalVec);
-#if defined(__cplusplus)
+    #endif
+void mediCallHandleReverse(short tapeId, locint index, double *primalVec,
+                           double **adjointVec, int vecSize);
+void mediCallHandleForward(short tapeId, locint index, double *primalVec,
+                           double **adjointVec, int vecSize);
+void mediCallHandlePrimal(short tapeId, locint index, double *primalVec);
+    #if defined(__cplusplus)
 }
-#endif
+    #endif
 void mediInitTape(short tapeId);
 
-#endif
+  #endif
 
 #endif
