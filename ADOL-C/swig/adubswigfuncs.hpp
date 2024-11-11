@@ -108,6 +108,7 @@ adub* asinh ( const badouble& );
 adub* acosh ( const badouble& );
 adub* atanh ( const badouble& );
 adub* erf   ( const badouble& );
+adub* erfc  ( const badouble& );
 
 adub* fabs  ( const badouble& );
 adub* ceil  ( const badouble& );
@@ -147,6 +148,7 @@ adub* asinh ( const pdouble& );
 adub* acosh ( const pdouble& );
 adub* atanh ( const pdouble& );
 adub* erf   ( const pdouble& );
+adub* erfc  ( const pdouble& );
 
 adub* fabs  ( const pdouble& );
 adub* ceil  ( const pdouble& );

@@ -261,6 +261,10 @@ extern "C"
     {
         return new adouble(erf(*static_cast<adouble *>(a)));
     }
+    TBAdoubleHandle tb_erfc(TBAdoubleHandle a)
+    {
+        return new adouble(erfc(*static_cast<adouble *>(a)));
+    }
 }
 
 /*

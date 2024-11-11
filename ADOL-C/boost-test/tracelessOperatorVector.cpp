@@ -868,6 +868,21 @@ BOOST_AUTO_TEST_CASE(ErfOperatorDerivativeVectorMode)
   BOOST_TEST(ad.getADValue(1) == aDerivative*(-2.5), tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(ErfcOperatorDerivativeVectorMode)
+{
+  double a = 7.1;
+  adouble ad = a;
+
+  double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
+
+  ad.setADValue(0, 1.);
+  ad.setADValue(1, -2.5);
+  ad = adtl::erfc(ad);
+
+  BOOST_TEST(ad.getADValue(0) == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(ad.getADValue(1) == aDerivative*(-2.5), tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(EqOperatorDerivativeVectorMode)
 {
   double a = 10.01;
