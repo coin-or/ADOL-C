@@ -2,7 +2,7 @@ name: Run clang-format Linter
 
 on:
     push:
-      branches: [ "master" ]
+      branches: [ "format" ]
     pull_request:
       branches: [ "master" ]
 
