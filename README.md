@@ -25,12 +25,13 @@ The complete documentation can be found in the subdirectory "doc".
 
 2. Call CMake:
 
-     `cmake -DCMAKE_INSTALL_PREFIX=/path/you/want/to/install/in path/to/adolc/sources`
+     `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/you/want/to/install/in path/to/adolc/sources`
 
 3. Build and install:
 
      `make`  
      `make install`  
+
 
 
 ## Local installation using the AutoTools
