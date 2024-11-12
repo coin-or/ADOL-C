@@ -12,20 +12,22 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_MEDISUPPORTADOLC_H)
-#define ADOLC_MEDISUPPORTADOLC_H 1
+  #define ADOLC_MEDISUPPORTADOLC_H 1
 
-#include "adouble.h"
+  #include "adouble.h"
 
-#include <medi/medi.hpp>
-#include <medi/adjointInterface.hpp>
-#include <medi/adToolImplCommon.hpp>
-#include <medi/ampi/types/indexTypeHelper.hpp>
+  #include <medi/adToolImplCommon.hpp>
+  #include <medi/adjointInterface.hpp>
+  #include <medi/ampi/types/indexTypeHelper.hpp>
+  #include <medi/medi.hpp>
 
-void mediAddHandle(medi::HandleBase* h);
+void mediAddHandle(medi::HandleBase *h);
 void mediInitStatic();
 void mediFinalizeStatic();
 
-struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, double, double, double, int> {
+struct AdolcTool final
+    : public medi::ADToolImplCommon<AdolcTool, true, true, double, double,
+                                    double, int> {
   typedef adouble Type;
   typedef void AdjointType;
   typedef double ModifiedType;
@@ -38,10 +40,12 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
   static MPI_Datatype AdjointMpiType;
 
   typedef medi::MpiTypeDefault<AdolcTool> MediType;
-  static MediType* MPI_TYPE;
+  static MediType *MPI_TYPE;
   static medi::AMPI_Datatype MPI_INT_TYPE;
 
-  static medi::OperatorHelper<medi::FunctionHelper<adouble, double, double, int, double, AdolcTool>> operatorHelper;
+  static medi::OperatorHelper<
+      medi::FunctionHelper<adouble, double, double, int, double, AdolcTool>>
+      operatorHelper;
 
   static void initTypes() {
     // create the mpi type for ADOL-c
@@ -61,12 +65,10 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     operatorHelper.init(MPI_TYPE);
     MPI_INT_TYPE = operatorHelper.MPI_INT_TYPE;
 
-
     mediInitStatic();
   }
 
-  static void finalizeTypes() {
-  }
+  static void finalizeTypes() {}
 
   static void finalize() {
 
@@ -74,7 +76,7 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
 
     operatorHelper.finalize();
 
-    if(nullptr != MPI_TYPE) {
+    if (nullptr != MPI_TYPE) {
       delete MPI_TYPE;
       MPI_TYPE = nullptr;
     }
@@ -82,107 +84,94 @@ struct AdolcTool final : public medi::ADToolImplCommon<AdolcTool, true, true, do
     finalizeTypes();
   }
 
-  AdolcTool(MPI_Datatype primalMpiType, MPI_Datatype adjointMpiType) :
-    medi::ADToolImplCommon<AdolcTool, true, true, double, double, double, int>(primalMpiType, adjointMpiType) {}
+  AdolcTool(MPI_Datatype primalMpiType, MPI_Datatype adjointMpiType)
+      : medi::ADToolImplCommon<AdolcTool, true, true, double, double, double,
+                               int>(primalMpiType, adjointMpiType) {}
 
+  inline bool isActiveType() const { return true; }
 
-  inline bool isActiveType() const {
-    return true;
-  }
+  inline bool isHandleRequired() const { return isTaping(); }
 
-  inline  bool isHandleRequired() const {
-    return isTaping();
-  }
+  inline bool isOldPrimalsRequired() const { return true; }
 
-  inline bool isOldPrimalsRequired() const {
-    return true;
-  }
+  inline void startAssembly(medi::HandleBase *h) const { MEDI_UNUSED(h); }
 
-  inline void startAssembly(medi::HandleBase* h) const {
-    MEDI_UNUSED(h);
-
-  }
-
-  inline void addToolAction(medi::HandleBase* h) const {
-    if(NULL != h) {
+  inline void addToolAction(medi::HandleBase *h) const {
+    if (NULL != h) {
       mediAddHandle(h);
     }
   }
 
-  inline void stopAssembly(medi::HandleBase* h) const {
-    MEDI_UNUSED(h);
-  }
+  inline void stopAssembly(medi::HandleBase *h) const { MEDI_UNUSED(h); }
 
   medi::AMPI_Op convertOperator(medi::AMPI_Op op) const {
     return operatorHelper.convertOperator(op);
   }
 
-
-  inline void createPrimalTypeBuffer(PrimalType* &buf, size_t size) const {
+  inline void createPrimalTypeBuffer(PrimalType *&buf, size_t size) const {
     buf = new PrimalType[size];
   }
 
-  inline void createIndexTypeBuffer(IndexType* &buf, size_t size) const {
+  inline void createIndexTypeBuffer(IndexType *&buf, size_t size) const {
     buf = new IndexType[size];
   }
 
-  inline void deletePrimalTypeBuffer(PrimalType* &buf) const {
-    if(NULL != buf) {
-      delete [] buf;
+  inline void deletePrimalTypeBuffer(PrimalType *&buf) const {
+    if (NULL != buf) {
+      delete[] buf;
       buf = NULL;
     }
   }
 
-  inline void deleteIndexTypeBuffer(IndexType* &buf) const {
-    if(NULL != buf) {
-      delete [] buf;
+  inline void deleteIndexTypeBuffer(IndexType *&buf) const {
+    if (NULL != buf) {
+      delete[] buf;
       buf = NULL;
     }
   }
 
-  static inline int getIndex(const Type& value) {
-    return value.loc();
-  }
+  static inline int getIndex(const Type &value) { return value.loc(); }
 
-  static inline void clearIndex(Type& value) {
+  static inline void clearIndex(Type &value) {
     // do nothing
   }
 
-  static inline PrimalType getValue(const Type& value) {
-    return value.value();
-  }
+  static inline PrimalType getValue(const Type &value) { return value.value(); }
 
-  static inline void setIntoModifyBuffer(ModifiedType& modValue, const Type& value) {
+  static inline void setIntoModifyBuffer(ModifiedType &modValue,
+                                         const Type &value) {
     modValue = value.value();
   }
 
-  static inline void getFromModifyBuffer(const ModifiedType& modValue, Type& value) {
+  static inline void getFromModifyBuffer(const ModifiedType &modValue,
+                                         Type &value) {
     value.setValue(modValue);
   }
 
-  static void createIndex(Type& value, IndexType& index) {
+  static void createIndex(Type &value, IndexType &index) {
     MEDI_UNUSED(value);
     MEDI_UNUSED(index);
 
     // do nothing indices are created in registerValue
   }
 
-  static inline void registerValue(Type& value, PrimalType& oldPrimal, IndexType& index) {
+  static inline void registerValue(Type &value, PrimalType &oldPrimal,
+                                   IndexType &index) {
     MEDI_UNUSED(oldPrimal);
     // do nothing value should have an index
 
     index = value.loc();
   }
 
-  static PrimalType getPrimalFromMod(const ModifiedType& modValue) {
+  static PrimalType getPrimalFromMod(const ModifiedType &modValue) {
     return modValue;
   }
 
-  static void setPrimalToMod(ModifiedType& modValue, const PrimalType& value) {
+  static void setPrimalToMod(ModifiedType &modValue, const PrimalType &value) {
     modValue = value;
   }
 
-  static void modifyDependency(ModifiedType& inval, ModifiedType& inoutval) {
+  static void modifyDependency(ModifiedType &inval, ModifiedType &inoutval) {
     MEDI_UNUSED(inval);
     MEDI_UNUSED(inoutval);
 

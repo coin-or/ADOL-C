@@ -3,19 +3,19 @@
  File:     oplate.h
  Revision: $Id$
  Contents: Numeric values for the various opcodes used by ADOL-C.
- 
- Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
                Kshitij Kulshreshtha
-  
+
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
-           
+
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_OPLATE_P_H)
-#define ADOLC_OPLATE_P_H 1
+  #define ADOLC_OPLATE_P_H 1
 
 /****************************************************************************/
 /* opcodes */
