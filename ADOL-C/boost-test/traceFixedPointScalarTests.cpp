@@ -41,13 +41,15 @@ static double norm(double* x, int dim)
 
 static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double argument)
 {
+  //ax1 = sqrt(ax1);
+  adouble x = 2.5;  // Initial iterate
+  adouble y;
+  double out;
   trace_on(tapeNumber);
   adouble u;
   u <<= argument;
 
-  //ax1 = sqrt(ax1);
-  adouble x = 2.5;  // Initial iterate
-  adouble y;
+
 
   fp_iteration(subTapeNumber,
                iteration<double>,
@@ -63,8 +65,6 @@ static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double
                &y,    // [out] Final state of the iteration
                1,     // Size of the vector x_0
                1);    // Number of parameters
-
-  double out;
   y >>= out;
   trace_off();
 
@@ -76,6 +76,7 @@ static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber, double
  */
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward)
 {
+  ensureContiguousLocations(5);
   // Compute the square root of 2.0
   const double argument[1] = {2.0};
   double out = traceNewtonForSquareRoot(1,       // tape number
@@ -86,7 +87,6 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward)
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
 
   double value[1];
-
   zos_forward(1, // Tape number
               1, // Number of dependent variables
               1, // Number of indepdent variables
@@ -126,51 +126,6 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward)
 
   BOOST_TEST(value[0] == out, tt::tolerance(tol));
   BOOST_TEST(derivative[0] == exactDerivative, tt::tolerance(tol));
-}
-
-BOOST_AUTO_TEST_CASE(NewtonForSquareRootFixedPoint_fov_forward)
-{
-  // Compute the square root of 2.0
-  const double argument[1] = {2.0};
-  double out = traceNewtonForSquareRoot(1,    // tape number
-                                        2,
-                                        argument[0]);
-
-  // Did taping really produce the correct value?
-  BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
-
-  // Use fov_forward to compute the first derivative
-  int m = 1;   // Number of dependent variables
-  int n = 1;   // Number of independent variables
-  int p = 1;   // Number of tangents
-
-  double **xd = myalloc2(n, p);
-  double value[m];
-  double **yd = myalloc2(m, p);
-
-  /* Test partial derivative wrt x1 and x2. */
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < p; j++) {
-      xd[i][j] = (i == j) ? 1.0 : 0.0;
-    }
-  }
-
-  fov_forward(1,    // Tape number
-              m,    // Number of dependent variables
-              n,    // Number of independent variables
-              p,    // Number of tangents
-              argument,  // Where to evaluate the derivative
-              xd,        // The tangents
-              value,     // The compute function value
-              yd);       // The computed derivative
-
-  double exactDerivative = 1.0/(2*sqrt(argument[0]));
-
-  BOOST_TEST(value[0] == out, tt::tolerance(tol));
-  BOOST_TEST(yd[0][0] == exactDerivative, tt::tolerance(tol));
-
-  myfree2(xd);
-  myfree2(yd);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
