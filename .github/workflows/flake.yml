@@ -1,0 +1,26 @@
+name: Nix Flake CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  check-and-build:
+    name: Check and Build Nix Flake
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Check Flake
+        run: nix flake check --all-systems
+
+      - name: Build Flake
+        run: nix build --print-build-logs
