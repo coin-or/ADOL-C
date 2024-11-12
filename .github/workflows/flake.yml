@@ -23,4 +23,4 @@ jobs:
         run: nix flake check --all-systems
 
       - name: Build Flake
-        run: nix build
+        run: nix build --print-build-logs
