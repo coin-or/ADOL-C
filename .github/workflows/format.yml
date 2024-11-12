@@ -2,7 +2,7 @@ name: Run clang-format Linter
 
 on:
     push:
-      branches: [ "format" ]
+      branches: [ "master" ]
     pull_request:
       branches: [ "master" ]
 
@@ -17,10 +17,3 @@ jobs:
       with:
         source: '.'
         inplace: True
-    - uses: EndBug/add-and-commit@v9
-      with:
-        author_name: Clang Robot
-        author_email: robot@example.com
-        message: 'Committing clang-format changes'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
