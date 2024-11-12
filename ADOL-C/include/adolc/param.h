@@ -13,22 +13,22 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_PARAM_H)
-  #define ADOLC_PARAM_H 1
-  #if defined(__cplusplus)
+#define ADOLC_PARAM_H 1
+#if defined(__cplusplus)
 
-    #include <cstdio>
-    #include <stdexcept>
+#include <cstdio>
+#include <stdexcept>
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 using std::logic_error;
-    #endif
+#endif
 
 class pdouble;
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 ADOLC_DLL_EXPORT pdouble mkparam(double pval);
 ADOLC_DLL_EXPORT pdouble getparam(locint index);
-    #endif
+#endif
 ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
 
 class ADOLC_DLL_EXPORT pdouble {
@@ -55,31 +55,31 @@ protected:
   pdouble(locint index);
 
 public:
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
   friend pdouble mkparam(double pval);
   friend pdouble getparam(locint index);
   explicit operator pdouble *() const;
-    #endif
+#endif
   friend locint mkparam_idx(double pval);
   operator adub() const;
 
-    #define _IN_CLASS_ 1
-    #define _IN_PDOUBLE_ 1
-    #include <adolc/internal/paramfunc.h>
-    #undef _IN_PDOUBLE_
-    #undef _IN_CLASS_
+#define _IN_CLASS_ 1
+#define _IN_PDOUBLE_ 1
+#include <adolc/internal/paramfunc.h>
+#undef _IN_PDOUBLE_
+#undef _IN_CLASS_
 
   ~pdouble() {}
 };
 
-    #ifdef ADOLC_ADVANCED_BRANCHING
+#ifdef ADOLC_ADVANCED_BRANCHING
 inline adub operator!=(const pdouble &a, const badouble &b) { return (b != a); }
 inline adub operator==(const pdouble &a, const badouble &b) { return (b == a); }
 inline adub operator<=(const pdouble &a, const badouble &b) { return (b >= a); }
 inline adub operator>=(const pdouble &a, const badouble &b) { return (b <= a); }
 inline adub operator>(const pdouble &a, const badouble &b) { return (b < a); }
 inline adub operator<(const pdouble &a, const badouble &b) { return (b > a); }
-    #else
+#else
 inline int operator!=(const badouble &a, const pdouble &b) {
   return ((a - b) != 0);
 }
@@ -104,9 +104,9 @@ inline int operator<=(const pdouble &a, const badouble &b) { return (b >= a); }
 inline int operator>=(const pdouble &a, const badouble &b) { return (b <= a); }
 inline int operator>(const pdouble &a, const badouble &b) { return (b < a); }
 inline int operator<(const pdouble &a, const badouble &b) { return (b > a); }
-    #endif
+#endif
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 inline adub operator+(const pdouble &a, const badouble &b) { return (b + a); }
 
 inline adub operator+(const pdouble &a, double b) { return (b + adub(a)); }
@@ -191,10 +191,10 @@ inline adub fmin(const pdouble &p, double q) { return fmin(adub(p), q); }
 
 inline adub ldexp(const pdouble &p, int n) { return ldexp(adub(p), n); }
 inline adub frexp(const pdouble &p, int *n) { return frexp(adub(p), n); }
-    #endif
+#endif
 
-  /*--------------------------------------------------------------------------*/
-  #endif
+/*--------------------------------------------------------------------------*/
+#endif
 
 BEGIN_C_DECLS
 

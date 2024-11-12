@@ -15,8 +15,8 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_ADUTILS_H)
-  #define ADOLC_ADUTILS_H 1
+#define ADOLC_ADUTILS_H 1
 
-  #include <adolc/adolc.h>
+#include <adolc/adolc.h>
 
 #endif

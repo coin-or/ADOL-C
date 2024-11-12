@@ -14,10 +14,10 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_DRIVERS_PSDRIVERS_H)
-  #define ADOLC_DRIVERS_PSDRIVERS_H 1
+#define ADOLC_DRIVERS_PSDRIVERS_H 1
 
-  #include <adolc/interfaces.h>
-  #include <adolc/internal/common.h>
+#include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 

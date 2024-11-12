@@ -13,18 +13,18 @@
 
 ---------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_ADVECTOR_H)
-  #define ADOLC_ADVECTOR_H 1
+#ifndef ADOLC_ADVECTOR_H
+#define ADOLC_ADVECTOR_H 1
 
-  /****************************************************************************/
-  /*                                                         THIS FILE IS C++ */
-  #ifdef __cplusplus
-    #include <vector>
+/****************************************************************************/
+/*                                                         THIS FILE IS C++ */
+#ifdef __cplusplus
+#include <vector>
 
-    /****************************************************************************/
-    /*                                           THIS IS ONLY FOR TAPED VERSION
-     */
-    #if !defined(TAPELESS)
+/****************************************************************************/
+/*                                           THIS IS ONLY FOR TAPED VERSION
+ */
+#ifndef TAPELESS
 
 class advector;
 class adubref;
@@ -78,15 +78,15 @@ protected:
   }
   bool isInit; // marker if the badouble is properly initialized
 public:
-      /* adub prevents postfix operators to occur on the left
-         side of an assignment which would not work  */
-      #if !defined(SWIGPRE)
+/* adub prevents postfix operators to occur on the left
+   side of an assignment which would not work  */
+#if !defined(SWIGPRE)
   adub operator++(int);
   adub operator--(int);
-      #else
+#else
   adub *operator++(int);
   adub *operator--(int);
-      #endif
+#endif
   adubref &operator++(void);
   adubref &operator--(void);
   adubref &operator=(double);
@@ -111,9 +111,9 @@ public:
   adubref &operator>>=(double &);
   void declareDependent();
   operator adub() const;
-      #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
   explicit operator adubref *() const;
-      #endif
+#endif
   friend ADOLC_DLL_EXPORT void condassign(adubref &, const badouble &,
                                           const badouble &, const badouble &);
   friend ADOLC_DLL_EXPORT void condassign(adubref &, const badouble &,
@@ -147,6 +147,7 @@ public:
   ADOLC_DLL_EXPORT advector() : blk(), data() {}
   ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n) {}
   ADOLC_DLL_EXPORT ~advector() {}
+
   ADOLC_DLL_EXPORT advector(const advector &x) : blk(x.size()), data(x.size()) {
     adolc_vec_copy(data.data(), x.data.data(), x.size());
   }
@@ -160,13 +161,13 @@ public:
   }
   ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data; }
   ADOLC_DLL_EXPORT operator adouble *() { return data.data(); }
-      #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
   ADOLC_DLL_EXPORT adub operator[](const badouble &index) const;
   ADOLC_DLL_EXPORT adubref operator[](const badouble &index);
-      #else
+#else
   ADOLC_DLL_EXPORT adub *operator[](const badouble &index) const;
   ADOLC_DLL_EXPORT adubref *operator[](const badouble &index);
-      #endif
+#endif
   ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data[i]; }
   ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const { return data[i]; }
   ADOLC_DLL_EXPORT adouble lookupindex(const badouble &x,
@@ -187,6 +188,6 @@ inline adubref &adubref::operator/=(const pdouble &p) {
   *this *= recipr(p);
   return *this;
 }
-    #endif /* TAPELESS */
-  #endif   /* __cplusplus */
-#endif     /* ADOLC_ADVECTOR_H */
+#endif /* TAPELESS */
+#endif /* __cplusplus */
+#endif /* ADOLC_ADVECTOR_H */

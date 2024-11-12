@@ -13,9 +13,9 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_ADALLOC_H)
-  #define ADOLC_ADALLOC_H 1
+#define ADOLC_ADALLOC_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 /****************************************************************************/
 /*                                                         Now the C THINGS */
@@ -57,9 +57,9 @@ ADOLC_DLL_EXPORT void myfree2_ulong(unsigned long int **);
 
 END_C_DECLS
 
-  /****************************************************************************/
-  /*                                                       Now the C++ THINGS */
-  #if defined(__cplusplus)
+/****************************************************************************/
+/*                                                       Now the C++ THINGS */
+#if defined(__cplusplus)
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
@@ -71,7 +71,7 @@ inline void myfree(double *A) { myfree1(A); }
 inline void myfree(double **A) { myfree2(A); }
 inline void myfree(double ***A) { myfree3(A); }
 
-  #endif
+#endif
 
 /****************************************************************************/
 #endif

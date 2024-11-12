@@ -23,7 +23,7 @@
 #include <iostream>
 #include <limits>
 #ifdef HAVE_UNISTD_H
-  #include <unistd.h>
+#include <unistd.h>
 #endif
 #include <errno.h>
 
@@ -35,9 +35,9 @@ StoreManagerLocint::StoreManagerLocint(double *&storePtr, char *&actStorePtr,
                                        size_t &size, size_t &numlives)
     : storePtr(storePtr), activityTracking(1), actStorePtr(actStorePtr),
       indexFree(0), head(0), maxsize(size), currentfill(numlives) {
-  #ifdef ADOLC_DEBUG
+#ifdef ADOLC_DEBUG
   std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
-  #endif
+#endif
 }
 
 StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
@@ -45,9 +45,9 @@ StoreManagerLocint::StoreManagerLocint(const StoreManagerLocint *const stm,
                                        size_t &size, size_t &numlives)
     : storePtr(storePtr), actStorePtr(actStorePtr), activityTracking(1),
       maxsize(size), currentfill(numlives) {
-  #ifdef ADOLC_DEBUG
+#ifdef ADOLC_DEBUG
   std::cerr << "StoreManagerLocint::StoreManagerLocint()\n";
-  #endif
+#endif
   head = stm->head;
   indexFree = new locint[maxsize];
   for (size_t i = 0; i < maxsize; i++)
@@ -257,33 +257,33 @@ StoreManagerLocintBlock::StoreManagerLocintBlock(double *&storePtr,
                                                  size_t &size, size_t &numlives)
     : storePtr(storePtr), actStorePtr(actStorePtr), activityTracking(1),
       maxsize(size), currentfill(numlives)
-  #ifdef ADOLC_LOCDEBUG
+#ifdef ADOLC_LOCDEBUG
       ,
       ensure_blockCallsSinceLastConsolidateBlocks(0)
-  #endif
+#endif
 {
   indexFree.clear();
-  #ifdef ADOLC_LOCDEBUG
+#ifdef ADOLC_LOCDEBUG
   std::cerr << "StoreManagerLocintBlock::StoreManagerLocIntBlock()\n";
-  #endif
+#endif
 }
 
 StoreManagerLocintBlock::StoreManagerLocintBlock(
     const StoreManagerLocintBlock *const stm, double *&storePtr,
     char *&actStorePtr, size_t &size, size_t &numlives)
     : storePtr(storePtr),
-  #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
       actStorePtr(actStorePtr), activityTracking(1),
-  #endif
+#endif
       maxsize(size), currentfill(numlives)
-  #ifdef ADOLC_LOCDEBUG
+#ifdef ADOLC_LOCDEBUG
       ,
       ensure_blockCallsSinceLastConsolidateBlocks(0)
-  #endif
+#endif
 {
-  #ifdef ADOLC_LOCDEBUG
+#ifdef ADOLC_LOCDEBUG
   std::cerr << "StoreManagerLocintBlock::StoreManagerLocintBlock()\n";
-  #endif
+#endif
   indexFree.clear();
   std::forward_list<struct FreeBlock>::const_iterator iter =
       stm->indexFree.begin();

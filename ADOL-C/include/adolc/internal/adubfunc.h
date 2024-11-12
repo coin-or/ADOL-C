@@ -12,19 +12,19 @@
 
 ----------------------------------------------------------------------------*/
 #if defined(_IN_CLASS_) && _IN_CLASS_
-  #if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_)
-  /*--------------------------------------------------------------------------*/
-  /* Comparison (friends) */
-    #if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
+#if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_)
+/*--------------------------------------------------------------------------*/
+/* Comparison (friends) */
+#if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
 friend ADOLC_DLL_EXPORT adub operator!=(const badouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator==(const badouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator<=(const badouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator>=(const badouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator>(const badouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator<(const badouble &, const badouble &);
-    #endif
+#endif
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 /*--------------------------------------------------------------------------*/
 /* sign operators (friends) */
 friend ADOLC_DLL_EXPORT adub operator+(const badouble &x);
@@ -88,7 +88,7 @@ friend ADOLC_DLL_EXPORT adub fmin(const badouble &, double);
 friend ADOLC_DLL_EXPORT adub ldexp(const badouble &, int);
 friend ADOLC_DLL_EXPORT adub frexp(const badouble &, int *);
 
-    /*--------------------------------------------------------------------------*/
-    #endif
-  #endif
+/*--------------------------------------------------------------------------*/
+#endif
+#endif
 #endif

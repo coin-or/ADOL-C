@@ -15,9 +15,9 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_DRIVERS_DRIVERS_H)
-  #define ADOLC_DRIVERS_DRIVERS_H 1
+#define ADOLC_DRIVERS_DRIVERS_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 

@@ -13,12 +13,12 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_LIE_DRIVER_H)
-  #define ADOLC_LIE_DRIVER_H
+#define ADOLC_LIE_DRIVER_H
 
-  #include "adolc/internal/common.h"
+#include "adolc/internal/common.h"
 
-  /* C++ declarations available only when compiling with C++  */
-  #if defined(__cplusplus)
+/* C++ declarations available only when compiling with C++  */
+#if defined(__cplusplus)
 
 ADOLC_DLL_EXPORT int lie_scalar(short, short, short, double *, short, double *);
 ADOLC_DLL_EXPORT int lie_scalar(short, short, short, short, double *, short,
@@ -28,12 +28,12 @@ ADOLC_DLL_EXPORT int lie_gradient(short, short, short, double *, short,
 ADOLC_DLL_EXPORT int lie_gradient(short, short, short, short, double *, short,
                                   double ***);
 
-  #endif
+#endif
 
-  /* C-declarations           */
-  #if defined(__cplusplus)
+/* C-declarations           */
+#if defined(__cplusplus)
 extern "C" {
-  #endif
+#endif
 
 ADOLC_DLL_EXPORT int lie_scalarc(short, short, short, double *, short,
                                  double *);
@@ -48,8 +48,8 @@ ADOLC_DLL_EXPORT int lie_covector(short, short, short, double *, short,
 ADOLC_DLL_EXPORT int lie_bracket(short, short, short, double *, short,
                                  double **);
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 }
-  #endif
+#endif
 
 #endif

@@ -13,9 +13,9 @@
 ----------------------------------------------------------------------------*/
 
 #if defined(_IN_CLASS_) && _IN_CLASS_
-  #if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_) || defined(_IN_PDOUBLE_)
+#if defined(_IN_BADOUBLE_) || defined(_IN_ADUB_) || defined(_IN_PDOUBLE_)
 
-    #if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
+#if defined(ADOLC_ADVANCED_BRANCHING) && !defined(SWIGPRE)
 inline friend adub operator!=(const pdouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator!=(const badouble &, const pdouble &);
 inline friend adub operator==(const pdouble &, const badouble &);
@@ -28,8 +28,8 @@ inline friend adub operator>(const pdouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator>(const badouble &, const pdouble &);
 inline friend adub operator<(const pdouble &, const badouble &);
 friend ADOLC_DLL_EXPORT adub operator<(const badouble &, const pdouble &);
-    #else
-      #if defined(_IN_BADOUBLE_) || defined(_IN_PDOUBLE_)
+#else
+#if defined(_IN_BADOUBLE_) || defined(_IN_PDOUBLE_)
 inline friend int operator!=(const pdouble &, const badouble &);
 inline friend int operator!=(const badouble &, const pdouble &);
 inline friend int operator==(const pdouble &, const badouble &);
@@ -42,10 +42,10 @@ inline friend int operator>(const pdouble &, const badouble &);
 inline friend int operator>(const badouble &, const pdouble &);
 inline friend int operator<(const pdouble &, const badouble &);
 inline friend int operator<(const badouble &, const pdouble &);
-      #endif
-    #endif
+#endif
+#endif
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 inline friend adub operator+(const pdouble &, const badouble &);
 inline friend adub operator+(const pdouble &, double);
 inline friend adub operator+(double, const pdouble &);
@@ -112,9 +112,9 @@ inline friend ADOLC_DLL_EXPORT adub fmin(const pdouble &, double);
 inline friend ADOLC_DLL_EXPORT adub ldexp(const pdouble &, int);
 inline friend ADOLC_DLL_EXPORT adub frexp(const pdouble &, int *);
 
-    /*--------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------*/
 
-    #endif
+#endif
 friend ADOLC_DLL_EXPORT adouble pow(const pdouble &, const badouble &);
-  #endif
+#endif
 #endif

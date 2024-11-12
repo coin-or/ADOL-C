@@ -17,10 +17,10 @@
 
 #ifdef __cplusplus
 
-  #ifndef SWIG
-    #include <cstdio>
-    #include <exception>
-  #endif
+#ifndef SWIG
+#include <cstdio>
+#include <exception>
+#endif
 
 class FatalError : public std::exception {
 protected:

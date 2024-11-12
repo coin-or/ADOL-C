@@ -13,9 +13,9 @@ package.
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_SPARSE_SPARSE_H)
-  #define ADOLC_SPARSE_SPARSE_H 1
+#define ADOLC_SPARSE_SPARSE_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -96,7 +96,7 @@ ADOLC_DLL_EXPORT void get_HP(short tag, /* tape identification */
    x stays for ( x * sizeof(unsigned long int) * 8 )
    (block) variables at once                                            */
 
-  #define PQ_STRIPMINE_MAX 30
+#define PQ_STRIPMINE_MAX 30
 
 ADOLC_DLL_EXPORT int bit_vector_propagation(short, int, int, const double *,
                                             unsigned int **, int *);

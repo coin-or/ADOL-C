@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 #if USE_BOOST_POOL
-  #include <boost/pool/pool_alloc.hpp>
+#include <boost/pool/pool_alloc.hpp>
 #endif
 
 using std::istream;

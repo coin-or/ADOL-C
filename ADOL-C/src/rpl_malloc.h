@@ -14,55 +14,55 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_MALLOC_H)
-  #define ADOLC_MALLOC_H 1
+#define ADOLC_MALLOC_H 1
 
-  #if defined(ADOLC_INTERNAL)
-    #if defined(HAVE_CONFIG_H)
-      #include "config.h"
+#if defined(ADOLC_INTERNAL)
+#if defined(HAVE_CONFIG_H)
+#include "config.h"
 
-      #undef ADOLC_NO_MALLOC
-      #undef ADOLC_NO_REALLOC
-      #if !defined(HAVE_MALLOC)
-        #define ADOLC_NO_MALLOC 1
-      #else
-        #if (HAVE_MALLOC == 0)
-          #define ADOLC_NO_MALLOC 1
-        #endif /* HAVE_MALLOC == 0 */
-      #endif   /* HAVE_MALLOC */
-      #if !defined(HAVE_REALLOC)
-        #define ADOLC_NO_REALLOC 1
-      #else
-        #if (HAVE_REALLOC == 0)
-          #define ADOLC_NO_REALLOC 1
-        #endif /* HAVE_REALLOC == 0 */
-      #endif   /* HAVE_REALLOC */
+#undef ADOLC_NO_MALLOC
+#undef ADOLC_NO_REALLOC
+#if !defined(HAVE_MALLOC)
+#define ADOLC_NO_MALLOC 1
+#else
+#if (HAVE_MALLOC == 0)
+#define ADOLC_NO_MALLOC 1
+#endif /* HAVE_MALLOC == 0 */
+#endif /* HAVE_MALLOC */
+#if !defined(HAVE_REALLOC)
+#define ADOLC_NO_REALLOC 1
+#else
+#if (HAVE_REALLOC == 0)
+#define ADOLC_NO_REALLOC 1
+#endif /* HAVE_REALLOC == 0 */
+#endif /* HAVE_REALLOC */
 
-      #if defined(ADOLC_NO_MALLOC)
-        #include <stddef.h>
-        #if defined(__cplusplus)
+#if defined(ADOLC_NO_MALLOC)
+#include <stddef.h>
+#if defined(__cplusplus)
 extern "C" {
-        #endif /* __cplusplus */
-        #undef rpl_malloc
-        #undef rpl_calloc
+#endif /* __cplusplus */
+#undef rpl_malloc
+#undef rpl_calloc
 extern void *rpl_malloc(size_t);
 extern void *rpl_calloc(size_t, size_t);
-        #if defined(__cplusplus)
+#if defined(__cplusplus)
 }
-        #endif /* __cplusplus */
-      #endif   /* ADOLC_NO_MALLOC */
+#endif /* __cplusplus */
+#endif /* ADOLC_NO_MALLOC */
 
-      #if defined(ADOLC_NO_REALLOC)
-        #include <stddef.h>
-        #if defined(__cplusplus)
+#if defined(ADOLC_NO_REALLOC)
+#include <stddef.h>
+#if defined(__cplusplus)
 extern "C" {
-        #endif /* __cplusplus */
-        #undef rpl_realloc
+#endif /* __cplusplus */
+#undef rpl_realloc
 extern void *rpl_realloc(void *, size_t);
-        #if defined(__cplusplus)
+#if defined(__cplusplus)
 }
-        #endif /* __cplusplus */
-      #endif   /* ADOLC_NO_REALLOC */
+#endif /* __cplusplus */
+#endif /* ADOLC_NO_REALLOC */
 
-    #endif /* HAVE_CONFIG_H */
-  #endif   /* ADOLC_INTERNAL */
-#endif     /* ADOLC_MALLOC_H */
+#endif /* HAVE_CONFIG_H */
+#endif /* ADOLC_INTERNAL */
+#endif /* ADOLC_MALLOC_H */

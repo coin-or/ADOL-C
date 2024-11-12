@@ -18,25 +18,25 @@
 #undef ADOLC_NO_MALLOC
 #undef ADOLC_NO_REALLOC
 #if defined(ADOLC_INTERNAL)
-  #if !defined(HAVE_MALLOC)
-    #define ADOLC_NO_MALLOC 1
-  #else
-    #if (HAVE_MALLOC == 0)
-      #define ADOLC_NO_MALLOC 1
-    #endif /* HAVE_MALLOC == 0 */
-  #endif   /* HAVE_MALLOC */
-  #if !defined(HAVE_REALLOC)
-    #define ADOLC_NO_REALLOC 1
-  #else
-    #if (HAVE_REALLOC == 0)
-      #define ADOLC_NO_REALLOC 1
-    #endif /* HAVE_REALLOC == 0 */
-  #endif   /* HAVE_REALLOC */
-#endif     /* ADOLC_INTERNAL */
+#if !defined(HAVE_MALLOC)
+#define ADOLC_NO_MALLOC 1
+#else
+#if (HAVE_MALLOC == 0)
+#define ADOLC_NO_MALLOC 1
+#endif /* HAVE_MALLOC == 0 */
+#endif /* HAVE_MALLOC */
+#if !defined(HAVE_REALLOC)
+#define ADOLC_NO_REALLOC 1
+#else
+#if (HAVE_REALLOC == 0)
+#define ADOLC_NO_REALLOC 1
+#endif /* HAVE_REALLOC == 0 */
+#endif /* HAVE_REALLOC */
+#endif /* ADOLC_INTERNAL */
 
 #if defined(ADOLC_NO_MALLOC)
-  #undef malloc
-  #undef calloc
+#undef malloc
+#undef calloc
 extern void *malloc();
 extern void *calloc();
 
@@ -61,7 +61,7 @@ void *rpl_calloc(size_t n, size_t size) {
 #endif /* ADOLC_NO_MALLOC */
 
 #if defined(ADOLC_NO_REALLOC)
-  #undef realloc
+#undef realloc
 extern void *realloc();
 
 void *rpl_realloc(void *ptr, size_t size) {

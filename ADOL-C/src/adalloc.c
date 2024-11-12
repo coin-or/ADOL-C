@@ -17,14 +17,14 @@
 #include <adolc/adalloc.h>
 
 #if !defined(ADOLC_NO_MALLOC)
-  #define ADOLC_CALLOC(n, m) calloc(n, m)
+#define ADOLC_CALLOC(n, m) calloc(n, m)
 #else
-  #define ADOLC_CALLOC(n, m) rpl_calloc(n, m)
+#define ADOLC_CALLOC(n, m) rpl_calloc(n, m)
 #endif
 #if !defined(ADOLC_NO_MALLOC)
-  #define ADOLC_MALLOC(n, m) calloc(n, m)
+#define ADOLC_MALLOC(n, m) calloc(n, m)
 #else
-  #define ADOLC_MALLOC(n, m) rpl_calloc(n, m)
+#define ADOLC_MALLOC(n, m) rpl_calloc(n, m)
 #endif
 
 BEGIN_C_DECLS

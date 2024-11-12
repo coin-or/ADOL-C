@@ -14,10 +14,10 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_EXTERNFCTS2_H)
-  #define ADOLC_EXTERNFCTS2_H 1
+#define ADOLC_EXTERNFCTS2_H 1
 
-  #include <adolc/adouble.h>
-  #include <adolc/internal/common.h>
+#include <adolc/adouble.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -215,7 +215,7 @@ typedef struct ext_diff_fct_v2 {
 } ext_diff_fct_v2;
 
 END_C_DECLS
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 
 ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 ext_fct);
 ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen,
@@ -228,5 +228,5 @@ inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct, void *ctx) {
   edfct->context = ctx;
 }
 
-  #endif
+#endif
 #endif

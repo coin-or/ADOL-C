@@ -12,17 +12,17 @@
 
 ---------------------------------------------------------------------------*/
 #if !defined(ADOLC_ADOLC_OPENMP_H)
-  #define ADOLC_ADOLC_OPENMP_H 1
+#define ADOLC_ADOLC_OPENMP_H 1
 
-  #if !defined(__cplusplus)
-    #warning ADOLC_OPENMP IS ONLY USEFUL WHEN COMPILED WITH C++ !!!
-  #else
+#if !defined(__cplusplus)
+#warning ADOLC_OPENMP IS ONLY USEFUL WHEN COMPILED WITH C++ !!!
+#else
 
-    #if !defined(_OPENMP)
-      #error OPENMP NOT ENABLED AT COMPILE TIME !!!
-    #else
+#if !defined(_OPENMP)
+#error OPENMP NOT ENABLED AT COMPILE TIME !!!
+#else
 
-      #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 extern void beginParallel();
 extern void endParallel();
@@ -50,9 +50,9 @@ typedef struct ADOLC_OpenMP_NC {
 extern ADOLC_OpenMP ADOLC_OpenMP_Handler;
 extern ADOLC_OpenMP_NC ADOLC_OpenMP_Handler_NC;
 
-      #define ADOLC_OPENMP firstprivate(ADOLC_OpenMP_Handler)
-      #define ADOLC_OPENMP_NC firstprivate(ADOLC_OpenMP_Handler_NC)
+#define ADOLC_OPENMP firstprivate(ADOLC_OpenMP_Handler)
+#define ADOLC_OPENMP_NC firstprivate(ADOLC_OpenMP_Handler_NC)
 
-    #endif /* _OPENMP */
-  #endif   /* __cplusplus */
-#endif     /* ADOLC_ADOLC_OPENMP_H */
+#endif /* _OPENMP */
+#endif /* __cplusplus */
+#endif /* ADOLC_ADOLC_OPENMP_H */

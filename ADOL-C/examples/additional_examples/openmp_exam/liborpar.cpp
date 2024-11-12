@@ -30,8 +30,8 @@ using namespace std;
 #include "adolc/adolc.h"
 
 #ifdef _OPENMP
-  #include <adolc/adolc_openmp.h>
-  #include <omp.h>
+#include <adolc/adolc_openmp.h>
+#include <omp.h>
 #endif
 
 /* calculate path values */

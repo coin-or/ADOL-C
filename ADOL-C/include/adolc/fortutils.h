@@ -14,9 +14,9 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_FORTUTILS_H)
-  #define ADOLC_FORTUTILS_H 1
+#define ADOLC_FORTUTILS_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 /****************************************************************************/
 /*                                                         Now the C THINGS */

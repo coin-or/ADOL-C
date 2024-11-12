@@ -20,11 +20,11 @@
 #include "taping_p.h"
 
 #ifdef ADOLC_AMPI_SUPPORT
-  #include "ampi/adTool/support.h"
-  #include "ampi/ampi.h"
-  #include "ampi/libCommon/modified.h"
-  #include "ampi/tape/support.h"
-  #include "ampisupportAdolc.h"
+#include "ampi/adTool/support.h"
+#include "ampi/ampi.h"
+#include "ampi/libCommon/modified.h"
+#include "ampi/tape/support.h"
+#include "ampisupportAdolc.h"
 
 MPI_Comm ADTOOL_AMPI_COMM_WORLD_SHADOW;
 

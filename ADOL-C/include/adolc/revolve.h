@@ -13,9 +13,9 @@
 ---------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_REVOLVE_H)
-  #define ADOLC_REVOLVE_H 1
+#define ADOLC_REVOLVE_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -31,12 +31,12 @@ typedef struct {
   int oldfine;
 } revolve_nums;
 
-  #ifndef _OPENMP
+#ifndef _OPENMP
 extern revolve_nums revolve_numbers;
-  #else
-    #include <omp.h>
+#else
+#include <omp.h>
 extern revolve_nums *revolve_numbers;
-  #endif
+#endif
 
 enum revolve_action {
   revolve_advance,

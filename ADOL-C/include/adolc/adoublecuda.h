@@ -14,54 +14,54 @@
 ---------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_ADOUBLECUDA_H)
-  #define ADOLC_ADOUBLECUDA_H 1
+#define ADOLC_ADOUBLECUDA_H 1
 
-  #include <cmath>
-  #include <cstdlib>
-  #include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
 using std::cout;
 using std::istream;
 using std::ostream;
 
-  #include <cuda_runtime.h>
-  #include <math_constants.h>
+#include <cuda_runtime.h>
+#include <math_constants.h>
 
 namespace adtlc {
 
-  #if defined(NUMBER_DIRECTIONS)
+#if defined(NUMBER_DIRECTIONS)
 __managed__ size_t ADOLC_numDir = NUMBER_DIRECTIONS;
-    #if defined(DYNAMIC_DIRECTIONS)
-      #define ADVAL_DECL *adval
-      #define ADVAL_TYPE_ADV const double *adv
-    #else
-      #define ADVAL_DECL adval[NUMBER_DIRECTIONS]
-      #define ADVAL_TYPE_ADV const double adv[NUMBER_DIRECTIONS]
-    #endif
-    #define ADVAL_TYPE double *
-    #define FOR_I_EQ_0_LT_NUMDIR for (size_t i = 0; i < ADOLC_numDir; i++)
-    #define ADVAL_I adval[i]
-    #define ADV_I adv[i]
-    #define V_I v[i]
-  #else
-    #define ADVAL_DECL adval
-    #define ADVAL adval
-    #define ADVAL_TYPE_ADV double adv
-    #define ADVAL_TYPE double
-    #define FOR_I_EQ_0_LT_NUMDIR
-    #define ADVAL_I adval
-    #define ADV_I adv
-    #define V_I v
-  #endif
+#if defined(DYNAMIC_DIRECTIONS)
+#define ADVAL_DECL *adval
+#define ADVAL_TYPE_ADV const double *adv
+#else
+#define ADVAL_DECL adval[NUMBER_DIRECTIONS]
+#define ADVAL_TYPE_ADV const double adv[NUMBER_DIRECTIONS]
+#endif
+#define ADVAL_TYPE double *
+#define FOR_I_EQ_0_LT_NUMDIR for (size_t i = 0; i < ADOLC_numDir; i++)
+#define ADVAL_I adval[i]
+#define ADV_I adv[i]
+#define V_I v[i]
+#else
+#define ADVAL_DECL adval
+#define ADVAL adval
+#define ADVAL_TYPE_ADV double adv
+#define ADVAL_TYPE double
+#define FOR_I_EQ_0_LT_NUMDIR
+#define ADVAL_I adval
+#define ADV_I adv
+#define V_I v
+#endif
 
-  #define ADOLC_MATH_NSP std
+#define ADOLC_MATH_NSP std
 
 inline __device__ double makeNaN() { return CUDART_NAN; }
 
 inline __device__ double makeInf() { return CUDART_INF; }
 
-  #define CUDADEV __device__ inline
-  #define CUDAHOST __host__ inline
-  #define CUDAHOSTDEV __host__ __device__ inline
+#define CUDADEV __device__ inline
+#define CUDAHOST __host__ inline
+#define CUDAHOSTDEV __host__ __device__ inline
 
 class adouble {
 public:
@@ -70,9 +70,9 @@ public:
   CUDADEV adouble(const double v);
   CUDADEV adouble(const double v, ADVAL_TYPE_ADV);
   CUDADEV adouble(const adouble &a);
-  #if defined(DYNAMIC_DIRECTIONS)
+#if defined(DYNAMIC_DIRECTIONS)
   CUDADEV ~adouble();
-  #endif
+#endif
   /*******************  temporary results  ******************************/
   // sign
   CUDADEV adouble operator-() const;
@@ -197,10 +197,10 @@ public:
   CUDAHOSTDEV void setValue(const double v);
   CUDAHOSTDEV ADVAL_TYPE getADValue() const;
   CUDAHOSTDEV void setADValue(ADVAL_TYPE v);
-  #if defined(NUMBER_DIRECTIONS)
+#if defined(NUMBER_DIRECTIONS)
   CUDAHOSTDEV double getADValue(const unsigned int p) const;
   CUDAHOSTDEV void setADValue(const unsigned int p, const double v);
-  #endif
+#endif
 
   /*******************  i/o operations  *********************************/
   CUDAHOST friend ostream &operator<<(ostream &, const adouble &);
@@ -214,39 +214,39 @@ private:
 
 /*******************************  ctors  ************************************/
 CUDADEV adouble::adouble() {
-  #if defined(DYNAMIC_DIRECTIONS)
+#if defined(DYNAMIC_DIRECTIONS)
   adval = new double[ADOLC_numDir];
-  #endif
+#endif
 }
 
 CUDADEV adouble::adouble(const double v) : val(v) {
-  #if defined(DYNAMIC_DIRECTIONS)
+#if defined(DYNAMIC_DIRECTIONS)
   adval = new double[ADOLC_numDir];
-  #endif
+#endif
   FOR_I_EQ_0_LT_NUMDIR
   ADVAL_I = 0.0;
 }
 
 CUDADEV adouble::adouble(const double v, ADVAL_TYPE_ADV) : val(v) {
-  #if defined(DYNAMIC_DIRECTIONS)
+#if defined(DYNAMIC_DIRECTIONS)
   adval = new double[ADOLC_numDir];
-  #endif
+#endif
   FOR_I_EQ_0_LT_NUMDIR
   ADVAL_I = ADV_I;
 }
 
 CUDADEV adouble::adouble(const adouble &a) : val(a.val) {
-  #if defined(DYNAMIC_DIRECTIONS)
+#if defined(DYNAMIC_DIRECTIONS)
   adval = new double[ADOLC_numDir];
-  #endif
+#endif
   FOR_I_EQ_0_LT_NUMDIR
   ADVAL_I = a.ADVAL_I;
 }
 
-  /*******************************  dtors  ************************************/
-  #if defined(DYNAMIC_DIRECTIONS)
+/*******************************  dtors  ************************************/
+#if defined(DYNAMIC_DIRECTIONS)
 CUDADEV adouble::~adouble() { delete[] adval; }
-  #endif
+#endif
 
 /*************************  temporary results  ******************************/
 // sign
@@ -901,7 +901,7 @@ CUDAHOSTDEV void adouble::setADValue(ADVAL_TYPE v) {
   ADVAL_I = V_I;
 }
 
-  #if defined(NUMBER_DIRECTIONS)
+#if defined(NUMBER_DIRECTIONS)
 CUDAHOSTDEV double adouble::getADValue(const unsigned int p) const {
   unsigned int locp = p;
   if (locp >= ADOLC_numDir) {
@@ -917,29 +917,29 @@ CUDAHOSTDEV void adouble::setADValue(const unsigned int p, const double v) {
   }
   adval[locp] = v;
 }
-  #endif
+#endif
 
-  #if defined(NUMBER_DIRECTIONS)
+#if defined(NUMBER_DIRECTIONS)
 void setNumDir(const unsigned int p) {
-    #if !defined(DYNAMIC_DIRECTIONS)
+#if !defined(DYNAMIC_DIRECTIONS)
   if (p > NUMBER_DIRECTIONS)
     ADOLC_numDir = NUMBER_DIRECTIONS;
   else
     ADOLC_numDir = p;
-    #else
+#else
   ADOLC_numDir = p;
-    #endif
+#endif
 }
-  #endif
+#endif
 
 /*******************  i/o operations  ***************************************/
 CUDAHOST ostream &operator<<(ostream &out, const adouble &a) {
   out << "Value: " << a.val;
-  #if !defined(NUMBER_DIRECTIONS)
+#if !defined(NUMBER_DIRECTIONS)
   out << " ADValue: ";
-  #else
+#else
   out << " ADValues (" << ADOLC_numDir << "): ";
-  #endif
+#endif
   FOR_I_EQ_0_LT_NUMDIR
   out << a.ADVAL_I << " ";
   out << "(a)";
@@ -952,11 +952,11 @@ CUDAHOST istream &operator>>(istream &in, adouble &a) {
     in >> c;
   } while (c != ':' && !in.eof());
   in >> a.val;
-  #if !defined(NUMBER_DIRECTIONS)
+#if !defined(NUMBER_DIRECTIONS)
   do
     in >> c;
   while (c != ':' && !in.eof());
-  #else
+#else
   unsigned int num;
   do
     in >> c;
@@ -969,7 +969,7 @@ CUDAHOST istream &operator>>(istream &in, adouble &a) {
   do
     in >> c;
   while (c != ')' && !in.eof());
-  #endif
+#endif
   FOR_I_EQ_0_LT_NUMDIR
   in >> a.ADVAL_I;
   do

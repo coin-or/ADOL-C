@@ -21,13 +21,13 @@
 #include <adolc/sparse/sparsedrivers.h>
 
 #if defined(ADOLC_INTERNAL)
-  #if HAVE_CONFIG_H
-    #include "config.h"
-  #endif
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #endif
 
 #if HAVE_LIBCOLPACK
-  #include <ColPack/ColPackHeaders.h>
+#include <ColPack/ColPackHeaders.h>
 #endif
 
 #include <cstring>

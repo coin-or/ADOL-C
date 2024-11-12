@@ -12,16 +12,16 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_TAPING_P_H)
-  #define ADOLC_TAPING_P_H 1
+#define ADOLC_TAPING_P_H 1
 
-  #include <stdbool.h>
+#include <stdbool.h>
 
-  #ifdef __cplusplus
-    #include "storemanager.h"
-  #endif
-  #include <adolc/internal/common.h>
-  #include <adolc/taping.h>
-  #include <errno.h>
+#ifdef __cplusplus
+#include "storemanager.h"
+#endif
+#include <adolc/internal/common.h>
+#include <adolc/taping.h>
+#include <errno.h>
 
 BEGIN_C_DECLS
 
@@ -130,7 +130,7 @@ extern void *failAdditionalInfo6;
 /* tape information                                                         */
 /****************************************************************************/
 
-  #ifdef SPARSE
+#ifdef SPARSE
 typedef struct SparseJacInfos {
   void *g;
   void *jr1d;
@@ -158,7 +158,7 @@ typedef struct SparseHessInfos {
 
   int nnz_in, indep, p;
 } SparseHessInfos;
-  #endif
+#endif
 
 typedef struct PersistantTapeInfos { /* survive tape re-usage */
   int forodec_nax, forodec_dax;
@@ -170,7 +170,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
   int *jacSolv_ci;
   int jacSolv_nax, jacSolv_modeold, jacSolv_cgd;
 
-  #ifdef SPARSE
+#ifdef SPARSE
   /* sparse Jacobian matrices */
 
   SparseJacInfos sJinfos;
@@ -178,7 +178,7 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
   /* sparse Hessian matrices */
 
   SparseHessInfos sHinfos;
-  #endif
+#endif
 
   /* file names */
 
@@ -197,11 +197,11 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
   int skipFileCleanup;
 
   revreal *paramstore;
-  #ifdef __cplusplus
+#ifdef __cplusplus
   PersistantTapeInfos();
   ~PersistantTapeInfos();
   PersistantTapeInfos &operator=(const PersistantTapeInfos &) = default;
-  #endif
+#endif
 } PersistantTapeInfos;
 
 /**
@@ -293,19 +293,19 @@ typedef struct TapeInfos {
 
   PersistantTapeInfos pTapeInfos;
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
   TapeInfos();
   TapeInfos(short tapeID);
   ~TapeInfos() {}
   void copy(const TapeInfos &);
-  #endif
+#endif
 } TapeInfos;
 
 typedef struct GlobalTapeVarsCL {
   double *store; /* double store for calc. while taping */
-  #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
   char *actStore; /* activity store for tracking while taping */
-  #endif
+#endif
   size_t storeSize;
   size_t numLives;
   locint maxLoc;
@@ -325,76 +325,74 @@ typedef struct GlobalTapeVarsCL {
   size_t maxparam;
   double *pStore;
   size_t initialStoreSize;
-  #ifdef __cplusplus
+#ifdef __cplusplus
   StoreManager *paramStoreMgrPtr;
   StoreManager *storeManagerPtr;
   GlobalTapeVarsCL();
   ~GlobalTapeVarsCL();
   const GlobalTapeVarsCL &operator=(const GlobalTapeVarsCL &);
   void reallocStore(unsigned char type);
-  #else
+#else
   void *paramStoreMgrPtr;
   void *storeManagerPtr;
-  #endif
+#endif
 } GlobalTapeVars;
 
-  #if defined(_OPENMP)
+#if defined(_OPENMP)
 
 extern int isParallel();
 
-    #define ADOLC_TAPE_INFOS_BUFFER_DECL *tapeInfosBuffer
-    #define ADOLC_TAPE_STACK_DECL *tapeStack
-    #define ADOLC_CURRENT_TAPE_INFOS_DECL *currentTapeInfos
-    #define ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL *currentTapeInfos_fallBack
-    #define ADOLC_GLOBAL_TAPE_VARS_DECL *globalTapeVars
-    #define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL *ADOLC_extDiffFctsBuffer
-    #define ADOLC_CHECKPOINTS_STACK_DECL *ADOLC_checkpointsStack
+#define ADOLC_TAPE_INFOS_BUFFER_DECL *tapeInfosBuffer
+#define ADOLC_TAPE_STACK_DECL *tapeStack
+#define ADOLC_CURRENT_TAPE_INFOS_DECL *currentTapeInfos
+#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL *currentTapeInfos_fallBack
+#define ADOLC_GLOBAL_TAPE_VARS_DECL *globalTapeVars
+#define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL *ADOLC_extDiffFctsBuffer
+#define ADOLC_CHECKPOINTS_STACK_DECL *ADOLC_checkpointsStack
 
-    #define ADOLC_OPENMP_THREAD_NUMBER int ADOLC_threadNumber
-    #if defined(ADOLC_THREADSAVE_ERRNO)
-      #define ADOLC_OPENMP_GET_THREAD_NUMBER ADOLC_threadNumber = errno
-      #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER errno = ADOLC_threadNumber
-    #else
-      #define ADOLC_OPENMP_GET_THREAD_NUMBER                                   \
-        ADOLC_threadNumber = omp_get_thread_num()
-      #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
-    #endif
+#define ADOLC_OPENMP_THREAD_NUMBER int ADOLC_threadNumber
+#if defined(ADOLC_THREADSAVE_ERRNO)
+#define ADOLC_OPENMP_GET_THREAD_NUMBER ADOLC_threadNumber = errno
+#define ADOLC_OPENMP_RESTORE_THREAD_NUMBER errno = ADOLC_threadNumber
+#else
+#define ADOLC_OPENMP_GET_THREAD_NUMBER ADOLC_threadNumber = omp_get_thread_num()
+#define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
+#endif
 
-    #define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer[ADOLC_threadNumber]
-    #define ADOLC_TAPE_STACK tapeStack[ADOLC_threadNumber]
-    #define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos[ADOLC_threadNumber]
-    #define ADOLC_CURRENT_TAPE_INFOS_FALLBACK                                  \
-      currentTapeInfos_fallBack[ADOLC_threadNumber]
-    #define ADOLC_GLOBAL_TAPE_VARS globalTapeVars[ADOLC_threadNumber]
-    #define ADOLC_EXT_DIFF_FCTS_BUFFER                                         \
-      ADOLC_extDiffFctsBuffer[ADOLC_threadNumber]
-    #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack[ADOLC_threadNumber]
-    #define REVOLVE_NUMBERS revolve_numbers[ADOLC_threadNumber]
+#define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer[ADOLC_threadNumber]
+#define ADOLC_TAPE_STACK tapeStack[ADOLC_threadNumber]
+#define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos[ADOLC_threadNumber]
+#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK                                      \
+  currentTapeInfos_fallBack[ADOLC_threadNumber]
+#define ADOLC_GLOBAL_TAPE_VARS globalTapeVars[ADOLC_threadNumber]
+#define ADOLC_EXT_DIFF_FCTS_BUFFER ADOLC_extDiffFctsBuffer[ADOLC_threadNumber]
+#define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack[ADOLC_threadNumber]
+#define REVOLVE_NUMBERS revolve_numbers[ADOLC_threadNumber]
 
-  #else
+#else
 
-    #define ADOLC_TAPE_INFOS_BUFFER_DECL tapeInfosBuffer
-    #define ADOLC_TAPE_STACK_DECL tapeStack
-    #define ADOLC_CURRENT_TAPE_INFOS_DECL currentTapeInfos
-    #define ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL currentTapeInfos_fallBack
-    #define ADOLC_GLOBAL_TAPE_VARS_DECL globalTapeVars
-    #define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL ADOLC_extDiffFctsBuffer
-    #define ADOLC_CHECKPOINTS_STACK_DECL ADOLC_checkpointsStack
+#define ADOLC_TAPE_INFOS_BUFFER_DECL tapeInfosBuffer
+#define ADOLC_TAPE_STACK_DECL tapeStack
+#define ADOLC_CURRENT_TAPE_INFOS_DECL currentTapeInfos
+#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL currentTapeInfos_fallBack
+#define ADOLC_GLOBAL_TAPE_VARS_DECL globalTapeVars
+#define ADOLC_EXT_DIFF_FCTS_BUFFER_DECL ADOLC_extDiffFctsBuffer
+#define ADOLC_CHECKPOINTS_STACK_DECL ADOLC_checkpointsStack
 
-    #define ADOLC_OPENMP_THREAD_NUMBER
-    #define ADOLC_OPENMP_GET_THREAD_NUMBER
-    #define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
+#define ADOLC_OPENMP_THREAD_NUMBER
+#define ADOLC_OPENMP_GET_THREAD_NUMBER
+#define ADOLC_OPENMP_RESTORE_THREAD_NUMBER
 
-    #define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer
-    #define ADOLC_TAPE_STACK tapeStack
-    #define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos
-    #define ADOLC_CURRENT_TAPE_INFOS_FALLBACK currentTapeInfos_fallBack
-    #define ADOLC_GLOBAL_TAPE_VARS globalTapeVars
-    #define ADOLC_EXT_DIFF_FCTS_BUFFER ADOLC_extDiffFctsBuffer
-    #define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack
-    #define REVOLVE_NUMBERS revolve_numbers
+#define ADOLC_TAPE_INFOS_BUFFER tapeInfosBuffer
+#define ADOLC_TAPE_STACK tapeStack
+#define ADOLC_CURRENT_TAPE_INFOS currentTapeInfos
+#define ADOLC_CURRENT_TAPE_INFOS_FALLBACK currentTapeInfos_fallBack
+#define ADOLC_GLOBAL_TAPE_VARS globalTapeVars
+#define ADOLC_EXT_DIFF_FCTS_BUFFER ADOLC_extDiffFctsBuffer
+#define ADOLC_CHECKPOINTS_STACK ADOLC_checkpointsStack
+#define REVOLVE_NUMBERS revolve_numbers
 
-  #endif /* _OPENMP */
+#endif /* _OPENMP */
 
 extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
 extern TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
@@ -421,13 +419,13 @@ TapeInfos *getTapeInfos(short tapeID);
 /* updates the tape infos for the given ID - a tapeInfos struct is created
  * and registered if non is found but its state will remain "not in use" */
 
-  #ifdef SPARSE
+#ifdef SPARSE
 void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos);
 /* updates the tape infos on sparse Jac for the given ID */
 
 void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos);
-  /* updates the tape infos n sparse Hess for the given ID */
-  #endif
+/* updates the tape infos n sparse Hess for the given ID */
+#endif
 
 void take_stock();
 /* record all existing adoubles on the tape
@@ -465,45 +463,45 @@ void write_taylors(locint loc, int keep, int degree, int numDir);
  * the taylor buffer, if the buffer is filled, then it is written to the
  * taylor tape */
 
-  #define ADOLC_WRITE_SCAYLOR(X)                                               \
-    {                                                                          \
-      if (ADOLC_CURRENT_TAPE_INFOS.currTay ==                                  \
-          ADOLC_CURRENT_TAPE_INFOS.lastTayP1)                                  \
-        put_tay_block(ADOLC_CURRENT_TAPE_INFOS.lastTayP1);                     \
-      *ADOLC_CURRENT_TAPE_INFOS.currTay = (X);                                 \
-      ++ADOLC_CURRENT_TAPE_INFOS.currTay;                                      \
-    }
+#define ADOLC_WRITE_SCAYLOR(X)                                                 \
+  {                                                                            \
+    if (ADOLC_CURRENT_TAPE_INFOS.currTay ==                                    \
+        ADOLC_CURRENT_TAPE_INFOS.lastTayP1)                                    \
+      put_tay_block(ADOLC_CURRENT_TAPE_INFOS.lastTayP1);                       \
+    *ADOLC_CURRENT_TAPE_INFOS.currTay = (X);                                   \
+    ++ADOLC_CURRENT_TAPE_INFOS.currTay;                                        \
+  }
 /* writes a single element (x) to the taylor buffer and writes the buffer to
  * disk if necessary */
 
 void write_scaylors(revreal *x, uint size);
 /* write_scaylors writes # size elements from x to the taylor buffer */
 
-  #define ADOLC_OVERWRITE_SCAYLOR(X, Y)                                        \
-    {                                                                          \
-      *Y = *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1);                            \
-      *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1) = X;                             \
-    }
+#define ADOLC_OVERWRITE_SCAYLOR(X, Y)                                          \
+  {                                                                            \
+    *Y = *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1);                              \
+    *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1) = X;                               \
+  }
 /* overwrites the last (single) element (x) of the taylor buffer */
 
-  #define ADOLC_DELETE_SCAYLOR(X)                                              \
-    {                                                                          \
-      --ADOLC_CURRENT_TAPE_INFOS.currTay;                                      \
-      *X = *ADOLC_CURRENT_TAPE_INFOS.currTay;                                  \
-    }
+#define ADOLC_DELETE_SCAYLOR(X)                                                \
+  {                                                                            \
+    --ADOLC_CURRENT_TAPE_INFOS.currTay;                                        \
+    *X = *ADOLC_CURRENT_TAPE_INFOS.currTay;                                    \
+  }
 /* deletes the last (single) element (x) of the taylor buffer */
 
 void put_tay_block(revreal *lastValP1);
 /* writes the taylor stack buffer onto hard disk */
 
-  #define ADOLC_GET_TAYLOR(X)                                                  \
-    {                                                                          \
-      if (ADOLC_CURRENT_TAPE_INFOS.currTay ==                                  \
-          ADOLC_CURRENT_TAPE_INFOS.tayBuffer)                                  \
-        get_tay_block_r();                                                     \
-      --ADOLC_CURRENT_TAPE_INFOS.currTay;                                      \
-      ADOLC_CURRENT_TAPE_INFOS.rp_T[X] = *ADOLC_CURRENT_TAPE_INFOS.currTay;    \
-    }
+#define ADOLC_GET_TAYLOR(X)                                                    \
+  {                                                                            \
+    if (ADOLC_CURRENT_TAPE_INFOS.currTay ==                                    \
+        ADOLC_CURRENT_TAPE_INFOS.tayBuffer)                                    \
+      get_tay_block_r();                                                       \
+    --ADOLC_CURRENT_TAPE_INFOS.currTay;                                        \
+    ADOLC_CURRENT_TAPE_INFOS.rp_T[X] = *ADOLC_CURRENT_TAPE_INFOS.currTay;      \
+  }
 /* puts a taylor value from the value stack buffer to the taylor buffer */
 
 void get_taylors(locint loc, int degree);
@@ -558,7 +556,7 @@ char *createFileName(short tapeID, int tapeType);
 /* puts an operation into the operation buffer, ensures that location buffer
  * and constants buffer are prepared to take the belonging stuff */
 void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations);
-  #define put_op(i) put_op_reserve((i), 0)
+#define put_op(i) put_op_reserve((i), 0)
 
 void put_op_block(unsigned char *lastOpP1);
 /* writes a block of operations onto hard disk and handles file creation,
@@ -570,11 +568,11 @@ void get_op_block_f();
 void get_op_block_r();
 /* reads the previous block of operations into the internal buffer */
 
-  #define ADOLC_PUT_LOCINT(X)                                                  \
-    {                                                                          \
-      *ADOLC_CURRENT_TAPE_INFOS.currLoc = X;                                   \
-      ++ADOLC_CURRENT_TAPE_INFOS.currLoc;                                      \
-    }
+#define ADOLC_PUT_LOCINT(X)                                                    \
+  {                                                                            \
+    *ADOLC_CURRENT_TAPE_INFOS.currLoc = X;                                     \
+    ++ADOLC_CURRENT_TAPE_INFOS.currLoc;                                        \
+  }
 /* puts a single locations into the location buffer, no disk access */
 
 void put_loc_block(locint *lastLocP1);
@@ -587,11 +585,11 @@ void get_loc_block_f();
 void get_loc_block_r();
 /* reads the previous block of locations into the internal buffer */
 
-  #define ADOLC_PUT_VAL(X)                                                     \
-    {                                                                          \
-      *ADOLC_CURRENT_TAPE_INFOS.currVal = X;                                   \
-      ++ADOLC_CURRENT_TAPE_INFOS.currVal;                                      \
-    }
+#define ADOLC_PUT_VAL(X)                                                       \
+  {                                                                            \
+    *ADOLC_CURRENT_TAPE_INFOS.currVal = X;                                     \
+    ++ADOLC_CURRENT_TAPE_INFOS.currVal;                                        \
+  }
 /* puts a single constant into the location buffer, no disk access */
 
 void put_vals_writeBlock(double *reals, locint numReals);
@@ -637,19 +635,19 @@ double make_nan();
 
 double make_inf();
 
-  #if !defined(ADOLC_HARDDEBUG)
-    /*--------------------------------------------------------------------------*/
-    /*                                                        MACRO or FUNCTION
-     */
-    #define get_op_f() *ADOLC_CURRENT_TAPE_INFOS.currOp++
-    #define get_op_r() *--ADOLC_CURRENT_TAPE_INFOS.currOp
+#if !defined(ADOLC_HARDDEBUG)
+/*--------------------------------------------------------------------------*/
+/*                                                        MACRO or FUNCTION
+ */
+#define get_op_f() *ADOLC_CURRENT_TAPE_INFOS.currOp++
+#define get_op_r() *--ADOLC_CURRENT_TAPE_INFOS.currOp
 
-    #define get_locint_f() *ADOLC_CURRENT_TAPE_INFOS.currLoc++
-    #define get_locint_r() *--ADOLC_CURRENT_TAPE_INFOS.currLoc
+#define get_locint_f() *ADOLC_CURRENT_TAPE_INFOS.currLoc++
+#define get_locint_r() *--ADOLC_CURRENT_TAPE_INFOS.currLoc
 
-    #define get_val_f() *ADOLC_CURRENT_TAPE_INFOS.currVal++
-    #define get_val_r() *--ADOLC_CURRENT_TAPE_INFOS.currVal
-  #else /* HARDDEBUG */
+#define get_val_f() *ADOLC_CURRENT_TAPE_INFOS.currVal++
+#define get_val_r() *--ADOLC_CURRENT_TAPE_INFOS.currVal
+#else /* HARDDEBUG */
 unsigned char get_op_f();
 unsigned char get_op_r();
 
@@ -658,7 +656,7 @@ locint get_locint_r();
 
 double get_val_f();
 double get_val_r();
-  #endif
+#endif
 
 /* tries to read a local config file containing, e.g., buffer sizes */
 void readConfigFile();

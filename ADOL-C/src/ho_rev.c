@@ -58,179 +58,181 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _HOS_
-  #define GENERATED_FILENAME "hos_reverse"
+#define GENERATED_FILENAME "hos_reverse"
 
-  #define RESULTS(l, indexi, k) results[indexi][k]
-  #define LAGRANGE(l, indexd, k) lagrange[indexd][k]
+#define RESULTS(l, indexi, k) results[indexi][k]
+#define LAGRANGE(l, indexd, k) lagrange[indexd][k]
 
-  #define HOV_INC(T, degree)                                                   \
-    {}
-  #define HOS_OV_INC(T, degree)                                                \
-    {}
+#define HOV_INC(T, degree)                                                     \
+  {                                                                            \
+  }
+#define HOS_OV_INC(T, degree)                                                  \
+  {                                                                            \
+  }
 
-  #define GET_TAYL(loc, depth, p)                                              \
-    {                                                                          \
-      UPDATE_TAYLORREAD(depth)                                                 \
-      get_taylors(loc, depth);                                                 \
-    }
+#define GET_TAYL(loc, depth, p)                                                \
+  {                                                                            \
+    UPDATE_TAYLORREAD(depth)                                                   \
+    get_taylors(loc, depth);                                                   \
+  }
 
 /*--------------------------------------------------------------------------*/
 #elif _HOS_OV_
-  #define GENERATED_FILENAME "hos_ov_reverse"
+#define GENERATED_FILENAME "hos_ov_reverse"
 
-  #define RESULTS(l, indexi, k) results[l][indexi][k]
-  #define LAGRANGE(l, indexd, k) lagrange[indexd][k]
+#define RESULTS(l, indexi, k) results[l][indexi][k]
+#define LAGRANGE(l, indexd, k) lagrange[indexd][k]
 
-  #define HOV_INC(T, degree) T += degree;
-  #define HOS_OV_INC(T, degree) T += degree;
+#define HOV_INC(T, degree) T += degree;
+#define HOS_OV_INC(T, degree) T += degree;
 
-  #define GET_TAYL(loc, depth, p)                                              \
-    {                                                                          \
-      UPDATE_TAYLORREAD(depth *p)                                              \
-      get_taylors_p(loc, depth, p);                                            \
-    }
+#define GET_TAYL(loc, depth, p)                                                \
+  {                                                                            \
+    UPDATE_TAYLORREAD(depth *p)                                                \
+    get_taylors_p(loc, depth, p);                                              \
+  }
 
 /*--------------------------------------------------------------------------*/
 #elif _HOV_
-  #define GENERATED_FILENAME "hov_reverse"
+#define GENERATED_FILENAME "hov_reverse"
 
-  #define _ADOLC_VECTOR_
+#define _ADOLC_VECTOR_
 
-  #define RESULTS(l, indexi, k) results[l][indexi][k]
-  #define LAGRANGE(l, indexd, k) lagrange[l][indexd][k]
+#define RESULTS(l, indexi, k) results[l][indexi][k]
+#define LAGRANGE(l, indexd, k) lagrange[l][indexd][k]
 
-  #define IF_HOV_
-  #define ENDIF_HOV_
+#define IF_HOV_
+#define ENDIF_HOV_
 
-  #define HOV_INC(T, degree) T += degree;
-  #define HOS_OV_INC(T, degree)
+#define HOV_INC(T, degree) T += degree;
+#define HOS_OV_INC(T, degree)
 
-  #define GET_TAYL(loc, depth, p)                                              \
-    {                                                                          \
-      UPDATE_TAYLORREAD(depth)                                                 \
-      get_taylors(loc, depth);                                                 \
-    }
+#define GET_TAYL(loc, depth, p)                                                \
+  {                                                                            \
+    UPDATE_TAYLORREAD(depth)                                                   \
+    get_taylors(loc, depth);                                                   \
+  }
 
 #else
-  #error Error ! Define [_HOS_ | _HOS_OV_ | _HOV_]
+#error Error ! Define [_HOS_ | _HOS_OV_ | _HOV_]
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                     access to variables  */
 
 #ifdef _FOS_ /* why?, not in fo_rev.c ? */
-  #define ARES *Ares
-  #define AARG *Aarg
-  #define AARG1 *Aarg1
-  #define AARG2 *Aarg2
-  #define AQO *Aqo
+#define ARES *Ares
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
+#define AQO *Aqo
 
-  #define ARES_INC *Ares
-  #define AARG_INC *Aarg
-  #define AARG1_INC *Aarg1
-  #define AARG2_INC *Aarg2
-  #define AQO_INC *Aqo
+#define ARES_INC *Ares
+#define AARG_INC *Aarg
+#define AARG1_INC *Aarg1
+#define AARG2_INC *Aarg2
+#define AQO_INC *Aqo
 
-  #define ARES_INC_O Ares
-  #define AARG_INC_O Aarg
-  #define AARG1_INC_O Aarg1
-  #define AARG2_INC_O Aarg2
-  #define AQO_INC_O Aqo
+#define ARES_INC_O Ares
+#define AARG_INC_O Aarg
+#define AARG1_INC_O Aarg1
+#define AARG2_INC_O Aarg2
+#define AQO_INC_O Aqo
 
-  #define ASSIGN_A(a, b) a = &b;
-  #define HOS_OV_ASSIGN_A(Aqo, rp_Atemp)
-  #define FOR_0_LE_l_LT_q l = 0;
+#define ASSIGN_A(a, b) a = &b;
+#define HOS_OV_ASSIGN_A(Aqo, rp_Atemp)
+#define FOR_0_LE_l_LT_q l = 0;
 
 #elif _HOS_OV_
-  #define ARES *Ares
-  #define AARG *Aarg
-  #define AARG1 *Aarg1
-  #define AARG2 *Aarg2
-  #define AQO *Aqo
+#define ARES *Ares
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
+#define AQO *Aqo
 
-  #define ARES_INC *Ares++
-  #define AARG_INC *Aarg++
-  #define AARG1_INC *Aarg1++
-  #define AARG2_INC *Aarg2++
-  #define AQO_INC *Aqo++
+#define ARES_INC *Ares++
+#define AARG_INC *Aarg++
+#define AARG1_INC *Aarg1++
+#define AARG2_INC *Aarg2++
+#define AQO_INC *Aqo++
 
-  #define ARES_INC_O Ares++
-  #define AARG_INC_O Aarg++
-  #define AARG1_INC_O Aarg1++
-  #define AARG2_INC_O Aarg2++
-  #define AQO_INC_O Aqo++
+#define ARES_INC_O Ares++
+#define AARG_INC_O Aarg++
+#define AARG1_INC_O Aarg1++
+#define AARG2_INC_O Aarg2++
+#define AQO_INC_O Aqo++
 
-  #define ASSIGN_A(a, b) a = b;
-  #define HOS_OV_ASSIGN_A(a, b) a = b;
-  #define FOR_0_LE_l_LT_q for (int l = 0; l < q; l++)
+#define ASSIGN_A(a, b) a = b;
+#define HOS_OV_ASSIGN_A(a, b) a = b;
+#define FOR_0_LE_l_LT_q for (int l = 0; l < q; l++)
 
 #else /* _FOV_, _HOS_, _HOV_ */
-  #define ARES *Ares
-  #define AARG *Aarg
-  #define AARG1 *Aarg1
-  #define AARG2 *Aarg2
-  #define AQO *Aqo
+#define ARES *Ares
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
+#define AQO *Aqo
 
-  #define ARES_INC *Ares++
-  #define AARG_INC *Aarg++
-  #define AARG1_INC *Aarg1++
-  #define AARG2_INC *Aarg2++
-  #define AQO_INC *Aqo++
+#define ARES_INC *Ares++
+#define AARG_INC *Aarg++
+#define AARG1_INC *Aarg1++
+#define AARG2_INC *Aarg2++
+#define AQO_INC *Aqo++
 
-  #define ARES_INC_O Ares++
-  #define AARG_INC_O Aarg++
-  #define AARG1_INC_O Aarg1++
-  #define AARG2_INC_O Aarg2++
-  #define AQO_INC_O Aqo++
+#define ARES_INC_O Ares++
+#define AARG_INC_O Aarg++
+#define AARG1_INC_O Aarg1++
+#define AARG2_INC_O Aarg2++
+#define AQO_INC_O Aqo++
 
-  #define ASSIGN_A(a, b) a = b;
-  #define HOS_OV_ASSIGN_A(Aqo, Atemp)
-  #define FOR_0_LE_l_LT_q int l = 0;
+#define ASSIGN_A(a, b) a = b;
+#define HOS_OV_ASSIGN_A(Aqo, Atemp)
+#define FOR_0_LE_l_LT_q int l = 0;
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
-  #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-  #define FOR_p_GT_l_GE_0                                                      \
-    for (int l = p - 1; l >= 0; l--) /* why ? not used here */
+#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
+#define FOR_p_GT_l_GE_0                                                        \
+  for (int l = p - 1; l >= 0; l--) /* why ? not used here */
 #elif _HOS_OV_
-  #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-  #define FOR_p_GT_l_GE_0 /* why ? not used here */
+#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
+#define FOR_p_GT_l_GE_0 /* why ? not used here */
 #else
-  #define FOR_0_LE_l_LT_p
-  #define FOR_p_GT_l_GE_0 /* why ? not used here */
+#define FOR_0_LE_l_LT_p
+#define FOR_p_GT_l_GE_0 /* why ? not used here */
 #endif
 
 #ifdef _HOV_
-  #define FOR_0_LE_l_LT_pk1 for (int l = 0; l < pk1; l++)
-  #define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l = 0; l < pk1; l++)
+#define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
 #elif _FOV_
-  #define FOR_0_LE_l_LT_pk1 for (int l = 0; l < p; l++)
-  #define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l = 0; l < p; l++)
+#define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
 #elif _HOS_
-  #define FOR_0_LE_l_LT_pk1 for (int l = 0; l < k1; l++)
-  #define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l = 0; l < k1; l++)
+#define FOR_0_LE_l_LT_pk for (int l = 0; l < k; l++)
 #elif _HOS_OV_
-  #define FOR_0_LE_l_LT_pk1 for (int l = 0; l < pk1; l++)
-  #define FOR_0_LE_l_LT_pk for (int l = 0; l < p * k; l++)
+#define FOR_0_LE_l_LT_pk1 for (int l = 0; l < pk1; l++)
+#define FOR_0_LE_l_LT_pk for (int l = 0; l < p * k; l++)
 #else
-  #define FOR_0_LE_l_LT_pk1
-  #define FOR_0_LE_l_LT_pk
+#define FOR_0_LE_l_LT_pk1
+#define FOR_0_LE_l_LT_pk
 #endif
 
 /*--------------------------------------------------------------------------*/
 /*                                                         VEC_COMPUTED_* */
 #ifdef _ADOLC_VECTOR
-  #define VEC_COMPUTED_INIT computed = 0;
-  #define VEC_COMPUTED_CHECK                                                   \
-    if (computed == 0) {                                                       \
-      computed = 1;
-  #define VEC_COMPUTED_END }
+#define VEC_COMPUTED_INIT computed = 0;
+#define VEC_COMPUTED_CHECK                                                     \
+  if (computed == 0) {                                                         \
+    computed = 1;
+#define VEC_COMPUTED_END }
 #else
-  #define VEC_COMPUTED_INIT
-  #define VEC_COMPUTED_CHECK
-  #define VEC_COMPUTED_END
+#define VEC_COMPUTED_INIT
+#define VEC_COMPUTED_CHECK
+#define VEC_COMPUTED_END
 #endif
 
 /* END Macros */
@@ -249,7 +251,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <math.h>
 
 #if defined(ADOLC_DEBUG)
-  #include <string.h>
+#include <string.h>
 #endif /* ADOLC_DEBUG */
 
 BEGIN_C_DECLS
@@ -380,17 +382,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
   /****************************************************************************/
   /*                                          extern diff. function variables */
 #if defined(_HOS_)
-  #define ADOLC_EXT_FCT_U dpp_U
-  #define ADOLC_EXT_FCT_Z dpp_Z
-  #define ADOLC_EXT_FCT_POINTER hos_ti_reverse
-  #define ADOLC_EXT_FCT_COMPLETE                                               \
-    hos_ti_reverse(m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
+#define ADOLC_EXT_FCT_U dpp_U
+#define ADOLC_EXT_FCT_Z dpp_Z
+#define ADOLC_EXT_FCT_POINTER hos_ti_reverse
+#define ADOLC_EXT_FCT_COMPLETE                                                 \
+  hos_ti_reverse(m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
 #else
-  #define ADOLC_EXT_FCT_U dppp_U
-  #define ADOLC_EXT_FCT_Z dppp_Z
-  #define ADOLC_EXT_FCT_POINTER hov_reverse
-  #define ADOLC_EXT_FCT_COMPLETE                                               \
-    hov_reverse(m, p, edfct->dpp_U, n, degre, edfct->dppp_Z, edfct->spp_nz)
+#define ADOLC_EXT_FCT_U dppp_U
+#define ADOLC_EXT_FCT_Z dppp_Z
+#define ADOLC_EXT_FCT_POINTER hov_reverse
+#define ADOLC_EXT_FCT_COMPLETE                                                 \
+  hov_reverse(m, p, edfct->dpp_U, n, degre, edfct->dppp_Z, edfct->spp_nz)
 #endif
 
 #ifdef _HOV_
@@ -414,9 +416,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
           GENERATED_FILENAME, tnum, indep, depen);
 
   fprintf(DIAG_OUT, "                    degree: %d\n", degre);
-  #ifdef _ADOLC_VECTOR_
+#ifdef _ADOLC_VECTOR_
   fprintf(DIAG_OUT, "                    p: %d\n\n", nrows);
-  #endif
+#endif
 
 #endif
 
@@ -577,9 +579,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
   unsigned int countPerOperation[256], taylorPerOperation[256];
   memset(countPerOperation, 0, 1024);
   memset(taylorPerOperation, 0, 1024);
-  #define UPDATE_TAYLORREAD(X) taylorPerOperation[operation] += X;
+#define UPDATE_TAYLORREAD(X) taylorPerOperation[operation] += X;
 #else
-  #define UPDATE_TAYLORREAD(X)
+#define UPDATE_TAYLORREAD(X)
 #endif /* ADOLC_DEBUG */
 
   operation = get_op_r();

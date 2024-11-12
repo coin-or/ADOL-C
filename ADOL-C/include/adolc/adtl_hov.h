@@ -278,15 +278,15 @@ enum ModeMask {
 };
 
 #if defined(HAVE_BUILTIN_EXPECT) && HAVE_BUILTIN_EXPECT
-  #define likely(x) __builtin_expect(!!(x), 1)
-  #define unlikely(x) __builtin_expect(!!(x), 0)
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 #endif
 
 #ifndef likely
-  #define likely(x) (x)
+#define likely(x) (x)
 #endif
 #ifndef unlikely
-  #define unlikely(x) (x)
+#define unlikely(x) (x)
 #endif
 
 inline bool adouble::_do_val() {

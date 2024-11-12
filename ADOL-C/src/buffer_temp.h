@@ -15,20 +15,20 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_STRUCT_BUF_H)
-  #define ADOLC_STRUCT_BUF_H 1
+#define ADOLC_STRUCT_BUF_H 1
 
-  #include "taping_p.h"
-  #include <adolc/internal/common.h>
+#include "taping_p.h"
+#include <adolc/internal/common.h>
 
-  #if defined(__cplusplus)
-  /****************************************************************************/
-  /*                                                          This is all C++ */
+#if defined(__cplusplus)
+/****************************************************************************/
+/*                                                          This is all C++ */
 
-    #include <cstdlib>
+#include <cstdlib>
 
-    #define BUFFER Buffer<SubBufferElement, _subBufferSize>
-    #define BUFFER_TEMPLATE                                                    \
-      template <class SubBufferElement, IndexType _subBufferSize>
+#define BUFFER Buffer<SubBufferElement, _subBufferSize>
+#define BUFFER_TEMPLATE                                                        \
+  template <class SubBufferElement, IndexType _subBufferSize>
 
 typedef locint IndexType;
 
@@ -137,6 +137,6 @@ SubBufferElement *BUFFER::getElement(IndexType index) {
   return &currentSubBuffer->elements[index];
 }
 
-  #endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* ADOLC_STRUCT_BUF_H */

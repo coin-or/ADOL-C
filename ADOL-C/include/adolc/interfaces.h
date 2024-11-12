@@ -44,19 +44,19 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_INTERFACES_H)
-  #define ADOLC_INTERFACES_H 1
+#define ADOLC_INTERFACES_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
-  #if defined(SPARSE)
-    #include <adolc/sparse/sparse_fo_rev.h>
-    #include <adolc/sparse/sparsedrivers.h>
-  #endif
+#if defined(SPARSE)
+#include <adolc/sparse/sparse_fo_rev.h>
+#include <adolc/sparse/sparsedrivers.h>
+#endif
 
-  /****************************************************************************/
-  /****************************************************************************/
-  /*                                                       Now the C++ THINGS */
-  #if defined(__cplusplus)
+/****************************************************************************/
+/****************************************************************************/
+/*                                                       Now the C++ THINGS */
+#if defined(__cplusplus)
 
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
@@ -169,7 +169,7 @@ ADOLC_DLL_EXPORT int reverse(short, int, int, int, int, double *, double **);
 /* reverse(tag, m, n, d, Z[q][n][d+1], nz[q][n]) : hov                      */
 ADOLC_DLL_EXPORT int reverse(short, int, int, int, double ***, short ** = 0);
 
-  #endif
+#endif
 
 /****************************************************************************/
 /****************************************************************************/

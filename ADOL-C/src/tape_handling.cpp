@@ -19,14 +19,14 @@
 #include <adolc/revolve.h>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
-  #include "medipacksupport_p.h"
+#include "medipacksupport_p.h"
 #endif
 
 #include <algorithm>
 #include <cstring>
 #include <iostream>
 #ifdef HAVE_UNISTD_H
-  #include <unistd.h>
+#include <unistd.h>
 #endif
 #include <errno.h>
 #include <stack>
@@ -879,7 +879,7 @@ void initADOLC() { theKeeper.touch(); }
 /****************************************************************************/
 /****************************************************************************/
 #if defined(_OPENMP)
-  #include <adolc/adolc_openmp.h>
+#include <adolc/adolc_openmp.h>
 
 ADOLC_OpenMP ADOLC_OpenMP_Handler;
 ADOLC_OpenMP_NC ADOLC_OpenMP_Handler_NC;
@@ -894,9 +894,9 @@ static bool firstParallel = true;
 /****************************************************************************/
 void beginParallel() {
   ADOLC_OPENMP_THREAD_NUMBER;
-  #if defined(ADOLC_THREADSAVE_ERRNO)
+#if defined(ADOLC_THREADSAVE_ERRNO)
   errno = omp_get_thread_num();
-  #endif
+#endif
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   if (ADOLC_threadNumber == 0) { /* master only */

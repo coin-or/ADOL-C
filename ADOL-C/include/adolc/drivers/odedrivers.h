@@ -15,10 +15,10 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_DRIVERS_ODEDRIVERS_H)
-  #define ADOLC_DRIVERS_ODEDRIVERS_H 1
+#define ADOLC_DRIVERS_ODEDRIVERS_H 1
 
-  #include <adolc/interfaces.h>
-  #include <adolc/internal/common.h>
+#include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -41,10 +41,10 @@ ADOLC_DLL_EXPORT fint accodec_(fint *, fdouble *, fint *, fdouble *, fdouble *);
 
 END_C_DECLS
 
-  /****************************************************************************/
-  /****************************************************************************/
-  /*                                                       Now the C++ THINGS */
-  #if defined(__cplusplus)
+/****************************************************************************/
+/****************************************************************************/
+/*                                                       Now the C++ THINGS */
+#if defined(__cplusplus)
 
 /****************************************************************************/
 /*                                       DRIVERS FOR ODEs, overloaded calls */
@@ -116,7 +116,7 @@ inline void accode(int n,               // space dimension
   accodec(n, 1.0, deg, A, B, nonzero);
 }
 
-  #endif
+#endif
 
 /****************************************************************************/
 #endif

@@ -26,20 +26,20 @@
 #include <sys/types.h>
 
 #ifdef ADOLC_AMPI_SUPPORT
-  #include "ampi/ampi.h"
-  #include "ampi/tape/support.h"
+#include "ampi/ampi.h"
+#include "ampi/tape/support.h"
 #endif
 
 #include <adolc/param.h>
 
 #if defined(_WINDOWS) && !__STDC__
-  #define stat _stat
-  #define S_IFDIR _S_IFDIR
-  #define S_IFMT _S_IFMT
+#define stat _stat
+#define S_IFDIR _S_IFDIR
+#define S_IFMT _S_IFMT
 #endif
 
 #ifndef S_ISDIR
-  #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 /*--------------------------------------------------------------------------*/

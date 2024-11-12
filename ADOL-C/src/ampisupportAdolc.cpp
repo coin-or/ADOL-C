@@ -18,9 +18,9 @@
 #include <cstring>
 
 #ifdef ADOLC_AMPI_SUPPORT
-  #include "ampi/adTool/support.h"
-  #include "ampi/tape/support.h"
-  #include "ampisupportAdolc.h"
+#include "ampi/adTool/support.h"
+#include "ampi/tape/support.h"
+#include "ampisupportAdolc.h"
 
 extern "C" void ADOLC_TLM_AMPI_PROD(void *invec, void *inoutvec, int *len,
                                     MPI_Datatype *dtype);

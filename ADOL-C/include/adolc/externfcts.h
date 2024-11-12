@@ -14,10 +14,10 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_EXTERNFCTS_H)
-  #define ADOLC_EXTERNFCTS_H 1
+#define ADOLC_EXTERNFCTS_H 1
 
-  #include <adolc/adouble.h>
-  #include <adolc/internal/common.h>
+#include <adolc/adouble.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -320,9 +320,9 @@ typedef struct ext_diff_fct {
 
 END_C_DECLS
 
-  #include <adolc/externfcts2.h>
+#include <adolc/externfcts2.h>
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 /****************************************************************************/
 /*                                                          This is all C++ */
 
@@ -340,9 +340,9 @@ ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct *edfct, int iArrLength,
  */
 ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct *edfct);
 
-    #include <adolc/edfclasses.h>
+#include <adolc/edfclasses.h>
 
-  #endif /* __CPLUSPLUS */
+#endif /* __CPLUSPLUS */
 
 /****************************************************************************/
 #endif /* ADOLC_EXTERNFCTS_H */

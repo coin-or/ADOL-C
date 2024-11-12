@@ -16,34 +16,34 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_DVLPARMS_H)
-  #define ADOLC_DVLPARMS_H 1
+#define ADOLC_DVLPARMS_H 1
 
-  /*--------------------------------------------------------------------------*/
-  /* Directory where tapes are created */
-  #define TAPE_DIR "."
-  /* File names for the tapes */
-  #define ADOLC_TAYLORS_NAME "ADOLC-Taylors_"
-  #define ADOLC_VALUES_NAME "ADOLC-Values_"
-  #define ADOLC_LOCATIONS_NAME "ADOLC-Locations_"
-  #define ADOLC_OPERATIONS_NAME "ADOLC-Operations_"
+/*--------------------------------------------------------------------------*/
+/* Directory where tapes are created */
+#define TAPE_DIR "."
+/* File names for the tapes */
+#define ADOLC_TAYLORS_NAME "ADOLC-Taylors_"
+#define ADOLC_VALUES_NAME "ADOLC-Values_"
+#define ADOLC_LOCATIONS_NAME "ADOLC-Locations_"
+#define ADOLC_OPERATIONS_NAME "ADOLC-Operations_"
 
-  #ifdef _WINDOWS
-    #define PATHSEPARATOR "\\"
-    #define __func__ __FUNCTION__
-    #define snprintf _snprintf
-  #else
-    #define PATHSEPARATOR "/"
-  #endif
+#ifdef _WINDOWS
+#define PATHSEPARATOR "\\"
+#define __func__ __FUNCTION__
+#define snprintf _snprintf
+#else
+#define PATHSEPARATOR "/"
+#endif
 
-  /*--------------------------------------------------------------------------*/
-  /* TAPE IDENTIFICATION (ADOLC & version check) */
-  #define statSpace 42
-  /* NOTE: ADOLC_ID and stats must fit in statSpace locints required!         */
+/*--------------------------------------------------------------------------*/
+/* TAPE IDENTIFICATION (ADOLC & version check) */
+#define statSpace 42
+/* NOTE: ADOLC_ID and stats must fit in statSpace locints required!         */
 
-  /*--------------------------------------------------------------------------*/
-  /* ADOL-C configuration (never change this) */
-  #define adolc_overwrite 1
-  #define adolc_compsize >
+/*--------------------------------------------------------------------------*/
+/* ADOL-C configuration (never change this) */
+#define adolc_overwrite 1
+#define adolc_compsize >
 
 /*--------------------------------------------------------------------------*/
 #endif

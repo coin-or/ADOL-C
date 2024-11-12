@@ -14,11 +14,11 @@ package.
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_SPARSE_SPARSE_H)
-  #define ADOLC_SPARSE_SPARSE_H 1
+#define ADOLC_SPARSE_SPARSE_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
 /*                                                                          */
@@ -69,7 +69,7 @@ ADOLC_DLL_EXPORT int forward(short, int, int, int, unsigned long int **,
 ADOLC_DLL_EXPORT int reverse(short, int, int, int, unsigned long int **,
                              unsigned long int **, char = 0);
 
-  #endif
+#endif
 
 /****************************************************************************/
 

@@ -63,104 +63,104 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #ifdef _FOS_
-  #ifdef _ABS_NORM_
-    #define GENERATED_FILENAME "fos_pl_reverse"
-  #else
-    #ifdef _ABS_NORM_SIG_
-      #define GENERATED_FILENAME "fos_pl_sig_reverse"
-    #else
-      #define GENERATED_FILENAME "fos_reverse"
-    #endif
-  #endif
+#ifdef _ABS_NORM_
+#define GENERATED_FILENAME "fos_pl_reverse"
+#else
+#ifdef _ABS_NORM_SIG_
+#define GENERATED_FILENAME "fos_pl_sig_reverse"
+#else
+#define GENERATED_FILENAME "fos_reverse"
+#endif
+#endif
 
-  #define RESULTS(l, indexi) results[indexi]
-  #define LAGRANGE(l, indexd) lagrange[indexd]
-  #define RESULTSTRANS(l, indexi) results[indexi]
-  #define LAGRANGETRANS(l, indexd) lagrange[indexd]
+#define RESULTS(l, indexi) results[indexi]
+#define LAGRANGE(l, indexd) lagrange[indexd]
+#define RESULTSTRANS(l, indexi) results[indexi]
+#define LAGRANGETRANS(l, indexd) lagrange[indexd]
 
 /*--------------------------------------------------------------------------*/
 #elif _FOV_
-  #define GENERATED_FILENAME "fov_reverse"
+#define GENERATED_FILENAME "fov_reverse"
 
-  #define _ADOLC_VECTOR_
+#define _ADOLC_VECTOR_
 
-  #define RESULTS(l, indexi) results[l][indexi]
-  #define LAGRANGE(l, indexd) lagrange[l][indexd]
-  #define RESULTSTRANS(l, indexi) results[indexi][l]
-  #define LAGRANGETRANS(l, indexd) lagrange[indexd][l]
+#define RESULTS(l, indexi) results[l][indexi]
+#define LAGRANGE(l, indexd) lagrange[l][indexd]
+#define RESULTSTRANS(l, indexi) results[indexi][l]
+#define LAGRANGETRANS(l, indexd) lagrange[indexd][l]
 
 #else
-  #if defined(_INT_REV_)
-    #if defined(_TIGHT_)
-      #define GENERATED_FILENAME "int_reverse_t"
-    #endif
-    #if defined(_NTIGHT_)
-      #define GENERATED_FILENAME "int_reverse_s"
-    #endif
-    #define RESULTS(l, indexi) results[l][indexi]
-    #define LAGRANGE(l, indexd) lagrange[l][indexd]
-    #define RESULTSTRANS(l, indexi) results[indexi][l]
-    #define LAGRANGETRANS(l, indexd) lagrange[indexd][l]
-  #else
-    #error Error ! Define [_FOS_ | _FOV_ | _INT_REV_SAFE_ | _INT_REV_TIGHT_ ]
-  #endif
+#if defined(_INT_REV_)
+#if defined(_TIGHT_)
+#define GENERATED_FILENAME "int_reverse_t"
+#endif
+#if defined(_NTIGHT_)
+#define GENERATED_FILENAME "int_reverse_s"
+#endif
+#define RESULTS(l, indexi) results[l][indexi]
+#define LAGRANGE(l, indexd) lagrange[l][indexd]
+#define RESULTSTRANS(l, indexi) results[indexi][l]
+#define LAGRANGETRANS(l, indexd) lagrange[indexd][l]
+#else
+#error Error ! Define [_FOS_ | _FOV_ | _INT_REV_SAFE_ | _INT_REV_TIGHT_ ]
+#endif
 #endif
 /*--------------------------------------------------------------------------*/
 /*                                                     access to variables  */
 
 #ifdef _FOS_
-  #define AARG *Aarg
-  #define AARG1 *Aarg1
-  #define AARG2 *Aarg2
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
 
-  #define ARES_INC *Ares
-  #define AARG_INC *Aarg
-  #define AARG1_INC *Aarg1
-  #define AARG2_INC *Aarg2
+#define ARES_INC *Ares
+#define AARG_INC *Aarg
+#define AARG1_INC *Aarg1
+#define AARG2_INC *Aarg2
 
-  #define ARES_INC_O Ares
-  #define AARG_INC_O / adAarg
-  #define AARG1_INC_O Aarg1
-  #define AARG2_INC_O Aarg2
+#define ARES_INC_O Ares
+#define AARG_INC_O / adAarg
+#define AARG1_INC_O Aarg1
+#define AARG2_INC_O Aarg2
 
-  #define ASSIGN_A(a, b) a = &b;
+#define ASSIGN_A(a, b) a = &b;
 
 #else /* _FOV_ */
-  #ifdef _FOV_
-    #define AARG *Aarg
-    #define AARG1 *Aarg1
-    #define AARG2 *Aarg2
+#ifdef _FOV_
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
 
-    #define ARES_INC *Ares++
-    #define AARG_INC *Aarg++
-    #define AARG1_INC *Aarg1++
-    #define AARG2_INC *Aarg2++
+#define ARES_INC *Ares++
+#define AARG_INC *Aarg++
+#define AARG1_INC *Aarg1++
+#define AARG2_INC *Aarg2++
 
-    #define ARES_INC_O Ares++
-    #define AARG_INC_O Aarg++
-    #define AARG1_INC_O Aarg1++
-    #define AARG2_INC_O Aarg2++
+#define ARES_INC_O Ares++
+#define AARG_INC_O Aarg++
+#define AARG1_INC_O Aarg1++
+#define AARG2_INC_O Aarg2++
 
-    #define ASSIGN_A(a, b) a = b;
-  #else
-    #ifdef _INT_REV_
-      #define AARG *Aarg
-      #define AARG1 *Aarg1
-      #define AARG2 *Aarg2
+#define ASSIGN_A(a, b) a = b;
+#else
+#ifdef _INT_REV_
+#define AARG *Aarg
+#define AARG1 *Aarg1
+#define AARG2 *Aarg2
 
-      #define ARES_INC *Ares++
-      #define AARG_INC *Aarg++
-      #define AARG1_INC *Aarg1++
-      #define AARG2_INC *Aarg2++
+#define ARES_INC *Ares++
+#define AARG_INC *Aarg++
+#define AARG1_INC *Aarg1++
+#define AARG2_INC *Aarg2++
 
-      #define ARES_INC_O Ares++
-      #define AARG_INC_O Aarg++
-      #define AARG1_INC_O Aarg1++
-      #define AARG2_INC_O Aarg2++
+#define ARES_INC_O Ares++
+#define AARG_INC_O Aarg++
+#define AARG1_INC_O Aarg1++
+#define AARG2_INC_O Aarg2++
 
-      #define ASSIGN_A(a, b) a = b;
-    #endif
-  #endif
+#define ASSIGN_A(a, b) a = b;
+#endif
+#endif
 #endif
 
 #define TRES rp_T[res]
@@ -171,13 +171,13 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
 #ifdef _ADOLC_VECTOR_
-  #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
+#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
 #else
-  #ifdef _INT_REV_
-    #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++) // Apparently not used
-  #else
-    #define FOR_0_LE_l_LT_p
-  #endif
+#ifdef _INT_REV_
+#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++) // Apparently not used
+#else
+#define FOR_0_LE_l_LT_p
+#endif
 #endif
 
 /* END Macros */
@@ -196,11 +196,11 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <string.h>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
-  #include "medipacksupport_p.h"
+#include "medipacksupport_p.h"
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
-  #include "ampi/ampi.h"
-  #include "ampi/libCommon/modified.h"
+#include "ampi/ampi.h"
+#include "ampi/libCommon/modified.h"
 #endif
 
 BEGIN_C_DECLS
@@ -209,10 +209,10 @@ BEGIN_C_DECLS
 /*                                                             NOW THE CODE */
 
 #ifdef _FOS_
-  /****************************************************************************/
-  /* First-Order Scalar Reverse Pass.                                         */
-  /****************************************************************************/
-  #ifdef _ABS_NORM_
+/****************************************************************************/
+/* First-Order Scalar Reverse Pass.                                         */
+/****************************************************************************/
+#ifdef _ABS_NORM_
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
@@ -222,7 +222,7 @@ int fos_pl_reverse(short tnum,      /* tape id */
                    int swchk,       /* consistency chk on # of switches */
                    int rownum,      /* required row no. of abs-normal form */
                    double *results) /*  coefficient vectors */
-  #elif defined(_ABS_NORM_SIG_)
+#elif defined(_ABS_NORM_SIG_)
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
@@ -232,13 +232,13 @@ int fos_pl_sig_reverse(short tnum, /* tape id */
                        int swchk,  /* consistency chk on # of switches */
                        short *siggrad, double *lagrange,
                        double *results) /*  coefficient vectors */
-  #else
+#else
 int fos_reverse(short tnum, /* tape id */
                 int depen,  /* consistency chk on # of deps */
                 int indep,  /* consistency chk on # of indeps */
                 double *lagrange, double *results) /*  coefficient vectors */
 
-  #endif
+#endif
 #elif _FOV_
 /****************************************************************************/
 /* First-Order Vector Reverse Pass.                                         */
@@ -252,7 +252,7 @@ int fov_reverse(short tnum,        /* tape id */
                 double **results)  /* matrix of coefficient vectors */
 
 #elif defined(_INT_REV_)
-  #if defined(_TIGHT_)
+#if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
@@ -264,7 +264,7 @@ int int_reverse_tight(
     unsigned long int **lagrange, /* domain weight vector[var][row](in)*/
     unsigned long int **results)  /* matrix of coeff. vectors[var][row]*/
 
-  #elif defined(_NTIGHT_)
+#elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
@@ -275,9 +275,9 @@ int int_reverse_safe(
     int nrows,                    /* # of Jacobian rows being calculated   */
     unsigned long int **lagrange, /* domain weight vector[var][row](in)*/
     unsigned long int **results)  /* matrix of coeff. vectors[var][row]*/
-  #else
-    #error Neither _TIGHT_ nor _NTIGHT_ defined
-  #endif
+#else
+#error Neither _TIGHT_ nor _NTIGHT_ defined
+#endif
 #endif
 {
   /****************************************************************************/
@@ -340,40 +340,37 @@ int int_reverse_safe(
   /****************************************************************************/
   /*                                          extern diff. function variables */
 #if defined(_FOS_)
-  #define ADOLC_EXT_FCT_U edfct->dp_U
-  #define ADOLC_EXT_FCT_Z edfct->dp_Z
-  #define ADOLC_EXT_FCT_POINTER fos_reverse
-  #define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
-  #define ADOLC_EXT_FCT_COMPLETE                                               \
-    fos_reverse(m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
-  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
-    fos_reverse_iArr(iArrLength, iArr, m, edfct->dp_U, n, edfct->dp_Z,         \
-                     edfct->dp_x, edfct->dp_y)
-  #define ADOLC_EXT_FCT_SAVE_NUMDIRS
-  #define ADOLC_EXT_FCT_V2_U edfct2->up
-  #define ADOLC_EXT_FCT_V2_Z edfct2->zp
-  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
-    fos_reverse(iArrLength, iArr, nout, nin, (int *)outsz, edfct2->up,         \
-                (int *)insz, edfct2->zp, edfct2->x, edfct2->y,                 \
-                edfct2->context)
+#define ADOLC_EXT_FCT_U edfct->dp_U
+#define ADOLC_EXT_FCT_Z edfct->dp_Z
+#define ADOLC_EXT_FCT_POINTER fos_reverse
+#define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
+#define ADOLC_EXT_FCT_COMPLETE                                                 \
+  fos_reverse(m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
+#define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
+  fos_reverse_iArr(iArrLength, iArr, m, edfct->dp_U, n, edfct->dp_Z,           \
+                   edfct->dp_x, edfct->dp_y)
+#define ADOLC_EXT_FCT_SAVE_NUMDIRS
+#define ADOLC_EXT_FCT_V2_U edfct2->up
+#define ADOLC_EXT_FCT_V2_Z edfct2->zp
+#define ADOLC_EXT_FCT_V2_COMPLETE                                              \
+  fos_reverse(iArrLength, iArr, nout, nin, (int *)outsz, edfct2->up,           \
+              (int *)insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
 #else
-  #define ADOLC_EXT_FCT_U edfct->dpp_U
-  #define ADOLC_EXT_FCT_Z edfct->dpp_Z
-  #define ADOLC_EXT_FCT_POINTER fov_reverse
-  #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
-  #define ADOLC_EXT_FCT_COMPLETE                                               \
-    fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
-  #define ADOLC_EXT_FCT_IARR_COMPLETE                                          \
-    fov_reverse_iArr(iArrLength, iArr, m, p, edfct->dpp_U, n, edfct->dpp_Z,    \
-                     edfct->dp_x, edfct->dp_y)
-  #define ADOLC_EXT_FCT_SAVE_NUMDIRS                                           \
-    ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
-  #define ADOLC_EXT_FCT_V2_U edfct2->Up
-  #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
-  #define ADOLC_EXT_FCT_V2_COMPLETE                                            \
-    fov_reverse(iArrLength, iArr, nout, nin, (int *)outsz, p, edfct2->Up,      \
-                (int *)insz, edfct2->Zp, edfct2->x, edfct2->y,                 \
-                edfct2->context)
+#define ADOLC_EXT_FCT_U edfct->dpp_U
+#define ADOLC_EXT_FCT_Z edfct->dpp_Z
+#define ADOLC_EXT_FCT_POINTER fov_reverse
+#define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
+#define ADOLC_EXT_FCT_COMPLETE                                                 \
+  fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
+#define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
+  fov_reverse_iArr(iArrLength, iArr, m, p, edfct->dpp_U, n, edfct->dpp_Z,      \
+                   edfct->dp_x, edfct->dp_y)
+#define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
+#define ADOLC_EXT_FCT_V2_U edfct2->Up
+#define ADOLC_EXT_FCT_V2_Z edfct2->Zp
+#define ADOLC_EXT_FCT_V2_COMPLETE                                              \
+  fov_reverse(iArrLength, iArr, nout, nin, (int *)outsz, p, edfct2->Up,        \
+              (int *)insz, edfct2->Zp, edfct2->x, edfct2->y, edfct2->context)
 #endif
 #if !defined(_INT_REV_)
   locint n, m;
@@ -407,9 +404,9 @@ int int_reverse_safe(
   /*                                                           DEBUG MESSAGES */
   fprintf(DIAG_OUT, "Call of %s(..) with tag: %d, n: %d, m %d,\n",
           GENERATED_FILENAME, tnum, indep, depen);
-  #ifdef _ADOLC_VECTOR_
+#ifdef _ADOLC_VECTOR_
   fprintf(DIAG_OUT, "                    p: %d\n\n", nrows);
-  #endif
+#endif
 
 #endif
 
@@ -449,11 +446,11 @@ int int_reverse_safe(
     switchnum = swchk - 1;
 #endif
 
-    /****************************************************************************/
-    /*                                                  MEMORY ALLOCATION STUFF
-     */
+  /****************************************************************************/
+  /*                                                  MEMORY ALLOCATION STUFF
+   */
 
-    /*--------------------------------------------------------------------------*/
+  /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
   rp_A = (revreal *)calloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],
                            sizeof(revreal));
@@ -465,24 +462,24 @@ int int_reverse_safe(
   if (rp_T == NULL)
     fail(ADOLC_MALLOC_FAILED);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_REVERSE;
-  #ifdef _ABS_NORM_
+#ifdef _ABS_NORM_
   memset(results, 0, sizeof(double) * (indep + swchk));
-  #endif
-  #define ADJOINT_BUFFER rp_A
-  #define ADJOINT_BUFFER_ARG_L rp_A[arg]
-  #define ADJOINT_BUFFER_RES_L rp_A[res]
-  #define ADJOINT_BUFFER_ARG rp_A[arg]
-  #define ADJOINT_BUFFER_RES rp_A[res]
-  #define ADOLC_EXT_FCT_U_L_LOOP edfct->dp_U[loop]
-  #define ADOLC_EXT_FCT_Z_L_LOOP edfct->dp_Z[loop]
-  #define ADOLC_EXT_FCT_V2_U_LOOP edfct2->up[oloop][loop]
-  #define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->zp[oloop][loop]
-  #define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
-  #define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src) src = dest
+#endif
+#define ADJOINT_BUFFER rp_A
+#define ADJOINT_BUFFER_ARG_L rp_A[arg]
+#define ADJOINT_BUFFER_RES_L rp_A[res]
+#define ADJOINT_BUFFER_ARG rp_A[arg]
+#define ADJOINT_BUFFER_RES rp_A[res]
+#define ADOLC_EXT_FCT_U_L_LOOP edfct->dp_U[loop]
+#define ADOLC_EXT_FCT_Z_L_LOOP edfct->dp_Z[loop]
+#define ADOLC_EXT_FCT_V2_U_LOOP edfct2->up[oloop][loop]
+#define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->zp[oloop][loop]
+#define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
+#define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src) src = dest
 
   /*--------------------------------------------------------------------------*/
 #else
-  #if defined _FOV_ /* FOV */
+#if defined _FOV_ /* FOV */
   rpp_A = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
                              sizeof(revreal *));
   if (rpp_A == NULL)
@@ -500,32 +497,32 @@ int int_reverse_safe(
   if (rp_T == NULL)
     fail(ADOLC_MALLOC_FAILED);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
-    #define ADJOINT_BUFFER rpp_A
-    #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
-    #define ADJOINT_BUFFER_RES_L rpp_A[res][l]
-    #define ADJOINT_BUFFER_ARG rpp_A[arg]
-    #define ADJOINT_BUFFER_RES rpp_A[res]
-    #define ADOLC_EXT_FCT_U_L_LOOP edfct->dpp_U[l][loop]
-    #define ADOLC_EXT_FCT_Z_L_LOOP edfct->dpp_Z[l][loop]
-    #define ADOLC_EXT_FCT_V2_U_LOOP edfct2->Up[oloop][loop]
-    #define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->Zp[oloop][loop]
-    #define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
-    #define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src)
-  #else
-    #if defined _INT_REV_
+#define ADJOINT_BUFFER rpp_A
+#define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
+#define ADJOINT_BUFFER_RES_L rpp_A[res][l]
+#define ADJOINT_BUFFER_ARG rpp_A[arg]
+#define ADJOINT_BUFFER_RES rpp_A[res]
+#define ADOLC_EXT_FCT_U_L_LOOP edfct->dpp_U[l][loop]
+#define ADOLC_EXT_FCT_Z_L_LOOP edfct->dpp_Z[l][loop]
+#define ADOLC_EXT_FCT_V2_U_LOOP edfct2->Up[oloop][loop]
+#define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->Zp[oloop][loop]
+#define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
+#define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src)
+#else
+#if defined _INT_REV_
   upp_A = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
-      #if defined _TIGHT_
+#if defined _TIGHT_
   ADOLC_CURRENT_TAPE_INFOS.upp_A = upp_A;
   rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
                            sizeof(revreal));
   if (rp_T == NULL)
     fail(ADOLC_MALLOC_FAILED);
-      #endif
-      #define ADJOINT_BUFFER upp_A
-      #define ADJOINT_BUFFER_ARG_L upp_A[arg][l]
-      #define ADJOINT_BUFFER_RES_L upp_A[res][l]
-    #endif
-  #endif
+#endif
+#define ADJOINT_BUFFER upp_A
+#define ADJOINT_BUFFER_ARG_L upp_A[arg][l]
+#define ADJOINT_BUFFER_RES_L upp_A[res][l]
+#endif
+#endif
 #endif
 
   /****************************************************************************/
@@ -1717,53 +1714,53 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       if (TARG1 > TARG2)
         FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
-  #else
+#else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-  #endif
+#endif
           if ((coval) && (aTmp))
             MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG2_INC |= aTmp;
-  #else
+#else
           AARG2_INC += aTmp;
-  #endif
+#endif
         }
       else if (TARG1 < TARG2)
         FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
-  #else
+#else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-  #endif
+#endif
           if ((!coval) && (aTmp))
             MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG1_INC |= aTmp;
-  #else
+#else
           AARG1_INC += aTmp;
-  #endif
+#endif
         }
       else { /* both are equal */
         FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
           AARG2_INC |= aTmp;
           AARG1_INC |= aTmp;
-  #else
+#else
           revreal aTmp = *Ares / 2.0;
           fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal "
                             "arguments, adjoints might be incorrect.\n");
           ARES_INC = 0.0;
           AARG2_INC += aTmp;
           AARG1_INC += aTmp;
-  #endif
+#endif
         }
         if (arg1 != arg2)
           MINDEC(ret_c, 1);
@@ -1805,61 +1802,61 @@ int int_reverse_safe(
       AARG_INC += siggrad[switchnum] * aTmp;
       switchnum--;
 #else
-  #if !defined(_NTIGHT_)
+#if !defined(_NTIGHT_)
       if (TARG < 0.0)
         FOR_0_LE_l_LT_p {
-    #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
-    #else
+#else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-    #endif
+#endif
           if ((coval) && (aTmp))
             MINDEC(ret_c, 2);
-    #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG_INC |= aTmp;
-    #else
+#else
           AARG_INC -= aTmp;
-    #endif
+#endif
         }
       else if (TARG > 0.0)
         FOR_0_LE_l_LT_p {
-    #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
-    #else
+#else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-    #endif
+#endif
           if ((!coval) && (aTmp))
             MINDEC(ret_c, 2);
-    #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG_INC |= aTmp;
-    #else
+#else
           AARG_INC += aTmp;
-    #endif
+#endif
         }
       else
         FOR_0_LE_l_LT_p {
-    #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           unsigned long int aTmp = *Ares;
           ARES_INC = 0;
-    #else
+#else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-    #endif
+#endif
           if (aTmp)
             MINDEC(ret_c, 1);
         }
-  #else
+#else
       FOR_0_LE_l_LT_p {
         unsigned long int aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
       }
-  #endif /* !_NTIGHT_ */
-#endif   /* _ABS_NORM */
+#endif /* !_NTIGHT_ */
+#endif /* _ABS_NORM */
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1948,13 +1945,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -1963,13 +1960,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG2_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG2_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2010,13 +2007,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2025,13 +2022,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG2_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG2_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2071,13 +2068,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0.0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2112,13 +2109,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0.0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2151,21 +2148,21 @@ int int_reverse_safe(
       res = get_locint_r();
       arg1 = get_locint_r();
       arg = get_locint_r();
-  #if !defined(_NTIGHT_)
+#if !defined(_NTIGHT_)
       coval = get_val_r();
-  #endif
+#endif
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           ARES_INC = 0;
-  #else
+#else
           ARES_INC = 0.0;
-  #endif
+#endif
 
-  #if !defined(_NTIGHT_)
+#if !defined(_NTIGHT_)
       ADOLC_GET_TAYLOR(res);
-  #endif /* !_NTIGHT_ */
+#endif /* !_NTIGHT_ */
 
       break;
 #endif
@@ -2194,13 +2191,13 @@ int int_reverse_safe(
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
         AARG1_INC |= *Ares;
         ARES_INC = 0;
-  #else
+#else
         AARG1_INC += *Ares;
         *Ares = 0.0;
-  #endif
+#endif
       }
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2260,13 +2257,13 @@ int int_reverse_safe(
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
       FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
         AARG_INC |= *Ares;
         ARES_INC = 0;
-  #else
+#else
         AARG_INC += *Ares;
         ARES_INC = 0.0;
-  #endif
+#endif
       }
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2300,11 +2297,11 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           ARES_INC = 0;
-  #else
+#else
           ARES_INC = 0.0;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2324,11 +2321,11 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           ARES_INC = 0;
-  #else
+#else
           ARES_INC = 0.0;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2348,11 +2345,11 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           ARES_INC = 0;
-  #else
+#else
           ARES_INC = 0.0;
-  #endif
+#endif
       ADOLC_GET_TAYLOR(res);
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
@@ -2373,13 +2370,13 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p {
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
         AARG_INC |= *Ares;
         ARES_INC = 0;
-  #else
+#else
         AARG_INC += *Ares;
         ARES_INC = 0.0;
-  #endif
+#endif
       }
 
       ADOLC_GET_TAYLOR(res);
@@ -2453,11 +2450,11 @@ int int_reverse_safe(
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg]);
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG_INC |= ARES_INC;
-  #else
+#else
           AARG_INC += ARES_INC;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2509,11 +2506,11 @@ int int_reverse_safe(
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG_INC |= ARES_INC;
-  #else
+#else
           AARG_INC -= ARES_INC;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2530,11 +2527,11 @@ int int_reverse_safe(
       res = (size_t)trunc(fabs(TARG1));
       coval = get_val_r();
 
-  #if !defined(_INT_REV_)
+#if !defined(_INT_REV_)
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p ARES_INC *= coval;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2552,11 +2549,11 @@ int int_reverse_safe(
       res = (size_t)trunc(fabs(TARG1));
       coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
 
-  #if !defined(_INT_REV_)
+#if !defined(_INT_REV_)
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
       FOR_0_LE_l_LT_p ARES_INC *= coval;
-  #endif
+#endif
 
       ADOLC_GET_TAYLOR(res);
 #else
@@ -2579,15 +2576,15 @@ int int_reverse_safe(
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
       FOR_0_LE_l_LT_p
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
           AARG_INC |= ARES_INC;
-  #else
+#else
       {
         revreal aTmp = *Ares;
         ARES_INC = aTmp * TARG;
         AARG_INC += aTmp * TRES;
       }
-  #endif
+#endif
 #else
       fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
                         "not work in safe mode, please use tight mode\n");
@@ -2703,13 +2700,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2718,13 +2715,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG2_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG2_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2761,13 +2758,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2776,13 +2773,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG2_INC |= *Ares;
             ARES_INC = 0;
-  #else
+#else
             AARG2_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2812,13 +2809,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval <= 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0.0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -2849,13 +2846,13 @@ int int_reverse_safe(
           FOR_0_LE_l_LT_p {
             if ((coval < 0.0) && (*Ares))
               MINDEC(ret_c, 2);
-  #if defined(_INT_REV_)
+#if defined(_INT_REV_)
             AARG1_INC |= *Ares;
             ARES_INC = 0.0;
-  #else
+#else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
-  #endif
+#endif
           }
         else
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
@@ -3171,21 +3168,21 @@ int int_reverse_safe(
       ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
       ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
       break;
-  #ifdef ADOLC_MEDIPACK_SUPPORT
+#ifdef ADOLC_MEDIPACK_SUPPORT
       /*--------------------------------------------------------------------------*/
     case medi_call: {
       locint mediIndex = get_locint_r();
       short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
 
-    #if defined _FOS_
+#if defined _FOS_
       mediCallHandleReverse(tapeId, mediIndex, rp_T, &ADJOINT_BUFFER, 1);
-    #elif defined _FOV_
+#elif defined _FOV_
       mediCallHandleReverse(tapeId, mediIndex, rp_T, ADJOINT_BUFFER, p);
-    #endif
+#endif
       break;
     }
-  #endif
-  #ifdef ADOLC_AMPI_SUPPORT
+#endif
+#ifdef ADOLC_AMPI_SUPPORT
       /*--------------------------------------------------------------------------*/
     case ampi_send: {
       BW_AMPI_Send(buf, count, datatype, src, tag, pairedWith, comm);
@@ -3248,7 +3245,7 @@ int int_reverse_safe(
       BW_AMPI_Allreduce(buf, rbuf, count, datatype, op, comm);
       break;
     }
-  #endif
+#endif
 #endif /* !_INT_REV_ */
       /*--------------------------------------------------------------------------*/
     default: /* default */

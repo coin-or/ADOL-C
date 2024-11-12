@@ -68,27 +68,27 @@ void adouble::initInternal(void) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  #if defined(ADOLC_ADOUBLE_STDCZERO)
+#if defined(ADOLC_ADOUBLE_STDCZERO)
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
     if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
-    #endif
+#endif
       put_op(assign_d_zero);
       ADOLC_PUT_LOCINT(location); // = res
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
         ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
-    #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
     }
-    #endif
+#endif
   }
 
   ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
-    #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
   ADOLC_GLOBAL_TAPE_VARS.actStore[location] = false;
-    #endif
-  #endif
+#endif
+#endif
   isInit = true;
 }
 #else
@@ -104,24 +104,24 @@ adouble::adouble() {
 
 #if defined(ADOLC_ADOUBLE_STDCZERO)
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-  #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
     if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
-  #endif
+#endif
       put_op(assign_d_zero);
       ADOLC_PUT_LOCINT(location); // = res
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
         ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
-  #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
     }
-  #endif
+#endif
   }
 
   ADOLC_GLOBAL_TAPE_VARS.store[location] = 0.;
-  #if defined(ADOLC_TRACK_ACTIVITY)
+#if defined(ADOLC_TRACK_ACTIVITY)
   ADOLC_GLOBAL_TAPE_VARS.actStore[location] = false;
-  #endif
+#endif
 #endif
 }
 

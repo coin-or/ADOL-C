@@ -14,9 +14,9 @@
 
 ----------------------------------------------------------------------------*/
 #if !defined(ADOLC_TAPING_H)
-  #define ADOLC_TAPING_H 1
+#define ADOLC_TAPING_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
@@ -92,7 +92,7 @@ END_C_DECLS
  */
 ADOLC_DLL_EXPORT void initADOLC();
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 
 /* Initialization for the taping process. Creates buffers for this tape, sets
  * files names, and calls appropriate setup routines.
@@ -117,9 +117,9 @@ ADOLC_DLL_EXPORT void trace_off(int flag = 0);
 
 ADOLC_DLL_EXPORT bool isTaping();
 
-    #include <vector>
+#include <vector>
 ADOLC_DLL_EXPORT void cachedTraceTags(std::vector<short> &result);
 
-  #endif
+#endif
 
 #endif /* ADOLC_TAPING_H */

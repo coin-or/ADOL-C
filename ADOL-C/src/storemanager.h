@@ -65,15 +65,15 @@
 #define ADOL_C__STOREMANAGER_H
 
 #if defined(ADOLC_INTERNAL)
-  #if HAVE_CONFIG_H
-    #include "config.h"
-  #endif
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #endif
 #include <adolc/internal/adolc_settings.h>
 #include <forward_list>
 
 #if USE_BOOST_POOL
-  #include <boost/pool/pool_alloc.hpp>
+#include <boost/pool/pool_alloc.hpp>
 #endif
 
 #include <adolc/internal/common.h>

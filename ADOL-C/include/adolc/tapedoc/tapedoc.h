@@ -14,9 +14,9 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_TAPEDOC_TAPEDOC_H)
-  #define ADOLC_TAPEDOC_TAPEDOC_H 1
+#define ADOLC_TAPEDOC_TAPEDOC_H 1
 
-  #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 

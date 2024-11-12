@@ -17,8 +17,8 @@
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 
-  #include "medipacksupport_p.h"
-  #include <vector>
+#include "medipacksupport_p.h"
+#include <vector>
 
 struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {
 

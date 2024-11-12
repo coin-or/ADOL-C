@@ -19,29 +19,29 @@
 ---------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_ADOUBLE_H)
-  #define ADOLC_ADOUBLE_H 1
+#define ADOLC_ADOUBLE_H 1
 
-  /****************************************************************************/
-  /*                                                         THIS FILE IS C++ */
-  #ifdef __cplusplus
+/****************************************************************************/
+/*                                                         THIS FILE IS C++ */
+#ifdef __cplusplus
 
-    #include <cmath>
-    #include <cstdio>
-    #include <cstdlib>
-    #include <iostream>
-    #include <limits>
-    #include <stdexcept>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 using std::cerr;
 using std::cin;
 using std::cout;
 using std::istream;
 using std::logic_error;
 using std::ostream;
-    #endif
+#endif
 
-    #include <adolc/internal/common.h>
+#include <adolc/internal/common.h>
 
 /* NOTICE: There are automatic includes at the end of this file! */
 
@@ -142,16 +142,16 @@ public:
   badouble &operator-=(const pdouble &);
   badouble &operator*=(const pdouble &);
   inline badouble &operator/=(const pdouble &);
-    /*--------------------------------------------------------------------------*/
-    /* Comparison (friends) */
-    #if !defined(ADOLC_ADVANCED_BRANCHING)
+/*--------------------------------------------------------------------------*/
+/* Comparison (friends) */
+#if !defined(ADOLC_ADVANCED_BRANCHING)
   inline friend bool operator!=(const badouble &, const badouble &);
   inline friend bool operator==(const badouble &, const badouble &);
   inline friend bool operator<=(const badouble &, const badouble &);
   inline friend bool operator>=(const badouble &, const badouble &);
   inline friend bool operator>(const badouble &, const badouble &);
   inline friend bool operator<(const badouble &, const badouble &);
-    #endif
+#endif
   inline friend bool operator!=(double, const badouble &);
   friend ADOLC_DLL_EXPORT bool operator!=(const badouble &, double);
   inline friend bool operator==(double, const badouble &);
@@ -165,13 +165,13 @@ public:
   inline friend bool operator<(double, const badouble &);
   friend ADOLC_DLL_EXPORT bool operator<(const badouble &, double);
 
-    /*--------------------------------------------------------------------------*/
-    /* Functions friends with both badouble and adub */
-    #define _IN_CLASS_ 1
-    #define _IN_BADOUBLE_ 1
-    #include <adolc/internal/adubfunc.h>
-    #undef _IN_BADOUBLE_
-    #undef _IN_CLASS_
+/*--------------------------------------------------------------------------*/
+/* Functions friends with both badouble and adub */
+#define _IN_CLASS_ 1
+#define _IN_BADOUBLE_ 1
+#include <adolc/internal/adubfunc.h>
+#undef _IN_BADOUBLE_
+#undef _IN_CLASS_
 
   /*--------------------------------------------------------------------------*/
   /* special operators (friends) */
@@ -195,30 +195,30 @@ public:
   friend ADOLC_DLL_EXPORT void condeqassign(adouble &res, const badouble &cond,
                                             const badouble &arg);
 
-    #define _IN_CLASS_ 1
-    #define _IN_BADOUBLE_ 1
-    #include <adolc/internal/paramfunc.h>
-    #undef _IN_BADOUBLE_
-    #undef _IN_CLASS_
+#define _IN_CLASS_ 1
+#define _IN_BADOUBLE_ 1
+#include <adolc/internal/paramfunc.h>
+#undef _IN_BADOUBLE_
+#undef _IN_CLASS_
 };
 
-    /****************************************************************************/
-    /*                                                               CLASS ADUB
-     */
+/****************************************************************************/
+/*                                                               CLASS ADUB
+ */
 
-    /*
-       The class Adub
-       ---- Basically used as a temporary result.  The address for an
-            adub is usually generated within an operation.  That address
-            is "freed" when the adub goes out of scope (at destruction time).
-       ---- operates just like a badouble, but it has a destructor defined for
-       it.
-    */
-    #if !defined(SWIGPRE)
+/*
+   The class Adub
+   ---- Basically used as a temporary result.  The address for an
+        adub is usually generated within an operation.  That address
+        is "freed" when the adub goes out of scope (at destruction time).
+   ---- operates just like a badouble, but it has a destructor defined for
+   it.
+*/
+#if !defined(SWIGPRE)
 /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
 ADOLC_DLL_EXPORT adub adolc_vec_dot(const adouble *const, const adouble *const,
                                     locint);
-    #endif
+#endif
 
 class ADOLC_DLL_EXPORT adub : public badouble {
   friend ADOLC_DLL_EXPORT class adouble;
@@ -233,25 +233,25 @@ protected:
   adub(locint lo) : badouble(lo) {}
 
 public:
-    /*--------------------------------------------------------------------------*/
-    #if !defined(SWIGPRE)
+/*--------------------------------------------------------------------------*/
+#if !defined(SWIGPRE)
   /* s = adolc_vec_dot(x,y,size); <=> s = <x,y>_2 */
   friend adub adolc_vec_dot(const adouble *const, const adouble *const, locint);
-    #endif
-    /* Functions friends with both badouble and adub */
-    #define _IN_CLASS_ 1
-    #define _IN_ADUB_ 1
-    #include <adolc/internal/adubfunc.h>
-    #undef _IN_ADUB_
-    #undef _IN_CLASS_
+#endif
+/* Functions friends with both badouble and adub */
+#define _IN_CLASS_ 1
+#define _IN_ADUB_ 1
+#include <adolc/internal/adubfunc.h>
+#undef _IN_ADUB_
+#undef _IN_CLASS_
 
-    /*--------------------------------------------------------------------------*/
-    /* Parameter dependent functions (friends) */
-    #define _IN_CLASS_ 1
-    #define _IN_ADUB_ 1
-    #include <adolc/internal/paramfunc.h>
-    #undef _IN_ADUB_
-    #undef _IN_CLASS_
+/*--------------------------------------------------------------------------*/
+/* Parameter dependent functions (friends) */
+#define _IN_CLASS_ 1
+#define _IN_ADUB_ 1
+#include <adolc/internal/paramfunc.h>
+#undef _IN_ADUB_
+#undef _IN_CLASS_
 };
 
 BEGIN_C_DECLS
@@ -277,15 +277,15 @@ public:
   adouble(const adouble &);
   adouble(void);
   adouble(double);
-    /* adub prevents postfix operators to occur on the left
-       side of an assignment which would not work  */
-    #if !defined(SWIGPRE)
+/* adub prevents postfix operators to occur on the left
+   side of an assignment which would not work  */
+#if !defined(SWIGPRE)
   adub operator++(int);
   adub operator--(int);
-    #else
+#else
   adub *operator++(int);
   adub *operator--(int);
-    #endif
+#endif
   badouble &operator++(void);
   badouble &operator--(void);
   /*   inline double value(); */
@@ -298,7 +298,7 @@ public:
 
   inline locint loc(void) const;
 
-    #if defined(ADOLC_DEFAULT_CONTIG_LOC)
+#if defined(ADOLC_DEFAULT_CONTIG_LOC)
   void *operator new[](size_t sz) {
     void *p = ::new char[sz];
     size_t n = (sz - sizeof(size_t)) / sizeof(adouble);
@@ -306,15 +306,15 @@ public:
     return p;
   }
   void operator delete[](void *p) { ::delete[] (char *)p; }
-    #endif
+#endif
 };
 
-  #endif /* __cplusplus */
+#endif /* __cplusplus */
 
-  #include <adolc/advector.h>
-  #include <adolc/param.h>
+#include <adolc/advector.h>
+#include <adolc/param.h>
 
-  #ifdef __cplusplus
+#ifdef __cplusplus
 /****************************************************************************/
 /*                                                       INLINE DEFINITIONS */
 
@@ -326,10 +326,10 @@ inline locint adouble::loc(void) const {
   return location;
 }
 
-  /*--------------------------------------------------------------------------*/
-  /* Comparison */
+/*--------------------------------------------------------------------------*/
+/* Comparison */
 
-    #if !defined(ADOLC_ADVANCED_BRANCHING)
+#if !defined(ADOLC_ADVANCED_BRANCHING)
 inline bool operator!=(const badouble &u, const badouble &v) {
   return (u - v != 0);
 }
@@ -353,7 +353,7 @@ inline bool operator>(const badouble &u, const badouble &v) {
 inline bool operator<(const badouble &u, const badouble &v) {
   return (u - v < 0);
 }
-    #endif
+#endif
 
 inline bool operator!=(double coval, const badouble &v) {
   if (coval)
@@ -397,7 +397,7 @@ inline bool operator<(double coval, const badouble &v) {
     return (v > 0);
 }
 
-    #if !defined(SWIGPRE)
+#if !defined(SWIGPRE)
 /*--------------------------------------------------------------------------*/
 /* Adding a floating point from an adouble  */
 inline adub operator+(const badouble &x, double coval) { return coval + x; }
@@ -414,7 +414,7 @@ inline adub operator*(const badouble &x, double coval) { return coval * x; }
 inline adub operator/(const badouble &x, double coval) {
   return (1.0 / coval) * x;
 }
-    #endif
+#endif
 
 inline badouble &badouble::operator/=(const pdouble &p) {
   *this *= recipr(p);
@@ -502,7 +502,7 @@ template <> struct std::numeric_limits<adouble> {
       std::numeric_limits<double>::round_style;
 };
 
-  /****************************************************************************/
-  /*                                                                THAT'S ALL*/
-  #endif /* __cplusplus */
-#endif   /* ADOLC_ADOUBLE_H */
+/****************************************************************************/
+/*                                                                THAT'S ALL*/
+#endif /* __cplusplus */
+#endif /* ADOLC_ADOUBLE_H */

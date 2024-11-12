@@ -13,12 +13,12 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_CHECKPOINTING_H)
-  #define ADOLC_CHECKPOINTING_H 1
+#define ADOLC_CHECKPOINTING_H 1
 
-  #include <adolc/adouble.h>
-  #include <adolc/internal/common.h>
+#include <adolc/adouble.h>
+#include <adolc/internal/common.h>
 
-  #if defined(__cplusplus)
+#if defined(__cplusplus)
 /****************************************************************************/
 /*                                                          This is all C++ */
 
@@ -129,7 +129,7 @@ void CP_Context::setAlwaysRetaping(bool state) {
 
 int CP_Context::checkpointing() { return ::checkpointing(cpInfos); }
 
-  #endif /* CPLUSPLUS */
+#endif /* CPLUSPLUS */
 
 /****************************************************************************/
 #endif /* ADOLC_CHECKPOINTING_H */

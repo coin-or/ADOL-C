@@ -12,14 +12,14 @@
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_MEDISUPPORTADOLC_H)
-  #define ADOLC_MEDISUPPORTADOLC_H 1
+#define ADOLC_MEDISUPPORTADOLC_H 1
 
-  #include "adouble.h"
+#include "adouble.h"
 
-  #include <medi/adToolImplCommon.hpp>
-  #include <medi/adjointInterface.hpp>
-  #include <medi/ampi/types/indexTypeHelper.hpp>
-  #include <medi/medi.hpp>
+#include <medi/adToolImplCommon.hpp>
+#include <medi/adjointInterface.hpp>
+#include <medi/ampi/types/indexTypeHelper.hpp>
+#include <medi/medi.hpp>
 
 void mediAddHandle(medi::HandleBase *h);
 void mediInitStatic();
