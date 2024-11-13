@@ -29,7 +29,7 @@
 
 #ifdef _WINDOWS
 #define PATHSEPARATOR "\\"
-#define __func__ __FUNCTION__f
+#define __func__ __FUNCTION__
 #else
 #define PATHSEPARATOR "/"
 #endif
