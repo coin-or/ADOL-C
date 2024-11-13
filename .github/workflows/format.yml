@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Python and clang-format to get newer version
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install clang-format
+
+
       - name: Checkout the code
         uses: actions/checkout@v4
 
