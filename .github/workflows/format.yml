@@ -6,14 +6,18 @@ on:
     pull_request:
       branches: [ "master" ]
 
-
 jobs:
-  clang-format:
+  clang-format-check:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: DoozyX/clang-format-lint-action@v0.18.1
-      with:
-        source: '.'
-        inplace: True
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Set up Clang-Format
+        run: sudo apt-get install -y clang-format
+
+      - name: Check formatting with Clang-Format
+        run: |
+          FILES=$(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')
+          clang-format --dry-run -Werror $FILES
