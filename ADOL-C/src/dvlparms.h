@@ -29,8 +29,7 @@
 
 #ifdef _WINDOWS
 #define PATHSEPARATOR "\\"
-#define __func__ __FUNCTION__
-#define snprintf _snprintf
+#define __func__ __FUNCTION__f
 #else
 #define PATHSEPARATOR "/"
 #endif
