@@ -7,7 +7,6 @@ Constructor & Destructor for class tape-less adouble
 extern "C" {
 TLAdoubleHandle create_tl_adouble(const double x) {
   return new adtl::adouble(x);
-
 }
 TLAdoubleHandle create_tl_adouble_empty() { return new adtl::adouble(); }
 TLAdoubleHandle create_tl_adouble_with_ad(const double val,

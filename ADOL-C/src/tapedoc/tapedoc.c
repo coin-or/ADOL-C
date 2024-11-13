@@ -24,8 +24,8 @@
 #include <string.h>
 
 #ifdef ADOLC_AMPI_SUPPORT
-  #include "ampi/ampi.h"
-  #include "ampi/tape/support.h"
+#include "ampi/ampi.h"
+#include "ampi/tape/support.h"
 #endif
 
 BEGIN_C_DECLS
@@ -198,11 +198,11 @@ void filewrite_ampi(unsigned short opcode, const char *opString, int nloc,
   if (opString)
     fprintf(fp, "%s", opString);
 
-  #ifdef ADOLC_TAPE_DOC_VALUES /* values + constants */
+#ifdef ADOLC_TAPE_DOC_VALUES /* values + constants */
   fprintf(fp, " & \\multicolumn{10}{|l|}{");
-  #else
+#else
   fprintf(fp, " & \\multicolumn{6}{|l|}{(");
-  #endif
+#endif
   for (i = 0; i < (nloc - 1); i++)
     fprintf(fp, " %i, ", loc[i]);
   if (nloc)

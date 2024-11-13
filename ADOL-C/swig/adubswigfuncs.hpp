@@ -20,9 +20,9 @@
 
 #if defined(SWIG)
 
-  /*--------------------------------------------------------------------------*/
-  /* Comparison */
-  #if defined(ADOLC_ADVANCED_BRANCHING)
+/*--------------------------------------------------------------------------*/
+/* Comparison */
+#if defined(ADOLC_ADVANCED_BRANCHING)
 adub *operator!=(const badouble &, const badouble &);
 adub *operator==(const badouble &, const badouble &);
 adub *operator<=(const badouble &, const badouble &);
@@ -41,7 +41,7 @@ adub *operator>(const pdouble &, const badouble &);
 adub *operator>(const badouble &, const pdouble &);
 adub *operator<(const pdouble &, const badouble &);
 adub *operator<(const badouble &, const pdouble &);
-  #endif
+#endif
 
 /*--------------------------------------------------------------------------*/
 /* sign operators  */
