@@ -13,9 +13,10 @@
 
 ---------------------------------------------------------------------------*/
 
-#ifndef ADOLC_ADVECTOR_H
+#if !defined(ADOLC_ADVECTOR_H)
 #define ADOLC_ADVECTOR_H 1
 
+#include "param.h"
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
 #ifdef __cplusplus
@@ -24,7 +25,7 @@
 /****************************************************************************/
 /*                                           THIS IS ONLY FOR TAPED VERSION
  */
-#ifndef TAPELESS
+#if !defined(TAPELESS)
 
 class advector;
 class adubref;

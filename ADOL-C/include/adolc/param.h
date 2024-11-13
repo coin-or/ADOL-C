@@ -14,6 +14,7 @@
 
 #if !defined(ADOLC_PARAM_H)
 #define ADOLC_PARAM_H 1
+#include "internal/common.h"
 #if defined(__cplusplus)
 
 #include <cstdio>
