@@ -18,6 +18,7 @@ jobs:
         run: sudo apt-get install -y clang-format
 
       - name: Check formatting with Clang-Format
-        run: |
-          FILES=$(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')
-          clang-format --dry-run -Werror $FILES
+        run:
+          find . -name '*.c' -o -name '*.h' \
+              -o -name '*.cpp' -o -name '*.hpp' \
+              -exec clang-format --dry-run -Werror $FILES
