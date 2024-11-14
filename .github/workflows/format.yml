@@ -16,17 +16,31 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install clang-format
 
-
       - name: Checkout the code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 #ensure fetch of pr branch before commit
+
+      - name: Fetch latest master branch
+        run: git fetch origin master
+
 
       - name: Set up Clang-Format
         run: sudo apt-get install -y clang-format
 
       - name: Check formatting with Clang-Format
         run: |
-          FILES=$(find . -name '*.c' -o -name '*.h' -o -name '*.cpp' -o -name '*.hpp')
-          clang-format --version
-          for file in $FILES; do
-            clang-format --dry-run -Werror "$file"
-          done
+          # searches for all src files that are modified in comparison to origin/master
+          # true is required to not error if there is no such file
+          MODIFIED_FILES=$(git diff --name-only origin/master...HEAD | grep -E '\.(c|h|cpp|hpp)$' || true)
+          if [[ -n "$MODIFIED_FILES" ]]; then 
+            echo "modified files found!"
+            clang-format --version
+            # check if formatted correctly
+            for file in $MODIFIED_FILES; do
+              clang-format --dry-run -Werror "$file"
+            done
+          else 
+            echo "no modified files found!"
+          fi
+
