@@ -69,4 +69,8 @@ set(SOURCE_FILES
     )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 
-target_link_libraries(boost-test-adolc -ladolc -lboost_system -lboost_unit_test_framework)
+target_link_libraries(boost-test-adolc 
+    PRIVATE
+    ${ADOLC_LIBRARY}
+    Boost::system 
+    Boost::unit_test_framework)
