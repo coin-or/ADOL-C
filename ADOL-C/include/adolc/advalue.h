@@ -1010,6 +1010,7 @@ auto sqrt(const X& x)
       return 1./(2.*sqrt(x));
     if constexpr (order==2)
       return -1./(4.*x*sqrt(x));
+    static_assert(order <= 2, "Only derivatives up to order 2 are implemented");
   });
 }
 
