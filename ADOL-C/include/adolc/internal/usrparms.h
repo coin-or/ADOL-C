@@ -6,14 +6,14 @@
            These parameters might affect the performance of the ADOL-C
            system; they are intended to be tweaked by users and local
            maintenance personal.
- 
- Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz, 
+
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
-  
+
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
-                           
+
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_USRPARMS_H)
@@ -31,20 +31,20 @@
 
 /*--------------------------------------------------------------------------*/
 /* Number of temporary Taylor stores*/
-#define TBUFNUM    32
+#define TBUFNUM 32
 
 /*--------------------------------------------------------------------------*/
 /* Data types used by Fortran callable versions of functions */
-#define fint       long
-#define fdouble    double
+#define fint long
+#define fdouble double
 
 /*--------------------------------------------------------------------------*/
 /* Definition of inf and NaN */
-#define inf_num    1.0     /* don't undefine these;  on non-IEEE machines */
-#define inf_den    0.0     /* change the values to get small fractions    */
-#define non_num    0.0     /* (inf_num/inf_den) and (non_num/non_den)     */
-#define non_den    0.0     /* respectively, see the documentation         */
-#define ADOLC_EPS  10E-20  /* for test on zero                            */
+#define inf_num 1.0      /* don't undefine these;  on non-IEEE machines */
+#define inf_den 0.0      /* change the values to get small fractions    */
+#define non_num 0.0      /* (inf_num/inf_den) and (non_num/non_den)     */
+#define non_den 0.0      /* respectively, see the documentation         */
+#define ADOLC_EPS 10E-20 /* for test on zero                            */
 
 /****************************************************************************/
 /* Standard output used for diagnostics by ADOL-C,                          */
@@ -55,7 +55,7 @@
 /* Tells ADOL-C which name space offers the mathematical functions          */
 #define ADOLC_MATH_NSP std
 /* For error function with gcc compiler                                     */
-#define ADOLC_MATH_NSP_ERF 
+#define ADOLC_MATH_NSP_ERF
 
 /*--------------------------------------------------------------------------*/
 /* Constants used by the checkpointing part (revolve) */

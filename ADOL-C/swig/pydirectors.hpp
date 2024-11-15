@@ -17,66 +17,70 @@
 #ifndef _ADOLC_PYDIRECTORS_H_
 #define _ADOLC_PYDIRECTORS_H_
 
-
 class PyEDFwrap;
 class PyEDF_iArr_wrap;
 class PyEDF_v2_wrap;
 
 class PyEDF {
 protected:
-    PyEDFwrap* cobj;
+  PyEDFwrap *cobj;
+
 public:
-    PyEDF();
-    virtual ~PyEDF();
-    virtual int function(PyObject* args) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int zos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int call(int n, adouble *xa, int m, adouble *ya);
-    virtual int call(int n, advector& x, int m, advector& y);
+  PyEDF();
+  virtual ~PyEDF();
+  virtual int function(PyObject *args) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int zos_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fos_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fov_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fos_reverse(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fov_reverse(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int call(int n, adouble *xa, int m, adouble *ya);
+  virtual int call(int n, advector &x, int m, advector &y);
 };
 
 class PyEDF_iArr {
 protected:
-    PyEDF_iArr_wrap* cobj;
+  PyEDF_iArr_wrap *cobj;
+
 public:
-    PyEDF_iArr();
-    virtual ~PyEDF_iArr();
-    virtual int function(PyObject* args) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int zos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_forward(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fos_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int fov_reverse(PyObject* arg) {
-        throw FatalError(-1,"Not Implemented", __func__,__FILE__,__LINE__);
-    }
-    virtual int call(int iArrLen, int* iArr, int n, adouble *xa, int m, adouble *ya);
-    virtual int call(int iArrLen, int* iArr, int n, advector& x, int m, advector& y);
-    virtual int call(int iArrLen, PyObject* pyarr, int n, advector& x, int m, advector& y);
+  PyEDF_iArr();
+  virtual ~PyEDF_iArr();
+  virtual int function(PyObject *args) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int zos_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fos_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fov_forward(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fos_reverse(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int fov_reverse(PyObject *arg) {
+    throw FatalError(-1, "Not Implemented", __func__, __FILE__, __LINE__);
+  }
+  virtual int call(int iArrLen, int *iArr, int n, adouble *xa, int m,
+                   adouble *ya);
+  virtual int call(int iArrLen, int *iArr, int n, advector &x, int m,
+                   advector &y);
+  virtual int call(int iArrLen, PyObject *pyarr, int n, advector &x, int m,
+                   advector &y);
 };
 
 #endif

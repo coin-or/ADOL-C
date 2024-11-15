@@ -4,21 +4,21 @@
  Revision: $Id$
  Contents: private functions and data types for extern (differentiated)
            functions.
- 
+
  Copyright (c) Andreas Kowarz, Jean Utke
-  
+
  This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes 
+ Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
-          
+
 ----------------------------------------------------------------------------*/
 
 #if !defined(ADOLC_EXTERNFCTS_P_H)
 #define ADOLC_EXTERNFCTS_P_H 1
 
-#include <adolc/internal/common.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
+#include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 /****************************************************************************/
@@ -34,4 +34,3 @@ END_C_DECLS
 /****************************************************************************/
 
 #endif /* ADOLC_EXTERNFCTS_P_H */
-

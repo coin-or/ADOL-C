@@ -1,9 +1,9 @@
 // -*- c++ -*- hello emacs...
-/*---------------------------------------------------------------------------- 
+/*----------------------------------------------------------------------------
  ADOL-C--  Automatic Differentiation by Overloading in C++ - simplified
  File:     storemanager.h
  Revision: $Id$
- Contents: storemanager.h contains definitions of abstract interface 
+ Contents: storemanager.h contains definitions of abstract interface
            class StoreManager and some derived classes implementing the
            desired functionality.
 
@@ -14,7 +14,7 @@
 
  This file is part of ADOL-C.
 
- The classes StoreManagerXYZ basically takes the global double *store pointer 
+ The classes StoreManagerXYZ basically takes the global double *store pointer
  into their obhut and implement next_loc and free_loc.
 
  They basic idea is taken from "The C++ Programming Language" by Bjarne
@@ -30,7 +30,7 @@
     old array into the lower half of the new one (we always double the size).
 
  2) Have a look at StoreManagerLocint and convince yourself that these do
-    the same as StoreManagerInSitu except that the linked list of free 
+    the same as StoreManagerInSitu except that the linked list of free
     slots is maintained in a completely different portion of memory. This
     means the values in freed slots remain untouched until they are
     allocated again.
@@ -41,10 +41,10 @@
 
  class StoreManagerInSitu
  An unsafe implementation is provided as well, but commented out.
- It does not use the indexFeld array which saves between 
+ It does not use the indexFeld array which saves between
  25% and 50% memory relative to the above safe implementation.
 
- It is most closely modelled after the example found in the 
+ It is most closely modelled after the example found in the
  Stroustrup book.
 
  It appears that it works very well, if one does not use the
@@ -52,7 +52,7 @@
  If the first sweep is forward it works fine.
  Therefore I left it in here as a comment so an interested user
  with acute main memory scarcity may give it a try.
-	   
+
 
  History:
           20120427 bl:     add blocking store management
@@ -65,14 +65,14 @@
 #define ADOL_C__STOREMANAGER_H
 
 #if defined(ADOLC_INTERNAL)
-#    if HAVE_CONFIG_H
-#        include "config.h"
-#    endif
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #endif
 #include <adolc/internal/adolc_settings.h>
 #include <forward_list>
 
-#if USE_BOOST_POOL 
+#if USE_BOOST_POOL
 #include <boost/pool/pool_alloc.hpp>
 #endif
 
@@ -80,124 +80,138 @@
 #include <adolc/taping.h>
 
 class GlobalTapeVarsCL;
-extern "C" void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
+extern "C" void checkInitialStoreSize(GlobalTapeVarsCL *gtv);
 
 class StoreManager {
-  friend void checkInitialStoreSize(GlobalTapeVarsCL* gtv);
+  friend void checkInitialStoreSize(GlobalTapeVarsCL *gtv);
+
 protected:
   static size_t const initialSize = 4;
   double myGcTriggerRatio;
   size_t myGcTriggerMaxSize;
   virtual void grow(size_t mingrow = 0) = 0;
+
 public:
   StoreManager() : myGcTriggerRatio(1.5), myGcTriggerMaxSize(initialSize) {}
   virtual ~StoreManager() {}
   virtual locint next_loc() = 0;
   virtual void free_loc(locint) = 0;
   virtual void ensure_block(size_t n) = 0;
-  void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) { myGcTriggerRatio=gcTriggerRatio; myGcTriggerMaxSize=gcTriggerMaxSize;}
-  double gcTriggerRatio() const {return myGcTriggerRatio;}
-  size_t gcTriggerMaxSize() const {return myGcTriggerMaxSize;}
-//   // effectively the current size of the store array
+  void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) {
+    myGcTriggerRatio = gcTriggerRatio;
+    myGcTriggerMaxSize = gcTriggerMaxSize;
+  }
+  double gcTriggerRatio() const { return myGcTriggerRatio; }
+  size_t gcTriggerMaxSize() const { return myGcTriggerMaxSize; }
+  //   // effectively the current size of the store array
   virtual size_t maxSize() const = 0;
 
-//   // the number of slots currently in use
+  //   // the number of slots currently in use
   virtual size_t size() const = 0;
   virtual unsigned char storeType() const = 0;
 };
 
 class StoreManagerLocint : public StoreManager {
 protected:
-  double * &storePtr;
+  double *&storePtr;
 #if defined(ADOLC_TRACK_ACTIVITY)
   char activityTracking;
-  static char const* const nowhere;
-  char * &actStorePtr;
+  static char const *const nowhere;
+  char *&actStorePtr;
 #endif
-  locint * indexFree;
+  locint *indexFree;
   locint head;
   size_t &maxsize;
   size_t &currentfill;
   virtual void grow(size_t mingrow = 0);
-public:
 
+public:
 #if defined(ADOLC_TRACK_ACTIVITY)
-  StoreManagerLocint(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives);
-  StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, char* &actStorePtr, size_t &size, size_t &numLives);
+  StoreManagerLocint(double *&storePtr, char *&actStorePtr, size_t &size,
+                     size_t &numlives);
+  StoreManagerLocint(const StoreManagerLocint *const stm, double *&storePtr,
+                     char *&actStorePtr, size_t &size, size_t &numLives);
 #endif
-  StoreManagerLocint(double * &storePtr, size_t &size, size_t &numlives);
-  StoreManagerLocint(const StoreManagerLocint *const stm, double * &storePtr, size_t &size, size_t &numLives);
+  StoreManagerLocint(double *&storePtr, size_t &size, size_t &numlives);
+  StoreManagerLocint(const StoreManagerLocint *const stm, double *&storePtr,
+                     size_t &size, size_t &numLives);
 
   virtual ~StoreManagerLocint();
   virtual inline size_t size() const { return currentfill; }
 
   virtual inline size_t maxSize() const { return maxsize; }
-  virtual inline unsigned char storeType() const { return ADOLC_LOCATION_SINGLETONS; }
-
-  virtual inline bool realloc_on_next_loc() const { 
-      return (head == 0);
+  virtual inline unsigned char storeType() const {
+    return ADOLC_LOCATION_SINGLETONS;
   }
 
+  virtual inline bool realloc_on_next_loc() const { return (head == 0); }
+
   virtual locint next_loc();
-  virtual void free_loc(locint loc); 
+  virtual void free_loc(locint loc);
   virtual void ensure_block(size_t n);
 };
 
 class StoreManagerLocintBlock : public StoreManager {
 protected:
-    double * &storePtr;
+  double *&storePtr;
 #if defined(ADOLC_TRACK_ACTIVITY)
-    char activityTracking;
-    static char const* const nowhere;
-    char * &actStorePtr;
+  char activityTracking;
+  static char const *const nowhere;
+  char *&actStorePtr;
 #endif
-    struct FreeBlock {
-	locint next; // next location
-	size_t size; // number of following free locations
-	FreeBlock(): next(0), size(0) {}
-	FreeBlock(const struct FreeBlock &block) :
-	    next(block.next),size(block.size) {}
-        FreeBlock(const locint& n, const size_t& s) :
-            next(n), size(s) {}
-	bool operator<(const struct FreeBlock& b) const {
-	    return (next < b.next);
-	}
-    };
+  struct FreeBlock {
+    locint next; // next location
+    size_t size; // number of following free locations
+    FreeBlock() : next(0), size(0) {}
+    FreeBlock(const struct FreeBlock &block)
+        : next(block.next), size(block.size) {}
+    FreeBlock(const locint &n, const size_t &s) : next(n), size(s) {}
+    bool operator<(const struct FreeBlock &b) const { return (next < b.next); }
+  };
 
-    std::forward_list<struct FreeBlock
+  std::forward_list<struct FreeBlock
 #if USE_BOOST_POOL
-                      , boost::fast_pool_allocator<struct FreeBlock> 
-#endif 
-                      >  indexFree;
-    size_t &maxsize;
-    size_t &currentfill;
-
-    void consolidateBlocks();
-#ifdef ADOLC_LOCDEBUG
-    unsigned int ensure_blockCallsSinceLastConsolidateBlocks;
+                    ,
+                    boost::fast_pool_allocator<struct FreeBlock>
 #endif
-    /**
-     * when minGrow is specified we asssume that we have already
-     * search the blocks and found no block with minGrow locations in it
-     */
-    virtual void grow(size_t minGrow=0 );
+                    >
+      indexFree;
+  size_t &maxsize;
+  size_t &currentfill;
+
+  void consolidateBlocks();
+#ifdef ADOLC_LOCDEBUG
+  unsigned int ensure_blockCallsSinceLastConsolidateBlocks;
+#endif
+  /**
+   * when minGrow is specified we asssume that we have already
+   * search the blocks and found no block with minGrow locations in it
+   */
+  virtual void grow(size_t minGrow = 0);
+
 public:
 #if defined(ADOLC_TRACK_ACTIVITY)
-    StoreManagerLocintBlock(double * &storePtr, char* &actStorePtr, size_t &size, size_t &numlives);
-    StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, char* &actStorePtr, size_t &size, size_t &numLives);
+  StoreManagerLocintBlock(double *&storePtr, char *&actStorePtr, size_t &size,
+                          size_t &numlives);
+  StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm,
+                          double *&storePtr, char *&actStorePtr, size_t &size,
+                          size_t &numLives);
 #endif
-    StoreManagerLocintBlock(double * &storePtr, size_t &size, size_t &numlives);
-    StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm, double * &storePtr, size_t &size, size_t &numLives);
+  StoreManagerLocintBlock(double *&storePtr, size_t &size, size_t &numlives);
+  StoreManagerLocintBlock(const StoreManagerLocintBlock *const stm,
+                          double *&storePtr, size_t &size, size_t &numLives);
 
-    virtual ~StoreManagerLocintBlock();
-    virtual inline size_t size() const { return currentfill; }
+  virtual ~StoreManagerLocintBlock();
+  virtual inline size_t size() const { return currentfill; }
 
-    virtual inline size_t maxSize() const { return maxsize; }
-    virtual inline unsigned char storeType() const { return ADOLC_LOCATION_BLOCKS; }
+  virtual inline size_t maxSize() const { return maxsize; }
+  virtual inline unsigned char storeType() const {
+    return ADOLC_LOCATION_BLOCKS;
+  }
 
-    virtual locint next_loc();
-    virtual void free_loc(locint loc);
-    virtual void ensure_block(size_t n);
+  virtual locint next_loc();
+  virtual void free_loc(locint loc);
+  virtual void ensure_block(size_t n);
 };
 
 #if 0
@@ -299,4 +313,3 @@ private:
 #endif /* 0 */
 
 #endif /* ADOL_C__STOREMANAGER_H */
-

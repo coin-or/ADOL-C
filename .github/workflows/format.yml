@@ -1,0 +1,67 @@
+name: Run Clang-Format Check
+
+on:
+    push:
+      branches: [ "master" ]
+    pull_request:
+      branches: [ "master" ]
+
+jobs:
+  clang-format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python and clang-format to get newer version
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install clang-format==19.1.3
+
+      - name: Checkout the code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 #ensure fetch of pr branch before commit
+
+      - name: Fetch latest master branch
+        run: git fetch origin master
+
+      - name: Set up Clang-Format
+        run: sudo apt-get install -y clang-format
+
+      - name: Check formatting with Clang-Format
+        run: |
+          set +e # this turn off exit-on-error
+          
+          # searches for all src files that are modified in comparison to origin/master
+          MODIFIED_FILES=$(git diff --name-only origin/master...HEAD | grep -E '\.(c|h|cpp|hpp)$')
+
+          # track format errors
+          FORMAT_ERRORS=0
+
+          if [[ -n "$MODIFIED_FILES" ]]; then 
+            echo "modified files found!"
+            clang-format --version
+
+            # check if formatted correctly
+            for file in $MODIFIED_FILES; do
+              echo "Checking file: $file"
+
+              # Capture the output of clang-format check
+              OUTPUT=$(clang-format --dry-run -Werror "$file" 2>&1)
+
+              # Check if there was an error
+              if [[ $? -ne 0 ]]; then
+                echo "Formatting issue found in $file:"
+                echo "$OUTPUT" # print clang-format error message
+                FORMAT_ERRORS=1
+              fi
+            done
+
+            # Exit with an error if any formatting issues were found
+            if [[ $FORMAT_ERRORS -ne 0 ]]; then
+              echo "Formatting issues detected. Please run clang-format $(clang-format --version) to fix the issues."
+              exit 1
+            fi
+          else 
+            echo "no modified files found!"
+          fi
+          exit 0
+
