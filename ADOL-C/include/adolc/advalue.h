@@ -346,7 +346,8 @@ public:
   ADValue(const T &value, I k) : jet_() {
     partial() = value;
     if constexpr (maxOrder >= 1)
-      partial(k) = 1;
+      if (dim > 0)
+        partial(k) = 1;
   }
 
   /**
@@ -368,7 +369,8 @@ public:
   ADValue(const T &value, I k, std::size_t d) : jet_(d) {
     partial() = value;
     if constexpr (maxOrder >= 1)
-      partial(k) = 1;
+      if (d > 0)
+        partial(k) = 1;
   }
 
   /**
@@ -376,10 +378,9 @@ public:
    *
    * This will treat this as a constant afterwards.
    */
-  //  template<class T,
-  //    std::enable_if_t<std::is_convertible_v<T, Value>, int> = 0>
-  //  ADValue& operator=(const T& value)
-  ADValue &operator=(const Value &value) {
+  template <class T, std::enable_if_t<std::is_convertible_v<T, Value>, int> = 0>
+  ADValue &operator=(const T &value) {
+    //  ADValue &operator=(const Value &value) {
     forEachDerivativeIndex([&](auto... i) { partial(i...) = 0; });
     partial() = value;
     return *this;
