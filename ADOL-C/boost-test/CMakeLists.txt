@@ -15,7 +15,7 @@ endif()
 set(BOOST_MIN_VERSION "1.59.0")
 set(Boost_NO_BOOST_CMAKE ON)
 
-find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+find_package(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS unit_test_framework system)
 
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "Fatal error: Boost (version >= 1.69.0) required.")
@@ -69,4 +69,8 @@ set(SOURCE_FILES
     )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 
-target_link_libraries(boost-test-adolc -ladolc -lboost_system -lboost_unit_test_framework)
+target_link_libraries(boost-test-adolc 
+    PRIVATE
+    ${ADOLC_LIBRARY}
+    Boost::system 
+    Boost::unit_test_framework)
