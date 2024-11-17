@@ -20,6 +20,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
             -S ${{ github.workspace }}
             -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} 
+            -DCMAKE_CXX_FLAGS="-fsanitize=address -g" 
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
 
         - name: Build ADOLC
           run: |
@@ -36,7 +38,10 @@ jobs:
           run: |
             cd ADOL-C/boost-test
             mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ github.workspace }}
+            cmake ../ \
+              -DADOLC_BASE=${{ github.workspace }} \
+              -DCMAKE_CXX_FLAGS="-fsanitize=address -g" \
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
             make
             ./boost-test-adolc
         
