@@ -80,6 +80,12 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Tests")
     set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
     add_subdirectory(ADOL-C/boost-test)
+
+    enable_testing()
+    add_test(
+      NAME boost-test-adolc
+      COMMAND boost-test-adolc
+      )
 endif()
 
 # export the targets
