@@ -44,6 +44,7 @@ jobs:
       run: |
         cd build
         lcov --capture --directory . --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' 'boost/*' 'c++11/*' --output-file coverage.info
         lcov --list coverage.info
 
       # Upload coverage report to Codecov
