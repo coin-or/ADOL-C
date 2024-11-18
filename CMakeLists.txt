@@ -75,6 +75,13 @@ if(BUILD_INTERFACE)
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 endif()
 
+# build the tests 
+# ------------------------------------
+if(CMAKE_BUILD_TYPE STREQUAL "Tests")
+    set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
+    add_subdirectory(ADOL-C/boost-test)
+endif()
+
 # export the targets
 # ------------------
 
