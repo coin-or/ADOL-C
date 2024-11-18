@@ -30,7 +30,7 @@ jobs:
     
     - name: Run Tests
       run: |
-        set +e 
+        set +e # otherwise the coverage report fails if ctest finds errors
         ctest --test-dir build/
         exit 0
     
