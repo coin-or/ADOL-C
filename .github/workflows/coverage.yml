@@ -33,14 +33,8 @@ jobs:
         set +e # otherwise the coverage report fails if ctest finds errors
         ctest --test-dir build/
         exit 0
-    
-    - name: Generate Coveralls Report
-      uses: threeal/gcovr-action@v1.1.0
-      with:
-        coveralls-out: coveralls.json
 
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        base-path: ${{github.workspace}}
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env: 
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
