@@ -114,8 +114,12 @@ Please refer to the file `MSMSVisualStudio/v14/Readme_VC++.txt` for building the
 
 ## Unit tests
 
-ADOL-C provides more than 400 unit tests to verify its basic functionality.
-For more information on how to run the tests, please check the `README` file in `ADOL-C/boost-test` directory.
+ADOL-C provides more than 500 unit tests to verify its basic functionality.
+You can build and run them as follows: 
+`mkdir build && cd build`  
+`cmake -S .. -B . -DCMAKE_BUILD_TYPE=Tests`  
+`make`  
+`./ADOL-C/boost-test/boost-test-adolc`  
 
 Enjoy this new version!
 
