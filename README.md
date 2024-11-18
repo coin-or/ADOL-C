@@ -114,12 +114,14 @@ Please refer to the file `MSMSVisualStudio/v14/Readme_VC++.txt` for building the
 
 ## Unit tests
 
-ADOL-C provides more than 500 unit tests to verify its basic functionality.
-You can build and run them as follows: 
+ADOL-C provides more than 500 unit tests to verify its basic functionality including both traceless and trace-based adouble variants. The tests are based on BOOST (version >= 1.59.0). Building the ADOL-C teste requires the BOOST libraries `unit_test_framework` and `system`. In case you are compiling BOOST on your own, be sure to add the flags `--with-test` and `--with-system` to activate the corresponding modules.  
+You can build and run them as follows:  
 `mkdir build && cd build`  
 `cmake -S .. -B . -DCMAKE_BUILD_TYPE=Tests`  
 `make`  
 `./ADOL-C/boost-test/boost-test-adolc`  
 
-Enjoy this new version!
+Cmake will search for the system installed version of BOOST. If the minimum required version is not satisfied, please enter the path where an appropriate BOOST version is installed in `3RDPARTY_BOOST_DIR` in the `CMakelists.txt` inside the `boost-test` folder. Notice that ADOL-C has to be compiled with the same version of BOOST as used here. When using a different BOOST version than the one provided by the operating system, ADOL-C can be configured with `--with-boost` flag before compiling the ADOL-C sources.
 
+
+Enjoy this new version!
