@@ -1,0 +1,42 @@
+on: ["push", "pull_request"]
+
+name: Test Coveralls
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Install Boost
+      shell: bash
+      run: |
+        sudo apt-get install libboost-all-dev
+
+    - name: Configure and build ADOL-C
+      run: |
+        mkdir build
+        cd build
+        cmake \
+        -DCMAKE_CXX_COMPILER=g++ \
+        -DCMAKE_C_COMPILER=gcc \
+        -DCMAKE_BUILD_TYPE=TestsWithCov \
+        -S .. \
+        -B .
+        cmake --build .
+    
+    - name: Run Tests
+      run: ctest
+    
+    - name: Generate Coveralls Report
+      uses: threeal/gcovr-action@v1.1.0
+      with:
+        coveralls-out: coveralls.json
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
