@@ -75,6 +75,32 @@ if(BUILD_INTERFACE)
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 endif()
 
+# build the tests 
+# ------------------------------------
+if(CMAKE_BUILD_TYPE STREQUAL "Tests")
+    set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
+    add_subdirectory(ADOL-C/boost-test)
+
+    enable_testing()
+    add_test(NAME boost-test-adolc
+      COMMAND boost-test-adolc)
+endif()
+
+# build the adolc and tests with coverage
+# ------------------------------------
+if(CMAKE_BUILD_TYPE STREQUAL "TestsWithCov")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g --coverage")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g --coverage")
+
+    set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
+    add_subdirectory(ADOL-C/boost-test)
+
+    enable_testing()
+    add_test(NAME boost-test-adolc
+      COMMAND boost-test-adolc)
+endif()
+
+
 # export the targets
 # ------------------
 

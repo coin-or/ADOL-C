@@ -11,32 +11,26 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v4
-  
-        - name: Configure CMake ADOL-C
-          run: >  
-            cmake
-            -DCMAKE_CXX_COMPILER=g++
-            -DCMAKE_C_COMPILER=gcc
-            -DCMAKE_BUILD_TYPE=Release
-            -S ${{ github.workspace }}
-            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} 
-
-        - name: Build ADOLC
-          run: |
-            make
-            make install
         
         - name: Install Boost
           shell: bash
           run: |
             sudo apt-get install libboost-all-dev
 
-        - name: Build and Run Boost-Test
-          shell: bash
+        - name: Configure and build ADOL-C
           run: |
-            cd ADOL-C/boost-test
-            mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ github.workspace }}
-            make
-            ./boost-test-adolc
+            mkdir build
+            cd build
+            cmake \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_BUILD_TYPE=Tests \
+            -S .. \
+            -B .
+            cmake --build .
+        
+        - name: Run Tests
+          run: ctest --test-dir build/ --output-on-failure
+
+
         
