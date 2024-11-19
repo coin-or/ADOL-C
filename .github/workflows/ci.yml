@@ -19,19 +19,26 @@ jobs:
         steps:
         - uses: actions/checkout@v4
         
-        - name: Configure and build ADOL-C
+        - name: Set reusable strings
+          # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+          id: strings
+          shell: bash
           run: |
-            mkdir build
-            cd build
-            cmake \
-            -DCMAKE_CXX_COMPILER= ${{ matrix.cpp_compiler}} \
-            -DCMAKE_C_COMPILER= ${{ matrix.c_compiler}} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_TESTS=ON \
-            -S .. \
-            -B .
-            cmake --build .
-        
+            echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+        - name: Configure and build ADOL-C
+          run: > 
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -S ${{ github.workspace }}
+
+        - name: Build
+          # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+          run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+          
+                    
 
 
         
