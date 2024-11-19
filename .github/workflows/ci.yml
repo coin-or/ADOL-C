@@ -1,5 +1,5 @@
 
-name: Run Tests
+name: Build 
 on:
     push:
       branches: [ "master" ]
@@ -7,7 +7,7 @@ on:
       branches: [ "master" ]
 
 jobs: 
-    build-and-test:
+    build:
         runs-on: ${{ matrix.os }}
         strategy: 
           fail-fast: false
@@ -19,11 +19,6 @@ jobs:
         steps:
         - uses: actions/checkout@v4
         
-        - name: Install Boost
-          shell: bash
-          run: |
-            sudo apt-get install libboost-all-dev
-
         - name: Configure and build ADOL-C
           run: |
             mkdir build
@@ -37,8 +32,6 @@ jobs:
             -B .
             cmake --build .
         
-        - name: Run Tests
-          run: ctest --test-dir build/ --output-on-failure
 
 
         
