@@ -1,0 +1,64 @@
+---
+Checks: >
+  # Modernize checks
+  modernize-*
+  # Avoid raw pointers
+  modernize-use-auto,
+  modernize-use-nullptr,
+  modernize-avoid-c-arrays,
+  modernize-make-unique,
+  modernize-make-shared,
+  modernize-smart-ptr,
+  modernize-use-override,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-bool-literals,
+  modernize-loop-convert,
+  modernize-use-emplace,
+  modernize-use-using,
+  modernize-deprecated-headers,
+  modernize-pass-by-value,
+  modernize-concat-nested-namespaces,
+
+  # Core guidelines
+  cppcoreguidelines-*,
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  cppcoreguidelines-pro-bounds-constant-array-index,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-no-malloc,
+  
+  # Performance and safety
+  performance-*,
+  readability-*,
+  hicpp-*,
+  bugprone-*,
+  misc-*,
+  
+  # Remove unnecessary code
+  readability-redundant-*
+  
+  # Optional - highly aggressive rules (uncomment if needed)
+  # clang-analyzer-*,
+
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+AnalyzeTemporaryDtors: true
+FormatStyle: file
+CheckOptions:
+  - key: modernize-use-auto.MinTypeNameLength
+    value: '4' # Avoid auto for short types like int, bool
+  - key: cppcoreguidelines-pro-bounds-pointer-arithmetic.Strict
+    value: 'true'
+  - key: modernize-loop-convert.IgnoreUserDefined
+    value: 'false'
+  - key: readability-function-cognitive-complexity.Threshold
+    value: '25'
+  - key: modernize-use-emplace.Hint
+    value: 'false'
+  - key: cppcoreguidelines-init-variables.Suppress
+    value: 'false'
+  - key: modernize-avoid-c-arrays.StrictMode
+    value: 'true'
+
