@@ -25,5 +25,5 @@ jobs:
         - name: Run Clang-Tidy
           run: |
             clang-tidy --version  # Verify installed version
-            clang-tidy -p build $(find . -name '*.cpp' '*.c' '*.hpp' '*.h') 
+            clang-tidy -p build $(find . -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h') 
         
