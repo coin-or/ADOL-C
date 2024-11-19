@@ -3,8 +3,7 @@ on: ["push", "pull_request"]
 name: Test Coverage
 
 jobs:
-
-  build:
+  run-coverage:
     name: Build
     runs-on: ubuntu-latest
     steps:
