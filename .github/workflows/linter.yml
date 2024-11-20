@@ -25,6 +25,6 @@ jobs:
         - name: Run Clang-Tidy
           run: |
             clang-tidy --version  # Verify installed version
-            clang-tidy -p build -max-warnings=10 $(find . -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h')
+            clang-tidy -p build -warnings-as-errors $(find . -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h')
         
         
