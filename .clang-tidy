@@ -40,7 +40,7 @@ Checks: >
   readability-redundant-*
   
   # Optional - highly aggressive rules (uncomment if needed)
-  clang-analyzer-*,
+  #clang-analyzer-*,
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
