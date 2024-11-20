@@ -17,7 +17,6 @@ jobs:
           run: |
            sudo apt-get update
            sudo apt-get install -y clang-tidy-14
-           ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
 
         - name: Configure with CMake
           run: |
