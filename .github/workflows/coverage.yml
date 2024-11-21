@@ -3,8 +3,7 @@ on: ["push", "pull_request"]
 name: Test Coverage
 
 jobs:
-
-  build:
+  run-coverage:
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +27,8 @@ jobs:
         cmake \
         -DCMAKE_CXX_COMPILER=g++ \
         -DCMAKE_C_COMPILER=gcc \
-        -DCMAKE_BUILD_TYPE=TestsWithCov \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DBUILD_TESTS_WITH_COV=ON \
         -S .. \
         -B .
         cmake --build .
