@@ -7,36 +7,45 @@ on:
       branches: [ "master" ]
 
 jobs: 
-    run-tests:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v4
-  
-        - name: Configure CMake ADOL-C
-          run: >  
-            cmake
-            -DCMAKE_CXX_COMPILER=g++
-            -DCMAKE_C_COMPILER=gcc
-            -DCMAKE_BUILD_TYPE=Release
-            -S ${{ github.workspace }}
-            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} 
+  run-tests: 
+    runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix: 
+        build_type: [Release, Debug]
+        c_compiler: [gcc, clang]
+        cpp_compiler: [g++, clang++]
 
-        - name: Build ADOLC
-          run: |
-            make
-            make install
-        
-        - name: Install Boost
-          shell: bash
-          run: |
-            sudo apt-get install libboost-all-dev
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Boost
+      shell: bash
+      run: |
+        sudo apt-get install libboost-all-dev
 
-        - name: Build and Run Boost-Test
-          shell: bash
-          run: |
-            cd ADOL-C/boost-test
-            mkdir build && cd build
-            cmake ../ -DADOLC_BASE=${{ github.workspace }}
-            make
-            ./boost-test-adolc
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure and build ADOL-C
+      run: > 
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DBUILD_TESTS=ON \
+        -S ${{ github.workspace }}
+
+    - name: Build ADOL-C
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
         
+    - name: Run Tests
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --output-on-failure
+
+
+    

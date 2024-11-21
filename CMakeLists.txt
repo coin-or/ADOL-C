@@ -6,9 +6,6 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
 
@@ -74,6 +71,34 @@ if(BUILD_INTERFACE)
     install(EXPORT ADOLCInterfaceTargets 
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 endif()
+
+# build the tests 
+# ------------------------------------
+option(BUILD_TESTS OFF)
+if(BUILD_TESTS)
+    set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
+    add_subdirectory(ADOL-C/boost-test)
+
+    enable_testing()
+    add_test(NAME boost-test-adolc
+      COMMAND boost-test-adolc)
+endif()
+
+# build the adolc and tests with coverage
+# ------------------------------------
+option(BUILD_TESTS_WITH_COV OFF)
+if(BUILD_TESTS_WITH_COV)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g --coverage")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g --coverage")
+
+    set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
+    add_subdirectory(ADOL-C/boost-test)
+
+    enable_testing()
+    add_test(NAME boost-test-adolc
+      COMMAND boost-test-adolc)
+endif()
+
 
 # export the targets
 # ------------------

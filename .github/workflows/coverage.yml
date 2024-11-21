@@ -1,0 +1,58 @@
+on: ["push", "pull_request"]
+
+name: Test Coverage
+
+jobs:
+  run-coverage:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Install lcov
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lcov
+
+    - name: Install Boost
+      shell: bash
+      run: |
+        sudo apt-get install libboost-all-dev
+
+    - name: Configure and build ADOL-C
+      run: |
+        mkdir build
+        cd build
+        cmake \
+        -DCMAKE_CXX_COMPILER=g++ \
+        -DCMAKE_C_COMPILER=gcc \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DBUILD_TESTS_WITH_COV=ON \
+        -S .. \
+        -B .
+        cmake --build .
+    
+    - name: Run Tests
+      run: |
+        set +e # otherwise the coverage report fails if ctest finds errors
+        ctest --test-dir build/
+        exit 0
+
+    # Capture coverage data
+    - name: Generate coverage report
+      run: |
+        cd build
+        lcov --capture --directory . --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' 'boost/*' 'c++11/*' --output-file coverage.info
+        lcov --list coverage.info
+
+      # Upload coverage report to Codecov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: build/coverage.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
+        name: code-coverage-report
+         
