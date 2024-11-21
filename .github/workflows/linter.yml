@@ -1,0 +1,32 @@
+name: Run Clang-tidy Check
+
+on:
+    push:
+      branches: [ "master" ]
+    pull_request:
+      branches: [ "master" ]
+
+jobs:
+  clang-tidy-check:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+        
+        - name: Install Clang-Tidy
+          run: |
+           sudo apt-get update
+           sudo apt-get install -y clang-tidy-14
+
+        - name: Configure with CMake
+          run: |
+            cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug
+    
+        - name: Run Clang-Tidy
+          run: |
+            clang-tidy --version  # Verify installed version
+            clang-tidy -p build $(find ADOL-C/src/ -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h')
+            clang-tidy -p build $(find ADOL-C/include/ -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h')
+            clang-tidy -p build $(find ADOL-C/c_interface -name '*.cpp' -o -name '*.c' -o -name '*.hpp' -o -name '*.h')
+        
+        
