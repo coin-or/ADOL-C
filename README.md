@@ -1,5 +1,9 @@
 # ADOL-C
 
+[![Build Status](https://github.com/coin-or/ADOL-C/actions/workflows/ci.yml/badge.svg)](https://github.com/coin-or/ADOL-C/actions?query=branch%3Amaster)
+[View Coverage Report](https://app.codecov.io/github/coin-or/ADOL-C)
+
+
 This new version of ADOL-C features new library functions for
  
   - sparse Jacobians and sparse Hessians
