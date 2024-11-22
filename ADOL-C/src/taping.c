@@ -1344,6 +1344,10 @@ void freeTapeResources(TapeInfos *tapeInfos) {
     fclose(tapeInfos->tay_file);
     tapeInfos->tay_file = NULL;
   }
+  if (tapeInfos->signature != NULL) {
+    free(tapeInfos->signature);
+    tapeInfos->signature = NULL;
+  }
 }
 
 /****************************************************************************/
