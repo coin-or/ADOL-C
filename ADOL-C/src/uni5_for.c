@@ -933,9 +933,6 @@ int hov_forward(
 #endif
 
   locint switchnum = 0;
-#if !defined(_NTIGHT_)
-  double *signature = NULL;
-#endif
 
   /* extern diff. function variables */
 #if defined(_EXTERN_)
@@ -1097,13 +1094,10 @@ int hov_forward(
   dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.dp_T0 = dp_T0;
 
-  if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-    if (ADOLC_CURRENT_TAPE_INFOS.signature == NULL) {
-      signature = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
-      ADOLC_CURRENT_TAPE_INFOS.signature = signature;
-    } else
-      signature = ADOLC_CURRENT_TAPE_INFOS.signature;
-  }
+  if ((ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) &&
+      (ADOLC_CURRENT_TAPE_INFOS.signature == NULL))
+    ADOLC_CURRENT_TAPE_INFOS.signature =
+        myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
 
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = &dp_T0;
   ADOLC_CURRENT_TAPE_INFOS.numTay = 0;
@@ -4283,7 +4277,7 @@ int hov_forward(
           MINDEC(ret_c, 2);
       }
       if (ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-        signature[switchnum] = dp_T0[arg];
+        ADOLC_CURRENT_TAPE_INFOS.signature[switchnum] = dp_T0[arg];
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
         swargs[switchnum] = dp_T0[arg];
 #endif

@@ -25,6 +25,7 @@ set(SOURCE_FILES
     traceSecOrderScalar.cpp
     traceSecOrderVector.cpp
     traceFixedPointScalarTests.cpp
+    uni5_for.cpp
     )
 add_executable(boost-test-adolc ${SOURCE_FILES})
 target_include_directories(boost-test-adolc PRIVATE "${ADOLC_INCLUDE_DIR}")
