@@ -1225,7 +1225,7 @@ inline adouble pow(const adouble &a, double v) {
                              // and u_k
         }
     } else {
-      int i, m;
+      int i;
       double sum1 = 0.0, sum2 = 0.0;
       for (int l = 0; l < adouble::numDir; l++) {
         for (int k = 0; k < adouble::degree; k++) {
@@ -1364,10 +1364,8 @@ inline adouble sinh(const adouble &a) {
   {
     tmp2 = ADOLC_MATH_NSP::cosh(a.val);
     int i, m;
-    double sum;
     double sum1 = 0.0, sum2 = 0.0;
     for (int l = 0; l < adouble::numDir; l++) {
-      sum = 0.0;
       for (int k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
@@ -1409,11 +1407,9 @@ inline adouble cosh(const adouble &a) {
   if (do_hoval()) // ADTL_HOV
   {
     int i, m;
-    double sum;
     double sum1 = 0.0, sum2 = 0.0;
     tmp2 = ADOLC_MATH_NSP::sinh(a.val);
     for (int l = 0; l < adouble::numDir; l++) {
-      sum = 0.0;
       for (int k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
@@ -1580,8 +1576,6 @@ inline adouble fabs(const adouble &a) {
     // TODO: do not forget to check the function value. it is the zero-th taylor
     // coefficient
 
-    int i, m;
-    double sum;
     int *leading_sgn = (int *)alloca(sizeof(int) * adouble::degree);
     for (int l = 0; l < adouble::numDir; l++) // Init
     {
@@ -2200,9 +2194,8 @@ inline adouble &adouble::operator*=(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i, m;
+    int i;
     double sum;
-    double sum1 = 0.0, sum2 = 0.0;
     for (int l = 0; l < adouble::numDir; l++) {
       for (int k = 0; k < degree; k++) {
         sum = val * a.ho_deriv[k][l] + ho_deriv[k][l] * a.val;
@@ -2254,9 +2247,8 @@ inline adouble &adouble::operator/=(const adouble &a) {
   if (do_hoval()) // ADTL_HOV
   {
     adouble tmp;
-    int i, m;
+    int i;
     double sum;
-    double sum1 = 0.0, sum2 = 0.0;
     for (int l = 0; l < adouble::numDir; l++) {
       for (int k = 0; k < degree; k++) {
         sum = tmp.val * a.ho_deriv[k][l];
