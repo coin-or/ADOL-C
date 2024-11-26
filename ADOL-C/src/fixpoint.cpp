@@ -213,13 +213,13 @@ fp_iteration(int sub_tape_num,
   fpi_stack.push_back(data);
 
   // put x and u together
-  adouble *xu = new adouble[dim_x + dim_u];
+  std::vector<adouble> xu(dim_x + dim_u);
   for (i = 0; i < dim_x; i++)
     xu[i] = x_0[i];
   for (i = 0; i < dim_u; i++)
     xu[dim_x + i] = u[i];
 
-  k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
+  k = call_ext_fct(edf_iteration, dim_x + dim_u, xu.data(), dim_x, x_fix);
 
   // tape near solution
   trace_on(sub_tape_num, 1);
@@ -227,11 +227,10 @@ fp_iteration(int sub_tape_num,
     xu[i] <<= x_fix[i].getValue();
   for (i = 0; i < dim_u; i++)
     xu[dim_x + i] <<= u[i].getValue();
-  adouble_F(xu, xu + dim_x, x_fix, dim_x, dim_u);
+  adouble_F(xu.data(), xu.data() + dim_x, x_fix, dim_x, dim_u);
   for (i = 0; i < dim_x; i++)
     x_fix[i] >>= dummy;
   trace_off();
 
-  delete[] xu;
   return k;
 }

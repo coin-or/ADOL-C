@@ -768,7 +768,7 @@ int removeTape(short tapeID, short type) {
 
 /****************************************************************************/
 /* Initialization for the taping process. Creates buffers for this tape,    */
-/* sets files names, and calls appropriate setup routines.                  */
+/* sets file names, and calls appropriate setup routines.                   */
 /****************************************************************************/
 int trace_on(short tnum, int keepTaylors) {
   int retval = 0;
@@ -1066,14 +1066,14 @@ void TapeInfos::copy(const TapeInfos &tInfos) {
   pTapeInfos = tInfos.pTapeInfos;
 }
 
-PersistantTapeInfos::PersistantTapeInfos() {
+PersistentTapeInfos::PersistentTapeInfos() {
   char *ptr = (char *)(&forodec_nax), *end = (char *)(&paramstore);
   for (; ptr != end; ptr++)
     *ptr = 0;
   paramstore = NULL;
 }
 
-PersistantTapeInfos::~PersistantTapeInfos() {
+PersistentTapeInfos::~PersistentTapeInfos() {
   if (jacSolv_nax) {
     free(jacSolv_ci);
     free(jacSolv_ri);

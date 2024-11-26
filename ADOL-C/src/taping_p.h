@@ -160,7 +160,7 @@ typedef struct SparseHessInfos {
 } SparseHessInfos;
 #endif
 
-typedef struct PersistantTapeInfos { /* survive tape re-usage */
+typedef struct PersistentTapeInfos { /* survive tape re-usage */
   int forodec_nax, forodec_dax;
   double *forodec_y, *forodec_z, **forodec_Z;
   double **jacSolv_J;
@@ -198,11 +198,11 @@ typedef struct PersistantTapeInfos { /* survive tape re-usage */
 
   revreal *paramstore;
 #ifdef __cplusplus
-  PersistantTapeInfos();
-  ~PersistantTapeInfos();
-  PersistantTapeInfos &operator=(const PersistantTapeInfos &) = default;
+  PersistentTapeInfos();
+  ~PersistentTapeInfos();
+  PersistentTapeInfos &operator=(const PersistentTapeInfos &) = default;
 #endif
-} PersistantTapeInfos;
+} PersistentTapeInfos;
 
 /**
  * maximal number of locations writen per op code
@@ -291,7 +291,7 @@ typedef struct TapeInfos {
   locint *switchlocs;
   double *signature;
 
-  PersistantTapeInfos pTapeInfos;
+  PersistentTapeInfos pTapeInfos;
 
 #if defined(__cplusplus)
   TapeInfos();
