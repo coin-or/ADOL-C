@@ -2903,7 +2903,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1) {
   xd[1][1] = -3.7;
 
   a = std::fmin(2.5, 2.5);
-  aDerivative = -3.7;
+  aDerivative = -1.3;
   bDerivative = -3.7;
 
   fov_forward(1, 1, 2, 2, x, xd, y, yd);
