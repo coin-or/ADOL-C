@@ -1,0 +1,27 @@
+set(ADOLC_VERSION @adol-c_VERSION@)
+
+@PACKAGE_INIT@
+
+set(ADOLC_INCLUDE_DIR   "@CMAKE_INSTALL_FULL_INCLUDEDIR@" )
+set(ADOLC_DATA_DIR      "@CMAKE_INSTALL_PREFIX@/@RELATIVE_DATA_INSTALL_DIR@" )
+
+include(CMakeFindDependencyMacro)
+
+set(ENABLE_MEDIPACK @ENABLE_MEDIPACK@)
+if(ENABLE_MEDIPACK)
+  find_dependency(MPI)
+  find_dependency(MeDiPack)
+endif()
+
+set(ENABLE_OPENMP @ENABLE_OPENMP@)
+if(ENABLE_OPENMP)
+  find_dependency(OpenMP)
+endif()
+
+set(WITH_BOOST @WITH_BOOST@)
+if(WITH_BOOST)
+  find_dependency(Boost 1.54 REQUIRED COMPONENTS system)
+endif()
+
+# Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/adolc-targets.cmake")

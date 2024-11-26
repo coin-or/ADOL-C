@@ -11,5 +11,6 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/adolc_settings.h
   DESTINATION "include/adolc/internal")
 target_include_directories(adolc
-  PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ADOL-C/include>)
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/ADOL-C/include>
+    $<INSTALL_INTERFACE:include>)
