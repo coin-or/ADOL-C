@@ -369,13 +369,13 @@ inline double makeInf() {
   return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (int _i = 0; _i < adouble::numDir; ++_i)
+#define FOR_I_EQ_0_LT_NUMDIR for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)
 #define FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR                              \
-  for (int _j = 0; _j < adouble::degree; ++_j)                                 \
-    for (int _i = 0; _i < adouble::numDir; ++_i)
+  for (decltype(adouble::degree) _j = 0; _j < adouble::degree; ++_j)           \
+    for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)
 #define FOR_I_EQ_0_LT_NUMDIR_FOR_J_EQ_0_LT_DEGREE                              \
-  for (int _i = 0; _i < adouble::numDir; ++_i)                                 \
-    for (int _j = 0; _j < adouble::degree; ++_j)
+  for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)                                 \
+    for (decltype(adouble::degree) _j = 0; _j < adouble::degree; ++_j)
 #define ADVAL_I adval[_i]
 #define ADV_I adv[_i]
 #define V_I v[_i]
@@ -647,11 +647,11 @@ inline adouble adouble::operator*(const adouble &a) const {
   {
     int i;
     double sum = 0.0;
-    for (int l = 0; l < numDir; l++) {
-      for (int k = 0; k < degree; k++) {
+    for (size_t l = 0; l < numDir; l++) {
+      for (size_t k = 0; k < degree; k++) {
         sum = val * a.ho_deriv[k][l] + ho_deriv[k][l] * a.val;
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum = sum + ho_deriv[j][l] * a.ho_deriv[i - j][l];
         }
         tmp.ho_deriv[k][l] = sum;
@@ -720,11 +720,11 @@ inline adouble adouble::operator/(const adouble &a) const {
   {
     int i;
     double sum = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         sum = tmp.val * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum += tmp.ho_deriv[j][l] * a.ho_deriv[i - j][l];
         }
         tmp.ho_deriv[k][l] = (1.0 / a.val) * (ho_deriv[k][l] - sum);
@@ -757,11 +757,11 @@ inline adouble operator/(const double v, const adouble &a) {
   {
     int i;
     double sum = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         sum = tmp.val * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum += tmp.ho_deriv[j][l] * a.ho_deriv[i - j][l];
         }
         tmp.ho_deriv[k][l] = (1.0 / a.val) * (-sum);
@@ -877,10 +877,10 @@ inline adouble exp(const adouble &a) {
     double sum = 0;
     int i;
     FOR_I_EQ_0_LT_NUMDIR
-    for (int k = 0; k < adouble::degree; k++) {
+    for (size_t k = 0; k < adouble::degree; k++) {
       sum = tmp.val * (k + 1) * a.ho_deriv[k][_i];
       i = k - 1;
-      for (int j = 0; j < k; j++)
+      for (size_t j = 0; j < k; j++)
         sum += tmp.ho_deriv[i - j][_i] * (j + 1.0) * a.ho_deriv[j][_i];
       tmp.ho_deriv[k][_i] = (1.0 / (k + 1)) * sum;
       sum = 0.0;
@@ -915,11 +915,11 @@ inline adouble log(const adouble &a) {
   {
     int i;
     double sum = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //				ho_deriv[i-j][l]
         i = k - 1;
-        for (int j = 0; j < k; j++)
+        for (size_t j = 0; j < k; j++)
           sum += a.ho_deriv[i - j][l] * (j + 1) * tmp.ho_deriv[j][l];
         tmp.ho_deriv[k][l] = (1.0 / (k + 1)) * (1.0 / a.val) *
                              ((k + 1) * a.ho_deriv[k][l] - sum);
@@ -956,11 +956,11 @@ inline adouble sqrt(const adouble &a) {
   {
     int i;
     double sum = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //				ho_deriv[i-j][l]
         i = k - 1;
-        for (int j = 0; j < k; j++)
+        for (size_t j = 0; j < k; j++)
           sum += tmp.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         tmp.ho_deriv[k][l] = 1.0 / (2.0 * tmp.val) * (a.ho_deriv[k][l] - sum);
         sum = 0.0;
@@ -999,14 +999,14 @@ inline adouble sin(const adouble &a) {
   {
     int i, m;
     double sum1 = 0.0, sum2 = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
         sum1 = tmp2.val * m * a.ho_deriv[k][l];
         sum2 = -tmp.val * m * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
           sum2 += -(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
@@ -1042,14 +1042,14 @@ inline adouble cos(const adouble &a) {
   {
     int i, m;
     double sum1 = 0.0, sum2 = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
         sum1 = tmp2.val * m * a.ho_deriv[k][l];
         sum2 = -tmp.val * m * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
           sum2 += -(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
@@ -1210,9 +1210,10 @@ inline adouble pow(const adouble &a, double v) {
       //  this is different than in GW08. The formula in the table gives a nan
       //  for input zero.
       double factorial_val = tgamma(v + 1.0);
-      for (int k = 0; k < adouble::degree; k++)
-        for (int l = 0; l < adouble::numDir; l++) {
-          for (int k = 0; k < adouble::degree;
+      for (size_t k = 0; k < adouble::degree; k++)
+        for (size_t l = 0; l < adouble::numDir; l++) {
+          // TODO: This is shadowing the outer loop variable
+          for (size_t k = 0; k < adouble::degree;
                k++) // unsure if this is needed here. keep it for the moment
                     // TODO: check if tmp.ho_deriv is zero before here
           {
@@ -1227,12 +1228,12 @@ inline adouble pow(const adouble &a, double v) {
     } else {
       int i;
       double sum1 = 0.0, sum2 = 0.0;
-      for (int l = 0; l < adouble::numDir; l++) {
-        for (int k = 0; k < adouble::degree; k++) {
+      for (size_t l = 0; l < adouble::numDir; l++) {
+        for (size_t k = 0; k < adouble::degree; k++) {
           //    				ho_deriv[k][l]
           sum1 = tmp.val * (k + 1) * a.ho_deriv[k][l];
           i = k - 1;
-          for (int j = 0; j < k; j++) {
+          for (size_t j = 0; j < k; j++) {
             sum1 += tmp.ho_deriv[i - j][l] * (j + 1) * a.ho_deriv[j][l];
             sum2 += a.ho_deriv[i - j][l] * (1 + j) * tmp.ho_deriv[j][l];
           }
@@ -1299,13 +1300,13 @@ inline adouble pow(double v, const adouble &a) {
   {
     int i;
     double sum;
-    for (int l = 0; l < adouble::numDir; l++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
       sum = 0.0;
-      for (int k = 0; k < adouble::degree; k++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         sum = tmp.val * (k + 1) * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++)
+        for (size_t j = 0; j < k; j++)
           sum += tmp.ho_deriv[i - j][l] * (j + 1) * a.ho_deriv[j][l];
         tmp.ho_deriv[k][l] = (1.0 / (k + 1)) * sum * ADOLC_MATH_NSP::log(v);
         sum = 0.0;
@@ -1365,14 +1366,14 @@ inline adouble sinh(const adouble &a) {
     tmp2 = ADOLC_MATH_NSP::cosh(a.val);
     int i, m;
     double sum1 = 0.0, sum2 = 0.0;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
         sum1 = tmp2.val * m * a.ho_deriv[k][l];
         sum2 = tmp.val * m * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
           sum2 += (j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
@@ -1409,14 +1410,14 @@ inline adouble cosh(const adouble &a) {
     int i, m;
     double sum1 = 0.0, sum2 = 0.0;
     tmp2 = ADOLC_MATH_NSP::sinh(a.val);
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
         sum1 = tmp2.val * m * a.ho_deriv[k][l];
         sum2 = tmp.val * m * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++) {
+        for (size_t j = 0; j < k; j++) {
           sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
           sum2 += (j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
@@ -1577,14 +1578,14 @@ inline adouble fabs(const adouble &a) {
     // coefficient
 
     int *leading_sgn = (int *)alloca(sizeof(int) * adouble::degree);
-    for (int l = 0; l < adouble::numDir; l++) // Init
+    for (size_t l = 0; l < adouble::numDir; l++) // Init
     {
       leading_sgn[l] = 1;
     }
     bool found;
 
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         if (tmp.ho_deriv[k][l] > 0 && (!found)) {
           leading_sgn[l] = 1;
           found = true;
@@ -1611,8 +1612,8 @@ inline adouble fabs(const adouble &a) {
 
     // assume we found all leading Taylor coefficients
 
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < adouble::degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < adouble::degree; k++) {
         tmp.ho_deriv[k][l] *= leading_sgn[l];
         // TODO do not forget zero-th Taylor coefficient
       }
