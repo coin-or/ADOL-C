@@ -3169,7 +3169,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3) {
   aDerivative = std::fmin(xd[0][0], 0.0);
   bDerivative = std::fmin(xd[0][1], 0.0);
 
-
   fov_forward(1, 1, 1, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == a, tt::tolerance(tol));
