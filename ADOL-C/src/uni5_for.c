@@ -4233,8 +4233,10 @@ int hov_forward(
               VEC_INC(Targ2, k - i)
               BREAK_FOR_I
             }
-            Targ1++;
-            Targ2++;
+            else{
+              Targ1++;
+              Targ2++;
+            }
           }
           if (Targ == NULL) /* e.g. both are equal */
             Targ = Targ1OP;
