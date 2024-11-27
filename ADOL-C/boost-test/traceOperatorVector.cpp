@@ -2510,8 +2510,8 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_1) {
   xd[1][1] = -3.7;
 
   a = std::fmax(2.5, 2.5);
-  aDerivative = 1.3;
-  bDerivative = 1.3;
+  aDerivative = std::fmax(xd[0][0], xd[1][0]);
+  bDerivative = std::fmax(xd[0][1], xd[1][1]);
 
   fov_forward(1, 1, 2, 2, x, xd, y, yd);
 
@@ -2729,6 +2729,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3) {
   trace_off();
 
   double aDerivative = 1.;
+  double bDerivative = 1.;
   a = std::fmax(a, b);
 
   double *x = myalloc1(1);
@@ -2770,13 +2771,14 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3) {
   }
 
   a = std::fmax(x[0], b);
-  aDerivative = 1.;
+  aDerivative = std::fmax(xd[0][0], 0.0);
+  bDerivative = std::fmax(xd[0][1], 0.0);
 
   fov_forward(1, 1, 1, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == a, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(yd[0][1] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree2(xd);
@@ -2903,8 +2905,8 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1) {
   xd[1][1] = -3.7;
 
   a = std::fmin(2.5, 2.5);
-  aDerivative = -1.3;
-  bDerivative = -3.7;
+  aDerivative = std::fmin(xd[0][0], xd[1][0]);
+  bDerivative = std::fmin(xd[0][1], xd[1][1]);
 
   fov_forward(1, 1, 2, 2, x, xd, y, yd);
 
@@ -3122,6 +3124,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3) {
   trace_off();
 
   double aDerivative = 0.;
+  double bDerivative = 0.;
   a = std::fmin(a, b);
 
   double *x = myalloc1(1);
@@ -3163,13 +3166,15 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3) {
   }
 
   a = std::fmin(x[0], b);
-  aDerivative = 0.;
+  aDerivative = std::fmin(xd[0][0], 0.0);
+  bDerivative = std::fmin(xd[0][1], 0.0);
+
 
   fov_forward(1, 1, 1, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == a, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(yd[0][1] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree2(xd);
