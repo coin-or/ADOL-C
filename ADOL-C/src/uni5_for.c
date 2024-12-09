@@ -4215,10 +4215,8 @@ int hov_forward(
 
       FOR_0_LE_l_LT_p {
         Targ = Tqo;
-        if (Targ ==
-            NULL) /* e.g. dp_T0[arg1] ==
-                                                               dp_T0[arg2] */
-        {
+        /* e.g. dp_T0[arg1] == dp_T0[arg2] */
+        if (Targ == NULL) {
           Targ1OP = Targ1;
           Targ2OP = Targ2;
           FOR_0_LE_i_LT_k {
@@ -4232,9 +4230,10 @@ int hov_forward(
               VEC_INC(Targ1, k - i)
               VEC_INC(Targ2, k - i)
               BREAK_FOR_I
+            } else {
+              Targ1++;
+              Targ2++;
             }
-            Targ1++;
-            Targ2++;
           }
           if (Targ == NULL) /* e.g. both are equal */
             Targ = Targ1OP;
