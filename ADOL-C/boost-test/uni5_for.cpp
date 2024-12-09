@@ -18,7 +18,7 @@ namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(uni5_for)
 
-BOOST_AUTO_TEST_CASE(ZOS_PL_FORWARD) {
+BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
 
   enableMinMaxUsingAbs();
 
