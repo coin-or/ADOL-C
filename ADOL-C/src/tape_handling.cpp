@@ -1056,13 +1056,87 @@ TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
 }
 
 void TapeInfos::copy(const TapeInfos &tInfos) {
-  char *ptr, *end;
-  char const *tIptr = (char const *)(&tInfos.tapeID);
+  tapeID = tInfos.tapeID;
+  inUse = tInfos.inUse;
+  numInds = tInfos.numInds;
+  numDeps = tInfos.numDeps;
+  keepTaylors = tInfos.keepTaylors;
+  for (size_t i = 0; i < STAT_SIZE; ++i)
+    stats[i] = tInfos.stats[i];
 
-  ptr = (char *)(&this->tapeID);
-  end = (char *)(&this->pTapeInfos);
-  for (; ptr != end; ptr++, tIptr++)
-    *ptr = *tIptr;
+  traceFlag = tInfos.traceFlag;
+  tapingComplete = tInfos.tapingComplete;
+
+  /* operations tape */
+  op_file = tInfos.op_file;
+  opBuffer = tInfos.opBuffer;
+  currOp = tInfos.currOp;
+  lastOpP1 = tInfos.lastOpP1;
+  numOps_Tape = tInfos.numOps_Tape;
+  num_eq_prod = tInfos.num_eq_prod;
+
+  /* values (real) tape */
+  val_file = tInfos.val_file;
+  valBuffer = tInfos.valBuffer;
+  currVal = tInfos.currVal;
+  lastValP1 = tInfos.lastValP1;
+  numVals_Tape = tInfos.numVals_Tape;
+
+  /* locations tape */
+  loc_file = tInfos.loc_file;
+  locBuffer = tInfos.locBuffer;
+  currLoc = tInfos.currLoc;
+  lastLocP1 = tInfos.lastLocP1;
+  numLocs_Tape = tInfos.numLocs_Tape;
+
+  /* taylor stack tape */
+  tay_file = tInfos.tay_file;
+  tayBuffer = tInfos.tayBuffer;
+  currTay = tInfos.currTay;
+  lastTayP1 = tInfos.lastTayP1;
+  numTays_Tape = tInfos.numTays_Tape;
+  nextBufferNumber = tInfos.nextBufferNumber;
+  lastTayBlockInCore = tInfos.lastTayBlockInCore;
+
+  T_for = tInfos.T_for;
+  deg_save = tInfos.deg_save;
+  tay_numInds = tInfos.tay_numInds;
+  tay_numDeps = tInfos.tay_numDeps;
+
+  /* checkpointing */
+  lowestXLoc_for = tInfos.lowestXLoc_for;
+  lowestYLoc_for = tInfos.lowestYLoc_for;
+  lowestXLoc_rev = tInfos.lowestXLoc_rev;
+  lowestYLoc_rev = tInfos.lowestYLoc_rev;
+  cpIndex = tInfos.cpIndex;
+  numDirs_rev = tInfos.numDirs_rev;
+
+  lowestXLoc_ext_v2 = tInfos.lowestXLoc_ext_v2;
+  lowestYLoc_ext_v2 = tInfos.lowestYLoc_ext_v2;
+
+  /* evaluation forward */
+  dp_T0 = tInfos.dp_T0;
+  gDegree = tInfos.gDegree;
+  numTay = tInfos.numTay;
+  workMode = tInfos.workMode;
+
+  dpp_T = tInfos.dpp_T;
+
+  /* evaluation reverse */
+  rp_T = tInfos.rp_T;
+  rpp_T = tInfos.rpp_T;
+  rp_A = tInfos.rp_A;
+  rpp_A = tInfos.rpp_A;
+  upp_A = tInfos.upp_A;
+
+  /* extern diff. fcts */
+  ext_diff_fct_index = tInfos.ext_diff_fct_index;
+  in_nested_ctx = tInfos.in_nested_ctx;
+
+  numSwitches = tInfos.numSwitches;
+  switchlocs = tInfos.switchlocs;
+  signature = tInfos.signature;
+
   pTapeInfos = tInfos.pTapeInfos;
 }
 
