@@ -19,9 +19,6 @@ namespace tt = boost::test_tools;
 BOOST_AUTO_TEST_SUITE(uni5_for)
 
 BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
-
-  enableMinMaxUsingAbs();
-
   const int16_t tag = 1;
 
   const int dim_out = 1;
@@ -31,6 +28,7 @@ BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
   std::array<adouble, dim_in> indep;
   double out[] = {0.0};
 
+  enableMinMaxUsingAbs();
   // ---------------------- trace on ---------------------
   // function is given by fabs(in_2 + fabs(in_1 + fabs(in_0)))
   trace_on(tag);
@@ -48,7 +46,7 @@ BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
 
   dep >>= out[0];
   trace_off();
-
+  disableMinMaxUsingAbs();
   // ---------------------- trace off ---------------------
 
   // test outout
