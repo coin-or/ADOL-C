@@ -53,10 +53,10 @@ ADOLC_DLL_EXPORT fint large_jacobian_(fint *, fint *, fint *, fint *, fdouble *,
 /*--------------------------------------------------------------------------*/
 /*                                                         vector_jacobian  */
 /* vec_jac(tag, m, n, repeat, x[n], u[m], v[n])                             */
-ADOLC_DLL_EXPORT int vec_jac(short, int, int, int, const double *, double *,
+ADOLC_DLL_EXPORT int vec_jac(short, int, int, int, const double *, const double *,
                              double *);
 ADOLC_DLL_EXPORT fint vec_jac_(fint *, fint *, fint *, fint *, fdouble *,
-                               fdouble *, fdouble *);
+                               const fdouble *, fdouble *);
 
 /*--------------------------------------------------------------------------*/
 /*                                                          jacobian_vector */

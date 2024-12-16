@@ -129,7 +129,7 @@ fint hos_ti_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fdouble *fu,
 }
 
 /*--------------------------------------------------------------------------*/
-fint fos_reverse_(fint *ftag, fint *fm, fint *fn, fdouble *fu, fdouble *fz) {
+fint fos_reverse_(fint *ftag, fint *fm, fint *fn, const fdouble *fu, fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn;
   double *u = myalloc1(m);

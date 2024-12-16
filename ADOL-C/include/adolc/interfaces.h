@@ -354,7 +354,7 @@ ADOLC_DLL_EXPORT int nonl_ind_old_forward_tight(short, int, int, const double *,
 ADOLC_DLL_EXPORT int fos_reverse(short, int, int, double *, double *);
 
 /* now pack the arrays into vectors for Fortran calling                     */
-ADOLC_DLL_EXPORT fint fos_reverse_(fint *, fint *, fint *, fdouble *,
+ADOLC_DLL_EXPORT fint fos_reverse_(fint *, fint *, fint *, const fdouble *,
                                    fdouble *);
 
 /*--------------------------------------------------------------------------*/
