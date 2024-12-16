@@ -64,7 +64,7 @@ fint gradient_(fint *ftag, fint *fn, fdouble *fargument, fdouble *fresult) {
 /*                                                                          */
 /* vec_jac(tag, m, n, repeat, x[n], u[m], v[n])                             */
 fint vec_jac_(fint *ftag, fint *fm, fint *fn, fint *frepeat, fdouble *fargument,
-              fdouble *flagrange, fdouble *frow) {
+              const fdouble *flagrange, fdouble *frow) {
   int rc = -1;
   short tag = (short)*ftag;
   int m = *fm, n = *fn, repeat = *frepeat;

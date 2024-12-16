@@ -236,7 +236,7 @@ int fos_pl_sig_reverse(short tnum, /* tape id */
 int fos_reverse(short tnum, /* tape id */
                 int depen,  /* consistency chk on # of deps */
                 int indep,  /* consistency chk on # of indeps */
-                double *lagrange, double *results) /*  coefficient vectors */
+                const double *lagrange, double *results) /*  coefficient vectors */
 
 #endif
 #elif _FOV_

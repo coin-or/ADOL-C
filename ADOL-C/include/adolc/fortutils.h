@@ -22,8 +22,8 @@
 /*                                                         Now the C THINGS */
 BEGIN_C_DECLS
 
-ADOLC_DLL_EXPORT void spread1(int m, fdouble *x, double *X);
-ADOLC_DLL_EXPORT void pack1(int m, double *X, fdouble *x);
+ADOLC_DLL_EXPORT void spread1(int m, const fdouble *x, double *X);
+ADOLC_DLL_EXPORT void pack1(int m, const double *X, fdouble *x);
 
 ADOLC_DLL_EXPORT void spread2(int m, int n, fdouble *x, double **X);
 ADOLC_DLL_EXPORT void pack2(int m, int n, double **X, fdouble *x);
