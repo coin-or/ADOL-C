@@ -16,15 +16,15 @@ target_sources(adolc PRIVATE
                forward_partx.c
                fos_forward.c
                fos_pl_forward.c
-               fos_pl_reverse.c
+               fos_pl_reverse.cpp
                fos_pl_sig_forward.c
-               fos_reverse.c
+               fos_reverse.cpp
                fov_forward.c
                fov_offset_forward.c
                fov_pl_sig_forward.c
                fos_pl_sig_reverse.c
                fov_pl_forward.c
-               fov_reverse.c
+               fov_reverse.cpp
                hos_forward.c
                hos_ov_reverse.c
                hos_reverse.c
@@ -36,8 +36,8 @@ target_sources(adolc PRIVATE
                indopro_forward_t.c
                int_forward_s.c
                int_forward_t.c
-               int_reverse_s.c
-               int_reverse_t.c
+               int_reverse_s.cpp
+               int_reverse_t.cpp
                interfaces.cpp
                interfacesf.c
                medipacksupport.cpp
