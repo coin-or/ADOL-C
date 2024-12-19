@@ -313,19 +313,26 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
   /* Adjoint stuff */
 #ifdef _FOS_
-  revreal *rp_A;
+  double *rp_A = nullptr;
 #endif
 #ifdef _FOV_
-  revreal **rpp_A, *Aqo;
+  double **rpp_A = nullptr;
+  double *Aqo = nullptr;
 #endif
 #if !defined(_NTIGHT_)
-  revreal *rp_T;
+  double *rp_T = nullptr;
 #endif /* !_NTIGHT_ */
 #if !defined _INT_REV_
-  revreal *Ares, *Aarg, *Aarg1, *Aarg2;
+  double *Ares = nullptr;
+  double *Aarg = nullptr;
+  double *Aarg1 = nullptr;
+  double *Aarg2 = nullptr;
 #else
-  unsigned long int **upp_A;
-  unsigned long int *Ares, *Aarg, *Aarg1, *Aarg2;
+  size_t **upp_A = nullptr;
+  size_t *Ares = nullptr;
+  size_t *Aarg = nullptr;
+  size_t *Aarg1 = nullptr;
+  size_t *Aarg2 = nullptr;
 #endif
 
   /*--------------------------------------------------------------------------*/
@@ -374,25 +381,28 @@ int int_reverse_safe(
 #endif
 #if !defined(_INT_REV_)
   locint n, m;
-  ext_diff_fct *edfct;
-  ext_diff_fct_v2 *edfct2;
+  ext_diff_fct *edfct = nullptr;
+  ext_diff_fct_v2 *edfct2 = nullptr;
   int iArrLength;
-  int *iArr;
+  int *iArr = nullptr;
   int loop, oloop;
   int ext_retc;
   int oldTraceFlag;
-  locint *insz, *outsz, nin, nout;
+  locint *insz = nullptr;
+  locint *outsz = nullptr;
+  locint nin, nout;
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
   MPI_Op op;
-  void *buf, *rbuf;
+  void *buf = nullptr;
+  void *rbuf = nullptr;
   int count, rcount;
   MPI_Datatype datatype, rtype;
   int src;
   int tag;
   enum AMPI_PairedWith_E pairedWith;
   MPI_Comm comm;
-  MPI_Status *status;
+  MPI_Status *status = nullptr;
   struct AMPI_Request_S request;
 #endif
 
