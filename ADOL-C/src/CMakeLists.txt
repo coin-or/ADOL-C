@@ -22,7 +22,7 @@ target_sources(adolc PRIVATE
                fov_forward.c
                fov_offset_forward.c
                fov_pl_sig_forward.c
-               fos_pl_sig_reverse.c
+               fos_pl_sig_reverse.cpp
                fov_pl_forward.c
                fov_reverse.cpp
                hos_forward.c
