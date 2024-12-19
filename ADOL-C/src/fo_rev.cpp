@@ -462,15 +462,9 @@ int int_reverse_safe(
 
   /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
-  rp_A = (revreal *)calloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES],
-                           sizeof(revreal));
-  if (rp_A == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rp_A = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.rp_A = rp_A;
-  rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                           sizeof(revreal));
-  if (rp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_REVERSE;
 #ifdef _ABS_NORM_
   memset(results, 0, sizeof(double) * (indep + swchk));
@@ -490,22 +484,13 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_ /* FOV */
-  rpp_A = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_A == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Aqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p *
-                          sizeof(revreal));
-  if (Aqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rpp_A = new double *[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]];
+  Aqo = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p);
   for (j = 0; j < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; j++) {
     rpp_A[j] = Aqo + j * p;
   }
   ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
-  rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                           sizeof(revreal));
-  if (rp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
 #define ADJOINT_BUFFER rpp_A
 #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
@@ -523,10 +508,7 @@ int int_reverse_safe(
   upp_A = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
 #if defined _TIGHT_
   ADOLC_CURRENT_TAPE_INFOS.upp_A = upp_A;
-  rp_T = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                           sizeof(revreal));
-  if (rp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
 #endif
 #define ADJOINT_BUFFER upp_A
 #define ADJOINT_BUFFER_ARG_L upp_A[arg][l]
@@ -2998,7 +2980,7 @@ int int_reverse_safe(
       n = get_locint_r();
       ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
       iArrLength = get_locint_r();
-      iArr = (int *)malloc(iArrLength * sizeof(int));
+      iArr = new int[iArrLength];
       for (loop = iArrLength - 1; loop >= 0; --loop)
         iArr[loop] = get_locint_r();
       get_locint_r(); /* get it again */
@@ -3073,7 +3055,7 @@ int int_reverse_safe(
     case ext_diff_v2:
       nout = get_locint_r();
       nin = get_locint_r();
-      insz = malloc(2 * (nin + nout) * sizeof(locint));
+      insz = new locint[2 * (nin + nout)];
       outsz = insz + nin;
       ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = outsz + nout;
       ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = outsz + nout + nin;
@@ -3088,7 +3070,7 @@ int int_reverse_safe(
       get_locint_r(); /* nout again */
       get_locint_r(); /* nin again */
       iArrLength = get_locint_r();
-      iArr = malloc(iArrLength * sizeof(int));
+      iArr = new int[iArrLength];
       for (loop = iArrLength - 1; loop >= 0; --loop)
         iArr[loop] = get_locint_r();
       get_locint_r(); /* iArrLength again */
@@ -3170,11 +3152,11 @@ int int_reverse_safe(
         }
       }
       ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
-      free(iArr);
-      free(insz);
-      insz = 0;
-      iArr = 0;
-      outsz = 0;
+      delete iArr;
+      delete insz;
+      insz = nullptr;
+      iArr = nullptr;
+      outsz = nullptr;
       ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
       ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
       break;
@@ -3274,18 +3256,26 @@ int int_reverse_safe(
   } /* endwhile */
 
   /* clean up */
-#if !defined(_INT_REV_)
-  free(rp_T);
-#endif
 #ifdef _FOS_
-  free(rp_A);
+  myfree1(rp_A);
+  myfree1(rp_T);
+  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
+  ADOLC_CURRENT_TAPE_INFOS.rp_A = nullptr;
 #endif
 #ifdef _FOV_
-  free(Aqo);
-  myfree2(rpp_A);
+  myfree1(Aqo);
+  delete[] rpp_A;
+  myfree1(rp_T);
+  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
+  ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
 #endif
 #ifdef _INT_REV_
   free(upp_A);
+#ifdef _TIGHT_
+  ADOLC_CURRENT_TAPE_INFOS.upp_A = nullptr;
+  myfree1(rp_T);
+  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
+#endif
 #endif
 
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
