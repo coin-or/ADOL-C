@@ -1789,9 +1789,8 @@ int int_reverse_safe(
       }
       switchnum--;
 #elif defined(_ABS_NORM_SIG_)
-      revreal aTmp = *Ares;
       ARES_INC = 0.0;
-      AARG_INC += siggrad[switchnum] * aTmp;
+      AARG_INC += siggrad[switchnum] * (*Ares);
       switchnum--;
 #else
 #if !defined(_NTIGHT_)
