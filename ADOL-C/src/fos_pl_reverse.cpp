@@ -1,18 +1,19 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     int_reverse_t.c
+ File:     fos_reverse.c
  Revision: $Id$
- Contents: int_reverse (integer reverse mode tight for bit pattern propagation)
+ Contents: fos_reverse (first-order-scalar reverse mode)
 
- Copyright (c) Andrea Walther, Christo Mitev
+ Copyright (c) Kshitij Kulshreshtha
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#define _INT_REV_ 1
-#define _TIGHT_ 1
-#include <fo_rev.c>
-#undef _INT_REV_
-#undef _TIGHT_
+
+#define _FOS_ 1
+#define _ABS_NORM_ 1
+#include <fo_rev.cpp>
+#undef _ABS_NORM_
+#undef _FOS_

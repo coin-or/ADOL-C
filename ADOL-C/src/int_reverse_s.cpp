@@ -13,6 +13,6 @@
 ----------------------------------------------------------------------------*/
 #define _INT_REV_ 1
 #define _NTIGHT_ 1
-#include <fo_rev.c>
+#include <fo_rev.cpp>
 #undef _INT_REV_
 #undef _NTIGHT_

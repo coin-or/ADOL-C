@@ -13,9 +13,9 @@
                                  fov_forward.c
                                  hov_forward.c
                                  hov_wk_forward.c
-                 fo_rev.c for
-                                 fos_reverse.c
-                                 fov_reverse.c
+                 fo_rev.cpp for
+                                 fos_reverse.cpp
+                                 fov_reverse.cpp
                  ho_rev.c for
                                  hos_reverse.c
                                  hos_ov_reverse.c
@@ -352,7 +352,7 @@ ADOLC_DLL_EXPORT int nonl_ind_old_forward_tight(short, int, int, const double *,
 /*--------------------------------------------------------------------------*/
 /*                                                                      FOS */
 /* fos_reverse(tag, m, n, u[m], z[n])                                       */
-/* (defined in fo_rev.c)                                                    */
+/* (defined in fo_rev.cpp)                                                    */
 ADOLC_DLL_EXPORT int fos_reverse(short, int, int, double *, double *);
 
 /* now pack the arrays into vectors for Fortran calling                     */
@@ -394,7 +394,7 @@ ADOLC_DLL_EXPORT fint hos_ov_reverse_(fint *, fint *, fint *, fint *, fint *,
 /*--------------------------------------------------------------------------*/
 /*                                                                      FOV */
 /* fov_reverse(tag, m, n, p, U[p][m], Z[p][n])                              */
-/* (defined in fo_rev.c)                                                    */
+/* (defined in fo_rev.cpp)                                                    */
 ADOLC_DLL_EXPORT int fov_reverse(short, int, int, int, double **, double **);
 
 /* now pack the arrays into vectors for Fortran calling                     */
