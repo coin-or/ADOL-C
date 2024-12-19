@@ -236,7 +236,8 @@ int fos_pl_sig_reverse(short tnum, /* tape id */
 int fos_reverse(short tnum, /* tape id */
                 int depen,  /* consistency chk on # of deps */
                 int indep,  /* consistency chk on # of indeps */
-                const double *lagrange, double *results) /*  coefficient vectors */
+                const double *lagrange,
+                double *results) /*  coefficient vectors */
 
 #endif
 #elif _FOV_
@@ -737,10 +738,7 @@ int int_reverse_safe(
         *Ares = 0.0;
 #else
       if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
-        FOR_0_LE_l_LT_p {
-          ARES_INC = LAGRANGETRANS(l, indexd);
-          LAGRANGETRANS(l, indexd) = 0.0;
-        }
+        FOR_0_LE_l_LT_p { ARES_INC = LAGRANGETRANS(l, indexd); }
       } else {
         FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
       }
