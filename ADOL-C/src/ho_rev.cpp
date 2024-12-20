@@ -120,30 +120,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /*--------------------------------------------------------------------------*/
 /*                                                     access to variables  */
 
-#ifdef _FOS_ /* why?, not in fo_rev.c ? */
-#define ARES *Ares
-#define AARG *Aarg
-#define AARG1 *Aarg1
-#define AARG2 *Aarg2
-#define AQO *Aqo
-
-#define ARES_INC *Ares
-#define AARG_INC *Aarg
-#define AARG1_INC *Aarg1
-#define AARG2_INC *Aarg2
-#define AQO_INC *Aqo
-
-#define ARES_INC_O Ares
-#define AARG_INC_O Aarg
-#define AARG1_INC_O Aarg1
-#define AARG2_INC_O Aarg2
-#define AQO_INC_O Aqo
-
-#define ASSIGN_A(a, b) a = &b;
-#define HOS_OV_ASSIGN_A(Aqo, rp_Atemp)
-#define FOR_0_LE_l_LT_q l = 0;
-
-#elif _HOS_OV_
+#if _HOS_OV_
 #define ARES *Ares
 #define AARG *Aarg
 #define AARG1 *Aarg1
