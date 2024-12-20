@@ -145,11 +145,12 @@ and _NTIGHT__
 #define TAYLORS(indexd, l, i) taylors[indexd][l]
 /*--------------------------------------------------------------------------*/
 #elif defined(_INDO_)
+BEGIN_C_DECLS
 void copy_index_domain(int res, int arg, locint **ind_dom);
 void merge_2_index_domains(int res, int arg, locint **ind_dom);
 void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
 void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
-
+END_C_DECLS
 #define NUMNNZ 20
 #define FMIN_ADOLC(x, y) ((y < x) ? y : x)
 
@@ -178,11 +179,12 @@ typedef struct IndexElement_sod {
   struct IndexElement_sod *left;
 } IndexElement_sod;
 
+BEGIN_C_DECLS
 void free_tree(IndexElement *nlf, int num);
 void traverse_crs(IndexElement *fod2, IndexElement_sod *sod, int num);
 void traverse_unary(IndexElement *fod, IndexElement *nonl_dom,
                     IndexElement *fodi, int num, int maxopind);
-
+END_C_DECLS
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_t"
 #elif defined(_NTIGHT_)
@@ -196,6 +198,7 @@ void traverse_unary(IndexElement *fod, IndexElement *nonl_dom,
  * (first element of the NID list) or the index of an independent variable.
  */
 
+BEGIN_C_DECLS
 void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
                                             locint **ind_dom,
                                             locint **nonl_dom);
@@ -203,7 +206,7 @@ void extend_nonlinearity_domain_unary(int arg, locint **ind_dom,
                                       locint **nonl_dom);
 void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
                                        locint **nonl_dom);
-
+END_C_DECLS
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_old_forward_t"
 #endif
@@ -4360,16 +4363,8 @@ int hov_forward(
       sigsw[switchnum] = y;
       FOR_0_LE_l_LT_p TRES_INC = y * TARG_INC;
 #else
-      double y = 0.0;
-      if (dp_T0[arg] != 0.0) {
-        if (dp_T0[arg] < 0.0)
-          y = -1.0;
-        else
-          y = 1.0;
-      }
-
       FOR_0_LE_l_LT_p {
-        double x = y;
+        double x = dp_T0[arg] == 0.0 ? 0.0 : dp_T0[arg] < 0.0 ? -1.0 : 1.0;
         FOR_0_LE_i_LT_k {
           if ((x == 0.0) && (TARG != 0.0)) {
             MINDEC(ret_c, 1);
@@ -6494,7 +6489,7 @@ int hov_forward(
   myfree2(dpp_T);
   ADOLC_CURRENT_TAPE_INFOS.dpp_T = nullptr;
   myfree1(dp_Ttemp);
-#elif 
+#else
   myfree2_ulong(up_T);
 #endif /* !_NTIGHT_ */
 #endif
