@@ -141,7 +141,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define ASSIGN_A(a, b) a = b;
 #define HOS_OV_ASSIGN_A(a, b) a = b;
-#define FOR_0_LE_l_LT_q for (int l = 0; l < q; l++)
 
 #else /* _FOV_, _HOS_, _HOV_ */
 #define ARES *Ares
@@ -164,7 +163,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 #define ASSIGN_A(a, b) a = b;
 #define HOS_OV_ASSIGN_A(Aqo, Atemp)
-#define FOR_0_LE_l_LT_q int l = 0;
 #endif
 
 /*--------------------------------------------------------------------------*/
