@@ -313,7 +313,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
   /* other necessary variables */
   double *x = nullptr;
-  int *jj = nullptr;
+  size_t *jj = nullptr;
   int taycheck;
   int numdep, numind;
 
@@ -437,15 +437,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
   rp_Ttemp2 = myalloc1(p * k);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
 #endif
-  rp_Ttemp = (revreal *)malloc(k * sizeof(revreal));
-  if (rp_Ttemp == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  if (rp_Ttemp2 == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  rp_Ttemp = myalloc1(k);
   x = myalloc1(q);
-  jj = (int *)malloc(q * sizeof(int));
-  if (jj == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+  jj = myalloc1_ulong(q);
 
   /************************************************************************/
   /*                                                TAYLOR INITIALIZATION */
@@ -3294,8 +3288,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
   myfree1(rp_Atemp);
   myfree1(rp_Atemp2);
 
-  free((char *)jj);
-  free((char *)x);
+  myfree1_ulong(jj);
+  myfree1(x);
 
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
   end_sweep();
