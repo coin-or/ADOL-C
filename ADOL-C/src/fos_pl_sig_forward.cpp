@@ -1,22 +1,19 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     nonl_ind_forward_s.c
+ File:     fos_an_forward.cpp
  Revision: $Id$
- Contents: nonl_ind_forward_s (propagation of nonlinear index domains)
+ Contents: fos_an_forward (first-order-scalar abs-normal forward mode)
 
- Copyright (c) Andrea Walther, Kshitij Kulshreshtha
+ Copyright (c) Kshitij Kulshreshtha
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#define _INDO_ 1
-#define _NONLIND_OLD_ 1
-#define _INDOPRO_ 1
-#define _NTIGHT_ 1
-#include <uni5_for.c>
-#undef _INDO_
-#undef _NONLIND_OLD_
-#undef _INDOPRO_
-#undef _NTIGHT_
+#define _FOS_ 1
+#undef _KEEP_
+#define _ABS_NORM_SIG_ 1
+#include <uni5_for.cpp>
+#undef _ABS_NORM_SIG_
+#undef _FOS_

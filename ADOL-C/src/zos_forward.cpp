@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     zos_forward.c
+ File:     zos_forward.cpp
  Revision: $Id$
  Contents: zos_forward (zero-order-scalar forward mode)
 
@@ -14,6 +14,6 @@
 ----------------------------------------------------------------------------*/
 #define _ZOS_ 1
 #define _KEEP_ 1
-#include <uni5_for.c>
+#include <uni5_for.cpp>
 #undef _KEEP_
 #undef _ZOS_

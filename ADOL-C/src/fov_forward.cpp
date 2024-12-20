@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     fov_an_forward.c
+ File:     fov_forward.cpp
  Revision: $Id$
- Contents: fov_an_forward (first-order-vector abs-normal forward mode)
+ Contents: fov_forward (first-order-vector forward mode)
 
- Copyright (c) Kshitij Kulshrestha
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -13,7 +14,5 @@
 ----------------------------------------------------------------------------*/
 #define _FOV_ 1
 #undef _KEEP_
-#define _ABS_NORM_SIG_ 1
-#include <uni5_for.c>
-#undef _ABS_NORM_SIG_
+#include <uni5_for.cpp>
 #undef _FOV_

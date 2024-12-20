@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     uni5_for.c
+ File:     uni5_for.cpp
 
 
  Revision: $Id$

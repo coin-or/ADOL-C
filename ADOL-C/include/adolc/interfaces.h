@@ -6,13 +6,13 @@
            reverse calls (C++, C and Fortran callable C functions).
 
            Functions prototyped here are defined in the files
-                 uni5_for.c for
-                                 zos_forward.c
-                                 fos_forward.c
-                                 hos_forward.c
-                                 fov_forward.c
-                                 hov_forward.c
-                                 hov_wk_forward.c
+                 uni5_for.cpp for
+                                 zos_forward.cpp
+                                 fos_forward.cpp
+                                 hos_forward.cpp
+                                 fov_forward.cpp
+                                 hov_forward.cpp
+                                 hov_wk_forward.cpp
                  fo_rev.cpp for
                                  fos_reverse.cpp
                                  fov_reverse.cpp
@@ -182,12 +182,12 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                      ZOS */
 /* zos_forward(tag, m, n, keep, x[n], y[m])                                 */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int zos_forward(short, int, int, int, const double *,
                                  double *);
 
 /* zos_forward_nk(tag, m, n, x[n], y[m])                                    */
-/* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
+/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)        */
 ADOLC_DLL_EXPORT int zos_forward_nk(short, int, int, const double *, double *);
 
 /* zos_forward_partx(tag, m, n, ndim[n], x[n][d], y[m])                     */
@@ -199,12 +199,12 @@ ADOLC_DLL_EXPORT int zos_forward_partx(short, int, int, int *, double **,
 /*--------------------------------------------------------------------------*/
 /*                                                                      FOS */
 /* fos_forward(tag, m, n, keep, x[n], X[n], y[m], Y[m])                     */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int fos_forward(short, int, int, int, const double *,
                                  const double *, double *, double *);
 
 /* fos_forward_nk(tag,m,n,x[n],X[n],y[m],Y[m])                              */
-/* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
+/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)        */
 ADOLC_DLL_EXPORT int fos_forward_nk(short, int, int, const double *,
                                     const double *, double *, double *);
 
@@ -216,12 +216,12 @@ ADOLC_DLL_EXPORT int fos_forward_partx(short, int, int, int *, double ***,
 /*--------------------------------------------------------------------------*/
 /*                                                                      HOS */
 /* hos_forward(tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d])            */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int hos_forward(short, int, int, int, int, const double *,
                                  double **, double *, double **);
 
 /* hos_forward_nk(tag, m, n, d, x[n], X[n][d], y[m], Y[m][d])               */
-/* (no keep, defined in uni5_for.c, but not supported in ADOL-C 1.8)        */
+/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)        */
 ADOLC_DLL_EXPORT int hos_forward_nk(short, int, int, int, const double *,
                                     double **, double *, double **);
 
@@ -237,7 +237,7 @@ ADOLC_DLL_EXPORT fint hos_forward_(fint *, fint *, fint *, fint *, fint *,
 /*--------------------------------------------------------------------------*/
 /*                                                                      FOV */
 /* fov_forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])                  */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int fov_forward(short, int, int, int, const double *,
                                  double **, double *, double **);
 ADOLC_DLL_EXPORT int fov_offset_forward(short, int, int, int, int,
@@ -256,7 +256,7 @@ ADOLC_DLL_EXPORT int fov_forward_partx(short, int, int, int *, int, double **,
 /*--------------------------------------------------------------------------*/
 /*                                                                      HOV */
 /* hov_forward(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d])         */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int hov_forward(short, int, int, int, int, const double *,
                                  double ***, double *, double ***);
 
@@ -273,7 +273,7 @@ ADOLC_DLL_EXPORT int hov_forward_partx(short, int, int, int *, int, int,
 /*--------------------------------------------------------------------------*/
 /*                                                                   HOV_WK */
 /* hov_wk_forward(tag, m, n, d, keep, p, x[n], X[n][p][d], y[m], Y[m][p][d])  */
-/* (defined in uni5_for.c)                                                 */
+/* (defined in uni5_for.cpp)                                                 */
 ADOLC_DLL_EXPORT int hov_wk_forward(short, int, int, int, int, int,
                                     const double *, double ***, double *,
                                     double ***);

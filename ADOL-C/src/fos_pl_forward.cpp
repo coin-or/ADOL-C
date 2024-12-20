@@ -1,18 +1,19 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     int_forward_s.c
+ File:     fos_an_forward.cpp
  Revision: $Id$
- Contents: int_forward (integer forward mode safe for bit pattern propagation)
+ Contents: fos_an_forward (first-order-scalar abs-normal forward mode)
 
- Copyright (c) Andrea Walther, Christo Mitev
+ Copyright (c) Kshitij Kulshreshtha
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#define _INT_FOR_ 1
-#define _NTIGHT_ 1
-#include <uni5_for.c>
-#undef _INT_FOR_
-#undef _NTIGHT_
+#define _FOS_ 1
+#undef _KEEP_
+#define _ABS_NORM_ 1
+#include <uni5_for.cpp>
+#undef _ABS_NORM_
+#undef _FOS_

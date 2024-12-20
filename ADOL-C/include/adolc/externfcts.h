@@ -144,13 +144,13 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_iArr_fov_forward *fov_forward_iArr;
   /**
    * higher order scalar forward for external functions  is currently not
-   * implemented in uni5_for.c
+   * implemented in uni5_for.cpp
    */
   ADOLC_ext_fct_hos_forward *hos_forward;
   ADOLC_ext_fct_iArr_hos_forward *hos_forward_iArr;
   /**
    * higher order vector forward for external functions  is currently not
-   * implemented in uni5_for.c
+   * implemented in uni5_for.cpp
    */
   ADOLC_ext_fct_hov_forward *hov_forward;
   ADOLC_ext_fct_iArr_hov_forward *hov_forward_iArr;

@@ -1,20 +1,20 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     fov_offset_forward.c
+ File:     nonl_ind_forward_t.cpp
  Revision: $Id$
- Contents: fov_offset_forward (first-order-vector forward mode with
-           p-offset in arguments and taylors)
+ Contents: nonl_ind_forward_t (propagation of nonlinear index domains)
 
- Copyright (c) Sebastian Schlenkrich
+ Copyright (c) Andrea Walther
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#define _FOV_ 1
-#define _CHUNKED_
-#undef _KEEP_
-#include <uni5_for.c>
-#undef _CHUNKED_
-#undef _FOV_
+#define _INDO_ 1
+#define _NONLIND_ 1
+#define _TIGHT_ 1
+#include <uni5_for.cpp>
+#undef _INDO_
+#undef _NONLIND_
+#undef _TIGHT_

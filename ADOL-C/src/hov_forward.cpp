@@ -1,20 +1,18 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     nonl_ind_forward_s.c
+ File:     hov_forward.cpp
  Revision: $Id$
- Contents: nonl_ind_forward_s (propagation of nonlinear index domains)
+ Contents: hov_forward (higher-order-vector forward mode)
 
- Copyright (c) Andrea Walther
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#define _INDO_ 1
-#define _NONLIND_ 1
-#define _NTIGHT_ 1
-#include <uni5_for.c>
-#undef _INDO_
-#undef _NONLIND_
-#undef _NTIGHT_
+#define _HOV_ 1
+#undef _KEEP_
+#include <uni5_for.cpp>
+#undef _HOV_
