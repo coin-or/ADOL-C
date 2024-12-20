@@ -319,20 +319,34 @@ int hov_ti_reverse(short tnum,         /* tape id */
   int indexi = 0, indexd = 0;
 
   /* other necessary variables */
-  double *x;
-  int *jj;
+  double *x = nullptr;
+  int *jj = nullptr;
   int taycheck;
   int numdep, numind;
 
   /*----------------------------------------------------------------------*/
   /* Taylor stuff */
-  revreal *Tres, *Targ, *Targ1, *Targ2, *Tqo, *rp_Ttemp, *rp_Ttemp2;
-  revreal **rpp_T;
+  double *Tres = nullptr;
+  double *Targ = nullptr;
+  double *Targ1 = nullptr;
+  double *Targ2 = nullptr;
+  double *Tqo = nullptr;
+  double *rp_Ttemp = nullptr;
+  double *rp_Ttemp2 = nullptr;
+  double **rpp_T = nullptr;
 
   /*----------------------------------------------------------------------*/
   /* Adjoint stuff */
-  revreal *Ares, *Aarg = NULL, *Aarg1, *Aarg2, *Aqo, *rp_Atemp, *rp_Atemp2;
-  revreal **rpp_A, *AP1, *AP2;
+  double *Ares = nullptr;
+  double *Aarg = nullptr;
+  double *Aarg1 = nullptr;
+  double *Aarg2 = nullptr;
+  double *Aqo = nullptr;
+  double *rp_Atemp = nullptr;
+  double *rp_Atemp2 = nullptr;
+  double **rpp_A = nullptr;
+  double *AP1 = nullptr;
+  double *AP2 = nullptr;
 
   /*----------------------------------------------------------------------*/
   const int k = degre + 1;
