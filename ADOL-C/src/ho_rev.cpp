@@ -125,19 +125,16 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define AARG *Aarg
 #define AARG1 *Aarg1
 #define AARG2 *Aarg2
-#define AQO *Aqo
 
 #define ARES_INC *Ares++
 #define AARG_INC *Aarg++
 #define AARG1_INC *Aarg1++
 #define AARG2_INC *Aarg2++
-#define AQO_INC *Aqo++
 
 #define ARES_INC_O Ares++
 #define AARG_INC_O Aarg++
 #define AARG1_INC_O Aarg1++
 #define AARG2_INC_O Aarg2++
-#define AQO_INC_O Aqo++
 
 #define ASSIGN_A(a, b) a = b;
 #define HOS_OV_ASSIGN_A(a, b) a = b;
@@ -147,22 +144,18 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define AARG *Aarg
 #define AARG1 *Aarg1
 #define AARG2 *Aarg2
-#define AQO *Aqo
 
 #define ARES_INC *Ares++
 #define AARG_INC *Aarg++
 #define AARG1_INC *Aarg1++
 #define AARG2_INC *Aarg2++
-#define AQO_INC *Aqo++
 
 #define ARES_INC_O Ares++
 #define AARG_INC_O Aarg++
 #define AARG1_INC_O Aarg1++
 #define AARG2_INC_O Aarg2++
-#define AQO_INC_O Aqo++
 
 #define ASSIGN_A(a, b) a = b;
-#define HOS_OV_ASSIGN_A(Aqo, Atemp)
 #endif
 
 /*--------------------------------------------------------------------------*/
@@ -341,7 +334,6 @@ int hov_ti_reverse(short tnum,         /* tape id */
   double *Aarg = nullptr;
   double *Aarg1 = nullptr;
   double *Aarg2 = nullptr;
-  double *Aqo = nullptr;
   double *rp_Atemp = nullptr;
   double *rp_Atemp2 = nullptr;
   double **rpp_A = nullptr;
@@ -419,18 +411,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
   /*----------------------------------------------------------------------*/
 #ifdef _HOS_ /* HOS */
-  rpp_A = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_A == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Aqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * k1 *
-                          sizeof(revreal));
-  if (Aqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_A[i] = Aqo;
-    Aqo += k1;
-  }
+  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k1);
   rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
                              sizeof(revreal *));
   if (rpp_T == NULL)
@@ -453,18 +434,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   int oldTraceFlag;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
-  rpp_A = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_A == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Aqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * pk1 *
-                          sizeof(revreal));
-  if (Aqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_A[i] = Aqo;
-    Aqo += pk1;
-  }
+  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
   rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
                              sizeof(revreal *));
   if (rpp_T == NULL)
@@ -483,18 +453,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
-  rpp_A = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_A == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Aqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * pk1 *
-                          sizeof(revreal));
-  if (Aqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_A[i] = Aqo;
-    Aqo += pk1;
-  }
+  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
   rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
                              sizeof(revreal *));
   if (rpp_T == NULL)
@@ -866,7 +825,6 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
-      ASSIGN_A(Aqo, rp_Atemp)
       Tres = rpp_T[res];
       Targ = rpp_T[arg];
 
@@ -883,14 +841,13 @@ int hov_ti_reverse(short tnum,         /* tape id */
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
-              ARES_INC = AQO_INC;
+              ARES_INC = *rp_Atemp++;
           } else
             for (int i = 0; i < k; i++)
-              ARES_INC = 2.0 * AQO_INC;
+              ARES_INC = 2.0 * *rp_Atemp++;
           HOV_INC(Aarg, k)
           HOS_OV_INC(Tres, k)
           HOS_OV_INC(Targ, k)
-          HOS_OV_ASSIGN_A(Aqo, rp_Atemp)
         }
       }
       break;
@@ -2774,7 +2731,6 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
-      ASSIGN_A(Aqo, rp_Atemp)
       Tres = rpp_T[res];
       Targ = rpp_T[arg];
 
@@ -2791,14 +2747,13 @@ int hov_ti_reverse(short tnum,         /* tape id */
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
-              ARES_INC = AQO_INC;
+              ARES_INC = *rp_Atemp++;
           } else
             for (int i = 0; i < k; i++)
-              ARES_INC = 2.0 * AQO_INC;
+              ARES_INC = 2.0 * *rp_Atemp;
           HOV_INC(Aarg, k)
           HOS_OV_INC(Tres, k)
           HOS_OV_INC(Targ, k)
-          HOS_OV_ASSIGN_A(Aqo, rp_Atemp)
         }
       }
       break;
@@ -3364,8 +3319,11 @@ int hov_ti_reverse(short tnum,         /* tape id */
   /* clean up */
   free((char *)*rpp_T);
   free((char *)rpp_T);
-  free(*rpp_A);
-  free(rpp_A);
+  ADOLC_CURRENT_TAPE_INFOS.rpp_T = nullptr;
+
+  myfree2(rpp_A);
+  ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
+
   free(rp_Ttemp);
   free(rp_Ttemp2);
   free(rp_Atemp);
