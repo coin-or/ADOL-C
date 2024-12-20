@@ -317,7 +317,6 @@ int int_reverse_safe(
 #endif
 #ifdef _FOV_
   double **rpp_A = nullptr;
-  double *Aqo = nullptr;
 #endif
 #if !defined(_NTIGHT_)
   double *rp_T = nullptr;
@@ -484,11 +483,7 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_ /* FOV */
-  rpp_A = new double *[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]];
-  Aqo = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p);
-  for (j = 0; j < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; j++) {
-    rpp_A[j] = Aqo + j * p;
-  }
+  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
   ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
   rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
@@ -3262,8 +3257,7 @@ int int_reverse_safe(
   ADOLC_CURRENT_TAPE_INFOS.rp_A = nullptr;
 #endif
 #ifdef _FOV_
-  myfree1(Aqo);
-  delete[] rpp_A;
+  myfree2(rpp_A);
   myfree1(rp_T);
   ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
   ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
