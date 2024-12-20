@@ -3249,8 +3249,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       /* degree is not known when registering external functions,
          so do memory allocation here (at least for now) */
-      double **dpp_U = malloc(sizeof(double *) * m);
-      double **dpp_Z = malloc(sizeof(double *) * n);
+      double **dpp_U = new double *[m];
+      double **dpp_Z = new double *[n];
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
         fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
@@ -3342,8 +3342,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
       ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 
-      free(dpp_Z);
-      free(dpp_U);
+      delete[] dpp_Z;
+      delete[] dpp_U;
 
       break;
     }
