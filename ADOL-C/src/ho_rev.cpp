@@ -200,7 +200,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
 #define FOR_p_GT_l_GE_0 /* why ? not used here */
 #else
-#define FOR_0_LE_l_LT_p
+#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
 #define FOR_p_GT_l_GE_0 /* why ? not used here */
 #endif
 
@@ -375,8 +375,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
   const int k1 = k + 1;
   revreal comp;
 
-#ifdef _ADOLC_VECTOR_
+#ifdef _HOV_
   const int p = nrows;
+  const int pk1 = p * k1;
+  const int q = 1;
+#elif _HOS_OV_
+  const int p = nrows;
+  const int pk1 = p * k1;
+  const int q = p;
+#else
+  const int q = 1;
+  const int p = 1;
 #endif
 
   /****************************************************************************/
@@ -393,17 +402,6 @@ int hov_ti_reverse(short tnum,         /* tape id */
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   hov_reverse(m, p, edfct->dpp_U, n, degre, edfct->dppp_Z, edfct->spp_nz)
-#endif
-
-#ifdef _HOV_
-  const int pk1 = p * k1;
-  const int q = 1;
-#elif _HOS_OV_
-  const int p = nrows;
-  const int pk1 = p * k1;
-  const int q = p;
-#else
-  const int q = 1;
 #endif
 
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -2088,7 +2086,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg, rpp_A[arg])
       Targ = rpp_T[arg];
 
-      FOR_0_LE_l_LT_q {
+      for (int l = 0; l < q; ++l) {
         x[l] = 0.0;
         jj[l] = 0;
         for (int i = 0; i < k; i++)
@@ -3300,7 +3298,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
       // Ares = A[res];
       for (int loop = 0; loop < m; ++loop) {
-        FOR_0_LE_l_LT_q {
+        for (int l = 0; l < q; ++l) {
           // ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */
           // rpp_T[res][l] = 0.0;
           rpp_A[res][l] = 0.0;
