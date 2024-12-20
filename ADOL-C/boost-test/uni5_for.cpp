@@ -1,6 +1,6 @@
 
 /*
-File for explicit testing functions from uni5_for.c file.
+File for explicit testing functions from uni5_for.cpp file.
 */
 
 #define BOOST_TEST_DYN_LINK
