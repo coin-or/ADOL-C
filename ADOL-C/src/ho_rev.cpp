@@ -412,29 +412,29 @@ int hov_ti_reverse(short tnum,         /* tape id */
 #ifdef _HOS_ /* HOS */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k1);
   rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
-  rp_Atemp = (revreal *)malloc(k1 * sizeof(revreal));
-  rp_Atemp2 = (revreal *)malloc(k1 * sizeof(revreal));
-  rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
+  rp_Atemp = myalloc1(k1);
+  rp_Atemp2 = myalloc1(k1);
+  rp_Ttemp2 = myalloc1(k);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_REVERSE;
 
   locint n, m;
-  ext_diff_fct *edfct;
+  ext_diff_fct *edfct = nullptr;
   int oldTraceFlag;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
   rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
-  rp_Atemp = (revreal *)malloc(pk1 * sizeof(revreal));
-  rp_Atemp2 = (revreal *)malloc(pk1 * sizeof(revreal));
-  rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
+  rp_Atemp = myalloc1(pk1);
+  rp_Atemp2 = myalloc1(pk1);
+  rp_Ttemp2 = myalloc1(k);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
   rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p * k);
-  rp_Atemp = (revreal *)malloc(pk1 * sizeof(revreal));
-  rp_Atemp2 = (revreal *)malloc(pk1 * sizeof(revreal));
-  rp_Ttemp2 = (revreal *)malloc(p * k * sizeof(revreal));
+  rp_Atemp = myalloc1(pk1);
+  rp_Atemp2 = myalloc1(pk1);
+  rp_Ttemp2 = myalloc1(p * k);
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
 #endif
   rp_Ttemp = (revreal *)malloc(k * sizeof(revreal));
@@ -3289,10 +3289,10 @@ int hov_ti_reverse(short tnum,         /* tape id */
   myfree2(rpp_A);
   ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
 
-  free(rp_Ttemp);
-  free(rp_Ttemp2);
-  free(rp_Atemp);
-  free(rp_Atemp2);
+  myfree1(rp_Ttemp);
+  myfree1(rp_Ttemp2);
+  myfree1(rp_Atemp);
+  myfree1(rp_Atemp2);
 
   free((char *)jj);
   free((char *)x);
