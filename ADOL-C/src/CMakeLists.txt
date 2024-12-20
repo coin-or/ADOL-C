@@ -26,10 +26,10 @@ target_sources(adolc PRIVATE
                fov_pl_forward.c
                fov_reverse.cpp
                hos_forward.c
-               hos_ov_reverse.c
-               hos_reverse.c
+               hos_ov_reverse.cpp
+               hos_reverse.cpp
                hov_forward.c
-               hov_reverse.c
+               hov_reverse.cpp
                hov_wk_forward.c
                indopro_forward_pl.c
                indopro_forward_s.c

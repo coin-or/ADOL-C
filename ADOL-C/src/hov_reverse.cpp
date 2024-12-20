@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     drivers/drivers.h
+ File:     hov_reverse.cpp
  Revision: $Id$
- Contents: hos_ov_reverse (higher-order-scalar reverse mode on vectors)
+ Contents: hov_reverse (higher-order-vector reverse mode)
 
- Copyright (c) Andrea Walther
+ Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
+               Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -12,6 +13,6 @@
 
 ----------------------------------------------------------------------------*/
 
-#define _HOS_OV_ 1
-#include <ho_rev.c>
-#undef _HOS_OV_
+#define _HOV_ 1
+#include <ho_rev.cpp>
+#undef _HOV_

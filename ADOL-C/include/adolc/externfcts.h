@@ -168,7 +168,7 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_iArr_fov_reverse *fov_reverse_iArr;
   /**
    * higher order scalar reverse for external functions  is currently not
-   * implemented in ho_rev.c
+   * implemented in ho_rev.cpp
    */
   ADOLC_ext_fct_hos_reverse *hos_reverse;
   ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr;
@@ -177,7 +177,7 @@ typedef struct ext_diff_fct {
 
   /**
    * higher order vector reverse for external functions  is currently not
-   * implemented in ho_rev.c
+   * implemented in ho_rev.cpp
    */
   ADOLC_ext_fct_hov_reverse *hov_reverse;
   ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
