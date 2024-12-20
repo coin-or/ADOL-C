@@ -323,7 +323,6 @@ int hov_ti_reverse(short tnum,         /* tape id */
   double *Targ = nullptr;
   double *Targ1 = nullptr;
   double *Targ2 = nullptr;
-  double *Tqo = nullptr;
   double *rp_Ttemp = nullptr;
   double *rp_Ttemp2 = nullptr;
   double **rpp_T = nullptr;
@@ -412,18 +411,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   /*----------------------------------------------------------------------*/
 #ifdef _HOS_ /* HOS */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k1);
-  rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Tqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * k *
-                          sizeof(revreal));
-  if (Tqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_T[i] = Tqo;
-    Tqo += k;
-  }
+  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
   rp_Atemp = (revreal *)malloc(k1 * sizeof(revreal));
   rp_Atemp2 = (revreal *)malloc(k1 * sizeof(revreal));
   rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
@@ -435,18 +423,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
-  rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Tqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * k *
-                          sizeof(revreal));
-  if (Tqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_T[i] = Tqo;
-    Tqo += k;
-  }
+  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
   rp_Atemp = (revreal *)malloc(pk1 * sizeof(revreal));
   rp_Atemp2 = (revreal *)malloc(pk1 * sizeof(revreal));
   rp_Ttemp2 = (revreal *)malloc(k * sizeof(revreal));
@@ -454,18 +431,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
   rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
-  rpp_T = (revreal **)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] *
-                             sizeof(revreal *));
-  if (rpp_T == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  Tqo = (revreal *)malloc(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES] * p *
-                          k * sizeof(revreal));
-  if (Tqo == NULL)
-    fail(ADOLC_MALLOC_FAILED);
-  for (int i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]; i++) {
-    rpp_T[i] = Tqo;
-    Tqo += p * k;
-  }
+  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p * k);
   rp_Atemp = (revreal *)malloc(pk1 * sizeof(revreal));
   rp_Atemp2 = (revreal *)malloc(pk1 * sizeof(revreal));
   rp_Ttemp2 = (revreal *)malloc(p * k * sizeof(revreal));
@@ -841,10 +807,10 @@ int hov_ti_reverse(short tnum,         /* tape id */
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
-              ARES_INC = *rp_Atemp++;
+              ARES_INC = rp_Atemp[i];
           } else
             for (int i = 0; i < k; i++)
-              ARES_INC = 2.0 * *rp_Atemp++;
+              ARES_INC = 2.0 * rp_Atemp[i];
           HOV_INC(Aarg, k)
           HOS_OV_INC(Tres, k)
           HOS_OV_INC(Targ, k)
@@ -2747,10 +2713,10 @@ int hov_ti_reverse(short tnum,         /* tape id */
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
-              ARES_INC = *rp_Atemp++;
+              ARES_INC = rp_Atemp[i];
           } else
             for (int i = 0; i < k; i++)
-              ARES_INC = 2.0 * *rp_Atemp;
+              ARES_INC = 2.0 * rp_Atemp[i];
           HOV_INC(Aarg, k)
           HOS_OV_INC(Tres, k)
           HOS_OV_INC(Targ, k)
@@ -2858,7 +2824,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
           inconv(k, rp_Atemp, Targ1, Aarg);
           inconv(k, rp_Atemp, Targ, Aarg1);
           for (int i = 0; i < k; i++)
-            AARG2_INC += *rp_Atemp++;
+            AARG2_INC += rp_Atemp[i];
 
           HOV_INC(Ares, k)
           HOV_INC(Aarg, k)
@@ -3317,8 +3283,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
 #endif /* ADOLC_DEBUG */
 
   /* clean up */
-  free((char *)*rpp_T);
-  free((char *)rpp_T);
+  myfree2(rpp_T);
   ADOLC_CURRENT_TAPE_INFOS.rpp_T = nullptr;
 
   myfree2(rpp_A);
