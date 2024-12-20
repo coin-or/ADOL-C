@@ -192,17 +192,6 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 /*                                                              loop stuff  */
-#ifdef _ADOLC_VECTOR_
-#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-#define FOR_p_GT_l_GE_0                                                        \
-  for (int l = p - 1; l >= 0; l--) /* why ? not used here */
-#elif _HOS_OV_
-#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-#define FOR_p_GT_l_GE_0 /* why ? not used here */
-#else
-#define FOR_0_LE_l_LT_p for (int l = 0; l < p; l++)
-#define FOR_p_GT_l_GE_0 /* why ? not used here */
-#endif
 
 #ifdef _HOV_
 #define FOR_0_LE_l_LT_pk1 for (int l = 0; l < pk1; l++)
@@ -656,19 +645,19 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg, rpp_A[arg])
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC = 0.0;
-        for (int i = 0; i < k; i++) { /* ! no temporary */
-          AARG_INC += ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
           ARES_INC = 0.0;
+          for (int i = 0; i < k; i++) { /* ! no temporary */
+            AARG_INC += ARES;
+            ARES_INC = 0.0;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -721,7 +710,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
 #ifdef _HOV_
         if (nonzero) /* ??? question: why here? */
           nonzero[l][indexi] = (int)ARES;
@@ -743,7 +732,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[res]) /* just a helpful pointers */
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         ARES_INC_O;
         dc = -1;
         for (int i = 0; i < k; i++) {
@@ -789,17 +778,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg]);
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC_O;
-        for (int i = 0; i < k; i++)
-          AARG_INC += ARES_INC;
-      }
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
+          ARES_INC_O;
+          for (int i = 0; i < k; i++)
+            AARG_INC += ARES_INC;
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -832,17 +821,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC_O;
-        for (int i = 0; i < k; i++)
-          AARG_INC -= ARES_INC;
-      }
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
+          ARES_INC_O;
+          for (int i = 0; i < k; i++)
+            AARG_INC -= ARES_INC;
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -855,7 +844,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES_INC)
+      for (int l = 0; l < p; l++)
+        if (0 == ARES_INC)
           HOV_INC(Ares, k) else for (int i = 0; i < k; i++) ARES_INC *= coval;
 
       GET_TAYL(res, k, p)
@@ -870,7 +860,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES_INC)
+      for (int l = 0; l < p; l++)
+        if (0 == ARES_INC)
           HOV_INC(Ares, k) else for (int i = 0; i < k; i++) ARES_INC *= coval;
 
       GET_TAYL(res, k, p)
@@ -890,7 +881,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       Tres = rpp_T[res];
       Targ = rpp_T[arg];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg, k1)
           HOV_INC(Ares, k1)
@@ -937,25 +928,25 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       ASSIGN_A(Aarg2, rpp_A[arg2])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg1, k1)
-        HOV_INC(Aarg2, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG1, aTmp);
-        MAXDEC(AARG2, aTmp);
-        AARG2_INC_O;
-        AARG1_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg1, k1)
+          HOV_INC(Aarg2, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG1_INC += aTmp;
-          AARG2_INC += aTmp;
+          MAXDEC(AARG1, aTmp);
+          MAXDEC(AARG2, aTmp);
+          AARG2_INC_O;
+          AARG1_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG1_INC += aTmp;
+            AARG2_INC += aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -972,21 +963,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC += aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC += aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1001,21 +992,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC += aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC += aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1031,25 +1022,25 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       ASSIGN_A(Aarg2, rpp_A[arg2])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg1, k1)
-        HOV_INC(Aarg2, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG1, aTmp);
-        MAXDEC(AARG2, aTmp);
-        AARG2_INC_O;
-        AARG1_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg1, k1)
+          HOV_INC(Aarg2, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG1_INC += aTmp;
-          AARG2_INC -= aTmp;
+          MAXDEC(AARG1, aTmp);
+          MAXDEC(AARG2, aTmp);
+          AARG2_INC_O;
+          AARG1_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG1_INC += aTmp;
+            AARG2_INC -= aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1064,21 +1055,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC -= aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC -= aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1104,51 +1095,52 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       /* Loop over all input weight vectors (in vector mode).
          In scalar mode this loop is trivial. */
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        /* This branch is taken if the input of this operation is independent of
-         * the independent variables.  For example if it is some constant that
-         * happens to be stored as an adouble.  The derivative of that is zero.
-         */
-        HOV_INC(Aarg1, k1)
-        HOV_INC(Aarg2, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        /* The output includes the functional relation between
-           input and output.  For multiplication this is at
-           least polynomial unless the input already has a more
-           generic relation on its own inputs (e.g., rational,
-           trancendental or non-smooth).
-           See the parameter `nz` of `hov_reverse` and the table of values in
-           page 44 of the manual.
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          /* This branch is taken if the input of this operation is independent
+           * of the independent variables.  For example if it is some constant
+           * that happens to be stored as an adouble.  The derivative of that is
+           * zero.
            */
-        comp = (ARES > 2.0) ? ARES : 2.0;
-        ARES_INC = 0.0;
-        MAXDEC(AARG1, comp);
-        MAXDEC(AARG2, comp);
-        /* Skip first value of input: these again represent
-           functional relation. */
-        AARG1_INC_O;
-        AARG2_INC_O;
+          HOV_INC(Aarg1, k1)
+          HOV_INC(Aarg2, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          /* The output includes the functional relation between
+             input and output.  For multiplication this is at
+             least polynomial unless the input already has a more
+             generic relation on its own inputs (e.g., rational,
+             trancendental or non-smooth).
+             See the parameter `nz` of `hov_reverse` and the table of values in
+             page 44 of the manual.
+             */
+          comp = (ARES > 2.0) ? ARES : 2.0;
+          ARES_INC = 0.0;
+          MAXDEC(AARG1, comp);
+          MAXDEC(AARG2, comp);
+          /* Skip first value of input: these again represent
+             functional relation. */
+          AARG1_INC_O;
+          AARG2_INC_O;
 
-        /* Copy to a temporary variables in case one of the
-           arguments uses the same storage as the result. */
-        copyAndZeroset(k, Ares, rp_Atemp);
+          /* Copy to a temporary variables in case one of the
+             arguments uses the same storage as the result. */
+          copyAndZeroset(k, Ares, rp_Atemp);
 
-        // Aarg2 += convolution of rp_Atemp with Targ1
-        inconv(k, rp_Atemp, Targ1, Aarg2);
+          // Aarg2 += convolution of rp_Atemp with Targ1
+          inconv(k, rp_Atemp, Targ1, Aarg2);
 
-        // Aarg1 += convolution of rp_Atemp with Targ2
-        inconv(k, rp_Atemp, Targ2, Aarg1);
+          // Aarg1 += convolution of rp_Atemp with Targ2
+          inconv(k, rp_Atemp, Targ2, Aarg1);
 
-        /* Vector mode: update pointers for next loop iteration
-           (see loop above) */
-        HOV_INC(Ares, k)
-        HOV_INC(Aarg1, k)
-        HOV_INC(Aarg2, k)
-        HOS_OV_INC(Targ1, k)
-        HOS_OV_INC(Targ2, k)
-      }
+          /* Vector mode: update pointers for next loop iteration
+             (see loop above) */
+          HOV_INC(Ares, k)
+          HOV_INC(Aarg1, k)
+          HOV_INC(Aarg2, k)
+          HOS_OV_INC(Targ1, k)
+          HOS_OV_INC(Targ2, k)
+        }
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1171,7 +1163,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       deconv1(k, Targ1, Targ2, Tres);
 #endif
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
 #if defined(_HOS_OV_)
         deconv1(k, Targ1, Targ2, Tres);
 #endif
@@ -1220,7 +1212,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       inconv1(k, Targ1, Targ2, Tres);
 #endif
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
 #if defined(_HOS_OV_)
         inconv1(k, Targ1, Targ2, Tres);
 #endif
@@ -1259,21 +1251,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC += coval * aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC += coval * aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1289,21 +1281,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC += coval * aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC += coval * aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1329,7 +1321,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Ares, k1)
           HOV_INC(Aarg1, k1)
@@ -1383,7 +1375,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Ares, k1)
           HOV_INC(Aarg, k1)
@@ -1431,7 +1423,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Ares, k1)
           HOV_INC(Aarg, k1)
@@ -1471,21 +1463,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC += aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC += aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1498,21 +1490,21 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        AARG_INC_O;
-        for (int i = 0; i < k; i++) {
-          aTmp = ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          double aTmp = ARES;
           ARES_INC = 0.0;
-          AARG_INC -= aTmp;
+          MAXDEC(AARG, aTmp);
+          AARG_INC_O;
+          for (int i = 0; i < k; i++) {
+            aTmp = ARES;
+            ARES_INC = 0.0;
+            AARG_INC -= aTmp;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -1531,7 +1523,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       Tres = rpp_T[res];
       Targ = rpp_T[arg];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg, k1)
           HOV_INC(Ares, k1)
@@ -1563,7 +1555,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       Targ2 = rpp_T[arg2];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg1, k1)
           HOV_INC(Ares, k1)
@@ -1597,7 +1589,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       Targ2 = rpp_T[arg2];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg1, k1)
           HOV_INC(Ares, k1)
@@ -1640,7 +1632,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       Targ2 = rpp_T[arg2];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg1, k1)
           HOV_INC(Ares, k1)
@@ -1672,7 +1664,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       Targ = rpp_T[arg];
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg, k1)
           HOV_INC(Ares, k1)
@@ -1714,78 +1706,78 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        MAXDEC(AARG, 4.0);
-        AARG_INC_O;
-
-        VEC_COMPUTED_CHECK
-        if (fabs(Targ[0]) > ADOLC_EPS) {
-          divide(k, Tres, Targ, rp_Ttemp);
-          for (int i = 0; i < k; i++) {
-            rp_Ttemp[i] *= coval;
-            /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
-          }
-          inconv0(k, Ares, rp_Ttemp, Aarg);
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
         } else {
-          if (coval <= 0.0) {
+          double aTmp = ARES;
+          ARES_INC = 0.0;
+          MAXDEC(AARG, aTmp);
+          MAXDEC(AARG, 4.0);
+          AARG_INC_O;
+
+          VEC_COMPUTED_CHECK
+          if (fabs(Targ[0]) > ADOLC_EPS) {
+            divide(k, Tres, Targ, rp_Ttemp);
             for (int i = 0; i < k; i++) {
-              Aarg[i] = make_nan();
-              Ares[i] = 0;
+              rp_Ttemp[i] *= coval;
+              /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
             }
+            inconv0(k, Ares, rp_Ttemp, Aarg);
           } else {
-            /* coval not a whole number */
-            if (coval - floor(coval) != 0) {
+            if (coval <= 0.0) {
               for (int i = 0; i < k; i++) {
-                if (coval - i > 1) {
-                  Aarg[i] = 0;
-                  Ares[i] = 0;
-                }
-                if ((coval - i < 1) && (coval - i > 0)) {
-                  Aarg[i] = make_inf();
-                  Ares[i] = 0;
-                }
-                if (coval - i < 0) {
-                  Aarg[i] = make_nan();
-                  Ares[i] = 0;
-                }
+                Aarg[i] = make_nan();
+                Ares[i] = 0;
               }
             } else {
-              if (coval == 1) {
-                for (int i = 0; i < k; i++) { /* ! no temporary */
-                  Aarg[i] += Ares[i];
-                  Ares[i] = 0.0;
+              /* coval not a whole number */
+              if (coval - floor(coval) != 0) {
+                for (int i = 0; i < k; i++) {
+                  if (coval - i > 1) {
+                    Aarg[i] = 0;
+                    Ares[i] = 0;
+                  }
+                  if ((coval - i < 1) && (coval - i > 0)) {
+                    Aarg[i] = make_inf();
+                    Ares[i] = 0;
+                  }
+                  if (coval - i < 0) {
+                    Aarg[i] = make_nan();
+                    Ares[i] = 0;
+                  }
                 }
               } else {
-                /* coval is an int > 1 */
-                /* the following is not efficient but at least it works */
-                /* it reformulates x^n into x* ... *x n times */
+                if (coval == 1) {
+                  for (int i = 0; i < k; i++) { /* ! no temporary */
+                    Aarg[i] += Ares[i];
+                    Ares[i] = 0.0;
+                  }
+                } else {
+                  /* coval is an int > 1 */
+                  /* the following is not efficient but at least it works */
+                  /* it reformulates x^n into x* ... *x n times */
 
-                copyAndZeroset(k, Ares, rp_Atemp);
-                inconv(k, rp_Atemp, Targ, Aarg);
-                inconv(k, rp_Atemp, Targ, Aarg);
-                if (coval == 3) {
-                  conv(k, Aarg, Targ, rp_Atemp);
-                  for (int i = 0; i < k; i++)
-                    Aarg[i] = 2.0 * rp_Atemp[i];
+                  copyAndZeroset(k, Ares, rp_Atemp);
+                  inconv(k, rp_Atemp, Targ, Aarg);
+                  inconv(k, rp_Atemp, Targ, Aarg);
+                  if (coval == 3) {
+                    conv(k, Aarg, Targ, rp_Atemp);
+                    for (int i = 0; i < k; i++)
+                      Aarg[i] = 2.0 * rp_Atemp[i];
+                  }
                 }
               }
             }
           }
-        }
-        VEC_COMPUTED_END
+          VEC_COMPUTED_END
 
-        HOV_INC(Ares, k)
-        HOV_INC(Aarg, k)
-        HOS_OV_INC(Tres, k)
-        HOS_OV_INC(Targ, k)
-      }
+          HOV_INC(Ares, k)
+          HOV_INC(Aarg, k)
+          HOS_OV_INC(Tres, k)
+          HOS_OV_INC(Targ, k)
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -1810,78 +1802,78 @@ int hov_ti_reverse(short tnum,         /* tape id */
       }
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        MAXDEC(AARG, 4.0);
-        AARG_INC_O;
-
-        VEC_COMPUTED_CHECK
-        if (fabs(Targ[0]) > ADOLC_EPS) {
-          divide(k, Tres, Targ, rp_Ttemp);
-          for (int i = 0; i < k; i++) {
-            rp_Ttemp[i] *= coval;
-            /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
-          }
-          inconv0(k, Ares, rp_Ttemp, Aarg);
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
         } else {
-          if (coval <= 0.0) {
+          double aTmp = ARES;
+          ARES_INC = 0.0;
+          MAXDEC(AARG, aTmp);
+          MAXDEC(AARG, 4.0);
+          AARG_INC_O;
+
+          VEC_COMPUTED_CHECK
+          if (fabs(Targ[0]) > ADOLC_EPS) {
+            divide(k, Tres, Targ, rp_Ttemp);
             for (int i = 0; i < k; i++) {
-              Aarg[i] = make_nan();
-              Ares[i] = 0;
+              rp_Ttemp[i] *= coval;
+              /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
             }
+            inconv0(k, Ares, rp_Ttemp, Aarg);
           } else {
-            /* coval not a whole number */
-            if (coval - floor(coval) != 0) {
+            if (coval <= 0.0) {
               for (int i = 0; i < k; i++) {
-                if (coval - i > 1) {
-                  Aarg[i] = 0;
-                  Ares[i] = 0;
-                }
-                if ((coval - i < 1) && (coval - i > 0)) {
-                  Aarg[i] = make_inf();
-                  Ares[i] = 0;
-                }
-                if (coval - i < 0) {
-                  Aarg[i] = make_nan();
-                  Ares[i] = 0;
-                }
+                Aarg[i] = make_nan();
+                Ares[i] = 0;
               }
             } else {
-              if (coval == 1) {
-                for (int i = 0; i < k; i++) { /* ! no temporary */
-                  Aarg[i] += Ares[i];
-                  Ares[i] = 0.0;
+              /* coval not a whole number */
+              if (coval - floor(coval) != 0) {
+                for (int i = 0; i < k; i++) {
+                  if (coval - i > 1) {
+                    Aarg[i] = 0;
+                    Ares[i] = 0;
+                  }
+                  if ((coval - i < 1) && (coval - i > 0)) {
+                    Aarg[i] = make_inf();
+                    Ares[i] = 0;
+                  }
+                  if (coval - i < 0) {
+                    Aarg[i] = make_nan();
+                    Ares[i] = 0;
+                  }
                 }
               } else {
-                /* coval is an int > 1 */
-                /* the following is not efficient but at least it works */
-                /* it reformulates x^n into x* ... *x n times */
+                if (coval == 1) {
+                  for (int i = 0; i < k; i++) { /* ! no temporary */
+                    Aarg[i] += Ares[i];
+                    Ares[i] = 0.0;
+                  }
+                } else {
+                  /* coval is an int > 1 */
+                  /* the following is not efficient but at least it works */
+                  /* it reformulates x^n into x* ... *x n times */
 
-                copyAndZeroset(k, Ares, rp_Atemp);
-                inconv(k, rp_Atemp, Targ, Aarg);
-                inconv(k, rp_Atemp, Targ, Aarg);
-                if (coval == 3) {
-                  conv(k, Aarg, Targ, rp_Atemp);
-                  for (int i = 0; i < k; i++)
-                    Aarg[i] = 2.0 * rp_Atemp[i];
+                  copyAndZeroset(k, Ares, rp_Atemp);
+                  inconv(k, rp_Atemp, Targ, Aarg);
+                  inconv(k, rp_Atemp, Targ, Aarg);
+                  if (coval == 3) {
+                    conv(k, Aarg, Targ, rp_Atemp);
+                    for (int i = 0; i < k; i++)
+                      Aarg[i] = 2.0 * rp_Atemp[i];
+                  }
                 }
               }
             }
           }
-        }
-        VEC_COMPUTED_END
+          VEC_COMPUTED_END
 
-        HOV_INC(Ares, k)
-        HOV_INC(Aarg, k)
-        HOS_OV_INC(Tres, k)
-        HOS_OV_INC(Targ, k)
-      }
+          HOV_INC(Ares, k)
+          HOV_INC(Aarg, k)
+          HOS_OV_INC(Tres, k)
+          HOS_OV_INC(Targ, k)
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -1896,26 +1888,26 @@ int hov_ti_reverse(short tnum,         /* tape id */
       Tres = rpp_T[res];
 
       VEC_COMPUTED_INIT
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG, aTmp);
-        MAXDEC(AARG, 4.0);
-        AARG_INC_O;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          double aTmp = ARES;
+          ARES_INC = 0.0;
+          MAXDEC(AARG, aTmp);
+          MAXDEC(AARG, 4.0);
+          AARG_INC_O;
 
-        VEC_COMPUTED_CHECK
-        recipr(k, 0.5, Tres, rp_Ttemp);
-        VEC_COMPUTED_END
-        inconv0(k, Ares, rp_Ttemp, Aarg);
+          VEC_COMPUTED_CHECK
+          recipr(k, 0.5, Tres, rp_Ttemp);
+          VEC_COMPUTED_END
+          inconv0(k, Ares, rp_Ttemp, Aarg);
 
-        HOV_INC(Ares, k)
-        HOV_INC(Aarg, k)
-        HOS_OV_INC(Tres, k)
-      }
+          HOV_INC(Ares, k)
+          HOV_INC(Aarg, k)
+          HOS_OV_INC(Tres, k)
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -1942,23 +1934,23 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg1, rpp_A[arg1])
       Targ2 = rpp_T[arg2];
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg1, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        double aTmp = ARES;
-        ARES_INC = 0.0;
-        MAXDEC(AARG1, aTmp);
-        MAXDEC(AARG1, 4.0);
-        AARG1_INC_O;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg1, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          double aTmp = ARES;
+          ARES_INC = 0.0;
+          MAXDEC(AARG1, aTmp);
+          MAXDEC(AARG1, 4.0);
+          AARG1_INC_O;
 
-        inconv0(k, Ares, Targ2, Aarg1);
+          inconv0(k, Ares, Targ2, Aarg1);
 
-        HOV_INC(Aarg1, k)
-        HOV_INC(Ares, k)
-        HOS_OV_INC(Targ2, k)
-      }
+          HOV_INC(Aarg1, k)
+          HOV_INC(Ares, k)
+          HOS_OV_INC(Targ2, k)
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -1987,7 +1979,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(AP2, Ares)
 
       if (Targ1[0] > Targ2[0]) {
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if ((coval) && (*AP2))
             MINDEC(ret_c, 2);
           HOV_INC(AP2, k1)
@@ -1995,7 +1987,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         AP1 = Aarg2;
         arg = 0;
       } else if (Targ1[0] < Targ2[0]) {
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if ((!coval) && (*AP2))
             MINDEC(ret_c, 2);
           HOV_INC(AP2, k1)
@@ -2006,7 +1998,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         /* seems to influence the return value */
         for (int i = 1; i < k; i++) {
           if (Targ1[i] > Targ2[i]) {
-            FOR_0_LE_l_LT_p {
+            for (int l = 0; l < p; l++) {
               if (*AP2)
                 MINDEC(ret_c, 1);
               HOV_INC(AP2, k1)
@@ -2014,7 +2006,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             AP1 = Aarg2;
             arg = i + 1;
           } else if (Targ1[i] < Targ2[i]) {
-            FOR_0_LE_l_LT_p {
+            for (int l = 0; l < p; l++) {
               if (*AP2)
                 MINDEC(ret_c, 1);
               HOV_INC(AP2, k1)
@@ -2027,7 +2019,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         }
 
       if (AP1 != NULL)
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if (0 == ARES) {
             HOV_INC(AP1, k1)
             HOV_INC(Ares, k1);
@@ -2048,7 +2040,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         }
       else /* both are identical */
       {
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if (0 == ARES) {
             HOV_INC(Aarg1, k1)
             HOV_INC(Aarg2, k1)
@@ -2100,7 +2092,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         HOS_OV_INC(Targ, k)
       }
       Targ = rpp_T[arg];
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg, k1)
           HOV_INC(Ares, k1)
@@ -2145,20 +2137,20 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        ARES_INC = 0.0;
-        AARG_INC = 5.0;
-        for (int i = 0; i < k; i++) {
-          if ((coval) && (ARES))
-            MINDEC(ret_c, 2);
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
           ARES_INC = 0.0;
+          AARG_INC = 5.0;
+          for (int i = 0; i < k; i++) {
+            if ((coval) && (ARES))
+              MINDEC(ret_c, 2);
+            ARES_INC = 0.0;
+          }
+          HOV_INC(Aarg, k)
         }
-        HOV_INC(Aarg, k)
-      }
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -2174,20 +2166,20 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        ARES = 0.0;
-        AARG_INC = 5.0;
-        for (int i = 0; i < k; i++) {
-          if ((coval) && (ARES))
-            MINDEC(ret_c, 2);
-          ARES_INC = 0.0;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          ARES = 0.0;
+          AARG_INC = 5.0;
+          for (int i = 0; i < k; i++) {
+            if ((coval) && (ARES))
+              MINDEC(ret_c, 2);
+            ARES_INC = 0.0;
+          }
+          HOV_INC(Aarg, k)
         }
-        HOV_INC(Aarg, k)
-      }
       break;
 
       /****************************************************************************/
@@ -2212,7 +2204,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ > 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -2229,7 +2221,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval <= 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -2237,7 +2229,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       } else /* TARG <= 0.0 */
       {
         if (res != arg2)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg2, k1)
@@ -2263,7 +2255,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             HOV_INC(Aarg1, k1)
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (ARES) {
               if (*Targ == 0.0) /* we are at the tie */
               {
@@ -2297,7 +2289,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ >= 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -2314,7 +2306,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval < 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -2322,7 +2314,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       } else /* TARG < 0.0 */
       {
         if (res != arg2)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg2, k1)
@@ -2341,7 +2333,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             HOV_INC(Aarg1, k1)
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (ARES) {
               if (coval < 0.0)
                 MINDEC(ret_c, 2);
@@ -2369,7 +2361,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ == 0.0) /* we are at the tie */
       {
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if (ARES)
             AARG1 = 5.0;
           HOV_INC(Aarg1, k1)
@@ -2378,7 +2370,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         MINDEC(ret_c, 0);
       } else if (*Targ > 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -2395,7 +2387,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval <= 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -2417,7 +2409,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ >= 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -2434,7 +2426,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval < 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -2489,19 +2481,19 @@ int hov_ti_reverse(short tnum,         /* tape id */
         ASSIGN_A(Aarg1, rpp_A[arg1])
         ASSIGN_A(Ares, rpp_A[res])
 
-        FOR_0_LE_l_LT_p if (0 == ARES) {
-          HOV_INC(Aarg1, k1)
-          HOV_INC(Ares, k1)
-        }
-        else {
-          MAXDEC(AARG1, ARES);
-          AARG1_INC_O;
-          ARES_INC = 0.0;
-          for (int i = 0; i < k; i++) {
-            AARG1_INC += ARES;
+        for (int l = 0; l < p; l++)
+          if (0 == ARES) {
+            HOV_INC(Aarg1, k1)
+            HOV_INC(Ares, k1)
+          } else {
+            MAXDEC(AARG1, ARES);
+            AARG1_INC_O;
             ARES_INC = 0.0;
+            for (int i = 0; i < k; i++) {
+              AARG1_INC += ARES;
+              ARES_INC = 0.0;
+            }
           }
-        }
         GET_TAYL(res, k, p)
       }
       break;
@@ -2549,19 +2541,19 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC = 0.0;
-        for (int i = 0; i < k; i++) {
-          AARG_INC += ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
           ARES_INC = 0.0;
+          for (int i = 0; i < k; i++) {
+            AARG_INC += ARES;
+            ARES_INC = 0.0;
+          }
         }
-      }
       GET_TAYL(res, k, p)
       break;
 
@@ -2619,19 +2611,19 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Aarg, rpp_A[arg])
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Aarg, k1)
-        HOV_INC(Ares, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC = 0.0;
-        for (int i = 0; i < k; i++) { /* ! no temporary */
-          AARG_INC += ARES;
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Aarg, k1)
+          HOV_INC(Ares, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
           ARES_INC = 0.0;
+          for (int i = 0; i < k; i++) { /* ! no temporary */
+            AARG_INC += ARES;
+            ARES_INC = 0.0;
+          }
         }
-      }
 
       GET_TAYL(res, k, p)
       break;
@@ -2643,7 +2635,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       res = (size_t)trunc(fabs(*Targ1));
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
 #ifdef _HOV_
         if (nonzero) /* ??? question: why here? */
           nonzero[l][indexi] = (int)ARES;
@@ -2688,17 +2680,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC_O;
-        for (int i = 0; i < k; i++)
-          AARG_INC += ARES_INC;
-      }
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
+          ARES_INC_O;
+          for (int i = 0; i < k; i++)
+            AARG_INC += ARES_INC;
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -2734,17 +2726,17 @@ int hov_ti_reverse(short tnum,         /* tape id */
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
 
-      FOR_0_LE_l_LT_p if (0 == ARES) {
-        HOV_INC(Ares, k1)
-        HOV_INC(Aarg, k1)
-      }
-      else {
-        MAXDEC(AARG, ARES);
-        AARG_INC_O;
-        ARES_INC_O;
-        for (int i = 0; i < k; i++)
-          AARG_INC -= ARES_INC;
-      }
+      for (int l = 0; l < p; l++)
+        if (0 == ARES) {
+          HOV_INC(Ares, k1)
+          HOV_INC(Aarg, k1)
+        } else {
+          MAXDEC(AARG, ARES);
+          AARG_INC_O;
+          ARES_INC_O;
+          for (int i = 0; i < k; i++)
+            AARG_INC -= ARES_INC;
+        }
 
       GET_TAYL(res, k, p)
       break;
@@ -2758,7 +2750,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES_INC)
+      for (int l = 0; l < p; l++)
+        if (0 == ARES_INC)
           HOV_INC(Ares, k) else for (int i = 0; i < k; i++) ARES_INC *= coval;
 
       GET_TAYL(res, k, p)
@@ -2774,7 +2767,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
       ASSIGN_A(Ares, rpp_A[res])
 
-      FOR_0_LE_l_LT_p if (0 == ARES_INC)
+      for (int l = 0; l < p; l++)
+        if (0 == ARES_INC)
           HOV_INC(Ares, k) else for (int i = 0; i < k; i++) ARES_INC *= coval;
 
       GET_TAYL(res, k, p)
@@ -2795,7 +2789,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       Tres = rpp_T[res];
       Targ = rpp_T[arg];
 
-      FOR_0_LE_l_LT_p {
+      for (int l = 0; l < p; l++) {
         if (0 == ARES) {
           HOV_INC(Aarg, k1)
           HOV_INC(Ares, k1)
@@ -2831,19 +2825,19 @@ int hov_ti_reverse(short tnum,         /* tape id */
         ASSIGN_A(Aarg, rpp_A[arg + qq])
         ASSIGN_A(Ares, rpp_A[res + qq])
 
-        FOR_0_LE_l_LT_p if (0 == ARES) {
-          HOV_INC(Aarg, k1)
-          HOV_INC(Ares, k1)
-        }
-        else {
-          MAXDEC(AARG, ARES);
-          AARG_INC_O;
-          ARES_INC = 0.0;
-          for (int i = 0; i < k; i++) { /* ! no temporary */
-            AARG_INC += ARES;
+        for (int l = 0; l < p; l++)
+          if (0 == ARES) {
+            HOV_INC(Aarg, k1)
+            HOV_INC(Ares, k1)
+          } else {
+            MAXDEC(AARG, ARES);
+            AARG_INC_O;
             ARES_INC = 0.0;
+            for (int i = 0; i < k; i++) { /* ! no temporary */
+              AARG_INC += ARES;
+              ARES_INC = 0.0;
+            }
           }
-        }
 
         GET_TAYL(res + qq, k, p)
       }
@@ -2861,7 +2855,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         ASSIGN_A(Aarg1, rpp_A[arg1 + qq])
         Targ1 = rpp_T[arg1 + qq];
         Targ2 = rpp_T[arg2 + qq];
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if (0 == ARES) {
             HOV_INC(Aarg1, k1)
             HOV_INC(Aarg2, k1)
@@ -2954,7 +2948,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ > 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -2971,7 +2965,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval <= 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -2979,7 +2973,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       } else /* TARG <= 0.0 */
       {
         if (res != arg2)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg2, k1)
@@ -3005,7 +2999,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             HOV_INC(Aarg1, k1)
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (ARES) {
               if (*Targ == 0.0) /* we are at the tie */
               {
@@ -3043,7 +3037,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ >= 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -3060,7 +3054,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval < 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -3068,7 +3062,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       } else /* TARG < 0.0 */
       {
         if (res != arg2)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg2, k1)
@@ -3087,7 +3081,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             HOV_INC(Aarg1, k1)
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (ARES) {
               if (coval < 0.0)
                 MINDEC(ret_c, 2);
@@ -3117,7 +3111,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ == 0.0) /* we are at the tie */
       {
-        FOR_0_LE_l_LT_p {
+        for (int l = 0; l < p; l++) {
           if (ARES)
             AARG1 = 5.0;
           HOV_INC(Aarg1, k1)
@@ -3126,7 +3120,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         MINDEC(ret_c, 0);
       } else if (*Targ > 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -3143,7 +3137,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval <= 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -3169,7 +3163,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /* olvo 980925 changed code a little bit */
       if (*Targ >= 0.0) {
         if (res != arg1)
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if (0 == ARES) {
               HOV_INC(Ares, k1)
               HOV_INC(Aarg1, k1)
@@ -3186,7 +3180,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
             }
           }
         else
-          FOR_0_LE_l_LT_p {
+          for (int l = 0; l < p; l++) {
             if ((coval < 0.0) && (ARES))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
@@ -3222,7 +3216,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
       for (int j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, rpp_A[j])
 
-        FOR_0_LE_l_LT_p for (int i = 0; i < k1; i++) AARG1_INC = 0.0;
+        for (int l = 0; l < p; l++)
+          for (int i = 0; i < k1; i++)
+            AARG1_INC = 0.0;
       }
 
       for (int j = arg1; j <= arg2; j++)
