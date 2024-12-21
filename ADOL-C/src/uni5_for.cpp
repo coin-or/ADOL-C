@@ -1204,7 +1204,7 @@ int hov_forward(
 #endif
 #if defined(_NONLIND_OLD_)
 
-  nonl_dom = new locint*[indcheck];
+  nonl_dom = new locint *[indcheck];
   for (int i = 0; i < indcheck; i++) {
     nonl_dom[i] = new locint[NUMNNZ + 2];
     nonl_dom[i][0] = 0;
@@ -6408,18 +6408,18 @@ int hov_forward(
       break;
     }
     case ampi_gatherv: {
-      ADOLC_TLM_AMPI_Gatherv(buf, count, datatype, rbuf, nullptr, nullptr, rtype, src,
-                             comm);
+      ADOLC_TLM_AMPI_Gatherv(buf, count, datatype, rbuf, nullptr, nullptr,
+                             rtype, src, comm);
       break;
     }
     case ampi_scatterv: {
-      ADOLC_TLM_AMPI_Scatterv(rbuf, nullptr, nullptr, rtype, buf, count, datatype,
-                              src, comm);
+      ADOLC_TLM_AMPI_Scatterv(rbuf, nullptr, nullptr, rtype, buf, count,
+                              datatype, src, comm);
       break;
     }
     case ampi_allgatherv: {
-      ADOLC_TLM_AMPI_Allgatherv(buf, count, datatype, rbuf, nullptr, nullptr, rtype,
-                                comm);
+      ADOLC_TLM_AMPI_Allgatherv(buf, count, datatype, rbuf, nullptr, nullptr,
+                                rtype, comm);
       break;
     }
     case ampi_bcast: {
@@ -6541,7 +6541,7 @@ int hov_forward(
   }
   for (int i = 0; i < indcheck; i++) {
     delete nonl_dom[i];
-    } 
+  }
   delete[] nonl_dom;
 
 #endif
