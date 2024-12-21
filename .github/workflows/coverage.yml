@@ -10,11 +10,6 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: Prepare for Coverage
-      run: |
-        find . -name '*.gcda' -o -name '*.gcno' -delete
-        make clean
-
     - name: Install lcov
       run: |
         sudo apt-get update
@@ -48,9 +43,9 @@ jobs:
     - name: Generate coverage report
       run: |
         cd build
-        lcov --capture --directory . --output-file coverage.info
+        lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch
         lcov --remove coverage.info '/usr/*' 'boost/*' 'c++11/*' --output-file coverage.info
-        lcov --list coverage.info
+        lcov --list coverage.info 
 
       # Upload coverage report to Codecov
     - name: Upload coverage to Codecov
