@@ -365,8 +365,8 @@ void clearTapeBaseNames() {
   int i;
   for (i = 0; i < 4; i++) {
     if (tapeBaseNames[i]) {
-      free(tapeBaseNames[i]);
-      tapeBaseNames[i] = 0;
+      delete tapeBaseNames[i];
+      tapeBaseNames[i] = nullptr;
     }
   }
 }
@@ -411,7 +411,7 @@ char *createFileName(short tapeID, int tapeType) {
     else
       threadNumberStringLength = 0;
     ++threadNumberStringLength;
-    threadNumberString = malloc(sizeof(char) * (threadNumberStringLength + 2));
+    threadNumberString = new char[threadNumerStringLength + 2];
     if (threadNumberString == NULL)
       fail(ADOLC_MALLOC_FAILED);
     sprintf(threadNumberString, "%d", threadNumber);
@@ -427,7 +427,7 @@ char *createFileName(short tapeID, int tapeType) {
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
     fileNameLength += threadNameLength + threadNumberStringLength;
 #endif /* _OPENMP */
-  fileName = (char *)malloc(sizeof(char) * fileNameLength);
+  fileName = new char[fileNameLength];
   if (fileName == NULL)
     fail(ADOLC_MALLOC_FAILED);
   currPos = fileName;
@@ -450,7 +450,7 @@ char *createFileName(short tapeID, int tapeType) {
   delete numberString;
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-    free(threadNumberString);
+    delete threadNumberString;
 #endif /* _OPENMP */
 
   return fileName;
@@ -549,9 +549,8 @@ void readConfigFile() {
               for (i = 0; i < 4; i++) {
                 char *currpos;
                 int fnamelen;
-                tapeBaseNames[i] = (char *)calloc(namelen[i] - defdirsize +
-                                                      pathlen + pathseplen + 1,
-                                                  sizeof(char));
+                tapeBaseNames[i] = new char[namelen[i] - defdirsize + pathlen +
+                                            pathseplen + 1];
                 currpos = tapeBaseNames[i];
                 strncpy(currpos, path, pathlen);
                 currpos += pathlen;
@@ -734,8 +733,7 @@ void taylor_begin(uint bufferSize, int degreeSave) {
 
   /* initial setups */
   if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer == NULL)
-    ADOLC_CURRENT_TAPE_INFOS.tayBuffer =
-        (revreal *)malloc(sizeof(revreal) * bufferSize);
+    ADOLC_CURRENT_TAPE_INFOS.tayBuffer = new double[bufferSize];
 
   if (ADOLC_CURRENT_TAPE_INFOS.tayBuffer == NULL)
     fail(ADOLC_TAPING_TBUFFER_ALLOCATION_FAILED);
@@ -1101,14 +1099,14 @@ void initTapeBuffers() {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   if (ADOLC_CURRENT_TAPE_INFOS.opBuffer == NULL)
-    ADOLC_CURRENT_TAPE_INFOS.opBuffer = (unsigned char *)malloc(
-        ADOLC_CURRENT_TAPE_INFOS.stats[OP_BUFFER_SIZE] * sizeof(unsigned char));
+    ADOLC_CURRENT_TAPE_INFOS.opBuffer =
+        new unsigned char[ADOLC_CURRENT_TAPE_INFOS.stats[OP_BUFFER_SIZE]];
   if (ADOLC_CURRENT_TAPE_INFOS.locBuffer == NULL)
-    ADOLC_CURRENT_TAPE_INFOS.locBuffer = (locint *)malloc(
-        ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE] * sizeof(locint));
+    ADOLC_CURRENT_TAPE_INFOS.locBuffer =
+        new locint[ADOLC_CURRENT_TAPE_INFOS.stats[LOC_BUFFER_SIZE]];
   if (ADOLC_CURRENT_TAPE_INFOS.valBuffer == NULL)
-    ADOLC_CURRENT_TAPE_INFOS.valBuffer = (double *)malloc(
-        ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE] * sizeof(double));
+    ADOLC_CURRENT_TAPE_INFOS.valBuffer =
+        new double[ADOLC_CURRENT_TAPE_INFOS.stats[VAL_BUFFER_SIZE]];
   if (ADOLC_CURRENT_TAPE_INFOS.opBuffer == NULL ||
       ADOLC_CURRENT_TAPE_INFOS.locBuffer == NULL ||
       ADOLC_CURRENT_TAPE_INFOS.valBuffer == NULL)
@@ -1261,7 +1259,7 @@ void close_tape(int flag) {
       fclose(ADOLC_CURRENT_TAPE_INFOS.op_file);
     ADOLC_CURRENT_TAPE_INFOS.op_file = NULL;
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_FILE_ACCESS] = 1;
-    free(ADOLC_CURRENT_TAPE_INFOS.opBuffer);
+    delete ADOLC_CURRENT_TAPE_INFOS.opBuffer;
     ADOLC_CURRENT_TAPE_INFOS.opBuffer = NULL;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numOps_Tape =
@@ -1280,7 +1278,7 @@ void close_tape(int flag) {
       fclose(ADOLC_CURRENT_TAPE_INFOS.val_file);
     ADOLC_CURRENT_TAPE_INFOS.val_file = NULL;
     ADOLC_CURRENT_TAPE_INFOS.stats[VAL_FILE_ACCESS] = 1;
-    free(ADOLC_CURRENT_TAPE_INFOS.valBuffer);
+    delete ADOLC_CURRENT_TAPE_INFOS.valBuffer;
     ADOLC_CURRENT_TAPE_INFOS.valBuffer = NULL;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numVals_Tape =
@@ -1305,7 +1303,7 @@ void close_tape(int flag) {
            ADOLC_CURRENT_TAPE_INFOS.loc_file);
     fclose(ADOLC_CURRENT_TAPE_INFOS.loc_file);
     ADOLC_CURRENT_TAPE_INFOS.loc_file = NULL;
-    free(ADOLC_CURRENT_TAPE_INFOS.locBuffer);
+    delete ADOLC_CURRENT_TAPE_INFOS.locBuffer;
     ADOLC_CURRENT_TAPE_INFOS.locBuffer = NULL;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape =
@@ -1319,14 +1317,14 @@ void close_tape(int flag) {
 /* Free all resources used by a tape before overwriting the tape.           */
 /****************************************************************************/
 void freeTapeResources(TapeInfos *tapeInfos) {
-  free(tapeInfos->opBuffer);
+  delete tapeInfos->opBuffer;
   tapeInfos->opBuffer = NULL;
-  free(tapeInfos->locBuffer);
+  delete tapeInfos->locBuffer;
   tapeInfos->locBuffer = NULL;
-  free(tapeInfos->valBuffer);
+  delete tapeInfos->valBuffer;
   tapeInfos->valBuffer = NULL;
   if (tapeInfos->tayBuffer != NULL) {
-    free(tapeInfos->tayBuffer);
+    delete tapeInfos->tayBuffer;
     tapeInfos->tayBuffer = NULL;
     --numTBuffersInUse;
   }
@@ -1434,8 +1432,7 @@ static void read_params(TapeInfos *tapeInfos) {
   size_t np, ip, avail, rsize;
   if (tapeInfos->pTapeInfos.paramstore == NULL)
     tapeInfos->pTapeInfos.paramstore = new double[tapeInfos->stats[NUM_PARAM]];
-  valBuffer =
-      (double *)malloc(tapeInfos->stats[VAL_BUFFER_SIZE] * sizeof(double));
+  valBuffer = new double[tapeInfos->stats[VAL_BUFFER_SIZE]];
   lastValP1 = valBuffer + tapeInfos->stats[VAL_BUFFER_SIZE];
   if ((val_file = fopen(tapeInfos->pTapeInfos.val_fileName, "rb")) == NULL)
     fail(ADOLC_VALUE_TAPE_FOPEN_FAILED);
@@ -1484,7 +1481,7 @@ static void read_params(TapeInfos *tapeInfos) {
     }
   }
   fclose(val_file);
-  free(valBuffer);
+  delete valBuffer;
 }
 
 /****************************************************************************/
@@ -1512,8 +1509,8 @@ void set_param_vec(short tag, size_t numparam, revreal *paramvec) {
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
   if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore == NULL)
-    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore = (double *)malloc(
-        ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] * sizeof(double));
+    ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore =
+        new double[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]];
   for (i = 0; i < ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]; i++)
     ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[i] = paramvec[i];
   taylor_close(false);
