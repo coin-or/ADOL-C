@@ -1,9 +1,9 @@
 target_sources(adolc PRIVATE
-               drivers.c
-               driversf.c
-               odedrivers.c
-               odedriversf.c
-               psdrivers.c
-               psdriversf.c
-               taylor.c
+               drivers.cpp
+               driversf.cpp
+               odedrivers.cpp
+               odedriversf.cpp
+               psdrivers.cpp
+               psdriversf.cpp
+               taylor.cpp
               )

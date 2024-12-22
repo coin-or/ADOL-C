@@ -18,7 +18,7 @@
 #if !defined(ADOLC_ADOLC_SETTINGS_H)
 #define ADOLC_ADOLC_SETTINGS_H 1
 
-#include <stdint.h>
+#include <stddef.h>
 /*--------------------------------------------------------------------------*/
 /* ADOL-C data types */
 

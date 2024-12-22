@@ -126,7 +126,7 @@ int checkpointing(CpInfos *cpInfos) {
   delete[] vals;
 
   // update taylor stack; same structure as in adouble.cpp +
-  // correction in taping.c
+  // correction in taping.cpp
   if (oldTraceFlag != 0) {
     ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += cpInfos->n;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors != 0)

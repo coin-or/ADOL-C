@@ -35,7 +35,7 @@ target_include_directories(adolc
 
 # Set an include directory for the internally used library headers.
 #
-# This includes the files uni5_for.c, fo_rev.c, and ho_rev.c. Even though
+# This includes the files uni5_for.cpp, fo_rev.cpp, and ho_rev.cpp. Even though
 # they end with .c, they are used like header files.  Together with some
 # preprocessor trickery this is an old-fashioned way to do generic programming.
 target_include_directories(adolc
@@ -46,7 +46,7 @@ target_include_directories(adolc
 # handle the options
 # ------------------
 
-set(UINT_TYPE uint32_t)
+set(UINT_TYPE size_t)
 set(REAL_TYPE double)
 
 set(ADVBRANCH "#undef ADOLC_ADVANCED_BRANCHING")

@@ -25,8 +25,8 @@ extern "C" void adolc_exit(int errorcode, const char *what,
 /****************************************************************************/
 /*                                    Bit pattern propagation; general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int p, double *x, unsigned long int **X,
-            double *y, unsigned long int **Y, char mode)
+int forward(short tag, int m, int n, int p, double *x, size_t **X, double *y,
+            size_t **Y, char mode)
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p], mode)                */
 {
   int rc = -1;
@@ -51,8 +51,7 @@ int forward(short tag, int m, int n, int p, double *x, unsigned long int **X,
 /****************************************************************************/
 /*                                    Bit pattern propagation; no basepoint */
 /*                                                                          */
-int forward(short tag, int m, int n, int p, unsigned long int **X,
-            unsigned long int **Y, char mode)
+int forward(short tag, int m, int n, int p, size_t **X, size_t **Y, char mode)
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode)                            */
 {
   if (mode != 0) // not safe
@@ -68,8 +67,7 @@ int forward(short tag, int m, int n, int p, unsigned long int **X,
 /*                                                                          */
 /*                                    Bit pattern propagation, general call */
 /*                                                                          */
-int reverse(short tag, int m, int n, int q, unsigned long int **U,
-            unsigned long int **Z, char mode)
+int reverse(short tag, int m, int n, int q, size_t **U, size_t **Z, char mode)
 /* reverse(tag, m, n, q, U[q][m], Z[q][n]) */
 {
   int rc = -1;

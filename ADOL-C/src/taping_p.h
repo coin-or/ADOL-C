@@ -281,7 +281,7 @@ typedef struct TapeInfos {
   revreal **rpp_T;
   revreal *rp_A;
   revreal **rpp_A;
-  unsigned long int **upp_A;
+  size_t **upp_A;
 
   /* extern diff. fcts */
   locint ext_diff_fct_index; /* set by forward and reverse (from tape) */

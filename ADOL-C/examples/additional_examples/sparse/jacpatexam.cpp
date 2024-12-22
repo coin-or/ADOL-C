@@ -71,8 +71,7 @@ void eval_small(short tag, double *xp, double *yp) {
 }
 
 /*--------------------------------------------------------------------------*/
-const unsigned int NM =
-    961; // PQ_STRIPMINE_MAX * 8*sizeof(unsigned long int) + 1
+const unsigned int NM = 961; // PQ_STRIPMINE_MAX * 8*sizeof(size_t) + 1
 
 void eval_arrow_like_matrix(short tag, double *xp, double *yp) {
   unsigned int i, j;

@@ -182,7 +182,7 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, int n, adouble *xa, int m,
     update_ext_fct_memory(edfct, n, m);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
-   * adouble.cpp => correction in taping.c */
+   * adouble.cpp => correction in taping.cpp */
 
   if (oldTraceFlag != 0) {
     if (edfct->dp_x_changes)

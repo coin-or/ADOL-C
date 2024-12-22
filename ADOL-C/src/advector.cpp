@@ -29,11 +29,11 @@ adubref::adubref(locint lo, locint ref) {
   location = lo;
   refloc = (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[location]));
   if (ref != refloc) {
-    fprintf(
-        DIAG_OUT,
-        "ADOL-C error: strange construction of an active"
-        " vector subscript reference\n(passed ref = %d, stored refloc = %d)\n",
-        ref, refloc);
+    fprintf(DIAG_OUT,
+            "ADOL-C error: strange construction of an active"
+            " vector subscript reference\n(passed ref = %zu, stored refloc = "
+            "%zu)\n",
+            ref, refloc);
     adolc_exit(-2, "", __func__, __FILE__, __LINE__);
   }
   isInit = true;

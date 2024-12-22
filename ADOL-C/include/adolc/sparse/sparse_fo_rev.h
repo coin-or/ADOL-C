@@ -24,7 +24,7 @@ package.
 /*                                                                          */
 /* nBV = number of Boolean Vectors to be packed                             */
 /*       (see Chapter Dependence Analysis, ADOL-C Documentation)            */
-/* bits_per_long = 8*sizeof(unsigned long int)                              */
+/* bits_per_long = 8*sizeof(size_t)                              */
 /* p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )                 */
 /*                                                                          */
 /* For the full Jacobian matrix set                                         */
@@ -36,24 +36,23 @@ package.
 /*                                                                          */
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p], mode) : intfov       */
 
-ADOLC_DLL_EXPORT int forward(short, int, int, int, double *,
-                             unsigned long int **, double *,
-                             unsigned long int **, char = 0);
+ADOLC_DLL_EXPORT int forward(short, int, int, int, double *, size_t **,
+                             double *, size_t **, char = 0);
 
 /*--------------------------------------------------------------------------*/
 /*  Bit pattern propagation call, d = 1, safe version (no x[] and y[])      */
 /*                                                                          */
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode) : intfov                   */
 
-ADOLC_DLL_EXPORT int forward(short, int, int, int, unsigned long int **,
-                             unsigned long int **, char = 0);
+ADOLC_DLL_EXPORT int forward(short, int, int, int, size_t **, size_t **,
+                             char = 0);
 
 /****************************************************************************/
 /*                                           REVERSE MODE, overloaded calls */
 /*                                                                          */
 /* nBV = number of Boolean Vectors to be packed                             */
 /*       (see Chapter Dependence Analysis, ADOL-C Documentation)            */
-/* bits_per_long = 8*sizeof(unsigned long int)                              */
+/* bits_per_long = 8*sizeof(size_t)                              */
 /* q = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )                 */
 /*                                                                          */
 /* For the full Jacobian matrix set                                         */
@@ -66,8 +65,8 @@ ADOLC_DLL_EXPORT int forward(short, int, int, int, unsigned long int **,
 /*                                                                          */
 /* reverse(tag, m, n, q, U[q][m], Z[q][n], mode) : intfov                   */
 
-ADOLC_DLL_EXPORT int reverse(short, int, int, int, unsigned long int **,
-                             unsigned long int **, char = 0);
+ADOLC_DLL_EXPORT int reverse(short, int, int, int, size_t **, size_t **,
+                             char = 0);
 
 #endif
 
