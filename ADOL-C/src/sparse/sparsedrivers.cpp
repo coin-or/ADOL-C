@@ -722,8 +722,8 @@ int bit_vector_propagation(
       next_strip_d_bl_idx;
   int stripmined_calls, strip_idx;
   int p_stripmine, q_stripmine, p_ind_bl_bp, q_dep_bl_bp, i_bl_idx, d_bl_idx;
-  unsigned long int value1, v;
-  unsigned long int **seed = NULL, *s, **jac_bit_pat = NULL, *jac;
+  size_t value1, v;
+  size_t **seed = NULL, *s, **jac_bit_pat = NULL, *jac;
   unsigned char *indep_blocks_flags = NULL, *i_b_flags;
   double *valuepoint = NULL;
 
@@ -749,10 +749,10 @@ int bit_vector_propagation(
 
   /* bit pattern parameters */
 
-  /* number of bits in an unsigned long int variable */
-  bits_per_long = 8 * sizeof(unsigned long int);
-  /* olvo 20000214 nl: inserted explicit cast to unsigned long int */
-  value1 = (unsigned long int)1 << (bits_per_long - 1); /* 10000....0 */
+  /* number of bits in an size_t variable */
+  bits_per_long = 8 * sizeof(size_t);
+  /* olvo 20000214 nl: inserted explicit cast to size_t */
+  value1 = (size_t)1 << (bits_per_long - 1); /* 10000....0 */
 
   /* =================================================== forward propagation */
   if (forward_mode) {
@@ -765,10 +765,10 @@ int bit_vector_propagation(
 
     /* indep partial derivatives for the whole Jacobian */
 
-    /* number of unsigned longs to store the whole seed / Jacobian matrice */
+    /* number of size_ts to store the whole seed / Jacobian matrice */
     p_ind_bl_bp = indep / bits_per_long + ((indep % bits_per_long) != 0);
 
-    /* number of unsigned longs to store the seed / Jacobian strips */
+    /* number of size_ts to store the seed / Jacobian strips */
     if (p_ind_bl_bp <= PQ_STRIPMINE_MAX) {
       p_stripmine = p_ind_bl_bp;
       stripmined_calls = 1;
@@ -891,10 +891,10 @@ int bit_vector_propagation(
 
     /* depen weight vectors for the whole Jacobian */
 
-    /* number of unsigned longs to store the whole seed / Jacobian matrice */
+    /* number of size_ts to store the whole seed / Jacobian matrice */
     q_dep_bl_bp = depen / bits_per_long + ((depen % bits_per_long) != 0);
 
-    /* number of unsigned longs to store the seed / Jacobian strips */
+    /* number of size_ts to store the seed / Jacobian strips */
     if (q_dep_bl_bp <= PQ_STRIPMINE_MAX) {
       q_stripmine = q_dep_bl_bp;
       stripmined_calls = 1;

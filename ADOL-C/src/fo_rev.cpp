@@ -256,25 +256,23 @@ int fov_reverse(short tnum,        /* tape id */
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
-int int_reverse_tight(
-    short tnum,                   /* tape id                               */
-    int depen,                    /* consistency chk on # of deps          */
-    int indep,                    /* consistency chk on # of indeps        */
-    int nrows,                    /* # of Jacobian rows being calculated   */
-    unsigned long int **lagrange, /* domain weight vector[var][row](in)*/
-    unsigned long int **results)  /* matrix of coeff. vectors[var][row]*/
+int int_reverse_tight(short tnum, /* tape id                               */
+                      int depen,  /* consistency chk on # of deps          */
+                      int indep,  /* consistency chk on # of indeps        */
+                      int nrows,  /* # of Jacobian rows being calculated   */
+                      size_t **lagrange, /* domain weight vector[var][row](in)*/
+                      size_t **results)  /* matrix of coeff. vectors[var][row]*/
 
 #elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
-int int_reverse_safe(
-    short tnum,                   /* tape id                               */
-    int depen,                    /* consistency chk on # of deps          */
-    int indep,                    /* consistency chk on # of indeps        */
-    int nrows,                    /* # of Jacobian rows being calculated   */
-    unsigned long int **lagrange, /* domain weight vector[var][row](in)*/
-    unsigned long int **results)  /* matrix of coeff. vectors[var][row]*/
+int int_reverse_safe(short tnum, /* tape id                               */
+                     int depen,  /* consistency chk on # of deps          */
+                     int indep,  /* consistency chk on # of indeps        */
+                     int nrows,  /* # of Jacobian rows being calculated   */
+                     size_t **lagrange, /* domain weight vector[var][row](in)*/
+                     size_t **results)  /* matrix of coeff. vectors[var][row]*/
 #else
 #error Neither _TIGHT_ nor _NTIGHT_ defined
 #endif
@@ -917,7 +915,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
         AARG2_INC |= aTmp;
@@ -948,7 +946,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -979,7 +977,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1007,7 +1005,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
         AARG2_INC |= aTmp;
@@ -1038,7 +1036,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1069,7 +1067,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG2_INC |= aTmp;
         AARG1_INC |= aTmp;
@@ -1152,7 +1150,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1182,7 +1180,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1218,7 +1216,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
         AARG2_INC |= aTmp;
@@ -1254,7 +1252,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1293,7 +1291,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1323,7 +1321,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1348,7 +1346,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1377,7 +1375,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1403,7 +1401,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
 #else
@@ -1431,7 +1429,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
 #else
@@ -1470,7 +1468,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
 #else
@@ -1499,7 +1497,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1534,7 +1532,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1574,7 +1572,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1606,7 +1604,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1638,7 +1636,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
 #else
@@ -1668,7 +1666,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
 #else
@@ -1702,7 +1700,7 @@ int int_reverse_safe(
       if (TARG1 > TARG2)
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
 #else
           revreal aTmp = *Ares;
@@ -1719,7 +1717,7 @@ int int_reverse_safe(
       else if (TARG1 < TARG2)
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
 #else
           revreal aTmp = *Ares;
@@ -1736,7 +1734,7 @@ int int_reverse_safe(
       else { /* both are equal */
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
           AARG2_INC |= aTmp;
           AARG1_INC |= aTmp;
@@ -1754,7 +1752,7 @@ int int_reverse_safe(
       }
 #else
       FOR_0_LE_l_LT_p {
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG1_INC |= aTmp;
         AARG2_INC |= aTmp;
@@ -1792,7 +1790,7 @@ int int_reverse_safe(
       if (TARG < 0.0)
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
 #else
           revreal aTmp = *Ares;
@@ -1809,7 +1807,7 @@ int int_reverse_safe(
       else if (TARG > 0.0)
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
 #else
           revreal aTmp = *Ares;
@@ -1826,7 +1824,7 @@ int int_reverse_safe(
       else
         FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
-          unsigned long int aTmp = *Ares;
+          size_t aTmp = *Ares;
           ARES_INC = 0;
 #else
           revreal aTmp = *Ares;
@@ -1837,7 +1835,7 @@ int int_reverse_safe(
         }
 #else
       FOR_0_LE_l_LT_p {
-        unsigned long int aTmp = *Ares;
+        size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
       }

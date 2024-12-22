@@ -562,15 +562,15 @@ int int_forward_tight(
     int indcheck,                 /* consistency chk on # of independents */
     int p,                        /* # of taylor series, bit pattern      */
     const double *basepoint,      /* independent variable values   (in)*/
-    unsigned long int **argument, /* Taylor coeff.                 (in)*/
+    size_t **argument, /* Taylor coeff.                 (in)*/
     double *valuepoint,           /* dependent variable values    (out)*/
-    unsigned long int **taylors)  /* matrix of coefficient vectors(out)*/
+    size_t **taylors)  /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
      nBV = number of Boolean Vectors to be packed
                       (see Chapter Dependence Analysis, ADOL-C
-   Documentation) bits_per_long = 8*sizeof(unsigned long int) p = nBV /
+   Documentation) bits_per_long = 8*sizeof(size_t) p = nBV /
    bits_per_long + ( (nBV % bits_per_long) != 0 )
 
      The order of the indices in argument and taylors is [var][taylor]
@@ -589,14 +589,14 @@ int int_forward_safe(
     int depcheck,                 /* consistency chk on # of dependents   */
     int indcheck,                 /* consistency chk on # of independents */
     int p,                        /* # of taylor series, bit pattern      */
-    unsigned long int **argument, /* Taylor coeff.                  (in)*/
-    unsigned long int **taylors)  /* matrix of coefficient vectors (out)*/
+    size_t **argument, /* Taylor coeff.                  (in)*/
+    size_t **taylors)  /* matrix of coefficient vectors (out)*/
 
 /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 
 nBV = number of Boolean Vectors to be packed
 (see Chapter Dependence Analysis, ADOL-C Documentation)
-bits_per_long = 8*sizeof(unsigned long int)
+bits_per_long = 8*sizeof(size_t)
 p = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )
 
 The order of the indices in argument and taylors is [var][taylor]

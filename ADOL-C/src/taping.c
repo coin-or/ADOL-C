@@ -472,7 +472,7 @@ void readConfigFile() {
   char *pos1 = NULL, *pos2 = NULL, *pos3 = NULL, *pos4 = NULL, *start = NULL,
        *end = NULL;
   int base;
-  unsigned long int number = 0;
+  size_t number = 0;
   char *path = NULL;
   int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
   tapeBaseNames[0] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);

@@ -289,17 +289,15 @@ ADOLC_DLL_EXPORT fint hov_wk_forward_(fint *, fint *, fint *, fint *, fint *,
 /*                                                            INT_FOR, SAFE */
 /* int_forward_safe(tag, m, n, p, X[n][p], Y[m][p])                         */
 
-ADOLC_DLL_EXPORT int int_forward_safe(short, int, int, int,
-                                      unsigned long int **,
-                                      unsigned long int **);
+ADOLC_DLL_EXPORT int int_forward_safe(short, int, int, int, size_t **,
+                                      size_t **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INT_FOR, TIGHT */
 /* int_forward_tight(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 
 ADOLC_DLL_EXPORT int int_forward_tight(short, int, int, int, const double *,
-                                       unsigned long int **, double *,
-                                       unsigned long int **);
+                                       size_t **, double *, size_t **);
 
 /****************************************************************************/
 /*                                                   INDEX DOMAIN UTILITIES */
@@ -429,17 +427,15 @@ ADOLC_DLL_EXPORT fint hov_ti_reverse_(fint *, fint *, fint *, fint *, fint *,
 /*                                                           INT_REV, TIGHT */
 /* int_reverse_tight(tag, m, n, q, U[q][m], Z[q][n])                        */
 
-ADOLC_DLL_EXPORT int int_reverse_tight(short, int, int, int,
-                                       unsigned long int **,
-                                       unsigned long int **);
+ADOLC_DLL_EXPORT int int_reverse_tight(short, int, int, int, size_t **,
+                                       size_t **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                            INT_REV, SAFE */
 /* int_reverse_safe(tag, m, n, q, U[q][m], Z[q][n])                         */
 
-ADOLC_DLL_EXPORT int int_reverse_safe(short, int, int, int,
-                                      unsigned long int **,
-                                      unsigned long int **);
+ADOLC_DLL_EXPORT int int_reverse_safe(short, int, int, int, size_t **,
+                                      size_t **);
 
 /*--------------------------------------------------------------------------*/
 ADOLC_DLL_EXPORT int get_num_switches(short);

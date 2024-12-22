@@ -225,38 +225,35 @@ unsigned int *myalloc1_uint(int m) {
 }
 
 /* ------------------------------------------------------------------------- */
-unsigned long int *myalloc1_ulong(int m) {
-  unsigned long int *A =
-      (unsigned long int *)ADOLC_CALLOC(m, sizeof(unsigned long int));
+size_t *myalloc1_ulong(int m) {
+  size_t *A = (size_t *)ADOLC_CALLOC(m, sizeof(size_t));
   if (A == NULL) {
     fprintf(DIAG_OUT,
             "ADOL-C error, " __FILE__
             ":%i : \nmyalloc1_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * sizeof(unsigned long int)));
+            __LINE__, (int)(m * sizeof(size_t)));
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   } /* endif */
   return A;
 }
 
 /* ------------------------------------------------------------------------- */
-unsigned long int **myalloc2_ulong(int m, int n) {
-  unsigned long int *Adum =
-      (unsigned long int *)ADOLC_CALLOC(m * n, sizeof(unsigned long int));
-  unsigned long int **A =
-      (unsigned long int **)ADOLC_CALLOC(m, sizeof(unsigned long int *));
+size_t **myalloc2_ulong(int m, int n) {
+  size_t *Adum = (size_t *)ADOLC_CALLOC(m * n, sizeof(size_t));
+  size_t **A = (size_t **)ADOLC_CALLOC(m, sizeof(size_t *));
   int i;
   if (Adum == NULL) {
     fprintf(DIAG_OUT,
             "ADOL-C error, " __FILE__
             ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * n * sizeof(unsigned long int)));
+            __LINE__, (int)(m * n * sizeof(size_t)));
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   } /* endif */
   if (A == NULL) {
     fprintf(DIAG_OUT,
             "ADOL-C error, " __FILE__
             ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * sizeof(unsigned long int *)));
+            __LINE__, (int)(m * sizeof(size_t *)));
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   } /* endif */
   for (i = 0; i < m; i++) {
@@ -275,11 +272,11 @@ void myfree1_uint(unsigned int *A) { free((char *)A); }
 
 /* ------------------------------------------------------------------------ */
 
-void myfree1_ulong(unsigned long int *A) { free((char *)A); }
+void myfree1_ulong(size_t *A) { free((char *)A); }
 
 /* ------------------------------------------------------------------------ */
 
-void myfree2_ulong(unsigned long int **A) {
+void myfree2_ulong(size_t **A) {
   free((char *)*A);
   free((char *)A);
 }
