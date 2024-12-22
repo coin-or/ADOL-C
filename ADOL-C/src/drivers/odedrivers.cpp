@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     drivers/odedrivers.c
+ File:     drivers/odedrivers.cpp
  Revision: $Id$
  Contents: Easy to use drivers for ordinary differential equations (ODE)
            (with C and C++ callable interfaces including Fortran

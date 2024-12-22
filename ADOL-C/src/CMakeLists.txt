@@ -12,8 +12,8 @@ target_sources(adolc PRIVATE
                externfcts.cpp
                externfcts2.cpp
                fixpoint.cpp
-               fortutils.c
-               forward_partx.c
+               fortutils.cpp
+               forward_partx.cpp
                fos_forward.cpp
                fos_pl_forward.cpp
                fos_pl_reverse.cpp
@@ -39,15 +39,15 @@ target_sources(adolc PRIVATE
                int_reverse_s.cpp
                int_reverse_t.cpp
                interfaces.cpp
-               interfacesf.c
+               interfacesf.cpp
                medipacksupport.cpp
                nonl_ind_forward_s.cpp
                nonl_ind_forward_t.cpp
                nonl_ind_old_forward_s.cpp
                nonl_ind_old_forward_t.cpp
                param.cpp
-               revolve.c
-               rpl_malloc.c
+               revolve.cpp
+               rpl_malloc.cpp
                storemanager.cpp
                tape_handling.cpp
                taping.cpp

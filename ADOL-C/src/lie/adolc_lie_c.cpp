@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     lie/adolc_lie_c.c
+ File:     lie/adolc_lie_c.cpp
  Revision: $Id$
  Contents: Implementation of functions for computation of Lie derivatives
 
@@ -300,7 +300,7 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
 
   hov_reverse(Tape_F, n, n, d - 1, n, In, A,
               0);                  /* explanation in interfaces.cpp  */
-  accodec(n, 1.0, d - 1, A, B, 0); /* explanation in odedrivers.c    */
+  accodec(n, 1.0, d - 1, A, B, 0); /* explanation in odedrivers.cpp    */
 
   /* prepare for input   */
   for (i = 0; i < n; i++) {
@@ -444,7 +444,7 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
     Y[i][0] = y[i];
   }
 
-  accodec(n, 1.0, d - 1, A, B, 0); /*  explanation in odedrivers.c */
+  accodec(n, 1.0, d - 1, A, B, 0); /*  explanation in odedrivers.cpp */
   acccov(n, d, B, Y, result);
 
   myfree2(X);

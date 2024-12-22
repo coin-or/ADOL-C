@@ -22,8 +22,8 @@
                                  hov_reverse.cpp
                                  hos_ti_reverse.cpp
                                  hov_ti_reverse.cpp
-                 interfacesC.C
-                 interfacesf.c
+                 interfacesc.cpp
+                 interfacesf.cpp
 
            ADOL-C Abbreviations :
                  zos : zero-order-scalar mode
@@ -226,7 +226,7 @@ ADOLC_DLL_EXPORT int hos_forward_nk(short, int, int, int, const double *,
                                     double **, double *, double **);
 
 /* hos_forward_partx(tag, m, n, ndim[n], d, X[n][d+1], Y[m][d+1])           */
-/* (defined in forward_partx.c)                                             */
+/* (defined in forward_partx.cpp)                                             */
 ADOLC_DLL_EXPORT int hos_forward_partx(short, int, int, int *, int, double ***,
                                        double **);
 

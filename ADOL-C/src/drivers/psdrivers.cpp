@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     drivers/psdrivers.c
+ File:     drivers/psdrivers.cpp
  Revision: $Id$
  Contents: Easy to use drivers for piecewise smooth functions
            (with C and C++ callable interfaces including Fortran
@@ -167,3 +167,5 @@ int directional_active_gradient(short tag,     /* trace identifier */
 
   return 0;
 }
+
+END_C_DECLS

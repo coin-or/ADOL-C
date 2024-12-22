@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     drivers/taylor.c
+ File:     drivers/taylor.cpp
  Revision: $Id$
  Contents: Easy to use drivers for the evaluation of higher order derivative
            tensors and inverse/impicit function differentiation
@@ -513,7 +513,7 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
 int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
   int i, j, l, q;
   static double **I;
-  register double bi;
+  double bi;
   static double **Xhelp;
   static double **W;
   static double *xold;
