@@ -152,7 +152,7 @@ void StoreManagerLocint::grow(size_t mingrow) {
     // encapsulate this error message
     fprintf(DIAG_OUT, "\nADOL-C error:\n");
     fprintf(DIAG_OUT,
-            "maximal number (%d) of live active variables exceeded\n\n",
+            "maximal number (%zu) of live active variables exceeded\n\n",
             std::numeric_limits<locint>::max());
     adolc_exit(-3, "", __func__, __FILE__, __LINE__);
   }

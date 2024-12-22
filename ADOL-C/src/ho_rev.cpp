@@ -2429,7 +2429,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
         if (arg1 != vectorloc + idx) {
           fprintf(DIAG_OUT,
                   "ADOL-C error: indexed active position does not match "
-                  "referenced position\nindexed = %zu, referenced = %d\n",
+                  "referenced position\nindexed = %zu, referenced = %zu\n",
                   vectorloc + idx, arg1);
           adolc_exit(-2, "", __func__, __FILE__, __LINE__);
         }
