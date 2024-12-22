@@ -50,7 +50,7 @@ target_sources(adolc PRIVATE
                rpl_malloc.c
                storemanager.cpp
                tape_handling.cpp
-               taping.c
+               taping.cpp
                zos_forward.cpp
                zos_pl_forward.cpp
               )

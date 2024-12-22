@@ -46,7 +46,7 @@ target_include_directories(adolc
 # handle the options
 # ------------------
 
-set(UINT_TYPE uint32_t)
+set(UINT_TYPE size_t)
 set(REAL_TYPE double)
 
 set(ADVBRANCH "#undef ADOLC_ADVANCED_BRANCHING")
