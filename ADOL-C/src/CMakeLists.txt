@@ -1,5 +1,5 @@
 target_sources(adolc PRIVATE
-               adalloc.c
+               adalloc.cpp
                adouble.cpp
                adouble_tl.cpp
                adouble_tl_hov.cpp
@@ -8,7 +8,7 @@ target_sources(adolc PRIVATE
                ampisupport.cpp
                ampisupportAdolc.cpp
                checkpointing.cpp
-               convolut.c
+               convolut.cpp
                externfcts.cpp
                externfcts2.cpp
                fixpoint.cpp
