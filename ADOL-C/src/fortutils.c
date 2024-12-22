@@ -21,14 +21,14 @@ BEGIN_C_DECLS
 /*                                                                          */
 
 /*--------------------------------------------------------------------------*/
-void spread1(int m, fdouble *x, double *X) {
+void spread1(int m, const fdouble *x, double *X) {
   int j;
   for (j = 0; j < m; j++)
     X[j] = *x++;
 }
 
 /*--------------------------------------------------------------------------*/
-void pack1(int m, double *X, fdouble *x) {
+void pack1(int m, const double *X, fdouble *x) {
   int j;
   for (j = 0; j < m; j++)
     *x++ = X[j];
