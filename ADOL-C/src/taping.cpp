@@ -1342,7 +1342,7 @@ void freeTapeResources(TapeInfos *tapeInfos) {
   }
   if (tapeInfos->signature != nullptr) {
     free(tapeInfos->signature);
-    tapeInfos->signature = nullptrptr;
+    tapeInfos->signature = nullptr;
   }
 }
 
