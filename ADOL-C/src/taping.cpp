@@ -355,7 +355,7 @@ void printError() {
 }
 
 /* the base names of every tape type */
-char *tapeBaseNames[4] = {0, 0, 0, 0};
+char *tapeBaseNames[4] = {nullptr, nullptr, nullptr, nullptr};
 
 void clearTapeBaseNames() {
   int i;
