@@ -52,7 +52,16 @@ set(REAL_TYPE double)
 set(ADVBRANCH "#undef ADOLC_ADVANCED_BRANCHING")
 set(ADTL_REFCNT "#undef USE_ADTL_REFCOUNTING")
 set(SPARSE_DRIVERS "#undef SPARSE_DRIVERS")
-set(USE_BOOST_POOL "#undef USE_BOOST_POOL")
+
+option(ENABLE_BOOST_POOL "Flag to activate boost-pool support" OFF)
+if(ENABLE_BOOST_POOL)
+  message(STATUS "Boost-pool support is enabled.")
+  set(USE_BOOST_POOL "#define USE_BOOST_POOL 1")
+else()
+  message(STATUS "Boost-pool support is disabled.")
+  set(USE_BOOST_POOL "#undef USE_BOOST_POOL")
+endif()
+
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------
