@@ -10,7 +10,7 @@ namespace tt = boost::test_tools;
 
 #include <adolc/adolc.h>
 
-#include "const.h"
+#include "../const.h"
 
 #include <array>
 #include <numeric>

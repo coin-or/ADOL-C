@@ -25,8 +25,12 @@ set(SOURCE_FILES
     traceSecOrderScalar.cpp
     traceSecOrderVector.cpp
     traceFixedPointScalarTests.cpp
-    uni5_for.cpp
     )
+
+# Add all source files from uni5_for
+file(GLOB UNI5_FOR_FILES "uni5_for/*.cpp")
+list(APPEND SOURCE_FILES ${UNI5_FOR_FILES})
+
 add_executable(boost-test-adolc ${SOURCE_FILES})
 target_include_directories(boost-test-adolc PRIVATE "${ADOLC_INCLUDE_DIR}")
 target_link_libraries(boost-test-adolc PRIVATE
