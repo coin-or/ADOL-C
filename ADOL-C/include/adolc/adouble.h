@@ -275,6 +275,7 @@ protected:
 public:
   adouble(const adub &);
   adouble(const adouble &);
+  adouble(adouble &&) noexcept;
   adouble(void);
   adouble(double);
 /* adub prevents postfix operators to occur on the left

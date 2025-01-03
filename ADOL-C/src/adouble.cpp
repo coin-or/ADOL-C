@@ -214,6 +214,18 @@ adouble::adouble(const adouble &a) {
 }
 
 /*--------------------------------------------------------------------------*/
+adouble::adouble(adouble &&a) noexcept {
+  // Take data from 'a'
+  location = a.loc();
+
+  // If 'a' wasn't initialized, this one isn't initialized either.
+  isInit = a.isInit;
+
+  // Make 'a' not own the data anymore
+  a.isInit = false;
+}
+
+/*--------------------------------------------------------------------------*/
 adouble::adouble(const adub &a) {
   location = next_loc();
   isInit = true;
