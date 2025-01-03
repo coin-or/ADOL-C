@@ -636,6 +636,26 @@ badouble &badouble::operator=(const adub &a) {
 }
 
 /*--------------------------------------------------------------------------*/
+/* r-value assignment */
+adouble &adouble::operator=(adouble &&a) {
+  // Destruct the old content of this adouble
+  if (isInit) {
+    free_loc(location);
+  }
+
+  // Set to new content
+  location = a.loc();
+
+  // If 'a' wasn't initialized, this one isn't initialized either.
+  isInit = a.isInit;
+
+  // Make sure that data is not touched when 'a' gets destructed
+  a.isInit = false;
+
+  return (*this);
+}
+
+/*--------------------------------------------------------------------------*/
 /* Assign an adouble an adub */
 /* olvo 980517 new version griewank */
 adouble &adouble::operator=(const adub &a) {

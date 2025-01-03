@@ -294,6 +294,7 @@ public:
   adouble &operator=(double);
   adouble &operator=(const badouble &);
   adouble &operator=(const adouble &);
+  adouble &operator=(adouble &&);
   adouble &operator=(const adub &);
   adouble &operator=(const pdouble &);
 
