@@ -107,7 +107,6 @@ public:
   void declareDependent();
   badouble &operator=(double);
   badouble &operator=(const badouble &);
-  badouble &operator=(const adub &);
   double getValue() const;
   inline double value() const { return getValue(); }
   explicit operator double();
@@ -275,6 +274,7 @@ protected:
 public:
   adouble(const adub &);
   adouble(const adouble &);
+  adouble(adouble &&) noexcept;
   adouble(void);
   adouble(double);
 /* adub prevents postfix operators to occur on the left
@@ -293,7 +293,8 @@ public:
   adouble &operator=(double);
   adouble &operator=(const badouble &);
   adouble &operator=(const adouble &);
-  adouble &operator=(const adub &);
+  adouble &operator=(adouble &&);
+  adouble &operator=(adub &);
   adouble &operator=(const pdouble &);
 
   inline locint loc(void) const;
