@@ -107,7 +107,6 @@ public:
   void declareDependent();
   badouble &operator=(double);
   badouble &operator=(const badouble &);
-  badouble &operator=(const adub &);
   double getValue() const;
   inline double value() const { return getValue(); }
   explicit operator double();
@@ -295,7 +294,7 @@ public:
   adouble &operator=(const badouble &);
   adouble &operator=(const adouble &);
   adouble &operator=(adouble &&);
-  adouble &operator=(const adub &);
+  adouble &operator=(adub &);
   adouble &operator=(const pdouble &);
 
   inline locint loc(void) const;

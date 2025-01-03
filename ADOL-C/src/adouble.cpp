@@ -562,78 +562,6 @@ adouble &adouble::operator=(const adouble &x) {
   (*this).badouble::operator=(x);
   return (*this);
 }
-/*--------------------------------------------------------------------------*/
-/* Assign an adouble an adub */
-/* olvo 980517 new version griewank */
-badouble &badouble::operator=(const adub &a) {
-  locint a_loc = a.loc();
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  int upd = 0;
-  /* 981020 olvo  skip upd_resloc(..) if no tracing performed */
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
-#if defined(ADOLC_TRACK_ACTIVITY)
-    upd = upd_resloc_check(a_loc, loc());
-#else
-    upd = upd_resloc(a_loc, loc());
-#endif
-  if (upd) { /* olvo 980708 new n2l & 980921 changed interface */
-#if defined(ADOLC_TRACK_ACTIVITY)
-    free_loc(location);
-    location = a_loc;
-    const_cast<adub &>(a).isInit = false;
-#else
-    revreal tempVal = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_OVERWRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()],
-                              &ADOLC_GLOBAL_TAPE_VARS.store[a_loc]);
-    ADOLC_GLOBAL_TAPE_VARS.store[loc()] = tempVal;
-#endif
-  } else {
-    if (ADOLC_CURRENT_TAPE_INFOS
-            .traceFlag) { // old: write_assign_a(loc(),a_loc);
-#if defined(ADOLC_TRACK_ACTIVITY)
-      if (ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc]) {
-#endif
-        put_op(assign_a);
-        ADOLC_PUT_LOCINT(a_loc); // = arg
-        ADOLC_PUT_LOCINT(loc()); // = res
-
-        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
-#if defined(ADOLC_TRACK_ACTIVITY)
-      } else {
-        if (ADOLC_GLOBAL_TAPE_VARS.actStore[location]) {
-          double coval = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
-          if (coval == 0) {
-            put_op(assign_d_zero);
-            ADOLC_PUT_LOCINT(location); // = res
-          } else if (coval == 1.0) {
-            put_op(assign_d_one);
-            ADOLC_PUT_LOCINT(location); // = res
-          } else {
-            put_op(assign_d);
-            ADOLC_PUT_LOCINT(location); // = res
-            ADOLC_PUT_VAL(coval);       // = coval
-          }
-
-          ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-          if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
-        }
-      }
-#endif
-    }
-    ADOLC_GLOBAL_TAPE_VARS.store[loc()] = ADOLC_GLOBAL_TAPE_VARS.store[a_loc];
-#if defined(ADOLC_TRACK_ACTIVITY)
-    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] =
-        ADOLC_GLOBAL_TAPE_VARS.actStore[a_loc];
-#endif
-  }
-
-  return *this;
-}
 
 /*--------------------------------------------------------------------------*/
 /* r-value assignment */
@@ -656,11 +584,24 @@ adouble &adouble::operator=(adouble &&a) {
 }
 
 /*--------------------------------------------------------------------------*/
-/* Assign an adouble an adub */
+/* Move an adouble an adub */
+/* This treats the input adub as an r-value: It becomes unusable at the end of this method. */
 /* olvo 980517 new version griewank */
-adouble &adouble::operator=(const adub &a) {
-  this->loc(); // call for late init
-  (*this).badouble::operator=(a);
+adouble &adouble::operator=(adub &a) {
+  // Destruct the old content of this adouble
+  if (isInit) {
+      free_loc(location);
+  }
+
+  // Set to new content
+  location = a.loc();
+
+  // If 'a' wasn't initialized, this one isn't initialized either.
+  isInit = a.isInit;
+
+  // Make the data is not touched when 'a' gets destructed
+  a.isInit = false;
+
   return (*this);
 }
 
