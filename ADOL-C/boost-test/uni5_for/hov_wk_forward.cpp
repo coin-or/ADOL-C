@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_WK_FORWARD) {
   myfree3(X);
   myfree3(Y);
 }
-BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward) {
+BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   const int16_t tag = 0;
   const size_t dim_out = 1;
   const size_t dim_in = 2;
@@ -561,7 +561,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward) {
   myfree3(Y);
 }
 
-BOOST_AUTO_TEST_CASE(AddOperator_FOV_Forward) {
+BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   const int16_t tag = 0;
   const size_t dim_out = 1;
   const size_t dim_in = 2;
@@ -650,7 +650,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOV_Forward) {
   myfree3(Y);
 }
 
-BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward) {
+BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   const int16_t tag = 0;
   const size_t dim_out = 1;
   const size_t dim_in = 2;
@@ -739,7 +739,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward) {
   myfree3(Y);
 }
 
-BOOST_AUTO_TEST_CASE(DivOperator_FOV_Forward) {
+BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   const int16_t tag = 0;
   const size_t dim_out = 1;
   const size_t dim_in = 2;
