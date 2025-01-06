@@ -1493,4 +1493,264 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   myfree3(X);
   myfree3(Y);
 }
+BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  const size_t degree = 3;
+  const size_t num_dirs = 2;
+  const short keep = 1;
+  std::vector<double> in{0.5};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // tanh(x)
+  trace_on(tag);
+  indep[0] <<= in[0];
+  adouble dep = tanh(indep[0]);
+  dep >>= out[0];
+  trace_off();
+
+  double ***X = myalloc3(dim_in, num_dirs, degree);
+  double ***Y = myalloc3(dim_out, num_dirs, degree);
+
+  X[0][0][0] = 1.0;
+  X[0][0][1] = -1.0;
+  X[0][0][2] = 1.1;
+
+  X[0][1][0] = 2.0;
+  X[0][1][1] = -2.1;
+  X[0][1][2] = -2.0;
+
+  std::vector<double> test_in{0.5};
+
+  // tanh(x)
+  double test_out = std::tanh(test_in[0]);
+
+  hov_wk_forward(tag, dim_out, dim_in, degree, keep, num_dirs, test_in.data(),
+                 X, out.data(), Y);
+
+  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+
+  // first derivative
+  BOOST_TEST(Y[0][0][0] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][0] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][1][0],
+             tt::tolerance(tol));
+
+  // second derivative
+  BOOST_TEST(Y[0][0][1] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][0][1] +
+                     1.0 / 2.0 *
+                         (-2.0 * std::tanh(test_in[0]) * 1.0 /
+                          std::pow(std::cosh(test_in[0]), 2) * X[0][0][0] *
+                          X[0][0][0]),
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][1] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][1][1] +
+                     1.0 / 2.0 *
+                         (-2.0 * std::tanh(test_in[0]) * 1.0 /
+                          std::pow(std::cosh(test_in[0]), 2) * X[0][1][0] *
+                          X[0][1][0]),
+             tt::tolerance(tol));
+
+  // third derivative
+  BOOST_TEST(Y[0][0][2] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][0][2] +
+                     (-2.0 * std::tanh(test_in[0]) * 1.0 /
+                      std::pow(std::cosh(test_in[0]), 2) * X[0][0][0] *
+                      X[0][0][1]) +
+                     1.0 / 6.0 *
+                         (4.0 * std::pow(std::tanh(test_in[0]), 2) * 1.0 /
+                              std::pow(std::cosh(test_in[0]), 2) -
+                          2.0 / std::pow(std::cosh(test_in[0]), 4)) *
+                         std::pow(X[0][0][0], 3),
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][2] ==
+                 1.0 / std::pow(std::cosh(test_in[0]), 2) * X[0][1][2] +
+                     (-2.0 * std::tanh(test_in[0]) * 1.0 /
+                      std::pow(std::cosh(test_in[0]), 2) * X[0][1][0] *
+                      X[0][1][1]) +
+                     1.0 / 6.0 *
+                         (4.0 * std::pow(std::tanh(test_in[0]), 2) * 1.0 /
+                              std::pow(std::cosh(test_in[0]), 2) -
+                          2.0 / std::pow(std::cosh(test_in[0]), 4)) *
+                         std::pow(X[0][1][0], 3),
+             tt::tolerance(tol));
+  myfree3(X);
+  myfree3(Y);
+}
+BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  const size_t degree = 3;
+  const size_t num_dirs = 2;
+  const short keep = 1;
+  std::vector<double> in{0.5};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // asin(x)
+  trace_on(tag);
+  indep[0] <<= in[0];
+  adouble dep = asin(indep[0]);
+  dep >>= out[0];
+  trace_off();
+
+  double ***X = myalloc3(dim_in, num_dirs, degree);
+  double ***Y = myalloc3(dim_out, num_dirs, degree);
+
+  X[0][0][0] = 1.0;
+  X[0][0][1] = -1.0;
+  X[0][0][2] = 1.1;
+
+  X[0][1][0] = 2.0;
+  X[0][1][1] = -2.1;
+  X[0][1][2] = -2.0;
+
+  std::vector<double> test_in{0.5};
+
+  // asin(x)
+  double test_out = std::asin(test_in[0]);
+
+  hov_wk_forward(tag, dim_out, dim_in, degree, keep, num_dirs, test_in.data(),
+                 X, out.data(), Y);
+
+  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+
+  // first derivative
+  BOOST_TEST(Y[0][0][0] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][0] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][0],
+             tt::tolerance(tol));
+
+  // second derivative
+  BOOST_TEST(Y[0][0][1] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][1] +
+                     1.0 / 2.0 *
+                         (test_in[0] /
+                          std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][1] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][1] +
+                     1.0 / 2.0 *
+                         (test_in[0] /
+                          std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][0],
+             tt::tolerance(tol));
+
+  // third derivative
+  BOOST_TEST(Y[0][0][2] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][2] +
+                     (test_in[0] /
+                      std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][1] +
+                     1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                         std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
+                         std::pow(X[0][0][0], 3),
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][2] ==
+                 1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][2] +
+                     (test_in[0] /
+                      std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][1] +
+                     1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                         std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
+                         std::pow(X[0][1][0], 3),
+             tt::tolerance(tol));
+  myfree3(X);
+  myfree3(Y);
+}
+
+BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  const size_t degree = 3;
+  const size_t num_dirs = 2;
+  const short keep = 1;
+  std::vector<double> in{0.5};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // acos(x)
+  trace_on(tag);
+  indep[0] <<= in[0];
+  adouble dep = acos(indep[0]);
+  dep >>= out[0];
+  trace_off();
+
+  double ***X = myalloc3(dim_in, num_dirs, degree);
+  double ***Y = myalloc3(dim_out, num_dirs, degree);
+
+  X[0][0][0] = 1.0;
+  X[0][0][1] = -1.0;
+  X[0][0][2] = 1.1;
+
+  X[0][1][0] = 2.0;
+  X[0][1][1] = -2.1;
+  X[0][1][2] = -2.0;
+
+  std::vector<double> test_in{0.5};
+
+  // acos(x)
+  double test_out = std::acos(test_in[0]);
+
+  hov_wk_forward(tag, dim_out, dim_in, degree, keep, num_dirs, test_in.data(),
+                 X, out.data(), Y);
+
+  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+
+  // first derivative
+  BOOST_TEST(Y[0][0][0] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][0] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][0],
+             tt::tolerance(tol));
+
+  // second derivative
+  BOOST_TEST(Y[0][0][1] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][1] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][0],
+             tt::tolerance(tol));
+
+  // third derivative
+  BOOST_TEST(Y[0][0][2] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][0][2] +
+                     (-test_in[0] /
+                      std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][1] +
+                     -1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                         std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
+                         std::pow(X[0][0][0], 3),
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][2] ==
+                 -1.0 / std::sqrt(1.0 - std::pow(test_in[0], 2)) * X[0][1][2] +
+                     (-test_in[0] /
+                      std::pow(1.0 - std::pow(test_in[0], 2), 3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][1] +
+                     -1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                         std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
+                         std::pow(X[0][1][0], 3),
+             tt::tolerance(tol));
+  myfree3(X);
+  myfree3(Y);
+}
 BOOST_AUTO_TEST_SUITE_END()
