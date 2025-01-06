@@ -1912,4 +1912,186 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   myfree3(X);
   myfree3(Y);
 }
+
+BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  const size_t degree = 3;
+  const size_t num_dirs = 2;
+  const short keep = 1;
+  std::vector<double> in{0.5};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // asinh(x)
+  trace_on(tag);
+  indep[0] <<= in[0];
+  adouble dep = asinh(indep[0]);
+  dep >>= out[0];
+  trace_off();
+
+  double ***X = myalloc3(dim_in, num_dirs, degree);
+  double ***Y = myalloc3(dim_out, num_dirs, degree);
+
+  X[0][0][0] = 1.0;
+  X[0][0][1] = -1.0;
+  X[0][0][2] = 1.1;
+
+  X[0][1][0] = 2.0;
+  X[0][1][1] = -2.1;
+  X[0][1][2] = -2.0;
+
+  std::vector<double> test_in{0.5};
+
+  // asinh(x)
+  double test_out = std::asinh(test_in[0]);
+
+  hov_wk_forward(tag, dim_out, dim_in, degree, keep, num_dirs, test_in.data(),
+                 X, out.data(), Y);
+
+  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+
+  // first derivative
+  BOOST_TEST(Y[0][0][0] ==
+                 1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][0] ==
+                 1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][1][0],
+             tt::tolerance(tol));
+
+  // second derivative
+  BOOST_TEST(Y[0][0][1] ==
+                 1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][0][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow(std::pow(test_in[0], 2) + 1, 3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][1] ==
+                 1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][1][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow(std::pow(test_in[0], 2) + 1, 3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][0],
+             tt::tolerance(tol));
+
+  // third derivative
+  BOOST_TEST(
+      Y[0][0][2] ==
+          1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][0][2] +
+              (-test_in[0] / std::pow(std::pow(test_in[0], 2) + 1, 3.0 / 2.0)) *
+                  X[0][0][0] * X[0][0][1] +
+              1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) - 1.0) /
+                  (std::pow(std::pow(test_in[0], 2) + 1, 5.0 / 2.0)) *
+                  std::pow(X[0][0][0], 3),
+      tt::tolerance(tol));
+  BOOST_TEST(
+      Y[0][1][2] ==
+          1.0 / std::sqrt(std::pow(test_in[0], 2) + 1) * X[0][1][2] +
+              (-test_in[0] / std::pow(std::pow(test_in[0], 2) + 1, 3.0 / 2.0)) *
+                  X[0][1][0] * X[0][1][1] +
+              1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) - 1.0) /
+                  (std::pow(std::pow(test_in[0], 2) + 1, 5.0 / 2.0)) *
+                  std::pow(X[0][1][0], 3),
+      tt::tolerance(tol));
+  myfree3(X);
+  myfree3(Y);
+}
+
+BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  const size_t degree = 3;
+  const size_t num_dirs = 2;
+  const short keep = 1;
+  std::vector<double> in{1.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // acosh(x)
+  trace_on(tag);
+  indep[0] <<= in[0];
+  adouble dep = acosh(indep[0]);
+  dep >>= out[0];
+  trace_off();
+
+  double ***X = myalloc3(dim_in, num_dirs, degree);
+  double ***Y = myalloc3(dim_out, num_dirs, degree);
+
+  X[0][0][0] = 1.0;
+  X[0][0][1] = -1.0;
+  X[0][0][2] = 1.1;
+
+  X[0][1][0] = 2.0;
+  X[0][1][1] = -2.1;
+  X[0][1][2] = -2.0;
+
+  std::vector<double> test_in{1.2};
+
+  // acosh(x)
+  double test_out = std::acosh(test_in[0]);
+
+  hov_wk_forward(tag, dim_out, dim_in, degree, keep, num_dirs, test_in.data(),
+                 X, out.data(), Y);
+
+  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+
+  // first derivative
+  BOOST_TEST(Y[0][0][0] ==
+                 1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                     X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][0] ==
+                 1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                     X[0][1][0],
+             tt::tolerance(tol));
+
+  // second derivative
+  BOOST_TEST(Y[0][0][1] ==
+                 1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                         X[0][0][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow((test_in[0] - 1.0) * (test_in[0] + 1.0),
+                                   3.0 / 2.0)) *
+                         X[0][0][0] * X[0][0][0],
+             tt::tolerance(tol));
+  BOOST_TEST(Y[0][1][1] ==
+                 1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                         X[0][1][1] +
+                     1.0 / 2.0 *
+                         (-test_in[0] /
+                          std::pow((test_in[0] - 1.0) * (test_in[0] + 1.0),
+                                   3.0 / 2.0)) *
+                         X[0][1][0] * X[0][1][0],
+             tt::tolerance(tol));
+
+  // third derivative
+  BOOST_TEST(
+      Y[0][0][2] ==
+          1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                  X[0][0][2] +
+              -test_in[0] /
+                  std::pow((test_in[0] - 1.0) * (test_in[0] + 1.0), 3.0 / 2.0) *
+                  X[0][0][0] * X[0][0][1] +
+              1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                  std::pow(std::pow(test_in[0], 2) - 1.0, 5.0 / 2.0) *
+                  std::pow(X[0][0][0], 3),
+      tt::tolerance(tol));
+  BOOST_TEST(
+      Y[0][1][2] ==
+          1.0 / std::sqrt((test_in[0] + 1.0) * (test_in[0] - 1.0)) *
+                  X[0][1][2] +
+              -test_in[0] /
+                  std::pow((test_in[0] - 1.0) * (test_in[0] + 1.0), 3.0 / 2.0) *
+                  X[0][1][0] * X[0][1][1] +
+              1.0 / 6.0 * (2.0 * std::pow(test_in[0], 2) + 1) /
+                  std::pow(std::pow(test_in[0], 2) - 1.0, 5.0 / 2.0) *
+                  std::pow(X[0][1][0], 3),
+      tt::tolerance(tol));
+  myfree3(X);
+  myfree3(Y);
+}
 BOOST_AUTO_TEST_SUITE_END()
