@@ -1523,7 +1523,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 980921 changed order to allow x=pow(x,n) */
       r0 = TRES;
       if (arg == res)
-        ADOLC_GET_TAYLOR(arg);
+        TARG = *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1);
       if (TARG == 0.0)
         r0 = 0.0;
       else
