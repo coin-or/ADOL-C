@@ -1804,9 +1804,8 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1) {
   myfree1(y);
   myfree2(yd);
 }
-/*
-BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1)
-{
+
+BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1) {
   double a = 2.3, e = 3.5, aout;
   adouble ad;
 
@@ -1829,12 +1828,11 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1)
   fov_reverse(1, 1, 1, 2, u, z);
 
   BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(z[1][0] == -1.1*aDerivative, tt::tolerance(tol));
-
+  BOOST_TEST(z[1][0] == -1.1 * aDerivative, tt::tolerance(tol));
   myfree2(u);
   myfree2(z);
 }
-*/
+
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2) {
   double a = 2.3, b = 3.5, out;
   adouble ad, bd;
