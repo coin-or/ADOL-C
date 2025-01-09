@@ -44,16 +44,16 @@ ADOLC_DLL_EXPORT void myfreeI2(int, double **);
 
 ADOLC_DLL_EXPORT unsigned int *myalloc1_uint(int);
 
-ADOLC_DLL_EXPORT unsigned long int *myalloc1_ulong(int);
-ADOLC_DLL_EXPORT unsigned long int **myalloc2_ulong(int, int);
+ADOLC_DLL_EXPORT size_t *myalloc1_ulong(int);
+ADOLC_DLL_EXPORT size_t **myalloc2_ulong(int, int);
 
 /****************************************************************************/
 /*                              INTEGER VARIANT FOR BIT PATTERN PROPAGATION */
 
 ADOLC_DLL_EXPORT void myfree1_uint(unsigned int *);
 
-ADOLC_DLL_EXPORT void myfree1_ulong(unsigned long int *);
-ADOLC_DLL_EXPORT void myfree2_ulong(unsigned long int **);
+ADOLC_DLL_EXPORT void myfree1_ulong(size_t *);
+ADOLC_DLL_EXPORT void myfree2_ulong(size_t **);
 
 END_C_DECLS
 
