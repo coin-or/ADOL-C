@@ -233,35 +233,154 @@ public:
   adouble &operator--();
 
 /* Comparison (friends) */
-#if !defined(ADOLC_ADVANCED_BRANCHING)
+#ifdef ADOLC_ADVANCED_BRANCHING
+
   friend ADOLC_DLL_EXPORT adouble operator!=(const adouble &a,
                                              const adouble &b);
   friend ADOLC_DLL_EXPORT adouble operator!=(adouble &&a, const adouble &b);
-  friend ADOLC_DLL_EXPORT adouble operator!=(const adouble a, adouble &&b);
-  friend ADOLC_DLL_EXPORT adub operator==(const badouble &a, const badouble &b);
-  friend ADOLC_DLL_EXPORT adub operator<=(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub operator>=(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub operator>(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub operator<(const badouble &, const badouble &);
-  friend bool operator!=(const badouble &, const badouble &);
-  friend bool operator==(const badouble &, const badouble &);
-  friend bool operator<=(const badouble &, const badouble &);
-  friend bool operator>=(const badouble &, const badouble &);
-  friend bool operator>(const badouble &, const badouble &);
-  friend bool operator<(const badouble &, const badouble &);
-#endif
-  inline friend bool operator!=(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator!=(const badouble &, double);
-  inline friend bool operator==(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator==(const badouble &, double);
-  inline friend bool operator<=(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator<=(const badouble &, double);
-  inline friend bool operator>=(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator>=(const badouble &, double);
-  inline friend bool operator>(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator>(const badouble &, double);
-  inline friend bool operator<(double, const badouble &);
-  friend ADOLC_DLL_EXPORT bool operator<(const badouble &, double);
+  friend ADOLC_DLL_EXPORT adouble operator!=(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator==(const adouble &a,
+                                             const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator==(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator==(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator<=(const adouble &a,
+                                             const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator<=(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator<=(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator>=(const adouble &a,
+                                             const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator>=(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator>=(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator<(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator<(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator<(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator>(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator>(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator>(const adouble &a, adouble &&b);
+
+#else // ADOLC_ADVANCED_BRANCHING
+
+  friend bool operator!=(const adouble &a, const adouble &b);
+  friend bool operator==(const adouble &a, const adouble &b);
+  friend bool operator<=(const adouble &a, const adouble &b);
+  friend bool operator>=(const adouble &a, const adouble &b);
+  friend bool operator>(const adouble &a, const adouble &b);
+  friend bool operator<(const adouble &a, const adouble &b);
+
+#endif // ADOLC_ADVANCED_BRANCHING
+
+  friend ADOLC_DLL_EXPORT bool operator!=(const adouble &a, const double coval);
+  friend bool operator!=(const double coval, const adouble &a);
+
+  friend bool operator==(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT bool operator==(const adouble &a, const double coval);
+
+  friend bool operator<=(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT bool operator<=(const adouble &a, const double coval);
+
+  friend bool operator>=(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT bool operator>=(const adouble &a, const double coval);
+
+  friend bool operator<(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT bool operator<(const adouble &a, const double coval);
+
+  friend bool operator>(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT bool operator>(const adouble &a, const double coval);
+
+  /*--------------------------------------------------------------------------*/
+  /* sign operators (friends) */
+  friend ADOLC_DLL_EXPORT adouble operator+(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator+(adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble operator-(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator-(adouble &&a);
+
+  /*--------------------------------------------------------------------------*/
+  /* binary operators (friends) */
+  friend ADOLC_DLL_EXPORT adouble operator+(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator+(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator+(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator+(const double coval,
+                                            const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator+(const double coval, adouble &&a);
+
+  friend adouble operator+(const adouble &a, const double coval);
+  friend adouble operator+(adouble &&a, const double coval);
+
+  friend ADOLC_DLL_EXPORT adouble operator-(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator-(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator-(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator-(const double coval,
+                                            const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator-(const double coval, adouble &&a);
+
+  friend adouble operator-(const adouble &a, const double coval);
+  friend adouble operator-(adouble &&a, const double coval);
+
+  friend ADOLC_DLL_EXPORT adouble operator*(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator*(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator*(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator*(const double coval,
+                                            const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator+(const double coval, adouble &&a);
+
+  friend adouble operator*(const adouble &a, const double coval);
+  friend adouble operator*(adouble &&a, const double coval);
+
+  inline friend adub operator/(const badouble &, double);
+  friend ADOLC_DLL_EXPORT adub operator/(const badouble &, const badouble &);
+  friend ADOLC_DLL_EXPORT adub operator/(double, const badouble &);
+
+  /*--------------------------------------------------------------------------*/
+  /* unary operators (friends) */
+  friend ADOLC_DLL_EXPORT adub exp(const badouble &);
+  friend ADOLC_DLL_EXPORT adub log(const badouble &);
+  friend ADOLC_DLL_EXPORT adub sqrt(const badouble &);
+  friend ADOLC_DLL_EXPORT adub cbrt(const badouble &);
+  friend ADOLC_DLL_EXPORT adub sin(const badouble &);
+  friend ADOLC_DLL_EXPORT adub cos(const badouble &);
+  friend ADOLC_DLL_EXPORT adub tan(const badouble &);
+  friend ADOLC_DLL_EXPORT adub asin(const badouble &);
+  friend ADOLC_DLL_EXPORT adub acos(const badouble &);
+  friend ADOLC_DLL_EXPORT adub atan(const badouble &);
+
+  /*--------------------------------------------------------------------------*/
+  /* special operators (friends) */
+  /* no internal use of condassign: */
+  friend ADOLC_DLL_EXPORT adub pow(const badouble &, double);
+  friend ADOLC_DLL_EXPORT adub log10(const badouble &);
+
+  /* Additional ANSI C standard Math functions Added by DWJ on 8/6/90 */
+  friend ADOLC_DLL_EXPORT adub sinh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub cosh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub tanh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub asinh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub acosh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub atanh(const badouble &);
+  friend ADOLC_DLL_EXPORT adub erf(const badouble &);
+  friend ADOLC_DLL_EXPORT adub erfc(const badouble &);
+
+  friend ADOLC_DLL_EXPORT adub fabs(const badouble &);
+  friend ADOLC_DLL_EXPORT adub ceil(const badouble &);
+  friend ADOLC_DLL_EXPORT adub floor(const badouble &);
+
+  friend ADOLC_DLL_EXPORT adub fmax(const badouble &, const badouble &);
+  friend ADOLC_DLL_EXPORT adub fmax(double, const badouble &);
+  friend ADOLC_DLL_EXPORT adub fmax(const badouble &, double);
+  friend ADOLC_DLL_EXPORT adub fmin(const badouble &, const badouble &);
+  friend ADOLC_DLL_EXPORT adub fmin(double, const badouble &);
+  friend ADOLC_DLL_EXPORT adub fmin(const badouble &, double);
+
+  friend ADOLC_DLL_EXPORT adub ldexp(const badouble &, int);
+  friend ADOLC_DLL_EXPORT adub frexp(const badouble &, int *);
 
 #if defined(ADOLC_DEFAULT_CONTIG_LOC)
   void *operator new[](size_t sz) {
@@ -305,9 +424,6 @@ inline locint adouble::loc(void) const {
 /* Comparison */
 
 #if !defined(SWIGPRE)
-/*--------------------------------------------------------------------------*/
-/* Adding a floating point from an adouble  */
-inline adub operator+(const badouble &x, double coval) { return coval + x; }
 
 /* Subtract a floating point from an adouble  */
 inline adub operator-(const badouble &x, double coval) { return (-coval) + x; }
