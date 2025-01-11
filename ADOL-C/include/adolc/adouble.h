@@ -301,7 +301,7 @@ public:
   friend ADOLC_DLL_EXPORT adouble operator-(adouble &&a);
 
   /*--------------------------------------------------------------------------*/
-  /* binary operators (friends) */
+  /* binary operators */
   friend ADOLC_DLL_EXPORT adouble operator+(const adouble &a, const adouble &b);
   friend ADOLC_DLL_EXPORT adouble operator+(adouble &&a, const adouble &b);
   friend ADOLC_DLL_EXPORT adouble operator+(const adouble &a, adouble &&b);
@@ -330,18 +330,27 @@ public:
 
   friend ADOLC_DLL_EXPORT adouble operator*(const double coval,
                                             const adouble &a);
-  friend ADOLC_DLL_EXPORT adouble operator+(const double coval, adouble &&a);
+  friend ADOLC_DLL_EXPORT adouble operator*(const double coval, adouble &&a);
 
   friend adouble operator*(const adouble &a, const double coval);
   friend adouble operator*(adouble &&a, const double coval);
 
-  inline friend adub operator/(const badouble &, double);
-  friend ADOLC_DLL_EXPORT adub operator/(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub operator/(double, const badouble &);
+  friend ADOLC_DLL_EXPORT adouble operator/(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator/(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble operator/(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble operator/(const double coval,
+                                            const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble operator/(const double coval, adouble &&a);
+
+  friend adouble operator/(const adouble &a, const double coval);
+  friend adouble operator/(adouble &&a, const double coval);
 
   /*--------------------------------------------------------------------------*/
-  /* unary operators (friends) */
-  friend ADOLC_DLL_EXPORT adub exp(const badouble &);
+  /* unary operators */
+  friend ADOLC_DLL_EXPORT adouble exp(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble exp(adouble &&a);
+
   friend ADOLC_DLL_EXPORT adub log(const badouble &);
   friend ADOLC_DLL_EXPORT adub sqrt(const badouble &);
   friend ADOLC_DLL_EXPORT adub cbrt(const badouble &);
@@ -389,19 +398,22 @@ public:
     ensureContiguousLocations(n);
     return p;
   }
-  void operator delete[](void *p) { ::delete[] (char *)p; }
+  void operator delete[](void *p) {
+    ::delete[] (char *)p;
+    adouble
 #endif
-private:
-  // stores the location of the adouble on a tape
-  tape_location tape_loc_;
+        const p /
+        a /
+        stores the location of the adouble on adouble tape
+            tape_location const tape /
+        a / all constructors ensure a valid adouble,
+        this state changes only when
+        // moving an adouble
+        int valid{1};
+  };
 
-  // all constructors ensure a valid adouble, this state changes only when
-  // moving an adouble
-  int valid{1};
-};
-
-ADOLC_DLL_EXPORT std::ostream &operator<<(std::ostream &, const adouble &);
-ADOLC_DLL_EXPORT std::istream &operator>>(std::istream &, const adouble &);
+  ADOLC_DLL_EXPORT std::ostream &operator<<(std::ostream &, const adouble &);
+  ADOLC_DLL_EXPORT std::istream &operator>>(std::istream &, const adouble &);
 
 #endif /* __cplusplus */
 
@@ -409,121 +421,126 @@ ADOLC_DLL_EXPORT std::istream &operator>>(std::istream &, const adouble &);
 #include <adolc/param.h>
 
 #ifdef __cplusplus
-/****************************************************************************/
-/*                                                       INLINE DEFINITIONS */
+  /****************************************************************************/
+  /*                                                       INLINE DEFINITIONS */
 
-/*--------------------------------------------------------------------------*/
-inline locint badouble::loc(void) const { return location; }
+  /*--------------------------------------------------------------------------*/
+  inline locint badouble::loc(void) const { return location; }
 
-inline locint adouble::loc(void) const {
-  const_cast<adouble *>(this)->initInternal();
-  return location;
-}
+  inline locint adouble::loc(void) const {
+    const_cast<adouble *>(this)->initInternal();
+    return location;
+  }
 
-/*--------------------------------------------------------------------------*/
-/* Comparison */
+  /*--------------------------------------------------------------------------*/
+  /* Comparison */
 
 #if !defined(SWIGPRE)
 
-/* Subtract a floating point from an adouble  */
-inline adub operator-(const badouble &x, double coval) { return (-coval) + x; }
+  /* Subtract a floating point from an adouble  */
+  inline adub operator-(const badouble &x, double coval) {
+    return (-coval) + x;
+  }
 
-/*--------------------------------------------------------------------------*/
-/* Multiply an adouble by a floating point */
-inline adub operator*(const badouble &x, double coval) { return coval * x; }
+  /*--------------------------------------------------------------------------*/
+  /* Multiply an adouble by a floating point */
+  inline adub operator*(const badouble &x, double coval) { return coval * x; }
 
-/*--------------------------------------------------------------------------*/
-/* Divide an adouble by a floating point */
-inline adub operator/(const badouble &x, double coval) {
-  return (1.0 / coval) * x;
-}
+  /*--------------------------------------------------------------------------*/
+  /* Divide an adouble by a floating point */
+  inline adub operator/(const badouble &x, double coval) {
+    return (1.0 / coval) * x;
+  }
 #endif
 
-inline badouble &badouble::operator/=(const pdouble &p) {
-  *this *= recipr(p);
-  return *this;
-}
-
-/* numeric_limits<adouble> specialization
- *
- * All methods return double instead of adouble, because these values
- * never depend on the independent variables.
- */
-template <> struct std::numeric_limits<adouble> {
-  static constexpr bool is_specialized = true;
-
-  static constexpr double min() noexcept {
-    return std::numeric_limits<double>::min();
+  inline badouble &badouble::operator/=(const pdouble &p) {
+    *this *= recipr(p);
+    return *this;
   }
 
-  static constexpr double max() noexcept {
-    return std::numeric_limits<double>::max();
-  }
+  /* numeric_limits<adouble> specialization
+   *
+   * All methods return double instead of adouble, because these values
+   * never depend on the independent variables.
+   */
+  template <> struct std::numeric_limits<adouble> {
+    static constexpr bool is_specialized = true;
 
-  static constexpr double lowest() noexcept {
-    return std::numeric_limits<double>::lowest();
-  }
+    static constexpr double min() noexcept {
+      return std::numeric_limits<double>::min();
+    }
 
-  static constexpr int digits = std::numeric_limits<double>::digits;
-  static constexpr int digits10 = std::numeric_limits<double>::digits10;
-  static constexpr int max_digits10 = std::numeric_limits<double>::max_digits10;
-  static constexpr bool is_signed = std::numeric_limits<double>::is_signed;
-  static constexpr bool is_integer = std::numeric_limits<double>::is_integer;
-  static constexpr bool is_exact = std::numeric_limits<double>::is_exact;
-  static constexpr int radix = std::numeric_limits<double>::radix;
+    static constexpr double max() noexcept {
+      return std::numeric_limits<double>::max();
+    }
 
-  static constexpr double epsilon() noexcept {
-    return std::numeric_limits<double>::epsilon();
-  }
+    static constexpr double lowest() noexcept {
+      return std::numeric_limits<double>::lowest();
+    }
 
-  static constexpr double round_error() noexcept {
-    return std::numeric_limits<double>::round_error();
-  }
+    static constexpr int digits = std::numeric_limits<double>::digits;
+    static constexpr int digits10 = std::numeric_limits<double>::digits10;
+    static constexpr int max_digits10 =
+        std::numeric_limits<double>::max_digits10;
+    static constexpr bool is_signed = std::numeric_limits<double>::is_signed;
+    static constexpr bool is_integer = std::numeric_limits<double>::is_integer;
+    static constexpr bool is_exact = std::numeric_limits<double>::is_exact;
+    static constexpr int radix = std::numeric_limits<double>::radix;
 
-  static constexpr int min_exponent = std::numeric_limits<double>::min_exponent;
-  static constexpr int min_exponent10 =
-      std::numeric_limits<double>::min_exponent10;
-  static constexpr int max_exponent = std::numeric_limits<double>::max_exponent;
-  static constexpr int max_exponent10 =
-      std::numeric_limits<double>::max_exponent10;
+    static constexpr double epsilon() noexcept {
+      return std::numeric_limits<double>::epsilon();
+    }
 
-  static constexpr bool has_infinity =
-      std::numeric_limits<double>::has_infinity;
-  static constexpr bool has_quiet_NaN =
-      std::numeric_limits<double>::has_quiet_NaN;
-  static constexpr bool has_signaling_NaN =
-      std::numeric_limits<double>::has_signaling_NaN;
-  static constexpr float_denorm_style has_denorm =
-      std::numeric_limits<double>::has_denorm;
-  static constexpr bool has_denorm_loss =
-      std::numeric_limits<double>::has_denorm_loss;
+    static constexpr double round_error() noexcept {
+      return std::numeric_limits<double>::round_error();
+    }
 
-  static constexpr double infinity() noexcept {
-    return std::numeric_limits<double>::infinity();
-  }
+    static constexpr int min_exponent =
+        std::numeric_limits<double>::min_exponent;
+    static constexpr int min_exponent10 =
+        std::numeric_limits<double>::min_exponent10;
+    static constexpr int max_exponent =
+        std::numeric_limits<double>::max_exponent;
+    static constexpr int max_exponent10 =
+        std::numeric_limits<double>::max_exponent10;
 
-  static constexpr double quiet_NaN() noexcept {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
+    static constexpr bool has_infinity =
+        std::numeric_limits<double>::has_infinity;
+    static constexpr bool has_quiet_NaN =
+        std::numeric_limits<double>::has_quiet_NaN;
+    static constexpr bool has_signaling_NaN =
+        std::numeric_limits<double>::has_signaling_NaN;
+    static constexpr float_denorm_style has_denorm =
+        std::numeric_limits<double>::has_denorm;
+    static constexpr bool has_denorm_loss =
+        std::numeric_limits<double>::has_denorm_loss;
 
-  static constexpr double signaling_NaN() noexcept {
-    return std::numeric_limits<double>::signaling_NaN();
-  }
+    static constexpr double infinity() noexcept {
+      return std::numeric_limits<double>::infinity();
+    }
 
-  static constexpr double denorm_min() noexcept {
-    return std::numeric_limits<double>::denorm_min();
-  }
+    static constexpr double quiet_NaN() noexcept {
+      return std::numeric_limits<double>::quiet_NaN();
+    }
 
-  static constexpr bool is_iec559 = std::numeric_limits<double>::is_iec559;
-  static constexpr bool is_bounded = std::numeric_limits<double>::is_bounded;
-  static constexpr bool is_modulo = std::numeric_limits<double>::is_modulo;
+    static constexpr double signaling_NaN() noexcept {
+      return std::numeric_limits<double>::signaling_NaN();
+    }
 
-  static constexpr bool traps = std::numeric_limits<double>::traps;
-  static constexpr bool tinyness_before =
-      std::numeric_limits<double>::tinyness_before;
-  static constexpr float_round_style round_style =
-      std::numeric_limits<double>::round_style;
-};
+    static constexpr double denorm_min() noexcept {
+      return std::numeric_limits<double>::denorm_min();
+    }
+
+    static constexpr bool is_iec559 = std::numeric_limits<double>::is_iec559;
+    static constexpr bool is_bounded = std::numeric_limits<double>::is_bounded;
+    static constexpr bool is_modulo = std::numeric_limits<double>::is_modulo;
+
+    static constexpr bool traps = std::numeric_limits<double>::traps;
+    static constexpr bool tinyness_before =
+        std::numeric_limits<double>::tinyness_before;
+    static constexpr float_round_style round_style =
+        std::numeric_limits<double>::round_style;
+  };
 
 /****************************************************************************/
 /*                                                                THAT'S ALL*/
