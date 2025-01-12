@@ -74,23 +74,6 @@ void ADOLC_DLL_EXPORT condeqassign(double &res, const double &cond,
                                    const double &arg);
 
 /*--------------------------------------------------------------------------*/
-/* Functions friends with both badouble and adub */
-#define _IN_CLASS_ 1
-#define _IN_BADOUBLE_ 1
-#include <adolc/internal/adubfunc.h>
-#undef _IN_BADOUBLE_
-#undef _IN_CLASS_
-
-/*--------------------------------------------------------------------------*/
-/* special operators (friends) */
-friend ADOLC_DLL_EXPORT adouble atan2(const badouble &, const badouble &);
-/* uses condassign internally */
-friend ADOLC_DLL_EXPORT adouble pow(const badouble &, const badouble &);
-friend ADOLC_DLL_EXPORT adouble pow(double, const badouble &);
-/* User defined version of logarithm to test extend_quad macro */
-friend ADOLC_DLL_EXPORT adouble myquad(const badouble &);
-
-/*--------------------------------------------------------------------------*/
 /* Conditionals */
 friend ADOLC_DLL_EXPORT void condassign(adouble &res, const badouble &cond,
                                         const badouble &arg1,
@@ -102,14 +85,6 @@ friend ADOLC_DLL_EXPORT void condeqassign(adouble &res, const badouble &cond,
                                           const badouble &arg2);
 friend ADOLC_DLL_EXPORT void condeqassign(adouble &res, const badouble &cond,
                                           const badouble &arg);
-
-#define _IN_CLASS_ 1
-#define _IN_BADOUBLE_ 1
-#include <adolc/internal/paramfunc.h>
-#undef _IN_BADOUBLE_
-#undef _IN_CLASS_
-}
-;
 
 /****************************************************************************/
 /*                                                               CLASS ADUB
@@ -351,11 +326,21 @@ public:
   friend ADOLC_DLL_EXPORT adouble exp(const adouble &a);
   friend ADOLC_DLL_EXPORT adouble exp(adouble &&a);
 
-  friend ADOLC_DLL_EXPORT adub log(const badouble &);
-  friend ADOLC_DLL_EXPORT adub sqrt(const badouble &);
-  friend ADOLC_DLL_EXPORT adub cbrt(const badouble &);
-  friend ADOLC_DLL_EXPORT adub sin(const badouble &);
-  friend ADOLC_DLL_EXPORT adub cos(const badouble &);
+  friend ADOLC_DLL_EXPORT adouble log(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble log(adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble sqrt(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble sqrt(adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble cbrt(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble cbrt(adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble sin(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble sin(adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble cos(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble cos(adouble &&a);
+
   friend ADOLC_DLL_EXPORT adub tan(const badouble &);
   friend ADOLC_DLL_EXPORT adub asin(const badouble &);
   friend ADOLC_DLL_EXPORT adub acos(const badouble &);
@@ -390,6 +375,15 @@ public:
 
   friend ADOLC_DLL_EXPORT adub ldexp(const badouble &, int);
   friend ADOLC_DLL_EXPORT adub frexp(const badouble &, int *);
+
+  /*--------------------------------------------------------------------------*/
+  /* special operators (friends) */
+  friend ADOLC_DLL_EXPORT adouble atan2(const badouble &, const badouble &);
+  /* uses condassign internally */
+  friend ADOLC_DLL_EXPORT adouble pow(const badouble &, const badouble &);
+  friend ADOLC_DLL_EXPORT adouble pow(double, const badouble &);
+  /* User defined version of logarithm to test extend_quad macro */
+  friend ADOLC_DLL_EXPORT adouble myquad(const badouble &);
 
 #if defined(ADOLC_DEFAULT_CONTIG_LOC)
   void *operator new[](size_t sz) {
