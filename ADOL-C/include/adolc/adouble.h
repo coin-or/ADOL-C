@@ -380,27 +380,52 @@ public:
   friend ADOLC_DLL_EXPORT adouble erfc(const adouble &a);
   friend ADOLC_DLL_EXPORT adouble erfc(adouble &&a);
 
-  friend ADOLC_DLL_EXPORT adub fabs(const badouble &);
-  friend ADOLC_DLL_EXPORT adub ceil(const badouble &);
-  friend ADOLC_DLL_EXPORT adub floor(const badouble &);
+  friend ADOLC_DLL_EXPORT adouble ceil(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble ceil(adouble &&a);
 
-  friend ADOLC_DLL_EXPORT adub fmax(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub fmax(double, const badouble &);
-  friend ADOLC_DLL_EXPORT adub fmax(const badouble &, double);
-  friend ADOLC_DLL_EXPORT adub fmin(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adub fmin(double, const badouble &);
-  friend ADOLC_DLL_EXPORT adub fmin(const badouble &, double);
+  friend ADOLC_DLL_EXPORT adouble floor(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble floor(adouble &&a);
 
-  friend ADOLC_DLL_EXPORT adub ldexp(const badouble &, int);
-  friend ADOLC_DLL_EXPORT adub frexp(const badouble &, int *);
+  friend ADOLC_DLL_EXPORT adouble fabs(const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble fabs(adouble &&a);
 
-  friend ADOLC_DLL_EXPORT adouble atan2(const badouble &, const badouble &);
+  friend ADOLC_DLL_EXPORT adouble fmin(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble fmin(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble fmin(const adouble &a, adouble &&b);
 
-  friend ADOLC_DLL_EXPORT adub pow(const badouble &, double);
-  friend ADOLC_DLL_EXPORT adouble pow(const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT adouble pow(double, const badouble &);
+  friend ADOLC_DLL_EXPORT adouble fmin(const adouble &a, const double coval);
+  friend ADOLC_DLL_EXPORT adouble fmin(adouble &&a, const double coval);
+
+  friend ADOLC_DLL_EXPORT adouble fmin(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble fmin(const double coval, adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble fmax(const adouble &a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble fmax(adouble &&a, const adouble &b);
+  friend ADOLC_DLL_EXPORT adouble fmax(const adouble &a, adouble &&b);
+
+  friend ADOLC_DLL_EXPORT adouble fmax(const adouble &a, const double coval);
+  friend ADOLC_DLL_EXPORT adouble fmax(adouble &&a, const double coval);
+
+  friend ADOLC_DLL_EXPORT adouble fmax(const double coval, const adouble &a);
+  friend ADOLC_DLL_EXPORT adouble fmax(const double coval, adouble &&a);
+
+  friend ADOLC_DLL_EXPORT adouble ldexp(const adouble &a, const int exp);
+  friend ADOLC_DLL_EXPORT adouble ldexp(adouble &&a, const int exp);
+
+  friend ADOLC_DLL_EXPORT adouble frexp(const adouble &a, int *exp);
+  friend ADOLC_DLL_EXPORT adouble frexp(adouble &&a, int *exp);
+
+  friend ADOLC_DLL_EXPORT adouble atan2(const adouble &a, const adouble &b);
+
+  friend ADOLC_DLL_EXPORT adouble pow(const adouble &a, const adouble &b);
+
+  friend ADOLC_DLL_EXPORT adouble pow(const adouble &a, const double exp);
+  friend ADOLC_DLL_EXPORT adouble pow(adouble &&a, const double exp);
+
+  friend ADOLC_DLL_EXPORT adouble pow(const double base, const adouble &a);
+
   /* User defined version of logarithm to test extend_quad macro */
-  friend ADOLC_DLL_EXPORT adouble myquad(const badouble &);
+  friend ADOLC_DLL_EXPORT adouble myquad(const adouble &a);
 
 #if defined(ADOLC_DEFAULT_CONTIG_LOC)
   void *operator new[](size_t sz) {
