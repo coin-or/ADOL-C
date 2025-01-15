@@ -265,124 +265,6 @@ adouble &adouble::operator=(adouble &&a) noexcept {
   return *this;
 }
 
-/**************************************************************************
- *           MARK INDEPENDENT AND DEPENDENT
- */
-
-// Assign a double value to an adouble and mark the adouble as independent on
-// the tape
-adouble &adouble::operator<<=(double input) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    ++ADOLC_CURRENT_TAPE_INFOS.numInds;
-
-    put_op(assign_ind);
-    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
-#endif
-  return *this;
-}
-
-// Assign the coval of an adouble to a double reference and mark the adouble as
-// dependent variable on the tape. At the end of the function, the double
-// reference can be seen as output value of the function given by the trace
-// of the adouble.
-adouble &adouble::operator>>=(double &output) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  if (!ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
-    fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
-                      "as dependent.\n");
-    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
-    if (coval == 0.0) {
-      put_op(assign_d_zero);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-    } else if (coval == 1.0) {
-      put_op(assign_d_one);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-    } else {
-      put_op(assign_d);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-      ADOLC_PUT_VAL(coval);
-    }
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-#endif
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    ++ADOLC_CURRENT_TAPE_INFOS.numDeps;
-
-    put_op(assign_dep);
-    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
-  }
-
-  coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
-  return *this;
-}
-
-void adouble::declareIndependent() {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    ++ADOLC_CURRENT_TAPE_INFOS.numInds;
-
-    put_op(assign_ind);
-    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
-#endif
-}
-
-void adouble::declareDependent() {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  if (!ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
-    fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
-                      "as dependent.\n");
-    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
-    if (coval == 0.0) {
-      put_op(assign_d_zero);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-    } else if (coval == 1.0) {
-      put_op(assign_d_one);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-    } else {
-      put_op(assign_d);
-      ADOLC_PUT_LOCINT(tape_loc_.loc_);
-      ADOLC_PUT_VAL(coval);
-    }
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-#endif
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    ++ADOLC_CURRENT_TAPE_INFOS.numDeps;
-
-    put_op(assign_dep);
-    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
-  }
-}
-
 /****************************************************************************/
 /*             Getter and Setter for the value stored at the tape location and
  * getter for location */
@@ -393,14 +275,11 @@ double adouble::getValue() const {
   return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
 }
 
-double adouble::value() const { return getValue(); }
-
 void adouble::setValue(const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
 }
-size_t adouble::getLoc() const { return tape_loc_.loc_; }
 
 /****************************************************************************/
 /*            conversions */
@@ -418,52 +297,7 @@ adouble::operator const double &() const {
 }
 
 /****************************************************************************/
-/*                                                           INPUT / OUTPUT */
-
-std::ostream &operator<<(std::ostream &out, const adouble &a) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  return out << a.getValue() << "(a)";
-}
-
-std::istream &operator>>(std::istream &in, const adouble &a) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double coval;
-  in >> coval;
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-#if defined(ADOLC_TRACK_ACTIVITY)
-    if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()]) {
-#endif
-      if (coval == 0) {
-        put_op(assign_d_zero);
-        ADOLC_PUT_LOCINT(a.getLoc()); // = res
-      } else if (coval == 1.0) {
-        put_op(assign_d_one);
-        ADOLC_PUT_LOCINT(a.getLoc()); // = res
-      } else {
-        put_op(assign_d);
-        ADOLC_PUT_LOCINT(a.getLoc()); // = res
-        ADOLC_PUT_VAL(coval);         // = coval
-      }
-
-      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
-#if defined(ADOLC_TRACK_ACTIVITY)
-    }
-#endif
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = coval;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()] = false;
-#endif
-  return in;
-}
-
-/****************************************************************************/
-/* .                      ARITHMETIC ASSIGNMENT                             */
+/*                       ARITHMETIC ASSIGNMENT                             */
 
 adouble &adouble::operator+=(const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -898,6 +732,169 @@ adouble &adouble::operator--() {
 
   ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]--;
   return *this;
+}
+
+/**************************************************************************
+ *           MARK INDEPENDENT AND DEPENDENT
+ */
+
+// Assign a double value to an adouble and mark the adouble as independent on
+// the tape
+adouble &adouble::operator<<=(double input) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    ++ADOLC_CURRENT_TAPE_INFOS.numInds;
+
+    put_op(assign_ind);
+    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  }
+  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
+#endif
+  return *this;
+}
+
+// Assign the coval of an adouble to a double reference and mark the adouble as
+// dependent variable on the tape. At the end of the function, the double
+// reference can be seen as output value of the function given by the trace
+// of the adouble.
+adouble &adouble::operator>>=(double &output) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  if (!ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+    fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
+                      "as dependent.\n");
+    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+    if (coval == 0.0) {
+      put_op(assign_d_zero);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+    } else if (coval == 1.0) {
+      put_op(assign_d_one);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+    } else {
+      put_op(assign_d);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+      ADOLC_PUT_VAL(coval);
+    }
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  }
+#endif
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    ++ADOLC_CURRENT_TAPE_INFOS.numDeps;
+
+    put_op(assign_dep);
+    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
+  }
+
+  coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+  return *this;
+}
+
+void adouble::declareIndependent() {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    ++ADOLC_CURRENT_TAPE_INFOS.numInds;
+
+    put_op(assign_ind);
+    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  }
+#if defined(ADOLC_TRACK_ACTIVITY)
+  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
+#endif
+}
+
+void adouble::declareDependent() {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  if (!ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+    fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
+                      "as dependent.\n");
+    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+    if (coval == 0.0) {
+      put_op(assign_d_zero);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+    } else if (coval == 1.0) {
+      put_op(assign_d_one);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+    } else {
+      put_op(assign_d);
+      ADOLC_PUT_LOCINT(tape_loc_.loc_);
+      ADOLC_PUT_VAL(coval);
+    }
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  }
+#endif
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    ++ADOLC_CURRENT_TAPE_INFOS.numDeps;
+
+    put_op(assign_dep);
+    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
+  }
+}
+
+/****************************************************************************/
+/*                                                           INPUT / OUTPUT */
+
+std::ostream &operator<<(std::ostream &out, const adouble &a) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  return out << a.getValue() << "(a)";
+}
+
+std::istream &operator>>(std::istream &in, const adouble &a) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  double coval;
+  in >> coval;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()]) {
+#endif
+      if (coval == 0) {
+        put_op(assign_d_zero);
+        ADOLC_PUT_LOCINT(a.getLoc()); // = res
+      } else if (coval == 1.0) {
+        put_op(assign_d_one);
+        ADOLC_PUT_LOCINT(a.getLoc()); // = res
+      } else {
+        put_op(assign_d);
+        ADOLC_PUT_LOCINT(a.getLoc()); // = res
+        ADOLC_PUT_VAL(coval);         // = coval
+      }
+
+      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+    }
+#endif
+  }
+
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = coval;
+#if defined(ADOLC_TRACK_ACTIVITY)
+  ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()] = false;
+#endif
+  return in;
 }
 
 /****************************************************************************/
