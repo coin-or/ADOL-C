@@ -53,7 +53,7 @@ pdouble::operator pdouble *() const {
   return ret;
 }
 
-pdouble mkparam(double pval) {
+pdouble padouble::mkparam(double pval) {
   locint _idx;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -151,6 +151,12 @@ adubref &adubref::operator=(const pdouble &p) {
   ADOLC_GLOBAL_TAPE_VARS.actStore[refloc] = true;
 #endif
   return *this;
+}
+
+double pdouble::getValue() const {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  return ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_];
 }
 
 badouble &badouble::operator+=(const pdouble &p) {
@@ -580,136 +586,312 @@ adouble pow(const pdouble &p, const badouble &y) {
   return ret;
 }
 
-#if defined(ADOLC_ADVANCED_BRANCHING)
-adub operator!=(const badouble &x, const pdouble &y) {
+#ifdef ADOLC_ADVANCED_BRANCHING
+adouble operator!=(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval != yval);
-  locint locat = next_loc();
+
+  const double a_coval = a.getValue();
+  const double p_coval = p.getValue();
+  const double res = static_cast<double>(a_coval != p_coval);
+  adouble ret_adouble(tape_location{next_loc()});
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(neq_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+  return ret_adouble;
 }
-/*--------------------------------------------------------------------------*/
-adub operator==(const badouble &x, const pdouble &y) {
+
+adouble operator!=(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval == yval);
-  locint locat = next_loc();
+
+  const double res = static_cast<double>(a.getValue() != p.getValue());
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(neq_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+  }
+
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+  return a;
+}
+
+adouble operator!=(const pdouble &p, const adouble &a) { return (a != p); }
+adouble operator!=(const pdouble &p, adouble &&a) {
+  return (std::move(a) != p);
+}
+
+adouble operator==(const adouble &a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getValue() == p.getValue());
+  ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(eq_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+
+  return ret_adouble;
 }
-/*--------------------------------------------------------------------------*/
-adub operator<=(const badouble &x, const pdouble &y) {
+
+adouble operator==(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval <= yval);
-  locint locat = next_loc();
+
+  const double res = static_cast<double>(a.getValue() == p.getValue());
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(eq_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+  }
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+
+  return a;
+}
+
+adouble operator==(const pdouble &p, const adouble &a) { return (a == p); }
+adouble operator==(const pdouble &p, adouble &&a) {
+  return (std::move(a) == p);
+}
+
+adouble operator<=(const adouble &a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getValue() <= p.getValue());
+  adouble ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(le_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+  return ret_adouble;
 }
-/*--------------------------------------------------------------------------*/
-adub operator>=(const badouble &x, const pdouble &y) {
+
+adouble operator<=(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval >= yval);
-  locint locat = next_loc();
+
+  const double res = static_cast<double>(a.getValue() <= p.getValue());
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(le_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+  }
+
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+  return a;
+}
+
+adouble operator<=(const pdouble &p, const adouble &a) { return (a >= p); }
+adouble operator<=(const pdouble &p, adouble &&a) {
+  return (std::move(a) >= p);
+}
+
+adouble operator>=(const adouble &a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getLoc() >= p.getLoc());
+  adouble ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(ge_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+  return ret_adouble;
 }
-/*--------------------------------------------------------------------------*/
-adub operator>(const badouble &x, const pdouble &y) {
+
+adouble operator>=(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval > yval);
-  locint locat = next_loc();
+
+  const double res = static_cast<double>(a.getLoc() >= p.getLoc());
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(ge_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+  }
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+  return a;
+}
+adouble operator>=(const pdouble &p, const adouble &a) { return (a <= p); }
+adouble operator>=(const pdouble &p, adouble &&a) {
+  return (std::move(a) <= p);
+}
+
+adouble operator>(const adouble &a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getValue() > p.getValue());
+  adouble ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(gt_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+  return ret_adouble;
 }
-/*--------------------------------------------------------------------------*/
-adub operator<(const badouble &x, const pdouble &y) {
+
+adouble operator>(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  double xval = ADOLC_GLOBAL_TAPE_VARS.store[x.loc()];
-  double yval = y._val;
-  double res = (double)(xval < yval);
-  locint locat = next_loc();
+
+  const double res = static_cast<double>(a.getValue() > p.getValue());
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(lt_a_p);
-    ADOLC_PUT_LOCINT(x.loc()); // arg
-    ADOLC_PUT_LOCINT(y._idx);  // arg1
-    ADOLC_PUT_VAL(res);        // check for branch switch
-    ADOLC_PUT_LOCINT(locat);   // res
+
+    put_op(gt_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] = res;
-  return locat;
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+  return a;
 }
+
+adouble operator>(const pdouble &p, const adouble &a) { return (a < p); }
+adouble operator>(const pdouble &p, adouble &&a) { return (std::move(a) < p); }
+
+adouble operator<(const adouble &a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getValue() < p.getValue());
+  adouble ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(lt_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc());           // arg
+    ADOLC_PUT_LOCINT(p.getLoc());           // arg1
+    ADOLC_PUT_VAL(res);                     // check for branch switch
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
+  }
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = res;
+  return ret_adouble;
+}
+
+adouble operator<(adouble &&a, const pdouble &p) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  const double res = static_cast<double>(a.getValue() < p.getValue());
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(lt_a_p);
+    ADOLC_PUT_LOCINT(a.getLoc()); // arg
+    ADOLC_PUT_LOCINT(p.getLoc()); // arg1
+    ADOLC_PUT_VAL(res);           // check for branch switch
+    ADOLC_PUT_LOCINT(a.getLoc()); // res
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+  }
+  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = res;
+  return a;
+}
+adouble operator<(const pdouble &p, const adouble &a) { return (a > p); }
+adouble operator<(const pdouble &p, adouble &&a) { return (std::move(a) > p); }
 #endif

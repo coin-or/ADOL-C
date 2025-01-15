@@ -21,178 +21,261 @@
 #include <cstdio>
 #include <stdexcept>
 
-#if !defined(SWIGPRE)
-using std::logic_error;
-#endif
-
-class pdouble;
-
-#if !defined(SWIGPRE)
-ADOLC_DLL_EXPORT pdouble mkparam(double pval);
-ADOLC_DLL_EXPORT pdouble getparam(locint index);
-#endif
-ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
-
 class ADOLC_DLL_EXPORT pdouble {
-  friend ADOLC_DLL_EXPORT class badouble;
-  friend ADOLC_DLL_EXPORT class adub;
-  friend ADOLC_DLL_EXPORT class adouble;
-  friend ADOLC_DLL_EXPORT class adubref;
-
-protected:
-  double _val;
-  locint _idx;
-  pdouble(const pdouble &) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error: illegal copy construction of pdouble"
-            " variable\n          ... pdouble objects must never be copied\n");
-    throw logic_error("illegal constructor call, errorcode=-2");
-  }
-  pdouble(void) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal default construction of pdouble"
-                      " variable\n");
-    throw logic_error("illegal constructor call, errorcode=-2");
-  }
-  pdouble(double pval);
-  pdouble(locint index);
 
 public:
-#if !defined(SWIGPRE)
-  friend pdouble mkparam(double pval);
-  friend pdouble getparam(locint index);
-  explicit operator pdouble *() const;
-#endif
-  friend locint mkparam_idx(double pval);
-  operator adub() const;
-
-#define _IN_CLASS_ 1
-#define _IN_PDOUBLE_ 1
-#include <adolc/internal/paramfunc.h>
-#undef _IN_PDOUBLE_
-#undef _IN_CLASS_
-
   ~pdouble() {}
+  pdouble(const pdouble &) = delete;
+  pdouble(void) = delete;
+
+  double getValue() const;
+
+  static padouble mkparam(double pval);
+  inline pdouble getparam(size_t loc_) { return padouble{loc_}; };
+  explicit operator pdouble *() const;
+  friend locint mkparam_idx(double pval);
+  operator adouble() const;
+
+  ADOLC_DLL_EXPORT pdouble getparam(locint index);
+  ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
+
+private:
+  double val_;
+  tape_location tape_loc_;
+
+  pdouble(double pval);
+  pdouble(locint index);
 };
 
 #ifdef ADOLC_ADVANCED_BRANCHING
-inline adub operator!=(const pdouble &a, const badouble &b) { return (b != a); }
-inline adub operator==(const pdouble &a, const badouble &b) { return (b == a); }
-inline adub operator<=(const pdouble &a, const badouble &b) { return (b >= a); }
-inline adub operator>=(const pdouble &a, const badouble &b) { return (b <= a); }
-inline adub operator>(const pdouble &a, const badouble &b) { return (b < a); }
-inline adub operator<(const pdouble &a, const badouble &b) { return (b > a); }
-#else
-inline int operator!=(const badouble &a, const pdouble &b) {
+adouble operator!=(const adouble &a, const pdouble &p);
+adouble operator!=(adouble &&a, const pdouble &p);
+adouble operator!=(const pdouble &p, const adouble &b);
+adouble operator!=(const pdouble &p, adouble &&b);
+
+adouble operator==(const adouble &a, const pdouble &p);
+adouble operator==(adouble &&a, const pdouble &p);
+adouble operator==(const pdouble &p, const adouble &b);
+adouble operator==(const pdouble &p, adouble &&b);
+
+adouble operator<=(const adouble &a, const pdouble &p);
+adouble operator<=(adouble &&a, const pdouble &p);
+adouble operator<=(const pdouble &p, const adouble &b);
+adouble operator<=(const pdouble &p, adouble &&b);
+
+adouble operator>=(const adouble &a, const pdouble &p);
+adouble operator>=(adouble &&a, const pdouble &p);
+adouble operator>=(const pdouble &p, const adouble &b);
+adouble operator>=(const pdouble &p, adouble &&b);
+
+adouble operator<(const adouble &a, const pdouble &p);
+adouble operator<(adouble &&a, const pdouble &p);
+adouble operator<(const pdouble &p, const adouble &b);
+adouble operator<(const pdouble &p, adouble &&b);
+
+adouble operator>(const adouble &a, const pdouble &p);
+adouble operator>(adouble &&a, const pdouble &p);
+adouble operator>(const pdouble &p, const adouble &b);
+adouble operator>(const pdouble &p, adouble &&b);
+
+#else  // ADOLC_ADVANCED_BRANCHING
+
+inline int operator!=(const pdouble &a, const adouble &b) { return (b != a); }
+inline int operator==(const pdouble &a, const adouble &b) { return (b == a); }
+inline int operator<=(const pdouble &a, const adouble &b) { return (b >= a); }
+inline int operator>=(const pdouble &a, const adouble &b) { return (b <= a); }
+inline int operator>(const pdouble &a, const adouble &b) { return (b < a); }
+inline int operator<(const pdouble &a, const adouble &b) { return (b > a); }
+
+inline int operator!=(const adouble &a, const pdouble &b) {
   return ((a - b) != 0);
 }
-inline int operator==(const badouble &a, const pdouble &b) {
+inline int operator==(const adouble &a, const pdouble &b) {
   return ((a - b) == 0);
 }
-inline int operator<=(const badouble &a, const pdouble &b) {
+inline int operator<=(const adouble &a, const pdouble &b) {
   return ((a - b) <= 0);
 }
-inline int operator>=(const badouble &a, const pdouble &b) {
+inline int operator>=(const adouble &a, const pdouble &b) {
   return ((a - b) >= 0);
 }
-inline int operator>(const badouble &a, const pdouble &b) {
+inline int operator>(const adouble &a, const pdouble &b) {
   return ((a - b) > 0);
 }
-inline int operator<(const badouble &a, const pdouble &b) {
+inline int operator<(const adouble &a, const pdouble &b) {
   return ((a - b) < 0);
 }
-inline int operator!=(const pdouble &a, const badouble &b) { return (b != a); }
-inline int operator==(const pdouble &a, const badouble &b) { return (b == a); }
-inline int operator<=(const pdouble &a, const badouble &b) { return (b >= a); }
-inline int operator>=(const pdouble &a, const badouble &b) { return (b <= a); }
-inline int operator>(const pdouble &a, const badouble &b) { return (b < a); }
-inline int operator<(const pdouble &a, const badouble &b) { return (b > a); }
-#endif
+#endif // ADOLC_ADVANCED_BRANCHING
 
-#if !defined(SWIGPRE)
-inline adub operator+(const pdouble &a, const badouble &b) { return (b + a); }
-
-inline adub operator+(const pdouble &a, double b) { return (b + adub(a)); }
-
-inline adub operator+(double a, const pdouble &b) { return (a + adub(b)); }
-
-inline adub operator-(const pdouble &a, const badouble &b) {
-  return ((-b) + a);
-}
-
-inline adub operator-(const pdouble &a, double b) { return (adub(a) - b); }
-
-inline adub operator-(double a, const pdouble &b) { return (a + (-b)); }
-
-inline adub operator*(const pdouble &a, const badouble &b) { return (b * a); }
-
-inline adub operator*(const pdouble &a, double b) { return (b * adub(a)); }
-
-inline adub operator*(double a, const pdouble &b) { return (a * adub(b)); }
-
-inline adub operator/(const badouble &a, const pdouble &b) {
-  return (a * recipr(b));
-}
-
-inline adub operator/(double a, const pdouble &b) { return (a * recipr(b)); }
-
-inline adub operator/(const pdouble &a, double b) { return (adub(a) / b); }
-
-inline adub fmax(const badouble &y, const pdouble &d) {
-  return (-fmin(-d, -y));
-}
-
-inline adub fmax(const pdouble &a, const badouble &b) { return fmax(b, a); }
-
-inline adub fmin(const pdouble &a, const badouble &b) { return fmin(b, a); }
-
-inline adub fmin(const badouble &a, const pdouble &b) {
-  return fmin(a, adub(b));
-}
-
+inline friend adouble operator+(const pdouble &, const adouble &);
+inline friend adouble operator+(const pdouble &, double);
+inline friend adouble operator+(double, const pdouble &);
+friend ADOLC_DLL_EXPORT adouble operator+(const adouble &, const pdouble &);
+friend ADOLC_DLL_EXPORT adouble operator-(const pdouble &);
+friend ADOLC_DLL_EXPORT adouble operator-(const adouble &, const pdouble &);
+inline friend adouble operator-(const pdouble &, double);
+inline friend adouble operator-(double, const pdouble &);
+inline friend adouble operator-(const pdouble &, const adouble &);
+friend ADOLC_DLL_EXPORT adouble operator*(const adouble &, const pdouble &);
+inline friend adouble operator*(const pdouble &, const adouble &);
+inline friend adouble operator*(const pdouble &, double);
+inline friend adouble operator*(double, const pdouble &);
+friend ADOLC_DLL_EXPORT adouble recipr(const pdouble &);
+inline friend adouble operator/(const adouble &, const pdouble &);
+inline friend adouble operator/(double, const pdouble &);
+inline friend adouble operator/(const pdouble &, double);
+friend ADOLC_DLL_EXPORT adouble operator/(const pdouble &, const adouble &);
+friend ADOLC_DLL_EXPORT adouble pow(const adouble &, const pdouble &);
+inline friend adouble fmax(const pdouble &, const adouble &);
+inline friend adouble fmax(const adouble &, const pdouble &);
+inline friend adouble fmin(const pdouble &, const adouble &);
+inline friend adouble fmin(const adouble &, const pdouble &);
+/*--------------------------------------------------------------------------*/
 /* unary operators (friends) */
-inline adub exp(const pdouble &p) { return exp(adub(p)); }
-inline adub log(const pdouble &p) { return log(adub(p)); }
-inline adub sqrt(const pdouble &p) { return sqrt(adub(p)); }
-inline adub cbrt(const pdouble &p) { return cbrt(adub(p)); }
-inline adub sin(const pdouble &p) { return sin(adub(p)); }
-inline adub cos(const pdouble &p) { return cos(adub(p)); }
-inline adub tan(const pdouble &p) { return tan(adub(p)); }
-inline adub asin(const pdouble &p) { return asin(adub(p)); }
-inline adub acos(const pdouble &p) { return acos(adub(p)); }
-inline adub atan(const pdouble &p) { return atan(adub(p)); }
+inline friend ADOLC_DLL_EXPORT adouble exp(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble log(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble sqrt(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble cbrt(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble sin(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble cos(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble tan(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble asin(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble acos(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble atan(const pdouble &);
 
 /*--------------------------------------------------------------------------*/
 /* special operators (friends) */
 /* no internal use of condassign: */
-inline adub pow(const pdouble &p, double q) { return pow(adub(p), q); }
-inline adub log10(const pdouble &p) { return log10(adub(p)); }
+inline friend ADOLC_DLL_EXPORT adouble pow(const pdouble &, double);
+inline friend ADOLC_DLL_EXPORT adouble log10(const pdouble &);
 
 /* Additional ANSI C standard Math functions Added by DWJ on 8/6/90 */
-inline adub sinh(const pdouble &p) { return sinh(adub(p)); }
-inline adub cosh(const pdouble &p) { return cosh(adub(p)); }
-inline adub tanh(const pdouble &p) { return tanh(adub(p)); }
-inline adub asinh(const pdouble &p) { return asinh(adub(p)); }
-inline adub acosh(const pdouble &p) { return acosh(adub(p)); }
-inline adub atanh(const pdouble &p) { return atanh(adub(p)); }
-inline adub erf(const pdouble &p) { return erf(adub(p)); }
-inline adub erfc(const pdouble &p) { return erfc(adub(p)); }
-inline adub fabs(const pdouble &p) { return fabs(adub(p)); }
-inline adub ceil(const pdouble &p) { return ceil(adub(p)); }
-inline adub floor(const pdouble &p) { return floor(adub(p)); }
+inline friend ADOLC_DLL_EXPORT adouble sinh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble cosh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble tanh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble asinh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble acosh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble atanh(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble erf(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble erfc(const pdouble &);
 
-inline adub fmax(const pdouble &p, const pdouble &q) {
-  return fmax(adub(p), adub(q));
-}
-inline adub fmax(double p, const pdouble &q) { return fmax(p, adub(q)); }
-inline adub fmax(const pdouble &p, double q) { return fmax(adub(p), q); }
-inline adub fmin(const pdouble &p, const pdouble &q) {
-  return fmin(adub(p), adub(q));
-}
-inline adub fmin(double p, const pdouble &q) { return fmin(p, adub(q)); }
-inline adub fmin(const pdouble &p, double q) { return fmin(adub(p), q); }
+inline friend ADOLC_DLL_EXPORT adouble fabs(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble ceil(const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble floor(const pdouble &);
 
-inline adub ldexp(const pdouble &p, int n) { return ldexp(adub(p), n); }
-inline adub frexp(const pdouble &p, int *n) { return frexp(adub(p), n); }
+inline friend ADOLC_DLL_EXPORT adouble fmax(const pdouble &, const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble fmax(double, const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble fmax(const pdouble &, double);
+inline friend ADOLC_DLL_EXPORT adouble fmin(const pdouble &, const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble fmin(double, const pdouble &);
+inline friend ADOLC_DLL_EXPORT adouble fmin(const pdouble &, double);
+
+inline friend ADOLC_DLL_EXPORT adouble ldexp(const pdouble &, int);
+inline friend ADOLC_DLL_EXPORT adouble frexp(const pdouble &, int *);
+
+/*--------------------------------------------------------------------------*/
+
+friend ADOLC_DLL_EXPORT adouble pow(const pdouble &, const adouble &);
+#endif
+#endif
+
+#if !defined(SWIGPRE)
+inline adouble operator+(const pdouble &a, const adouble &b) { return (b + a); }
+
+inline adouble operator+(const pdouble &a, double b) {
+  return (b + adouble(a));
+}
+
+inline adouble operator+(double a, const pdouble &b) {
+  return (a + adouble(b));
+}
+
+inline adouble operator-(const pdouble &a, const adouble &b) {
+  return ((-b) + a);
+}
+
+inline adouble operator-(const pdouble &a, double b) {
+  return (adouble(a) - b);
+}
+
+inline adouble operator-(double a, const pdouble &b) { return (a + (-b)); }
+
+inline adouble operator*(const pdouble &a, const adouble &b) { return (b * a); }
+
+inline adouble operator*(const pdouble &a, double b) {
+  return (b * adouble(a));
+}
+
+inline adouble operator*(double a, const pdouble &b) {
+  return (a * adouble(b));
+}
+
+inline adouble operator/(const adouble &a, const pdouble &b) {
+  return (a * recipr(b));
+}
+
+inline adouble operator/(double a, const pdouble &b) { return (a * recipr(b)); }
+
+inline adouble operator/(const pdouble &a, double b) {
+  return (adouble(a) / b);
+}
+
+inline adouble fmax(const adouble &y, const pdouble &d) {
+  return (-fmin(-d, -y));
+}
+
+inline adouble fmax(const pdouble &a, const adouble &b) { return fmax(b, a); }
+
+inline adouble fmin(const pdouble &a, const adouble &b) { return fmin(b, a); }
+
+inline adouble fmin(const adouble &a, const pdouble &b) {
+  return fmin(a, adouble(b));
+}
+
+/* unary operators (friends) */
+inline adouble exp(const pdouble &p) { return exp(adouble(p)); }
+inline adouble log(const pdouble &p) { return log(adouble(p)); }
+inline adouble sqrt(const pdouble &p) { return sqrt(adouble(p)); }
+inline adouble cbrt(const pdouble &p) { return cbrt(adouble(p)); }
+inline adouble sin(const pdouble &p) { return sin(adouble(p)); }
+inline adouble cos(const pdouble &p) { return cos(adouble(p)); }
+inline adouble tan(const pdouble &p) { return tan(adouble(p)); }
+inline adouble asin(const pdouble &p) { return asin(adouble(p)); }
+inline adouble acos(const pdouble &p) { return acos(adouble(p)); }
+inline adouble atan(const pdouble &p) { return atan(adouble(p)); }
+
+/*--------------------------------------------------------------------------*/
+/* special operators (friends) */
+/* no internal use of condassign: */
+inline adouble pow(const pdouble &p, double q) { return pow(adouble(p), q); }
+inline adouble log10(const pdouble &p) { return log10(adouble(p)); }
+
+/* Additional ANSI C standard Math functions Added by DWJ on 8/6/90 */
+inline adouble sinh(const pdouble &p) { return sinh(adouble(p)); }
+inline adouble cosh(const pdouble &p) { return cosh(adouble(p)); }
+inline adouble tanh(const pdouble &p) { return tanh(adouble(p)); }
+inline adouble asinh(const pdouble &p) { return asinh(adouble(p)); }
+inline adouble acosh(const pdouble &p) { return acosh(adouble(p)); }
+inline adouble atanh(const pdouble &p) { return atanh(adouble(p)); }
+inline adouble erf(const pdouble &p) { return erf(adouble(p)); }
+inline adouble erfc(const pdouble &p) { return erfc(adouble(p)); }
+inline adouble fabs(const pdouble &p) { return fabs(adouble(p)); }
+inline adouble ceil(const pdouble &p) { return ceil(adouble(p)); }
+inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
+
+inline adouble fmax(const pdouble &p, const pdouble &q) {
+  return fmax(adouble(p), adouble(q));
+}
+inline adouble fmax(double p, const pdouble &q) { return fmax(p, adouble(q)); }
+inline adouble fmax(const pdouble &p, double q) { return fmax(adouble(p), q); }
+inline adouble fmin(const pdouble &p, const pdouble &q) {
+  return fmin(adouble(p), adouble(q));
+}
+inline adouble fmin(double p, const pdouble &q) { return fmin(p, adouble(q)); }
+inline adouble fmin(const pdouble &p, double q) { return fmin(adouble(p), q); }
+
+inline adouble ldexp(const pdouble &p, int n) { return ldexp(adouble(p), n); }
+inline adouble frexp(const pdouble &p, int *n) { return frexp(adouble(p), n); }
 #endif
 
 /*--------------------------------------------------------------------------*/
