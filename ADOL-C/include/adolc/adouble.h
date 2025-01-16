@@ -57,11 +57,19 @@ public:
   adouble &operator=(const adouble &a);
   adouble &operator=(adouble &&a);
 
-  double getValue() const;
+  inline double getValue() const {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+  }
   inline double value() const { return getValue(); };
   inline size_t getLoc() const { return tape_loc_.loc_; };
 
-  void setValue(const double coval);
+  inline void setValue(const double coval) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
+  }
 
   explicit operator double() const;
   explicit operator const double &() const;
