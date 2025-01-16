@@ -34,7 +34,7 @@ public:
   inline pdouble getparam(size_t loc_) { return padouble{loc_}; };
   explicit operator pdouble *() const;
   friend locint mkparam_idx(double pval);
-  operator adouble() const;
+  explicit operator adouble() const;
 
   ADOLC_DLL_EXPORT pdouble getparam(locint index);
   ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
@@ -102,9 +102,6 @@ inline adouble operator<(const pdouble &p, adouble &&a) {
 inline bool operator!=(const adouble &a, const pdouble &p) {
   return ((a - p) != 0);
 }
-inline bool operator!=(adouble &&a, const pdouble &p) {
-  return ((std::move(a) - p) != 0);
-}
 inline bool operator!=(const pdouble &p, const adouble &a) { return (a != p); }
 inline bool operator!=(const pdouble &p, adouble &&a) {
   return (std::move(a) != p);
@@ -112,9 +109,6 @@ inline bool operator!=(const pdouble &p, adouble &&a) {
 
 inline bool operator==(const adouble &a, const pdouble &p) {
   return ((a - p) == 0);
-}
-inline bool operator==(adouble &&a, const pdouble &p) {
-  return ((std::move(a) - p) == 0);
 }
 inline bool operator==(const pdouble &p, const adouble &a) { return (a == p); }
 inline bool operator==(const pdouble &p, adouble &&a) {
@@ -124,9 +118,6 @@ inline bool operator==(const pdouble &p, adouble &&a) {
 inline bool operator<=(const adouble &a, const pdouble &p) {
   return ((a - p) <= 0);
 }
-inline bool operator<=(adouble &&a, const pdouble &p) {
-  return ((std::move(a) - p) <= 0);
-}
 inline bool operator<=(const pdouble &p, const adouble &a) { return (a >= p); }
 inline bool operator<=(const pdouble &p, adouble &&a) {
   return (std::move(a) >= p);
@@ -134,9 +125,6 @@ inline bool operator<=(const pdouble &p, adouble &&a) {
 
 inline bool operator>=(const adouble &a, const pdouble &p) {
   return ((a - p) >= 0);
-}
-inline bool operator>=(adouble &a, const pdouble &p) {
-  return ((std::move(a) - p) >= 0);
 }
 inline bool operator>=(const pdouble &p, const adouble &a) { return (a <= p); }
 inline bool operator>=(const pdouble &p, adouble &&a) {
@@ -146,9 +134,6 @@ inline bool operator>=(const pdouble &p, adouble &&a) {
 inline bool operator>(const adouble &a, const pdouble &p) {
   return ((a - p) > 0);
 }
-inline bool operator>(adouble &&a, const pdouble &p) {
-  return ((std::move(a) - p) > 0);
-}
 inline bool operator>(const pdouble &p, const adouble &a) { return (a < p); }
 inline bool operator>(const pdouble &p, adouble &&a) {
   return (std::move(a) < p);
@@ -156,9 +141,6 @@ inline bool operator>(const pdouble &p, adouble &&a) {
 
 inline bool operator<(const adouble &a, const pdouble &p) {
   return ((a - p) < 0);
-}
-inline bool operator<(adouble &&a, const pdouble &p) {
-  return ((std::move(a) - p) < 0);
 }
 inline bool operator<(const pdouble &p, const adouble &a) { return (a > p); }
 inline bool operator<(const pdouble &p, adouble &&a) {
@@ -214,10 +196,7 @@ adouble recipr(const pdouble &);
 adouble operator/(const pdouble &p, const adouble &a);
 adouble operator/(const pdouble &p, adouble &&a);
 inline adouble operator/(const adouble &a, const pdouble &p) {
-  return a * recipr(b);
-};
-inline adouble operator/(adouble &&a, const pdouble &p) {
-  return std::move(a) * recipr(b);
+  return a * recipr(p);
 };
 inline adouble operator/(const pdouble &p, const double coval) {
   return adouble(p) / coval;
@@ -253,15 +232,9 @@ inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
 inline adouble fmin(const adouble &a, const pdouble &p) {
   return fmin(a, adouble(p));
 }
-inline adouble fmin(adouble &&a, const pdouble &p) {
-  return fmin(std::move(a), adouble(p));
-}
 inline adouble fmin(const pdouble &p, const adouble &a) { return fmin(p, a); }
-inline adouble fmin(const pdouble &p, adouble &&a) {
-  return fmin(p, std::move(a));
-}
 inline adouble fmin(const pdouble &p, const pdouble &q) {
-  return fmin(adouble(p), adouble(q));
+  return fmin(p, adouble(q));
 }
 inline adouble fmin(const double coval, const pdouble &p) {
   return fmin(coval, adouble(p));
@@ -271,17 +244,11 @@ inline adouble fmin(const pdouble &p, const double coval) {
 }
 
 inline adouble fmax(const adouble &a, const pdouble &p) {
-  return (-fmin(-a, -p));
-}
-inline adouble fmax(adouble &&a, const pdouble &p) {
-  return (-fmin(-std::move(a), -p));
+  return fmax(a, adouble(p));
 }
 inline adouble fmax(const pdouble &p, const adouble &a) { return fmax(a, p); }
-inline adouble fmax(const pdouble &p, adouble &&a) {
-  return fmax(std::move(a), p);
-}
 inline adouble fmax(const pdouble &p, const pdouble &q) {
-  return fmax(adouble(p), adouble(q));
+  return fmax(p, adouble(q));
 }
 inline adouble fmax(const double coval, const pdouble &p) {
   return fmax(coval, adouble(p));
