@@ -6208,3 +6208,104 @@ void condeqassign(adouble &res, const adouble &cond, const adouble &arg) {
 
 #endif
 }
+
+void adolc_vec_copy(adouble *const dest, const adouble *const src,
+                    size_t size) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  if (dest[size - 1].getLoc() - dest[0].getLoc() != size - 1 ||
+      src[size - 1].getLoc() - src[0].getLoc() != size - 1)
+    fail(ADOLC_VEC_LOCATIONGAP);
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    put_op(vec_copy);
+    ADOLC_PUT_LOCINT(src[0].getLoc());
+    ADOLC_PUT_LOCINT(size);
+    ADOLC_PUT_LOCINT(dest[0].getLoc());
+
+    for (size_t i = 0; i < size; ++i) {
+      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[dest[0].getLoc() + i]);
+    }
+  }
+  for (size_t i = 0; i < size; ++i)
+    ADOLC_GLOBAL_TAPE_VARS.store[dest[0].getLoc() + i] =
+        ADOLC_GLOBAL_TAPE_VARS.store[src[0].getLoc() + i];
+}
+
+// requires a and b to be of size "size"
+adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
+                      size_t size) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  if (vec_a[size - 1].getLoc() - vec_a[0].getLoc() != size - 1 ||
+      vec_b[size - 1].getLoc() - vec_b[0].getLoc() != size - 1)
+    fail(ADOLC_VEC_LOCATIONGAP);
+
+  adouble ret_adouble(tape_location{next_loc()});
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(vec_dot);
+    ADOLC_PUT_LOCINT(a[0].getLoc());
+    ADOLC_PUT_LOCINT(b[0].getLoc());
+    ADOLC_PUT_LOCINT(size);
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc());
+
+    ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2 * size;
+
+    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()]);
+  }
+
+  ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] = 0;
+
+  for (size_t i = 0; i < size; ++i)
+    ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] +=
+        ADOLC_GLOBAL_TAPE_VARS.store[a[0].getLoc() + i] *
+        ADOLC_GLOBAL_TAPE_VARS.store[b[0].getLoc() + i];
+
+  return ret_adouble;
+}
+
+// requires res, b and c to be of size "size"
+void adolc_vec_axpy(adouble *const res, const adouble &a,
+                    const adouble *const vec_a, const adouble *const vec_b,
+                    size_t size) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  if (res[size - 1].getLoc() - res[0].getLoc() != size - 1 ||
+      vec_a[size - 1].getLoc() - vec_a[0].getLoc() != size - 1 ||
+      vec_b[size - 1].getLoc() - vec_b[0].getLoc() != size - 1)
+    fail(ADOLC_VEC_LOCATIONGAP);
+
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
+    put_op(vec_axpy);
+    ADOLC_PUT_LOCINT(a.getLoc());
+    ADOLC_PUT_LOCINT(vec_a[0].getLoc());
+    ADOLC_PUT_LOCINT(vec_b[0].getLoc());
+    ADOLC_PUT_LOCINT(size);
+    ADOLC_PUT_LOCINT(res[0].getLoc());
+    ADOLC_CURRENT_TAPE_INFOS.num_eq_prod += 2 * size - 1;
+
+    for (size_t i = 0; i < size; ++i) {
+      ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
+      if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[res[0].getLoc() + i]);
+    }
+  }
+  for (size_t i = 0; i < size; ++i)
+    ADOLC_GLOBAL_TAPE_VARS.store[res[0].getLoc() + i] =
+        ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] *
+            ADOLC_GLOBAL_TAPE_VARS.store[vec_a[0].getLoc() + i] +
+        ADOLC_GLOBAL_TAPE_VARS.store[vec_b[0].getLoc() + i];
+}

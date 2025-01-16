@@ -354,6 +354,19 @@ void ADOLC_DLL_EXPORT condeqassign(double &res, const double &cond,
 void ADOLC_DLL_EXPORT condeqassign(double &res, const double &cond,
                                    const double &arg);
 
+// copies src to dest; both should be of size "size"
+void ADOLC_DLL_EXPORT adolc_vec_copy(adouble *const dest,
+                                     const adouble *const src, size_t size);
+
+/* computes canonical scalarproduct, src and dest must have size "size" */
+void ADOLC_DLL_EXPORT adolc_vec_dot(adouble *const dest,
+                                    const adouble *const src, size_t size);
+
+/* res = a*vec_a + vec_b, vec_a and vec_b must have same size "size" */
+void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const res, const adouble &a,
+                                     const adouble *const vec_a,
+                                     const adouble *const vec_b, size_t size);
+
 /* numeric_limits<adouble> specialization
  *
  * All methods return double instead of adouble, because these values
