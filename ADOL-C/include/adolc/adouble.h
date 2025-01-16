@@ -188,6 +188,7 @@ ADOLC_DLL_EXPORT adouble operator-(adouble &&a);
 ADOLC_DLL_EXPORT adouble operator+(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator+(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator+(const adouble &a, adouble &&b);
+inline adouble operator+(adouble &&a, adouble &&b) { return std::move(a) + b; }
 
 ADOLC_DLL_EXPORT adouble operator+(const double coval, const adouble &a);
 ADOLC_DLL_EXPORT adouble operator+(const double coval, adouble &&a);
@@ -198,6 +199,7 @@ adouble operator+(adouble &&a, const double coval);
 ADOLC_DLL_EXPORT adouble operator-(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator-(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator-(const adouble &a, adouble &&b);
+inline adouble operator-(adouble &&a, adouble &&b) { return std::move(a) - b; }
 
 ADOLC_DLL_EXPORT adouble operator-(const double coval, const adouble &a);
 ADOLC_DLL_EXPORT adouble operator-(const double coval, adouble &&a);
@@ -208,6 +210,7 @@ adouble operator-(adouble &&a, const double coval);
 ADOLC_DLL_EXPORT adouble operator*(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator*(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator*(const adouble &a, adouble &&b);
+inline adouble operator*(adouble &&a, adouble &&b) { return std::move(a) * b; }
 
 ADOLC_DLL_EXPORT adouble operator*(const double coval, const adouble &a);
 ADOLC_DLL_EXPORT adouble operator*(const double coval, adouble &&a);
@@ -218,6 +221,7 @@ adouble operator*(adouble &&a, const double coval);
 ADOLC_DLL_EXPORT adouble operator/(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator/(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble operator/(const adouble &a, adouble &&b);
+inline adouble operator/(adouble &&a, adouble &&b) { return std::move(a) / b; }
 
 ADOLC_DLL_EXPORT adouble operator/(const double coval, const adouble &a);
 ADOLC_DLL_EXPORT adouble operator/(const double coval, adouble &&a);
@@ -296,6 +300,7 @@ ADOLC_DLL_EXPORT adouble fabs(adouble &&a);
 ADOLC_DLL_EXPORT adouble fmin(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble fmin(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble fmin(const adouble &a, adouble &&b);
+inline adouble fmin(adouble &&a, adouble &&b) { return fmin(std::move(a), b); }
 
 ADOLC_DLL_EXPORT adouble fmin(const adouble &a, const double coval);
 ADOLC_DLL_EXPORT adouble fmin(adouble &&a, const double coval);
@@ -306,6 +311,7 @@ ADOLC_DLL_EXPORT adouble fmin(const double coval, adouble &&a);
 ADOLC_DLL_EXPORT adouble fmax(const adouble &a, const adouble &b);
 ADOLC_DLL_EXPORT adouble fmax(adouble &&a, const adouble &b);
 ADOLC_DLL_EXPORT adouble fmax(const adouble &a, adouble &&b);
+inline adouble fmax(adouble &&a, adouble &&b) { return fmax(std::move(a), b); }
 
 ADOLC_DLL_EXPORT adouble fmax(const adouble &a, const double coval);
 ADOLC_DLL_EXPORT adouble fmax(adouble &&a, const double coval);
