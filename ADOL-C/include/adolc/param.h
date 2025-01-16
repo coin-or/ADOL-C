@@ -12,38 +12,41 @@
 
 ----------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_PARAM_H)
-#define ADOLC_PARAM_H 1
+#ifndef ADOLC_PARAM_H
+#define ADOLC_PARAM_H
 #include "adouble.h"
 #include "internal/common.h"
-#if defined(__cplusplus)
-
-#include <cstdio>
-#include <stdexcept>
 
 class ADOLC_DLL_EXPORT pdouble {
 
 public:
-  ~pdouble() {}
+  ~pdouble() = default;
   pdouble(const pdouble &) = delete;
-  pdouble(void) = delete;
+  pdouble() = delete;
+  pdouble(pdouble &&) = delete;
+  pdouble &operator=(pdouble &&) = delete;
 
-  double getValue() const;
+  pdouble(const double pval);
+  explicit pdouble(tape_location tape_loc);
 
-  static padouble mkparam(double pval);
-  inline pdouble getparam(size_t loc_) { return padouble{loc_}; };
-  explicit operator pdouble *() const;
-  friend locint mkparam_idx(double pval);
+  static pdouble mkparam(const double pval);
+  static inline pdouble getparam(size_t loc_) { return pdouble{loc_}; };
   explicit operator adouble() const;
 
-  ADOLC_DLL_EXPORT pdouble getparam(locint index);
-  ADOLC_DLL_EXPORT locint mkparam_idx(double pval);
+  inline size_t getLoc() const { return tape_loc_.loc_; }
+  inline double getValue() const {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_];
+  }
+  inline void setValue(const double pval) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_] = pval;
+  }
 
 private:
   tape_location tape_loc_;
-
-  pdouble(double pval);
-  pdouble(locint index);
 };
 
 #ifdef ADOLC_ADVANCED_BRANCHING
@@ -148,8 +151,7 @@ inline bool operator<(const pdouble &p, adouble &&a) {
 }
 #endif // ADOLC_ADVANCED_BRANCHING
 
-adouble operator-(const pdouble &);
-
+adouble operator-(const pdouble &p);
 adouble operator+(const adouble &a, const pdouble &p);
 adouble operator+(adouble &&a, const pdouble &p);
 inline adouble operator+(const pdouble &p, const adouble &a) { return a + p; };
@@ -273,15 +275,5 @@ inline adouble pow(const pdouble &p, const double coval) {
 inline adouble pow(const double coval, const pdouble &p) {
   return pow(coval, adouble(p));
 }
-/****************************************************************************/
-/* Returns the number of parameters recorded on tape                        */
-/****************************************************************************/
-ADOLC_DLL_EXPORT size_t get_num_param(short tag);
 
-/****************************************************************************/
-/* Overrides the parameters for the next evaluations. This will invalidate  */
-/* the taylor stack, so next reverse call will fail, if not preceded by a   */
-/* forward call after setting the parameters.                               */
-/****************************************************************************/
-ADOLC_DLL_EXPORT void set_param_vec(short tag, size_t numparam,
-                                    revreal *paramvec);
+#endif // ADOLC_PARAM_H

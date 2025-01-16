@@ -15,276 +15,76 @@
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
-#include <adolc/adouble.h>
+#include <adolc/param.h>
 
+pdouble::pdouble(const double pval) {
 #include <limits>
+  using std::numeric_limits;
 
-pdouble::pdouble(double pval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  _val = pval;
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    _idx = ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc();
-    ADOLC_GLOBAL_TAPE_VARS.pStore[_idx] = _val;
-  } else {
-    _idx = std::numeric_limits<locint>::max();
+    tape_loc_ =
+        tape_location{ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc()};
+    ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_] = pval;
   }
+  tape_loc_ = tape_location{numeric_limits<size_t>::max()};
 }
 
-pdouble::pdouble(locint idx) {
+pdouble::pdouble(tape_location tape_loc) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  if (idx < ADOLC_GLOBAL_TAPE_VARS.numparam) {
-    _val = ADOLC_GLOBAL_TAPE_VARS.pStore[idx];
-    _idx = idx;
+  if (tape_loc.loc_ < ADOLC_GLOBAL_TAPE_VARS.numparam) {
+    tape_loc_ = tape_loc;
   } else {
     fprintf(DIAG_OUT,
             "ADOL-C error: Parameter index %zu out of bounds, "
             "# existing parameters = %zu\n",
-            idx, ADOLC_GLOBAL_TAPE_VARS.numparam);
+            tape_loc.loc_, ADOLC_GLOBAL_TAPE_VARS.numparam);
     adolc_exit(-1, "", __func__, __FILE__, __LINE__);
   }
 }
 
-pdouble::operator pdouble *() const {
-  pdouble *ret = new pdouble(_idx);
-  return ret;
-}
-
-pdouble padouble::mkparam(double pval) {
-  locint _idx;
+pdouble pdouble::mkparam(const double pval) {
+#include <limits>
+  using std::numeric_limits;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    _idx = ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc();
-    ADOLC_GLOBAL_TAPE_VARS.pStore[_idx] = pval;
-  } else {
-    return pval;
+    tape_location tape_loc{ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc()};
+    ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc.loc_] = pval;
+    return pdouble(tape_loc);
   }
-  return _idx;
+  return pdouble(tape_location{numeric_limits<size_t>::max()});
 }
 
-pdouble getparam(locint index) { return index; }
-
-locint mkparam_idx(double pval) {
-  locint _idx;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    _idx = ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc();
-    ADOLC_GLOBAL_TAPE_VARS.pStore[_idx] = pval;
-  } else {
-    fprintf(DIAG_OUT, "ADOL-C error: cannot define indexed parameter "
-                      "while tracing is turned off!\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
-  return _idx;
-}
-
-pdouble::operator adub() const {
-  locint location;
+pdouble::operator adouble() const {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  location = next_loc();
+  adouble ret_adouble(tape_location{next_loc()});
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     put_op(assign_p);
-    ADOLC_PUT_LOCINT(_idx);
-    ADOLC_PUT_LOCINT(location);
+    ADOLC_PUT_LOCINT(tape_loc_.loc_);
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc());
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[location]);
-  }
-  ADOLC_GLOBAL_TAPE_VARS.store[location] = _val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[location] = true;
-#endif
-  return location;
-}
-
-badouble &badouble::operator=(const pdouble &p) {
-  locint loc;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  loc = this->loc();
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(assign_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(loc);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc]);
-  }
-  ADOLC_GLOBAL_TAPE_VARS.store[loc] = p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[loc] = true;
-#endif
-  return *this;
-}
-
-adouble &adouble::operator=(const pdouble &p) {
-  this->loc();
-  (*this).badouble::operator=(p);
-  return (*this);
-}
-
-adubref &adubref::operator=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(ref_assign_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(location);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
-  }
-  ADOLC_GLOBAL_TAPE_VARS.store[refloc] = p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[refloc] = true;
-#endif
-  return *this;
-}
-
-double pdouble::getValue() const {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  return ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_];
-}
-
-badouble &badouble::operator+=(const pdouble &p) {
-  locint loc;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  loc = this->loc();
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(eq_plus_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(loc);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc]);
+      ADOLC_WRITE_SCAYLOR(ret_adouble.getValue());
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[loc] += p._val;
+  ret_adouble.setValue(this->getValue());
+
 #if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[loc] = true;
+  ADOLC_GLOBAL_TAPE_VARS.actStore[ret_adouble.getLoc()] = true;
 #endif
-  return *this;
-}
 
-adubref &adubref::operator+=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    put_op(ref_eq_plus_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(location);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[refloc] += p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[refloc] = true;
-#endif
-  return *this;
-}
-
-badouble &badouble::operator-=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS
-          .traceFlag) { // old: write_d_same_arg(eq_min_d,loc(),coval);
-    put_op(eq_min_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(loc());
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[loc()] -= p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = true;
-#endif
-  return *this;
-}
-
-adubref &adubref::operator-=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS
-          .traceFlag) { // old: write_d_same_arg(eq_min_d,location,coval);
-    put_op(ref_eq_min_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(location);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[refloc] -= p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[refloc] = true;
-#endif
-  return *this;
-}
-
-badouble &badouble::operator*=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS
-          .traceFlag) { // old: write_d_same_arg(eq_mult_d,loc(),coval);
-    put_op(eq_mult_p);
-    ADOLC_PUT_LOCINT(p._idx); // = coval
-    ADOLC_PUT_LOCINT(loc());  // = res
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[loc()] *= p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] = true;
-#endif
-  return *this;
-}
-
-adubref &adubref::operator*=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  if (ADOLC_CURRENT_TAPE_INFOS
-          .traceFlag) { // old: write_d_same_arg(eq_mult_d,location,coval);
-    put_op(ref_eq_mult_p);
-    ADOLC_PUT_LOCINT(p._idx);
-    ADOLC_PUT_LOCINT(location);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[refloc]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[refloc] *= p._val;
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[refloc] = true;
-#endif
-  return *this;
+  return ret_adouble;
 }
 
 adouble operator-(const pdouble &p) {
@@ -304,7 +104,7 @@ adouble operator-(const pdouble &p) {
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
       ADOLC_WRITE_SCAYLOR(ret_adouble.getValue());
   }
-  ret_adouble.set(-p._va);
+  ret_adouble.setValue(-p.getValue());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
   ADOLC_GLOBAL_TAPE_VARS.actStore[ret_adouble.getLoc()] = true;
@@ -547,7 +347,7 @@ adouble operator*(const adouble &a, const pdouble &p) {
   return ret_adouble;
 }
 
-adouble operator*(const adouble &a, const pdouble &p) {
+adouble operator*(adouble &&a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -820,11 +620,10 @@ adouble pow(const pdouble &p, const adouble &a) {
   assert(p.getValue() == 0 && "\nADOL-C message: zero basis deactivated\n ");
 
   adouble a1, a2, ret;
-  condassign(a1, -y,
-             adouble(ADOLC_MATH_NSP::pow(p.getValue(), a.getValue()),
-                     pow(p, a.getValue)));
+  condassign(a1, -a, adouble(ADOLC_MATH_NSP::pow(p.getValue(), a.getValue())),
+             pow(p, a.getValue()));
   condassign(a2, fabs(p), pow(p, a.getValue()), a1);
-  condassign(ret, p, exp(a * log(p)), a2);
+  condassign(ret, adouble(p), exp(a * log(p)), a2);
   return ret;
 }
 
