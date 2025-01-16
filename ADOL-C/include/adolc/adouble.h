@@ -20,6 +20,7 @@
 #define ADOLC_ADOUBLE_H
 
 #include <adolc/internal/common.h>
+#include <adolc/param.h>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -56,6 +57,7 @@ public:
   adouble &operator=(const double coval);
   adouble &operator=(const adouble &a);
   adouble &operator=(adouble &&a);
+  adouble &operator=(const pdouble &p);
 
   inline double getValue() const {
     ADOLC_OPENMP_THREAD_NUMBER;
@@ -76,23 +78,19 @@ public:
 
   adouble &operator+=(const double coval);
   adouble &operator+=(const adouble &a);
+  adouble &operator+=(const pdouble &p);
 
   adouble &operator-=(const double coval);
   adouble &operator-=(const adouble &a);
+  adouble &operator-=(const pdouble &p);
 
   adouble &operator*=(const double coval);
   adouble &operator*=(const adouble &a);
+  adouble &operator*=(const pdouble &p);
 
   adouble &operator/=(const double coval);
   adouble &operator/=(const adouble &a);
-
-  badouble &operator=(const pdouble &p);
-  badouble &operator+=(const pdouble &p);
-  badouble &operator-=(const pdouble &p);
-  badouble &operator*=(const pdouble &p);
-  badouble &operator/=(const pdouble &p);
-
-  inline adouble &adouble::operator/=(const padouble &p) {
+  inline adouble &adouble::operator/=(const pdouble &p) {
     *this *= recipr(p);
     return *this;
   }
