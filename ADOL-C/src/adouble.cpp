@@ -266,22 +266,6 @@ adouble &adouble::operator=(adouble &&a) noexcept {
 }
 
 /****************************************************************************/
-/*             Getter and Setter for the value stored at the tape location and
- * getter for location */
-
-double adouble::getValue() const {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
-}
-
-void adouble::setValue(const double coval) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
-}
-
-/****************************************************************************/
 /*            conversions */
 
 adouble::operator double() const {
@@ -5460,10 +5444,9 @@ adouble atan2(const adouble &a, const adouble &b) {
 }
 
 adouble pow(const adouble &a, const adouble &b) {
-  assert((a.getValue() < 0 || b.getValue() >= 0) &&
-         "\nADOL-C message: exponent of zero/negative basis deactivated\n");
-  assert((a.getValue() == 0 && b.getValue()) < 0 &&
-         "\nADOL-C message: negative exponent and zero basis deactivated\n");
+  assert((a.getValue() < 0) &&
+         "\nADOL-C message: negative basis deactivated\n ");
+  assert(a.getValue() == 0 && "\nADOL-C message: zero basis deactivated\n ");
 
   adouble a1, a2, ret;
 
