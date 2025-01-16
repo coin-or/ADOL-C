@@ -13,13 +13,12 @@
 
 ---------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_ADVECTOR_H)
-#define ADOLC_ADVECTOR_H 1
+#ifndef ADOLC_ADVECTOR_H
+#define ADOLC_ADVECTOR_H
 
-#include "param.h"
+#include <adolc/param.h>
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
-#ifdef __cplusplus
 #include <vector>
 
 /****************************************************************************/
@@ -44,95 +43,82 @@ class ADOLC_DLL_EXPORT adubref {
    * Convert to a new adub as soon as used as rvalue, this is why adubref
    * is not a child of badouble, since it should never occur as rvalue.
    */
-  friend ADOLC_DLL_EXPORT class adub;
-  friend ADOLC_DLL_EXPORT class advector;
-  friend ADOLC_DLL_EXPORT class pdouble;
-
-protected:
-  locint location;
-  locint refloc;
-  explicit adubref(locint lo, locint ref);
-  explicit adubref(void) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal default construction of adubref"
-                      " variable\n");
-    exit(-2);
-  }
-  explicit adubref(double) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal  construction of adubref"
-                      " variable from double\n");
-    exit(-2);
-  }
-  explicit adubref(const badouble &) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal  construction of adubref"
-                      " variable from badouble\n");
-    exit(-2);
-  }
-  explicit adubref(const adub &) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal  construction of adubref"
-                      " variable from adub\n");
-    exit(-2);
-  }
-  adubref(const adubref &) {
-    fprintf(DIAG_OUT, "ADOL-C error: illegal copy construction of adubref"
-                      " variable\n");
-    exit(-2);
-  }
-  bool isInit; // marker if the badouble is properly initialized
 public:
-/* adub prevents postfix operators to occur on the left
-   side of an assignment which would not work  */
-#if !defined(SWIGPRE)
-  adub operator++(int);
-  adub operator--(int);
-#else
-  adub *operator++(int);
-  adub *operator--(int);
-#endif
-  adubref &operator++(void);
-  adubref &operator--(void);
-  adubref &operator=(double);
-  adubref &operator=(const badouble &);
-  adubref &operator=(const adubref &);
-  adubref &operator=(const pdouble &);
-  adubref &operator+=(double);
-  adubref &operator+=(const badouble &);
-  adubref &operator+=(const pdouble &);
-  adubref &operator-=(double x);
-  adubref &operator-=(const badouble &);
-  adubref &operator-=(const pdouble &);
-  adubref &operator*=(double x);
-  adubref &operator*=(const badouble &);
-  adubref &operator*=(const pdouble &);
-  inline adubref &operator/=(double x);
-  inline adubref &operator/=(const badouble &);
-  inline adubref &operator/=(const pdouble &);
-
-  adubref &operator<<=(double);
-  void declareIndependent();
-  adubref &operator>>=(double &);
-  void declareDependent();
-  operator adub() const;
-#if !defined(SWIGPRE)
-  explicit operator adubref *() const;
-#endif
-  friend ADOLC_DLL_EXPORT void condassign(adubref &, const badouble &,
-                                          const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT void condassign(adubref &, const badouble &,
-                                          const badouble &);
-  friend ADOLC_DLL_EXPORT void condeqassign(adubref &, const badouble &,
-                                            const badouble &, const badouble &);
-  friend ADOLC_DLL_EXPORT void condeqassign(adubref &, const badouble &,
-                                            const badouble &);
+  explicit adubref(size_t lo, size_t ref);
+  adubref(void) = delete;
+  adubref(double) = delete;
+  adubref(const adubref &) = delete;
+  adubref(adubref &&) = delete;
+  adubref(const adouble &) = delete;
+  adubref(adouble &&) = delete;
   ~adubref();
+
+  adubref &operator=(const double coval);
+  adubref &operator=(const adouble &a);
+  adubref &operator=(const pdouble &);
+
+  inline size_t getLocation() const { return location; }
+  inline size_t getRefloc() const { return refloc; }
+  inline size_t getValue() const {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[refloc];
+  }
+
+  inline void setValue(const double coval) {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    ADOLC_GLOBAL_TAPE_VARS.store[refloc] = coval;
+  }
+  operator adouble() const;
+
+  adouble operator++(int);
+  adouble operator--(int);
+
+  adubref &operator++();
+  adubref &operator--();
+
+  adubref &operator+=(const double coval);
+  adubref &operator+=(const adouble &a);
+  adubref &operator+=(const pdouble &p);
+
+  adubref &operator-=(const double coval);
+  adubref &operator-=(const adouble &a);
+  adubref &operator-=(const pdouble &p);
+
+  adubref &operator*=(const double coval);
+  adubref &operator*=(const adouble &a);
+  adubref &operator*=(const pdouble &p);
+
+  inline adubref &adubref::operator/=(const double coval) {
+    return *this *= (1.0 / coval);
+  }
+
+  inline adubref &adubref::operator/=(const adouble &a) {
+    return *this *= (1.0 / a);
+  }
+
+  inline adubref &adubref::operator/=(const pdouble &p) {
+    return *this *= recipr(p);
+  }
+
+  adubref &operator<<=(const double coval);
+  void declareIndependent();
+  adubref &operator>>=(double &coval);
+  void declareDependent();
+
+private:
+  size_t location;
+  size_t refloc;
 };
 
-/* adolc_vec_copy(dest,src,size); */
-void ADOLC_DLL_EXPORT adolc_vec_copy(adouble *const, const adouble *const,
-                                     locint);
-/* adolc_vec_axpy(res,a,x,y,size); <=> res = a*x + y  */
-void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const, const badouble &,
-                                     const adouble *const, const adouble *const,
-                                     locint);
+void condassign(adubref &res, const adouble &cond, const adouble &arg1,
+                const adouble &arg2);
+void condassign(adubref &res, const adouble &cond, const adouble &arg);
+
+void condeqassign(adubref &res, const adouble &cond, const adouble &arg1,
+                  const adouble &arg2);
+void condeqassign(adubref &res, const adouble &cond, const adouble &arg);
 
 class advector {
 private:
@@ -162,33 +148,13 @@ public:
   }
   ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data; }
   ADOLC_DLL_EXPORT operator adouble *() { return data.data(); }
-#if !defined(SWIGPRE)
   ADOLC_DLL_EXPORT adub operator[](const badouble &index) const;
   ADOLC_DLL_EXPORT adubref operator[](const badouble &index);
-#else
-  ADOLC_DLL_EXPORT adub *operator[](const badouble &index) const;
-  ADOLC_DLL_EXPORT adubref *operator[](const badouble &index);
-#endif
   ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data[i]; }
   ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const { return data[i]; }
   ADOLC_DLL_EXPORT adouble lookupindex(const badouble &x,
                                        const badouble &y) const;
 };
 
-inline adubref &adubref::operator/=(double y) {
-  *this *= (1.0 / y);
-  return *this;
-}
-
-inline adubref &adubref::operator/=(const badouble &y) {
-  *this *= (1.0 / y);
-  return *this;
-}
-
-inline adubref &adubref::operator/=(const pdouble &p) {
-  *this *= recipr(p);
-  return *this;
-}
 #endif /* TAPELESS */
-#endif /* __cplusplus */
-#endif /* ADOLC_ADVECTOR_H */
+#endif // ADOLC_ADVECTOR_H
