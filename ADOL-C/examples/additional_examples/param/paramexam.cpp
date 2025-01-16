@@ -56,7 +56,7 @@ adouble energy_p(int n, adouble x[], double bv[]) {
   he = 0;
   for (i = 0; i < n; i++) {
     he += x[i] * log(x[i]);
-    bx += mkparam(bv[i]) * x[i];
+    bx += pdouble::mkparam(bv[i]) * x[i];
     tem = (2.0 / (1.0 + i + i)) * x[i];
     for (j = 0; j < i; j++)
       tem += (1.0 / (1.0 + i + j)) * x[j];
