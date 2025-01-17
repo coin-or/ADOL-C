@@ -21,14 +21,15 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "adouble.h"
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
-#include <adolc/adouble.h>
+#include <adolc/ad_types.h>
+#include <adolc/adolc.h>
+#include <cassert>
 
 adouble::adouble() {
-  tape_loc_{next_loc()};
+  tape_loc_ = tape_location{next_loc()};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -56,7 +57,7 @@ adouble::adouble() {
 }
 
 adouble::adouble(double coval) {
-  tape_loc_{next_loc()};
+  tape_loc_ = tape_location{next_loc()};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -90,10 +91,10 @@ adouble::adouble(double coval) {
 #endif
 }
 
-adouble::adouble(const tape_location &tape_loc) { tape_loc_{tape_loc}; }
+adouble::adouble(const tape_location &tape_loc) { tape_loc_ = tape_loc; }
 
 adouble::adouble(const adouble &a) {
-  tape_loc_{a.tape_loc_};
+  tape_loc_ = a.tape_loc_;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -145,7 +146,7 @@ adouble::adouble(const adouble &a) {
 // invalid (valid = 0). This will tell the destruction that "a" does not own its
 // location. Thus, the location is not removed from the tape.
 adouble::adouble(adouble &&a) noexcept {
-  tape_loc_.loc_{a.tape_loc_.loc};
+  tape_loc_.loc_ = a.tape_loc_.loc_;
   a.valid = 0;
 }
 
@@ -259,7 +260,7 @@ adouble &adouble::operator=(adouble &&a) noexcept {
   // remove location of this from tape to ensure it can be reused
   free_loc(tape_loc_.loc_);
 
-  tape_loc_{a.getLoc()};
+  tape_loc_ = tape_location{a.getLoc()};
   a.valid = 0;
 
   return *this;
@@ -632,12 +633,16 @@ adouble &adouble::operator/=(const adouble &a) {
   return *this;
 }
 
+adouble &adouble::operator/=(const pdouble &p) {
+  *this *= recipr(p);
+  return *this;
+}
 /****************************************************************************/
 /*                       INCREMENT / DECREMENT                              */
 
 adouble adouble::operator++(int) {
   // create adouble to store old state in it.
-  adouble ret_adouble(tape_loc{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -694,7 +699,7 @@ adouble adouble::operator++(int) {
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_)]);
+        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
 #if defined(ADOLC_TRACK_ACTIVITY)
     }
 #endif
@@ -706,7 +711,7 @@ adouble adouble::operator++(int) {
 
 adouble adouble::operator--(int) {
   // create adouble to store old state in it.
-  adouble ret_adouble(tape_loc{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -822,7 +827,7 @@ adouble &adouble::operator--() {
 
 // Assign a double value to an adouble and mark the adouble as independent on
 // the tape
-adouble &adouble::operator<<=(double input) {
+adouble &adouble::operator<<=(const double input) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -835,7 +840,7 @@ adouble &adouble::operator<<=(double input) {
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
       ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
+  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = input;
 #if defined(ADOLC_TRACK_ACTIVITY)
   ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
 #endif
@@ -878,7 +883,7 @@ adouble &adouble::operator>>=(double &output) {
     ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
   }
 
-  coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+  output = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
   return *this;
 }
 
@@ -990,7 +995,7 @@ adouble operator!=(const adouble &a, const adouble &b) {
 
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
   const double b_coval = ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double res = static_cast<double>(a_coval != b_coval);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -1036,7 +1041,7 @@ adouble operator!=(adouble &&a, const adouble &b) {
 adouble operator!=(const adouble &a, adouble &&b) { return std::move(b) != a; }
 
 adouble operator==(const adouble &a, const adouble &b) {
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
@@ -1084,7 +1089,7 @@ adouble operator==(adouble &&a, const adouble &b) {
 adouble operator==(const adouble &a, adouble &&b) { return std::move(b) == a; }
 
 adouble operator<=(const adouble &a, const adouble &b) {
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
@@ -1153,7 +1158,7 @@ adouble operator<=(const adouble &a, adouble &&b) {
   return b;
 }
 adouble operator>=(const adouble &a, const adouble &b) {
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
@@ -1223,7 +1228,7 @@ adouble operator>=(const adouble &a, adouble &&b) {
 }
 
 adouble operator<(const adouble &a, const adouble &b) {
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
@@ -1293,7 +1298,7 @@ adouble operator<(const adouble &a, adouble &&b) {
 }
 
 adouble operator>(const adouble &a, const adouble &b) {
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   const double a_coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
@@ -1375,7 +1380,7 @@ bool operator!=(const adouble &a, const double coval) {
       if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()]) {
 #endif
         put_op(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] ? neq_zero : eq_zero);
-        ADOLC_PUT_LOCIN(Ta.getLoc());
+        ADOLC_PUT_LOCINT(a.getLoc());
 #if defined(ADOLC_TRACK_ACTIVITY)
       }
 #endif
@@ -1502,13 +1507,6 @@ bool operator<(const double coval, const adouble &a) {
     return (a > 0);
 }
 
-bool operator<(const adouble &a, const double coval) {
-  if (coval)
-    return (a - coval < 0);
-  else
-    return (a < 0);
-}
-
 bool operator>(const adouble &a, const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1543,7 +1541,7 @@ bool operator>(const double coval, const adouble &a) {
 adouble operator+(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -1634,7 +1632,7 @@ adouble operator-(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -1733,7 +1731,7 @@ adouble operator+(const adouble &a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] +
                         ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
 
@@ -1904,7 +1902,7 @@ adouble operator+(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = coval + ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -1971,9 +1969,9 @@ adouble operator+(const double coval, adouble &&a) {
 
       if (coval) {
         put_op(plus_d_a);
-        ADOLC_PUT_LOCINT(a.getLoc());      // = arg
-        ADOLC_PUT_LOCINT(a.tape_loc_.loc); // = res
-        ADOLC_PUT_VAL(coval);              // = coval
+        ADOLC_PUT_LOCINT(a.getLoc()); // = arg
+        ADOLC_PUT_LOCINT(a.getLoc()); // = res
+        ADOLC_PUT_VAL(coval);         // = coval
       } else {
         put_op(pos_sign_a);
         ADOLC_PUT_LOCINT(a.getLoc()); // = arg
@@ -1982,14 +1980,14 @@ adouble operator+(const double coval, adouble &&a) {
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.tape_loc_.loc]);
+        ADOLC_WRITE_SCAYLOR(a.getValue());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
-    } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.tape_loc_.loc]) {
+    } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()]) {
 
       if (coval2 == 0.0) {
         put_op(assign_d_zero);
-        ADOLC_PUT_LOCINT(a.tape_loc_.loc);
+        ADOLC_PUT_LOCINT(a.getLoc());
       } else if (coval2 == 1.0) {
         put_op(assign_d_one);
         ADOLC_PUT_LOCINT(a.getLoc());
@@ -2001,12 +1999,12 @@ adouble operator+(const double coval, adouble &&a) {
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
+        ADOLC_WRITE_SCAYLOR(a.getValue());
     }
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = coval2;
+  a.setValue(coval2);
   return a;
 }
 
@@ -2019,7 +2017,7 @@ adouble operator-(const adouble &a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] -
                         ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
 
@@ -2190,7 +2188,7 @@ adouble operator-(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = coval - ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -2306,7 +2304,7 @@ adouble operator*(const adouble &a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] *
                         ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
 
@@ -2485,7 +2483,7 @@ adouble operator*(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = coval * ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -2609,7 +2607,7 @@ adouble operator*(adouble &&a, const double coval) {
 adouble operator/(const adouble &a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] /
                         ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
 
@@ -2847,9 +2845,9 @@ adouble operator/(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
-  cosnt double coval2 = coval / ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
+  const double coval2 = coval / ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -2900,7 +2898,7 @@ adouble operator/(const double coval, adouble &&a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  cosnt double coval2 = coval / ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
+  const double coval2 = coval / ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -2959,7 +2957,7 @@ adouble exp(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::exp(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -3066,7 +3064,7 @@ adouble log(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_locaton{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::log(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -3180,7 +3178,7 @@ adouble sqrt(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::sqrt(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -3289,7 +3287,7 @@ adouble cbrt(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::cbrt(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -3398,7 +3396,7 @@ adouble sin(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   const double coval1 =
       ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
@@ -3487,8 +3485,6 @@ adouble sin(adouble &&a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble a(tape_location{next_loc()});
-
   const double coval1 =
       ADOLC_MATH_NSP::sin(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   const double coval2 =
@@ -3575,7 +3571,7 @@ adouble cos(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   const double coval1 =
       ADOLC_MATH_NSP::cos(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
@@ -3757,10 +3753,10 @@ adouble asin(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::asin(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
-  adouble b = 1.0 / sqrt(1.0 - x * x);
+  adouble b = 1.0 / sqrt(1.0 - a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -3819,7 +3815,7 @@ adouble asin(adouble &&a) {
 
   const double coval =
       ADOLC_MATH_NSP::asin(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
-  adouble b = 1.0 / sqrt(1.0 - x * x);
+  adouble b = 1.0 / sqrt(1.0 - a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -3876,11 +3872,11 @@ adouble acos(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::acos(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
-  adouble y = -1.0 / sqrt(1.0 - x * x);
+  adouble b = -1.0 / sqrt(1.0 - a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -3940,7 +3936,7 @@ adouble acos(adouble &&a) {
   const double coval =
       ADOLC_MATH_NSP::acos(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
-  adouble y = -1.0 / sqrt(1.0 - x * x);
+  adouble b = -1.0 / sqrt(1.0 - a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -3998,11 +3994,11 @@ adouble atan(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::atan(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
-  adouble y = 1.0 / (1.0 + x * x);
+  adouble b = 1.0 / (1.0 + a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -4063,7 +4059,7 @@ adouble atan(adouble &&a) {
   const double coval =
       ADOLC_MATH_NSP::atan(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
-  adouble y = 1.0 / (1.0 + x * x);
+  adouble b = 1.0 / (1.0 + a * a);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -4117,7 +4113,7 @@ adouble atan(adouble &&a) {
 }
 
 adouble sinh(const adouble &a) {
-  if (x.getValue() < 0.0) {
+  if (a.getValue() < 0.0) {
     adouble temp = exp(a);
     return 0.5 * (temp - 1.0 / temp);
   } else {
@@ -4170,7 +4166,7 @@ adouble asinh(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP_ERF::asinh(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   adouble b = 1.0 / sqrt(1.0 + a * a);
@@ -4289,7 +4285,7 @@ adouble acosh(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP_ERF::acosh(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   adouble b = 1.0 / sqrt(a * a - 1.0);
@@ -4408,7 +4404,7 @@ adouble atanh(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP_ERF::atanh(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   adouble b = 1.0 / (1.0 - a * a);
@@ -4527,7 +4523,7 @@ adouble erf(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adoubel ret_adouble(tape_ret_adouble.getLoc() ion{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP_ERF::erf(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   adouble b =
@@ -4648,7 +4644,7 @@ adouble erfc(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP_ERF::erfc(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
   adouble b =
@@ -4767,7 +4763,7 @@ adouble ceil(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::ceil(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -4878,7 +4874,7 @@ adouble floor(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval =
       ADOLC_MATH_NSP::floor(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
 
@@ -4989,13 +4985,10 @@ adouble fabs(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
-  const double coval = 1.0;
+  adouble ret_adouble{tape_location{next_loc()}};
   const double temp =
       ADOLC_MATH_NSP::fabs(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
-
-  if (temp != ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()])
-    coval = 0.0;
+  const double coval = temp != a.getValue() ? 0.0 : 1.0;
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -5054,11 +5047,7 @@ adouble fabs(adouble &&a) {
 
   const double temp =
       ADOLC_MATH_NSP::fabs(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]);
-
-  if (temp != ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()])
-    const double coval = 0.0;
-  else
-    const double coval = 1.0;
+  const double coval = temp != a.getValue() ? 0.0 : 1.0;
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -5167,16 +5156,10 @@ adouble fmin(const adouble &a, const adouble &b) {
   }
 #endif
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
-  if (ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()] <
-      ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]) {
-    const double coval = 0.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
-  } else {
-    const double coval = 1.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
-  }
+  const double coval = b.getValue() < a.getValue() ? 0.0 : 1.0;
+  const double tmp = b.getValue() < a.getValue() ? b.getValue() : a.getLoc();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -5286,14 +5269,8 @@ adouble fmin(adouble &&a, const adouble &b) {
   }
 #endif
 
-  if (ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()] <
-      ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]) {
-    const double coval = 0.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
-  } else {
-    const double coval = 1.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
-  }
+  const double coval = b.getValue() < a.getValue() ? 0.0 : 1.0;
+  const double tmp = b.getValue() < a.getValue() ? b.getValue() : a.getValue();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -5403,14 +5380,8 @@ adouble fmin(const adouble &a, adouble &&b) {
   }
 #endif
 
-  if (ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()] <
-      ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()]) {
-    const double coval = 0.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
-  } else {
-    const double coval = 1.0;
-    const double tmp = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
-  }
+  const double coval = b.getValue() < a.getValue() ? 0.0 : 1.0;
+  const double tmp = b.getValue() < a.getValue() ? b.getValue() : a.getValue();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -5512,8 +5483,8 @@ adouble frexp(const adouble &a, int *exp) {
 }
 
 adouble frexp(adouble &&a, int *exp) {
-  double coval = std::frexp(a.getValue(), exp);
-  adouble.setValue(coval);
+  const double coval = std::frexp(a.getValue(), exp);
+  a.setValue(coval);
   return a;
 }
 
@@ -5545,7 +5516,7 @@ adouble pow(const adouble &a, const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_next()});
+  adouble ret_adouble{tape_location{next_loc()}};
   const double coval2 =
       ADOLC_MATH_NSP::pow(ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()], coval);
 
@@ -5657,12 +5628,12 @@ adouble pow(adouble &&a, const double coval) {
 }
 
 adouble pow(const double base, const adouble &a) {
-  assert(coval <= 0 && "\nADOL-C message:  exponent at zero/negative constant "
-                       "basis deactivated\n");
+  assert(base <= 0 && "\nADOL-C message:  exponent at zero/negative constant "
+                      "basis deactivated\n");
   adouble ret;
 
-  condassign(ret, adouble{coval}, exp(a * ADOLC_MATH_NSP::log(coval)),
-             adouble{ADOLC_MATH_NSP::pow(coval, a.getValue())});
+  condassign(ret, adouble{base}, exp(a * ADOLC_MATH_NSP::log(base)),
+             adouble{ADOLC_MATH_NSP::pow(base, a.getValue())});
   return ret;
 }
 
@@ -6232,13 +6203,13 @@ adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
       vec_b[size - 1].getLoc() - vec_b[0].getLoc() != size - 1)
     fail(ADOLC_VEC_LOCATIONGAP);
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
     put_op(vec_dot);
-    ADOLC_PUT_LOCINT(a[0].getLoc());
-    ADOLC_PUT_LOCINT(b[0].getLoc());
+    ADOLC_PUT_LOCINT(vec_a[0].getLoc());
+    ADOLC_PUT_LOCINT(vec_b[0].getLoc());
     ADOLC_PUT_LOCINT(size);
     ADOLC_PUT_LOCINT(ret_adouble.getLoc());
 
@@ -6254,8 +6225,8 @@ adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
 
   for (size_t i = 0; i < size; ++i)
     ADOLC_GLOBAL_TAPE_VARS.store[ret_adouble.getLoc()] +=
-        ADOLC_GLOBAL_TAPE_VARS.store[a[0].getLoc() + i] *
-        ADOLC_GLOBAL_TAPE_VARS.store[b[0].getLoc() + i];
+        ADOLC_GLOBAL_TAPE_VARS.store[vec_a[0].getLoc() + i] *
+        ADOLC_GLOBAL_TAPE_VARS.store[vec_b[0].getLoc() + i];
 
   return ret_adouble;
 }

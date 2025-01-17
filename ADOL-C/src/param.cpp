@@ -15,7 +15,7 @@
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
-#include <adolc/param.h>
+#include <adolc/ad_types.h>
 
 pdouble::pdouble(const double pval) {
 #include <limits>
@@ -65,7 +65,7 @@ pdouble::operator adouble() const {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
     put_op(assign_p);
@@ -91,7 +91,7 @@ adouble operator-(const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -117,7 +117,7 @@ adouble operator+(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -209,7 +209,7 @@ adouble operator-(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -303,7 +303,7 @@ adouble operator*(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -397,7 +397,7 @@ adouble recipr(const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -424,7 +424,7 @@ adouble operator/(const pdouble &p, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -522,7 +522,7 @@ adouble pow(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -635,7 +635,7 @@ adouble operator!=(const adouble &a, const pdouble &p) {
   const double a_coval = a.getValue();
   const double p_coval = p.getValue();
   const double res = static_cast<double>(a_coval != p_coval);
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -684,7 +684,7 @@ adouble operator==(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double res = static_cast<double>(a.getValue() == p.getValue());
-  ret_adouble(tape_location{next_loc()});
+  ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -733,7 +733,7 @@ adouble operator<=(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double res = static_cast<double>(a.getValue() <= p.getValue());
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -782,7 +782,7 @@ adouble operator>=(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double res = static_cast<double>(a.getLoc() >= p.getLoc());
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -827,7 +827,7 @@ adouble operator>(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double res = static_cast<double>(a.getValue() > p.getValue());
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
@@ -872,7 +872,7 @@ adouble operator<(const adouble &a, const pdouble &p) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double res = static_cast<double>(a.getValue() < p.getValue());
-  adouble ret_adouble(tape_location{next_loc()});
+  adouble ret_adouble{tape_location{next_loc()}};
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 

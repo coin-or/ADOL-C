@@ -16,7 +16,7 @@
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
-#include <adolc/adouble.h>
+#include <adolc/ad_types.h>
 #include <adolc/advector.h>
 #include <cmath>
 #include <limits>
