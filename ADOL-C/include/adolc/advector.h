@@ -16,7 +16,7 @@
 #ifndef ADOLC_ADVECTOR_H
 #define ADOLC_ADVECTOR_H
 
-#include <adolc/param.h>
+#include <adolc/ad_types.h>
 
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
@@ -91,17 +91,13 @@ public:
   adubref &operator*=(const adouble &a);
   adubref &operator*=(const pdouble &p);
 
-  inline adubref &adubref::operator/=(const double coval) {
+  inline adubref &operator/=(const double coval) {
     return *this *= (1.0 / coval);
   }
 
-  inline adubref &adubref::operator/=(const adouble &a) {
-    return *this *= (1.0 / a);
-  }
+  inline adubref &operator/=(const adouble &a) { return *this *= (1.0 / a); }
 
-  inline adubref &adubref::operator/=(const pdouble &p) {
-    return *this *= recipr(p);
-  }
+  inline adubref &operator/=(const pdouble &p) { return *this *= recipr(p); }
 
   adubref &operator<<=(const double coval);
   void declareIndependent();
