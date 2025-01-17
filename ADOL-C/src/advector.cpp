@@ -13,14 +13,13 @@
 
 ---------------------------------------------------------------------------*/
 
-#include <cmath>
-#include <limits>
-
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
 #include <adolc/adouble.h>
 #include <adolc/advector.h>
+#include <cmath>
+#include <limits>
 
 adubref::adubref(size_t lo, size_t ref) {
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -579,54 +578,49 @@ void condeqassign(adubref &res, const adouble &cond, const adouble &arg) {
     res.setValue(arg.getValue());
 }
 
-advector::blocker::blocker(size_t n) { ensureContiguousLocations(n); }
-
 bool advector::nondecreasing() const {
   bool ret = true;
   double last = -ADOLC_MATH_NSP::numeric_limits<double>::infinity();
-  vector<adouble>::const_iterator iter = data.begin();
-  for (; iter != data.end() && ret; iter++) {
-    ret = ret && (iter->value() >= last);
-    last = iter->value();
-  }
+  for (const auto &a : data)
+    ret = ret && (a.getValue() >= last);
   return ret;
 }
 
-adub advector::operator[](const badouble &index) const {
+adouble advector::operator[](const adouble &index) const {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  size_t idx =
-      (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.getLoc()]));
-  size_t locat = next_loc();
-  size_t n = data.size();
+
+  const size_t idx = (size_t)trunc(fabs(index.getValue()));
+  adouble ret_adouble(tape_location{next_loc()});
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     put_op(subscript);
     ADOLC_PUT_LOCINT(index.getLoc());
-    ADOLC_PUT_VAL(n);
+    ADOLC_PUT_VAL(size());
     ADOLC_PUT_LOCINT(data[0].getLoc());
-    ADOLC_PUT_LOCINT(locat);
+    ADOLC_PUT_LOCINT(ret_adouble.getLoc());
 
     ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[locat]);
+      ADOLC_WRITE_SCAYLOR(ret_adouble.getValue());
   }
 
-  if (idx >= n)
+  if (idx >= size())
     fprintf(DIAG_OUT,
             "ADOL-C warning: index out of bounds while subscripting n=%zu, "
             "idx=%zu\n",
-            n, idx);
+            size(), idx);
 
-  ADOLC_GLOBAL_TAPE_VARS.store[locat] =
-      ADOLC_GLOBAL_TAPE_VARS.store[data[idx].getLoc()];
-  return locat;
+  ret_adouble.setValue(data[idx].getValue());
+  return ret_adouble;
 }
 
-adubref advector::operator[](const badouble &index) {
+adubref advector::operator[](const adouble &index) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-  size_t idx =
-      (size_t)trunc(fabs(ADOLC_GLOBAL_TAPE_VARS.store[index.getLoc()]));
+
+  const size_t idx = (size_t)trunc(fabs(index.getValue()));
   size_t locat = next_loc();
   size_t n = data.size();
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -651,20 +645,19 @@ adubref advector::operator[](const badouble &index) {
   return adubref(locat, data[idx].getLoc());
 }
 
-adouble advector::lookupindex(const badouble &x, const badouble &y) const {
+adouble advector::lookupindex(const adouble &a, const adouble &b) const {
   if (!nondecreasing()) {
     fprintf(DIAG_OUT, "ADOL-C error: can only call lookup index if advector "
                       "ist nondecreasing\n");
     adolc_exit(-2, "", __func__, __FILE__, __LINE__);
   }
-  if (y.value() < 0) {
+  if (b.value() < 0) {
     fprintf(DIAG_OUT,
             "ADOL-C error: index lookup needs a nonnegative denominator\n");
     adolc_exit(-2, "", __func__, __FILE__, __LINE__);
   }
   adouble r = 0;
-  size_t n = data.size();
-  for (size_t i = 0; i < n; i++)
-    condassign(r, x - data[i] * y, (adouble)(i + 1));
+  for (size_t i = 0; i < size(); ++i)
+    condassign(r, a - data[i] * b, adouble(i + 1));
   return r;
 }

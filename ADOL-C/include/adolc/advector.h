@@ -17,6 +17,7 @@
 #define ADOLC_ADVECTOR_H
 
 #include <adolc/param.h>
+
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */
 #include <vector>
@@ -121,39 +122,35 @@ void condeqassign(adubref &res, const adouble &cond, const adouble &arg1,
 void condeqassign(adubref &res, const adouble &cond, const adouble &arg);
 
 class advector {
-private:
-  struct ADOLC_DLL_EXPORT blocker {
-    blocker() {}
-    blocker(size_t n);
-    ~blocker() {}
-  } blk;
-  std::vector<adouble> data;
-  ADOLC_DLL_EXPORT bool nondecreasing() const;
-
 public:
-  ADOLC_DLL_EXPORT advector() : blk(), data() {}
-  ADOLC_DLL_EXPORT explicit advector(size_t n) : blk(n), data(n) {}
+  ADOLC_DLL_EXPORT advector() = default;
+  ADOLC_DLL_EXPORT explicit advector(size_t n)
+      : data(ensureContiguousLocations_(n)) {}
+
+  advector(const advector &ad_vec)
+      : data(ensureContiguousLocations_(ad_vec.size())) {
+    adolc_vec_copy(data.data(), ad_vec.data.data(), ad_vec.size());
+  }
+
+  // given adouble vector might not have contiguous locations
+  advector(const std::vector<adouble> &v) : data(v) {};
   ADOLC_DLL_EXPORT ~advector() {}
 
-  ADOLC_DLL_EXPORT advector(const advector &x) : blk(x.size()), data(x.size()) {
-    adolc_vec_copy(data.data(), x.data.data(), x.size());
-  }
-  // in the above copy we are sure of contiguous locations
-  // but not so in the one below
-  ADOLC_DLL_EXPORT advector(const std::vector<adouble> &v)
-      : blk(v.size()), data(v) {}
-  ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
-  ADOLC_DLL_EXPORT operator const std::vector<adouble> &() const {
-    return data;
-  }
+  operator const std::vector<adouble> &() const { return data; }
   ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data; }
   ADOLC_DLL_EXPORT operator adouble *() { return data.data(); }
-  ADOLC_DLL_EXPORT adub operator[](const badouble &index) const;
-  ADOLC_DLL_EXPORT adubref operator[](const badouble &index);
+  ADOLC_DLL_EXPORT adouble operator[](const adouble &index) const;
+  ADOLC_DLL_EXPORT adubref operator[](const adouble &index);
   ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data[i]; }
   ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const { return data[i]; }
-  ADOLC_DLL_EXPORT adouble lookupindex(const badouble &x,
-                                       const badouble &y) const;
+  ADOLC_DLL_EXPORT adouble lookupindex(const adouble &a,
+                                       const adouble &b) const;
+
+  ADOLC_DLL_EXPORT size_t size() const { return data.size(); }
+  ADOLC_DLL_EXPORT bool nondecreasing() const;
+
+private:
+  std::vector<adouble> data;
 };
 
 #endif /* TAPELESS */
