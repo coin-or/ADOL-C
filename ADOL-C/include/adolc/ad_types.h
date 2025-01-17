@@ -33,8 +33,8 @@
 #ifndef ADOLC_AD_TYPES_H
 #define ADOLC_AD_TYPES_H
 
-#include "taping_p.h"
 #include <adolc/internal/common.h>
+#include <adolc/taping_p.h>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

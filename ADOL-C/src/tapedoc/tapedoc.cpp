@@ -14,11 +14,11 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
-#include "oplate.h"
-#include "taping_p.h"
 #include <adolc/adalloc.h>
+#include <adolc/dvlparms.h>
+#include <adolc/oplate.h>
 #include <adolc/tapedoc/tapedoc.h>
+#include <adolc/taping_p.h>
 
 #include <math.h>
 #include <string.h>

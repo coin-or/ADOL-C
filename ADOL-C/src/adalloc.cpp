@@ -13,8 +13,8 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
 #include <adolc/adalloc.h>
+#include <adolc/dvlparms.h>
 
 #if !defined(ADOLC_NO_MALLOC)
 #define ADOLC_CALLOC(n, m) calloc(n, m)

@@ -30,14 +30,14 @@ and _NTIGHT__
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
-#include "externfcts_p.h"
-#include "oplate.h"
-#include "taping_p.h"
 #include <adolc/adalloc.h>
+#include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
+#include <adolc/externfcts_p.h>
 #include <adolc/interfaces.h>
+#include <adolc/oplate.h>
 #include <adolc/taping.h>
+#include <adolc/taping_p.h>
 
 #include <math.h>
 #include <string.h>
@@ -47,7 +47,7 @@ and _NTIGHT__
 #endif /* ADOLC_DEBUG */
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
-#include "medipacksupport_p.h"
+#include <adolc/medipacksupport_p.h>
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampisupportAdolc.h"
@@ -557,14 +557,14 @@ int fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short tnum,                   /* tape id                              */
-    int depcheck,                 /* consistency chk on # of dependents   */
-    int indcheck,                 /* consistency chk on # of independents */
-    int p,                        /* # of taylor series, bit pattern      */
-    const double *basepoint,      /* independent variable values   (in)*/
-    size_t **argument, /* Taylor coeff.                 (in)*/
-    double *valuepoint,           /* dependent variable values    (out)*/
-    size_t **taylors)  /* matrix of coefficient vectors(out)*/
+    short tnum,              /* tape id                              */
+    int depcheck,            /* consistency chk on # of dependents   */
+    int indcheck,            /* consistency chk on # of independents */
+    int p,                   /* # of taylor series, bit pattern      */
+    const double *basepoint, /* independent variable values   (in)*/
+    size_t **argument,       /* Taylor coeff.                 (in)*/
+    double *valuepoint,      /* dependent variable values    (out)*/
+    size_t **taylors)        /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
@@ -584,13 +584,12 @@ int int_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
-int int_forward_safe(
-    short tnum,                   /* tape id                              */
-    int depcheck,                 /* consistency chk on # of dependents   */
-    int indcheck,                 /* consistency chk on # of independents */
-    int p,                        /* # of taylor series, bit pattern      */
-    size_t **argument, /* Taylor coeff.                  (in)*/
-    size_t **taylors)  /* matrix of coefficient vectors (out)*/
+int int_forward_safe(short tnum,   /* tape id                              */
+                     int depcheck, /* consistency chk on # of dependents   */
+                     int indcheck, /* consistency chk on # of independents */
+                     int p,        /* # of taylor series, bit pattern      */
+                     size_t **argument, /* Taylor coeff.                  (in)*/
+                     size_t **taylors)  /* matrix of coefficient vectors (out)*/
 
 /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 

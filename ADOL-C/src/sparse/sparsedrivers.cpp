@@ -12,9 +12,9 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include "dvlparms.h"
-#include "oplate.h"
-#include "taping_p.h"
+#include <adolc/dvlparms.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>

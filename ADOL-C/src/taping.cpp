@@ -18,9 +18,9 @@
 #include <math.h>
 #include <string.h>
 
-#include "dvlparms.h"
-#include "oplate.h"
-#include "taping_p.h"
+#include <adolc/dvlparms.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>

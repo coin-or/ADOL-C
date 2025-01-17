@@ -14,10 +14,10 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
-#include "taping_p.h"
 #include <adolc/adolc.h>
+#include <adolc/dvlparms.h>
 #include <adolc/fixpoint.h>
+#include <adolc/taping_p.h>
 
 #include <algorithm>
 #include <vector>

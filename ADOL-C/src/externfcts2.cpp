@@ -12,13 +12,13 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "buffer_temp.h"
-#include "externfcts_p.h"
-#include "oplate.h"
-#include "taping_p.h"
 #include <adolc/ad_types.h>
 #include <adolc/adalloc.h>
+#include <adolc/buffer_temp.h>
 #include <adolc/externfcts.h>
+#include <adolc/externfcts_p.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #include <cstring>
 

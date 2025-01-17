@@ -13,11 +13,11 @@
 
 ---------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
-#include "oplate.h"
-#include "taping_p.h"
 #include <adolc/ad_types.h>
 #include <adolc/advector.h>
+#include <adolc/dvlparms.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 #include <cmath>
 #include <limits>
 

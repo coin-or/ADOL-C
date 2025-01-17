@@ -17,7 +17,7 @@
 #include <stdbool.h>
 
 #ifdef __cplusplus
-#include "storemanager.h"
+#include <adolc/storemanager.h>
 #endif
 #include <adolc/internal/common.h>
 #include <adolc/taping.h>

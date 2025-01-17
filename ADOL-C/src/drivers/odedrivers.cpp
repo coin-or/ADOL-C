@@ -14,10 +14,10 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include "taping_p.h"
 #include <adolc/adalloc.h>
 #include <adolc/drivers/odedrivers.h>
 #include <adolc/interfaces.h>
+#include <adolc/taping_p.h>
 
 #include <math.h>
 
