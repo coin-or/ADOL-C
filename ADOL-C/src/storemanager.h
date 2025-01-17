@@ -313,4 +313,5 @@ private:
 #endif /* 0 */
 
 void ensureContiguousLocations(size_t n);
+size_t ensureContiguousLocations_(size_t n);
 #endif /* ADOL_C__STOREMANAGER_H */
