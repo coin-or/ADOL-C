@@ -10,7 +10,7 @@
 ## 
 ##############################################################################
 
-pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
+pkginclude_HEADERS   = adolc.h adalloc.h ad_types.h adutils.h adutilsc.h \
                        convolut.h fortutils.h \
                        interfaces.h taping.h \
                        externfcts.h checkpointing.h fixpoint.h\
@@ -19,7 +19,7 @@ pkginclude_HEADERS   = adolc.h adalloc.h adouble.h adutils.h adutilsc.h \
                        adolc_fatalerror.h \
                        adtl.h adtl_indo.h adtl_hov.h \
                        adoublecuda.h \
-                       param.h externfcts2.h \
+                       ad_types.h externfcts2.h \
                        edfclasses.h
 
 if BUILD_ADOLC_MEDIPACK_SUPPORT
