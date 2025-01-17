@@ -146,12 +146,24 @@ ADOLC_DLL_EXPORT adouble operator>(const adouble &a, adouble &&b);
 
 #else // ADOLC_ADVANCED_BRANCHING
 
-bool operator!=(const adouble &a, const adouble &b);
-bool operator==(const adouble &a, const adouble &b);
-bool operator<=(const adouble &a, const adouble &b);
-bool operator>=(const adouble &a, const adouble &b);
-bool operator>(const adouble &a, const adouble &b);
-bool operator<(const adouble &a, const adouble &b);
+inline bool operator!=(const adouble &a, const adouble &b) {
+  return (a - b != 0);
+}
+inline bool operator==(const adouble &a, const adouble &b) {
+  return (a - b == 0);
+}
+inline bool operator<=(const adouble &a, const adouble &b) {
+  return (a - b <= 0);
+}
+inline bool operator>=(const adouble &a, const adouble &b) {
+  return (a - b >= 0);
+}
+inline bool operator>(const adouble &a, const adouble &b) {
+  return (a - b > 0);
+}
+inline bool operator<(const adouble &a, const adouble &b) {
+  return (a - b < 0);
+}
 
 #endif // ADOLC_ADVANCED_BRANCHING
 

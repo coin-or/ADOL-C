@@ -1362,20 +1362,6 @@ adouble operator>(const adouble &a, adouble &&b) {
   return b;
 }
 
-#else // ADOLC_ADVANCED_BRANCHING
-
-bool operator!=(const adouble &a, const adouble &b) { return (a - b != 0); }
-
-bool operator==(const badouble &u, const badouble &b) { return (a - b == 0); }
-
-bool operator<=(const badouble &u, const badouble &b) { return (a - b <= 0); }
-
-bool operator>=(const badouble &a, const badouble &b) { return (a - b >= 0); }
-
-bool operator>(const badouble &a, const badouble &b) { return (a - b > 0); }
-
-bool operator<(const badouble &a, const badouble &b) { return (a - b < 0); }
-
 #endif // ADOLC_ADVANCED_BRANCHING
 
 bool operator!=(const adouble &a, const double coval) {
@@ -5685,7 +5671,7 @@ adouble pow(const double base, const adouble &a) {
 /* the forward sweep tests if the tape is executed exactly at  */
 /* the same argument point otherwise it stops with a returnval */
 #define extend_quad(func, integrand)                                           \
-  adouble func(const badouble &arg) {                                          \
+  adouble func(const adouble &arg) {                                           \
     adouble temp;                                                              \
     adouble val;                                                               \
     integrand;                                                                 \
