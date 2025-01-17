@@ -16,8 +16,8 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
+#include <adolc/ad_types.h>           // use of active double
 #include <adolc/adalloc.h>            // use of ADOL-C allocation utilities
-#include <adolc/adouble.h>            // use of active double
 #include <adolc/drivers/odedrivers.h> // use of "Easy To Use" ODE drivers
 #include <adolc/taping.h>             // use of taping
 

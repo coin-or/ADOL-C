@@ -18,7 +18,7 @@
 /*                                                                 INCLUDES */
 
 #define ADOLC_TRACELESS_HIGHER_ORDER
-// #include <adolc/adouble.h>
+// #include <adolc/ad_types.h>
 // typedef adhotl::adouble adouble;
 #include <complex>
 #include <iostream>

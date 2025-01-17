@@ -12,7 +12,7 @@
 
 ---------------------------------------------------------------------------*/
 
-#include <adolc/adouble.h>
+#include <adolc/ad_types.h>
 #include <adolc/advector.h>
 #include <adolc/taping.h>
 

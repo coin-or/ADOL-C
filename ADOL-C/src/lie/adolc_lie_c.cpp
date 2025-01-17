@@ -13,8 +13,8 @@
 
 ----------------------------------------------------------------------------*/
 #include "dvlparms.h"
+#include <adolc/ad_types.h>
 #include <adolc/adolc.h>
-#include <adolc/adouble.h>
 #include <adolc/lie/drivers.h>
 
 /** Computes the total derivative of the output

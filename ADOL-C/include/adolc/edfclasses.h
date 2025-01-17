@@ -16,6 +16,7 @@
 #if !defined(ADOLC_EDFCLASSES_H)
 #define ADOLC_EDFCLASSES_H 1
 
+#include <adolc/advector.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 

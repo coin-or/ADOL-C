@@ -11,7 +11,7 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "adolc/adouble.h"
+#include "adolc/ad_types.h"
 #include "oplate.h"
 #include "taping_p.h"
 

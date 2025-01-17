@@ -16,8 +16,8 @@
 #include "externfcts_p.h"
 #include "oplate.h"
 #include "taping_p.h"
+#include <adolc/ad_types.h>
 #include <adolc/adalloc.h>
-#include <adolc/adouble.h>
 #include <adolc/externfcts.h>
 
 #include <cstring>
