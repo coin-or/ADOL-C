@@ -1,11 +1,11 @@
 install(FILES
+        ad_types.h
         adalloc.h
         adolc_fatalerror.h
         adolc.h
         adolc_openmp.h
         adolc_sparse.h
         adoublecuda.h
-        adouble.h
         adtl.h
         adtl_hov.h
         adtl_indo.h
@@ -20,7 +20,6 @@ install(FILES
         fixpoint.h
         fortutils.h
         interfaces.h
-        param.h
         revolve.h
         taping.h
         DESTINATION "include/adolc")
