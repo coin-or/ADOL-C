@@ -2594,7 +2594,6 @@ adouble operator*(const double coval, adouble &&a) {
     }
 #endif
   }
-
   ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] = coval2;
   return a;
 }
@@ -2947,9 +2946,11 @@ adouble operator/(const double coval, adouble &&a) {
 }
 
 adouble operator/(const adouble &a, const double coval) {
-  return a * 1.0 / coval;
+  return a * (1.0 / coval);
 }
-adouble operator/(adouble &&a, const double coval) { return a * 1.0 / coval; }
+adouble operator/(adouble &&a, const double coval) {
+  return std::move(a) * (1.0 / coval);
+}
 /****************************************************************************/
 /*                          UNARY OPERATIONS                                */
 
