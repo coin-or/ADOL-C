@@ -220,6 +220,25 @@ adouble operator/(const adouble &a, const double coval);
 adouble operator/(adouble &&a, const double coval);
 
 /* Comparison  */
+
+bool operator!=(const adouble &a, const double coval);
+bool operator!=(const double coval, const adouble &a);
+
+bool operator==(const double coval, const adouble &a);
+bool operator==(const adouble &a, const double coval);
+
+bool operator<=(const double coval, const adouble &a);
+bool operator<=(const adouble &a, const double coval);
+
+bool operator>=(const double coval, const adouble &a);
+bool operator>=(const adouble &a, const double coval);
+
+bool operator<(const double coval, const adouble &a);
+bool operator<(const adouble &a, const double coval);
+
+bool operator>(const double coval, const adouble &a);
+bool operator>(const adouble &a, const double coval);
+
 #ifdef ADOLC_ADVANCED_BRANCHING
 
 ADOLC_DLL_EXPORT adouble operator!=(const adouble &a, const adouble &b);
@@ -249,43 +268,25 @@ ADOLC_DLL_EXPORT adouble operator>(const adouble &a, adouble &&b);
 #else // ADOLC_ADVANCED_BRANCHING
 
 inline bool operator!=(const adouble &a, const adouble &b) {
-  return (a - b != 0);
+  return (a - b != 0.0);
 }
 inline bool operator==(const adouble &a, const adouble &b) {
-  return (a - b == 0);
+  return (a - b == 0.0);
 }
 inline bool operator<=(const adouble &a, const adouble &b) {
-  return (a - b <= 0);
+  return (a - b <= 0.0);
 }
 inline bool operator>=(const adouble &a, const adouble &b) {
-  return (a - b >= 0);
+  return (a - b >= 0.0);
 }
 inline bool operator>(const adouble &a, const adouble &b) {
-  return (a - b > 0);
+  return (a - b > 0.0);
 }
 inline bool operator<(const adouble &a, const adouble &b) {
-  return (a - b < 0);
+  return (a - b < 0.0);
 }
 
 #endif // ADOLC_ADVANCED_BRANCHING
-
-bool operator!=(const adouble &a, const double coval);
-bool operator!=(const double coval, const adouble &a);
-
-bool operator==(const double coval, const adouble &a);
-bool operator==(const adouble &a, const double coval);
-
-bool operator<=(const double coval, const adouble &a);
-bool operator<=(const adouble &a, const double coval);
-
-bool operator>=(const double coval, const adouble &a);
-bool operator>=(const adouble &a, const double coval);
-
-bool operator<(const double coval, const adouble &a);
-bool operator<(const adouble &a, const double coval);
-
-bool operator>(const double coval, const adouble &a);
-bool operator>(const adouble &a, const double coval);
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
