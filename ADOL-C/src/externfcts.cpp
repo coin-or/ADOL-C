@@ -150,116 +150,141 @@ static void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m) {
   edfct->max_m = (edfct->max_m < m) ? m : edfct->max_m;
 }
 
-void call_ext_fct_commonPrior(ext_diff_fct *edfct, int n, adouble *xa, int m,
-                              adouble *ya, int &numVals, double *&vals,
-                              int &oldTraceFlag) {
+void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
+                              size_t dim_y, adouble *ya, size_t &numVals,
+                              double *&vals, size_t &oldTraceFlag) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  if (xa[n - 1].loc() - xa[0].loc() != (unsigned)n - 1 ||
-      ya[m - 1].loc() - ya[0].loc() != (unsigned)m - 1)
+  if (xa[x_size - 1].loc() - xa[0].loc() != x_size - 1 ||
+      ya[y_size - 1].loc() - ya[0].loc() != y_size - 1)
     fail(ADOLC_EXT_DIFF_LOCATIONGAP);
-  if (edfct == NULL)
+
+  if (edfct)
     fail(ADOLC_EXT_DIFF_NULLPOINTER_STRUCT);
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+
     ADOLC_PUT_LOCINT(edfct->index);
-    ADOLC_PUT_LOCINT(n);
-    ADOLC_PUT_LOCINT(m);
+    ADOLC_PUT_LOCINT(x_size);
+    ADOLC_PUT_LOCINT(y_size);
     ADOLC_PUT_LOCINT(xa[0].loc());
     ADOLC_PUT_LOCINT(ya[0].loc());
-    ADOLC_PUT_LOCINT(0); /* keep space for checkpointing index */
+    /* keep space for checkpointing index */
+    ADOLC_PUT_LOCINT(0);
+
     oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+
   } else
     oldTraceFlag = 0;
+
   if (edfct->nestedAdolc) {
+
     numVals = ADOLC_GLOBAL_TAPE_VARS.storeSize;
     vals = new double[numVals];
     memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store, numVals * sizeof(double));
   }
 
   if (!edfct->user_allocated_mem)
-    update_ext_fct_memory(edfct, n, m);
+    update_ext_fct_memory(edfct, x_size, y_size);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.cpp */
 
   if (oldTraceFlag != 0) {
     if (edfct->dp_x_changes)
-      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += n;
+      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += x_size;
+
     if (edfct->dp_y_priorRequired)
-      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += m;
+      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += y_size;
+
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
       if (edfct->dp_x_changes)
-        for (int i = 0; i < n; ++i)
+        for (size_t i = 0; i < x_size; ++i)
           ADOLC_WRITE_SCAYLOR(xa[i].getValue());
+
       if (edfct->dp_y_priorRequired)
-        for (int i = 0; i < m; ++i)
+        for (size_t i = 0; i < y_size; ++i)
           ADOLC_WRITE_SCAYLOR(ya[i].getValue());
     }
   }
 
-  for (int i = 0; i < n; ++i)
+  for (size_t i = 0; i < x_size; ++i)
     edfct->dp_x[i] = xa[i].getValue();
+
   if (edfct->dp_y_priorRequired)
-    for (int i = 0; i < m; ++i)
+    for (size_t i = 0; i < y_size; ++i)
       edfct->dp_y[i] = ya[i].getValue();
+
   ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = edfct->index;
 }
 
-void call_ext_fct_commonPost(ext_diff_fct *edfct, int n, adouble *xa, int m,
-                             adouble *ya, int &numVals, double *&vals,
-                             int &oldTraceFlag) {
+void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
+                             size_t dim_y, adouble *ya, size_t &numVals,
+                             double *&vals, size_t &oldTraceFlag) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   if (edfct->nestedAdolc) {
     memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals, numVals * sizeof(double));
     delete[] vals;
     vals = 0;
   }
+
   /* write back */
   if (edfct->dp_x_changes)
-    for (int i = 0; i < n; ++i)
+    for (size_t i = 0; i < dim_x; ++i)
       xa[i].setValue(edfct->dp_x[i]);
-  for (int i = 0; i < m; ++i)
+
+  for (size_t i = 0; i < dim_y; ++i)
     ya[i].setValue(edfct->dp_y[i]);
+
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 }
 
 int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa, int m, adouble *ya) {
   int ret;
-  int numVals = 0;
-  double *vals = NULL;
-  int oldTraceFlag;
+  size_t oldTraceFlag, numVals = 0;
+  double *vals = nullptr;
+
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
     put_op(ext_diff);
+
   call_ext_fct_commonPrior(edfct, n, xa, m, ya, numVals, vals, oldTraceFlag);
   ret = edfct->function(n, edfct->dp_x, m, edfct->dp_y);
   call_ext_fct_commonPost(edfct, n, xa, m, ya, numVals, vals, oldTraceFlag);
   return ret;
 }
 
-int call_ext_fct(ext_diff_fct *edfct, int iArrLength, int *iArr, int n,
-                 adouble *xa, int m, adouble *ya) {
+int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, int *iArr,
+                 size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
   int ret;
-  int numVals = 0;
-  double *vals = NULL;
-  int oldTraceFlag;
+  size_t oldTraceFlag, numVals = 0;
+  double *vals = nullptr;
+
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     put_op_reserve(ext_diff_iArr, iArrLength + 2);
     ADOLC_PUT_LOCINT(iArrLength);
-    for (int i = 0; i < iArrLength; ++i)
+
+    for (size_t i = 0; i < iArrLength; ++i)
       ADOLC_PUT_LOCINT(iArr[i]);
+
     ADOLC_PUT_LOCINT(
         iArrLength); // do it again so we can read in either direction
   }
-  call_ext_fct_commonPrior(edfct, n, xa, m, ya, numVals, vals, oldTraceFlag);
-  ret = edfct->function_iArr(iArrLength, iArr, n, edfct->dp_x, m, edfct->dp_y);
-  call_ext_fct_commonPost(edfct, n, xa, m, ya, numVals, vals, oldTraceFlag);
+  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, numVals, vals,
+                           oldTraceFlag);
+  ret = edfct->function_iArr(iArrLength, iArr, dim_x, edfct->dp_x, dim_y,
+                             edfct->dp_y);
+  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, numVals, vals,
+                          oldTraceFlag);
   return ret;
 }
 

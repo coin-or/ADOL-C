@@ -28,8 +28,8 @@ using namespace std;
 
 /* F(x,u,y,dim_x,dim_u) */
 /* norm(x,dim_x)        */
-typedef struct {
-  locint edf_index;
+struct fpi_data {
+  size_t edf_index;
   int sub_tape_num;
   int (*double_F)(double *, double *, double *, int, int);
   int (*adouble_F)(adouble *, adouble *, adouble *, int, int);
@@ -39,7 +39,7 @@ typedef struct {
   double epsilon_deriv;
   int N_max;
   int N_max_deriv;
-} fpi_data;
+};
 
 static vector<fpi_data> fpi_stack;
 
@@ -182,15 +182,12 @@ static int fp_fos_reverse(int dim_x, double *x_fix_bar, int dim_xu,
   return -1;
 }
 
-ADOLC_DLL_EXPORT int
-fp_iteration(int sub_tape_num,
-             int (*double_F)(double *, double *, double *, int, int),
-             int (*adouble_F)(adouble *, adouble *, adouble *, int, int),
-             double (*norm)(double *, int), double (*norm_deriv)(double *, int),
-             double epsilon, double epsilon_deriv, int N_max, int N_max_deriv,
-             adouble *x_0, adouble *u, adouble *x_fix, int dim_x, int dim_u) {
-  int i, k;
-  double dummy;
+ADOLC_DLL_EXPORT int fp_iteration(
+    int sub_tape_num, int (*double_F)(double *, double *, double *, int, int),
+    int (*adouble_F)(adouble *, adouble *, adouble *, int, int),
+    double (*norm)(double *, int), double (*norm_deriv)(double *, int),
+    double epsilon, double epsilon_deriv, int N_max, int N_max_deriv,
+    adouble *x_0, adouble *u, adouble *x_fix, size_t dim_x, size_t dim_u) {
 
   // declare extern differentiated function and data
   ext_diff_fct *edf_iteration = reg_ext_fct(&iteration);
@@ -199,37 +196,44 @@ fp_iteration(int sub_tape_num,
   edf_iteration->fos_reverse = &fp_fos_reverse;
 
   // add new fp information
-  fpi_data data;
-  data.sub_tape_num = sub_tape_num;
-  data.double_F = double_F;
-  data.adouble_F = adouble_F;
-  data.norm = norm;
-  data.norm_deriv = norm_deriv;
-  data.epsilon = epsilon;
-  data.epsilon_deriv = epsilon_deriv;
-  data.N_max = N_max;
-  data.N_max_deriv = N_max_deriv;
-  data.edf_index = edf_iteration->index;
-  fpi_stack.push_back(data);
+  fpi_stack.emplace_back(fpi_data{
+      edf_iteration->index,
+      sub_tape_num,
+      double_F,
+      adouble_F,
+      norm,
+      norm_deriv,
+      epsilon,
+      epsilon_deriv,
+      N_max,
+      N_max_deriv,
+  });
 
   // put x and u together
   adouble *xu = new adouble[dim_x + dim_u];
-  for (i = 0; i < dim_x; i++)
+  for (size_t i = 0; i < dim_x; ++i)
     xu[i] = x_0[i];
-  for (i = 0; i < dim_u; i++)
+
+  for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] = u[i];
 
-  k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
+  const int k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
 
   // tape near solution
   trace_on(sub_tape_num, 1);
-  for (i = 0; i < dim_x; i++)
+
+  for (size_t i = 0; i < dim_x; ++i)
     xu[i] <<= x_fix[i].getValue();
-  for (i = 0; i < dim_u; i++)
+
+  for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] <<= u[i].getValue();
+
   adouble_F(xu, xu + dim_x, x_fix, dim_x, dim_u);
-  for (i = 0; i < dim_x; i++)
-    x_fix[i] >>= dummy;
+
+  double dummy_out;
+  for (size_t i = 0; i < dim_x; ++i)
+    x_fix[i] >>= dummy_out;
+
   trace_off();
 
   delete[] xu;
