@@ -5500,9 +5500,9 @@ adouble atan2(const adouble &a, const adouble &b) {
 }
 
 adouble pow(const adouble &a, const adouble &b) {
-  assert((a.getValue() < 0) &&
+  assert((a.getValue() >= 0) &&
          "\nADOL-C message: negative basis deactivated\n ");
-  assert(a.getValue() == 0 && "\nADOL-C message: zero basis deactivated\n ");
+  assert(a.getValue() != 0 && "\nADOL-C message: zero basis deactivated\n ");
 
   adouble a1, a2, ret;
 
@@ -5629,8 +5629,8 @@ adouble pow(adouble &&a, const double coval) {
 }
 
 adouble pow(const double base, const adouble &a) {
-  assert(base <= 0 && "\nADOL-C message:  exponent at zero/negative constant "
-                      "basis deactivated\n");
+  assert(base > 0 && "\nADOL-C message:  exponent at zero/negative constant "
+                     "basis deactivated\n");
   adouble ret;
 
   condassign(ret, adouble{base}, exp(a * ADOLC_MATH_NSP::log(base)),
