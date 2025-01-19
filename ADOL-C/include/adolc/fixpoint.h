@@ -20,13 +20,12 @@
 
 BEGIN_C_DECLS
 
-ADOLC_DLL_EXPORT int
-fp_iteration(int sub_tape_num,
-             int (*double_F)(double *, double *, double *, int, int),
-             int (*adouble_F)(adouble *, adouble *, adouble *, int, int),
-             double (*norm)(double *, int), double (*norm_deriv)(double *, int),
-             double epsilon, double epsilon_deriv, int N_max, int N_max_deriv,
-             adouble *x_0, adouble *u, adouble *x_fix, int dim_x, int dim_u);
+ADOLC_DLL_EXPORT int fp_iteration(
+    int sub_tape_num, int (*double_F)(double *, double *, double *, int, int),
+    int (*adouble_F)(adouble *, adouble *, adouble *, int, int),
+    double (*norm)(double *, int), double (*norm_deriv)(double *, int),
+    double epsilon, double epsilon_deriv, int N_max, int N_max_deriv,
+    adouble *x_0, adouble *u, adouble *x_fix, size_t dim_x, size_t dim_u);
 
 END_C_DECLS
 
