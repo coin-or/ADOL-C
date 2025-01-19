@@ -156,18 +156,18 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  if (xa[x_size - 1].loc() - xa[0].loc() != x_size - 1 ||
-      ya[y_size - 1].loc() - ya[0].loc() != y_size - 1)
+  if (xa[dim_x - 1].loc() - xa[0].loc() != dim_x - 1 ||
+      ya[dim_y - 1].loc() - ya[0].loc() != dim_y - 1)
     fail(ADOLC_EXT_DIFF_LOCATIONGAP);
 
-  if (edfct)
+  if (!edfct)
     fail(ADOLC_EXT_DIFF_NULLPOINTER_STRUCT);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
     ADOLC_PUT_LOCINT(edfct->index);
-    ADOLC_PUT_LOCINT(x_size);
-    ADOLC_PUT_LOCINT(y_size);
+    ADOLC_PUT_LOCINT(dim_x);
+    ADOLC_PUT_LOCINT(dim_y);
     ADOLC_PUT_LOCINT(xa[0].loc());
     ADOLC_PUT_LOCINT(ya[0].loc());
     /* keep space for checkpointing index */
@@ -187,34 +187,34 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   }
 
   if (!edfct->user_allocated_mem)
-    update_ext_fct_memory(edfct, x_size, y_size);
+    update_ext_fct_memory(edfct, dim_x, dim_y);
 
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.cpp */
 
   if (oldTraceFlag != 0) {
     if (edfct->dp_x_changes)
-      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += x_size;
+      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += dim_x;
 
     if (edfct->dp_y_priorRequired)
-      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += y_size;
+      ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += dim_y;
 
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
       if (edfct->dp_x_changes)
-        for (size_t i = 0; i < x_size; ++i)
+        for (size_t i = 0; i < dim_x; ++i)
           ADOLC_WRITE_SCAYLOR(xa[i].getValue());
 
       if (edfct->dp_y_priorRequired)
-        for (size_t i = 0; i < y_size; ++i)
+        for (size_t i = 0; i < dim_y; ++i)
           ADOLC_WRITE_SCAYLOR(ya[i].getValue());
     }
   }
 
-  for (size_t i = 0; i < x_size; ++i)
+  for (size_t i = 0; i < dim_x; ++i)
     edfct->dp_x[i] = xa[i].getValue();
 
   if (edfct->dp_y_priorRequired)
-    for (size_t i = 0; i < y_size; ++i)
+    for (size_t i = 0; i < dim_y; ++i)
       edfct->dp_y[i] = ya[i].getValue();
 
   ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = edfct->index;
