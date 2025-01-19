@@ -5493,9 +5493,9 @@ adouble atan2(const adouble &a, const adouble &b) {
   adouble a1, a2, ret, sy;
   const double pihalf = ADOLC_MATH_NSP::asin(1.0);
   condassign(sy, a, adouble{1.0}, adouble{-1.0});
-  condassign(a1, a, atan(b / a), atan(b / a) + sy * 2 * pihalf);
-  condassign(a2, fabs(b), sy * pihalf - atan(a / b), adouble{0.0});
-  condassign(ret, fabs(a) - fabs(b), a1, a2);
+  condassign(a1, b, atan(a / b), atan(a / b) + sy * 2 * pihalf);
+  condassign(a2, fabs(a), sy * pihalf - atan(b / a), adouble{0.0});
+  condassign(ret, fabs(b) - fabs(a), a1, a2);
   return ret;
 }
 
