@@ -19,13 +19,16 @@
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
+typedef int (*double_F)(double *, double *, double *, int, int);
+typedef int (*adouble_F)(adouble *, adouble *, adouble *, int, int);
+typedef double (*norm)(double *, int);
+typedef double (*norm_deriv)(double *, int);
 
-ADOLC_DLL_EXPORT int fp_iteration(
-    int sub_tape_num, int (*double_F)(double *, double *, double *, int, int),
-    int (*adouble_F)(adouble *, adouble *, adouble *, int, int),
-    double (*norm)(double *, int), double (*norm_deriv)(double *, int),
-    double epsilon, double epsilon_deriv, int N_max, int N_max_deriv,
-    adouble *x_0, adouble *u, adouble *x_fix, size_t dim_x, size_t dim_u);
+ADOLC_DLL_EXPORT
+int fp_iteration(size_t sub_tape_num, double_F, adouble_F, norm, norm_deriv,
+                 double epsilon, double epsilon_deriv, size_t N_max,
+                 size_t N_max_deriv, adouble *x_0, adouble *u, adouble *x_fix,
+                 size_t dim_x, size_t dim_u);
 
 END_C_DECLS
 

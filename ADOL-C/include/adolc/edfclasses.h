@@ -28,21 +28,23 @@ protected:
 public:
   EDFobject() { init_edf(this); }
   virtual ~EDFobject() { edf_zero(edf); }
-  virtual int function(int n, double *x, int m, double *y) = 0;
-  virtual int zos_forward(int n, double *x, int m, double *y) = 0;
-  virtual int fos_forward(int n, double *dp_x, double *dp_X, int m,
-                          double *dp_y, double *dp_Y) = 0;
-  virtual int fov_forward(int n, double *dp_x, int p, double **dpp_X, int m,
-                          double *dp_y, double **dpp_Y) = 0;
-  virtual int fos_reverse(int m, double *dp_U, int n, double *dp_Z,
-                          double *dp_x, double *dp_y) = 0;
-  virtual int fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z,
-                          double *dp_x, double *dp_y) = 0;
-  int call(int n, adouble *xa, int m, adouble *ya) {
-    return call_ext_fct(edf, n, xa, m, ya);
+  virtual int function(size_t dim_x, double *x, size_t dim_y, double *y) = 0;
+  virtual int zos_forward(size_t dim_x, double *x, size_t dim_y, double *y) = 0;
+  virtual int fos_forward(size_t dim_x, double *dp_x, double *dp_X,
+                          size_t dim_y, double *dp_y, double *dp_Y) = 0;
+  virtual int fov_forward(size_t dim_x, double *dp_x, size_t num_dirs,
+                          double **dpp_X, size_t dim_y, double *dp_y,
+                          double **dpp_Y) = 0;
+  virtual int fos_reverse(size_t dim_y, double *dp_U, size_t dim_x,
+                          double *dp_Z, double *dp_x, double *dp_y) = 0;
+  virtual int fov_reverse(size_t dim_y, size_t num_weights, double **dpp_U,
+                          size_t dim_x, double **dpp_Z, double *dp_x,
+                          double *dp_y) = 0;
+  int call(size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
+    return call_ext_fct(edf, dim_x, xa, dim_y, ya);
   }
-  int call(int n, advector &x, int m, advector &y) {
-    return call(n, x.operator adouble *(), m, y.operator adouble *());
+  int call(size_t dim_x, advector &x, size_t dim_y, advector &y) {
+    return call(dim_x, x.operator adouble *(), dim_y, y.operator adouble *());
   }
 };
 
@@ -54,25 +56,29 @@ protected:
 public:
   EDFobject_iArr() { init_edf(this); }
   virtual ~EDFobject_iArr() { edf_zero(edf); }
-  virtual int function(int iArrLength, int *iArr, int n, double *x, int m,
-                       double *y) = 0;
-  virtual int zos_forward(int iArrLength, int *iArr, int n, double *x, int m,
-                          double *y) = 0;
-  virtual int fos_forward(int iArrLength, int *iArr, int n, double *dp_x,
-                          double *dp_X, int m, double *dp_y, double *dp_Y) = 0;
-  virtual int fov_forward(int iArrLength, int *iArr, int n, double *dp_x, int p,
-                          double **dpp_X, int m, double *dp_y,
-                          double **dpp_Y) = 0;
-  virtual int fos_reverse(int iArrLength, int *iArr, int m, double *dp_U, int n,
-                          double *dp_Z, double *dp_x, double *dp_y) = 0;
-  virtual int fov_reverse(int iArrLength, int *iArr, int m, int p,
-                          double **dpp_U, int n, double **dpp_Z, double *dp_x,
-                          double *dp_y) = 0;
-  int call(int iArrLength, int *iArr, int n, adouble *xa, int m, adouble *ya) {
-    return call_ext_fct(edf, iArrLength, iArr, n, xa, m, ya);
+  virtual int function(size_t iArrLength, int *iArr, size_t dim_x, double *x,
+                       size_t dim_y, double *y) = 0;
+  virtual int zos_forward(size_t iArrLength, int *iArr, size_t dim_x, double *x,
+                          size_t dim_y, double *y) = 0;
+  virtual int fos_forward(size_t iArrLength, int *iArr, size_t dim_x,
+                          double *dp_x, double *dp_X, size_t dim_y,
+                          double *dp_y, double *dp_Y) = 0;
+  virtual int fov_forward(size_t iArrLength, int *iArr, size_t dim_x,
+                          double *dp_x, size_t num_dirs, double **dpp_X,
+                          size_t dim_y, double *dp_y, double **dpp_Y) = 0;
+  virtual int fos_reverse(size_t iArrLength, int *iArr, size_t dim_y,
+                          double *dp_U, size_t dim_x, double *dp_Z,
+                          double *dp_x, double *dp_y) = 0;
+  virtual int fov_reverse(size_t iArrLength, int *iArr, size_t dim_y,
+                          size_t num_weights, double **dpp_U, size_t dim_x,
+                          double **dpp_Z, double *dp_x, double *dp_y) = 0;
+  int call(size_t iArrLength, int *iArr, size_t dim_x, adouble *xa,
+           size_t dim_y, adouble *ya) {
+    return call_ext_fct(edf, iArrLength, iArr, dim_x, xa, dim_y, ya);
   }
-  int call(int iArrLength, int *iArr, int n, advector &x, int m, advector &y) {
-    return call(iArrLength, iArr, n, x.operator adouble *(), m,
+  int call(size_t iArrLength, int *iArr, size_t dim_x, advector &x,
+           size_t dim_y, advector &y) {
+    return call(iArrLength, iArr, dim_x, x.operator adouble *(), dim_y,
                 y.operator adouble *());
   }
 };
@@ -85,25 +91,29 @@ protected:
 public:
   EDFobject_v2() { init_edf(this); }
   virtual ~EDFobject_v2() { edf_zero(edf); }
-  virtual int function(int iArrLen, int *iArr, int nin, int nout, int *insz,
-                       double **x, int *outsz, double **y, void *ctx) = 0;
-  virtual int zos_forward(int iArrLen, int *iArr, int nin, int nout, int *insz,
-                          double **x, int *outsz, double **y, void *ctx) = 0;
-  virtual int fos_forward(int iArrLen, int *iArr, int nin, int nout, int *insz,
-                          double **x, double **xp, int *outsz, double **y,
-                          double **yp, void *ctx) = 0;
-  virtual int fov_forward(int iArrLen, int *iArr, int nin, int nout, int *insz,
-                          double **x, int ndir, double ***Xp, int *outsz,
-                          double **y, double ***Yp, void *ctx) = 0;
-  virtual int fos_reverse(int iArrLen, int *iArr, int nout, int nin, int *outsz,
-                          double **up, int *insz, double **zp, double **x,
+  virtual int function(size_t iArrLen, int *iArr, size_t dim_in, size_t dim_out,
+                       int *insz, double **x, int *outsz, double **y,
+                       void *ctx) = 0;
+  virtual int zos_forward(size_t iArrLen, int *iArr, size_t dim_in,
+                          size_t dim_out, int *insz, double **x, int *outsz,
                           double **y, void *ctx) = 0;
-  virtual int fov_reverse(int iArrLen, int *iArr, int nout, int nin, int *outsz,
-                          int dir, double ***Up, int *insz, double ***Zp,
-                          double **x, double **y, void *ctx) = 0;
-  int call(int iArrLen, int *iArr, int nin, int nout, int *insz, adouble **x,
-           int *outsz, adouble **y) {
-    return call_ext_fct(edf, iArrLen, iArr, nin, nout, insz, x, outsz, y);
+  virtual int fos_forward(size_t iArrLen, int *iArr, size_t dim_in,
+                          size_t dim_out, int *insz, double **x, double **xp,
+                          int *outsz, double **y, double **yp, void *ctx) = 0;
+  virtual int fov_forward(size_t iArrLen, int *iArr, size_t dim_in,
+                          size_t dim_out, int *insz, double **x,
+                          size_t num_dirs, double ***Xp, int *outsz, double **y,
+                          double ***Yp, void *ctx) = 0;
+  virtual int fos_reverse(size_t iArrLen, int *iArr, size_t dim_out,
+                          size_t dim_in, int *outsz, double **up, int *insz,
+                          double **zp, double **x, double **y, void *ctx) = 0;
+  virtual int fov_reverse(size_t iArrLen, int *iArr, size_t dim_out,
+                          size_t dim_in, int *outsz, size_t num_weights,
+                          double ***Up, int *insz, double ***Zp, double **x,
+                          double **y, void *ctx) = 0;
+  int call(size_t iArrLen, int *iArr, size_t dim_in, size_t dim_out, int *insz,
+           adouble **x, int *outsz, adouble **y) {
+    return call_ext_fct(edf, iArrLen, iArr, dim_in, dim_out, insz, x, outsz, y);
   }
 };
 

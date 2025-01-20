@@ -50,7 +50,7 @@ void revolve_for(CpInfos *cpInfos);
 void revolveError(CpInfos *cpInfos);
 
 /* we do not really have an ext. diff. function that we want to be called */
-int dummy(int n, double *x, int m, double *y) { return 0; }
+int dummy(size_t dim_x, double *x, size_t dim_y, double *y) { return 0; }
 
 /* register one time step function (uses buffer template) */
 CpInfos *reg_timestep_fct(ADOLC_TimeStepFuncion timeStepFunction) {
@@ -66,28 +66,24 @@ CpInfos *reg_timestep_fct(ADOLC_TimeStepFuncion timeStepFunction) {
  * external dummy function which calls the actual checkpointing workhorses
  * from within the used drivers. */
 int checkpointing(CpInfos *cpInfos) {
-  int i;
-  ext_diff_fct *edf;
-  int oldTraceFlag;
-  locint numVals;
-  double *vals;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   // knockout
-  if (cpInfos == NULL)
+  if (cpInfos == nullptr)
     fail(ADOLC_CHECKPOINTING_CPINFOS_NULLPOINTER);
-  if (cpInfos->function == NULL)
+  if (cpInfos->function == nullptr)
     fail(ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION);
-  if (cpInfos->function_double == NULL)
+  if (cpInfos->function_double == nullptr)
     fail(ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE);
-  if (cpInfos->adp_x == NULL)
+  if (cpInfos->adp_x == nullptr)
     fail(ADOLC_CHECKPOINTING_NULLPOINTER_ARGUMENT);
 
   // register extern function
-  edf = reg_ext_fct(dummy);
+  ext_diff_fct *edf = reg_ext_fct(dummy);
   init_edf(edf);
 
+  size_t oldTraceFlag = 0;
   // but we do not call it
   // we use direct taping to avoid unnecessary argument copying
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
@@ -101,26 +97,27 @@ int checkpointing(CpInfos *cpInfos) {
     // functions
     ADOLC_PUT_LOCINT(cpInfos->index);
 
-    oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+    size_t oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
-  } else
-    oldTraceFlag = 0;
+  }
 
-  numVals = ADOLC_GLOBAL_TAPE_VARS.storeSize;
-  vals = new double[numVals];
+  const size_t numVals = ADOLC_GLOBAL_TAPE_VARS.storeSize;
+  double *vals = new double[numVals];
   memcpy(vals, ADOLC_GLOBAL_TAPE_VARS.store, numVals * sizeof(double));
 
-  cpInfos->dp_internal_for = new double[cpInfos->n];
+  cpInfos->dp_internal_for = new double[cpInfos->dim];
+
   // initialize internal arguments
-  for (i = 0; i < cpInfos->n; ++i)
+  for (size_t i = 0; i < cpInfos->dim; ++i)
     cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].getValue();
+
   if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors != 0)
     // perform all time steps, tape the last, take checkpoints
     revolve_for(cpInfos);
   else
     // perform all time steps without taping
-    for (i = 0; i < cpInfos->steps; ++i)
-      cpInfos->function_double(cpInfos->n, cpInfos->dp_internal_for);
+    for (size_t i = 0; i < cpInfos->steps; ++i)
+      cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
 
   memcpy(ADOLC_GLOBAL_TAPE_VARS.store, vals, numVals * sizeof(double));
   delete[] vals;
@@ -128,17 +125,18 @@ int checkpointing(CpInfos *cpInfos) {
   // update taylor stack; same structure as in adouble.cpp +
   // correction in taping.cpp
   if (oldTraceFlag != 0) {
-    ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += cpInfos->n;
+    ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += cpInfos->dim;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors != 0)
-      for (i = 0; i < cpInfos->n; ++i)
+      for (size_t i = 0; i < cpInfos->dim; ++i)
         ADOLC_WRITE_SCAYLOR(cpInfos->adp_y[i].getValue());
   }
   // save results
-  for (i = 0; i < cpInfos->n; ++i) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     cpInfos->adp_y[i].setValue(cpInfos->dp_internal_for[i]);
   }
+
   delete[] cpInfos->dp_internal_for;
-  cpInfos->dp_internal_for = NULL;
+  cpInfos->dp_internal_for = nullptr;
 
   // normal taping again
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
@@ -160,10 +158,10 @@ CpInfos *get_cp_fct(int index) {
 /* initialize the CpInfos variable (function and index are set within
  * the template code */
 void init_CpInfos(CpInfos *cpInfos) {
-  char *ptr;
+  char *ptr = nullptr;
 
-  ptr = (char *)cpInfos;
-  for (unsigned int i = 0; i < sizeof(CpInfos); ++i)
+  ptr = reinterpret_cast<char *>(cpInfos);
+  for (size_t i = 0; i < sizeof(CpInfos); ++i)
     ptr[i] = 0;
   cpInfos->tapeNumber = -1;
 }
@@ -189,30 +187,27 @@ void init_edf(ext_diff_fct *edf) {
 /****************************************************************************/
 
 /* special case: use double version where possible, no taping */
-int cp_zos_forward(int n, double *dp_x, int m, double *dp_y) {
-  CpInfos *cpInfos;
-  double *T0;
-  int i, oldTraceFlag;
-  locint arg;
+int cp_zos_forward(size_t dim_x, double *dp_x, size_t dim_y, double *dp_y) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   // taping off
-  oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+  const size_t oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
 
   // get checkpointing information
-  cpInfos = get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
-  T0 = ADOLC_CURRENT_TAPE_INFOS.dp_T0;
+  CpInfos *cpInfos = get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
+  double *T0 = ADOLC_CURRENT_TAPE_INFOS.dp_T0;
 
   // note the mode
   cpInfos->modeForward = ADOLC_ZOS_FORWARD;
   cpInfos->modeReverse = ADOLC_NO_MODE;
 
   // prepare arguments
-  cpInfos->dp_internal_for = new double[cpInfos->n];
-  arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
-  for (i = 0; i < cpInfos->n; ++i) {
+  cpInfos->dp_internal_for = new double[cpInfos->dim];
+
+  size_t arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_for;
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     cpInfos->dp_internal_for[i] = T0[arg];
     ++arg;
   }
@@ -221,13 +216,13 @@ int cp_zos_forward(int n, double *dp_x, int m, double *dp_y) {
 
   // write back
   arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_for; // keep input
-  for (i = 0; i < cpInfos->n; ++i) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     ADOLC_WRITE_SCAYLOR(T0[arg]);
     T0[arg] = cpInfos->dp_internal_for[i];
     ++arg;
   }
   delete[] cpInfos->dp_internal_for;
-  cpInfos->dp_internal_for = NULL;
+  cpInfos->dp_internal_for = nullptr;
 
   // taping "on"
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
@@ -252,86 +247,89 @@ void revolve_for(CpInfos *cpInfos) {
       cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
+
     case revolve_advance:
-      for (int i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i) {
-        cpInfos->function_double(cpInfos->n, cpInfos->dp_internal_for);
+      for (size_t i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i) {
+        cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
       }
       break;
+
     case revolve_firsturn:
       cp_taping(cpInfos);
       break;
+
     case revolve_error:
       revolveError(cpInfos);
       break;
+
     default:
       fail(ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION);
     }
   } while (whattodo == revolve_takeshot || whattodo == revolve_advance);
 }
 
-int cp_fos_forward(int n, double *dp_x, double *dp_X, int m, double *dp_y,
-                   double *dp_Y) {
+int cp_fos_forward(size_t dim_x, double *dp_x, double *dp_X, size_t dim_y,
+                   double *dp_y, double *dp_Y) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fos_forward mode!\n");
   return 0;
 }
 
-int cp_fov_forward(int n, double *dp_x, int p, double **dpp_X, int m,
-                   double *dp_y, double **dpp_Y) {
+int cp_fov_forward(size_t dim_X, double *dp_x, size_t num_dirs, double **dpp_X,
+                   size_t dim_y, double *dp_y, double **dpp_Y) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fov_forward mode!\n");
   return 0;
 }
 
-int cp_hos_forward(int n, double *dp_x, int d, double **dpp_X, int m,
-                   double *dp_y, double **dpp_Y) {
+int cp_hos_forward(size_t dim_x, double *dp_x, size_t degree, double **dpp_X,
+                   size_t dim_y, double *dp_y, double **dpp_Y) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_forward mode!\n");
   return 0;
 }
 
-int cp_hov_forward(int n, double *dp_x, int d, int p, double ***dppp_X, int m,
-                   double *dp_y, double ***dppp_Y) {
+int cp_hov_forward(size_t dim_x, double *dp_x, size_t degree, size_t num_dirs,
+                   double ***dppp_X, size_t dim_y, double *dp_y,
+                   double ***dppp_Y) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_forward mode!\n");
   return 0;
 }
 
-int cp_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x,
-                   double *dp_y) {
+int cp_fos_reverse(size_t dim_y, double *dp_U, size_t dim_x, double *dp_Z,
+                   double *dp_x, double *dp_y) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   revreal *A = ADOLC_CURRENT_TAPE_INFOS.rp_A;
-  int oldTraceFlag;
-  locint arg;
   CpInfos *cpInfos = get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
-  char old_bsw;
 
   // note the mode
   cpInfos->modeReverse = ADOLC_FOS_REVERSE;
 
-  cpInfos->dp_internal_for = new double[cpInfos->n];
-  cpInfos->dp_internal_rev = new double[cpInfos->n];
+  cpInfos->dp_internal_for = new double[cpInfos->dim];
+  cpInfos->dp_internal_rev = new double[cpInfos->dim];
 
   // taping "off"
-  oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+  const size_t oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
 
-  arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
-  for (int i = 0; i < cpInfos->n; ++i) {
+  size_t arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     cpInfos->dp_internal_rev[i] = A[arg];
     ++arg;
   }
   // update taylor buffer
-  for (int i = 0; i < cpInfos->n; ++i) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     --arg;
     ADOLC_GET_TAYLOR(arg);
   }
   // execute second part of revolve_firstturn left from forward sweep
-  fos_reverse(cpInfos->tapeNumber, cpInfos->n, cpInfos->n,
+  fos_reverse(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim,
               cpInfos->dp_internal_rev, cpInfos->dp_internal_rev);
 
-  old_bsw = ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning;
+  const char old_bsw = ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning;
   ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = 0;
   // checkpointing
   enum revolve_action whattodo;
@@ -341,36 +339,42 @@ int cp_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x,
     switch (whattodo) {
     case revolve_terminate:
       break;
+
     case revolve_takeshot:
       cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
+
     case revolve_advance:
-      for (int i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i)
-        cpInfos->function_double(cpInfos->n, cpInfos->dp_internal_for);
+      for (size_t i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i)
+        cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
       break;
+
     case revolve_youturn:
       if (cpInfos->retaping != 0)
         cp_taping(cpInfos); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
-        if (zos_forward(cpInfos->tapeNumber, cpInfos->n, cpInfos->n, 1,
+        if (zos_forward(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
           cp_taping(cpInfos);
       }
       // one reverse step
-      fos_reverse(cpInfos->tapeNumber, cpInfos->n, cpInfos->n,
+      fos_reverse(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim,
                   cpInfos->dp_internal_rev, cpInfos->dp_internal_rev);
       break;
+
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
         cp_release(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       cp_restore(cpInfos);
       break;
+
     case revolve_error:
       revolveError(cpInfos);
       break;
+
     default:
       fail(ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION);
       break;
@@ -381,16 +385,16 @@ int cp_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x,
 
   // save results
   arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
-  for (int i = 0; i < cpInfos->n; ++i) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     A[arg] = cpInfos->dp_internal_rev[i];
     ++arg;
   }
 
   // clean up
   delete[] cpInfos->dp_internal_for;
-  cpInfos->dp_internal_for = NULL;
+  cpInfos->dp_internal_for = nullptr;
   delete[] cpInfos->dp_internal_rev;
-  cpInfos->dp_internal_rev = NULL;
+  cpInfos->dp_internal_rev = nullptr;
 
   // taping "on"
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
@@ -398,44 +402,45 @@ int cp_fos_reverse(int m, double *dp_U, int n, double *dp_Z, double *dp_x,
   return 0;
 }
 
-int cp_fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z,
-                   double * /*unused*/, double * /*unused*/) {
+int cp_fov_reverse(size_t dim_y, size_t num_weights, double **dpp_U,
+                   size_t dim_x, double **dpp_Z, double * /*unused*/,
+                   double * /*unused*/) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   revreal **A = ADOLC_CURRENT_TAPE_INFOS.rpp_A;
-  int oldTraceFlag, numDirs;
-  locint arg;
   CpInfos *cpInfos = get_cp_fct(ADOLC_CURRENT_TAPE_INFOS.cpIndex);
-  char old_bsw;
 
   // note the mode
   cpInfos->modeReverse = ADOLC_FOV_REVERSE;
 
-  numDirs = ADOLC_CURRENT_TAPE_INFOS.numDirs_rev;
-  cpInfos->dp_internal_for = new double[cpInfos->n];
-  cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->n);
+  const size_t numDirs = ADOLC_CURRENT_TAPE_INFOS.numDirs_rev;
+  cpInfos->dp_internal_for = new double[cpInfos->dim];
+  cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
 
   // taping "off"
-  oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+  const size_t oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
 
-  arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
-  for (int i = 0; i < cpInfos->n; ++i) {
-    for (int j = 0; j < numDirs; ++j) {
+  size_t arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
+    for (size_t j = 0; j < numDirs; ++j) {
       cpInfos->dpp_internal_rev[j][i] = A[arg][j];
     }
     ++arg;
   }
+
   // update taylor buffer
-  for (int i = 0; i < cpInfos->n; ++i) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
     --arg;
     ADOLC_GET_TAYLOR(arg);
   }
+
   // execute second part of revolve_firstturn left from forward sweep
-  fov_reverse(cpInfos->tapeNumber, cpInfos->n, cpInfos->n, numDirs,
+  fov_reverse(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim, numDirs,
               cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
 
-  old_bsw = ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning;
+  const char old_bsw = ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning;
   ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = 0;
   // checkpointing
   enum revolve_action whattodo;
@@ -445,48 +450,56 @@ int cp_fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z,
     switch (whattodo) {
     case revolve_terminate:
       break;
+
     case revolve_takeshot:
       cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
+
     case revolve_advance:
-      for (int i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i)
-        cpInfos->function_double(cpInfos->n, cpInfos->dp_internal_for);
+      for (size_t i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i)
+        cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
       break;
+
     case revolve_youturn:
       if (cpInfos->retaping != 0)
         cp_taping(cpInfos); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
-        if (zos_forward(cpInfos->tapeNumber, cpInfos->n, cpInfos->n, 1,
+        if (zos_forward(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
           cp_taping(cpInfos);
       }
       // one reverse step
-      fov_reverse(cpInfos->tapeNumber, cpInfos->n, cpInfos->n, numDirs,
+      fov_reverse(cpInfos->tapeNumber, cpInfos->dim, cpInfos->dim, numDirs,
                   cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
       break;
+
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
         cp_release(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       cp_restore(cpInfos);
       break;
+
     case revolve_error:
       revolveError(cpInfos);
       break;
+
     default:
       fail(ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION);
       break;
     }
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
-  cp_release(cpInfos); // release first checkpoint if written
+
+  // release first checkpoint if written
+  cp_release(cpInfos);
   ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = old_bsw;
 
   // save results
   arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
-  for (int i = 0; i < cpInfos->n; ++i) {
-    for (int j = 0; j < numDirs; ++j) {
+  for (size_t i = 0; i < cpInfos->dim; ++i) {
+    for (size_t j = 0; j < numDirs; ++j) {
       A[arg][j] = cpInfos->dpp_internal_rev[j][i];
     }
     ++arg;
@@ -494,9 +507,9 @@ int cp_fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z,
 
   // clean up
   delete[] cpInfos->dp_internal_for;
-  cpInfos->dp_internal_for = NULL;
+  cpInfos->dp_internal_for = nullptr;
   myfree2(cpInfos->dpp_internal_rev);
-  cpInfos->dpp_internal_rev = NULL;
+  cpInfos->dpp_internal_rev = nullptr;
 
   // taping "on"
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
@@ -504,13 +517,15 @@ int cp_fov_reverse(int m, int p, double **dpp_U, int n, double **dpp_Z,
   return 0;
 }
 
-int cp_hos_reverse(int m, double *dp_U, int n, int d, double **dpp_Z) {
+int cp_hos_reverse(size_t dim_y, double *dp_U, size_t dim_x, size_t degree,
+                   double **dpp_Z) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_reverse mode!\n");
   return 0;
 }
 
-int cp_hov_reverse(int m, int p, double **dpp_U, int n, int d, double ***dppp_Z,
+int cp_hov_reverse(size_t dim_y, size_t num_weights, double **dpp_U,
+                   size_t dim_x, size_t degree, double ***dppp_Z,
                    short **spp_nz) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_reverse mode!\n");
@@ -540,13 +555,15 @@ void cp_takeshot(CpInfos *cpInfos) {
 
   StackElement se = new double *[2];
   ADOLC_CHECKPOINTS_STACK.push(se);
-  se[0] = new double[cpInfos->n];
-  for (int i = 0; i < cpInfos->n; ++i)
+  se[0] = new double[cpInfos->dim];
+
+  for (size_t i = 0; i < cpInfos->dim; ++i)
     se[0][i] = cpInfos->dp_internal_for[i];
-  if (cpInfos->saveNonAdoubles != NULL)
+
+  if (cpInfos->saveNonAdoubles != nullptr)
     se[1] = static_cast<double *>(cpInfos->saveNonAdoubles());
   else
-    se[1] = NULL;
+    se[1] = nullptr;
 }
 
 void cp_restore(CpInfos *cpInfos) {
@@ -554,9 +571,10 @@ void cp_restore(CpInfos *cpInfos) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   StackElement se = ADOLC_CHECKPOINTS_STACK.top();
-  for (int i = 0; i < cpInfos->n; ++i)
+  for (size_t i = 0; i < cpInfos->dim; ++i)
     cpInfos->dp_internal_for[i] = se[0][i];
-  if (se[1] != NULL)
+
+  if (se[1] != nullptr)
     cpInfos->restoreNonAdoubles(static_cast<void *>(se[1]));
 }
 
@@ -568,23 +586,25 @@ void cp_release(CpInfos *cpInfos) {
     StackElement se = ADOLC_CHECKPOINTS_STACK.top();
     ADOLC_CHECKPOINTS_STACK.pop();
     delete[] se[0];
-    if (se[1] != NULL)
+
+    if (se[1] != nullptr)
       delete[] se[1];
+
     delete[] se;
   }
 }
 
 void cp_taping(CpInfos *cpInfos) {
-  adouble *tapingAdoubles = new adouble[cpInfos->n];
+  adouble *tapingAdoubles = new adouble[cpInfos->dim];
 
   trace_on(cpInfos->tapeNumber, 1);
 
-  for (int i = 0; i < cpInfos->n; ++i)
+  for (size_t i = 0; i < cpInfos->dim; ++i)
     tapingAdoubles[i] <<= cpInfos->dp_internal_for[i];
 
-  cpInfos->function(cpInfos->n, tapingAdoubles);
+  cpInfos->function(cpInfos->dim, tapingAdoubles);
 
-  for (int i = 0; i < cpInfos->n; ++i)
+  for (size_t i = 0; i < cpInfos->dim; ++i)
     tapingAdoubles[i] >>= cpInfos->dp_internal_for[i];
 
   trace_off();
@@ -604,7 +624,7 @@ void revolveError(CpInfos *cpInfos) {
     break;
   case 11:
     printf("   Number of checkpoints stored = %d exceeds "
-           "snaps = %d!\n   Ensure 'snaps' > 0 and increase "
+           "snaps = %zu!\n   Ensure 'snaps' > 0 and increase "
            "initial 'fine'!\n",
            cpInfos->check + 1, cpInfos->checkpoints);
     break;
