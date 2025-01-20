@@ -1,5 +1,5 @@
 install(FILES
-        ad_types.h
+        ad_types.h     
         adalloc.h
         adolc_fatalerror.h
         adolc.h
@@ -12,16 +12,25 @@ install(FILES
         adutilsc.h
         adutils.h
         advector.h
+        buffer_temp.h   
+        checkpointing_p.h   
         checkpointing.h
         convolut.h
+        dvlparms.h
         edfclasses.h
+        externfcts_p.h 
         externfcts2.h
         externfcts.h
         fixpoint.h
         fortutils.h
         interfaces.h
+        medipacksupport_p.h 
+        oplate.h 
         revolve.h
-        taping.h
+        rpl_malloc.h 
+        storemanager.h
+        taping_p.h
+        taping.h        
         DESTINATION "include/adolc")
 
 add_subdirectory(drivers)
