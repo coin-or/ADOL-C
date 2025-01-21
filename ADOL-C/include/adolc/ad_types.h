@@ -72,7 +72,7 @@ public:
 
   adouble &operator=(const double coval);
   adouble &operator=(const adouble &a);
-  adouble &operator=(adouble &&a) noexcept;
+  // adouble &operator=(adouble &&a) noexcept;
   adouble &operator=(const pdouble &p);
 
   inline double getValue() const {
@@ -141,9 +141,6 @@ public:
   explicit pdouble(tape_location tape_loc);
 
   static pdouble mkparam(const double pval);
-  static inline pdouble getparam(size_t loc_) {
-    return pdouble{tape_location{loc_}};
-  };
   explicit operator adouble() const;
 
   inline size_t getLoc() const { return tape_loc_.loc_; }

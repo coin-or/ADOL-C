@@ -30,6 +30,7 @@
 
 adouble::adouble() {
   tape_loc_ = tape_location{next_loc()};
+
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -253,7 +254,7 @@ adouble &adouble::operator=(const adouble &a) {
 }
 
 // moves the tape_location of "a" to "this" and sets "a" to an invalid state.
-adouble &adouble::operator=(adouble &&a) noexcept {
+/*adouble &adouble::operator=(adouble &&a) noexcept {
   if (this == &a) {
     return *this;
   }
@@ -264,7 +265,7 @@ adouble &adouble::operator=(adouble &&a) noexcept {
   a.valid = 0;
 
   return *this;
-}
+}*/
 
 adouble &adouble::operator=(const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -2547,7 +2548,6 @@ adouble operator*(const double coval, adouble &&a) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   const double coval2 = coval * ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()];
-
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -2606,13 +2606,13 @@ adouble operator*(adouble &&a, const double coval) {
 adouble operator/(const adouble &a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   adouble ret_adouble{tape_location{next_loc()}};
-  const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] /
-                        ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
+  const double coval2 = a.getValue() / b.getValue();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-#if defined(ADOLC_TRACK_ACTIVITY)
 
+#if defined(ADOLC_TRACK_ACTIVITY)
     if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()] &&
         ADOLC_GLOBAL_TAPE_VARS.actStore[b.getLoc()]) {
 #endif
@@ -2698,8 +2698,7 @@ adouble operator/(adouble &&a, const adouble &b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] /
-                        ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
+  const double coval2 = a.getValue() / b.getValue();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -2771,8 +2770,7 @@ adouble operator/(const adouble &a, adouble &&b) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
-  const double coval2 = ADOLC_GLOBAL_TAPE_VARS.store[a.getLoc()] /
-                        ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()];
+  const double coval2 = a.getValue() / b.getValue();
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -2788,7 +2786,7 @@ adouble operator/(const adouble &a, adouble &&b) {
 
       ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
       if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-        ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[b.getLoc()]);
+        ADOLC_WRITE_SCAYLOR(b.getValue());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
     } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.getLoc()]) {
