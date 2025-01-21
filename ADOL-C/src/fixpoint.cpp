@@ -33,8 +33,8 @@ struct fpi_data {
   size_t sub_tape_num;
   double_F double_func;
   adouble_F adouble_func;
-  norm norm_func;
-  norm_deriv norm_deriv_func;
+  norm_F norm_func;
+  norm_deriv_F norm_deriv_func;
   double epsilon;
   double epsilon_deriv;
   size_t N_max;
@@ -53,6 +53,7 @@ static int iteration(size_t dim_xu, double *xu, size_t dim_x, double *x_fix) {
   for (size_t k = 1; k <= current.N_max; ++k) {
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i];
+
     current.double_func(xu, xu + dim_x, x_fix, dim_x, dim_xu - dim_x);
 
     for (size_t i = 0; i < dim_x; ++i)
@@ -202,8 +203,8 @@ static int fp_fos_reverse(size_t dim_x, double *x_fix_bar, size_t dim_xu,
 }
 
 ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
-                                  adouble_F adouble_func, norm norm_func,
-                                  norm_deriv norm_deriv_func, double epsilon,
+                                  adouble_F adouble_func, norm_F norm_func,
+                                  norm_deriv_F norm_deriv_func, double epsilon,
                                   double epsilon_deriv, size_t N_max,
                                   size_t N_max_deriv, adouble *x_0, adouble *u,
                                   adouble *x_fix, size_t dim_x, size_t dim_u) {
