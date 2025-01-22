@@ -239,11 +239,12 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] = u[i];
 
+  const short old_tape_id = ADOLC_CURRENT_TAPE_INFOS.tapeID;
+  const size_t old_trace_flag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
   const int k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
 
   // tape near solution
   trace_on(sub_tape_num, 1);
-
   for (size_t i = 0; i < dim_x; ++i)
     xu[i] <<= x_fix[i].getValue();
 
@@ -257,6 +258,21 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
     x_fix[i] >>= dummy_out;
 
   trace_off();
+
+  // check if the outside tape is active and the same as in the call_ext_fct.
+  // This works because we have a stack of tapes "ADOLC_TAPE_STACK" that stores
+  // information about all currently not-closed tapes. Inside
+  // "trace_off()->releaseTape()" the stack pops and we get the last active
+  // tape, which is the outside tape.
+  if (old_trace_flag && old_tape_id == ADOLC_CURRENT_TAPE_INFOS.tapeID) {
+    // what we do here is to ensure that the correct location of the result of
+    // the fixed-point iteration is stored. The location of the output was
+    // previously stored in "call_ext_fct". However, the call to "adouble_func"
+    // could change the location of "x_fix" due to move semantics.
+    ADOLC_PUT_LOCINT(x_fix[0].loc());
+    /* keep space for checkpointing index */
+    ADOLC_PUT_LOCINT(0);
+  }
 
   delete[] xu;
   return k;
