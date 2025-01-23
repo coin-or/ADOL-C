@@ -2,7 +2,8 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     pdouble.cpp
  Revision: $Id$
- Contents: definitions for pdouble class and corresponding arithmetics
+ Contents: This file specifies the definitions for pdouble class and
+           corresponding arithmetics
 
  Copyright (c) Kshitij Kulshreshtha
 

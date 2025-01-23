@@ -2,14 +2,8 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     adouble.cpp
  Revision: $Id$
- Contents: adouble.C contains that definitions of procedures used to
-           define various badouble, adub, and adouble operations.
-           These operations actually have two purposes.
-           The first purpose is to actual compute the function, just as
-           the same code written for double precision (single precision -
-           complex - interval) arithmetic would.  The second purpose is
-           to write a transcript of the computation for the reverse pass
-           of automatic differentiation.
+ Contents: This file specifies the definitions of the member functions of
+           adouble and various arithmetic function that work on adoubles.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
