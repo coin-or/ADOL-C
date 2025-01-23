@@ -92,7 +92,7 @@ adouble::adouble(double coval) {
 adouble::adouble(const tape_location &tape_loc) { tape_loc_ = tape_loc; }
 
 adouble::adouble(const adouble &a) {
-  tape_loc_ = a.tape_loc_;
+  tape_loc_ = tape_location{next_loc()};
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
