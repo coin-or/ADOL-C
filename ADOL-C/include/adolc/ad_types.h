@@ -72,7 +72,7 @@ public:
 
   adouble &operator=(const double coval);
   adouble &operator=(const adouble &a);
-  // adouble &operator=(adouble &&a) noexcept;
+  adouble &operator=(adouble &&a) noexcept;
   adouble &operator=(const pdouble &p);
 
   inline double getValue() const {
