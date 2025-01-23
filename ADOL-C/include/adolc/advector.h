@@ -60,18 +60,18 @@ public:
 
   inline size_t getLocation() const { return location; }
   inline size_t getRefloc() const { return refloc; }
-  inline size_t getValue() const {
+  inline double value() const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     return ADOLC_GLOBAL_TAPE_VARS.store[refloc];
   }
 
-  inline void setValue(const double coval) {
+  inline void value(const double coval) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.store[refloc] = coval;
   }
-  operator adouble() const;
+  explicit operator adouble() const;
 
   adouble operator++(int);
   adouble operator--(int);

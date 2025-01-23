@@ -109,7 +109,7 @@ int checkpointing(CpInfos *cpInfos) {
 
   // initialize internal arguments
   for (size_t i = 0; i < cpInfos->dim; ++i)
-    cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].getValue();
+    cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].value();
 
   if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors != 0)
     // perform all time steps, tape the last, take checkpoints
@@ -128,11 +128,11 @@ int checkpointing(CpInfos *cpInfos) {
     ADOLC_CURRENT_TAPE_INFOS.numTays_Tape += cpInfos->dim;
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors != 0)
       for (size_t i = 0; i < cpInfos->dim; ++i)
-        ADOLC_WRITE_SCAYLOR(cpInfos->adp_y[i].getValue());
+        ADOLC_WRITE_SCAYLOR(cpInfos->adp_y[i].value());
   }
   // save results
   for (size_t i = 0; i < cpInfos->dim; ++i) {
-    cpInfos->adp_y[i].setValue(cpInfos->dp_internal_for[i]);
+    cpInfos->adp_y[i].value(cpInfos->dp_internal_for[i]);
   }
 
   delete[] cpInfos->dp_internal_for;

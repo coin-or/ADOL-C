@@ -201,20 +201,20 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
     if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors) {
       if (edfct->dp_x_changes)
         for (size_t i = 0; i < dim_x; ++i)
-          ADOLC_WRITE_SCAYLOR(xa[i].getValue());
+          ADOLC_WRITE_SCAYLOR(xa[i].value());
 
       if (edfct->dp_y_priorRequired)
         for (size_t i = 0; i < dim_y; ++i)
-          ADOLC_WRITE_SCAYLOR(ya[i].getValue());
+          ADOLC_WRITE_SCAYLOR(ya[i].value());
     }
   }
 
   for (size_t i = 0; i < dim_x; ++i)
-    edfct->dp_x[i] = xa[i].getValue();
+    edfct->dp_x[i] = xa[i].value();
 
   if (edfct->dp_y_priorRequired)
     for (size_t i = 0; i < dim_y; ++i)
-      edfct->dp_y[i] = ya[i].getValue();
+      edfct->dp_y[i] = ya[i].value();
 
   ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = edfct->index;
 }
@@ -234,10 +234,10 @@ void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   /* write back */
   if (edfct->dp_x_changes)
     for (size_t i = 0; i < dim_x; ++i)
-      xa[i].setValue(edfct->dp_x[i]);
+      xa[i].value(edfct->dp_x[i]);
 
   for (size_t i = 0; i < dim_y; ++i)
-    ya[i].setValue(edfct->dp_y[i]);
+    ya[i].value(edfct->dp_y[i]);
 
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
 }

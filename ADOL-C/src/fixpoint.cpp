@@ -246,10 +246,10 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
   // tape near solution
   trace_on(sub_tape_num, 1);
   for (size_t i = 0; i < dim_x; ++i)
-    xu[i] <<= x_fix[i].getValue();
+    xu[i] <<= x_fix[i].value();
 
   for (size_t i = 0; i < dim_u; ++i)
-    xu[dim_x + i] <<= u[i].getValue();
+    xu[dim_x + i] <<= u[i].value();
 
   adouble_func(xu, xu + dim_x, x_fix, dim_x, dim_u);
 
