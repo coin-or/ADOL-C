@@ -16,7 +16,7 @@
 #if !defined(ADOLC_EXTERNFCTS_H)
 #define ADOLC_EXTERNFCTS_H 1
 
-#include <adolc/ad_types.h>
+#include <adolc/adtb_types.h>
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS

@@ -16,7 +16,7 @@
 #ifndef ADOLC_ADVECTOR_H
 #define ADOLC_ADVECTOR_H
 
-#include <adolc/ad_types.h>
+#include <adolc/adtb_types.h>
 
 /****************************************************************************/
 /*                                                         THIS FILE IS C++ */

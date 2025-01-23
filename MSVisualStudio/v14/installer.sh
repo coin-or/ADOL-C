@@ -1,8 +1,8 @@
 #!/bin/bash -x
-INCFILES=(adolc.h adalloc.h ad_types.h adutils.h
+INCFILES=(adolc.h adalloc.h adtb_types.h adutils.h
 	adutilsc.h advector.h
 	convolut.h fortutils.h
-	interfaces.h ad_types.h taping.h
+	interfaces.h adtb_types.h taping.h
 	externfcts.h externfcts2.h
 	checkpointing.h fixpoint.h
 	adolc_sparse.h adolc_openmp.h

@@ -12,8 +12,8 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include <adolc/ad_types.h>
 #include <adolc/adolc.h>
+#include <adolc/adtb_types.h>
 #include <adolc/dvlparms.h>
 #include <adolc/lie/drivers.h>
 

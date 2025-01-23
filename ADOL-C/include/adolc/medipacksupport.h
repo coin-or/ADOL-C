@@ -14,7 +14,7 @@
 #if !defined(ADOLC_MEDISUPPORTADOLC_H)
 #define ADOLC_MEDISUPPORTADOLC_H 1
 
-#include "ad_types.h"
+#include <adolc/adtb_types.h>
 
 #include <medi/adToolImplCommon.hpp>
 #include <medi/adjointInterface.hpp>

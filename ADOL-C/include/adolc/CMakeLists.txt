@@ -1,5 +1,5 @@
 install(FILES
-        ad_types.h     
+        adtb_types.h     
         adalloc.h
         adolc_fatalerror.h
         adolc.h

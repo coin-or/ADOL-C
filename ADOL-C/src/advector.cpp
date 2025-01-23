@@ -13,7 +13,7 @@
 
 ---------------------------------------------------------------------------*/
 
-#include <adolc/ad_types.h>
+#include <adolc/adtb_types.h>
 #include <adolc/advector.h>
 #include <adolc/dvlparms.h>
 #include <adolc/oplate.h>

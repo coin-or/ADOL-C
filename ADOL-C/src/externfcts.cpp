@@ -12,8 +12,8 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc/ad_types.h>
 #include <adolc/adalloc.h>
+#include <adolc/adtb_types.h>
 #include <adolc/buffer_temp.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts_p.h>

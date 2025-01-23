@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     ad_types.h
+ File:     adtb_types.h
  Revision: $Id$
- Contents: ad_types.h contains the declarations of tape_location, adouble and
+ Contents: adtb_types.h contains the declarations of tape_location, adouble and
 pdouble.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,

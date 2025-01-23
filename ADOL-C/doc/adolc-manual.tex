@@ -210,7 +210,7 @@ members of structures or classes.
 The C++ class {\sf adouble}, its member functions, and the overloaded
 versions of all arithmetic operations, comparison operators, and 
 most ANSI C functions are contained in the file \verb=adouble.cpp= and its
-header \verb=<adolc/ad_types.h>=. The latter must be included for compilation
+header \verb=<adolc/adtb_types.h>=. The latter must be included for compilation
 of all program files containing {\sf adouble}s and corresponding 
 operations. 
 %
@@ -238,13 +238,13 @@ entered repeatedly, and one can successively generate several traces
 on distinct tapes by changing the value of {\sf tag}. 
 Both functions {\sf trace\_on} and {\sf trace\_off} are prototyped in
 the header file \verb=<adolc/taputil.h>=, which is included by the header
-\verb=<adolc/ad_types.h>= automatically.
+\verb=<adolc/adtb_types.h>= automatically.
 
 Active sections may contain nested or even recursive calls to functions
 provided by the user. Naturally, their formal and actual parameters
 must have matching types. In particular, the functions must be 
 compiled with their active variables declared as
-{\sf adouble}s and with the header file \verb=<adolc/ad_types.h>= included.  
+{\sf adouble}s and with the header file \verb=<adolc/adtb_types.h>= included.  
 Variables of type {\sf adouble} may be declared outside an active section and need not
 go out of scope before the end of an active section. 
 It is not necessary -- though desirable -- that free-store {\sf adouble}s
@@ -326,7 +326,7 @@ and {\sf y} as vectors of {\sf adouble}s and the other parameters
 passive, then one merely has to change the type declarations of all
 variables that depend on {\sf x} from {\sf double} or {\sf float} to
 {\sf adouble}. Subsequently, the subprogram must be compiled with the
-header file \verb=<adolc/ad_types.h>= included as described
+header file \verb=<adolc/adtb_types.h>= included as described
 in \autoref{DecActVar}. Now let us consider the situation when {\sf eval} is
 still to be called with integer and real arguments, possibly from
 a program written in Fortran77, which  does not allow overloading. 
@@ -662,7 +662,7 @@ the three argument version
 {\sf condassign(a,b,c)}, which 
 is logically equivalent to {\sf condassign(a,b,c,a)} in that
 nothing happens if {\sf b} is non-positive.  
-The header file \verb=<adolc/ad_types.h>=
+The header file \verb=<adolc/adtb_types.h>=
 contains also corresponding definitions of
 {\sf condassign(a,b,c,d)} 
 and {\sf condassign(a,b,c)} for
@@ -696,7 +696,7 @@ Select a sequence of dependent variables among the active variables,
 and pass their final values to passive variable or vectors thereof
 by \boldmath $\gg=$ \unboldmath assignments.
 \item 
-Compile the codes after including the header file \verb=<adolc/ad_types.h>=. 
+Compile the codes after including the header file \verb=<adolc/adtb_types.h>=. 
 \end{enumerate}
 Typically, the first compilation will detect several type conflicts
 -- usually attempts to convert from active to passive
@@ -4446,7 +4446,7 @@ in the \autoref{importantHeaders1} and \autoref{importantHeaders2}.
 \center \small
 \begin{tabular}{|p{3.8cm}|p{10.5cm}|}\hline
 %\multicolumn{2}{|l|}{\bf Tracing/taping}\\ \hline
-\verb=<adolc/ad_types.h>= & 
+\verb=<adolc/adtb_types.h>= & 
 \begin{tabular*}{10.5cm}{cp{9.5cm}}
   \boldmath $\rightarrow$ \unboldmath
                 & provides the interface to the basic active 
@@ -4462,7 +4462,7 @@ in the \autoref{importantHeaders1} and \autoref{importantHeaders2}.
 %                  and matrix data types of ADOL-C: {\sf class adoublev}
 %                  and {\sf class adoublem}, respectively 
 %                   (see \autoref{arrays}); \\
-%  $\bullet$     & is included by the header \verb=<adolc/ad_types.h>=.
+%  $\bullet$     & is included by the header \verb=<adolc/adtb_types.h>=.
 %\end{tabular*}
 %\\ \hline
  \verb=<adolc/taputil.h>= & 
@@ -4472,7 +4472,7 @@ in the \autoref{importantHeaders1} and \autoref{importantHeaders2}.
                   active sections (see \autoref{markingActive})
                   as well as utilities to obtain 
                   tape statistics (see \autoref{examiningTape}); \\
-  $\bullet$     & is included by the header \verb=<adolc/ad_types.h>=.
+  $\bullet$     & is included by the header \verb=<adolc/adtb_types.h>=.
 \end{tabular*}
 \\ \hline
 \end{tabular}
@@ -4645,7 +4645,7 @@ This macro is extended to the definition of
 Then remake the library \verb=libadolc.*= (see \autoref{genlib}). 
 \item
 In the definition of the class
-{\sf ADOLC\_DLL\_EXPORT adouble} in \verb=<adolc/ad_types.h>=, add the statement
+{\sf ADOLC\_DLL\_EXPORT adouble} in \verb=<adolc/adtb_types.h>=, add the statement
 \begin{center}
 {\sf friend adouble myintegral(adouble\&)}.
 \end{center}
@@ -4695,7 +4695,7 @@ y \; = \; f(x)\; =\; \prod_{i=0}^{n-1} x_i
 using the appropriate drivers {\sf gradient} and {\sf hessian}.
 
 \begin{verbatim}
-#include <adolc/ad_types.h>               // use of active doubles and taping
+#include <adolc/adtb_types.h>               // use of active doubles and taping
 #include <adolc/drivers/drivers.h>       // use of "Easy to Use" drivers 
                                    // gradient(.) and hessian(.)
 #include <adolc/taping.h>                // use of taping
@@ -4834,7 +4834,7 @@ matrix-vector multiplication. The example illustrates the use
 of {\sf adouble} arrays and pointers.  
 
 \begin{verbatim}
-#include <adolc/ad_types.h>               // use of active doubles and taping
+#include <adolc/adtb_types.h>               // use of active doubles and taping
 #include <adolc/interfaces.h>            // use of basic forward/reverse
                                    // interfaces of ADOL-C
 adouble** A;                       // A is an n x n matrix
@@ -4916,7 +4916,7 @@ given in Hairer and Wanner's book on the numerical solution of
 ODEs \cite{HW}. The following source code computes the corresponding
 values of $y^{\prime} \in \R^3$: 
 \begin{verbatim}
-#include <adolc/ad_types.h>                  // use of active doubles and taping
+#include <adolc/adtb_types.h>                  // use of active doubles and taping
 #include <adolc/drivers/odedrivers.h>       // use of "Easy To use" ODE drivers
 #include <adolc/adalloc.h>                  // use of ADOL-C allocation utilities
 

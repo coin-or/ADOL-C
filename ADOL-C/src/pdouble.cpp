@@ -13,7 +13,7 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc/ad_types.h>
+#include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
 
 pdouble::pdouble(const double pval) {
