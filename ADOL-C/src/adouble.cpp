@@ -3689,7 +3689,7 @@ adouble cos(adouble &&a) {
 }
 
 adouble tan(const adouble &a) { return sin(a) / cos(a); }
-adouble tan(adouble &&a) { return sin(a) / cos(std::move(a)); }
+adouble tan(adouble &&a) { return sin(a) / cos(a); }
 
 adouble asin(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
