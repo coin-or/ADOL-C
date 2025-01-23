@@ -171,9 +171,6 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
     ADOLC_PUT_LOCINT(dim_x);
     ADOLC_PUT_LOCINT(dim_y);
     ADOLC_PUT_LOCINT(xa[0].loc());
-    ADOLC_PUT_LOCINT(ya[0].loc());
-    /* keep space for checkpointing index */
-    ADOLC_PUT_LOCINT(0);
 
     oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
