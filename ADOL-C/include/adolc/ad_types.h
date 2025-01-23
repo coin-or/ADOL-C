@@ -33,14 +33,8 @@
 #ifndef ADOLC_AD_TYPES_H
 #define ADOLC_AD_TYPES_H
 
-#include <adolc/internal/common.h>
 #include <adolc/taping_p.h>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
-#include <limits>
-#include <stdexcept>
 
 /* The intent of the struct is to define a type-safe location on a tape. This
  * type should be leverage by all type-based types, like adouble or padouble.

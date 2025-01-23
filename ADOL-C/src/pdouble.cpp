@@ -13,9 +13,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/ad_types.h>
-#include <adolc/dvlparms.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 
 pdouble::pdouble(const double pval) {
 #include <limits>

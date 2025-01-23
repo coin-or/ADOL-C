@@ -22,10 +22,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/ad_types.h>
-#include <adolc/adolc.h>
-#include <adolc/dvlparms.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 #include <cassert>
 
 adouble::adouble() {
