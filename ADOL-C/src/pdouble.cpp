@@ -15,6 +15,7 @@
 
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
+#include <cassert>
 
 pdouble::pdouble(const double pval) {
 #include <limits>
