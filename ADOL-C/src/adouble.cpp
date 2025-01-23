@@ -254,7 +254,7 @@ adouble &adouble::operator=(const adouble &a) {
 }
 
 // moves the tape_location of "a" to "this" and sets "a" to an invalid state.
-/*adouble &adouble::operator=(adouble &&a) noexcept {
+adouble &adouble::operator=(adouble &&a) noexcept {
   if (this == &a) {
     return *this;
   }
@@ -265,7 +265,7 @@ adouble &adouble::operator=(const adouble &a) {
   a.valid = 0;
 
   return *this;
-}*/
+}
 
 adouble &adouble::operator=(const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -3746,7 +3746,7 @@ adouble cos(adouble &&a) {
 }
 
 adouble tan(const adouble &a) { return sin(a) / cos(a); }
-adouble tan(adouble &&a) { return sin(std::move(a)) / cos(std::move(a)); }
+adouble tan(adouble &&a) { return sin(a) / cos(std::move(a)); }
 
 adouble asin(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
