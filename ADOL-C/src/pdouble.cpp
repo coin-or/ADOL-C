@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
- File:     param.cpp
+ File:     pdouble.cpp
  Revision: $Id$
- Contents: class for parameter dependent functions
+ Contents: definitions for pdouble class and corresponding arithmetics
 
  Copyright (c) Kshitij Kulshreshtha
 
