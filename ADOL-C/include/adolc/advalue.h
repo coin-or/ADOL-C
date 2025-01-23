@@ -1027,12 +1027,14 @@ auto adCompose(const Value &x, const Derivatives &f) {
 template <class X> X inv(const X &x) {
   return adCompose(x, [](auto k, auto x) {
     constexpr auto order = decltype(k)::value;
+    constexpr auto canUseInt = requires() { 1 / x; };
+    using Constant = std::conditional_t<canUseInt, int, decltype(x)>;
     if constexpr (order == 0)
-      return 1 / x;
+      return Constant(1) / x;
     if constexpr (order == 1)
-      return -1 / (x * x);
+      return Constant(-1) / (x * x);
     if constexpr (order == 2)
-      return 2 / (x * x * x);
+      return Constant(2) / (x * x * x);
     static_assert(order <= 2, "Only derivatives up to order 2 are implemented");
   });
 }
@@ -1125,12 +1127,14 @@ template <class X> auto log(const X &x) {
   using std::pow;
   return adCompose(x, [](auto k, auto x) {
     constexpr auto order = decltype(k)::value;
+    constexpr auto canUseInt = requires() { 1 / x; };
+    using Constant = std::conditional_t<canUseInt, int, decltype(x)>;
     if constexpr (order == 0)
       return log(x);
     if constexpr (order == 1)
-      return 1. / x;
+      return Constant(1) / x;
     if constexpr (order == 2)
-      return -1. / (x * x);
+      return Constant(-1) / (x * x);
     static_assert(order <= 2, "Only derivatives up to order 2 are implemented");
   });
 }
@@ -1143,12 +1147,14 @@ template <class X> auto sqrt(const X &x) {
   using std::sqrt;
   return adCompose(x, [](auto k, auto x) {
     constexpr auto order = decltype(k)::value;
+    constexpr auto canUseDouble = requires() { 1. / x; };
+    using Constant = std::conditional_t<canUseDouble, double, decltype(x)>;
     if constexpr (order == 0)
       return sqrt(x);
     if constexpr (order == 1)
-      return 1. / (2. * sqrt(x));
+      return Constant(1. / 2.) / sqrt(x);
     if constexpr (order == 2)
-      return -1. / (4. * x * sqrt(x));
+      return Constant(-1. / 4.) / (x * sqrt(x));
     static_assert(order <= 2, "Only derivatives up to order 2 are implemented");
   });
 }
@@ -1162,12 +1168,14 @@ auto pow(const X &x, const Y &y) {
   using std::pow;
   return adCompose(x, [y](auto k, auto x) {
     constexpr auto order = decltype(k)::value;
+    constexpr auto canUseInt = requires() { y - 1; };
+    using Constant = std::conditional_t<canUseInt, int, decltype(y)>;
     if constexpr (order == 0)
       return pow(x, y);
     if constexpr (order == 1)
-      return y * pow(x, y - 1);
+      return y * pow(x, y - Constant(1));
     if constexpr (order == 2)
-      return y * (y - 1.) * pow(x, y - 2.);
+      return y * (y - Constant(1)) * pow(x, y - Constant(2));
     static_assert(order <= 2, "Only derivatives up to order 2 are implemented");
   });
 }
