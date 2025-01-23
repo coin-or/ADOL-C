@@ -2,27 +2,12 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     ad_types.h
  Revision: $Id$
- Contents: class for parameter dependent functions
-
- Copyright (c) Kshitij Kulshreshtha
-
- This file is part of ADOL-C. This software is provided as open source.
- Any use, reproduction, or distribution of the software constitutes
- recipient's acceptance of the terms of the accompanying license file.
-
-----------------------------------------------------------------------------*/
-
-/* ---------------------------------------------------------------------------
- ADOL-C -- Automatic Differentiation by Overloading in C++
-
- Revision: $Id$
- Contents: ad_types.h contains the basis for the class of adouble
-           included here are all the possible functions defined on
-           the adouble class.  See below for further explanation.
+ Contents: ad_types.h contains the declarations of tape_location, adouble and
+pdouble.
 
  Copyright (c) Andrea Walther, Andreas Griewank, Andreas Kowarz,
                Hristo Mitev, Sebastian Schlenkrich, Jean Utke, Olaf Vogel,
-               Benjamin Letschert Kshitij Kulshreshtha
+               Benjamin Letschert, Kshitij Kulshreshtha
 
  This file is part of ADOL-C. This software is provided as open source.
  Any use, reproduction, or distribution of the software constitutes
@@ -47,45 +32,141 @@ struct tape_location {
 
 class pdouble;
 
-/****************************************************************************/
-/*                                                            CLASS ADOUBLE */
-/*
-  The class adouble.
-  ---Derived from badouble.  Contains the standard constructors/destructors.
-  ---At construction, it is given a new address, and at destruction, that
-     address is freed.
-*/
+/**
+ * @brief The `adouble` class is leveraged to compute tape-based derivatives. It
+ * is represented by a location on the tape and the value that is stored on the
+ * tape at the location
+ *
+ * Its interface acts in principle as `double`. However, internally, whenever it
+ * participates in an arithmetic operation, the `adouble` registers locations
+ * and the type of the operation on the tape.
+ */
 class ADOLC_DLL_EXPORT adouble {
 public:
+  /** @brief Default constructor. Initializes an `adouble` with next location
+   * from the tape. If ADOLC_ADOUBLE_STDCZERO is set, 0 is written on the tape
+   * at the new location.
+   */
   adouble();
+
+  /**
+   * @brief Constructor initializing an `adouble` with a new location and puts
+   * the given value `coval` on the tape.
+   * @param coval Value that is stored on the tape at the new location.
+   */
   adouble(double coval);
+
+  /**
+   * @brief Constructor initializing an `adouble` with a specific tape location.
+   * @param tape_loc The tape location to associate with this `adouble`.
+   */
   explicit adouble(const tape_location &tape_loc);
+
+  /**
+   * @brief Copy constructor. Creates a new `adouble` with a new location and
+   * puts assignment operation onto the tape`
+   * @param a The `adouble` to copy.
+   */
   adouble(const adouble &a);
+
+  /**
+   * @brief Move constructor. Creates new `adouble` with location of `a`. The
+   * state of `a` is set to invalid. Therefore, the destructor will not free the
+   * location of `a`.
+   * @param a The `adouble` to move.
+   */
   adouble(adouble &&a) noexcept;
+
+  /** @brief Destructor. Releases the location from the tape. */
   ~adouble();
 
+  // Assignment Operators
+
+  /**
+   * @brief Records the assingment of a value to the `adouble` on the tape at
+   * the location of the `adouble`.
+   * @param coval The value to assign.
+   * @return Reference to `this`.
+   */
   adouble &operator=(const double coval);
+
+  /**
+   * @brief Registers an assignment on the tape with location of `this` and `a`.
+   * @param a The `adouble` to assign.
+   * @return Reference to `this`.
+   */
   adouble &operator=(const adouble &a);
+
+  /**
+   * @brief Moves the state from another `adouble`. The location is overwritten
+   * by the locaiton of `a`. Afterwards the old location is removed from the
+   * tape and `a` is invalid.
+   * @param a The `adouble` to move.
+   * @return Reference to the updated `adouble`.
+   */
   adouble &operator=(adouble &&a) noexcept;
+
+  /**
+   * @brief Registers the assignment of the `pdouble` to the `adouble`.
+   * @param p The `pdouble` to assign.
+   * @return Reference to `this`.
+   */
   adouble &operator=(const pdouble &p);
 
-  inline double getValue() const {
+  // Accessors
+
+  /**
+   * @brief Retrieves the current value stored at the tape location.
+   * @return The value of the `adouble` from the tape.
+   */
+  inline double value() const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
   }
-  inline double value() const { return getValue(); };
-  inline size_t getLoc() const { return tape_loc_.loc_; };
-  inline size_t loc() const { return tape_loc_.loc_; };
 
-  inline void setValue(const double coval) {
+  /**
+   * @brief Retrieves the tape location of the `adouble`.
+   * @return The location on the tape.
+   */
+  inline size_t loc() const { return tape_loc_.loc_; }
+
+  // Mutators
+
+  /**
+   * @brief Updates the value stored at the tape location.
+   * @param coval the new value to assign.
+   */
+  inline void value(const double coval) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
   }
 
-  explicit operator double() const;
-  explicit operator const double &() const;
+  // Type Conversions
+
+  /**
+   * @brief Converts the `adouble` to a `double` by returning its corresponding
+   * `double` value from the tape.
+   * @return The value of the `adouble` at the tape location.
+   */
+  inline explicit operator double() const {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+  }
+
+  /**
+   * @brief Provides a reference to the internal `double` value from the tape.
+   * @return A reference to the `double` value at the tape location.
+   */
+  inline explicit operator const double &() const {
+    ADOLC_OPENMP_THREAD_NUMBER;
+    ADOLC_OPENMP_GET_THREAD_NUMBER;
+    return ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+  }
+
+  // Arithmetic assignment Operators
 
   adouble &operator+=(const double coval);
   adouble &operator+=(const adouble &a);
@@ -103,53 +184,125 @@ public:
   adouble &operator/=(const adouble &a);
   adouble &operator/=(const pdouble &p);
 
+  // Postfix and Prefix Increment and Decrement Operators
+
   adouble operator++(int);
   adouble operator--(int);
 
   adouble &operator++();
   adouble &operator--();
 
+  // Independent and Dependent Markers
+
+  /**
+   * @brief Registers the assignment of the input value to the `adouble` and
+   * mark the `adouble` as independent variable.
+   * @param in Value that is assigned to the `adouble`
+   * @return A reference to the `adouble`.
+   */
   adouble &operator<<=(double in);
+
+  /**
+   * @brief Stores the value of `adouble` in the provided reference and mark
+   * `adouble` as dependent variable.
+   * @param out Value that will get the value of `adouble`
+   * @return A reference to the `adouble`.
+   */
   adouble &operator>>=(double &out);
+
+  /** @brief Declares the `adouble` as an independent variable on the tape */
   void declareIndependent();
+
+  /** @brief Declares the `adouble` as a dependent variable on the tape */
   void declareDependent();
 
 private:
-  // stores the location of the adouble on tape
+  /** @brief Stores the location of the `adouble` on the tape. */
   tape_location tape_loc_;
-  // all constructors ensure a valid (valid=1) adouble, this state changes only
-  // when moving an adouble
+
+  /**
+   * @brief Indicates whether the `adouble` is valid.
+   *
+   * All constructors ensure validity (`valid=1`). The validity changes only
+   * during move operations.
+   */
   int valid{1};
 };
 
+/**
+ * @brief The `pdouble` class represents parameter values in tape-based
+ * computations.
+ */
 class ADOLC_DLL_EXPORT pdouble {
-
 public:
+  /** @brief Destructor. */
   ~pdouble() = default;
+
+  /** @brief Deleted copy constructor. */
   pdouble(const pdouble &) = delete;
+
+  /** @brief Deleted default constructor. */
   pdouble() = delete;
+
+  /** @brief Deleted move constructor. */
   pdouble(pdouble &&) = delete;
+
+  /** @brief Deleted move assignment operator. */
   pdouble &operator=(pdouble &&) = delete;
 
+  /**
+   * @brief Constructor initializing a `pdouble` with a constant value.
+   * @param pval The initial value for the `pdouble`.
+   */
   pdouble(const double pval);
+
+  /**
+   * @brief Constructor initializing a `pdouble` with a specific tape location.
+   * @param tape_loc The tape location to associate with this `pdouble`.
+   */
   explicit pdouble(tape_location tape_loc);
 
+  /**
+   * @brief Creates a parameterized `pdouble` with the given value.
+   * @param pval The value to assign.
+   * @return A `pdouble` instance representing the value.
+   */
   static pdouble mkparam(const double pval);
+
+  /**
+   * @brief Converts the `pdouble` to an `adouble`.
+   * @return An `adouble` representing the `pdouble`.
+   */
   explicit operator adouble() const;
 
-  inline size_t getLoc() const { return tape_loc_.loc_; }
-  inline double getValue() const {
+  /**
+   * @brief Retrieves the tape location of the `pdouble`.
+   * @return The tape location.
+   */
+  inline size_t loc() const { return tape_loc_.loc_; }
+
+  /**
+   * @brief Retrieves the current value stored at the tape location.
+   * @return The value of the `pdouble`.
+   */
+  inline double value() const {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     return ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_];
   }
-  inline void setValue(const double pval) {
+
+  /**
+   * @brief Updates the value stored at the tape location.
+   * @param pval The new value to assign.
+   */
+  inline void value(const double pval) {
     ADOLC_OPENMP_THREAD_NUMBER;
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_] = pval;
   }
 
 private:
+  /** @brief Stores the location of the `pdouble` on the tape. */
   tape_location tape_loc_;
 };
 
