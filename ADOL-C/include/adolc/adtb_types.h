@@ -232,8 +232,38 @@ private:
 };
 
 /**
- * @brief The `pdouble` class represents parameter values in tape-based
- * computations.
+ * @brief The `pdouble` class represents a non-differentiable type, which acts
+ * like a `double` on the tape. The main application of `pdouble` is the
+ * modification of parameters on the tape without re-taping. For example:
+
+adouble f(const pdouble& p, const adouble& x){
+  return p * x;
+}
+
+int main() {
+adouble indep;
+pdouble p = 3.0;
+double out[1];
+
+trace_on(1);
+indep <<= 2.0;
+adouble out = f(p, x);
+dep >> out[0];
+
+double grad[1]
+
+// compute d/dx p*x
+gradient(1, 1, 2.0, grad);
+std::cout << grad[0] << std::endl;
+
+// change that is stored at `p`s location on tape 1 to 1.0
+// one have to hand in the number of tracked `pdoubles` on the tape
+set_param_vec(1, 1, 1.0);
+
+// compute d/dx p*x
+gradient(1, 1, 2.0, grad);
+std::cout << grad[0] << std::endl;
+}
  */
 class ADOLC_DLL_EXPORT pdouble {
 public:
