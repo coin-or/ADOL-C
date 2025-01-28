@@ -28,8 +28,8 @@ pdouble::pdouble(const double pval) {
     tape_loc_ =
         tape_location{ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc()};
     ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_] = pval;
-  }
-  tape_loc_ = tape_location{numeric_limits<size_t>::max()};
+  } else
+    tape_loc_ = tape_location{numeric_limits<size_t>::max()};
 }
 
 pdouble::pdouble(tape_location tape_loc) {
