@@ -362,7 +362,7 @@ void clearTapeBaseNames() {
   int i;
   for (i = 0; i < 4; i++) {
     if (tapeBaseNames[i]) {
-      delete tapeBaseNames[i];
+      delete[] tapeBaseNames[i];
       tapeBaseNames[i] = nullptr;
     }
   }
@@ -1153,7 +1153,7 @@ static void save_params() {
 
   ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] = ADOLC_GLOBAL_TAPE_VARS.numparam;
   if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore != nullptr)
-    delete ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore;
 
   ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore =
       new double[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]];
@@ -1246,7 +1246,7 @@ void close_tape(int flag) {
       fclose(ADOLC_CURRENT_TAPE_INFOS.op_file);
     ADOLC_CURRENT_TAPE_INFOS.op_file = nullptr;
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_FILE_ACCESS] = 1;
-    delete ADOLC_CURRENT_TAPE_INFOS.opBuffer;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.opBuffer;
     ADOLC_CURRENT_TAPE_INFOS.opBuffer = nullptr;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numOps_Tape =
@@ -1290,7 +1290,7 @@ void close_tape(int flag) {
            ADOLC_CURRENT_TAPE_INFOS.loc_file);
     fclose(ADOLC_CURRENT_TAPE_INFOS.loc_file);
     ADOLC_CURRENT_TAPE_INFOS.loc_file = nullptr;
-    delete ADOLC_CURRENT_TAPE_INFOS.locBuffer;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.locBuffer;
     ADOLC_CURRENT_TAPE_INFOS.locBuffer = nullptr;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape =

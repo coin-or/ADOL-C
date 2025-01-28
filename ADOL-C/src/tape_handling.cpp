@@ -604,15 +604,15 @@ void cleanUp() {
         remove((*tiIter)->pTapeInfos.tay_fileName);
       }
       if ((*tiIter)->opBuffer != NULL) {
-        free((*tiIter)->opBuffer);
+        delete[] ((*tiIter)->opBuffer);
         (*tiIter)->opBuffer = NULL;
       }
       if ((*tiIter)->valBuffer != NULL) {
-        free((*tiIter)->valBuffer);
+        delete[] ((*tiIter)->valBuffer);
         (*tiIter)->valBuffer = NULL;
       }
       if ((*tiIter)->locBuffer != NULL) {
-        free((*tiIter)->locBuffer);
+        delete[] ((*tiIter)->locBuffer);
         (*tiIter)->locBuffer = NULL;
       }
       if ((*tiIter)->signature != NULL) {
@@ -620,7 +620,7 @@ void cleanUp() {
         (*tiIter)->signature = NULL;
       }
       if ((*tiIter)->tayBuffer != NULL) {
-        free((*tiIter)->tayBuffer);
+        delete[] ((*tiIter)->tayBuffer);
         (*tiIter)->tayBuffer = NULL;
       }
 
@@ -659,19 +659,19 @@ void cleanUp() {
           remove((*tiIter)->pTapeInfos.val_fileName);
       }
       if ((*tiIter)->pTapeInfos.op_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.op_fileName);
+        delete[] ((*tiIter)->pTapeInfos.op_fileName);
         (*tiIter)->pTapeInfos.op_fileName = NULL;
       }
       if ((*tiIter)->pTapeInfos.val_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.val_fileName);
+        delete[] ((*tiIter)->pTapeInfos.val_fileName);
         (*tiIter)->pTapeInfos.val_fileName = NULL;
       }
       if ((*tiIter)->pTapeInfos.loc_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.loc_fileName);
+        delete[] ((*tiIter)->pTapeInfos.loc_fileName);
         (*tiIter)->pTapeInfos.loc_fileName = NULL;
       }
       if ((*tiIter)->pTapeInfos.tay_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.tay_fileName);
+        delete[] ((*tiIter)->pTapeInfos.tay_fileName);
         (*tiIter)->pTapeInfos.tay_fileName = NULL;
       }
 
@@ -1163,7 +1163,7 @@ PersistantTapeInfos::~PersistantTapeInfos() {
     forodec_nax = 0;
   }
   if (paramstore != NULL) {
-    free(paramstore);
+    delete[] paramstore;
     paramstore = NULL;
   }
 }
