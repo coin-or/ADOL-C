@@ -398,7 +398,7 @@ char *createFileName(short tapeID, int tapeType) {
     else
       threadNumberStringLength = 0;
     ++threadNumberStringLength;
-    threadNumberString = new char[threadNumerStringLength + 2];
+    threadNumberString = new char[threadNumberStringLength + 2];
     if (threadNumberString == nullptr)
       fail(ADOLC_MALLOC_FAILED);
     sprintf(threadNumberString, "%d", threadNumber);
