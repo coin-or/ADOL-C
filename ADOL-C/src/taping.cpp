@@ -17,6 +17,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <string>
 
 #include "dvlparms.h"
 #include "oplate.h"
@@ -373,7 +374,6 @@ void clearTapeBaseNames() {
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
-  char *numberString = nullptr;
   char *fileName = nullptr;
   const char *extension = ".tap";
   char *currPos = nullptr;
@@ -381,22 +381,13 @@ char *createFileName(short tapeID, int tapeType) {
   char *threadName = "thread-", *threadNumberString = nullptr;
   int threadNumber, threadNumberStringLength = 0, threadNameLength = 0;
 #endif /* _OPENMP */
-  int tapeBaseNameLength, numberStringLength, fileNameLength;
+  int tapeBaseNameLength, fileNameLength;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   failAdditionalInfo1 = tapeID;
   tapeBaseNameLength = strlen(tapeBaseNames[tapeType]);
-  /* determine length of the number string */
-  if (tapeID != 0)
-    numberStringLength = (int)log10((double)tapeID);
-  else
-    numberStringLength = 0;
-  ++numberStringLength;
-  numberString = new char[numberStringLength + 1];
-  if (numberString == nullptr)
-    fail(ADOLC_MALLOC_FAILED);
-  snprintf(numberString, numberStringLength + 1, "%d", tapeID);
+  const std::string numberString = std::to_string(tapeID);
 #if defined(_OPENMP)
   /* determine length of the thread number string */
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
@@ -418,7 +409,7 @@ char *createFileName(short tapeID, int tapeType) {
 #endif /* _OPENMP */
 
   /* malloc and create */
-  fileNameLength = tapeBaseNameLength + numberStringLength + 5;
+  fileNameLength = tapeBaseNameLength + numberString.size() + 5;
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
     fileNameLength += threadNameLength + threadNumberStringLength;
@@ -437,13 +428,12 @@ char *createFileName(short tapeID, int tapeType) {
     currPos += threadNumberStringLength;
   }
 #endif /* _OPENMP */
-  strncpy(currPos, numberString, numberStringLength);
-  currPos += numberStringLength;
+  strncpy(currPos, numberString.c_str(), numberString.size());
+  currPos += numberString.size();
   strncpy(currPos, extension, 4);
   currPos += 4;
   *currPos = 0;
 
-  delete numberString;
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
     delete threadNumberString;
