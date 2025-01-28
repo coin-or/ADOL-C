@@ -16,6 +16,7 @@ endif()
 set(SOURCE_FILES
     adouble.cpp
     main.cpp
+    pdouble.cpp
     traceCompositeTests.cpp
     tracelessCompositeTests.cpp
     tracelessOperatorScalar.cpp
