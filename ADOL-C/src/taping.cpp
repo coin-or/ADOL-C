@@ -449,6 +449,7 @@ static char *duplicatestr(const char *instr) {
   size_t len = strlen(instr);
   char *outstr = new char[len + 1];
   strncpy(outstr, instr, len);
+  outstr[len] = 0;   // String end marker
   return outstr;
 }
 
