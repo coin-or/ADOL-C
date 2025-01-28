@@ -283,33 +283,40 @@ public:
   pdouble &operator=(pdouble &&) = delete;
 
   /**
-   * @brief Constructor initializing a `pdouble` with a constant value.
-   * @param pval The initial value for the `pdouble`.
+   * @brief Constructor initializing a `pdouble` with a tape location and puts
+   * the input `double` to this location on the parameter tape.
+   * @param pval The initial value for the `pdouble` on the parameter tape.
    */
   pdouble(const double pval);
 
   /**
-   * @brief Constructor initializing a `pdouble` with a specific tape location.
-   * @param tape_loc The tape location to associate with this `pdouble`.
+   * @brief Constructor initializing a `pdouble` with a specific parameter tape
+   * location.
+   * @param tape_loc The parameter tape location to associate with this
+   * `pdouble`.
    */
   explicit pdouble(tape_location tape_loc);
 
   /**
-   * @brief Creates a parameterized `pdouble` with the given value.
-   * @param pval The value to assign.
+   * @brief Behaves like `pdouble(const double pval)` as it constructs a
+   * location and a `pdouble`. The input value is writte at the tape location.
+   * @param pval The value to store on the parameter tape.
    * @return A `pdouble` instance representing the value.
    */
   static pdouble mkparam(const double pval);
 
   /**
-   * @brief Converts the `pdouble` to an `adouble`.
-   * @return An `adouble` representing the `pdouble`.
+   * @brief Converts the `pdouble` to an `adouble` by creating a new location
+   * for the `adouble`, storing the assignment of the `pdouble` to th `adouble`
+   * on the operations tape and storing the value of the `pdouble` at the
+   * location of the `adouble`.
+   * @return An `adouble` with associated value of the `pdouble` on the tape.
    */
   explicit operator adouble() const;
 
   /**
-   * @brief Retrieves the tape location of the `pdouble`.
-   * @return The tape location.
+   * @brief Retrieves the location on the parameter tape of the `pdouble`.
+   * @return The location on the parameter tape.
    */
   inline size_t loc() const { return tape_loc_.loc_; }
 
