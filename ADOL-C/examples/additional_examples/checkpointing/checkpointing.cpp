@@ -31,7 +31,8 @@ int main() {
   double t0, tf;
 
   // state, double and adouble version
-  adouble y[2];
+  adouble y1[2];
+  adouble y2[2];
   int n;
 
   // control, double and adouble version
@@ -67,14 +68,14 @@ int main() {
   trace_on(tag_full);
   con[0] <<= conp[0];
   con[1] <<= conp[1];
-  y[0] = con[0];
-  y[1] = con[1];
+  y1[0] = con[0];
+  y1[1] = con[1];
 
   for (i = 0; i < steps; i++) {
-    euler_step_act(n, y);
+    euler_step_act(n, y1);
   }
 
-  y[0] + y[1] >>= f;
+  y1[0] + y1[1] >>= f;
   trace_off(1);
 
   gradient(tag_full, 2, conp, grad);
@@ -100,9 +101,9 @@ int main() {
   // dimension of input/output
   cpc.setDimensionXY(n);
   // input vector
-  cpc.setInput(y);
+  cpc.setInput(y2);
   // output vector
-  cpc.setOutput(y);
+  cpc.setOutput(y2);
   // tape number for checkpointing
   cpc.setTapeNumber(tag_check);
   // always retape or not ?
@@ -111,12 +112,12 @@ int main() {
   trace_on(tag_part);
   con[0] <<= conp[0];
   con[1] <<= conp[1];
-  y[0] = con[0];
-  y[1] = con[1];
+  y2[0] = con[0];
+  y2[1] = con[1];
 
   cpc.checkpointing();
 
-  y[0] + y[1] >>= f;
+  y2[0] + y2[1] >>= f;
   trace_off(1);
   gradient(tag_part, 2, conp, grad);
 
