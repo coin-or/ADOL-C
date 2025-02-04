@@ -97,7 +97,7 @@ int checkpointing(CpInfos *cpInfos) {
     // functions
     ADOLC_PUT_LOCINT(cpInfos->index);
 
-    size_t oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
+    oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
   }
 
