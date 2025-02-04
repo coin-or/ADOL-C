@@ -32,6 +32,10 @@ set(SOURCE_FILES
 file(GLOB UNI5_FOR_FILES "uni5_for/*.cpp")
 list(APPEND SOURCE_FILES ${UNI5_FOR_FILES})
 
+# Add all source files from integration_tests
+file(GLOB INTEGRATION_TESTS_FILES "integration_tests/*.cpp")
+list(APPEND SOURCE_FILES ${INTEGRATION_TESTS_FILES})
+
 add_executable(boost-test-adolc ${SOURCE_FILES})
 target_include_directories(boost-test-adolc PRIVATE "${ADOLC_INCLUDE_DIR}")
 target_link_libraries(boost-test-adolc PRIVATE
