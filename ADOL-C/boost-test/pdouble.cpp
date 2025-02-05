@@ -1571,7 +1571,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   std::vector<double> ad_in{1.5};
-  std::vector<double> pd_in{0.9};
+  std::vector<double> pd_in{0.2};
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
@@ -1597,7 +1597,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
 
   // Update pdouble parameter
-  pd_in[0] = 1.1;
+  pd_in[0] = 0.3;
   set_param_vec(tag, 1, pd_in.data());
 
   zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
@@ -1607,4 +1607,1038 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   BOOST_TEST(z[0] == std::tanh(pd_in[0]), tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(ASinOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * asin(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * asin(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::asin(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::asin(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::asin(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * asin(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * asin(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::asin(pd_in[0]);
+  double expected_derivative = std::asin(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::asin(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::asin(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // asin
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * asin(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::asin(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::asin(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::asin(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(acosOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * acos(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * acos(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::acos(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::acos(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::acos(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(acosOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * acos(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * acos(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::acos(pd_in[0]);
+  double expected_derivative = std::acos(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::acos(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::acos(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(acosOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * acos
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * acos(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::acos(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::acos(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::acos(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(atanOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * atan(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * atan(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::atan(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::atan(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::atan(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(atanOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * atan(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * atan(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::atan(pd_in[0]);
+  double expected_derivative = std::atan(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::atan(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::atan(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(atanOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * atan
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * atan(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::atan(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::atan(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::atan(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erf(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erf(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::erf(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erf(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erf(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erf(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erf(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::erf(pd_in[0]);
+  double expected_derivative = std::erf(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::erf(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::erf(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erf(p)
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erf(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::erf(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erf(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::erf(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfcOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erfc(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erfc(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::erfc(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erfc(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erfc(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfcOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erfc(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erfc(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::erfc(pd_in[0]);
+  double expected_derivative = std::erfc(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::erfc(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::erfc(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(erfcOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * erfc(p)
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * erfc(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::erfc(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::erfc(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::erfc(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(log10Operator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * log10(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * log10(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::log10(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::log10(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::log10(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(log10Operator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * log10(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * log10(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::log10(pd_in[0]);
+  double expected_derivative = std::log10(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::log10(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::log10(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(log10Operator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * log10(p)
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * log10(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::log10(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::log10(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::log10(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(fabsOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * fabs(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * fabs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::fabs(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::fabs(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::fabs(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(fabsOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * fabs(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * fabs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::fabs(pd_in[0]);
+  double expected_derivative = std::fabs(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::fabs(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::fabs(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(fabsOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // fabs
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * fabs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::fabs(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::fabs(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::fabs(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ceilOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * ceil(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * ceil(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::ceil(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::ceil(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::ceil(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ceilOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * ceil(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * ceil(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::ceil(pd_in[0]);
+  double expected_derivative = std::ceil(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::ceil(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::ceil(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ceilOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // ceil
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * ceil(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::ceil(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::ceil(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::ceil(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(floorOperator_ZOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * floor(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * floor(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::floor(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::floor(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::floor(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(floorOperator_FOS_Forward) {
+  const int16_t tag = 0;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * floor(p)
+  trace_on(tag);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * floor(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::floor(pd_in[0]);
+  double expected_derivative = std::floor(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  set_param_vec(tag, 1, pd_in.data());
+
+  fos_forward(tag, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::floor(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::floor(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(floorOperator_FOS_Reverse) {
+  const int16_t tag = 1;
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // floor
+  trace_on(tag, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble::mkparam(pd_in[0]);
+  adouble dep = indep[0] * floor(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::floor(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  set_param_vec(tag, 1, pd_in.data());
+
+  zos_forward(tag, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::floor(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tag, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::floor(pd_in[0]), tt::tolerance(tol));
+}
 BOOST_AUTO_TEST_SUITE_END()
