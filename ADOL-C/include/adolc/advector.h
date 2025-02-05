@@ -71,7 +71,7 @@ public:
     ADOLC_OPENMP_GET_THREAD_NUMBER;
     ADOLC_GLOBAL_TAPE_VARS.store[refloc] = coval;
   }
-  explicit operator adouble() const;
+  operator adouble() const;
 
   adouble operator++(int);
   adouble operator--(int);
