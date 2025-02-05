@@ -150,11 +150,9 @@ adouble::adouble(adouble &&a) noexcept {
  * remain on the tape.
  */
 adouble::~adouble() {
-#ifdef adolc_overwrite
   if (valid) {
     free_loc(tape_loc_.loc_);
   }
-#endif
 }
 
 /****************************************************************************/
