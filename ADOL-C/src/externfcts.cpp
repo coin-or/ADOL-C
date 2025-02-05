@@ -161,20 +161,20 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   if (xa[dim_x - 1].loc() - xa[0].loc() != dim_x - 1 ||
       ya[dim_y - 1].loc() - ya[0].loc() != dim_y - 1)
     fail(ADOLC_EXT_DIFF_LOCATIONGAP);
-
   if (!edfct)
     fail(ADOLC_EXT_DIFF_NULLPOINTER_STRUCT);
 
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-
     ADOLC_PUT_LOCINT(edfct->index);
     ADOLC_PUT_LOCINT(dim_x);
     ADOLC_PUT_LOCINT(dim_y);
     ADOLC_PUT_LOCINT(xa[0].loc());
+    ADOLC_PUT_LOCINT(ya[0].loc());
+    /* keep space for checkpointing index */
+    ADOLC_PUT_LOCINT(0);
 
     oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
     ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
-
   } else
     oldTraceFlag = 0;
 
@@ -250,7 +250,6 @@ int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
 
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
-
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
     put_op(ext_diff);
 

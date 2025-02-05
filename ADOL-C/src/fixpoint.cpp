@@ -230,9 +230,14 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
   });
 
   // ensure that the adoubles are contiguous
-  ensureContiguousLocations(dim_x + dim_u);
+  ensureContiguousLocations(dim_x + dim_u + dim_x);
   // put x and u together
   adouble *xu = new adouble[dim_x + dim_u];
+
+  // we use this new variable instead of x_fix to not overwrite the location
+  // of x_fix, which is already stored on the tape.
+  adouble *x_fix_new = new adouble[dim_x];
+
   for (size_t i = 0; i < dim_x; ++i)
     xu[i] = x_0[i];
 
@@ -243,6 +248,10 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
   const size_t old_trace_flag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
   const int k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
 
+  // read out x_fix
+  for (size_t i = 0; i < dim_x; ++i)
+    x_fix_new[i] = x_fix[i];
+
   // tape near solution
   trace_on(sub_tape_num, 1);
   for (size_t i = 0; i < dim_x; ++i)
@@ -251,29 +260,18 @@ ADOLC_DLL_EXPORT int fp_iteration(size_t sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] <<= u[i].value();
 
-  adouble_func(xu, xu + dim_x, x_fix, dim_x, dim_u);
+  // IMPORTANT: Dont reuse x_fix here. The location of the x_fix's adoubles
+  // could change and the old locations are already stored on the tape. This
+  // would cause errors
+  adouble_func(xu, xu + dim_x, x_fix_new, dim_x, dim_u);
 
   double dummy_out;
   for (size_t i = 0; i < dim_x; ++i)
-    x_fix[i] >>= dummy_out;
+    x_fix_new[i] >>= dummy_out;
 
   trace_off();
 
-  // check if the outside tape is active and the same as in the call_ext_fct.
-  // This works because we have a stack of tapes "ADOLC_TAPE_STACK" that stores
-  // information about all currently not-closed tapes. Inside
-  // "trace_off()->releaseTape()" the stack pops and we get the last active
-  // tape, which is the outside tape.
-  if (old_trace_flag && old_tape_id == ADOLC_CURRENT_TAPE_INFOS.tapeID) {
-    // what we do here is to ensure that the correct location of the result of
-    // the fixed-point iteration is stored. The location of the output was
-    // previously stored in "call_ext_fct". However, the call to "adouble_func"
-    // could change the location of "x_fix" due to move semantics.
-    ADOLC_PUT_LOCINT(x_fix[0].loc());
-    /* keep space for checkpointing index */
-    ADOLC_PUT_LOCINT(0);
-  }
-
   delete[] xu;
+  delete[] x_fix_new;
   return k;
 }
