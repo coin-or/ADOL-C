@@ -35,6 +35,7 @@ BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
 
   // State variables (double and adouble versions)
   std::vector<double> y_double(n);
+  ensureContiguousLocations(2 * n);
   std::vector<adouble> y_adouble_1(n);
   std::vector<adouble> y_adouble_2(n);
 

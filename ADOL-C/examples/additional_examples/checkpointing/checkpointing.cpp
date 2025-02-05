@@ -32,6 +32,10 @@ int main() {
 
   // state, double and adouble version
   adouble y1[2];
+
+  // required to have consecutive locations, since only the first location is
+  // stored on the tape
+  ensureContiguousLocations(2);
   adouble y2[2];
   int n;
 
