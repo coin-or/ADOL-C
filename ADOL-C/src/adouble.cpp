@@ -83,8 +83,6 @@ adouble::adouble(double coval) {
 #endif
 }
 
-adouble::adouble(const tape_location &tape_loc) { tape_loc_ = tape_loc; }
-
 adouble::adouble(const adouble &a) {
   tape_loc_ = tape_location{next_loc()};
   ADOLC_OPENMP_THREAD_NUMBER;
@@ -131,28 +129,6 @@ adouble::adouble(const adouble &a) {
   ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] =
       ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
 #endif
-}
-
-// Moving a's tape_location to the tape_location of this and set a's state to
-// invalid (valid = 0). This will tell the destruction that "a" does not own its
-// location. Thus, the location is not removed from the tape.
-adouble::adouble(adouble &&a) noexcept {
-  tape_loc_.loc_ = a.tape_loc_.loc_;
-  a.valid = 0;
-}
-
-/*
- * The destructor is used to remove unused locations (tape_loc_.loc_) from the
- * tape. A location is only removed (free_loc), if the destructed adouble owns
- * the location. The adouble does not own its location if it is in an invalid
- * state (valid = 0). The state is only invalid, if the adouble was moved to a
- * new adouble. The location is reused for the new adouble in this case and must
- * remain on the tape.
- */
-adouble::~adouble() {
-  if (valid) {
-    free_loc(tape_loc_.loc_);
-  }
 }
 
 /****************************************************************************/
@@ -357,6 +333,82 @@ adouble &adouble::operator+=(const adouble &a) {
 #endif
   return *this;
 }
+
+adouble &adouble::operator+=(adouble &&a) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  int upd = 0;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()])
+#endif
+    {
+      // if the structure is a*=b*c the call optimizes the temp adouble away.
+      upd = upd_resloc_inc_prod(a.loc(), loc(), eq_min_prod);
+    }
+  if (upd) {
+    ADOLC_GLOBAL_TAPE_VARS.store[loc()] +=
+        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a.loc()]);
+    --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
+  } else {
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] &&
+          ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
+        put_op(eq_plus_a);
+        ADOLC_PUT_LOCINT(a.loc()); // = arg
+        ADOLC_PUT_LOCINT(loc());   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]) {
+        double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+        if (coval) {
+          put_op(plus_d_a);
+          ADOLC_PUT_LOCINT(a.loc()); // = arg
+          ADOLC_PUT_LOCINT(loc());   // = res
+          ADOLC_PUT_VAL(coval);
+        } else {
+          put_op(assign_a);
+          ADOLC_PUT_LOCINT(a.loc()); // = arg
+          ADOLC_PUT_LOCINT(loc());   // = res
+        }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+        double coval = ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+        if (coval) {
+          put_op(eq_plus_d);
+          ADOLC_PUT_LOCINT(loc()); // = res
+          ADOLC_PUT_VAL(coval);    // = coval
+
+          ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+          if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+        }
+      }
+#endif
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[loc()] +=
+        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] =
+        (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] ||
+         ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]);
+#endif
+  }
+  return *this;
+}
+
 adouble &adouble::operator-=(const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -432,6 +484,81 @@ adouble &adouble::operator-=(const adouble &a) {
       (ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] ||
        ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]);
 #endif
+  return *this;
+}
+
+adouble &adouble::operator-=(adouble &&a) {
+  ADOLC_OPENMP_THREAD_NUMBER;
+  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  int upd = 0;
+  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag)
+#if defined(ADOLC_TRACK_ACTIVITY)
+    if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()])
+#endif
+    {
+      upd = upd_resloc_inc_prod(a.loc(), loc(), eq_min_prod);
+    }
+  if (upd) {
+    ADOLC_GLOBAL_TAPE_VARS.store[loc()] -=
+        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+      ADOLC_DELETE_SCAYLOR(&ADOLC_GLOBAL_TAPE_VARS.store[a.loc()]);
+    --ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+    ++ADOLC_CURRENT_TAPE_INFOS.num_eq_prod;
+  } else {
+    if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+#if defined(ADOLC_TRACK_ACTIVITY)
+      if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] &&
+          ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+#endif
+        put_op(eq_min_a);
+        ADOLC_PUT_LOCINT(a.loc()); // = arg
+        ADOLC_PUT_LOCINT(loc());   // = res
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+#if defined(ADOLC_TRACK_ACTIVITY)
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]) {
+        double coval = ADOLC_GLOBAL_TAPE_VARS.store[loc()];
+        if (coval) {
+          put_op(min_d_a);
+          ADOLC_PUT_LOCINT(a.loc()); // = arg
+          ADOLC_PUT_LOCINT(loc());   // = res
+          ADOLC_PUT_VAL(coval);
+        } else {
+          put_op(neg_sign_a);
+          ADOLC_PUT_LOCINT(a.loc()); // = arg
+          ADOLC_PUT_LOCINT(loc());   // = res
+        }
+
+        ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+        if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+          ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+
+      } else if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()]) {
+        double coval = ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+        if (coval) {
+          put_op(eq_min_d);
+          ADOLC_PUT_LOCINT(loc()); // = res
+          ADOLC_PUT_VAL(coval);    // = coval
+
+          ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
+          if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
+            ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[loc()]);
+        }
+      }
+#endif
+    }
+    ADOLC_GLOBAL_TAPE_VARS.store[loc()] -=
+        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+#if defined(ADOLC_TRACK_ACTIVITY)
+    ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] =
+        (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()] ||
+         ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]);
+#endif
+  }
+
   return *this;
 }
 
@@ -516,17 +643,6 @@ adouble &adouble::operator*=(const adouble &a) {
 #endif
   return *this;
 }
-
-adouble &adouble::operator/=(const double coval) {
-  *this *= 1.0 / coval;
-  return *this;
-}
-
-adouble &adouble::operator/=(const adouble &a) {
-  *this *= 1.0 / a;
-  return *this;
-}
-
 /****************************************************************************/
 /*                       INCREMENT / DECREMENT                              */
 
@@ -1780,8 +1896,6 @@ adouble operator+(adouble &&a, const adouble &b) {
   return a;
 }
 
-adouble operator+(const adouble &a, adouble &&b) { return std::move(b) + a; }
-
 adouble operator+(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -1890,11 +2004,6 @@ adouble operator+(const double coval, adouble &&a) {
 
   a.value(coval2);
   return a;
-}
-
-adouble operator+(const adouble &a, const double coval) { return coval + a; }
-adouble operator+(adouble &&a, const double coval) {
-  return coval + std::move(a);
 }
 
 adouble operator-(const adouble &a, const adouble &b) {
@@ -2064,8 +2173,6 @@ adouble operator-(adouble &&a, const adouble &b) {
   return a;
 }
 
-adouble operator-(const adouble &a, adouble &&b) { return -(std::move(b)) + a; }
-
 adouble operator-(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -2175,11 +2282,6 @@ adouble operator-(const double coval, adouble &&a) {
   a.value(coval2);
 
   return a;
-}
-
-adouble operator-(const adouble &a, const double coval) { return (-coval) + a; }
-adouble operator-(adouble &&a, const double coval) {
-  return (-coval) + std::move(a);
 }
 
 adouble operator*(const adouble &a, const adouble &b) {
@@ -2357,8 +2459,6 @@ adouble operator*(adouble &&a, const adouble &b) {
   return a;
 }
 
-adouble operator*(const adouble &a, adouble &&b) { return std::move(b) * a; }
-
 adouble operator*(const double coval, const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -2475,11 +2575,6 @@ adouble operator*(const double coval, adouble &&a) {
   }
   a.value(coval2);
   return a;
-}
-
-adouble operator*(const adouble &a, const double coval) { return coval * a; }
-adouble operator*(adouble &&a, const double coval) {
-  return coval * std::move(a);
 }
 
 adouble operator/(const adouble &a, const adouble &b) {
@@ -2822,12 +2917,6 @@ adouble operator/(const double coval, adouble &&a) {
   return a;
 }
 
-adouble operator/(const adouble &a, const double coval) {
-  return a * (1.0 / coval);
-}
-adouble operator/(adouble &&a, const double coval) {
-  return std::move(a) * (1.0 / coval);
-}
 /****************************************************************************/
 /*                          UNARY OPERATIONS                                */
 
@@ -3041,11 +3130,6 @@ adouble log(adouble &&a) {
 
   ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
-}
-
-adouble log10(const adouble &a) { return log(a) / ADOLC_MATH_NSP::log(10.0); }
-adouble log10(adouble &&a) {
-  return log(std::move(a)) / ADOLC_MATH_NSP::log(10.0);
 }
 
 adouble sqrt(const adouble &a) {
@@ -3606,9 +3690,6 @@ adouble cos(adouble &&a) {
   return a;
 }
 
-adouble tan(const adouble &a) { return sin(a) / cos(a); }
-adouble tan(adouble &&a) { return sin(a) / cos(a); }
-
 adouble asin(const adouble &a) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -3964,56 +4045,6 @@ adouble atan(adouble &&a) {
 
   ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
-}
-
-adouble sinh(const adouble &a) {
-  if (a.value() < 0.0) {
-    adouble temp = exp(a);
-    return 0.5 * (temp - 1.0 / temp);
-  } else {
-    adouble temp = exp(-a);
-    return 0.5 * (1.0 / temp - temp);
-  }
-}
-
-adouble sinh(adouble &&a) {
-  if (a.value() < 0.0) {
-    adouble temp = exp(std::move(a));
-    return 0.5 * (temp - 1.0 / temp);
-  } else {
-    adouble temp = exp(-std::move(a));
-    return 0.5 * (1.0 / temp - temp);
-  }
-}
-
-adouble cosh(const adouble &a) {
-  adouble temp = (a.value() < 0.0) ? exp(a) : exp(-a);
-  return 0.5 * (temp + 1.0 / temp);
-}
-
-adouble cosh(adouble &&a) {
-  adouble temp = (a.value() < 0.0) ? exp(std::move(a)) : exp(-std::move(a));
-  return 0.5 * (temp + 1.0 / temp);
-}
-
-adouble tanh(const adouble &a) {
-  if (a.value() < 0.0) {
-    adouble temp = exp(2.0 * a);
-    return (temp - 1.0) / (temp + 1.0);
-  } else {
-    adouble temp = exp((-2.0) * a);
-    return (1.0 - temp) / (temp + 1.0);
-  }
-}
-
-adouble tanh(adouble &&a) {
-  if (a.value() < 0.0) {
-    adouble temp = exp(2.0 * std::move(a));
-    return (temp - 1.0) / (temp + 1.0);
-  } else {
-    adouble temp = exp((-2.0) * std::move(a));
-    return (1.0 - temp) / (temp + 1.0);
-  }
 }
 
 adouble asinh(const adouble &a) {
@@ -5273,82 +5304,6 @@ adouble fmin(const adouble &a, adouble &&b) {
   return b;
 }
 
-adouble fmin(const double coval, const adouble &a) {
-  return fmin(adouble(coval), a);
-}
-
-adouble fmin(const double coval, adouble &&a) {
-  return fmin(adouble(coval), std::move(a));
-}
-
-adouble fmin(const adouble &a, const double coval) {
-  return (fmin(a, adouble(coval)));
-}
-
-adouble fmin(adouble &&a, const double coval) {
-  return (fmin(std::move(a), adouble(coval)));
-}
-
-adouble fmax(const adouble &a, const adouble &b) { return (-fmin(-a, -b)); }
-adouble fmax(adouble &&a, const adouble &b) {
-  return (-fmin(-std::move(a), -b));
-}
-adouble fmax(const adouble &a, adouble &&b) {
-  return (-fmin(-a, -std::move(b)));
-}
-
-adouble fmax(const double coval, const adouble &a) {
-  return (-fmin(-coval, -a));
-}
-
-adouble fmax(const double coval, adouble &&a) {
-  return (-fmin(-coval, -std::move(a)));
-}
-
-adouble fmax(const adouble &a, const double coval) {
-  return (-fmin(-a, -coval));
-}
-adouble fmax(adouble &&a, const double coval) {
-  return (-fmin(-std::move(a), -coval));
-}
-
-adouble ldexp(const adouble &a, const int exp) { return a * ldexp(1.0, exp); }
-adouble ldexp(adouble &&a, const int exp) { return a * ldexp(1.0, exp); }
-
-adouble frexp(const adouble &a, int *exp) {
-  double coval = std::frexp(a.value(), exp);
-  return adouble(coval);
-}
-
-adouble frexp(adouble &&a, int *exp) {
-  const double coval = std::frexp(a.value(), exp);
-  a.value(coval);
-  return a;
-}
-
-adouble atan2(const adouble &a, const adouble &b) {
-  adouble a1, a2, ret, sy;
-  const double pihalf = ADOLC_MATH_NSP::asin(1.0);
-  condassign(sy, a, adouble{1.0}, adouble{-1.0});
-  condassign(a1, b, atan(a / b), atan(a / b) + sy * 2 * pihalf);
-  condassign(a2, fabs(a), sy * pihalf - atan(b / a), adouble{0.0});
-  condassign(ret, fabs(b) - fabs(a), a1, a2);
-  return ret;
-}
-
-adouble pow(const adouble &a, const adouble &b) {
-  assert((a.value() >= 0) && "\nADOL-C message: negative basis deactivated\n ");
-  assert(a.value() != 0 && "\nADOL-C message: zero basis deactivated\n ");
-
-  adouble a1, a2, ret;
-
-  condassign(a1, -b, adouble{ADOLC_MATH_NSP::pow(a.value(), b.value())},
-             pow(a, b.value()));
-  condassign(a2, fabs(a), pow(a, b.value()), a1);
-  condassign(ret, a, exp(b * log(a)), a2);
-  return ret;
-}
-
 adouble pow(const adouble &a, const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -5462,16 +5417,6 @@ adouble pow(adouble &&a, const double coval) {
   return a;
 }
 
-adouble pow(const double base, const adouble &a) {
-  assert(base > 0 && "\nADOL-C message:  exponent at zero/negative constant "
-                     "basis deactivated\n");
-  adouble ret;
-
-  condassign(ret, adouble{base}, exp(a * ADOLC_MATH_NSP::log(base)),
-             adouble{ADOLC_MATH_NSP::pow(base, a.value())});
-  return ret;
-}
-
 /*--------------------------------------------------------------------------*/
 /* Macro for user defined quadratures, example myquad is below.*/
 /* the forward sweep tests if the tape is executed exactly at  */
@@ -5509,24 +5454,6 @@ double myquad(double x) {
 /* This defines the natural logarithm as a quadrature */
 
 extend_quad(myquad, val = 1 / arg);
-
-void condassign(double &res, const double &cond, const double &arg1,
-                const double &arg2) {
-  res = cond > 0 ? arg1 : arg2;
-}
-
-void condassign(double &res, const double &cond, const double &arg) {
-  res = cond > 0 ? arg : res;
-}
-
-void condeqassign(double &res, const double &cond, const double &arg1,
-                  const double &arg2) {
-  res = cond >= 0 ? arg1 : arg2;
-}
-
-void condeqassign(double &res, const double &cond, const double &arg) {
-  res = cond >= 0 ? arg : res;
-}
 
 void condassign(adouble &res, const adouble &cond, const adouble &arg1,
                 const adouble &arg2) {
