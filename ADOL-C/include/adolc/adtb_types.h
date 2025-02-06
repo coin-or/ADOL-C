@@ -19,6 +19,7 @@ pdouble.
 #define ADOLC_AD_TYPES_H
 
 #include <adolc/taping_p.h>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -801,7 +802,6 @@ inline adouble &adouble::operator/=(const pdouble &p) {
 /*--------------------------------------------------------------------------*/
 /* sign operators */
 inline adouble operator-(const pdouble &p) { return -adouble(p); }
-
 inline adouble operator+(const pdouble &p) { return adouble(p); };
 
 /*--------------------------------------------------------------------------*/

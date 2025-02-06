@@ -4764,6 +4764,32 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   myfree1(z);
 }
 
+// the case += c * d is handled differently!
+BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward_2) {
+  double a = 1.0, b = -1.0, out;
+  adouble ad, bd, cd(4.0);
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad += bd * 2;
+  ad >>= out;
+
+  trace_off();
+
+  std::vector<double> xd{0.0, 1.0};
+  std::vector<double> in{a, b};
+  std::vector<double> grad(1);
+  fos_forward(1, 1, 2, 0, in.data(), xd.data(), &out, grad.data());
+  BOOST_TEST(grad[0] == 2, tt::tolerance(tol));
+
+  xd[0] = 1.0;
+  xd[1] = 0.0;
+  fos_forward(1, 1, 2, 0, in.data(), xd.data(), &out, grad.data());
+  BOOST_TEST(grad[0] == 1, tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
   double a = 5.132, aout;
   adouble ad;
@@ -4825,6 +4851,32 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   myfree1(xd);
   myfree1(y);
   myfree1(yd);
+}
+
+// the case -= c * d is handled differently!
+BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward_2) {
+  double a = 1.0, b = -1.0, out;
+  adouble ad, bd, cd(4.0);
+
+  trace_on(1);
+  ad <<= a;
+  bd <<= b;
+
+  ad -= bd * 2;
+  ad >>= out;
+
+  trace_off();
+
+  std::vector<double> xd{0.0, 1.0};
+  std::vector<double> in{a, b};
+  std::vector<double> grad(1);
+  fos_forward(1, 1, 2, 0, in.data(), xd.data(), &out, grad.data());
+  BOOST_TEST(grad[0] == -2, tt::tolerance(tol));
+
+  xd[0] = 1.0;
+  xd[1] = 0.0;
+  fos_forward(1, 1, 2, 0, in.data(), xd.data(), &out, grad.data());
+  BOOST_TEST(grad[0] == 1, tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
