@@ -357,32 +357,6 @@ adouble &adouble::operator+=(const adouble &a) {
 #endif
   return *this;
 }
-
-adouble &adouble::operator+=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-
-    put_op(eq_plus_p);
-    ADOLC_PUT_LOCINT(p.loc());
-    ADOLC_PUT_LOCINT(tape_loc_.loc_);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] += p.value();
-
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
-#endif
-
-  return *this;
-}
-
 adouble &adouble::operator-=(const double coval) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -458,31 +432,6 @@ adouble &adouble::operator-=(const adouble &a) {
       (ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] ||
        ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()]);
 #endif
-  return *this;
-}
-
-adouble &adouble::operator-=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-
-    put_op(eq_min_p);
-    ADOLC_PUT_LOCINT(p.loc());
-    ADOLC_PUT_LOCINT(tape_loc_.loc_);
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] -= p.value();
-
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
-#endif
-
   return *this;
 }
 
@@ -568,31 +517,6 @@ adouble &adouble::operator*=(const adouble &a) {
   return *this;
 }
 
-adouble &adouble::operator*=(const pdouble &p) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-
-    put_op(eq_mult_p);
-    ADOLC_PUT_LOCINT(p.loc());        // = coval
-    ADOLC_PUT_LOCINT(tape_loc_.loc_); // = res
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
-  }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] *= p.value();
-
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[tape_loc_.loc_] = true;
-#endif
-
-  return *this;
-}
-
 adouble &adouble::operator/=(const double coval) {
   *this *= 1.0 / coval;
   return *this;
@@ -603,10 +527,6 @@ adouble &adouble::operator/=(const adouble &a) {
   return *this;
 }
 
-adouble &adouble::operator/=(const pdouble &p) {
-  *this *= recipr(p);
-  return *this;
-}
 /****************************************************************************/
 /*                       INCREMENT / DECREMENT                              */
 

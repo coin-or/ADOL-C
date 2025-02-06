@@ -56,7 +56,7 @@ public:
 
   adubref &operator=(const double coval);
   adubref &operator=(const adouble &a);
-  adubref &operator=(const pdouble &);
+  inline adubref &operator=(const pdouble &p) { return *this = adouble(p); }
 
   inline size_t getLocation() const { return location; }
   inline size_t getRefloc() const { return refloc; }
@@ -81,23 +81,21 @@ public:
 
   adubref &operator+=(const double coval);
   adubref &operator+=(const adouble &a);
-  adubref &operator+=(const pdouble &p);
+  inline adubref &operator+=(const pdouble &p) { return *this += adouble(p); }
 
   adubref &operator-=(const double coval);
   adubref &operator-=(const adouble &a);
-  adubref &operator-=(const pdouble &p);
+  inline adubref &operator-=(const pdouble &p) { return *this -= adouble(p); }
 
   adubref &operator*=(const double coval);
   adubref &operator*=(const adouble &a);
-  adubref &operator*=(const pdouble &p);
+  inline adubref &operator*=(const pdouble &p) { return *this *= adouble(p); }
 
   inline adubref &operator/=(const double coval) {
     return *this *= (1.0 / coval);
   }
-
   inline adubref &operator/=(const adouble &a) { return *this *= (1.0 / a); }
-
-  inline adubref &operator/=(const pdouble &p) { return *this *= recipr(p); }
+  inline adubref &operator/=(const pdouble &p) { return *this /= adouble(p); }
 
   adubref &operator<<=(const double coval);
   void declareIndependent();

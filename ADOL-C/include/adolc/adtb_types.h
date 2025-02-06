@@ -172,19 +172,19 @@ public:
 
   adouble &operator+=(const double coval);
   adouble &operator+=(const adouble &a);
-  adouble &operator+=(const pdouble &p);
+  inline adouble &operator+=(const pdouble &p);
 
   adouble &operator-=(const double coval);
   adouble &operator-=(const adouble &a);
-  adouble &operator-=(const pdouble &p);
+  inline adouble &operator-=(const pdouble &p);
 
   adouble &operator*=(const double coval);
   adouble &operator*=(const adouble &a);
-  adouble &operator*=(const pdouble &p);
+  inline adouble &operator*=(const pdouble &p);
 
   adouble &operator/=(const double coval);
   adouble &operator/=(const adouble &a);
-  adouble &operator/=(const pdouble &p);
+  inline adouble &operator/=(const pdouble &p);
 
   // Postfix and Prefix Increment and Decrement Operators
 
@@ -348,6 +348,18 @@ private:
 std::ostream &operator<<(std::ostream &, const adouble &);
 std::istream &operator>>(std::istream &, const adouble &);
 
+inline adouble &adouble::operator+=(const pdouble &p) {
+  return *this += adouble(p);
+}
+inline adouble &adouble::operator-=(const pdouble &p) {
+  return *this -= adouble(p);
+}
+inline adouble &adouble::operator*=(const pdouble &p) {
+  return *this *= adouble(p);
+}
+inline adouble &adouble::operator/=(const pdouble &p) {
+  return *this /= adouble(p);
+}
 /*--------------------------------------------------------------------------*/
 /* sign operators */
 ADOLC_DLL_EXPORT adouble operator+(const adouble &a);
@@ -611,13 +623,14 @@ void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const res, const adouble &a,
                                      const adouble *const vec_a,
                                      const adouble *const vec_b, size_t size);
 
-adouble operator-(const pdouble &p);
-adouble operator+(const adouble &a, const pdouble &p);
-adouble operator+(adouble &&a, const pdouble &p);
-inline adouble operator+(const pdouble &p, const adouble &a) { return a + p; };
-inline adouble operator+(const pdouble &p, adouble &&a) {
-  return std::move(a) + p;
-}
+inline adouble operator-(const pdouble &p) { return -adouble(p); }
+
+inline adouble operator+(const adouble &a, const pdouble &p) {
+  return a + adouble(p);
+};
+inline adouble operator+(const pdouble &p, const adouble &a) {
+  return a + adouble(p);
+};
 inline adouble operator+(const pdouble &p, const double coval) {
   return coval + adouble(p);
 }
@@ -625,13 +638,11 @@ inline adouble operator+(const double coval, const pdouble &p) {
   return coval + adouble(p);
 }
 
-adouble operator-(const adouble &a, const pdouble &p);
-adouble operator-(adouble &&a, const pdouble &p);
-inline adouble operator-(const pdouble &p, const adouble &a) {
-  return (-a) + p;
+inline adouble operator-(const adouble &a, const pdouble &p) {
+  return a - adouble(p);
 }
-inline adouble operator-(const pdouble &p, adouble &&a) {
-  return (-std::move(a)) + p;
+inline adouble operator-(const pdouble &p, const adouble &a) {
+  return (-a) + adouble(p);
 }
 inline adouble operator-(const pdouble &p, const double coval) {
   return adouble(p) - coval;
@@ -640,11 +651,11 @@ inline adouble operator-(const double coval, const pdouble &p) {
   return coval - adouble(p);
 }
 
-adouble operator*(const adouble &a, const pdouble &p);
-adouble operator*(adouble &&a, const pdouble &p);
-inline adouble operator*(const pdouble &p, const adouble &a) { return a * p; };
-inline adouble operator*(const pdouble &p, adouble &&a) {
-  return std::move(a) * p;
+inline adouble operator*(const adouble &a, const pdouble &p) {
+  return a * adouble(p);
+}
+inline adouble operator*(const pdouble &p, const adouble &a) {
+  return a * adouble(p);
 }
 inline adouble operator*(const pdouble &p, const double coval) {
   return coval * adouble(p);
@@ -653,119 +664,104 @@ inline adouble operator*(const double coval, const pdouble &p) {
   return coval * adouble(p);
 }
 
-adouble recipr(const pdouble &p);
-adouble operator/(const pdouble &p, const adouble &a);
-adouble operator/(const pdouble &p, adouble &&a);
+inline adouble operator/(const pdouble &p, const adouble &a) {
+  return adouble(p) / a;
+}
 inline adouble operator/(const adouble &a, const pdouble &p) {
-  return a * recipr(p);
+  return a / adouble(p);
 }
 inline adouble operator/(const pdouble &p, const double coval) {
   return adouble(p) / coval;
 }
 inline adouble operator/(const double coval, const pdouble &p) {
-  return coval * recipr(p);
+  return coval / adouble(p);
 }
 
 #ifdef ADOLC_ADVANCED_BRANCHING
-adouble operator!=(const adouble &a, const pdouble &p);
-adouble operator!=(adouble &&a, const pdouble &p);
+inline adouble operator!=(const adouble &a, const pdouble &p) {
+  return a != adouble(p);
+}
 inline adouble operator!=(const pdouble &p, const adouble &a) {
-  return (a != p);
-}
-inline adouble operator!=(const pdouble &p, adouble &&a) {
-  return (std::move(a) != p);
+  return adouble(p) != a;
 }
 
-adouble operator==(const adouble &a, const pdouble &p);
-adouble operator==(adouble &&a, const pdouble &p);
+inline adouble operator==(const adouble &a, const pdouble &p) {
+  return a == adouble(p);
+}
 inline adouble operator==(const pdouble &p, const adouble &a) {
-  return (a == p);
-}
-inline adouble operator==(const pdouble &p, adouble &&a) {
-  return (std::move(a) == p);
+  return adouble(p) == a;
 }
 
-adouble operator<=(const adouble &a, const pdouble &p);
-adouble operator<=(adouble &&a, const pdouble &p);
+inline adouble operator<=(const adouble &a, const pdouble &p) {
+  return a <= adouble(p);
+}
 inline adouble operator<=(const pdouble &p, const adouble &a) {
-  return (a >= p);
-}
-inline adouble operator<=(const pdouble &p, adouble &&a) {
-  return (std::move(a) >= p);
+  return adouble(p) <= a;
 }
 
-adouble operator>=(const adouble &a, const pdouble &p);
-adouble operator>=(adouble &&a, const pdouble &p);
+inline adouble operator>=(const adouble &a, const pdouble &p) {
+  return a >= adouble(p);
+}
 inline adouble operator>=(const pdouble &p, const adouble &a) {
-  return (a <= p);
-}
-inline adouble operator>=(const pdouble &p, adouble &&a) {
-  return (std::move(a) <= p);
+  return adouble(p) >= a;
 }
 
-adouble operator>(const adouble &a, const pdouble &p);
-adouble operator>(adouble &&a, const pdouble &p);
-inline adouble operator>(const pdouble &p, const adouble &a) { return (a < p); }
-inline adouble operator>(const pdouble &p, adouble &&a) {
-  return (std::move(a) < p);
+inline adouble operator>(const adouble &a, const pdouble &p) {
+  return a > adouble(p);
 }
-
-adouble operator<(const adouble &a, const pdouble &p);
-adouble operator<(adouble &&a, const pdouble &p);
-inline adouble operator<(const pdouble &p, const adouble &a) { return (a > p); }
-inline adouble operator<(const pdouble &p, adouble &&a) {
-  return (std::move(a) > p);
+inline adouble operator>(const pdouble &p, const adouble &a) {
+  return adouble(p) > a;
 }
-
-#else  // ADOLC_ADVANCED_BRANCHING
+inline adouble operator<(const adouble &a, const pdouble &p) {
+  return a < adouble(p);
+}
+inline adouble operator<(const pdouble &p, const adouble &a) {
+  return adouble(p) < a;
+}
+#else // ADOLC_ADVANCED_BRANCHING
 
 inline bool operator!=(const adouble &a, const pdouble &p) {
-  return ((a - p) != 0);
+  return a != adouble(p);
 }
-inline bool operator!=(const pdouble &p, const adouble &a) { return (a != p); }
-inline bool operator!=(const pdouble &p, adouble &&a) {
-  return (std::move(a) != p);
+inline bool operator!=(const pdouble &p, const adouble &a) {
+  return adouble(p) != a;
 }
 
 inline bool operator==(const adouble &a, const pdouble &p) {
-  return ((a - p) == 0);
+  return a == adouble(p);
 }
-inline bool operator==(const pdouble &p, const adouble &a) { return (a == p); }
-inline bool operator==(const pdouble &p, adouble &&a) {
-  return (std::move(a) == p);
+inline bool operator==(const pdouble &p, const adouble &a) {
+  return adouble(p) == a;
 }
 
 inline bool operator<=(const adouble &a, const pdouble &p) {
-  return ((a - p) <= 0);
+  return a <= adouble(p);
 }
+inline bool operator<=(const pdouble &p, const adouble &a) {
+  return adouble(p) <= a;
+}
+
 inline bool operator>=(const adouble &a, const pdouble &p) {
-  return ((a - p) >= 0);
+  return a >= adouble(p);
 }
-inline bool operator<=(const pdouble &p, const adouble &a) { return (a >= p); }
-inline bool operator<=(const pdouble &p, adouble &&a) {
-  return (std::move(a) >= p);
-}
-inline bool operator>=(const pdouble &p, const adouble &a) { return (a <= p); }
-inline bool operator>=(const pdouble &p, adouble &&a) {
-  return (std::move(a) <= p);
+inline bool operator>=(const pdouble &p, const adouble &a) {
+  return adouble(p) >= a;
 }
 
 inline bool operator>(const adouble &a, const pdouble &p) {
-  return ((a - p) > 0);
+  return a > adouble(p);
 }
+inline bool operator>(const pdouble &p, const adouble &a) {
+  return adouble(p) > a;
+}
+
 inline bool operator<(const adouble &a, const pdouble &p) {
-  return ((a - p) < 0);
+  return a < adouble(p);
+}
+inline bool operator<(const pdouble &p, const adouble &a) {
+  return adouble(p) < a;
 }
 
-inline bool operator>(const pdouble &p, const adouble &a) { return (a < p); }
-inline bool operator>(const pdouble &p, adouble &&a) {
-  return (std::move(a) < p);
-}
-
-inline bool operator<(const pdouble &p, const adouble &a) { return (a > p); }
-inline bool operator<(const pdouble &p, adouble &&a) {
-  return (std::move(a) > p);
-}
 #endif // ADOLC_ADVANCED_BRANCHING
 
 /* unary operators */
@@ -795,9 +791,11 @@ inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
 inline adouble fmin(const adouble &a, const pdouble &p) {
   return fmin(a, adouble(p));
 }
-inline adouble fmin(const pdouble &p, const adouble &a) { return fmin(p, a); }
+inline adouble fmin(const pdouble &p, const adouble &a) {
+  return fmin(adouble(p), a);
+}
 inline adouble fmin(const pdouble &p, const pdouble &q) {
-  return fmin(p, adouble(q));
+  return fmin(adouble(p), adouble(q));
 }
 inline adouble fmin(const double coval, const pdouble &p) {
   return fmin(coval, adouble(p));
@@ -809,9 +807,11 @@ inline adouble fmin(const pdouble &p, const double coval) {
 inline adouble fmax(const adouble &a, const pdouble &p) {
   return fmax(a, adouble(p));
 }
-inline adouble fmax(const pdouble &p, const adouble &a) { return fmax(a, p); }
+inline adouble fmax(const pdouble &p, const adouble &a) {
+  return fmax(adouble(p), a);
+}
 inline adouble fmax(const pdouble &p, const pdouble &q) {
-  return fmax(p, adouble(q));
+  return fmax(adouble(p), adouble(q));
 }
 inline adouble fmax(const double coval, const pdouble &p) {
   return fmax(coval, adouble(p));
@@ -827,9 +827,12 @@ inline adouble frexp(const pdouble &p, int *exp) {
   return frexp(adouble(p), exp);
 }
 
-adouble pow(const adouble &a, const pdouble &p);
-adouble pow(adouble &&a, const pdouble &p);
-adouble pow(const pdouble &p, const adouble &a);
+inline adouble pow(const adouble &a, const pdouble &p) {
+  return pow(a, adouble(p));
+}
+inline adouble pow(const pdouble &p, const adouble &a) {
+  return pow(adouble(p), a);
+}
 inline adouble pow(const pdouble &p, const double coval) {
   return pow(adouble(p), coval);
 }
