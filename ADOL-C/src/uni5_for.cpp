@@ -1804,7 +1804,6 @@ int hov_forward(
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
-
       /*--------------------------------------------------------------------------*/
     case eq_mult_a: /* Multiply one adouble by another    eq_mult_a */
       /* (*=) */
