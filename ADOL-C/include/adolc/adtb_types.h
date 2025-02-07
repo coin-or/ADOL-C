@@ -78,8 +78,7 @@ public:
    * not own its location. Thus, the location is not removed from the tape.
    * @param a The `adouble` to move.
    */
-  adouble(adouble &&a) noexcept {
-    tape_loc_.loc_ = a.tape_loc_.loc_;
+  adouble(adouble &&a) noexcept : tape_loc_{std::move(a.tape_loc_)} {
     a.valid = 0;
   }
 
@@ -121,8 +120,18 @@ public:
    * @param a The `adouble` to move.
    * @return Reference to the updated `adouble`.
    */
-  adouble &operator=(adouble &&a) noexcept;
+  adouble &operator=(adouble &&a) noexcept {
+    if (this == &a) {
+      return *this;
+    }
+    // remove location of this from tape to ensure it can be reused
+    free_loc(tape_loc_.loc_);
 
+    tape_loc_ = tape_location{a.loc()};
+    a.valid = 0;
+
+    return *this;
+  }
   /**
    * @brief Registers the assignment of the `pdouble` to the `adouble`.
    * @param p The `pdouble` to assign.

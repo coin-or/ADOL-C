@@ -216,20 +216,6 @@ adouble &adouble::operator=(const adouble &a) {
   return *this;
 }
 
-// moves the tape_location of "a" to "this" and sets "a" to an invalid state.
-adouble &adouble::operator=(adouble &&a) noexcept {
-  if (this == &a) {
-    return *this;
-  }
-  // remove location of this from tape to ensure it can be reused
-  free_loc(tape_loc_.loc_);
-
-  tape_loc_ = tape_location{a.loc()};
-  a.valid = 0;
-
-  return *this;
-}
-
 adouble &adouble::operator=(const pdouble &p) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
