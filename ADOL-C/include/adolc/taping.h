@@ -61,6 +61,19 @@ ADOLC_DLL_EXPORT char currently_nested(short tag);
 /* An all-in-one tape stats printing routine */
 ADOLC_DLL_EXPORT void printTapeStats(FILE *stream, short tag);
 
+/****************************************************************************/
+/* Returns the number of parameters recorded on tape                        */
+/****************************************************************************/
+ADOLC_DLL_EXPORT size_t get_num_param(short tag);
+
+/****************************************************************************/
+/* Overrides the parameters for the next evaluations. This will invalidate  */
+/* the taylor stack, so next reverse call will fail, if not preceded by a   */
+/* forward call after setting the parameters.                               */
+/****************************************************************************/
+ADOLC_DLL_EXPORT void set_param_vec(short tag, size_t numparam,
+                                    revreal *paramvec);
+
 ADOLC_DLL_EXPORT void cleanUp();
 
 ADOLC_DLL_EXPORT int removeTape(short tapeID, short type);

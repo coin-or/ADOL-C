@@ -11,7 +11,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include "dvlparms.h"
+#include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/sparse/sparse_fo_rev.h>
 

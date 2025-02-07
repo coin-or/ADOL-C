@@ -12,9 +12,9 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include "dvlparms.h"
 #include <adolc/adolc.h>
-#include <adolc/adouble.h>
+#include <adolc/adtb_types.h>
+#include <adolc/dvlparms.h>
 #include <adolc/lie/drivers.h>
 
 /** Computes the total derivative of the output

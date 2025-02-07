@@ -18,9 +18,9 @@
 #include <math.h>
 #include <string.h>
 
-#include "dvlparms.h"
-#include "oplate.h"
-#include "taping_p.h"
+#include <adolc/dvlparms.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -2379,6 +2379,10 @@ void reset_val_r(void) {
 int upd_resloc(locint temp, locint lhs) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  // LocBuffer points to the first entry of the Locations and CurrLoc-1 to the
+  // last placed location in the buffer. Thus, the check ask if there is no
+  // element on the tape.
   if (ADOLC_CURRENT_TAPE_INFOS.currLoc - ADOLC_CURRENT_TAPE_INFOS.locBuffer < 1)
     return 0;
   if (temp == *(ADOLC_CURRENT_TAPE_INFOS.currLoc - 1)) {
@@ -2388,11 +2392,17 @@ int upd_resloc(locint temp, locint lhs) {
   return 0;
 }
 
-int upd_resloc_check(locint temp, locint lhs) {
+int upd_resloc_check(const size_t temp) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
+
+  // LocBuffer points to the first entry of the Locations and CurrLoc-1 to the
+  // last placed location in the buffer. Thus, the check ask if there is no
+  // element on the tape.
   if (ADOLC_CURRENT_TAPE_INFOS.currLoc - ADOLC_CURRENT_TAPE_INFOS.locBuffer < 1)
     return 0;
+
+  // checks if tape-element represented by "tmp" is the last created.
   if (temp == *(ADOLC_CURRENT_TAPE_INFOS.currLoc - 1)) {
     return 1;
   }

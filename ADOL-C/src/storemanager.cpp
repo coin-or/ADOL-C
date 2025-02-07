@@ -12,11 +12,11 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
-#include "checkpointing_p.h"
-#include "dvlparms.h"
-#include "taping_p.h"
 #include <adolc/adalloc.h>
+#include <adolc/checkpointing_p.h>
+#include <adolc/dvlparms.h>
 #include <adolc/revolve.h>
+#include <adolc/taping_p.h>
 
 #include <cassert>
 #include <cstring> // For memset
@@ -588,10 +588,17 @@ void StoreManagerLocintBlock::free_loc(locint loc) {
 #endif
 }
 
+// helper for creating contiguous adouble locations
 void ensureContiguousLocations(size_t n) {
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
   ADOLC_GLOBAL_TAPE_VARS.storeManagerPtr->ensure_block(n);
+}
+
+// helper for creating contiguous adouble locations and return size
+size_t ensureContiguousLocations_(size_t n) {
+  ensureContiguousLocations(n);
+  return n;
 }
 
 void setStoreManagerControl(double gcTriggerRatio, size_t gcTriggerMaxSize) {

@@ -304,11 +304,11 @@ void MyADOLC_NLP::generate_tapes(Index n, Index m) {
 
   eval_obj(n, xa, obj_value);
 
-  obj_value *= mkparam(sig);
+  obj_value *= pdouble::mkparam(sig);
   eval_constraints(n, xa, m, g);
 
   for (Index i = 0; i < m; i++)
-    obj_value += g[i] * mkparam(lam[i]);
+    obj_value += g[i] * pdouble::mkparam(lam[i]);
 
   obj_value >>= dummy;
 

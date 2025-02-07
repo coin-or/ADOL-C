@@ -183,8 +183,8 @@
  *                                                                    *
  *--------------------------------------------------------------------*/
 
-#include "taping_p.h"
 #include <adolc/revolve.h>
+#include <adolc/taping_p.h>
 
 #define MAXINT 2147483647
 

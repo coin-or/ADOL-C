@@ -45,7 +45,7 @@ target_sources(adolc PRIVATE
                nonl_ind_forward_t.cpp
                nonl_ind_old_forward_s.cpp
                nonl_ind_old_forward_t.cpp
-               param.cpp
+               pdouble.cpp
                revolve.cpp
                rpl_malloc.cpp
                storemanager.cpp

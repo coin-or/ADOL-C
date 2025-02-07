@@ -15,10 +15,10 @@
 #if !defined(ADOLC_CHECKPOINTING_P_H)
 #define ADOLC_CHECKPOINTING_P_H 1
 
-#include "buffer_temp.h"
-#include "taping_p.h"
+#include <adolc/buffer_temp.h>
 #include <adolc/checkpointing.h>
 #include <adolc/internal/common.h>
+#include <adolc/taping_p.h>
 
 #include <stack>
 using std::stack;
