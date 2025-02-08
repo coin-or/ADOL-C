@@ -15,12 +15,14 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <string.h>
-
 #include <adolc/dvlparms.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
+#include <adolc/taping_h>
+#include <array>
+#include <iostream>
+#include <math.h>
+#include <string.h>
+#include <string>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -355,112 +357,33 @@ void printError() {
 }
 
 /* the base names of every tape type */
-char *tapeBaseNames[4] = {nullptr, nullptr, nullptr, nullptr};
-
-void clearTapeBaseNames() {
-  int i;
-  for (i = 0; i < 4; i++) {
-    if (tapeBaseNames[i]) {
-      delete tapeBaseNames[i];
-      tapeBaseNames[i] = nullptr;
-    }
-  }
-}
+std::array<std::string, 4> tapeBaseNames;
 
 /****************************************************************************/
-/* The subroutine get_fstr appends to the tape base name of type tapeType   */
-/* the number fnum and ".tap" and returns a pointer to the resulting string.*/
+/* Returns the char*: tapeBaseName+tapeID+.tap+\0 or if parallelization is */
+/* active: tapeBaseName+tapeID+thread-+threadNumber+.tap+\0                 */
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
-  char *numberString = nullptr;
-  char *fileName = nullptr;
-  const char *extension = ".tap";
-  char *currPos = nullptr;
-#if defined(_OPENMP)
-  char *threadName = "thread-", *threadNumberString = nullptr;
-  int threadNumber, threadNumberStringLength = 0, threadNameLength = 0;
-#endif /* _OPENMP */
-  int tapeBaseNameLength, numberStringLength, fileNameLength;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  std::string fileName(tapeBaseNames[tapeType]);
 
-  failAdditionalInfo1 = tapeID;
-  tapeBaseNameLength = strlen(tapeBaseNames[tapeType]);
-  /* determine length of the number string */
-  if (tapeID != 0)
-    numberStringLength = (int)log10((double)tapeID);
-  else
-    numberStringLength = 0;
-  ++numberStringLength;
-  numberString = new char[numberStringLength + 1];
-  if (numberString == nullptr)
-    fail(ADOLC_MALLOC_FAILED);
-  snprintf(numberString, numberStringLength + 1, "%d", tapeID);
-#if defined(_OPENMP)
-  /* determine length of the thread number string */
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
-    threadNameLength = strlen(threadName);
-    threadNumber = omp_get_thread_num();
-    if (threadNumber != 0)
-      threadNumberStringLength = (int)log10((double)threadNumber);
-    else
-      threadNumberStringLength = 0;
-    ++threadNumberStringLength;
-    threadNumberString = new char[threadNumerStringLength + 2];
-    if (threadNumberString == nullptr)
-      fail(ADOLC_MALLOC_FAILED);
-    sprintf(threadNumberString, "%d", threadNumber);
-    threadNumberString[threadNumberStringLength] = '_';
-    ++threadNumberStringLength;
-    threadNumberString[threadNumberStringLength] = 0;
-  }
-#endif /* _OPENMP */
-
-  /* malloc and create */
-  fileNameLength = tapeBaseNameLength + numberStringLength + 5;
-#if defined(_OPENMP)
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-    fileNameLength += threadNameLength + threadNumberStringLength;
-#endif /* _OPENMP */
-  fileName = new char[fileNameLength];
-  if (fileName == nullptr)
-    fail(ADOLC_MALLOC_FAILED);
-  currPos = fileName;
-  strncpy(currPos, tapeBaseNames[tapeType], tapeBaseNameLength);
-  currPos += tapeBaseNameLength;
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
-    strncpy(currPos, threadName, threadNameLength);
-    currPos += threadNameLength;
-    strncpy(currPos, threadNumberString, threadNumberStringLength);
-    currPos += threadNumberStringLength;
+    fileName += "thread-" + std::to_string(omp_get_thread_num());
   }
-#endif /* _OPENMP */
-  strncpy(currPos, numberString, numberStringLength);
-  currPos += numberStringLength;
-  strncpy(currPos, extension, 4);
-  currPos += 4;
-  *currPos = 0;
+#endif // _OPENMP
 
-  delete numberString;
-#if defined(_OPENMP)
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-    delete threadNumberString;
-#endif /* _OPENMP */
+  fileName += std::to_string(tapeID) + ".tap";
 
-  return fileName;
+  // don't forget space for null termination
+  char *ret_char = new char[fileName.size() + 1];
+  std::strcpy(ret_char, fileName.c_str()); // ensures null terminatoin
+  return ret_char;
 }
 
 /****************************************************************************/
 /* Tries to read a local config file containing, e.g., buffer sizes         */
 /****************************************************************************/
-static char *duplicatestr(const char *instr) {
-  size_t len = strlen(instr);
-  char *outstr = new char[len + 1];
-  strncpy(outstr, instr, len);
-  return outstr;
-}
 
 #define ADOLC_LINE_LENGTH 100
 void readConfigFile() {
@@ -471,11 +394,6 @@ void readConfigFile() {
   int base;
   size_t number = 0;
   char *path = nullptr;
-  int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
-  tapeBaseNames[0] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);
-  tapeBaseNames[1] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME);
-  tapeBaseNames[2] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME);
-  tapeBaseNames[3] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME);
 
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -535,44 +453,16 @@ void readConfigFile() {
             path = pos3 + 1;
             err = stat(path, &st);
             if (err == 0 && S_ISDIR(st.st_mode)) {
-              int pathlen, pathseplen, namelen[4];
-              int i;
-              pathlen = strlen(path);
-              pathseplen = strlen(PATHSEPARATOR);
-              for (i = 0; i < 4; i++)
-                namelen[i] = strlen(tapeBaseNames[i]);
-              clearTapeBaseNames();
-              for (i = 0; i < 4; i++) {
-                char *currpos;
-                int fnamelen;
-                tapeBaseNames[i] = new char[namelen[i] - defdirsize + pathlen +
-                                            pathseplen + 1];
-                currpos = tapeBaseNames[i];
-                strncpy(currpos, path, pathlen);
-                currpos += pathlen;
-                strncpy(currpos, PATHSEPARATOR, pathseplen);
-                currpos += pathseplen;
-                switch (i) {
-                case 0:
-                  fnamelen = strlen(ADOLC_LOCATIONS_NAME);
-                  strncpy(currpos, ADOLC_LOCATIONS_NAME, fnamelen);
-                  break;
-                case 1:
-                  fnamelen = strlen(ADOLC_VALUES_NAME);
-                  strncpy(currpos, ADOLC_VALUES_NAME, fnamelen);
-                  break;
-                case 2:
-                  fnamelen = strlen(ADOLC_OPERATIONS_NAME);
-                  strncpy(currpos, ADOLC_OPERATIONS_NAME, fnamelen);
-                  break;
-                case 3:
-                  fnamelen = strlen(ADOLC_TAYLORS_NAME);
-                  strncpy(currpos, ADOLC_TAYLORS_NAME, fnamelen);
-                  break;
-                }
-                currpos += fnamelen;
-                *currpos = '\0';
-              }
+
+              tapeBaseNames[0] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_LOCATIONS_NAME;
+              tapeBaseNames[1] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_VALUES_NAME;
+              tapeBaseNames[2] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_OPERATIONS_NAME;
+              tapeBaseNames[3] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_TAYLORS_NAME;
+
               fprintf(
                   DIAG_OUT,
                   "ADOL-C info: using TAPE_DIR %s for all disk bound tapes\n",
@@ -1162,14 +1052,14 @@ static void save_params() {
 
   ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] = ADOLC_GLOBAL_TAPE_VARS.numparam;
   if (ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore != nullptr)
-    delete ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore;
 
   ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore =
       new double[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]];
 
   // Sometimes we have pStore == nullptr and stats[NUM_PARAM] == 0.
-  // Calling memcpy with that is undefined behavior, and sanitizers will issue a
-  // warning.
+  // Calling memcpy with that is undefined behavior, and sanitizers will issue
+  // a warning.
   if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0) {
     memcpy(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
            ADOLC_GLOBAL_TAPE_VARS.pStore,
@@ -1255,7 +1145,7 @@ void close_tape(int flag) {
       fclose(ADOLC_CURRENT_TAPE_INFOS.op_file);
     ADOLC_CURRENT_TAPE_INFOS.op_file = nullptr;
     ADOLC_CURRENT_TAPE_INFOS.stats[OP_FILE_ACCESS] = 1;
-    delete ADOLC_CURRENT_TAPE_INFOS.opBuffer;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.opBuffer;
     ADOLC_CURRENT_TAPE_INFOS.opBuffer = nullptr;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numOps_Tape =
@@ -1299,7 +1189,7 @@ void close_tape(int flag) {
            ADOLC_CURRENT_TAPE_INFOS.loc_file);
     fclose(ADOLC_CURRENT_TAPE_INFOS.loc_file);
     ADOLC_CURRENT_TAPE_INFOS.loc_file = nullptr;
-    delete ADOLC_CURRENT_TAPE_INFOS.locBuffer;
+    delete[] ADOLC_CURRENT_TAPE_INFOS.locBuffer;
     ADOLC_CURRENT_TAPE_INFOS.locBuffer = nullptr;
   } else {
     ADOLC_CURRENT_TAPE_INFOS.numLocs_Tape =
@@ -1859,7 +1749,8 @@ void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations) {
     locint valRemainder =
         ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal;
     ADOLC_PUT_LOCINT(valRemainder);
-    /* avoid writing uninitialized memory to the file and get valgrind upset */
+    /* avoid writing uninitialized memory to the file and get valgrind upset
+     */
     memset(ADOLC_CURRENT_TAPE_INFOS.currVal, 0, valRemainder * sizeof(double));
     put_val_block(ADOLC_CURRENT_TAPE_INFOS.lastValP1);
     /* every operation writes 1 opcode */
