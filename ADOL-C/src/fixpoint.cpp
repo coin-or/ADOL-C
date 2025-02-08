@@ -22,8 +22,6 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
-
 /*--------------------------------------------------------------------------*/
 
 /* F(x,u,y,dim_x,dim_u) */
@@ -41,7 +39,7 @@ struct fpi_data {
   size_t N_max_deriv;
 };
 
-static vector<fpi_data> fpi_stack;
+static std::vector<fpi_data> fpi_stack;
 
 static int iteration(size_t dim_xu, double *xu, size_t dim_x, double *x_fix) {
   double err;
