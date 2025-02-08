@@ -15,13 +15,14 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <string.h>
-#include <string>
-
 #include "dvlparms.h"
 #include "oplate.h"
 #include "taping_p.h"
+#include <array>
+#include <iostream>
+#include <math.h>
+#include <string.h>
+#include <string>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -356,14 +357,7 @@ void printError() {
 }
 
 /* the base names of every tape type */
-char *tapeBaseNames[4] = {nullptr, nullptr, nullptr, nullptr};
-
-void clearTapeBaseNames() {
-  for (auto i = 0; i < 4; ++i) {
-    delete[] tapeBaseNames[i];
-    tapeBaseNames[i] = nullptr;
-  }
-}
+std::array<std::string, 4> tapeBaseNames;
 
 /****************************************************************************/
 /* Returns the char*: tapeBaseName+tapeID+.tap+\0 or if parallelization is */
@@ -390,13 +384,6 @@ char *createFileName(short tapeID, int tapeType) {
 /****************************************************************************/
 /* Tries to read a local config file containing, e.g., buffer sizes         */
 /****************************************************************************/
-static char *duplicatestr(const char *instr) {
-  size_t len = strlen(instr);
-  char *outstr = new char[len + 1];
-  strncpy(outstr, instr, len);
-  outstr[len] = 0; // String end marker
-  return outstr;
-}
 
 #define ADOLC_LINE_LENGTH 100
 void readConfigFile() {
@@ -407,11 +394,6 @@ void readConfigFile() {
   int base;
   size_t number = 0;
   char *path = nullptr;
-  int defdirsize = strlen(TAPE_DIR PATHSEPARATOR);
-  tapeBaseNames[0] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_LOCATIONS_NAME);
-  tapeBaseNames[1] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_VALUES_NAME);
-  tapeBaseNames[2] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_OPERATIONS_NAME);
-  tapeBaseNames[3] = duplicatestr(TAPE_DIR PATHSEPARATOR ADOLC_TAYLORS_NAME);
 
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
@@ -471,44 +453,16 @@ void readConfigFile() {
             path = pos3 + 1;
             err = stat(path, &st);
             if (err == 0 && S_ISDIR(st.st_mode)) {
-              int pathlen, pathseplen, namelen[4];
-              int i;
-              pathlen = strlen(path);
-              pathseplen = strlen(PATHSEPARATOR);
-              for (i = 0; i < 4; i++)
-                namelen[i] = strlen(tapeBaseNames[i]);
-              clearTapeBaseNames();
-              for (i = 0; i < 4; i++) {
-                char *currpos;
-                int fnamelen;
-                tapeBaseNames[i] = new char[namelen[i] - defdirsize + pathlen +
-                                            pathseplen + 1];
-                currpos = tapeBaseNames[i];
-                strncpy(currpos, path, pathlen);
-                currpos += pathlen;
-                strncpy(currpos, PATHSEPARATOR, pathseplen);
-                currpos += pathseplen;
-                switch (i) {
-                case 0:
-                  fnamelen = strlen(ADOLC_LOCATIONS_NAME);
-                  strncpy(currpos, ADOLC_LOCATIONS_NAME, fnamelen);
-                  break;
-                case 1:
-                  fnamelen = strlen(ADOLC_VALUES_NAME);
-                  strncpy(currpos, ADOLC_VALUES_NAME, fnamelen);
-                  break;
-                case 2:
-                  fnamelen = strlen(ADOLC_OPERATIONS_NAME);
-                  strncpy(currpos, ADOLC_OPERATIONS_NAME, fnamelen);
-                  break;
-                case 3:
-                  fnamelen = strlen(ADOLC_TAYLORS_NAME);
-                  strncpy(currpos, ADOLC_TAYLORS_NAME, fnamelen);
-                  break;
-                }
-                currpos += fnamelen;
-                *currpos = '\0';
-              }
+
+              tapeBaseNames[0] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_LOCATIONS_NAME;
+              tapeBaseNames[1] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_VALUES_NAME;
+              tapeBaseNames[2] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_OPERATIONS_NAME;
+              tapeBaseNames[3] =
+                  std::string(path) + PATHSEPARATOR + ADOLC_TAYLORS_NAME;
+
               fprintf(
                   DIAG_OUT,
                   "ADOL-C info: using TAPE_DIR %s for all disk bound tapes\n",
@@ -1104,8 +1058,8 @@ static void save_params() {
       new double[ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM]];
 
   // Sometimes we have pStore == nullptr and stats[NUM_PARAM] == 0.
-  // Calling memcpy with that is undefined behavior, and sanitizers will issue a
-  // warning.
+  // Calling memcpy with that is undefined behavior, and sanitizers will issue
+  // a warning.
   if (ADOLC_CURRENT_TAPE_INFOS.stats[NUM_PARAM] > 0) {
     memcpy(ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore,
            ADOLC_GLOBAL_TAPE_VARS.pStore,
@@ -1795,7 +1749,8 @@ void put_op_reserve(unsigned char op, unsigned int reserveExtraLocations) {
     locint valRemainder =
         ADOLC_CURRENT_TAPE_INFOS.lastValP1 - ADOLC_CURRENT_TAPE_INFOS.currVal;
     ADOLC_PUT_LOCINT(valRemainder);
-    /* avoid writing uninitialized memory to the file and get valgrind upset */
+    /* avoid writing uninitialized memory to the file and get valgrind upset
+     */
     memset(ADOLC_CURRENT_TAPE_INFOS.currVal, 0, valRemainder * sizeof(double));
     put_val_block(ADOLC_CURRENT_TAPE_INFOS.lastValP1);
     /* every operation writes 1 opcode */
