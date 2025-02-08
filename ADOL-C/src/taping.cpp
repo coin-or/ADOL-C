@@ -17,7 +17,7 @@
 
 #include <adolc/dvlparms.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_h>
+#include <adolc/taping_p.h>
 #include <array>
 #include <iostream>
 #include <math.h>
