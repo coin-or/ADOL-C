@@ -67,14 +67,11 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
 }
 
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
-  if (storeManagerPtr != NULL) {
-    delete storeManagerPtr;
-    storeManagerPtr = NULL;
-  }
-  if (paramStoreMgrPtr != NULL) {
-    delete paramStoreMgrPtr;
-    paramStoreMgrPtr = NULL;
-  }
+  delete storeManagerPtr;
+  storeManagerPtr = NULL;
+
+  delete paramStoreMgrPtr;
+  paramStoreMgrPtr = NULL;
 }
 
 const GlobalTapeVarsCL &
@@ -585,44 +582,36 @@ void cleanUp() {
     ADOLC_TAPE_INFOS_BUFFER.pop_back();
     {
       /* close open files though they may be incomplete */
-      if ((*tiIter)->op_file != NULL) {
-        fclose((*tiIter)->op_file);
-        (*tiIter)->op_file = NULL;
-      }
-      if ((*tiIter)->val_file != NULL) {
-        fclose((*tiIter)->val_file);
-        (*tiIter)->val_file = NULL;
-      }
-      if ((*tiIter)->loc_file != NULL) {
-        fclose((*tiIter)->loc_file);
-        (*tiIter)->loc_file = NULL;
-      }
-      if ((*tiIter)->tay_file != NULL &&
-          (*tiIter)->pTapeInfos.skipFileCleanup == 0) {
+
+      fclose((*tiIter)->op_file);
+      (*tiIter)->op_file = NULL;
+
+      fclose((*tiIter)->val_file);
+      (*tiIter)->val_file = NULL;
+
+      fclose((*tiIter)->loc_file);
+      (*tiIter)->loc_file = NULL;
+
+      if ((*tiIter)->pTapeInfos.skipFileCleanup == 0) {
         fclose((*tiIter)->tay_file);
         (*tiIter)->tay_file = NULL;
         remove((*tiIter)->pTapeInfos.tay_fileName);
       }
-      if ((*tiIter)->opBuffer != NULL) {
-        delete[] ((*tiIter)->opBuffer);
-        (*tiIter)->opBuffer = NULL;
-      }
-      if ((*tiIter)->valBuffer != NULL) {
-        delete[] ((*tiIter)->valBuffer);
-        (*tiIter)->valBuffer = NULL;
-      }
-      if ((*tiIter)->locBuffer != NULL) {
-        delete[] ((*tiIter)->locBuffer);
-        (*tiIter)->locBuffer = NULL;
-      }
-      if ((*tiIter)->signature != NULL) {
-        free((*tiIter)->signature);
-        (*tiIter)->signature = NULL;
-      }
-      if ((*tiIter)->tayBuffer != NULL) {
-        delete[] ((*tiIter)->tayBuffer);
-        (*tiIter)->tayBuffer = NULL;
-      }
+
+      delete[] ((*tiIter)->opBuffer);
+      (*tiIter)->opBuffer = NULL;
+
+      delete[] ((*tiIter)->valBuffer);
+      (*tiIter)->valBuffer = NULL;
+
+      delete[] ((*tiIter)->locBuffer);
+      (*tiIter)->locBuffer = NULL;
+
+      delete ((*tiIter)->signature);
+      (*tiIter)->signature = NULL;
+
+      delete[] ((*tiIter)->tayBuffer);
+      (*tiIter)->tayBuffer = NULL;
 
 #ifdef SPARSE
       freeSparseJacInfos(
@@ -658,22 +647,18 @@ void cleanUp() {
         if ((*tiIter)->stats[VAL_FILE_ACCESS] == 1)
           remove((*tiIter)->pTapeInfos.val_fileName);
       }
-      if ((*tiIter)->pTapeInfos.op_fileName != NULL) {
-        delete[] ((*tiIter)->pTapeInfos.op_fileName);
-        (*tiIter)->pTapeInfos.op_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.val_fileName != NULL) {
-        delete[] ((*tiIter)->pTapeInfos.val_fileName);
-        (*tiIter)->pTapeInfos.val_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.loc_fileName != NULL) {
-        delete[] ((*tiIter)->pTapeInfos.loc_fileName);
-        (*tiIter)->pTapeInfos.loc_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.tay_fileName != NULL) {
-        delete[] ((*tiIter)->pTapeInfos.tay_fileName);
-        (*tiIter)->pTapeInfos.tay_fileName = NULL;
-      }
+
+      delete[] ((*tiIter)->pTapeInfos.op_fileName);
+      (*tiIter)->pTapeInfos.op_fileName = NULL;
+
+      delete[] ((*tiIter)->pTapeInfos.val_fileName);
+      (*tiIter)->pTapeInfos.val_fileName = NULL;
+
+      delete[] ((*tiIter)->pTapeInfos.loc_fileName);
+      (*tiIter)->pTapeInfos.loc_fileName = NULL;
+
+      delete[] ((*tiIter)->pTapeInfos.tay_fileName);
+      (*tiIter)->pTapeInfos.tay_fileName = NULL;
 
       delete *tiIter;
       *tiIter = NULL;
@@ -682,14 +667,11 @@ void cleanUp() {
 
   cp_clearStack();
 
-  if (ADOLC_GLOBAL_TAPE_VARS.store != NULL) {
-    delete[] ADOLC_GLOBAL_TAPE_VARS.store;
-    ADOLC_GLOBAL_TAPE_VARS.store = NULL;
-  }
-  if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) {
-    delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
-    ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
-  }
+  delete[] ADOLC_GLOBAL_TAPE_VARS.store;
+  ADOLC_GLOBAL_TAPE_VARS.store = NULL;
+
+  delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
+  ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
 
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 0) {
@@ -756,10 +738,16 @@ int removeTape(short tapeID, short type) {
   }
 
   free(tapeInfos->pTapeInfos.op_fileName);
+  tapeInfos->pTapeInfos.op_fileName = nullptr;
+
   free(tapeInfos->pTapeInfos.val_fileName);
+  tapeInfos->pTapeInfos.val_fileName = nullptr;
+
   free(tapeInfos->pTapeInfos.loc_fileName);
-  if (tapeInfos->pTapeInfos.tay_fileName != NULL)
-    free(tapeInfos->pTapeInfos.tay_fileName);
+  tapeInfos->pTapeInfos.loc_fileName = nullptr;
+
+  free(tapeInfos->pTapeInfos.tay_fileName);
+  tapeInfos->pTapeInfos.tay_fileName = nullptr;
 
   delete tapeInfos;
 
@@ -1162,10 +1150,9 @@ PersistantTapeInfos::~PersistantTapeInfos() {
     myfree2(forodec_Z);
     forodec_nax = 0;
   }
-  if (paramstore != NULL) {
-    delete[] paramstore;
-    paramstore = NULL;
-  }
+
+  delete[] paramstore;
+  paramstore = NULL;
 }
 
 void enableMinMaxUsingAbs() {
@@ -1219,8 +1206,8 @@ void free_all_taping_params() {
 }
 
 void GlobalTapeVarsCL::reallocStore(unsigned char type) {
-  if (storeManagerPtr != NULL)
-    delete storeManagerPtr;
+  delete storeManagerPtr;
+  storeManagerPtr = nullptr;
 
   store = NULL;
 #if defined(ADOLC_TRACK_ACTIVITY)
