@@ -513,7 +513,8 @@ void readConfigFile() {
       }
     }
     fprintf(DIAG_OUT, "****************************************\n\n");
-    fclose(configFile);
+    if (configFile != nullptr)
+      fclose(configFile);
   }
   ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
 }
@@ -1366,7 +1367,8 @@ static void read_params(TapeInfos *tapeInfos) {
       currVal = lastValP1;
     }
   }
-  fclose(val_file);
+  if (val_file != nullptr)
+    fclose(val_file);
   delete valBuffer;
 }
 
@@ -1443,7 +1445,9 @@ void read_tape_stats(TapeInfos *tapeInfos) {
     fail(ADOLC_WRONG_LOCINT_SIZE);
   }
 
-  fclose(loc_file);
+  if (loc_file != nullptr)
+    fclose(loc_file);
+
   tapeInfos->tapingComplete = 1;
   if (tapeInfos->stats[NUM_PARAM] > 0)
     read_params(tapeInfos);

@@ -24,12 +24,11 @@
 #include <cstring>
 
 #include <stack>
-using namespace std;
 
 ADOLC_BUFFER_TYPE ADOLC_EXT_DIFF_FCTS_BUFFER_DECL;
 
 /* field of pointers to the value fields of a checkpoint */
-stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
+std::stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
 
 /* forward function declarations */
 void init_edf(ext_diff_fct *edf);

@@ -21,7 +21,6 @@
 #include <adolc/taping_p.h>
 
 #include <stack>
-using std::stack;
 
 BEGIN_C_DECLS
 /****************************************************************************/
@@ -44,7 +43,7 @@ extern ADOLC_BUFFER_TYPE ADOLC_EXT_DIFF_FCTS_BUFFER_DECL;
 
 /* field of pointers to the value fields of a checkpoint */
 typedef double **StackElement;
-extern stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
+extern std::stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
 
 /* a cleanup function */
 void cp_clearStack();
