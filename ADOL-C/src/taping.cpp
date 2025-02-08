@@ -359,87 +359,32 @@ void printError() {
 char *tapeBaseNames[4] = {nullptr, nullptr, nullptr, nullptr};
 
 void clearTapeBaseNames() {
-  int i;
-  for (i = 0; i < 4; i++) {
-    if (tapeBaseNames[i]) {
-      delete[] tapeBaseNames[i];
-      tapeBaseNames[i] = nullptr;
-    }
+  for (auto i = 0; i < 4; ++i) {
+    delete[] tapeBaseNames[i];
+    tapeBaseNames[i] = nullptr;
   }
 }
 
 /****************************************************************************/
-/* The subroutine get_fstr appends to the tape base name of type tapeType   */
-/* the number fnum and ".tap" and returns a pointer to the resulting string.*/
+/* Returns the char*: tapeBaseName+tapeID+.tap+\0 or if parallelization is */
+/* active: tapeBaseName+tapeID+thread-+threadNumber+.tap+\0                 */
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *createFileName(short tapeID, int tapeType) {
-  char *fileName = nullptr;
-  const char *extension = ".tap";
-  char *currPos = nullptr;
-#if defined(_OPENMP)
-  char *threadName = "thread-", *threadNumberString = nullptr;
-  int threadNumber, threadNumberStringLength = 0, threadNameLength = 0;
-#endif /* _OPENMP */
-  int tapeBaseNameLength, fileNameLength;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  std::string fileName(tapeBaseNames[tapeType]);
 
-  failAdditionalInfo1 = tapeID;
-  tapeBaseNameLength = strlen(tapeBaseNames[tapeType]);
-  const std::string numberString = std::to_string(tapeID);
-#if defined(_OPENMP)
-  /* determine length of the thread number string */
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
-    threadNameLength = strlen(threadName);
-    threadNumber = omp_get_thread_num();
-    if (threadNumber != 0)
-      threadNumberStringLength = (int)log10((double)threadNumber);
-    else
-      threadNumberStringLength = 0;
-    ++threadNumberStringLength;
-    threadNumberString = new char[threadNumberStringLength + 2];
-    if (threadNumberString == nullptr)
-      fail(ADOLC_MALLOC_FAILED);
-    sprintf(threadNumberString, "%d", threadNumber);
-    threadNumberString[threadNumberStringLength] = '_';
-    ++threadNumberStringLength;
-    threadNumberString[threadNumberStringLength] = 0;
-  }
-#endif /* _OPENMP */
-
-  /* malloc and create */
-  fileNameLength = tapeBaseNameLength + numberString.size() + 5;
-#if defined(_OPENMP)
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-    fileNameLength += threadNameLength + threadNumberStringLength;
-#endif /* _OPENMP */
-  fileName = new char[fileNameLength];
-  if (fileName == nullptr)
-    fail(ADOLC_MALLOC_FAILED);
-  currPos = fileName;
-  strncpy(currPos, tapeBaseNames[tapeType], tapeBaseNameLength);
-  currPos += tapeBaseNameLength;
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
-    strncpy(currPos, threadName, threadNameLength);
-    currPos += threadNameLength;
-    strncpy(currPos, threadNumberString, threadNumberStringLength);
-    currPos += threadNumberStringLength;
+    fileName += "thread-" + std::to_string(omp_get_thread_num());
   }
-#endif /* _OPENMP */
-  strncpy(currPos, numberString.c_str(), numberString.size());
-  currPos += numberString.size();
-  strncpy(currPos, extension, 4);
-  currPos += 4;
-  *currPos = 0;
+#endif // _OPENMP
 
-#if defined(_OPENMP)
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1)
-    delete threadNumberString;
-#endif /* _OPENMP */
+  fileName += std::to_string(tapeID) + ".tap";
 
-  return fileName;
+  // don't forget space for null termination
+  char *ret_char = new char[fileName.size() + 1];
+  std::strcpy(ret_char, fileName.c_str()); // ensures null terminatoin
+  return ret_char;
 }
 
 /****************************************************************************/
@@ -449,7 +394,7 @@ static char *duplicatestr(const char *instr) {
   size_t len = strlen(instr);
   char *outstr = new char[len + 1];
   strncpy(outstr, instr, len);
-  outstr[len] = 0;   // String end marker
+  outstr[len] = 0; // String end marker
   return outstr;
 }
 
