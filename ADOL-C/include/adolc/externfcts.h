@@ -16,77 +16,83 @@
 #if !defined(ADOLC_EXTERNFCTS_H)
 #define ADOLC_EXTERNFCTS_H 1
 
-#include <adolc/adouble.h>
+#include <adolc/adtb_types.h>
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
 
-typedef int(ADOLC_ext_fct)(int n, double *x, int m, double *y);
-typedef int(ADOLC_ext_fct_fos_forward)(int n, double *dp_x, double *dp_X, int m,
-                                       double *dp_y, double *dp_Y);
-typedef int(ADOLC_ext_fct_fov_forward)(int n, double *dp_x, int p,
-                                       double **dpp_X, int m, double *dp_y,
+typedef int(ADOLC_ext_fct)(size_t dim_x, double *x, size_t dim_y, double *y);
+typedef int(ADOLC_ext_fct_fos_forward)(size_t n, double *dp_x, double *dp_X,
+                                       size_t m, double *dp_y, double *dp_Y);
+typedef int(ADOLC_ext_fct_fov_forward)(size_t n, double *dp_x, size_t p,
+                                       double **dpp_X, size_t m, double *dp_y,
                                        double **dpp_Y);
-typedef int(ADOLC_ext_fct_hos_forward)(int n, double *dp_x, int d,
-                                       double **dpp_X, int m, double *dp_y,
+typedef int(ADOLC_ext_fct_hos_forward)(size_t n, double *dp_x, size_t d,
+                                       double **dpp_X, size_t m, double *dp_y,
                                        double **dpp_Y);
-typedef int(ADOLC_ext_fct_hov_forward)(int n, double *dp_x, int d, int p,
-                                       double ***dppp_X, int m, double *dp_y,
-                                       double ***dppp_Y);
-typedef int(ADOLC_ext_fct_fos_reverse)(int m, double *dp_U, int n, double *dp_Z,
-                                       double *dp_x, double *dp_y);
-typedef int(ADOLC_ext_fct_fov_reverse)(int m, int p, double **dpp_U, int n,
-                                       double **dpp_Z, double *dp_x,
+typedef int(ADOLC_ext_fct_hov_forward)(size_t n, double *dp_x, size_t d,
+                                       size_t p, double ***dppp_X, size_t m,
+                                       double *dp_y, double ***dppp_Y);
+typedef int(ADOLC_ext_fct_fos_reverse)(size_t m, double *dp_U, size_t n,
+                                       double *dp_Z, double *dp_x,
                                        double *dp_y);
-typedef int(ADOLC_ext_fct_hos_reverse)(int m, double *dp_U, int n, int d,
-                                       double **dpp_Z);
+typedef int(ADOLC_ext_fct_fov_reverse)(size_t m, size_t p, double **dpp_U,
+                                       size_t n, double **dpp_Z, double *dp_x,
+                                       double *dp_y);
+typedef int(ADOLC_ext_fct_hos_reverse)(size_t m, double *dp_U, size_t n,
+                                       size_t d, double **dpp_Z);
 // dpp_x: {x_{0,0}, x{0,1}, ..., x_{0,keep}}, {x1,0, ..., x_1,keep}, ...} ; n
 // Taylor polynomials of degree keep (i.e., array of size n * (keep+1))
-typedef int(ADOLC_ext_fct_hos_ti_reverse)(int m, double **dp_U, int n, int d,
-                                          double **dpp_Z, double **dpp_x,
-                                          double **dpp_y);
-typedef int(ADOLC_ext_fct_hov_reverse)(int m, int p, double **dpp_U, int n,
-                                       int d, double ***dppp_Z, short **spp_nz);
+typedef int(ADOLC_ext_fct_hos_ti_reverse)(size_t m, double **dp_U, size_t n,
+                                          size_t d, double **dpp_Z,
+                                          double **dpp_x, double **dpp_y);
+typedef int(ADOLC_ext_fct_hov_reverse)(size_t m, size_t p, double **dpp_U,
+                                       size_t n, size_t d, double ***dppp_Z,
+                                       short **spp_nz);
 
 /**
  * we add a second set of function pointers with a signature expanded by a an
  * integer array iArr and a parameter iArrLength motivated by externalizing
  * sparse solvers where the sparsity format may be triples (i,j,A[i][j]) and a
  * number of nonzero entries nz where all these integers are to be packed into
- * iArr. Doing this will still allow the integers to be stored in the locint
+ * iArr. Doing this will still allow the integers to be stored in the size_t
  * part of the tape. The alternative to doing this is the introduction of a
  * separate stack to contain the extra data but this would break the
  * self-containment of the tape.
  */
-typedef int(ADOLC_ext_fct_iArr)(int iArrLength, int *iArr, int n, double *x,
-                                int m, double *y);
-typedef int(ADOLC_ext_fct_iArr_fos_forward)(int iArrLength, int *iArr, int n,
-                                            double *dp_x, double *dp_X, int m,
+typedef int(ADOLC_ext_fct_iArr)(size_t iArrLength, int *iArr, size_t n,
+                                double *x, size_t m, double *y);
+typedef int(ADOLC_ext_fct_iArr_fos_forward)(size_t iArrLength, int *iArr,
+                                            size_t n, double *dp_x,
+                                            double *dp_X, size_t m,
                                             double *dp_y, double *dp_Y);
-typedef int(ADOLC_ext_fct_iArr_fov_forward)(int iArrLength, int *iArr, int n,
-                                            double *dp_x, int p, double **dpp_X,
-                                            int m, double *dp_y,
-                                            double **dpp_Y);
-typedef int(ADOLC_ext_fct_iArr_hos_forward)(int iArrLength, int *iArr, int n,
-                                            double *dp_x, int d, double **dpp_X,
-                                            int m, double *dp_y,
-                                            double **dpp_Y);
-typedef int(ADOLC_ext_fct_iArr_hov_forward)(int iArrLength, int *iArr, int n,
-                                            double *dp_x, int d, int p,
-                                            double ***dppp_X, int m,
-                                            double *dp_y, double ***dppp_Y);
-typedef int(ADOLC_ext_fct_iArr_fos_reverse)(int iArrLength, int *iArr, int m,
-                                            double *dp_U, int n, double *dp_Z,
-                                            double *dp_x, double *dp_y);
-typedef int(ADOLC_ext_fct_iArr_fov_reverse)(int iArrLength, int *iArr, int m,
-                                            int p, double **dpp_U, int n,
-                                            double **dpp_Z, double *dp_x,
+typedef int(ADOLC_ext_fct_iArr_fov_forward)(size_t iArrLength, int *iArr,
+                                            size_t n, double *dp_x, size_t p,
+                                            double **dpp_X, size_t m,
+                                            double *dp_y, double **dpp_Y);
+typedef int(ADOLC_ext_fct_iArr_hos_forward)(size_t iArrLength, int *iArr,
+                                            size_t n, double *dp_x, size_t d,
+                                            double **dpp_X, size_t m,
+                                            double *dp_y, double **dpp_Y);
+typedef int(ADOLC_ext_fct_iArr_hov_forward)(size_t iArrLength, int *iArr,
+                                            size_t n, double *dp_x, size_t d,
+                                            size_t p, double ***dppp_X,
+                                            size_t m, double *dp_y,
+                                            double ***dppp_Y);
+typedef int(ADOLC_ext_fct_iArr_fos_reverse)(size_t iArrLength, int *iArr,
+                                            size_t m, double *dp_U, size_t n,
+                                            double *dp_Z, double *dp_x,
                                             double *dp_y);
-typedef int(ADOLC_ext_fct_iArr_hos_reverse)(int iArrLength, int *iArr, int m,
-                                            double *dp_U, int n, int d,
-                                            double **dpp_Z);
-typedef int(ADOLC_ext_fct_iArr_hov_reverse)(int iArrLength, int *iArr, int m,
-                                            int p, double **dpp_U, int n, int d,
+typedef int(ADOLC_ext_fct_iArr_fov_reverse)(size_t iArrLength, int *iArr,
+                                            size_t m, size_t p, double **dpp_U,
+                                            size_t n, double **dpp_Z,
+                                            double *dp_x, double *dp_y);
+typedef int(ADOLC_ext_fct_iArr_hos_reverse)(size_t iArrLength, int *iArr,
+                                            size_t m, double *dp_U, size_t n,
+                                            size_t d, double **dpp_Z);
+typedef int(ADOLC_ext_fct_iArr_hov_reverse)(size_t iArrLength, int *iArr,
+                                            size_t m, size_t p, double **dpp_U,
+                                            size_t n, size_t d,
                                             double ***dppp_Z, short **spp_nz);
 
 /**
@@ -106,7 +112,7 @@ typedef struct ext_diff_fct {
   /**
    * DO NOT touch - the index is set through reg_ext_fct
    */
-  locint index;
+  size_t index;
 
   /**
    * below are function pointers used for call back from the corresponding
@@ -144,13 +150,13 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_iArr_fov_forward *fov_forward_iArr;
   /**
    * higher order scalar forward for external functions  is currently not
-   * implemented in uni5_for.c
+   * implemented in uni5_for.cpp
    */
   ADOLC_ext_fct_hos_forward *hos_forward;
   ADOLC_ext_fct_iArr_hos_forward *hos_forward_iArr;
   /**
    * higher order vector forward for external functions  is currently not
-   * implemented in uni5_for.c
+   * implemented in uni5_for.cpp
    */
   ADOLC_ext_fct_hov_forward *hov_forward;
   ADOLC_ext_fct_iArr_hov_forward *hov_forward_iArr;
@@ -168,7 +174,7 @@ typedef struct ext_diff_fct {
   ADOLC_ext_fct_iArr_fov_reverse *fov_reverse_iArr;
   /**
    * higher order scalar reverse for external functions  is currently not
-   * implemented in ho_rev.c
+   * implemented in ho_rev.cpp
    */
   ADOLC_ext_fct_hos_reverse *hos_reverse;
   ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr;
@@ -177,7 +183,7 @@ typedef struct ext_diff_fct {
 
   /**
    * higher order vector reverse for external functions  is currently not
-   * implemented in ho_rev.c
+   * implemented in ho_rev.cpp
    */
   ADOLC_ext_fct_hov_reverse *hov_reverse;
   ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr;
@@ -270,12 +276,12 @@ typedef struct ext_diff_fct {
   /**
    * track maximal value of n when function is invoked
    */
-  locint max_n;
+  size_t max_n;
 
   /**
    * track maximal value of m when function is invoked
    */
-  locint max_m;
+  size_t max_m;
 
   /**
    * make the call such that Adol-C may be used inside
@@ -329,11 +335,11 @@ END_C_DECLS
 ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct ext_fct);
 ADOLC_DLL_EXPORT ext_diff_fct *reg_ext_fct(ADOLC_ext_fct_iArr ext_fct);
 
-ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa,
-                                  int m, adouble *ya);
-ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct *edfct, int iArrLength,
-                                  int *iArr, int n, adouble *xa, int m,
-                                  adouble *ya);
+ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct *edfct, size_t dim_x,
+                                  adouble *xa, size_t dim_y, adouble *ya);
+ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength,
+                                  int *iArr, size_t dim_x, adouble *xa,
+                                  size_t dim_y, adouble *ya);
 
 /**
  * zeros out the edf pointers and sets bools to defaults

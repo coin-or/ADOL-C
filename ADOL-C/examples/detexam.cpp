@@ -15,7 +15,7 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc/adouble.h>    // use of active doubles
+#include <adolc/adtb_types.h> // use of active doubles
 #include <adolc/interfaces.h> // use of basic forward/reverse
 // interfaces of ADOL-C
 #include <adolc/taping.h> // use of taping

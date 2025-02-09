@@ -1,28 +1,36 @@
 install(FILES
+        adtb_types.h     
         adalloc.h
         adolc_fatalerror.h
         adolc.h
         adolc_openmp.h
         adolc_sparse.h
         adoublecuda.h
-        adouble.h
         adtl.h
         adtl_hov.h
         adtl_indo.h
         adutilsc.h
         adutils.h
         advector.h
+        buffer_temp.h   
+        checkpointing_p.h   
         checkpointing.h
         convolut.h
+        dvlparms.h
         edfclasses.h
+        externfcts_p.h 
         externfcts2.h
         externfcts.h
         fixpoint.h
         fortutils.h
         interfaces.h
-        param.h
+        medipacksupport_p.h 
+        oplate.h 
         revolve.h
-        taping.h
+        rpl_malloc.h 
+        storemanager.h
+        taping_p.h
+        taping.h        
         DESTINATION "include/adolc")
 
 add_subdirectory(drivers)

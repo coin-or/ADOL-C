@@ -227,5 +227,7 @@ size_t num_dependent(short tape_id) {
 }
 void enable_min_max_using_abs() { return enableMinMaxUsingAbs(); }
 void disable_min_max_using_abs() { return disableMinMaxUsingAbs(); }
-TBAdoubleHandle mkparam_(const double val) { return new adouble(mkparam(val)); }
+TBAdoubleHandle mkparam_(const double val) {
+  return new adouble(pdouble::mkparam(val));
+}
 }

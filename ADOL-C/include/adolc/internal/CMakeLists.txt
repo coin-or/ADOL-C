@@ -1,7 +1,5 @@
 install(FILES
-        adubfunc.h
         common.h
-        paramfunc.h
         usrparms.h
         DESTINATION "include/adolc/internal")
 

@@ -372,11 +372,11 @@ void MyADOLC_sparseNLP::generate_tapes(Index n, Index m, Index &nnz_jac_g,
 
   eval_obj(n, xa, obj_value);
 
-  obj_value *= mkparam(sig);
+  obj_value *= pdouble::mkparam(sig);
   eval_constraints(n, xa, m, g);
 
   for (Index idx = 0; idx < m; idx++)
-    obj_value += g[idx] * mkparam(lam[idx]);
+    obj_value += g[idx] * pdouble::mkparam(lam[idx]);
 
   obj_value >>= dummy;
 

@@ -12,13 +12,13 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "buffer_temp.h"
-#include "externfcts_p.h"
-#include "oplate.h"
-#include "taping_p.h"
 #include <adolc/adalloc.h>
-#include <adolc/adouble.h>
+#include <adolc/adtb_types.h>
+#include <adolc/buffer_temp.h>
 #include <adolc/externfcts.h>
+#include <adolc/externfcts_p.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #include <cstring>
 
@@ -163,22 +163,22 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
       if (edfct->dp_x_changes)
         for (i = 0; i < nin; i++)
           for (j = 0; j < insz[i]; j++)
-            ADOLC_WRITE_SCAYLOR(x[i][j].getValue());
+            ADOLC_WRITE_SCAYLOR(x[i][j].value());
       if (edfct->dp_y_priorRequired)
         for (i = 0; i < nout; i++)
           for (j = 0; j < outsz[i]; j++)
-            ADOLC_WRITE_SCAYLOR(y[i][j].getValue());
+            ADOLC_WRITE_SCAYLOR(y[i][j].value());
     }
   }
 
   for (i = 0; i < nin; i++)
     for (j = 0; j < insz[i]; j++)
-      edfct->x[i][j] = x[i][j].getValue();
+      edfct->x[i][j] = x[i][j].value();
 
   if (edfct->dp_y_priorRequired)
     for (i = 0; i < nout; i++)
       for (j = 0; j < outsz[i]; j++)
-        edfct->y[i][j] = y[i][j].getValue();
+        edfct->y[i][j] = y[i][j].value();
 
   ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = edfct->index;
   ret = edfct->function(iArrLen, iArr, nin, nout, insz, edfct->x, outsz,
@@ -192,11 +192,11 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
   if (edfct->dp_x_changes)
     for (i = 0; i < nin; i++)
       for (j = 0; j < insz[i]; j++)
-        x[i][j].setValue(edfct->x[i][j]);
+        x[i][j].value(edfct->x[i][j]);
 
   for (i = 0; i < nout; i++)
     for (j = 0; j < outsz[i]; j++)
-      y[i][j].setValue(edfct->y[i][j]);
+      y[i][j].value(edfct->y[i][j]);
 
   ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
   return ret;

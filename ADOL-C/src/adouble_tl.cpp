@@ -21,8 +21,8 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
 #include <adolc/adtl.h>
+#include <adolc/dvlparms.h>
 #include <cmath>
 #include <iostream>
 #include <limits>

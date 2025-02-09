@@ -15,9 +15,9 @@
 #include <climits>
 #include <cstring>
 
-#include "adolc/adouble.h"
-#include "oplate.h"
-#include "taping_p.h"
+#include <adolc/adtb_types.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/adTool/support.h"

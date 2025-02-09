@@ -15,8 +15,8 @@ sparse patterns.
 
 ----------------------------------------------------------------------------*/
 
-#include "dvlparms.h"
 #include <adolc/adtl_indo.h>
+#include <adolc/dvlparms.h>
 #include <cmath>
 #include <iostream>
 #include <limits>

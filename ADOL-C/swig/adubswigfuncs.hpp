@@ -16,7 +16,7 @@
 #ifndef ADUBSWIGFUNCS_H
 #define ADUBSWIGFUNCS_H
 
-#include <adolc/adouble.h>
+#include <adolc/adtb_types.h>
 
 #if defined(SWIG)
 

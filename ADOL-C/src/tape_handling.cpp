@@ -12,14 +12,14 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
-#include "checkpointing_p.h"
-#include "dvlparms.h"
-#include "taping_p.h"
 #include <adolc/adalloc.h>
+#include <adolc/checkpointing_p.h>
+#include <adolc/dvlparms.h>
 #include <adolc/revolve.h>
+#include <adolc/taping_p.h>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
-#include "medipacksupport_p.h"
+#include <adolc/medipacksupport_p.h>
 #endif
 
 #include <algorithm>
@@ -31,8 +31,6 @@
 #include <errno.h>
 #include <stack>
 #include <vector>
-
-using namespace std;
 
 #ifdef SPARSE
 BEGIN_C_DECLS
@@ -46,14 +44,14 @@ END_C_DECLS
 #endif
 
 GlobalTapeVarsCL::GlobalTapeVarsCL() {
-  store = NULL;
+  store = nullptr;
 #if defined(ADOLC_TRACK_ACTIVITY)
-  actStore = NULL;
+  actStore = nullptr;
 #endif
   storeSize = 0;
   numLives = 0;
   nominmaxFlag = 0;
-  pStore = NULL;
+  pStore = nullptr;
   numparam = 0;
   maxparam = 0;
   initialStoreSize = 0;
@@ -67,14 +65,11 @@ GlobalTapeVarsCL::GlobalTapeVarsCL() {
 }
 
 GlobalTapeVarsCL::~GlobalTapeVarsCL() {
-  if (storeManagerPtr != NULL) {
-    delete storeManagerPtr;
-    storeManagerPtr = NULL;
-  }
-  if (paramStoreMgrPtr != NULL) {
-    delete paramStoreMgrPtr;
-    paramStoreMgrPtr = NULL;
-  }
+  delete storeManagerPtr;
+  storeManagerPtr = nullptr;
+
+  delete paramStoreMgrPtr;
+  paramStoreMgrPtr = nullptr;
 }
 
 const GlobalTapeVarsCL &
@@ -111,11 +106,11 @@ GlobalTapeVarsCL::operator=(const GlobalTapeVarsCL &gtv) {
 }
 
 /* vector of tape infos for all tapes in use */
-vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
+std::vector<TapeInfos *> ADOLC_TAPE_INFOS_BUFFER_DECL;
 
 /* stack of pointers to tape infos
  * represents the order of tape usage when doing nested taping */
-stack<TapeInfos *> ADOLC_TAPE_STACK_DECL;
+std::stack<TapeInfos *> ADOLC_TAPE_STACK_DECL;
 
 /* the main tape info buffer and its fallback */
 TapeInfos ADOLC_CURRENT_TAPE_INFOS_DECL;
@@ -125,22 +120,22 @@ TapeInfos ADOLC_CURRENT_TAPE_INFOS_FALLBACK_DECL;
 GlobalTapeVars ADOLC_GLOBAL_TAPE_VARS_DECL;
 
 #if defined(_OPENMP)
-static vector<TapeInfos *> *tapeInfosBuffer_s;
-static stack<TapeInfos *> *tapeStack_s;
+static std::vector<TapeInfos *> *tapeInfosBuffer_s;
+static std::stack<TapeInfos *> *tapeStack_s;
 static TapeInfos *currentTapeInfos_s;
 static TapeInfos *currentTapeInfos_fallBack_s;
 static GlobalTapeVars *globalTapeVars_s;
 static ADOLC_BUFFER_TYPE *ADOLC_extDiffFctsBuffer_s;
-static stack<StackElement> *ADOLC_checkpointsStack_s;
+static std::stack<StackElement> *ADOLC_checkpointsStack_s;
 static revolve_nums *revolve_numbers_s;
 
-static vector<TapeInfos *> *tapeInfosBuffer_p;
-static stack<TapeInfos *> *tapeStack_p;
+static std::vector<TapeInfos *> *tapeInfosBuffer_p;
+static std::stack<TapeInfos *> *tapeStack_p;
 static TapeInfos *currentTapeInfos_p;
 static TapeInfos *currentTapeInfos_fallBack_p;
 static GlobalTapeVars *globalTapeVars_p;
 static ADOLC_BUFFER_TYPE *ADOLC_extDiffFctsBuffer_p;
-static stack<StackElement> *ADOLC_checkpointsStack_p;
+static std::stack<StackElement> *ADOLC_checkpointsStack_p;
 static revolve_nums *revolve_numbers_p;
 #endif
 
@@ -189,7 +184,7 @@ void initTapeInfos_keep(TapeInfos *newTapeInfos) {
  * - returns 0 without error
  * - returns 1 if tapeID was already/still in use */
 int initNewTape(short tapeID) {
-  TapeInfos *newTapeInfos = NULL;
+  TapeInfos *newTapeInfos = nullptr;
   bool newTI = false;
   int retval = 0;
 
@@ -197,7 +192,7 @@ int initNewTape(short tapeID) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* check if tape is in use */
-  vector<TapeInfos *>::iterator tiIter = std::find_if(
+  std::vector<TapeInfos *>::iterator tiIter = std::find_if(
       ADOLC_TAPE_INFOS_BUFFER.begin(), ADOLC_TAPE_INFOS_BUFFER.end(),
       [&tapeID](auto &&ti) { return ti->tapeID == tapeID; });
 
@@ -219,7 +214,7 @@ int initNewTape(short tapeID) {
         retval = 1;
       }
     }
-    if ((*tiIter)->tay_file != NULL)
+    if ((*tiIter)->tay_file != nullptr)
       rewind((*tiIter)->tay_file);
     initTapeInfos_keep(*tiIter);
     (*tiIter)->tapeID = tapeID;
@@ -240,24 +235,24 @@ int initNewTape(short tapeID) {
         newTapeInfos->pTapeInfos.sHinfos.HP, newTapeInfos->pTapeInfos.sHinfos.g,
         newTapeInfos->pTapeInfos.sHinfos.hr, newTapeInfos->pTapeInfos.sHinfos.p,
         newTapeInfos->pTapeInfos.sHinfos.indep);
-    newTapeInfos->pTapeInfos.sJinfos.B = NULL;
-    newTapeInfos->pTapeInfos.sJinfos.y = NULL;
-    newTapeInfos->pTapeInfos.sJinfos.g = NULL;
-    newTapeInfos->pTapeInfos.sJinfos.jr1d = NULL;
-    newTapeInfos->pTapeInfos.sJinfos.Seed = NULL;
-    newTapeInfos->pTapeInfos.sJinfos.JP = NULL;
+    newTapeInfos->pTapeInfos.sJinfos.B = nullptr;
+    newTapeInfos->pTapeInfos.sJinfos.y = nullptr;
+    newTapeInfos->pTapeInfos.sJinfos.g = nullptr;
+    newTapeInfos->pTapeInfos.sJinfos.jr1d = nullptr;
+    newTapeInfos->pTapeInfos.sJinfos.Seed = nullptr;
+    newTapeInfos->pTapeInfos.sJinfos.JP = nullptr;
     newTapeInfos->pTapeInfos.sJinfos.depen = 0;
     newTapeInfos->pTapeInfos.sJinfos.nnz_in = 0;
     newTapeInfos->pTapeInfos.sJinfos.seed_rows = 0;
     newTapeInfos->pTapeInfos.sJinfos.seed_clms = 0;
-    newTapeInfos->pTapeInfos.sHinfos.Zppp = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Yppp = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Xppp = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Upp = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.Hcomp = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.HP = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.g = NULL;
-    newTapeInfos->pTapeInfos.sHinfos.hr = NULL;
+    newTapeInfos->pTapeInfos.sHinfos.Zppp = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.Yppp = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.Xppp = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.Upp = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.Hcomp = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.HP = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.g = nullptr;
+    newTapeInfos->pTapeInfos.sHinfos.hr = nullptr;
     newTapeInfos->pTapeInfos.sHinfos.nnz_in = 0;
     newTapeInfos->pTapeInfos.sHinfos.indep = 0;
     newTapeInfos->pTapeInfos.sHinfos.p = 0;
@@ -265,7 +260,7 @@ int initNewTape(short tapeID) {
   }
 
   /* create new info struct and initialize it */
-  if (newTapeInfos == NULL) {
+  if (newTapeInfos == nullptr) {
     newTapeInfos = new TapeInfos(tapeID);
     newTI = true;
   }
@@ -281,7 +276,7 @@ int initNewTape(short tapeID) {
       ADOLC_GLOBAL_TAPE_VARS.taylorBufferSize;
 
   /* update tapeStack and save tapeInfos */
-  if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
+  if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != nullptr) {
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
   } else {
@@ -303,13 +298,13 @@ int initNewTape(short tapeID) {
 /* opens an existing tape or creates a new handle for a tape on hard disk
  * - called from init_for_sweep and init_rev_sweep */
 void openTape(short tapeID, char mode) {
-  TapeInfos *tempTapeInfos = NULL;
+  TapeInfos *tempTapeInfos = nullptr;
 
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* check if tape information exist in memory */
-  vector<TapeInfos *>::iterator tiIter = std::find_if(
+  std::vector<TapeInfos *>::iterator tiIter = std::find_if(
       ADOLC_TAPE_INFOS_BUFFER.begin(), ADOLC_TAPE_INFOS_BUFFER.end(),
       [&tapeID](auto &&ti) { return ti->tapeID == tapeID; });
 
@@ -317,7 +312,7 @@ void openTape(short tapeID, char mode) {
     /* tape has been used before (in the current program) */
     if ((*tiIter)->inUse == 0) {
       /* forward sweep */
-      if ((*tiIter)->tay_file != NULL)
+      if ((*tiIter)->tay_file != nullptr)
         rewind((*tiIter)->tay_file);
       initTapeInfos_keep(*tiIter);
       (*tiIter)->traceFlag = 1;
@@ -326,7 +321,7 @@ void openTape(short tapeID, char mode) {
       (*tiIter)->inUse = 1;
       read_tape_stats(*tiIter);
     }
-    if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
+    if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != nullptr) {
       ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(
           ADOLC_CURRENT_TAPE_INFOS);
       ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
@@ -354,7 +349,7 @@ void openTape(short tapeID, char mode) {
 
   read_tape_stats(tempTapeInfos);
   /* update tapeStack and save tapeInfos */
-  if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != NULL) {
+  if (ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr != nullptr) {
     ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr->copy(ADOLC_CURRENT_TAPE_INFOS);
     ADOLC_TAPE_STACK.push(ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
   } else {
@@ -386,7 +381,7 @@ void releaseTape() {
   ADOLC_CURRENT_TAPE_INFOS.copy(*ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr);
   ADOLC_TAPE_STACK.pop();
   if (ADOLC_TAPE_STACK.empty())
-    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
+    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = nullptr;
 }
 
 /* updates the tape infos for the given ID - a tapeInfos struct is created
@@ -435,8 +430,8 @@ char currently_nested(short tag) {
 }
 
 void cachedTraceTags(std::vector<short> &result) {
-  vector<TapeInfos *>::const_iterator tiIter;
-  vector<short>::iterator tIdIter;
+  std::vector<TapeInfos *>::const_iterator tiIter;
+  std::vector<short>::iterator tIdIter;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
@@ -458,7 +453,7 @@ void setTapeInfoJacSparse(short tapeID, SparseJacInfos sJinfos) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* check if TapeInfos for tapeID exist */
-  vector<TapeInfos *>::iterator tiIter = std::find_if(
+  std::vector<TapeInfos *>::iterator tiIter = std::find_if(
       ADOLC_TAPE_INFOS_BUFFER.begin(), ADOLC_TAPE_INFOS_BUFFER.end(),
       [&tapeID](auto &&ti) { return ti->tapeID == tapeID; });
 
@@ -495,7 +490,7 @@ void setTapeInfoHessSparse(short tapeID, SparseHessInfos sHinfos) {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* check if TapeInfos for tapeID exist */
-  vector<TapeInfos *>::iterator tiIter = std::find_if(
+  std::vector<TapeInfos *>::iterator tiIter = std::find_if(
       ADOLC_TAPE_INFOS_BUFFER.begin(), ADOLC_TAPE_INFOS_BUFFER.end(),
       [&tapeID](auto &&ti) { return ti->tapeID == tapeID; });
 
@@ -529,14 +524,14 @@ static void init_lib() {
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(_OPENMP)
-  tapeInfosBuffer = new vector<TapeInfos *>;
-  tapeStack = new stack<TapeInfos *>;
+  tapeInfosBuffer = new std::vector<TapeInfos *>;
+  tapeStack = new std::stack<TapeInfos *>;
   currentTapeInfos = new TapeInfos;
   currentTapeInfos->tapingComplete = 1;
   currentTapeInfos_fallBack = new TapeInfos;
   globalTapeVars = new GlobalTapeVars;
   ADOLC_extDiffFctsBuffer = new ADOLC_BUFFER_TYPE;
-  ADOLC_checkpointsStack = new stack<StackElement>;
+  ADOLC_checkpointsStack = new std::stack<StackElement>;
   revolve_numbers = new revolve_nums;
 #endif /* _OPENMP */
 
@@ -549,7 +544,7 @@ static void init_lib() {
     ++ADOLC_GLOBAL_TAPE_VARS.maxLoc;
   }
   ADOLC_GLOBAL_TAPE_VARS.inParallelRegion = 0;
-  ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
+  ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = nullptr;
   ADOLC_GLOBAL_TAPE_VARS.branchSwitchWarning = 1;
 
   adolc_id.adolc_ver = ADOLC_VERSION;
@@ -585,44 +580,43 @@ void cleanUp() {
     ADOLC_TAPE_INFOS_BUFFER.pop_back();
     {
       /* close open files though they may be incomplete */
-      if ((*tiIter)->op_file != NULL) {
+
+      if ((*tiIter)->op_file != nullptr) {
         fclose((*tiIter)->op_file);
-        (*tiIter)->op_file = NULL;
+        (*tiIter)->op_file = nullptr;
       }
-      if ((*tiIter)->val_file != NULL) {
+
+      if ((*tiIter)->val_file != nullptr) {
         fclose((*tiIter)->val_file);
-        (*tiIter)->val_file = NULL;
+        (*tiIter)->val_file = nullptr;
       }
-      if ((*tiIter)->loc_file != NULL) {
+
+      if ((*tiIter)->loc_file != nullptr) {
         fclose((*tiIter)->loc_file);
-        (*tiIter)->loc_file = NULL;
+        (*tiIter)->loc_file = nullptr;
       }
-      if ((*tiIter)->tay_file != NULL &&
+
+      if ((*tiIter)->tay_file != nullptr &&
           (*tiIter)->pTapeInfos.skipFileCleanup == 0) {
         fclose((*tiIter)->tay_file);
-        (*tiIter)->tay_file = NULL;
+        (*tiIter)->tay_file = nullptr;
         remove((*tiIter)->pTapeInfos.tay_fileName);
       }
-      if ((*tiIter)->opBuffer != NULL) {
-        free((*tiIter)->opBuffer);
-        (*tiIter)->opBuffer = NULL;
-      }
-      if ((*tiIter)->valBuffer != NULL) {
-        free((*tiIter)->valBuffer);
-        (*tiIter)->valBuffer = NULL;
-      }
-      if ((*tiIter)->locBuffer != NULL) {
-        free((*tiIter)->locBuffer);
-        (*tiIter)->locBuffer = NULL;
-      }
-      if ((*tiIter)->signature != NULL) {
-        free((*tiIter)->signature);
-        (*tiIter)->signature = NULL;
-      }
-      if ((*tiIter)->tayBuffer != NULL) {
-        free((*tiIter)->tayBuffer);
-        (*tiIter)->tayBuffer = NULL;
-      }
+
+      delete[] ((*tiIter)->opBuffer);
+      (*tiIter)->opBuffer = nullptr;
+
+      delete[] ((*tiIter)->valBuffer);
+      (*tiIter)->valBuffer = nullptr;
+
+      delete[] ((*tiIter)->locBuffer);
+      (*tiIter)->locBuffer = nullptr;
+
+      delete ((*tiIter)->signature);
+      (*tiIter)->signature = nullptr;
+
+      delete[] ((*tiIter)->tayBuffer);
+      (*tiIter)->tayBuffer = nullptr;
 
 #ifdef SPARSE
       freeSparseJacInfos(
@@ -658,38 +652,31 @@ void cleanUp() {
         if ((*tiIter)->stats[VAL_FILE_ACCESS] == 1)
           remove((*tiIter)->pTapeInfos.val_fileName);
       }
-      if ((*tiIter)->pTapeInfos.op_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.op_fileName);
-        (*tiIter)->pTapeInfos.op_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.val_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.val_fileName);
-        (*tiIter)->pTapeInfos.val_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.loc_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.loc_fileName);
-        (*tiIter)->pTapeInfos.loc_fileName = NULL;
-      }
-      if ((*tiIter)->pTapeInfos.tay_fileName != NULL) {
-        free((*tiIter)->pTapeInfos.tay_fileName);
-        (*tiIter)->pTapeInfos.tay_fileName = NULL;
-      }
+
+      delete[] ((*tiIter)->pTapeInfos.op_fileName);
+      (*tiIter)->pTapeInfos.op_fileName = nullptr;
+
+      delete[] ((*tiIter)->pTapeInfos.val_fileName);
+      (*tiIter)->pTapeInfos.val_fileName = nullptr;
+
+      delete[] ((*tiIter)->pTapeInfos.loc_fileName);
+      (*tiIter)->pTapeInfos.loc_fileName = nullptr;
+
+      delete[] ((*tiIter)->pTapeInfos.tay_fileName);
+      (*tiIter)->pTapeInfos.tay_fileName = nullptr;
 
       delete *tiIter;
-      *tiIter = NULL;
+      *tiIter = nullptr;
     }
   }
 
   cp_clearStack();
 
-  if (ADOLC_GLOBAL_TAPE_VARS.store != NULL) {
-    delete[] ADOLC_GLOBAL_TAPE_VARS.store;
-    ADOLC_GLOBAL_TAPE_VARS.store = NULL;
-  }
-  if (ADOLC_GLOBAL_TAPE_VARS.pStore != NULL) {
-    delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
-    ADOLC_GLOBAL_TAPE_VARS.pStore = NULL;
-  }
+  delete[] ADOLC_GLOBAL_TAPE_VARS.store;
+  ADOLC_GLOBAL_TAPE_VARS.store = nullptr;
+
+  delete[] ADOLC_GLOBAL_TAPE_VARS.pStore;
+  ADOLC_GLOBAL_TAPE_VARS.pStore = nullptr;
 
 #if defined(_OPENMP)
   if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 0) {
@@ -706,16 +693,15 @@ void cleanUp() {
 #endif
 
   ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
-  clearTapeBaseNames();
 }
 
 int removeTape(short tapeID, short type) {
-  TapeInfos *tapeInfos = NULL;
+  TapeInfos *tapeInfos = nullptr;
   ADOLC_OPENMP_THREAD_NUMBER;
   ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* check if TapeInfos for tapeID exist */
-  vector<TapeInfos *>::iterator tiIter = std::find_if(
+  std::vector<TapeInfos *>::iterator tiIter = std::find_if(
       ADOLC_TAPE_INFOS_BUFFER.begin(), ADOLC_TAPE_INFOS_BUFFER.end(),
       [&tapeID](auto &&ti) { return ti->tapeID == tapeID; });
 
@@ -726,7 +712,7 @@ int removeTape(short tapeID, short type) {
     ADOLC_TAPE_INFOS_BUFFER.erase(tiIter);
   }
 
-  if (tapeInfos == NULL) { // might be on disk only
+  if (tapeInfos == nullptr) { // might be on disk only
     tapeInfos = new TapeInfos(tapeID);
     tapeInfos->tapingComplete = 1;
   }
@@ -756,10 +742,16 @@ int removeTape(short tapeID, short type) {
   }
 
   free(tapeInfos->pTapeInfos.op_fileName);
+  tapeInfos->pTapeInfos.op_fileName = nullptr;
+
   free(tapeInfos->pTapeInfos.val_fileName);
+  tapeInfos->pTapeInfos.val_fileName = nullptr;
+
   free(tapeInfos->pTapeInfos.loc_fileName);
-  if (tapeInfos->pTapeInfos.tay_fileName != NULL)
-    free(tapeInfos->pTapeInfos.tay_fileName);
+  tapeInfos->pTapeInfos.loc_fileName = nullptr;
+
+  free(tapeInfos->pTapeInfos.tay_fileName);
+  tapeInfos->pTapeInfos.tay_fileName = nullptr;
 
   delete tapeInfos;
 
@@ -831,7 +823,7 @@ void trace_off(int flag) {
   ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.keepTape = flag;
   keep_stock(); /* copy remaining live variables + trace_flag = 0 */
   stop_trace(flag);
-  cout.flush();
+  std::cout.flush();
   ADOLC_CURRENT_TAPE_INFOS.tapingComplete = 1;
   ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
   releaseTape();
@@ -912,13 +904,13 @@ void beginParallel() {
     revolve_numbers_s = revolve_numbers;
 
     if (firstParallel) {
-      tapeInfosBuffer = new vector<TapeInfos *>[numThreads];
-      tapeStack = new stack<TapeInfos *>[numThreads];
+      tapeInfosBuffer = new std::vector<TapeInfos *>[numThreads];
+      tapeStack = new std::stack<TapeInfos *>[numThreads];
       currentTapeInfos = new TapeInfos[numThreads];
       currentTapeInfos_fallBack = new TapeInfos[numThreads];
       globalTapeVars = new GlobalTapeVars[numThreads];
       ADOLC_extDiffFctsBuffer = new ADOLC_BUFFER_TYPE[numThreads];
-      ADOLC_checkpointsStack = new stack<StackElement>[numThreads];
+      ADOLC_checkpointsStack = new std::stack<StackElement>[numThreads];
       revolve_numbers = new revolve_nums[numThreads];
     } else {
       tapeInfosBuffer = tapeInfosBuffer_p;
@@ -958,7 +950,7 @@ void beginParallel() {
 
     ADOLC_GLOBAL_TAPE_VARS.newTape = 0;
     ADOLC_CURRENT_TAPE_INFOS.tapingComplete = 1;
-    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = NULL;
+    ADOLC_GLOBAL_TAPE_VARS.currentTapeInfosPtr = nullptr;
   } else {
     if (ADOLC_parallel_doCopy) {
       ADOLC_GLOBAL_TAPE_VARS.storeSize = globalTapeVars_s->storeSize;
@@ -1052,7 +1044,7 @@ TapeInfos::TapeInfos(short _tapeID) : pTapeInfos() {
   pTapeInfos.op_fileName = createFileName(tapeID, OPERATIONS_TAPE);
   pTapeInfos.loc_fileName = createFileName(tapeID, LOCATIONS_TAPE);
   pTapeInfos.val_fileName = createFileName(tapeID, VALUES_TAPE);
-  pTapeInfos.tay_fileName = NULL;
+  pTapeInfos.tay_fileName = nullptr;
 }
 
 void TapeInfos::copy(const TapeInfos &tInfos) {
@@ -1144,7 +1136,7 @@ PersistantTapeInfos::PersistantTapeInfos() {
   char *ptr = (char *)(&forodec_nax), *end = (char *)(&paramstore);
   for (; ptr != end; ptr++)
     *ptr = 0;
-  paramstore = NULL;
+  paramstore = nullptr;
 }
 
 PersistantTapeInfos::~PersistantTapeInfos() {
@@ -1162,10 +1154,9 @@ PersistantTapeInfos::~PersistantTapeInfos() {
     myfree2(forodec_Z);
     forodec_nax = 0;
   }
-  if (paramstore != NULL) {
-    free(paramstore);
-    paramstore = NULL;
-  }
+
+  delete[] paramstore;
+  paramstore = nullptr;
 }
 
 void enableMinMaxUsingAbs() {
@@ -1219,12 +1210,12 @@ void free_all_taping_params() {
 }
 
 void GlobalTapeVarsCL::reallocStore(unsigned char type) {
-  if (storeManagerPtr != NULL)
-    delete storeManagerPtr;
+  delete storeManagerPtr;
+  storeManagerPtr = nullptr;
 
-  store = NULL;
+  store = nullptr;
 #if defined(ADOLC_TRACK_ACTIVITY)
-  actStore = NULL;
+  actStore = nullptr;
 #endif
   storeSize = 0;
   numLives = 0;

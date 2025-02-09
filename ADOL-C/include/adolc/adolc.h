@@ -25,7 +25,7 @@
 #if defined(__cplusplus)
 /*--------------------------------------------------------------------------*/
 /* Operator overloading things (active doubles & vectors) */
-#include <adolc/adouble.h>
+#include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>
 #include <adolc/edfclasses.h>
 #include <adolc/externfcts.h>
@@ -60,7 +60,7 @@
 
 /*--------------------------------------------------------------------------*/
 /* parameters */
-#include <adolc/param.h>
+#include <adolc/adtb_types.h>
 
 /*--------------------------------------------------------------------------*/
 /* tape and value stack utilities */

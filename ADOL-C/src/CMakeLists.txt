@@ -1,5 +1,5 @@
 target_sources(adolc PRIVATE
-               adalloc.c
+               adalloc.cpp
                adouble.cpp
                adouble_tl.cpp
                adouble_tl_hov.cpp
@@ -8,51 +8,51 @@ target_sources(adolc PRIVATE
                ampisupport.cpp
                ampisupportAdolc.cpp
                checkpointing.cpp
-               convolut.c
+               convolut.cpp
                externfcts.cpp
                externfcts2.cpp
                fixpoint.cpp
-               fortutils.c
-               forward_partx.c
-               fos_forward.c
-               fos_pl_forward.c
-               fos_pl_reverse.c
-               fos_pl_sig_forward.c
-               fos_reverse.c
-               fov_forward.c
-               fov_offset_forward.c
-               fov_pl_sig_forward.c
-               fos_pl_sig_reverse.c
-               fov_pl_forward.c
-               fov_reverse.c
-               hos_forward.c
-               hos_ov_reverse.c
-               hos_reverse.c
-               hov_forward.c
-               hov_reverse.c
-               hov_wk_forward.c
-               indopro_forward_pl.c
-               indopro_forward_s.c
-               indopro_forward_t.c
-               int_forward_s.c
-               int_forward_t.c
-               int_reverse_s.c
-               int_reverse_t.c
+               fortutils.cpp
+               forward_partx.cpp
+               fos_forward.cpp
+               fos_pl_forward.cpp
+               fos_pl_reverse.cpp
+               fos_pl_sig_forward.cpp
+               fos_reverse.cpp
+               fov_forward.cpp
+               fov_offset_forward.cpp
+               fov_pl_sig_forward.cpp
+               fos_pl_sig_reverse.cpp
+               fov_pl_forward.cpp
+               fov_reverse.cpp
+               hos_forward.cpp
+               hos_ov_reverse.cpp
+               hos_reverse.cpp
+               hov_forward.cpp
+               hov_reverse.cpp
+               hov_wk_forward.cpp
+               indopro_forward_pl.cpp
+               indopro_forward_s.cpp
+               indopro_forward_t.cpp
+               int_forward_s.cpp
+               int_forward_t.cpp
+               int_reverse_s.cpp
+               int_reverse_t.cpp
                interfaces.cpp
-               interfacesf.c
+               interfacesf.cpp
                medipacksupport.cpp
-               nonl_ind_forward_s.c
-               nonl_ind_forward_t.c
-               nonl_ind_old_forward_s.c
-               nonl_ind_old_forward_t.c
-               param.cpp
-               revolve.c
-               rpl_malloc.c
+               nonl_ind_forward_s.cpp
+               nonl_ind_forward_t.cpp
+               nonl_ind_old_forward_s.cpp
+               nonl_ind_old_forward_t.cpp
+               pdouble.cpp
+               revolve.cpp
+               rpl_malloc.cpp
                storemanager.cpp
                tape_handling.cpp
-               taping.c
-               zos_forward.c
-               zos_pl_forward.c
+               taping.cpp
+               zos_forward.cpp
+               zos_pl_forward.cpp
               )
 
 add_subdirectory(drivers)

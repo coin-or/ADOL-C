@@ -11,13 +11,13 @@
 
 ----------------------------------------------------------------------------*/
 
-#include "adolc/adouble.h"
-#include "oplate.h"
-#include "taping_p.h"
+#include <adolc/adtb_types.h>
+#include <adolc/oplate.h>
+#include <adolc/taping_p.h>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 
-#include "medipacksupport_p.h"
+#include <adolc/medipacksupport_p.h>
 #include <vector>
 
 struct AdolcMeDiAdjointInterface : public medi::AdjointInterface {

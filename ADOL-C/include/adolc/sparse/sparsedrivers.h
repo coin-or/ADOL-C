@@ -93,7 +93,7 @@ ADOLC_DLL_EXPORT void get_HP(short tag, /* tape identification */
 /* Max. number of unsigned ints to store the seed / jacobian matrix strips.
    Reduce this value to x if your system happens to run out of memory.
    x < 10 makes no sense. x = 50 or 100 is better
-   x stays for ( x * sizeof(unsigned long int) * 8 )
+   x stays for ( x * sizeof(size_t) * 8 )
    (block) variables at once                                            */
 
 #define PQ_STRIPMINE_MAX 30
