@@ -21,8 +21,9 @@
 BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
-fint hos_forward_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fk,
-                  fdouble *fbase, fdouble *fx, fdouble *fvalue, fdouble *fy) {
+fint hos_forward_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fd, const fint *fk, const fdouble *fbase,
+                  const fdouble *fx, fdouble *fvalue, fdouble *fy) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd, k = *fk;
   double *base = myalloc1(n);
@@ -42,8 +43,8 @@ fint hos_forward_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fk,
 }
 
 /*--------------------------------------------------------------------------*/
-fint zos_forward_(fint *ftag, fint *fm, fint *fn, fint *fk, fdouble *fbase,
-                  fdouble *fvalue) {
+fint zos_forward_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fk, const fdouble *fbase, fdouble *fvalue) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, k = *fk;
   double *base = myalloc1(n);
@@ -57,8 +58,9 @@ fint zos_forward_(fint *ftag, fint *fm, fint *fn, fint *fk, fdouble *fbase,
 }
 
 /*--------------------------------------------------------------------------*/
-fint hov_forward_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fp,
-                  fdouble *fbase, fdouble *fx, fdouble *fvalue, fdouble *fy) {
+fint hov_forward_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fd, const fint *fp, const fdouble *fbase,
+                  const fdouble *fx, fdouble *fvalue, fdouble *fy) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd, p = *fp;
   double *base = myalloc1(n);
@@ -78,8 +80,9 @@ fint hov_forward_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fp,
 }
 
 /*--------------------------------------------------------------------------*/
-fint fov_forward_(fint *ftag, fint *fm, fint *fn, fint *fp, fdouble *fbase,
-                  fdouble *fx, fdouble *fvalue, fdouble *fy) {
+fint fov_forward_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fp, const fdouble *fbase, const fdouble *fx,
+                  fdouble *fvalue, fdouble *fy) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, p = *fp;
   double *base = myalloc1(n);
@@ -99,8 +102,8 @@ fint fov_forward_(fint *ftag, fint *fm, fint *fn, fint *fp, fdouble *fbase,
 }
 
 /*--------------------------------------------------------------------------*/
-fint hos_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fdouble *fu,
-                  fdouble *fz) {
+fint hos_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fd, const fdouble *fu, fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd;
   double **Z = myalloc2(n, d + 1);
@@ -114,8 +117,8 @@ fint hos_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fdouble *fu,
 }
 
 /*--------------------------------------------------------------------------*/
-fint hos_ti_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fdouble *fu,
-                     fdouble *fz) {
+fint hos_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                     const fint *fd, const fdouble *fu, fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd;
   double **Z = myalloc2(n, d + 1);
@@ -129,8 +132,8 @@ fint hos_ti_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fdouble *fu,
 }
 
 /*--------------------------------------------------------------------------*/
-fint fos_reverse_(fint *ftag, fint *fm, fint *fn, const fdouble *fu,
-                  fdouble *fz) {
+fint fos_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fdouble *fu, fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn;
   double *u = myalloc1(m);
@@ -144,8 +147,9 @@ fint fos_reverse_(fint *ftag, fint *fm, fint *fn, const fdouble *fu,
 }
 
 /*--------------------------------------------------------------------------*/
-fint hov_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fq,
-                  fdouble *fu, fdouble *fz) {
+fint hov_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fd, const fint *fq, const fdouble *fu,
+                  fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd, q = *fq;
   double **U = myalloc2(q, m);
@@ -160,8 +164,9 @@ fint hov_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fq,
 }
 
 /*--------------------------------------------------------------------------*/
-fint hov_ti_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fq,
-                     fdouble *fu, fdouble *fz) {
+fint hov_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                     const fint *fd, const fint *fq, const fdouble *fu,
+                     fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, d = *fd, q = *fq;
   double ***U = myalloc3(q, m, d + 1);
@@ -176,8 +181,8 @@ fint hov_ti_reverse_(fint *ftag, fint *fm, fint *fn, fint *fd, fint *fq,
 }
 
 /*--------------------------------------------------------------------------*/
-fint fov_reverse_(fint *ftag, fint *fm, fint *fn, fint *fq, fdouble *fu,
-                  fdouble *fz) {
+fint fov_reverse_(const fint *ftag, const fint *fm, const fint *fn,
+                  const fint *fq, const fdouble *fu, fdouble *fz) {
   int rc = -1;
   int tag = *ftag, m = *fm, n = *fn, q = *fq;
   double **U = myalloc2(q, m);

@@ -25,11 +25,13 @@ BEGIN_C_DECLS
 ADOLC_DLL_EXPORT void spread1(int m, const fdouble *x, double *X);
 ADOLC_DLL_EXPORT void pack1(int m, const double *X, fdouble *x);
 
-ADOLC_DLL_EXPORT void spread2(int m, int n, fdouble *x, double **X);
-ADOLC_DLL_EXPORT void pack2(int m, int n, double **X, fdouble *x);
+ADOLC_DLL_EXPORT void spread2(int m, int n, const fdouble *x, double **X);
+ADOLC_DLL_EXPORT void pack2(int m, int n, const double *const *X, fdouble *x);
 
-ADOLC_DLL_EXPORT void spread3(int m, int n, int p, fdouble *x, double ***X);
-ADOLC_DLL_EXPORT void pack3(int m, int n, int p, double ***X, fdouble *x);
+ADOLC_DLL_EXPORT void spread3(int m, int n, int p, const fdouble *x,
+                              double ***X);
+ADOLC_DLL_EXPORT void pack3(int m, int n, int p, const double *const *const *X,
+                            fdouble *x);
 
 END_C_DECLS
 

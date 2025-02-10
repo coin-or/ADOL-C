@@ -35,7 +35,7 @@ void pack1(int m, const double *X, fdouble *x) {
 }
 
 /*--------------------------------------------------------------------------*/
-void spread2(int m, int n, fdouble *x, double **X) {
+void spread2(int m, int n, const fdouble *x, double **X) {
   int i, j;
   for (j = 0; j < n; j++)
     for (i = 0; i < m; i++)
@@ -43,7 +43,7 @@ void spread2(int m, int n, fdouble *x, double **X) {
 }
 
 /*--------------------------------------------------------------------------*/
-void pack2(int m, int n, double **X, fdouble *x) {
+void pack2(int m, int n, const double *const *X, fdouble *x) {
   int i, j;
   for (j = 0; j < n; j++)
     for (i = 0; i < m; i++)
@@ -51,7 +51,7 @@ void pack2(int m, int n, double **X, fdouble *x) {
 }
 
 /*--------------------------------------------------------------------------*/
-void spread3(int m, int n, int p, fdouble *x, double ***X) {
+void spread3(int m, int n, int p, const fdouble *x, double ***X) {
   int i, j, k;
   for (k = 0; k < p; k++)
     for (j = 0; j < n; j++)
@@ -60,7 +60,7 @@ void spread3(int m, int n, int p, fdouble *x, double ***X) {
 }
 
 /*--------------------------------------------------------------------------*/
-void pack3(int m, int n, int p, double ***X, fdouble *x) {
+void pack3(int m, int n, int p, const double *const *const *X, fdouble *x) {
   int i, j, k;
   for (k = 0; k < p; k++)
     for (j = 0; j < n; j++)
