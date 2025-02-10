@@ -53,7 +53,7 @@ int gradient(short tag, int n, const double *argument, double *result) {
 /*                                                                          */
 /* vec_jac(tag, m, n, repeat, x[n], u[m], v[n])                             */
 int vec_jac(short tag, int m, int n, int repeat, const double *argument,
-            double *lagrange, double *row) {
+            const double *lagrange, double *row) {
   int rc = -1;
   double *y = NULL;
 

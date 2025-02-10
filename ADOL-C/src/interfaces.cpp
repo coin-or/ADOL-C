@@ -159,7 +159,8 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
 /****************************************************************************/
 /*         X and Y can be one dimensional if d = 0                          */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int keep, double *X, double *Y)
+int forward(short tag, int m, int n, int d, int keep, const double *X,
+            double *Y)
 /* forward(tag, m, n, 0, keep, X[n], Y[m]), d=0                             */
 {
   int rc = -1;
@@ -176,7 +177,7 @@ int forward(short tag, int m, int n, int d, int keep, double *X, double *Y)
 /****************************************************************************/
 /*         X and Y can be one dimensional if d omitted                      */
 /*                                                                          */
-int forward(short tag, int m, int n, int keep, double *X, double *Y)
+int forward(short tag, int m, int n, int keep, const double *X, double *Y)
 /* forward(tag, m, n, keep, X[n], Y[m])                                     */
 {
   return zos_forward(tag, m, n, keep, X, Y);
@@ -185,8 +186,8 @@ int forward(short tag, int m, int n, int keep, double *X, double *Y)
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int p, double *x, double ***X,
-            double *y, double ***Y)
+int forward(short tag, int m, int n, int d, int p, const double *x,
+            const double *const *const *X, double *y, double ***Y)
 /* forward(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d])             */
 {
   return hov_forward(tag, m, n, d, p, x, X, y, Y);
@@ -195,8 +196,8 @@ int forward(short tag, int m, int n, int d, int p, double *x, double ***X,
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int p, double *x, double **X, double *y,
-            double **Y)
+int forward(short tag, int m, int n, int p, const double *x,
+            const double *const *X, double *y, double **Y)
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])                      */
 {
   return fov_forward(tag, m, n, p, x, X, y, Y);
@@ -208,7 +209,7 @@ int forward(short tag, int m, int n, int p, double *x, double **X, double *y,
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, double *u, double **Z)
+int reverse(short tag, int m, int n, int d, const double *u, double **Z)
 /* reverse(tag, m, n, d, u[m], Z[n][d+1])                                   */
 {
   return hos_reverse(tag, m, n, d, u, Z);
@@ -234,7 +235,7 @@ int reverse(short tag, int m, int n, int d, double u, double **Z)
 /****************************************************************************/
 /*         Z can be vector if d = 0; Done by specialized code               */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, double *u, double *Z)
+int reverse(short tag, int m, int n, int d, const double *u, double *Z)
 /* reverse(tag, m, n, 0, u[m], Z[n]), d=0                                   */
 {
   if (d != 0) {
@@ -266,8 +267,8 @@ int reverse(short tag, int m, int n, int d, double u, double *Z)
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, double **U, double ***Z,
-            short **nz)
+int reverse(short tag, int m, int n, int d, int q, const double *const *U,
+            double ***Z, short **nz)
 /* reverse(tag, m, n, d, q, U[q][m], Z[q][n][d+1], nz[q][n])                */
 {
   return hov_reverse(tag, m, n, d, q, U, Z, nz);
@@ -301,7 +302,8 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
 /*                                                                          */
 /*         If d=0 then Z may be matrix; Done by specialized code            */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, double **U, double **Z)
+int reverse(short tag, int m, int n, int d, int q, const double *const *U,
+            double **Z)
 /* reverse(tag, m, n, 0, q, U[q][m], Z[q][n]), d=0 => Z matrix              */
 {
   int rc = -1;
@@ -319,7 +321,7 @@ int reverse(short tag, int m, int n, int d, int q, double **U, double **Z)
 /*                                                                          */
 /*         d=0 may be omitted, then Z may be a matrix; specialized code     */
 /*                                                                          */
-int reverse(short tag, int m, int n, int q, double **U, double **Z)
+int reverse(short tag, int m, int n, int q, const double *const *U, double **Z)
 /* reverse(tag, m, n, q, U[q][m], Z[q][n]), d=0 => Z matrix                 */
 {
   int rc = -1;
