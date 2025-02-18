@@ -36,11 +36,11 @@ def initialiseAutoDiff():
 def computeHessianStructure():
    x = [0.5, 0.5, 0.0, 0.0]
    hesspat = adolc.hess_pat(0, x, 0)
-   assert(np.array_equal(hesspat[0], [0, 0, 0, 1]))
+   assert(np.array_equal(hesspat[0], [0, 0, 0, 1, 2]))
    assert(np.array_equal(hesspat[1], [3, 2]))
 
    hesspat = adolc.hess_pat(1, x, 0)
-   assert(np.array_equal(hesspat[0], [0, 2, 4, 4]))
+   assert(np.array_equal(hesspat[0], [0, 2, 4, 4, 4]))
    assert(np.array_equal(hesspat[1], [0, 1, 0, 1]))
 
 if __name__ == "__main__":
