@@ -1,4 +1,5 @@
 import adolc
+import numpy as np
 
 def tapeFunction(x, rowno):
    adolc.trace_on(rowno)
@@ -18,7 +19,7 @@ def tapeFunction(x, rowno):
       ay = ax[3] * ax[2];
    elif rowno == 1:
       hold1 = (pow(ax[0],(-1.0)) + pow(ax[1],(-1.0)))
-      hold2 = pow(hold1,( -1./self.Rho ))
+      hold2 = pow(hold1,(-1.0))
 
       ay = hold2
 
@@ -41,3 +42,7 @@ def computeHessianStructure():
    hesspat = adolc.hess_pat(1, x, 0)
    assert(np.array_equal(hesspat[0], [0, 2, 4, 4]))
    assert(np.array_equal(hesspat[1], [0, 1, 0, 1]))
+
+if __name__ == "__main__":
+   initialiseAutoDiff()
+   computeHessianStructure()
