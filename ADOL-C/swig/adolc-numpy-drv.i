@@ -89,7 +89,8 @@ def as_adouble(arg):
        {(double** values, int* nnz3)};
 %apply (unsigned int** ARGOUTVIEWM_ARRAY1, int* DIM1)
        {(unsigned int** rind, int* nnz1),
-        (unsigned int** cind, int* nnz2)};
+        (unsigned int** cind, int* nnz2),
+        (unsigned int** rstart, int* nnz1)};
 %apply (short** ARGOUTVIEWM_ARRAY1, int* DIM1) 
        {(short** sigma, int* nn3)};
 
