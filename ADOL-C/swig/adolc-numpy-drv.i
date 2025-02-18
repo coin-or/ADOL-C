@@ -53,6 +53,8 @@ def as_adouble(arg):
 %rename (sparse_jac) npy_sparse_jac;
 %ignore sparse_hess;
 %rename (sparse_hess) npy_sparse_hess;
+%ignore hess_pat;
+%rename (hess_pat) npy_hess_pat;
 %ignore set_param_vec;
 %rename (set_param_vec) npy_set_param_vec;
 %ignore directional_active_gradient;
@@ -349,7 +351,7 @@ extern "C" {
         }
         *nnz1 = n;
 
-        *start = (unsigned int*) malloc ((*nnz1 + 1) * sizeof(unsigned int));
+        *rstart = (unsigned int*) malloc ((*nnz1 + 1) * sizeof(unsigned int));
         unsigned int** HPp = (unsigned int**)malloc((*nnz1)*sizeof(unsigned int*));
 
         int ret;
@@ -358,16 +360,16 @@ extern "C" {
         *nnz2 = 0;
         for(int i = 0; i < n; i++)
         {
-            (*start)[i] = (*nnz2);
+            (*rstart)[i] = (*nnz2);
             *nnz2 += HPp[i][0];
         }
-        (*start)[n] = (*nnz2);
+        (*rstart)[n] = (*nnz2);
 
-        *ind = (unsigned int*) malloc((*nnz2) * sizeof(unsigned int));
+        *cind = (unsigned int*) malloc((*nnz2) * sizeof(unsigned int));
         for(int i = 0; i < n; i++)
         {
             for(int j = 0; j < HPp[i][0]; j++)
-               (*ind)[(*start)[i] + j] = HPp[i][j + 1];
+               (*cind)[(*rstart)[i] + j] = HPp[i][j + 1];
         }
         CHECKEXCEPT(ret,"hess_pat")
 #else
@@ -466,6 +468,7 @@ extern "C" {
 %clear (double** values, int* nnz3);
 %clear (unsigned int** rind, int* nnz1);
 %clear (unsigned int** cind, int* nnz2);
+%clear (unsigned int** rstart, int* nnz1);
 %clear (short** sigma, int* nn3);
 %clear (double** Yy, int* p1, int* q1);
 %clear (double** Jj, int* p2, int* q2);
