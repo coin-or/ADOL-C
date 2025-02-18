@@ -349,10 +349,10 @@ extern "C" {
                 );
             return;
         }
-        *nnz1 = n;
+        *nnz1 = n + 1;
 
-        *rstart = (unsigned int*) malloc ((*nnz1 + 1) * sizeof(unsigned int));
-        unsigned int** HPp = (unsigned int**)malloc((*nnz1)*sizeof(unsigned int*));
+        *rstart = (unsigned int*) malloc ((*nnz1) * sizeof(unsigned int));
+        unsigned int** HPp = (unsigned int**)malloc(n * sizeof(unsigned int*));
 
         int ret;
         ret = hess_pat(t,n,x,HPp,option);
