@@ -92,7 +92,7 @@ def as_adouble(arg):
 %apply (unsigned int** ARGOUTVIEWM_ARRAY1, int* DIM1)
        {(unsigned int** rind, int* nnz1),
         (unsigned int** cind, int* nnz2),
-        (unsigned int** rstart, int* nnz1)};
+        (unsigned int** rcount, int* nnz1)};
 %apply (short** ARGOUTVIEWM_ARRAY1, int* DIM1) 
        {(short** sigma, int* nn3)};
 
@@ -337,7 +337,7 @@ extern "C" {
     }
 
     void npy_hess_pat(short t, double* x, int n1,
-                        unsigned int** rstart, int* nnz1,
+                        unsigned int** rcount, int* nnz1,
                         unsigned int** cind, int* nnz2,
                         int option) {
 #if defined(SPARSE_DRIVERS)
@@ -349,27 +349,28 @@ extern "C" {
                 );
             return;
         }
-        *nnz1 = n + 1;
+        *nnz1 = n;
 
-        *rstart = (unsigned int*) malloc ((*nnz1) * sizeof(unsigned int));
-        unsigned int** HPp = (unsigned int**)malloc(n * sizeof(unsigned int*));
+        *rcount = (unsigned int*) malloc ((*nnz1) * sizeof(unsigned int));
+        unsigned int** HP = (unsigned int**)malloc((*nnz1) * sizeof(unsigned int*));
 
         int ret;
-        ret = hess_pat(t,n,x,HPp,option);
+        ret = hess_pat(t,n,x,HP,option);
 
         *nnz2 = 0;
         for(int i = 0; i < n; i++)
         {
-            (*rstart)[i] = (*nnz2);
-            *nnz2 += HPp[i][0];
+            (*rcount)[i] = HP[i][0];
+            *nnz2 += HP[i][0];
         }
-        (*rstart)[n] = (*nnz2);
 
         *cind = (unsigned int*) malloc((*nnz2) * sizeof(unsigned int));
+        int index = 0;
         for(int i = 0; i < n; i++)
         {
-            for(int j = 0; j < HPp[i][0]; j++)
-               (*cind)[(*rstart)[i] + j] = HPp[i][j + 1];
+            for(int j = 0; j < HP[i][0]; j++)
+               (*cind)[index + j] = HP[i][j + 1];
+            index += (*rcount)[i];
         }
         CHECKEXCEPT(ret,"hess_pat")
 #else
@@ -468,7 +469,7 @@ extern "C" {
 %clear (double** values, int* nnz3);
 %clear (unsigned int** rind, int* nnz1);
 %clear (unsigned int** cind, int* nnz2);
-%clear (unsigned int** rstart, int* nnz1);
+%clear (unsigned int** rcount, int* nnz1);
 %clear (short** sigma, int* nn3);
 %clear (double** Yy, int* p1, int* q1);
 %clear (double** Jj, int* p2, int* q2);
