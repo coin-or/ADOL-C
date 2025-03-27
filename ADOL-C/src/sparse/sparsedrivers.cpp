@@ -266,7 +266,6 @@ int sparse_jac(short tag,  /* tape identification                     */
   SparseJacInfos sJinfos;
   int ret_val = 0;
   BipartiteGraphPartialColoringInterface *g;
-  TapeInfos *tapeInfos;
   JacobianRecovery1D *jr1d;
   JacobianRecovery1D jr1d_loc;
 
@@ -336,23 +335,17 @@ int sparse_jac(short tag,  /* tape identification                     */
     sJinfos.g = (void *)g;
     sJinfos.jr1d = (void *)jr1d;
     setTapeInfoJacSparse(tag, sJinfos);
-    tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
   } else {
-    tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-    sJinfos.depen = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.depen;
-    sJinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.nnz_in;
-    sJinfos.JP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.JP;
-    sJinfos.B = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.B;
-    sJinfos.y = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.y;
-    sJinfos.Seed = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.Seed;
-    sJinfos.seed_rows = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_rows;
-    sJinfos.seed_clms = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_clms;
-    g = (BipartiteGraphPartialColoringInterface *)
-            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.g;
-    jr1d =
-        (JacobianRecovery1D *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.jr1d;
+    sJinfos.depen = tape.sJinfos.depen;
+    sJinfos.nnz_in = tape.sJinfos.nnz_in;
+    sJinfos.JP = tape.sJinfos.JP;
+    sJinfos.B = tape.sJinfos.B;
+    sJinfos.y = tape.sJinfos.y;
+    sJinfos.Seed = tape.sJinfos.Seed;
+    sJinfos.seed_rows = tape.sJinfos.seed_rows;
+    sJinfos.seed_clms = tape.sJinfos.seed_clms;
+    g = (BipartiteGraphPartialColoringInterface *)tape.sJinfos.g;
+    jr1d = (JacobianRecovery1D *)tape.sJinfos.jr1d;
   }
 
   if (sJinfos.nnz_in != *nnz) {
@@ -437,6 +430,7 @@ int sparse_hess(short tag,  /* tape identification                     */
 )
 #if HAVE_LIBCOLPACK
 {
+  ValueTape &tape = findTape(tag);
   int i, l;
   unsigned int j;
   SparseHessInfos sHinfos;
@@ -445,7 +439,6 @@ int sparse_hess(short tag,  /* tape identification                     */
   double y;
   int ret_val = -1;
   GraphColoringInterface *g;
-  TapeInfos *tapeInfos;
   HessianRecovery *hr;
 
   /* Generate sparsity pattern, determine nnz, allocate memory */
@@ -466,15 +459,10 @@ int sparse_hess(short tag,  /* tape identification                     */
         return ret_val;
       }
     } else {
-      tapeInfos = getTapeInfos(tag);
-      ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-      if (indep != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.indep) {
-        fprintf(DIAG_OUT, "ADOL-C Error: wrong number of independents stored "
-                          "in hessian pattern.\n");
-        adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-      }
-      deepcopy_HP(&sHinfos.HP, ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,
-                  indep);
+      if (indep != tape.sHinfos.indep)
+        fail(ADOLC_ERRORS::ADOLC_SPARSE_HESS_IND,
+             std::source_location::current());
+      deepcopy_HP(&sHinfos.HP, tape.sHinfos.HP, indep);
     }
 
     sHinfos.indep = indep;
@@ -525,22 +513,17 @@ int sparse_hess(short tag,  /* tape identification                     */
 
     setTapeInfoHessSparse(tag, sHinfos);
 
-    tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-
   } else {
-    tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-    sHinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.nnz_in;
-    sHinfos.HP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
-    sHinfos.Hcomp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Hcomp;
-    sHinfos.Xppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Xppp;
-    sHinfos.Yppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Yppp;
-    sHinfos.Zppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Zppp;
-    sHinfos.Upp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Upp;
-    sHinfos.p = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.p;
-    g = (GraphColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.g;
-    hr = (HessianRecovery *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.hr;
+    sHinfos.nnz_in = tape.sHinfos.nnz_in;
+    sHinfos.HP = tape.sHinfos.HP;
+    sHinfos.Hcomp = tape.sHinfos.Hcomp;
+    sHinfos.Xppp = tape.sHinfos.Xppp;
+    sHinfos.Yppp = tape.sHinfos.Yppp;
+    sHinfos.Zppp = tape.sHinfos.Zppp;
+    sHinfos.Upp = tape.sHinfos.Upp;
+    sHinfos.p = tape.sHinfos.p;
+    g = (GraphColoringInterface *)tape.sHinfos.g;
+    hr = (HessianRecovery *)tape.sHinfos.hr;
   }
 
   if (sHinfos.Upp == NULL) {
@@ -615,13 +598,7 @@ void set_HP(short tag, /* tape identification                     */
 {
   std::shared_ptr<ValueTape> tape = getTape(tag);
   SparseHessInfos sHinfos;
-  TapeInfos *tapeInfos;
 
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  tapeInfos = getTapeInfos(tag);
-  ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
   sHinfos.nnz_in = 0;
   deepcopy_HP(&sHinfos.HP, HP, indep);
   sHinfos.Hcomp = NULL;
@@ -646,14 +623,7 @@ void get_HP(short tag, /* tape identification                     */
             unsigned int ***HP)
 #ifdef SPARSE
 {
-  TapeInfos *tapeInfos;
-
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  tapeInfos = getTapeInfos(tag);
-  ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-  deepcopy_HP(HP, ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP, indep);
+  deepcopy_HP(HP, findTape(tag).sHinfos.HP, indep);
 }
 #else
 {
