@@ -12,31 +12,38 @@
 
 ---------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_REVOLVE_H)
-#define ADOLC_REVOLVE_H 1
+#ifndef ADOLC_REVOLVE_H
+#define ADOLC_REVOLVE_H
 
 #include <adolc/internal/common.h>
 
-BEGIN_C_DECLS
+struct revolve_nums {
+  int advances{0};
+  int takeshots{0};
+  int commands{0};
+  int turn{0};
+  int reps{0};
+  int range{0};
+  int ch[ADOLC_CHECKUP] = {0};
+  int oldsnaps{0};
+  int oldfine{0};
+};
 
-typedef struct {
-  int advances;
-  int takeshots;
-  int commands;
-  int turn;
-  int reps;
-  int range;
-  int ch[ADOLC_CHECKUP];
-  int oldsnaps;
-  int oldfine;
-} revolve_nums;
-
-#ifndef _OPENMP
-extern revolve_nums revolve_numbers;
-#else
+#ifdef _OPENMP
 #include <omp.h>
-extern revolve_nums *revolve_numbers;
+inline revolve_nums *revolve_numbers;
+#else
+inline revolve_nums revolve_numbers;
 #endif
+
+inline revolve_nums &get_revolve_numbers() {
+#ifdef _OPENMP
+  int ADOLC_threadNumber = omp_get_thread_num();
+  return revolve_numbers[ADOLC_threadNumber]
+#else
+  return revolve_numbers;
+#endif // _OPENMP
+}
 
 enum revolve_action {
   revolve_advance,
@@ -55,6 +62,4 @@ int adjustsize(int *steps, int *snaps, int *reps);
 enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
                             int *info);
 
-END_C_DECLS
-
-#endif /* ADOLC_REVOLVE_H */
+#endif // ADOLC_REVOLVE_H

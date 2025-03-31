@@ -13,7 +13,6 @@
 
 #include "adolc/adtb_types.h"
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 #include <cassert>
 #include <cstring>
 

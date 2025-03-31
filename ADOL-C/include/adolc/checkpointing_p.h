@@ -12,42 +12,15 @@
 
 ----------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_CHECKPOINTING_P_H)
-#define ADOLC_CHECKPOINTING_P_H 1
+#ifndef ADOLC_CHECKPOINTING_P_H
+#define ADOLC_CHECKPOINTING_P_H
 
 #include <adolc/buffer_temp.h>
 #include <adolc/checkpointing.h>
 #include <adolc/internal/common.h>
-#include <adolc/taping_p.h>
-
-#include <stack>
-
-BEGIN_C_DECLS
-/****************************************************************************/
-/*                                                         Now the C THINGS */
 
 #define CP_BLOCK_SIZE 10
 
-CpInfos *get_cp_fct(int index);
-
 void init_CpInfos(CpInfos *cpInfos);
 
-END_C_DECLS
-
-/****************************************************************************/
-
-#if defined(__cplusplus)
-
-#define ADOLC_BUFFER_TYPE Buffer<CpInfos, CP_BLOCK_SIZE>
-extern ADOLC_BUFFER_TYPE ADOLC_EXT_DIFF_FCTS_BUFFER_DECL;
-
-/* field of pointers to the value fields of a checkpoint */
-typedef double **StackElement;
-extern std::stack<StackElement> ADOLC_CHECKPOINTS_STACK_DECL;
-
-/* a cleanup function */
-void cp_clearStack();
-
-#endif
-
-#endif /* ADOLC_CHECKPOITING_P_H */
+#endif // ADOLC_CHECKPOINTING_P_H
