@@ -42,5 +42,19 @@ typedef @REAL_TYPE@ revreal;
 /* Use Boost Library Pool allocator */
 @USE_BOOST_POOL@
 
+
+// stores information about the version of ADOL-C and the size of some data
+// types
+struct ADOLC_ID {
+  short adolc_ver;
+  short adolc_sub;
+  short adolc_lvl;
+  size_t locint_size;
+  size_t double_size;
+  size_t address_size;
+};
+const ADOLC_ID &get_adolc_id();
+
 // clang-format on
+
 #endif
