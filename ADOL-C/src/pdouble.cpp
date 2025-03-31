@@ -13,75 +13,42 @@
 
 ----------------------------------------------------------------------------*/
 
+#include <adolc/adolcerror.h>
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
-#include <cassert>
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 
-pdouble::pdouble(const double pval) {
-#include <limits>
-  using std::numeric_limits;
-
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    tape_loc_ =
-        tape_location{ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc()};
-    ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc_.loc_] = pval;
-  } else
-    tape_loc_ = tape_location{numeric_limits<size_t>::max()};
+pdouble::pdouble(const double pval) : tape_loc_{getDefaultTape()} {
+  if (!tape())
+    throw ADOLCError("Default tape is nullptr!");
+  value(pval);
 }
 
-pdouble::pdouble(tape_location tape_loc) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (tape_loc.loc_ < ADOLC_GLOBAL_TAPE_VARS.numparam) {
-    tape_loc_ = tape_loc;
-  } else {
-    fprintf(DIAG_OUT,
-            "ADOL-C error: Parameter index %zu out of bounds, "
-            "# existing parameters = %zu\n",
-            tape_loc.loc_, ADOLC_GLOBAL_TAPE_VARS.numparam);
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
-}
-
-pdouble pdouble::mkparam(const double pval) {
-#include <limits>
-  using std::numeric_limits;
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
-    tape_location tape_loc{ADOLC_GLOBAL_TAPE_VARS.paramStoreMgrPtr->next_loc()};
-    ADOLC_GLOBAL_TAPE_VARS.pStore[tape_loc.loc_] = pval;
-    return pdouble(tape_loc);
-  }
-  return pdouble(tape_location{numeric_limits<size_t>::max()});
+pdouble::pdouble(const double pval, const std::shared_ptr<ValueTape> &in_tape)
+    : tape_loc_{in_tape} {
+  if (!tape())
+    throw ADOLCError("Default tape is nullptr!");
+  value(pval);
 }
 
 pdouble::operator adouble() const {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
+  adouble ret_adouble{tape()};
+  if (tape()->traceFlag()) {
+    tape()->put_op(assign_p);
+    tape()->put_loc(loc());
+    tape()->put_loc(ret_adouble.loc());
 
-  adouble ret_adouble{tape_location{next_loc()}};
-  if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
+    tape()->increment_numTays_Tape();
 
-    put_op(assign_p);
-    ADOLC_PUT_LOCINT(tape_loc_.loc_);
-    ADOLC_PUT_LOCINT(ret_adouble.loc());
-
-    ++ADOLC_CURRENT_TAPE_INFOS.numTays_Tape;
-
-    if (ADOLC_CURRENT_TAPE_INFOS.keepTaylors)
-      ADOLC_WRITE_SCAYLOR(ret_adouble.value());
+    if (tape()->keepTaylors())
+      tape()->write_scaylor(ret_adouble.value());
   }
 
-  ret_adouble.value(this->value());
+  ret_adouble.value(value());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[ret_adouble.loc()] = true;
+  tape->globalTapeVars_.actStore[ret_adouble.loc()] = true;
 #endif
 
   return ret_adouble;
