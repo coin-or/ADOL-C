@@ -185,13 +185,13 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /****************************************************************************/
 /*                                                       NECESSARY INCLUDES */
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
-#include <adolc/externfcts_p.h>
 #include <adolc/interfaces.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
-
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 #include <math.h>
 #include <string.h>
 
@@ -278,6 +278,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 #endif
 {
+  std::shared_ptr<ValueTape> tape = getTape(tnum);
   /****************************************************************************/
   /*                                                           ALL VARIABLES  */
   unsigned char operation; /* operation code */
@@ -349,32 +350,36 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #define ADOLC_EXT_FCT_POINTER fos_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_reverse(m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x, edfct->dp_y)
+  fos_reverse(edfct->tapeId, m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x,      \
+              edfct->dp_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fos_reverse_iArr(iArrLength, iArr, m, edfct->dp_U, n, edfct->dp_Z,           \
-                   edfct->dp_x, edfct->dp_y)
+  fos_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, edfct->dp_U, n,         \
+                   edfct->dp_Z, edfct->dp_x, edfct->dp_y)
 #define ADOLC_EXT_FCT_SAVE_NUMDIRS
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_reverse(iArrLength, iArr, nout, nin, (int *)outsz, edfct2->up,           \
-              (int *)insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
+  fos_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, (int *)outsz,        \
+              edfct2->up, (int *)insz, edfct2->zp, edfct2->x, edfct2->y,       \
+              edfct2->context)
 #else
 #define ADOLC_EXT_FCT_U edfct->dpp_U
 #define ADOLC_EXT_FCT_Z edfct->dpp_Z
 #define ADOLC_EXT_FCT_POINTER fov_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fov_reverse(m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
+  fov_reverse(edfct->tapeId, m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, \
+              edfct->dp_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fov_reverse_iArr(iArrLength, iArr, m, p, edfct->dpp_U, n, edfct->dpp_Z,      \
-                   edfct->dp_x, edfct->dp_y)
-#define ADOLC_EXT_FCT_SAVE_NUMDIRS ADOLC_CURRENT_TAPE_INFOS.numDirs_rev = nrows
+  fov_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, p, edfct->dpp_U, n,     \
+                   edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
+#define ADOLC_EXT_FCT_SAVE_NUMDIRS tape->numDirs_rev(nrows)
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_reverse(iArrLength, iArr, nout, nin, (int *)outsz, p, edfct2->Up,        \
-              (int *)insz, edfct2->Zp, edfct2->x, edfct2->y, edfct2->context)
+  fov_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, (int *)outsz, p,     \
+              edfct2->Up, (int *)insz, edfct2->Zp, edfct2->x, edfct2->y,       \
+              edfct2->context)
 #endif
 #if !defined(_INT_REV_)
   locint n, m;
@@ -403,9 +408,6 @@ int int_reverse_safe(short tnum, /* tape id                               */
   struct AMPI_Request_S request;
 #endif
 
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
 #if defined(ADOLC_DEBUG)
   /****************************************************************************/
   /*                                                           DEBUG MESSAGES */
@@ -422,34 +424,32 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
   /*------------------------------------------------------------------------*/
   /* Set up stuff for the tape */
-
   /* Initialize the Reverse Sweep */
-  init_rev_sweep(tnum);
+  tape->init_rev_sweep(tnum);
 
-  failAdditionalInfo3 = depen;
-  failAdditionalInfo4 = indep;
-  if ((depen != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
-      (indep != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]))
-    fail(ADOLC_REVERSE_COUNTS_MISMATCH);
+  if ((depen != tape->tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (indep != tape->tapestats(TapeInfos::NUM_INDEPENDENTS)))
+    fail(ADOLC_ERRORS::ADOLC_REVERSE_COUNTS_MISMATCH,
+         std::source_location::current(),
+         FailInfo{.info1 = tape->tapeId(),
+                  .info3 = depen,
+                  .info4 = indep,
+                  .info5 = tape->tapestats(TapeInfos::NUM_DEPENDENTS),
+                  .info6 = tape->tapestats(TapeInfos::NUM_INDEPENDENTS)});
 
-  indexi = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS] - 1;
-  indexd = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS] - 1;
+  indexi = tape->tapestats(TapeInfos::NUM_INDEPENDENTS) - 1;
+  indexd = tape->tapestats(TapeInfos::NUM_DEPENDENTS) - 1;
 
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-  if (!ADOLC_CURRENT_TAPE_INFOS.stats[NO_MIN_MAX]) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error: Tape %d was not created compatible "
-            "with %s(..)\n              Please call enableMinMaxUsingAbs() "
-            "before trace_on(%d)\n",
-            tnum, GENERATED_FILENAME, tnum);
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else if (swchk != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error: Number of switches passed %d does not "
-            "match with the one recorded on tape %d (%zu)\n",
-            swchk, tnum, ADOLC_CURRENT_TAPE_INFOS.stats[NUM_SWITCHES]);
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (!tape->tapestats(TapeInfos::NO_MIN_MAX))
+    fail(ADOLC_ERRORS::ADOLC_NO_MINMAX, std::source_location::current(),
+         FailInfo{.info1 = tnum});
+  else if (swchk != tape->tapestats(TapeInfos::NUM_SWITCHES))
+    fail(ADOLC_ERRORS::ADOLC_SWITCHES_MISMATCH, std::source_location::current(),
+         FailInfo{.info1 = tnum,
+                  .info3 = swchk,
+                  .info6 = tape->tapestats(TapeInfos::NUM_SWITCHES)});
+  else
     switchnum = swchk - 1;
 #endif
 
@@ -459,10 +459,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
   /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
-  rp_A = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
-  ADOLC_CURRENT_TAPE_INFOS.rp_A = rp_A;
-  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOS_REVERSE;
+  rp_A = myalloc1(tape->tapestats(TapeInfos::NUM_MAX_LIVES));
+  tape->rp_A(rp_A);
+  rp_T = myalloc1(tape->tapestats(TapeInfos::NUM_MAX_LIVES));
+  tape->workMode(TapeInfos::ADOLC_FOS_REVERSE);
 #ifdef _ABS_NORM_
   memset(results, 0, sizeof(double) * (indep + swchk));
 #endif
@@ -481,10 +481,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
   /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_ /* FOV */
-  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
-  ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
-  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_FOV_REVERSE;
+  rpp_A = myalloc2(tape->tapestats(TapeInfos::NUM_MAX_LIVES), p);
+  tape->rpp_A(rpp_A);
+  rp_T = myalloc1(tape->tapestats(TapeInfos::NUM_MAX_LIVES));
+  tape->workMode(TapeInfos::ADOLC_FOV_REVERSE);
 #define ADJOINT_BUFFER rpp_A
 #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
 #define ADJOINT_BUFFER_RES_L rpp_A[res][l]
@@ -498,10 +498,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src)
 #else
 #if defined _INT_REV_
-  upp_A = myalloc2_ulong(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p);
+  upp_A = myalloc2_ulong(tape->tapestats(TapeInfos::NUM_MAX_LIVES), p);
 #if defined _TIGHT_
-  ADOLC_CURRENT_TAPE_INFOS.upp_A = upp_A;
-  rp_T = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+  tape->upp_A(upp_A);
+  rp_T = myalloc1(tape->tapestats(TapeInfos::NUM_MAX_LIVES));
 #endif
 #define ADJOINT_BUFFER upp_A
 #define ADJOINT_BUFFER_ARG_L upp_A[arg][l]
@@ -515,24 +515,23 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
 #if !defined(_NTIGHT_)
 
-  ADOLC_CURRENT_TAPE_INFOS.rp_T = rp_T;
+  tape->rp_T(rp_T);
 
-  taylor_back(tnum, &numdep, &numind, &taycheck);
+  tape->taylor_back(tnum, &numdep, &numind, &taycheck);
 
-  if (taycheck < 0) {
-    fprintf(DIAG_OUT, "\n ADOL-C error: reverse fails because it was not"
-                      " preceded\nby a forward sweep with degree>0, keep=1!\n");
-    adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-  };
+  if (taycheck < 0)
+    fail(ADOLC_ERRORS::ADOLC_REVERSE_NO_FOWARD, std::source_location::current(),
+         FailInfo{.info3 = 0, .info4 = 1});
 
   if ((numdep != depen) || (numind != indep))
-    fail(ADOLC_REVERSE_TAYLOR_COUNTS_MISMATCH);
+    fail(ADOLC_ERRORS::ADOLC_REVERSE_TAYLOR_COUNTS_MISMATCH,
+         std::source_location::current(), FailInfo{.info1 = tape->tapeId()});
 
 #endif /* !_NTIGHT_ */
 
   /****************************************************************************/
   /*                                                            REVERSE SWEEP */
-  operation = get_op_r();
+  operation = tape->get_op_r();
   while (operation != start_of_tape) { /* Switch statement to execute the
                                           operations in Reverse */
 
@@ -544,26 +543,26 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case end_of_op: /* end_of_op */
-      get_op_block_r();
-      operation = get_op_r();
+      tape->get_op_block_r();
+      operation = tape->get_op_r();
       /* Skip next operation, it's another end_of_op */
       break;
 
       /*--------------------------------------------------------------------------*/
-    case end_of_int:     /* end_of_int */
-      get_loc_block_r(); /* Get the next int block */
+    case end_of_int:           /* end_of_int */
+      tape->get_loc_block_r(); /* Get the next int block */
       break;
 
       /*--------------------------------------------------------------------------*/
-    case end_of_val:     /* end_of_val */
-      get_val_block_r(); /* Get the next val block */
+    case end_of_val:           /* end_of_val */
+      tape->get_val_block_r(); /* Get the next val block */
       break;
 
       /*--------------------------------------------------------------------------*/
     case start_of_tape: /* start_of_tape */
       break;
     case end_of_tape: /* end_of_tape */
-      discard_params_r();
+      tape->discard_params_r();
       break;
 
       /****************************************************************************/
@@ -572,7 +571,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case eq_zero: /* eq_zero */
-      arg = get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       ret_c = 0;
@@ -583,13 +582,13 @@ int int_reverse_safe(short tnum, /* tape id                               */
     case neq_zero: /* neq_zero */
     case gt_zero:  /* gt_zero */
     case lt_zero:  /* lt_zero */
-      arg = get_locint_r();
+      arg = tape->get_locint_r();
       break;
 
       /*--------------------------------------------------------------------------*/
     case ge_zero: /* ge_zero */
     case le_zero: /* le_zero */
-      arg = get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       if (TARG == 0)
@@ -604,8 +603,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /*--------------------------------------------------------------------------*/
     case assign_a: /* assign an adouble variable an    assign_a */
       /* adouble value. (=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -621,16 +620,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case assign_d: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -643,16 +642,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
     case assign_p: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+      coval = tape->paramstore()[arg];
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -665,13 +664,13 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
       /*--------------------------------------------------------------------------*/
     case assign_d_zero: /* assign an adouble variable a    assign_d_zero */
     case assign_d_one:  /* double value (0 or 1). (=)       assign_d_one */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
@@ -683,24 +682,24 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case assign_ind: /* assign an adouble variable an    assign_ind */
       /* independent double value (<<=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
-      if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
+      if (tape->in_nested_ctx()) {
         FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) += ARES_INC;
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
       }
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       indexi--;
       break;
@@ -708,7 +707,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /*--------------------------------------------------------------------------*/
     case assign_dep: /* assign a float variable a    assign_dep */
       /* dependent adouble value. (>>=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
@@ -718,7 +717,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       else
         *Ares = 0.0;
 #else
-      if (ADOLC_CURRENT_TAPE_INFOS.in_nested_ctx) {
+      if (tape->in_nested_ctx()) {
         FOR_0_LE_l_LT_p {
           ARES_INC = LAGRANGETRANS(l, indexd);
           LAGRANGETRANS(l, indexd) = 0.0;
@@ -737,19 +736,19 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /*--------------------------------------------------------------------------*/
     case eq_plus_d: /* Add a floating point to an    eq_plus_d */
       /* adouble. (+=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case eq_plus_a: /* Add an adouble to another    eq_plus_a */
       /* adouble. (+=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg]);
@@ -762,26 +761,26 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case eq_min_d: /* Subtract a floating point from an    eq_min_d */
       /* adouble. (-=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case eq_min_a: /* Subtract an adouble from another    eq_min_a */
       /* adouble. (-=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -794,16 +793,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case eq_mult_d: /* Multiply an adouble by a    eq_mult_d */
       /* flaoting point. (*=) */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
 #if !defined(_INT_REV_)
@@ -813,18 +812,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case eq_mult_a: /* Multiply one adouble by another    eq_mult_a */
       /* (*=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -845,10 +844,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /*--------------------------------------------------------------------------*/
     case incr_a: /* Increment an adouble    incr_a */
     case decr_a: /* Increment an adouble    decr_a */
-      res = get_locint_r();
+      res = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
@@ -858,9 +857,9 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case plus_a_a: /* : Add two adoubles. (+)    plus a_a */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -881,17 +880,17 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case plus_d_a: /* Add an adouble and a double    plus_d_a */
       /* (+) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -910,16 +909,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case min_a_a: /* Subtraction of two adoubles    min_a_a */
       /* (-) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -940,17 +939,17 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case min_d_a: /* Subtract an adouble from a    min_d_a */
       /* double (-) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -969,18 +968,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case mult_a_a: /* Multiply two adoubles (*)    mult_a_a */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1006,9 +1005,9 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 991122: new op_code with recomputation */
     case eq_plus_prod: /* increment a product of           eq_plus_prod */
       /* two adoubles (*) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg2, ADJOINT_BUFFER[arg2])
@@ -1034,9 +1033,9 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 991122: new op_code with recomputation */
     case eq_min_prod: /* decrement a product of            eq_min_prod */
       /* two adoubles (*) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg2, ADJOINT_BUFFER[arg2])
@@ -1061,10 +1060,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /*--------------------------------------------------------------------------*/
     case mult_d_a: /* Multiply an adouble by a double    mult_d_a */
       /* (*) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1083,16 +1082,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case div_a_a: /* Divide an adouble by an adouble    div_a_a */
       /* (/) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg2, ADJOINT_BUFFER[arg2])
@@ -1101,7 +1100,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 980922 changed order to allow x=y/x */
 #if !defined(_NTIGHT_)
       r_0 = -TRES;
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
       r0 = 1.0 / TARG2;
       r_0 *= r0;
 #endif /* !_NTIGHT_ */
@@ -1124,11 +1123,11 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case div_d_a: /* Division double - adouble (/)    div_d_a */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1138,7 +1137,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 980922 changed order to allow x=d/x */
       r0 = -TRES;
       if (arg == res)
-        ADOLC_GET_TAYLOR(arg);
+        tape->get_taylor(arg);
       r0 /= TARG;
 #endif /* !_NTIGHT_ */
 
@@ -1156,7 +1155,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
 #if !defined(_NTIGHT_)
       if (arg != res)
-        ADOLC_GET_TAYLOR(res);
+        tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1166,8 +1165,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case pos_sign_a: /* pos_sign_a */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -1185,14 +1184,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case neg_sign_a: /* neg_sign_a */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -1210,7 +1209,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1220,8 +1219,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case exp_op: /* exponent operation    exp_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -1239,15 +1238,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case sin_op: /* sine operation    sin_op */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1265,17 +1264,17 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
-      ADOLC_GET_TAYLOR(arg2); /* olvo 980710 covalue */
+      tape->get_taylor(res);
+      tape->get_taylor(arg2); /* olvo 980710 covalue */
       /* NOTE: ADJOINT_BUFFER[arg2] should be 0 already */
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case cos_op: /* cosine operation    cos_op */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1293,8 +1292,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
-      ADOLC_GET_TAYLOR(arg2); /* olvo 980710 covalue */
+      tape->get_taylor(res);
+      tape->get_taylor(arg2); /* olvo 980710 covalue */
       /* NOTE ADJOINT_BUFFER[arg2] should be 0 already */
 #endif /* !_NTIGHT_ */
       break;
@@ -1308,12 +1307,12 @@ int int_reverse_safe(short tnum, /* tape id                               */
     case atanh_op: /* atanh_op */
     case erf_op:   /* erf_op   */
     case erfc_op:  /* erfc_op  */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1334,11 +1333,11 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case log_op: /* log_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1363,10 +1362,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case pow_op: /* pow_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1376,7 +1375,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       /* olvo 980921 changed order to allow x=pow(x,n) */
       r0 = TRES;
       if (arg == res)
-        TARG = *(ADOLC_CURRENT_TAPE_INFOS.currTay - 1);
+        TARG = *(tape->currTay() - 1);
       if (TARG == 0.0)
         r0 = 0.0;
       else
@@ -1396,14 +1395,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case sqrt_op: /* sqrt_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -1428,14 +1427,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case cbrt_op: /* cbrt_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -1460,18 +1459,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case gen_quad: /* gen_quad */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
-      coval = get_val_r();
+      coval = tape->get_val_r();
+      coval = tape->get_val_r();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1490,19 +1489,19 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
     case min_op: /* min_op */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1575,12 +1574,12 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case abs_val: /* abs_val */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1658,12 +1657,12 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case ceil_op: /* ceil_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1687,12 +1686,12 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case floor_op: /* floor_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1721,14 +1720,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case cond_assign: /* cond_assign */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1783,14 +1782,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
       break;
 
     case cond_eq_assign: /* cond_assign */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1846,13 +1845,13 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case cond_assign_s: /* cond_assign_s */
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1887,13 +1886,13 @@ int int_reverse_safe(short tnum, /* tape id                               */
       break;
 
     case cond_eq_assign_s: /* cond_eq_assign_s */
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1936,11 +1935,11 @@ int int_reverse_safe(short tnum, /* tape id                               */
     case ge_a_a:
     case lt_a_a:
     case gt_a_a:
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
 #endif
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
@@ -1952,7 +1951,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
 
       break;
@@ -1962,15 +1961,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #if !defined(_NTIGHT_)
       double val =
 #endif
-          get_val_r();
-      res = get_locint_r();
+          tape->get_val_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       size_t idx, numval = (size_t)trunc(fabs(val));
       locint vectorloc;
       vectorloc =
 #endif
-          get_locint_r();
-      arg = get_locint_r();
+          tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       idx = (size_t)trunc(fabs(TARG));
       if (idx >= numval)
@@ -1990,11 +1989,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
         *Ares = 0.0;
 #endif
       }
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in "
-                        "safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ACTIVE_SUBSCRIPTING,
+           std::source_location::current());
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -2002,15 +2000,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #if !defined(_NTIGHT_)
       double val =
 #endif
-          get_val_r();
-      res = get_locint_r();
+          tape->get_val_r();
+      res = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       size_t idx, numval = (size_t)trunc(fabs(val));
       locint vectorloc;
       vectorloc =
 #endif
-          get_locint_r();
-      arg = get_locint_r();
+          tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       idx = (size_t)trunc(fabs(TARG));
       if (idx >= numval)
@@ -2024,24 +2022,20 @@ int int_reverse_safe(short tnum, /* tape id                               */
        * basically all we need is that arg1 == vectorloc+idx
        * so doing a check here is probably good
        */
-      if (arg1 != vectorloc + idx) {
-        fprintf(DIAG_OUT,
-                "ADOL-C error: indexed active position does not match "
-                "referenced position\nindexed = %zu, referenced = %zu\n",
-                vectorloc + idx, arg1);
-        adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-      }
-      ADOLC_GET_TAYLOR(res);
+      if (arg1 != vectorloc + idx)
+        fail(ADOLC_ERRORS::ADOLC_ADUBREF_SAFE_MODE,
+             std::source_location::current(),
+             FailInfo{.info5 = vectorloc + idx, .info6 = arg1});
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active subscripting does not work in "
-                        "safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ACTIVE_SUBSCRIPTING,
+           std::source_location::current());
 #endif /* !_NTIGHT_ */
     } break;
 
     case ref_copyout:
-      res = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       arg = (size_t)trunc(fabs(TARG1));
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2056,34 +2050,30 @@ int int_reverse_safe(short tnum, /* tape id                               */
         ARES_INC = 0.0;
 #endif
       }
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif
       break;
 
     case ref_incr_a: /* Increment an adouble    incr_a */
     case ref_decr_a: /* Increment an adouble    decr_a */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_assign_d: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
@@ -2094,17 +2084,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
           ARES_INC = 0.0;
 #endif
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_assign_d_zero: /* assign an adouble variable a    assign_d_zero */
     case ref_assign_d_one:  /* double value (0 or 1). (=)       assign_d_one */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
@@ -2117,18 +2105,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #else
           ARES_INC = 0.0;
 #endif
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_assign_a: /* assign an adouble variable an    assign_a */
       /* adouble value. (=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
@@ -2146,17 +2132,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
       }
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_assign_ind: /* assign an adouble variable an    assign_ind */
       /* independent double value (<<=) */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
@@ -2165,34 +2149,30 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       indexi--;
       break;
 
     case ref_eq_plus_d: /* Add a floating point to an    eq_plus_d */
       /* adouble. (+=) */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_eq_plus_a: /* Add an adouble to another    eq_plus_a */
       /* adouble. (+=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
@@ -2207,33 +2187,29 @@ int int_reverse_safe(short tnum, /* tape id                               */
           AARG_INC += ARES_INC;
 #endif
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_eq_min_d: /* Subtract a floating point from an    eq_min_d */
       /* adouble. (-=) */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_eq_min_a: /* Subtract an adouble from another    eq_min_a */
       /* adouble. (-=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
@@ -2247,20 +2223,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
           AARG_INC -= ARES_INC;
 #endif
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_eq_mult_d: /* Multiply an adouble by a    eq_mult_d */
       /* flaoting point. (*=) */
-      arg1 = get_locint_r();
+      arg1 = tape->get_locint_r();
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      coval = get_val_r();
+      coval = tape->get_val_r();
 
 #if !defined(_INT_REV_)
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2268,22 +2242,20 @@ int int_reverse_safe(short tnum, /* tape id                               */
       FOR_0_LE_l_LT_p ARES_INC *= coval;
 #endif
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_eq_mult_a: /* Multiply one adouble by another    eq_mult_a */
       /* (*=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -2299,16 +2271,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 #endif
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case vec_copy:
-      res = get_locint_r();
-      size = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      size = tape->get_locint_r();
+      arg = tape->get_locint_r();
       for (locint qq = 0; qq < size; qq++) {
 
         ASSIGN_A(Aarg, ADJOINT_BUFFER[arg + qq])
@@ -2325,17 +2295,17 @@ int int_reverse_safe(short tnum, /* tape id                               */
         }
 
 #if !defined(_NTIGHT_)
-        ADOLC_GET_TAYLOR(res + qq);
+        tape->get_taylor(res + qq);
 #endif /* !_NTIGHT_ */
       }
 
       break;
 
     case vec_dot:
-      res = get_locint_r();
-      size = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape->get_locint_r();
+      size = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
       for (locint qq = 0; qq < size; qq++) {
         ASSIGN_A(Ares, ADJOINT_BUFFER[res])
         ASSIGN_A(Aarg2, ADJOINT_BUFFER[arg2])
@@ -2353,16 +2323,16 @@ int int_reverse_safe(short tnum, /* tape id                               */
         arg1++;
       }
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
     case vec_axpy:
-      res = get_locint_r();
-      size = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape->get_locint_r();
+      size = tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
       for (locint qq = 0; qq < size; qq++) {
         ASSIGN_A(Ares, ADJOINT_BUFFER[res])
         ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -2380,7 +2350,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #endif
         }
 #if !defined(_NTIGHT_)
-        ADOLC_GET_TAYLOR(res);
+        tape->get_taylor(res);
 #endif /* !_NTIGHT_ */
         arg2++;
         arg1++;
@@ -2393,15 +2363,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #if !defined(_NTIGHT_)
       locint ref =
 #endif
-          get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+          tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
       res = (size_t)trunc(fabs(rp_T[ref]));
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2440,9 +2410,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
           FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
       }
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -2451,15 +2419,15 @@ int int_reverse_safe(short tnum, /* tape id                               */
 #if !defined(_NTIGHT_)
       locint ref =
 #endif
-          get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+          tape->get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
       res = (size_t)trunc(fabs(rp_T[ref]));
 
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2498,20 +2466,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
       }
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
     } break;
 
     case ref_cond_assign_s: /* cond_assign_s */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
       res = (size_t)trunc(fabs(TARG2));
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2535,20 +2501,18 @@ int int_reverse_safe(short tnum, /* tape id                               */
       } else if (TARG == 0.0) /* we are at the tie */
         FOR_0_LE_l_LT_p if (ARES_INC) MINDEC(ret_c, 0);
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
     case ref_cond_eq_assign_s: /* cond_eq_assign_s */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
+      arg = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      coval = get_val_r();
+      coval = tape->get_val_r();
       res = (size_t)trunc(fabs(TARG2));
-      ADOLC_GET_TAYLOR(res);
+      tape->get_taylor(res);
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2571,9 +2535,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
           FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
       }
 #else
-      fprintf(DIAG_OUT, "ADOL-C error: active vector element referencing does "
-                        "not work in safe mode, please use tight mode\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
 #endif /* !_NTIGHT_ */
       break;
 
@@ -2583,10 +2545,10 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case take_stock_op: /* take_stock_op */
-      res = get_locint_r();
-      size = get_locint_r();
+      res = tape->get_locint_r();
+      size = tape->get_locint_r();
 #if !defined(_NTIGHT_)
-      get_val_v_r(size);
+      tape->get_val_v_r(size);
 #endif /* !_NTIGHT_ */
 
       res += size;
@@ -2601,8 +2563,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
       /*--------------------------------------------------------------------------*/
     case death_not: /* death_not */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      arg2 = tape->get_locint_r();
+      arg1 = tape->get_locint_r();
 
       for (j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, ADJOINT_BUFFER[j])
@@ -2612,211 +2574,226 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
 #if !defined(_NTIGHT_)
       for (j = arg1; j <= arg2; j++)
-        ADOLC_GET_TAYLOR(j);
+        tape->get_taylor(j);
 #endif /* !_NTIGHT_ */
       break;
 
 #if !defined(_INT_REV_)
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differntiated function */
-      ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
-      m = get_locint_r();
-      n = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+      tape->cp_index(tape->get_locint_r());
+      tape->lowestYLoc_rev(tape->get_locint_r());
+      tape->lowestXLoc_rev(tape->get_locint_r());
+      m = tape->get_locint_r();
+      n = tape->get_locint_r();
+      tape->ext_diff_fct_index(tape->get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+      edfct = get_ext_diff_fct(tape->tapeId(), tape->ext_diff_fct_index());
 
-      oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+      oldTraceFlag = tape->traceFlag();
+      tape->traceFlag(0);
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
-        fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION,
+             std::source_location::current());
       if (m > 0) {
         if (ADOLC_EXT_FCT_U == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct->dp_y == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
       if (n > 0) {
         if (ADOLC_EXT_FCT_Z == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct->dp_x == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      arg = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      arg = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      res = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      res = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev + m - 1;
+        arg = tape->lowestYLoc_rev() + m - 1;
         for (loop = 0; loop < m; ++loop, --arg) {
-          ADOLC_GET_TAYLOR(arg);
+          tape->get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev + n - 1;
+        arg = tape->lowestXLoc_rev() + n - 1;
         for (loop = 0; loop < n; ++loop, --arg) {
-          ADOLC_GET_TAYLOR(arg);
+          tape->get_taylor(arg);
         }
       }
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+      tape->traceFlag(oldTraceFlag);
 
       break;
     case ext_diff_iArr: /* extern differntiated function */
-      ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
-      m = get_locint_r();
-      n = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
-      iArrLength = get_locint_r();
+      tape->cp_index(tape->get_locint_r());
+      tape->lowestYLoc_rev(tape->get_locint_r());
+      tape->lowestXLoc_rev(tape->get_locint_r());
+      m = tape->get_locint_r();
+      n = tape->get_locint_r();
+      tape->ext_diff_fct_index(tape->get_locint_r());
+      iArrLength = tape->get_locint_r();
       iArr = new int[iArrLength];
       for (loop = iArrLength - 1; loop >= 0; --loop)
-        iArr[loop] = get_locint_r();
-      get_locint_r(); /* get it again */
+        iArr[loop] = tape->get_locint_r();
+      tape->get_locint_r(); /* get it again */
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+      edfct = get_ext_diff_fct(tape->tapeId(), tape->ext_diff_fct_index());
 
-      oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+      oldTraceFlag = tape->traceFlag();
+      tape->traceFlag(0);
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
-        fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION,
+             std::source_location::current());
       if (m > 0) {
         if (ADOLC_EXT_FCT_U == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct->dp_y == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
       if (n > 0) {
         if (ADOLC_EXT_FCT_Z == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct->dp_x == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      arg = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      arg = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      res = tape->lowestYLoc_rev();
       for (loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      res = tape->lowestXLoc_rev();
       for (loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev + m - 1;
+        arg = tape->lowestYLoc_rev() + m - 1;
         for (loop = 0; loop < m; ++loop, --arg) {
-          ADOLC_GET_TAYLOR(arg);
+          tape->get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev + n - 1;
+        arg = tape->lowestXLoc_rev() + n - 1;
         for (loop = 0; loop < n; ++loop, --arg) {
-          ADOLC_GET_TAYLOR(arg);
+          tape->get_taylor(arg);
         }
       }
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+      tape->traceFlag(oldTraceFlag);
 
       break;
     case ext_diff_v2:
-      nout = get_locint_r();
-      nin = get_locint_r();
+      nout = tape->get_locint_r();
+      nin = tape->get_locint_r();
       insz = new locint[2 * (nin + nout)];
       outsz = insz + nin;
-      ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = outsz + nout;
-      ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = outsz + nout + nin;
+      tape->lowestXLoc_ext_v2(outsz + nout);
+      tape->lowestYLoc_ext_v2(outsz + nout + nin);
       for (loop = nout - 1; loop >= 0; --loop) {
-        ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[loop] = get_locint_r();
-        outsz[loop] = get_locint_r();
+        tape->lowestYLoc_ext_v2()[loop] = tape->get_locint_r();
+        outsz[loop] = tape->get_locint_r();
       }
       for (loop = nin - 1; loop >= 0; --loop) {
-        ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[loop] = get_locint_r();
-        insz[loop] = get_locint_r();
+        tape->lowestXLoc_ext_v2()[loop] = tape->get_locint_r();
+        insz[loop] = tape->get_locint_r();
       }
-      get_locint_r(); /* nout again */
-      get_locint_r(); /* nin again */
-      iArrLength = get_locint_r();
+      tape->get_locint_r(); /* nout again */
+      tape->get_locint_r(); /* nin again */
+      iArrLength = tape->get_locint_r();
       iArr = new int[iArrLength];
       for (loop = iArrLength - 1; loop >= 0; --loop)
-        iArr[loop] = get_locint_r();
-      get_locint_r(); /* iArrLength again */
-      ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
+        iArr[loop] = tape->get_locint_r();
+      tape->get_locint_r(); /* iArrLength again */
+      tape->ext_diff_fct_index(tape->get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct2 = get_ext_diff_fct_v2(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
-      oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+      edfct2 = get_ext_diff_fct_v2(tape->tapeId(), tape->ext_diff_fct_index());
+      oldTraceFlag = tape->traceFlag();
+      tape->traceFlag(0);
 
       if (edfct2->ADOLC_EXT_FCT_POINTER == NULL)
-        fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION,
+             std::source_location::current());
       if (nout > 0) {
         if (ADOLC_EXT_FCT_V2_U == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct2->y == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
       if (nin > 0) {
         if (ADOLC_EXT_FCT_V2_Z == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
         if (edfct2->x == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
+               std::source_location::current());
       }
       for (oloop = 0; oloop < nout; ++oloop) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+        arg = tape->lowestYLoc_ext_v2()[oloop];
         for (loop = 0; loop < outsz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_U_LOOP,
                                       ADJOINT_BUFFER_ARG);
@@ -2825,7 +2802,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
         }
       }
       for (oloop = 0; oloop < nin; ++oloop) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+        arg = tape->lowestXLoc_ext_v2()[oloop];
         for (loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_Z_LOOP,
                                       ADJOINT_BUFFER_ARG);
@@ -2836,7 +2813,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
       MINDEC(ret_c, ext_retc);
       for (oloop = 0; oloop < nout; ++oloop) {
-        res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop];
+        res = tape->lowestYLoc_ext_v2()[oloop];
         for (loop = 0; loop < outsz[oloop]; ++loop) {
           FOR_0_LE_l_LT_p {
             ADJOINT_BUFFER_RES_L = 0.0; /* \bar{v}_i = 0 !!! */
@@ -2845,7 +2822,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
         }
       }
       for (oloop = 0; oloop < nin; ++oloop) {
-        res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop];
+        res = tape->lowestXLoc_ext_v2()[oloop];
         for (loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_V2_Z_LOOP,
                                            ADJOINT_BUFFER_RES);
@@ -2854,38 +2831,36 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
       if (edfct2->dp_y_priorRequired) {
         for (oloop = nout - 1; oloop >= 0; --oloop) {
-          arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2[oloop] +
-                outsz[oloop] - 1;
+          arg = tape->lowestYLoc_ext_v2()[oloop] + outsz[oloop] - 1;
           for (loop = outsz[oloop] - 1; loop >= 0; --loop) {
-            ADOLC_GET_TAYLOR(arg);
+            tape->get_taylor(arg);
             --arg;
           }
         }
       }
       if (edfct2->dp_x_changes) {
         for (oloop = nin - 1; oloop >= 0; --oloop) {
-          arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2[oloop] +
-                insz[oloop] - 1;
+          arg = tape->lowestXLoc_ext_v2()[oloop] + insz[oloop] - 1;
           for (loop = insz[oloop] - 1; loop >= 0; --loop) {
-            ADOLC_GET_TAYLOR(arg);
+            tape->get_taylor(arg);
             --arg;
           }
         }
       }
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+      tape->traceFlag(oldTraceFlag);
       delete iArr;
       delete insz;
       insz = nullptr;
       iArr = nullptr;
       outsz = nullptr;
-      ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_ext_v2 = 0;
-      ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_ext_v2 = 0;
+      tape->lowestXLoc_ext_v2(nullptr);
+      tape->lowestYLoc_ext_v2(nullptr);
       break;
 #ifdef ADOLC_MEDIPACK_SUPPORT
       /*--------------------------------------------------------------------------*/
     case medi_call: {
-      locint mediIndex = get_locint_r();
-      short tapeId = ADOLC_CURRENT_TAPE_INFOS.tapeID;
+      locint mediIndex = tape->get_locint_r();
+      short tapeId = tape->tapeId();
 
 #if defined _FOS_
       mediCallHandleReverse(tapeId, mediIndex, rp_T, &ADJOINT_BUFFER, 1);
@@ -2964,42 +2939,39 @@ int int_reverse_safe(short tnum, /* tape id                               */
     default: /* default */
       /*             Die here, we screwed up     */
 
-      fprintf(DIAG_OUT,
-              "ADOL-C fatal error in " GENERATED_FILENAME " (" __FILE__
-              ") : no such operation %d\n",
-              operation);
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+      fail(ADOLC_ERRORS::ADOLC_NO_SUCH_OP, std::source_location::current(),
+           FailInfo{.info7 = operation});
       break;
     } /* endswitch */
 
     /* Get the next operation */
-    operation = get_op_r();
+    operation = tape->get_op_r();
   } /* endwhile */
 
   /* clean up */
 #ifdef _FOS_
   myfree1(rp_A);
   myfree1(rp_T);
-  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
-  ADOLC_CURRENT_TAPE_INFOS.rp_A = nullptr;
+  tape->rp_T(nullptr);
+  tape->rp_A(nullptr);
 #endif
 #ifdef _FOV_
   myfree2(rpp_A);
   myfree1(rp_T);
-  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
-  ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
+  tape->rp_T(nullptr);
+  tape->rpp_A(nullptr);
 #endif
 #ifdef _INT_REV_
-  free(upp_A);
+  myfree2_ulong(upp_A);
 #ifdef _TIGHT_
-  ADOLC_CURRENT_TAPE_INFOS.upp_A = nullptr;
+  tape->upp_A(nullptr);
   myfree1(rp_T);
-  ADOLC_CURRENT_TAPE_INFOS.rp_T = nullptr;
+  tape->rp_T(nullptr);
 #endif
 #endif
 
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
-  end_sweep();
+  tape->workMode(TapeInfos::ADOLC_NO_MODE);
+  tape->end_sweep();
 
   return ret_c;
 }

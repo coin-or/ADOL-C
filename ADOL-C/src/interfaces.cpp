@@ -14,6 +14,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 
@@ -21,9 +22,6 @@
 /*                                                                   MACROS */
 #define fabs(x) ((x) > 0 ? (x) : -(x))
 #define ceil(x) ((int)((x) + 1) - (int)((x) == (int)(x)))
-
-extern "C" void adolc_exit(int errorcode, const char *what,
-                           const char *function, const char *file, int line);
 
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
@@ -148,10 +146,8 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
     for (k = d; k > 0; k--)
       Y[k] = Y[k - 1];
     Y[0] = y;
-  } else {
-    fprintf(DIAG_OUT, "ADOL-C error: wrong Y dimension in forward \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  } else
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_Y, std::source_location::current());
 
   return rc;
 }
@@ -164,10 +160,9 @@ int forward(short tag, int m, int n, int d, int keep, double *X, double *Y)
 {
   int rc = -1;
 
-  if (d != 0) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong X and Y dimensions in forward \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (d != 0)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_XY, std::source_location::current());
+  else
     rc = zos_forward(tag, m, n, keep, X, Y);
 
   return rc;
@@ -222,10 +217,9 @@ int reverse(short tag, int m, int n, int d, double u, double **Z)
 {
   int rc = -1;
 
-  if (m != 1) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong u dimension in scalar-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (m != 1)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_u, std::source_location::current());
+  else
     rc = hos_reverse(tag, m, n, d, &u, Z);
 
   return rc;
@@ -237,10 +231,8 @@ int reverse(short tag, int m, int n, int d, double u, double **Z)
 int reverse(short tag, int m, int n, int d, double *u, double *Z)
 /* reverse(tag, m, n, 0, u[m], Z[n]), d=0                                   */
 {
-  if (d != 0) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong Z dimension in scalar-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if (d != 0)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_Z, std::source_location::current());
 
   return fos_reverse(tag, m, n, u, Z);
 }
@@ -253,11 +245,9 @@ int reverse(short tag, int m, int n, int d, double u, double *Z)
 {
   int rc = -1;
 
-  if (m != 1 || d != 0) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error:  wrong u or Z dimension in scalar-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (m != 1 || d != 0)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_uZ, std::source_location::current());
+  else
     rc = fos_reverse(tag, m, n, &u, Z);
 
   return rc;
@@ -282,10 +272,10 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
 {
   int rc = -1;
 
-  if (m != 1) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong U dimension in vector-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else { /* olvo 980727 ??? */
+  if (m != 1)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_U, std::source_location::current());
+
+  else { /* olvo 980727 ??? */
     /* double** upp = new double*[nrows]; */
     double **upp = (double **)malloc(q * sizeof(double *));
     for (int i = 0; i < q; i++)
@@ -306,10 +296,9 @@ int reverse(short tag, int m, int n, int d, int q, double **U, double **Z)
 {
   int rc = -1;
 
-  if (d != 0) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong degree in vector-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (d != 0)
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_D, std::source_location::current());
+  else
     rc = fov_reverse(tag, m, n, q, U, Z);
 
   return rc;
@@ -342,10 +331,9 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double **Z)
   /* olvo 981126 ??? what's that: */
   /* (++d)--; */ /* degre is reserved for the future use. Ingore this line */
 
-  if ((m != 1) || (d != 0)) {
-    fprintf(DIAG_OUT, "ADOL-C error:  wrong U dimension in vector-reverse \n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else { /* olvo 980727 ??? */
+  if ((m != 1) || (d != 0))
+    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_U, std::source_location::current());
+  else { /* olvo 980727 ??? */
     /* double ** upp = new double*[nrows]; */
     double **upp = (double **)malloc(q * sizeof(double *));
     for (int i = 0; i < q; i++)
