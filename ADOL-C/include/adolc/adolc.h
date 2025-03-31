@@ -31,6 +31,7 @@
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 #include <adolc/fixpoint.h>
+#include <adolc/tape_interface.h>
 #endif
 
 /****************************************************************************/
@@ -57,14 +58,6 @@
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <adolc/sparse/sparsedrivers.h>
 #endif
-
-/*--------------------------------------------------------------------------*/
-/* parameters */
-#include <adolc/adtb_types.h>
-
-/*--------------------------------------------------------------------------*/
-/* tape and value stack utilities */
-#include <adolc/taping.h>
 
 /*--------------------------------------------------------------------------*/
 /* allocation utilities */
