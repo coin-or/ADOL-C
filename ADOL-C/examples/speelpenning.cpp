@@ -30,7 +30,7 @@ using namespace std;
 /*                                                             MAIN PROGRAM */
 int main() {
   int n, i, j;
-  size_t tape_stats[STAT_SIZE];
+  size_t tape_stats[TapeInfos::STAT_SIZEE];
 
   cout << "SPEELPENNINGS PRODUCT (ADOL-C Documented Example)\n\n";
   cout << "number of independent variables = ?  \n";
@@ -54,7 +54,7 @@ int main() {
   trace_off(1);
 
   tapestats(1, tape_stats); // reading of tape statistics
-  cout << "maxlive " << tape_stats[NUM_MAX_LIVES] << "\n";
+  cout << "maxlive " << tape_stats[TapeInfos::NUM_MAX_LIVES] << "\n";
   // ..... print other tape stats
 
   double *g = new double[n];

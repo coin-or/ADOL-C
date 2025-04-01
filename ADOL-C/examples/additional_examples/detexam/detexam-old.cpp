@@ -130,25 +130,25 @@ int main() {
   fprintf(stdout, "\n %f =? %f should be the same \n", detout, diag);
 
   /*--------------------------------------------------------------------------*/
-  size_t tape_stats[STAT_SIZE];
+  size_t tape_stats[TapeInfos::STAT_SIZEE];
   tapestats(tag, tape_stats);
 
   fprintf(stdout, "\n    independents            %zu\n",
-          tape_stats[NUM_INDEPENDENTS]);
+          tape_stats[TapeInfos::NUM_INDEPENDENTS]);
   fprintf(stdout, "    dependents              %zu\n",
-          tape_stats[NUM_DEPENDENTS]);
+          tape_stats[TapeInfos::NUM_DEPENDENTS]);
   fprintf(stdout, "    operations              %zu\n",
-          tape_stats[NUM_OPERATIONS]);
+          tape_stats[TapeInfos::NUM_OPERATIONS]);
   fprintf(stdout, "    operations buffer size  %zu\n",
-          tape_stats[OP_BUFFER_SIZE]);
+          tape_stats[TapeInfos::OP_BUFFER_SIZE]);
   fprintf(stdout, "    locations buffer size   %zu\n",
-          tape_stats[LOC_BUFFER_SIZE]);
+          tape_stats[TapeInfos::LOC_BUFFER_SIZE]);
   fprintf(stdout, "    constants buffer size   %zu\n",
-          tape_stats[VAL_BUFFER_SIZE]);
+          tape_stats[TapeInfos::VAL_BUFFER_SIZE]);
   fprintf(stdout, "    maxlive                 %zu\n",
-          tape_stats[NUM_MAX_LIVES]);
+          tape_stats[TapeInfos::NUM_MAX_LIVES]);
   fprintf(stdout, "    valstack size           %zu\n\n",
-          tape_stats[TAY_STACK_SIZE]);
+          tape_stats[TapeInfos::TAY_STACK_SIZE]);
 
   /*--------------------------------------------------------------------------*/
   int itu = 8 - n;
