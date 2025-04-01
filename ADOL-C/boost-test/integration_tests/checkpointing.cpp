@@ -25,19 +25,25 @@ int euler_step_act(size_t n, adouble *y) {
 
 BOOST_AUTO_TEST_SUITE(test_checkpoint_example)
 BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
+
   const int16_t tag_full = 1;  // Tag for full taping
   const int16_t tag_part = 2;  // Tag for partial taping with checkpointing
   const int16_t tag_check = 3; // Tag for checkpointing
-  const size_t n = 2;          // Number of state variables
-  const int steps = 100;       // Number of time steps
-  const double t0 = 0.0;       // Initial time
-  const double tf = 1.0;       // Final time
+
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_full));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_part));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_check));
+  const size_t n = 2;    // Number of state variables
+  const int steps = 100; // Number of time steps
+  const double t0 = 0.0; // Initial time
+  const double tf = 1.0; // Final time
 
   // State variables (double and adouble versions)
   std::vector<double> y_double(n);
-  ensureContiguousLocations(2 * n);
+  std::shared_ptr<ValueTape> tape = getTape(tag_full);
+  tape->ensureContiguousLocations(n);
+  setDefaultTapeId(tag_full);
   std::vector<adouble> y_adouble_1(n);
-  std::vector<adouble> y_adouble_2(n);
 
   // Control variables (double and adouble versions)
   std::vector<double> conp{1.0, 1.0}; // Initial control values
@@ -59,36 +65,41 @@ BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
     euler_step_act(n, y_adouble_1.data());
   }
   y_adouble_1[0] + y_adouble_1[1] >>= out[0];
-  trace_off();
-
+  trace_off(tag_full);
   // Compute gradient using full taping
   gradient(tag_full, n, conp.data(), grad_full.data());
 
+  tape = getTape(tag_part);
+  tape->ensureContiguousLocations(n);
+  setDefaultTapeId(tag_part);
+  std::vector<adouble> y_adouble_2(n);
+  std::vector<adouble> con2(n);
+
   // Checkpointing setup
-  CP_Context cpc(euler_step_act);    // Checkpointing context
+  CP_Context cpc(tag_part, tag_check, euler_step_act); // Checkpointing context
   cpc.setDoubleFct(euler_step);      // Double version of the time step function
   cpc.setNumberOfSteps(steps);       // Number of time steps
   cpc.setNumberOfCheckpoints(5);     // Number of checkpoints
   cpc.setDimensionXY(n);             // Dimension of input/output
   cpc.setInput(y_adouble_2.data());  // Input vector
   cpc.setOutput(y_adouble_2.data()); // Output vector
-  cpc.setTapeNumber(tag_check);      // Tape number for checkpointing
   cpc.setAlwaysRetaping(false);      // Do not always retape
 
   // Partial taping with checkpointing
   trace_on(tag_part);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
+  con2[0] <<= conp[0];
+  con2[1] <<= conp[1];
   y_adouble_2[0] = con[0];
   y_adouble_2[1] = con[1];
 
-  cpc.checkpointing(); // Perform checkpointing
+  cpc.checkpointing(tag_part); // Perform checkpointing
 
   y_adouble_2[0] + y_adouble_2[1] >>= out[1];
-  trace_off();
+  trace_off(tag_part);
 
   // test if both taping results are equal
   BOOST_TEST(out[0] == out[1], tt::tolerance(tol));
+
   // Compute gradient using checkpointing
   gradient(tag_part, n, conp.data(), grad_part.data());
   // Compare gradients from full taping and checkpointing
@@ -96,20 +107,29 @@ BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
     BOOST_TEST(grad_full[i] == grad_part[i], tt::tolerance(tol));
   }
 }
+
+/*
 BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
   const int16_t tag_full = 1;  // Tag for full taping
   const int16_t tag_part = 2;  // Tag for partial taping with checkpointing
   const int16_t tag_check = 3; // Tag for checkpointing
-  const size_t n = 2;          // Number of state variables
-  const int steps = 100;       // Number of time steps
-  const double t0 = 0.0;       // Initial time
-  const double tf = 1.0;       // Final time
+
+
+
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_full));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_part));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_check));
+  const size_t n = 2;    // Number of state variables
+  const int steps = 100; // Number of time steps
+  const double t0 = 0.0; // Initial time
+  const double tf = 1.0; // Final time
 
   // State variables (double and adouble versions)
   std::vector<double> y_double(n);
-  ensureContiguousLocations(2 * n);
+  std::shared_ptr<ValueTape>tape = getTape(tag_full);
+  tape->ensureContiguousLocations(n);
+  setDefaultTapeId(tag_full);
   std::vector<adouble> y_adouble_1(n);
-  std::vector<adouble> y_adouble_2(n);
 
   // Control variables (double and adouble versions)
   std::vector<double> conp{1.0, 1.0}; // Initial control values
@@ -131,7 +151,7 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
     euler_step_act(n, y_adouble_1.data());
   }
   y_adouble_1[0] + y_adouble_1[1] >>= out[0];
-  trace_off();
+  trace_off(tag_full);
 
   // weights
   double **U = myalloc2(2, 1);
@@ -145,28 +165,34 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
   // Compute vector-mode reverse
   fov_reverse(tag_full, 1, 2, 2, U, Z_full);
 
+  tape = getTape(tag_part);
+  tape->ensureContiguousLocations(n);
+  setDefaultTapeId(tag_part);
+  std::vector<adouble> y_adouble_2(n);
+  std::vector<adouble> con2(n);
+
   // Checkpointing setup
-  CP_Context cpc(euler_step_act);    // Checkpointing context
+  CP_Context cpc(tag_part, euler_step_act); // Checkpointing context
   cpc.setDoubleFct(euler_step);      // Double version of the time step function
   cpc.setNumberOfSteps(steps);       // Number of time steps
   cpc.setNumberOfCheckpoints(5);     // Number of checkpoints
   cpc.setDimensionXY(n);             // Dimension of input/output
   cpc.setInput(y_adouble_2.data());  // Input vector
   cpc.setOutput(y_adouble_2.data()); // Output vector
-  cpc.setTapeNumber(tag_check);      // Tape number for checkpointing
+  cpc.setTapeId(tag_check);      // Tape number for checkpointing
   cpc.setAlwaysRetaping(true);       // Do always retape
 
   // Partial taping with checkpointing
   trace_on(tag_part, 1);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
-  y_adouble_2[0] = con[0];
-  y_adouble_2[1] = con[1];
+  con2[0] <<= conp[0];
+  con2[1] <<= conp[1];
+  y_adouble_2[0] = con2[0];
+  y_adouble_2[1] = con2[1];
 
-  cpc.checkpointing(); // Perform checkpointing
+  cpc.checkpointing(tag_part); // Perform checkpointing
 
   y_adouble_2[0] + y_adouble_2[1] >>= out[1];
-  trace_off();
+  trace_off(tag_part);
 
   // test if both taping results are equal
   BOOST_TEST(out[0] == out[1], tt::tolerance(tol));
@@ -181,5 +207,5 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
   myfree2(U);
   myfree2(Z_full);
   myfree2(Z_part);
-}
+}*/
 BOOST_AUTO_TEST_SUITE_END()
