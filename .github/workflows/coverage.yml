@@ -7,8 +7,16 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     steps:
-
     - uses: actions/checkout@v4
+    - name: Install gcc-13 g++-13 for c++20
+      run: | # get gcc-13 on 22.04
+        sudo apt update
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt update
+        sudo apt install -y gcc-13 g++-13
+        echo "CXX=g++-13" >> $GITHUB_ENV
+        echo "CC=gcc-13" >> $GITHUB_ENV
 
     - name: Install lcov
       run: |
@@ -25,8 +33,8 @@ jobs:
         mkdir build
         cd build
         cmake \
-        -DCMAKE_CXX_COMPILER=g++ \
-        -DCMAKE_C_COMPILER=gcc \
+        -DCMAKE_CXX_COMPILER=g++-13 \
+        -DCMAKE_C_COMPILER=gcc-13 \
         -DCMAKE_BUILD_TYPE=Debug \
         -DBUILD_TESTS_WITH_COV=ON \
         -S .. \
@@ -43,7 +51,7 @@ jobs:
     - name: Generate coverage report
       run: |
         cd build
-        lcov --capture --directory . --output-file coverage.info
+        lcov --gcov-tool $(which gcov-13) --capture --directory . --output-file coverage.info
         lcov --remove coverage.info '/usr/*' 'boost/*' 'c++11/*' '/home/runner/work/ADOL-C/ADOL-C/ADOL-C/boost-test/*' --output-file coverage.info
         lcov --list coverage.info
 
