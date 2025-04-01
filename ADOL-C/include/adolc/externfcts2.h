@@ -16,43 +16,48 @@
 #if !defined(ADOLC_EXTERNFCTS2_H)
 #define ADOLC_EXTERNFCTS2_H 1
 
-#include <adolc/adtb_types.h>
 #include <adolc/internal/common.h>
 
-BEGIN_C_DECLS
-
-typedef int(ADOLC_ext_fct_v2)(int iArrLen, int *iArr, int nin, int nout,
-                              int *insz, double **x, int *outsz, double **y,
-                              void *ctx);
-typedef int(ADOLC_ext_fct_v2_fos_forward)(int iArrLen, int *iArr, int nin,
-                                          int nout, int *insz, double **x,
-                                          double **xp, int *outsz, double **y,
-                                          double **yp, void *ctx);
-typedef int(ADOLC_ext_fct_v2_fov_forward)(int iArrLen, int *iArr, int nin,
-                                          int nout, int *insz, double **x,
-                                          int ndir, double ***Xp, int *outsz,
-                                          double **y, double ***Yp, void *ctx);
-typedef int(ADOLC_ext_fct_v2_fos_reverse)(int iArrLen, int *iArr, int nout,
-                                          int nin, int *outsz, double **up,
-                                          int *insz, double **zp, double **x,
-                                          double **y, void *ctx);
-typedef int(ADOLC_ext_fct_v2_fov_reverse)(int iArrLen, int *iArr, int nout,
-                                          int nin, int *outsz, int dir,
-                                          double ***Up, int *insz, double ***Zp,
-                                          double **x, double **y, void *ctx);
+using ADOLC_ext_fct_v2 = int(short tapeId, int iArrLen, int *iArr, int nin,
+                             int nout, int *insz, double **x, int *outsz,
+                             double **y, void *ctx);
+using ADOLC_ext_fct_v2_fos_forward = int(short tapeId, int iArrLen, int *iArr,
+                                         int nin, int nout, int *insz,
+                                         double **x, double **xp, int *outsz,
+                                         double **y, double **yp, void *ctx);
+using ADOLC_ext_fct_v2_fov_forward = int(short tapeId, int iArrLen, int *iArr,
+                                         int nin, int nout, int *insz,
+                                         double **x, int ndir, double ***Xp,
+                                         int *outsz, double **y, double ***Yp,
+                                         void *ctx);
+using ADOLC_ext_fct_v2_fos_reverse = int(short tapeId, int iArrLen, int *iArr,
+                                         int nout, int nin, int *outsz,
+                                         double **up, int *insz, double **zp,
+                                         double **x, double **y, void *ctx);
+using ADOLC_ext_fct_v2_fov_reverse = int(short tapeId, int iArrLen, int *iArr,
+                                         int nout, int nin, int *outsz, int dir,
+                                         double ***Up, int *insz, double ***Zp,
+                                         double **x, double **y, void *ctx);
 
 /* The following two aren't implemented */
-typedef int(ADOLC_ext_fct_v2_hos_forward)(int iArrLen, int *iArr, int nin,
-                                          int nout, int *insz, double **x,
-                                          int degree, double ***Xp, int *outsz,
-                                          double **y, double ***Yp, void *ctx);
-typedef int(ADOLC_ext_fct_v2_hov_forward)(int iArrLen, int *iArr, int nin,
-                                          int nout, int *insz, double **x,
-                                          int degree, int ndir, double ****Xp,
-                                          int *outsz, double **y, double ****Yp,
-                                          void *ctx);
+using ADOLC_ext_fct_v2_hos_forward = int(short tapeId, int iArrLen, int *iArr,
+                                         int nin, int nout, int *insz,
+                                         double **x, int degree, double ***Xp,
+                                         int *outsz, double **y, double ***Yp,
+                                         void *ctx);
+using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, int iArrLen, int *iArr,
+                                         int nin, int nout, int *insz,
+                                         double **x, int degree, int ndir,
+                                         double ****Xp, int *outsz, double **y,
+                                         double ****Yp, void *ctx);
 
-typedef struct ext_diff_fct_v2 {
+struct ext_diff_fct_v2 {
+  // This is the id of the outer tape that calls the external differentiated
+  // function later
+  short tapeId{0};
+
+  // tape that stores the external differentiated function.
+  short ext_tape_id{0};
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
@@ -212,12 +217,11 @@ typedef struct ext_diff_fct_v2 {
    * memory should be allocated
    */
   char user_allocated_mem;
-} ext_diff_fct_v2;
+};
 
-END_C_DECLS
-#if defined(__cplusplus)
-
-ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(ADOLC_ext_fct_v2 ext_fct);
+ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
+                                              ADOLC_ext_fct_v2 ext_fct);
+ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, int index);
 ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen,
                                   int *iArr, int nin, int nout, int *insz,
                                   adouble **x, int *outsz, adouble **y);
@@ -228,5 +232,4 @@ inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct, void *ctx) {
   edfct->context = ctx;
 }
 
-#endif
 #endif
