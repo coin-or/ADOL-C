@@ -18,6 +18,11 @@
 #if !defined(ADOLC_DVLPARMS_H)
 #define ADOLC_DVLPARMS_H 1
 
+/* first version with new tape structure
+ * => to work with older tapes use older ADOL-C version */
+#define ADOLC_NEW_TAPE_VERSION 2
+#define ADOLC_NEW_TAPE_SUBVERSION 5
+#define ADOLC_NEW_TAPE_PATCHLEVEL 3
 /*--------------------------------------------------------------------------*/
 /* Directory where tapes are created */
 #define TAPE_DIR "."
