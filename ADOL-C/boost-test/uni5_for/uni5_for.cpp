@@ -19,7 +19,10 @@ namespace tt = boost::test_tools;
 BOOST_AUTO_TEST_SUITE(uni5_for)
 
 BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
-  const int16_t tag = 1;
+  const int16_t tag = 0;
+
+  getTapeBuffer().push_back(std::make_shared<ValueTape>(tag));
+  setDefaultTapeId(tag);
 
   const int dim_out = 1;
   const int dim_in = 3;
@@ -28,7 +31,8 @@ BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
   std::array<adouble, dim_in> indep;
   double out[] = {0.0};
 
-  enableMinMaxUsingAbs();
+  std::shared_ptr<ValueTape> tape = getTape(tag);
+  tape->enableMinMaxUsingAbs();
   // ---------------------- trace on ---------------------
   // function is given by fabs(in_2 + fabs(in_1 + fabs(in_0)))
   trace_on(tag);
@@ -42,11 +46,11 @@ BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
   // fabs(in_2 + fabs(in_1 + fabs(in_0)))
   adouble dep =
       std::accumulate(indep.begin(), indep.end(), adouble(0.0),
-                      [](adouble sum, adouble val) { return fabs(sum + val); });
+                      [](auto &&sum, auto &&val) { return fabs(sum + val); });
 
   dep >>= out[0];
-  trace_off();
-  disableMinMaxUsingAbs();
+  trace_off(tag);
+  tape->disableMinMaxUsingAbs();
   // ---------------------- trace off ---------------------
 
   // test outout
@@ -77,8 +81,6 @@ BOOST_AUTO_TEST_CASE(Fmaxoperator_ZOS_PL_Forward) {
   BOOST_CHECK_EQUAL_COLLECTIONS(switching_vec.begin(), switching_vec.end(),
                                 test_switching_vec.begin(),
                                 test_switching_vec.end());
-
-  removeTape(tag, ADOLC_REMOVE_COMPLETELY);
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
@@ -101,7 +103,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   adouble dep = fmax(pow(indep[0], 2), pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -261,7 +263,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   adouble dep = fmin(-pow(indep[0], 2), -pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);

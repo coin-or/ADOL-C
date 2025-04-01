@@ -35,16 +35,21 @@ BOOST_AUTO_TEST_SUITE(trace_composite)
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward) {
   double x1 = 0.289, x2 = 1.927, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = sin(ax1) * sin(ax1) + cos(ax1) * cos(ax1) + ax2;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.;
   double x2Derivative = 1.;
@@ -68,7 +73,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -82,16 +87,21 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeTrig1Operator_FOV_Reverse) {
   double x1 = 0.289, x2 = 1.927, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = sin(ax1) * sin(ax1) + cos(ax1) * cos(ax1) + ax2;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.;
   double x2Derivative = 1.;
@@ -102,7 +112,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1Operator_FOV_Reverse) {
   u[0][0] = 1.;
   u[1][0] = std::sqrt(2.);
 
-  fov_reverse(1, 1, 2, 2, u, z);
+  fov_reverse(tapeId, 1, 2, 2, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -122,9 +132,15 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1Operator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward) {
   double x1 = 1.11, x2 = 2.22, x3 = 3.33, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -132,7 +148,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward) {
   ax1 = 2 * sin(cos(ax1)) * exp(ax2) - pow(cos(ax3), 2) * sin(ax2);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -2 * std::cos(std::cos(x1)) * std::exp(x2) * std::sin(x1);
@@ -161,7 +177,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -176,9 +192,15 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeTrig2Operator_FOV_Reverse) {
   double x1 = 1.11, x2 = 2.22, x3 = 3.33, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -186,7 +208,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2Operator_FOV_Reverse) {
   ax1 = 2 * sin(cos(ax1)) * exp(ax2) - pow(cos(ax3), 2) * sin(ax2);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -2 * std::cos(std::cos(x1)) * std::exp(x2) * std::sin(x1);
@@ -201,7 +223,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2Operator_FOV_Reverse) {
   u[1][0] = std::exp(6.);
   u[2][0] = std::log(6.);
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -227,9 +249,15 @@ BOOST_AUTO_TEST_CASE(CompositeTrig2Operator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward) {
   double x1 = 0.516, x2 = 9.89, x3 = 0.072, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -237,7 +265,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward) {
   ax1 = pow(sin(ax1), cos(ax1) - ax2) * ax3;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::pow(std::sin(x1), std::cos(x1) - x2) * x3 *
                         (-std::sin(x1) * std::log(std::sin(x1)) +
@@ -266,7 +294,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -281,9 +309,15 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeTrig3Operator_FOV_Reverse) {
   double x1 = 0.516, x2 = 9.89, x3 = 0.072, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -291,7 +325,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3Operator_FOV_Reverse) {
   ax1 = pow(sin(ax1), cos(ax1) - ax2) * ax3;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::pow(std::sin(x1), std::cos(x1) - x2) * x3 *
                         (-std::sin(x1) * std::log(std::sin(x1)) +
@@ -307,7 +341,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3Operator_FOV_Reverse) {
   u[1][0] = std::pow(10., 6.);
   u[2][0] = std::pow(6., 10.);
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -331,16 +365,21 @@ BOOST_AUTO_TEST_CASE(CompositeTrig3Operator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward) {
   double x1 = 1.56, x2 = 8.99, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = atan(tan(ax1)) * exp(ax2);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::exp(x2);
   double x2Derivative = x1 * std::exp(x2);
@@ -364,7 +403,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -378,16 +417,21 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeTrig4Operator_FOV_Reverse) {
   double x1 = 1.56, x2 = 8.99, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = atan(tan(ax1)) * exp(ax2);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::exp(x2);
   double x2Derivative = x1 * std::exp(x2);
@@ -398,7 +442,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4Operator_FOV_Reverse) {
   u[0][0] = 1.;
   u[1][0] = -1.;
 
-  fov_reverse(1, 1, 2, 2, u, z);
+  fov_reverse(tapeId, 1, 2, 2, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -420,9 +464,17 @@ BOOST_AUTO_TEST_CASE(CompositeTrig4Operator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward) {
   double x1 = 0.11, x2 = -2.27, x3 = 81.7, x4 = 0.444, x5 = 4.444, out;
-  adouble ax1, ax2, ax3, ax4, ax5;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ax5(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -432,7 +484,7 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward) {
   ax1 = ax1 + ax2 - ax3 + pow(ax1, 2) - 10 + sqrt(ax4 * ax5);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 1. + 2 * x1;
   double x2Derivative = 1.;
@@ -462,7 +514,7 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 5, 5, x, xd, y, yd);
+  fov_forward(tapeId, 1, 5, 5, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -479,9 +531,17 @@ BOOST_AUTO_TEST_CASE(LongSum_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(LongSumOperator_FOV_Reverse) {
   double x1 = 0.11, x2 = -2.27, x3 = 81.7, x4 = 0.444, x5 = 4.444, out;
-  adouble ax1, ax2, ax3, ax4, ax5;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ax5(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -491,7 +551,7 @@ BOOST_AUTO_TEST_CASE(LongSumOperator_FOV_Reverse) {
   ax1 = ax1 + ax2 - ax3 + pow(ax1, 2) - 10 + sqrt(ax4 * ax5);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 1. + 2 * x1;
   double x2Derivative = 1.;
@@ -508,7 +568,7 @@ BOOST_AUTO_TEST_CASE(LongSumOperator_FOV_Reverse) {
   u[3][0] = 4.;
   u[4][0] = 5.;
 
-  fov_reverse(1, 1, 5, 5, u, z);
+  fov_reverse(tapeId, 1, 5, 5, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -548,16 +608,21 @@ BOOST_AUTO_TEST_CASE(LongSumOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward) {
   double x1 = 3.77, x2 = -21.12, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = sqrt(pow(ax1, 2)) * ax2;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = x2;
   double x2Derivative = x1;
@@ -581,7 +646,7 @@ BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 2, 2, x, xd, y, yd);
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -595,16 +660,21 @@ BOOST_AUTO_TEST_CASE(InverseFunc_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(InverseFuncOperator_FOV_Reverse) {
   double x1 = 3.77, x2 = -21.12, out;
-  adouble ax1, ax2;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ax1 = sqrt(pow(ax1, 2)) * ax2;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = x2;
   double x2Derivative = x1;
@@ -615,7 +685,7 @@ BOOST_AUTO_TEST_CASE(InverseFuncOperator_FOV_Reverse) {
   u[0][0] = 1.;
   u[1][0] = std::cos(2.);
 
-  fov_reverse(1, 1, 2, 2, u, z);
+  fov_reverse(tapeId, 1, 2, 2, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -638,9 +708,15 @@ BOOST_AUTO_TEST_CASE(InverseFuncOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward) {
   double x1 = 0.642, x2 = 6.42, x3 = 0.528, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -648,7 +724,7 @@ BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward) {
   ax1 = exp(ax1 + exp(ax2 + ax3)) * pow(ax1 + ax2, ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       std::exp(x1 + std::exp(x2 + x3)) * std::pow(x1 + x2, x3) +
@@ -682,7 +758,7 @@ BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -697,9 +773,15 @@ BOOST_AUTO_TEST_CASE(ExpPow_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(ExpPowOperator_FOV_Reverse) {
   double x1 = 1., x2 = 2., x3 = 3., out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -707,7 +789,7 @@ BOOST_AUTO_TEST_CASE(ExpPowOperator_FOV_Reverse) {
   ax1 = exp(ax1 + exp(ax2 + ax3)) * pow(ax1 + ax2, ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       std::exp(x1 + std::exp(x2 + x3)) * std::pow(x1 + x2, x3) +
@@ -728,7 +810,7 @@ BOOST_AUTO_TEST_CASE(ExpPowOperator_FOV_Reverse) {
   u[1][0] = -1.;
   u[2][0] = -2.;
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -754,9 +836,16 @@ BOOST_AUTO_TEST_CASE(ExpPowOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward) {
   double x1 = -2.14, x2 = -2.22, x3 = 50.05, x4 = 0.104, out;
-  adouble ax1, ax2, ax3, ax4;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -765,7 +854,7 @@ BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward) {
   ax1 = sqrt(sqrt(ax1 * ax2 + 2 * ax3)) * ax4;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.25 * std::pow(x1 * x2 + 2 * x3, -0.75) * x2 * x4;
   double x2Derivative = 0.25 * std::pow(x1 * x2 + 2 * x3, -0.75) * x1 * x4;
@@ -793,7 +882,7 @@ BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 4, 4, x, xd, y, yd);
+  fov_forward(tapeId, 1, 4, 4, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -809,9 +898,16 @@ BOOST_AUTO_TEST_CASE(CompositeSqrt_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeSqrtOperator_FOV_Reverse) {
   double x1 = -2.14, x2 = -2.22, x3 = 50.05, x4 = 0.104, out;
-  adouble ax1, ax2, ax3, ax4;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -820,7 +916,7 @@ BOOST_AUTO_TEST_CASE(CompositeSqrtOperator_FOV_Reverse) {
   ax1 = sqrt(sqrt(ax1 * ax2 + 2 * ax3)) * ax4;
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.25 * std::pow(x1 * x2 + 2 * x3, -0.75) * x2 * x4;
   double x2Derivative = 0.25 * std::pow(x1 * x2 + 2 * x3, -0.75) * x1 * x4;
@@ -835,7 +931,7 @@ BOOST_AUTO_TEST_CASE(CompositeSqrtOperator_FOV_Reverse) {
   u[2][0] = 2.;
   u[3][0] = -2.;
 
-  fov_reverse(1, 1, 4, 4, u, z);
+  fov_reverse(tapeId, 1, 4, 4, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -870,9 +966,16 @@ BOOST_AUTO_TEST_CASE(CompositeSqrtOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward) {
   double x1 = 0.1, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
-  adouble ax1, ax2, ax3, ax4;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -881,7 +984,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward) {
   ax1 = tanh(acos(pow(ax1, 2) + 0.5) * sin(ax2)) * ax3 + exp(cosh(ax4));
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -(1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 0.5) * std::sin(x2)),
@@ -918,7 +1021,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 4, 4, x, xd, y, yd);
+  fov_forward(tapeId, 1, 4, 4, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -934,9 +1037,16 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse) {
   double x1 = 0.1, x2 = 5.099, x3 = 5.5, x4 = 4.73, out;
-  adouble ax1, ax2, ax3, ax4;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -945,7 +1055,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse) {
   ax1 = tanh(acos(pow(ax1, 2) + 0.5) * sin(ax2)) * ax3 + exp(cosh(ax4));
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -(1 - std::pow(std::tanh(std::acos(std::pow(x1, 2) + 0.5) * std::sin(x2)),
@@ -968,7 +1078,7 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse) {
   u[2][0] = -2.;
   u[3][0] = std::exp(2.);
 
-  fov_reverse(1, 1, 4, 4, u, z);
+  fov_reverse(tapeId, 1, 4, 4, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -1000,9 +1110,15 @@ BOOST_AUTO_TEST_CASE(CompositeHyperbOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Forward) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1010,7 +1126,7 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Forward) {
   ax1 = fmax(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::pow(x3, 2) * std::exp(x3);
   double x2Derivative = 0.0;
@@ -1037,7 +1153,7 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -1052,9 +1168,15 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1062,7 +1184,7 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
   ax1 = fmax(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = std::pow(x3, 2) * std::exp(x3);
   double x2Derivative = 0.0;
@@ -1076,7 +1198,7 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
   u[1][0] = std::sqrt(5.);
   u[2][0] = -std::sqrt(10.);
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -1101,9 +1223,15 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Forward) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1111,7 +1239,7 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Forward) {
   ax1 = fmin(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.0;
   double x2Derivative = std::pow(x3, 2) * std::exp(x3);
@@ -1138,7 +1266,7 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -1153,9 +1281,15 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1163,7 +1297,7 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
   ax1 = fmin(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative = 0.0;
   double x2Derivative = std::pow(x3, 2) * std::exp(x3);
@@ -1177,7 +1311,7 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
   u[1][0] = std::sqrt(6.);
   u[2][0] = -std::sqrt(3.);
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -1210,9 +1344,17 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward) {
   double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
-  adouble ax1, ax2, ax3, ax4, ax5;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ax5(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1222,7 +1364,7 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward) {
   ax1 = erf(fabs(ax1 - ax2) * sinh(ax3 - ax4)) * sin(ax5);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -2. / std::sqrt(std::acos(-1.)) *
@@ -1265,7 +1407,7 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 5, 5, x, xd, y, yd);
+  fov_forward(tapeId, 1, 5, 5, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -1282,9 +1424,17 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
   double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
-  adouble ax1, ax2, ax3, ax4, ax5;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ax5(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1294,7 +1444,7 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
   ax1 = erf(fabs(ax1 - ax2) * sinh(ax3 - ax4)) * sin(ax5);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       -2. / std::sqrt(std::acos(-1.)) *
@@ -1324,7 +1474,7 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
   u[3][0] = 7.;
   u[4][0] = -9.;
 
-  fov_reverse(1, 1, 5, 5, u, z);
+  fov_reverse(tapeId, 1, 5, 5, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -1368,9 +1518,15 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
  */
 BOOST_AUTO_TEST_CASE(ExpTrigSqrt_FOV_Forward) {
   double x1 = 2.1, x2 = 1.2, x3 = 0.12, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1378,7 +1534,7 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrt_FOV_Forward) {
   ax1 = 5. * exp(sin(ax1) * cos(ax1)) * pow(sqrt(ax2), ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       5. * std::exp(std::sin(x1) * std::cos(x1)) *
@@ -1409,7 +1565,7 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrt_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 1, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 1, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(*y == x1, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
@@ -1424,9 +1580,15 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrt_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(ExpTrigSqrtFabsOperator_FOV_Reverse) {
   double x1 = 2.1, x2 = 1.2, x3 = 0.12, out;
-  adouble ax1, ax2, ax3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1434,7 +1596,7 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrtFabsOperator_FOV_Reverse) {
   ax1 = 5. * exp(sin(ax1) * cos(ax1)) * pow(sqrt(ax2), ax3);
 
   ax1 >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double x1Derivative =
       5. * std::exp(std::sin(x1) * std::cos(x1)) *
@@ -1452,7 +1614,7 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrtFabsOperator_FOV_Reverse) {
   u[1][0] = 3.;
   u[2][0] = -5.;
 
-  fov_reverse(1, 1, 3, 3, u, z);
+  fov_reverse(tapeId, 1, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
@@ -1488,10 +1650,18 @@ BOOST_AUTO_TEST_CASE(ExpTrigSqrtFabsOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward) {
   double x1 = 8.17, x2 = -3.41, x3 = 10.01, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1503,7 +1673,7 @@ BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   /* The obvious naming convention is applied here:  The derivative of
    * component yi in the direction xj is saved in yixjDerivative.
@@ -1544,7 +1714,7 @@ BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 3, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -1568,10 +1738,18 @@ BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse) {
   double x1 = 8.17, x2 = -3.41, x3 = 10.01, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1583,7 +1761,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   /* The obvious naming convention is applied here:  The derivative of
    * component yi in the direction xj is saved in yixjDerivative.
@@ -1613,7 +1791,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 3, 3, 3, u, z);
+  fov_reverse(tapeId, 3, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
@@ -1641,10 +1819,18 @@ BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1656,7 +1842,7 @@ BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = 0.0;
   double y1x2Derivative = x3;
@@ -1690,7 +1876,7 @@ BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 3, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -1714,10 +1900,18 @@ BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1729,7 +1923,7 @@ BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = 0.0;
   double y1x2Derivative = x3;
@@ -1753,7 +1947,7 @@ BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 3, 3, 3, u, z);
+  fov_reverse(tapeId, 3, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
@@ -1781,10 +1975,18 @@ BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SimpleSum_FOV_Forward) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1796,7 +1998,7 @@ BOOST_AUTO_TEST_CASE(SimpleSum_FOV_Forward) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = 0.0;
   double y1x2Derivative = 1.0;
@@ -1830,7 +2032,7 @@ BOOST_AUTO_TEST_CASE(SimpleSum_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 3, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -1854,10 +2056,18 @@ BOOST_AUTO_TEST_CASE(SimpleSum_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SimpleSumOperator_FOV_Reverse) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1869,7 +2079,7 @@ BOOST_AUTO_TEST_CASE(SimpleSumOperator_FOV_Reverse) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = 0.0;
   double y1x2Derivative = 1.0;
@@ -1893,7 +2103,7 @@ BOOST_AUTO_TEST_CASE(SimpleSumOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 3, 3, 3, u, z);
+  fov_reverse(tapeId, 3, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
@@ -1927,10 +2137,20 @@ BOOST_AUTO_TEST_CASE(SimpleSumOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(TrigProd_FOV_Forward) {
   double x1 = 5.5, x2 = 0.5, x3 = 5.55, x4 = 2.33, out1, out2, out3, out4;
   double y1, y2, y3, y4;
-  adouble ax1, ax2, ax3, ax4;
-  adouble ay1, ay2, ay3, ay4;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+  adouble ay4(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -1945,7 +2165,7 @@ BOOST_AUTO_TEST_CASE(TrigProd_FOV_Forward) {
   ay2 >>= out2;
   ay3 >>= out3;
   ay4 >>= out4;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = std::cos(x2);
   double y1x2Derivative = -x1 * std::sin(x2);
@@ -1992,7 +2212,7 @@ BOOST_AUTO_TEST_CASE(TrigProd_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 4, 4, 4, x, xd, y, yd);
+  fov_forward(tapeId, 4, 4, 4, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -2024,10 +2244,20 @@ BOOST_AUTO_TEST_CASE(TrigProd_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(TrigProdOperator_FOV_Reverse) {
   double x1 = 5.5, x2 = 0.5, x3 = 5.55, x4 = 2.33, out1, out2, out3, out4;
   double y1, y2, y3, y4;
-  adouble ax1, ax2, ax3, ax4;
-  adouble ay1, ay2, ay3, ay4;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ax4(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+  adouble ay4(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -2042,7 +2272,7 @@ BOOST_AUTO_TEST_CASE(TrigProdOperator_FOV_Reverse) {
   ay2 >>= out2;
   ay3 >>= out3;
   ay4 >>= out4;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = std::cos(x2);
   double y1x2Derivative = -x1 * std::sin(x2);
@@ -2077,7 +2307,7 @@ BOOST_AUTO_TEST_CASE(TrigProdOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 4, 4, 4, u, z);
+  fov_reverse(tapeId, 4, 4, 4, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
@@ -2114,10 +2344,18 @@ BOOST_AUTO_TEST_CASE(TrigProdOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(PolarCoordInv_FOV_Forward) {
   double x1 = 4.21, x2 = -0.98, x3 = 3.02, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -2129,7 +2367,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordInv_FOV_Forward) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = std::cos(x2) * std::sin(x3);
   double y1x2Derivative = -x1 * std::sin(x2) * std::sin(x3);
@@ -2163,7 +2401,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordInv_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 3, 3, 3, x, xd, y, yd);
+  fov_forward(tapeId, 3, 3, 3, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -2187,10 +2425,18 @@ BOOST_AUTO_TEST_CASE(PolarCoordInv_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse) {
   double x1 = 4.21, x2 = -0.98, x3 = 3.02, out1, out2, out3;
   double y1, y2, y3;
-  adouble ax1, ax2, ax3;
-  adouble ay1, ay2, ay3;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ax3(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
   ax3 <<= x3;
@@ -2202,7 +2448,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse) {
   ay1 >>= out1;
   ay2 >>= out2;
   ay3 >>= out3;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative = std::cos(x2) * std::sin(x3);
   double y1x2Derivative = -x1 * std::sin(x2) * std::sin(x3);
@@ -2226,7 +2472,7 @@ BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 3, 3, 3, u, z);
+  fov_reverse(tapeId, 3, 3, 3, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
@@ -2259,10 +2505,18 @@ BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward) {
   double x1 = 1., x2 = 0.1, out1, out2, out3, out4;
   double y1, y2, y3, y4;
-  adouble ax1, ax2;
-  adouble ay1, ay2, ay3, ay4;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+  adouble ay4(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ax1 <<= x1;
   ax2 <<= x2;
 
@@ -2275,7 +2529,7 @@ BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward) {
   ay2 >>= out2;
   ay3 >>= out3;
   ay4 >>= out4;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative =
       2. * x1 * std::cosh(x1 * x1) * std::cosh(x2 * x2 * x2);
@@ -2314,7 +2568,7 @@ BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward) {
     }
   }
 
-  fov_forward(1, 4, 2, 2, x, xd, y, yd);
+  fov_forward(tapeId, 4, 2, 2, x, xd, y, yd);
 
   BOOST_TEST(y[0] == y1, tt::tolerance(tol));
   BOOST_TEST(y[1] == y2, tt::tolerance(tol));
@@ -2338,10 +2592,18 @@ BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse) {
   double x1 = 1., x2 = 0.1, out1, out2, out3, out4;
   double y1, y2, y3, y4;
-  adouble ax1, ax2;
-  adouble ay1, ay2, ay3, ay4;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ax1(getTapeBuffer().back());
+  adouble ax2(getTapeBuffer().back());
+  adouble ay1(getTapeBuffer().back());
+  adouble ay2(getTapeBuffer().back());
+  adouble ay3(getTapeBuffer().back());
+  adouble ay4(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
@@ -2354,7 +2616,7 @@ BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse) {
   ay2 >>= out2;
   ay3 >>= out3;
   ay4 >>= out4;
-  trace_off();
+  trace_off(tapeId);
 
   double y1x1Derivative =
       2. * x1 * std::cosh(x1 * x1) * std::cosh(x2 * x2 * x2);
@@ -2382,7 +2644,7 @@ BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse) {
     }
   }
 
-  fov_reverse(1, 4, 2, 4, u, z);
+  fov_reverse(tapeId, 4, 2, 4, u, z);
 
   BOOST_TEST(z[0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(z[0][1] == y1x2Derivative, tt::tolerance(tol));
