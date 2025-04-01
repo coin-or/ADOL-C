@@ -169,9 +169,9 @@ int main() {
   tt3e = myclock();
   /*--------------------------------------------------------------------------*/
 
-  printTapeStats(stdout, 1);
-  printTapeStats(stdout, 2);
-  printTapeStats(stdout, 3);
+  printTapeStats(1);
+  printTapeStats(2);
+  printTapeStats(3);
   fprintf(stdout, "%14.6E -- energy\n", result);
   fprintf(stdout, "%14.6E -- energy\n", result_p);
   fprintf(stdout, "%14.6E -- energy\n", result_a);
