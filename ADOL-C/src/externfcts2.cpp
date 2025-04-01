@@ -81,7 +81,6 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
   int ret;
   int oldTraceFlag;
   int i, j;
-  size_t numVals;
   double *vals;
 
   std::shared_ptr<ValueTape> tape = getTape(edfct->tapeId);
@@ -116,7 +115,7 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
     oldTraceFlag = 0;
 
   if (edfct->nestedAdolc) {
-    vals = new double[numVals];
+    vals = new double[tape->storeSize()];
     std::copy(tape->store(), tape->store() + tape->storeSize(), vals);
   }
   if (!edfct->user_allocated_mem)

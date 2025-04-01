@@ -19,6 +19,7 @@
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <adolc/valuetape/valuetape.h>
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <format>

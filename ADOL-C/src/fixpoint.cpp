@@ -195,13 +195,12 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
   return -1;
 }
 
-ADOLC_DLL_EXPORT int fp_iteration(short tapeId, size_t sub_tape_num,
-                                  double_F double_func, adouble_F adouble_func,
-                                  norm_F norm_func,
-                                  norm_deriv_F norm_deriv_func, double epsilon,
-                                  double epsilon_deriv, size_t N_max,
-                                  size_t N_max_deriv, adouble *x_0, adouble *u,
-                                  adouble *x_fix, size_t dim_x, size_t dim_u) {
+int fp_iteration(short tapeId, size_t sub_tape_num, double_F double_func,
+                 adouble_F adouble_func, norm_F norm_func,
+                 norm_deriv_F norm_deriv_func, double epsilon,
+                 double epsilon_deriv, size_t N_max, size_t N_max_deriv,
+                 adouble *x_0, adouble *u, adouble *x_fix, size_t dim_x,
+                 size_t dim_u) {
 
   // declare extern differentiated function and data
   ext_diff_fct *edf_iteration = reg_ext_fct(tapeId, sub_tape_num, &iteration);

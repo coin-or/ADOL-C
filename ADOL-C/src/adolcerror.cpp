@@ -1,6 +1,7 @@
 
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h> // for ADOLC version infos
+#include <cstring>
 #include <iostream>
 /*--------------------------------------------------------------------------*/
 /* print an error message describing the error number */
@@ -35,7 +36,7 @@ void printError() {
     message += ">>> File system is mounted read only! <<<\n";
     break;
   default:
-    message += std::format(">>> {} <<<\n", strerror(errno));
+    message += std::format(">>> {} <<<\n", std::strerror(errno));
     break;
   }
 }

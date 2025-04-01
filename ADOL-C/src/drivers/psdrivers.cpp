@@ -51,7 +51,7 @@ int abs_normal(short tag,  /* tape identifier */
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != swchk)
     fail(ADOLC_ERRORS::ADOLC_SWITCHES_MISMATCH, std::source_location::current(),
-         FailInfo{.info3 = swchk, .info1 = tag, .info6 = s});
+         FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
 
   res = (double *)myalloc1(n + s);
 
