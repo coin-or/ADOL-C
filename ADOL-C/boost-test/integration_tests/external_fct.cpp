@@ -15,48 +15,46 @@ const short tag_full = 1;
 const short tag_part = 2;
 const short tag_ext_fct = 3;
 
-// Control parameters
-std::vector<double> conp = {1.0, 1.0};
-std::vector<double> grad_full(2);
-std::vector<double> grad_ext(2);
-
 ext_diff_fct *edf;
 std::vector<double> yp = {0};
 std::vector<double> ynewp = {0};
 std::vector<double> u = {1.0, 1.0};
 std::vector<double> z = {0};
 
-void euler_step_act(size_t n, adouble *yin, size_t m, adouble *yout) {
+void euler_step_act(short tapeId, size_t n, adouble *yin, size_t m,
+                    adouble *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
 }
 
-int euler_step(size_t n, double *yin, size_t m, double *yout) {
+int euler_step(short tapeId, size_t n, double *yin, size_t m, double *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
   return 1;
 }
 
-int zos_for_euler_step(size_t n, double *yin, size_t m, double *yout) {
+int zos_for_euler_step(short tapeId, size_t n, double *yin, size_t m,
+                       double *yout) {
   int rc;
-  set_nested_ctx(tag_ext_fct, true);
-  rc = zos_forward(tag_ext_fct, 2, 2, 0, yin, yout);
-  set_nested_ctx(tag_ext_fct, false);
+  getTape(tapeId)->set_nested_ctx(true);
+  rc = zos_forward(edf->ext_tape_id, 2, 2, 0, yin, yout);
+  getTape(tapeId)->set_nested_ctx(false);
   return rc;
 }
 
-int fos_rev_euler_step(size_t n, double *u, size_t m, double *z, double *,
-                       double *) {
+int fos_rev_euler_step(short tapeId, size_t n, double *u, size_t m, double *z,
+                       double *, double *) {
   int rc;
-  set_nested_ctx(tag_ext_fct, true);
-  zos_forward(tag_ext_fct, 2, 2, 1, edf->dp_x, edf->dp_y);
-  rc = fos_reverse(tag_ext_fct, 2, 2, u, z);
-  set_nested_ctx(tag_ext_fct, false);
+  getTape(tapeId)->set_nested_ctx(true);
+  zos_forward(edf->ext_tape_id, 2, 2, 1, edf->dp_x, edf->dp_y);
+  rc = fos_reverse(edf->ext_tape_id, 2, 2, u, z);
+  getTape(tapeId)->set_nested_ctx(false);
   return rc;
 }
 
 void setup_full_taping(const short tag_full, const std::vector<double> &conp) {
   trace_on(tag_full);
+  setDefaultTapeId(tag_full);
   std::vector<adouble> y(2), ynew(2);
   std::vector<adouble> con(2);
 
@@ -66,7 +64,7 @@ void setup_full_taping(const short tag_full, const std::vector<double> &conp) {
   y[1] = con[1];
 
   for (int i = 0; i < steps; i++) {
-    euler_step_act(2, y.data(), 2, ynew.data());
+    euler_step_act(tag_full, 2, y.data(), 2, ynew.data());
     y[0] = ynew[0];
     y[1] = ynew[1];
   }
@@ -75,23 +73,26 @@ void setup_full_taping(const short tag_full, const std::vector<double> &conp) {
   f = y[0] + y[1];
   double f_out;
   f >>= f_out;
-  trace_off();
+  trace_off(tag_full);
 }
 
-void setup_external_function(const short tag_ext_fct,
+void setup_external_function(short tag_part, const short tag_ext_fct,
                              const std::vector<double> &conp) {
   trace_on(tag_ext_fct);
+  const short prev_default_id = getDefaultTapeIdConst();
+  setDefaultTapeId(tag_ext_fct);
   std::vector<adouble> y(2), ynew(2);
   y[0] <<= conp[0];
   y[1] <<= conp[1];
-  euler_step_act(2, y.data(), 2, ynew.data());
+  euler_step_act(tag_ext_fct, 2, y.data(), 2, ynew.data());
 
   double f_out;
   ynew[0] >>= f_out; // Dummy output
   ynew[1] >>= f_out; // Dummy output
-  trace_off();
+  trace_off(tag_ext_fct);
+  setDefaultTapeId(prev_default_id);
 
-  edf = reg_ext_fct(euler_step);
+  edf = reg_ext_fct(tag_part, tag_ext_fct, euler_step);
   edf->zos_forward = zos_for_euler_step;
   edf->dp_x = yp.data();
   edf->dp_y = ynewp.data();
@@ -102,7 +103,10 @@ void setup_external_function(const short tag_ext_fct,
 
 void setup_external_taping(size_t tag_part, std::vector<double> conp) {
   trace_on(tag_part);
-  ensureContiguousLocations(4);
+  const short prev_default_id = getDefaultTapeIdConst();
+  setDefaultTapeId(tag_part);
+  std::shared_ptr<ValueTape> tape = getTape(tag_part);
+  tape->ensureContiguousLocations(4);
   std::vector<adouble> y(2), ynew(2);
   std::vector<adouble> con(2);
 
@@ -121,17 +125,29 @@ void setup_external_taping(size_t tag_part, std::vector<double> conp) {
   f = y[0] + y[1];
   double f_out;
   f >>= f_out;
-  trace_off();
+  trace_off(tag_part);
+
+  setDefaultTapeId(prev_default_id);
 }
 
 BOOST_AUTO_TEST_CASE(CompareFullAndExternalGradients) {
+
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_full));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_part));
+  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tag_ext_fct));
+
+  // Control parameters
+  std::vector<double> conp = {1.0, 1.0};
+  std::vector<double> grad_full(2);
+  std::vector<double> grad_ext(2);
+
   const double expected0 = exp(h * steps);
   const double expected1 = exp(2 * h * steps);
 
   setup_full_taping(tag_full, conp);
   gradient(tag_full, 2, conp.data(), grad_full.data());
 
-  setup_external_function(tag_ext_fct, conp);
+  setup_external_function(tag_part, tag_ext_fct, conp);
   setup_external_taping(tag_part, conp);
 
   gradient(tag_part, 2, conp.data(), grad_ext.data());
