@@ -18,104 +18,109 @@
 #define ADOLC_STRUCT_BUF_H 1
 
 #include <adolc/internal/common.h>
-#include <adolc/taping_p.h>
-
-#if defined(__cplusplus)
-/****************************************************************************/
-/*                                                          This is all C++ */
-
 #include <cstdlib>
 
-#define BUFFER Buffer<SubBufferElement, _subBufferSize>
-#define BUFFER_TEMPLATE                                                        \
-  template <class SubBufferElement, IndexType _subBufferSize>
+template <class T, size_t buff_size> class Buffer {
+  using InitFunctionPointer = void (*)(T *subBufferElement);
+  static void zeroAll(T *subBufferElement) { subBufferElement = nullptr; }
 
-typedef locint IndexType;
-
-BUFFER_TEMPLATE class Buffer {
-
-  typedef void (*InitFunctionPointer)(SubBufferElement *subBufferElement);
-
-  static void zeroAll(SubBufferElement *subBufferElement);
-
-  typedef struct SubBuffer {
-    SubBufferElement elements[_subBufferSize];
-    struct SubBuffer *nextSubBuffer;
-    SubBuffer();
-  } SubBuffer;
+  struct SubBuffer {
+    T elements[buff_size]{0};
+    SubBuffer *nextSubBuffer{nullptr};
+    SubBuffer() = default;
+  };
 
 public:
-  inline Buffer() {
-    firstSubBuffer = NULL;
-    numEntries = 0;
-    initFunction = zeroAll;
-  }
-  inline Buffer(InitFunctionPointer _initFunction) {
-    firstSubBuffer = NULL;
-    numEntries = 0;
-    initFunction = _initFunction;
-  }
+  Buffer() : initFunction(zeroAll) {}
+  Buffer(InitFunctionPointer _initFunction) : initFunction(_initFunction) {}
   inline ~Buffer();
+  Buffer(const Buffer &) = delete;
+  Buffer &operator=(const Buffer &) = delete;
 
+  Buffer(Buffer &&other) noexcept
+      : firstSubBuffer(other.firstSubBuffer), numEntries(other.numEntries),
+        initFunction(other.initFunction) {
+    // Leave other in a valid state
+    other.firstSubBuffer = nullptr;
+    other.numEntries = 0;
+    other.initFunction = nullptr;
+  }
+
+  Buffer &operator=(Buffer &&other) noexcept;
   inline void init(InitFunctionPointer _initFunction) {
     initFunction = _initFunction;
   }
-  SubBufferElement *append();
-  SubBufferElement *getElement(IndexType index);
+  T *append();
+  T *getElement(size_t index);
 
 private:
-  SubBuffer *firstSubBuffer;
-  InitFunctionPointer initFunction;
-  IndexType numEntries;
+  SubBuffer *firstSubBuffer{nullptr};
+  InitFunctionPointer initFunction{nullptr};
+  size_t numEntries{0};
 };
 
-BUFFER_TEMPLATE
-void BUFFER::zeroAll(SubBufferElement *subBufferElement) {
-  memset(subBufferElement, 0, sizeof(*subBufferElement));
+template <class T, size_t buff_size>
+Buffer<T, buff_size> &
+Buffer<T, buff_size>::operator=(Buffer<T, buff_size> &&other) noexcept {
+  if (this != &other) {
+    // Free current resources
+    SubBuffer *tmpSubBuffer = nullptr;
+    while (firstSubBuffer != nullptr) {
+      tmpSubBuffer = firstSubBuffer;
+      firstSubBuffer = firstSubBuffer->nextSubBuffer;
+      for (size_t i = 0; i < buff_size; i++)
+        if (tmpSubBuffer->elements[i].allmem != nullptr)
+          free(tmpSubBuffer->elements[i].allmem);
+      delete tmpSubBuffer;
+    }
+
+    // transfer resources
+    firstSubBuffer = other.firstSubBuffer;
+    numEntries = other.numEntries;
+    initFunction = other.initFunction;
+
+    // Leave other in a valid state
+    other.firstSubBuffer = nullptr;
+    other.numEntries = 0;
+    other.initFunction = nullptr;
+  }
+  return *this;
 }
 
-BUFFER_TEMPLATE
-BUFFER::SubBuffer::SubBuffer() {
-  memset(elements, 0, sizeof(SubBufferElement) * _subBufferSize);
-  nextSubBuffer = NULL;
-}
+template <class T, size_t buff_size> Buffer<T, buff_size>::~Buffer() {
+  SubBuffer *tmpSubBuffer = nullptr;
 
-BUFFER_TEMPLATE
-BUFFER::~Buffer() {
-  SubBuffer *tmpSubBuffer = NULL;
-
-  while (firstSubBuffer != NULL) {
+  while (firstSubBuffer != nullptr) {
     tmpSubBuffer = firstSubBuffer;
     firstSubBuffer = firstSubBuffer->nextSubBuffer;
-    for (IndexType i = 0; i < _subBufferSize; i++)
-      if (tmpSubBuffer->elements[i].allmem != NULL)
+    for (size_t i = 0; i < buff_size; i++)
+      if (tmpSubBuffer->elements[i].allmem != nullptr)
         free(tmpSubBuffer->elements[i].allmem);
     delete tmpSubBuffer;
   }
 }
 
-BUFFER_TEMPLATE
-SubBufferElement *BUFFER::append() {
-  SubBuffer *currentSubBuffer = firstSubBuffer, *previousSubBuffer = NULL;
-  IndexType index, tmp = numEntries;
+template <class T, size_t buff_size> T *Buffer<T, buff_size>::append() {
+  SubBuffer *currentSubBuffer = firstSubBuffer, *previousSubBuffer = nullptr;
+  size_t index, tmp = numEntries;
 
-  while (tmp >= _subBufferSize) {
+  while (tmp >= buff_size) {
     previousSubBuffer = currentSubBuffer;
     currentSubBuffer = currentSubBuffer->nextSubBuffer;
-    tmp -= _subBufferSize;
+    tmp -= buff_size;
   }
-  if (currentSubBuffer == NULL) {
+  if (currentSubBuffer == nullptr) {
     currentSubBuffer = new SubBuffer;
-    if (firstSubBuffer == NULL)
+    if (firstSubBuffer == nullptr)
       firstSubBuffer = currentSubBuffer;
     else
       previousSubBuffer->nextSubBuffer = currentSubBuffer;
-    currentSubBuffer->nextSubBuffer = NULL;
+    currentSubBuffer->nextSubBuffer = nullptr;
   }
   index = tmp;
 
-  currentSubBuffer->elements[index].allmem = NULL;
-  if (initFunction != NULL)
+  currentSubBuffer->elements[index].allmem = nullptr;
+  if (initFunction != nullptr)
     initFunction(&(currentSubBuffer->elements[index]));
 
   currentSubBuffer->elements[index].index = numEntries;
@@ -124,19 +129,17 @@ SubBufferElement *BUFFER::append() {
   return &currentSubBuffer->elements[index];
 }
 
-BUFFER_TEMPLATE
-SubBufferElement *BUFFER::getElement(IndexType index) {
+template <class T, size_t buff_size>
+T *Buffer<T, buff_size>::getElement(size_t index) {
   SubBuffer *currentSubBuffer = firstSubBuffer;
-
   if (index >= numEntries)
-    fail(ADOLC_BUFFER_INDEX_TO_LARGE);
-  while (index >= _subBufferSize) {
+    fail(ADOLC_ERRORS::ADOLC_BUFFER_INDEX_TO_LARGE,
+         std::source_location::current());
+  while (index >= buff_size) {
     currentSubBuffer = currentSubBuffer->nextSubBuffer;
-    index -= _subBufferSize;
+    index -= buff_size;
   }
   return &currentSubBuffer->elements[index];
 }
-
-#endif /* __cplusplus */
 
 #endif /* ADOLC_STRUCT_BUF_H */
