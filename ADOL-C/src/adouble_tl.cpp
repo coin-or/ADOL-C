@@ -20,7 +20,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-
+#include <adolc/adolcerror.h>
 #include <adolc/adtl.h>
 #include <adolc/dvlparms.h>
 #include <cmath>
@@ -28,9 +28,6 @@
 #include <limits>
 
 using std::cout;
-
-extern "C" void adolc_exit(int errorcode, const char *what,
-                           const char *function, const char *file, int line);
 
 namespace adtl {
 
@@ -67,10 +64,10 @@ istream &operator>>(istream &in, adouble &a) {
     in >> c;
   while (c != '(' && !in.eof());
   in >> num;
-  if (num > adouble::numDir) {
-    cout << "ADOL-C error: to many directions in input\n";
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if (num > adouble::numDir)
+    fail(ADOLC_ERRORS::ADOLC_TO_MANY_DIRECTIONS,
+         std::source_location::current());
+
   do
     in >> c;
   while (c != ':' && !in.eof());

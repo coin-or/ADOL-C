@@ -9,7 +9,7 @@ project(adol-c
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
 
-target_compile_features(adolc PUBLIC cxx_std_17)
+target_compile_features(adolc PUBLIC cxx_std_20)
 
 # Make the version of ADOL-C available as compile definitions
 target_compile_definitions(adolc PRIVATE

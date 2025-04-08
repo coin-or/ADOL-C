@@ -26,16 +26,20 @@ BOOST_AUTO_TEST_SUITE(trace_scalar)
  */
 
 BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
-  double a = 2., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  double a = 2., aout;
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = exp(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::exp(a);
 
@@ -55,16 +59,19 @@ BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
   double a = 2., aout;
-  adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId);
   ad <<= a;
-
   ad = exp(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::exp(a);
   a = std::exp(a);
@@ -89,16 +96,21 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
-  double a = 2., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  double a = 2., aout;
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = exp(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::exp(a);
 
@@ -116,17 +128,23 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad * bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = a * b;
 
@@ -148,17 +166,21 @@ BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back()), bd(getTapeBuffer().back());
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad * bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b;
   double bDerivative = a;
@@ -195,17 +217,23 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = ad * bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b;
   double bDerivative = a;
@@ -226,16 +254,21 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad + bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = a + b;
 
@@ -257,16 +290,21 @@ BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad + bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 1.;
@@ -304,16 +342,21 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = ad + bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 1.;
@@ -334,16 +377,21 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad - bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = a - b;
 
@@ -365,16 +413,21 @@ BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad - bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = -1.;
@@ -412,16 +465,21 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = ad - bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = -1.;
@@ -442,16 +500,21 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad / bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = a / b;
 
@@ -473,16 +536,21 @@ BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ad / bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
@@ -520,16 +588,21 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = ad / bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
@@ -550,15 +623,19 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
   double a = 0.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = tan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tan(a);
 
@@ -579,15 +656,19 @@ BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
   double a = 0.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = tan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tan(a);
   double aDerivative = 1. + a * a;
@@ -613,15 +694,19 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
   double a = 0.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = tan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tan(a);
   double aDerivative = 1. + a * a;
@@ -641,15 +726,19 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::sin(a);
 
@@ -670,15 +759,19 @@ BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::cos(a);
   a = std::sin(a);
@@ -704,15 +797,19 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = sin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::cos(a);
   a = std::sin(a);
@@ -732,15 +829,19 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = cos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::cos(a);
 
@@ -761,15 +862,19 @@ BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = cos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -std::sin(a);
   a = std::cos(a);
@@ -795,15 +900,19 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
   double a = 1.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = cos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -std::sin(a);
   a = std::cos(a);
@@ -823,15 +932,19 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sqrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::sqrt(a);
 
@@ -852,15 +965,19 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sqrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::sqrt(a);
   double aDerivative = 1. / (2 * a);
@@ -886,15 +1003,19 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = sqrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::sqrt(a);
   double aDerivative = 1. / (2 * a);
@@ -914,16 +1035,20 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   // cbrt(a)
   ad = cbrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   // cbrt(a)
   a = std::cbrt(a);
@@ -945,16 +1070,20 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   // cbrt(a)
   ad = cbrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   // cbrt(a)
   const double out = std::cbrt(a);
@@ -983,16 +1112,20 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
   double a = 2.2, aout;
-  adouble ad;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
   // cbrt(a)
-  trace_on(1, 1);
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = cbrt(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   // 1 / 3 * a^(-2/3)
   double aDerivative = 1. / (3.0 * std::pow(a, 2.0 / 3.0));
@@ -1012,15 +1145,19 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
   double a = 4.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = log(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::log(a);
 
@@ -1041,15 +1178,19 @@ BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
   double a = 4.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = log(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / a;
   a = std::log(a);
@@ -1075,15 +1216,19 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
   double a = 4.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = log(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / a;
   a = std::log(a);
@@ -1103,15 +1248,19 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::sinh(a);
 
@@ -1132,15 +1281,19 @@ BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = sinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::cosh(a);
   a = std::sinh(a);
@@ -1166,15 +1319,19 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = sinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::cosh(a);
   a = std::sinh(a);
@@ -1194,15 +1351,19 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = cosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::cosh(a);
 
@@ -1223,15 +1384,19 @@ BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = cosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::sinh(a);
   a = std::cosh(a);
@@ -1257,15 +1422,19 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = cosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::sinh(a);
   a = std::cosh(a);
@@ -1285,15 +1454,19 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = tanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tanh(a);
 
@@ -1314,15 +1487,19 @@ BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = tanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tanh(a);
   double aDerivative = 1. - a * a;
@@ -1348,15 +1525,19 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   double a = 4., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = tanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::tanh(a);
   double aDerivative = 1. - a * a;
@@ -1376,15 +1557,19 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
   double a = 0.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = asin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::asin(a);
 
@@ -1405,15 +1590,19 @@ BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
   double a = 0.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = asin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(1. - a * a));
   a = std::asin(a);
@@ -1439,15 +1628,19 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
   double a = 0.9, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = asin(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(1. - a * a));
   a = std::asin(a);
@@ -1467,15 +1660,19 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
   double a = 0.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = acos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::acos(a);
 
@@ -1496,15 +1693,19 @@ BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
   double a = 0.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = acos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -1. / (std::sqrt(1. - a * a));
   a = std::acos(a);
@@ -1530,15 +1731,19 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
   double a = 0.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = acos(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -1. / (std::sqrt(1. - a * a));
   a = std::acos(a);
@@ -1558,15 +1763,19 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
   double a = 9.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = atan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::atan(a);
 
@@ -1587,15 +1796,19 @@ BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
   double a = 9.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = atan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (1. + a * a);
   a = std::atan(a);
@@ -1621,15 +1834,19 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
   double a = 9.8, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = atan(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (1. + a * a);
   a = std::atan(a);
@@ -1649,15 +1866,19 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
   double a = 12.3, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = log10(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::log10(a);
 
@@ -1678,15 +1899,19 @@ BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
   double a = 12.3, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = log10(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (a * std::log(10));
   a = std::log10(a);
@@ -1712,15 +1937,19 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
   double a = 12.3, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = log10(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (a * std::log(10));
   a = std::log10(a);
@@ -1740,15 +1969,19 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = asinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::asinh(a);
 
@@ -1769,15 +2002,19 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = asinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(a * a + 1.));
   a = std::asinh(a);
@@ -1803,15 +2040,19 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = asinh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(a * a + 1.));
   a = std::asinh(a);
@@ -1831,15 +2072,19 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
   double a = 1.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = acosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::acosh(a);
 
@@ -1860,15 +2105,19 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
   double a = 1.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = acosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(a * a - 1));
   a = std::acosh(a);
@@ -1894,15 +2143,19 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
   double a = 1.7, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = acosh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (std::sqrt(a * a - 1.));
   a = std::acosh(a);
@@ -1922,15 +2175,19 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = atanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::atanh(a);
 
@@ -1951,15 +2208,19 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = atanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (1. - a * a);
   a = std::atanh(a);
@@ -1985,15 +2246,19 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
   double a = 0.6, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = atanh(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / (1. - a * a);
   a = std::atanh(a);
@@ -2013,15 +2278,19 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ++ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = ++a;
 
@@ -2042,15 +2311,19 @@ BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ++ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = ++a;
@@ -2076,15 +2349,19 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = ++ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = ++a;
@@ -2104,15 +2381,19 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = --ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = --a;
 
@@ -2133,15 +2414,19 @@ BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = --ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = --a;
@@ -2167,15 +2452,19 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
   double a = 5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = --ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = --a;
@@ -2195,15 +2484,19 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = +ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = +a;
 
@@ -2224,15 +2517,19 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = +ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = +a;
@@ -2258,15 +2555,19 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = +ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = +a;
@@ -2286,15 +2587,19 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = -ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = -a;
 
@@ -2315,15 +2620,19 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = -ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -1.;
   a = -a;
@@ -2349,15 +2658,19 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
   double a = 1.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = -ad;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -1.;
   a = -a;
@@ -2377,16 +2690,21 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = atan2(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::atan2(a, b);
 
@@ -2408,16 +2726,21 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = atan2(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b / (a * a + b * b);
   double bDerivative = -a / (a * a + b * b);
@@ -2455,16 +2778,21 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = atan2(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b / (a * a + b * b);
   double bDerivative = -a / (a * a + b * b);
@@ -2485,15 +2813,19 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
   double a = 2.3, e = 3.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = pow(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::pow(a, e);
 
@@ -2514,15 +2846,19 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
   double a = 2.3, e = 3.5, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = pow(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = e * std::pow(a, e - 1.);
   a = std::pow(a, e);
@@ -2549,15 +2885,19 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
 {
   double a = 2.3, e = 3.5, aout;
-  adouble ad;
+    const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = pow(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = e * std::pow(a, e - 1.);
   a = std::pow(a, e);
@@ -2577,16 +2917,21 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
 */
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = pow(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::pow(a, b);
 
@@ -2608,16 +2953,21 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = pow(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b * std::pow(a, b - 1.);
   double bDerivative = std::log(a) * std::pow(a, b);
@@ -2655,16 +3005,21 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = pow(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b * std::pow(a, b - 1.);
   double bDerivative = std::log(a) * std::pow(a, b);
@@ -2685,15 +3040,19 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
+  const short tapeId = 1;
 
-  trace_on(1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = pow(a, ed);
+  trace_on(tapeId);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = pow(a, ad);
+
+  ad >>= eout;
+  trace_off(tapeId);
 
   e = std::pow(a, e);
 
@@ -2714,17 +3073,21 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
+  const short tapeId = 1;
 
-  trace_on(1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = pow(a, ed);
+  trace_on(tapeId);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = pow(a, ad);
 
-  double eDerivative = std::log(a) * std::pow(a, e);
+  ad >>= eout;
+  trace_off(tapeId);
+
+  double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
   double *x = myalloc1(1);
@@ -2738,7 +3101,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
   fos_forward(1, 1, 1, 0, x, xd, y, yd);
 
   BOOST_TEST(*y == e, tt::tolerance(tol));
-  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*yd == aderivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree1(xd);
@@ -2748,17 +3111,21 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = pow(a, ed);
+  trace_on(tapeId, 1);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = pow(a, ad);
 
-  double eDerivative = std::log(a) * std::pow(a, e);
+  ad >>= eout;
+  trace_off(tapeId);
+
+  double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
   double *u = myalloc1(1);
@@ -2768,27 +3135,32 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
 
   fos_reverse(1, 1, 1, u, z);
 
-  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*z == aderivative, tt::tolerance(tol));
 
   myfree1(u);
   myfree1(z);
 }
 
-/* Frexp does not need to be tested, because it is non-differentiable. */
+/* Frexp does not nead to be testad, because it is non-differentiable. */
 /*
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
+    const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr))
+getTapeBuffer().emplace_back(std::move(tapePtr)); adouble
+ad(getTapeBuffer().back()); adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ldexp(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = a * std::pow(2., b);
 
@@ -2811,16 +3183,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_1)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
+    const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr))
+getTapeBuffer().emplace_back(std::move(tapePtr)); adouble
+ad(getTapeBuffer().back()); adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = ldexp(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::pow(2., b);
   double bDerivative = a * std::log(2.) * std::pow(2., b);
@@ -2857,16 +3234,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
+    const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr))
+getTapeBuffer().emplace_back(std::move(tapePtr)); adouble
+ad(getTapeBuffer().back()); adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = ldexp(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::pow(2., b);
   double bDerivative = a * std::log(2.) * std::pow(2., b);
@@ -2887,15 +3269,19 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
 */
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
   double a = 4., e = 3., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ldexp(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = a * std::pow(2., e);
 
@@ -2916,15 +3302,19 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
   double a = 4., e = 3., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ldexp(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::pow(2., e);
   a = a * std::pow(2., e);
@@ -2950,15 +3340,19 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
   double a = 4., e = 3., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = ldexp(ad, e);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = std::pow(2., e);
   a = a * std::pow(2., e);
@@ -2979,15 +3373,19 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
+    const short tapeId = 1;
 
-  trace_on(1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = ldexp(a, ed);
+  trace_on(tapeId);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = ldexp(a, ad);
+
+  ad >>= eout;
+  trace_off(tapeId);
 
   e = a * std::pow(2., e);
 
@@ -3009,17 +3407,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
+    const short tapeId = 1;
 
-  trace_on(1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = ldexp(a, ed);
+  trace_on(tapeId);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = ldexp(a, ad);
 
-  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  ad >>= eout;
+  trace_off(tapeId);
+
+  double aderivative = a * std::log(2.) * std::pow(2., e);
   e = std::pow(a, e);
 
   double *x = myalloc1(1);
@@ -3033,7 +3435,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
   fos_forward(1, 1, 1, 0, x, xd, y, yd);
 
   BOOST_TEST(*y == e, tt::tolerance(tol));
-  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*yd == aderivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree1(xd);
@@ -3044,17 +3446,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
+    const short tapeId = 1;
 
-  trace_on(1, 1);
-  ed <<= e;
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
 
-  ed = ldexp(a, ed);
+  trace_on(tapeId, 1);
+  ad <<= e;
 
-  ed >>= eout;
-  trace_off();
+  ad = ldexp(a, ad);
 
-  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  ad >>= eout;
+  trace_off(tapeId);
+
+  double aderivative = a * std::log(2.) * std::pow(2., e);
   e = a * std::pow(2., e);
 
   double *u = myalloc1(1);
@@ -3064,7 +3470,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 
   fos_reverse(1, 1, 1, u, z);
 
-  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*z == aderivative, tt::tolerance(tol));
 
   myfree1(u);
   myfree1(z);
@@ -3073,15 +3479,19 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 
 BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
   double a = 1.4, b = -5., c = 0., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fabs(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::fabs(a);
   b = std::fabs(b);
@@ -3118,15 +3528,19 @@ BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
   double a = 1.4, b = -5., c = 0., aout, bout, cout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fabs(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = -1.;
@@ -3192,15 +3606,19 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
   double a = 1.4, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = fabs(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
 
@@ -3219,15 +3637,19 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
   double a = -5., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = fabs(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -1.;
 
@@ -3246,17 +3668,21 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   double a = 0., aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = fabs(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
-  /* In reverse mode, the derivative at zero is calculated to be zero. */
+  /* In reverse mode, the derivative at zero is calculatad to be zero. */
   double aDerivative = 0.;
 
   double *u = myalloc1(1);
@@ -3274,15 +3700,19 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
   double a = 3.573, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ceil(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::ceil(a);
 
@@ -3303,15 +3733,19 @@ BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
   double a = 3.573, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = ceil(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
   a = std::ceil(a);
@@ -3337,15 +3771,19 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
   double a = 3.573, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = ceil(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
 
@@ -3364,15 +3802,19 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
   double a = 4.483, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = floor(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::floor(a);
 
@@ -3393,15 +3835,19 @@ BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
   double a = 4.483, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = floor(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
   a = std::floor(a);
@@ -3427,15 +3873,19 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
   double a = 4.483, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = ceil(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
 
@@ -3454,16 +3904,21 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = fmax(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::fmax(a, b);
 
@@ -3485,16 +3940,21 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = fmax(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 0.;
@@ -3553,16 +4013,21 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = fmax(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 0.;
@@ -3572,7 +4037,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   *u = 1.;
 
-  fos_reverse(1, 1, 2, u, z);
+  fos_reverse(tapeId, 1, 2, u, z);
 
   BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
   BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
@@ -3582,23 +4047,27 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
-  adouble ad1, bd1;
+  const short tape_id2 = 2;
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+  adouble bd1(getTapeBuffer().back());
 
-  trace_on(1, 1);
+  trace_on(tape_id2, 1);
   ad1 <<= a1;
   bd1 <<= b1;
 
   ad1 = fmax(ad1, bd1);
 
   ad1 >>= out1;
-  trace_off();
+  trace_off(tape_id2);
 
   double *u1 = myalloc1(1);
   double *z1 = myalloc1(2);
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 2, u1, z1);
+  fos_reverse(tape_id2, 1, 2, u1, z1);
 
   BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
   BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
@@ -3609,15 +4078,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   bd <<= b;
 
   bd = fmax(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   b = std::fmax(a, b);
 
@@ -3638,15 +4111,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   bd <<= b;
 
   bd = fmax(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   /* Derivative value is 0.0, as the active variable is smaller than the passive
    * one. */
@@ -3673,15 +4150,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
-  adouble bd1;
+  const short tape_id2 = 2;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble bd1(getTapeBuffer().back());
+
+  trace_on(tape_id2);
   bd1 <<= b1;
 
   bd1 = fmax(a1, bd1);
 
   bd1 >>= bout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double b1Derivative = 0.;
   b1 = std::fmax(a1, b1);
@@ -3694,7 +4175,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -3702,7 +4183,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   *xd1 = 3.7;
   b1Derivative = 3.7;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -3715,15 +4196,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  short const tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   bd <<= b;
 
   bd = fmax(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   double bDerivative = 0.;
   b = std::fmax(a, b);
@@ -3742,15 +4227,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
-  adouble bd1;
+  const short tape_id2 = 2;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble bd1(getTapeBuffer().back());
+
+  trace_on(tape_id2, 1);
   bd1 <<= b1;
 
   bd1 = fmax(a1, bd1);
 
   bd1 >>= bout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double b1Derivative = 0.5;
   b1 = std::fmax(a1, b1);
@@ -3760,7 +4249,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tape_id2, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
 
@@ -3770,15 +4259,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fmax(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::fmax(a, b);
 
@@ -3799,15 +4292,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fmax(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   /* Derivative value is 1.0, as the active variable is grater than the passive
    * one. */
@@ -3834,15 +4331,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
-  adouble ad1;
+  const short tape_id2 = 2;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+
+  trace_on(tape_id2);
   ad1 <<= a1;
 
   ad1 = fmax(ad1, b1);
 
   ad1 >>= aout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double a1Derivative = 0.;
   a1 = std::fmax(a1, b1);
@@ -3855,7 +4356,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -3863,7 +4364,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   *xd1 = 3.7;
   a1Derivative = 3.7;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -3876,15 +4377,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = fmax(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   a = std::fmax(a, b);
@@ -3903,15 +4408,19 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
-  adouble ad1;
+  const short tape_id2 = 2;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+
+  trace_on(tape_id2, 1);
   ad1 <<= a1;
 
   ad1 = fmax(ad1, b1);
 
   ad1 >>= aout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double a1Derivative = 0.5;
   a1 = std::fmax(a1, b1);
@@ -3921,7 +4430,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tape_id2, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
 
@@ -3931,16 +4440,21 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = fmin(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::fmin(a, b);
 
@@ -3962,16 +4476,21 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad = fmin(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
   double bDerivative = 1.;
@@ -4030,16 +4549,21 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad = fmin(ad, bd);
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
   double bDerivative = 1.;
@@ -4059,23 +4583,28 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
-  adouble ad1, bd1;
+  const short tape_id2 = 2;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+  adouble bd1(getTapeBuffer().back());
+
+  trace_on(tape_id2, 1);
   ad1 <<= a1;
   bd1 <<= b1;
 
   ad1 = fmin(ad1, bd1);
 
   ad1 >>= out1;
-  trace_off();
+  trace_off(tape_id2);
 
   double *u1 = myalloc1(1);
   double *z1 = myalloc1(2);
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 2, u1, z1);
+  fos_reverse(tape_id2, 1, 2, u1, z1);
 
   BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
   BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
@@ -4086,15 +4615,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   bd <<= b;
 
   bd = fmin(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   b = std::fmin(a, b);
 
@@ -4115,15 +4648,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   bd <<= b;
 
   bd = fmin(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   /* Derivative value is 1.0, as the active variable is smaller than the passive
    * one. */
@@ -4150,15 +4687,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
-  adouble bd1;
+  const short tape_id2 = 2;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble bd1(getTapeBuffer().back());
+
+  trace_on(tape_id2);
   bd1 <<= b1;
 
   bd1 = fmin(a1, bd1);
 
   bd1 >>= bout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double b1Derivative = -1.3;
   b1 = std::fmin(a1, b1);
@@ -4171,7 +4712,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -4179,7 +4720,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   *xd1 = 3.7;
   b1Derivative = 0.;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -4192,15 +4733,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   double a = 4., b = 3.2, bout;
-  adouble bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   bd <<= b;
 
   bd = fmin(a, bd);
 
   bd >>= bout;
-  trace_off();
+  trace_off(tapeId);
 
   double bDerivative = 1.;
   b = std::fmin(a, b);
@@ -4219,15 +4764,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
-  adouble bd1;
+  const short tape_id2 = 2;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble bd1(getTapeBuffer().back());
+
+  trace_on(tape_id2, 1);
   bd1 <<= b1;
 
   bd1 = fmin(a1, bd1);
 
   bd1 >>= bout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double b1Derivative = 0.5;
   b1 = std::fmin(a1, b1);
@@ -4237,7 +4786,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tape_id2, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
 
@@ -4247,15 +4796,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fmin(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::fmin(a, b);
 
@@ -4276,15 +4829,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = fmin(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   /* Derivative value is 0.0, as the active variable is grater than the passive
    * one. */
@@ -4311,15 +4868,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
-  adouble ad1;
+  const short tape_id2 = 2;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+
+  trace_on(tape_id2);
   ad1 <<= a1;
 
   ad1 = fmin(ad1, b1);
 
   ad1 >>= aout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double a1Derivative = -1.3;
   a1 = std::fmin(a1, b1);
@@ -4332,7 +4893,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -4340,7 +4901,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   *xd1 = 3.7;
   a1Derivative = 0.;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tape_id2, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -4353,15 +4914,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   double a = 4., b = 3.2, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = fmin(ad, b);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 0.;
   a = std::fmin(a, b);
@@ -4380,15 +4945,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
-  adouble ad1;
+  const short tape_id2 = 2;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr2 = std::make_shared<ValueTape>(tape_id2);
+  getTapeBuffer().emplace_back(std::move(tapePtr2));
+  adouble ad1(getTapeBuffer().back());
+
+  trace_on(tape_id2, 1);
   ad1 <<= a1;
 
   ad1 = fmin(ad1, b1);
 
   ad1 >>= aout1;
-  trace_off();
+  trace_off(tape_id2);
 
   double a1Derivative = 0.5;
   a1 = std::fmin(a1, b1);
@@ -4398,7 +4967,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tape_id2, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
 
@@ -4408,15 +4977,19 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = erf(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::erf(a);
 
@@ -4437,15 +5010,19 @@ BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = erf(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
   a = std::erf(a);
@@ -4471,15 +5048,19 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = erf(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
 
@@ -4498,15 +5079,19 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = erfc(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a = std::erfc(a);
 
@@ -4527,15 +5112,19 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad = erfc(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
   a = std::erfc(a);
@@ -4561,15 +5150,19 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
   double a = 7.1, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad = erfc(ad);
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
 
@@ -4588,15 +5181,20 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
   double a = 10.01, aout;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   bd = ad;
 
   bd >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
@@ -4615,15 +5213,20 @@ BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
   double a = 10.01, aout;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   bd = ad;
 
   bd >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
 
@@ -4648,15 +5251,20 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
   double a = 10.01, aout;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   bd = ad;
 
   bd >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
 
@@ -4675,15 +5283,19 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad += 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a += 5.2;
 
@@ -4704,15 +5316,19 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad += 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a += 5.2;
   double aDerivative = 1.;
@@ -4738,15 +5354,19 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad += 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a += 5.2;
   double aDerivative = 1.;
@@ -4764,19 +5384,24 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   myfree1(z);
 }
 
-// the case += c * d is handled differently!
+// the case += c * d is handlad differently!
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward_2) {
   double a = 1.0, b = -1.0, out;
-  adouble ad, bd, cd(4.0);
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad += bd * 2;
   ad >>= out;
 
-  trace_off();
+  trace_off(tapeId);
 
   std::vector<double> xd{0.0, 1.0};
   std::vector<double> in{a, b};
@@ -4792,15 +5417,19 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad -= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a -= 5.2;
 
@@ -4821,15 +5450,19 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad -= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a -= 5.2;
   double aDerivative = 1.;
@@ -4853,19 +5486,24 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   myfree1(yd);
 }
 
-// the case -= c * d is handled differently!
+// the case -= c * d is handlad differently!
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward_2) {
   double a = 1.0, b = -1.0, out;
-  adouble ad, bd, cd(4.0);
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad -= bd * 2;
   ad >>= out;
 
-  trace_off();
+  trace_off(tapeId);
 
   std::vector<double> xd{0.0, 1.0};
   std::vector<double> in{a, b};
@@ -4881,15 +5519,19 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad -= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a -= 5.2;
   double aDerivative = 1.;
@@ -4909,15 +5551,19 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad *= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a *= 5.2;
 
@@ -4938,15 +5584,19 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad *= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a *= 5.2;
   double aDerivative = 5.2;
@@ -4972,15 +5622,19 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad *= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a *= 5.2;
   double aDerivative = 5.2;
@@ -5000,16 +5654,21 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad *= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a *= b;
 
@@ -5031,16 +5690,21 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad *= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b;
   double bDerivative = a;
@@ -5078,16 +5742,21 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad *= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = b;
   double bDerivative = a;
@@ -5108,15 +5777,19 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad /= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a /= 5.2;
 
@@ -5137,15 +5810,19 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
 
   ad /= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a /= 5.2;
   double aDerivative = 1. / 5.2;
@@ -5171,15 +5848,19 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
   double a = 5.132, aout;
-  adouble ad;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
 
   ad /= 5.2;
 
   ad >>= aout;
-  trace_off();
+  trace_off(tapeId);
 
   a /= 5.2;
   double aDerivative = 1. / 5.2;
@@ -5199,16 +5880,21 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad /= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   a /= b;
 
@@ -5230,16 +5916,21 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId);
   ad <<= a;
   bd <<= b;
 
   ad /= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
@@ -5277,16 +5968,21 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
+  const short tapeId = 1;
 
-  trace_on(1, 1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(getTapeBuffer().back());
+  adouble bd(getTapeBuffer().back());
+
+  trace_on(tapeId, 1);
   ad <<= a;
   bd <<= b;
 
   ad /= bd;
 
   ad >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
@@ -5307,10 +6003,17 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
-  adouble p;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+
+  adouble cond(getTapeBuffer().back());
+  adouble arg1(getTapeBuffer().back());
+  adouble arg2(getTapeBuffer().back());
+  adouble p(getTapeBuffer().back());
+
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5318,7 +6021,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
   condassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
@@ -5339,10 +6042,18 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
-  adouble p;
 
-  trace_on(1);
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+
+  adouble cond(getTapeBuffer().back());
+  adouble arg1(getTapeBuffer().back());
+  adouble arg2(getTapeBuffer().back());
+  adouble p(getTapeBuffer().back());
+
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5350,7 +6061,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
   condassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
@@ -5383,7 +6094,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
   adouble cond, arg1, arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5391,7 +6102,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
   condassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 0.;
@@ -5413,10 +6124,17 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
 */
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
-  adouble p;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+
+  adouble cond(getTapeBuffer().back());
+  adouble arg1(getTapeBuffer().back());
+  adouble arg2(getTapeBuffer().back());
+  adouble p(getTapeBuffer().back());
+
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5424,7 +6142,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
   condeqassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
@@ -5445,10 +6163,17 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
-  adouble p;
+  const short tapeId = 1;
 
-  trace_on(1);
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+
+  adouble cond(getTapeBuffer().back());
+  adouble arg1(getTapeBuffer().back());
+  adouble arg2(getTapeBuffer().back());
+  adouble p(getTapeBuffer().back());
+
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5456,7 +6181,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
   condeqassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
@@ -5489,7 +6214,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
   adouble cond, arg1, arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5497,7 +6222,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
   condeqassign(p, cond, arg1, arg2);
 
   p >>= out;
-  trace_off();
+  trace_off(tapeId);
 
   double aDerivative = 1.;
   double bDerivative = 0.;
@@ -5518,20 +6243,29 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
 }
 */
 
-/* Boolean operations only alter the trace, if advanced branching is
- * activated.  This advanced branching is not tested here.
+/* Boolean operations only alter the trace, if advancad branching is
+ * activatad.  This advancad branching is not testad here.
  */
 
 BOOST_AUTO_TEST_CASE(TraceNotOperatorPrimal) {
   double a = 1.0;
-  adouble ad = a;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
 
   BOOST_TEST(!a == 0.0, tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(TraceCompNeqOperatorPrimal) {
   double a = 1.5, b = 0.5;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad != bd);
   int m = (a != b);
@@ -5546,7 +6280,12 @@ BOOST_AUTO_TEST_CASE(TraceCompNeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompEqOperatorPrimal) {
   double a = 0.5, b = 1.5;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad == bd);
   int m = (a == b);
@@ -5561,7 +6300,12 @@ BOOST_AUTO_TEST_CASE(TraceCompEqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompLeqOperatorPrimal) {
   double a = 1.0, b = 0.99;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad <= bd);
   int m = (a <= b);
@@ -5576,7 +6320,12 @@ BOOST_AUTO_TEST_CASE(TraceCompLeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompGeqOperatorPrimal) {
   double a = 1.2, b = 2.5;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad >= bd);
   int m = (a >= b);
@@ -5591,7 +6340,12 @@ BOOST_AUTO_TEST_CASE(TraceCompGeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompLeOperatorPrimal) {
   double a = 1.1, b = 1.1;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad < bd);
   int m = (a < b);
@@ -5606,7 +6360,12 @@ BOOST_AUTO_TEST_CASE(TraceCompLeOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompGeOperatorPrimal) {
   double a = 1.7, b = 7.5;
-  adouble ad = a, bd = b;
+  const short tapeId = 1;
+
+  std::shared_ptr<ValueTape> tapePtr = std::make_shared<ValueTape>(tapeId);
+  getTapeBuffer().emplace_back(std::move(tapePtr));
+  adouble ad(a, getTapeBuffer().back());
+  adouble bd(b, getTapeBuffer().back());
 
   int n = (ad > bd);
   int m = (a > b);

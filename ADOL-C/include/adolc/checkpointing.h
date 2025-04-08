@@ -12,55 +12,60 @@
 
 ----------------------------------------------------------------------------*/
 
-#if !defined(ADOLC_CHECKPOINTING_H)
-#define ADOLC_CHECKPOINTING_H 1
+#ifndef ADOLC_CHECKPOINTING_H
+#define ADOLC_CHECKPOINTING_H
 
-#include <adolc/adtb_types.h>
 #include <adolc/internal/common.h>
 
-#if defined(__cplusplus)
-/****************************************************************************/
-/*                                                          This is all C++ */
+class adouble;
 
-typedef int (*ADOLC_TimeStepFuncion)(size_t dim_x, adouble *x);
-typedef int (*ADOLC_TimeStepFuncion_double)(size_t dim_x, double *x);
-typedef void *(*ADOLC_saveFct)();
-typedef void (*ADOLC_restoreFct)(void *);
+using ADOLC_TimeStepFuncion = int(size_t dim_x, adouble *x);
+using ADOLC_TimeStepFuncion_double = int(size_t dim_x, double *x);
+using ADOLC_saveFct = void *(void);
+using ADOLC_restoreFct = void(void *);
 
-typedef struct CpInfos {
-  ADOLC_TimeStepFuncion function;
-  ADOLC_TimeStepFuncion_double function_double;
-  ADOLC_saveFct saveNonAdoubles;
-  ADOLC_restoreFct restoreNonAdoubles;
-  size_t steps;
-  size_t checkpoints;
-  size_t tapeNumber; /* tape number to be used for checkpointing */
-  int retaping;      /* != 0 forces retaping before every reverse step */
+struct CpInfos {
+  // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
+  // reverse methods later
+  size_t tapeId{0};
+  ADOLC_TimeStepFuncion *function{nullptr};
+  ADOLC_TimeStepFuncion_double *function_double{nullptr};
+  ADOLC_saveFct *saveNonAdoubles{nullptr};
+  ADOLC_restoreFct *restoreNonAdoubles{nullptr};
+  size_t steps{0};
+  size_t checkpoints{0};
 
-  size_t dim;     /* number of variables in input and output (n=m) */
-  adouble *adp_x; /* input of the first step */
-  adouble *adp_y; /* output of the last step; will be set by ADOLC */
+  // This is the id of the tape that stores the checkpointing steps. This id
+  // should not be confused with the id of the tape that calls
+  // the checkpointing process later
+  size_t cp_tape_id{0};
+  int retaping{0}; /* != 0 forces retaping before every reverse step */
+
+  size_t dim{0};           /* number of variables in input and output (n=m) */
+  adouble *adp_x{nullptr}; /* input of the first step */
+  adouble *adp_y{nullptr}; /* output of the last step; will be set by ADOLC */
 
   /* these are internal checkpointing variables => do not use */
-  int check;
-  int capo;
-  int fine;
-  int info;
-  int currentCP;
-  double *dp_internal_for;
-  double *dp_internal_rev;
-  double **dpp_internal_rev;
-  size_t index; /* please do not change */
-  char modeForward;
-  char modeReverse;
-  char *allmem; /* this is dummy to get externfcts and checkpointing both use
-                   buffer_temp without a problem */
-} CpInfos;
+  int check{0};
+  int capo{0};
+  int fine{0};
+  int info{0};
+  int currentCP{0};
+  double *dp_internal_for{nullptr};
+  double *dp_internal_rev{nullptr};
+  double **dpp_internal_rev{nullptr};
+  size_t index{0}; /* please do not change */
+  char modeForward{0};
+  char modeReverse{0};
+  char *allmem{nullptr}; /* this is dummy to get externfcts and checkpointing
+                   both use buffer_temp without a problem */
+};
 
 ADOLC_DLL_EXPORT
-CpInfos *reg_timestep_fct(ADOLC_TimeStepFuncion timeStepFunction);
+CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
+                          ADOLC_TimeStepFuncion timeStepFunction);
 
-ADOLC_DLL_EXPORT int checkpointing(CpInfos *cpInfos);
+ADOLC_DLL_EXPORT int checkpointing(short tapeId, CpInfos *cpInfos);
 
 /* if tape with one program and use the tapes with another program call this
  * function within the latter                                               */
@@ -68,68 +73,33 @@ ADOLC_DLL_EXPORT void reinit_checkpointing();
 
 class CP_Context {
 public:
-  inline CP_Context(ADOLC_TimeStepFuncion tsf);
-  inline ~CP_Context() {}
-
-  inline void setDoubleFct(ADOLC_TimeStepFuncion_double tsf);
-  inline void setSaveFct(ADOLC_saveFct sf);
-  inline void setRestoreFct(ADOLC_restoreFct rf);
-  inline void setNumberOfSteps(size_t number);
-  inline void setNumberOfCheckpoints(size_t number);
-  inline void setTapeNumber(size_t tapeNumber);
-  inline void setDimensionXY(size_t dim);
-  inline void setInput(adouble *x);
-  inline void setOutput(adouble *y);
-  inline void setAlwaysRetaping(bool state);
-
-  inline int checkpointing();
+  CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {
+    cpInfos = reg_timestep_fct(tapeId, cp_tape_id, tsf);
+  }
+  ~CP_Context() = default;
+  void setDoubleFct(ADOLC_TimeStepFuncion_double tsf) {
+    cpInfos->function_double = tsf;
+  }
+  void setSaveFct(ADOLC_saveFct sf) { cpInfos->saveNonAdoubles = sf; }
+  void setRestoreFct(ADOLC_restoreFct rf) { cpInfos->restoreNonAdoubles = rf; }
+  void setNumberOfSteps(size_t number) { cpInfos->steps = number; }
+  void setNumberOfCheckpoints(size_t number) { cpInfos->checkpoints = number; }
+  void setDimensionXY(size_t dim) { cpInfos->dim = dim; }
+  void setInput(adouble *x) { cpInfos->adp_x = x; }
+  void setOutput(adouble *y) { cpInfos->adp_y = y; }
+  void setAlwaysRetaping(bool state) {
+    if (state)
+      cpInfos->retaping = 1;
+    else
+      cpInfos->retaping = 0;
+  }
+  int checkpointing(short tapeId) { return ::checkpointing(tapeId, cpInfos); }
 
 private:
   inline CP_Context() {}
 
   CpInfos *cpInfos;
 };
-
-CP_Context::CP_Context(ADOLC_TimeStepFuncion tsf) {
-  cpInfos = reg_timestep_fct(tsf);
-}
-
-void CP_Context::setDoubleFct(ADOLC_TimeStepFuncion_double tsf) {
-  cpInfos->function_double = tsf;
-}
-
-void CP_Context::setSaveFct(ADOLC_saveFct sf) { cpInfos->saveNonAdoubles = sf; }
-
-void CP_Context::setRestoreFct(ADOLC_restoreFct rf) {
-  cpInfos->restoreNonAdoubles = rf;
-}
-
-void CP_Context::setNumberOfSteps(size_t number) { cpInfos->steps = number; }
-
-void CP_Context::setNumberOfCheckpoints(size_t number) {
-  cpInfos->checkpoints = number;
-}
-
-void CP_Context::setTapeNumber(size_t tapeNumber) {
-  cpInfos->tapeNumber = tapeNumber;
-}
-
-void CP_Context::setDimensionXY(size_t dim) { cpInfos->dim = dim; }
-
-void CP_Context::setInput(adouble *x) { cpInfos->adp_x = x; }
-
-void CP_Context::setOutput(adouble *y) { cpInfos->adp_y = y; }
-
-void CP_Context::setAlwaysRetaping(bool state) {
-  if (state)
-    cpInfos->retaping = 1;
-  else
-    cpInfos->retaping = 0;
-}
-
-int CP_Context::checkpointing() { return ::checkpointing(cpInfos); }
-
-#endif /* CPLUSPLUS */
 
 /****************************************************************************/
 #endif /* ADOLC_CHECKPOINTING_H */

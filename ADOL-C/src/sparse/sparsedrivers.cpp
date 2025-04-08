@@ -12,12 +12,11 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#include <adolc/dvlparms.h>
-#include <adolc/oplate.h>
-#include <adolc/taping_p.h>
-
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
+#include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
+#include <adolc/oplate.h>
 #include <adolc/sparse/sparsedrivers.h>
 
 #if defined(ADOLC_INTERNAL)
@@ -69,11 +68,10 @@ int jac_pat(
   int rc = -1;
   int i, ctrl_options[2];
 
-  if (crs == NULL) {
-    fprintf(DIAG_OUT, "ADOL-C user error in jac_pat(...) : "
-                      "parameter crs may not be NULL !\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (!crs)
+    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+
+  else
     for (i = 0; i < depen; i++)
       crs[i] = NULL;
 
@@ -109,11 +107,9 @@ int absnormal_jac_pat(short tag, /* tape identification                       */
                       /* returned compressed row block-index storage */
 ) {
 
-  if (crs == NULL) {
-    fprintf(DIAG_OUT, "ADOL-C user error in jac_pat(...) : "
-                      "parameter crs may not be NULL !\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (!crs)
+    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+  else
     for (int i = 0; i < depen + numsw; i++)
       crs[i] = NULL;
   return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint, crs);
@@ -146,10 +142,7 @@ void generate_seed_jac(int m, int n, unsigned int **JP, double ***Seed, int *p,
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if linked with ColPack\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
 }
 #endif
 
@@ -178,13 +171,11 @@ int hess_pat(short tag, /* tape identification                        */
   int rc = -1;
   int i;
 
-  if (crs == NULL) {
-    fprintf(DIAG_OUT, "ADOL-C user error in hess_pat(...) : "
-                      "parameter crs may not be NULL !\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } else
+  if (!crs)
+    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+  else
     for (i = 0; i < indep; i++)
-      crs[i] = NULL;
+      crs[i] = nullptr;
 
   if ((option < 0) || (option > 3))
     option = 0; /* default */
@@ -228,10 +219,7 @@ void generate_seed_hess(int n, unsigned int **HP, double ***Seed, int *p,
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if linked with ColPack\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
 }
 #endif
 
@@ -272,6 +260,7 @@ int sparse_jac(short tag,  /* tape identification                     */
 )
 #if HAVE_LIBCOLPACK
 {
+  std::shared_ptr<ValueTape> tape = getTape(tag);
   int i;
   unsigned int j;
   SparseJacInfos sJinfos;
@@ -280,9 +269,6 @@ int sparse_jac(short tag,  /* tape identification                     */
   TapeInfos *tapeInfos;
   JacobianRecovery1D *jr1d;
   JacobianRecovery1D jr1d_loc;
-
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   if (repeat == 0) {
     if ((options[0] < 0) || (options[0] > 1))
@@ -351,22 +337,21 @@ int sparse_jac(short tag,  /* tape identification                     */
     sJinfos.jr1d = (void *)jr1d;
     setTapeInfoJacSparse(tag, sJinfos);
     tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
+    tape->tapeInfos_.copy(*tapeInfos);
   } else {
     tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-    sJinfos.depen = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.depen;
-    sJinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.nnz_in;
-    sJinfos.JP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.JP;
-    sJinfos.B = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.B;
-    sJinfos.y = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.y;
-    sJinfos.Seed = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.Seed;
-    sJinfos.seed_rows = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_rows;
-    sJinfos.seed_clms = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.seed_clms;
+    tape->tapeInfos_.copy(*tapeInfos);
+    sJinfos.depen = tape->tapeInfos_.pTapeInfos.sJinfos.depen;
+    sJinfos.nnz_in = tape->tapeInfos_.pTapeInfos.sJinfos.nnz_in;
+    sJinfos.JP = tape->tapeInfos_.pTapeInfos.sJinfos.JP;
+    sJinfos.B = tape->tapeInfos_.pTapeInfos.sJinfos.B;
+    sJinfos.y = tape->tapeInfos_.pTapeInfos.sJinfos.y;
+    sJinfos.Seed = tape->tapeInfos_.pTapeInfos.sJinfos.Seed;
+    sJinfos.seed_rows = tape->tapeInfos_.pTapeInfos.sJinfos.seed_rows;
+    sJinfos.seed_clms = tape->tapeInfos_.pTapeInfos.sJinfos.seed_clms;
     g = (BipartiteGraphPartialColoringInterface *)
-            ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.g;
-    jr1d =
-        (JacobianRecovery1D *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sJinfos.jr1d;
+            tape->tapeInfos_.pTapeInfos.sJinfos.g;
+    jr1d = (JacobianRecovery1D *)tape->tapeInfos_.pTapeInfos.sJinfos.jr1d;
   }
 
   if (sJinfos.nnz_in != *nnz) {
@@ -423,10 +408,7 @@ int sparse_jac(short tag,  /* tape identification                     */
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if linked with ColPack\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
   return -1;
 }
 #endif
@@ -454,6 +436,7 @@ int sparse_hess(short tag,  /* tape identification                     */
 )
 #if HAVE_LIBCOLPACK
 {
+  std::shared_ptr<ValueTape> tape = getTape(tag);
   int i, l;
   unsigned int j;
   SparseHessInfos sHinfos;
@@ -464,9 +447,6 @@ int sparse_hess(short tag,  /* tape identification                     */
   GraphColoringInterface *g;
   TapeInfos *tapeInfos;
   HessianRecovery *hr;
-
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /* Generate sparsity pattern, determine nnz, allocate memory */
   if (repeat <= 0) {
@@ -487,14 +467,11 @@ int sparse_hess(short tag,  /* tape identification                     */
       }
     } else {
       tapeInfos = getTapeInfos(tag);
-      ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-      if (indep != ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.indep) {
-        fprintf(DIAG_OUT, "ADOL-C Error: wrong number of independents stored "
-                          "in hessian pattern.\n");
-        adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-      }
-      deepcopy_HP(&sHinfos.HP, ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP,
-                  indep);
+      tape->tapeInfos_.copy(*tapeInfos);
+      if (indep != tape->tapeInfos_.pTapeInfos.sHinfos.indep)
+        fail(ADOLC_ERRORS::ADOLC_SPARSE_HESS_IND,
+             std::source_location::current());
+      deepcopy_HP(&sHinfos.HP, tape->tapeInfos_.pTapeInfos.sHinfos.HP, indep);
     }
 
     sHinfos.indep = indep;
@@ -546,21 +523,21 @@ int sparse_hess(short tag,  /* tape identification                     */
     setTapeInfoHessSparse(tag, sHinfos);
 
     tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
+    tape->tapeInfos_.copy(*tapeInfos);
 
   } else {
     tapeInfos = getTapeInfos(tag);
-    ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-    sHinfos.nnz_in = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.nnz_in;
-    sHinfos.HP = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP;
-    sHinfos.Hcomp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Hcomp;
-    sHinfos.Xppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Xppp;
-    sHinfos.Yppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Yppp;
-    sHinfos.Zppp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Zppp;
-    sHinfos.Upp = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.Upp;
-    sHinfos.p = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.p;
-    g = (GraphColoringInterface *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.g;
-    hr = (HessianRecovery *)ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.hr;
+    tape->tapeInfos_.copy(*tapeInfos);
+    sHinfos.nnz_in = tape->tapeInfos_.pTapeInfos.sHinfos.nnz_in;
+    sHinfos.HP = tape->tapeInfos_.pTapeInfos.sHinfos.HP;
+    sHinfos.Hcomp = tape->tapeInfos_.pTapeInfos.sHinfos.Hcomp;
+    sHinfos.Xppp = tape->tapeInfos_.pTapeInfos.sHinfos.Xppp;
+    sHinfos.Yppp = tape->tapeInfos_.pTapeInfos.sHinfos.Yppp;
+    sHinfos.Zppp = tape->tapeInfos_.pTapeInfos.sHinfos.Zppp;
+    sHinfos.Upp = tape->tapeInfos_.pTapeInfos.sHinfos.Upp;
+    sHinfos.p = tape->tapeInfos_.pTapeInfos.sHinfos.p;
+    g = (GraphColoringInterface *)tape->tapeInfos_.pTapeInfos.sHinfos.g;
+    hr = (HessianRecovery *)tape->tapeInfos_.pTapeInfos.sHinfos.hr;
   }
 
   if (sHinfos.Upp == NULL) {
@@ -619,10 +596,7 @@ int sparse_hess(short tag,  /* tape identification                     */
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if linked with ColPack\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
   return -1;
 }
 #endif
@@ -636,14 +610,12 @@ void set_HP(short tag, /* tape identification                     */
             unsigned int **HP)
 #ifdef SPARSE
 {
+  std::shared_ptr<ValueTape> tape = getTape(tag);
   SparseHessInfos sHinfos;
   TapeInfos *tapeInfos;
 
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
   tapeInfos = getTapeInfos(tag);
-  ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
+  tape->tapeInfos_.copy(*tapeInfos);
   sHinfos.nnz_in = 0;
   deepcopy_HP(&sHinfos.HP, HP, indep);
   sHinfos.Hcomp = NULL;
@@ -659,11 +631,7 @@ void set_HP(short tag, /* tape identification                     */
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if sparse configuration "
-          "option was used\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
 }
 #endif
 
@@ -672,22 +640,16 @@ void get_HP(short tag, /* tape identification                     */
             unsigned int ***HP)
 #ifdef SPARSE
 {
+  std::shared_ptr<ValueTape> tape = getTape(tag);
   TapeInfos *tapeInfos;
 
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-
   tapeInfos = getTapeInfos(tag);
-  ADOLC_CURRENT_TAPE_INFOS.copy(*tapeInfos);
-  deepcopy_HP(HP, ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.sHinfos.HP, indep);
+  tape->tapeInfos_.copy(*tapeInfos);
+  deepcopy_HP(HP, tape->tapeInfos_.pTapeInfos.sHinfos.HP, indep);
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if sparse configuration "
-          "option was used\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
 }
 #endif
 
@@ -755,11 +717,9 @@ int bit_vector_propagation(
   /* =================================================== forward propagation */
   if (forward_mode) {
 
-    if ((tight_mode) && (basepoint == NULL)) {
-      fprintf(DIAG_OUT, "ADOL-C error in jac_pat(...) :  supply basepoint x "
-                        "for tight mode.\n");
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+    if ((tight_mode) && !basepoint)
+      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_NO_BP,
+           std::source_location::current());
 
     /* indep partial derivatives for the whole Jacobian */
 
@@ -782,18 +742,16 @@ int bit_vector_propagation(
     /* allocate memory --------------------------------------------------- */
 
     if (!(indep_blocks_flags =
-              (unsigned char *)calloc(i_blocks_per_strip, sizeof(char)))) {
-      fprintf(DIAG_OUT,
-              "ADOL-C error, " __FILE__
-              ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
-              __LINE__, (int)(i_blocks_per_strip * sizeof(char)));
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+              (unsigned char *)calloc(i_blocks_per_strip, sizeof(char))))
+      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
+           FailInfo{.info2 = i_blocks_per_strip * sizeof(char)},
+           std::source_location::current());
 
     seed = myalloc2_ulong(indep, p_stripmine);
     jac_bit_pat = myalloc2_ulong(depen, p_stripmine);
 
-    /* strip-mining : repeated forward calls ----------------------------- */
+    /* strip-mining : repeated forward calls -----------------------------
+     */
 
     for (strip_idx = 0; strip_idx < stripmined_calls; strip_idx++) {
       /* build a partition of the seed matrix (indep x indep_blocks) --- */
@@ -856,13 +814,11 @@ int bit_vector_propagation(
 
         if ((k > 0) || (strip_idx == 0)) {
           if (!(crs[j] = (unsigned int *)realloc(
-                    crs[j], (k_old + k + 1) * sizeof(unsigned int)))) {
-            fprintf(DIAG_OUT,
-                    "ADOL-C error, " __FILE__
-                    ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
-                    __LINE__, (int)((k_old + k + 1) * sizeof(unsigned int)));
-            adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-          }
+                    crs[j], (k_old + k + 1) * sizeof(unsigned int))))
+            fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
+                 FailInfo{.info2 = (k_old + k + 1) * sizeof(unsigned int)},
+                 std::source_location::current());
+
           if (strip_idx == 0)
             crs[j][0] = 0;
           if (k > 0) {
@@ -886,7 +842,6 @@ int bit_vector_propagation(
 
   /* =================================================== reverse propagation */
   else {
-
     /* depen weight vectors for the whole Jacobian */
 
     /* number of size_ts to store the whole seed / Jacobian matrice */
@@ -905,32 +860,28 @@ int bit_vector_propagation(
     /* number of dependent blocks per seed / Jacobian strip */
     d_blocks_per_strip = q_stripmine * bits_per_long;
 
-    /* allocate memory --------------------------------------------------- */
+    /* allocate memory ---------------------------------------------------
+     */
     if (!(indep_blocks_flags =
-              (unsigned char *)calloc(indep, sizeof(unsigned char)))) {
-      fprintf(DIAG_OUT,
-              "ADOL-C error, " __FILE__
-              ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
-              __LINE__, (int)(indep * sizeof(unsigned char)));
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
-
+              (unsigned char *)calloc(indep, sizeof(unsigned char))))
+      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
+           FailInfo{.info2 = indep * sizeof(unsigned char)},
+           std::source_location::current());
     seed = myalloc2_ulong(q_stripmine, depen);
     jac_bit_pat = myalloc2_ulong(q_stripmine, indep);
 
     /* olvo 20000214: call to forward required in tight mode only,
        in safe mode no basepoint available! */
     if (tight_mode) {
-      if (basepoint == NULL) {
-        fprintf(DIAG_OUT, "ADOL-C error in jac_pat(..) :  ");
-        fprintf(DIAG_OUT, "no basepoint x for tight mode supplied.\n");
-        adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-      }
+      if (!basepoint)
+        fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_NO_BP,
+             std::source_location::current());
 
       rc = zos_forward(tag, depen, indep, 1, basepoint, valuepoint);
     }
 
-    /* strip-mining : repeated reverse calls ----------------------------- */
+    /* strip-mining : repeated reverse calls -----------------------------
+     */
 
     for (strip_idx = 0; strip_idx < stripmined_calls; strip_idx++) {
       /* build a partition of the seed matrix (depen_blocks x depen)     */
@@ -986,14 +937,12 @@ int bit_vector_propagation(
           k += *i_b_flags++;
 
         if (!(crs[d_bl_idx] =
-                  (unsigned int *)malloc((k + 1) * sizeof(unsigned int)))) {
-          fprintf(DIAG_OUT,
-                  "ADOL-C error, " __FILE__
-                  ":%i : \njac_pat(...) unable to allocate %i bytes !\n",
-                  __LINE__, (int)((k + 1) * sizeof(unsigned int)));
-          adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-        }
-        crs[d_bl_idx][0] = k; /* number of non-zero indep. blocks */
+                  (unsigned int *)malloc((k + 1) * sizeof(unsigned int))))
+          fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
+               FailInfo{.info2 = (k + 1) * sizeof(unsigned int)},
+               std::source_location::current())
+
+              crs[d_bl_idx][0] = k; /* number of non-zero indep. blocks */
         k = 1;
         i_b_flags = indep_blocks_flags;
         for (i = 0; i < indep; i++) {
@@ -1024,71 +973,6 @@ int bit_vector_propagation(
 
   return (rc);
 }
-
-BEGIN_C_DECLS
-/*****************************************************************************/
-/*                                                FREE SPARSE JACOBIAN INFOS */
-
-/* ------------------------------------------------------------------------- */
-void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g,
-                        void *jr1d, int seed_rows, int seed_clms, int depen) {
-  if (y)
-    myfree1(y);
-
-  if (B)
-    myfree2(B);
-
-  for (int i = 0; i < depen; i++) {
-    free(JP[i]);
-  }
-
-  free(JP);
-
-#ifdef HAVE_LIBCOLPACK
-  if (g)
-    delete (BipartiteGraphPartialColoringInterface *)g;
-
-  if (jr1d)
-    delete (JacobianRecovery1D *)jr1d;
-#endif
-}
-/*****************************************************************************/
-/*                                                 FREE SPARSE HESSIAN INFOS */
-
-/* ------------------------------------------------------------------------- */
-void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp,
-                         double ***Zppp, double **Upp, unsigned int **HP,
-                         void *g, void *hr, int p, int indep) {
-  if (Hcomp)
-    myfree2(Hcomp);
-
-  if (Xppp)
-    myfree3(Xppp);
-
-  if (Yppp)
-    myfree3(Yppp);
-
-  if (Zppp)
-    myfree3(Zppp);
-
-  if (Upp)
-    myfree2(Upp);
-
-  if (HP) {
-    for (int i = 0; i < indep; i++)
-      free(HP[i]);
-    free(HP);
-  }
-
-#ifdef HAVE_LIBCOLPACK
-  if (g)
-    delete (GraphColoringInterface *)g;
-  if (hr)
-    delete (HessianRecovery *)hr;
-#endif
-}
-
-END_C_DECLS
 
 #include <adolc/adtl_indo.h>
 
@@ -1215,10 +1099,7 @@ int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const fun,
 }
 #else
 {
-  fprintf(DIAG_OUT,
-          "ADOL-C error: function %s can only be used if linked with ColPack\n",
-          __FUNCTION__);
-  adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
   return -1;
 }
 #endif

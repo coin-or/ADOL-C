@@ -13,7 +13,6 @@
 
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 
@@ -200,14 +199,13 @@ struct AdolcMediStatic {
 AdolcMediStatic *adolcMediStatic;
 
 void mediAddHandle(medi::HandleBase *h) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   // do not need to check trace flag, this is included in the handle check
   put_op(medi_call);
-  locint index = adolcMediStatic->addHandle(ADOLC_CURRENT_TAPE_INFOS.tapeID, h);
+  locint index =
+      adolcMediStatic->addHandle(ADOLC_CURRENT_TAPE_INFOS.tapeId_, h);
 
-  ADOLC_PUT_LOCINT(index);
+  put_loc(index);
 }
 
 void mediCallHandleReverse(short tapeId, locint index, double *primalVec,

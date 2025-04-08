@@ -19,6 +19,9 @@ namespace tt = boost::test_tools;
 BOOST_AUTO_TEST_SUITE(test_hov_forward)
 BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   const int16_t tag = 0;
+
+  getTapeBuffer().push_back(std::make_shared<ValueTape>(tag));
+  setDefaultTapeId(tag);
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 2;
@@ -37,7 +40,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   adouble dep = fmax(pow(indep[0], 2), pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -197,7 +200,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   adouble dep = fmin(-pow(indep[0], 2), -pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -353,7 +356,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = exp(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -448,7 +451,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) * pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -574,7 +577,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) + pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -662,7 +665,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) - pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -750,7 +753,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) / pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -883,7 +886,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = tan(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1014,7 +1017,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = sin(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1109,7 +1112,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = cos(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1204,7 +1207,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = sqrt(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1283,7 +1286,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = log(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1354,7 +1357,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = sinh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1425,7 +1428,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = cosh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1496,7 +1499,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = tanh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1584,7 +1587,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = asin(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1669,7 +1672,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = acos(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1754,7 +1757,7 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = atan(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1835,7 +1838,7 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = log10(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1911,7 +1914,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = asinh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1996,7 +1999,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = acosh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2091,7 +2094,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = atanh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2171,7 +2174,7 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
   indep[0] <<= in[0];
   dep = ++indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2227,7 +2230,7 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
   indep[0] <<= in[0];
   dep = --indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2283,7 +2286,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   indep[0] <<= in[0];
   dep = +indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2337,7 +2340,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   indep[0] <<= in[0];
   dep = -indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2391,7 +2394,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
   indep[1] <<= in[1];
   adouble dep = atan2(indep[0], indep[1]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2590,7 +2593,7 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
   indep[0] <<= in[0];
   adouble dep = pow(indep[0], 3.2);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2662,7 +2665,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], indep[1]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2811,7 +2814,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
   indep[0] <<= in[0];
   adouble dep = pow(1.5, indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2885,7 +2888,7 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_HOV_Forward) {
   indep[0] <<= in[0];
   adouble dep = cbrt(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(tag);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);

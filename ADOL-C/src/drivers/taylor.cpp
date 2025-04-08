@@ -15,7 +15,8 @@
 #include <adolc/adalloc.h>
 #include <adolc/drivers/taylor.h>
 #include <adolc/interfaces.h>
-#include <adolc/taping_p.h>
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 
 #include <math.h>
 
@@ -442,67 +443,59 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
   double *y;
   int i, newX = 0;
   int rc = 3;
-  TapeInfos *tapeInfos;
+  std::shared_ptr<ValueTape> tape = getTape(tag);
 
-  tapeInfos = getTapeInfos(tag);
   y = myalloc1(n);
-  if (n != tapeInfos->pTapeInfos.jacSolv_nax) {
-    if (tapeInfos->pTapeInfos.jacSolv_nax) {
-      free(tapeInfos->pTapeInfos.jacSolv_ci);
-      free(tapeInfos->pTapeInfos.jacSolv_ri);
-      myfree1(tapeInfos->pTapeInfos.jacSolv_xold);
-      myfreeI2(tapeInfos->pTapeInfos.jacSolv_nax,
-               tapeInfos->pTapeInfos.jacSolv_I);
-      myfree2(tapeInfos->pTapeInfos.jacSolv_J);
+  if (n != tape->jacSolv_nax()) {
+    if (tape->jacSolv_nax()) {
+      free(tape->jacSolv_ci());
+      free(tape->jacSolv_ri());
+      myfree1(tape->jacSolv_xold());
+      myfreeI2(tape->jacSolv_nax(), tape->jacSolv_I());
+      myfree2(tape->jacSolv_J());
     }
-    tapeInfos->pTapeInfos.jacSolv_J = myalloc2(n, n);
-    tapeInfos->pTapeInfos.jacSolv_I = myallocI2(n);
-    tapeInfos->pTapeInfos.jacSolv_xold = myalloc1(n);
-    tapeInfos->pTapeInfos.jacSolv_ri = (int *)malloc(n * sizeof(int));
-    tapeInfos->pTapeInfos.jacSolv_ci = (int *)malloc(n * sizeof(int));
+    tape->jacSolv_J(myalloc2(n, n));
+    tape->jacSolv_I(myallocI2(n));
+    tape->jacSolv_xold(myalloc1(n));
+    tape->jacSolv_ri((int *)malloc(n * sizeof(int)));
+    tape->jacSolv_ci((int *)malloc(n * sizeof(int)));
 
-    tapeInfos->pTapeInfos.jacSolv_modeold = 0;
-    tapeInfos->pTapeInfos.jacSolv_nax = n;
+    tape->jacSolv_modeold(0);
+    tape->jacSolv_nax(n);
   }
   for (i = 0; i < n; ++i)
-    if (x[i] != tapeInfos->pTapeInfos.jacSolv_xold[i]) {
-      tapeInfos->pTapeInfos.jacSolv_xold[i] = x[i];
+    if (x[i] != tape->jacSolv_xold()[i]) {
+      tape->jacSolv_xold()[i] = x[i];
       newX = 1;
     }
   switch (mode) {
   case 0:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tapeInfos->pTapeInfos.jacSolv_I,
-                           tapeInfos->pTapeInfos.jacSolv_J));
+    MINDEC(rc, fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
     break;
   case 1:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tapeInfos->pTapeInfos.jacSolv_I,
-                           tapeInfos->pTapeInfos.jacSolv_J));
-    if (LUFactorization(tapeInfos->pTapeInfos.jacSolv_J, n,
-                        tapeInfos->pTapeInfos.jacSolv_ri,
-                        tapeInfos->pTapeInfos.jacSolv_ci) < 0) {
+    MINDEC(rc, fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
+    if (LUFactorization(tape->jacSolv_J(), n, tape->jacSolv_ri(),
+                        tape->jacSolv_ci()) < 0) {
       rc = -3;
       break;
     }
-    tapeInfos->pTapeInfos.jacSolv_modeold = 1;
+    tape->jacSolv_modeold(1);
     break;
   case 2:
-    if ((tapeInfos->pTapeInfos.jacSolv_modeold < 1) || (newX == 1)) {
+    if ((tape->jacSolv_modeold() < 1) || (newX == 1)) {
       MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-      MINDEC(rc, fov_reverse(tag, n, n, n, tapeInfos->pTapeInfos.jacSolv_I,
-                             tapeInfos->pTapeInfos.jacSolv_J));
-      if (LUFactorization(tapeInfos->pTapeInfos.jacSolv_J, n,
-                          tapeInfos->pTapeInfos.jacSolv_ri,
-                          tapeInfos->pTapeInfos.jacSolv_ci) < 0) {
+      MINDEC(rc,
+             fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
+      if (LUFactorization(tape->jacSolv_J(), n, tape->jacSolv_ri(),
+                          tape->jacSolv_ci()) < 0) {
         rc = -3;
         break;
       }
     }
-    GauszSolve(tapeInfos->pTapeInfos.jacSolv_J, n,
-               tapeInfos->pTapeInfos.jacSolv_ri,
-               tapeInfos->pTapeInfos.jacSolv_ci, b);
-    tapeInfos->pTapeInfos.jacSolv_modeold = 2;
+    GauszSolve(tape->jacSolv_J(), n, tape->jacSolv_ri(), tape->jacSolv_ci(), b);
+    tape->jacSolv_modeold(2);
     break;
   }
   myfree1(y);
