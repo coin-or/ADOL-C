@@ -3,9 +3,21 @@
 
 #include <adolc/storemanager.h>
 #include <adolc/valuetape/tapeinfos.h>
+#include <limits>
 
 struct GlobalTapeVarsCL {
-  GlobalTapeVarsCL();
+  GlobalTapeVarsCL()
+      : paramStoreMgrPtr(std::make_unique<StoreManagerLocintBlock>(
+            pStore, maxparam, numparam)),
+#ifdef ADOLC_TRACK_ACTIVITY
+        storeManagerPtr(std::make_unique<StoreManagerLocintBlock>(
+            store, actStore, storeSize, numLives))
+#else
+        storeManagerPtr(std::make_unique<StoreManagerLocintBlock>(
+            store, storeSize, numLives))
+#endif
+  {};
+
   ~GlobalTapeVarsCL() = default;
   GlobalTapeVarsCL(GlobalTapeVarsCL &&other) noexcept;
   GlobalTapeVarsCL &operator=(GlobalTapeVarsCL &&other) noexcept;
@@ -24,7 +36,7 @@ struct GlobalTapeVarsCL {
 #endif
   size_t storeSize{0};
   size_t numLives{0};
-  size_t maxLoc{0};
+  size_t maxLoc{std::numeric_limits<size_t>::max()};
 
   // Defaults to the value specified in
   // usrparms.h. May be overwritten by values

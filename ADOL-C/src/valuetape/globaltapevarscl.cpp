@@ -2,24 +2,6 @@
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <string>
 
-GlobalTapeVarsCL::GlobalTapeVarsCL()
-    :
-#ifdef ADOLC_TRACK_ACTIVITY
-      storeManagerPtr(std::make_unique<StoreManagerLocintBlock>(
-          store, actStore, storeSize, numLives)),
-#else
-      storeManagerPtr(std::make_unique<StoreManagerLocintBlock>(
-          store, storeSize, numLives)),
-#endif
-      paramStoreMgrPtr(std::make_unique<StoreManagerLocintBlock>(
-          pStore, maxparam, numparam)) {
-  maxLoc = 1;
-  for (uint i = 0; i < sizeof(locint) * 8 - 1; ++i) {
-    maxLoc <<= 1;
-    ++maxLoc;
-  }
-}
-
 GlobalTapeVarsCL::GlobalTapeVarsCL(GlobalTapeVarsCL &&other) noexcept
     : store(other.store),
 #if defined(ADOLC_TRACK_ACTIVITY)
