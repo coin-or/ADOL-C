@@ -1,5 +1,6 @@
 #include <adolc/dvlparms.h>
 #include <adolc/valuetape/globaltapevarscl.h>
+#include <iostream>
 #include <string>
 
 GlobalTapeVarsCL::GlobalTapeVarsCL(GlobalTapeVarsCL &&other) noexcept
@@ -43,6 +44,10 @@ GlobalTapeVarsCL::operator=(GlobalTapeVarsCL &&other) noexcept {
     delete[] pStore;
 
     // Move data
+    // move mamangers first, since they hold references to storeSize, etc
+    // otherwise storeSize, etc will be overwritten
+    paramStoreMgrPtr = std::move(other.paramStoreMgrPtr);
+    storeManagerPtr = std::move(other.storeManagerPtr);
     store = other.store;
 #if defined(ADOLC_TRACK_ACTIVITY)
     actStore = other.actStore;
@@ -63,8 +68,6 @@ GlobalTapeVarsCL::operator=(GlobalTapeVarsCL &&other) noexcept {
     maxparam = other.maxparam;
     pStore = other.pStore;
     initialStoreSize = other.initialStoreSize;
-    paramStoreMgrPtr = std::move(other.paramStoreMgrPtr);
-    storeManagerPtr = std::move(other.storeManagerPtr);
 
     // Null out source object to prevent double free
     other.store = nullptr;

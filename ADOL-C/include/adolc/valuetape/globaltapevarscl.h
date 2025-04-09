@@ -19,9 +19,13 @@ struct GlobalTapeVarsCL {
   {};
 
   ~GlobalTapeVarsCL() = default;
+
   GlobalTapeVarsCL(GlobalTapeVarsCL &&other) noexcept;
   GlobalTapeVarsCL &operator=(GlobalTapeVarsCL &&other) noexcept;
+
   GlobalTapeVarsCL(const GlobalTapeVarsCL &) = delete;
+  GlobalTapeVarsCL &operator=(const GlobalTapeVarsCL &) = delete;
+
   void reallocStore(unsigned char type);
   void checkInitialStoreSize() {
     if (initialStoreSize > StoreManager::get_initialSize())
