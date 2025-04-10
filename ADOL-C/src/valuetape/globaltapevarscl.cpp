@@ -80,9 +80,9 @@ GlobalTapeVarsCL::operator=(GlobalTapeVarsCL &&other) noexcept {
 }
 
 void GlobalTapeVarsCL::reallocStore(unsigned char type) {
-  store = NULL;
+  store = nullptr;
 #if defined(ADOLC_TRACK_ACTIVITY)
-  actStore = NULL;
+  actStore = nullptr;
 #endif
   storeSize = 0;
   numLives = 0;

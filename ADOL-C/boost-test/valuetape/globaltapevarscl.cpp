@@ -128,4 +128,18 @@ BOOST_AUTO_TEST_CASE(MoveAssignmentTransfersOwnership) {
   BOOST_CHECK(obj2.storeManagerPtr->size() == obj2.numLives);
 }
 
+BOOST_AUTO_TEST_CASE(CheckReallocStore) {
+  GlobalTapeVarsCL obj;
+
+  obj.store = new double[10];
+  obj.storeSize = 10;
+  obj.numLives = 4;
+
+  obj.reallocStore(StoreManager::ADOLC_LOCATION_BLOCKS);
+
+  BOOST_CHECK(obj.store == nullptr);
+  BOOST_CHECK(obj.storeSize == 0);
+  BOOST_CHECK(obj.numLives == 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
