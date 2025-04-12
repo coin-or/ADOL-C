@@ -5,7 +5,7 @@
 
 BOOST_AUTO_TEST_SUITE(Test_GlobalTapeVarsCL)
 
-BOOST_AUTO_TEST_CASE(DefaultConstructorInitializesPointers) {
+BOOST_AUTO_TEST_CASE(TestDefaultConstructorInitializesPointers) {
   GlobalTapeVarsCL obj;
 
   // Expect unique_ptrs to be non-null
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructorInitializesPointers) {
   BOOST_CHECK(obj.storeManagerPtr->size() == obj.numLives);
 }
 
-BOOST_AUTO_TEST_CASE(MoveConstructorTransfersOwnership) {
+BOOST_AUTO_TEST_CASE(TestMoveConstructorTransfersOwnership) {
   GlobalTapeVarsCL obj1;
   double *a = new double[10];
   double *b = new double[17];
@@ -74,9 +74,12 @@ BOOST_AUTO_TEST_CASE(MoveConstructorTransfersOwnership) {
 
   BOOST_CHECK(obj1.store == nullptr);
   BOOST_CHECK(obj1.pStore == nullptr);
+
+  delete[] a;
+  delete[] b;
 }
 
-BOOST_AUTO_TEST_CASE(MoveAssignmentTransfersOwnership) {
+BOOST_AUTO_TEST_CASE(TestMoveAssignmentTransfersOwnership) {
   GlobalTapeVarsCL obj1;
   double *a = new double[10];
   double *b = new double[17];
@@ -126,9 +129,12 @@ BOOST_AUTO_TEST_CASE(MoveAssignmentTransfersOwnership) {
   BOOST_CHECK(obj2.initialStoreSize == 3);
   BOOST_CHECK(obj2.storeManagerPtr->maxSize() == obj2.storeSize);
   BOOST_CHECK(obj2.storeManagerPtr->size() == obj2.numLives);
+
+  delete[] a;
+  delete[] b;
 }
 
-BOOST_AUTO_TEST_CASE(CheckReallocStore) {
+BOOST_AUTO_TEST_CASE(TestReallocStore) {
   GlobalTapeVarsCL obj;
 
   obj.store = new double[10];
@@ -140,6 +146,39 @@ BOOST_AUTO_TEST_CASE(CheckReallocStore) {
   BOOST_CHECK(obj.store == nullptr);
   BOOST_CHECK(obj.storeSize == 0);
   BOOST_CHECK(obj.numLives == 0);
+
+  obj.storeManagerPtr->next_loc();
+  BOOST_CHECK(obj.store != nullptr);
+  BOOST_CHECK(obj.storeSize == obj.storeManagerPtr->get_initialSize());
+  BOOST_CHECK(obj.numLives == 1);
+
+  GlobalTapeVarsCL obj2;
+
+  obj2.store = new double[10];
+  obj2.storeSize = 10;
+  obj2.numLives = 4;
+
+  obj2.reallocStore(StoreManager::ADOLC_LOCATION_SINGLETONS);
+
+  BOOST_CHECK(obj2.store == nullptr);
+  BOOST_CHECK(obj2.storeSize == 0);
+  BOOST_CHECK(obj2.numLives == 0);
+}
+
+BOOST_AUTO_TEST_CASE(TestCheckInitialStoreSize) {
+  GlobalTapeVarsCL obj;
+
+  double *a = new double[10];
+  obj.store = a;
+  obj.storeSize = 10;
+  obj.numLives = 4;
+  obj.initialStoreSize = 10;
+
+  obj.checkInitialStoreSize();
+
+  BOOST_CHECK(obj.store != a);
+  BOOST_CHECK(obj.storeSize == 20);
+  BOOST_CHECK(obj.numLives == 4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
