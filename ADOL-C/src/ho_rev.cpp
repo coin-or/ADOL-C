@@ -238,36 +238,36 @@ int hos_reverse(short tnum,             /* tape id */
   return rc;
 }
 
-int hos_ti_reverse(short tnum,        /* tape id */
-                   int depen,         /* consistency chk on # of deps */
-                   int indep,         /* consistency chk on # of indeps */
-                   int degre,         /* highest derivative degre  */
-                   double **lagrange, /* range weight vectors       */
-                   double **results)  /* matrix of coefficient vectors */
+int hos_ti_reverse(short tnum, /* tape id */
+                   int depen,  /* consistency chk on # of deps */
+                   int indep,  /* consistency chk on # of indeps */
+                   int degre,  /* highest derivative degre  */
+                   const double *const *lagrange, /* range weight vectors */
+                   double **results) /* matrix of coefficient vectors */
 
 #elif _HOS_OV_
 
 /***************************************************************************/
 /* Higher Order Scalar Reverse Pass, Vector Keep.                          */
 /***************************************************************************/
-int hos_ov_reverse(short tnum,        /* tape id */
-                   int depen,         /* consistency chk on # of deps */
-                   int indep,         /* consistency chk on # of indeps */
-                   int degre,         /* highest derivative degre  */
-                   int nrows,         /* # of Jacobian rows calculated */
-                   double **lagrange, /* range weight vector       */
+int hos_ov_reverse(short tnum, /* tape id */
+                   int depen,  /* consistency chk on # of deps */
+                   int indep,  /* consistency chk on # of indeps */
+                   int degre,  /* highest derivative degre  */
+                   int nrows,  /* # of Jacobian rows calculated */
+                   const double *const *lagrange, /* range weight vector */
                    double ***results) /* matrix of coefficient vectors */
 
 #elif _HOV_
 /***************************************************************************/
 /* Higher Order Vector Reverse Pass.                                       */
 /***************************************************************************/
-int hov_reverse(short tnum,        /* tape id */
-                int depen,         /* consistency chk on # of deps */
-                int indep,         /* consistency chk on # of indeps */
-                int degre,         /* highest derivative degre */
-                int nrows,         /* # of Jacobian rows calculated */
-                double **lagrange, /* domain weight vector */
+int hov_reverse(short tnum, /* tape id */
+                int depen,  /* consistency chk on # of deps */
+                int indep,  /* consistency chk on # of indeps */
+                int degre,  /* highest derivative degre */
+                int nrows,  /* # of Jacobian rows calculated */
+                const double *const *lagrange, /* domain weight vector */
                 double ***results, /* matrix of coefficient vectors */
                 short **nonzero)   /* structural sparsity  pattern  */
 {
@@ -284,14 +284,15 @@ int hov_reverse(short tnum,        /* tape id */
   return rc;
 }
 
-int hov_ti_reverse(short tnum,         /* tape id */
-                   int depen,          /* consistency chk on # of deps */
-                   int indep,          /* consistency chk on # of indeps */
-                   int degre,          /* highest derivative degre */
-                   int nrows,          /* # of Jacobian rows calculated */
-                   double ***lagrange, /* domain weight vectors */
-                   double ***results,  /* matrix of coefficient vectors */
-                   short **nonzero)    /* structural sparsity  pattern  */
+int hov_ti_reverse(
+    short tnum,                           /* tape id */
+    int depen,                            /* consistency chk on # of deps */
+    int indep,                            /* consistency chk on # of indeps */
+    int degre,                            /* highest derivative degre */
+    int nrows,                            /* # of Jacobian rows calculated */
+    const double *const *const *lagrange, /* domain weight vectors */
+    double ***results,                    /* matrix of coefficient vectors */
+    short **nonzero)                      /* structural sparsity  pattern  */
 
 #endif
 
