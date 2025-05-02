@@ -216,12 +216,12 @@ void create_dependent(TBAdoubleHandle a, double *y) {
   *static_cast<adouble *>(a) >>= *y;
 }
 size_t num_independent(short tapeId) {
-  size_t y[TapeInfos::STAT_SIZEE];
+  size_t y[TapeInfos::STAT_SIZE];
   tapestats(tapeId, y);
   return y[TapeInfos::NUM_INDEPENDENTS];
 }
 size_t num_dependent(short tapeId) {
-  size_t y[TapeInfos::STAT_SIZEE];
+  size_t y[TapeInfos::STAT_SIZE];
   tapestats(tapeId, y);
   return y[TapeInfos::NUM_DEPENDENTS];
 }
