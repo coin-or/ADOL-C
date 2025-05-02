@@ -30,7 +30,7 @@ using namespace std;
 /*                                                             MAIN PROGRAM */
 int main() {
   int n, i, j;
-  size_t tape_stats[TapeInfos::STAT_SIZEE];
+  size_t tape_stats[TapeInfos::STAT_SIZE];
 
   cout << "SPEELPENNINGS PRODUCT (ADOL-C Documented Example)\n\n";
   cout << "number of independent variables = ?  \n";

@@ -28,7 +28,7 @@
 /*                                                             MAIN PROGRAM */
 int main() {
   int n, i, it;
-  size_t tape_stats[TapeInfos::STAT_SIZEE];
+  size_t tape_stats[TapeInfos::STAT_SIZE];
 
   /*--------------------------------------------------------------------------*/
   /* Input */

@@ -250,7 +250,7 @@ int main() {
   depTape = tapingScalarFunction(tag, indeps);
   t01 = myclock();
 
-  size_t tape_stats[TapeInfos::STAT_SIZEE];
+  size_t tape_stats[TapeInfos::STAT_SIZE];
   tapestats(tag, tape_stats);
 
   fprintf(stdout, "\n    independents            %zu\n",

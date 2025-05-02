@@ -107,7 +107,7 @@ int main() {
   trace_off();
 
   /*--------------------------------------------------------------------------*/
-  size_t tape_stats[TapeInfos::STAT_SIZEE];
+  size_t tape_stats[TapeInfos::STAT_SIZE];
 
   tapestats(tag1, tape_stats);
 
