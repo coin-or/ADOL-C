@@ -39,13 +39,13 @@ static double norm(double *x, int dim) {
 static double traceNewtonForSquareRoot(int tapeId, int sub_tape_id,
                                        double argument) {
   // ax1 = sqrt(ax1);
-  std::shared_ptr<ValueTape> tape = getTape(tapeId);
-  tape->ensureContiguousLocations(3);
-  adouble x(2.5, tape); // Initial iterate
-  adouble y(tape);
+  setCurrentTape(tapeId);
+  currentTape().ensureContiguousLocations(3);
+  adouble x(2.5); // Initial iterate
+  adouble y;
   double out;
   trace_on(tapeId);
-  adouble u(tape);
+  adouble u;
   u <<= argument;
 
   fp_iteration(tapeId, sub_tape_id, iteration<double>, iteration<adouble>, norm,
@@ -60,7 +60,7 @@ static double traceNewtonForSquareRoot(int tapeId, int sub_tape_id,
                1,    // Size of the vector x_0
                1);   // Number of parameters
   y >>= out;
-  trace_off(tapeId);
+  trace_off();
 
   return out;
 }
@@ -69,11 +69,11 @@ static double traceNewtonForSquareRoot(int tapeId, int sub_tape_id,
  * square root function can be recovered from the tape.
  */
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
-  const short tapeId = 1;
-  const short sub_tape_id = 2;
+  const short tapeId = 8;
+  const short sub_tape_id = 9;
 
-  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(tapeId));
-  getTapeBuffer().emplace_back(std::make_shared<ValueTape>(sub_tape_id));
+  createNewTape(tapeId);
+  createNewTape(sub_tape_id);
 
   // Compute the square root of 2.0
   const double argument[1] = {2.0};
