@@ -2,6 +2,7 @@
 #include <adolc/dvlparms.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <ranges>

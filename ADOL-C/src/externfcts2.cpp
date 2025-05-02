@@ -81,7 +81,6 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
   int ret;
   int oldTraceFlag;
   int i, j;
-  size_t numVals;
   double *vals;
 
   ValueTape &tape = findTape(edfct->tapeId);

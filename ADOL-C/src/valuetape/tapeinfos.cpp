@@ -1,5 +1,6 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/tapeinfos.h>
+#include <cstring> // for memset
 #include <iostream>
 
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
@@ -675,7 +676,7 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
   if (currLoc + maxLocsPerOp + reserveExtraLocations > lastLocP1) {
     size_t remainder = lastLocP1 - currLoc;
     if (remainder > 0)
-      memset(currLoc, 0, (remainder - 1) * sizeof(size_t));
+      std::memset(currLoc, 0, (remainder - 1) * sizeof(size_t));
     *(lastLocP1 - 1) = remainder;
     put_loc_block(lastLocP1, loc_fileName);
     /* every operation writes 1 opcode */
@@ -694,7 +695,7 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
     put_loc(valRemainder);
     /* avoid writing uninitialized memory to the file and get valgrind upset
      */
-    memset(currVal, 0, valRemainder * sizeof(double));
+    std::memset(currVal, 0, valRemainder * sizeof(double));
     put_val_block(lastValP1, val_fileName);
     /* every operation writes 1 opcode */
     if (currOp + 1 == lastOpP1) {

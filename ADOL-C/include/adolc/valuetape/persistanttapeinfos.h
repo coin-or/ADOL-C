@@ -3,6 +3,7 @@
 #define ADOLC_PERSISTANT_TAPE_INFOS_H
 
 #include <array>
+#include <cstring>
 #include <string>
 
 // should remain in a buffer, if we re-use a tape
@@ -36,9 +37,9 @@ struct PersistantTapeInfos {
   /* Tries to read a local config file containing, e.g., buffer sizes         */
   /****************************************************************************/
   static char *duplicatestr(const char *instr) {
-    size_t len = strlen(instr);
+    size_t len = std::strlen(instr);
     char *outstr = new char[len + 1];
-    strncpy(outstr, instr, len);
+    std::strncpy(outstr, instr, len);
     return outstr;
   }
 
