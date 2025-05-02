@@ -166,11 +166,19 @@ public:
  * participates in an arithmetic operation, the `adouble` registers locations
  * and the type of the operation on the tape.
  */
-class ADOLC_DLL_EXPORT adouble {
+class adouble {
+  /** @brief Stores the location of the `adouble` on the tape. */
+  tape_location<adouble> tape_loc_;
+
 public:
-  /** @brief Default constructor. Initializes an `adouble` with next location
-   * from the tape. If ADOLC_ADOUBLE_STDCZERO is set, 0 is written on the tape
-   * at the new location.
+  /** @brief Default destructor. */
+  ~adouble() = default;
+
+  /** @brief Default constructor.
+   *
+   * The location is constructed on the DefaultTape. If
+   * ADOLC_ADOUBLE_STDCZERO is set, 0 is written on the tape at the new
+   * location.
    */
   adouble();
 
@@ -183,70 +191,57 @@ public:
   adouble(double coval);
 
   /**
-   * @brief Copy constructor. Creates a new `adouble` with a new location and
-   * puts assignment operation onto the tape`
+   * @brief Copy constructor.
+   *
+   * Creates a new `adouble` with a new location on the tape of the input
+   * `adouble` and registers assignment operation onto the tape
+   *
    * @param a The `adouble` to copy.
    */
   adouble(const adouble &a);
 
   /**
-   * @brief Moving a's tape_location to the tape_location of this and set a's
-   * state to invalid (valid = 0). This will tell the destruction that "a" does
-   * not own its location. Thus, the location is not removed from the tape.
-   * @param a The `adouble` to move.
+   * @brief Move constructor.
+   *
+   * Transfers the location from the input `adouble`.
+   *
+   * @param other The `adouble` to transfer.
    */
-  adouble(adouble &&a) noexcept : tape_loc_{std::move(a.tape_loc_)} {
-    a.valid = 0;
-  }
-
-  /** @brief Destructor. Releases the location from the tape.
-   * The destructor is used to remove unused locations (tape_loc_.loc_) from the
-   * tape. A location is only removed (free_loc), if the destructed adouble owns
-   * the location. The adouble does not own its location if it is in an invalid
-   * state (valid = 0). The state is only invalid, if the adouble was moved to a
-   * new adouble. The location is reused for the new adouble in this case and
-   * must remain on the tape.
-   */
-  ~adouble() {
-    if (valid) {
-      free_loc(tape_loc_.loc_);
-    }
-  }
+  adouble(adouble &&other) noexcept : tape_loc_(std::move(other.tape_loc_)) {};
 
   // Assignment Operators
 
   /**
    * @brief Records the assingment of a value to the `adouble` on the tape at
    * the location of the `adouble`.
+   *
    * @param coval The value to assign.
    * @return Reference to `this`.
    */
   adouble &operator=(const double coval);
 
   /**
-   * @brief Registers an assignment on the tape with location of `this` and `a`.
+   * @brief Registers an assignment of the input `adouble` to `*this` on the
+   * tape at the location of `*this`.
+   *
    * @param a The `adouble` to assign.
-   * @return Reference to `this`.
+   * @return Reference to `*this`.
    */
   adouble &operator=(const adouble &a);
 
   /**
-   * @brief Moves the state from another `adouble`. The location is overwritten
-   * by the locaiton of `a`. Afterwards the old location is removed from the
-   * tape and `a` is invalid.
-   * @param a The `adouble` to move.
-   * @return Reference to the updated `adouble`.
+   * @brief Move assignment.
+   *
+   * Transfers the location from the input `adouble`.
+   *
+   * @param other The `adouble` to transfer.
+   * @return Reference to `*this`
    */
-  adouble &operator=(adouble &&a) noexcept {
-    if (this == &a) {
+  adouble &operator=(adouble &&other) noexcept {
+    if (this == &other) {
       return *this;
     }
-    // remove location of this from tape to ensure it can be reused
-    free_loc(tape_loc_.loc_);
-
-    tape_loc_ = tape_location{a.loc()};
-    a.valid = 0;
-
+    tape_loc_ = std::move(other.tape_loc_);
     return *this;
   }
   /**
@@ -257,7 +252,6 @@ public:
   adouble &operator=(const pdouble &p);
 
   // Accessors
-
   /**
    * @brief Retrieves the current value stored at the tape location.
    * @return The value of the `adouble` from the tape.
@@ -265,13 +259,12 @@ public:
   double value() const { return currentTape().get_ad_value(loc()); }
 
   /**
-   * @brief Retrieves the tape location of the `adouble`.
+   * @brief Retrieves the location of the `adouble` on the tape.
    * @return The location on the tape.
    */
   size_t loc() const { return tape_loc_.loc(); }
 
   // Mutators
-
   /**
    * @brief Updates the value stored at the tape location.
    * @param coval the new value to assign.
@@ -301,7 +294,6 @@ public:
 
   adouble &operator*=(const double coval);
   adouble &operator*=(const adouble &a);
-  // adouble &operator*=(adouble &&a);
   inline adouble &operator*=(const pdouble &p);
 
   inline adouble &operator/=(const double coval);
@@ -340,18 +332,6 @@ public:
 
   /** @brief Declares the `adouble` as a dependent variable on the tape */
   void declareDependent();
-
-private:
-  /** @brief Stores the location of the `adouble` on the tape. */
-  tape_location tape_loc_;
-
-  /**
-   * @brief Indicates whether the `adouble` is valid.
-   *
-   * All constructors ensure validity (`valid=1`). The validity changes only
-   * during move operations.
-   */
-  int valid{1};
 };
 
 /**
@@ -389,8 +369,11 @@ std::cout << grad[0] << std::endl;
 }
  */
 class ADOLC_DLL_EXPORT pdouble {
+  /** @brief Stores the location of the `pdouble` on the tape. */
+  tape_location<pdouble> tape_loc_;
+
 public:
-  /** @brief Destructor. */
+  /** @brief Default destructor. */
   ~pdouble() = default;
 
   /** @brief Deleted copy constructor. */
@@ -399,24 +382,44 @@ public:
   /** @brief Deleted default constructor. */
   pdouble() = delete;
 
-  /** @brief Deleted move constructor. */
-  pdouble(pdouble &&) = delete;
-
-  /** @brief Deleted move assignment operator. */
-  pdouble &operator=(pdouble &&) = delete;
+  /**
+   * @brief Move constructor.
+   *
+   * Transfers the location from the input `pdouble`.
+   *
+   * @param other The `pdouble` to transfer.
+   */
+  pdouble(pdouble &&other) noexcept : tape_loc_{std::move(other.tape_loc_)} {};
 
   /**
-   * @brief Constructor initializing a `pdouble` with a tape location and puts
-   * the input `double` to this location on the parameter tape.
+   * @brief Move assignment.
+   *
+   * Transfers the location from the input `pdouble`.
+   *
+   * @param other The `pdouble` to transfer.
+   * @return Reference to `*this`
+   */
+  pdouble &operator=(pdouble &&other) {
+    if (this == &other)
+      return *this;
+
+    tape_loc_ = std::move(other.tape_loc_);
+    return *this;
+  }
+
+  /**
+   * @brief Constructor initializing a `pdouble` with a tape location at
+   * DefaultTape and puts the input `double` to this location.
+   *
    * @param pval The initial value for the `pdouble` on the parameter tape.
    */
   explicit pdouble(const double pval);
 
   /**
-   * @brief Converts the `pdouble` to an `adouble` by creating a new location
-   * for the `adouble`, storing the assignment of the `pdouble` to th `adouble`
-   * on the operations tape and storing the value of the `pdouble` at the
-   * location of the `adouble`.
+   * @brief Converts the `pdouble` to an `adouble` by creating a new location`
+   * for the `adouble` on the tape of the `pdouble`, storing the assignment of
+   * the `pdouble` to the `adouble` on the tape and storing the value of the
+   * `pdouble` at the location of the `adouble`.
    * @return An `adouble` with associated value of the `pdouble` on the tape.
    */
   explicit operator adouble() const;

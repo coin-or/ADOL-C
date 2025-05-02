@@ -17,7 +17,8 @@
 
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
-#include <cassert>
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 
 adouble::adouble() {
   ValueTape &tape = currentTape();
@@ -72,7 +73,7 @@ adouble::adouble(double coval) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
+  value(coval);
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), false);
 #endif
@@ -116,7 +117,7 @@ adouble::adouble(const adouble &a) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = a.value();
+  value(a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), tape.get_active_value(a.loc()));
 #endif
@@ -151,7 +152,7 @@ adouble &adouble::operator=(double coval) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = coval;
+  value(coval);
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), false);
 #endif
@@ -195,7 +196,7 @@ adouble &adouble::operator=(const adouble &a) {
       }
 #endif
     }
-    ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = a.value();
+    value(a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
     tape.set_active_value(loc(), tape.get_active_value(a.loc()));
 #endif
@@ -216,7 +217,7 @@ adouble &adouble::operator=(const pdouble &p) {
     if (tape.keepTaylors())
       tape.write_scaylor(value());
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = p.value();
+  value(p.value());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), true);
@@ -244,7 +245,7 @@ adouble &adouble::operator+=(const double coval) {
     }
 #endif
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] += coval;
+  value(value() + coval);
   return *this;
 }
 
@@ -293,7 +294,7 @@ adouble &adouble::operator+=(const adouble &a) {
     }
 #endif
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] += a.value();
+  value(value() + a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(
       loc(), tape.get_active_value(loc() || tape.get_active_value(a.loc())));
@@ -363,8 +364,7 @@ adouble &adouble::operator+=(adouble &&a) {
       }
 #endif
     }
-    ADOLC_GLOBAL_TAPE_VARS.store[loc()] +=
-        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+    value(value() + a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
     tape.set_active_value(loc(), tape.get_active_value(loc()) ||
                                      tape.get_active_value(a.loc()));
@@ -390,7 +390,7 @@ adouble &adouble::operator-=(const double coval) {
     }
 #endif
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] -= coval;
+  value(value() - coval);
   return *this;
 }
 
@@ -439,7 +439,7 @@ adouble &adouble::operator-=(const adouble &a) {
     }
 #endif
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] -= a.value();
+  value(value() - a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(
       loc(), (tape.get_active_value(loc()) || tape.get_active_value(a.loc())));
@@ -507,8 +507,7 @@ adouble &adouble::operator-=(adouble &&a) {
       }
 #endif
     }
-    ADOLC_GLOBAL_TAPE_VARS.store[loc()] -=
-        ADOLC_GLOBAL_TAPE_VARS.store[a.loc()];
+    value(value() - a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
     tape.set_active_value(loc(), tape.get_active_value(loc()) ||
                                      tape.get_active_value(a.loc()));
@@ -536,7 +535,7 @@ adouble &adouble::operator*=(const double coval) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] *= coval;
+  value(value() * coval);
   return *this;
 }
 
@@ -588,7 +587,7 @@ adouble &adouble::operator*=(const adouble &a) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] *= a.value();
+  value(value() * a.value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(
       loc(), (tape.get_active_value(loc()) || tape.get_active_value(a.loc())));
@@ -638,7 +637,7 @@ adouble adouble::operator++(int) {
 #endif
   }
 
-  ret_adouble.value(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  ret_adouble.value(value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), tape.get_active_value(loc()));
 #endif
@@ -658,8 +657,8 @@ adouble adouble::operator++(int) {
     }
 #endif
   }
-
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]++;
+  const double val = value();
+  value(val + 1);
   return ret_adouble;
 }
 
@@ -703,7 +702,7 @@ adouble adouble::operator--(int) {
 #endif
   }
 
-  ret_adouble.value(ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]);
+  ret_adouble.value(value());
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(loc()));
 #endif
@@ -724,7 +723,7 @@ adouble adouble::operator--(int) {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]--;
+  value(value() - 1);
   return ret_adouble;
 }
 
@@ -744,7 +743,7 @@ adouble &adouble::operator++() {
     }
 #endif
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]++;
+  value(value() + 1);
   return *this;
 }
 
@@ -765,7 +764,7 @@ adouble &adouble::operator--() {
 #endif
   }
 
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_]--;
+  value(value() - 1);
   return *this;
 }
 
@@ -786,15 +785,15 @@ adouble &adouble::operator<<=(const double input) {
     if (tape.keepTaylors())
       tape.write_scaylor(value());
   }
-  ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_] = input;
+  value(input);
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(loc(), true);
 #endif
   return *this;
 }
 
-// Assign the coval of an adouble to a double reference and mark the adouble as
-// dependent variable on the tape. At the end of the function, the double
+// Assign the coval of an adouble to a double reference and mark the adouble
+// as dependent variable on the tape. At the end of the function, the double
 // reference can be seen as output value of the function given by the trace
 // of the adouble.
 adouble &adouble::operator>>=(double &output) {
@@ -803,7 +802,7 @@ adouble &adouble::operator>>=(double &output) {
   if (!tape.get_active_value(loc())) {
     fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
                       "as dependent.\n");
-    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+    const double coval = value();
     if (coval == 0.0) {
       tape.put_op(assign_d_zero);
       tape.put_loc(loc());
@@ -830,8 +829,11 @@ adouble &adouble::operator>>=(double &output) {
     tape.put_loc(loc()); // = res
   }
 
-  output = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
-  return *this;
+  tape()->put_op(assign_dep);
+  tape()->put_loc(loc()); // = res
+}
+output = value();
+return *this;
 }
 
 void adouble::declareIndependent() {
@@ -857,7 +859,7 @@ void adouble::declareDependent() {
   if (!tape.get_active_value(loc())) {
     fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
                       "as dependent.\n");
-    const double coval = ADOLC_GLOBAL_TAPE_VARS.store[tape_loc_.loc_];
+    const double coval = value();
     if (coval == 0.0) {
       tape.put_op(assign_d_zero);
       tape.put_loc(loc());
@@ -887,8 +889,7 @@ void adouble::declareDependent() {
 /*                                                           INPUT / OUTPUT */
 
 std::ostream &operator<<(std::ostream &out, const adouble &a) {
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
+
   return out << a.value() << "(a)";
 }
 
@@ -1451,7 +1452,7 @@ bool operator>(const double coval, const adouble &a) {
 }
 
 /****************************************************************************/
-/*                           SIGN  OPERATORS                                 */
+/*                           SIGN  OPERATORS */
 
 adouble operator+(const adouble &a) {
   ValueTape &tape = currentTape();
@@ -2806,7 +2807,6 @@ adouble exp(const adouble &a) {
     }
 #endif
   }
-
   ret_adouble.value(coval);
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
@@ -2859,7 +2859,6 @@ adouble exp(adouble &&a) {
   tape.set_active_value(a.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -2910,7 +2909,6 @@ adouble log(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -2960,7 +2958,6 @@ adouble log(adouble &&a) {
   tape.set_active_value(a.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3011,7 +3008,6 @@ adouble sqrt(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3061,7 +3057,6 @@ adouble sqrt(adouble &&a) {
   tape.set_active_value(a.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3112,7 +3107,6 @@ adouble cbrt(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3158,12 +3152,6 @@ adouble cbrt(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3238,7 +3226,6 @@ adouble sin(const adouble &a) {
     }
 #endif
   }
-
   ret_adouble.value(coval1);
   b.value(coval2);
 
@@ -3247,7 +3234,6 @@ adouble sin(const adouble &a) {
                                                tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3329,7 +3315,6 @@ adouble sin(adouble &&a) {
                                      tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3415,7 +3400,6 @@ adouble cos(const adouble &a) {
                                                tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3499,7 +3483,6 @@ adouble cos(adouble &&a) {
                                      tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3556,7 +3539,6 @@ adouble asin(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3612,7 +3594,6 @@ adouble asin(adouble &&a) {
   tape.set_active_value(a.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3670,7 +3651,6 @@ adouble acos(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3723,12 +3703,6 @@ adouble acos(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3786,7 +3760,6 @@ adouble atan(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3839,12 +3812,6 @@ adouble atan(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -3901,7 +3868,6 @@ adouble asinh(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -3953,12 +3919,6 @@ adouble asinh(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -4015,7 +3975,6 @@ adouble acosh(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -4067,12 +4026,6 @@ adouble acosh(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -4129,7 +4082,6 @@ adouble atanh(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -4181,12 +4133,6 @@ adouble atanh(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -4244,7 +4190,6 @@ adouble erf(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -4297,12 +4242,6 @@ adouble erf(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -4359,7 +4298,6 @@ adouble erfc(const adouble &a) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -4411,12 +4349,6 @@ adouble erfc(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -4515,11 +4447,6 @@ adouble ceil(adouble &&a) {
   }
 
   a.value(coval);
-
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
 
   return a;
 }
@@ -4621,10 +4548,6 @@ adouble floor(adouble &&a) {
 
   a.value(coval);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
   return a;
 }
 
@@ -4731,11 +4654,6 @@ adouble fabs(adouble &&a) {
 #endif
   }
   a.value(temp);
-
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
 
   return a;
 }
@@ -5107,7 +5025,6 @@ adouble pow(const adouble &a, const double coval) {
   tape.set_active_value(ret_adouble.loc(), tape.get_active_value(a.loc()));
 #endif
 
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return ret_adouble;
 }
 
@@ -5156,12 +5073,6 @@ adouble pow(adouble &&a, const double coval) {
 
   a.value(coval2);
 
-#if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()] =
-      ADOLC_GLOBAL_TAPE_VARS.actStore[a.loc()];
-#endif
-
-  ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
   return a;
 }
 
@@ -5201,7 +5112,7 @@ double myquad(double x) {
 
 /* This defines the natural logarithm as a quadrature */
 
-extend_quad(myquad, val = 1 / arg);
+// extend_quad(myquad, val = 1 / arg);
 
 void condassign(adouble &res, const adouble &cond, const adouble &arg1,
                 const adouble &arg2) {
@@ -5684,7 +5595,7 @@ adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
   ValueTape &tape = currentTape();
   if (vec_a[size - 1].loc() - vec_a[0].loc() != size - 1 ||
       vec_b[size - 1].loc() - vec_b[0].loc() != size - 1)
-    fail(ADOLC_VEC_LOCATIONGAP);
+    fail(ADOLC_ERRORS::ADOLC_VEC_LOCATIONGAP, std::source_location::current());
 
   adouble ret_adouble;
 

@@ -13,6 +13,7 @@
 
 ----------------------------------------------------------------------------*/
 
+#include <adolc/adolcerror.h>
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
@@ -34,10 +35,10 @@ pdouble::operator adouble() const {
       tape.write_scaylor(ret_adouble.value());
   }
 
-  ret_adouble.value(this->value());
+  ret_adouble.value(value());
 
 #if defined(ADOLC_TRACK_ACTIVITY)
-  ADOLC_GLOBAL_TAPE_VARS.actStore[ret_adouble.loc()] = true;
+  tape->globalTapeVars_.actStore[ret_adouble.loc()] = true;
 #endif
 
   return ret_adouble;
