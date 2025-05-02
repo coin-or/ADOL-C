@@ -18,24 +18,6 @@ ValueTape::~ValueTape() {
   cp_clearStack();
 }
 
-ValueTape::ValueTape(short tapeId, int throw_if_exist_)
-    : tapeInfos_(tapeId), globalTapeVars_(),
-      perTapeInfos_(tapeId, readConfigFile()),
-      ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
-      ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>),
-      cp_buffer_(init_CpInfos) {
-  if (throw_if_exist_)
-    throw_if_exist(tapeId);
-  else {
-    auto tape_iter = std::find_if(
-        getTapeBuffer().begin(), getTapeBuffer().end(),
-        [&tapeId](auto &&tapePtr) { return tapePtr->tapeId() == tapeId; });
-    if (tape_iter != getTapeBuffer().end()) {
-      getTapeBuffer().erase(tape_iter);
-    }
-  }
-}
-
 void ValueTape::initTapeInfos_keep() {
   // we want to keep the buffers
   unsigned char *opBuffer = tapeInfos_.opBuffer;
@@ -203,18 +185,6 @@ size_t ValueTape::keep_stock() {
   }
   tapeInfos_.traceFlag = 0;
   return globalTapeVars_.storeSize;
-}
-
-/* updates the tape infos for the given ID - a tapeInfos struct is created
- * and registered if non is found but its state will remain "not in use" */
-std::shared_ptr<ValueTape> ValueTape::getTapeInfos(short tapeId) {
-  /* check if TapeInfos for tapeId exist */
-  std::shared_ptr<ValueTape> tape = findTape(tapeId);
-  // Return the tapeInfos pointer if it has been found.
-  if (!tape->inUse())
-    tape->read_tape_stats();
-
-  return tape;
 }
 
 /****************************************************************************/
@@ -495,7 +465,7 @@ void ValueTape::start_trace() {
   put_op(start_of_tape);
 
   /* Leave space for the stats */
-  const int space = TapeInfos::STAT_SIZEE * sizeof(size_t) + sizeof(ADOLC_ID);
+  const int space = TapeInfos::STAT_SIZE * sizeof(size_t) + sizeof(ADOLC_ID);
   if (space > statSpace * sizeof(size_t))
     fail(ADOLC_ERRORS::ADOLC_MORE_STAT_SPACE_REQUIRED,
          std::source_location::current());
@@ -625,7 +595,7 @@ void ValueTape::close_tape(int flag) {
     /* write tape stats */
     fseek(loc_file(), 0, 0);
     fwrite(&get_adolc_id(), sizeof(ADOLC_ID), 1, loc_file());
-    fwrite(tapestats().data(), TapeInfos::STAT_SIZEE * sizeof(size_t), 1,
+    fwrite(tapestats().data(), TapeInfos::STAT_SIZE * sizeof(size_t), 1,
            loc_file());
     fclose(loc_file());
     loc_file(nullptr);
@@ -787,7 +757,7 @@ void ValueTape::read_tape_stats() {
   ADOLC_ID tape_ADOLC_ID;
   if ((loc_file = fopen(loc_fileName(), "rb")) == nullptr ||
       (fread(&tape_ADOLC_ID, sizeof(ADOLC_ID), 1, loc_file) != 1) ||
-      (fread(tapestats().data(), TapeInfos::STAT_SIZEE * sizeof(size_t), 1,
+      (fread(tapestats().data(), TapeInfos::STAT_SIZE * sizeof(size_t), 1,
              loc_file) != 1)) {
     FailInfo failinfo;
     failinfo.info1 = tapeId();
