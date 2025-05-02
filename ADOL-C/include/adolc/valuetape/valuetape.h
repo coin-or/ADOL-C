@@ -62,7 +62,8 @@ class ValueTape {
   // sparse Jacobian matrices
   SparseJacInfos sJinfos_;
   // sparse Hessian matrices
-  SparseHessInfos sHinfos_;
+  SparseHessInfos &sHinfos() { return sHinfos_ };
+  SparseJacInfos &sJonfos() { return sJInfos_ };
 #endif
 
   // the compiler can not distinguish between the fct ptrs for ext_diff_fct
@@ -75,7 +76,12 @@ public:
 
   // a tape always need a tapeId,
   ValueTape() = delete;
-  ValueTape(short tapeId, int throw_if_exist_ = 0);
+  ValueTape(short tapeId)
+      : tapeInfos_(tapeId), globalTapeVars_(),
+        perTapeInfos_(tapeId, readConfigFile()),
+        ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
+        ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>),
+        cp_buffer_(init_CpInfos) {}
 
   // copying ValueTape is not allowed!
   ValueTape(const ValueTape &other) = delete;
@@ -180,7 +186,7 @@ public:
   /* tape_stat[9] = # of saved constant values. */
   /* tape_stat[10]= value file access flag (1 = file in use, 0 otherwise) */
   /****************************************************************************/
-  void tapestats(std::array<size_t, TapeInfos::STAT_SIZEE> stats) {
+  void tapestats(std::array<size_t, TapeInfos::STAT_SIZE> stats) {
     std::copy(tapeInfos_.stats.cbegin(), tapeInfos_.stats.cend(),
               stats.begin());
   }
@@ -189,7 +195,7 @@ public:
   }
   size_t tapestats(size_t stat) const { return tapeInfos_.stats[stat]; };
   void tapestats(size_t stat, size_t val) { tapeInfos_.stats[stat] = val; };
-  std::array<size_t, TapeInfos::STAT_SIZEE> tapestats() const {
+  std::array<size_t, TapeInfos::STAT_SIZE> tapestats() const {
     return tapeInfos_.stats;
   }
 
@@ -521,13 +527,11 @@ public:
         fail(ADOLC_ERRORS::ADOLC_SM_ACTIVE_VARS,
              std::source_location::current(),
              FailInfo{.info5 = globalTapeVars_.numLives});
-
     } else
       fail(ADOLC_ERRORS::ADOLC_SM_SAME_TYPE, std::source_location::current());
   }
   // returns the next free location in "adouble" memory
   size_t next_loc() { return globalTapeVars_.storeManagerPtr->next_loc(); }
-
   // returns the next free location in "pdouble" memory
   size_t p_next_loc() { return globalTapeVars_.paramStoreMgrPtr->next_loc(); }
 
@@ -755,6 +759,7 @@ public:
     sHInfos_.~SparseHessInfos();
     new (&sHInfos_) SparseHessInfos();
   }
+  sHInfos()
 #endif
 };
 

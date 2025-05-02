@@ -28,7 +28,7 @@ struct TapeInfos {
     NO_MIN_MAX,   /* no use of min_op, deferred to abs_op for piecewise stuff */
     NUM_SWITCHES, /* # of abs calls that can switch branch */
     NUM_PARAM, /* no of parameters (doubles) interchangeable without retaping */
-    STAT_SIZEE /* represents the size of the stats vector */
+    STAT_SIZE  /* represents the size of the stats vector */
   };
   // option for removeTape
   enum TapeRemovalType {
@@ -70,7 +70,7 @@ struct TapeInfos {
   uint numDeps{0};
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
-  std::array<size_t, STAT_SIZEE> stats{0};
+  std::array<size_t, STAT_SIZE> stats{0};
   int traceFlag{0};
   char tapingComplete{0};
 
@@ -163,8 +163,6 @@ struct TapeInfos {
   size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
-  void copy(const TapeInfos &);
-  /* An all-in-one tape stats printing routine */
   void freeTapeResources();
 
   // writes the block of size depth of taylor coefficients from point loc to
