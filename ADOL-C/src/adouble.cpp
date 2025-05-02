@@ -329,8 +329,8 @@ adouble &adouble::operator+=(adouble &&a) {
     if (ADOLC_GLOBAL_TAPE_VARS.actStore[loc()])
 #endif
     {
-      // if the structure is a*=b*c the call optimizes the temp adouble away.
-      upd = upd_resloc_inc_prod(a.loc(), loc(), eq_min_prod);
+      // if the structure is a+=b*c the call optimizes the temp adouble away.
+      upd = upd_resloc_inc_prod(a.loc(), loc(), eq_plus_prod);
     }
   if (upd) {
     ADOLC_GLOBAL_TAPE_VARS.store[loc()] +=
