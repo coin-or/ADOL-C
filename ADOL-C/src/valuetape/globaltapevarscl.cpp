@@ -80,6 +80,7 @@ GlobalTapeVarsCL::operator=(GlobalTapeVarsCL &&other) noexcept {
 }
 
 void GlobalTapeVarsCL::reallocStore(unsigned char type) {
+  delete[] store;
   store = nullptr;
 #if defined(ADOLC_TRACK_ACTIVITY)
   actStore = nullptr;
