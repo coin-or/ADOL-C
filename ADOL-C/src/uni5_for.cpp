@@ -5927,8 +5927,8 @@ int hov_forward(
   myfree1(dp_z);
 #endif
 
-  tape->workMode(TapeInfos::ADOLC_NO_MODE);
-  tape->end_sweep();
+  tape.workMode(TapeInfos::ADOLC_NO_MODE);
+  tape.end_sweep();
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
@@ -5982,14 +5982,14 @@ int hov_forward(
 int get_num_switches(short tapeId) {
   int nswitch;
 
-  std::shared_ptr<ValueTape> tape = getTape(tapeId);
-  tape->init_for_sweep(tapeId);
-  if (!tape->tapestats(TapeInfos::NO_MIN_MAX))
+  ValueTape& tape = findTape(tapeId);
+  tape.init_for_sweep(tapeId);
+  if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     fail(ADOLC_ERRORS::ADOLC_NO_MINMAX, std::source_location::current(),
          FailInfo{.info1 = tapeId});
 
-  nswitch = tape->tapestats(TapeInfos::NUM_SWITCHES);
-  tape->end_sweep();
+  nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
+  tape.end_sweep();
   return nswitch;
 }
 #endif

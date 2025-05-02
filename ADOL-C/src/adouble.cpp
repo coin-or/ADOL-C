@@ -829,11 +829,8 @@ adouble &adouble::operator>>=(double &output) {
     tape.put_loc(loc()); // = res
   }
 
-  tape()->put_op(assign_dep);
-  tape()->put_loc(loc()); // = res
-}
-output = value();
-return *this;
+  output = value();
+  return *this;
 }
 
 void adouble::declareIndependent() {
@@ -3163,7 +3160,6 @@ adouble sin(const adouble &a) {
   const double coval2 = ADOLC_MATH_NSP::cos(a.value());
 
   adouble b;
-  adouble b;
 
   if (tape.traceFlag()) {
 
@@ -3242,7 +3238,6 @@ adouble sin(adouble &&a) {
   const double coval1 = ADOLC_MATH_NSP::sin(a.value());
   const double coval2 = ADOLC_MATH_NSP::cos(a.value());
 
-  adouble b;
   adouble b;
 
   if (tape.traceFlag()) {
@@ -3326,7 +3321,6 @@ adouble cos(const adouble &a) {
   const double coval2 = ADOLC_MATH_NSP::sin(a.value());
 
   adouble b;
-  adouble b;
 
   if (tape.traceFlag()) {
 
@@ -3408,7 +3402,6 @@ adouble cos(adouble &&a) {
   const double coval1 = ADOLC_MATH_NSP::cos(a.value());
   const double coval2 = ADOLC_MATH_NSP::sin(a.value());
 
-  adouble b;
   adouble b;
 
   if (tape.traceFlag()) {

@@ -841,9 +841,7 @@ inline adouble pow(const adouble &a, const adouble &b) {
   assert(a.value() != 0 && "\nADOL-C message: zero basis deactivated\n ");
 
   adouble a1, a2, ret;
-  adouble a1, a2, ret;
 
-  condassign(a1, -b, adouble{ADOLC_MATH_NSP::pow(a.value(), b.value())},
   condassign(a1, -b, adouble{ADOLC_MATH_NSP::pow(a.value(), b.value())},
              pow(a, b.value()));
   condassign(a2, fabs(a), pow(a, b.value()), a1);
@@ -855,12 +853,9 @@ inline adouble pow(const adouble &a, const adouble &b) {
 /* atan(x, y) */
 inline adouble atan2(const adouble &a, const adouble &b) {
   adouble a1, a2, ret, sy;
-  adouble a1, a2, ret, sy;
   const double pihalf = ADOLC_MATH_NSP::asin(1.0);
   condassign(sy, a, adouble{1.0}, adouble{-1.0});
-  condassign(sy, a, adouble{1.0}, adouble{-1.0});
   condassign(a1, b, atan(a / b), atan(a / b) + sy * 2 * pihalf);
-  condassign(a2, fabs(a), sy * pihalf - atan(b / a), adouble{0.0});
   condassign(a2, fabs(a), sy * pihalf - atan(b / a), adouble{0.0});
   condassign(ret, fabs(b) - fabs(a), a1, a2);
   return ret;

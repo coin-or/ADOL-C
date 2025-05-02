@@ -280,7 +280,6 @@ int fp_iteration(short tapeId, size_t sub_tape_num, double_F double_func,
     x_fix_new[i] >>= dummy_out;
 
   trace_off();
-  trace_off();
 
   delete[] xu_sub_tape;
   delete[] x_fix_new;

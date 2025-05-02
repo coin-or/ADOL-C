@@ -67,10 +67,6 @@ CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
 
 ADOLC_DLL_EXPORT int checkpointing(short tapeId, CpInfos *cpInfos);
 
-/* if tape with one program and use the tapes with another program call this
- * function within the latter                                               */
-ADOLC_DLL_EXPORT void reinit_checkpointing();
-
 class CP_Context {
 public:
   CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {

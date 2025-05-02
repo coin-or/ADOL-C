@@ -443,59 +443,58 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
   double *y;
   int i, newX = 0;
   int rc = 3;
-  std::shared_ptr<ValueTape> tape = getTape(tag);
+  ValueTape &tape = findTape(tag);
 
   y = myalloc1(n);
-  if (n != tape->jacSolv_nax()) {
-    if (tape->jacSolv_nax()) {
-      free(tape->jacSolv_ci());
-      free(tape->jacSolv_ri());
-      myfree1(tape->jacSolv_xold());
-      myfreeI2(tape->jacSolv_nax(), tape->jacSolv_I());
-      myfree2(tape->jacSolv_J());
+  if (n != tape.jacSolv_nax()) {
+    if (tape.jacSolv_nax()) {
+      free(tape.jacSolv_ci());
+      free(tape.jacSolv_ri());
+      myfree1(tape.jacSolv_xold());
+      myfreeI2(tape.jacSolv_nax(), tape.jacSolv_I());
+      myfree2(tape.jacSolv_J());
     }
-    tape->jacSolv_J(myalloc2(n, n));
-    tape->jacSolv_I(myallocI2(n));
-    tape->jacSolv_xold(myalloc1(n));
-    tape->jacSolv_ri((int *)malloc(n * sizeof(int)));
-    tape->jacSolv_ci((int *)malloc(n * sizeof(int)));
+    tape.jacSolv_J(myalloc2(n, n));
+    tape.jacSolv_I(myallocI2(n));
+    tape.jacSolv_xold(myalloc1(n));
+    tape.jacSolv_ri((int *)malloc(n * sizeof(int)));
+    tape.jacSolv_ci((int *)malloc(n * sizeof(int)));
 
-    tape->jacSolv_modeold(0);
-    tape->jacSolv_nax(n);
+    tape.jacSolv_modeold(0);
+    tape.jacSolv_nax(n);
   }
   for (i = 0; i < n; ++i)
-    if (x[i] != tape->jacSolv_xold()[i]) {
-      tape->jacSolv_xold()[i] = x[i];
+    if (x[i] != tape.jacSolv_xold()[i]) {
+      tape.jacSolv_xold()[i] = x[i];
       newX = 1;
     }
   switch (mode) {
   case 0:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
+    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
     break;
   case 1:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
-    if (LUFactorization(tape->jacSolv_J(), n, tape->jacSolv_ri(),
-                        tape->jacSolv_ci()) < 0) {
+    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+    if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
+                        tape.jacSolv_ci()) < 0) {
       rc = -3;
       break;
     }
-    tape->jacSolv_modeold(1);
+    tape.jacSolv_modeold(1);
     break;
   case 2:
-    if ((tape->jacSolv_modeold() < 1) || (newX == 1)) {
+    if ((tape.jacSolv_modeold() < 1) || (newX == 1)) {
       MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-      MINDEC(rc,
-             fov_reverse(tag, n, n, n, tape->jacSolv_I(), tape->jacSolv_J()));
-      if (LUFactorization(tape->jacSolv_J(), n, tape->jacSolv_ri(),
-                          tape->jacSolv_ci()) < 0) {
+      MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+      if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
+                          tape.jacSolv_ci()) < 0) {
         rc = -3;
         break;
       }
     }
-    GauszSolve(tape->jacSolv_J(), n, tape->jacSolv_ri(), tape->jacSolv_ci(), b);
-    tape->jacSolv_modeold(2);
+    GauszSolve(tape.jacSolv_J(), n, tape.jacSolv_ri(), tape.jacSolv_ci(), b);
+    tape.jacSolv_modeold(2);
     break;
   }
   myfree1(y);
