@@ -17,9 +17,8 @@
 #define ADOLC_ADVECTOR_H
 
 #include <adolc/adtb_types.h>
-
-/****************************************************************************/
-/*                                                         THIS FILE IS C++ */
+#include <adolc/valuetape/valuetape.h>
+#include <memory>
 #include <vector>
 
 /****************************************************************************/
@@ -60,7 +59,7 @@ public:
 
   adubref &operator=(const double coval);
   adubref &operator=(const adouble &a);
-  inline adubref &operator=(const pdouble &p) { return *this = adouble(p); }
+  adubref &operator=(const pdouble &p) { return *this = adouble(p); }
 
   size_t loc() const { return loc_; }
   size_t refloc() const { return refloc_; }
@@ -99,10 +98,6 @@ public:
   void declareIndependent();
   adubref &operator>>=(double &coval);
   void declareDependent();
-
-private:
-  size_t location;
-  size_t refloc;
 };
 
 void condassign(adubref &res, const adouble &cond, const adouble &arg1,
@@ -131,21 +126,20 @@ public:
 
   ADOLC_DLL_EXPORT ~advector() {}
 
-  operator const std::vector<adouble> &() const { return data; }
-  ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data; }
-  ADOLC_DLL_EXPORT operator adouble *() { return data.data(); }
+  operator const std::vector<adouble> &() const { return data_; }
+  ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data_; }
+  ADOLC_DLL_EXPORT operator adouble *() { return data_.data(); }
   ADOLC_DLL_EXPORT adouble operator[](const adouble &index) const;
   ADOLC_DLL_EXPORT adubref operator[](const adouble &index);
-  ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data[i]; }
-  ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const { return data[i]; }
+  ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data_[i]; }
+  ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const {
+    return data_[i];
+  }
   ADOLC_DLL_EXPORT adouble lookupindex(const adouble &a,
                                        const adouble &b) const;
 
   ADOLC_DLL_EXPORT size_t size() const { return data_.size(); }
   ADOLC_DLL_EXPORT bool nondecreasing() const;
-
-private:
-  std::vector<adouble> data;
 };
 
 #endif /* TAPELESS */
