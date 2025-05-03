@@ -95,15 +95,15 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
     tape.put_loc(nout);
     for (i = 0; i < nin; i++) {
       if (x[i][insz[i] - 1].loc() - x[i][0].loc() != (unsigned)insz[i] - 1)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_LOCATIONGAP,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_LOCATIONGAP,
+                         CURRENT_LOCATION);
       tape.put_loc(insz[i]);
       tape.put_loc(x[i][0].loc());
     }
     for (i = 0; i < nout; i++) {
       if (y[i][outsz[i] - 1].loc() - y[i][0].loc() != (unsigned)outsz[i] - 1)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_LOCATIONGAP,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_LOCATIONGAP,
+                         CURRENT_LOCATION);
       tape.put_loc(outsz[i]);
       tape.put_loc(y[i][0].loc());
     }

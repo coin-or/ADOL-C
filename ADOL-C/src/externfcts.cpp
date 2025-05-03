@@ -104,11 +104,11 @@ void check_input(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
                  adouble *ya) {
   if (xa[dim_x - 1].loc() - xa[0].loc() != dim_x - 1 ||
       ya[dim_y - 1].loc() - ya[0].loc() != dim_y - 1)
-    fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_LOCATIONGAP,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_LOCATIONGAP,
+                     CURRENT_LOCATION);
   if (!edfct)
-    fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_STRUCT,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_STRUCT,
+                     CURRENT_LOCATION);
 }
 
 void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,

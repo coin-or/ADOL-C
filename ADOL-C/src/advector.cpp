@@ -28,9 +28,9 @@ adubref::adubref(size_t lo, size_t ref) {
   refloc_ = static_cast<size_t>(trunc(fabs(tape.get_ad_value(loc_))));
 
   if (ref != refloc_) {
-    fail(ADOLC_ERRORS::ADOLC_ADUBREF_CONSTRUCTOR,
-         std::source_location::current(),
-         FailInfo{.info5 = ref, .info6 = refloc_});
+    ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_CONSTRUCTOR,
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = ref, .info6 = refloc_});
   }
 }
 
@@ -462,8 +462,8 @@ adouble advector::operator[](const adouble &index) const {
   }
 
   if (idx >= size())
-    fail(ADOLC_ERRORS::ADOLC_ADUBREF_OOB, std::source_location::current(),
-         FailInfo{.info5 = size(), .info6 = idx});
+    ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = size(), .info6 = idx});
 
   ret_adouble.value(data_[idx].value());
   return ret_adouble;
@@ -487,8 +487,8 @@ adubref advector::operator[](const adouble &index) {
   }
 
   if (idx >= n)
-    fail(ADOLC_ERRORS::ADOLC_ADUBREF_OOB, std::source_location::current(),
-         FailInfo{.info5 = n, .info6 = idx});
+    ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = n, .info6 = idx});
 
   tape.set_ad_value(locat, data_[idx].loc());
   return adubref(locat, data_[idx].loc());
@@ -496,12 +496,12 @@ adubref advector::operator[](const adouble &index) {
 
 adouble advector::lookupindex(const adouble &a, const adouble &b) const {
   if (!nondecreasing())
-    fail(ADOLC_ERRORS::ADOLC_ADVECTOR_NON_DECREASING,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::ADVECTOR_NON_DECREASING,
+                     CURRENT_LOCATION);
 
   if (b.value() < 0)
-    fail(ADOLC_ERRORS::ADOLC_ADVECTOR_NON_NEGATIVE,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::ADVECTOR_NON_NEGATIVE,
+                     CURRENT_LOCATION);
   adouble r = 0.0;
   for (size_t i = 0; i < size(); ++i)
     condassign(r, a - data_[i] * b, adouble(i + 1));

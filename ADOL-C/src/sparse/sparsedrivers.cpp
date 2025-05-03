@@ -69,7 +69,7 @@ int jac_pat(
   int i, ctrl_options[2];
 
   if (!crs)
-    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_CRS, CURRENT_LOCATION);
 
   else
     for (i = 0; i < depen; i++)
@@ -108,7 +108,7 @@ int absnormal_jac_pat(short tag, /* tape identification                       */
 ) {
 
   if (!crs)
-    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_CRS, CURRENT_LOCATION);
   else
     for (int i = 0; i < depen + numsw; i++)
       crs[i] = NULL;
@@ -142,7 +142,7 @@ void generate_seed_jac(int m, int n, unsigned int **JP, double ***Seed, int *p,
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
 }
 #endif
 
@@ -172,7 +172,7 @@ int hess_pat(short tag, /* tape identification                        */
   int i;
 
   if (!crs)
-    fail(ADOLC_ERRORS::ADOLC_SPARSE_CRS, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_CRS, CURRENT_LOCATION);
   else
     for (i = 0; i < indep; i++)
       crs[i] = nullptr;
@@ -219,7 +219,7 @@ void generate_seed_hess(int n, unsigned int **HP, double ***Seed, int *p,
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
 }
 #endif
 
@@ -402,7 +402,7 @@ int sparse_jac(short tag,  /* tape identification                     */
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
   return -1;
 }
 #endif
@@ -460,8 +460,8 @@ int sparse_hess(short tag,  /* tape identification                     */
       }
     } else {
       if (indep != tape.sHinfos.indep)
-        fail(ADOLC_ERRORS::ADOLC_SPARSE_HESS_IND,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::SPARSE_HESS_IND,
+                         CURRENT_LOCATION);
       deepcopy_HP(&sHinfos.HP, tape.sHinfos.HP, indep);
     }
 
@@ -582,7 +582,7 @@ int sparse_hess(short tag,  /* tape identification                     */
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
   return -1;
 }
 #endif
@@ -614,7 +614,7 @@ void set_HP(short tag, /* tape identification                     */
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
 }
 #endif
 
@@ -627,7 +627,7 @@ void get_HP(short tag, /* tape identification                     */
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
 }
 #endif
 
@@ -696,8 +696,8 @@ int bit_vector_propagation(
   if (forward_mode) {
 
     if ((tight_mode) && !basepoint)
-      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_NO_BP,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::SPARSE_JAC_NO_BP,
+                       CURRENT_LOCATION);
 
     /* indep partial derivatives for the whole Jacobian */
 
@@ -721,9 +721,10 @@ int bit_vector_propagation(
 
     if (!(indep_blocks_flags =
               (unsigned char *)calloc(i_blocks_per_strip, sizeof(char))))
-      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
-           FailInfo{.info2 = i_blocks_per_strip * sizeof(char)},
-           std::source_location::current());
+      ADOLCError::fail(
+          ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
+          ADOLCError::FailInfo{.info2 = i_blocks_per_strip * sizeof(char)},
+          CURRENT_LOCATION);
 
     seed = myalloc2_ulong(indep, p_stripmine);
     jac_bit_pat = myalloc2_ulong(depen, p_stripmine);
@@ -793,9 +794,11 @@ int bit_vector_propagation(
         if ((k > 0) || (strip_idx == 0)) {
           if (!(crs[j] = (unsigned int *)realloc(
                     crs[j], (k_old + k + 1) * sizeof(unsigned int))))
-            fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
-                 FailInfo{.info2 = (k_old + k + 1) * sizeof(unsigned int)},
-                 std::source_location::current());
+            ADOLCError::fail(
+                ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
+                ADOLCError::FailInfo{.info2 = (k_old + k + 1) *
+                                              sizeof(unsigned int)},
+                CURRENT_LOCATION);
 
           if (strip_idx == 0)
             crs[j][0] = 0;
@@ -842,9 +845,10 @@ int bit_vector_propagation(
      */
     if (!(indep_blocks_flags =
               (unsigned char *)calloc(indep, sizeof(unsigned char))))
-      fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
-           FailInfo{.info2 = indep * sizeof(unsigned char)},
-           std::source_location::current());
+      ADOLCError::fail(
+          ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
+          ADOLCError::FailInfo{.info2 = indep * sizeof(unsigned char)},
+          CURRENT_LOCATION);
     seed = myalloc2_ulong(q_stripmine, depen);
     jac_bit_pat = myalloc2_ulong(q_stripmine, indep);
 
@@ -852,8 +856,8 @@ int bit_vector_propagation(
        in safe mode no basepoint available! */
     if (tight_mode) {
       if (!basepoint)
-        fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_NO_BP,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::SPARSE_JAC_NO_BP,
+                         CURRENT_LOCATION);
 
       rc = zos_forward(tag, depen, indep, 1, basepoint, valuepoint);
     }
@@ -916,9 +920,10 @@ int bit_vector_propagation(
 
         if (!(crs[d_bl_idx] =
                   (unsigned int *)malloc((k + 1) * sizeof(unsigned int))))
-          fail(ADOLC_ERRORS::ADOLC_SPARSE_JAC_MALLOC,
-               FailInfo{.info2 = (k + 1) * sizeof(unsigned int)},
-               std::source_location::current())
+          ADOLCError::fail(
+              ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
+              ADOLCError::FailInfo{.info2 = (k + 1) * sizeof(unsigned int)},
+              CURRENT_LOCATION)
 
               crs[d_bl_idx][0] = k; /* number of non-zero indep. blocks */
         k = 1;
@@ -1077,7 +1082,7 @@ int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const fun,
 }
 #else
 {
-  fail(ADOLC_ERRORS::ADOLC_NO_COLPACK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
   return -1;
 }
 #endif

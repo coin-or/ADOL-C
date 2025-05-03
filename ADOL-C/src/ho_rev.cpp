@@ -399,13 +399,14 @@ int hov_ti_reverse(short tnum,         /* tape id */
 
   if ((depen != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (indep != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
-    fail(ADOLC_ERRORS::ADOLC_REVERSE_COUNTS_MISMATCH,
-         std::source_location::current(),
-         FailInfo{.info1 = tape.tapeId(),
-                  .info3 = depen,
-                  .info4 = indep,
-                  .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
-                  .info6 = tape.tapestats(TapeInfos::NUM_INDEPENDENTS)});
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{
+                         .info1 = tape.tapeId(),
+                         .info3 = depen,
+                         .info4 = indep,
+                         .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
+                         .info6 = tape.tapestats(TapeInfos::NUM_INDEPENDENTS)});
 
   indexi = tape.tapestats(TapeInfos::NUM_INDEPENDENTS) - 1;
   indexd = tape.tapestats(TapeInfos::NUM_DEPENDENTS) - 1;
@@ -420,7 +421,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   rp_Atemp = myalloc1(k1);
   rp_Atemp2 = myalloc1(k1);
   rp_Ttemp2 = myalloc1(k);
-  tape.workMode(TapeInfos::ADOLC_HOS_REVERSE);
+  tape.workMode(TapeInfos::HOS_REVERSE);
 
   locint n, m;
   ext_diff_fct *edfct = nullptr;
@@ -432,7 +433,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(k);
-  tape.workMode(TapeInfos::ADOLC_HOV_REVERSE);
+  tape.workMode(TapeInfos::HOV_REVERSE);
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
   rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
@@ -440,7 +441,7 @@ int hov_ti_reverse(short tnum,         /* tape id */
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(p * k);
-  tape.workMode(TapeInfos::ADOLC_HOV_REVERSE);
+  tape.workMode(TapeInfos::HOV_REVERSE);
 #endif
   rp_Ttemp = myalloc1(k);
   x = myalloc1(q);
@@ -453,12 +454,12 @@ int hov_ti_reverse(short tnum,         /* tape id */
   tape.taylor_back(tnum, &numdep, &numind, &taycheck);
 
   if (taycheck != degre)
-    fail(ADOLC_ERRORS::ADOLC_REVERSE_NO_FOWARD, std::source_location::current(),
-         FailInfo{.info3 = degre, .info4 = degre + 1});
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info3 = degre, .info4 = degre + 1});
 
   if ((numdep != depen) || (numind != indep))
-    fail(ADOLC_ERRORS::ADOLC_REVERSE_TAYLOR_COUNTS_MISMATCH,
-         std::source_location::current(), FailInfo{.info1 = tnum});
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tnum});
 
   /************************************************************************/
   /*                                                        REVERSE SWEEP */
@@ -1573,8 +1574,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
     case cbrt_op: /* cbrt_op */
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
-      fail(ADOLC_ERRORS::ADOLC_HO_OP_NOT_IMPLEMENTED,
-           std::source_location::current(), FailInfo{.info7 = operation});
+      ADOLCError::fail(ADOLCError::ErrorType::HO_OP_NOT_IMPLEMENTED,
+                       CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info7 = operation});
 
       break;
 
@@ -2171,9 +2173,9 @@ int hov_ti_reverse(short tnum,         /* tape id */
          * so doing a check here is probably good
          */
         if (arg1 != vectorloc + idx)
-          fail(ADOLC_ERRORS::ADOLC_ADUBREF_SAFE_MODE,
-               std::source_location::current(),
-               FailInfo{.info5 = vectorloc + idx, .info6 = arg1});
+          ADOLCError::fail(
+              ADOLCError::ErrorType::ADUBREF_SAFE_MODE, CURRENT_LOCATION,
+              ADOLCError::FailInfo{.info5 = vectorloc + idx, .info6 = arg1});
 
         GET_TAYL(res, k, p)
       }
@@ -2839,23 +2841,23 @@ int hov_ti_reverse(short tnum,         /* tape id */
       double **dpp_Z = new double *[n];
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
+                         CURRENT_LOCATION);
       if (m > 0) {
         if (ADOLC_EXT_FCT_U == NULL)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
         if (edfct->dp_y == NULL)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
       }
       if (n > 0) {
         if (ADOLC_EXT_FCT_Z == NULL)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
         if (edfct->dp_x == NULL)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
       }
       arg = tape.lowestYLoc_rev() + m - 1;
       for (int loop = 0; loop < m; ++loop) {
@@ -2940,8 +2942,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
       /*--------------------------------------------------------------------------*/
     default: /* default */
       /*             Die here, we screwed up     */
-      fail(ADOLC_ERRORS::ADOLC_NO_SUCH_OP, std::source_location::current(),
-           FailInfo{.info7 = operation});
+      ADOLCError::fail(ADOLCError::ErrorType::NO_SUCH_OP, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info7 = operation});
       break;
     } /* endswitch */
 

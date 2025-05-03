@@ -31,12 +31,12 @@ int forward(short tag, int m, int n, int p, double *x, size_t **X, double *y,
     if (x != NULL)
       rc = int_forward_tight(tag, m, n, p, x, X, y, Y);
     else
-      fail(ADOLC_ERRORS::SPARSE_NO_BP, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::SPARSE_NO_BP, CURRENT_LOCATION);
 
   else if (mode == 0) // safe version
     rc = int_forward_safe(tag, m, n, p, X, Y);
   else
-    fail(ADOLC_ERRORS::SPARSE_BAD_MODE, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
 
   return (rc);
 }
@@ -48,7 +48,7 @@ int forward(short tag, int m, int n, int p, size_t **X, size_t **Y, char mode)
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode)                            */
 {
   if (mode != 0) // not safe
-    fail(ADOLC_ERRORS::SPARSE_BAD_MODE, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
 
   return int_forward_safe(tag, m, n, p, X, Y);
 }
@@ -69,7 +69,7 @@ int reverse(short tag, int m, int n, int q, size_t **U, size_t **Z, char mode)
   else if (mode == 1)
     rc = int_reverse_tight(tag, m, n, q, U, Z);
   else
-    fail(ADOLC_ERRORS::SPARSE_BAD_MODE, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
 
   return rc;
 }

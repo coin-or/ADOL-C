@@ -147,7 +147,7 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
       Y[k] = Y[k - 1];
     Y[0] = y;
   } else
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_Y, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_Y, CURRENT_LOCATION);
 
   return rc;
 }
@@ -161,7 +161,7 @@ int forward(short tag, int m, int n, int d, int keep, double *X, double *Y)
   int rc = -1;
 
   if (d != 0)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_XY, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_XY, CURRENT_LOCATION);
   else
     rc = zos_forward(tag, m, n, keep, X, Y);
 
@@ -218,7 +218,7 @@ int reverse(short tag, int m, int n, int d, double u, double **Z)
   int rc = -1;
 
   if (m != 1)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_u, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_u, CURRENT_LOCATION);
   else
     rc = hos_reverse(tag, m, n, d, &u, Z);
 
@@ -232,7 +232,7 @@ int reverse(short tag, int m, int n, int d, double *u, double *Z)
 /* reverse(tag, m, n, 0, u[m], Z[n]), d=0                                   */
 {
   if (d != 0)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_Z, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_Z, CURRENT_LOCATION);
 
   return fos_reverse(tag, m, n, u, Z);
 }
@@ -246,7 +246,7 @@ int reverse(short tag, int m, int n, int d, double u, double *Z)
   int rc = -1;
 
   if (m != 1 || d != 0)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_uZ, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_uZ, CURRENT_LOCATION);
   else
     rc = fos_reverse(tag, m, n, &u, Z);
 
@@ -273,7 +273,7 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
   int rc = -1;
 
   if (m != 1)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_U, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_U, CURRENT_LOCATION);
 
   else { /* olvo 980727 ??? */
     /* double** upp = new double*[nrows]; */
@@ -297,7 +297,7 @@ int reverse(short tag, int m, int n, int d, int q, double **U, double **Z)
   int rc = -1;
 
   if (d != 0)
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_D, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_D, CURRENT_LOCATION);
   else
     rc = fov_reverse(tag, m, n, q, U, Z);
 
@@ -332,7 +332,7 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double **Z)
   /* (++d)--; */ /* degre is reserved for the future use. Ingore this line */
 
   if ((m != 1) || (d != 0))
-    fail(ADOLC_ERRORS::ADOLC_WRONG_DIM_U, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_U, CURRENT_LOCATION);
   else { /* olvo 980727 ??? */
     /* double ** upp = new double*[nrows]; */
     double **upp = (double **)malloc(q * sizeof(double *));

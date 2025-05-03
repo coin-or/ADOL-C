@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
 
   tp.gDegree = 31;
   tp.numTay = 45;
-  tp.workMode = TapeInfos::ADOLC_TAPING;
+  tp.workMode = TapeInfos::TAPING;
 
   auto e = new double *[10];
   tp.dpp_T = e;
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numDirs_rev, 4);
   BOOST_CHECK_EQUAL(tp2.gDegree, 31);
   BOOST_CHECK_EQUAL(tp2.numTay, 45);
-  BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::ADOLC_TAPING);
+  BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::TAPING);
   BOOST_CHECK_EQUAL(tp2.ext_diff_fct_index, 5);
   BOOST_CHECK_EQUAL(tp2.in_nested_ctx, 4);
   BOOST_CHECK_EQUAL(tp2.numSwitches, 6);

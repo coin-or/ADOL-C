@@ -5564,7 +5564,7 @@ void adolc_vec_copy(adouble *const dest, const adouble *const src,
   ValueTape &tape = currentTape();
   if (dest[size - 1].loc() - dest[0].loc() != size - 1 ||
       src[size - 1].loc() - src[0].loc() != size - 1)
-    fail(ADOLC_ERRORS::ADOLC_VEC_LOCATIONGAP, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::VEC_LOCATIONGAP, CURRENT_LOCATION);
   if (tape.traceFlag()) {
     tape.put_op(vec_copy);
     tape.put_loc(src[0].loc());
@@ -5588,7 +5588,7 @@ adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
   ValueTape &tape = currentTape();
   if (vec_a[size - 1].loc() - vec_a[0].loc() != size - 1 ||
       vec_b[size - 1].loc() - vec_b[0].loc() != size - 1)
-    fail(ADOLC_ERRORS::ADOLC_VEC_LOCATIONGAP, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::VEC_LOCATIONGAP, CURRENT_LOCATION);
 
   adouble ret_adouble;
 
@@ -5625,7 +5625,7 @@ void adolc_vec_axpy(adouble *const res, const adouble &a,
   if (res[size - 1].loc() - res[0].loc() != size - 1 ||
       vec_a[size - 1].loc() - vec_a[0].loc() != size - 1 ||
       vec_b[size - 1].loc() - vec_b[0].loc() != size - 1)
-    fail(ADOLC_ERRORS::ADOLC_VEC_LOCATIONGAP, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::VEC_LOCATIONGAP, CURRENT_LOCATION);
   if (tape.traceFlag()) {
 
     tape.put_op(vec_axpy);

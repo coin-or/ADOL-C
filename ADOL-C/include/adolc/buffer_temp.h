@@ -133,8 +133,8 @@ template <class T, size_t buff_size>
 T *Buffer<T, buff_size>::getElement(size_t index) {
   SubBuffer *currentSubBuffer = firstSubBuffer;
   if (index >= numEntries)
-    fail(ADOLC_ERRORS::ADOLC_BUFFER_INDEX_TO_LARGE,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::BUFFER_INDEX_TO_LARGE,
+                     CURRENT_LOCATION);
   while (index >= buff_size) {
     currentSubBuffer = currentSubBuffer->nextSubBuffer;
     index -= buff_size;

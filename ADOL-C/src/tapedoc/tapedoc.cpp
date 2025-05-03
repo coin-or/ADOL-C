@@ -53,13 +53,13 @@ void filewrite_start(int opcode) {
 
   fileName = (char *)malloc(sizeof(char) * (9 + sizeof(tag) * 8 + 2));
   if (fileName == NULL)
-    fail(ADOLC_ERRORS::ADOLC_MALLOC_FAILED, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::MALLOC_FAILED, CURRENT_LOCATION);
   strncpy(fileName, baseName, strlen(baseName));
   num = sprintf(fileName + strlen(baseName), "%d", tag);
   strncpy(fileName + strlen(baseName) + num, extension, strlen(extension));
   fileName[strlen(baseName) + num + strlen(extension)] = 0;
   if (!(fp = fopen(fileName, "w")))
-    fail(ADOLC_ERRORS::ADOLC_CANNOT_OPEN_FILE, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CANNOT_OPEN_FILE, CURRENT_LOCATION);
 
   free((void *)fileName);
   fprintf(fp, "\\documentclass{article}\n");
@@ -277,15 +277,16 @@ void tape_doc(short tnum,   /* tape id */
 
   if ((depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_DEPENDENTS]) ||
       (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_INDEPENDENTS]))
-    fail(ADOLC_ERRORS::ADOLC_TAPE_DOC_COUNTS_MISMATCH,
-         FailInfo{
-             .info1 = tag,
-             .info3 = depcheck,
-             .info4 = indcheck,
-             .info5 = ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_DEPENDENTS],
-             .info6 =
-                 ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_INDEPENDENTS]},
-         std::source_location::current());
+    ADOLCError::fail(
+        ADOLCError::ErrorType::TAPE_DOC_COUNTS_MISMATCH,
+        ADOLCError::FailInfo{
+            .info1 = tag,
+            .info3 = depcheck,
+            .info4 = indcheck,
+            .info5 = ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_DEPENDENTS],
+            .info6 =
+                ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_INDEPENDENTS]},
+        CURRENT_LOCATION);
 
   /* globals */
   op_cnt = 0;

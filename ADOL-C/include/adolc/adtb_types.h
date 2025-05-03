@@ -828,8 +828,8 @@ inline adouble pow(double coval, const adouble &a) {
   ValueTape &tape = currentTape();
   adouble ret;
   if (coval <= 0)
-    fail(ADOLC_ERRORS::ADOLC_NONPOSITIVE_BASIS,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::NONPOSITIVE_BASIS,
+                     CURRENT_LOCATION);
 
   condassign(ret, adouble{coval}, exp(a * ADOLC_MATH_NSP::log(coval)),
              adouble{ADOLC_MATH_NSP::pow(coval, a.value())});

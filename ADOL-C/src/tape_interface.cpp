@@ -99,9 +99,10 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
 /****************************************************************************/
 void trace_off(int flag) {
   ValueTape &tape = currentTape();
-  if (tape.workMode() != TapeInfos::ADOLC_TAPING)
-    fail(ADOLC_ERRORS::ADOLC_TAPING_NOT_ACTUALLY_TAPING,
-         std::source_location::current(), FailInfo{.info1 = tape.tapeId()});
+  if (tape.workMode() != TapeInfos::TAPING)
+    ADOLCError::fail(ADOLCError::ErrorType::TAPING_NOT_ACTUALLY_TAPING,
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tape.tapeId()});
   tape.keepTape(flag);
   tape.keep_stock(); /* copy remaining live variables + trace_flag = 0 */
   tape.stop_trace(flag);

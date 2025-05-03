@@ -58,22 +58,23 @@ void cp_taping(CpInfos *cpInfos) {
 void revolveError(CpInfos *cpInfos) {
   switch (cpInfos->info) {
   case 10:
-    fail(ADOLC_ERRORS::ADOLC_CP_STORED_EXCEEDS_CU,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CP_STORED_EXCEEDS_CU,
+                     CURRENT_LOCATION);
   case 11:
-    fail(ADOLC_ERRORS::ADOLC_CP_STORED_EXCEEDS_SNAPS,
-         std::source_location::current(),
-         FailInfo{.info3 = cpInfos->check + 1, .info6 = cpInfos->checkpoints});
+    ADOLCError::fail(ADOLCError::ErrorType::CP_STORED_EXCEEDS_SNAPS,
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info3 = cpInfos->check + 1,
+                                          .info6 = cpInfos->checkpoints});
   case 12:
-    fail(ADOLC_ERRORS::ADOLC_CP_NUMFORW, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CP_NUMFORW, CURRENT_LOCATION);
   case 13:
-    fail(ADOLC_ERRORS::ADOLC_CP_INC_SNAPS, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CP_INC_SNAPS, CURRENT_LOCATION);
   case 14:
-    fail(ADOLC_ERRORS::ADOLC_CP_SNAPS_EXCEEDS_CU,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CP_SNAPS_EXCEEDS_CU,
+                     CURRENT_LOCATION);
   case 15:
-    fail(ADOLC_ERRORS::ADOLC_CP_REPS_EXCEEDS_REPSUP,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CP_REPS_EXCEEDS_REPSUP,
+                     CURRENT_LOCATION);
   }
 }
 
@@ -112,8 +113,9 @@ void revolve_for(short tapeId, CpInfos *cpInfos) {
       break;
 
     default:
-      fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
-           std::source_location::current());
+      ADOLCError::fail(
+          ADOLCError::ErrorType::CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
+          CURRENT_LOCATION);
     }
   } while (whattodo == revolve_takeshot || whattodo == revolve_advance);
 }
@@ -137,20 +139,22 @@ CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
 
 void check_input(short tapeId, CpInfos *cpInfos) { // knockout
   if (tapeId != cpInfos->tapeId)
-    fail(ADOLC_ERRORS::ADOLC_CP_TAPE_MISMATCH, std::source_location::current(),
-         FailInfo{.info2 = cpInfos->tapeId, .info3 = tapeId});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::CP_TAPE_MISMATCH, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info2 = cpInfos->tapeId, .info3 = tapeId});
   if (cpInfos == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_CPINFOS_NULLPOINTER,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_CPINFOS_NULLPOINTER,
+                     CURRENT_LOCATION);
   if (cpInfos->function == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION,
+                     CURRENT_LOCATION);
   if (cpInfos->function_double == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
-         std::source_location::current());
+    ADOLCError::fail(
+        ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
+        CURRENT_LOCATION);
   if (cpInfos->adp_x == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_NULLPOINTER_ARGUMENT,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_ARGUMENT,
+                     CURRENT_LOCATION);
 }
 /* This is the main checkpointing function the user calls within the taping
  * process. It performs n time steps with or without taping and registers an
@@ -271,10 +275,10 @@ int cp_zos_forward(short tapeId, size_t dim_x, double *dp_x, size_t dim_y,
   // get checkpointing information
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
   if (!cpInfos)
-    fail(ADOLC_ERRORS::ADOLC_CP_NO_SUCH_IDX, std::source_location::current(),
-         FailInfo{.info3 = tape.cp_index()});
+    ADOLCError::fail(ADOLCError::ErrorType::CP_NO_SUCH_IDX, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info3 = tape.cp_index()});
   // note the mode
-  cpInfos->modeForward = TapeInfos::ADOLC_ZOS_FORWARD;
+  cpInfos->modeForward = TapeInfos::ZOS_FORWARD;
   cpInfos->modeReverse = TapeInfos::ADOLC_NO_MODE;
 
   // prepare arguments
@@ -341,7 +345,7 @@ int cp_fos_reverse(short tapeId, size_t dim_y, double *dp_U, size_t dim_x,
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
 
   // note the mode
-  cpInfos->modeReverse = TapeInfos::ADOLC_FOS_REVERSE;
+  cpInfos->modeReverse = TapeInfos::FOS_REVERSE;
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
@@ -412,8 +416,9 @@ int cp_fos_reverse(short tapeId, size_t dim_y, double *dp_U, size_t dim_x,
       break;
 
     default:
-      fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
-           std::source_location::current());
+      ADOLCError::fail(
+          ADOLCError::ErrorType::CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
+          CURRENT_LOCATION);
       break;
     }
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
@@ -445,7 +450,7 @@ int cp_fov_reverse(short tapeId, size_t dim_y, size_t num_weights,
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
 
   // note the mode
-  cpInfos->modeReverse = TapeInfos::ADOLC_FOV_REVERSE;
+  cpInfos->modeReverse = TapeInfos::FOV_REVERSE;
 
   const size_t numDirs = tape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];
@@ -519,8 +524,9 @@ int cp_fov_reverse(short tapeId, size_t dim_y, size_t num_weights,
       break;
 
     default:
-      fail(ADOLC_ERRORS::ADOLC_CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
-           std::source_location::current());
+      ADOLCError::fail(
+          ADOLCError::ErrorType::CHECKPOINTING_UNEXPECTED_REVOLVE_ACTION,
+          CURRENT_LOCATION);
       break;
     }
   } while (whattodo != revolve_terminate && whattodo != revolve_error);

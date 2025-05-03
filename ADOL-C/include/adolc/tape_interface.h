@@ -28,8 +28,8 @@ inline ValueTape *findTapePtr_(short tapeId) {
 inline ValueTape *findTapePtr(short tapeId) {
   ValueTape *tape = findTapePtr_(tapeId);
   if (!tape)
-    fail(ADOLC_ERRORS::ADOLC_NO_TAPE_ID, std::source_location::current(),
-         FailInfo{.info1 = tapeId});
+    ADOLCError::fail(ADOLCError::ErrorType::NO_TAPE_ID, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tapeId});
   return tape;
 }
 
@@ -54,8 +54,8 @@ inline void setCurrentTape(short tapeId) {
 inline void createNewTape(short tapeId) {
   // try to find tape
   if (findTapePtr_(tapeId))
-    fail(ADOLC_ERRORS::ADOLC_TAPE_ALREADY_EXIST,
-         std::source_location::current(), FailInfo{.info1 = tapeId});
+    ADOLCError::fail(ADOLCError::ErrorType::TAPE_ALREADY_EXIST,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId});
 
   tapeBuffer().emplace_back(std::make_unique<ValueTape>(tapeId));
 

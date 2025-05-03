@@ -79,7 +79,7 @@ static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
                    [&](auto &&v) { return v.edf_index == edf_index; });
 
   if (current == fpi_stack.end())
-    fail(ADOLC_ERRORS::ADOLC_FP_NO_EDF, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
 
   for (size_t i = 0; i < dim_x; ++i)
     x_fix[i] = xu[i];
@@ -116,7 +116,7 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
                    [&](auto &&v) { return v.edf_index == edf_index; });
 
   if (current == fpi_stack.end())
-    fail(ADOLC_ERRORS::ADOLC_FP_NO_EDF, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
   for (size_t k = 1; (k < current->N_max_deriv) || (k < current->N_max); ++k) {
     if (k > 1) {
       for (size_t i = 0; i < dim_x; ++i)
@@ -159,7 +159,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
                    [&](auto &&v) { return v.edf_index == edf_index; });
 
   if (current == fpi_stack.end())
-    fail(ADOLC_ERRORS::ADOLC_FP_NO_EDF, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
 
   double *U = new double[dim_xu];
   double *xi = new double[dim_x];

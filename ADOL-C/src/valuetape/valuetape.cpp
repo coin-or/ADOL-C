@@ -55,8 +55,9 @@ int ValueTape::initNewTape() {
 
   if (inUse()) {
     if (!tapingComplete())
-      fail(ADOLC_ERRORS::ADOLC_TAPING_TAPE_STILL_IN_USE,
-           std::source_location::current(), FailInfo{.info1 = tapeId()});
+      ADOLCError::fail(ADOLCError::ErrorType::TAPING_TAPE_STILL_IN_USE,
+                       CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info1 = tapeId()});
 
     if (!tapestats(TapeInfos::OP_FILE_ACCESS) &&
         !tapestats(TapeInfos::LOC_FILE_ACCESS) &&
@@ -201,8 +202,8 @@ void ValueTape::taylor_begin(uint bufferSize, int degreeSave) {
     taylor_close(false);
   } else { /* check if new buffer is allowed */
     if (numTBuffersInUse() == maxNumberTaylorBuffers())
-      fail(ADOLC_ERRORS::ADOLC_TAPING_TO_MANY_TAYLOR_BUFFERS,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::TAPING_TO_MANY_TAYLOR_BUFFERS,
+                       CURRENT_LOCATION);
 
     increment_numTBuffersInUse();
     if (tay_fileName() == nullptr)
@@ -214,8 +215,8 @@ void ValueTape::taylor_begin(uint bufferSize, int degreeSave) {
     tayBuffer(new double[bufferSize]);
 
   if (tayBuffer() == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_TAPING_TBUFFER_ALLOCATION_FAILED,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::TAPING_TBUFFER_ALLOCATION_FAILED,
+                     CURRENT_LOCATION);
 
   deg_save(degreeSave);
   if (degreeSave >= 0)
@@ -280,8 +281,8 @@ void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
   *degree = deg_save();
 
   if (tayBuffer() == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_REVERSE_NO_TAYLOR_STACK,
-         std::source_location::current(), FailInfo{.info1 = tapeId()});
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_TAYLOR_STACK,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId()});
 
   nextBufferNumber(numTays_Tape() / tapestats(TapeInfos::TAY_BUFFER_SIZE));
   const size_t number = numTays_Tape() % tapestats(TapeInfos::TAY_BUFFER_SIZE);
@@ -289,14 +290,14 @@ void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
 
   if (lastTayBlockInCore() != 1) {
     if (!tay_file())
-      fail(ADOLC_ERRORS::ADOLC_TAY_NULLPTR, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::TAY_NULLPTR, CURRENT_LOCATION);
 
     if (fseek(tay_file(),
               sizeof(double) * nextBufferNumber() *
                   tapestats(TapeInfos::TAY_BUFFER_SIZE),
               SEEK_SET) == -1)
-      fail(ADOLC_ERRORS::ADOLC_EVAL_SEEK_VALUE_STACK,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::EVAL_SEEK_VALUE_STACK,
+                       CURRENT_LOCATION);
 
     const size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
     const size_t chunks = number / chunkSize;
@@ -304,16 +305,16 @@ void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
     for (size_t i = 0; i < chunks; ++i)
       if (fread(tayBuffer() + i * chunkSize, chunkSize * sizeof(double), 1,
                 tay_file()) != 1)
-        fail(ADOLC_ERRORS::ADOLC_TAPING_FATAL_IO_ERROR,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
+                         CURRENT_LOCATION);
 
     const size_t remain = number % chunkSize;
 
     if (remain != 0)
       if (fread(tayBuffer() + chunks * chunkSize, remain * sizeof(double), 1,
                 tay_file()) != 1)
-        fail(ADOLC_ERRORS::ADOLC_TAPING_FATAL_IO_ERROR,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
+                         CURRENT_LOCATION);
   }
   decrement_nextBufferNumber();
 }
@@ -437,8 +438,8 @@ void ValueTape::initTapeBuffers() {
     valBuffer(new double[tapestats(TapeInfos::VAL_BUFFER_SIZE)]);
 
   if (!opBuffer() || !locBuffer() || !valBuffer())
-    fail(ADOLC_ERRORS::ADOLC_TAPING_BUFFER_ALLOCATION_FAILED,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::TAPING_BUFFER_ALLOCATION_FAILED,
+                     CURRENT_LOCATION);
 
   lastOpP1(opBuffer() + tapestats(TapeInfos::OP_BUFFER_SIZE));
   lastLocP1(locBuffer() + tapestats(TapeInfos::LOC_BUFFER_SIZE));
@@ -459,7 +460,7 @@ void ValueTape::start_trace() {
 
   num_eq_prod(0);
   numSwitches(0);
-  workMode(TapeInfos::ADOLC_TAPING);
+  workMode(TapeInfos::TAPING);
 
   /* Put operation denoting the start_of_the tape */
   put_op(start_of_tape);
@@ -467,8 +468,8 @@ void ValueTape::start_trace() {
   /* Leave space for the stats */
   const int space = TapeInfos::STAT_SIZE * sizeof(size_t) + sizeof(ADOLC_ID);
   if (space > statSpace * sizeof(size_t))
-    fail(ADOLC_ERRORS::ADOLC_MORE_STAT_SPACE_REQUIRED,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::MORE_STAT_SPACE_REQUIRED,
+                     CURRENT_LOCATION);
 
   for (size_t i = 0; i < statSpace; ++i)
     put_loc(0);
@@ -621,8 +622,8 @@ void ValueTape::read_params() {
 
   FILE *val_file = nullptr;
   if ((val_file = fopen(val_fileName(), "rb")) == nullptr)
-    fail(ADOLC_ERRORS::ADOLC_VALUE_TAPE_FREAD_FAILED,
-         std::source_location::current(), FailInfo{.info1 = tapeId()});
+    ADOLCError::fail(ADOLCError::ErrorType::VALUE_TAPE_FREAD_FAILED,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId()});
 
   size_t number = (tapestats(TapeInfos::NUM_VALUES) /
                    tapestats(TapeInfos::VAL_BUFFER_SIZE)) *
@@ -638,14 +639,16 @@ void ValueTape::read_params() {
     for (size_t i = 0; i < chunks; ++i)
       if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
                 val_file) != 1)
-        fail(ADOLC_ERRORS::ADOLC_VALUE_TAPE_FREAD_FAILED,
-             std::source_location::current(), FailInfo{.info1 = tapeId()});
+        ADOLCError::fail(ADOLCError::ErrorType::VALUE_TAPE_FREAD_FAILED,
+                         CURRENT_LOCATION,
+                         ADOLCError::FailInfo{.info1 = tapeId()});
     const size_t remain = number % chunkSize;
     if (remain != 0)
       if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
                 val_file) != 1)
-        fail(ADOLC_ERRORS::ADOLC_VALUE_TAPE_FREAD_FAILED,
-             std::source_location::current(), FailInfo{.info1 = tapeId()});
+        ADOLCError::fail(ADOLCError::ErrorType::VALUE_TAPE_FREAD_FAILED,
+                         CURRENT_LOCATION,
+                         ADOLCError::FailInfo{.info1 = tapeId()});
   }
   size_t nVT = tapestats(TapeInfos::NUM_VALUES) - number;
   const double *currVal = valBuffer + number;
@@ -665,15 +668,17 @@ void ValueTape::read_params() {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
                   val_file) != 1)
-          fail(ADOLC_ERRORS::ADOLC_VALUE_TAPE_FREAD_FAILED,
-               std::source_location::current(), FailInfo{.info1 = tapeId()});
+          ADOLCError::fail(ADOLCError::ErrorType::VALUE_TAPE_FREAD_FAILED,
+                           CURRENT_LOCATION,
+                           ADOLCError::FailInfo{.info1 = tapeId()});
 
       const size_t remain = number % chunkSize;
       if (remain != 0)
         if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
                   val_file) != 1)
-          fail(ADOLC_ERRORS::ADOLC_VALUE_TAPE_FREAD_FAILED,
-               std::source_location::current(), FailInfo{.info1 = tapeId()});
+          ADOLCError::fail(ADOLCError::ErrorType::VALUE_TAPE_FREAD_FAILED,
+                           CURRENT_LOCATION,
+                           ADOLCError::FailInfo{.info1 = tapeId()});
 
       nVT -= number;
       currVal = lastValP1;
@@ -694,13 +699,13 @@ void ValueTape::set_param_vec(short tag, size_t numparam, double *paramvec) {
 
   /* make room for tapeInfos and read tapestats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::ADOLC_FORWARD);
+  openTape(TapeInfos::FORWARD);
   if (tapestats(TapeInfos::NUM_PARAM) != numparam)
-    fail(ADOLC_ERRORS::ADOLC_PARAM_COUNTS_MISMATCH,
-         std::source_location::current(),
-         FailInfo{.info1 = tag,
-                  .info5 = numparam,
-                  .info6 = tapeInfos_.stats[TapeInfos::NUM_PARAM]});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::PARAM_COUNTS_MISMATCH, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info1 = tag,
+                             .info5 = numparam,
+                             .info6 = tapeInfos_.stats[TapeInfos::NUM_PARAM]});
 
   if (!paramstore())
     paramstore(new double[tapestats(TapeInfos::NUM_PARAM)]);
@@ -727,23 +732,23 @@ void ValueTape::compare_adolc_ids(const ADOLC_ID &id1, const ADOLC_ID &id2) {
       100 * id1.adolc_ver + 10 * id1.adolc_sub + 1 * id1.adolc_lvl;
 
   if (t1Version > t2Version)
-    fail(ADOLC_ERRORS::ADOLC_TAPE_TO_OLD, std::source_location::current(),
-         FailInfo{.info1 = tapeId()});
+    ADOLCError::fail(ADOLCError::ErrorType::TAPE_TO_OLD, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tapeId()});
 
   if (id1.address_size != id2.address_size) {
     if (id1.address_size > id2.address_size)
-      fail(ADOLC_ERRORS::ADOLC_WRONG_PLATFORM_64,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::WRONG_PLATFORM_64,
+                       CURRENT_LOCATION);
     else
-      fail(ADOLC_ERRORS::ADOLC_WRONG_PLATFORM_32,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::WRONG_PLATFORM_32,
+                       CURRENT_LOCATION);
   }
 
   if (id1.locint_size != id2.locint_size)
-    fail(ADOLC_ERRORS::ADOLC_SIZE_MISMATCH, std::source_location::current(),
-         FailInfo{.info1 = tapeId(),
-                  .info5 = id1.locint_size,
-                  .info6 = id2.locint_size});
+    ADOLCError::fail(ADOLCError::ErrorType::SIZE_MISMATCH, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tapeId(),
+                                          .info5 = id1.locint_size,
+                                          .info6 = id2.locint_size});
 }
 
 /****************************************************************************/
@@ -759,10 +764,8 @@ void ValueTape::read_tape_stats() {
       (fread(&tape_ADOLC_ID, sizeof(ADOLC_ID), 1, loc_file) != 1) ||
       (fread(tapestats().data(), TapeInfos::STAT_SIZE * sizeof(size_t), 1,
              loc_file) != 1)) {
-    FailInfo failinfo;
-    failinfo.info1 = tapeId();
-    fail(ADOLC_ERRORS::ADOLC_INTEGER_TAPE_FOPEN_FAILED,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::INTEGER_TAPE_FOPEN_FAILED,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId()});
   }
 
   compare_adolc_ids(get_adolc_id(), tape_ADOLC_ID);
@@ -786,7 +789,7 @@ void ValueTape::init_for_sweep(short tag) {
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::ADOLC_FORWARD);
+  openTape(TapeInfos::FORWARD);
   initTapeBuffers();
 
   /* init operations */
@@ -802,15 +805,15 @@ void ValueTape::init_for_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(opBuffer() + i * chunkSize_uchar,
                   chunkSize_uchar * sizeof(unsigned char), 1, op_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_OP_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_uchar;
       if (remain != 0)
         if (fread(opBuffer() + chunks * chunkSize_uchar,
                   remain * sizeof(unsigned char), 1, op_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_OP_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
     /* how much remains ? */
     number = tapestats(TapeInfos::NUM_OPERATIONS) - number;
@@ -831,15 +834,15 @@ void ValueTape::init_for_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(locBuffer() + i * chunkSize_size_t,
                   chunkSize_size_t * sizeof(size_t), 1, loc_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_LOC_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_size_t;
       if (remain != 0)
         if (fread(locBuffer() + chunks * chunkSize_size_t,
                   remain * sizeof(size_t), 1, loc_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_LOC_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
     /* how much remains ? */
     number = tapestats(TapeInfos::NUM_LOCATIONS) - number;
@@ -866,15 +869,15 @@ void ValueTape::init_for_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(valBuffer() + i * chunkSize_double,
                   chunkSize_double * sizeof(double), 1, val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_double;
       if (remain != 0)
         if (fread(valBuffer() + chunks * chunkSize_double,
                   remain * sizeof(double), 1, val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
     /* how much remains ? */
     number = tapestats(TapeInfos::NUM_VALUES) - number;
@@ -900,7 +903,7 @@ void ValueTape::init_rev_sweep(short tag) {
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::ADOLC_REVERSE);
+  openTape(TapeInfos::REVERSE);
   initTapeBuffers();
 
   /* init operations */
@@ -918,15 +921,15 @@ void ValueTape::init_rev_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(opBuffer() + i * chunkSize_uchar,
                   chunkSize_uchar * sizeof(unsigned char), 1, op_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_OP_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_uchar;
       if (remain != 0)
         if (fread(opBuffer() + chunks * chunkSize_uchar,
                   remain * sizeof(unsigned char), 1, op_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_OP_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
   }
   numOps_Tape(tapestats(TapeInfos::NUM_OPERATIONS) - number);
@@ -947,15 +950,15 @@ void ValueTape::init_rev_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(locBuffer() + i * chunkSize_size_t,
                   chunkSize_size_t * sizeof(size_t), 1, loc_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_LOC_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_size_t;
       if (remain != 0)
         if (fread(locBuffer() + chunks * chunkSize_size_t,
                   remain * sizeof(size_t), 1, loc_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_LOC_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
   }
   numLocs_Tape(tapestats(TapeInfos::NUM_LOCATIONS) - number);
@@ -976,15 +979,15 @@ void ValueTape::init_rev_sweep(short tag) {
       for (size_t i = 0; i < chunks; ++i)
         if (fread(valBuffer() + i * chunkSize_double,
                   chunkSize_double * sizeof(double), 1, val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       const size_t remain = number % chunkSize_double;
       if (remain != 0)
         if (fread(valBuffer() + chunks * chunkSize_double,
                   remain * sizeof(double), 1, val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
     }
   }
   numVals_Tape(tapestats(TapeInfos::NUM_VALUES) - number);
@@ -1038,15 +1041,15 @@ void ValueTape::discard_params_r(void) {
       for (size_t i = 0; i < TapeInfos::VAL_BUFFER_SIZE / chunkSize; ++i)
         if (fread(valBuffer() + i * chunkSize, chunkSize * sizeof(double), 1,
                   val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       remain = TapeInfos::VAL_BUFFER_SIZE % chunkSize;
       if (remain != 0)
         if (fread(valBuffer() + TapeInfos::VAL_BUFFER_SIZE,
                   remain * sizeof(double), 1, val_file()) != 1)
-          fail(ADOLC_ERRORS::ADOLC_EVAL_VAL_TAPE_READ_FAILED,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
+                           CURRENT_LOCATION);
 
       numVals_Tape(numVals_Tape() - TapeInfos::VAL_BUFFER_SIZE);
       currVal(lastValP1());

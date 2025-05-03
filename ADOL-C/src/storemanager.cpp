@@ -134,7 +134,7 @@ void StoreManagerLocint::free_loc(size_t loc) {
 }
 
 void StoreManagerLocint::ensure_block(size_t n) {
-  fail(ADOLC_ERRORS::SM_LOCINT_BLOCK, std::source_location::current());
+  ADOLCError::fail(ADOLCError::ErrorType::SM_LOCINT_BLOCK, CURRENT_LOCATION);
 }
 void StoreManagerLocint::grow(size_t mingrow) {
   if (maxsize == 0)
@@ -145,8 +145,9 @@ void StoreManagerLocint::grow(size_t mingrow) {
     maxsize = mingrow;
 
   if (maxsize > std::numeric_limits<size_t>::max())
-    fail(ADOLC_ERRORS::SM_MAX_LIVES, std::source_location::current(),
-         FailInfo{.info5 = std::numeric_limits<size_t>::max()});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::SM_MAX_LIVES, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info5 = std::numeric_limits<size_t>::max()});
 
 #ifdef ADOLC_DEBUG
   std::cerr << "StoreManagerLocint::grow(): increase size from " << oldMaxsize
@@ -423,8 +424,9 @@ void StoreManagerLocintBlock::grow(size_t minGrow) {
   }
 
   if (maxsize > std::numeric_limits<size_t>::max())
-    fail(ADOLC_ERRORS::SM_MAX_LIVES, std::source_location::current(),
-         FailInfo{.info5 = std::numeric_limits<size_t>::max()});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::SM_MAX_LIVES, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info5 = std::numeric_limits<size_t>::max()});
 
 #ifdef ADOLC_LOCDEBUG
   // index 0 is not used, means one slot less

@@ -65,8 +65,8 @@ istream &operator>>(istream &in, adouble &a) {
   while (c != '(' && !in.eof());
   in >> num;
   if (num > adouble::numDir)
-    fail(ADOLC_ERRORS::ADOLC_TO_MANY_DIRECTIONS,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::TO_MANY_DIRECTIONS,
+                     CURRENT_LOCATION);
 
   do
     in >> c;

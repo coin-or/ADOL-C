@@ -1073,9 +1073,9 @@ int hov_forward(
 
   if ((depcheck != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (indcheck != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
-    fail(ADOLC_ERRORS::ADOLC_REVERSE_COUNTS_MISMATCH,
-         std::source_location::current(),
-         FailInfo{.info1 = tnum,
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
+         CURRENT_LOCATION,
+         ADOLCError::FailInfo{.info1 = tnum,
                   .info3 = depcheck,
                   .info4 = indcheck,
                   .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
@@ -1083,13 +1083,13 @@ int hov_forward(
 
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
-    fail(ADOLC_ERRORS::ADOLC_NO_MINMAX, std::source_location::current(),
-         FailInfo{.info1 = tnum});
+    ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
+         ADOLCError::FailInfo{.info1 = tnum});
 
 #if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
   if (swcheck != tape.tapestats(TapeInfos::NUM_SWITCHES))
-    fail(ADOLC_ERRORS::ADOLC_SWITCHES_MISMATCH, std::source_location::current(),
-         FailInfo{.info1 = tnum,
+    ADOLCError::fail(ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
+         ADOLCError::FailInfo{.info1 = tnum,
                   .info3 = swcheck,
                   .info6 = tape.tapestats(TapeInfos::NUM_SWITCHES)});
 
@@ -1114,13 +1114,13 @@ int hov_forward(
   tape.dpp_T(&dp_T0);
   tape.numTay(0);
   tape.gDegree(0);
-  tape.workMode(TapeInfos::ADOLC_ZOS_FORWARD);
+  tape.workMode(TapeInfos::ZOS_FORWARD);
 #endif             /* !_NTIGHT_ */
 #if defined(_ZOS_) /* ZOS */
 
 #if defined(_KEEP_)
   if (keep > 1)
-    fail(ADOLC_ERRORS::ADOLC_FWD_ZO_KEEP, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::FWD_ZO_KEEP, CURRENT_LOCATION);
 #endif
 #if defined(_KEEP_)
   if (keep) {
@@ -1135,14 +1135,14 @@ int hov_forward(
 #if defined(_FOS_)
 #if defined(_KEEP_)
   if (keep > 2)
-    fail(ADOLC_ERRORS::ADOLC_FWD_FO_KEEP, std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::FWD_FO_KEEP, CURRENT_LOCATION);
 
 #endif
   dp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   tape.dpp_T(&dp_T);
   tape.numTay(1);
   tape.gDegree(1);
-  tape.workMode(TapeInfos::ADOLC_FOS_FORWARD);
+  tape.workMode(TapeInfos::FOS_FORWARD);
 #define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
   if (keep) {
@@ -1208,7 +1208,7 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(p);
   tape.gDegree(1);
-  tape.workMode(TapeInfos::ADOLC_FOV_FORWARD);
+  tape.workMode(TapeInfos::FOV_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_Ttemp = myalloc1(p);
 #define T_TEMP dp_Ttemp;
@@ -1220,7 +1220,7 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(1);
   tape.gDegree(k);
-  tape.workMode(TapeInfos::ADOLC_HOS_FORWARD);
+  tape.workMode(TapeInfos::HOS_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(k);
@@ -1238,7 +1238,7 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(p);
   tape.gDegree(k);
-  tape.workMode(TapeInfos::ADOLC_HOV_FORWARD);
+  tape.workMode(TapeInfos::HOV_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(p * k);
@@ -3627,8 +3627,8 @@ int hov_forward(
         FOR_0_LE_i_LT_k {
           TRES_FOINC = r0 * TARG_INC;
 #if defined(_HIGHER_ORDER_)
-          fail(ADOLC_ERRORS::ADOLC_HO_OP_NOT_IMPLEMENTED,
-               std::source_location::current(), FailInfo{.info7 = operation});
+          ADOLCError::fail(ADOLCError::ErrorType::HO_OP_NOT_IMPLEMENTED,
+               CURRENT_LOCATION, ADOLCError::FailInfo{.info7 = operation});
 #endif /* _HIGHER_ORDER_ */
         }
       }
@@ -4495,8 +4495,8 @@ int hov_forward(
 #if !defined(_NTIGHT_)
         idx = (size_t)trunc(fabs(dp_T0[arg]));
         if (idx >= numvar)
-          fail(ADOLC_ERRORS::ADOLC_ADUBREF_OOB, std::source_location::current(),
-               FailInfo{.info5 = numvar, .info6 = idx});
+          ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
+               ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = dp_T0[arg1];
@@ -4516,8 +4516,8 @@ int hov_forward(
 #endif
 #endif
 #else
-        fail(ADOLC_ERRORS::ADOLC_ACTIVE_SUBSCRIPTING,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
+             CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       }
       break;
@@ -4539,14 +4539,14 @@ int hov_forward(
 #if !defined(_NTIGHT_)
         idx = (size_t)trunc(fabs(dp_T0[arg]));
         if (idx >= numvar)
-          fail(ADOLC_ERRORS::ADOLC_ADUBREF_OOB, std::source_location::current(),
-               FailInfo{.info5 = numvar, .info6 = idx});
+          ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
+               ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = arg1;
 #else
-        fail(ADOLC_ERRORS::ADOLC_ACTIVE_SUBSCRIPTING,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
+             CURRENT_LOCATION);
 #endif
       }
       break;
@@ -4574,7 +4574,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4585,7 +4585,7 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p);
       dp_T0[arg1]++;
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
       break;
 
@@ -4596,7 +4596,7 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(arg1, keep, k, p);
       dp_T0[arg1]--;
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
       break;
 
@@ -4629,7 +4629,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
       break;
 
@@ -4658,7 +4658,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
       break;
 
@@ -4687,7 +4687,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
       break;
 
@@ -4716,7 +4716,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4751,7 +4751,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       ++indexi;
       break;
@@ -4769,7 +4769,7 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] += coval;
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
       break;
 
@@ -4806,7 +4806,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       break;
 
@@ -4823,7 +4823,7 @@ int hov_forward(
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
       dp_T0[res] -= coval;
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
       break;
 
@@ -4860,7 +4860,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -4888,7 +4888,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -4945,7 +4945,7 @@ int hov_forward(
 #endif
       dp_T0[res] *= dp_T0[arg];
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 
 #endif /* !_NTIGHT_ */
       break;
@@ -5231,8 +5231,8 @@ int hov_forward(
 #endif
 #endif
 #else
-        fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF,
+             CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       }
@@ -5326,8 +5326,8 @@ int hov_forward(
 #endif
 #endif
 #else
-        fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF,
+             CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       }
@@ -5388,7 +5388,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -5446,7 +5446,7 @@ int hov_forward(
 #endif
 #endif
 #else
-      fail(ADOLC_ERRORS::ADOLC_ADUBREF_VE_REF, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -5509,26 +5509,26 @@ int hov_forward(
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
+             CURRENT_LOCATION);
       if (n > 0) {
         if (edfct->dp_x == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
       if (m > 0) {
         if (edfct->dp_y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
 
@@ -5594,26 +5594,26 @@ int hov_forward(
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
+             CURRENT_LOCATION);
       if (n > 0) {
         if (edfct->dp_x == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
       if (m > 0) {
         if (edfct->dp_y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
 
@@ -5689,26 +5689,26 @@ int hov_forward(
       tape.get_locint_f(); /* nout again */
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
       if (edfct2->ADOLC_EXT_FCT_POINTER == nullptr)
-        fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             std::source_location::current());
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
+             CURRENT_LOCATION);
       if (nin > 0) {
         if (edfct2->x == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_X == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
       if (nout > 0) {
         if (edfct2->y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_Y == nullptr)
-          fail(ADOLC_ERRORS::ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT,
-               std::source_location::current());
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+               CURRENT_LOCATION);
 #endif
       }
 
@@ -5872,8 +5872,8 @@ int hov_forward(
     default: /* default */
       /* Die here, we screwed up */
 
-      fail(ADOLC_ERRORS::ADOLC_NO_SUCH_OP, std::source_location::current(),
-           FailInfo{.info7 = operation});
+      ADOLCError::fail(ADOLCError::ErrorType::NO_SUCH_OP, CURRENT_LOCATION,
+           ADOLCError::FailInfo{.info7 = operation});
       break;
 
     } /* endswitch */
@@ -5985,8 +5985,8 @@ int get_num_switches(short tapeId) {
   ValueTape& tape = findTape(tapeId);
   tape.init_for_sweep(tapeId);
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
-    fail(ADOLC_ERRORS::ADOLC_NO_MINMAX, std::source_location::current(),
-         FailInfo{.info1 = tapeId});
+    ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
+         ADOLCError::FailInfo{.info1 = tapeId});
 
   nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
   tape.end_sweep();

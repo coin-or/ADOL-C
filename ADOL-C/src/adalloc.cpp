@@ -103,8 +103,8 @@ double *myalloc1(size_t m) {
   if (m > 0) {
     A = (double *)ADOLC_MALLOC(m, sizeof(double));
     if (!A)
-      fail(ADOLC_ERRORS::ADOLC_MYALLOC1, std::source_location::current(),
-           FailInfo{.info5 = m * sizeof(double)});
+      ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info5 = m * sizeof(double)});
   }
   return A;
 }
@@ -117,8 +117,9 @@ double **myalloc2(size_t m, size_t n) {
     char *Adum = (char *)ADOLC_MALLOC(
         m * n * sizeof(double) + m * sizeof(double *), sizeof(char));
     if (!Adum)
-      fail(ADOLC_ERRORS::ADOLC_MYALLOC2, std::source_location::current(),
-           FailInfo{.info5 = m * n * sizeof(double) + m * sizeof(double *)});
+      ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info5 = m * n * sizeof(double) +
+                                                     m * sizeof(double *)});
 
     populate_dpp(&A, Adum, m, n);
   }
@@ -137,9 +138,11 @@ myalloc3(size_t m, size_t n,
                                           m * sizeof(double **),
                                       sizeof(char));
     if (!Adum)
-      fail(ADOLC_ERRORS::ADOLC_MYALLOC3, std::source_location::current(),
-           FailInfo{.info5 = m * n * p * sizeof(double) +
-                             m * n * sizeof(double *) + m * sizeof(double **)});
+      ADOLCError::fail(
+          ADOLCError::ErrorType::MYALLOC3, CURRENT_LOCATION,
+          ADOLCError::FailInfo{.info5 = m * n * p * sizeof(double) +
+                                        m * n * sizeof(double *) +
+                                        m * sizeof(double **)});
     populate_dppp(&A, Adum, m, n, p);
   }
   return A;
@@ -172,11 +175,12 @@ double **myallocI2(int n) {
   double **I = (double **)malloc(n * sizeof(double *));
   int i;
   if (!Idum)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOCI2, std::source_location::current(),
-         FailInfo{.info5 = (2 * n - 1) * sizeof(double)});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::MYALLOCI2, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info5 = (2 * n - 1) * sizeof(double)});
   if (!I)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOCI2, std::source_location::current(),
-         FailInfo{.info5 = n * sizeof(double *)});
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOCI2, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = n * sizeof(double *)});
 
   Idum += (n - 1);
   I[0] = Idum;
@@ -206,8 +210,8 @@ void myfreeI2(int n, double **I) {
 unsigned int *myalloc1_uint(int m) {
   unsigned int *A = (unsigned int *)ADOLC_MALLOC(m, sizeof(unsigned int));
   if (!A)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOC1_UINT, std::source_location::current(),
-         FailInfo{.info5 = m * sizeof(unsigned int)});
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_UINT, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(unsigned int)});
 
   return A;
 }
@@ -217,8 +221,8 @@ unsigned int *myalloc1_uint(int m) {
 size_t *myalloc1_ulong(int m) {
   size_t *A = (size_t *)ADOLC_CALLOC(m, sizeof(size_t));
   if (!A)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOC1_ULONG, std::source_location::current(),
-         FailInfo{.info5 = m * sizeof(size_t)});
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(size_t)});
   return A;
 }
 
@@ -229,12 +233,12 @@ size_t **myalloc2_ulong(int m, int n) {
   size_t **A = (size_t **)ADOLC_CALLOC(m, sizeof(size_t *));
   int i;
   if (!Adum)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOC2_ULONG, std::source_location::current(),
-         FailInfo{.info5 = m * n * sizeof(size_t)});
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * n * sizeof(size_t)});
 
   if (!A)
-    fail(ADOLC_ERRORS::ADOLC_MYALLOC2_ULONG, std::source_location::current(),
-         FailInfo{.info5 = m * sizeof(size_t)});
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(size_t)});
 
   for (i = 0; i < m; i++) {
     A[i] = Adum;

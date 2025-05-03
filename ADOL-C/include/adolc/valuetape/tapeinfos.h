@@ -32,28 +32,28 @@ struct TapeInfos {
   };
   // option for removeTape
   enum TapeRemovalType {
-    ADOLC_REMOVE_FROM_CORE,
-    ADOLC_REMOVE_COMPLETELY // also remove the tape files
+    REMOVE_FROM_CORE,
+    REMOVE_COMPLETELY // also remove the tape files
   };
 
   // modes for the tape evaluation; set by functions like "fos_forward"
   enum WORKMODES {
     ADOLC_NO_MODE,
 
-    ADOLC_FORWARD,
-    ADOLC_ZOS_FORWARD,
-    ADOLC_FOS_FORWARD,
-    ADOLC_FOV_FORWARD,
-    ADOLC_HOS_FORWARD,
-    ADOLC_HOV_FORWARD,
+    FORWARD,
+    ZOS_FORWARD,
+    FOS_FORWARD,
+    FOV_FORWARD,
+    HOS_FORWARD,
+    HOV_FORWARD,
 
-    ADOLC_REVERSE,
-    ADOLC_FOS_REVERSE,
-    ADOLC_FOV_REVERSE,
-    ADOLC_HOS_REVERSE,
-    ADOLC_HOV_REVERSE,
+    REVERSE,
+    FOS_REVERSE,
+    FOV_REVERSE,
+    HOS_REVERSE,
+    HOV_REVERSE,
 
-    ADOLC_TAPING
+    TAPING
   };
 
   ~TapeInfos();

@@ -494,16 +494,16 @@ public:
     if (!isTaping())
       globalTapeVars_.nominmaxFlag = 1;
     else
-      fail(ADOLC_ERRORS::ADOLC_ENABLE_MINMAX_USING_ABS,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::ENABLE_MINMAX_USING_ABS,
+                       CURRENT_LOCATION);
   }
 
   void disableMinMaxUsingAbs() {
     if (!isTaping())
       globalTapeVars_.nominmaxFlag = 0;
     else
-      fail(ADOLC_ERRORS::ADOLC_DISABLE_MINMAX_USING_ABS,
-           std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::DISABLE_MINMAX_USING_ABS,
+                       CURRENT_LOCATION);
   }
 
   // helper for creating contiguous adouble locations
@@ -524,11 +524,11 @@ public:
       if (!globalTapeVars_.numLives)
         globalTapeVars_.reallocStore(type);
       else
-        fail(ADOLC_ERRORS::ADOLC_SM_ACTIVE_VARS,
-             std::source_location::current(),
-             FailInfo{.info5 = globalTapeVars_.numLives});
+        ADOLCError::fail(
+            ADOLCError::ErrorType::SM_ACTIVE_VARS, CURRENT_LOCATION,
+            ADOLCError::FailInfo{.info5 = globalTapeVars_.numLives});
     } else
-      fail(ADOLC_ERRORS::ADOLC_SM_SAME_TYPE, std::source_location::current());
+      ADOLCError::fail(ADOLCError::ErrorType::SM_SAME_TYPE, CURRENT_LOCATION);
   }
   // returns the next free location in "adouble" memory
   size_t next_loc() { return globalTapeVars_.storeManagerPtr->next_loc(); }

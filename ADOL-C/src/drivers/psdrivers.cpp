@@ -50,8 +50,9 @@ int abs_normal(short tag,  /* tape identifier */
   /* This check is required because the user is probably allocating his
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != swchk)
-    fail(ADOLC_ERRORS::ADOLC_SWITCHES_MISMATCH, std::source_location::current(),
-         FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
 
   res = (double *)myalloc1(n + s);
 
@@ -156,8 +157,8 @@ int directional_active_gradient(short tag,     /* trace identifier */
   myfree2(gradu);
 
   if (done == 0)
-    fail(ADOLC_ERRORS::DIRGRAD_NOT_ENOUGH_DIRS,
-         std::source_location::current());
+    ADOLCError::fail(ADOLCError::ErrorType::DIRGRAD_NOT_ENOUGH_DIRS,
+                     CURRENT_LOCATION);
   return 0;
 }
 
