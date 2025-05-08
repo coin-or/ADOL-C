@@ -18,6 +18,7 @@ set(SOURCE_FILES
     main.cpp
     pdouble.cpp
     traceCompositeTests.cpp
+    tracelessADValue.cpp
     tracelessCompositeTests.cpp
     tracelessOperatorScalar.cpp
     tracelessOperatorVector.cpp
