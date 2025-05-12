@@ -3,6 +3,7 @@
 #include <adolc/dvlparms.h> // for ADOLC version infos
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 namespace ADOLCError {
 
@@ -39,7 +40,7 @@ void printError() {
     message += ">>> File system is mounted read only! <<<\n";
     break;
   default:
-    message += std::format(">>> {} <<<\n", std::strerror(errno));
+    message += ">>> " + std::string(std::strerror(errno)) + " <<<\n";
     break;
   }
   std::cout << message << std::endl;
@@ -49,7 +50,7 @@ void printError() {
 // program
 void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
   using std::cerr;
-  using std::format;
+  std::ostringstream oss;
 
   switch (to_underlying(error)) {
   case to_underlying(ErrorType::MALLOC_FAILED):
@@ -58,33 +59,26 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
   case to_underlying(ErrorType::INTEGER_TAPE_FOPEN_FAILED):
   case to_underlying(ErrorType::INTEGER_TAPE_FREAD_FAILED):
     printError();
-    throw ADOLCError(format("ADOL-C error: reading integer tape number {}!\n",
-                            failinfo.info1),
-                     LocInfo);
+    oss << "ADOL-C error: reading integer tape number " << failinfo.info1
+        << "!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::VALUE_TAPE_FOPEN_FAILED):
   case to_underlying(ErrorType::VALUE_TAPE_FREAD_FAILED):
     printError();
-    throw ADOLCError(
-        format("ADOL-C error: reading value tape number {}!\n", failinfo.info1),
-        LocInfo);
+    oss << "ADOL-C error: reading value tape number " << failinfo.info1
+        << "!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::TAPE_TO_OLD):
-    throw ADOLCError(
-        format("ADOL-C error: Used tape ({}) was written with ADOL-C version "
-               "older than {}.{}.{}\n This is ADOL-C {}.{}.{}\n",
-               failinfo.info1, ADOLC_NEW_TAPE_VERSION,
-               ADOLC_NEW_TAPE_SUBVERSION, ADOLC_NEW_TAPE_PATCHLEVEL,
-               ADOLC_VERSION, ADOLC_SUBVERSION, ADOLC_PATCHLEVEL),
-        LocInfo);
+    oss << "ADOL-C error: Used tape (" << failinfo.info1
+        << ") was written with ADOL-C version older than "
+        << ADOLC_NEW_TAPE_VERSION << "." << ADOLC_NEW_TAPE_SUBVERSION << "."
+        << ADOLC_NEW_TAPE_PATCHLEVEL << "\n This is ADOL-C " << ADOLC_VERSION
+        << "." << ADOLC_SUBVERSION << "." << ADOLC_PATCHLEVEL << "!\n",
+        throw ADOLCError(oss.str(), LocInfo);
     break;
 
-  case to_underlying(ErrorType::WRONG_LOCINT_SIZE):
-    throw ADOLCError(format("ADOL-C error: Used tape ({}) was written with "
-                            "locints of size {}, size {} required.\n",
-                            failinfo.info1, failinfo.info1, failinfo.info2),
-                     LocInfo);
-    break;
   case to_underlying(ErrorType::MORE_STAT_SPACE_REQUIRED):
     throw ADOLCError("ADOL-C error: Not enough space for stats!\n Please "
                      "contact the ADOL-C team!\n",
@@ -98,9 +92,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     throw ADOLCError("ADOL-C error: Cannot allocate taylor buffer!\n", LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_READ_ERROR_IN_TAYLOR_CLOSE):
-    throw ADOLCError(format("ADOL-C error: Read error in taylor_close n= {}\n",
-                            failinfo.info1),
-                     LocInfo);
+    oss << "ADOL-C error: Read error in taylor_close n= " << failinfo.info1
+        << "!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_TO_MANY_TAYLOR_BUFFERS):
     throw ADOLCError("ADOL-C error: To many taylor buffers!\n Increase "
@@ -108,29 +102,34 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
                      LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_TO_MANY_LOCINTS):
-    throw ADOLCError(
-        format(
-            "ADOL-C error: Maximal number ({}) of live active variables "
-            "exceeded!\n\n Possible remedies :\n\n 1. Use more automatic local "
-            "variables and\n allocate/deallocate adoubles on free store\n in a "
-            "strictly last in first out fashion\n\n 2. Extend the range by "
-            "redefining the type of\n locint(currently {} byte) from unsigned "
-            "short ({} byte) or int\n to int ({} byte) or long ({} byte).\n",
-            failinfo.info3, sizeof(size_t), sizeof(unsigned short), sizeof(int),
-            sizeof(long)),
-        LocInfo);
+
+    oss << "ADOL-C error: Maximal number (" << failinfo.info3
+        << ") of live active variables exceeded!\n\n"
+        << "Possible remedies :\n\n"
+        << "1. Use more automatic local variables and\n"
+        << "   allocate/deallocate adoubles on free store\n"
+        << "   in a strictly last in first out fashion\n\n"
+        << "2. Extend the range by redefining the type of\n"
+        << "   locint(currently " << sizeof(size_t)
+        << " byte) from unsigned short (" << sizeof(unsigned short)
+        << " byte) or int\n"
+        << "   to int (" << sizeof(int) << " byte) or long (" << sizeof(long)
+        << " byte).\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_STORE_REALLOC_FAILED):
-    throw ADOLCError(
-        format(
-            "ADOL-C error: Failure to reallocate storage for adouble "
-            "values!\n\n oldStore = {}\n newStore = nullptr\n oldStoreSize = "
-            "{}\n newStoreSize = {}\n\n Possible remedies :\n 1. Use more "
-            "automatic local variables and \n allocate / deallocate adoubles "
-            "on free store\n in a strictly last in first out fashion\n 2. "
-            "Enlarge your system stacksize limit\n",
-            failinfo.info5, failinfo.info3, failinfo.info4),
-        LocInfo);
+    oss << "ADOL-C error: Failure to reallocate storage for adouble values!\n\n"
+        << "oldStore = " << failinfo.info5 << "\n"
+        << "newStore = nullptr\n"
+        << "oldStoreSize = " << failinfo.info3 << "\n"
+        << "newStoreSize = " << failinfo.info4 << "\n\n"
+        << "Possible remedies :\n"
+        << "1. Use more automatic local variables and\n"
+        << "   allocate / deallocate adoubles on free store\n"
+        << "   in a strictly last in first out fashion\n"
+        << "2. Enlarge your system stacksize limit\n";
+
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_FATAL_IO_ERROR):
     printError();
@@ -138,9 +137,8 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
                      LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_TAPE_STILL_IN_USE):
-    throw ADOLCError(
-        format("ADOL-C error: Tape {} is still in use!\n", failinfo.info1),
-        LocInfo);
+    oss << "ADOL-C error: Tape " << failinfo.info1 << " is still in use!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_TAYLOR_OPEN_FAILED):
     printError();
@@ -165,40 +163,35 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::REVERSE_NO_TAYLOR_STACK):
-    throw ADOLCError(
-        format(
-            "ADOL-C error: No taylor stack found for tape {}! => Check forward "
-            "sweep!\n",
-            failinfo.info1),
-        LocInfo);
+    oss << "ADOL-C error: No taylor stack found for tape " << failinfo.info1
+        << "! => Check forward "
+           "sweep!\n",
+        throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::REVERSE_COUNTS_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Reverse sweep on tape {} aborted!\n Number of "
-               "dependents({}) and/or independents({})\n variables passed to "
-               "reverse "
-               "is inconsistent\n with number recorded on tape : ({} / {}) +) "
-               "!\n ",
-               failinfo.info1, failinfo.info3, failinfo.info4, failinfo.info5,
-               failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Reverse sweep on tape " << failinfo.info1
+        << " aborted!\n"
+        << "Number of dependents(" << failinfo.info3 << ") and/or independents("
+        << failinfo.info4 << ") variables passed to reverse\n"
+        << "is inconsistent with number recorded on tape : (" << failinfo.info5
+        << " / " << failinfo.info6 << ") +) !\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Reverse fails on tape {} because the number of "
-               "independent\n and/or dependent variables given to reverse are "
-               "inconsistent\n with that of the internal taylor array!\n",
-               failinfo.info1),
-        LocInfo);
+    oss << "ADOL-C error: Reverse fails on tape " << failinfo.info1
+        << " because the number of "
+           "independent\n and/or dependent variables given to reverse are "
+           "inconsistent\n with that of the internal taylor array!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::PARAM_COUNTS_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Setting parameters on tape {} "
-               "aborted!\nNumber of parameters ({}) passed"
-               " is inconsistent with number recorded on tape ({})\n",
-               failinfo.info1, failinfo.info5, failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Setting parameters on tape " << failinfo.info1
+        << " aborted!\n"
+        << "Number of parameters (" << failinfo.info5 << ") passed "
+        << "is inconsistent with number recorded on tape (" << failinfo.info6
+        << ")\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::BUFFER_NULLPOINTER_FUNCTION):
@@ -292,10 +285,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
                      LocInfo);
     break;
   case to_underlying(ErrorType::TAPING_NOT_ACTUALLY_TAPING):
-    throw ADOLCError(
-        format("ADOL-C error: Trace {} is not being currently created!\n",
-               failinfo.info1),
-        LocInfo);
+    oss << "ADOL-C error: Trace " << failinfo.info1
+        << " is not being currently created!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::VEC_LOCATIONGAP):
@@ -330,80 +322,72 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::MYALLOC1):
-    throw ADOLCError(format("ADOL-C error: myalloc1 cannot allocate {} bytes\n",
-                            failinfo.info5),
-                     LocInfo);
+    oss << "ADOL-C error: myalloc1 cannot allocate " << failinfo.info5
+        << " bytes\n",
+        throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOC2):
-    throw ADOLCError(format("ADOL-C error: myalloc2 cannot allocate {} bytes\n",
-                            failinfo.info5),
-                     LocInfo);
+    oss << "ADOL-C error: myalloc2 cannot allocate " << failinfo.info5
+        << " bytes\n",
+        throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOC3):
-    throw ADOLCError(format("ADOL-C error: myalloc3 cannot allocate {} bytes\n",
-                            failinfo.info5),
-                     LocInfo);
+    oss << "ADOL-C error: myalloc3 cannot allocate " << failinfo.info5
+        << " bytes\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOCI2):
-    throw ADOLCError(
-        format("ADOL-C error: myallocI2 cannot allocate {} bytes\n",
-               failinfo.info5),
-        LocInfo);
+    oss << "ADOL-C error: myallocI2 cannot allocate " << failinfo.info5
+        << " bytes\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOC1_UINT):
-    throw ADOLCError(
-        format("ADOL-C error: myalloc1_uint cannot allocate {} bytes\n",
-               failinfo.info5),
-        LocInfo);
+    oss << "ADOL-C error: myalloc1_uint cannot allocate " << failinfo.info5
+        << " bytes\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOC1_ULONG):
-    throw ADOLCError(
-        format("ADOL-C error: myalloc1_ulong cannot allocate {} bytes\n",
-               failinfo.info5),
-        LocInfo);
+    oss << "ADOL-C error: myalloc1_ulong cannot allocate " << failinfo.info5
+        << " bytes\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::MYALLOC2_ULONG):
-    throw ADOLCError(
-        format("ADOL-C error: myalloc2_ulong cannot allocate {} bytes\n",
-               failinfo.info5),
-        LocInfo);
+    oss << "ADOL-C error: myalloc2_ulong cannot allocate " << failinfo.info5
+        << " bytes\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::SM_ACTIVE_VARS):
-    throw ADOLCError(
-        format("ADOL-C Error: Can not set StorageManagerType, because of "
-               "#{} active Variables!",
-               failinfo.info5),
-        LocInfo);
+    oss << "ADOL-C Error: Can not set StorageManagerType, because of "
+           "#"
+        << failinfo.info5 << " active Variables!";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::SM_SAME_TYPE):
-    throw ADOLCError(format("ADOL-C Error: Given type is the same as the "
-                            "current StorageManagerType",
-                            failinfo.info5),
-                     LocInfo);
+    oss << "ADOL-C Error: Given type " << failinfo.info5
+        << " is the same as the current StorageManagerType";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::ADUBREF_CONSTRUCTOR):
-    throw ADOLCError(
-        format(
-            "ADOL-C error: strange construction of an active vector subscript "
-            "reference\n(passed ref = {}, stored refloc_ = {})\n",
-            failinfo.info5, failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: strange construction of an active vector subscript "
+           "reference\n(passed ref = "
+        << failinfo.info5 << ", stored refloc_ = " << failinfo.info6 << ")\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::ADUBREF_OOB):
-    throw ADOLCError(format("ADOL-C warning: index out of bounds while "
-                            "subscripting n={}, idx={}\n",
-                            failinfo.info5, failinfo.info6),
-                     LocInfo);
+    oss << "ADOL-C warning: index out of bounds while "
+           "subscripting n="
+        << failinfo.info5 << ", idx=" << failinfo.info6 << "\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::ADVECTOR_NON_DECREASING):
@@ -430,11 +414,10 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::CP_STORED_EXCEEDS_SNAPS):
-    throw ADOLCError(
-        format("Number of checkpoints stored = {} exceeds snaps = {}! "
-               "Ensure 'snaps' > 0 and increase initial 'fine'!\n",
-               failinfo.info3, failinfo.info6),
-        LocInfo);
+    oss << "Number of checkpoints stored = " << failinfo.info3
+        << " exceeds snaps = " << failinfo.info6
+        << "! Ensure 'snaps' > 0 and increase initial 'fine'!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::CP_NUMFORW):
@@ -460,39 +443,37 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::CP_TAPE_MISMATCH):
-    throw ADOLCError(format("CPInfos was constructor for tape with id: {} but "
-                            "checkpointing was called with tape id: {}",
-                            failinfo.info2, failinfo.info3),
-                     LocInfo);
+    oss << "CPInfos was constructor for tape with id: " << failinfo.info2
+        << " but checkpointing was called with tape id: " << failinfo.info3
+        << std::endl;
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::CP_NO_SUCH_IDX):
-    throw ADOLCError(
-        format("There is no CPInfo with index: {}", failinfo.info3), LocInfo);
+    oss << "There is no CPInfo with index: " << failinfo.info3 << std::endl;
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::NO_MINMAX):
-    throw ADOLCError(format("ADOL-C error: Tape {} is not created compatible "
-                            "for abs norm\n Please "
-                            "call enableMinMaxUsingAbs() before tracing\n",
-                            failinfo.info1),
-                     LocInfo);
+    oss << "ADOL-C error: Tape " << failinfo.info1
+        << " is not created compatible "
+           "for abs norm\n Please "
+           "call enableMinMaxUsingAbs() before tracing\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::SWITCHES_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Number of switches passed {} does not match "
-               "with the one recorded on tape {} ({})\n",
-               failinfo.info3, failinfo.info1, failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Number of switches passed " << failinfo.info3
+        << " does not match with the one recorded on tape " << failinfo.info1
+        << " (" << failinfo.info6 << ")\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::REVERSE_NO_FOWARD):
-    throw ADOLCError(
-        format("ADOL-C error: reverse fails because it was not "
-               "preceded by a forward sweep with degree>{}, keep={}!\n",
-               failinfo.info3, failinfo.info4),
-        LocInfo);
+    oss << "ADOL-C error: reverse fails because it was not "
+           "preceded by a forward sweep with degree>"
+        << failinfo.info3 << ", keep=" << failinfo.info4 << "!\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::ACTIVE_SUBSCRIPTING):
     throw ADOLCError("ADOL-C error: active subscripting does not work in "
@@ -500,11 +481,10 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
                      LocInfo);
     break;
   case to_underlying(ErrorType::ADUBREF_SAFE_MODE):
-    throw ADOLCError(
-        format("ADOL-C error: indexed active position does not match "
-               "referenced position\n indexed = {}, referenced = {}\n",
-               failinfo.info5, failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: indexed active position does not match "
+           "referenced position\n indexed = "
+        << failinfo.info5 << ", referenced = " << failinfo.info6 << "\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::ADUBREF_VE_REF):
@@ -514,16 +494,14 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::NO_SUCH_OP):
-    throw ADOLCError(
-        format("ADOL-C fatal error no such operation {}\n", failinfo.info7),
-        LocInfo);
+    oss << "ADOL-C fatal error no such operation " << failinfo.info7 << " \n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::HO_OP_NOT_IMPLEMENTED):
-    throw ADOLCError(
-        format("ADOL-C error: higher order mode of op {} not implemented yet\n",
-               failinfo.info7),
-        LocInfo);
+    oss << "ADOL-C error: higher order mode of op " << failinfo.info7
+        << " not implemented yet\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::WRONG_DIM_Y):
@@ -531,17 +509,17 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::WRONG_DIM_XY):
-    throw ADOLCError("ADOL-C error:  wrong X and Y dimensions in forward \n",
+    throw ADOLCError("ADOL-C error: wrong X and Y dimensions in forward \n",
                      LocInfo);
     break;
 
   case to_underlying(ErrorType::WRONG_DIM_U):
-    throw ADOLCError("ADOL-C error:  wrong U dimension in vector-reverse \n",
+    throw ADOLCError("ADOL-C error: wrong U dimension in vector-reverse \n",
                      LocInfo);
     break;
 
   case to_underlying(ErrorType::WRONG_DIM_D):
-    throw ADOLCError("ADOL-C error:  wrong degree in vector-reverse \n",
+    throw ADOLCError("ADOL-C error: wrong degree in vector-reverse \n",
                      LocInfo);
     break;
 
@@ -561,10 +539,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::PARAM_OOB):
-    throw ADOLCError(format("ADOL-C error: Parameter index {} out of bounds, "
-                            "# existing parameters = {}\n",
-                            failinfo.info5, failinfo.info6),
-                     LocInfo);
+    oss << "ADOL-C error: Parameter index " << failinfo.info5
+        << " out of bounds, # existing parameters = " << failinfo.info6 << "\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::SM_LOCINT_BLOCK):
@@ -572,22 +549,19 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::SM_MAX_LIVES):
-    throw ADOLCError(
-        format("maximal number ({}) of live active variables exceeded\n\n",
-               failinfo.info5),
-        LocInfo);
+    oss << "maximal number (" << failinfo.info5
+        << ") of live active variables exceeded\n\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::FWD_COUNTS_MISMATCH):
-    throw ADOLCError(
-        format(
-            "ADOL-C error: Forward sweep on tape {} aborted!\n Number of "
-            "dependents({}) and/or independents({})\n variables passed to "
-            "forward"
-            "is inconsistent\n with number recorded on tape : ({} / {})) !\n ",
-            failinfo.info1, failinfo.info3, failinfo.info4, failinfo.info5,
-            failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Forward sweep on tape " << failinfo.info1
+        << " aborted!\n Number of dependents(" << failinfo.info3
+        << ") and/or independents(" << failinfo.info4
+        << ")\n variables passed to forward is inconsistent\n with number "
+           "recorded on tape : ( "
+        << failinfo.info5 << " / " << failinfo.info6 << ")) !\n ";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::FWD_FO_KEEP):
@@ -618,15 +592,13 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::TAPE_DOC_COUNTS_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Tape_doc sweep on tape {} aborted!\n Number of "
-               "dependents({}) and/or independents({})\n variables passed to "
-               "Tape_doc"
-               "is inconsistent\n with number recorded on tape : ({} / {}) +) "
-               "!\n ",
-               failinfo.info1, failinfo.info3, failinfo.info4, failinfo.info5,
-               failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Tape_doc sweep on tape " << failinfo.info1
+        << " aborted!\n Number of dependents(" << failinfo.info3
+        << ") and/or independents(" << failinfo.info4
+        << ")\n variables passed to Tape_doc is inconsistent\n with number "
+           "recorded on tape : ("
+        << failinfo.info5 << " / " << failinfo.info6 << ") +)!\n ";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
   case to_underlying(ErrorType::CANNOT_OPEN_FILE):
     throw ADOLCError("cannot open file !\n", LocInfo);
@@ -648,10 +620,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::SPARSE_JAC_MALLOC):
-    throw ADOLCError(
-        format("ADOL-C error: jac_pat(...) unable to allocate {} bytes !\n",
-               failinfo.info2),
-        LocInfo);
+    oss << "ADOL-C error: jac_pat(...) unable to allocate " << failinfo.info2
+        << " bytes !\n";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::SPARSE_JAC_NO_BP):
@@ -660,12 +631,13 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::NO_TAPE_ID):
-    throw ADOLCError(format("No Tape with ID {}!", failinfo.info1), LocInfo);
+    oss << "No Tape with ID " << failinfo.info1 << "!";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::TAPE_ALREADY_EXIST):
-    throw ADOLCError(format("Tape with ID {} already exists!", failinfo.info1),
-                     LocInfo);
+    oss << "Tape with ID " << failinfo.info1 << " already exists!";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::TAY_NULLPTR):
@@ -673,11 +645,10 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::SIZE_MISMATCH):
-    throw ADOLCError(
-        format("ADOL-C error: Used tape ({}) was written "
-               "with locations of size {}, but current defined size is {}.\n ",
-               failinfo.info1, failinfo.info5, failinfo.info6),
-        LocInfo);
+    oss << "ADOL-C error: Used tape (" << failinfo.info1
+        << ") was written with locations of size " << failinfo.info5
+        << ", but current defined size is " << failinfo.info6 << ".\n ";
+    throw ADOLCError(oss.str(), LocInfo);
     break;
 
   case to_underlying(ErrorType::TO_MANY_DIRECTIONS):

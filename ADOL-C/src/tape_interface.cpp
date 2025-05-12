@@ -22,9 +22,9 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <format>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
@@ -131,51 +131,33 @@ void cachedTraceTags(std::vector<short> &result) {
 void printTapeStats(int tapeId) {
   using std::cout;
   using std::endl;
-  using std::format;
 
   auto stats = tapestats(tapeId);
 
-  cout << format("\n*** TAPE STATS (tape {}) **********\n", tapeId)
-       << format("Number of independents: {:>10}\n",
-                 stats[TapeInfos::NUM_INDEPENDENTS])
-       << format("Number of dependents:   {:>10}\n",
-                 stats[TapeInfos::NUM_DEPENDENTS])
-       << endl;
-  cout << format("Max # of live adoubles: {:>10}\n",
-                 stats[TapeInfos::NUM_MAX_LIVES])
-       << format("Taylor stack size:      {:>10}\n",
-                 stats[TapeInfos::TAY_STACK_SIZE])
-       << endl;
-  cout << format("Number of operations:   {:>10}\n",
-                 stats[TapeInfos::NUM_OPERATIONS])
-       << format("Number of locations:    {:>10}\n",
-                 stats[TapeInfos::NUM_LOCATIONS])
-       << format("Number of values:       {:>10}\n",
-                 stats[TapeInfos::NUM_VALUES])
-       << format("Number of parameters:   {:>10}\n",
-                 stats[TapeInfos::NUM_PARAM])
-       << endl;
+  std::ostringstream oss;
+  oss << "\n*** TAPE STATS (tape" << tapeId << ") **********\n"
+      << "Number of independents: " << stats[TapeInfos::NUM_INDEPENDENTS]
+      << "\n"
+      << "Number of dependents: " << stats[TapeInfos::NUM_DEPENDENTS] << "\n"
+      << "Max # of live adoubles: " << stats[TapeInfos::NUM_MAX_LIVES] << "\n"
+      << "Taylor stack size: " << stats[TapeInfos::TAY_STACK_SIZE] << "\n"
+      << "Number of operations: " << stats[TapeInfos::NUM_OPERATIONS] << "\n"
+      << "Number of locations: " << stats[TapeInfos::NUM_LOCATIONS] << "\n"
+      << "Number of values: " << stats[TapeInfos::NUM_VALUES] << "\n"
+      << "Number of parameters: " << stats[TapeInfos::NUM_PARAM] << "\n"
+      << "Operation file written: " << stats[TapeInfos::OP_FILE_ACCESS] << "\n"
+      << "Location file written: " << stats[TapeInfos::LOC_FILE_ACCESS] << "\n"
+      << "Value file written: " << stats[TapeInfos::VAL_FILE_ACCESS] << "\n"
+      << "Operation buffer size: " << stats[TapeInfos::OP_BUFFER_SIZE] << "\n"
+      << "Location buffer size: " << stats[TapeInfos::LOC_BUFFER_SIZE] << "\n"
+      << "Value buffer size: " << stats[TapeInfos::VAL_BUFFER_SIZE] << "\n"
+      << "Taylor buffer size: " << stats[TapeInfos::TAY_BUFFER_SIZE] << "\n"
+      << "Operation type size: " << sizeof(unsigned char) << "\n"
+      << "Location type size: " << sizeof(size_t) << "\n"
+      << "Value type size: " << sizeof(double) << "\n"
+      << "Taylor type size: " << sizeof(double) << "\n"
+      << "**********************************\n"
+      << endl;
 
-  cout << format("Operation file written: {:>10}\n",
-                 stats[TapeInfos::OP_FILE_ACCESS])
-       << format("Location file written:  {:>10}\n",
-                 stats[TapeInfos::LOC_FILE_ACCESS])
-       << format("Value file written:     {:>10}\n",
-                 stats[TapeInfos::VAL_FILE_ACCESS])
-       << endl;
-  cout << format("Operation buffer size:  {:>10}\n",
-                 stats[TapeInfos::OP_BUFFER_SIZE])
-       << format("Location buffer size:   {:>10}\n",
-                 stats[TapeInfos::LOC_BUFFER_SIZE])
-       << format("Value buffer size:      {:>10}\n",
-                 stats[TapeInfos::VAL_BUFFER_SIZE])
-       << format("Taylor buffer size:     {:>10}\n",
-                 stats[TapeInfos::TAY_BUFFER_SIZE])
-       << endl;
-  cout << format("Operation type size:    {:>10}\n", sizeof(unsigned char))
-       << format("Location type size:     {:>10}\n", sizeof(size_t))
-       << format("Value type size:        {:>10}\n", sizeof(double))
-       << format("Taylor type size:       {:>10}\n", sizeof(double))
-       << "**********************************\n"
-       << endl;
+  cout << oss.str();
 }

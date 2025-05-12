@@ -15,7 +15,7 @@
 #ifndef ADOLC_ERROR_H
 #define ADOLC_ERROR_H
 
-#include <format>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -39,9 +39,9 @@ struct source_location {
                             int line)
       : file_(file), func_(func), line_(line) {}
 
-  constexpr std::string_view file() { return file_; }
-  constexpr std::string_view func() { return func_; }
-  constexpr int line() { return line_; }
+  constexpr std::string_view file() const { return file_; }
+  constexpr std::string_view func() const { return func_; }
+  constexpr int line() const { return line_; }
 };
 /**
  * @brief Exception class for ADOL-C errors with source location tracking.
@@ -82,14 +82,20 @@ public:
    * @param message Error description (will be stored as std::string)
    * @param info Source location
    */
-  ADOLCError(std::string_view message, source_location info)
-      : std::runtime_error(std::format("{}\n[Source] {}:{}:{}", message,
-                                       info.file(), info.func(), info.line())),
-        info_(info) {}
+  ADOLCError(std::string_view message, const source_location &info)
+      : std::runtime_error(makeMessage(message, info)), info_(info) {}
 
   constexpr static source_location
   makeSourceLocation(std::string_view file, std::string_view func, int line) {
     return source_location(file, func, line);
+  }
+
+  static std::string makeMessage(std::string_view message,
+                                 const source_location &info) {
+    std::ostringstream oss;
+    oss << message << "\n[Source] " << info.file() << ":" << info.func() << ":"
+        << info.line();
+    return oss.str();
   }
 
   /**
