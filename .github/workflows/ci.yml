@@ -65,9 +65,7 @@ jobs:
             $env:VSINSTALLDIR = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\"
             $env:PATH = "$env:VSINSTALLDIR\MSBuild\Current\Bin;$env:PATH"
             # Call cmake with MSVC
-            cmake -B ${{ steps.strings.outputs.build-output-dir }} `
-              -DCMAKE_CXX_COMPILER=cl.exe `
-              -DCMAKE_C_COMPILER=cl.exe `
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
               -S ${{ github.workspace }}
 
