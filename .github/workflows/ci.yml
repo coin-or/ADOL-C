@@ -61,12 +61,13 @@ jobs:
           if: matrix.c_compiler == 'msvc'
           shell: powershell
           run: 
-            # Setup Visual Studio build environment (optional if VS is preinstalled and in PATH)
-            cmake -B ${{ steps.strings.outputs.build-output-dir }} -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
+            # Setup Visual Studio build environment
+            cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
         - name: Build
           # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
           run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+          
           
                     
 
