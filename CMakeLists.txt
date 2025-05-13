@@ -31,8 +31,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     endif()
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 1931)
-        message(FATAL_ERROR "MSVC 19.31 (Visual Studio 2019 v16.8) or higher is required for ADOL-C.")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.31)
+        message(FATAL_ERROR "MSVC 19.31 (Visual Studio 2022 v17.1) or higher is required for ADOL-C.")
     endif()
 
 else()
