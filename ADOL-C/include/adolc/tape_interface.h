@@ -3,6 +3,7 @@
 
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/valuetape.h>
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <vector>
