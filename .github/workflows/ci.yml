@@ -60,14 +60,9 @@ jobs:
         - name: Configure and build ADOL-C (Windows with msvc)
           if: matrix.c_compiler == 'msvc'
           shell: powershell
-          run: |
-            # Setup Visual Studio build environment
-            $env:VSINSTALLDIR = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\"
-            $env:PATH = "$env:VSINSTALLDIR\MSBuild\Current\Bin;$env:PATH"
-            # Call cmake with MSVC
-            cmake -B ${{ steps.strings.outputs.build-output-dir }}
-              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
-              -S ${{ github.workspace }}
+          run: 
+            # Setup Visual Studio build environment (optional if VS is preinstalled and in PATH)
+            cmake -B ${{ steps.strings.outputs.build-output-dir }} -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
         - name: Build
           # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
