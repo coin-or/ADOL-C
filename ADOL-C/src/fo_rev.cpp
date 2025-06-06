@@ -1139,6 +1139,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
       r0 = -TRES;
       if (arg == res)
         ADOLC_GET_TAYLOR(arg);
+
       r0 /= TARG;
 #endif /* !_NTIGHT_ */
 
@@ -1374,14 +1375,14 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
 #if !defined(_NTIGHT_)
       /* olvo 980921 changed order to allow x=pow(x,n) */
-      r0 = TRES;
+      r0 = TRES; // r0 = pow(x, n)
       if (arg == res)
-        ADOLC_GET_TAYLOR(arg); 
+        ADOLC_GET_TAYLOR(arg);
       if (TARG == 0.0)
         r0 = 0.0;
       else
-        r0 *= coval / TARG;
-#endif /* !_NTIGHT_ */
+        r0 *= coval / TARG; // r0 = r0 * n / x
+#endif                      /* !_NTIGHT_ */
 
       FOR_0_LE_l_LT_p {
 #if defined(_INT_REV_)
@@ -1396,7 +1397,8 @@ int int_reverse_safe(short tnum, /* tape id                               */
       }
 
 #if !defined(_NTIGHT_)
-      ADOLC_GET_TAYLOR(res);
+      if (res != arg)
+        ADOLC_GET_TAYLOR(res);
 #endif /* !_NTIGHT_ */
       break;
 
