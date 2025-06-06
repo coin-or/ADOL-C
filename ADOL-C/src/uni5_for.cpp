@@ -2335,12 +2335,6 @@ int hov_forward(
 
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
 
-      /* olvo 980922 necessary for reverse
-         kk 20140508 I don't think so
-      if (arg == res) {
-          IF_KEEP_WRITE_TAYLOR(arg,keep,k,p)
-      } */
-
 #if !defined(_NTIGHT_)
 #if !defined(_ZOS_) && !defined(_INT_FOR_) && !defined(_INDO_)
       divs = 1.0 / dp_T0[arg];
@@ -3393,11 +3387,6 @@ int hov_forward(
           get_val_f();
 
       IF_KEEP_WRITE_TAYLOR(res, keep, k, p)
-
-      /* olvo 980921 necessary for reverse */
-      if (arg == res) {
-        IF_KEEP_WRITE_TAYLOR(arg, keep, k, p)
-      }
 
 #if !defined(_NTIGHT_)
 
