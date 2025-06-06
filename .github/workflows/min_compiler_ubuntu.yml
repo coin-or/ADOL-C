@@ -35,7 +35,7 @@ jobs:
       run: |
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository \
-        "deb http://apt.llvm.org/$(lsb_release -sc)/ llvm-toolchain-$(lsb_release -sc)-13 main"
+        "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
         sudo apt-get update
         sudo apt-get install -y \
           clang-13 \
