@@ -377,8 +377,8 @@ void ValueTape::get_taylors(size_t loc, int degree) {
   /* As long as all values from the taylor stack buffer will be used copy
    * them into the taylor buffer and load the next (previous) buffer. */
   while (currTay() - degree < tayBuffer()) {
-    for (double &tay : taySpan | std::views::reverse) {
-      *(T--) = tay;
+    for (auto tay = taySpan.rbegin(); tay != taySpan.rend(); tay++) {
+      *(T--) = *tay;
     }
     degree -= currTay() - tayBuffer();
     get_tay_block_r();
