@@ -7,12 +7,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         build_type: [Debug, Release]
-        cpp_compiler: [g++-11, clang++-13]
+        c_compiler: [gcc-11, clang-13]
+        include:
+          - c_compiler: gcc-11
+            cpp_compiler: g++-11
+
+          - c_compiler: clang-13
+            cpp_compiler: clang++-13
 
     steps:
     - uses: actions/checkout@v4
@@ -33,28 +40,35 @@ jobs:
     - name: Install clang++-13
       if: matrix.cpp_compiler == 'clang++-13'
       run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository \
-        "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
         sudo apt-get update
         sudo apt-get install -y \
           clang-13 \
+          lld-13 \
           libc++-13-dev \
-          libc++abi-13-dev \
-          lld-13
-    
+          libc++abi-13-dev
 
     - name: Set reusable strings
       id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        
-    - name: Configure ADOL-C
-      shell: bash
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure ADOL-C (clang-13)
+      # we have to use libc++ for clang!
+      if: matrix.cpp_compiler == 'clang++-13'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+        -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+        -S ${{ github.workspace }}
+
+    - name: Configure ADOL-C (g++-11)
+      if: matrix.cpp_compiler == 'g++-11'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -S ${{ github.workspace }}
 
@@ -63,4 +77,3 @@ jobs:
         cmake 
         --build ${{ steps.strings.outputs.build-output-dir }} 
         --config ${{ matrix.build_type }}
-            
