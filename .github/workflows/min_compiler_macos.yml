@@ -28,10 +28,13 @@ jobs:
         brew install gcc@11
         echo "export PATH=\"$(brew --prefix gcc@11)/bin:$PATH\"" >> $GITHUB_ENV
 
-    - name: Install clang++-13
+    - name: Setup MacPorts and install clang++-13
       if: matrix.cpp_compiler == 'clang++-13'
-      run: |
-        brew install llvm@13
+      uses: melusina-org/gha-install-macports@v1
+      with:
+        ports: clang-13
+      
+  
 
     - name: Set reusable strings
       id: strings
@@ -44,13 +47,13 @@ jobs:
       run: |
         cmake -B ${{ steps.strings.outputs.build-output-dir }} \
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm@13/bin/clang \
-        -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm@13/bin/clang++ \
-        -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/homebrew/opt/llvm@13/include/c++/v1" \
-        -DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/opt/llvm@13/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@13/lib/c++" \
+        -DCMAKE_C_COMPILER=/opt/local/bin/clang-mp-13 \
+        -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++-mp-13 \
+        -DCMAKE_CXX_FLAGS="-stdlib=libc++ -I/opt/local/libexec/llvm-13/include/c++/v1" \
+        -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -L/opt/local/libexec/llvm-13/lib -Wl,-rpath,/opt/local/libexec/llvm-13/lib" \
         -S ${{ github.workspace }}
 
-  
+
     - name: Configure ADOL-C
       if: matrix.cpp_compiler == 'g++-11'
       shell: bash
