@@ -1536,7 +1536,8 @@ int hov_ti_reverse(short tnum,         /* tape id */
           HOS_OV_INC(Targ, k)
         }
 
-      GET_TAYL(res, k, p)
+      if (arg != res)
+        GET_TAYL(res, k, p)
       break;
 
       /*--------------------------------------------------------------------------*/
