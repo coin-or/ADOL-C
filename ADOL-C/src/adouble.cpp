@@ -311,7 +311,7 @@ adouble &adouble::operator+=(adouble &&a) {
 #endif
     {
       // if the structure is a*=b*c the call optimizes the temp adouble away.
-      upd = upd_resloc_inc_prod(a.loc(), loc(), eq_plus_prod);
+      upd = tape.upd_resloc_inc_prod(a.loc(), loc(), eq_plus_prod);
     }
   if (upd) {
     value(value() + a.value());

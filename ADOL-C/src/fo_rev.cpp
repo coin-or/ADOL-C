@@ -1399,7 +1399,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
 
 #if !defined(_NTIGHT_)
       if (res != arg)
-        ADOLC_GET_TAYLOR(res);
+        tape.get_taylor(res);
 #endif /* !_NTIGHT_ */
       break;
 
