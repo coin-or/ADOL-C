@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [Debug, Release]
-        cpp_compiler: [gcc++-11, clang++-13]
+        cpp_compiler: [g++-11, clang++-13]
 
     steps:
     - name: Checkout code
@@ -26,6 +26,7 @@ jobs:
       if: matrix.cpp_compiler == 'g++-11'
       run: |
         brew install gcc@11
+        echo "export PATH=\"$(brew --prefix gcc@11)/bin:$PATH\"" >> $GITHUB_ENV
 
     - name: Install clang++-13
       if: matrix.cpp_compiler == 'clang++-13'
@@ -38,6 +39,7 @@ jobs:
       run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure ADOL-C
+      if: matrix.cpp_compiler == 'clang++13'
       shell: bash
       run: |
         cmake -B ${{ steps.strings.outputs.build-output-dir }} \
@@ -48,6 +50,16 @@ jobs:
         -DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/opt/llvm@13/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@13/lib/c++" \
         -S ${{ github.workspace }}
 
+  
+    - name: Configure ADOL-C
+      if: matrix.cpp_compiler == 'g++-11'
+      shell: bash
+      run: |
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        -DCMAKE_C_COMPILER=gcc-11 \
+        -DCMAKE_CXX_COMPILER=g++-11 \
+        -S ${{ github.workspace }}
 
     - name: Build ADOL-C
       run: >
