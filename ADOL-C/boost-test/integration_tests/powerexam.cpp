@@ -29,17 +29,11 @@ adouble power(adouble x, int n) {
   } /* end else */
 } /* end power */
 
-const short tapeId = 13;
-struct TapeInitializer {
-  TapeInitializer() { createNewTape(tapeId); }
-};
-
-BOOST_GLOBAL_FIXTURE(TapeInitializer);
-
 BOOST_AUTO_TEST_SUITE(test_power_example)
 BOOST_AUTO_TEST_CASE(PowerExampTest) {
-  int i, tag = 13;
-  setCurrentTape(tag);
+  const short tapeId = 57;
+  createNewTape(tapeId);
+  setCurrentTape(tapeId);
   int n = 4;
 
   /* allocations and initializations */
@@ -49,32 +43,32 @@ BOOST_AUTO_TEST_CASE(PowerExampTest) {
   Y = myalloc2(1, n + 4);
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
-  for (i = 0; i < n + 2; i++)
+  for (auto i = 0; i < n + 2; i++)
     X[0][i + 2] = 0;      /* further coefficients */
   double **Z;             /* used for checking consistency */
   Z = myalloc2(1, n + 2); /* between forward and reverse */
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
-  trace_on(tag);   /* tag = 1 and keep = 0 */
-  x <<= X[0][0];   /* only one independent var */
-  y = power(x, n); /* actual function call */
-  y >>= Y[0][0];   /* only one dependent adouble */
-  trace_off();     /* no global adouble has died */
+  trace_on(tapeId); /* tapeId = 1 and keep = 0 */
+  x <<= X[0][0];    /* only one independent var */
+  y = power(x, n);  /* actual function call */
+  y >>= Y[0][0];    /* only one dependent adouble */
+  trace_off();      /* no global adouble has died */
   /* end of active section */
 
-  double u[1];                /* weighting vector */
-  u[0] = 1;                   /* for reverse call */
-  for (i = 0; i < n + 2; i++) /* note that keep = i+1 in call */
+  double u[1];                     /* weighting vector */
+  u[0] = 1;                        /* for reverse call */
+  for (auto i = 0; i < n + 2; i++) /* note that keep = i+1 in call */
   {
-    forward(tag, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
+    forward(tapeId, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
     if (i == 0)
       BOOST_TEST(Y[0][i] == y.value(), tt::tolerance(tol));
     else {
       Z[0][i] = Z[0][i - 1] / i; /* scale derivative to Taylorcoeff. */
       BOOST_TEST(Y[0][i] == Z[0][i], tt::tolerance(tol));
     }
-    reverse(tag, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
+    reverse(tapeId, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
   } /* end for */
   myfree2(X);
   myfree2(Y);
