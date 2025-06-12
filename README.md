@@ -6,24 +6,64 @@
 > [!WARNING]  
 > We are in the process of modernizing ADOL-C. The master branch is unstable. Please use the latest release!
 
+## Pre-release Examples
+We're modernizing ADOL-C's tape internals, which also introduces a new user interface.
+If you rely on a single tape, the required changes are minimal. Here's a complete example demonstrating forward tracing and gradient evaluation:
+```
+#include <adolc/adolc.h>
+#include <array>
+#include <iostream>
+#include <numeric>
 
-This new version of ADOL-C features new library functions for
- 
-  - sparse Jacobians and sparse Hessians
-  - external differentiated functions
-  - optimal checkpointing
-  - adapted differentiation of fixed point iterations
-  - parallel differentiation of OpenMP-parallel loops
-  - Lie derivatives of scalar, vector and covector fields
+// Define your function using templated types
+template <typename T, size_t N> T your_function(const std::array<T, N> &indep) {
+  return std::accumulate(indep.begin(), indep.end(), T(0));
+}
 
-and many bug fixes.
+int main() {
+  constexpr size_t dim = 2;
+  const short tapeId = 0;
 
-Furthermore the source code was adapted to allow a compilation with
-WINDOWS compilers. See file `ÌNSTALL` for generic installation
-instructions and special instructions for the installation on a WINDOWS
-platform.
+  // 1. Prepare input data
+  std::array<double, dim> inputs;
+  inputs.fill(2.0);
+  std::array<double, 1> out;
 
-The complete documentation can be found in the subdirectory "doc".
+  // 2. Explicitly create a new tape before using any adouble variables
+  createNewTape(tapeId);
+
+  // 3. Declare active variables after tape creation to avoid segmentation faults
+  std::array<adouble, dim> indeps;
+
+  // 4. Start tracing the operation sequence
+  trace_on(tapeId);
+  {
+    for (size_t i = 0; i < dim; ++i) {
+      indeps[i] <<= inputs[i]; // declare independent variable
+    }
+
+    adouble result = your_function(indeps);
+
+    result >>= out[0]; // declare dependent variable for differentiation
+  }
+  trace_off(); // stop tracing
+
+  // 5. Evaluate the gradient (∂output / ∂inputs)
+  std::array<double, dim> grad;
+  gradient(tapeId, dim, inputs.data(), grad.data());
+
+  // 6. Print the resulting gradient
+  std::cout << "Gradient of sum: ";
+  for (double g : grad)
+    std::cout << g << " ";
+  std::cout << "\n";
+
+  return 0;
+}
+
+```
+
+
 
 
 ## Local installation using CMake
@@ -131,4 +171,3 @@ You can build and run them as follows:
 Cmake will search for the system installed version of BOOST. If the minimum required version is not satisfied, please enter the path where an appropriate BOOST version is installed in `3RDPARTY_BOOST_DIR` in the `CMakelists.txt` inside the `boost-test` folder. Notice that ADOL-C has to be compiled with the same version of BOOST as used here. When using a different BOOST version than the one provided by the operating system, ADOL-C can be configured with `--with-boost` flag before compiling the ADOL-C sources.
 
 
-Enjoy this new version!
