@@ -66,13 +66,13 @@ int main() {
 
 
 If your application requires multiple differentiated functions, you can 
-manage separate tapes using unique `tapeId`s. 
-When working with multiple tapes it is crucial to ensure that the correct tape context is active both when allocating/constructing and when deallocating/destroying `adouble`s. 
+manage separate tapes using unique `tapeId`'s. 
+When working with multiple tapes it is crucial to ensure that the correct tape context is active both when allocating/constructing and when deallocating/destroying `adouble`'s. 
 Failing to do so can lead to undefined behavior, memory corruption, or crashes, because each `adouble` interacts with the currently selected tape.
 
 
 1. **Create and select the tape before allocation**  
-   Before you allocate a `adouble`s, make sure you have created the tape and called `setCurrentTape(tapeId)`. 
+   Before you allocate a `adouble`'s, make sure you have created the tape and called `setCurrentTape(tapeId)`. 
    This ensures that each `adouble` constructor correctly registers itself with the intended tape.
 
 2. **Use the array within the correct tape context**  
