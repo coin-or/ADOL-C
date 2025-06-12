@@ -85,8 +85,6 @@ Failing to do so can lead to undefined behavior, memory corruption, or crashes, 
 
 We recommend using scopes for each tape like this:
 ```cpp
-// If your application requires multiple differentiated functions, you can
-// manage separate tapes using unique tapeIds. Here's how to do it:
 #include <adolc/adolc.h>
 #include <array>
 #include <iostream>
