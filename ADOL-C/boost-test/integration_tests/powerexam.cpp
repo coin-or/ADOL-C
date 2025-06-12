@@ -4,7 +4,6 @@
 namespace tt = boost::test_tools;
 
 #include "../const.h"
-#include <adolc/adolc.h>
 #include <adolc/adolc.h> /* use of ALL ADOL-C interfaces */
 #include <array>
 #include <numeric>
