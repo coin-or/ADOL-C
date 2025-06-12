@@ -8,6 +8,7 @@
 
 ## Pre-release Examples
 We're modernizing ADOL-C's tape internals, which also introduces a new user interface.
+### Single Tape
 If you rely on a single tape, the required changes are minimal. Here's a complete example demonstrating forward tracing and gradient evaluation:
 ```cpp
 #include <adolc/adolc.h>
@@ -61,13 +62,32 @@ int main() {
   return 0;
 }
 ```
+## Multiple Tapes
+
 
 If your application requires multiple differentiated functions, you can 
-manage separate tapes using unique `tapeIds`. Here's how to do it:
+manage separate tapes using unique `tapeId`s. 
+When working with multiple tapes it is crucial to ensure that the correct tape context is active both when allocating/constructing and when deallocating/destroying `adouble`s. 
+Failing to do so can lead to undefined behavior, memory corruption, or crashes, because each `adouble` interacts with the currently selected tape.
+
+
+1. **Create and select the tape before allocation**  
+   Before you allocate a `adouble`s, make sure you have created the tape and called `setCurrentTape(tapeId)`. 
+   This ensures that each `adouble` constructor correctly registers itself with the intended tape.
+
+2. **Use the array within the correct tape context**  
+   While tracing or using the array in derivative computations, always have the correct tape selected via `setCurrentTape(tapeId)` 
+   before any ADOL-C operations (`trace_on`, marking independents/dependents, derivative drivers, etc.).
+
+3. **Select the tape before deallocation**  
+   Before calling `delete[]` on a `adouble*`, call `setCurrentTape(tapeId)` again. 
+   This ensures that the destructor for each `adouble` runs with the correct tape active, so resources are freed appropriately.
+
+We recommend using scopes for each tape like this:
 ```cpp
 // If your application requires multiple differentiated functions, you can
 // manage separate tapes using unique tapeIds. Here's how to do it:
-#include <adolc/adolc.h`
+#include <adolc/adolc.h>
 #include <array>
 #include <iostream>
 #include <numeric>
@@ -141,69 +161,6 @@ int main() {
   return 0;
 }
 ```
-
-### C-style Arrays of `adouble`
-
-When using raw arrays of `adouble` (i.e., `new[]` / `delete[]`), it is crucial to ensure that the correct tape context is active both when allocating/constructing and when deallocating/destroying the array. 
-Failing to do so can lead to undefined behavior, memory corruption, or crashes, because each `adouble` interacts with the currently selected tape.
-
-
-
-1. **Create and select the tape before allocation**  
-   Before you allocate a C-style array of `adouble`, make sure you have created the tape and called `setCurrentTape(tapeId)`. 
-   This ensures that each `adouble` constructor correctly registers itself with the intended tape.
-
-2. **Use the array within the correct tape context**  
-   While tracing or using the array in derivative computations, always have the correct tape selected via `setCurrentTape(tapeId)` 
-   before any ADOL-C operations (`trace_on`, marking independents/dependents, derivative drivers, etc.).
-
-3. **Select the tape before deallocation**  
-   Before calling `delete[]` on a `adouble*`, call `setCurrentTape(tapeId)` again. 
-   This ensures that the destructor for each `adouble` runs with the correct tape active, so resources are freed appropriately.
-
-#### Example
-
-```cpp
-#include <adolc/adolc.h>
-
-void example_c_style_array(size_t n, short tapeId, const double* inputs) {
-  // 1. Create the tapes 
-  createNewTape(tapeId);
-  createNewTape(tapeId2);
-
-  
-  // 2. Set the Tape and allocate a C-style array of adouble on this tape
-  setCurrentTape(tapeId);
-  adouble *x = new adouble[n];
-
-  // 3. Trace operations using the array
-  trace_on(tapeId);
-  for (size_t i = 0; i < n; ++i) {
-    x[i] <<= inputs[i]; // mark each element as independent
-  }
-  // ... compute with x[i], mark dependents, etc. ...
-  adouble y = /* some function of x */;
-  double output;
-  y >>= output; // mark dependent
-  trace_off();
-
-  // ... do stuff with tapeId2 ....
-
-  // 4. Evaluate derivatives 
-  double *grad = new double[n];
-  gradient(tapeId, n, inputs, grad);
-  // ... use gradient ...
-
-  // 5. Deallocate array with the correct tape selected
-  setCurrentTape(tapeId);
-  delete[] x; // safe destruction of adouble elements
-
-  // 6. Clean up gradient array and tape
-  delete[] grad;
-}
-```
-
-
 
 ## Local installation using CMake
 
