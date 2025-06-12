@@ -143,8 +143,13 @@ public:
       return *this;
 
     // free location of *this
-    free_loc();
-    loc_ = other.loc();
+    if (valid_)
+      free_loc();
+
+    // Transfer ownership
+    loc_ = other.loc_;
+    valid_ = other.valid_;
+
     other.valid_ = 0;
     return *this;
   };
