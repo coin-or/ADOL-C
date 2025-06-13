@@ -215,15 +215,15 @@ void create_independent(TBAdoubleHandle a, const double x) {
 void create_dependent(TBAdoubleHandle a, double *y) {
   *static_cast<adouble *>(a) >>= *y;
 }
-size_t num_independent(short tape_id) {
-  size_t y[STAT_SIZE];
-  tapestats(tape_id, y);
-  return y[NUM_INDEPENDENTS];
+size_t num_independent(short tapeId) {
+  size_t y[TapeInfos::STAT_SIZE];
+  tapestats(tapeId, y);
+  return y[TapeInfos::NUM_INDEPENDENTS];
 }
-size_t num_dependent(short tape_id) {
-  size_t y[STAT_SIZE];
-  tapestats(tape_id, y);
-  return y[NUM_DEPENDENTS];
+size_t num_dependent(short tapeId) {
+  size_t y[TapeInfos::STAT_SIZE];
+  tapestats(tapeId, y);
+  return y[TapeInfos::NUM_DEPENDENTS];
 }
 void enable_min_max_using_abs() { return enableMinMaxUsingAbs(); }
 void disable_min_max_using_abs() { return disableMinMaxUsingAbs(); }

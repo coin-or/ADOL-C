@@ -15,11 +15,10 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/oplate.h>
 #include <adolc/tapedoc/tapedoc.h>
-#include <adolc/taping_p.h>
-
 #include <math.h>
 #include <string.h>
 
@@ -54,15 +53,14 @@ void filewrite_start(int opcode) {
 
   fileName = (char *)malloc(sizeof(char) * (9 + sizeof(tag) * 8 + 2));
   if (fileName == NULL)
-    fail(ADOLC_MALLOC_FAILED);
+    ADOLCError::fail(ADOLCError::ErrorType::MALLOC_FAILED, CURRENT_LOCATION);
   strncpy(fileName, baseName, strlen(baseName));
   num = sprintf(fileName + strlen(baseName), "%d", tag);
   strncpy(fileName + strlen(baseName) + num, extension, strlen(extension));
   fileName[strlen(baseName) + num + strlen(extension)] = 0;
-  if ((fp = fopen(fileName, "w")) == NULL) {
-    fprintf(DIAG_OUT, "cannot open file !\n");
-    adolc_exit(1, "", __func__, __FILE__, __LINE__);
-  }
+  if (!(fp = fopen(fileName, "w")))
+    ADOLCError::fail(ADOLCError::ErrorType::CANNOT_OPEN_FILE, CURRENT_LOCATION);
+
   free((void *)fileName);
   fprintf(fp, "\\documentclass{article}\n");
   fprintf(fp, "\\headheight0cm\n");
@@ -263,8 +261,6 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
   locint qq;
 #endif
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
 
   /****************************************************************************/
   /*                                                                    INITs */
@@ -279,24 +275,24 @@ void tape_doc(short tnum,   /* tape id */
   init_for_sweep(tnum);
   tag = tnum;
 
-  if ((depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
-      (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS])) {
-    fprintf(DIAG_OUT, "ADOL-C error: Tape_doc on tape %d  aborted!\n", tag);
-    fprintf(DIAG_OUT,
-            "Number of dependent (%d) and/or independent (%d) "
-            "variables passed to Tape_doc is\ninconsistent with "
-            "number recorded on tape %d (%zu:%zu)\n",
-            depcheck, indcheck, tag,
-            ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS],
-            ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]);
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if ((depcheck != ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_DEPENDENTS]) ||
+      (indcheck != ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_INDEPENDENTS]))
+    ADOLCError::fail(
+        ADOLCError::ErrorType::TAPE_DOC_COUNTS_MISMATCH,
+        ADOLCError::FailInfo{
+            .info1 = tag,
+            .info3 = depcheck,
+            .info4 = indcheck,
+            .info5 = ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_DEPENDENTS],
+            .info6 =
+                ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_INDEPENDENTS]},
+        CURRENT_LOCATION);
 
   /* globals */
   op_cnt = 0;
-  rev_op_cnt = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_OPERATIONS] + 1;
+  rev_op_cnt = ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_OPERATIONS] + 1;
 
-  dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES]);
+  dp_T0 = myalloc1(ADOLC_CURRENT_TAPE_INFOS.stats[TapeInfos::NUM_MAX_LIVES]);
 
   operation = get_op_f();
   ++op_cnt;
@@ -812,7 +808,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
       dp_T0[res] = exp(dp_T0[arg]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[res];
 #endif
       filewrite(operation, "exp op", 2, loc_a, val_a, 0, cst_d);
@@ -831,7 +827,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[0] = dp_T0[arg1];
       dp_T0[arg2] = cos(dp_T0[arg1]);
       dp_T0[res] = sin(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -851,7 +847,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[0] = dp_T0[arg1];
       dp_T0[arg2] = sin(dp_T0[arg1]);
       dp_T0[res] = cos(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -869,7 +865,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = atan(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -887,7 +883,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = asin(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -905,7 +901,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = acos(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -923,7 +919,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = asinh(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -941,7 +937,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = acosh(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -959,7 +955,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = atanh(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -977,7 +973,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = erf(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -995,7 +991,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg1];
       dp_T0[res] = erfc(dp_T0[arg1]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
@@ -1011,7 +1007,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
       dp_T0[res] = log(dp_T0[arg]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[res];
 #endif
       filewrite(operation, "log op", 2, loc_a, val_a, 0, cst_d);
@@ -1028,7 +1024,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
       dp_T0[res] = pow(dp_T0[arg], coval);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[res];
 #endif
       filewrite(operation, "pow op", 2, loc_a, val_a, 1, cst_d);
@@ -1043,7 +1039,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
       dp_T0[res] = sqrt(dp_T0[arg]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[res];
 #endif
       filewrite(operation, "sqrt op", 2, loc_a, val_a, 0, cst_d);
@@ -1058,7 +1054,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
       dp_T0[res] = cbrt(dp_T0[arg]);
-      ADOLC_OPENMP_RESTORE_THREAD_NUMBER;
+
       val_a[1] = dp_T0[res];
 #endif
       filewrite(operation, "cbrt op", 2, loc_a, val_a, 0, cst_d);

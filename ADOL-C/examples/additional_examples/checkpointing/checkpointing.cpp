@@ -109,7 +109,7 @@ int main() {
   // output vector
   cpc.setOutput(y2);
   // tape number for checkpointing
-  cpc.setTapeNumber(tag_check);
+  cpc.setTapeId(tag_check);
   // always retape or not ?
   cpc.setAlwaysRetaping(false);
 

@@ -11,16 +11,13 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
+#include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/sparse/sparse_fo_rev.h>
-
 #include <math.h>
 
 #if defined(__cplusplus)
-
-extern "C" void adolc_exit(int errorcode, const char *what,
-                           const char *function, const char *file, int line);
 
 /****************************************************************************/
 /*                                    Bit pattern propagation; general call */
@@ -33,18 +30,14 @@ int forward(short tag, int m, int n, int p, double *x, size_t **X, double *y,
   if (mode == 1) // tight version
     if (x != NULL)
       rc = int_forward_tight(tag, m, n, p, x, X, y, Y);
-    else {
-      fprintf(DIAG_OUT, "ADOL-C error:  no basepoint for bit"
-                        " pattern forward tight.\n");
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+    else
+      ADOLCError::fail(ADOLCError::ErrorType::SPARSE_NO_BP, CURRENT_LOCATION);
+
   else if (mode == 0) // safe version
     rc = int_forward_safe(tag, m, n, p, X, Y);
-  else {
-    fprintf(DIAG_OUT, "ADOL-C error:  bad mode parameter to bit"
-                      " pattern forward.\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  else
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
+
   return (rc);
 }
 
@@ -55,11 +48,8 @@ int forward(short tag, int m, int n, int p, size_t **X, size_t **Y, char mode)
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode)                            */
 {
   if (mode != 0) // not safe
-  {
-    fprintf(DIAG_OUT, "ADOL-C error:  bad mode parameter to bit"
-                      " pattern forward.\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
+
   return int_forward_safe(tag, m, n, p, X, Y);
 }
 
@@ -78,11 +68,9 @@ int reverse(short tag, int m, int n, int q, size_t **U, size_t **Z, char mode)
     rc = int_reverse_safe(tag, m, n, q, U, Z);
   else if (mode == 1)
     rc = int_reverse_tight(tag, m, n, q, U, Z);
-  else {
-    fprintf(DIAG_OUT, "ADOL-C error:  bad mode parameter"
-                      " to bit pattern reverse.\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  else
+    ADOLCError::fail(ADOLCError::ErrorType::SPARSE_BAD_MODE, CURRENT_LOCATION);
+
   return rc;
 }
 

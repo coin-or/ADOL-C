@@ -1,5 +1,6 @@
 target_sources(adolc PRIVATE
                adalloc.cpp
+               adolcerror.cpp
                adouble.cpp
                adouble_tl.cpp
                adouble_tl_hov.cpp
@@ -49,10 +50,11 @@ target_sources(adolc PRIVATE
                revolve.cpp
                rpl_malloc.cpp
                storemanager.cpp
-               tape_handling.cpp
-               taping.cpp
+               tape_interface.cpp
                zos_forward.cpp
                zos_pl_forward.cpp
               )
 
 add_subdirectory(drivers)
+add_subdirectory(valuetape)
+add_subdirectory(internal)

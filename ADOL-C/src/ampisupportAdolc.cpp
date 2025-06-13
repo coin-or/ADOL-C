@@ -13,7 +13,6 @@
 
 #include "adolc/adtb_types.h"
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 #include <cassert>
 #include <cstring>
 
@@ -69,8 +68,8 @@ void allocatePack(void **buf, const locint startLoc, const int count,
   for (int i = 0; i < count; ++i) {
     doubleBuf[i * (tayCount + 1)] =
         ADOLC_CURRENT_TAPE_INFOS.dp_T0[startLoc + i];
-    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_ZOS_FORWARD) {
-      if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_FOS_FORWARD) {
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ZOS_FORWARD) {
+      if (ADOLC_CURRENT_TAPE_INFOS.workMode != FOS_FORWARD) {
         memcpy((void *)(doubleBuf + i * (tayCount + 1) + 1),
                (void *)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc + i]),
                tayCount * sizeof(double));
@@ -99,8 +98,8 @@ void unpackDeallocate(void **buf, const locint startLoc, const int count,
   for (int i = 0; i < count; ++i) {
     ADOLC_CURRENT_TAPE_INFOS.dp_T0[startLoc + i] =
         doubleBuf[i * (tayCount + 1)];
-    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_ZOS_FORWARD) {
-      if (ADOLC_CURRENT_TAPE_INFOS.workMode != ADOLC_FOS_FORWARD) {
+    if (ADOLC_CURRENT_TAPE_INFOS.workMode != ZOS_FORWARD) {
+      if (ADOLC_CURRENT_TAPE_INFOS.workMode != FOS_FORWARD) {
         memcpy((void *)(ADOLC_CURRENT_TAPE_INFOS.dpp_T[startLoc + i]),
                (void *)(doubleBuf + i * (tayCount + 1) + 1),
                tayCount * sizeof(double));

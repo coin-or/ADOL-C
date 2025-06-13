@@ -24,12 +24,19 @@ BOOST_AUTO_TEST_SUITE(trace_scalar)
  * mode test implementation.  The testing order is consistent with that file
  * as well.
  */
+const short tapeId1 = 1;
+struct TapeInitializer {
+  TapeInitializer() { createNewTape(tapeId1); }
+};
 
+BOOST_GLOBAL_FIXTURE(TapeInitializer);
 BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
-  double a = 2., aout;
-  adouble ad;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+  adouble ad;
+  double a = 2., aout;
+
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = exp(ad);
@@ -55,12 +62,14 @@ BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
-  double a = 2., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
+  double a = 2., aout;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
-
   ad = exp(ad);
 
   ad >>= aout;
@@ -89,10 +98,14 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
-  double a = 2., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  double a = 2., aout;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = exp(ad);
@@ -116,10 +129,15 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -148,10 +166,13 @@ BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad, bd;
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -195,10 +216,15 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
-  double a = 2., b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  double a = 2., b = 3.5, out;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -226,9 +252,13 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -257,9 +287,13 @@ BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -304,9 +338,13 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
   double a = 2.5, b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -334,9 +372,13 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -365,9 +407,13 @@ BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -412,9 +458,13 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
   double a = 1.5, b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -442,9 +492,13 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -473,9 +527,13 @@ BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -520,9 +578,13 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
   double a = 0.5, b = 4.5, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -550,9 +612,12 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
   double a = 0.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = tan(ad);
@@ -579,9 +644,12 @@ BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
   double a = 0.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = tan(ad);
@@ -613,9 +681,12 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
   double a = 0.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = tan(ad);
@@ -641,9 +712,12 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sin(ad);
@@ -670,9 +744,12 @@ BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sin(ad);
@@ -704,9 +781,12 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = sin(ad);
@@ -732,9 +812,12 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = cos(ad);
@@ -761,9 +844,12 @@ BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = cos(ad);
@@ -795,9 +881,12 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
   double a = 1.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = cos(ad);
@@ -823,9 +912,12 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sqrt(ad);
@@ -852,9 +944,12 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sqrt(ad);
@@ -886,9 +981,12 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = sqrt(ad);
@@ -914,9 +1012,12 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   // cbrt(a)
@@ -945,9 +1046,12 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   // cbrt(a)
@@ -983,10 +1087,13 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
   double a = 2.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
   // cbrt(a)
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = cbrt(ad);
@@ -1012,9 +1119,12 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
   double a = 4.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = log(ad);
@@ -1041,9 +1151,12 @@ BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
   double a = 4.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = log(ad);
@@ -1075,9 +1188,12 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
   double a = 4.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = log(ad);
@@ -1103,9 +1219,12 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sinh(ad);
@@ -1132,9 +1251,12 @@ BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = sinh(ad);
@@ -1166,9 +1288,12 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = sinh(ad);
@@ -1194,9 +1319,12 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = cosh(ad);
@@ -1223,9 +1351,12 @@ BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = cosh(ad);
@@ -1257,9 +1388,12 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = cosh(ad);
@@ -1285,9 +1419,12 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = tanh(ad);
@@ -1314,9 +1451,12 @@ BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = tanh(ad);
@@ -1348,9 +1488,12 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   double a = 4., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = tanh(ad);
@@ -1376,9 +1519,12 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
   double a = 0.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = asin(ad);
@@ -1405,9 +1551,12 @@ BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
   double a = 0.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = asin(ad);
@@ -1439,9 +1588,12 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
   double a = 0.9, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = asin(ad);
@@ -1467,9 +1619,12 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
   double a = 0.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = acos(ad);
@@ -1496,9 +1651,12 @@ BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
   double a = 0.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = acos(ad);
@@ -1530,9 +1688,12 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
   double a = 0.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = acos(ad);
@@ -1558,9 +1719,12 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
   double a = 9.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = atan(ad);
@@ -1587,9 +1751,12 @@ BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
   double a = 9.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = atan(ad);
@@ -1621,9 +1788,12 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
   double a = 9.8, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = atan(ad);
@@ -1649,9 +1819,12 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
   double a = 12.3, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = log10(ad);
@@ -1678,9 +1851,12 @@ BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
   double a = 12.3, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = log10(ad);
@@ -1712,9 +1888,12 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
   double a = 12.3, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = log10(ad);
@@ -1740,9 +1919,12 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = asinh(ad);
@@ -1769,9 +1951,12 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = asinh(ad);
@@ -1803,9 +1988,12 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = asinh(ad);
@@ -1831,9 +2019,12 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
   double a = 1.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = acosh(ad);
@@ -1860,9 +2051,12 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
   double a = 1.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = acosh(ad);
@@ -1894,9 +2088,12 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
   double a = 1.7, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = acosh(ad);
@@ -1922,9 +2119,12 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = atanh(ad);
@@ -1951,9 +2151,12 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = atanh(ad);
@@ -1985,9 +2188,12 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
   double a = 0.6, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = atanh(ad);
@@ -2013,9 +2219,12 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ++ad;
@@ -2042,9 +2251,12 @@ BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ++ad;
@@ -2076,9 +2288,12 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = ++ad;
@@ -2104,9 +2319,12 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = --ad;
@@ -2133,9 +2351,12 @@ BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = --ad;
@@ -2167,9 +2388,12 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
   double a = 5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = --ad;
@@ -2195,9 +2419,12 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = +ad;
@@ -2224,9 +2451,12 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = +ad;
@@ -2258,9 +2488,12 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = +ad;
@@ -2286,9 +2519,12 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = -ad;
@@ -2315,9 +2551,12 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = -ad;
@@ -2349,9 +2588,12 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
   double a = 1.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = -ad;
@@ -2377,9 +2619,13 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2408,9 +2654,13 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2455,9 +2705,13 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
   double a = 12.3, b = 2.1, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -2485,9 +2739,12 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
   double a = 2.3, e = 3.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = pow(ad, e);
@@ -2514,9 +2771,12 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
   double a = 2.3, e = 3.5, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = pow(ad, e);
@@ -2549,9 +2809,13 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
 {
   double a = 2.3, e = 3.5, aout;
+
+
+setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = pow(ad, e);
@@ -2577,9 +2841,13 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
 */
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2608,9 +2876,13 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2655,9 +2927,13 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
   double a = 2.3, b = 3.5, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -2685,14 +2961,17 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
 
-  trace_on(1);
-  ed <<= e;
+  setCurrentTape(tapeId1);
 
-  ed = pow(a, ed);
+  adouble ad;
 
-  ed >>= eout;
+  trace_on(tapeId1);
+  ad <<= e;
+
+  ad = pow(a, ad);
+
+  ad >>= eout;
   trace_off();
 
   e = std::pow(a, e);
@@ -2714,17 +2993,20 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
 
-  trace_on(1);
-  ed <<= e;
+  setCurrentTape(tapeId1);
 
-  ed = pow(a, ed);
+  adouble ad;
 
-  ed >>= eout;
+  trace_on(tapeId1);
+  ad <<= e;
+
+  ad = pow(a, ad);
+
+  ad >>= eout;
   trace_off();
 
-  double eDerivative = std::log(a) * std::pow(a, e);
+  double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
   double *x = myalloc1(1);
@@ -2738,7 +3020,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
   fos_forward(1, 1, 1, 0, x, xd, y, yd);
 
   BOOST_TEST(*y == e, tt::tolerance(tol));
-  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*yd == aderivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree1(xd);
@@ -2748,17 +3030,20 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
   double a = 2.3, e = 3.5, eout;
-  adouble ed;
 
-  trace_on(1, 1);
-  ed <<= e;
+  setCurrentTape(tapeId1);
 
-  ed = pow(a, ed);
+  adouble ad;
 
-  ed >>= eout;
+  trace_on(tapeId1, 1);
+  ad <<= e;
+
+  ad = pow(a, ad);
+
+  ad >>= eout;
   trace_off();
 
-  double eDerivative = std::log(a) * std::pow(a, e);
+  double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
   double *u = myalloc1(1);
@@ -2768,20 +3053,25 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
 
   fos_reverse(1, 1, 1, u, z);
 
-  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*z == aderivative, tt::tolerance(tol));
 
   myfree1(u);
   myfree1(z);
 }
 
-/* Frexp does not need to be tested, because it is non-differentiable. */
+/* Frexp does not nead to be testad, because it is non-differentiable. */
 /*
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1);
+
+setCurrentTape(tapeId1);
+
+ adouble
+ad; adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2811,9 +3101,13 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_1)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1);
+
+setCurrentTape(tapeId1);
+ adouble
+ad; adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -2857,9 +3151,13 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
 {
   double a = 4., b = 3., out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+
+setCurrentTape(tapeId1);
+ adouble
+ad; adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -2887,9 +3185,12 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
 */
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
   double a = 4., e = 3., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ldexp(ad, e);
@@ -2916,9 +3217,12 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
   double a = 4., e = 3., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ldexp(ad, e);
@@ -2950,9 +3254,12 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
   double a = 4., e = 3., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = ldexp(ad, e);
@@ -2979,14 +3286,18 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
 
-  trace_on(1);
-  ed <<= e;
 
-  ed = ldexp(a, ed);
+setCurrentTape(tapeId1);
 
-  ed >>= eout;
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= e;
+
+  ad = ldexp(a, ad);
+
+  ad >>= eout;
   trace_off();
 
   e = a * std::pow(2., e);
@@ -3009,17 +3320,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
 
-  trace_on(1);
-  ed <<= e;
 
-  ed = ldexp(a, ed);
+setCurrentTape(tapeId1);
 
-  ed >>= eout;
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= e;
+
+  ad = ldexp(a, ad);
+
+  ad >>= eout;
   trace_off();
 
-  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  double aderivative = a * std::log(2.) * std::pow(2., e);
   e = std::pow(a, e);
 
   double *x = myalloc1(1);
@@ -3033,7 +3348,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
   fos_forward(1, 1, 1, 0, x, xd, y, yd);
 
   BOOST_TEST(*y == e, tt::tolerance(tol));
-  BOOST_TEST(*yd == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*yd == aderivative, tt::tolerance(tol));
 
   myfree1(x);
   myfree1(xd);
@@ -3044,17 +3359,21 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 {
   double a = 4., e = 3., eout;
-  adouble ed;
 
-  trace_on(1, 1);
-  ed <<= e;
 
-  ed = ldexp(a, ed);
+setCurrentTape(tapeId1);
 
-  ed >>= eout;
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= e;
+
+  ad = ldexp(a, ad);
+
+  ad >>= eout;
   trace_off();
 
-  double eDerivative = a * std::log(2.) * std::pow(2., e);
+  double aderivative = a * std::log(2.) * std::pow(2., e);
   e = a * std::pow(2., e);
 
   double *u = myalloc1(1);
@@ -3064,7 +3383,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 
   fos_reverse(1, 1, 1, u, z);
 
-  BOOST_TEST(*z == eDerivative, tt::tolerance(tol));
+  BOOST_TEST(*z == aderivative, tt::tolerance(tol));
 
   myfree1(u);
   myfree1(z);
@@ -3073,9 +3392,12 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
 
 BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
   double a = 1.4, b = -5., c = 0., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fabs(ad);
@@ -3118,9 +3440,12 @@ BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
   double a = 1.4, b = -5., c = 0., aout, bout, cout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fabs(ad);
@@ -3192,9 +3517,12 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
   double a = 1.4, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = fabs(ad);
@@ -3219,9 +3547,12 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
   double a = -5., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = fabs(ad);
@@ -3246,9 +3577,12 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   double a = 0., aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = fabs(ad);
@@ -3256,7 +3590,7 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   ad >>= aout;
   trace_off();
 
-  /* In reverse mode, the derivative at zero is calculated to be zero. */
+  /* In reverse mode, the derivative at zero is calculatad to be zero. */
   double aDerivative = 0.;
 
   double *u = myalloc1(1);
@@ -3274,9 +3608,12 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
   double a = 3.573, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ceil(ad);
@@ -3303,9 +3640,12 @@ BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
   double a = 3.573, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = ceil(ad);
@@ -3337,9 +3677,12 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
   double a = 3.573, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = ceil(ad);
@@ -3364,9 +3707,12 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
   double a = 4.483, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = floor(ad);
@@ -3393,9 +3739,12 @@ BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
   double a = 4.483, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = floor(ad);
@@ -3427,9 +3776,12 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
   double a = 4.483, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = ceil(ad);
@@ -3454,9 +3806,13 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -3485,9 +3841,13 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -3553,9 +3913,13 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -3572,7 +3936,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   *u = 1.;
 
-  fos_reverse(1, 1, 2, u, z);
+  fos_reverse(tapeId1, 1, 2, u, z);
 
   BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
   BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
@@ -3582,9 +3946,11 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
-  adouble ad1, bd1;
 
-  trace_on(1, 1);
+  adouble ad1;
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
   ad1 <<= a1;
   bd1 <<= b1;
 
@@ -3598,7 +3964,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 2, u1, z1);
+  fos_reverse(tapeId1, 1, 2, u1, z1);
 
   BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
   BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
@@ -3609,9 +3975,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
   double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
   adouble bd;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd <<= b;
 
   bd = fmax(a, bd);
@@ -3638,9 +4007,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
   adouble bd;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd <<= b;
 
   bd = fmax(a, bd);
@@ -3673,9 +4045,10 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
+
   adouble bd1;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd1 <<= b1;
 
   bd1 = fmax(a1, bd1);
@@ -3694,7 +4067,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -3702,7 +4075,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   *xd1 = 3.7;
   b1Derivative = 3.7;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -3715,9 +4088,11 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   double a = 4., b = 3.2, bout;
+  short const tapeId1 = 1;
+
   adouble bd;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   bd <<= b;
 
   bd = fmax(a, bd);
@@ -3742,9 +4117,10 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
+
   adouble bd1;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   bd1 <<= b1;
 
   bd1 = fmax(a1, bd1);
@@ -3760,7 +4136,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tapeId1, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
 
@@ -3770,9 +4146,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fmax(ad, b);
@@ -3799,9 +4178,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fmax(ad, b);
@@ -3834,9 +4216,10 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
+
   adouble ad1;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad1 <<= a1;
 
   ad1 = fmax(ad1, b1);
@@ -3855,7 +4238,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -3863,7 +4246,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   *xd1 = 3.7;
   a1Derivative = 3.7;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -3876,9 +4259,12 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = fmax(ad, b);
@@ -3903,9 +4289,10 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
+
   adouble ad1;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad1 <<= a1;
 
   ad1 = fmax(ad1, b1);
@@ -3921,7 +4308,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tapeId1, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
 
@@ -3931,9 +4318,13 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -3962,9 +4353,13 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -4030,9 +4425,13 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
   double a = 4., b = 3.2, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -4059,9 +4458,11 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
-  adouble ad1, bd1;
 
-  trace_on(1, 1);
+  adouble ad1;
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
   ad1 <<= a1;
   bd1 <<= b1;
 
@@ -4075,7 +4476,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 2, u1, z1);
+  fos_reverse(tapeId1, 1, 2, u1, z1);
 
   BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
   BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
@@ -4086,9 +4487,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
   double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
   adouble bd;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd <<= b;
 
   bd = fmin(a, bd);
@@ -4115,9 +4519,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
   adouble bd;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd <<= b;
 
   bd = fmin(a, bd);
@@ -4150,9 +4557,10 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
+
   adouble bd1;
 
-  trace_on(1);
+  trace_on(tapeId1);
   bd1 <<= b1;
 
   bd1 = fmin(a1, bd1);
@@ -4171,7 +4579,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -4179,7 +4587,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   *xd1 = 3.7;
   b1Derivative = 0.;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == b1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
@@ -4192,9 +4600,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
   adouble bd;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   bd <<= b;
 
   bd = fmin(a, bd);
@@ -4219,9 +4630,10 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
+
   adouble bd1;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   bd1 <<= b1;
 
   bd1 = fmin(a1, bd1);
@@ -4237,7 +4649,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tapeId1, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
 
@@ -4247,9 +4659,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fmin(ad, b);
@@ -4276,9 +4691,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = fmin(ad, b);
@@ -4311,9 +4729,10 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
+
   adouble ad1;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad1 <<= a1;
 
   ad1 = fmin(ad1, b1);
@@ -4332,7 +4751,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   *x1 = 2.5;
   *xd1 = -1.3;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -4340,7 +4759,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   *xd1 = 3.7;
   a1Derivative = 0.;
 
-  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
 
   BOOST_TEST(*y1 == a1, tt::tolerance(tol));
   BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
@@ -4353,9 +4772,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = fmin(ad, b);
@@ -4380,9 +4802,10 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
+
   adouble ad1;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad1 <<= a1;
 
   ad1 = fmin(ad1, b1);
@@ -4398,7 +4821,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
   *u1 = 1.;
 
-  fos_reverse(1, 1, 1, u1, z1);
+  fos_reverse(tapeId1, 1, 1, u1, z1);
 
   BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
 
@@ -4408,9 +4831,12 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = erf(ad);
@@ -4437,9 +4863,12 @@ BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = erf(ad);
@@ -4471,9 +4900,12 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = erf(ad);
@@ -4498,9 +4930,12 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = erfc(ad);
@@ -4527,9 +4962,12 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad = erfc(ad);
@@ -4561,9 +4999,12 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
   double a = 7.1, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad = erfc(ad);
@@ -4588,9 +5029,13 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
   double a = 10.01, aout;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
 
   bd = ad;
@@ -4615,9 +5060,13 @@ BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
   double a = 10.01, aout;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
 
   bd = ad;
@@ -4648,9 +5097,13 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
   double a = 10.01, aout;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   bd = ad;
@@ -4675,9 +5128,12 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad += 5.2;
@@ -4704,9 +5160,12 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad += 5.2;
@@ -4738,9 +5197,12 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad += 5.2;
@@ -4764,12 +5226,16 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   myfree1(z);
 }
 
-// the case += c * d is handled differently!
+// the case += c * d is handlad differently!
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward_2) {
   double a = 1.0, b = -1.0, out;
-  adouble ad, bd, cd(4.0);
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -4792,9 +5258,12 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad -= 5.2;
@@ -4821,9 +5290,12 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad -= 5.2;
@@ -4853,12 +5325,16 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   myfree1(yd);
 }
 
-// the case -= c * d is handled differently!
+// the case -= c * d is handlad differently!
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward_2) {
   double a = 1.0, b = -1.0, out;
-  adouble ad, bd, cd(4.0);
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -4881,9 +5357,12 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad -= 5.2;
@@ -4909,9 +5388,12 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad *= 5.2;
@@ -4938,9 +5420,12 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad *= 5.2;
@@ -4972,9 +5457,12 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad *= 5.2;
@@ -5000,9 +5488,13 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -5031,9 +5523,13 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -5078,9 +5574,13 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -5108,9 +5608,12 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad /= 5.2;
@@ -5137,9 +5640,12 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1);
+  trace_on(tapeId1);
   ad <<= a;
 
   ad /= 5.2;
@@ -5171,9 +5677,12 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
   double a = 5.132, aout;
+
+  setCurrentTape(tapeId1);
+
   adouble ad;
 
-  trace_on(1, 1);
+  trace_on(tapeId1, 1);
   ad <<= a;
 
   ad /= 5.2;
@@ -5199,9 +5708,13 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -5230,9 +5743,13 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
   ad <<= a;
   bd <<= b;
 
@@ -5277,9 +5794,13 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
   double a = 5.132, b = 11.1, out;
-  adouble ad, bd;
 
-  trace_on(1, 1);
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
   ad <<= a;
   bd <<= b;
 
@@ -5307,10 +5828,15 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
+
+  setCurrentTape(tapeId1);
+
+  adouble cond;
+  adouble arg1;
+  adouble arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5339,10 +5865,15 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
+
+  setCurrentTape(tapeId1);
+
+  adouble cond;
+  adouble arg1;
+  adouble arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5383,7 +5914,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
   adouble cond, arg1, arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5413,10 +5944,15 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
 */
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
+
+  setCurrentTape(tapeId1);
+
+  adouble cond;
+  adouble arg1;
+  adouble arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5445,10 +5981,15 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
 
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
   double out;
-  adouble cond, arg1, arg2;
+
+  setCurrentTape(tapeId1);
+
+  adouble cond;
+  adouble arg1;
+  adouble arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5489,7 +6030,7 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
   adouble cond, arg1, arg2;
   adouble p;
 
-  trace_on(1);
+  trace_on(tapeId1);
   cond <<= 1.;
   arg1 <<= 3.5;
   arg2 <<= 5.3;
@@ -5518,20 +6059,27 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
 }
 */
 
-/* Boolean operations only alter the trace, if advanced branching is
- * activated.  This advanced branching is not tested here.
+/* Boolean operations only alter the trace, if advancad branching is
+ * activatad.  This advancad branching is not testad here.
  */
 
 BOOST_AUTO_TEST_CASE(TraceNotOperatorPrimal) {
   double a = 1.0;
-  adouble ad = a;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
 
   BOOST_TEST(!a == 0.0, tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(TraceCompNeqOperatorPrimal) {
   double a = 1.5, b = 0.5;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad != bd);
   int m = (a != b);
@@ -5546,7 +6094,11 @@ BOOST_AUTO_TEST_CASE(TraceCompNeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompEqOperatorPrimal) {
   double a = 0.5, b = 1.5;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad == bd);
   int m = (a == b);
@@ -5561,7 +6113,11 @@ BOOST_AUTO_TEST_CASE(TraceCompEqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompLeqOperatorPrimal) {
   double a = 1.0, b = 0.99;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad <= bd);
   int m = (a <= b);
@@ -5576,7 +6132,11 @@ BOOST_AUTO_TEST_CASE(TraceCompLeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompGeqOperatorPrimal) {
   double a = 1.2, b = 2.5;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad >= bd);
   int m = (a >= b);
@@ -5591,7 +6151,11 @@ BOOST_AUTO_TEST_CASE(TraceCompGeqOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompLeOperatorPrimal) {
   double a = 1.1, b = 1.1;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad < bd);
   int m = (a < b);
@@ -5606,7 +6170,11 @@ BOOST_AUTO_TEST_CASE(TraceCompLeOperatorPrimal) {
 
 BOOST_AUTO_TEST_CASE(TraceCompGeOperatorPrimal) {
   double a = 1.7, b = 7.5;
-  adouble ad = a, bd = b;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad(a);
+  adouble bd(b);
 
   int n = (ad > bd);
   int m = (a > b);

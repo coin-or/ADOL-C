@@ -36,17 +36,19 @@ static double norm(double *x, int dim) {
   return std::sqrt(norm);
 }
 
-static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber,
+static double traceNewtonForSquareRoot(int tapeId, int sub_tape_id,
                                        double argument) {
   // ax1 = sqrt(ax1);
-  adouble x = 2.5; // Initial iterate
+  setCurrentTape(tapeId);
+  currentTape().ensureContiguousLocations(3);
+  adouble x(2.5); // Initial iterate
   adouble y;
   double out;
-  trace_on(tapeNumber);
+  trace_on(tapeId);
   adouble u;
   u <<= argument;
 
-  fp_iteration(subTapeNumber, iteration<double>, iteration<adouble>, norm,
+  fp_iteration(tapeId, sub_tape_id, iteration<double>, iteration<adouble>, norm,
                norm, // Norm for the termination criterion for the adjoint
                1e-8, // Termination threshold for fixed-point iteration
                1e-8, // Termination threshold
@@ -67,19 +69,25 @@ static double traceNewtonForSquareRoot(int tapeNumber, int subTapeNumber,
  * square root function can be recovered from the tape.
  */
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
-  ensureContiguousLocations(5);
+  const short tapeId = 8;
+  const short sub_tape_id = 9;
+
+  createNewTape(tapeId);
+  createNewTape(sub_tape_id);
+
   // Compute the square root of 2.0
   const double argument[1] = {2.0};
   double out = traceNewtonForSquareRoot(
-      1,            // tape number
-      2,            // subtape number
+      tapeId,       // tape number
+      sub_tape_id,  // subtape number
       argument[0]); // Where to evaluate the square root function
 
   // Did taping really produce the correct value?
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
 
   double value[1];
-  zos_forward(1,        // Tape number
+
+  zos_forward(tapeId,   // Tape number
               1,        // Number of dependent variables
               1,        // Number of indepdent variables
               0,        // Don't keep anything
@@ -91,8 +99,9 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
 
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
   // Compute the square root of 2.0
+  const short tapeId = 1;
   const double argument[1] = {2.0};
-  double out = traceNewtonForSquareRoot(1, 2, argument[0]);
+  double out = traceNewtonForSquareRoot(tapeId, 2, argument[0]);
 
   // Did taping really produce the correct value?
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));
@@ -104,7 +113,7 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
 
   const double tangent[1] = {1.0};
 
-  fos_forward(1,        // Tape number
+  fos_forward(tapeId,   // Tape number
               1,        // Number of dependent variables
               1,        // Number of independent variables,
               0,        // Don't keep anything

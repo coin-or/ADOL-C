@@ -1,7 +1,7 @@
 install(FILES
         adtb_types.h     
         adalloc.h
-        adolc_fatalerror.h
+        adolcerror.h
         adolc.h
         adolc_openmp.h
         adolc_sparse.h
@@ -18,7 +18,6 @@ install(FILES
         convolut.h
         dvlparms.h
         edfclasses.h
-        externfcts_p.h 
         externfcts2.h
         externfcts.h
         fixpoint.h
@@ -29,11 +28,11 @@ install(FILES
         revolve.h
         rpl_malloc.h 
         storemanager.h
-        taping_p.h
-        taping.h        
+        tape_interface.h
         DESTINATION "include/adolc")
 
 add_subdirectory(drivers)
 add_subdirectory(internal)
 add_subdirectory(lie)
 add_subdirectory(tapedoc)
+add_subdirectory(valuetape)
