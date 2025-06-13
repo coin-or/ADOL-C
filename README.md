@@ -5,6 +5,7 @@
 
 > [!WARNING]  
 > We are in the process of modernizing ADOL-C. The master branch is unstable. Please use the latest release!
+> The main branch requires c++20 and clang-13 or gcc-11.
 
 ## Pre-release Examples
 We're modernizing ADOL-C's tape internals, which also introduces a new user interface.
