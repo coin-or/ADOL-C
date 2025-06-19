@@ -4220,4 +4220,14 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
   BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(IsnormalOperatorPrimal) {
+
+  setCurrentTape(tapeId5);
+  adouble pd(1.7);
+
+  BOOST_TEST(isnormal(pd), tt::tolerance(tol));
+  pd.value(0.0);
+  BOOST_TEST(!isnormal(pd), tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
