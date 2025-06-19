@@ -1149,6 +1149,102 @@ BOOST_AUTO_TEST_CASE(CustomFminFmaxFabs_HOS) {
   myfree2(H);
 }
 
+/* Tested function: max(min(x1, x2), abs(x3))*x4
+ * First derivatives: (0., 0., -x4, -x3)
+ * Second derivatives: (0., 0., 0., 0.,
+ *                      0., 0., 0., 0.,
+ *                      0., 0., 0., -1.,
+ *                      0., 0., -1., 0.)
+ */
+BOOST_AUTO_TEST_CASE(CustomMinMaxAbs_HOS) {
+  double x1 = 1., x2 = 2.5, x3 = -4.5, x4 = -1.;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+  adouble ax4;
+  double y;
+  adouble ay;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+
+  ay = max(min(ax1, ax2), abs(ax3)) * ax4;
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::max(std::min(x1, x2), std::abs(x3)) * x4;
+
+  double **yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 0.01 * x3;
+  yDerivative[0][1] = -0.2 * x4 + 0.5 * 0.;
+
+  double *x;
+  x = myalloc1(4);
+  x[0] = x1;
+  x[1] = x2;
+  x[2] = x3;
+  x[3] = x4;
+
+  double **X;
+  X = myalloc2(4, 2);
+  X[0][0] = 1.;
+  X[1][0] = 0.1;
+  X[2][0] = 0.;
+  X[3][0] = -0.01;
+  X[0][1] = 0.;
+  X[1][1] = 1.;
+  X[2][1] = 0.2;
+  X[3][1] = 0.;
+
+  double **Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(tapeId3, 1, 4, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double **H;
+  H = myalloc2(4, 4);
+
+  double yx1x1Derivative = 0.;
+  double yx2x1Derivative = 0.;
+  double yx3x1Derivative = 0.;
+  double yx4x1Derivative = 0.;
+  double yx2x2Derivative = 0.;
+  double yx3x2Derivative = 0.;
+  double yx4x2Derivative = 0.;
+  double yx3x3Derivative = 0.;
+  double yx4x3Derivative = -1.;
+  double yx4x4Derivative = 0.;
+
+  hessian(tapeId3, 4, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x1Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x1Derivative == H[2][0], tt::tolerance(tol));
+  BOOST_TEST(yx3x2Derivative == H[2][1], tt::tolerance(tol));
+  BOOST_TEST(yx3x3Derivative == H[2][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x1Derivative == H[3][0], tt::tolerance(tol));
+  BOOST_TEST(yx4x2Derivative == H[3][1], tt::tolerance(tol));
+  BOOST_TEST(yx4x3Derivative == H[3][2], tt::tolerance(tol));
+  BOOST_TEST(yx4x4Derivative == H[3][3], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 /* Tested function: 3.*asin(sin(x1 + x2))*sin(x3)*cos(x4)
  * First derivatives: (3.*sin(x3)*cos(x4), 3.*sin(x3)*cos(x4),
  *                     3.*(x1 + x2)*cos(x3)*cos(x4),
@@ -1408,6 +1504,77 @@ BOOST_AUTO_TEST_CASE(CustomFabsFmax_HOS) {
   myfree2(H);
 }
 
+/* Tested function: fmax(fabs(x1*x1), fabs(x2*x2))
+ * First derivatives: (2.*x1, 0.
+ *                    )
+ * Second derivatives: (2., 0., 0., 0.
+ *                     )
+ */
+BOOST_AUTO_TEST_CASE(CustomAbsMax_HOS) {
+  double x1 = 9.9, x2 = -4.7;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y;
+  adouble ay;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = max(abs(ax1 * ax1), abs(ax2 * ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::max(std::abs(x1 * x1), std::abs(x2 * x2));
+
+  double **yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 2. * x1;
+  yDerivative[0][1] = 0.5 * 2.;
+
+  double *x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double **X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double **Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(tapeId3, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double **H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = 2.;
+  double yx1x2Derivative = 0.;
+  double yx2x2Derivative = 0.;
+
+  hessian(tapeId3, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 /* Tested function: fmin(fabs(x1*x1), fabs(x2*x2))
  * First derivatives: (0., 2.*x2
  *                    )
@@ -1552,6 +1719,72 @@ BOOST_AUTO_TEST_CASE(CustomFmaxTrigExp_HOS) {
   myfree2(H);
 }
 
+BOOST_AUTO_TEST_CASE(CustomMaxTrigExp_HOS) {
+  double x1 = 21.07, x2 = 1.5;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y;
+  adouble ay;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = max(ax1 * ax1 * cos(ax2), sin(ax1) * cos(ax2) * exp(ax2));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::max(x1 * x1 * std::cos(x2),
+                          std::sin(x1) * std::cos(x2) * std::exp(x2));
+
+  double **yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = 2. * x1 * std::cos(x2);
+  yDerivative[0][1] = -1.5 * x1 * x1 * std::sin(x2) + 0.5 * 2. * std::cos(x2);
+
+  double *x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double **X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double **Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(tapeId3, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double **H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = 2. * std::cos(x2);
+  double yx1x2Derivative = -2. * x1 * std::sin(x2);
+  double yx2x2Derivative = -x1 * x1 * std::cos(x2);
+
+  hessian(tapeId3, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
 /* Tested function: fmin(x1*x1*cos(x2), sin(x1)*cos(x2*exp(x2)))
  * First derivatives: (cos(x1)*cos(x2*exp(x2)),
  *                     -sin(x1)*sin(x2*exp(x2))*(1. + x2)*exp(x2)
@@ -1582,6 +1815,77 @@ BOOST_AUTO_TEST_CASE(CustomFminTrigExp_HOS) {
 
   double yprim = std::fmin(x1 * x1 * std::cos(x2),
                            std::sin(x1) * std::cos(x2 * std::exp(x2)));
+
+  double **yDerivative;
+  yDerivative = myalloc2(1, 2);
+  yDerivative[0][0] = std::cos(x1) * std::cos(x2 * std::exp(x2));
+  yDerivative[0][1] = -1.5 * sin(x1) * sin(x2 * exp(x2)) * (1. + x2) * exp(x2) -
+                      0.5 * std::sin(x1) * std::cos(x2 * std::exp(x2));
+
+  double *x;
+  x = myalloc1(2);
+  x[0] = x1;
+  x[1] = x2;
+
+  double **X;
+  X = myalloc2(2, 2);
+  X[0][0] = 1.;
+  X[0][1] = 0.;
+  X[1][0] = 0.;
+  X[1][1] = 1.5;
+
+  double **Y;
+  Y = myalloc2(1, 2);
+
+  hos_forward(tapeId3, 1, 2, 2, 1, x, X, &y, Y);
+
+  BOOST_TEST(y == yprim, tt::tolerance(tol));
+  BOOST_TEST(Y[0][0] == yDerivative[0][0], tt::tolerance(tol));
+  BOOST_TEST(Y[0][1] == yDerivative[0][1], tt::tolerance(tol));
+
+  double **H;
+  H = myalloc2(2, 2);
+
+  double yx1x1Derivative = -std::sin(x1) * std::cos(x2 * std::exp(x2));
+  double yx1x2Derivative =
+      -std::cos(x1) * std::sin(x2 * std::exp(x2)) * (1. + x2) * std::exp(x2);
+  double yx2x2Derivative =
+      -std::sin(x1) * std::cos(x2 * std::exp(x2)) *
+          std::pow((1. + x2) * std::exp(x2), 2) -
+      std::sin(x1) * std::sin(x2 * std::exp(x2)) * (2. + x2) * std::exp(x2);
+
+  hessian(tapeId3, 2, x, H);
+
+  BOOST_TEST(yx1x1Derivative == H[0][0], tt::tolerance(tol));
+  BOOST_TEST(yx1x2Derivative == H[1][0], tt::tolerance(tol));
+  BOOST_TEST(yx2x2Derivative == H[1][1], tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(yDerivative);
+  myfree2(X);
+  myfree2(Y);
+  myfree2(H);
+}
+
+BOOST_AUTO_TEST_CASE(CustomMinTrigExp_HOS) {
+  double x1 = 21.07, x2 = 1.5;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y;
+  adouble ay;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay = min(ax1 * ax1 * cos(ax2), sin(ax1) * cos(ax2 * exp(ax2)));
+
+  ay >>= y;
+  trace_off();
+
+  double yprim = std::min(x1 * x1 * std::cos(x2),
+                          std::sin(x1) * std::cos(x2 * std::exp(x2)));
 
   double **yDerivative;
   yDerivative = myalloc2(1, 2);
@@ -3684,6 +3988,147 @@ BOOST_AUTO_TEST_CASE(customFminFmaxFabs_HOS_Reverse) {
   myfree2(Z);
 }
 
+BOOST_AUTO_TEST_CASE(customMinMaxAbs_HOS_Reverse) {
+  double x1 = 1., x2 = 2.5, x3 = -4.5, x4 = -1.;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+  adouble ax4;
+  double y1;
+  adouble ay1;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+
+  ay1 = max(min(ax1, ax2), abs(ax3)) * ax4;
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 0.;
+  double y1x2Derivative = 0.;
+  double y1x3Derivative = -x4;
+  double y1x4Derivative = -x3;
+
+  double y1x1x1Derivative = 0.;
+  double y1x1x2Derivative = 0.;
+  double y1x1x3Derivative = 0.;
+  double y1x1x4Derivative = 0.;
+  double y1x2x1Derivative = 0.;
+  double y1x2x2Derivative = 0.;
+  double y1x2x3Derivative = 0.;
+  double y1x2x4Derivative = 0.;
+  double y1x3x1Derivative = 0.;
+  double y1x3x2Derivative = 0.;
+  double y1x3x3Derivative = 0.;
+  double y1x3x4Derivative = -1.;
+  double y1x4x1Derivative = 0.;
+  double y1x4x2Derivative = 0.;
+  double y1x4x3Derivative = -1.;
+  double y1x4x4Derivative = 0.;
+
+  double *x = myalloc1(4);
+  double *xd = myalloc1(4);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 1.;
+  x[1] = 2.5;
+  x[2] = -4.5;
+  x[3] = -1.;
+  xd[0] = 1.;
+  xd[1] = 0.;
+  xd[2] = 0.;
+  xd[3] = 0.;
+
+  fos_forward(tapeId3, 1, 4, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(4, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(tapeId3, 1, 4, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][0] == y1x4Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][1] == y1x1x4Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+  xd[2] = 0.;
+  xd[3] = 0.;
+
+  fos_forward(tapeId3, 1, 4, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 4, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][0] == y1x4Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x2x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][1] == y1x2x4Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 0.;
+  xd[2] = 1.;
+  xd[3] = 0.;
+
+  fos_forward(tapeId3, 1, 4, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 4, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][0] == y1x4Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x3x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x3x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x3x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][1] == y1x3x4Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 0.;
+  xd[2] = 0.;
+  xd[3] = 1.;
+
+  fos_forward(tapeId3, 1, 4, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 4, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][0] == y1x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][0] == y1x4Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x4x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x4x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[2][1] == y1x4x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[3][1] == y1x4x4Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
 BOOST_AUTO_TEST_CASE(customInvTrig_HOS_Reverse) {
   double x1 = 0.11, x2 = 0.33, x3 = 0.1 * std::acos(0.), x4 = std::exp(-1.);
   setCurrentTape(tapeId3);
@@ -3969,6 +4414,77 @@ BOOST_AUTO_TEST_CASE(customFabsFmax_HOS_Reverse) {
   myfree2(Z);
 }
 
+BOOST_AUTO_TEST_CASE(customAbsMax_HOS_Reverse) {
+  double x1 = 9.9, x2 = -4.7;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y1;
+  adouble ay1;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = max(abs(ax1 * ax1), abs(ax2 * ax2));
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 2. * x1;
+  double y1x2Derivative = 0.;
+
+  double y1x1x1Derivative = 2.;
+  double y1x1x2Derivative = 0.;
+  double y1x2x1Derivative = 0.;
+  double y1x2x2Derivative = 0.;
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 9.9;
+  x[1] = -4.7;
+  xd[0] = 1.;
+  xd[1] = 0.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(2, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
 BOOST_AUTO_TEST_CASE(customFabsFmin_HOS_Reverse) {
   double x1 = 9.9, x2 = -4.7;
   setCurrentTape(tapeId3);
@@ -3982,6 +4498,77 @@ BOOST_AUTO_TEST_CASE(customFabsFmin_HOS_Reverse) {
   ax2 <<= x2;
 
   ay1 = fmin(fabs(ax1 * ax1), fabs(ax2 * ax2));
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 0.;
+  double y1x2Derivative = 2. * x2;
+
+  double y1x1x1Derivative = 0.;
+  double y1x1x2Derivative = 0.;
+  double y1x2x1Derivative = 0.;
+  double y1x2x2Derivative = 2.;
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 9.9;
+  x[1] = -4.7;
+  xd[0] = 1.;
+  xd[1] = 0.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(2, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
+BOOST_AUTO_TEST_CASE(customAbsMin_HOS_Reverse) {
+  double x1 = 9.9, x2 = -4.7;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y1;
+  adouble ay1;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = min(abs(ax1 * ax1), abs(ax2 * ax2));
 
   ay1 >>= y1;
   trace_off();
@@ -4111,6 +4698,77 @@ BOOST_AUTO_TEST_CASE(customFmaxTrig_HOS_Reverse) {
   myfree2(Z);
 }
 
+BOOST_AUTO_TEST_CASE(customMaxTrig_HOS_Reverse) {
+  double x1 = 21.07, x2 = 1.5;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y1;
+  adouble ay1;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = max(ax1 * ax1 * cos(ax2), sin(ax1) * cos(ax2) * exp(ax2));
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = 2. * x1 * std::cos(x2);
+  double y1x2Derivative = -x1 * x1 * std::sin(x2);
+
+  double y1x1x1Derivative = 2. * std::cos(x2);
+  double y1x1x2Derivative = -2. * x1 * std::sin(x2);
+  double y1x2x1Derivative = -2. * x1 * std::sin(x2);
+  double y1x2x2Derivative = -x1 * x1 * std::cos(x2);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 21.07;
+  x[1] = 1.5;
+  xd[0] = 1.;
+  xd[1] = 0.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(2, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
 BOOST_AUTO_TEST_CASE(customFminTrig_HOS_Reverse) {
   double x1 = 21.07, x2 = 1.5;
   setCurrentTape(tapeId3);
@@ -4124,6 +4782,83 @@ BOOST_AUTO_TEST_CASE(customFminTrig_HOS_Reverse) {
   ax2 <<= x2;
 
   ay1 = fmin(ax1 * ax1 * cos(ax2), sin(ax1) * cos(ax2 * exp(ax2)));
+
+  ay1 >>= y1;
+  trace_off();
+
+  double y1x1Derivative = std::cos(x1) * std::cos(x2 * std::exp(x2));
+  double y1x2Derivative =
+      -std::sin(x1) * std::sin(x2 * std::exp(x2)) * (1. + x2) * std::exp(x2);
+
+  double y1x1x1Derivative = -std::sin(x1) * std::cos(x2 * std::exp(x2));
+  double y1x1x2Derivative =
+      -std::cos(x1) * std::sin(x2 * std::exp(x2)) * (1. + x2) * std::exp(x2);
+  double y1x2x1Derivative =
+      -std::cos(x1) * std::sin(x2 * std::exp(x2)) * (1. + x2) * std::exp(x2);
+  double y1x2x2Derivative =
+      -std::sin(x1) * std::cos(x2 * std::exp(x2)) *
+          std::pow((1. + x2) * std::exp(x2), 2) -
+      std::sin(x1) * std::sin(x2 * exp(x2)) * (2. + x2) * std::exp(x2);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  x[0] = 21.07;
+  x[1] = 1.5;
+  xd[0] = 1.;
+  xd[1] = 0.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  double *u = myalloc1(1);
+  double **Z = myalloc2(2, 2);
+
+  u[0] = 1.;
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x1x2Derivative, tt::tolerance(tol));
+
+  xd[0] = 0.;
+  xd[1] = 1.;
+
+  fos_forward(tapeId3, 1, 2, 2, x, xd, y, yd);
+
+  hos_reverse(tapeId3, 1, 2, 1, u, Z);
+
+  BOOST_TEST(Z[0][0] == y1x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][0] == y1x2Derivative, tt::tolerance(tol));
+
+  BOOST_TEST(Z[0][1] == y1x2x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(Z[1][1] == y1x2x2Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+  myfree1(u);
+  myfree2(Z);
+}
+
+BOOST_AUTO_TEST_CASE(customMinTrig_HOS_Reverse) {
+  double x1 = 21.07, x2 = 1.5;
+  setCurrentTape(tapeId3);
+  adouble ax1;
+  adouble ax2;
+  double y1;
+  adouble ay1;
+
+  trace_on(tapeId3, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+
+  ay1 = min(ax1 * ax1 * cos(ax2), sin(ax1) * cos(ax2 * exp(ax2)));
 
   ay1 >>= y1;
   trace_off();

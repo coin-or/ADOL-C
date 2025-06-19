@@ -2615,6 +2615,138 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Reverse) {
   myfree2(z);
 }
 
+BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Forward) {
+  double a = 1.4, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  a = std::abs(a);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 1.4;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 1.5;
+  }
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 1.5), tt::tolerance(tol));
+
+  x[0] = -5.;
+
+  a = std::abs(-5.);
+  aDerivative = -1.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 1.5), tt::tolerance(tol));
+
+  x[0] = 0.;
+
+  xd[0][0] = 2.5;
+  xd[0][1] = -3.5;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == 0., tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == 2.5, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == 3.5, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Reverse) {
+  double a = 1.4, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 3.3;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 3.3 * aDerivative, tt::tolerance(tol));
+  a = -5.;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  aDerivative = -1.;
+
+  u[0][0] = 1.;
+  u[1][0] = 3.3;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 3.3 * aDerivative, tt::tolerance(tol));
+
+  a = 0.;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  u[0][0] = 2.5;
+  u[1][0] = -3.5;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == 0., tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 0., tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Forward) {
   double a = 3.573, aout;
 
@@ -3176,6 +3308,421 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_3) {
   myfree2(z);
 }
 
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+  a = std::max(a, b);
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 4.;
+  x[1] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  x[0] = 2.5;
+  x[1] = 2.5;
+
+  xd[0][0] = 1.3;
+  xd[0][1] = 3.7;
+  xd[1][0] = -1.3;
+  xd[1][1] = -3.7;
+
+  a = std::max(2.5, 2.5);
+  aDerivative = std::max(xd[0][0], xd[1][0]);
+  bDerivative = std::max(xd[0][1], xd[1][1]);
+
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_1) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 2);
+
+  u[0][0] = 1.;
+  u[1][0] = 2.;
+
+  fov_reverse(tapeId, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 2. * aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == 2. * bDerivative, tt::tolerance(tol));
+
+  a = 2.5, b = 2.5;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  u[0][0] = 1.;
+  u[1][0] = -1.;
+
+  fov_reverse(tapeId, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == 0.5, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == 0.5, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == -0.5, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == -0.5, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId);
+
+  adouble bd;
+
+  trace_on(tapeId);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 0.;
+  b = std::max(a, b);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 5.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  b = std::max(a, x[0]);
+  bDerivative = 1.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 4.5;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  b = std::max(a, x[0]);
+  bDerivative = 1.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId);
+
+  adouble bd;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 0.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  b = 5.2;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  bDerivative = 1.;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  b = 4.;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  bDerivative = 0.5;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 1.;
+  a = std::max(a, b);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 4.;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 2.3;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  a = std::max(x[0], b);
+  aDerivative = 0.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  a = std::max(x[0], b);
+  aDerivative = std::max(xd[0][0], 0.0);
+  bDerivative = std::max(xd[0][1], 0.0);
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  a = 2.5;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  aDerivative = 0.;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  a = 3.2;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  aDerivative = 0.5;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1) {
   double a = 4., b = 3.2, out;
 
@@ -3573,6 +4120,421 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_3) {
   ad <<= a;
 
   ad = fmin(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  aDerivative = 0.5;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 0.;
+  double bDerivative = 1.;
+  a = std::min(a, b);
+
+  double *x = myalloc1(2);
+  double **xd = myalloc2(2, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  /* Test partial derivative wrt a and b. */
+  x[0] = 4.;
+  x[1] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 2; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  x[0] = 2.5;
+  x[1] = 2.5;
+
+  xd[0][0] = 1.3;
+  xd[0][1] = 3.7;
+  xd[1][0] = -1.3;
+  xd[1][1] = -3.7;
+
+  a = std::min(2.5, 2.5);
+  aDerivative = std::min(xd[0][0], xd[1][0]);
+  bDerivative = std::min(xd[0][1], xd[1][1]);
+
+  fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_1) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+  double bDerivative = 1.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 2);
+
+  u[0][0] = 1.;
+  u[1][0] = 2.;
+
+  fov_reverse(tapeId, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == 2. * aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == 2. * bDerivative, tt::tolerance(tol));
+
+  a = 2.5, b = 2.5;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= aout;
+  trace_off();
+
+  u[0][0] = 1.;
+  u[1][0] = -1.;
+
+  fov_reverse(tapeId, 1, 2, 2, u, z);
+
+  BOOST_TEST(z[0][0] == 0.5, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == 0.5, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == -0.5, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == -0.5, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId);
+
+  adouble bd;
+
+  trace_on(tapeId);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 1.;
+  b = std::min(a, b);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 5.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  b = std::min(a, x[0]);
+  bDerivative = 0.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 4.5;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  b = std::min(a, x[0]);
+  bDerivative = 0.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId);
+
+  adouble bd;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 1.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  b = 5.2;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  bDerivative = 0.;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  b = 4.;
+
+  trace_on(tapeId, 1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  bDerivative = 0.5;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == bDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == bDerivative * 6.8, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+  double bDerivative = 0.;
+  a = std::min(a, b);
+
+  double *x = myalloc1(1);
+  double **xd = myalloc2(1, 2);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 2);
+
+  x[0] = 4.;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 2.3;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  a = std::min(x[0], b);
+  aDerivative = 1.;
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == aDerivative * (1. - 2.1), tt::tolerance(tol));
+
+  x[0] = 3.2;
+
+  for (int i = 0; i < 2; i++) {
+    xd[0][i] = 1. - i * 2.1;
+  }
+
+  a = std::min(x[0], b);
+  aDerivative = std::min(xd[0][0], 0.0);
+  bDerivative = std::min(xd[0][1], 0.0);
+
+  fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId);
+
+  adouble ad;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+
+  double **u = myalloc2(2, 1);
+  double **z = myalloc2(2, 1);
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  a = 2.5;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  aDerivative = 1.;
+
+  u[0][0] = 1.;
+  u[1][0] = 6.8;
+
+  fov_reverse(tapeId, 1, 1, 2, u, z);
+
+  BOOST_TEST(z[0][0] == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == aDerivative * 6.8, tt::tolerance(tol));
+
+  a = 3.2;
+
+  trace_on(tapeId, 1);
+  ad <<= a;
+
+  ad = min(ad, b);
 
   ad >>= aout;
   trace_off();
