@@ -614,6 +614,13 @@ inline bool operator<(const adouble &a, const adouble &b) {
 
 #endif // ADOLC_ADVANCED_BRANCHING
 
+/// @brief This is an overload of std::isnormal for adoubles and not traced on
+/// the tape. The value of the adouble on the current tape is passed to
+/// std::isnormal.
+/// @param a adouble to check whether its value on the tape is normal
+/// @return whether the adouble value is normal
+inline bool isnormal(const adouble &a) { return std::isnormal(a.value()); }
+
 /*--------------------------------------------------------------------------*/
 /* unary operators */
 ADOLC_DLL_EXPORT adouble exp(const adouble &a);
@@ -1090,6 +1097,13 @@ inline bool operator<(const pdouble &p, const adouble &a) {
 }
 
 #endif // ADOLC_ADVANCED_BRANCHING
+
+/// @brief This is an overload of std::isnormal for pdoubles and not traced on
+/// the tape. The value of the pdouble on the current tape is passed to
+/// std::isnormal.
+/// @param p pdouble to check whether its value on the tape is normal
+/// @return whether the pdouble value is normal
+inline bool isnormal(const pdouble &p) { return std::isnormal(p.value()); }
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
