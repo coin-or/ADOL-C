@@ -728,6 +728,9 @@ ADOLC_DLL_EXPORT adouble floor(adouble &&a);
 ADOLC_DLL_EXPORT adouble fabs(const adouble &a);
 ADOLC_DLL_EXPORT adouble fabs(adouble &&a);
 
+inline adouble abs(const adouble &a) { return fabs(a); }
+inline adouble abs(adouble &&a) { return fabs(std::move(a)); }
+
 /*--------------------------------------------------------------------------*/
 /* Min and Max */
 
@@ -737,19 +740,36 @@ ADOLC_DLL_EXPORT adouble fmin(const adouble &a, adouble &&b);
 inline adouble fmin(adouble &&a, adouble &&b) { return fmin(std::move(a), b); }
 inline adouble fmin(const double coval, const adouble &a) {
   return fmin(adouble(coval), a);
-  return fmin(adouble(coval), a);
 }
 inline adouble fmin(const double coval, adouble &&a) {
   return fmin(adouble(coval), std::move(a));
-  return fmin(adouble(coval), std::move(a));
 }
 inline adouble fmin(const adouble &a, const double coval) {
-  return (fmin(a, adouble(coval)));
-  return (fmin(a, adouble(coval)));
+  return fmin(a, adouble(coval));
 }
 inline adouble fmin(adouble &&a, const double coval) {
-  return (fmin(std::move(a), adouble(coval)));
-  return (fmin(std::move(a), adouble(coval)));
+  return fmin(std::move(a), adouble(coval));
+}
+
+inline adouble min(const adouble &a, const adouble &b) { return fmin(a, b); }
+inline adouble min(adouble &&a, const adouble &b) {
+  return fmin(std::move(a), b);
+}
+inline adouble min(const adouble &a, adouble &&b) {
+  return fmin(a, std::move(b));
+}
+inline adouble min(adouble &&a, adouble &&b) { return fmin(std::move(a), b); }
+inline adouble min(const double coval, const adouble &a) {
+  return fmin(coval, a);
+}
+inline adouble min(const double coval, adouble &&a) {
+  return fmin(coval, std::move(a));
+}
+inline adouble min(const adouble &a, const double coval) {
+  return fmin(a, coval);
+}
+inline adouble min(adouble &&a, const double coval) {
+  return fmin(std::move(a), coval);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -775,6 +795,29 @@ inline adouble fmax(const adouble &a, const double coval) {
 }
 inline adouble fmax(adouble &&a, const double coval) {
   return (-fmin(-std::move(a), -coval));
+}
+
+inline adouble max(const adouble &a, const adouble &b) { return fmax(a, b); }
+
+inline adouble max(adouble &&a, const adouble &b) {
+  return fmax(std::move(a), b);
+}
+inline adouble max(const adouble &a, adouble &&b) {
+  return fmax(a, std::move(b));
+}
+
+inline adouble max(adouble &&a, adouble &&b) { return fmax(std::move(a), b); }
+inline adouble max(const double coval, const adouble &a) {
+  return fmax(coval, a);
+}
+inline adouble max(const double coval, adouble &&a) {
+  return fmax(coval, std::move(a));
+}
+inline adouble max(const adouble &a, const double coval) {
+  return fmax(a, coval);
+}
+inline adouble max(adouble &&a, const double coval) {
+  return fmax(std::move(a), coval);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1070,6 +1113,7 @@ inline adouble atanh(const pdouble &p) { return atanh(adouble(p)); }
 inline adouble erf(const pdouble &p) { return erf(adouble(p)); }
 inline adouble erfc(const pdouble &p) { return erfc(adouble(p)); }
 inline adouble fabs(const pdouble &p) { return fabs(adouble(p)); }
+inline adouble abs(const pdouble &p) { return fabs(adouble(p)); }
 inline adouble ceil(const pdouble &p) { return ceil(adouble(p)); }
 inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
 
@@ -1090,6 +1134,17 @@ inline adouble fmin(const double coval, const pdouble &p) {
 inline adouble fmin(const pdouble &p, const double coval) {
   return fmin(adouble(p), coval);
 }
+
+inline adouble min(const adouble &a, const pdouble &p) { return fmin(a, p); }
+inline adouble min(const pdouble &p, const adouble &a) { return fmin(p, a); }
+inline adouble min(const pdouble &p, const pdouble &q) { return fmin(p, q); }
+inline adouble min(const double coval, const pdouble &p) {
+  return fmin(coval, p);
+}
+inline adouble min(const pdouble &p, const double coval) {
+  return fmin(p, coval);
+}
+
 /*--------------------------------------------------------------------------*/
 inline adouble fmax(const adouble &a, const pdouble &p) {
   return fmax(a, adouble(p));
@@ -1105,6 +1160,16 @@ inline adouble fmax(const double coval, const pdouble &p) {
 }
 inline adouble fmax(const pdouble &p, const double coval) {
   return fmax(adouble(p), coval);
+}
+
+inline adouble max(const adouble &a, const pdouble &p) { return fmax(a, p); }
+inline adouble max(const pdouble &p, const adouble &a) { return fmax(p, a); }
+inline adouble max(const pdouble &p, const pdouble &q) { return fmax(p, q); }
+inline adouble max(const double coval, const pdouble &p) {
+  return fmax(coval, p);
+}
+inline adouble max(const pdouble &p, const double coval) {
+  return fmax(p, coval);
 }
 
 /*--------------------------------------------------------------------------*/
