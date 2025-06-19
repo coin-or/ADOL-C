@@ -2486,6 +2486,124 @@ BOOST_AUTO_TEST_CASE(fabsOperator_FOS_Reverse) {
   BOOST_TEST(z[0] == std::fabs(pd_in[0]), tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_Forward) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * abs(p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = indep[0] * abs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  BOOST_TEST(out[0] == ad_in[0] * std::abs(pd_in[0]), tt::tolerance(tol));
+
+  zos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::abs(pd_in[0]), tt::tolerance(tol));
+
+  pd_in[0] = 0.3;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::abs(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * abs(p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = indep[0] * abs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::abs(pd_in[0]);
+  double expected_derivative = std::abs(pd_in[0]);
+
+  // Forward mode computation
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.3;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == ad_in[0] * std::abs(pd_in[0]), tt::tolerance(tol));
+  BOOST_TEST(Y[0] == std::abs(pd_in[0]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{1.5};
+  std::vector<double> pd_in{0.9};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // abs
+  trace_on(tapeId5, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = indep[0] * abs(pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::abs(pd_in[0]);
+
+  // Reverse mode computation
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update pdouble parameter
+  pd_in[0] = 0.2;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0] * std::abs(pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == std::abs(pd_in[0]), tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(ceilOperator_ZOS_Forward) {
 
   setCurrentTape(tapeId5);
@@ -3127,6 +3245,411 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   BOOST_TEST(z[0] == 0.0, tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0, 3.2};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(p1, p2)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  pdouble pd2 = pdouble(pd_in[1]);
+  adouble dep = indep[0] * max(pd1, pd2);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::max(pd_in[0], pd_in[1]);
+
+  std::vector<double> x{3.2};
+  std::vector<double> y(dim_out);
+
+  zos_forward(tapeId5, dim_out, dim_in, 0, x.data(), y.data());
+
+  BOOST_TEST(y[0] == expected_value, tt::tolerance(tol));
+
+  // Update parameters
+  pd_in[0] = 3.7;
+  pd_in[1] = 3.5;
+  currentTape().set_param_vec(tapeId5, 2, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 0, x.data(), y.data());
+
+  BOOST_TEST(y[0] == ad_in[0] * std::max(pd_in[0], pd_in[1]),
+             tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0, 3.2};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(p1, p2)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  pdouble pd2 = pdouble(pd_in[1]);
+  adouble dep = indep[0] * max(pd1, pd2);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = ad_in[0] * std::max(pd_in[0], pd_in[1]);
+  double expected_derivative = std::max(pd_in[0], pd_in[1]);
+
+  std::vector<double> X{3.2};
+  std::vector<double> Xd{1.0};
+  std::vector<double> Y(dim_out);
+  std::vector<double> Yd(dim_out);
+
+  // Test partial derivative w.r.t. first parameter
+  fos_forward(tapeId5, dim_out, dim_in, 0, X.data(), Xd.data(), Y.data(),
+              Yd.data());
+
+  BOOST_TEST(Y[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Yd[0] == expected_derivative, tt::tolerance(tol));
+
+  // Test derivative with updated parameter values
+  pd_in[0] = 3.7;
+  pd_in[1] = 3.5;
+  currentTape().set_param_vec(tapeId5, 2, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, X.data(), Xd.data(), Y.data(),
+              Yd.data());
+
+  expected_value = ad_in[0] * std::max(pd_in[0], pd_in[1]);
+  expected_derivative = std::max(pd_in[0], pd_in[1]);
+
+  BOOST_TEST(Y[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Yd[0] == expected_derivative, tt::tolerance(tol));
+
+  // Test when p1 == p2
+  std::vector<double> X1{2.5};
+  std::vector<double> Xd1{1.3};
+  std::vector<double> Y1(dim_out);
+  std::vector<double> Yd1(dim_out);
+
+  pd_in[0] = 2.5;
+  pd_in[1] = 2.5;
+  currentTape().set_param_vec(tapeId5, 2, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, X1.data(), Xd1.data(), Y1.data(),
+              Yd1.data());
+
+  BOOST_TEST(Y1[0] == X1[0] * std::max(pd_in[0], pd_in[1]), tt::tolerance(tol));
+  BOOST_TEST(Yd1[0] == Xd1[0] * std::max(pd_in[0], pd_in[1]),
+             tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0, 3.2};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // a * max(p1, p2)
+  trace_on(tapeId5, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  pdouble pd2 = pdouble(pd_in[1]);
+  adouble dep = indep[0] * max(pd1, pd2);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = std::max(pd_in[0], pd_in[1]);
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  // Compute derivatives using reverse mode
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update parameter values and recompute derivatives
+  pd_in[0] = 2.5;
+  pd_in[1] = 2.5;
+  currentTape().set_param_vec(tapeId5, 2, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == std::max(pd_in[0], pd_in[1]), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(a, p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(pd1, indep[0]);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::max(pd_in[0], ad_in[0]);
+
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+
+  std::vector<double> y(dim_out);
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+
+  // Update parameter values and recompute derivatives
+  pd_in[0] = 2.5;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+  expected = std::max(pd_in[0], ad_in[0]);
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(a, p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(pd1, indep[0]);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::max(pd_in[0], ad_in[0]);
+  double expected_derivative = (pd_in[0] > ad_in[0]) ? 0.0 : 1.0;
+
+  std::vector<double> xd(dim_in, 1.0);
+  std::vector<double> yd(dim_out);
+
+  fos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), xd.data(), out.data(),
+              yd.data());
+
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+  BOOST_TEST(yd[0] == expected_derivative, tt::tolerance(tol));
+
+  // Test case where a < b
+  pd_in[0] = 2.0;
+  ad_in[0] = 2.5;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  expected = std::max(pd_in[0], ad_in[0]);
+  expected_derivative = (pd_in[0] > ad_in[0]) ? 0.0 : 1.0;
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), xd.data(), out.data(),
+              yd.data());
+
+  BOOST_TEST(out[0] == 2.5, tt::tolerance(tol));
+  BOOST_TEST(yd[0] == 1.0, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{4.0};
+  std::vector<double> ad_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(a, p)
+  trace_on(tapeId5, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(pd1, indep[0]);
+
+  dep >>= out[0];
+  trace_off();
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  // Compute output using ZOS forward mode first
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+
+  // Compute derivatives using reverse mode
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  double expected_derivative = (pd_in[0] > ad_in[0]) ? 0.0 : 1.0;
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update parameters for case where a == b
+  pd_in[0] = 0.5;
+  ad_in[0] = 2.5;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+  expected_derivative = (pd_in[0] > ad_in[0]) ? 0.0 : 1.0;
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == 1.0, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_3) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{3.2};
+  std::vector<double> ad_in{4.0};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(p, b)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(indep[0], pd1);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::max(ad_in[0], pd_in[0]);
+
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+
+  std::vector<double> y(dim_out);
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+
+  pd_in[0] = 4.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+
+  BOOST_TEST(y[0] == pd_in[0], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{3.2};
+  std::vector<double> ad_in{4.0};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(p, b)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(indep[0], pd1);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::max(ad_in[0], pd_in[0]);
+  double expected_derivative = (ad_in[0] > pd_in[0]) ? 1.0 : 0.0;
+
+  std::vector<double> xd(dim_in, 1.0);
+  std::vector<double> yd(dim_out);
+
+  fos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), xd.data(), out.data(),
+              yd.data());
+
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+  BOOST_TEST(yd[0] == expected_derivative, tt::tolerance(tol));
+
+  // Test case where a == b
+  pd_in[0] = 4.5;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), xd.data(), out.data(),
+              yd.data());
+
+  BOOST_TEST(out[0] == 4.5, tt::tolerance(tol));
+  BOOST_TEST(yd[0] == 0.0, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> pd_in{3.2};
+  std::vector<double> ad_in{4.0};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // max(p, b)
+  trace_on(tapeId5, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd1 = pdouble(pd_in[0]);
+  adouble dep = max(indep[0], pd1);
+
+  dep >>= out[0];
+  trace_off();
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  // Compute output using ZOS forward mode first
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+
+  // Compute derivatives using reverse mode
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  double expected_derivative = (ad_in[0] > pd_in[0]) ? 1.0 : 0.0;
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // Update parameters for case where a < b
+  pd_in[0] = 4.5;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+
+  BOOST_TEST(z[0] == 0.0, tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
 
   setCurrentTape(tapeId5);
@@ -3411,4 +3934,290 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
   BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
 }
+
+BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // fmin(a, p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::min(ad_in[0], pd_in[0]);
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+
+  std::vector<double> y(dim_out);
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+
+  // Update parameter value and a < p
+  pd_in[0] = 4.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+  expected = std::min(ad_in[0], pd_in[0]);
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // fmin(a, p)
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected_value = std::min(ad_in[0], pd_in[0]);
+  double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // a < p
+  pd_in[0] = 6.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+  expected_value = std::min(ad_in[0], pd_in[0]);
+  expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+  BOOST_TEST(out[0] == expected_value, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  // fmin(a, p)
+  trace_on(tapeId5, 1);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // a < p
+  pd_in[0] = 7.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == std::min(ad_in[0], pd_in[0]), tt::tolerance(tol));
+
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::min(ad_in[0], pd_in[0]);
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+
+  std::vector<double> y(dim_out);
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+
+  // a < p
+  pd_in[0] = 7.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), y.data());
+  expected = std::min(ad_in[0], pd_in[0]);
+  BOOST_TEST(y[0] == expected, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::min(ad_in[0], pd_in[0]);
+  double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+
+  // a < p
+  pd_in[0] = 7.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  fos_forward(tapeId5, dim_out, dim_in, 0, ad_in.data(), X.data(), out.data(),
+              Y.data());
+  expected = std::min(ad_in[0], pd_in[0]);
+  expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  std::vector<double> ad_in{4.0};
+  std::vector<double> pd_in{3.2};
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  trace_on(tapeId5);
+  indep[0] <<= ad_in[0];
+  pdouble pd = pdouble(pd_in[0]);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::min(ad_in[0], pd_in[0]);
+  double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+
+  // a < p
+  pd_in[0] = 7.1;
+  currentTape().set_param_vec(tapeId5, 1, pd_in.data());
+
+  zos_forward(tapeId5, dim_out, dim_in, 1, ad_in.data(), out.data());
+  BOOST_TEST(out[0] == ad_in[0], tt::tolerance(tol));
+
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  double a = 2.5, b = 2.5;
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  trace_on(tapeId5);
+  indep[0] <<= a;
+
+  pdouble pd = pdouble(b);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected = std::min(a, b); // should be 2.5
+  double expected_derivative = 0.0;
+
+  std::vector<double> X{1.0};
+  std::vector<double> Y(dim_out);
+  fos_forward(tapeId5, dim_out, dim_in, 0, &a, X.data(), out.data(), Y.data());
+  BOOST_TEST(out[0] == expected, tt::tolerance(tol));
+  BOOST_TEST(Y[0] == expected_derivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
+
+  setCurrentTape(tapeId5);
+  const size_t dim_out = 1;
+  const size_t dim_in = 1;
+  double a = 2.5, b = 2.5;
+  std::vector<adouble> indep(dim_in);
+  std::vector<double> out(dim_out);
+
+  trace_on(tapeId5, 1);
+  indep[0] <<= a;
+
+  pdouble pd = pdouble(b);
+  adouble dep = min(indep[0], pd);
+  dep >>= out[0];
+  trace_off();
+
+  double expected_derivative = 0.5;
+
+  std::vector<double> u(dim_out, 1.0);
+  std::vector<double> z(dim_in);
+  zos_forward(tapeId5, dim_out, dim_in, 1, &a, out.data());
+  fos_reverse(tapeId5, dim_out, dim_in, u.data(), z.data());
+  BOOST_TEST(z[0] == expected_derivative, tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

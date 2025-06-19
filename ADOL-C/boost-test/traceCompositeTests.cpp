@@ -1171,6 +1171,71 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Forward) {
   myfree2(yd);
 }
 
+/* Tested function: max(x1*pow(x3, 2), x2*pow(x3, 2))*exp(x3)
+ * Gradient vector: (
+ *                    pow(x3, 2)*exp(x3),
+ *                    0.0,
+ *                    2.0*x1*x3*exp(x3) + x1*pow(x3, 2)*exp(x3)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeMaxOperator_FOV_Forward) {
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+
+  trace_on(tapeId4);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = max(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::pow(x3, 2) * std::exp(x3);
+  double x2Derivative = 0.0;
+  double x3Derivative =
+      2.0 * x1 * x3 * std::exp(x3) + x1 * std::pow(x3, 2) * std::exp(x3);
+  x1 = std::max(x1 * std::pow(x3, 2), x2 * std::pow(x3, 2)) * std::exp(x3);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2, and x3. */
+  x[0] = 2.31;
+  x[1] = 1.32;
+  x[2] = 3.21;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(tapeId4, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
   const short tapeId4 = 1;
@@ -1187,6 +1252,54 @@ BOOST_AUTO_TEST_CASE(CompositeFmaxOperator_FOV_Reverse) {
   ax3 <<= x3;
 
   ax1 = fmax(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = std::pow(x3, 2) * std::exp(x3);
+  double x2Derivative = 0.0;
+  double x3Derivative =
+      2.0 * x1 * x3 * std::exp(x3) + x1 * std::pow(x3, 2) * std::exp(x3);
+
+  double **u = myalloc2(3, 1);
+  double **z = myalloc2(3, 3);
+
+  u[0][0] = 1.;
+  u[1][0] = std::sqrt(5.);
+  u[2][0] = -std::sqrt(10.);
+
+  fov_reverse(tapeId4, 1, 3, 3, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == std::sqrt(5.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == std::sqrt(5.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == std::sqrt(5.) * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == -std::sqrt(10.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == -std::sqrt(10.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == -std::sqrt(10.) * x3Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(CompositeMaxOperator_FOV_Reverse) {
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+
+  trace_on(tapeId4, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = max(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
   trace_off();
@@ -1284,6 +1397,71 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Forward) {
   myfree2(yd);
 }
 
+/* Tested function: fmin(x1*pow(x3, 2), x2*pow(x3, 2))*exp(x3)
+ * Gradient vector: (
+ *                    0.0,
+ *                    pow(x3, 2)*exp(x3),
+ *                    2.0*x2*x3*exp(x3) + x2*pow(x3, 2)*exp(x3)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeMinOperator_FOV_Forward) {
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+
+  trace_on(tapeId4);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = min(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 0.0;
+  double x2Derivative = std::pow(x3, 2) * std::exp(x3);
+  double x3Derivative =
+      2.0 * x2 * x3 * std::exp(x3) + x2 * std::pow(x3, 2) * std::exp(x3);
+  x1 = std::min(x1 * std::pow(x3, 2), x2 * std::pow(x3, 2)) * std::exp(x3);
+
+  double *x = myalloc1(3);
+  double **xd = myalloc2(3, 3);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 3);
+
+  /* Test partial derivative wrt x1, x2, and x3. */
+  x[0] = 2.31;
+  x[1] = 1.32;
+  x[2] = 3.21;
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(tapeId4, 1, 3, 3, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
   double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
   const short tapeId4 = 1;
@@ -1300,6 +1478,54 @@ BOOST_AUTO_TEST_CASE(CompositeFminOperator_FOV_Reverse) {
   ax3 <<= x3;
 
   ax1 = fmin(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative = 0.0;
+  double x2Derivative = std::pow(x3, 2) * std::exp(x3);
+  double x3Derivative =
+      2.0 * x2 * x3 * std::exp(x3) + x2 * std::pow(x3, 2) * std::exp(x3);
+
+  double **u = myalloc2(3, 1);
+  double **z = myalloc2(3, 3);
+
+  u[0][0] = 1.;
+  u[1][0] = std::sqrt(6.);
+  u[2][0] = -std::sqrt(3.);
+
+  fov_reverse(tapeId4, 1, 3, 3, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == std::sqrt(6.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == std::sqrt(6.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == std::sqrt(6.) * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == -std::sqrt(3.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == -std::sqrt(3.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == -std::sqrt(3.) * x3Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(CompositeMinOperator_FOV_Reverse) {
+  double x1 = 2.31, x2 = 1.32, x3 = 3.21, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+
+  trace_on(tapeId4, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+
+  ax1 = min(ax1 * pow(ax3, 2), ax2 * pow(ax3, 2)) * exp(ax3);
 
   ax1 >>= out;
   trace_off();
@@ -1427,6 +1653,101 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabs_FOV_Forward) {
   myfree2(yd);
 }
 
+/* Tested function: erf(fabs(x1 - x2)*sinh(x3 - x4))*sin(x5)
+ * Gradient vector: (
+ *                    -2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * sinh(x3 - x4),
+ *                    2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * sinh(x3 - x4),
+ *                    2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * fabs(x1 - x2)
+ *                    * cosh(x3 - x4),
+ *                    -2./sqrt(acos(-1.)) * exp(-pow(fabs(x1 - x2)
+ *                    * sinh(x3 - x4), 2)) * sin(x5) * fabs(x1 - x2)
+ *                    * cosh(x3 - x4),
+ *                    erf(fabs(x1 - x2)*sinh(x3 - x4))*cos(x5)
+ *                  )
+ */
+BOOST_AUTO_TEST_CASE(CompositeErfAbs_FOV_Forward) {
+  double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+  adouble ax4;
+  adouble ax5;
+
+  trace_on(tapeId4);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = erf(abs(ax1 - ax2) * sinh(ax3 - ax4)) * sin(ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative =
+      -2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::sinh(x3 - x4);
+  double x2Derivative =
+      2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::sinh(x3 - x4);
+  double x3Derivative =
+      2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::abs(x1 - x2) * std::cosh(x3 - x4);
+  double x4Derivative =
+      -2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::abs(x1 - x2) * std::cosh(x3 - x4);
+  double x5Derivative =
+      std::erf(std::abs(x1 - x2) * std::sinh(x3 - x4)) * std::cos(x5);
+  x1 = std::erf(std::abs(x1 - x2) * std::sinh(x3 - x4)) * std::sin(x5);
+
+  double *x = myalloc1(5);
+  double **xd = myalloc2(5, 5);
+  double *y = myalloc1(1);
+  double **yd = myalloc2(1, 5);
+
+  /* Test partial derivative wrt x1, x2, x3, x4 and x5. */
+  x[0] = 4.56;
+  x[1] = 5.46;
+  x[2] = 4.65;
+  x[3] = 6.54;
+  x[4] = 6.45;
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 5; j++) {
+      if (i == j)
+        xd[i][j] = 1.;
+      else
+        xd[i][j] = 0.;
+    }
+  }
+
+  fov_forward(tapeId4, 1, 5, 5, x, xd, y, yd);
+
+  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(yd[0][4] == x5Derivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree2(xd);
+  myfree1(y);
+  myfree2(yd);
+}
+
 BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
   double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
   const short tapeId4 = 1;
@@ -1469,6 +1790,90 @@ BOOST_AUTO_TEST_CASE(CompositeErfFabsOperator_FOV_Reverse) {
       std::sin(x5) * std::fabs(x1 - x2) * std::cosh(x3 - x4);
   double x5Derivative =
       std::erf(std::fabs(x1 - x2) * std::sinh(x3 - x4)) * std::cos(x5);
+
+  double **u = myalloc2(5, 1);
+  double **z = myalloc2(5, 5);
+
+  u[0][0] = 1.;
+  u[1][0] = std::sqrt(5.);
+  u[2][0] = -std::sqrt(2.);
+  u[3][0] = 7.;
+  u[4][0] = -9.;
+
+  fov_reverse(tapeId4, 1, 5, 5, u, z);
+
+  BOOST_TEST(z[0][0] == x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][1] == x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][2] == x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][3] == x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[0][4] == x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][0] == std::sqrt(5.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][1] == std::sqrt(5.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][2] == std::sqrt(5.) * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][3] == std::sqrt(5.) * x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[1][4] == std::sqrt(5.) * x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][0] == -std::sqrt(2.) * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][1] == -std::sqrt(2.) * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][2] == -std::sqrt(2.) * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][3] == -std::sqrt(2.) * x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[2][4] == -std::sqrt(2.) * x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][0] == 7. * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][1] == 7. * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][2] == 7. * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][3] == 7. * x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[3][4] == 7. * x5Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][0] == -9. * x1Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][1] == -9. * x2Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][2] == -9. * x3Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][3] == -9. * x4Derivative, tt::tolerance(tol));
+  BOOST_TEST(z[4][4] == -9. * x5Derivative, tt::tolerance(tol));
+
+  myfree2(u);
+  myfree2(z);
+}
+
+BOOST_AUTO_TEST_CASE(CompositeErfAbsOperator_FOV_Reverse) {
+  double x1 = 4.56, x2 = 5.46, x3 = 4.65, x4 = 6.54, x5 = 6.45, out;
+  const short tapeId4 = 1;
+
+  setCurrentTape(tapeId4);
+
+  adouble ax1;
+  adouble ax2;
+  adouble ax3;
+  adouble ax4;
+  adouble ax5;
+
+  trace_on(tapeId4, 1);
+  ax1 <<= x1;
+  ax2 <<= x2;
+  ax3 <<= x3;
+  ax4 <<= x4;
+  ax5 <<= x5;
+
+  ax1 = erf(abs(ax1 - ax2) * sinh(ax3 - ax4)) * sin(ax5);
+
+  ax1 >>= out;
+  trace_off();
+
+  double x1Derivative =
+      -2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::sinh(x3 - x4);
+  double x2Derivative =
+      2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::sinh(x3 - x4);
+  double x3Derivative =
+      2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::abs(x1 - x2) * std::cosh(x3 - x4);
+  double x4Derivative =
+      -2. / std::sqrt(std::acos(-1.)) *
+      std::exp(-std::pow(std::abs(x1 - x2) * std::sinh(x3 - x4), 2)) *
+      std::sin(x5) * std::abs(x1 - x2) * std::cosh(x3 - x4);
+  double x5Derivative =
+      std::erf(std::abs(x1 - x2) * std::sinh(x3 - x4)) * std::cos(x5);
 
   double **u = myalloc2(5, 1);
   double **z = myalloc2(5, 5);

@@ -3606,6 +3606,222 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   myfree1(z);
 }
 
+BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_Forward) {
+  double a = 1.4, b = -5., c = 0., aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::abs(a);
+  b = std::abs(b);
+  c = std::abs(c);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *x2 = myalloc1(1);
+  double *y2 = myalloc1(1);
+  double *x3 = myalloc1(1);
+  double *y3 = myalloc1(1);
+
+  *x1 = 1.4;
+  *x2 = -5.;
+  *x3 = 0.;
+
+  zos_forward(1, 1, 1, 0, x1, y1);
+  zos_forward(1, 1, 1, 0, x2, y2);
+  zos_forward(1, 1, 1, 0, x3, y3);
+
+  BOOST_TEST(*y1 == a, tt::tolerance(tol));
+  BOOST_TEST(*y2 == b, tt::tolerance(tol));
+  BOOST_TEST(*y3 == c, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(y1);
+  myfree1(x2);
+  myfree1(y2);
+  myfree1(x3);
+  myfree1(y3);
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
+  double a = 1.4, b = -5., c = 0., aout, bout, cout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = -1.;
+  a = std::abs(a);
+  b = std::abs(b);
+
+  double *x1 = myalloc1(1);
+  double *xd1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+  double *x2 = myalloc1(1);
+  double *xd2 = myalloc1(1);
+  double *y2 = myalloc1(1);
+  double *yd2 = myalloc1(1);
+
+  *x1 = 1.4;
+  *xd1 = 1.;
+  *x2 = -5.;
+  *xd2 = 1.;
+
+  fos_forward(1, 1, 1, 0, x1, xd1, y1, yd1);
+  fos_forward(1, 1, 1, 0, x2, xd2, y2, yd2);
+
+  BOOST_TEST(*y1 == a, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*y2 == b, tt::tolerance(tol));
+  BOOST_TEST(*yd2 == bDerivative, tt::tolerance(tol));
+
+  double *x3 = myalloc1(1);
+  double *xd3_1 = myalloc1(1);
+  double *xd3_2 = myalloc1(1);
+  double *y3 = myalloc1(1);
+  double *yd3 = myalloc1(1);
+
+  *x3 = 0.0;
+  *xd3_1 = 2.5;
+  *xd3_2 = -3.5;
+
+  fos_forward(1, 1, 1, 0, x3, xd3_1, y3, yd3);
+
+  BOOST_TEST(*y3 == 0.0, tt::tolerance(tol));
+  BOOST_TEST(*yd3 == 2.5, tt::tolerance(tol));
+
+  fos_forward(1, 1, 1, 0, x3, xd3_2, y3, yd3);
+
+  BOOST_TEST(*y3 == 0.0, tt::tolerance(tol));
+  BOOST_TEST(*yd3 == 3.5, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+  myfree1(x2);
+  myfree1(xd2);
+  myfree1(y2);
+  myfree1(yd2);
+  myfree1(x3);
+  myfree1(xd3_1);
+  myfree1(xd3_2);
+  myfree1(y3);
+  myfree1(yd3);
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Pos) {
+  double a = 1.4, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Neg) {
+  double a = -5., aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = -1.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
+BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Zero) {
+  double a = 0., aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+
+  ad = abs(ad);
+
+  ad >>= aout;
+  trace_off();
+
+  /* In reverse mode, the derivative at zero is calculatad to be zero. */
+  double aDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+}
+
 BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
   double a = 3.573, aout;
 
@@ -4316,6 +4532,518 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   myfree1(z1);
 }
 
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  a = std::max(a, b);
+
+  BOOST_TEST(out == a, tt::tolerance(tol));
+
+  double *x = myalloc1(2);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+  *(x + 1) = 3.2;
+
+  zos_forward(1, 1, 2, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+  a = std::max(a, b);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  /* Test partial derivative wrt a. */
+  *x = 4.;
+  *(x + 1) = 3.2;
+  *xd = 1.;
+  *(xd + 1) = 0.;
+
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  /* Test partial derivative wrt b. */
+  *xd = 0.;
+  *(xd + 1) = 1.;
+
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative value for a = b. */
+  double *x1 = myalloc1(2);
+  double *xd1 = myalloc1(2);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *(x1 + 1) = 2.5;
+  *xd1 = 1.3;
+  *(xd1 + 1) = 3.7;
+
+  fos_forward(1, 1, 2, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == 2.5, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == 3.7, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = max(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 1.;
+  double bDerivative = 0.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(2);
+
+  *u = 1.;
+
+  fos_reverse(tapeId1, 1, 2, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test reverse derivative value for a = b. */
+  double a1 = 2.5, b1 = 2.5, out1;
+
+  adouble ad1;
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
+  ad1 <<= a1;
+  bd1 <<= b1;
+
+  ad1 = max(ad1, bd1);
+
+  ad1 >>= out1;
+  trace_off();
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(2);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 2, u1, z1);
+
+  BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
+  BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
+  adouble bd;
+
+  trace_on(tapeId1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  b = std::max(a, b);
+
+  BOOST_TEST(bout == b, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 3.2;
+
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
+  adouble bd;
+
+  trace_on(tapeId1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  /* Derivative value is 0.0, as the active variable is smaller than the passive
+   * one. */
+  double bDerivative = 0.;
+  b = std::max(a, b);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 3.2;
+  *xd = 1.;
+
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, bout1;
+
+  adouble bd1;
+
+  trace_on(tapeId1);
+  bd1 <<= b1;
+
+  bd1 = max(a1, bd1);
+
+  bd1 >>= bout1;
+  trace_off();
+
+  double b1Derivative = 0.;
+  b1 = std::max(a1, b1);
+
+  double *x1 = myalloc1(1);
+  double *xd1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *xd1 = -1.3;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == b1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
+
+  *xd1 = 3.7;
+  b1Derivative = 3.7;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == b1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
+  double a = 4., b = 3.2, bout;
+  short const tapeId1 = 1;
+
+  adouble bd;
+
+  trace_on(tapeId1, 1);
+  bd <<= b;
+
+  bd = max(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 0.;
+  b = std::max(a, b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, bout1;
+
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
+  bd1 <<= b1;
+
+  bd1 = max(a1, bd1);
+
+  bd1 >>= bout1;
+  trace_off();
+
+  double b1Derivative = 0.5;
+  b1 = std::max(a1, b1);
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(1);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 1, u1, z1);
+
+  BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::max(a, b);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  /* Derivative value is 1.0, as the active variable is grater than the passive
+   * one. */
+  double aDerivative = 1.;
+  a = std::max(a, b);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 4.;
+  *xd = 1.;
+
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, aout1;
+
+  adouble ad1;
+
+  trace_on(tapeId1);
+  ad1 <<= a1;
+
+  ad1 = max(ad1, b1);
+
+  ad1 >>= aout1;
+  trace_off();
+
+  double a1Derivative = 0.;
+  a1 = std::max(a1, b1);
+
+  double *x1 = myalloc1(1);
+  double *xd1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *xd1 = -1.3;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == a1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
+
+  *xd1 = 3.7;
+  a1Derivative = 3.7;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == a1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+
+  ad = max(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 1.;
+  a = std::max(a, b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, aout1;
+
+  adouble ad1;
+
+  trace_on(tapeId1, 1);
+  ad1 <<= a1;
+
+  ad1 = max(ad1, b1);
+
+  ad1 >>= aout1;
+  trace_off();
+
+  double a1Derivative = 0.5;
+  a1 = std::max(a1, b1);
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(1);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 1, u1, z1);
+
+  BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
   double a = 4., b = 3.2, out;
 
@@ -4815,6 +5543,519 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
 
   double a1Derivative = 0.5;
   a1 = std::fmin(a1, b1);
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(1);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 1, u1, z1);
+
+  BOOST_TEST(*z1 == a1Derivative, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  a = std::min(a, b);
+
+  BOOST_TEST(out == a, tt::tolerance(tol));
+
+  double *x = myalloc1(2);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+  *(x + 1) = 3.2;
+
+  zos_forward(1, 1, 2, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 0.;
+  double bDerivative = 1.;
+  a = std::min(a, b);
+
+  double *x = myalloc1(2);
+  double *xd = myalloc1(2);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  /* Test partial derivative wrt a. */
+  *x = 4.;
+  *(x + 1) = 3.2;
+  *xd = 1.;
+  *(xd + 1) = 0.;
+
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  /* Test partial derivative wrt b. */
+  *xd = 0.;
+  *(xd + 1) = 1.;
+
+  fos_forward(1, 1, 2, 0, x, xd, y, yd);
+
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative value for a = b. */
+  double *x1 = myalloc1(2);
+  double *xd1 = myalloc1(2);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *(x1 + 1) = 2.5;
+  *xd1 = 1.3;
+  *(xd1 + 1) = 3.7;
+
+  fos_forward(1, 1, 2, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == 2.5, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == 1.3, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
+  double a = 4., b = 3.2, out;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+  adouble bd;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+  bd <<= b;
+
+  ad = min(ad, bd);
+
+  ad >>= out;
+  trace_off();
+
+  double aDerivative = 0.;
+  double bDerivative = 1.;
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(2);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 2, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test reverse derivative value for a = b. */
+  double a1 = 2.5, b1 = 2.5, out1;
+
+  adouble ad1;
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
+  ad1 <<= a1;
+  bd1 <<= b1;
+
+  ad1 = min(ad1, bd1);
+
+  ad1 >>= out1;
+  trace_off();
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(2);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 2, u1, z1);
+
+  BOOST_TEST(*z1 == 0.5, tt::tolerance(tol));
+  BOOST_TEST(*(z1 + 1) == 0.5, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
+  adouble bd;
+
+  trace_on(tapeId1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  b = std::min(a, b);
+
+  BOOST_TEST(bout == b, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 3.2;
+
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
+  adouble bd;
+
+  trace_on(tapeId1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  /* Derivative value is 1.0, as the active variable is smaller than the passive
+   * one. */
+  double bDerivative = 1.;
+  b = std::min(a, b);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 3.2;
+  *xd = 1.;
+
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == b, tt::tolerance(tol));
+  BOOST_TEST(*yd == bDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, bout1;
+
+  adouble bd1;
+
+  trace_on(tapeId1);
+  bd1 <<= b1;
+
+  bd1 = min(a1, bd1);
+
+  bd1 >>= bout1;
+  trace_off();
+
+  double b1Derivative = -1.3;
+  b1 = std::min(a1, b1);
+
+  double *x1 = myalloc1(1);
+  double *xd1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *xd1 = -1.3;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == b1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
+
+  *xd1 = 3.7;
+  b1Derivative = 0.;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == b1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == b1Derivative, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
+  double a = 4., b = 3.2, bout;
+
+  setCurrentTape(tapeId1);
+
+  adouble bd;
+
+  trace_on(tapeId1, 1);
+  bd <<= b;
+
+  bd = min(a, bd);
+
+  bd >>= bout;
+  trace_off();
+
+  double bDerivative = 1.;
+  b = std::min(a, b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == bDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, bout1;
+
+  adouble bd1;
+
+  trace_on(tapeId1, 1);
+  bd1 <<= b1;
+
+  bd1 = min(a1, bd1);
+
+  bd1 >>= bout1;
+  trace_off();
+
+  double b1Derivative = 0.5;
+  b1 = std::min(a1, b1);
+
+  double *u1 = myalloc1(1);
+  double *z1 = myalloc1(1);
+
+  *u1 = 1.;
+
+  fos_reverse(tapeId1, 1, 1, u1, z1);
+
+  BOOST_TEST(*z1 == b1Derivative, tt::tolerance(tol));
+
+  myfree1(u1);
+  myfree1(z1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  a = std::min(a, b);
+
+  BOOST_TEST(aout == a, tt::tolerance(tol));
+
+  double *x = myalloc1(1);
+  double *y = myalloc1(1);
+
+  *x = 4.;
+
+  zos_forward(1, 1, 1, 0, x, y);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(y);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  /* Derivative value is 0.0, as the active variable is grater than the passive
+   * one. */
+  double aDerivative = 0.;
+  a = std::min(a, b);
+
+  double *x = myalloc1(1);
+  double *xd = myalloc1(1);
+  double *y = myalloc1(1);
+  double *yd = myalloc1(1);
+
+  *x = 4.;
+  *xd = 1.;
+
+  fos_forward(1, 1, 1, 0, x, xd, y, yd);
+
+  BOOST_TEST(*y == a, tt::tolerance(tol));
+  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol));
+
+  myfree1(x);
+  myfree1(xd);
+  myfree1(y);
+  myfree1(yd);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, aout1;
+
+  adouble ad1;
+
+  trace_on(tapeId1);
+  ad1 <<= a1;
+
+  ad1 = min(ad1, b1);
+
+  ad1 >>= aout1;
+  trace_off();
+
+  double a1Derivative = -1.3;
+  a1 = std::min(a1, b1);
+
+  double *x1 = myalloc1(1);
+  double *xd1 = myalloc1(1);
+  double *y1 = myalloc1(1);
+  double *yd1 = myalloc1(1);
+
+  *x1 = 2.5;
+  *xd1 = -1.3;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == a1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
+
+  *xd1 = 3.7;
+  a1Derivative = 0.;
+
+  fos_forward(tapeId1, 1, 1, 0, x1, xd1, y1, yd1);
+
+  BOOST_TEST(*y1 == a1, tt::tolerance(tol));
+  BOOST_TEST(*yd1 == a1Derivative, tt::tolerance(tol));
+
+  myfree1(x1);
+  myfree1(xd1);
+  myfree1(y1);
+  myfree1(yd1);
+}
+
+BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
+  double a = 4., b = 3.2, aout;
+
+  setCurrentTape(tapeId1);
+
+  adouble ad;
+
+  trace_on(tapeId1, 1);
+  ad <<= a;
+
+  ad = min(ad, b);
+
+  ad >>= aout;
+  trace_off();
+
+  double aDerivative = 0.;
+  a = std::min(a, b);
+
+  double *u = myalloc1(1);
+  double *z = myalloc1(1);
+
+  *u = 1.;
+
+  fos_reverse(1, 1, 1, u, z);
+
+  BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
+
+  myfree1(u);
+  myfree1(z);
+
+  /* Test derivative calculation for a = b. */
+  double a1 = 2.5, b1 = 2.5, aout1;
+
+  adouble ad1;
+
+  trace_on(tapeId1, 1);
+  ad1 <<= a1;
+
+  ad1 = min(ad1, b1);
+
+  ad1 >>= aout1;
+  trace_off();
+
+  double a1Derivative = 0.5;
+  a1 = std::min(a1, b1);
 
   double *u1 = myalloc1(1);
   double *z1 = myalloc1(1);
