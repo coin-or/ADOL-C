@@ -369,13 +369,13 @@ inline double makeInf() {
   return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
-#define FOR_I_EQ_0_LT_NUMDIR for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)
+#define FOR_I_EQ_0_LT_NUMDIR for (size_t _i = 0; _i < adouble::numDir; ++_i)
 #define FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR                              \
-  for (decltype(adouble::degree) _j = 0; _j < adouble::degree; ++_j)           \
-    for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)
+  for (size_t _j = 0; _j < adouble::degree; ++_j)                              \
+    for (size_t _i = 0; _i < adouble::numDir; ++_i)
 #define FOR_I_EQ_0_LT_NUMDIR_FOR_J_EQ_0_LT_DEGREE                              \
-  for (decltype(adouble::numDir) _i = 0; _i < adouble::numDir; ++_i)                                 \
-    for (decltype(adouble::degree) _j = 0; _j < adouble::degree; ++_j)
+  for (size_t _i = 0; _i < adouble::numDir; ++_i)                              \
+    for (size_t _j = 0; _j < adouble::degree; ++_j)
 #define ADVAL_I adval[_i]
 #define ADV_I adv[_i]
 #define V_I v[_i]
