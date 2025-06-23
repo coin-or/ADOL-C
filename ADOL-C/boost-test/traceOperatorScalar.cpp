@@ -20,9 +20,9 @@ BOOST_AUTO_TEST_SUITE(trace_scalar)
  * for forward derivative evaluation and Operatorname_Operator_FOS_Reverse for
  * reverse mode derivative evaluation.
  *
- * For documentation of a concrete test implementation, check the traceless scalar
- * mode test implementation.  The testing order is consistent with that file
- * as well.
+ * For documentation of a concrete test implementation, check the traceless
+ * scalar mode test implementation.  The testing order is consistent with that
+ * file as well.
  */
 const short tapeId1 = 1;
 struct TapeInitializer {
