@@ -28,6 +28,9 @@ void ValueTape::initTapeInfos_keep() {
   FILE *tay_file = tapeInfos_.tay_file;
   short tapeId = tapeInfos_.tapeId_;
 
+  // keep the stats to later know the number of indeps, etc...
+  auto tmp_stats = std::move(tapeInfos_.stats);
+
   // make sure the destructor will not destroy them
   tapeInfos_.opBuffer = nullptr;
   tapeInfos_.locBuffer = nullptr;
@@ -37,6 +40,7 @@ void ValueTape::initTapeInfos_keep() {
   tapeInfos_.tay_file = nullptr;
 
   tapeInfos_ = TapeInfos();
+  tapeInfos_.stats = std::move(tmp_stats);
 
   tapeInfos_.opBuffer = opBuffer;
   tapeInfos_.locBuffer = locBuffer;
