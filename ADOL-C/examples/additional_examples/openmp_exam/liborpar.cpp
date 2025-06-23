@@ -20,19 +20,13 @@
    again based on code written by Zhao and Glasserman at
    Columbia University  */
 
-using namespace std;
-
 #include <cmath>
 #include <ctime>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "adolc/adolc.h"
-
-#ifdef _OPENMP
-#include <adolc/adolc_openmp.h>
+#include <adolc/adolc.h>
 #include <omp.h>
-#endif
 
 /* calculate path values */
 
@@ -156,10 +150,13 @@ int main() {
   //                                                          //
   //----------------------------------------------------------//
 
-#pragma omp parallel firstprivate(ADOLC_OpenMP_Handler)
+#pragma omp parallel
   {
     // different paths for each thread
     int index = omp_get_thread_num();
+    int init = index * slot;
+    createNewTape(init);
+    setCurrentTape(init);
     int l, k;
     int rv = 0;
 
@@ -168,12 +165,10 @@ int main() {
     La = new adouble[N];
     za = new adouble[Nmat];
 
-    int init = index * slot;
-
     trace_on(init);
-    for (k = 0; k < N; k++)
+    for (auto k = 0; k < N; k++)
       La[k] <<= 0.050000;
-    for (j = 0; j < Nmat; j++)
+    for (auto j = 0; j < Nmat; j++)
       za[j] <<= z[init][j];
 
     path_calc(N, Nmat, delta, La, lambda, za);
@@ -182,6 +177,8 @@ int main() {
     va >>= v[init];
     trace_off(1);
 
+    delete[] La;
+    delete[] za;
     for (l = init; l < init + slot; l++) {
       rv = gradient(init, N + Nmat, xp[l], grad[l]);
     }
