@@ -13,6 +13,8 @@ if(NOT Boost_FOUND)
   message(FATAL_ERROR "Fatal error: Boost (version >= 1.69.0) required.")
 endif()
 
+find_package(OpenMP)
+
 set(SOURCE_FILES
     adouble.cpp
     main.cpp
@@ -27,6 +29,10 @@ set(SOURCE_FILES
     traceSecOrderVector.cpp
     traceFixedPointScalarTests.cpp
     )
+
+if (OPENMP_FOUND)
+  list(APPEND SOURCE_FILES "openmp.cpp")
+endif()
 
 # Add all source files from uni5_for
 file(GLOB UNI5_FOR_FILES "uni5_for/*.cpp")
@@ -46,3 +52,8 @@ target_link_libraries(boost-test-adolc PRIVATE
     adolc
     Boost::system 
     Boost::unit_test_framework)
+
+
+if(OpenMP_FOUND)
+    target_link_libraries(boost-test-adolc PRIVATE OpenMP::OpenMP_CXX)
+endif()
