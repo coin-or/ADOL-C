@@ -724,10 +724,7 @@ int int_reverse_safe(
         *Ares = 0.0;
 #else
       if (tape.in_nested_ctx()) {
-        FOR_0_LE_l_LT_p {
-          ARES_INC = LAGRANGETRANS(l, indexd);
-          LAGRANGETRANS(l, indexd) = 0.0;
-        }
+        FOR_0_LE_l_LT_p { ARES_INC = LAGRANGETRANS(l, indexd); }
       } else {
         FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
       }
