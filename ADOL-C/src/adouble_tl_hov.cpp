@@ -21,6 +21,7 @@
 
 ----------------------------------------------------------------------------*/
 
+#include <adolc/adolcerror.h>
 #include <adolc/adtl_hov.h>
 #include <adolc/dvlparms.h>
 #include <cmath>
@@ -28,9 +29,6 @@
 #include <limits>
 
 using std::cout;
-
-extern "C" void adolc_exit(int errorcode, const char *what,
-                           const char *function, const char *file, int line);
 
 namespace adtl_hov {
 
@@ -68,10 +66,9 @@ istream &operator>>(istream &in, adouble &a) {
     in >> c;
   while (c != '(' && !in.eof());
   in >> num;
-  if (num > adouble::numDir) {
-    cout << "ADOL-C error: to many directions in input\n";
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if (num > adouble::numDir)
+    ADOLCError::fail(ADOLCError::ErrorType::TO_MANY_DIRECTIONS,
+                     CURRENT_LOCATION);
   do
     in >> c;
   while (c != ':' && !in.eof());

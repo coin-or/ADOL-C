@@ -184,14 +184,13 @@
  *--------------------------------------------------------------------*/
 
 #include <adolc/revolve.h>
-#include <adolc/taping_p.h>
 
 #define MAXINT 2147483647
 
 #ifndef _OPENMP
-revolve_nums revolve_numbers;
+revolve_nums rev_num;
 #else
-revolve_nums *revolve_numbers = NULL;
+revolve_nums *rev_num = NULL;
 #endif
 
 /* ************************************************************************* */
@@ -305,48 +304,46 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
   int ds, oldcapo, num, bino1, bino2, bino3, bino4, bino5, bino6;
   /* (*capo,*fine) is the time range currently under consideration */
   /* ch[j] is the number of the state that is stored in checkpoint j */
-  ADOLC_OPENMP_THREAD_NUMBER;
-
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
-  REVOLVE_NUMBERS.commands += 1;
+  revolve_nums &rev_num = get_revolve_numbers();
+  rev_num.commands += 1;
   if ((*check < -1) || (*capo > *fine)) {
     *info = 9;
     return revolve_error;
   }
   if ((*check == -1) && (*capo < *fine)) {
     if (*check == -1)
-      REVOLVE_NUMBERS.turn = 0; /* initialization of turn counter */
-    *REVOLVE_NUMBERS.ch = *capo - 1;
+      rev_num.turn = 0; /* initialization of turn counter */
+    *rev_num.ch = *capo - 1;
   }
   switch (*fine - *capo) {
   case 0: /* reduce capo to previous checkpoint, unless done  */
-    if (*check == -1 || *capo == *REVOLVE_NUMBERS.ch) {
+    if (*check == -1 || *capo == *rev_num.ch) {
       *check -= 1;
       if (*info > 0) {
-        printf(" \n advances: %5d", REVOLVE_NUMBERS.advances);
-        printf(" \n takeshots: %4d", REVOLVE_NUMBERS.takeshots);
-        printf(" \n commands: %5d \n", REVOLVE_NUMBERS.commands);
+        printf(" \n advances: %5d", rev_num.advances);
+        printf(" \n takeshots: %4d", rev_num.takeshots);
+        printf(" \n commands: %5d \n", rev_num.commands);
       }
       return revolve_terminate;
     } else {
-      *capo = REVOLVE_NUMBERS.ch[*check];
-      REVOLVE_NUMBERS.oldfine = *fine;
+      *capo = rev_num.ch[*check];
+      rev_num.oldfine = *fine;
       return revolve_restore;
     }
   case 1: /* (possibly first) combined forward/reverse step */
     *fine -= 1;
-    if (*check >= 0 && REVOLVE_NUMBERS.ch[*check] == *capo)
+    if (*check >= 0 && rev_num.ch[*check] == *capo)
       *check -= 1;
-    if (REVOLVE_NUMBERS.turn == 0) {
-      REVOLVE_NUMBERS.turn = 1;
-      REVOLVE_NUMBERS.oldfine = *fine;
+    if (rev_num.turn == 0) {
+      rev_num.turn = 1;
+      rev_num.oldfine = *fine;
       return revolve_firsturn;
     } else {
-      REVOLVE_NUMBERS.oldfine = *fine;
+      rev_num.oldfine = *fine;
       return revolve_youturn;
     }
   default:
-    if (*check == -1 || REVOLVE_NUMBERS.ch[*check] != *capo) {
+    if (*check == -1 || rev_num.ch[*check] != *capo) {
       *check += 1;
       if (*check >= ADOLC_CHECKUP) {
         *info = 10;
@@ -356,12 +353,12 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
         *info = 11;
         return revolve_error;
       }
-      REVOLVE_NUMBERS.ch[*check] = *capo;
+      rev_num.ch[*check] = *capo;
       if (*check == 0) {
-        REVOLVE_NUMBERS.advances = 0;
-        REVOLVE_NUMBERS.takeshots = 0;
-        REVOLVE_NUMBERS.commands = 1;
-        REVOLVE_NUMBERS.oldsnaps = snaps;
+        rev_num.advances = 0;
+        rev_num.takeshots = 0;
+        rev_num.commands = 1;
+        rev_num.oldsnaps = snaps;
         if (snaps > ADOLC_CHECKUP) {
           *info = 14;
           return revolve_error;
@@ -379,11 +376,11 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
                  ((double)num) / (*fine - *capo));
         }
       }
-      REVOLVE_NUMBERS.takeshots += 1;
-      REVOLVE_NUMBERS.oldfine = *fine;
+      rev_num.takeshots += 1;
+      rev_num.oldfine = *fine;
       return revolve_takeshot;
     } else {
-      if ((REVOLVE_NUMBERS.oldfine < *fine) && (snaps == *check + 1)) {
+      if ((rev_num.oldfine < *fine) && (snaps == *check + 1)) {
         *info = 13;
         return revolve_error;
       }
@@ -393,38 +390,34 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
         *info = 11;
         return revolve_error;
       }
-      REVOLVE_NUMBERS.reps = 0;
-      REVOLVE_NUMBERS.range = 1;
-      while (REVOLVE_NUMBERS.range < *fine - *capo) {
-        REVOLVE_NUMBERS.reps += 1;
-        REVOLVE_NUMBERS.range = REVOLVE_NUMBERS.range *
-                                (REVOLVE_NUMBERS.reps + ds) /
-                                REVOLVE_NUMBERS.reps;
+      rev_num.reps = 0;
+      rev_num.range = 1;
+      while (rev_num.range < *fine - *capo) {
+        rev_num.reps += 1;
+        rev_num.range = rev_num.range * (rev_num.reps + ds) / rev_num.reps;
       }
-      if (REVOLVE_NUMBERS.reps > ADOLC_REPSUP) {
+      if (rev_num.reps > ADOLC_REPSUP) {
         *info = 15;
         return revolve_error;
       }
-      if (snaps != REVOLVE_NUMBERS.oldsnaps) {
+      if (snaps != rev_num.oldsnaps) {
         if (snaps > ADOLC_CHECKUP) {
           *info = 14;
           return revolve_error;
         }
       }
 
-      bino1 = REVOLVE_NUMBERS.range * REVOLVE_NUMBERS.reps /
-              (ds + REVOLVE_NUMBERS.reps);
-      bino2 = (ds > 1) ? bino1 * ds / (ds + REVOLVE_NUMBERS.reps - 1) : 1;
+      bino1 = rev_num.range * rev_num.reps / (ds + rev_num.reps);
+      bino2 = (ds > 1) ? bino1 * ds / (ds + rev_num.reps - 1) : 1;
       if (ds == 1)
         bino3 = 0;
       else
-        bino3 =
-            (ds > 2) ? bino2 * (ds - 1) / (ds + REVOLVE_NUMBERS.reps - 2) : 1;
-      bino4 = bino2 * (REVOLVE_NUMBERS.reps - 1) / ds;
+        bino3 = (ds > 2) ? bino2 * (ds - 1) / (ds + rev_num.reps - 2) : 1;
+      bino4 = bino2 * (rev_num.reps - 1) / ds;
       if (ds < 3)
         bino5 = 0;
       else
-        bino5 = (ds > 3) ? bino3 * (ds - 2) / REVOLVE_NUMBERS.reps : 1;
+        bino5 = (ds > 3) ? bino3 * (ds - 2) / rev_num.reps : 1;
 
       bino6 = 0;
 
@@ -459,7 +452,7 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
        * l^ as small as possible
        *         bino6 = beta(c-1,r) */
 
-      bino6 = bino1 * ds / REVOLVE_NUMBERS.reps;
+      bino6 = bino1 * ds / rev_num.reps;
 
       if (*fine - *capo <= bino1 + bino3)
         *capo += bino4;
@@ -484,8 +477,8 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
 
       if (*capo == oldcapo)
         *capo = oldcapo + 1;
-      REVOLVE_NUMBERS.advances = REVOLVE_NUMBERS.advances + *capo - oldcapo;
-      REVOLVE_NUMBERS.oldfine = *fine;
+      rev_num.advances = rev_num.advances + *capo - oldcapo;
+      rev_num.oldfine = *fine;
       return revolve_advance;
     }
   }

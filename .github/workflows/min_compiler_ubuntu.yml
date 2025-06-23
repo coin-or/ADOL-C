@@ -1,0 +1,79 @@
+name: Build ubuntu-latest with g++11 and clang++-13
+on: 
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+        build_type: [Debug, Release]
+        c_compiler: [gcc-11, clang-13]
+        include:
+          - c_compiler: gcc-11
+            cpp_compiler: g++-11
+
+          - c_compiler: clang-13
+            cpp_compiler: clang++-13
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install CMake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+
+    - name: Install g++-11
+      if: matrix.cpp_compiler == 'g++-11'
+      run: |
+        sudo apt-get update
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install -y g++-11
+
+    - name: Install clang++-13
+      if: matrix.cpp_compiler == 'clang++-13'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang-13 \
+          lld-13 \
+          libc++-13-dev \
+          libc++abi-13-dev
+
+    - name: Set reusable strings
+      id: strings
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure ADOL-C (clang-13)
+      # we have to use libc++ for clang!
+      if: matrix.cpp_compiler == 'clang++-13'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+        -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+        -S ${{ github.workspace }}
+
+    - name: Configure ADOL-C (g++-11)
+      if: matrix.cpp_compiler == 'g++-11'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -S ${{ github.workspace }}
+
+    - name: Build ADOL-C
+      run: >
+        cmake 
+        --build ${{ steps.strings.outputs.build-output-dir }} 
+        --config ${{ matrix.build_type }}

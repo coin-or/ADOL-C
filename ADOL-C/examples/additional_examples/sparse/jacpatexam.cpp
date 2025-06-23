@@ -115,7 +115,7 @@ int main(void) {
   int ret_c = -1, choice;
   int oper, op_buf_size, loc_buf_size, con_buf_size, maxlive, deaths;
   unsigned int depen, indep;
-  size_t tape_stats[STAT_SIZE];
+  size_t tape_stats[TapeInfos::STAT_SIZE];
   unsigned int i, j, minnz, maxnz, nz, nzref, nz_rel;
   double z1, z2, t0, t1, t2, t3, t4, t5, t6 = 0.0, t7 = 0.0;
   char outp, full_jac;
@@ -182,14 +182,14 @@ int main(void) {
     }
 
     tapestats(tag, tape_stats); /* Reading of tape statistics */
-    indep = tape_stats[NUM_INDEPENDENTS];
-    depen = tape_stats[NUM_DEPENDENTS];
-    op_buf_size = tape_stats[OP_BUFFER_SIZE];
-    loc_buf_size = tape_stats[OP_BUFFER_SIZE];
-    con_buf_size = tape_stats[OP_BUFFER_SIZE];
-    oper = tape_stats[NUM_OPERATIONS];
-    deaths = tape_stats[TAY_STACK_SIZE];
-    maxlive = tape_stats[NUM_MAX_LIVES];
+    indep = tape_stats[TapeInfos::NUM_INDEPENDENTS];
+    depen = tape_stats[TapeInfos::NUM_DEPENDENTS];
+    op_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    loc_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    con_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    oper = tape_stats[TapeInfos::NUM_OPERATIONS];
+    deaths = tape_stats[TapeInfos::TAY_STACK_SIZE];
+    maxlive = tape_stats[TapeInfos::NUM_MAX_LIVES];
 
     cout << "\nTape " << tag << ": \n";
     cout << "  independents              " << indep << "\n";
@@ -209,14 +209,14 @@ int main(void) {
     cout << "\nproblem definition in  tape " << tag << "\n";
 
     tapestats(tag, tape_stats);
-    indep = tape_stats[NUM_INDEPENDENTS];
-    depen = tape_stats[NUM_DEPENDENTS];
-    op_buf_size = tape_stats[OP_BUFFER_SIZE];
-    loc_buf_size = tape_stats[OP_BUFFER_SIZE];
-    con_buf_size = tape_stats[OP_BUFFER_SIZE];
-    oper = tape_stats[NUM_OPERATIONS];
-    deaths = tape_stats[TAY_STACK_SIZE];
-    maxlive = tape_stats[NUM_MAX_LIVES];
+    indep = tape_stats[TapeInfos::NUM_INDEPENDENTS];
+    depen = tape_stats[TapeInfos::NUM_DEPENDENTS];
+    op_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    loc_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    con_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
+    oper = tape_stats[TapeInfos::NUM_OPERATIONS];
+    deaths = tape_stats[TapeInfos::TAY_STACK_SIZE];
+    maxlive = tape_stats[TapeInfos::NUM_MAX_LIVES];
 
     cout << "\nTape " << tag << ": \n";
     cout << "  independents              " << indep << "\n";

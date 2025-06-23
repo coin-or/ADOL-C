@@ -14,11 +14,10 @@
 
 ----------------------------------------------------------------------------*/
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
-#include <adolc/taping_p.h>
-
 #include <math.h>
 
 BEGIN_C_DECLS
@@ -44,19 +43,16 @@ int abs_normal(short tag,  /* tape identifier */
                double **L) /* s times s (lowtri) */
 {
 
-  int i, j, s;
+  int i, j;
   double *res;
-  s = get_num_switches(tag);
+  const size_t s = get_num_switches(tag);
 
   /* This check is required because the user is probably allocating his
    * arrays sigma, cz, Z, L, Y, J according to swchk */
-  if (s != swchk) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error: Number of switches passed %d does not "
-            "match the one recorded on tape %d (%d)\n",
-            swchk, tag, s);
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if (s != swchk)
+    ADOLCError::fail(
+        ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
 
   res = (double *)myalloc1(n + s);
 
@@ -160,11 +156,9 @@ int directional_active_gradient(short tag,     /* trace identifier */
   myfree2(grad);
   myfree2(gradu);
 
-  if (done == 0) {
-    fprintf(DIAG_OUT, " NOT ENOUGH DIRECTIONS !!!!\n");
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
-
+  if (done == 0)
+    ADOLCError::fail(ADOLCError::ErrorType::DIRGRAD_NOT_ENOUGH_DIRS,
+                     CURRENT_LOCATION);
   return 0;
 }
 

@@ -17,7 +17,6 @@
 
 #include <adolc/adtb_types.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
 
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/adTool/support.h"
@@ -135,9 +134,9 @@ void ADTOOL_AMPI_pushBcastInfo(void *buf, int count, MPI_Datatype datatype,
       locint end = ((adouble *)((char *)buf + bitCountToLastActive))->loc();
       assert(start + activeVarCount - 1 ==
              end); // buf must have consecutive ascending locations
-      ADOLC_PUT_LOCINT(start);
+      put_loc(start);
     } else {
-      ADOLC_PUT_LOCINT(0); // have to put something
+      put_loc(0); // have to put something
     }
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(datatype);
@@ -178,11 +177,11 @@ void ADTOOL_AMPI_pushReduceInfo(
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     if (count > 0) {
       assert(rbuf);
-      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble *)rbuf, count));
-      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble *)sbuf, count));
+      put_loc(startLocAssertContiguous((adouble *)rbuf, count));
+      put_loc(startLocAssertContiguous((adouble *)sbuf, count));
     } else {
-      ADOLC_PUT_LOCINT(0);
-      ADOLC_PUT_LOCINT(0);
+      put_loc(0);
+      put_loc(0);
     }
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_int(pushResultData);
@@ -245,9 +244,9 @@ void ADTOOL_AMPI_pushSRinfo(void *buf, int count, MPI_Datatype datatype,
       locint end = ((adouble *)((char *)buf + bitCountToLastActive))->loc();
       assert(start + activeVarCount - 1 ==
              end); // buf must have consecutive ascending locations
-      ADOLC_PUT_LOCINT(start);
+      put_loc(start);
     } else {
-      ADOLC_PUT_LOCINT(0); // have to put something
+      put_loc(0); // have to put something
     }
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(datatype);
@@ -280,7 +279,7 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull, void *rbuf, int rcnt,
     if (commSizeForRootOrNull > 0) {
       TAPE_AMPI_push_int(rcnt);
       assert(rbuf);
-      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble *)rbuf, rcnt));
+      put_loc(startLocAssertContiguous((adouble *)rbuf, rcnt));
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
     locint start = 0; // have to put something regardless
@@ -290,7 +289,7 @@ void ADTOOL_AMPI_pushGSinfo(int commSizeForRootOrNull, void *rbuf, int rcnt,
     } else {
       count = 0;
     }
-    ADOLC_PUT_LOCINT(start);
+    put_loc(start);
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(type);
     TAPE_AMPI_push_int(root);
@@ -357,7 +356,7 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull, void *rbuf, int *rcnts,
       assert(minDispls == 0); // don't want to make assumptions about memory
                               // layout for nonzero displacements
       assert(rbuf);
-      ADOLC_PUT_LOCINT(startLocAssertContiguous((adouble *)rbuf, endOffsetMax));
+      put_loc(startLocAssertContiguous((adouble *)rbuf, endOffsetMax));
       TAPE_AMPI_push_MPI_Datatype(rtype);
     }
     locint start = 0; // have to put something regardless
@@ -367,7 +366,7 @@ void ADTOOL_AMPI_pushGSVinfo(int commSizeForRootOrNull, void *rbuf, int *rcnts,
     } else {
       count = 0;
     }
-    ADOLC_PUT_LOCINT(start);
+    put_loc(start);
     TAPE_AMPI_push_int(count);
     TAPE_AMPI_push_MPI_Datatype(type);
     TAPE_AMPI_push_int(root);
@@ -460,13 +459,13 @@ void ADTOOL_AMPI_push_CallCodeReserve(enum AMPI_CallCode_E thisCall,
   if (ADOLC_CURRENT_TAPE_INFOS.traceFlag) {
     switch (thisCall) {
     case AMPI_GATHERV:
-      put_op_reserve(ampi_gatherv, numlocations);
+      put_op(ampi_gatherv, numlocations);
       break;
     case AMPI_SCATTERV:
-      put_op_reserve(ampi_scatterv, numlocations);
+      put_op(ampi_scatterv, numlocations);
       break;
     case AMPI_ALLGATHERV:
-      put_op_reserve(ampi_allgatherv, numlocations);
+      put_op(ampi_allgatherv, numlocations);
       break;
     default:
       assert(0);

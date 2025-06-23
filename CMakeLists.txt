@@ -9,7 +9,36 @@ project(adol-c
 add_library(adolc SHARED)
 add_library(adolc::adolc ALIAS adolc)
 
-target_compile_features(adolc PUBLIC cxx_std_17)
+target_compile_features(adolc PUBLIC cxx_std_20)
+
+cmake_minimum_required(VERSION 3.15)
+project(MyProject CXX)
+
+# Enforce C++20
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF) # only standard c++
+
+# Check for minimum compiler versions that support most of C++20
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
+        message(FATAL_ERROR "GCC 11 or higher is required for ADOL-C.")
+    endif()
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
+        message(FATAL_ERROR "Clang 13 or higher is required for ADOL-C.")
+    endif()
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.31)
+        message(FATAL_ERROR "MSVC 19.31 (Visual Studio 2022 v17.1) or higher is required for ADOL-C.")
+    endif()
+
+else()
+    message(WARNING "Unknown compiler — C++20 compatibility not guaranteed.")
+endif()
+
 
 # Make the version of ADOL-C available as compile definitions
 target_compile_definitions(adolc PRIVATE

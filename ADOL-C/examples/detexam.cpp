@@ -15,51 +15,42 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc/adtb_types.h> // use of active doubles
-#include <adolc/interfaces.h> // use of basic forward/reverse
-// interfaces of ADOL-C
-#include <adolc/taping.h> // use of taping
-
+#include <adolc/adolc.h>
 #include <iostream>
-using namespace std;
 
-/****************************************************************************/
-/*                                                          ADOUBLE ROUTINE */
-int n;
-adouble **A; // A is an n x n matrix
-adouble zero = 0;
-
-adouble det(int k, int m) // k <= n is the order of the submatrix
+template <typename T>
+adouble det(const T &A, size_t row,
+            size_t col) // k <= n is the order of the submatrix
 {
-  if (m == 0) // its column indices
+  if (col == 0)
     return 1.0;
-  else // are encoded in m
-  {
-    adouble *pt = A[k - 1];
-    adouble t = zero;
+  else {
+    adouble t = 0;
     int p = 1;
-    int s;
-    if (k % 2)
-      s = 1;
+    int sign;
+    if (row % 2)
+      sign = 1;
     else
-      s = -1;
-    for (int i = 0; i < n; i++) {
+      sign = -1;
+
+    for (auto i = 0; i < A.size(); i++) {
       int p1 = 2 * p;
-      if (m % p1 >= p) {
-        if (m == p) {
-          if (s > 0)
-            t += *pt;
+      if (col % p1 >= p) {
+        if (col == p) {
+          if (sign > 0)
+            t += A[row - 1][i];
           else
-            t -= *pt;
+            t -= A[row - 1][i];
         } else {
-          if (s > 0)
-            t += *pt * det(k - 1, m - p); // recursive call to det
+          if (sign > 0)
+            t += A[row - 1][i] *
+                 det(A, row - 1, col - p); // recursive call to det
           else
-            t -= *pt * det(k - 1, m - p); // recursive call to det
+            t -= A[row - 1][i] *
+                 det(A, row - 1, col - p); // recursive call to det
         }
-        s = -s;
+        sign = -sign;
       }
-      ++pt;
       p = p1;
     }
     return t;
@@ -69,47 +60,47 @@ adouble det(int k, int m) // k <= n is the order of the submatrix
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  int i, j, m = 1;
-  int tag = 1;
-  int keep = 1;
+  const short tapeId = 0;
+  createNewTape(tapeId);
 
-  cout << "COMPUTATION OF DETERMINANTS (ADOL-C Documented Example)\n\n";
-  cout << "order of matrix = ? \n"; // select matrix size
-  cin >> n;
+  const int keep = 1;
+  constexpr size_t n = 7;
+  int m = 1;
 
-  A = new adouble *[n];
-  adouble ad;
+  std::array<std::array<adouble, n>, n> A;
 
-  trace_on(tag, keep);             // tag=1=keep
-  double detout = 0.0, diag = 1.0; // here keep the intermediates for
-  for (i = 0; i < n; i++)          // the subsequent call to reverse
+  trace_on(tapeId, keep); // tapeId=1=keep
+  double detout = 0.0;
+  double diag = 1.0;           // here keep the intermediates for
+  for (auto i = 0; i < n; i++) // the subsequent call to reverse
   {
     m *= 2;
-    A[i] = new adouble[n];
-    for (j = 0; j < n; j++)
+    for (auto j = 0; j < n; j++)
       A[i][j] <<= j / (1.0 + i); // make all elements of A independent
-    diag += A[i][i].value();     // value(adouble) converts to double
+
+    diag += A[i][i].value(); // value(adouble) converts to double
     A[i][i] += 1.0;
   }
-  ad = det(n, m - 1); // actual function call.
+  adouble ad = det(A, n, m - 1); // actual function call.
+
   ad >>= detout;
   printf("\n %f - %f = %f  (should be 0)\n", detout, diag, detout - diag);
   trace_off();
 
-  double u[1];
+  std::array<double, 1> u;
   u[0] = 1.0;
-  double *B = new double[n * n];
+  std::array<double, n * n> B;
 
-  reverse(tag, 1, n * n, 0, u, B); // call reverse to calculate the gradient
+  reverse(tapeId, 1, n * n, 0, u.data(),
+          B.data()); // call reverse to calculate the gradient
 
-  cout << " \n first base? : ";
-  for (i = 0; i < n; i++) {
+  std::cout << " \n first base? : ";
+  for (auto i = 0; i < n; i++) {
     adouble sum = 0;
-    for (j = 0; j < n; j++)     // the matrix A times the first n
-      sum += A[i][j] * B[j];    // components of the gradient B
-    cout << sum.value() << " "; // must be a Cartesian basis vector
+    for (auto j = 0; j < n; j++)     // the matrix A times the first n
+      sum += A[i][j] * B[j];         // components of the gradient B
+    std::cout << sum.value() << " "; // must be a Cartesian basis vector
   }
-  cout << "\n";
-
+  std::cout << "\n";
   return 1;
 }

@@ -14,6 +14,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 
 #if !defined(ADOLC_NO_MALLOC)
@@ -28,9 +29,6 @@
 #endif
 
 BEGIN_C_DECLS
-
-extern void adolc_exit(int errorcode, const char *what, const char *function,
-                       const char *file, int line);
 
 /****************************************************************************/
 /*                                              MEMORY MANAGEMENT UTILITIES */
@@ -101,30 +99,28 @@ char *populate_dppp_nodata(double ****const pointer, char *const memory, int n,
 }
 /*--------------------------------------------------------------------------*/
 double *myalloc1(size_t m) {
-  double *A = NULL;
+  double *A = nullptr;
   if (m > 0) {
     A = (double *)ADOLC_MALLOC(m, sizeof(double));
-    if (A == NULL) {
-      fprintf(DIAG_OUT, "ADOL-C error: myalloc1 cannot allocate %zd bytes\n",
-              (size_t)(m * sizeof(double)));
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+    if (!A)
+      ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info5 = m * sizeof(double)});
   }
   return A;
 }
 
 /*--------------------------------------------------------------------------*/
 double **myalloc2(size_t m, size_t n) {
-  double **A = NULL;
+  double **A = nullptr;
   if (m > 0 && n > 0) {
     int i;
     char *Adum = (char *)ADOLC_MALLOC(
         m * n * sizeof(double) + m * sizeof(double *), sizeof(char));
-    if (Adum == NULL) {
-      fprintf(DIAG_OUT, "ADOL-C error: myalloc2 cannot allocate %zd bytes\n",
-              (size_t)(m * n * sizeof(double) + m * sizeof(double *)));
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+    if (!Adum)
+      ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info5 = m * n * sizeof(double) +
+                                                     m * sizeof(double *)});
+
     populate_dpp(&A, Adum, m, n);
   }
   return A;
@@ -134,19 +130,19 @@ double **myalloc2(size_t m, size_t n) {
 double ***
 myalloc3(size_t m, size_t n,
          size_t p) { /* This function allocates 3-tensors contiguously */
-  double ***A = NULL;
+  double ***A = nullptr;
   if (m > 0 && n > 0 && p > 0) {
     int i, j;
     char *Adum = (char *)ADOLC_MALLOC(m * n * p * sizeof(double) +
                                           m * n * sizeof(double *) +
                                           m * sizeof(double **),
                                       sizeof(char));
-    if (Adum == NULL) {
-      fprintf(DIAG_OUT, "ADOL-C error: myalloc3 cannot allocate %zd bytes\n",
-              (size_t)(m * n * p * sizeof(double) + m * n * sizeof(double *) +
-                       m * sizeof(double **)));
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-    }
+    if (!Adum)
+      ADOLCError::fail(
+          ADOLCError::ErrorType::MYALLOC3, CURRENT_LOCATION,
+          ADOLCError::FailInfo{.info5 = m * n * p * sizeof(double) +
+                                        m * n * sizeof(double *) +
+                                        m * sizeof(double **)});
     populate_dppp(&A, Adum, m, n, p);
   }
   return A;
@@ -178,16 +174,14 @@ double **myallocI2(int n) {
   double *Idum = (double *)ADOLC_MALLOC((2 * n - 1), sizeof(double));
   double **I = (double **)malloc(n * sizeof(double *));
   int i;
-  if (Idum == NULL) {
-    fprintf(DIAG_OUT, "ADOL-C error: myallocI2 cannot allocate %i bytes\n",
-            (int)((2 * n - 1) * sizeof(double)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
-  if (I == NULL) {
-    fprintf(DIAG_OUT, "ADOL-C error: myallocI2 cannot allocate %i bytes\n",
-            (int)(n * sizeof(double *)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  }
+  if (!Idum)
+    ADOLCError::fail(
+        ADOLCError::ErrorType::MYALLOCI2, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info5 = (2 * n - 1) * sizeof(double)});
+  if (!I)
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOCI2, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = n * sizeof(double *)});
+
   Idum += (n - 1);
   I[0] = Idum;
   *Idum = 1.0;
@@ -211,51 +205,41 @@ void myfreeI2(int n, double **I) {
 /****************************************************************************/
 /*                              INTEGER VARIANT FOR BIT PATTERN PROPAGATION */
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ */
 unsigned int *myalloc1_uint(int m) {
   unsigned int *A = (unsigned int *)ADOLC_MALLOC(m, sizeof(unsigned int));
-  if (A == NULL) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error, " __FILE__
-            ":%i : \nmyalloc1_ushort cannot allocate %i bytes\n",
-            __LINE__, (int)(m * sizeof(unsigned int)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } /* endif */
+  if (!A)
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_UINT, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(unsigned int)});
+
   return A;
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ */
 size_t *myalloc1_ulong(int m) {
   size_t *A = (size_t *)ADOLC_CALLOC(m, sizeof(size_t));
-  if (A == NULL) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error, " __FILE__
-            ":%i : \nmyalloc1_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * sizeof(size_t)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } /* endif */
+  if (!A)
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(size_t)});
   return A;
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ */
 size_t **myalloc2_ulong(int m, int n) {
   size_t *Adum = (size_t *)ADOLC_CALLOC(m * n, sizeof(size_t));
   size_t **A = (size_t **)ADOLC_CALLOC(m, sizeof(size_t *));
   int i;
-  if (Adum == NULL) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error, " __FILE__
-            ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * n * sizeof(size_t)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } /* endif */
-  if (A == NULL) {
-    fprintf(DIAG_OUT,
-            "ADOL-C error, " __FILE__
-            ":%i : \nmyalloc2_ulong cannot allocate %i bytes\n",
-            __LINE__, (int)(m * sizeof(size_t *)));
-    adolc_exit(-1, "", __func__, __FILE__, __LINE__);
-  } /* endif */
+  if (!Adum)
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * n * sizeof(size_t)});
+
+  if (!A)
+    ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info5 = m * sizeof(size_t)});
+
   for (i = 0; i < m; i++) {
     A[i] = Adum;
     Adum += n;

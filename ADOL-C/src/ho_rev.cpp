@@ -73,7 +73,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth)                                                   \
-    get_taylors(loc, depth);                                                   \
+    tape.get_taylors(loc, depth);                                              \
   }
 
 /*--------------------------------------------------------------------------*/
@@ -89,7 +89,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth *p)                                                \
-    get_taylors_p(loc, depth, p);                                              \
+    tape.get_taylors_p(loc, depth, p);                                         \
   }
 
 /*--------------------------------------------------------------------------*/
@@ -110,7 +110,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth)                                                   \
-    get_taylors(loc, depth);                                                   \
+    tape.get_taylors(loc, depth);                                              \
   }
 
 #else
@@ -197,14 +197,14 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 /****************************************************************************/
 /*                                                       NECESSARY INCLUDES */
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/convolut.h>
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
-#include <adolc/externfcts_p.h>
 #include <adolc/interfaces.h>
 #include <adolc/oplate.h>
-#include <adolc/taping_p.h>
-
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 #include <math.h>
 
 #if defined(ADOLC_DEBUG)
@@ -297,6 +297,7 @@ int hov_ti_reverse(
 #endif
 
 {
+  ValueTape &tape = findTape(tnum);
   /************************************************************************/
   /*                                                       ALL VARIABLES  */
   unsigned char operation; /* operation code */
@@ -365,17 +366,15 @@ int hov_ti_reverse(
 #define ADOLC_EXT_FCT_Z dpp_Z
 #define ADOLC_EXT_FCT_POINTER hos_ti_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hos_ti_reverse(m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
+  hos_ti_reverse(edfct->tapeId, m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
 #else
 #define ADOLC_EXT_FCT_U dppp_U
 #define ADOLC_EXT_FCT_Z dppp_Z
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hov_reverse(m, p, edfct->dpp_U, n, degre, edfct->dppp_Z, edfct->spp_nz)
+  hov_reverse(edfct->tapeId, m, p, edfct->dpp_U, n, degre, edfct->dppp_Z,      \
+              edfct->spp_nz)
 #endif
-
-  ADOLC_OPENMP_THREAD_NUMBER;
-  ADOLC_OPENMP_GET_THREAD_NUMBER;
 
 #if defined(ADOLC_DEBUG)
   /************************************************************************/
@@ -397,46 +396,53 @@ int hov_ti_reverse(
   /* Set up stuff for the tape */
 
   /* Initialize the Reverse Sweep */
-  init_rev_sweep(tnum);
+  tape.init_rev_sweep(tnum);
 
-  if ((depen != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS]) ||
-      (indep != ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS]))
-    fail(ADOLC_REVERSE_COUNTS_MISMATCH);
+  if ((depen != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (indep != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{
+                         .info1 = tape.tapeId(),
+                         .info3 = depen,
+                         .info4 = indep,
+                         .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
+                         .info6 = tape.tapestats(TapeInfos::NUM_INDEPENDENTS)});
 
-  indexi = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_INDEPENDENTS] - 1;
-  indexd = ADOLC_CURRENT_TAPE_INFOS.stats[NUM_DEPENDENTS] - 1;
+  indexi = tape.tapestats(TapeInfos::NUM_INDEPENDENTS) - 1;
+  indexd = tape.tapestats(TapeInfos::NUM_DEPENDENTS) - 1;
 
   /************************************************************************/
   /*                                              MEMORY ALLOCATION STUFF */
 
   /*----------------------------------------------------------------------*/
 #ifdef _HOS_ /* HOS */
-  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k1);
-  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
+  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k1);
+  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
   rp_Atemp = myalloc1(k1);
   rp_Atemp2 = myalloc1(k1);
   rp_Ttemp2 = myalloc1(k);
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOS_REVERSE;
+  tape.workMode(TapeInfos::HOS_REVERSE);
 
   locint n, m;
   ext_diff_fct *edfct = nullptr;
   int oldTraceFlag;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
-  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
-  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], k);
+  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
+  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(k);
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
+  tape.workMode(TapeInfos::HOV_REVERSE);
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
-  rpp_A = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], pk1);
-  rpp_T = myalloc2(ADOLC_CURRENT_TAPE_INFOS.stats[NUM_MAX_LIVES], p * k);
+  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
+  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(p * k);
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_HOV_REVERSE;
+  tape.workMode(TapeInfos::HOV_REVERSE);
 #endif
   rp_Ttemp = myalloc1(k);
   x = myalloc1(q);
@@ -444,28 +450,17 @@ int hov_ti_reverse(
 
   /************************************************************************/
   /*                                                TAYLOR INITIALIZATION */
-  ADOLC_CURRENT_TAPE_INFOS.rpp_A = rpp_A;
-  ADOLC_CURRENT_TAPE_INFOS.rpp_T = rpp_T;
-  taylor_back(tnum, &numdep, &numind, &taycheck);
+  tape.rpp_A(rpp_A);
+  tape.rpp_T(rpp_T);
+  tape.taylor_back(tnum, &numdep, &numind, &taycheck);
 
-  if (taycheck != degre) {
-    fprintf(DIAG_OUT,
-            "\n ADOL-C error: reverse fails because it was not"
-            " preceded\nby a forward sweep with degree>%i,"
-            " keep=%i!\n",
-            degre, degre + 1);
-    adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-  };
+  if (taycheck != degre)
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info3 = degre, .info4 = degre + 1});
 
-  if ((numdep != depen) || (numind != indep)) {
-    fprintf(DIAG_OUT,
-            "\n ADOL-C error: reverse fails on tape %d because "
-            "the number of\nindependent and/or dependent variables"
-            " given to reverse are\ninconsistent with that of the"
-            "  internal taylor array.\n",
-            tnum);
-    adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-  }
+  if ((numdep != depen) || (numind != indep))
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH,
+                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tnum});
 
   /************************************************************************/
   /*                                                        REVERSE SWEEP */
@@ -480,7 +475,7 @@ int hov_ti_reverse(
 #define UPDATE_TAYLORREAD(X)
 #endif /* ADOLC_DEBUG */
 
-  operation = get_op_r();
+  operation = tape.get_op_r();
 #if defined(ADOLC_DEBUG)
   ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
@@ -494,26 +489,26 @@ int hov_ti_reverse(
 
       /*----------------------------------------------------------*/
     case end_of_op: /* end_of_op */
-      get_op_block_r();
-      operation = get_op_r();
+      tape.get_op_block_r();
+      operation = tape.get_op_r();
       /* Skip next operation, it's another end_of_op */
       break;
 
       /*----------------------------------------------------------*/
-    case end_of_int:     /* end_of_int */
-      get_loc_block_r(); /* Get the next int block */
+    case end_of_int:          /* end_of_int */
+      tape.get_loc_block_r(); /* Get the next int block */
       break;
 
       /*----------------------------------------------------------*/
-    case end_of_val:     /* end_of_val */
-      get_val_block_r(); /* Get the next val block */
+    case end_of_val:          /* end_of_val */
+      tape.get_val_block_r(); /* Get the next val block */
       break;
 
       /*----------------------------------------------------------*/
     case start_of_tape: /* start_of_tape */
       break;
     case end_of_tape: /* end_of_tape */
-      discard_params_r();
+      tape.discard_params_r();
       break;
 
       /************************************************************/
@@ -521,7 +516,7 @@ int hov_ti_reverse(
 
       /*----------------------------------------------------------*/
     case eq_zero: /* eq_zero */
-      arg = get_locint_r();
+      arg = tape.get_locint_r();
 
       ret_c = 0;
       break;
@@ -530,13 +525,13 @@ int hov_ti_reverse(
     case neq_zero: /* neq_zero */
     case gt_zero:  /* gt_zero */
     case lt_zero:  /* lt_zero */
-      arg = get_locint_r();
+      arg = tape.get_locint_r();
       break;
 
       /*----------------------------------------------------------*/
     case ge_zero: /* ge_zero */
     case le_zero: /* le_zero */
-      arg = get_locint_r();
+      arg = tape.get_locint_r();
 
       if (*rpp_T[arg] == 0)
         ret_c = 0;
@@ -548,8 +543,8 @@ int hov_ti_reverse(
       /*----------------------------------------------------------*/
     case assign_a: /* assign an adouble variable an    assign_a */
       /* adouble value. (=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Aarg, rpp_A[arg])
       ASSIGN_A(Ares, rpp_A[res])
@@ -574,8 +569,8 @@ int hov_ti_reverse(
       /*----------------------------------------------------------*/
     case assign_d: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      res = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -586,9 +581,9 @@ int hov_ti_reverse(
 
     case assign_p: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = ADOLC_CURRENT_TAPE_INFOS.pTapeInfos.paramstore[arg];
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.paramstore()[arg];
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -600,7 +595,7 @@ int hov_ti_reverse(
       /*----------------------------------------------------------*/
     case assign_d_zero: /* assign an adouble a        assign_d_zero */
     case assign_d_one:  /* double value. (=)           assign_d_one */
-      res = get_locint_r();
+      res = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -612,7 +607,7 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case assign_ind: /* assign an adouble variable an    assign_ind */
       /* independent double value (<<=) */
-      res = get_locint_r();
+      res = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -633,7 +628,7 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case assign_dep: /* assign a float variable a    assign_dep */
       /* dependent adouble value. (>>=) */
-      res = get_locint_r();
+      res = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[res]) /* just a helpful pointers */
@@ -659,8 +654,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_plus_d: /* Add a floating point to an    eq_plus_d */
       /* adouble. (+=) */
-      res = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
       break;
@@ -668,8 +663,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_plus_a: /* Add an adouble to another    eq_plus_a */
       /* adouble. (+=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg]);
@@ -692,8 +687,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_min_d: /* Subtract a floating point from an    eq_min_d */
       /* adouble. (-=) */
-      res = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
       break;
@@ -701,8 +696,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_min_a: /* Subtract an adouble from another    eq_min_a */
       /* adouble. (-=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -725,8 +720,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_mult_d: /* Multiply an adouble by a    eq_mult_d */
       /* floating point. (*=) */
-      res = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -740,8 +735,8 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case eq_mult_a: /* Multiply one adouble by another    eq_mult_a */
       /* (*=) */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       GET_TAYL(res, k, p)
 
@@ -777,7 +772,7 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case incr_a: /* Increment an adouble    incr_a */
     case decr_a: /* Increment an adouble    decr_a */
-      res = get_locint_r();
+      res = tape.get_locint_r();
 
       GET_TAYL(res, k, p)
       break;
@@ -788,9 +783,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case plus_a_a: /* : Add two adoubles. (+)    plus a_a */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg1, rpp_A[arg1])
@@ -821,9 +816,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case plus_d_a: /* Add an adouble and a double    plus_d_a */
       /* (+) */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -850,9 +845,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case min_a_a: /* Subtraction of two adoubles    min_a_a */
       /* (-) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg1, rpp_A[arg1])
@@ -884,9 +879,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case min_d_a: /* Subtract an adouble from a    min_d_a */
       /* double (-) */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -913,9 +908,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case mult_a_a: /* Multiply two adoubles (*)    mult_a_a */
       /* Obtain indices for result and argument variables. */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       /* Read Taylor polynomial into rpp_T. */
       GET_TAYL(res, k, p)
@@ -933,10 +928,10 @@ int hov_ti_reverse(
          In scalar mode this loop is trivial. */
       for (int l = 0; l < p; l++)
         if (0 == ARES) {
-          /* This branch is taken if the input of this operation is independent
-           * of the independent variables.  For example if it is some constant
-           * that happens to be stored as an adouble.  The derivative of that is
-           * zero.
+          /* This branch is taken if the input of this operation is
+           * independent of the independent variables.  For example if it is
+           * some constant that happens to be stored as an adouble.  The
+           * derivative of that is zero.
            */
           HOV_INC(Aarg1, k1)
           HOV_INC(Aarg2, k1)
@@ -947,8 +942,8 @@ int hov_ti_reverse(
              least polynomial unless the input already has a more
              generic relation on its own inputs (e.g., rational,
              trancendental or non-smooth).
-             See the parameter `nz` of `hov_reverse` and the table of values in
-             page 44 of the manual.
+             See the parameter `nz` of `hov_reverse` and the table of values
+             in page 44 of the manual.
              */
           comp = (ARES > 2.0) ? ARES : 2.0;
           ARES_INC = 0.0;
@@ -983,9 +978,9 @@ int hov_ti_reverse(
       /* olvo 991122: new op_code with recomputation */
     case eq_plus_prod: /* increment a product of           eq_plus_prod */
       /* two adoubles (*) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg2, rpp_A[arg2])
@@ -1032,9 +1027,9 @@ int hov_ti_reverse(
       /* olvo 991122: new op_code with recomputation */
     case eq_min_prod: /* decrement a product of             eq_min_prod */
       /* two adoubles (*) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg2, rpp_A[arg2])
@@ -1080,9 +1075,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case mult_d_a: /* Multiply an adouble by a double    mult_d_a */
       /* (*) */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1109,9 +1104,9 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case div_a_a: /* Divide an adouble by an adouble    div_a_a */
       /* (/) */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg2, rpp_A[arg2])
@@ -1164,9 +1159,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case div_d_a: /* Division double - adouble (/)    div_d_a */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1210,13 +1205,14 @@ int hov_ti_reverse(
       break;
 
       /****************************************************************************/
-      /*                                                         SIGN OPERATIONS
+      /*                                                         SIGN
+       * OPERATIONS
        */
 
       /*--------------------------------------------------------------------------*/
     case pos_sign_a: /* pos_sign_a */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1242,8 +1238,8 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case neg_sign_a: /* neg_sign_a */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1273,8 +1269,8 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case exp_op: /* exponent operation    exp_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1305,9 +1301,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case sin_op: /* sine operation    sin_op */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg1, rpp_A[arg1])
@@ -1339,9 +1335,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case cos_op: /* cosine operation    cos_op */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg1, rpp_A[arg1])
@@ -1380,9 +1376,9 @@ int hov_ti_reverse(
     case atanh_op: /* atanh_op */
     case erf_op:   /* erf_op   */
     case erfc_op:  /* erfc_op  */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       GET_TAYL(res, k, p)
 
@@ -1412,8 +1408,8 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case log_op: /* log_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       GET_TAYL(res, k, p)
 
@@ -1447,9 +1443,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case pow_op: /* pow_op */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       Targ = rpp_T[arg];
       Tres = rpp_T[res];
@@ -1486,7 +1482,7 @@ int hov_ti_reverse(
           } else {
             if (coval <= 0.0) {
               for (int i = 0; i < k; i++) {
-                Aarg[i] = make_nan();
+                Aarg[i] = tape.make_nan();
                 Ares[i] = 0;
               }
             } else {
@@ -1498,11 +1494,11 @@ int hov_ti_reverse(
                     Ares[i] = 0;
                   }
                   if ((coval - i < 1) && (coval - i > 0)) {
-                    Aarg[i] = make_inf();
+                    Aarg[i] = tape.make_inf();
                     Ares[i] = 0;
                   }
                   if (coval - i < 0) {
-                    Aarg[i] = make_nan();
+                    Aarg[i] = tape.make_nan();
                     Ares[i] = 0;
                   }
                 }
@@ -1537,13 +1533,14 @@ int hov_ti_reverse(
           HOS_OV_INC(Targ, k)
         }
 
-      GET_TAYL(res, k, p)
+      if (arg != res)
+        GET_TAYL(res, k, p)
       break;
 
       /*--------------------------------------------------------------------------*/
     case sqrt_op: /* sqrt_op */
-      res = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg, rpp_A[arg])
@@ -1576,21 +1573,21 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case cbrt_op: /* cbrt_op */
-      res = get_locint_r();
-      arg = get_locint_r();
-      fprintf(DIAG_OUT,
-              "ADOL-C error: higher order mode of cbrt not implemented yet\n");
-      adolc_exit(-2, "", __func__, __FILE__, __LINE__);
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      ADOLCError::fail(ADOLCError::ErrorType::HO_OP_NOT_IMPLEMENTED,
+                       CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info7 = operation});
 
       break;
 
       /*--------------------------------------------------------------------------*/
     case gen_quad: /* gen_quad */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      coval = get_val_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      coval = tape.get_val_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
       ASSIGN_A(Aarg1, rpp_A[arg1])
@@ -1625,10 +1622,10 @@ int hov_ti_reverse(
       fprintf(DIAG_OUT, " operation min_op not implemented for hos_ov");
       break;
 #endif
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -1729,9 +1726,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case abs_val: /* abs_val */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
       /* must be changed for hos_ov, but how? */
       /* seems to influence the return value  */
       GET_TAYL(res, k, p)
@@ -1789,9 +1786,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case ceil_op: /* ceil_op */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -1817,9 +1814,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case floor_op: /* floor_op */
-      res = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -1850,11 +1847,11 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case cond_assign: /* cond_assign */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -1935,11 +1932,11 @@ int hov_ti_reverse(
       break;
 
     case cond_eq_assign: /* cond_eq_assign */
-      res = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -2009,10 +2006,10 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case cond_assign_s: /* cond_assign_s */
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -2057,10 +2054,10 @@ int hov_ti_reverse(
       }
       break;
     case cond_eq_assign_s: /* cond_eq_assign_s */
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
 
@@ -2105,10 +2102,10 @@ int hov_ti_reverse(
     case ge_a_a:
     case lt_a_a:
     case gt_a_a:
-      res = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      res = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
       ASSIGN_A(Ares, rpp_A[res])
 
       FOR_0_LE_l_LT_pk1 ARES_INC = 0.0;
@@ -2119,13 +2116,13 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case subscript:
-      coval = get_val_r();
+      coval = tape.get_val_r();
       {
         size_t idx, numval = (size_t)trunc(fabs(coval));
         locint vectorloc;
-        res = get_locint_r();
-        vectorloc = get_locint_r();
-        arg = get_locint_r();
+        res = tape.get_locint_r();
+        vectorloc = tape.get_locint_r();
+        arg = tape.get_locint_r();
         Targ = rpp_T[arg];
         idx = (size_t)trunc(fabs(*Targ));
         if (idx >= numval)
@@ -2155,13 +2152,13 @@ int hov_ti_reverse(
       break;
 
     case subscript_ref:
-      coval = get_val_r();
+      coval = tape.get_val_r();
       {
         size_t idx, numval = (size_t)trunc(fabs(coval));
         locint vectorloc;
-        res = get_locint_r();
-        vectorloc = get_locint_r();
-        arg = get_locint_r();
+        res = tape.get_locint_r();
+        vectorloc = tape.get_locint_r();
+        arg = tape.get_locint_r();
         Targ = rpp_T[arg];
         Tres = rpp_T[res];
         idx = (size_t)trunc(fabs(*Targ));
@@ -2176,20 +2173,18 @@ int hov_ti_reverse(
          * basically all we need is that arg1 == vectorloc[idx]
          * so doing a check here is probably good
          */
-        if (arg1 != vectorloc + idx) {
-          fprintf(DIAG_OUT,
-                  "ADOL-C error: indexed active position does not match "
-                  "referenced position\nindexed = %zu, referenced = %zu\n",
-                  vectorloc + idx, arg1);
-          adolc_exit(-2, "", __func__, __FILE__, __LINE__);
-        }
+        if (arg1 != vectorloc + idx)
+          ADOLCError::fail(
+              ADOLCError::ErrorType::ADUBREF_SAFE_MODE, CURRENT_LOCATION,
+              ADOLCError::FailInfo{.info5 = vectorloc + idx, .info6 = arg1});
+
         GET_TAYL(res, k, p)
       }
       break;
 
     case ref_copyout:
-      res = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       arg = (size_t)trunc(fabs(*Targ1));
@@ -2215,7 +2210,7 @@ int hov_ti_reverse(
 
     case ref_incr_a: /* Increment an adouble    incr_a */
     case ref_decr_a: /* Increment an adouble    decr_a */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
@@ -2225,11 +2220,11 @@ int hov_ti_reverse(
 
     case ref_assign_d: /* assign an adouble variable a    assign_d */
       /* double value. (=) */
-      coval = get_val_r();
+      coval = tape.get_val_r();
       /* fallthrough */
     case ref_assign_d_zero: /* assign an adouble a        assign_d_zero */
     case ref_assign_d_one:  /* double value. (=)           assign_d_one */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
@@ -2243,8 +2238,8 @@ int hov_ti_reverse(
 
     case ref_assign_a: /* assign an adouble variable an    assign_a */
       /* adouble value. (=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
@@ -2271,7 +2266,7 @@ int hov_ti_reverse(
 
     case ref_assign_ind: /* assign an adouble variable an    assign_ind */
       /* independent double value (<<=) */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
       ASSIGN_A(Ares, rpp_A[res])
@@ -2292,18 +2287,18 @@ int hov_ti_reverse(
 
     case ref_eq_plus_d: /* Add a floating point to an    eq_plus_d */
                         /* adouble. (+=) */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
-      coval = get_val_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
       break;
 
     case ref_eq_plus_a: /* Add an adouble to another    eq_plus_a */
       /* adouble. (+=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
@@ -2327,18 +2322,18 @@ int hov_ti_reverse(
 
     case ref_eq_min_d: /* Subtract a floating point from an    eq_min_d */
       /* adouble. (-=) */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
-      coval = get_val_r();
+      coval = tape.get_val_r();
 
       GET_TAYL(res, k, p)
       break;
 
     case ref_eq_min_a: /* Subtract an adouble from another    eq_min_a */
       /* adouble. (-=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
@@ -2362,10 +2357,10 @@ int hov_ti_reverse(
 
     case ref_eq_mult_d: /* Multiply an adouble by a    eq_mult_d */
       /* floating point. (*=) */
-      arg1 = get_locint_r();
+      arg1 = tape.get_locint_r();
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
-      coval = get_val_r();
+      coval = tape.get_val_r();
 
       ASSIGN_A(Ares, rpp_A[res])
 
@@ -2378,8 +2373,8 @@ int hov_ti_reverse(
 
     case ref_eq_mult_a: /* Multiply one adouble by another    eq_mult_a */
       /* (*=) */
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
       Targ1 = rpp_T[arg1];
       res = (size_t)trunc(fabs(*Targ1));
 
@@ -2416,9 +2411,9 @@ int hov_ti_reverse(
 
     case vec_copy:
 
-      res = get_locint_r();
-      size = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      size = tape.get_locint_r();
+      arg = tape.get_locint_r();
 
       for (locint qq = 0; qq < size; qq++) {
 
@@ -2445,10 +2440,10 @@ int hov_ti_reverse(
       break;
 
     case vec_dot:
-      res = get_locint_r();
-      size = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      res = tape.get_locint_r();
+      size = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
       for (locint qq = 0; qq < size; qq++) {
         ASSIGN_A(Ares, rpp_A[res])
         ASSIGN_A(Aarg2, rpp_A[arg2 + qq])
@@ -2484,11 +2479,11 @@ int hov_ti_reverse(
       break;
 
     case vec_axpy:
-      res = get_locint_r();
-      size = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
+      res = tape.get_locint_r();
+      size = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
       for (locint qq = 0; qq < size; qq++) {
         ASSIGN_A(Ares, rpp_A[res + qq])
         ASSIGN_A(Aarg, rpp_A[arg])
@@ -2529,11 +2524,11 @@ int hov_ti_reverse(
     case ref_cond_assign: /* cond_assign */
     {
       revreal *Tref;
-      locint ref = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      locint ref = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       Tref = rpp_T[ref];
 
@@ -2618,11 +2613,11 @@ int hov_ti_reverse(
     case ref_cond_eq_assign: /* cond_eq_assign */
     {
       revreal *Tref;
-      locint ref = get_locint_r();
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      locint ref = tape.get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       Tref = rpp_T[ref];
 
@@ -2694,10 +2689,10 @@ int hov_ti_reverse(
     } break;
 
     case ref_cond_assign_s: /* cond_assign_s */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       Targ2 = rpp_T[arg2];
       res = (size_t)trunc(fabs(*Targ2));
@@ -2746,10 +2741,10 @@ int hov_ti_reverse(
       break;
 
     case ref_cond_eq_assign_s: /* cond_eq_assign_s */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
-      arg = get_locint_r();
-      coval = get_val_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
+      arg = tape.get_locint_r();
+      coval = tape.get_val_r();
 
       Targ2 = rpp_T[arg2];
       res = (size_t)trunc(fabs(*Targ2));
@@ -2794,9 +2789,9 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case take_stock_op: /* take_stock_op */
-      res = get_locint_r();
-      size = get_locint_r();
-      get_val_v_r(size);
+      res = tape.get_locint_r();
+      size = tape.get_locint_r();
+      tape.get_val_v_r(size);
 
       res += size;
       for (int ls = size; ls > 0; ls--) {
@@ -2810,8 +2805,8 @@ int hov_ti_reverse(
 
       /*--------------------------------------------------------------------------*/
     case death_not: /* death_not */
-      arg2 = get_locint_r();
-      arg1 = get_locint_r();
+      arg2 = tape.get_locint_r();
+      arg1 = tape.get_locint_r();
 
       for (int j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, rpp_A[j])
@@ -2830,16 +2825,16 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differentiated function */
     {
-      ADOLC_CURRENT_TAPE_INFOS.cpIndex = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev = get_locint_r();
-      m = get_locint_r();
-      n = get_locint_r();
-      ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index = get_locint_r();
-      edfct = get_ext_diff_fct(ADOLC_CURRENT_TAPE_INFOS.ext_diff_fct_index);
+      tape.cp_index(tape.get_locint_r());
+      tape.lowestYLoc_rev(tape.get_locint_r());
+      tape.lowestXLoc_rev(tape.get_locint_r());
+      m = tape.get_locint_r();
+      n = tape.get_locint_r();
+      tape.ext_diff_fct_index(tape.get_locint_r());
+      edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
-      oldTraceFlag = ADOLC_CURRENT_TAPE_INFOS.traceFlag;
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = 0;
+      oldTraceFlag = tape.traceFlag();
+      tape.traceFlag(0);
 
       /* degree is not known when registering external functions,
          so do memory allocation here (at least for now) */
@@ -2847,27 +2842,32 @@ int hov_ti_reverse(
       double **dpp_Z = new double *[n];
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
-        fail(ADOLC_EXT_DIFF_NULLPOINTER_FUNCTION);
+        ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
+                         CURRENT_LOCATION);
       if (m > 0) {
         if (ADOLC_EXT_FCT_U == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
         if (edfct->dp_y == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
       }
       if (n > 0) {
         if (ADOLC_EXT_FCT_Z == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
         if (edfct->dp_x == NULL)
-          fail(ADOLC_EXT_DIFF_NULLPOINTER_ARGUMENT);
+          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
+                           CURRENT_LOCATION);
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev + m - 1;
+      arg = tape.lowestYLoc_rev() + m - 1;
       for (int loop = 0; loop < m; ++loop) {
         // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
         dpp_U[loop] = rpp_A[arg] + 1;
         ++arg;
       }
 
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape.lowestXLoc_rev();
       for (int loop = 0; loop < n; ++loop) {
         // This should copy data in case `revreal` is not double.
         // (Note: copy back below doesn't actually do anything until this is
@@ -2876,13 +2876,13 @@ int hov_ti_reverse(
         dpp_Z[loop] = rpp_A[arg] + 1;
         ++arg;
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      arg = tape.lowestXLoc_rev();
       double **dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
       for (int loop = 0; loop < n; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
         // edfct->dp_x[loop] = rpp_T[arg];
       }
-      arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      arg = tape.lowestYLoc_rev();
       double **dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
       for (int loop = 0; loop < m; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
@@ -2891,7 +2891,7 @@ int hov_ti_reverse(
       int ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev;
+      res = tape.lowestYLoc_rev();
       // Ares = A[res];
       for (int loop = 0; loop < m; ++loop) {
         for (int l = 0; l < q; ++l) {
@@ -2901,14 +2901,12 @@ int hov_ti_reverse(
         }
         ++res;
       }
-      res = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev;
+      res = tape.lowestXLoc_rev();
       for (int loop = 0; loop < n; ++loop) {
         // ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],ADJOINT_BUFFER_RES);
         // Hmm, ist das nicht falsch? Wir sollten rpp_T vermutlich nicht
-        // anfassen. Sonst ändert sich ja das Ergebnis wenn man das Band nochmal
-        // abspielt?
-        // rpp_T[res] = dpp_Z[loop];
-        // Assume non-smooth?
+        // anfassen. Sonst ändert sich ja das Ergebnis wenn man das Band
+        // nochmal abspielt? rpp_T[res] = dpp_Z[loop]; Assume non-smooth?
         rpp_A[res][0] = 5.0;
         for (int i = 0; i < k; i++) {
           // `i+1` to do something similar a `ARES_INC_O`
@@ -2921,20 +2919,20 @@ int hov_ti_reverse(
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestYLoc_rev + m - 1;
+        arg = tape.lowestYLoc_rev() + m - 1;
         for (int loop = 0; loop < m; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }
       }
       if (edfct->dp_x_changes) {
-        arg = ADOLC_CURRENT_TAPE_INFOS.lowestXLoc_rev + n - 1;
+        arg = tape.lowestXLoc_rev() + n - 1;
         for (int loop = 0; loop < n; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }
       }
-      ADOLC_CURRENT_TAPE_INFOS.traceFlag = oldTraceFlag;
+      tape.traceFlag(oldTraceFlag);
 
       delete[] dpp_Z;
       delete[] dpp_U;
@@ -2945,17 +2943,13 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     default: /* default */
       /*             Die here, we screwed up     */
-
-      fprintf(DIAG_OUT,
-              "ADOL-C fatal error in " GENERATED_FILENAME " (" __FILE__
-              ") : no such operation %d\n",
-              operation);
-      adolc_exit(-1, "", __func__, __FILE__, __LINE__);
+      ADOLCError::fail(ADOLCError::ErrorType::NO_SUCH_OP, CURRENT_LOCATION,
+                       ADOLCError::FailInfo{.info7 = operation});
       break;
     } /* endswitch */
 
     /* Get the next operation */
-    operation = get_op_r();
+    operation = tape.get_op_r();
 #if defined(ADOLC_DEBUG)
     ++countPerOperation[operation];
 #endif /* ADOLC_DEBUG */
@@ -2974,10 +2968,10 @@ int hov_ti_reverse(
 
   /* clean up */
   myfree2(rpp_T);
-  ADOLC_CURRENT_TAPE_INFOS.rpp_T = nullptr;
+  tape.rpp_T(nullptr);
 
   myfree2(rpp_A);
-  ADOLC_CURRENT_TAPE_INFOS.rpp_A = nullptr;
+  tape.rpp_A(nullptr);
 
   myfree1(rp_Ttemp);
   myfree1(rp_Ttemp2);
@@ -2987,8 +2981,8 @@ int hov_ti_reverse(
   myfree1_ulong(jj);
   myfree1(x);
 
-  ADOLC_CURRENT_TAPE_INFOS.workMode = ADOLC_NO_MODE;
-  end_sweep();
+  tape.workMode(TapeInfos::ADOLC_NO_MODE);
+  tape.end_sweep();
 
   return ret_c;
 }

@@ -1,0 +1,1 @@
+target_sources(adolc PRIVATE adolc_settings.cpp)

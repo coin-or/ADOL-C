@@ -53,6 +53,8 @@ def as_adouble(arg):
 %rename (sparse_jac) npy_sparse_jac;
 %ignore sparse_hess;
 %rename (sparse_hess) npy_sparse_hess;
+%ignore hess_pat;
+%rename (hess_pat) npy_hess_pat;
 %ignore set_param_vec;
 %rename (set_param_vec) npy_set_param_vec;
 %ignore directional_active_gradient;
@@ -89,7 +91,8 @@ def as_adouble(arg):
        {(double** values, int* nnz3)};
 %apply (unsigned int** ARGOUTVIEWM_ARRAY1, int* DIM1)
        {(unsigned int** rind, int* nnz1),
-        (unsigned int** cind, int* nnz2)};
+        (unsigned int** cind, int* nnz2),
+        (unsigned int** rcount, int* nnz1)};
 %apply (short** ARGOUTVIEWM_ARRAY1, int* DIM1) 
        {(short** sigma, int* nn3)};
 
@@ -333,6 +336,49 @@ extern "C" {
 #endif
     }
 
+    void npy_hess_pat(short t, double* x, int n1,
+                        unsigned int** rcount, int* nnz1,
+                        unsigned int** cind, int* nnz2,
+                        int option) {
+#if defined(SPARSE_DRIVERS)
+        DO_GET_DIMENSIONS
+        if (n1 != n) {
+            PyErr_Format(PyExc_ValueError,
+                         "Array lengths don't match expected dimensions"
+                         "\nExpected shapes (%d,)",n
+                );
+            return;
+        }
+        *nnz1 = n;
+
+        *rcount = (unsigned int*) malloc ((*nnz1) * sizeof(unsigned int));
+        unsigned int** HP = (unsigned int**)malloc((*nnz1) * sizeof(unsigned int*));
+
+        int ret;
+        ret = hess_pat(t,n,x,HP,option);
+
+        *nnz2 = 0;
+        for(int i = 0; i < n; i++)
+        {
+            (*rcount)[i] = HP[i][0];
+            *nnz2 += HP[i][0];
+        }
+
+        *cind = (unsigned int*) malloc((*nnz2) * sizeof(unsigned int));
+        int index = 0;
+        for(int i = 0; i < n; i++)
+        {
+            for(int j = 0; j < HP[i][0]; j++)
+               (*cind)[index + j] = HP[i][j + 1];
+            index += (*rcount)[i];
+        }
+        CHECKEXCEPT(ret,"hess_pat")
+#else
+        PyErr_Format(PyExc_NotImplementedError,
+                     "hess_pat() has not been compiled in the ADOL-C library");
+#endif
+    }
+
     void npy_set_param_vec(short t, int n, double* x, int n0) {
         if (n0 != n) {
             PyErr_Format(PyExc_ValueError,
@@ -423,6 +469,7 @@ extern "C" {
 %clear (double** values, int* nnz3);
 %clear (unsigned int** rind, int* nnz1);
 %clear (unsigned int** cind, int* nnz2);
+%clear (unsigned int** rcount, int* nnz1);
 %clear (short** sigma, int* nn3);
 %clear (double** Yy, int* p1, int* q1);
 %clear (double** Jj, int* p2, int* q2);
