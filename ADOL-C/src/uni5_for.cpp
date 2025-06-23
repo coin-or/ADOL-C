@@ -522,15 +522,15 @@ int zos_forward_nk(
 /****************************************************************************/
 #if defined(_ABS_NORM_)
 int fos_pl_forward(short tnum, int depcheck, int indcheck,
-                   const double *basepoint, double *argument,
+                   const double *basepoint, const double *argument,
                    double *valuepoint, double *taylors, double *swargs,
                    double *swtaylors)
 #elif defined(_ABS_NORM_SIG_)
 int fos_pl_sig_forward(short tnum, int depcheck, int indcheck,
-                       const double *basepoint, double *argument, int swcheck,
-                       short *sigbase, short *sigdir, double *valuepoint,
-                       double *taylors, double *swargs, double *swtaylors,
-                       short *sigsw)
+                       const double *basepoint, const double *argument,
+                       int swcheck, const short *sigbase, const short *sigdir,
+                       double *valuepoint, double *taylors, double *swargs,
+                       double *swtaylors, short *sigsw)
 #else
 #if defined(_KEEP_)
 int fos_forward(
@@ -557,14 +557,14 @@ int fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short tnum,              /* tape id                              */
-    int depcheck,            /* consistency chk on # of dependents   */
-    int indcheck,            /* consistency chk on # of independents */
-    int p,                   /* # of taylor series, bit pattern      */
-    const double *basepoint, /* independent variable values   (in)*/
-    size_t **argument,       /* Taylor coeff.                 (in)*/
-    double *valuepoint,      /* dependent variable values    (out)*/
-    size_t **taylors)        /* matrix of coefficient vectors(out)*/
+    short tnum,                    /* tape id                              */
+    int depcheck,                  /* consistency chk on # of dependents   */
+    int indcheck,                  /* consistency chk on # of independents */
+    int p,                         /* # of taylor series, bit pattern      */
+    const double *basepoint,       /* independent variable values   (in)*/
+    const size_t *const *argument, /* Taylor coeff.                 (in)*/
+    double *valuepoint,            /* dependent variable values    (out)*/
+    size_t **taylors)              /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
@@ -588,8 +588,8 @@ int int_forward_safe(short tnum,   /* tape id                              */
                      int depcheck, /* consistency chk on # of dependents   */
                      int indcheck, /* consistency chk on # of independents */
                      int p,        /* # of taylor series, bit pattern      */
-                     size_t **argument, /* Taylor coeff.                  (in)*/
-                     size_t **taylors)  /* matrix of coefficient vectors (out)*/
+                     const size_t *const *argument, /* Taylor coeff. (in)*/
+                     size_t **taylors) /* matrix of coefficient vectors (out)*/
 
 /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 
@@ -715,15 +715,15 @@ int nonl_ind_old_forward_tight(
 /* **argument and **taylors                                                 */
 /****************************************************************************/
 int fov_offset_forward(
-    short tnum,              /* tape id */
-    int depcheck,            /* consistency chk on # of deps */
-    int indcheck,            /* consistency chk on # of indeps */
-    int p,                   /* # of taylor series */
-    int offset,              /* offset for assignments */
-    const double *basepoint, /* independent variable values */
-    double **argument,       /* Taylor coefficients (input) */
-    double *valuepoint,      /* Taylor coefficients (output) */
-    double **taylors)        /* matrix of coifficient vectors */
+    short tnum,                    /* tape id */
+    int depcheck,                  /* consistency chk on # of deps */
+    int indcheck,                  /* consistency chk on # of indeps */
+    int p,                         /* # of taylor series */
+    int offset,                    /* offset for assignments */
+    const double *basepoint,       /* independent variable values */
+    const double *const *argument, /* Taylor coefficients (input) */
+    double *valuepoint,            /* Taylor coefficients (output) */
+    double **taylors)              /* matrix of coifficient vectors */
 /* the order of the indices in argument and taylors is
  * [var][taylor] */
 #else
@@ -731,30 +731,31 @@ int fov_offset_forward(
 /* First Order Vector version of the forward mode. */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int fov_pl_forward(short tnum,              /* tape id */
-                   int depcheck,            /* consistency chk on # of deps */
-                   int indcheck,            /* consistency chk on # of indeps */
-                   int p,                   /* # of taylor series */
-                   const double *basepoint, /* independent variable values */
-                   double **argument,       /* Taylor coefficients (input) */
-                   double *valuepoint,      /* Taylor coefficients (output) */
-                   double **taylors,        /* matrix of coifficient vectors */
-                   double *swargs, double **swtaylors, short *sigsw)
+int fov_pl_forward(
+    short tnum,                    /* tape id */
+    int depcheck,                  /* consistency chk on # of deps */
+    int indcheck,                  /* consistency chk on # of indeps */
+    int p,                         /* # of taylor series */
+    const double *basepoint,       /* independent variable values */
+    const double *const *argument, /* Taylor coefficients (input) */
+    double *valuepoint,            /* Taylor coefficients (output) */
+    double **taylors,              /* matrix of coifficient vectors */
+    double *swargs, double **swtaylors, short *sigsw)
 /* the order of the indices in argument and taylors is
  * [var][taylor] */
 #elif defined(_ABS_NORM_SIG_)
 int fov_pl_sig_forward(
-    short tnum,              /* tape id */
-    int depcheck,            /* consistency chk on # of deps */
-    int indcheck,            /* consistency chk on # of indeps */
-    int p,                   /* # of taylor series */
-    const double *basepoint, /* independent variable values */
-    double **argument,       /* Taylor coefficients (input) */
-    int swcheck,             /* consistency chk in # of switches */
-    short *sigbase,          /* Signature of basepoint */
-    short *sigdir,           /* Signature of direction */
-    double *valuepoint,      /* Taylor coefficients (output) */
-    double **taylors,        /* matrix of coifficient vectors */
+    short tnum,                    /* tape id */
+    int depcheck,                  /* consistency chk on # of deps */
+    int indcheck,                  /* consistency chk on # of indeps */
+    int p,                         /* # of taylor series */
+    const double *basepoint,       /* independent variable values */
+    const double *const *argument, /* Taylor coefficients (input) */
+    int swcheck,                   /* consistency chk in # of switches */
+    const short *sigbase,          /* Signature of basepoint */
+    const short *sigdir,           /* Signature of direction */
+    double *valuepoint,            /* Taylor coefficients (output) */
+    double **taylors,              /* matrix of coifficient vectors */
     double *swargs, double **swtaylors, short *sigsw)
 #else
 int fov_forward(short tnum,              /* tape id */
@@ -762,9 +763,9 @@ int fov_forward(short tnum,              /* tape id */
                 int indcheck,            /* consistency chk on # of indeps */
                 int p,                   /* # of taylor series */
                 const double *basepoint, /* independent variable values */
-                double **argument,       /* Taylor coefficients (input) */
-                double *valuepoint,      /* Taylor coefficients (output) */
-                double **taylors)        /* matrix of coifficient vectors */
+                const double *const *argument, /* Taylor coefficients (input) */
+                double *valuepoint, /* Taylor coefficients (output) */
+                double **taylors)   /* matrix of coifficient vectors */
 /* the order of the indices in argument and taylors is
  * [var][taylor] */
 #endif
@@ -787,10 +788,10 @@ int hos_forward_nk(
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
-    const double *basepoint, /* independent variable values */
-    double **argument,       /* independent variable values */
-    double *valuepoint,      /* Taylor coefficients (output) */
-    double **taylors)        /* matrix of coifficient vectors */
+    const double *basepoint,       /* independent variable values */
+    const double *const *argument, /* independent variable values */
+    double *valuepoint,            /* Taylor coefficients (output) */
+    double **taylors)              /* matrix of coifficient vectors */
 
 #else
 /****************************************************************************/
@@ -808,11 +809,11 @@ int hov_forward(
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
-    int p,                   /* # of taylor series */
-    const double *basepoint, /* independent variable values */
-    double ***argument,      /* Taylor coefficients (input) */
-    double *valuepoint,      /* Taylor coefficients (output) */
-    double ***taylors)       /* matrix of coefficient vectors */
+    int p,                                /* # of taylor series */
+    const double *basepoint,              /* independent variable values */
+    const double *const *const *argument, /* Taylor coefficients (input) */
+    double *valuepoint,                   /* Taylor coefficients (output) */
+    double ***taylors)                    /* matrix of coefficient vectors */
 /* the order of the indices in argument and taylors is
  * [var][taylor][deriv] */
 
@@ -5994,7 +5995,7 @@ int get_num_switches(short tapeId) {
 }
 #endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
-short firstsign(int p, double *u, double *du) {
+short firstsign(int p, const double *u, const double *du) {
   int i = 0;
   short tmp;
   tmp = ((*u) > 1e-12) ? 1.0 : (((*u) < -1e-12) ? -1.0 : 0.0);

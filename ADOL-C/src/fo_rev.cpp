@@ -230,13 +230,14 @@ int fos_pl_sig_reverse(short tnum, /* tape id */
                        int depen,  /* consistency chk on # of deps */
                        int indep,  /* consistency chk on # of indeps */
                        int swchk,  /* consistency chk on # of switches */
-                       short *siggrad, double *lagrange,
+                       const short *siggrad, const double *lagrange,
                        double *results) /*  coefficient vectors */
 #else
 int fos_reverse(short tnum, /* tape id */
                 int depen,  /* consistency chk on # of deps */
                 int indep,  /* consistency chk on # of indeps */
-                double *lagrange, double *results) /*  coefficient vectors */
+                const double *lagrange,
+                double *results) /*  coefficient vectors */
 
 #endif
 #elif _FOV_
@@ -244,35 +245,37 @@ int fos_reverse(short tnum, /* tape id */
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
 
-int fov_reverse(short tnum,        /* tape id */
-                int depen,         /* consistency chk on # of deps */
-                int indep,         /* consistency chk on # of indeps */
-                int nrows,         /* # of Jacobian rows being calculated */
-                double **lagrange, /* domain weight vector */
-                double **results)  /* matrix of coefficient vectors */
+int fov_reverse(short tnum, /* tape id */
+                int depen,  /* consistency chk on # of deps */
+                int indep,  /* consistency chk on # of indeps */
+                int nrows,  /* # of Jacobian rows being calculated */
+                const double *const *lagrange, /* domain weight vector */
+                double **results) /* matrix of coefficient vectors */
 
 #elif defined(_INT_REV_)
 #if defined(_TIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
-int int_reverse_tight(short tnum, /* tape id                               */
-                      int depen,  /* consistency chk on # of deps          */
-                      int indep,  /* consistency chk on # of indeps        */
-                      int nrows,  /* # of Jacobian rows being calculated   */
-                      size_t **lagrange, /* domain weight vector[var][row](in)*/
-                      size_t **results)  /* matrix of coeff. vectors[var][row]*/
+int int_reverse_tight(
+    short tnum,                    /* tape id                               */
+    int depen,                     /* consistency chk on # of deps          */
+    int indep,                     /* consistency chk on # of indeps        */
+    int nrows,                     /* # of Jacobian rows being calculated   */
+    const size_t *const *lagrange, /* domain weight vector[var][row](in)*/
+    size_t **results)              /* matrix of coeff. vectors[var][row]*/
 
 #elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
-int int_reverse_safe(short tnum, /* tape id                               */
-                     int depen,  /* consistency chk on # of deps          */
-                     int indep,  /* consistency chk on # of indeps        */
-                     int nrows,  /* # of Jacobian rows being calculated   */
-                     size_t **lagrange, /* domain weight vector[var][row](in)*/
-                     size_t **results)  /* matrix of coeff. vectors[var][row]*/
+int int_reverse_safe(
+    short tnum,                    /* tape id                               */
+    int depen,                     /* consistency chk on # of deps          */
+    int indep,                     /* consistency chk on # of indeps        */
+    int nrows,                     /* # of Jacobian rows being calculated   */
+    const size_t *const *lagrange, /* domain weight vector[var][row](in)*/
+    size_t **results)              /* matrix of coeff. vectors[var][row]*/
 #else
 #error Neither _TIGHT_ nor _NTIGHT_ defined
 #endif
@@ -721,10 +724,7 @@ int int_reverse_safe(short tnum, /* tape id                               */
         *Ares = 0.0;
 #else
       if (tape.in_nested_ctx()) {
-        FOR_0_LE_l_LT_p {
-          ARES_INC = LAGRANGETRANS(l, indexd);
-          LAGRANGETRANS(l, indexd) = 0.0;
-        }
+        FOR_0_LE_l_LT_p { ARES_INC = LAGRANGETRANS(l, indexd); }
       } else {
         FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
       }

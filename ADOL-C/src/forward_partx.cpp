@@ -22,8 +22,8 @@ BEGIN_C_DECLS
 /* zos_forward_partx(tag, m, mdim[n], n, x[n][d], y[m])                     */
 /* (based on zos_forward)                                                   */
 
-int zos_forward_partx(short tag, int m, int n, int *ndim, double **x,
-                      double *y) {
+int zos_forward_partx(short tag, int m, int n, const int *ndim,
+                      const double *const *x, double *y) {
   double *x0; /* base point */
   int i, j, ind, sum_n, rc;
 
@@ -52,8 +52,8 @@ int zos_forward_partx(short tag, int m, int n, int *ndim, double **x,
 /* fos_forward_partx(tag, m, n, ndim[n], x[n][][2], y[m][2])                */
 /* (based on fos_forward)                                                   */
 
-int fos_forward_partx(short tag, int m, int n, int *ndim, double ***x,
-                      double **y) {
+int fos_forward_partx(short tag, int m, int n, const int *ndim,
+                      const double *const *const *x, double **y) {
   double *x0;   /* base point */
   double *xtay; /* Taylor coefficients */
   double *y0;   /* result */
@@ -97,8 +97,8 @@ int fos_forward_partx(short tag, int m, int n, int *ndim, double ***x,
 /* hos_forward_partx(tag, m, n, ndim[n], d, x[n][][d+1], y[m][d+1])         */
 /* (based on hos_forward)                                                   */
 
-int hos_forward_partx(short tag, int m, int n, int *ndim, int d, double ***x,
-                      double **y) {
+int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
+                      const double *const *const *x, double **y) {
   double *x0;    /* base point */
   double **xtay; /* Taylor coefficients */
   double *y0;    /* result */
@@ -145,8 +145,9 @@ int hos_forward_partx(short tag, int m, int n, int *ndim, int d, double ***x,
                      y[m], Y[m][p]) */
 /* (based on fov_forward)                                                   */
 
-int fov_forward_partx(short tag, int m, int n, int *ndim, int p, double **x,
-                      double ***Xppp, double *y, double **Ypp) {
+int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
+                      const double *const *x, const double *const *const *Xppp,
+                      double *y, double **Ypp) {
   double *x0; /* base point */
   double **X; /* Taylor coefficients */
   int i, j, k, ind, sum_n, rc;
@@ -181,8 +182,10 @@ int fov_forward_partx(short tag, int m, int n, int *ndim, int p, double **x,
                      y[m], Y[m][p][d]) */
 /* (based on hov_forward)                                                   */
 
-int hov_forward_partx(short tag, int m, int n, int *ndim, int d, int p,
-                      double **x, double ****Xpppp, double *y, double ***Yppp) {
+int hov_forward_partx(short tag, int m, int n, const int *ndim, int d, int p,
+                      const double *const *x,
+                      const double *const *const *const *Xpppp, double *y,
+                      double ***Yppp) {
   double *x0;  /* base point */
   double ***X; /* Taylor coefficients */
   int i, j, k, l, ind, sum_n, rc;
