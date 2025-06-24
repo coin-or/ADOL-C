@@ -23,8 +23,8 @@
 /* ADOL-C data types */
 
 // clang-format off
-typedef @UINT_TYPE@ locint; /* ensure locint is unsigned */
-typedef @REAL_TYPE@ revreal;
+typedef size_t locint; /* ensure locint is unsigned */
+typedef double revreal;
 
 /*--------------------------------------------------------------------------*/
 /* Enable/disable advanced branching */
