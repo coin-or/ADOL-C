@@ -614,12 +614,37 @@ inline bool operator<(const adouble &a, const adouble &b) {
 
 #endif // ADOLC_ADVANCED_BRANCHING
 
-/// @brief This is an overload of std::isnormal for adoubles and not traced on
-/// the tape. The value of the adouble on the current tape is passed to
-/// std::isnormal.
-/// @param a adouble to check whether its value on the tape is normal
-/// @return whether the adouble value is normal
+/** @brief This is an overload of std::isnormal for adoubles and not traced on
+ * the tape. The value of the adouble on the current tape is passed to
+ * std::isnormal.
+ * @param a adouble to check whether its value on the tape is normal
+ * @return whether the adouble value is normal
+ */
 inline bool isnormal(const adouble &a) { return std::isnormal(a.value()); }
+
+/** @brief This is an overload of std::isnan for adoubles and not traced on
+ * the tape. The value of the adouble on the current tape is passed to
+ * std::isnan.
+ * @param a adouble to check whether its value on the tape is nan
+ * @return whether the adouble value is nan
+ */
+inline bool isnan(const adouble &a) { return std::isnan(a.value()); }
+
+/** @brief This is an overload of std::isinf for adoubles and not traced on
+ * the tape. The value of the adouble on the current tape is passed to
+ * std::isinf.
+ * @param a adouble to check whether its value on the tape is inf
+ * @return whether the adouble value is inf
+ */
+inline bool isinf(const adouble &a) { return std::isinf(a.value()); }
+
+/** @brief This is an overload of std::isfinite for adoubles and not traced on
+ * the tape. The value of the adouble on the current tape is passed to
+ * std::isfinite.
+ * @param a adouble to check whether its value on the tape is finite
+ * @return whether the adouble value is finite
+ */
+inline bool isfinite(const adouble &a) { return std::isfinite(a.value()); }
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
@@ -1098,12 +1123,37 @@ inline bool operator<(const pdouble &p, const adouble &a) {
 
 #endif // ADOLC_ADVANCED_BRANCHING
 
-/// @brief This is an overload of std::isnormal for pdoubles and not traced on
-/// the tape. The value of the pdouble on the current tape is passed to
-/// std::isnormal.
-/// @param p pdouble to check whether its value on the tape is normal
-/// @return whether the pdouble value is normal
+/** @brief This is an overload of std::isnormal for pdoubles and not traced on
+ * the tape. The value of the pdouble on the current tape is passed to
+ * std::isnormal.
+ * @param p pdouble to check whether its value on the tape is normal
+ * @return whether the pdouble value is normal
+ */
 inline bool isnormal(const pdouble &p) { return std::isnormal(p.value()); }
+
+/** @brief This is an overload of std::isnan for pdoubles and not traced on
+ * the tape. The value of the pdouble on the current tape is passed to
+ * std::isnan.
+ * @param p pdouble to check whether its value on the tape is nan
+ * @return whether the pdouble value is nan
+ */
+inline bool isnan(const pdouble &p) { return std::isnan(p.value()); }
+
+/** @brief This is an overload of std::isinf for pdoubles and not traced on
+ * the tape. The value of the pdouble on the current tape is passed to
+ * std::isinf.
+ * @param p pdouble to check whether its value on the tape is inf
+ * @return whether the pdouble value is inf
+ */
+inline bool isinf(const pdouble &p) { return std::isinf(p.value()); }
+
+/** @brief This is an overload of std::isfinite for pdoubles and not traced on
+ * the tape. The value of the pdouble on the current tape is passed to
+ * std::isfinite.
+ * @param p pdouble to check whether its value on the tape is finite
+ * @return whether the pdouble value is finite
+ */
+inline bool isfinite(const pdouble &p) { return std::isfinite(p.value()); }
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
