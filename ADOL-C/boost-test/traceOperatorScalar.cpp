@@ -7438,6 +7438,36 @@ BOOST_AUTO_TEST_CASE(IsnormalOperatorPrimal) {
   BOOST_TEST(!isnormal(ad), tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(IsnanOperatorPrimal) {
+
+  setCurrentTape(tapeId1);
+  adouble ad(1.7);
+
+  BOOST_TEST(!isnan(ad), tt::tolerance(tol));
+  ad.value(std::numeric_limits<double>::quiet_NaN());
+  BOOST_TEST(isnan(ad), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(IsinfOperatorPrimal) {
+
+  setCurrentTape(tapeId1);
+  adouble ad(1.7);
+
+  BOOST_TEST(!isinf(ad), tt::tolerance(tol));
+  ad.value(std::numeric_limits<double>::infinity());
+  BOOST_TEST(isinf(ad), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(IsfiniteOperatorPrimal) {
+
+  setCurrentTape(tapeId1);
+  adouble ad(1.7);
+
+  BOOST_TEST(isfinite(ad), tt::tolerance(tol));
+  ad.value(std::numeric_limits<double>::infinity());
+  BOOST_TEST(!isfinite(ad), tt::tolerance(tol));
+}
+
 /* Implementation of PowOperator_FOS_Reverse_1 does not work.  Why?
  * Apparently, PowOperator_FOS_Reverse_3 works fine (for some reason...).
  * Also, the implementations for LdexpOperator_1 and LdexpOperator_3 do

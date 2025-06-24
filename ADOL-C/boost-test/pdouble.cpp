@@ -5,7 +5,7 @@ File for explicit testing the pdouble type file.
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-
+#include <limits> // for inf and nan
 namespace tt = boost::test_tools;
 
 #include <adolc/adolc.h>
@@ -4223,11 +4223,41 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
 BOOST_AUTO_TEST_CASE(IsnormalOperatorPrimal) {
 
   setCurrentTape(tapeId5);
-  adouble pd(1.7);
+  pdouble pd(1.7);
 
   BOOST_TEST(isnormal(pd), tt::tolerance(tol));
   pd.value(0.0);
   BOOST_TEST(!isnormal(pd), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(IsnanOperatorPrimal) {
+
+  setCurrentTape(tapeId5);
+  pdouble pd(1.7);
+
+  BOOST_TEST(!isnan(pd), tt::tolerance(tol));
+  pd.value(std::numeric_limits<double>::quiet_NaN());
+  BOOST_TEST(isnan(pd), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(IsinfOperatorPrimal) {
+
+  setCurrentTape(tapeId5);
+  pdouble pd(1.7);
+
+  BOOST_TEST(!isinf(pd), tt::tolerance(tol));
+  pd.value(std::numeric_limits<double>::infinity());
+  BOOST_TEST(isinf(pd), tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(IsfiniteOperatorPrimal) {
+
+  setCurrentTape(tapeId5);
+  pdouble pd(1.7);
+
+  BOOST_TEST(isfinite(pd), tt::tolerance(tol));
+  pd.value(std::numeric_limits<double>::infinity());
+  BOOST_TEST(!isfinite(pd), tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
