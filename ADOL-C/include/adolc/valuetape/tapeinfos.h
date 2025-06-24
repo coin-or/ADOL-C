@@ -163,6 +163,8 @@ struct TapeInfos {
   size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
+  static const size_t maxLocsPerOp{10}; // used in tape_loc_...
+
   void freeTapeResources();
 
   // writes the block of size depth of taylor coefficients from point loc to
