@@ -29,21 +29,9 @@ struct revolve_nums {
   int oldfine{0};
 };
 
-#ifdef _OPENMP
-#include <omp.h>
-inline revolve_nums *revolve_numbers;
-#else
 inline revolve_nums revolve_numbers;
-#endif
 
-inline revolve_nums &get_revolve_numbers() {
-#ifdef _OPENMP
-  int ADOLC_threadNumber = omp_get_thread_num();
-  return revolve_numbers[ADOLC_threadNumber]
-#else
-  return revolve_numbers;
-#endif // _OPENMP
-}
+inline revolve_nums &get_revolve_numbers() { return revolve_numbers; }
 
 enum revolve_action {
   revolve_advance,
