@@ -3,6 +3,11 @@
 #include <adolc/valuetape/persistanttapeinfos.h>
 #include <iostream>
 #include <string>
+
+// handling file names over different threads
+#include <atomic>
+#include <thread>
+
 PersistantTapeInfos::~PersistantTapeInfos() {
   free(paramstore);
   free(jacSolv_ci);
@@ -135,21 +140,27 @@ PersistantTapeInfos::operator=(PersistantTapeInfos &&other) noexcept {
   return *this;
 }
 
+/**
+ * @brief Generates an id for the thread within the function is called
+ *
+ * @return id of the current thread
+ */
+int getThreadIndex() {
+  static std::atomic<int> nextId{0};
+  thread_local int id = nextId++;
+  return id;
+}
 /****************************************************************************/
-/* Returns the char*: tapeBaseName+tapeId+.tap+\0 or if parallelization is */
-/* active: tapeBaseName+tapeId+thread-+threadNumber+.tap+\0                 */
+/* Returns the char*: tapeBaseName+thread-threadNumber+tapeId+.tap+\0       */
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
 char *PersistantTapeInfos::createFileName(short tapeId, int tapeType) {
   std::string fileName(tapeBaseNames_[tapeType]);
 
-#if defined(_OPENMP)
-  if (ADOLC_GLOBAL_TAPE_VARS.inParallelRegion == 1) {
-    fileName += "thread-" + std::to_string(omp_get_thread_num());
-  }
-#endif // _OPENMP
+  int threadId = getThreadIndex();
+  fileName += "thread-" + std::to_string(threadId) + "_";
 
-  fileName += std::to_string(tapeId) + ".tap";
+  fileName += "tape-" + std::to_string(tapeId) + ".tap";
 
   // don't forget space for null termination
   char *ret_char = new char[fileName.size() + 1];

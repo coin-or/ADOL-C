@@ -187,11 +187,7 @@
 
 #define MAXINT 2147483647
 
-#ifndef _OPENMP
 revolve_nums rev_num;
-#else
-revolve_nums *rev_num = NULL;
-#endif
 
 /* ************************************************************************* */
 

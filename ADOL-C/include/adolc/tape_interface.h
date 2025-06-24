@@ -9,12 +9,12 @@
 #include <vector>
 
 inline std::vector<std::unique_ptr<ValueTape>> &tapeBuffer() {
-  static std::vector<std::unique_ptr<ValueTape>> tBuffer;
+  thread_local std::vector<std::unique_ptr<ValueTape>> tBuffer;
   return tBuffer;
 }
 
 inline std::vector<short> &tapeIdBuffer() {
-  static std::vector<short> tIdBuffer;
+  thread_local std::vector<short> tIdBuffer;
   return tIdBuffer;
 }
 
@@ -38,7 +38,7 @@ inline ValueTape &findTape(short tapeId) { return *findTapePtr(tapeId); }
 
 // points to the current tape
 inline ValueTape *&currentTapePtr() {
-  static ValueTape *currTapePtr = nullptr;
+  thread_local ValueTape *currTapePtr = nullptr;
   return currTapePtr;
 }
 
@@ -61,11 +61,8 @@ inline void createNewTape(short tapeId) {
   tapeBuffer().emplace_back(std::make_unique<ValueTape>(tapeId));
 
   // set the current tape to the newly created one
-  if (!currentTapePtr()) {
+  if (!currentTapePtr())
     setCurrentTape(tapeId);
-    std::cout << "ADOLC: Set current Tape to Tape with Id: " << tapeId
-              << std::endl;
-  }
 }
 
 size_t get_num_param(short ta);

@@ -32,12 +32,6 @@
 typedef unsigned int uint;
 
 /*--------------------------------------------------------------------------*/
-/* OpenMP includes */
-#if defined(_OPENMP)
-#include <omp.h>
-#endif
-
-/*--------------------------------------------------------------------------*/
 /* system dependent configuration */
 #if defined(ADOLC_INTERNAL)
 #if HAVE_CONFIG_H
