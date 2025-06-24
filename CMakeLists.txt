@@ -115,8 +115,8 @@ endif (ENABLE_HARDDEBUG)
 option(ENABLE_LATEINIT "Whether the adouble variables have a late initialize option for functions like malloc/realloc" FALSE)
 add_feature_info(ENABLE_LATEINIT ENABLE_LATEINIT "adouble can do a late initialization.")
 
-option(DISABLE_STDCZERO "adouble default constructor does not initialize the value to zero" FALSE)
-add_feature_info(DISABLE_STDCZERO DISABLE_STDCZERO "Do not initialize the values to zero.")
+option(ENABLE_STDCZERO "adouble default constructor does not initialize the value to zero" TRUE)
+add_feature_info(ENABLE_STDCZERO ENABLE_STDCZERO "Do not initialize the values to zero.")
 
 # Whether errno is thread save
 option(ENABLE_TSERRNO "Use errno as thread number cache" FALSE)
@@ -137,8 +137,8 @@ cmake_dependent_option(ENABLE_PAREXA "build parallel example" FALSE ENABLE_OPENM
 add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
 
 # Whether tape_doc should compute values as it prints the tape contents
-option(DISABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents" TRUE)
-add_feature_info(DISABLE_TAPEDOC_VALUES DISABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents")
+option(ENABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents" FALSE)
+add_feature_info(ENABLE_TAPEDOC_VALUES ENABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents")
 
 
 option(ENABLE_BOOST_POOL "Enable the use of boost pool." FALSE)
@@ -205,11 +205,11 @@ target_compile_definitions(adolc PRIVATE
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
-  $<$<NOT:$<BOOL:${DISABLE_STDCZERO}>>:ADOLC_ADOUBLE_STDCZERO=1>
+  $<$<BOOL:${ENABLE_STDCZERO}>:ADOLC_ADOUBLE_STDCZERO=1>
   $<$<BOOL:${ENABLE_TSERRNO}>:ADOLC_THREADSAVE_ERRNO=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1
-  $<$<NOT:$<BOOL:${DISABLE_TAPEDOC_VALUES}>>:ADOLC_TAPE_DOC_VALUES=1>)
+  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1>
+  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1>
+  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>)
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------
