@@ -14,138 +14,114 @@
 #include <adolc/adolc.h>
 #include <math.h>
 
-#define h 0.01
-#define steps 100
-
 // time step function
-// double version
-int euler_step(int n, double *y);
+template <class data_type> int euler_step_act(size_t dim, data_type *y) {
+  // Euler step, adouble version
+  y[0] = y[0] + 0.01 * y[0];
+  y[1] = y[1] + 0.01 * 2 * y[1];
 
-// adouble version
-int euler_step_act(int n, adouble *y);
-
-int tag_full, tag_part, tag_check;
+  return 1;
+}
 
 int main() {
-  // time interval
-  double t0, tf;
-
-  // state, double and adouble version
-  adouble y1[2];
-
-  // required to have consecutive locations, since only the first location is
-  // stored on the tape
-  ensureContiguousLocations(2);
-  adouble y2[2];
-  int n;
-
-  // control, double and adouble version
-  adouble con[2];
-  double conp[2];
-
-  // target value;
-  double f;
-
-  // variables for derivative calculation
-  double grad[2];
-
-  int i;
-
-  // tape identifiers
-  tag_full = 1;
-  tag_part = 2;
-  tag_check = 3;
-
   // two input and output variables for checkpointing function
-  n = 2;
+  constexpr short dim = 2;
 
-  // time interval
-  t0 = 0.0;
-  tf = 1.0;
+  const short tapeIdFull = 1;
+  const short tapeIdPart = 2;
+  const short tapeIdCheck = 3;
+
+  createNewTape(tapeIdFull);
+  createNewTape(tapeIdPart);
+  createNewTape(tapeIdCheck);
 
   // control
-  conp[0] = 1.0;
-  conp[1] = 1.0;
+  std::array<double, dim> conp = {1.0, 1.0};
+
+  // variables for derivative calculation
+  std::array<double, dim> grad;
+
+  // time steps
+  const size_t steps = 100;
+
+  // number of checkpoints
+  const size_t num_cpts = 5;
+
+  // time interval
+  const double t0 = 0.0;
+  const double tf = 1.0;
 
   // basis variant: full taping of time step loop
+  trace_on(tapeIdFull);
+  {
+    // state, double and adouble version
+    std::array<adouble, dim> y;
 
-  trace_on(tag_full);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
-  y1[0] = con[0];
-  y1[1] = con[1];
+    // control, double and adouble version
+    std::array<adouble, dim> con;
 
-  for (i = 0; i < steps; i++) {
-    euler_step_act(n, y1);
+    for (auto i = 0; i < dim; ++i) {
+      con[i] <<= conp[i];
+      y[i] = con[i];
+    }
+
+    for (auto i = 0; i < steps; ++i) {
+      euler_step_act(dim, y.data());
+    }
+    double f[] = {0.0};
+    y[0] + y[1] >>= f[0];
   }
-
-  y1[0] + y1[1] >>= f;
   trace_off(1);
 
-  gradient(tag_full, 2, conp, grad);
+  gradient(tapeIdFull, dim, conp.data(), grad.data());
 
   printf(" full taping:\n gradient=( %f, %f)\n\n", grad[0], grad[1]);
 
-  // Now using checkpointing facilities
+  trace_on(tapeIdPart);
+  {
+    // ensure that the adoubles stored in y occupy consecutive locations
+    currentTape().ensureContiguousLocations(dim);
+    std::array<adouble, dim> y;
 
-  // define checkpointing procedure
+    std::array<adouble, dim> con;
 
-  // generate checkpointing context => define active variante of the time step
-  CP_Context cpc(euler_step_act);
+    for (auto i = 0; i < dim; ++i) {
+      con[i] <<= conp[i];
+      y[i] = con[i];
+    }
 
-  // double variante of the time step function
-  cpc.setDoubleFct(euler_step);
+    // Now using checkpointing facilities
+    // generate checkpointing context => define active variante of the time step
+    CP_Context cpc(tapeIdPart, tapeIdCheck, euler_step_act<adouble>);
 
-  // number of time steps to perform
-  cpc.setNumberOfSteps(steps);
+    // double variante of the time step function
+    cpc.setDoubleFct(euler_step_act<double>);
 
-  // number of checkpoint
-  cpc.setNumberOfCheckpoints(5);
+    // number of time steps to perform
+    cpc.setNumberOfSteps(steps);
 
-  // dimension of input/output
-  cpc.setDimensionXY(n);
-  // input vector
-  cpc.setInput(y2);
-  // output vector
-  cpc.setOutput(y2);
-  // tape number for checkpointing
-  cpc.setTapeId(tag_check);
-  // always retape or not ?
-  cpc.setAlwaysRetaping(false);
+    // number of checkpoint
+    cpc.setNumberOfCheckpoints(num_cpts);
 
-  trace_on(tag_part);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
-  y2[0] = con[0];
-  y2[1] = con[1];
+    // dimension of input/output
+    cpc.setDimensionXY(dim);
+    // input vector
+    cpc.setInput(y.data());
+    // output vector
+    cpc.setOutput(y.data());
+    // always retape or not ?
+    cpc.setAlwaysRetaping(false);
 
-  cpc.checkpointing();
+    cpc.checkpointing(tapeIdPart);
 
-  y2[0] + y2[1] >>= f;
+    double f[] = {0.0};
+    y[0] + y[1] >>= f[0];
+  }
   trace_off(1);
-  gradient(tag_part, 2, conp, grad);
+
+  gradient(tapeIdPart, dim, conp.data(), grad.data());
 
   printf(" taping with checkpointing facility:\n gradient=( %f, %f)\n\n",
          grad[0], grad[1]);
-
   return 0;
-}
-
-int euler_step(int n, double *y) {
-
-  // Euler step, double version
-  y[0] = y[0] + h * y[0];
-  y[1] = y[1] + h * 2 * y[1];
-
-  return 1;
-}
-
-int euler_step_act(int n, adouble *y) {
-
-  // Euler step, adouble version
-
-  y[0] = y[0] + h * y[0];
-  y[1] = y[1] + h * 2 * y[1];
-
-  return 1;
 }
