@@ -82,7 +82,6 @@ include(FeatureSummary)
 option(ENABLE_MEDIPACK "Build ADOL-C with MeDiPack (MPI) support" FALSE)
 add_feature_info(ENABLE_MEDIPACK ENABLE_MEDIPACK "MeDiPack: MPI wrapper for Algorithmic Differentiation tools.")
 
-option(ENABLE_PYTHON "Build ADOL-C with python/swig support" FALSE)
 
 # The boolean valued comparison operators with two adouble arguments will
 # not return boolean results but the active results may be used to automatically
@@ -118,11 +117,6 @@ add_feature_info(ENABLE_LATEINIT ENABLE_LATEINIT "adouble can do a late initiali
 option(ENABLE_STDCZERO "adouble default constructor does not initialize the value to zero" TRUE)
 add_feature_info(ENABLE_STDCZERO ENABLE_STDCZERO "Do not initialize the values to zero.")
 
-# Whether errno is thread save
-option(ENABLE_TSERRNO "Use errno as thread number cache" FALSE)
-add_feature_info(ENABLE_TSERRNO ENABLE_TSERRNO "Use errno as thread number cache.")
-
-
 # Whether to build documented examples
 option(ENABLE_DOCEXA "build documented examples" FALSE)
 add_feature_info(ENABLE_DOCEXA ENABLE_DOCEXA "build documented examples")
@@ -131,10 +125,11 @@ add_feature_info(ENABLE_DOCEXA ENABLE_DOCEXA "build documented examples")
 option(ENABLE_ADDEXA "build additional examples" FALSE)
 add_feature_info(ENABLE_ADDEXA ENABLE_ADDEXA "build additional examples")
 
+
 # Whether to build parallel example
-include(CMakeDependentOption)
-cmake_dependent_option(ENABLE_PAREXA "build parallel example" FALSE ENABLE_OPENMP FALSE)
-add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
+#include(CMakeDependentOption)
+#cmake_dependent_option(ENABLE_PAREXA "build parallel example" FALSE)
+#add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
 
 # Whether tape_doc should compute values as it prints the tape contents
 option(ENABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents" FALSE)
@@ -143,7 +138,7 @@ add_feature_info(ENABLE_TAPEDOC_VALUES ENABLE_TAPEDOC_VALUES "should the tape_do
 
 option(ENABLE_BOOST_POOL "Enable the use of boost pool." FALSE)
 
-option(ENABLE_SPARSE "NOT SUPPORTED!: Build with Colpack to enable sparse AD." FALSE)
+option(ENABLE_SPARSE "Build with Colpack to enable sparse AD." FALSE)
 add_feature_info(ENABLE_SPARSE ENABLE_SPARSE "build sparse drivers (colpack required!)")
 
 # build the c interface
@@ -152,10 +147,6 @@ option(BUILD_INTERFACE OFF)
 # build the tests
 option(BUILD_TESTS OFF)
 
-
-# Whether to enable OpenMP
-option(ENABLE_OPENMP "Enable OpenMP" FALSE)
-add_feature_info(ENABLE_OPENMP ENABLE_OPENMP "Enable OpenMP.")
 
 
 # handle the options
@@ -168,15 +159,6 @@ if(ENABLE_MEDIPACK)
   find_package(MPI REQUIRED)
   find_package(MeDiPack 1.0...<1.2 REQUIRED)                  # cmake >= 3.19
   target_link_libraries(adolc PUBLIC MeDiPack MPI::MPI_CXX)
-endif()
-
-# enable python and swig
-target_compile_definitions(adolc PRIVATE
-  $<$<BOOL:${ENABLE_PYTHON}>:ADOLC_python_SUPPORT=1>)
-
-if(ENABLE_PYTHON)
-  find_package(Python3 3.8 REQUIRED)
-  find_package(SWIG REQUIRED COMPONENTS python)
 endif()
 
 if (ENABLE_BOOST_POOL)
@@ -206,7 +188,6 @@ target_compile_definitions(adolc PRIVATE
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
   $<$<BOOL:${ENABLE_STDCZERO}>:ADOLC_ADOUBLE_STDCZERO=1>
-  $<$<BOOL:${ENABLE_TSERRNO}>:ADOLC_THREADSAVE_ERRNO=1>
   $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1>
   $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1>
   $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>)
