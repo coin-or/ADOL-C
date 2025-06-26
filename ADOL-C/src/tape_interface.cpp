@@ -36,17 +36,14 @@
 #include "ampi/tape/support.h"
 #endif // ADOLC_AMPI_SUPPORT
 
-/****************************************************************************/
-/* Initialization for the taping process. Creates buffers for this tape,    */
-/* sets files names, and calls appropriate setup routines.                  */
-/****************************************************************************/
 int trace_on(short tapeId, int keepTaylors) {
+
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
   tapeIdBuffer().push_back(currentTape().tapeId());
   setCurrentTape(tapeId);
-  int retval = tape.initNewTape();
 
+  int retval = tape.initNewTape();
 #ifdef ADOLC_MEDIPACK_SUPPORT
   tape.mediInitTape(tapeId);
 #endif
@@ -64,14 +61,13 @@ int trace_on(short tapeId, int keepTaylors) {
 
 int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
              size_t tbs, int skipFileCleanup) {
-  int retval = 0;
 
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
   tapeIdBuffer().push_back(currentTape().tapeId());
   setCurrentTape(tapeId);
 
-  retval = tape.initNewTape();
+  int retval = tape.initNewTape();
   if (retval) {
 #ifdef ADOLC_MEDIPACK_SUPPORT
     tape.mediInitTape(tapeId);
@@ -93,11 +89,8 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
     return -1;
 }
 
-/****************************************************************************/
-/* Stop Tracing. Cleans up, and turns off trace_flag. Flag not equal zero   */
-/* enforces writing of the three main tape files (op+loc+val).              */
-/****************************************************************************/
 void trace_off(int flag) {
+
   ValueTape &tape = currentTape();
   if (tape.workMode() != TapeInfos::TAPING)
     ADOLCError::fail(ADOLCError::ErrorType::TAPING_NOT_ACTUALLY_TAPING,
@@ -123,10 +116,6 @@ void cachedTraceTags(std::vector<short> &result) {
     }
   }
 }
-
-/****************************************************************************/
-/* An all-in-one tape stats printing routine.                               */
-/****************************************************************************/
 
 void printTapeStats(int tapeId) {
   using std::cout;
