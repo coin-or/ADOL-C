@@ -1,8 +1,9 @@
 add_executable(detexam detexam.cpp)
 target_link_libraries(detexam PRIVATE adolc)
 
-add_executable(luexam luexam.cpp)
-target_link_libraries(luexam PRIVATE adolc)
+# Tim 25.07.25 advector & adub is not adapted to the tape_location interface.
+#add_executable(luexam luexam.cpp)
+#target_link_libraries(luexam PRIVATE adolc)
 
 add_executable(odexam odexam.cpp)
 target_link_libraries(odexam PRIVATE adolc)
@@ -27,6 +28,6 @@ if(ENABLE_SPARSE)
   target_link_libraries(traceless_vector_indo PRIVATE adolc)
 endif()
 
-if(ENABLE_ADDEXA OR ENABLE_PAREXA)
-  # add_subdirectory(additional_examples) # TODO
+if(ENABLE_ADDEXA) # OR ENABLE_PAREXA)
+  add_subdirectory(additional_examples)
 endif()
