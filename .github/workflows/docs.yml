@@ -1,0 +1,40 @@
+
+name: Build and Deploy Documentation
+on:
+    push:
+      branches: [ "master" ]
+    pull_request:
+
+jobs: 
+  build-and-deploy-docs: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Doxygen
+      shell: bash
+      run: |
+        sudo apt install doxygen
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure ADOL-C
+      run: 
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} -S ${{ github.workspace }}
+
+    - name: build docs
+      run:
+        cmake --build ${{ steps.strings.outputs.build-output-dir }} --target doxygen 
+
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ steps.strings.outputs.build-output-dir }}/doc/doxygen/html
