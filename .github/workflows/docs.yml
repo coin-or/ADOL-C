@@ -12,10 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Doxygen
+    - name: Install Doxygen and some other things
       shell: bash
-      run: |
-        sudo apt install doxygen
+      run: sudo apt-get update && sudo apt-get install -y doxygen && sudo apt-get install -y graphviz
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -37,4 +36,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ steps.strings.outputs.build-output-dir }}/doc/doxygen/html
+          publish_dir: ${{ steps.strings.outputs.build-output-dir }}/ADOL-C/doc/doxygen/html
