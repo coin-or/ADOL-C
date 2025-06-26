@@ -1,0 +1,2 @@
+add_executable(checkpointing checkpointing/checkpointing.cpp)
+target_link_libraries(checkpointing PRIVATE adolc)
