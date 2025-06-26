@@ -1,5 +1,5 @@
 
-name: Build and Deploy Documentation
+name: Build Docs
 on:
     push:
       branches: [ "master" ]
