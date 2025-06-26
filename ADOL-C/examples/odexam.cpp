@@ -19,8 +19,7 @@
 #include <adolc/adalloc.h>            // use of ADOL-C allocation utilities
 #include <adolc/adtb_types.h>         // use of active double
 #include <adolc/drivers/odedrivers.h> // use of "Easy To Use" ODE drivers
-#include <adolc/taping.h>             // use of taping
-
+#include <adolc/tape_interface.h>
 // NOTICE: If one wants to include all ADOL-C interfaces without
 //         getting in trouble to find out the right header files
 //
@@ -76,7 +75,7 @@ int main() {
     X[i][0] = py[i];              // and the Taylor coefficient;
     nz[i] = new short[n];         // set up sparsity array
   } // end for
-
+  createNewTape(1);
   tracerhs(1, py, pyp); // trace RHS with tag = 1
 
   forode(1, n, deg, X);             // compute deg coefficients

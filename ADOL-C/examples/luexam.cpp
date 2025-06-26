@@ -14,7 +14,7 @@
 
 #include <adolc/adtb_types.h>
 #include <adolc/advector.h>
-#include <adolc/taping.h>
+#include <adolc/tape_interface.h>
 
 #include <adolc/drivers/drivers.h>
 #include <adolc/interfaces.h>
