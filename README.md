@@ -2,6 +2,7 @@
 
 [![Build Status](https://github.com/coin-or/ADOL-C/actions/workflows/ci.yml/badge.svg)](https://github.com/coin-or/ADOL-C/actions?query=branch%3Amaster)
 [![codecov](https://codecov.io/github/coin-or/ADOL-C/graph/badge.svg?token=4FSN87ZXCZ)](https://codecov.io/github/coin-or/ADOL-C)
+[![docs](https://github.com/coin-or/ADOL-C/actions/workflows/docs.yml/badge.svg)](https://coin-or.github.io/ADOL-C/)
 
 > [!WARNING]  
 > We are in the process of modernizing ADOL-C. The master branch is unstable. Please use the latest release!
