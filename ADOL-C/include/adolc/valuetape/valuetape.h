@@ -328,7 +328,7 @@ public:
   void rpp_A(double **A) { tapeInfos_.rpp_A = A; }
   void upp_A(size_t **A) { tapeInfos_.upp_A = A; }
 
-  static size_t maxLocsPerOp() { return TapeInfos::maxLocsPerOp; }
+  constexpr static size_t maxLocsPerOp() { return TapeInfos::maxLocsPerOp; }
 
   void put_op(OPCODES op, size_t reserveExtraLocations = 0) {
     return tapeInfos_.put_op(op, loc_fileName(), op_fileName(), val_fileName(),
