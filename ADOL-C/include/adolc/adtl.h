@@ -34,8 +34,8 @@ using std::ostream;
 
 namespace adtl {
 
-double makeNaN();
-double makeInf();
+ADOLC_API double makeNaN();
+ADOLC_API double makeInf();
 
 #ifdef USE_ADTL_REFCOUNTING
 class adouble;

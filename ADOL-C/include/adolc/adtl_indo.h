@@ -51,8 +51,8 @@ ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
 
 namespace adtl_indo {
 
-double makeNaN();
-double makeInf();
+ADOLC_API double makeNaN();
+ADOLC_API double makeInf();
 
 class ADOLC_API adouble {
 public:

@@ -30,8 +30,8 @@ using std::ostream;
 
 namespace adtl_hov {
 
-double makeNaN();
-double makeInf();
+ADOLC_API double makeNaN();
+ADOLC_API double makeInf();
 
 enum Mode {
   ADTL_ZOS = 0x1,
