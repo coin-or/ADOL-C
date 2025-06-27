@@ -31,8 +31,6 @@ using std::cout;
 
 namespace adtl {
 
-size_t adouble::numDir = 1;
-
 #ifdef USE_ADTL_REFCOUNTING
 size_t refcounter::refcnt = 0;
 #endif

@@ -215,9 +215,9 @@ public:
   inline double getADValue(const unsigned int p) const;
   inline void setADValue(const unsigned int p, const double v);
 
-  double *getOneADValue(int i) const;
+  inline double *getOneADValue(int i) const;
 
-  void setOneADValue(int i, double *v);
+  inline void setOneADValue(int i, double *v);
 
   inline explicit operator double const &();
   inline explicit operator double &&();
@@ -2540,12 +2540,12 @@ inline void adouble::setADValue(const unsigned int p, const double v) {
   adval[p] = v;
 }
 
-double *adouble::getOneADValue(int i) const {
+inline double *adouble::getOneADValue(int i) const {
   std::cout << " getOneADValue : i= " << i << std::endl;
   return ho_deriv[i];
 }
 
-void adouble::setOneADValue(int i, double *v) { ho_deriv[i] = v; }
+inline void adouble::setOneADValue(int i, double *v) { ho_deriv[i] = v; }
 
 inline const list<unsigned int> &adouble::get_pattern() const {
   if (no_do_indo()) {
