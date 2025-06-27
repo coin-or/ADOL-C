@@ -33,7 +33,7 @@ namespace adtl_hov {
 ADOLC_API double makeNaN();
 ADOLC_API double makeInf();
 
-enum Mode {
+enum ADOLC_API Mode {
   ADTL_ZOS = 0x1,
   ADTL_FOV = 0x3,
   ADTL_INDO = 0x5,
@@ -256,9 +256,9 @@ private:
   inline static bool _do_adval();
   inline static bool _do_hoval();
   inline static bool _do_indo();
-  static size_t numDir;
-  static size_t degree;
-  static enum Mode forward_mode;
+  ADOLC_API static size_t numDir;
+  ADOLC_API static size_t degree;
+  ADOLC_API static enum Mode forward_mode;
   ADOLC_API inline friend void setNumDir(const size_t p);
   ADOLC_API inline friend void setDegree(const size_t p);
   ADOLC_API inline friend void setMode(enum Mode newmode);
