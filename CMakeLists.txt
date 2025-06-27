@@ -47,7 +47,7 @@ target_compile_definitions(adolc PRIVATE
   ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
 
 
-# ensure that our api is exported
+# ensures that our api is exported in windows
 if (WIN32)
   target_compile_definitions(adolc PRIVATE BUILD_ADOLC)   
 endif(WIN32) 
@@ -102,14 +102,6 @@ add_feature_info(ENABLE_ACTIVITY_TRACKING ENABLE_ACTIVITY_TRACKING "Activity tra
 
 option(ENABLE_HARDDEBUG "Enable ADOL-C hard debug mode" FALSE)
 add_feature_info(ENABLE_HARDDEBUG ENABLE_HARDDEBUG "Hard debug mode.")
-if (ENABLE_HARDDEBUG)
-  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
-endif (ENABLE_HARDDEBUG)
-
-# adouble constructors need to be called. With malloc or realloc that is not the case.
-# With this option the adouble can do a late initialization.)
-option(ENABLE_LATEINIT "Whether the adouble variables have a late initialize option for functions like malloc/realloc" FALSE)
-add_feature_info(ENABLE_LATEINIT ENABLE_LATEINIT "adouble can do a late initialization.")
 
 option(ENABLE_STDCZERO "adouble default constructor does not initialize the value to zero" TRUE)
 add_feature_info(ENABLE_STDCZERO ENABLE_STDCZERO "Do not initialize the values to zero.")
@@ -124,18 +116,17 @@ add_feature_info(ENABLE_ADDEXA ENABLE_ADDEXA "build additional examples")
 
 
 # Whether to build parallel example
-#include(CMakeDependentOption)
-#cmake_dependent_option(ENABLE_PAREXA "build parallel example" FALSE)
-#add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
+option(ENABLE_PAREXA "build parallel example" FALSE)
+add_feature_info(ENABLE_PAREXA ENABLE_PAREXA "build parallel example")
 
 # Whether tape_doc should compute values as it prints the tape contents
 option(ENABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents" FALSE)
 add_feature_info(ENABLE_TAPEDOC_VALUES ENABLE_TAPEDOC_VALUES "should the tape_doc routine compute the values as it interprets and prints the tape contents")
 
 
-option(ENABLE_BOOST_POOL "Enable the use of boost pool." FALSE)
+option(ENABLE_BOOST_POOL "Enable the use of boost pool" FALSE)
 
-option(ENABLE_SPARSE "Build with Colpack to enable sparse AD." FALSE)
+option(ENABLE_SPARSE "Build with Colpack to enable sparse AD" FALSE)
 add_feature_info(ENABLE_SPARSE ENABLE_SPARSE "build sparse drivers (colpack required!)")
 
 # build the c interface
@@ -158,6 +149,11 @@ if(ENABLE_MEDIPACK)
   target_link_libraries(adolc PUBLIC MeDiPack MPI::MPI_CXX)
 endif()
 
+if (ENABLE_HARDDEBUG)
+  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
+endif (ENABLE_HARDDEBUG)
+
+
 if (ENABLE_BOOST_POOL)
   find_package(Boost 1.54 REQUIRED COMPONENTS system)
   target_link_libraries(adolc PUBLIC Boost::boost Boost::system)
@@ -169,7 +165,7 @@ if (ENABLE_SPARSE)
   # target_link_libraries(...)
 endif()
 
-if(ENABLE_OPENMP)
+if(ENABLE_PAREXA)
   find_package(OpenMP REQUIRED)
   target_link_libraries(adolc PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -180,7 +176,6 @@ endif()
 
 target_compile_definitions(adolc PRIVATE
   $<$<BOOL:${ENABLE_ACTIVITY_TRACKING}>:ADOLC_TRACK_ACTIVITY=1>
-  $<$<BOOL:${ENABLE_LATEINIT}>:ADOLC_ADOUBLE_LATEINIT=1>
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
