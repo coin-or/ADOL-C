@@ -38,7 +38,8 @@ enum ADOLC_API Mode {
   ADTL_FOV = 0x3,
   ADTL_INDO = 0x5,
   ADTL_FOV_INDO = 0x7,
-  ADTL_HOV = 0x9 // = BIN(1 0 0 1)
+  ADTL_HOV = 0x9, // = BIN(1 0 0 1)
+  ADTL_DEFAULT = 0
 };
 // Mode
 
@@ -258,7 +259,7 @@ private:
   inline static bool _do_indo();
   static size_t numDir;
   static size_t degree;
-  static enum Mode forward_mode;
+  inline static enum Mode forward_mode = Mode::ADTL_DEFAULT;
   ADOLC_API inline friend void setNumDir(const size_t p);
   ADOLC_API inline friend void setDegree(const size_t p);
   ADOLC_API inline friend void setMode(enum Mode newmode);
