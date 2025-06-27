@@ -15,18 +15,18 @@
 #if !defined(ADOLC_LIE_DRIVER_H)
 #define ADOLC_LIE_DRIVER_H
 
-#include "adolc/internal/common.h"
+#include <adolc/adolcexport.h>
+#include <adolc/internal/common.h>
 
 /* C++ declarations available only when compiling with C++  */
 #if defined(__cplusplus)
 
-ADOLC_DLL_EXPORT int lie_scalar(short, short, short, double *, short, double *);
-ADOLC_DLL_EXPORT int lie_scalar(short, short, short, short, double *, short,
-                                double **);
-ADOLC_DLL_EXPORT int lie_gradient(short, short, short, double *, short,
-                                  double **);
-ADOLC_DLL_EXPORT int lie_gradient(short, short, short, short, double *, short,
-                                  double ***);
+ADOLC_API int lie_scalar(short, short, short, double *, short, double *);
+ADOLC_API int lie_scalar(short, short, short, short, double *, short,
+                         double **);
+ADOLC_API int lie_gradient(short, short, short, double *, short, double **);
+ADOLC_API int lie_gradient(short, short, short, short, double *, short,
+                           double ***);
 
 #endif
 
@@ -35,18 +35,14 @@ ADOLC_DLL_EXPORT int lie_gradient(short, short, short, short, double *, short,
 extern "C" {
 #endif
 
-ADOLC_DLL_EXPORT int lie_scalarc(short, short, short, double *, short,
-                                 double *);
-ADOLC_DLL_EXPORT int lie_scalarcv(short, short, short, short, double *, short,
-                                  double **);
-ADOLC_DLL_EXPORT int lie_gradientc(short, short, short, double *, short,
-                                   double **);
-ADOLC_DLL_EXPORT int lie_gradientcv(short, short, short, short, double *, short,
-                                    double ***);
-ADOLC_DLL_EXPORT int lie_covector(short, short, short, double *, short,
-                                  double **);
-ADOLC_DLL_EXPORT int lie_bracket(short, short, short, double *, short,
-                                 double **);
+ADOLC_API int lie_scalarc(short, short, short, double *, short, double *);
+ADOLC_API int lie_scalarcv(short, short, short, short, double *, short,
+                           double **);
+ADOLC_API int lie_gradientc(short, short, short, double *, short, double **);
+ADOLC_API int lie_gradientcv(short, short, short, short, double *, short,
+                             double ***);
+ADOLC_API int lie_covector(short, short, short, double *, short, double **);
+ADOLC_API int lie_bracket(short, short, short, double *, short, double **);
 
 #if defined(__cplusplus)
 }

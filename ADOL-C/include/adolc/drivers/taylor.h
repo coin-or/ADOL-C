@@ -15,6 +15,7 @@
 #if !defined(ADOLC_DRIVERS_TAYLOR_H)
 #define ADOLC_DRIVERS_TAYLOR_H 1
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
@@ -25,20 +26,19 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /* tensor_eval(tag,m,n,d,p,x[n],tensor[m][dim],S[n][p])
       with dim = ((p+d) over d) */
-ADOLC_DLL_EXPORT int tensor_eval(short tag, int m, int n, int d, int p,
-                                 double *x, double **tensor, double **S);
+ADOLC_API int tensor_eval(short tag, int m, int n, int d, int p, double *x,
+                          double **tensor, double **S);
 
 /*--------------------------------------------------------------------------*/
 /* inverse_tensor_eval(tag,n,d,p,x,tensor[n][dim],S[n][p])
       with dim = ((p+d) over d) */
-ADOLC_DLL_EXPORT int inverse_tensor_eval(short tag, int n, int d, int p,
-                                         double *x, double **tensor,
-                                         double **S);
+ADOLC_API int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
+                                  double **tensor, double **S);
 
 /*--------------------------------------------------------------------------*/
 /*  inverse_Taylor_prop(tag,n,d,Y[n][d+1],X[n][d+1]) */
-ADOLC_DLL_EXPORT int inverse_Taylor_prop(short tag, int n, int d, double **Y,
-                                         double **X);
+ADOLC_API int inverse_Taylor_prop(short tag, int n, int d, double **Y,
+                                  double **X);
 
 /****************************************************************************/
 /*                                                  ACCESS TO TENSOR VALUES */
@@ -46,32 +46,32 @@ ADOLC_DLL_EXPORT int inverse_Taylor_prop(short tag, int n, int d, double **Y,
 /*--------------------------------------------------------------------------*/
 /* tensor_value(d,m,y[m],tensori[m][dim],multi[d])
       with dim = ((p+d) over d) */
-ADOLC_DLL_EXPORT void tensor_value(int d, int m, double *y, double **tensor,
-                                   int *multi);
+ADOLC_API void tensor_value(int d, int m, double *y, double **tensor,
+                            int *multi);
 
 /*--------------------------------------------------------------------------*/
 /* void** tensorsetup(m,p,d,tensorig) */
-ADOLC_DLL_EXPORT void **tensorsetup(int m, int p, int d, double **tensorig);
+ADOLC_API void **tensorsetup(int m, int p, int d, double **tensorig);
 
 /*--------------------------------------------------------------------------*/
 /* void freetensor(m,p,d,tensor) */
-ADOLC_DLL_EXPORT void freetensor(int m, int p, int d, double **tensor);
+ADOLC_API void freetensor(int m, int p, int d, double **tensor);
 
 /*--------------------------------------------------------------------------*/
 /* int tensor_address(d, im[d]) */
-ADOLC_DLL_EXPORT int tensor_address(int d, int *im);
+ADOLC_API int tensor_address(int d, int *im);
 
 /****************************************************************************/
 /*                                                                    UTILS */
 
 /*--------------------------------------------------------------------------*/
 /* int binomi(a,b)  ---> binomial coefficient to compute tensor dimension */
-ADOLC_DLL_EXPORT long binomi(int a, int b);
+ADOLC_API long binomi(int a, int b);
 
 /*--------------------------------------------------------------------------*/
 /* jac_solv(tag,n,x,b,mode) */
-ADOLC_DLL_EXPORT int jac_solv(unsigned short tag, int n, const double *x,
-                              double *b, unsigned short mode);
+ADOLC_API int jac_solv(unsigned short tag, int n, const double *x, double *b,
+                       unsigned short mode);
 
 END_C_DECLS
 

@@ -17,6 +17,7 @@
 #ifndef ADOLC_ADTL_H
 #define ADOLC_ADTL_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 #include <list>
 #include <ostream>
@@ -41,8 +42,8 @@ class adouble;
 
 class refcounter {
 private:
-  ADOLC_DLL_EXPIMP static size_t refcnt;
-  ADOLC_DLL_EXPORT friend void setNumDir(const size_t p);
+  static size_t refcnt;
+  friend void setNumDir(const size_t p);
   friend class adouble;
 
 public:
@@ -207,19 +208,18 @@ public:
 
 public:
   /*******************  i/o operations  *********************************/
-  ADOLC_DLL_EXPORT friend ostream &operator<<(ostream &, const adouble &);
-  ADOLC_DLL_EXPORT friend istream &operator>>(istream &, adouble &);
+  friend ostream &operator<<(ostream &, const adouble &);
+  friend istream &operator>>(istream &, adouble &);
 
 private:
 #if USE_BOOST_POOL
-  ADOLC_DLL_EXPIMP static boost::pool<boost::default_user_allocator_new_delete>
-      *advalpool;
+  static boost::pool<boost::default_user_allocator_new_delete> *advalpool;
 #endif
   double *adval;
 #ifdef USE_ADTL_REFCOUNTING
   refcounter __rcnt;
 #endif
-  ADOLC_DLL_EXPIMP static size_t numDir;
+  static size_t numDir;
   inline friend void setNumDir(const size_t p);
   inline friend size_t getNumDir();
 };
@@ -232,7 +232,7 @@ private:
 
 namespace adtl {
 
-inline void setNumDir(const size_t p) {
+ADOLC_API inline void setNumDir(const size_t p) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT,
@@ -260,13 +260,13 @@ inline void setNumDir(const size_t p) {
 #endif
 }
 
-inline size_t getNumDir() { return adouble::numDir; }
+ADOLC_API inline size_t getNumDir() { return adouble::numDir; }
 
-inline double makeNaN() {
+ADOLC_API inline double makeNaN() {
   return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
 }
 
-inline double makeInf() {
+ADOLC_API inline double makeInf() {
   return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
@@ -351,7 +351,7 @@ inline adouble adouble::operator+(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator+(const double v, const adouble &a) {
+ADOLC_API inline adouble operator+(const double v, const adouble &a) {
   adouble tmp(v + a.PRIMAL_VALUE, a.adval + 1);
   return tmp;
 }
@@ -369,7 +369,7 @@ inline adouble adouble::operator-(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator-(const double v, const adouble &a) {
+ADOLC_API inline adouble operator-(const double v, const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = v - a.PRIMAL_VALUE;
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -393,7 +393,7 @@ inline adouble adouble::operator*(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator*(const double v, const adouble &a) {
+ADOLC_API inline adouble operator*(const double v, const adouble &a) {
   adouble tmp;
   FOR_I_EQ_0_LTEQ_NUMDIR
   tmp.ADVAL_I = v * a.ADVAL_I;
@@ -417,7 +417,7 @@ inline adouble adouble::operator/(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator/(const double v, const adouble &a) {
+ADOLC_API inline adouble operator/(const double v, const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = v / a.PRIMAL_VALUE;
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -453,7 +453,7 @@ inline adouble adouble::operator--(int) {
 }
 
 // functions
-inline adouble tan(const adouble &a) {
+ADOLC_API inline adouble tan(const adouble &a) {
   adouble tmp;
   double tmp2;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::tan(a.PRIMAL_VALUE);
@@ -464,7 +464,7 @@ inline adouble tan(const adouble &a) {
   return tmp;
 }
 
-inline adouble exp(const adouble &a) {
+ADOLC_API inline adouble exp(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::exp(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -472,7 +472,7 @@ inline adouble exp(const adouble &a) {
   return tmp;
 }
 
-inline adouble log(const adouble &a) {
+ADOLC_API inline adouble log(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::log(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -486,7 +486,7 @@ inline adouble log(const adouble &a) {
   return tmp;
 }
 
-inline adouble sqrt(const adouble &a) {
+ADOLC_API inline adouble sqrt(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -500,7 +500,7 @@ inline adouble sqrt(const adouble &a) {
   return tmp;
 }
 
-inline adouble cbrt(const adouble &a) {
+ADOLC_API inline adouble cbrt(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::cbrt(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -514,7 +514,7 @@ inline adouble cbrt(const adouble &a) {
   return tmp;
 }
 
-inline adouble sin(const adouble &a) {
+ADOLC_API inline adouble sin(const adouble &a) {
   adouble tmp;
   double tmp2;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::sin(a.PRIMAL_VALUE);
@@ -524,7 +524,7 @@ inline adouble sin(const adouble &a) {
   return tmp;
 }
 
-inline adouble cos(const adouble &a) {
+ADOLC_API inline adouble cos(const adouble &a) {
   adouble tmp;
   double tmp2;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::cos(a.PRIMAL_VALUE);
@@ -534,7 +534,7 @@ inline adouble cos(const adouble &a) {
   return tmp;
 }
 
-inline adouble asin(const adouble &a) {
+ADOLC_API inline adouble asin(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::asin(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::sqrt(1 - a.PRIMAL_VALUE * a.PRIMAL_VALUE);
@@ -543,7 +543,7 @@ inline adouble asin(const adouble &a) {
   return tmp;
 }
 
-inline adouble acos(const adouble &a) {
+ADOLC_API inline adouble acos(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::acos(a.PRIMAL_VALUE);
   double tmp2 = -ADOLC_MATH_NSP::sqrt(1 - a.PRIMAL_VALUE * a.PRIMAL_VALUE);
@@ -552,7 +552,7 @@ inline adouble acos(const adouble &a) {
   return tmp;
 }
 
-inline adouble atan(const adouble &a) {
+ADOLC_API inline adouble atan(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::atan(a.PRIMAL_VALUE);
   double tmp2 = 1 + a.PRIMAL_VALUE * a.PRIMAL_VALUE;
@@ -564,7 +564,7 @@ inline adouble atan(const adouble &a) {
   return tmp;
 }
 
-inline adouble atan2(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble atan2(const adouble &a, const adouble &b) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::atan2(a.PRIMAL_VALUE, b.PRIMAL_VALUE);
   double tmp2 = a.PRIMAL_VALUE * a.PRIMAL_VALUE;
@@ -578,7 +578,7 @@ inline adouble atan2(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble pow(const adouble &a, double v) {
+ADOLC_API inline adouble pow(const adouble &a, double v) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, v);
   double tmp2 = v * ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, v - 1);
@@ -587,7 +587,7 @@ inline adouble pow(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble pow(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble pow(const adouble &a, const adouble &b) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::pow(a.PRIMAL_VALUE, b.PRIMAL_VALUE);
   double tmp2 =
@@ -598,7 +598,7 @@ inline adouble pow(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble pow(double v, const adouble &a) {
+ADOLC_API inline adouble pow(double v, const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::pow(v, a.PRIMAL_VALUE);
   double tmp2 = tmp.PRIMAL_VALUE * ADOLC_MATH_NSP::log(v);
@@ -607,7 +607,7 @@ inline adouble pow(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble log10(const adouble &a) {
+ADOLC_API inline adouble log10(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::log10(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::log((double)10) * a.PRIMAL_VALUE;
@@ -616,7 +616,7 @@ inline adouble log10(const adouble &a) {
   return tmp;
 }
 
-inline adouble sinh(const adouble &a) {
+ADOLC_API inline adouble sinh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::sinh(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
@@ -625,7 +625,7 @@ inline adouble sinh(const adouble &a) {
   return tmp;
 }
 
-inline adouble cosh(const adouble &a) {
+ADOLC_API inline adouble cosh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::sinh(a.PRIMAL_VALUE);
@@ -634,7 +634,7 @@ inline adouble cosh(const adouble &a) {
   return tmp;
 }
 
-inline adouble tanh(const adouble &a) {
+ADOLC_API inline adouble tanh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::tanh(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::cosh(a.PRIMAL_VALUE);
@@ -644,7 +644,7 @@ inline adouble tanh(const adouble &a) {
   return tmp;
 }
 
-inline adouble asinh(const adouble &a) {
+ADOLC_API inline adouble asinh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP_ERF::asinh(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE * a.PRIMAL_VALUE + 1);
@@ -653,7 +653,7 @@ inline adouble asinh(const adouble &a) {
   return tmp;
 }
 
-inline adouble acosh(const adouble &a) {
+ADOLC_API inline adouble acosh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP_ERF::acosh(a.PRIMAL_VALUE);
   double tmp2 = ADOLC_MATH_NSP::sqrt(a.PRIMAL_VALUE * a.PRIMAL_VALUE - 1);
@@ -662,7 +662,7 @@ inline adouble acosh(const adouble &a) {
   return tmp;
 }
 
-inline adouble atanh(const adouble &a) {
+ADOLC_API inline adouble atanh(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP_ERF::atanh(a.PRIMAL_VALUE);
   double tmp2 = 1 - a.PRIMAL_VALUE * a.PRIMAL_VALUE;
@@ -671,7 +671,7 @@ inline adouble atanh(const adouble &a) {
   return tmp;
 }
 
-inline adouble fabs(const adouble &a) {
+ADOLC_API inline adouble fabs(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::fabs(a.PRIMAL_VALUE);
   int as = 0;
@@ -693,7 +693,7 @@ inline adouble fabs(const adouble &a) {
   return tmp;
 }
 
-inline adouble ceil(const adouble &a) {
+ADOLC_API inline adouble ceil(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::ceil(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -701,7 +701,7 @@ inline adouble ceil(const adouble &a) {
   return tmp;
 }
 
-inline adouble floor(const adouble &a) {
+ADOLC_API inline adouble floor(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP::floor(a.PRIMAL_VALUE);
   FOR_I_EQ_1_LTEQ_NUMDIR
@@ -709,7 +709,7 @@ inline adouble floor(const adouble &a) {
   return tmp;
 }
 
-inline adouble fmax(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble fmax(const adouble &a, const adouble &b) {
   adouble tmp;
   double tmp2 = a.PRIMAL_VALUE - b.PRIMAL_VALUE;
   if (tmp2 < 0) {
@@ -733,7 +733,7 @@ inline adouble fmax(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble fmax(double v, const adouble &a) {
+ADOLC_API inline adouble fmax(double v, const adouble &a) {
   adouble tmp;
   double tmp2 = v - a.PRIMAL_VALUE;
   if (tmp2 < 0) {
@@ -757,7 +757,7 @@ inline adouble fmax(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble fmax(const adouble &a, double v) {
+ADOLC_API inline adouble fmax(const adouble &a, double v) {
   adouble tmp;
   double tmp2 = a.PRIMAL_VALUE - v;
   if (tmp2 < 0) {
@@ -781,7 +781,7 @@ inline adouble fmax(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble fmin(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble fmin(const adouble &a, const adouble &b) {
   adouble tmp;
   double tmp2 = a.PRIMAL_VALUE - b.PRIMAL_VALUE;
   if (tmp2 < 0) {
@@ -805,7 +805,7 @@ inline adouble fmin(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble fmin(double v, const adouble &a) {
+ADOLC_API inline adouble fmin(double v, const adouble &a) {
   adouble tmp;
   double tmp2 = v - a.PRIMAL_VALUE;
   if (tmp2 < 0) {
@@ -829,7 +829,7 @@ inline adouble fmin(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble fmin(const adouble &a, double v) {
+ADOLC_API inline adouble fmin(const adouble &a, double v) {
   adouble tmp;
   double tmp2 = a.PRIMAL_VALUE - v;
   if (tmp2 < 0) {
@@ -853,25 +853,25 @@ inline adouble fmin(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble ldexp(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble ldexp(const adouble &a, const adouble &b) {
   adouble tmp = a * pow(2., b);
   return tmp;
 }
 
-inline adouble ldexp(const adouble &a, const double v) {
+ADOLC_API inline adouble ldexp(const adouble &a, const double v) {
   return a * ADOLC_MATH_NSP::pow(2., v);
 }
 
-inline adouble ldexp(const double v, const adouble &a) {
+ADOLC_API inline adouble ldexp(const double v, const adouble &a) {
   adouble tmp = v * pow(2., a);
   return tmp;
 }
 
-inline double frexp(const adouble &a, int *v) {
+ADOLC_API inline double frexp(const adouble &a, int *v) {
   return ADOLC_MATH_NSP::frexp(a.PRIMAL_VALUE, v);
 }
 
-inline adouble erf(const adouble &a) {
+ADOLC_API inline adouble erf(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP_ERF::erf(a.PRIMAL_VALUE);
   double tmp2 = 2.0 / ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
@@ -881,7 +881,7 @@ inline adouble erf(const adouble &a) {
   return tmp;
 }
 
-inline adouble erfc(const adouble &a) {
+ADOLC_API inline adouble erfc(const adouble &a) {
   adouble tmp;
   tmp.PRIMAL_VALUE = ADOLC_MATH_NSP_ERF::erfc(a.PRIMAL_VALUE);
   double tmp2 = -2.0 / ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) *
@@ -891,29 +891,30 @@ inline adouble erfc(const adouble &a) {
   return tmp;
 }
 
-inline void condassign(adouble &res, const adouble &cond, const adouble &arg1,
-                       const adouble &arg2) {
+ADOLC_API inline void condassign(adouble &res, const adouble &cond,
+                                 const adouble &arg1, const adouble &arg2) {
   if (cond.getValue() > 0)
     res = arg1;
   else
     res = arg2;
 }
 
-inline void condassign(adouble &res, const adouble &cond, const adouble &arg) {
+ADOLC_API inline void condassign(adouble &res, const adouble &cond,
+                                 const adouble &arg) {
   if (cond.getValue() > 0)
     res = arg;
 }
 
-inline void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
-                         const adouble &arg2) {
+ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
+                                   const adouble &arg1, const adouble &arg2) {
   if (cond.getValue() >= 0)
     res = arg1;
   else
     res = arg2;
 }
 
-inline void condeqassign(adouble &res, const adouble &cond,
-                         const adouble &arg) {
+ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
+                                   const adouble &arg) {
   if (cond.getValue() >= 0)
     res = arg;
 }
@@ -993,7 +994,7 @@ inline bool adouble::operator!=(const double v) const {
   return PRIMAL_VALUE != v;
 }
 
-inline bool operator!=(const double v, const adouble &a) {
+ADOLC_API inline bool operator!=(const double v, const adouble &a) {
   return v != a.PRIMAL_VALUE;
 }
 
@@ -1005,7 +1006,7 @@ inline bool adouble::operator==(const double v) const {
   return PRIMAL_VALUE == v;
 }
 
-inline bool operator==(const double v, const adouble &a) {
+ADOLC_API inline bool operator==(const double v, const adouble &a) {
   return v == a.PRIMAL_VALUE;
 }
 
@@ -1017,7 +1018,7 @@ inline bool adouble::operator<=(const double v) const {
   return PRIMAL_VALUE <= v;
 }
 
-inline bool operator<=(const double v, const adouble &a) {
+ADOLC_API inline bool operator<=(const double v, const adouble &a) {
   return v <= a.PRIMAL_VALUE;
 }
 
@@ -1029,7 +1030,7 @@ inline bool adouble::operator>=(const double v) const {
   return PRIMAL_VALUE >= v;
 }
 
-inline bool operator>=(const double v, const adouble &a) {
+ADOLC_API inline bool operator>=(const double v, const adouble &a) {
   return v >= a.PRIMAL_VALUE;
 }
 
@@ -1041,7 +1042,7 @@ inline bool adouble::operator>(const double v) const {
   return PRIMAL_VALUE > v;
 }
 
-inline bool operator>(const double v, const adouble &a) {
+ADOLC_API inline bool operator>(const double v, const adouble &a) {
   return v > a.PRIMAL_VALUE;
 }
 
@@ -1053,7 +1054,7 @@ inline bool adouble::operator<(const double v) const {
   return PRIMAL_VALUE < v;
 }
 
-inline bool operator<(const double v, const adouble &a) {
+ADOLC_API inline bool operator<(const double v, const adouble &a) {
   return v < a.PRIMAL_VALUE;
 }
 

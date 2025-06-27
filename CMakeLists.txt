@@ -47,12 +47,9 @@ target_compile_definitions(adolc PRIVATE
   ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
 
 
-# win specific flags
+# ensure that our api is exported
 if (WIN32)
-  target_compile_definitions(adolc PRIVATE     
-      # handles __declspec
-      ADOLC_DLL
-  )   
+  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)   
 endif(WIN32) 
 
 

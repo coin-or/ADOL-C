@@ -18,7 +18,7 @@
 #define ADOLC_ADTL_HOV_H
 
 #include <adolc/adalloc.h> //for myalloc2
-#include <adolc/internal/common.h>
+#include <adolc/adolcexport.h>
 #include <list>
 #include <ostream>
 #include <stdexcept>
@@ -46,12 +46,12 @@ class adouble;
 
 #ifdef USE_ADTL_REFCOUNTING
 
-class refcounter {
+class ADOLC_API refcounter {
 private:
-  ADOLC_DLL_EXPIMP static size_t refcnt;
-  ADOLC_DLL_EXPORT friend void setNumDir(const size_t p);
-  ADOLC_DLL_EXPORT friend void setDegree(const size_t p);
-  ADOLC_DLL_EXPORT friend void setMode(enum Mode newmode);
+  ADOLC_API static size_t refcnt;
+  ADOLC_API friend void setNumDir(const size_t p);
+  ADOLC_API friend void setDegree(const size_t p);
+  ADOLC_API friend void setMode(enum Mode newmode);
   friend class adouble;
 
 public:
@@ -66,7 +66,7 @@ public:
   virtual int operator()(int n, adouble *x, int m, adouble *y) = 0;
 };
 
-class adouble {
+class ADOLC_API adouble {
 public:
   inline adouble();
   inline adouble(const double v);
@@ -227,20 +227,20 @@ protected:
   inline void delete_pattern();
 
 public:
-  ADOLC_DLL_EXPORT friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
-                                                        unsigned int start_cnt);
-  ADOLC_DLL_EXPORT friend int
-  ADOLC_get_sparse_pattern(const adouble *const b, int m, unsigned int **&pat);
-  ADOLC_DLL_EXPORT friend int
+  ADOLC_API friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
+                                                 unsigned int start_cnt);
+  ADOLC_API friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
+                                                unsigned int **&pat);
+  ADOLC_API friend int
   ADOLC_get_sparse_jacobian(func_ad *const func, int n, int m, int repeat,
                             double *basepoints, int *nnz, unsigned int **rind,
                             unsigned int **cind, double **values);
 #if 0
-    ADOLC_DLL_EXPORT friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+    ADOLC_API friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
 #endif
   /*******************  i/o operations  *********************************/
-  ADOLC_DLL_EXPORT friend ostream &operator<<(ostream &, const adouble &);
-  ADOLC_DLL_EXPORT friend istream &operator>>(istream &, adouble &);
+  ADOLC_API friend ostream &operator<<(ostream &, const adouble &);
+  ADOLC_API friend istream &operator>>(istream &, adouble &);
 
 private:
   double val;
@@ -254,9 +254,9 @@ private:
   inline static bool _do_adval();
   inline static bool _do_hoval();
   inline static bool _do_indo();
-  ADOLC_DLL_EXPIMP static size_t numDir;
-  ADOLC_DLL_EXPIMP static size_t degree;
-  ADOLC_DLL_EXPIMP static enum Mode forward_mode;
+  static size_t numDir;
+  static size_t degree;
+  static enum Mode forward_mode;
   inline friend void setNumDir(const size_t p);
   inline friend void setDegree(const size_t p);
   inline friend void setMode(enum Mode newmode);
@@ -316,7 +316,7 @@ inline bool adouble::_do_hoval() {
 #define no_do_indo() likely(!adouble::_do_indo())
 #define do_hoval() unlikely(adouble::_do_hoval())
 
-inline void setNumDir(const size_t p) {
+inline void ADOLC_API setNumDir(const size_t p) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT,
@@ -333,7 +333,7 @@ inline void setNumDir(const size_t p) {
   }
   adouble::numDir = p;
 }
-inline void setDegree(const size_t p) {
+inline void ADOLC_API setDegree(const size_t p) {
 
   if (p < 1) {
     fprintf(DIAG_OUT, "ADOL-C Error: Traceless: p < 1 not possible.\n");
@@ -342,7 +342,7 @@ inline void setDegree(const size_t p) {
   adouble::degree = p;
 }
 
-inline void setMode(enum Mode newmode) {
+inline void ADOLC_API setMode(enum Mode newmode) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT,
@@ -361,11 +361,11 @@ inline void setMode(enum Mode newmode) {
   adouble::forward_mode = newmode;
 }
 
-inline double makeNaN() {
+inline double ADOLC_API makeNaN() {
   return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
 }
 
-inline double makeInf() {
+inline double ADOLC_API makeInf() {
   return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
@@ -542,7 +542,7 @@ inline adouble adouble::operator+(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator+(const double v, const adouble &a) {
+ADOLC_API inline adouble operator+(const double v, const adouble &a) {
   adouble tmp;
   if (do_val()) {
     adouble tmp(v + a.val, a.adval);
@@ -598,7 +598,7 @@ inline adouble adouble::operator-(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator-(const double v, const adouble &a) {
+ADOLC_API inline adouble operator-(const double v, const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = v - a.val;
@@ -669,7 +669,7 @@ inline adouble adouble::operator*(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator*(const double v, const adouble &a) {
+ADOLC_API inline adouble operator*(const double v, const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = v * a.val;
@@ -743,7 +743,7 @@ inline adouble adouble::operator/(const adouble &a) const {
   return tmp;
 }
 
-inline adouble operator/(const double v, const adouble &a) {
+ADOLC_API inline adouble operator/(const double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -829,7 +829,7 @@ inline adouble adouble::operator--(int) {
 }
 
 // functions
-inline adouble tan(const adouble &a) {
+ADOLC_API inline adouble tan(const adouble &a) {
   adouble tmp;
   double tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -858,7 +858,7 @@ inline adouble tan(const adouble &a) {
   return tmp;
 }
 
-inline adouble exp(const adouble &a) {
+ADOLC_API inline adouble exp(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -891,7 +891,7 @@ inline adouble exp(const adouble &a) {
   return tmp;
 }
 
-inline adouble log(const adouble &a) {
+ADOLC_API inline adouble log(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -932,7 +932,7 @@ inline adouble log(const adouble &a) {
   return tmp;
 }
 
-inline adouble sqrt(const adouble &a) {
+ADOLC_API inline adouble sqrt(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -973,7 +973,7 @@ inline adouble sqrt(const adouble &a) {
   return tmp;
 }
 
-inline adouble cbrt(const adouble &a) {
+ADOLC_API inline adouble cbrt(const adouble &a) {
   fprintf(DIAG_OUT,
           "ADOL-C error: higher order mode of cbrt not implemented yet\n");
   throw logic_error("incorrect function call, errorcode=1");
@@ -1022,7 +1022,7 @@ inline adouble sin(const adouble &a) {
   return tmp;
 }
 
-inline adouble cos(const adouble &a) {
+ADOLC_API inline adouble cos(const adouble &a) {
   adouble tmp;
   adouble tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -1066,7 +1066,7 @@ inline adouble cos(const adouble &a) {
   return tmp2;
 }
 
-inline adouble asin(const adouble &a) {
+ADOLC_API inline adouble asin(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1093,7 +1093,7 @@ inline adouble asin(const adouble &a) {
   return tmp;
 }
 
-inline adouble acos(const adouble &a) {
+ADOLC_API inline adouble acos(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1120,7 +1120,7 @@ inline adouble acos(const adouble &a) {
   return tmp;
 }
 
-inline adouble atan(const adouble &a) {
+ADOLC_API inline adouble atan(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1150,7 +1150,7 @@ inline adouble atan(const adouble &a) {
   return tmp;
 }
 
-inline adouble atan2(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble atan2(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1183,7 +1183,7 @@ inline adouble atan2(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble pow(const adouble &a, double v) {
+ADOLC_API inline adouble pow(const adouble &a, double v) {
 
   std::cout << "in adouble pow(const adouble &a, double v)  prepping for debug"
             << std::endl;
@@ -1251,7 +1251,7 @@ inline adouble pow(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble pow(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble pow(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1281,7 +1281,7 @@ inline adouble pow(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble pow(double v, const adouble &a) {
+ADOLC_API inline adouble pow(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1319,7 +1319,7 @@ inline adouble pow(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble log10(const adouble &a) {
+ADOLC_API inline adouble log10(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1346,7 +1346,7 @@ inline adouble log10(const adouble &a) {
   return tmp;
 }
 
-inline adouble sinh(const adouble &a) {
+ADOLC_API inline adouble sinh(const adouble &a) {
   adouble tmp, tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1390,7 +1390,7 @@ inline adouble sinh(const adouble &a) {
   return tmp;
 }
 
-inline adouble cosh(const adouble &a) {
+ADOLC_API inline adouble cosh(const adouble &a) {
   adouble tmp, tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1434,7 +1434,7 @@ inline adouble cosh(const adouble &a) {
   return tmp;
 }
 
-inline adouble tanh(const adouble &a) {
+ADOLC_API inline adouble tanh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1462,7 +1462,7 @@ inline adouble tanh(const adouble &a) {
   return tmp;
 }
 
-inline adouble asinh(const adouble &a) {
+ADOLC_API inline adouble asinh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1489,7 +1489,7 @@ inline adouble asinh(const adouble &a) {
   return tmp;
 }
 
-inline adouble acosh(const adouble &a) {
+ADOLC_API inline adouble acosh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1516,7 +1516,7 @@ inline adouble acosh(const adouble &a) {
   return tmp;
 }
 
-inline adouble atanh(const adouble &a) {
+ADOLC_API inline adouble atanh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1543,7 +1543,7 @@ inline adouble atanh(const adouble &a) {
   return tmp;
 }
 
-inline adouble fabs(const adouble &a) {
+ADOLC_API inline adouble fabs(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1624,7 +1624,7 @@ inline adouble fabs(const adouble &a) {
   return tmp;
 }
 
-inline adouble ceil(const adouble &a) {
+ADOLC_API inline adouble ceil(const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::ceil(a.val);
@@ -1642,7 +1642,7 @@ inline adouble ceil(const adouble &a) {
   return tmp;
 }
 
-inline adouble floor(const adouble &a) {
+ADOLC_API inline adouble floor(const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::floor(a.val);
@@ -1660,7 +1660,7 @@ inline adouble floor(const adouble &a) {
   return tmp;
 }
 
-inline adouble fmax(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble fmax(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1712,7 +1712,7 @@ inline adouble fmax(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble fmax(double v, const adouble &a) {
+ADOLC_API inline adouble fmax(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1759,7 +1759,7 @@ inline adouble fmax(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble fmax(const adouble &a, double v) {
+ADOLC_API inline adouble fmax(const adouble &a, double v) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1806,7 +1806,7 @@ inline adouble fmax(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble fmin(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble fmin(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1857,7 +1857,7 @@ inline adouble fmin(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble fmin(double v, const adouble &a) {
+ADOLC_API inline adouble fmin(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1904,7 +1904,7 @@ inline adouble fmin(double v, const adouble &a) {
   return tmp;
 }
 
-inline adouble fmin(const adouble &a, double v) {
+ADOLC_API inline adouble fmin(const adouble &a, double v) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1951,7 +1951,7 @@ inline adouble fmin(const adouble &a, double v) {
   return tmp;
 }
 
-inline adouble ldexp(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble ldexp(const adouble &a, const adouble &b) {
   adouble tmp = a * pow(2., b);
   if (do_indo()) {
     tmp.add_to_pattern(a.get_pattern());
@@ -1960,18 +1960,18 @@ inline adouble ldexp(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-inline adouble ldexp(const adouble &a, const double v) {
+ADOLC_API inline adouble ldexp(const adouble &a, const double v) {
   return a * ADOLC_MATH_NSP::pow(2., v);
 }
 
-inline adouble ldexp(const double v, const adouble &a) {
+ADOLC_API inline adouble ldexp(const double v, const adouble &a) {
   adouble tmp = v * pow(2., a);
   if (do_indo())
     tmp.add_to_pattern(a.get_pattern());
   return tmp;
 }
 
-inline double frexp(const adouble &a, int *v) {
+ADOLC_API inline double frexp(const adouble &a, int *v) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -1980,7 +1980,7 @@ inline double frexp(const adouble &a, int *v) {
   return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
-inline adouble erf(const adouble &a) {
+ADOLC_API inline adouble erf(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -2000,7 +2000,7 @@ inline adouble erf(const adouble &a) {
   return tmp;
 }
 
-inline adouble erfc(const adouble &a) {
+ADOLC_API inline adouble erfc(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -2020,8 +2020,8 @@ inline adouble erfc(const adouble &a) {
   return tmp;
 }
 
-inline void condassign(adouble &res, const adouble &cond, const adouble &arg1,
-                       const adouble &arg2) {
+ADOLC_API inline void condassign(adouble &res, const adouble &cond,
+                                 const adouble &arg1, const adouble &arg2) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2035,7 +2035,8 @@ inline void condassign(adouble &res, const adouble &cond, const adouble &arg1,
   }
 }
 
-inline void condassign(adouble &res, const adouble &cond, const adouble &arg) {
+ADOLC_API inline void condassign(adouble &res, const adouble &cond,
+                                 const adouble &arg) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2047,8 +2048,8 @@ inline void condassign(adouble &res, const adouble &cond, const adouble &arg) {
   }
 }
 
-inline void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
-                         const adouble &arg2) {
+ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
+                                   const adouble &arg1, const adouble &arg2) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2062,8 +2063,8 @@ inline void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
   }
 }
 
-inline void condeqassign(adouble &res, const adouble &cond,
-                         const adouble &arg) {
+ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
+                                   const adouble &arg) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2299,7 +2300,7 @@ inline int adouble::operator!=(const double v) const {
   return val != v;
 }
 
-inline int operator!=(const double v, const adouble &a) {
+ADOLC_API inline int operator!=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2326,7 +2327,7 @@ inline int adouble::operator==(const double v) const {
   return val == v;
 }
 
-inline int operator==(const double v, const adouble &a) {
+ADOLC_API inline int operator==(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2353,7 +2354,7 @@ inline int adouble::operator<=(const double v) const {
   return val <= v;
 }
 
-inline int operator<=(const double v, const adouble &a) {
+ADOLC_API inline int operator<=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2380,7 +2381,7 @@ inline int adouble::operator>=(const double v) const {
   return val >= v;
 }
 
-inline int operator>=(const double v, const adouble &a) {
+ADOLC_API inline int operator>=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2407,7 +2408,7 @@ inline int adouble::operator>(const double v) const {
   return val > v;
 }
 
-inline int operator>(const double v, const adouble &a) {
+ADOLC_API inline int operator>(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2434,7 +2435,7 @@ inline int adouble::operator<(const double v) const {
   return val < v;
 }
 
-inline int operator<(const double v, const adouble &a) {
+ADOLC_API inline int operator<(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");

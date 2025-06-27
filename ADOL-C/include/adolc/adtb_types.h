@@ -19,6 +19,7 @@ pdouble.
 #define ADOLC_AD_TYPES_H
 
 #include <adolc/adolcerror.h>
+#include <adolc/adolcexport.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cassert>
@@ -171,7 +172,7 @@ public:
  * participates in an arithmetic operation, the `adouble` registers locations
  * and the type of the operation on the tape.
  */
-class adouble {
+class ADOLC_API adouble {
   /** @brief Stores the location of the `adouble` on the tape. */
   tape_location<adouble> tape_loc_;
 
@@ -373,7 +374,7 @@ gradient(1, 1, 2.0, grad);
 std::cout << grad[0] << std::endl;
 }
  */
-class ADOLC_DLL_EXPORT pdouble {
+class ADOLC_API pdouble {
   /** @brief Stores the location of the `pdouble` on the tape. */
   tape_location<pdouble> tape_loc_;
 
@@ -448,8 +449,8 @@ public:
   void value(const double pval) { currentTape().set_pd_value(loc(), pval); }
 };
 
-std::ostream &operator<<(std::ostream &, const adouble &);
-std::istream &operator>>(std::istream &, const adouble &);
+ADOLC_API std::ostream &operator<<(std::ostream &, const adouble &);
+ADOLC_API std::istream &operator>>(std::istream &, const adouble &);
 
 /**
  * ADOUBLE ARTIHEMTICS
@@ -457,24 +458,26 @@ std::istream &operator>>(std::istream &, const adouble &);
 
 /*--------------------------------------------------------------------------*/
 /* sign operators */
-ADOLC_DLL_EXPORT adouble operator+(const adouble &a);
-ADOLC_DLL_EXPORT adouble operator+(adouble &&a);
+ADOLC_API adouble operator+(const adouble &a);
+ADOLC_API adouble operator+(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble operator-(const adouble &a);
-ADOLC_DLL_EXPORT adouble operator-(adouble &&a);
+ADOLC_API adouble operator-(const adouble &a);
+ADOLC_API adouble operator-(adouble &&a);
 
 /*--------------------------------------------------------------------------*/
 /* binary operators */
 
 /*--------------------------------------------------------------------------*/
-ADOLC_DLL_EXPORT adouble operator+(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator+(adouble &&a, const adouble &b);
-inline adouble operator+(const adouble &a, adouble &&b) {
+ADOLC_API adouble operator+(const adouble &a, const adouble &b);
+ADOLC_API adouble operator+(adouble &&a, const adouble &b);
+ADOLC_API inline adouble operator+(const adouble &a, adouble &&b) {
   return std::move(b) + a;
 }
-inline adouble operator+(adouble &&a, adouble &&b) { return std::move(a) + b; }
-ADOLC_DLL_EXPORT adouble operator+(const double coval, const adouble &a);
-ADOLC_DLL_EXPORT adouble operator+(const double coval, adouble &&a);
+ADOLC_API inline adouble operator+(adouble &&a, adouble &&b) {
+  return std::move(a) + b;
+}
+ADOLC_API adouble operator+(const double coval, const adouble &a);
+ADOLC_API adouble operator+(const double coval, adouble &&a);
 inline adouble operator+(const adouble &a, const double coval) {
   return coval + a;
 }
@@ -483,132 +486,138 @@ inline adouble operator+(adouble &&a, const double coval) {
 }
 /*--------------------------------------------------------------------------*/
 
-ADOLC_DLL_EXPORT adouble operator-(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator-(adouble &&a, const adouble &b);
-inline adouble operator-(const adouble &a, adouble &&b) {
+ADOLC_API adouble operator-(const adouble &a, const adouble &b);
+ADOLC_API adouble operator-(adouble &&a, const adouble &b);
+ADOLC_API inline adouble operator-(const adouble &a, adouble &&b) {
   return -(std::move(b)) + a;
 }
-inline adouble operator-(adouble &&a, adouble &&b) { return std::move(a) - b; }
-ADOLC_DLL_EXPORT adouble operator-(const double coval, const adouble &a);
-ADOLC_DLL_EXPORT adouble operator-(const double coval, adouble &&a);
-inline adouble operator-(const adouble &a, const double coval) {
+ADOLC_API inline adouble operator-(adouble &&a, adouble &&b) {
+  return std::move(a) - b;
+}
+ADOLC_API adouble operator-(const double coval, const adouble &a);
+ADOLC_API adouble operator-(const double coval, adouble &&a);
+ADOLC_API inline adouble operator-(const adouble &a, const double coval) {
   return (-coval) + a;
 }
-inline adouble operator-(adouble &&a, const double coval) {
+ADOLC_API inline adouble operator-(adouble &&a, const double coval) {
   return (-coval) + std::move(a);
 }
 
 /*--------------------------------------------------------------------------*/
 
-ADOLC_DLL_EXPORT adouble operator*(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator*(adouble &&a, const adouble &b);
-inline adouble operator*(const adouble &a, adouble &&b) {
+ADOLC_API adouble operator*(const adouble &a, const adouble &b);
+ADOLC_API adouble operator*(adouble &&a, const adouble &b);
+ADOLC_API inline adouble operator*(const adouble &a, adouble &&b) {
   return std::move(b) * a;
 }
-inline adouble operator*(adouble &&a, adouble &&b) { return std::move(a) * b; }
-ADOLC_DLL_EXPORT adouble operator*(const double coval, const adouble &a);
-ADOLC_DLL_EXPORT adouble operator*(const double coval, adouble &&a);
-inline adouble operator*(const adouble &a, const double coval) {
+ADOLC_API inline adouble operator*(adouble &&a, adouble &&b) {
+  return std::move(a) * b;
+}
+ADOLC_API adouble operator*(const double coval, const adouble &a);
+ADOLC_API adouble operator*(const double coval, adouble &&a);
+ADOLC_API inline adouble operator*(const adouble &a, const double coval) {
   return coval * a;
 }
-inline adouble operator*(adouble &&a, const double coval) {
+ADOLC_API inline adouble operator*(adouble &&a, const double coval) {
   return coval * std::move(a);
 }
 
 /*--------------------------------------------------------------------------*/
 
-ADOLC_DLL_EXPORT adouble operator/(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator/(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator/(const adouble &a, adouble &&b);
-inline adouble operator/(adouble &&a, adouble &&b) { return std::move(a) / b; }
-ADOLC_DLL_EXPORT adouble operator/(const double coval, const adouble &a);
-ADOLC_DLL_EXPORT adouble operator/(const double coval, adouble &&a);
-inline adouble operator/(const adouble &a, const double coval) {
+ADOLC_API adouble operator/(const adouble &a, const adouble &b);
+ADOLC_API adouble operator/(adouble &&a, const adouble &b);
+ADOLC_API adouble operator/(const adouble &a, adouble &&b);
+ADOLC_API inline adouble operator/(adouble &&a, adouble &&b) {
+  return std::move(a) / b;
+}
+ADOLC_API adouble operator/(const double coval, const adouble &a);
+ADOLC_API adouble operator/(const double coval, adouble &&a);
+ADOLC_API inline adouble operator/(const adouble &a, const double coval) {
   return a * (1.0 / coval);
 }
-inline adouble operator/(adouble &&a, const double coval) {
+ADOLC_API inline adouble operator/(adouble &&a, const double coval) {
   return std::move(a) * (1.0 / coval);
 }
 
 /*--------------------------------------------------------------------------*/
 /* Inlined Arithmetic assignments  */
-inline adouble &adouble::operator/=(const double coval) {
+ADOLC_API inline adouble &adouble::operator/=(const double coval) {
   *this *= 1.0 / coval;
   return *this;
 }
-inline adouble &adouble::operator/=(const adouble &a) {
+ADOLC_API inline adouble &adouble::operator/=(const adouble &a) {
   *this *= 1.0 / a;
   return *this;
 }
-inline adouble &adouble::operator/=(adouble &&a) {
+ADOLC_API inline adouble &adouble::operator/=(adouble &&a) {
   *this *= 1.0 / std::move(a);
   return *this;
 }
 /*--------------------------------------------------------------------------*/
 /* Comparison  */
 
-bool operator!=(const adouble &a, const double coval);
-bool operator!=(const double coval, const adouble &a);
+ADOLC_API bool operator!=(const adouble &a, const double coval);
+ADOLC_API bool operator!=(const double coval, const adouble &a);
 
-bool operator==(const double coval, const adouble &a);
-bool operator==(const adouble &a, const double coval);
+ADOLC_API bool operator==(const double coval, const adouble &a);
+ADOLC_API bool operator==(const adouble &a, const double coval);
 
-bool operator<=(const double coval, const adouble &a);
-bool operator<=(const adouble &a, const double coval);
+ADOLC_API bool operator<=(const double coval, const adouble &a);
+ADOLC_API bool operator<=(const adouble &a, const double coval);
 
-bool operator>=(const double coval, const adouble &a);
-bool operator>=(const adouble &a, const double coval);
+ADOLC_API bool operator>=(const double coval, const adouble &a);
+ADOLC_API bool operator>=(const adouble &a, const double coval);
 
-bool operator<(const double coval, const adouble &a);
-bool operator<(const adouble &a, const double coval);
+ADOLC_API bool operator<(const double coval, const adouble &a);
+ADOLC_API bool operator<(const adouble &a, const double coval);
 
-bool operator>(const double coval, const adouble &a);
-bool operator>(const adouble &a, const double coval);
+ADOLC_API bool operator>(const double coval, const adouble &a);
+ADOLC_API bool operator>(const adouble &a, const double coval);
 
 #ifdef ADOLC_ADVANCED_BRANCHING
 
-ADOLC_DLL_EXPORT adouble operator!=(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator!=(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator!=(const adouble &a, adouble &&b);
+ADOLC_API adouble operator!=(const adouble &a, const adouble &b);
+ADOLC_API adouble operator!=(adouble &&a, const adouble &b);
+ADOLC_API adouble operator!=(const adouble &a, adouble &&b);
 
-ADOLC_DLL_EXPORT adouble operator==(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator==(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator==(const adouble &a, adouble &&b);
+ADOLC_API adouble operator==(const adouble &a, const adouble &b);
+ADOLC_API adouble operator==(adouble &&a, const adouble &b);
+ADOLC_API adouble operator==(const adouble &a, adouble &&b);
 
-ADOLC_DLL_EXPORT adouble operator<=(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator<=(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator<=(const adouble &a, adouble &&b);
+ADOLC_API adouble operator<=(const adouble &a, const adouble &b);
+ADOLC_API adouble operator<=(adouble &&a, const adouble &b);
+ADOLC_API adouble operator<=(const adouble &a, adouble &&b);
 
-ADOLC_DLL_EXPORT adouble operator>=(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator>=(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator>=(const adouble &a, adouble &&b);
+ADOLC_API adouble operator>=(const adouble &a, const adouble &b);
+ADOLC_API adouble operator>=(adouble &&a, const adouble &b);
+ADOLC_API adouble operator>=(const adouble &a, adouble &&b);
 
-ADOLC_DLL_EXPORT adouble operator<(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator<(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator<(const adouble &a, adouble &&b);
+ADOLC_API adouble operator<(const adouble &a, const adouble &b);
+ADOLC_API adouble operator<(adouble &&a, const adouble &b);
+ADOLC_API adouble operator<(const adouble &a, adouble &&b);
 
-ADOLC_DLL_EXPORT adouble operator>(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator>(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble operator>(const adouble &a, adouble &&b);
+ADOLC_API adouble operator>(const adouble &a, const adouble &b);
+ADOLC_API adouble operator>(adouble &&a, const adouble &b);
+ADOLC_API adouble operator>(const adouble &a, adouble &&b);
 
 #else // ADOLC_ADVANCED_BRANCHING
 
-inline bool operator!=(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator!=(const adouble &a, const adouble &b) {
   return (a - b != 0.0);
 }
-inline bool operator==(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator==(const adouble &a, const adouble &b) {
   return (a - b == 0.0);
 }
-inline bool operator<=(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator<=(const adouble &a, const adouble &b) {
   return (a - b <= 0.0);
 }
-inline bool operator>=(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator>=(const adouble &a, const adouble &b) {
   return (a - b >= 0.0);
 }
-inline bool operator>(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator>(const adouble &a, const adouble &b) {
   return (a - b > 0.0);
 }
-inline bool operator<(const adouble &a, const adouble &b) {
+ADOLC_API inline bool operator<(const adouble &a, const adouble &b) {
   return (a - b < 0.0);
 }
 
@@ -620,7 +629,9 @@ inline bool operator<(const adouble &a, const adouble &b) {
  * @param a adouble to check whether its value on the tape is normal
  * @return whether the adouble value is normal
  */
-inline bool isnormal(const adouble &a) { return std::isnormal(a.value()); }
+ADOLC_API inline bool isnormal(const adouble &a) {
+  return std::isnormal(a.value());
+}
 
 /** @brief This is an overload of std::isnan for adoubles and not traced on
  * the tape. The value of the adouble on the current tape is passed to
@@ -628,7 +639,7 @@ inline bool isnormal(const adouble &a) { return std::isnormal(a.value()); }
  * @param a adouble to check whether its value on the tape is nan
  * @return whether the adouble value is nan
  */
-inline bool isnan(const adouble &a) { return std::isnan(a.value()); }
+ADOLC_API inline bool isnan(const adouble &a) { return std::isnan(a.value()); }
 
 /** @brief This is an overload of std::isinf for adoubles and not traced on
  * the tape. The value of the adouble on the current tape is passed to
@@ -636,7 +647,7 @@ inline bool isnan(const adouble &a) { return std::isnan(a.value()); }
  * @param a adouble to check whether its value on the tape is inf
  * @return whether the adouble value is inf
  */
-inline bool isinf(const adouble &a) { return std::isinf(a.value()); }
+ADOLC_API inline bool isinf(const adouble &a) { return std::isinf(a.value()); }
 
 /** @brief This is an overload of std::isfinite for adoubles and not traced on
  * the tape. The value of the adouble on the current tape is passed to
@@ -644,49 +655,51 @@ inline bool isinf(const adouble &a) { return std::isinf(a.value()); }
  * @param a adouble to check whether its value on the tape is finite
  * @return whether the adouble value is finite
  */
-inline bool isfinite(const adouble &a) { return std::isfinite(a.value()); }
+ADOLC_API inline bool isfinite(const adouble &a) {
+  return std::isfinite(a.value());
+}
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
-ADOLC_DLL_EXPORT adouble exp(const adouble &a);
-ADOLC_DLL_EXPORT adouble exp(adouble &&a);
+ADOLC_API adouble exp(const adouble &a);
+ADOLC_API adouble exp(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble log(const adouble &a);
-ADOLC_DLL_EXPORT adouble log(adouble &&a);
+ADOLC_API adouble log(const adouble &a);
+ADOLC_API adouble log(adouble &&a);
 
-inline adouble log10(const adouble &a) {
+ADOLC_API inline adouble log10(const adouble &a) {
   return log(a) / ADOLC_MATH_NSP::log(10.0);
 }
-inline adouble log10(adouble &&a) {
+ADOLC_API inline adouble log10(adouble &&a) {
   return log(std::move(a)) / ADOLC_MATH_NSP::log(10.0);
 }
 
-ADOLC_DLL_EXPORT adouble sqrt(const adouble &a);
-ADOLC_DLL_EXPORT adouble sqrt(adouble &&a);
+ADOLC_API adouble sqrt(const adouble &a);
+ADOLC_API adouble sqrt(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble cbrt(const adouble &a);
-ADOLC_DLL_EXPORT adouble cbrt(adouble &&a);
+ADOLC_API adouble cbrt(const adouble &a);
+ADOLC_API adouble cbrt(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble sin(const adouble &a);
-ADOLC_DLL_EXPORT adouble sin(adouble &&a);
+ADOLC_API adouble sin(const adouble &a);
+ADOLC_API adouble sin(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble cos(const adouble &a);
-ADOLC_DLL_EXPORT adouble cos(adouble &&a);
+ADOLC_API adouble cos(const adouble &a);
+ADOLC_API adouble cos(adouble &&a);
 
-inline adouble tan(const adouble &a) { return sin(a) / cos(a); }
-inline adouble tan(adouble &&a) { return sin(a) / cos(a); }
+ADOLC_API inline adouble tan(const adouble &a) { return sin(a) / cos(a); }
+ADOLC_API inline adouble tan(adouble &&a) { return sin(a) / cos(a); }
 
-ADOLC_DLL_EXPORT adouble asin(const adouble &a);
-ADOLC_DLL_EXPORT adouble asin(adouble &&a);
+ADOLC_API adouble asin(const adouble &a);
+ADOLC_API adouble asin(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble acos(const adouble &a);
-ADOLC_DLL_EXPORT adouble acos(adouble &&a);
+ADOLC_API adouble acos(const adouble &a);
+ADOLC_API adouble acos(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble atan(const adouble &a);
-ADOLC_DLL_EXPORT adouble atan(adouble &&a);
+ADOLC_API adouble atan(const adouble &a);
+ADOLC_API adouble atan(adouble &&a);
 
 /*--------------------------------------------------------------------------*/
-inline adouble sinh(const adouble &a) {
+ADOLC_API inline adouble sinh(const adouble &a) {
   if (a.value() < 0.0) {
     adouble temp = exp(a);
     return 0.5 * (temp - 1.0 / temp);
@@ -695,7 +708,7 @@ inline adouble sinh(const adouble &a) {
     return 0.5 * (1.0 / temp - temp);
   }
 }
-inline adouble sinh(adouble &&a) {
+ADOLC_API inline adouble sinh(adouble &&a) {
   if (a.value() < 0.0) {
     adouble temp = exp(std::move(a));
     return 0.5 * (temp - 1.0 / temp);
@@ -706,17 +719,17 @@ inline adouble sinh(adouble &&a) {
 }
 /*--------------------------------------------------------------------------*/
 
-inline adouble cosh(const adouble &a) {
+ADOLC_API inline adouble cosh(const adouble &a) {
   adouble temp = (a.value() < 0.0) ? exp(a) : exp(-a);
   return 0.5 * (temp + 1.0 / temp);
 }
-inline adouble cosh(adouble &&a) {
+ADOLC_API inline adouble cosh(adouble &&a) {
   adouble temp = (a.value() < 0.0) ? exp(std::move(a)) : exp(-std::move(a));
   return 0.5 * (temp + 1.0 / temp);
 }
 /*--------------------------------------------------------------------------*/
 
-inline adouble tanh(const adouble &a) {
+ADOLC_API inline adouble tanh(const adouble &a) {
   if (a.value() < 0.0) {
     adouble temp = exp(2.0 * a);
     return (temp - 1.0) / (temp + 1.0);
@@ -725,7 +738,7 @@ inline adouble tanh(const adouble &a) {
     return (1.0 - temp) / (temp + 1.0);
   }
 }
-inline adouble tanh(adouble &&a) {
+ADOLC_API inline adouble tanh(adouble &&a) {
   if (a.value() < 0.0) {
     adouble temp = exp(2.0 * std::move(a));
     return (temp - 1.0) / (temp + 1.0);
@@ -736,138 +749,152 @@ inline adouble tanh(adouble &&a) {
 }
 /*--------------------------------------------------------------------------*/
 
-ADOLC_DLL_EXPORT adouble asinh(const adouble &a);
-ADOLC_DLL_EXPORT adouble asinh(adouble &&a);
+ADOLC_API adouble asinh(const adouble &a);
+ADOLC_API adouble asinh(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble acosh(const adouble &a);
-ADOLC_DLL_EXPORT adouble acosh(adouble &&a);
+ADOLC_API adouble acosh(const adouble &a);
+ADOLC_API adouble acosh(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble atanh(const adouble &a);
-ADOLC_DLL_EXPORT adouble atanh(adouble &&a);
+ADOLC_API adouble atanh(const adouble &a);
+ADOLC_API adouble atanh(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble erf(const adouble &a);
-ADOLC_DLL_EXPORT adouble erf(adouble &&a);
+ADOLC_API adouble erf(const adouble &a);
+ADOLC_API adouble erf(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble erfc(const adouble &a);
-ADOLC_DLL_EXPORT adouble erfc(adouble &&a);
+ADOLC_API adouble erfc(const adouble &a);
+ADOLC_API adouble erfc(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble ceil(const adouble &a);
-ADOLC_DLL_EXPORT adouble ceil(adouble &&a);
+ADOLC_API adouble ceil(const adouble &a);
+ADOLC_API adouble ceil(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble floor(const adouble &a);
-ADOLC_DLL_EXPORT adouble floor(adouble &&a);
+ADOLC_API adouble floor(const adouble &a);
+ADOLC_API adouble floor(adouble &&a);
 
-ADOLC_DLL_EXPORT adouble fabs(const adouble &a);
-ADOLC_DLL_EXPORT adouble fabs(adouble &&a);
+ADOLC_API adouble fabs(const adouble &a);
+ADOLC_API adouble fabs(adouble &&a);
 
-inline adouble abs(const adouble &a) { return fabs(a); }
-inline adouble abs(adouble &&a) { return fabs(std::move(a)); }
+ADOLC_API inline adouble abs(const adouble &a) { return fabs(a); }
+ADOLC_API inline adouble abs(adouble &&a) { return fabs(std::move(a)); }
 
 /*--------------------------------------------------------------------------*/
 /* Min and Max */
 
-ADOLC_DLL_EXPORT adouble fmin(const adouble &a, const adouble &b);
-ADOLC_DLL_EXPORT adouble fmin(adouble &&a, const adouble &b);
-ADOLC_DLL_EXPORT adouble fmin(const adouble &a, adouble &&b);
-inline adouble fmin(adouble &&a, adouble &&b) { return fmin(std::move(a), b); }
-inline adouble fmin(const double coval, const adouble &a) {
+ADOLC_API adouble fmin(const adouble &a, const adouble &b);
+ADOLC_API adouble fmin(adouble &&a, const adouble &b);
+ADOLC_API adouble fmin(const adouble &a, adouble &&b);
+ADOLC_API inline adouble fmin(adouble &&a, adouble &&b) {
+  return fmin(std::move(a), b);
+}
+ADOLC_API inline adouble fmin(const double coval, const adouble &a) {
   return fmin(adouble(coval), a);
 }
-inline adouble fmin(const double coval, adouble &&a) {
+ADOLC_API inline adouble fmin(const double coval, adouble &&a) {
   return fmin(adouble(coval), std::move(a));
 }
-inline adouble fmin(const adouble &a, const double coval) {
+ADOLC_API inline adouble fmin(const adouble &a, const double coval) {
   return fmin(a, adouble(coval));
 }
-inline adouble fmin(adouble &&a, const double coval) {
+ADOLC_API inline adouble fmin(adouble &&a, const double coval) {
   return fmin(std::move(a), adouble(coval));
 }
 
-inline adouble min(const adouble &a, const adouble &b) { return fmin(a, b); }
-inline adouble min(adouble &&a, const adouble &b) {
+ADOLC_API inline adouble min(const adouble &a, const adouble &b) {
+  return fmin(a, b);
+}
+ADOLC_API inline adouble min(adouble &&a, const adouble &b) {
   return fmin(std::move(a), b);
 }
-inline adouble min(const adouble &a, adouble &&b) {
+ADOLC_API inline adouble min(const adouble &a, adouble &&b) {
   return fmin(a, std::move(b));
 }
-inline adouble min(adouble &&a, adouble &&b) { return fmin(std::move(a), b); }
-inline adouble min(const double coval, const adouble &a) {
+ADOLC_API inline adouble min(adouble &&a, adouble &&b) {
+  return fmin(std::move(a), b);
+}
+ADOLC_API inline adouble min(const double coval, const adouble &a) {
   return fmin(coval, a);
 }
-inline adouble min(const double coval, adouble &&a) {
+ADOLC_API inline adouble min(const double coval, adouble &&a) {
   return fmin(coval, std::move(a));
 }
-inline adouble min(const adouble &a, const double coval) {
+ADOLC_API inline adouble min(const adouble &a, const double coval) {
   return fmin(a, coval);
 }
-inline adouble min(adouble &&a, const double coval) {
+ADOLC_API inline adouble min(adouble &&a, const double coval) {
   return fmin(std::move(a), coval);
 }
 
 /*--------------------------------------------------------------------------*/
 
-inline adouble fmax(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble fmax(const adouble &a, const adouble &b) {
   return (-fmin(-a, -b));
 }
-inline adouble fmax(adouble &&a, const adouble &b) {
+ADOLC_API inline adouble fmax(adouble &&a, const adouble &b) {
   return (-fmin(-std::move(a), -b));
 }
-inline adouble fmax(const adouble &a, adouble &&b) {
+ADOLC_API inline adouble fmax(const adouble &a, adouble &&b) {
   return (-fmin(-a, -std::move(b)));
 }
-inline adouble fmax(adouble &&a, adouble &&b) { return fmax(std::move(a), b); }
-inline adouble fmax(const double coval, const adouble &a) {
+ADOLC_API inline adouble fmax(adouble &&a, adouble &&b) {
+  return fmax(std::move(a), b);
+}
+ADOLC_API inline adouble fmax(const double coval, const adouble &a) {
   return (-fmin(-coval, -a));
 }
-inline adouble fmax(const double coval, adouble &&a) {
+ADOLC_API inline adouble fmax(const double coval, adouble &&a) {
   return (-fmin(-coval, -std::move(a)));
 }
-inline adouble fmax(const adouble &a, const double coval) {
+ADOLC_API inline adouble fmax(const adouble &a, const double coval) {
   return (-fmin(-a, -coval));
 }
-inline adouble fmax(adouble &&a, const double coval) {
+ADOLC_API inline adouble fmax(adouble &&a, const double coval) {
   return (-fmin(-std::move(a), -coval));
 }
 
-inline adouble max(const adouble &a, const adouble &b) { return fmax(a, b); }
+ADOLC_API inline adouble max(const adouble &a, const adouble &b) {
+  return fmax(a, b);
+}
 
-inline adouble max(adouble &&a, const adouble &b) {
+ADOLC_API inline adouble max(adouble &&a, const adouble &b) {
   return fmax(std::move(a), b);
 }
-inline adouble max(const adouble &a, adouble &&b) {
+ADOLC_API inline adouble max(const adouble &a, adouble &&b) {
   return fmax(a, std::move(b));
 }
 
-inline adouble max(adouble &&a, adouble &&b) { return fmax(std::move(a), b); }
-inline adouble max(const double coval, const adouble &a) {
+ADOLC_API inline adouble max(adouble &&a, adouble &&b) {
+  return fmax(std::move(a), b);
+}
+ADOLC_API inline adouble max(const double coval, const adouble &a) {
   return fmax(coval, a);
 }
-inline adouble max(const double coval, adouble &&a) {
+ADOLC_API inline adouble max(const double coval, adouble &&a) {
   return fmax(coval, std::move(a));
 }
-inline adouble max(const adouble &a, const double coval) {
+ADOLC_API inline adouble max(const adouble &a, const double coval) {
   return fmax(a, coval);
 }
-inline adouble max(adouble &&a, const double coval) {
+ADOLC_API inline adouble max(adouble &&a, const double coval) {
   return fmax(std::move(a), coval);
 }
 
 /*--------------------------------------------------------------------------*/
 /* ldexp and frexp */
 
-inline adouble ldexp(const adouble &a, const int exp) {
+ADOLC_API inline adouble ldexp(const adouble &a, const int exp) {
   return a * ldexp(1.0, exp);
 }
-inline adouble ldexp(adouble &&a, const int exp) { return a * ldexp(1.0, exp); }
+ADOLC_API inline adouble ldexp(adouble &&a, const int exp) {
+  return a * ldexp(1.0, exp);
+}
 
 /*--------------------------------------------------------------------------*/
 
-inline adouble frexp(const adouble &a, int *exp) {
+ADOLC_API inline adouble frexp(const adouble &a, int *exp) {
   double coval = std::frexp(a.value(), exp);
   return adouble(coval);
   return adouble(coval);
 }
-inline adouble frexp(adouble &&a, int *exp) {
+ADOLC_API inline adouble frexp(adouble &&a, int *exp) {
   const double coval = std::frexp(a.value(), exp);
   a.value(coval);
   return a;
@@ -876,35 +903,39 @@ inline adouble frexp(adouble &&a, int *exp) {
 /*---------------------------------------------------------------*/
 /* Conditional assignments */
 
-void condassign(adouble &res, const adouble &cond, const adouble &arg1,
-                const adouble &arg2);
-inline void condassign(double &res, const double &cond, const double &arg1,
-                       const double &arg2) {
+ADOLC_API void condassign(adouble &res, const adouble &cond,
+                          const adouble &arg1, const adouble &arg2);
+ADOLC_API inline void condassign(double &res, const double &cond,
+                                 const double &arg1, const double &arg2) {
   res = cond > 0 ? arg1 : arg2;
 }
 /*---------------------------------------------------------------*/
-void condassign(adouble &res, const adouble &cond, const adouble &arg);
-inline void condassign(double &res, const double &cond, const double &arg) {
+ADOLC_API void condassign(adouble &res, const adouble &cond,
+                          const adouble &arg);
+ADOLC_API inline void condassign(double &res, const double &cond,
+                                 const double &arg) {
   res = cond > 0 ? arg : res;
 }
 /*---------------------------------------------------------------*/
-void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
-                  const adouble &arg2);
-inline void condeqassign(double &res, const double &cond, const double &arg1,
-                         const double &arg2) {
+ADOLC_API void condeqassign(adouble &res, const adouble &cond,
+                            const adouble &arg1, const adouble &arg2);
+ADOLC_API inline void condeqassign(double &res, const double &cond,
+                                   const double &arg1, const double &arg2) {
   res = cond >= 0 ? arg1 : arg2;
 }
 /*---------------------------------------------------------------*/
-inline void condeqassign(double &res, const double &cond, const double &arg) {
+ADOLC_API inline void condeqassign(double &res, const double &cond,
+                                   const double &arg) {
   res = cond >= 0 ? arg : res;
 }
-void condeqassign(adouble &res, const adouble &cond, const adouble &arg);
+ADOLC_API void condeqassign(adouble &res, const adouble &cond,
+                            const adouble &arg);
 
 /*---------------------------------------------------------------*/
 /* power function */
-ADOLC_DLL_EXPORT adouble pow(const adouble &a, const double exp);
-ADOLC_DLL_EXPORT adouble pow(adouble &&a, const double exp);
-inline adouble pow(double coval, const adouble &a) {
+ADOLC_API adouble pow(const adouble &a, const double exp);
+ADOLC_API adouble pow(adouble &&a, const double exp);
+ADOLC_API inline adouble pow(double coval, const adouble &a) {
   ValueTape &tape = currentTape();
   adouble ret;
   if (coval <= 0)
@@ -916,7 +947,7 @@ inline adouble pow(double coval, const adouble &a) {
 
   return ret;
 }
-inline adouble pow(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble pow(const adouble &a, const adouble &b) {
   assert((a.value() >= 0) && "\nADOL-C message: negative basis deactivated\n ");
   assert(a.value() != 0 && "\nADOL-C message: zero basis deactivated\n ");
 
@@ -931,7 +962,7 @@ inline adouble pow(const adouble &a, const adouble &b) {
 
 /*---------------------------------------------------------------*/
 /* atan(x, y) */
-inline adouble atan2(const adouble &a, const adouble &b) {
+ADOLC_API inline adouble atan2(const adouble &a, const adouble &b) {
   adouble a1, a2, ret, sy;
   const double pihalf = ADOLC_MATH_NSP::asin(1.0);
   condassign(sy, a, adouble{1.0}, adouble{-1.0});
@@ -944,17 +975,17 @@ inline adouble atan2(const adouble &a, const adouble &b) {
 /*---------------------------------------------------------------*/
 /* Advector functions  */
 // copies src to dest; both should be of size "size"
-void ADOLC_DLL_EXPORT adolc_vec_copy(adouble *const dest,
-                                     const adouble *const src, size_t size);
+void ADOLC_API adolc_vec_copy(adouble *const dest, const adouble *const src,
+                              size_t size);
 
 // computes canonical scalarproduct, src and dest must have size "size"
-void ADOLC_DLL_EXPORT adolc_vec_dot(adouble *const dest,
-                                    const adouble *const src, size_t size);
+void ADOLC_API adolc_vec_dot(adouble *const dest, const adouble *const src,
+                             size_t size);
 
 // res = a*vec_a + vec_b, vec_a and vec_b must have same size "size"
-void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const res, const adouble &a,
-                                     const adouble *const vec_a,
-                                     const adouble *const vec_b, size_t size);
+void ADOLC_API adolc_vec_axpy(adouble *const res, const adouble &a,
+                              const adouble *const vec_a,
+                              const adouble *const vec_b, size_t size);
 
 /**
  * PDOUBLE ARTIHEMTICS
@@ -962,162 +993,162 @@ void ADOLC_DLL_EXPORT adolc_vec_axpy(adouble *const res, const adouble &a,
 
 /*--------------------------------------------------------------------------*/
 /* Arithmetic assignments */
-inline adouble &adouble::operator+=(const pdouble &p) {
+ADOLC_API inline adouble &adouble::operator+=(const pdouble &p) {
   return *this += adouble(p);
 }
-inline adouble &adouble::operator-=(const pdouble &p) {
+ADOLC_API inline adouble &adouble::operator-=(const pdouble &p) {
   return *this -= adouble(p);
 }
-inline adouble &adouble::operator*=(const pdouble &p) {
+ADOLC_API inline adouble &adouble::operator*=(const pdouble &p) {
   return *this *= adouble(p);
 }
-inline adouble &adouble::operator/=(const pdouble &p) {
+ADOLC_API inline adouble &adouble::operator/=(const pdouble &p) {
   return *this /= adouble(p);
 }
 
 /*--------------------------------------------------------------------------*/
 /* sign operators */
-inline adouble operator-(const pdouble &p) { return -adouble(p); }
-inline adouble operator+(const pdouble &p) { return adouble(p); };
+ADOLC_API inline adouble operator-(const pdouble &p) { return -adouble(p); }
+ADOLC_API inline adouble operator+(const pdouble &p) { return adouble(p); };
 
 /*--------------------------------------------------------------------------*/
 /* Binary Operations */
-inline adouble operator+(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator+(const pdouble &p, const adouble &a) {
   return a + adouble(p);
 };
-inline adouble operator+(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator+(const adouble &a, const pdouble &p) {
   return a + adouble(p);
 };
-inline adouble operator+(const pdouble &p, const double coval) {
+ADOLC_API inline adouble operator+(const pdouble &p, const double coval) {
   return coval + adouble(p);
 }
-inline adouble operator+(const double coval, const pdouble &p) {
+ADOLC_API inline adouble operator+(const double coval, const pdouble &p) {
   return coval + adouble(p);
 }
 /*--------------------------------------------------------------------------*/
-inline adouble operator-(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator-(const adouble &a, const pdouble &p) {
   return a - adouble(p);
 }
-inline adouble operator-(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator-(const pdouble &p, const adouble &a) {
   return (-a) + adouble(p);
 }
-inline adouble operator-(const pdouble &p, const double coval) {
+ADOLC_API inline adouble operator-(const pdouble &p, const double coval) {
   return adouble(p) - coval;
 }
-inline adouble operator-(const double coval, const pdouble &p) {
+ADOLC_API inline adouble operator-(const double coval, const pdouble &p) {
   return coval - adouble(p);
 }
 /*--------------------------------------------------------------------------*/
-inline adouble operator*(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator*(const adouble &a, const pdouble &p) {
   return a * adouble(p);
 }
-inline adouble operator*(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator*(const pdouble &p, const adouble &a) {
   return a * adouble(p);
 }
-inline adouble operator*(const pdouble &p, const double coval) {
+ADOLC_API inline adouble operator*(const pdouble &p, const double coval) {
   return coval * adouble(p);
 }
-inline adouble operator*(const double coval, const pdouble &p) {
+ADOLC_API inline adouble operator*(const double coval, const pdouble &p) {
   return coval * adouble(p);
 }
 /*--------------------------------------------------------------------------*/
-inline adouble operator/(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator/(const pdouble &p, const adouble &a) {
   return adouble(p) / a;
 }
-inline adouble operator/(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator/(const adouble &a, const pdouble &p) {
   return a / adouble(p);
 }
-inline adouble operator/(const pdouble &p, const double coval) {
+ADOLC_API inline adouble operator/(const pdouble &p, const double coval) {
   return adouble(p) / coval;
 }
-inline adouble operator/(const double coval, const pdouble &p) {
+ADOLC_API inline adouble operator/(const double coval, const pdouble &p) {
   return coval / adouble(p);
 }
 
 /*--------------------------------------------------------------------------*/
 /* Comparions */
 #ifdef ADOLC_ADVANCED_BRANCHING
-inline adouble operator!=(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator!=(const adouble &a, const pdouble &p) {
   return a != adouble(p);
 }
-inline adouble operator!=(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator!=(const pdouble &p, const adouble &a) {
   return adouble(p) != a;
 }
 
-inline adouble operator==(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator==(const adouble &a, const pdouble &p) {
   return a == adouble(p);
 }
-inline adouble operator==(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator==(const pdouble &p, const adouble &a) {
   return adouble(p) == a;
 }
 
-inline adouble operator<=(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator<=(const adouble &a, const pdouble &p) {
   return a <= adouble(p);
 }
-inline adouble operator<=(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator<=(const pdouble &p, const adouble &a) {
   return adouble(p) <= a;
 }
 
-inline adouble operator>=(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator>=(const adouble &a, const pdouble &p) {
   return a >= adouble(p);
 }
-inline adouble operator>=(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator>=(const pdouble &p, const adouble &a) {
   return adouble(p) >= a;
 }
 
-inline adouble operator>(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator>(const adouble &a, const pdouble &p) {
   return a > adouble(p);
 }
-inline adouble operator>(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator>(const pdouble &p, const adouble &a) {
   return adouble(p) > a;
 }
-inline adouble operator<(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble operator<(const adouble &a, const pdouble &p) {
   return a < adouble(p);
 }
-inline adouble operator<(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble operator<(const pdouble &p, const adouble &a) {
   return adouble(p) < a;
 }
 #else // ADOLC_ADVANCED_BRANCHING
 
-inline bool operator!=(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator!=(const adouble &a, const pdouble &p) {
   return a != adouble(p);
 }
-inline bool operator!=(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator!=(const pdouble &p, const adouble &a) {
   return adouble(p) != a;
 }
 
-inline bool operator==(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator==(const adouble &a, const pdouble &p) {
   return a == adouble(p);
 }
-inline bool operator==(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator==(const pdouble &p, const adouble &a) {
   return adouble(p) == a;
 }
 
-inline bool operator<=(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator<=(const adouble &a, const pdouble &p) {
   return a <= adouble(p);
 }
-inline bool operator<=(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator<=(const pdouble &p, const adouble &a) {
   return adouble(p) <= a;
 }
 
-inline bool operator>=(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator>=(const adouble &a, const pdouble &p) {
   return a >= adouble(p);
 }
-inline bool operator>=(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator>=(const pdouble &p, const adouble &a) {
   return adouble(p) >= a;
 }
 
-inline bool operator>(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator>(const adouble &a, const pdouble &p) {
   return a > adouble(p);
 }
-inline bool operator>(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator>(const pdouble &p, const adouble &a) {
   return adouble(p) > a;
 }
 
-inline bool operator<(const adouble &a, const pdouble &p) {
+ADOLC_API inline bool operator<(const adouble &a, const pdouble &p) {
   return a < adouble(p);
 }
-inline bool operator<(const pdouble &p, const adouble &a) {
+ADOLC_API inline bool operator<(const pdouble &p, const adouble &a) {
   return adouble(p) < a;
 }
 
@@ -1129,7 +1160,9 @@ inline bool operator<(const pdouble &p, const adouble &a) {
  * @param p pdouble to check whether its value on the tape is normal
  * @return whether the pdouble value is normal
  */
-inline bool isnormal(const pdouble &p) { return std::isnormal(p.value()); }
+ADOLC_API inline bool isnormal(const pdouble &p) {
+  return std::isnormal(p.value());
+}
 
 /** @brief This is an overload of std::isnan for pdoubles and not traced on
  * the tape. The value of the pdouble on the current tape is passed to
@@ -1137,7 +1170,7 @@ inline bool isnormal(const pdouble &p) { return std::isnormal(p.value()); }
  * @param p pdouble to check whether its value on the tape is nan
  * @return whether the pdouble value is nan
  */
-inline bool isnan(const pdouble &p) { return std::isnan(p.value()); }
+ADOLC_API inline bool isnan(const pdouble &p) { return std::isnan(p.value()); }
 
 /** @brief This is an overload of std::isinf for pdoubles and not traced on
  * the tape. The value of the pdouble on the current tape is passed to
@@ -1145,7 +1178,7 @@ inline bool isnan(const pdouble &p) { return std::isnan(p.value()); }
  * @param p pdouble to check whether its value on the tape is inf
  * @return whether the pdouble value is inf
  */
-inline bool isinf(const pdouble &p) { return std::isinf(p.value()); }
+ADOLC_API inline bool isinf(const pdouble &p) { return std::isinf(p.value()); }
 
 /** @brief This is an overload of std::isfinite for pdoubles and not traced on
  * the tape. The value of the pdouble on the current tape is passed to
@@ -1153,128 +1186,142 @@ inline bool isinf(const pdouble &p) { return std::isinf(p.value()); }
  * @param p pdouble to check whether its value on the tape is finite
  * @return whether the pdouble value is finite
  */
-inline bool isfinite(const pdouble &p) { return std::isfinite(p.value()); }
+ADOLC_API inline bool isfinite(const pdouble &p) {
+  return std::isfinite(p.value());
+}
 
 /*--------------------------------------------------------------------------*/
 /* unary operators */
-inline adouble exp(const pdouble &p) { return exp(adouble(p)); }
-inline adouble log(const pdouble &p) { return log(adouble(p)); }
-inline adouble log10(const pdouble &p) { return log10(adouble(p)); }
-inline adouble sqrt(const pdouble &p) { return sqrt(adouble(p)); }
-inline adouble cbrt(const pdouble &p) { return cbrt(adouble(p)); }
-inline adouble sin(const pdouble &p) { return sin(adouble(p)); }
-inline adouble cos(const pdouble &p) { return cos(adouble(p)); }
-inline adouble tan(const pdouble &p) { return tan(adouble(p)); }
-inline adouble asin(const pdouble &p) { return asin(adouble(p)); }
-inline adouble acos(const pdouble &p) { return acos(adouble(p)); }
-inline adouble atan(const pdouble &p) { return atan(adouble(p)); }
-inline adouble sinh(const pdouble &p) { return sinh(adouble(p)); }
-inline adouble cosh(const pdouble &p) { return cosh(adouble(p)); }
-inline adouble tanh(const pdouble &p) { return tanh(adouble(p)); }
-inline adouble asinh(const pdouble &p) { return asinh(adouble(p)); }
-inline adouble acosh(const pdouble &p) { return acosh(adouble(p)); }
-inline adouble atanh(const pdouble &p) { return atanh(adouble(p)); }
-inline adouble erf(const pdouble &p) { return erf(adouble(p)); }
-inline adouble erfc(const pdouble &p) { return erfc(adouble(p)); }
-inline adouble fabs(const pdouble &p) { return fabs(adouble(p)); }
-inline adouble abs(const pdouble &p) { return fabs(adouble(p)); }
-inline adouble ceil(const pdouble &p) { return ceil(adouble(p)); }
-inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
+ADOLC_API inline adouble exp(const pdouble &p) { return exp(adouble(p)); }
+ADOLC_API inline adouble log(const pdouble &p) { return log(adouble(p)); }
+ADOLC_API inline adouble log10(const pdouble &p) { return log10(adouble(p)); }
+ADOLC_API inline adouble sqrt(const pdouble &p) { return sqrt(adouble(p)); }
+ADOLC_API inline adouble cbrt(const pdouble &p) { return cbrt(adouble(p)); }
+ADOLC_API inline adouble sin(const pdouble &p) { return sin(adouble(p)); }
+ADOLC_API inline adouble cos(const pdouble &p) { return cos(adouble(p)); }
+ADOLC_API inline adouble tan(const pdouble &p) { return tan(adouble(p)); }
+ADOLC_API inline adouble asin(const pdouble &p) { return asin(adouble(p)); }
+ADOLC_API inline adouble acos(const pdouble &p) { return acos(adouble(p)); }
+ADOLC_API inline adouble atan(const pdouble &p) { return atan(adouble(p)); }
+ADOLC_API inline adouble sinh(const pdouble &p) { return sinh(adouble(p)); }
+ADOLC_API inline adouble cosh(const pdouble &p) { return cosh(adouble(p)); }
+ADOLC_API inline adouble tanh(const pdouble &p) { return tanh(adouble(p)); }
+ADOLC_API inline adouble asinh(const pdouble &p) { return asinh(adouble(p)); }
+ADOLC_API inline adouble acosh(const pdouble &p) { return acosh(adouble(p)); }
+ADOLC_API inline adouble atanh(const pdouble &p) { return atanh(adouble(p)); }
+ADOLC_API inline adouble erf(const pdouble &p) { return erf(adouble(p)); }
+ADOLC_API inline adouble erfc(const pdouble &p) { return erfc(adouble(p)); }
+ADOLC_API inline adouble fabs(const pdouble &p) { return fabs(adouble(p)); }
+ADOLC_API inline adouble abs(const pdouble &p) { return fabs(adouble(p)); }
+ADOLC_API inline adouble ceil(const pdouble &p) { return ceil(adouble(p)); }
+ADOLC_API inline adouble floor(const pdouble &p) { return floor(adouble(p)); }
 
 /*--------------------------------------------------------------------------*/
 /* Min and Max */
-inline adouble fmin(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble fmin(const adouble &a, const pdouble &p) {
   return fmin(a, adouble(p));
 }
-inline adouble fmin(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble fmin(const pdouble &p, const adouble &a) {
   return fmin(adouble(p), a);
 }
-inline adouble fmin(const pdouble &p, const pdouble &q) {
+ADOLC_API inline adouble fmin(const pdouble &p, const pdouble &q) {
   return fmin(adouble(p), adouble(q));
 }
-inline adouble fmin(const double coval, const pdouble &p) {
+ADOLC_API inline adouble fmin(const double coval, const pdouble &p) {
   return fmin(coval, adouble(p));
 }
-inline adouble fmin(const pdouble &p, const double coval) {
+ADOLC_API inline adouble fmin(const pdouble &p, const double coval) {
   return fmin(adouble(p), coval);
 }
 
-inline adouble min(const adouble &a, const pdouble &p) { return fmin(a, p); }
-inline adouble min(const pdouble &p, const adouble &a) { return fmin(p, a); }
-inline adouble min(const pdouble &p, const pdouble &q) { return fmin(p, q); }
-inline adouble min(const double coval, const pdouble &p) {
+ADOLC_API inline adouble min(const adouble &a, const pdouble &p) {
+  return fmin(a, p);
+}
+ADOLC_API inline adouble min(const pdouble &p, const adouble &a) {
+  return fmin(p, a);
+}
+ADOLC_API inline adouble min(const pdouble &p, const pdouble &q) {
+  return fmin(p, q);
+}
+ADOLC_API inline adouble min(const double coval, const pdouble &p) {
   return fmin(coval, p);
 }
-inline adouble min(const pdouble &p, const double coval) {
+ADOLC_API inline adouble min(const pdouble &p, const double coval) {
   return fmin(p, coval);
 }
 
 /*--------------------------------------------------------------------------*/
-inline adouble fmax(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble fmax(const adouble &a, const pdouble &p) {
   return fmax(a, adouble(p));
 }
-inline adouble fmax(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble fmax(const pdouble &p, const adouble &a) {
   return fmax(adouble(p), a);
 }
-inline adouble fmax(const pdouble &p, const pdouble &q) {
+ADOLC_API inline adouble fmax(const pdouble &p, const pdouble &q) {
   return fmax(adouble(p), adouble(q));
 }
-inline adouble fmax(const double coval, const pdouble &p) {
+ADOLC_API inline adouble fmax(const double coval, const pdouble &p) {
   return fmax(coval, adouble(p));
 }
-inline adouble fmax(const pdouble &p, const double coval) {
+ADOLC_API inline adouble fmax(const pdouble &p, const double coval) {
   return fmax(adouble(p), coval);
 }
 
-inline adouble max(const adouble &a, const pdouble &p) { return fmax(a, p); }
-inline adouble max(const pdouble &p, const adouble &a) { return fmax(p, a); }
-inline adouble max(const pdouble &p, const pdouble &q) { return fmax(p, q); }
-inline adouble max(const double coval, const pdouble &p) {
+ADOLC_API inline adouble max(const adouble &a, const pdouble &p) {
+  return fmax(a, p);
+}
+ADOLC_API inline adouble max(const pdouble &p, const adouble &a) {
+  return fmax(p, a);
+}
+ADOLC_API inline adouble max(const pdouble &p, const pdouble &q) {
+  return fmax(p, q);
+}
+ADOLC_API inline adouble max(const double coval, const pdouble &p) {
   return fmax(coval, p);
 }
-inline adouble max(const pdouble &p, const double coval) {
+ADOLC_API inline adouble max(const pdouble &p, const double coval) {
   return fmax(p, coval);
 }
 
 /*--------------------------------------------------------------------------*/
 /* ldexp and frexp */
-inline adouble ldexp(const pdouble &p, const int exp) {
+ADOLC_API inline adouble ldexp(const pdouble &p, const int exp) {
   return ldexp(adouble(p), exp);
 }
-inline adouble frexp(const pdouble &p, int *exp) {
+ADOLC_API inline adouble frexp(const pdouble &p, int *exp) {
   return frexp(adouble(p), exp);
 }
 /*--------------------------------------------------------------------------*/
 /* power function */
-inline adouble pow(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble pow(const adouble &a, const pdouble &p) {
   return pow(a, adouble(p));
 }
-inline adouble pow(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble pow(const pdouble &p, const adouble &a) {
   return pow(adouble(p), a);
 }
-inline adouble pow(const pdouble &p, const double coval) {
+ADOLC_API inline adouble pow(const pdouble &p, const double coval) {
   return pow(adouble(p), coval);
 }
 
 /*--------------------------------------------------------------------------*/
 /* atan(x, y) */
-inline adouble atan2(const pdouble &p, const adouble &a) {
+ADOLC_API inline adouble atan2(const pdouble &p, const adouble &a) {
   return atan2(adouble(p), a);
 }
-inline adouble atan2(const adouble &a, const pdouble &p) {
+ADOLC_API inline adouble atan2(const adouble &a, const pdouble &p) {
   return atan2(a, adouble(p));
 }
 
 //-----------------------------------------------------------
 /* User defined version of logarithm to test extend_quad macro */
-ADOLC_DLL_EXPORT double myquad(double x);
+ADOLC_API double myquad(double x);
 
 /* numeric_limits<adouble> specialization
  *
  * All methods return double instead of adouble, because these values
  * never depend on the independent variables.
  */
-template <> struct std::numeric_limits<adouble> {
+template <> struct ADOLC_API std::numeric_limits<adouble> {
   static constexpr bool is_specialized = true;
 
   static constexpr double min() noexcept {

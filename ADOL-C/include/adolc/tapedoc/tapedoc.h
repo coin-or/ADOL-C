@@ -16,6 +16,7 @@
 #if !defined(ADOLC_TAPEDOC_TAPEDOC_H)
 #define ADOLC_TAPEDOC_TAPEDOC_H 1
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
@@ -24,7 +25,7 @@ BEGIN_C_DECLS
 /*                                                                 tape_doc */
 /* tape_doc(tag, m, n, x[n], y[m])                                          */
 
-ADOLC_DLL_EXPORT void tape_doc(short, int, int, const double *, double *);
+ADOLC_API void tape_doc(short, int, int, const double *, double *);
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */
