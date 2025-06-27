@@ -176,7 +176,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
     for (size_t i = 0; i < dim_x; ++i)
       xi[i] = U[i] - xi[i];
 
-    current->norm_deriv_func(xi, dim_x);
+    err = current->norm_deriv_func(xi, dim_x);
     if (err < current->epsilon_deriv) {
       for (size_t i = 0; i < dim_xu - dim_x; ++i) {
         xu_bar[dim_x + i] += U[dim_x + i];

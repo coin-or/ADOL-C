@@ -17,6 +17,7 @@
 #if !defined(ADOLC_DRIVERS_ODEDRIVERS_H)
 #define ADOLC_DRIVERS_ODEDRIVERS_H 1
 
+#include <adolc/adolcexport.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 
@@ -28,16 +29,14 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                  forodec */
 /* forodec(tag, n, tau, dold, dnew, X[n][d+1])                              */
-ADOLC_DLL_EXPORT int forodec(short, int, double, int, int, double **);
-ADOLC_DLL_EXPORT fint forodec_(fint *, fint *, fdouble *, fint *, fint *,
-                               fdouble *);
+ADOLC_API int forodec(short, int, double, int, int, double **);
+ADOLC_API fint forodec_(fint *, fint *, fdouble *, fint *, fint *, fdouble *);
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  accodec */
 /* accodec(n, tau, d, Z[n][n][d+1], B[n][n][d+1], nz[n][n])                 */
-ADOLC_DLL_EXPORT void accodec(int, double, int, double ***, double ***,
-                              short **);
-ADOLC_DLL_EXPORT fint accodec_(fint *, fdouble *, fint *, fdouble *, fdouble *);
+ADOLC_API void accodec(int, double, int, double ***, double ***, short **);
+ADOLC_API fint accodec_(fint *, fdouble *, fint *, fdouble *, fdouble *);
 
 END_C_DECLS
 
@@ -52,12 +51,12 @@ END_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                   forode */
 /* forode(tag, n, tau, dold, dnew, X[n][d+1])                               */
-inline int forode(short tag,  // tape identifier
-                  int n,      // space dimension
-                  double tau, // scaling
-                  int dold,   // previous degree defaults to zero
-                  int dnew,   // New degree of consistency
-                  double **X) // Taylor series
+ADOLC_API inline int forode(short tag,  // tape identifier
+                            int n,      // space dimension
+                            double tau, // scaling
+                            int dold,   // previous degree defaults to zero
+                            int dnew,   // New degree of consistency
+                            double **X) // Taylor series
 {
   return forodec(tag, n, tau, dold, dnew, X);
 }
@@ -67,7 +66,7 @@ inline int forode(short tag,  // tape identifier
 /*        the scaling tau defaults to 1                                     */
 /*                                                                          */
 /*  forode(tag, n, dold, dnew, X[n][d+1])                                   */
-inline int forode(short tag, int n, int dold, int dnew, double **X) {
+ADOLC_API inline int forode(short tag, int n, int dold, int dnew, double **X) {
   return forodec(tag, n, 1.0, dold, dnew, X);
 }
 
@@ -76,7 +75,7 @@ inline int forode(short tag, int n, int dold, int dnew, double **X) {
 /*        previous order defaults to 0                                      */
 /*                                                                          */
 /* forode(tag, n, tau, dnew, X[n][d+1])                                     */
-inline int forode(short tag, int n, double tau, int deg, double **X) {
+ADOLC_API inline int forode(short tag, int n, double tau, int deg, double **X) {
   return forodec(tag, n, tau, 0, deg, X);
 }
 
@@ -85,19 +84,20 @@ inline int forode(short tag, int n, double tau, int deg, double **X) {
 /*        both tau and dold default                                         */
 /*                                                                          */
 /* forode(tag, n, dnew, X[n][d+1])                                          */
-inline int forode(short tag, int n, int deg, double **X) {
+ADOLC_API inline int forode(short tag, int n, int deg, double **X) {
   return forode(tag, n, 1.0, 0, deg, X);
 }
 
 /*--------------------------------------------------------------------------*/
 /*                                                                   accode */
 /* accode(n, tau, d, Z[n][n][d+1], B[n][n][d+1], nz[n][n])                  */
-inline void accode(int n,               // space dimension
-                   double tau,          // scaling defaults to 1.0
-                   int deg,             // highest degree
-                   double ***A,         // input tensor of "partial" Jacobians
-                   double ***B,         // output tensor of "total" Jacobians
-                   short **nonzero = 0) // optional sparsity characterization
+ADOLC_API inline void
+accode(int n,               // space dimension
+       double tau,          // scaling defaults to 1.0
+       int deg,             // highest degree
+       double ***A,         // input tensor of "partial" Jacobians
+       double ***B,         // output tensor of "total" Jacobians
+       short **nonzero = 0) // optional sparsity characterization
 {
   accodec(n, tau, deg, A, B, nonzero);
 }
@@ -107,11 +107,12 @@ inline void accode(int n,               // space dimension
 /*       scaling defaults to 1                                              */
 /*                                                                          */
 /* accode(n, d, Z[n][n][d+1], B[n][n][d+1], nz[n][n])                       */
-inline void accode(int n,               // space dimension
-                   int deg,             // highest degree
-                   double ***A,         // input tensor of "partial" Jacobians
-                   double ***B,         // output tensor of "total" Jacobians
-                   short **nonzero = 0) // optional sparsity characterization
+ADOLC_API inline void
+accode(int n,               // space dimension
+       int deg,             // highest degree
+       double ***A,         // input tensor of "partial" Jacobians
+       double ***B,         // output tensor of "total" Jacobians
+       short **nonzero = 0) // optional sparsity characterization
 {
   accodec(n, 1.0, deg, A, B, nonzero);
 }

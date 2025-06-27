@@ -16,6 +16,7 @@
 #ifndef ADOLC_ADVECTOR_H
 #define ADOLC_ADVECTOR_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/adtb_types.h>
 #include <adolc/valuetape/valuetape.h>
 #include <memory>
@@ -29,7 +30,7 @@
 class advector;
 class adubref;
 
-class ADOLC_DLL_EXPORT adubref {
+class ADOLC_API adubref {
   /* This class is supposed to be used only when an advector subscript
    * occurs as an lvalue somewhere. What we need to do is read the location
    * of the referenced adouble out of store[location] and perform
@@ -100,20 +101,22 @@ public:
   void declareDependent();
 };
 
-void condassign(adubref &res, const adouble &cond, const adouble &arg1,
-                const adouble &arg2);
-void condassign(adubref &res, const adouble &cond, const adouble &arg);
+void ADOLC_API condassign(adubref &res, const adouble &cond,
+                          const adouble &arg1, const adouble &arg2);
+void ADOLC_API condassign(adubref &res, const adouble &cond,
+                          const adouble &arg);
 
-void condeqassign(adubref &res, const adouble &cond, const adouble &arg1,
-                  const adouble &arg2);
-void condeqassign(adubref &res, const adouble &cond, const adouble &arg);
+void ADOLC_API condeqassign(adubref &res, const adouble &cond,
+                            const adouble &arg1, const adouble &arg2);
+void ADOLC_API condeqassign(adubref &res, const adouble &cond,
+                            const adouble &arg);
 
-class advector {
+class ADOLC_API advector {
   std::vector<adouble> data_;
 
 public:
-  ADOLC_DLL_EXPORT advector() = default;
-  ADOLC_DLL_EXPORT explicit advector(size_t n)
+  advector() = default;
+  explicit advector(size_t n)
       : data_(currentTape().ensureContiguousLocations_(n)) {}
 
   advector(const advector &ad_vec)
@@ -124,22 +127,19 @@ public:
   // given adouble vector might not have contiguous locations
   advector(const std::vector<adouble> &v) : data_(v) {};
 
-  ADOLC_DLL_EXPORT ~advector() {}
+  ~advector() {}
 
   operator const std::vector<adouble> &() const { return data_; }
-  ADOLC_DLL_EXPORT operator std::vector<adouble> &() { return data_; }
-  ADOLC_DLL_EXPORT operator adouble *() { return data_.data(); }
-  ADOLC_DLL_EXPORT adouble operator[](const adouble &index) const;
-  ADOLC_DLL_EXPORT adubref operator[](const adouble &index);
-  ADOLC_DLL_EXPORT adouble &operator[](size_t i) { return data_[i]; }
-  ADOLC_DLL_EXPORT const adouble &operator[](size_t i) const {
-    return data_[i];
-  }
-  ADOLC_DLL_EXPORT adouble lookupindex(const adouble &a,
-                                       const adouble &b) const;
+  operator std::vector<adouble> &() { return data_; }
+  operator adouble *() { return data_.data(); }
+  adouble operator[](const adouble &index) const;
+  adubref operator[](const adouble &index);
+  adouble &operator[](size_t i) { return data_[i]; }
+  const adouble &operator[](size_t i) const { return data_[i]; }
+  adouble lookupindex(const adouble &a, const adouble &b) const;
 
-  ADOLC_DLL_EXPORT size_t size() const { return data_.size(); }
-  ADOLC_DLL_EXPORT bool nondecreasing() const;
+  size_t size() const { return data_.size(); }
+  bool nondecreasing() const;
 };
 
 #endif /* TAPELESS */

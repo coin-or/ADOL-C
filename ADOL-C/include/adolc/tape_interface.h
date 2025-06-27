@@ -2,6 +2,7 @@
 #define ADOLC_TAPE_INTERFACE_H
 
 #include <adolc/adolcerror.h>
+#include <adolc/adolcexport.h>
 #include <adolc/valuetape/valuetape.h>
 #include <algorithm>
 #include <cassert>
@@ -86,7 +87,9 @@ inline ValueTape *findTapePtr(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline ValueTape &findTape(short tapeId) { return *findTapePtr(tapeId); }
+ADOLC_API inline ValueTape &findTape(short tapeId) {
+  return *findTapePtr(tapeId);
+}
 
 /**
  * @brief Returns a thread-local reference to the pointer to the current
@@ -113,7 +116,7 @@ inline ValueTape *&currentTapePtr() {
  *
  * @note Asserts if the current tape pointer is null.
  */
-inline ValueTape &currentTape() {
+ADOLC_API inline ValueTape &currentTape() {
   assert(currentTapePtr() && "Current Tape is nullptr!");
   return *currentTapePtr();
 }
@@ -126,7 +129,7 @@ inline ValueTape &currentTape() {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline void setCurrentTape(short tapeId) {
+ADOLC_API inline void setCurrentTape(short tapeId) {
   currentTapePtr() = findTapePtr(tapeId);
 }
 
@@ -143,7 +146,7 @@ inline void setCurrentTape(short tapeId) {
  * @throws ADOLCError::ErrorType::TAPE_ALREADY_EXIST if a tape with the same ID
  * already exists.
  */
-inline void createNewTape(short tapeId) {
+ADOLC_API inline void createNewTape(short tapeId) {
   // try to find tape
   if (findTapePtr_(tapeId))
     ADOLCError::fail(ADOLCError::ErrorType::TAPE_ALREADY_EXIST,
@@ -170,7 +173,7 @@ inline void createNewTape(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-int trace_on(short tapeId, int keepTaylors = 0);
+ADOLC_API int trace_on(short tapeId, int keepTaylors = 0);
 
 /**
  * @brief Initializes taping with fine-grained buffer configuration.
@@ -191,8 +194,8 @@ int trace_on(short tapeId, int keepTaylors = 0);
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
-             size_t tbs, int skipFileCleanup);
+ADOLC_API int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs,
+                       size_t vbs, size_t tbs, int skipFileCleanup);
 
 /**
  * @brief Stops the current tracing session and handles the tape.
@@ -207,7 +210,7 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
  *
  * @note assert in debug mode if currentTape is nullptr
  */
-void trace_off(int flag = 0);
+ADOLC_API void trace_off(int flag = 0);
 
 /**
  * @brief Writes the tapeIds of the tapes stored in the thread-local tapeBuffer
@@ -217,7 +220,7 @@ void trace_off(int flag = 0);
  *
  * @note the vector is resized in this function to the size of the tapeBuffer
  */
-void cachedTraceTags(std::vector<short> &result);
+ADOLC_API void cachedTraceTags(std::vector<short> &result);
 
 /**
  * @brief Sets the tape to nestec_ctx
@@ -228,7 +231,7 @@ void cachedTraceTags(std::vector<short> &result);
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline void set_nested_ctx(short tapeId, char nested) {
+ADOLC_API inline void set_nested_ctx(short tapeId, char nested) {
   findTape(tapeId).set_nested_ctx(nested);
 }
 
@@ -241,7 +244,7 @@ inline void set_nested_ctx(short tapeId, char nested) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline char currently_nested(short tapeId) {
+ADOLC_API inline char currently_nested(short tapeId) {
   return findTape(tapeId).currently_nested();
 }
 
@@ -254,7 +257,8 @@ inline char currently_nested(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline std::array<size_t, TapeInfos::STAT_SIZE> tapestats(short tapeId) {
+ADOLC_API inline std::array<size_t, TapeInfos::STAT_SIZE>
+tapestats(short tapeId) {
   ValueTape &tape = findTape(tapeId);
   std::array<size_t, TapeInfos::STAT_SIZE> stats;
   tape.tapestats(stats.data());
@@ -269,7 +273,7 @@ inline std::array<size_t, TapeInfos::STAT_SIZE> tapestats(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-void printTapeStats(int tapeId);
+ADOLC_API void printTapeStats(int tapeId);
 
 /**
  * @brief Returns the number of parameters recorded on tape
@@ -280,7 +284,7 @@ void printTapeStats(int tapeId);
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-inline size_t get_num_param(short tapeId) {
+ADOLC_API inline size_t get_num_param(short tapeId) {
   return findTape(tapeId).get_num_param();
 }
 
@@ -295,7 +299,7 @@ inline size_t get_num_param(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
+ADOLC_API void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
   findTape(tapeId).setTapeInfoJacSparse(sJinfos);
 }
 
@@ -308,7 +312,7 @@ void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-void setTapeInfoHessSparse(short tapeId, SparseHessInfos sHInfos) {
+ADOLC_API void setTapeInfoHessSparse(short tapeId, SparseHessInfos sHInfos) {
   findTape(tapeId).setTageInfoHessSparse(sHInfos);
 }
 #endif

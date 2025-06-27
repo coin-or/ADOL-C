@@ -16,6 +16,7 @@
 #ifndef ADOLC_EXTERNFCTS_H
 #define ADOLC_EXTERNFCTS_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 class adouble;
@@ -103,7 +104,7 @@ using ADOLC_ext_fct_iArr_hov_reverse = int(short tapeId, size_t iArrLength,
  * index are properly set. is likely to be wrong in this case. Use pointers
  * instead.
  */
-struct ext_diff_fct {
+struct ADOLC_API ext_diff_fct {
   // This is the id of the outer tape that calls the external differentiated
   // function later
   short tapeId{0};
@@ -334,21 +335,22 @@ struct ext_diff_fct {
 /****************************************************************************/
 /*                                                          This is all C++ */
 
-ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
-                          ADOLC_ext_fct ext_fct);
-ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
-                          ADOLC_ext_fct_iArr ext_fct);
+ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+                                    ADOLC_ext_fct ext_fct);
+ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+                                    ADOLC_ext_fct_iArr ext_fct);
 
-ext_diff_fct *get_ext_diff_fct(short tapeId, int index);
+ADOLC_API ext_diff_fct *get_ext_diff_fct(short tapeId, int index);
 
-int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
-                 adouble *ya);
-int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, int *iArr,
-                 size_t dim_x, adouble *xa, size_t dim_y, adouble *ya);
+ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
+                           size_t dim_y, adouble *ya);
+ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, int *iArr,
+                           size_t dim_x, adouble *xa, size_t dim_y,
+                           adouble *ya);
 
 /**
  * zeros out the edf pointers and sets bools to defaults
  */
-void edf_zero(ext_diff_fct *edfct);
+ADOLC_API void edf_zero(ext_diff_fct *edfct);
 /****************************************************************************/
 #endif // ADOLC_EXTERNFCTS_H

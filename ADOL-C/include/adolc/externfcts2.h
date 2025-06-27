@@ -16,6 +16,7 @@
 #if !defined(ADOLC_EXTERNFCTS2_H)
 #define ADOLC_EXTERNFCTS2_H 1
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 using ADOLC_ext_fct_v2 = int(short tapeId, int iArrLen, int *iArr, int nin,
@@ -51,7 +52,7 @@ using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, int iArrLen, int *iArr,
                                          double ****Xp, int *outsz, double **y,
                                          double ****Yp, void *ctx);
 
-struct ext_diff_fct_v2 {
+struct ADOLC_API ext_diff_fct_v2 {
   // This is the id of the outer tape that calls the external differentiated
   // function later
   short tapeId{0};
@@ -219,16 +220,17 @@ struct ext_diff_fct_v2 {
   char user_allocated_mem;
 };
 
-ADOLC_DLL_EXPORT ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
-                                              ADOLC_ext_fct_v2 ext_fct);
-ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, int index);
-ADOLC_DLL_EXPORT int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen,
-                                  int *iArr, int nin, int nout, int *insz,
-                                  adouble **x, int *outsz, adouble **y);
+ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
+                                       ADOLC_ext_fct_v2 ext_fct);
+ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, int index);
+ADOLC_API int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr,
+                           int nin, int nout, int *insz, adouble **x,
+                           int *outsz, adouble **y);
 
-ADOLC_DLL_EXPORT void edf_zero(ext_diff_fct_v2 *edfct);
+ADOLC_API void edf_zero(ext_diff_fct_v2 *edfct);
 
-inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct, void *ctx) {
+ADOLC_API inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct,
+                                             void *ctx) {
   edfct->context = ctx;
 }
 

@@ -15,6 +15,7 @@
 #ifndef ADOLC_CHECKPOINTING_H
 #define ADOLC_CHECKPOINTING_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 class adouble;
@@ -24,7 +25,7 @@ using ADOLC_TimeStepFuncion_double = int(size_t dim_x, double *x);
 using ADOLC_saveFct = void *(void);
 using ADOLC_restoreFct = void(void *);
 
-struct CpInfos {
+struct ADOLC_API CpInfos {
   // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
   size_t tapeId{0};
@@ -61,13 +62,13 @@ struct CpInfos {
                    both use buffer_temp without a problem */
 };
 
-ADOLC_DLL_EXPORT
+ADOLC_API
 CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
                           ADOLC_TimeStepFuncion timeStepFunction);
 
-ADOLC_DLL_EXPORT int checkpointing(short tapeId, CpInfos *cpInfos);
+ADOLC_API int checkpointing(short tapeId, CpInfos *cpInfos);
 
-class CP_Context {
+class ADOLC_API CP_Context {
 public:
   CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {
     cpInfos = reg_timestep_fct(tapeId, cp_tape_id, tsf);

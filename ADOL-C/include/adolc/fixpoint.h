@@ -16,6 +16,7 @@
 #ifndef ADOLC_FIXPOINT_H
 #define ADOLC_FIXPOINT_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
 typedef int (*double_F)(double *, double *, double *, int, int);
@@ -23,9 +24,10 @@ typedef int (*adouble_F)(adouble *, adouble *, adouble *, int, int);
 typedef double (*norm_F)(double *, int);
 typedef double (*norm_deriv_F)(double *, int);
 
-int fp_iteration(short tapeId, size_t sub_tape_num, double_F, adouble_F, norm_F,
-                 norm_deriv_F, double epsilon, double epsilon_deriv,
-                 size_t N_max, size_t N_max_deriv, adouble *x_0, adouble *u,
-                 adouble *x_fix, size_t dim_x, size_t dim_u);
+ADOLC_API int fp_iteration(short tapeId, size_t sub_tape_num, double_F,
+                           adouble_F, norm_F, norm_deriv_F, double epsilon,
+                           double epsilon_deriv, size_t N_max,
+                           size_t N_max_deriv, adouble *x_0, adouble *u,
+                           adouble *x_fix, size_t dim_x, size_t dim_u);
 
 #endif // ADOLC_FIXPOINT_H

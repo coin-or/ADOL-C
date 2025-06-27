@@ -16,11 +16,12 @@
 #if !defined(ADOLC_EDFCLASSES_H)
 #define ADOLC_EDFCLASSES_H 1
 
+#include <adolc/adolcexport.h>
 #include <adolc/advector.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 
-class EDFobject {
+class ADOLC_API EDFobject {
 protected:
   ext_diff_fct *edf;
   void init_edf(EDFobject *ebase);
@@ -52,7 +53,7 @@ public:
   }
 };
 
-class EDFobject_iArr {
+class ADOLC_API EDFobject_iArr {
 protected:
   ext_diff_fct *edf;
   void init_edf(EDFobject_iArr *ebase);
@@ -89,7 +90,7 @@ public:
   }
 };
 
-class EDFobject_v2 {
+class ADOLC_API EDFobject_v2 {
 protected:
   ext_diff_fct_v2 *edf;
   void init_edf(EDFobject_v2 *ebase);

@@ -77,21 +77,6 @@ typedef unsigned int uint;
 #include <adolc/internal/adolc_settings.h>
 #include <adolc/internal/usrparms.h>
 
-/*--------------------------------------------------------------------------*/
-/* windows dll exports/imports */
-#if defined(ADOLC_DLL)
-#define ADOLC_DLL_EXPORT __declspec(dllexport)
-#define ADOLC_DLL_EXPIMP __declspec(dllexport)
-#elif defined(_MSC_VER)
-#define ADOLC_DLL_EXPORT
-#define ADOLC_DLL_EXPIMP __declspec(dllimport)
-#else
-#define ADOLC_DLL_EXPORT
-#define ADOLC_DLL_EXPIMP
-#endif
-
-/*--------------------------------------------------------------------------*/
-/* further helpful macros */
 #if defined(__cplusplus)
 #define BEGIN_C_DECLS extern "C" {
 #define END_C_DECLS }
