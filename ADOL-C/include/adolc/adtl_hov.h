@@ -52,7 +52,7 @@ private:
   ADOLC_API friend void setNumDir(const size_t p);
   ADOLC_API friend void setDegree(const size_t p);
   ADOLC_API friend void setMode(enum Mode newmode);
-  friend class adouble;
+  ADOLC_API friend class adouble;
 
 public:
   refcounter() { ++refcnt; }
@@ -82,22 +82,22 @@ public:
   // addition
   inline adouble operator+(const double v) const;
   inline adouble operator+(const adouble &a) const;
-  inline friend adouble operator+(const double v, const adouble &a);
+  ADOLC_API inline friend adouble operator+(const double v, const adouble &a);
 
   // subtraction
   inline adouble operator-(const double v) const;
   inline adouble operator-(const adouble &a) const;
-  inline friend adouble operator-(const double v, const adouble &a);
+  ADOLC_API inline friend adouble operator-(const double v, const adouble &a);
 
   // multiplication
   inline adouble operator*(const double v) const;
   inline adouble operator*(const adouble &a) const;
-  inline friend adouble operator*(const double v, const adouble &a);
+  ADOLC_API inline friend adouble operator*(const double v, const adouble &a);
 
   // division
   inline adouble operator/(const double v) const;
   inline adouble operator/(const adouble &a) const;
-  inline friend adouble operator/(const double v, const adouble &a);
+  ADOLC_API inline friend adouble operator/(const double v, const adouble &a);
 
   // inc/dec
   inline adouble operator++();
@@ -106,53 +106,55 @@ public:
   inline adouble operator--(int);
 
   // functions
-  inline friend adouble tan(const adouble &a);
-  inline friend adouble exp(const adouble &a);
-  inline friend adouble log(const adouble &a);
-  inline friend adouble sqrt(const adouble &a);
-  inline friend adouble cbrt(const adouble &a);
-  inline friend adouble sin(const adouble &a);
-  inline friend adouble cos(const adouble &a);
-  inline friend adouble asin(const adouble &a);
-  inline friend adouble acos(const adouble &a);
-  inline friend adouble atan(const adouble &a);
+  ADOLC_API inline friend adouble tan(const adouble &a);
+  ADOLC_API inline friend adouble exp(const adouble &a);
+  ADOLC_API inline friend adouble log(const adouble &a);
+  ADOLC_API inline friend adouble sqrt(const adouble &a);
+  ADOLC_API inline friend adouble cbrt(const adouble &a);
+  ADOLC_API inline friend adouble sin(const adouble &a);
+  ADOLC_API inline friend adouble cos(const adouble &a);
+  ADOLC_API inline friend adouble asin(const adouble &a);
+  ADOLC_API inline friend adouble acos(const adouble &a);
+  ADOLC_API inline friend adouble atan(const adouble &a);
 
-  inline friend adouble atan2(const adouble &a, const adouble &b);
-  inline friend adouble pow(const adouble &a, double v);
-  inline friend adouble pow(const adouble &a, const adouble &b);
-  inline friend adouble pow(double v, const adouble &a);
-  inline friend adouble log10(const adouble &a);
+  ADOLC_API inline friend adouble atan2(const adouble &a, const adouble &b);
+  ADOLC_API inline friend adouble pow(const adouble &a, double v);
+  ADOLC_API inline friend adouble pow(const adouble &a, const adouble &b);
+  ADOLC_API inline friend adouble pow(double v, const adouble &a);
+  ADOLC_API inline friend adouble log10(const adouble &a);
 
-  inline friend adouble sinh(const adouble &a);
-  inline friend adouble cosh(const adouble &a);
-  inline friend adouble tanh(const adouble &a);
-  inline friend adouble asinh(const adouble &a);
-  inline friend adouble acosh(const adouble &a);
-  inline friend adouble atanh(const adouble &a);
-  inline friend adouble fabs(const adouble &a);
-  inline friend adouble ceil(const adouble &a);
-  inline friend adouble floor(const adouble &a);
-  inline friend adouble fmax(const adouble &a, const adouble &b);
-  inline friend adouble fmax(double v, const adouble &a);
-  inline friend adouble fmax(const adouble &a, double v);
-  inline friend adouble fmin(const adouble &a, const adouble &b);
-  inline friend adouble fmin(double v, const adouble &a);
-  inline friend adouble fmin(const adouble &a, double v);
-  inline friend adouble ldexp(const adouble &a, const adouble &b);
-  inline friend adouble ldexp(const adouble &a, const double v);
-  inline friend adouble ldexp(const double v, const adouble &a);
-  inline friend double frexp(const adouble &a, int *v);
-  inline friend adouble erf(const adouble &a);
-  inline friend adouble erfc(const adouble &a);
+  ADOLC_API inline friend adouble sinh(const adouble &a);
+  ADOLC_API inline friend adouble cosh(const adouble &a);
+  ADOLC_API inline friend adouble tanh(const adouble &a);
+  ADOLC_API inline friend adouble asinh(const adouble &a);
+  ADOLC_API inline friend adouble acosh(const adouble &a);
+  ADOLC_API inline friend adouble atanh(const adouble &a);
+  ADOLC_API inline friend adouble fabs(const adouble &a);
+  ADOLC_API inline friend adouble ceil(const adouble &a);
+  ADOLC_API inline friend adouble floor(const adouble &a);
+  ADOLC_API inline friend adouble fmax(const adouble &a, const adouble &b);
+  ADOLC_API inline friend adouble fmax(double v, const adouble &a);
+  ADOLC_API inline friend adouble fmax(const adouble &a, double v);
+  ADOLC_API inline friend adouble fmin(const adouble &a, const adouble &b);
+  ADOLC_API inline friend adouble fmin(double v, const adouble &a);
+  ADOLC_API inline friend adouble fmin(const adouble &a, double v);
+  ADOLC_API inline friend adouble ldexp(const adouble &a, const adouble &b);
+  ADOLC_API inline friend adouble ldexp(const adouble &a, const double v);
+  ADOLC_API inline friend adouble ldexp(const double v, const adouble &a);
+  ADOLC_API inline friend double frexp(const adouble &a, int *v);
+  ADOLC_API inline friend adouble erf(const adouble &a);
+  ADOLC_API inline friend adouble erfc(const adouble &a);
 
-  inline friend void condassign(adouble &res, const adouble &cond,
-                                const adouble &arg1, const adouble &arg2);
-  inline friend void condassign(adouble &res, const adouble &cond,
-                                const adouble &arg);
-  inline friend void condeqassign(adouble &res, const adouble &cond,
-                                  const adouble &arg1, const adouble &arg2);
-  inline friend void condeqassign(adouble &res, const adouble &cond,
-                                  const adouble &arg);
+  ADOLC_API inline friend void condassign(adouble &res, const adouble &cond,
+                                          const adouble &arg1,
+                                          const adouble &arg2);
+  ADOLC_API inline friend void condassign(adouble &res, const adouble &cond,
+                                          const adouble &arg);
+  ADOLC_API inline friend void condeqassign(adouble &res, const adouble &cond,
+                                            const adouble &arg1,
+                                            const adouble &arg2);
+  ADOLC_API inline friend void condeqassign(adouble &res, const adouble &cond,
+                                            const adouble &arg);
 
   /*******************  nontemporary results  ***************************/
   // assignment
@@ -181,27 +183,27 @@ public:
   // comparison
   inline int operator!=(const adouble &) const;
   inline int operator!=(const double) const;
-  inline friend int operator!=(const double, const adouble &);
+  ADOLC_API inline friend int operator!=(const double, const adouble &);
 
   inline int operator==(const adouble &) const;
   inline int operator==(const double) const;
-  inline friend int operator==(const double, const adouble &);
+  ADOLC_API inline friend int operator==(const double, const adouble &);
 
   inline int operator<=(const adouble &) const;
   inline int operator<=(const double) const;
-  inline friend int operator<=(const double, const adouble &);
+  ADOLC_API inline friend int operator<=(const double, const adouble &);
 
   inline int operator>=(const adouble &) const;
   inline int operator>=(const double) const;
-  inline friend int operator>=(const double, const adouble &);
+  ADOLC_API inline friend int operator>=(const double, const adouble &);
 
   inline int operator>(const adouble &) const;
   inline int operator>(const double) const;
-  inline friend int operator>(const double, const adouble &);
+  ADOLC_API inline friend int operator>(const double, const adouble &);
 
   inline int operator<(const adouble &) const;
   inline int operator<(const double) const;
-  inline friend int operator<(const double, const adouble &);
+  ADOLC_API inline friend int operator<(const double, const adouble &);
 
   /*******************  getter / setter  ********************************/
   inline double getValue() const;
@@ -257,9 +259,9 @@ private:
   static size_t numDir;
   static size_t degree;
   static enum Mode forward_mode;
-  inline friend void setNumDir(const size_t p);
-  inline friend void setDegree(const size_t p);
-  inline friend void setMode(enum Mode newmode);
+  ADOLC_API inline friend void setNumDir(const size_t p);
+  ADOLC_API inline friend void setDegree(const size_t p);
+  ADOLC_API inline friend void setMode(enum Mode newmode);
 };
 
 } // namespace adtl_hov
