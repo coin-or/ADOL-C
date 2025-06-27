@@ -15,6 +15,7 @@
 #ifndef ADOLC_ERROR_H
 #define ADOLC_ERROR_H
 
+#include <adolc/adolcexport.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -72,7 +73,7 @@ struct source_location {
  * }
  * @endcode
  */
-class ADOLCError : public std::runtime_error {
+class ADOLC_API ADOLCError : public std::runtime_error {
 
   source_location info_;
 
@@ -105,7 +106,7 @@ public:
   const source_location &where() const noexcept { return info_; }
 };
 
-enum class ErrorType : size_t {
+enum class ADOLC_API ErrorType : size_t {
   MALLOC_FAILED,
   INTEGER_TAPE_FOPEN_FAILED,
   INTEGER_TAPE_FREAD_FAILED,
@@ -237,7 +238,7 @@ enum class ErrorType : size_t {
 };
 
 // wrapper for information of errors
-struct FailInfo {
+struct ADOLC_API FailInfo {
   short info1{0}; // for tapeId
   size_t info2{0};
   int info3{0}; // deps
@@ -257,14 +258,14 @@ template <typename T> constexpr auto to_underlying(T t) noexcept {
 /*--------------------------------------------------------------------------*/
 // prints an error message describing the error type coming from a file function
 // (e.g. fopen)
-void printError();
+void ADOLC_API printError();
 
 // would like to use always CURRENT_LOCATION as default but this
 // does not work for all compilers sometimes the funciton names are empty.
 // Currently you have to call CURRENT_LOCATION when calling fail
 // by hand
-void fail(ErrorType error, const source_location LocInfo,
-          const FailInfo &failinfo = FailInfo());
+void ADOLC_API fail(ErrorType error, const source_location LocInfo,
+                    const FailInfo &failinfo = FailInfo());
 
 } // namespace ADOLCError
 #endif // ADOLC_ERROR_H
