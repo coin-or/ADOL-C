@@ -163,7 +163,7 @@ struct TapeInfos {
   size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
-  static const size_t maxLocsPerOp{10}; // used in tape_loc_...
+  constexpr static size_t maxLocsPerOp{10}; // used in tape_loc_...
 
   void freeTapeResources();
 
