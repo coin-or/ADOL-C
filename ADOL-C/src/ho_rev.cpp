@@ -1663,12 +1663,14 @@ int hov_ti_reverse(
 
       }
       // both input args are equal
-      // for hos_ov select the first, there is no correct answer since for every
-      // input tangent the minimum might change which lead to inconsistent
-      // higher order derivatives
+      // for hos_ov we have to select the taylors for every direction
       else {
-        fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal "
-                          "arguments, adjoints might be incorrect.\n");
+#ifdef _HOS_OV_
+        printf("TIE POINT HOS_OV IS NOT SUPPORTED");
+        ADOLCError::fail(ADOLCError::ErrorType::HO_OP_NOT_IMPLEMENTED,
+                         CURRENT_LOCATION,
+                         ADOLCError::FailInfo{.info7 = min_op});
+#endif
         for (int i = 1; i < k; i++) {
           if (Targ1[i] > Targ2[i]) {
             for (int l = 0; l < p; l++) {

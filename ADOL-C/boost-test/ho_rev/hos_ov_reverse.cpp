@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
 
   /**************************
     TEST A == B
-  ***************************/
+  ***************************
   test_in[0] = 1.0;
   test_in[1] = 1.0;
   // min(x^2, y^3)
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
                  U[0][1] * 2.0 * test_in[0] + U[0][0] * 2.0 * X[0][2][0],
              tt::tolerance(tol));
   BOOST_TEST(Z[2][1][1] == 0.0, tt::tolerance(tol));
-
+    */
   myfree3(X);
   myfree3(Y);
 }
