@@ -1617,11 +1617,6 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case min_op: /* min_op */
 
-#ifdef _HOS_OV_
-
-      fprintf(DIAG_OUT, " operation min_op not implemented for hos_ov");
-      break;
-#endif
       res = tape.get_locint_r();
       arg2 = tape.get_locint_r();
       arg1 = tape.get_locint_r();
@@ -1641,20 +1636,39 @@ int hov_ti_reverse(
         for (int l = 0; l < p; l++) {
           if ((coval) && (*AP2))
             MINDEC(ret_c, 2);
+
+          // increment the adjoint of res
           HOV_INC(AP2, k1)
         }
+
+        // select the adjoint of the minimum
         AP1 = Aarg2;
+
+        // used to indicate that we can decide which value is smaller
         arg = 0;
       } else if (Targ1[0] < Targ2[0]) {
         for (int l = 0; l < p; l++) {
           if ((!coval) && (*AP2))
             MINDEC(ret_c, 2);
+
+          // increment the adjoint of res
           HOV_INC(AP2, k1)
         }
+
+        // select the adjoint of the minimum
         AP1 = Aarg1;
+
+        // used to indicate that we can decide which value is smaller
         arg = 0;
-      } else /* both are equal */ /* must be changed for hos_ov, but how? */
-        /* seems to influence the return value */
+
+      }
+      // both input args are equal
+      // for hos_ov select the first, there is no correct answer since for every
+      // input tangent the minimum might change which lead to inconsistent
+      // higher order derivatives
+      else {
+        fprintf(DIAG_OUT, "ADOL-C warning: fmin/fmax used with equal "
+                          "arguments, adjoints might be incorrect.\n");
         for (int i = 1; i < k; i++) {
           if (Targ1[i] > Targ2[i]) {
             for (int l = 0; l < p; l++) {
@@ -1663,6 +1677,9 @@ int hov_ti_reverse(
               HOV_INC(AP2, k1)
             }
             AP1 = Aarg2;
+
+            // used to indicate that we have a tie in input args but can decide
+            // based on taylors
             arg = i + 1;
           } else if (Targ1[i] < Targ2[i]) {
             for (int l = 0; l < p; l++) {
@@ -1671,12 +1688,16 @@ int hov_ti_reverse(
               HOV_INC(AP2, k1)
             }
             AP1 = Aarg1;
+
+            // used to indicate that we have a tie in input args but can decide
+            // based on taylors
             arg = i + 1;
           }
           if (AP1 != NULL)
             break;
         }
-
+      }
+      // we selected a minimum
       if (AP1 != NULL)
         for (int l = 0; l < p; l++) {
           if (0 == ARES) {
@@ -1685,7 +1706,9 @@ int hov_ti_reverse(
           } else {
             double aTmp = ARES;
             ARES_INC = 0.0;
-            if (arg) /* we are at the tie */
+
+            // we are at the tie in input args but can decide based on taylors
+            if (arg)
               *AP1 = 5.0;
             else
               MAXDEC(*AP1, aTmp);
@@ -1697,8 +1720,8 @@ int hov_ti_reverse(
             }
           }
         }
-      else /* both are identical */
-      {
+      // both input arg and tangent are identical
+      else {
         for (int l = 0; l < p; l++) {
           if (0 == ARES) {
             HOV_INC(Aarg1, k1)
