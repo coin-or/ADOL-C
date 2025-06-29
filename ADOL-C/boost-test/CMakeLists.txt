@@ -46,6 +46,10 @@ list(APPEND SOURCE_FILES ${INTEGRATION_TESTS_FILES})
 file(GLOB VALUETAPE_FILES "valuetape/*.cpp")
 list(APPEND SOURCE_FILES ${VALUETAPE_FILES})
 
+# Add all source files from ho_rev
+file(GLOB VALUETAPE_FILES "ho_rev/*.cpp")
+list(APPEND SOURCE_FILES ${VALUETAPE_FILES})
+
 add_executable(boost-test-adolc ${SOURCE_FILES})
 target_include_directories(boost-test-adolc PRIVATE "${ADOLC_INCLUDE_DIR}")
 target_link_libraries(boost-test-adolc PRIVATE
