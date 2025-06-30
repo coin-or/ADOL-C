@@ -905,7 +905,6 @@ void condeqassign(adouble &res, const adouble &cond, const adouble &arg);
 ADOLC_DLL_EXPORT adouble pow(const adouble &a, const double exp);
 ADOLC_DLL_EXPORT adouble pow(adouble &&a, const double exp);
 inline adouble pow(double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
   adouble ret;
   if (coval <= 0)
     ADOLCError::fail(ADOLCError::ErrorType::NONPOSITIVE_BASIS,
