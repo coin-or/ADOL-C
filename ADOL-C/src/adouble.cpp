@@ -29,7 +29,7 @@ adouble::adouble() {
     if (tape.get_active_value(tape_loc_.loc_)) {
 #endif
       tape.put_op(assign_d_zero);
-      tape.put_loc(tape_loc_.loc_); // = res
+      tape.put_loc(loc()); // = res
 
       tape.increment_numTays_Tape();
       if (tape.keepTaylors())
@@ -39,7 +39,7 @@ adouble::adouble() {
 #endif
   }
 
-  tape.set_ad_value(tape_loc_.loc_, 0.0);
+  value(0.0);
 #if defined(ADOLC_TRACK_ACTIVITY)
   tape.set_active_value(tape_loc_.loc_, false);
 #endif
@@ -1498,7 +1498,6 @@ adouble operator+(const adouble &a) {
 
 adouble operator+(adouble &&a) {
   ValueTape &tape = currentTape();
-  const double coval = a.value();
 
   if (tape.traceFlag()) {
 

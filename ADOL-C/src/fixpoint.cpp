@@ -149,7 +149,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
                           double * /*unused*/) {
   // (d x_fix) / (d x_0) = 0 (!)
 
-  double err;
+  double err = 0.0;
   ValueTape &tape = findTape(tapeId);
   const size_t edf_index = tape.ext_diff_fct_index();
 
@@ -176,7 +176,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
     for (size_t i = 0; i < dim_x; ++i)
       xi[i] = U[i] - xi[i];
 
-    current->norm_deriv_func(xi, dim_x);
+    err = current->norm_deriv_func(xi, dim_x);
     if (err < current->epsilon_deriv) {
       for (size_t i = 0; i < dim_xu - dim_x; ++i) {
         xu_bar[dim_x + i] += U[dim_x + i];

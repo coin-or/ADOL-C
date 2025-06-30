@@ -32,7 +32,7 @@ template <AllMemType T, size_t buff_size> class Buffer {
   static void zeroAll(T *subBufferElement) { subBufferElement = nullptr; }
 
   struct SubBuffer {
-    std::array<T, buff_size> elements{0};
+    std::array<T, buff_size> elements;
     SubBuffer *nextSubBuffer{nullptr};
     SubBuffer() = default;
   };
