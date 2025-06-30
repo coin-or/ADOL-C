@@ -18,14 +18,21 @@
 #define ADOLC_STRUCT_BUF_H 1
 
 #include <adolc/internal/common.h>
+#include <array>
 #include <cstdlib>
 
-template <class T, size_t buff_size> class Buffer {
+// check whether the type has an allmem storage
+template <typename T>
+concept AllMemType = requires(T t) {
+  { t.allmem } -> std::convertible_to<void *>;
+};
+
+template <AllMemType T, size_t buff_size> class Buffer {
   using InitFunctionPointer = void (*)(T *subBufferElement);
   static void zeroAll(T *subBufferElement) { subBufferElement = nullptr; }
 
   struct SubBuffer {
-    T elements[buff_size]{0};
+    std::array<T, buff_size> elements{0};
     SubBuffer *nextSubBuffer{nullptr};
     SubBuffer() = default;
   };
@@ -37,14 +44,7 @@ public:
   Buffer(const Buffer &) = delete;
   Buffer &operator=(const Buffer &) = delete;
 
-  Buffer(Buffer &&other) noexcept
-      : firstSubBuffer(other.firstSubBuffer), numEntries(other.numEntries),
-        initFunction(other.initFunction) {
-    // Leave other in a valid state
-    other.firstSubBuffer = nullptr;
-    other.numEntries = 0;
-    other.initFunction = nullptr;
-  }
+  Buffer(Buffer &&other) noexcept = default;
 
   Buffer &operator=(Buffer &&other) noexcept;
   inline void init(InitFunctionPointer _initFunction) {
@@ -59,19 +59,19 @@ private:
   size_t numEntries{0};
 };
 
-template <class T, size_t buff_size>
+template <AllMemType T, size_t buff_size>
 Buffer<T, buff_size> &
 Buffer<T, buff_size>::operator=(Buffer<T, buff_size> &&other) noexcept {
   if (this != &other) {
     // Free current resources
-    SubBuffer *tmpSubBuffer = nullptr;
-    while (firstSubBuffer != nullptr) {
-      tmpSubBuffer = firstSubBuffer;
-      firstSubBuffer = firstSubBuffer->nextSubBuffer;
-      for (size_t i = 0; i < buff_size; i++)
-        if (tmpSubBuffer->elements[i].allmem != nullptr)
-          free(tmpSubBuffer->elements[i].allmem);
-      delete tmpSubBuffer;
+    SubBuffer *next = nullptr;
+    while (firstSubBuffer) {
+      next = firstSubBuffer->nextSubBuffer;
+      for (auto &ele : firstSubBuffer->elements)
+        if (ele.allmem)
+          free(ele.allmem);
+      delete firstSubBuffer;
+      firstSubBuffer = next;
     }
 
     // transfer resources
@@ -87,22 +87,23 @@ Buffer<T, buff_size>::operator=(Buffer<T, buff_size> &&other) noexcept {
   return *this;
 }
 
-template <class T, size_t buff_size> Buffer<T, buff_size>::~Buffer() {
-  SubBuffer *tmpSubBuffer = nullptr;
+template <AllMemType T, size_t buff_size> Buffer<T, buff_size>::~Buffer() {
+  SubBuffer *next = nullptr;
 
-  while (firstSubBuffer != nullptr) {
-    tmpSubBuffer = firstSubBuffer;
-    firstSubBuffer = firstSubBuffer->nextSubBuffer;
-    for (size_t i = 0; i < buff_size; i++)
-      if (tmpSubBuffer->elements[i].allmem != nullptr)
-        free(tmpSubBuffer->elements[i].allmem);
-    delete tmpSubBuffer;
+  // clean-up allmem and subBuffers
+  while (firstSubBuffer) {
+    next = firstSubBuffer->nextSubBuffer;
+    for (auto &ele : firstSubBuffer->elements)
+      if (ele.allmem)
+        free(ele.allmem);
+    delete firstSubBuffer;
+    firstSubBuffer = next;
   }
 }
 
-template <class T, size_t buff_size> T *Buffer<T, buff_size>::append() {
+template <AllMemType T, size_t buff_size> T *Buffer<T, buff_size>::append() {
   SubBuffer *currentSubBuffer = firstSubBuffer, *previousSubBuffer = nullptr;
-  size_t index, tmp = numEntries;
+  size_t tmp = numEntries;
 
   while (tmp >= buff_size) {
     previousSubBuffer = currentSubBuffer;
@@ -117,7 +118,7 @@ template <class T, size_t buff_size> T *Buffer<T, buff_size>::append() {
       previousSubBuffer->nextSubBuffer = currentSubBuffer;
     currentSubBuffer->nextSubBuffer = nullptr;
   }
-  index = tmp;
+  const size_t index = tmp;
 
   currentSubBuffer->elements[index].allmem = nullptr;
   if (initFunction != nullptr)
@@ -129,12 +130,13 @@ template <class T, size_t buff_size> T *Buffer<T, buff_size>::append() {
   return &currentSubBuffer->elements[index];
 }
 
-template <class T, size_t buff_size>
+template <AllMemType T, size_t buff_size>
 T *Buffer<T, buff_size>::getElement(size_t index) {
-  SubBuffer *currentSubBuffer = firstSubBuffer;
   if (index >= numEntries)
     ADOLCError::fail(ADOLCError::ErrorType::BUFFER_INDEX_TO_LARGE,
                      CURRENT_LOCATION);
+
+  SubBuffer *currentSubBuffer = firstSubBuffer;
   while (index >= buff_size) {
     currentSubBuffer = currentSubBuffer->nextSubBuffer;
     index -= buff_size;
