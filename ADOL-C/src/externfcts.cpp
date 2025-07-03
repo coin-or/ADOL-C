@@ -340,9 +340,9 @@ void EDFobject::init_edf(EDFobject *ebase) {
   edf->fov_reverse = edfoo_wrapper_fov_reverse;
 }
 
-static int edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength,
-                                       int *iArr, size_t dim_x, double *x,
-                                       size_t dim_y, double *y) {
+[[maybe_unused]] static int
+edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength, int *iArr,
+                            size_t dim_x, double *x, size_t dim_y, double *y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 

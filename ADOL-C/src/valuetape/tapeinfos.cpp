@@ -414,7 +414,7 @@ void TapeInfos::write_taylor(size_t loc, int keep, const char *tay_fileName) {
 /****************************************************************************/
 void TapeInfos::put_tay_block(double *lastTayP1, const char *tay_fileName) {
   int i, chunks;
-  size_t number, remain, chunkSize;
+  size_t number, remain, chunkSize = 0;
 
   if (tay_file == nullptr) {
     tay_file = fopen(tay_fileName, "w+b");

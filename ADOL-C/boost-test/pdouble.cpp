@@ -709,7 +709,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::tan(pd_in[0]);
   double expected_derivative = std::tan(pd_in[0]);
 
   // Reverse mode computation
@@ -824,7 +823,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::sin(pd_in[0]);
   double expected_derivative = std::sin(pd_in[0]);
 
   // Reverse mode computation
@@ -940,7 +938,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::cos(pd_in[0]);
   double expected_derivative = std::cos(pd_in[0]);
 
   // Reverse mode computation
@@ -1055,7 +1052,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::sqrt(pd_in[0]);
   double expected_derivative = std::sqrt(pd_in[0]);
 
   // Reverse mode computation
@@ -1171,7 +1167,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::cbrt(pd_in[0]);
   double expected_derivative = std::cbrt(pd_in[0]);
 
   // Reverse mode computation
@@ -1286,7 +1281,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::log(pd_in[0]);
   double expected_derivative = std::log(pd_in[0]);
 
   // Reverse mode computation
@@ -1402,7 +1396,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
   dep >>= out[0];
   trace_off();
 
-  double expected_value = ad_in[0] * std::sinh(pd_in[0]);
   double expected_derivative = std::sinh(pd_in[0]);
 
   // Reverse mode computation
@@ -3860,7 +3853,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   dep >>= out[0];
   trace_off();
 
-  double expected = std::fmin(ad_in[0], pd_in[0]);
   double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
 
   std::vector<double> u(dim_out, 1.0);
@@ -4145,7 +4137,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
   dep >>= out[0];
   trace_off();
 
-  double expected = std::min(ad_in[0], pd_in[0]);
   double expected_derivative = (ad_in[0] < pd_in[0]) ? 1.0 : 0.0;
 
   std::vector<double> u(dim_out, 1.0);

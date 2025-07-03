@@ -374,8 +374,6 @@ void ValueTape::write_scaylors(double *x, uint size) {
 /* taylor buffer. --- Higher Order Scalar                                   */
 /****************************************************************************/
 void ValueTape::get_taylors(size_t loc, int degree) {
-  double *i;
-
   double *T = rpp_T(loc) + degree;
   std::span<double> taySpan(currTay(), tayBuffer());
   /* As long as all values from the taylor stack buffer will be used copy
@@ -1029,7 +1027,6 @@ void ValueTape::end_sweep() {
 void ValueTape::discard_params_r(void) {
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
   int ip = tapestats(TapeInfos::NUM_PARAM);
-  const size_t val_buffer_size = tapestats(TapeInfos::VAL_BUFFER_SIZE);
   size_t rsize = 0;
   size_t remain = 0;
   while (ip > 0) {
