@@ -47,17 +47,18 @@ static double traceNewtonForSquareRoot(short tapeId, short sub_tape_id,
   adouble u;
   u <<= argument;
 
-  fp_iteration(tapeId, sub_tape_id, iteration<double>, iteration<adouble>, norm,
-               norm, // Norm for the termination criterion for the adjoint
-               1e-8, // Termination threshold for fixed-point iteration
-               1e-8, // Termination threshold
-               6,    // Maximum number of iterations
-               6,    // Maximum number of adjoint iterations
-               &x,   // [in] Initial iterate of fixed-point iteration
-               &u,   // [in] The parameters: We compute the derivative wrt this
-               &y,   // [out] Final state of the iteration
-               1,    // Size of the vector x_0
-               1);   // Number of parameters
+  ADOLC::FpIteration::fp_iteration(
+      tapeId, sub_tape_id, iteration<double>, iteration<adouble>, norm,
+      norm, // Norm for the termination criterion for the adjoint
+      1e-8, // Termination threshold for fixed-point iteration
+      1e-8, // Termination threshold
+      6,    // Maximum number of iterations
+      6,    // Maximum number of adjoint iterations
+      &x,   // [in] Initial iterate of fixed-point iteration
+      &u,   // [in] The parameters: We compute the derivative wrt this
+      &y,   // [out] Final state of the iteration
+      1,    // Size of the vector x_0
+      1);   // Number of parameters
   y >>= out;
   trace_off();
 
