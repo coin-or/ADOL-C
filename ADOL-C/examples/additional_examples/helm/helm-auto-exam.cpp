@@ -17,27 +17,28 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 #include <adolc/adolc.h>
-
-#include <math.h>
+#include <array>
+#include <cmath>
 
 /****************************************************************************/
 /*                                                    CONSTANTS & VARIABLES */
-const double TE = 0.01; /* originally 0.0 */
-const double R = sqrt(2.0);
+constexpr double TE = 0.01; /* originally 0.0 */
+const double R = std::sqrt(2.0);
 
 /****************************************************************************/
 /*                                                         HELMHOLTZ ENERGY */
-adouble energy(int n, adouble x[], double bv[]) {
+template <size_t dim>
+adouble energy(const std::array<adouble, dim> &x,
+               const std::array<double, dim> &bv) {
   adouble he, xax, bx, tem;
-  int i, j;
   xax = 0;
   bx = 0;
   he = 0;
-  for (i = 0; i < n; i++) {
+  for (auto i = 0; i < dim; ++i) {
     he += x[i] * log(x[i]);
     bx += bv[i] * x[i];
     tem = (2.0 / (1.0 + i + i)) * x[i];
-    for (j = 0; j < i; j++)
+    for (auto j = 0; j < i; ++j)
       tem += (1.0 / (1.0 + i + j)) * x[j];
     xax += x[i] * tem;
   }
@@ -47,50 +48,50 @@ adouble energy(int n, adouble x[], double bv[]) {
   return he;
 }
 
+template <size_t dim, double r, short tapeId> double prepareTape() {
+  std::array<double, dim> bv;
+  for (auto j = 0; j < dim; ++j)
+    bv[j] = 0.02 * (1.0 + fabs(sin(static_cast<double>(j))));
+
+  trace_on(tapeId, 1);
+  std::array<adouble, dim> x;
+  adouble he;
+  // mark independents
+  for (auto j = 0; j < dim; ++j)
+    x[j] <<= r * sqrt(1.0 + j);
+  he = energy(x, bv);
+
+  double result;
+  he >>= result;
+  trace_off();
+  return result;
+}
 /****************************************************************************/
 /*                                                                     MAIN */
 /* This program computes first order directional derivatives
    for the helmholtz energy function */
 int main() {
-  int nf, n, j, l;
-  fprintf(stdout, "HELM-AUTO-EXAM (ADOL-C Example)\n\n");
-  fprintf(stdout, " # of independents/10 =? \n ");
-  scanf("%d", &nf);
+  constexpr size_t nf = 10;
+  constexpr size_t dimIn = 10 * nf;
+  constexpr size_t dimOut = 1;
+  constexpr double r = 1.0 / dimOut;
 
-  /*--------------------------------------------------------------------------*/
-  double result = 0.0; /* Initilizations */
-  n = 10 * nf;
-  double *bv = new double[n];
-  double *grad = new double[n];
+  const short tapeId = 1;
+  createNewTape(tapeId);
+  const double result = prepareTape<dimIn, r, tapeId>();
 
-  adouble *x = new adouble[n];
-  adouble he;
-
-  double r = 1.0 / n;
-  for (j = 0; j < n; j++)
-    bv[j] = 0.02 * (1.0 + fabs(sin(double(j))));
-
-  /*--------------------------------------------------------------------------*/
-  int imd_rev = 1; /* Tracing with keep */
-  trace_on(1, imd_rev);
-  for (j = 0; j < n; j++)
-    x[j] <<= r * sqrt(1.0 + j);
-  he = energy(n, x, bv);
-  he >>= result;
-  trace_off();
   fprintf(stdout, "%14.6E -- energy\n", result);
 
   /*--------------------------------------------------------------------------*/
-  reverse(1, 1, n, 0, 1.0, grad); /* reverse computation of gradient */
+  /* reverse computation of gradient */
+  std::array<double, dimOut> grad;
+  const double weight = 1.0;
+  reverse(tapeId, dimOut, dimIn, 0, weight, grad.data());
 
   /*--------------------------------------------------------------------------*/
-  for (l = 0; l < n; l++) /* results */
+  for (auto l = 0; l < dimIn; l++) /* results */
     fprintf(stdout, "%3d: %14.6E,  \n", l, grad[l]);
   fprintf(stdout, "%14.6E -- energy\n", result);
-
-  delete[] x;
-  delete[] bv;
-  delete[] grad;
 
   return 1;
 }
