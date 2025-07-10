@@ -1,0 +1,10 @@
+/**
+ * \page tape_interface Tape Interface
+ *
+ * # Tape Interface
+ *
+ * This page documents all tape lifecycle functions from `tape_interface.h`.
+ * These are grouped in the \ref tape_group.
+ *
+ * \see \ref tape_group for full function documentation.
+ */
