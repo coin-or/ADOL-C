@@ -2,6 +2,7 @@ install(FILES
         adtb_types.h     
         adalloc.h
         adolcerror.h
+        adolcexport.h
         adolc.h
         adolc_openmp.h
         adolc_sparse.h

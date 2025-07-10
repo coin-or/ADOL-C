@@ -163,6 +163,8 @@ struct TapeInfos {
   size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
+  constexpr static size_t maxLocsPerOp{10}; // used in tape_loc_...
+
   void freeTapeResources();
 
   // writes the block of size depth of taylor coefficients from point loc to
@@ -336,7 +338,7 @@ struct TapeInfos {
 // stores everything we need to know to compute the sparse jacobian with
 // fov_reverse
 
-struct SparseJacInfos {
+struct ADOLC_API SparseJacInfos {
   ~SparseJacInfos();
   SparseJacInfos() = default;
 
@@ -408,7 +410,7 @@ struct SparseJacInfos {
 
 // stores everything we have to know to compute the sparse hessian via
 // reverse-over-forward
-struct SparseHessInfos {
+struct ADOLC_API SparseHessInfos {
   ~SparseHessInfos();
   SparseHessInfos() = default;
   SparseHessInfos(const SparseHessInfos &) = delete;

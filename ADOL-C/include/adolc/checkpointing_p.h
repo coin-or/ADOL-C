@@ -15,12 +15,12 @@
 #ifndef ADOLC_CHECKPOINTING_P_H
 #define ADOLC_CHECKPOINTING_P_H
 
+#include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
 #include <adolc/checkpointing.h>
-#include <adolc/internal/common.h>
 
 #define CP_BLOCK_SIZE 10
 
-void init_CpInfos(CpInfos *cpInfos);
+void ADOLC_API init_CpInfos(CpInfos *cpInfos);
 
 #endif // ADOLC_CHECKPOINTING_P_H

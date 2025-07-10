@@ -3,6 +3,7 @@
 #define ADOLC_VALUETAPE_H
 
 #include <adolc/adolcerror.h>
+#include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
 #include <adolc/checkpointing_p.h>
 #include <adolc/externfcts.h>
@@ -34,7 +35,7 @@ struct ext_diff_fct_v2;
  * methods
  */
 
-class ValueTape {
+class ADOLC_API ValueTape {
   TapeInfos tapeInfos_;
   GlobalTapeVarsCL globalTapeVars_;
   PersistantTapeInfos perTapeInfos_;
@@ -327,6 +328,8 @@ public:
   void rp_A(double *A) { tapeInfos_.rp_A = A; }
   void rpp_A(double **A) { tapeInfos_.rpp_A = A; }
   void upp_A(size_t **A) { tapeInfos_.upp_A = A; }
+
+  constexpr static size_t maxLocsPerOp() { return TapeInfos::maxLocsPerOp; }
 
   void put_op(OPCODES op, size_t reserveExtraLocations = 0) {
     return tapeInfos_.put_op(op, loc_fileName(), op_fileName(), val_fileName(),

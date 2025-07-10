@@ -26,7 +26,7 @@ adouble::adouble() {
 #if defined(ADOLC_ADOUBLE_STDCZERO)
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
-    if (tape.get_active_value(tape_loc_.loc_)) {
+    if (tape.get_active_value(loc())) {
 #endif
       tape.put_op(assign_d_zero);
       tape.put_loc(loc()); // = res
@@ -41,7 +41,7 @@ adouble::adouble() {
 
   value(0.0);
 #if defined(ADOLC_TRACK_ACTIVITY)
-  tape.set_active_value(tape_loc_.loc_, false);
+  tape.set_active_value(loc(), false);
 #endif
 #endif
 }
