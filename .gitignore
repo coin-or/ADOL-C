@@ -57,6 +57,8 @@ install_manifest.txt
 *.so
 *.dll
 build/
+lib/
+include/
 
 # Nix build results
 result*
