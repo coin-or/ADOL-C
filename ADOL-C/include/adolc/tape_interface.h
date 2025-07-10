@@ -9,6 +9,10 @@
 #include <memory>
 #include <vector>
 
+/// \defgroup tape_group Tape Interface
+/// \brief Functions for controlling the AD tape lifecycle
+/// \{
+
 /**
  * @brief Returns a thread-local vector that holds unique pointers to ValueTape
  * instances.
@@ -18,6 +22,7 @@
  * management.
  *
  * @return Reference to the thread-local vector of unique pointers to ValueTape.
+ * @ingroup tape_group
  */
 inline std::vector<std::unique_ptr<ValueTape>> &tapeBuffer() {
   thread_local std::vector<std::unique_ptr<ValueTape>> tBuffer;
@@ -317,4 +322,5 @@ ADOLC_API void setTapeInfoHessSparse(short tapeId, SparseHessInfos sHInfos) {
 }
 #endif
 
+/// \}
 #endif // ADOLC_TAPE_INTERFACE_H

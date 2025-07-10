@@ -1,19 +1,18 @@
 # ADOL-C: A Package for the Automatic Differentiation of Algorithms Written in C/C++
 
+@warning This documentation is experimental. We have not yet transferred the documentation to this place.
+
+See the [comprehensive manual](adolc-manual.pdf)
+
 ## Scope of the library
 
-ADOL-C is a library for automatic differentiation written in C++
-featuring e.g.
+The C++ package ADOL-C described here facilitates the evaluation of
+first and higher derivatives of vector functions that are defined
+by computer programs written in C++. 
 
-- traceless-forward mode
-- tape-based mode
-- sparse Jacobians and sparse Hessians
-- external differentiated functions
-- optimal checkpointing
-- adapted differentiation of fixed point iterations
-- parallel differentiation of OpenMP-parallel loops
-- Lie derivatives of scalar, vector and covector fields
-
+ADOL-C provides drivers to compute Jacobians, Hessians, univariate Taylor Coefficients or derivative tensors of arbitrary order. There are drivers for Jacobian-vector or Jacobian-matrix-products and vector-Jacobian or matrix-Jacobian products. Sparsity is also supported for first and second-order derivatives. For solution curves defined by ordinary differential equations,
+special routines are provided that evaluate the Taylor coefficient vectors and their Jacobians with respect to the current state vector.
+There are many more drivers like drivers for implicitly defined functions or drivers for fixed-point iterations. For a full list please refer to [this](@ref drivers) page
 
 ## Documentation
 
@@ -34,12 +33,8 @@ For an overview of the contained features and submodules
 you can e.g. refer to the [Topics](topics.html) section of the doxygen documentation.
 
 
-### Manual
 
-A manual of ADOL-C is contained in the `ADOL-C/doc/` directory
-and was also published as
 
-@todo Add reference to manual.
 
 ### Examples
 
