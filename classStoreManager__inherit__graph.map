@@ -1,7 +1,0 @@
-<map id="StoreManager" name="StoreManager">
-<area shape="rect" id="Node000001" title=" " alt="" coords="122,5,235,31"/>
-<area shape="rect" id="Node000002" href="$classStoreManagerLocint.html" title=" " alt="" coords="5,79,157,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,41,99,81,96,76,150,37"/>
-<area shape="rect" id="Node000003" href="$classStoreManagerLocintBlock.html" title=" " alt="" coords="182,79,370,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,37,262,76,259,81,204,41"/>
-</map>
