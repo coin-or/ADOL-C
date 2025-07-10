@@ -1498,7 +1498,6 @@ adouble operator+(const adouble &a) {
 
 adouble operator+(adouble &&a) {
   ValueTape &tape = currentTape();
-  const double coval = a.value();
 
   if (tape.traceFlag()) {
 

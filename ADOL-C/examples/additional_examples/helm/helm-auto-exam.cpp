@@ -7,24 +7,15 @@
  * (AD) of a Helmholtz energy function. It compares reverse-mode AD with
  * finite-difference approximation.
  *
- * Features:
- * - Modular `HelmholtzParameters` structure
- * - Compile-time template parameterization
- * - ADOL-C `tape` creation and evaluation
- * - Finite difference gradient approximation
- * - Comparison and formatted output
  *
- * \authors Andrea Walther, Andreas Griewank, et al.
  * \copyright ADOL-C contributors
- *
- * \note This file is intended to be processed by Doxygen
- *       and serve as a high-quality educational example.
  */
 
 /**
  * @defgroup HelmholtzADOLC ADOL-C Helmholtz Example
- * @brief Contains AD logic, input prep, gradient comparison, and benchmarks.
+ * @brief Example that describes ADOL-C's usage
  */
+
 #include <adolc/adolc.h>
 #include <array>
 #include <cmath>
@@ -75,7 +66,7 @@ template <typename T, size_t dim> struct ProblemInput {
 /**
  * @brief Computes the Helmholtz free energy.
  *
- * Evaluates a nonlinear Helmholtz-like energy function based on input `x` and
+ * Evaluates a nonlinear Helmholtz energy function based on input `x` and
  * `bv`. Supports both AD (via `adouble`) and standard floating-point types.
  *
  * @tparam T      Type of independent variables (e.g. `double`, `adouble`)
@@ -84,9 +75,7 @@ template <typename T, size_t dim> struct ProblemInput {
  * @param bv      Vector of bulk values
  * @return Energy value of type `T`
  *
- * @ingroup HelmholtzADOLC
  */
-
 template <typename T, HelmholtzParameters params>
 T energy(const std::array<T, params.dimIn_> &x,
          const std::array<double, params.dimIn_> &bv) {
@@ -110,7 +99,7 @@ T energy(const std::array<T, params.dimIn_> &x,
 }
 
 /**
- * @brief Prepares the input vectors for energy evaluation.
+ * @brief Prepares the input vectors for energy evaluation and taping.
  *
  * Fills the `bv_` vector with problem-specific bulk data and initializes
  * the `x_` vector using the square-root scaling formula.
@@ -121,7 +110,6 @@ T energy(const std::array<T, params.dimIn_> &x,
  * @tparam params Problem parameters
  * @return Initialized `ProblemInput` structure
  */
-
 template <typename T, HelmholtzParameters params>
 ProblemInput<T, params.dimIn_> prepareInput() {
   ProblemInput<T, params.dimIn_> problemInput = {
@@ -131,7 +119,6 @@ ProblemInput<T, params.dimIn_> prepareInput() {
   for (auto j = 0; j < params.dimIn_; ++j)
     problemInput.bv_[j] = 0.02 * (1.0 + fabs(sin(static_cast<double>(j))));
 
-  // mark independents if adouble
   for (auto j = 0; j < params.dimIn_; ++j)
     if constexpr (std::is_same_v<adouble, T>)
       problemInput.x_[j] <<= params.r_ * sqrt(1.0 + j);
@@ -142,7 +129,7 @@ ProblemInput<T, params.dimIn_> prepareInput() {
 }
 
 /**
- * @brief Creates a reverse-mode AD tape for the Helmholtz energy.
+ * @brief Creates a tape for the Helmholtz energy.
  *
  * This function marks the independent variables, computes the energy,
  * and traces the computational graph using `ADOL-C`.
@@ -150,7 +137,6 @@ ProblemInput<T, params.dimIn_> prepareInput() {
  * @param tapeId Identifier for the ADOL-C tape
  * @return Scalar energy result from the traced computation
  */
-
 template <HelmholtzParameters params> double prepareTape(short tapeId) {
   trace_on(tapeId, 1);
   std::array<adouble, params.dimIn_> x;
@@ -165,12 +151,11 @@ template <HelmholtzParameters params> double prepareTape(short tapeId) {
 /**
  * @brief Evaluates the gradient of the Helmholtz energy using AD.
  *
- * Uses reverse-mode differentiation (`reverse`) on the previously created tape.
+ * Uses reverse mode  (`reverse`) on the previously created tape.
  *
  * @param tapeId Identifier for the ADOL-C tape
  * @return Gradient as a fixed-size array
  */
-
 template <HelmholtzParameters params>
 std::array<double, params.dimIn_> evaluateTape(short tapeId) {
   std::array<double, params.dimIn_> grad;
@@ -188,7 +173,6 @@ std::array<double, params.dimIn_> evaluateTape(short tapeId) {
  * @param delta Small perturbation step size
  * @return Approximated gradient
  */
-
 template <HelmholtzParameters params>
 std::array<double, params.dimIn_> evaluateFiniteDiff(double delta) {
   auto problemInput = prepareInput<double, params>();
@@ -250,7 +234,6 @@ void printResult(double result, const std::array<double, dim> &ADGrad,
  *
  * @return Exit status (0 = success)
  */
-
 int main() {
 
   constexpr size_t dimIn = 5;

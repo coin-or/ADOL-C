@@ -89,33 +89,34 @@ public:
   ValueTape &operator=(const ValueTape &other) = delete;
 
   ValueTape(ValueTape &&other) noexcept
-      :
-#ifdef SPARSE
-        sJinfos_(std::move(other.sJInfos_)),
-        sHinfos_(std::move(other.sHInfos_)),
-#endif
+      : tapeInfos_(std::move(other.tapeInfos_)),
+        globalTapeVars_(std::move(other.globalTapeVars_)),
+        perTapeInfos_(std::move(other.perTapeInfos_)),
         ext_buffer_(std::move(other.ext_buffer_)),
         ext2_buffer_(std::move(other.ext2_buffer_)),
         cp_buffer_(std::move(other.cp_buffer_)),
-        cp_stack_(std::move(other.cp_stack_)),
-        tapeInfos_(std::move(other.tapeInfos_)),
-        globalTapeVars_(std::move(other.globalTapeVars_)),
-        perTapeInfos_(std::move(other.perTapeInfos_)) {
+        cp_stack_(std::move(other.cp_stack_))
+#ifdef SPARSE
+        ,
+        sJinfos_(std::move(other.sJInfos_)),
+        sHinfos_(std::move(other.sHInfos_)),
+#endif
+  {
   }
 
   ValueTape &operator=(ValueTape &&other) noexcept {
     if (this != &other) {
-#ifdef SPARSE
-      sJinfos_ = std::move(other.sJInfos_);
-      sHinfos_ = std::move(other.sHInfos_);
-#endif
+      tapeInfos_ = std::move(other.tapeInfos_);
+      globalTapeVars_ = std::move(other.globalTapeVars_);
+      perTapeInfos_ = std::move(other.perTapeInfos_);
       ext_buffer_ = std::move(other.ext_buffer_);
       ext2_buffer_ = std::move(other.ext2_buffer_);
       cp_buffer_ = std::move(other.cp_buffer_);
       cp_stack_ = std::move(other.cp_stack_);
-      tapeInfos_ = std::move(other.tapeInfos_);
-      globalTapeVars_ = std::move(other.globalTapeVars_);
-      perTapeInfos_ = std::move(other.perTapeInfos_);
+#ifdef SPARSE
+      sJinfos_ = std::move(other.sJInfos_);
+      sHinfos_ = std::move(other.sHInfos_);
+#endif
     }
     return *this;
   }

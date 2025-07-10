@@ -37,15 +37,14 @@ ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
 static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout,
                                   int *insz, int *outsz) {
   int m_isz = 0, m_osz = 0;
-  int i, j;
-  for (i = 0; i < nin; i++)
+  for (auto i = 0; i < nin; i++)
     m_isz = (m_isz < insz[i]) ? insz[i] : m_isz;
-  for (i = 0; i < nout; i++)
+  for (auto i = 0; i < nout; i++)
     m_osz = (m_osz < outsz[i]) ? outsz[i] : m_osz;
   if (edfct->max_nin < nin || edfct->max_nout < nout ||
       edfct->max_insz < m_isz || edfct->max_outsz < m_osz) {
     char *tmp;
-    size_t p = nin * m_isz, q = nout * m_osz;
+    size_t q = nout * m_osz;
     size_t totalmem =
         (3 * nin * m_isz + 3 * nout * m_osz
          // + nin*m_isz*p + nout*m_osz*p

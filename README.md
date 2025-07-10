@@ -4,26 +4,26 @@
 [![codecov](https://codecov.io/github/coin-or/ADOL-C/graph/badge.svg?token=4FSN87ZXCZ)](https://codecov.io/github/coin-or/ADOL-C)
 
 > [!WARNING]  
-> We are in the process of modernizing ADOL-C. The master branch is unstable. Please use the latest release!
-> The main branch requires c++20 and clang-13 or gcc-11.
+> We are in the process of modernizing ADOL-C. The master branch is unstable. Please use the latest release or help us by reporting bugs.
+
 
 
 ## Installation
+Minimal compiler version: clang-13, gcc-11 or MSVC 19.31.
 
 1. Create a build directory somewhere, and move into that directory
 
 2. Call CMake:
 
-     `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/you/want/to/install/in path/to/adolc/sources`
+     `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/you/want/to/install/in -S path/to/ADOL-C/ -B .`
 
 3. Build and install:
 
-     `make`  
-     `make install`  
+     `make -j install` 
 
 
 Customize the build with the following options
-  `-DENABLE_MEDIPACK=1`     Build ADOL-C with MeDiPack (MPI) support (default=False)
+  `-DENABLE_MEDIPACK=1` Build ADOL-C with MeDiPack (MPI) support (default=False)
 
   `-DENABLE_ADVANCE_BRANCHING=1` Enable advanced branching operations to reduce retaping (default=False)
 
