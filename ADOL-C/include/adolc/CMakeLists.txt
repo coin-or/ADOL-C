@@ -12,6 +12,7 @@ install(FILES
         adtl_indo.h
         adutilsc.h
         adutils.h
+        advalue.h
         advector.h
         buffer_temp.h   
         checkpointing_p.h   
