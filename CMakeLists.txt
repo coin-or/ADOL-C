@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # only standard c++
 
+
 # Check for minimum compiler versions that support most of C++20
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
@@ -169,8 +170,22 @@ if (ENABLE_BOOST_POOL)
 endif()
 
 if (ENABLE_SPARSE)
-  find_package(ColPack REQUIRED) # TODO add colpack installation
-  # target_link_libraries(...)
+  if (ColPack_FOUND)
+    message(STATUS "Using system‑installed ColPack")
+  endif()
+
+  if (NOT ColPack_FOUND)
+    message(STATUS "System ColPack not found; pulling from GitHub")
+    include(FetchContent)
+    FetchContent_declare(
+        ColPack
+        GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
+        GIT_TAG e90f39bdf7c19ef5124e50ae0a115452945f77ab # latest commit
+    )
+    FetchContent_MakeAvailable(ColPack)
+  endif()
+
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
 endif()
 
 if(ENABLE_PAREXA)
@@ -264,7 +279,9 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/adolc-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
-export(TARGETS adolc NAMESPACE adolc:: FILE adolc-targets.cmake)
+export(TARGETS adolc ColPack_shared
+       NAMESPACE adolc:: 
+       FILE adolc-targets.cmake)
 
 # print a summary of found packages and set options
 # -------------------------------------------------
