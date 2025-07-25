@@ -6,7 +6,7 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
-add_library(adolc SHARED)
+add_library(adolc)
 add_library(adolc::adolc ALIAS adolc)
 
 target_compile_features(adolc PUBLIC cxx_std_20)
@@ -49,8 +49,12 @@ target_compile_definitions(adolc PRIVATE
 
 # ensures that our api is exported in windows
 if (WIN32)
-  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)   
-endif(WIN32) 
+  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)
+endif(WIN32)
+
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(adolc PRIVATE ADOLC_SHARED)
+endif()
 
 
 # Set the public include directory containing headers that will be installed
@@ -74,6 +78,11 @@ target_include_directories(adolc
 # --------------
 
 include(FeatureSummary)
+
+# Whether to build ADOL-C as a shared library
+# see also https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html
+option(BUILD_SHARED_LIBS "build ADOL-C as a shared library" TRUE)
+add_feature_info(BUILD_SHARED_LIBS BUILD_SHARED_LIBS "build ADOL-C as a shared library")
 
 # Whether to build ADOL-C with MeDiPack (MPI) support
 option(ENABLE_MEDIPACK "Build ADOL-C with MeDiPack (MPI) support" FALSE)
