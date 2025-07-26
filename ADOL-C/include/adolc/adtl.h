@@ -222,7 +222,7 @@ private:
 #ifdef USE_ADTL_REFCOUNTING
   refcounter __rcnt;
 #endif
-  inline static size_t numDir = 1;
+  ADOLC_API inline static size_t numDir = 1;
   ADOLC_API inline friend void setNumDir(const size_t p);
   ADOLC_API inline friend size_t getNumDir();
 };
