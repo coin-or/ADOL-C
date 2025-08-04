@@ -51,6 +51,8 @@ Customize the build with the following options
 
   `-DBUILD_TESTS=1` Build the tests (default=False)
 
+  `-DBUILD_SHARED_LIBS=0` Build as shared library (default=True)
+
 
 
 ## Examples
