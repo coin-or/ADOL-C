@@ -32,47 +32,6 @@ else()
 endif()
 
 
-# definition of library target
-add_library(adolc)
-add_library(adolc::adolc ALIAS adolc)
-
-target_compile_features(adolc PUBLIC cxx_std_20)
-
-
-# Make the version of ADOL-C available as compile definitions
-target_compile_definitions(adolc PRIVATE
-  ADOLC_VERSION=${adol-c_VERSION_MAJOR}
-  ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
-  ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
-
-
-# ensures that our api is exported in windows
-if (WIN32)
-  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)
-endif(WIN32)
-
-if (BUILD_SHARED_LIBS)
-  target_compile_definitions(adolc PUBLIC ADOLC_SHARED)
-endif()
-
-
-# Set the public include directory containing headers that will be installed
-target_include_directories(adolc
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/ADOL-C/include> # for adolc_settings.h if one uses fetchcontent
-    $<INSTALL_INTERFACE:include>)
-
-# Set an include directory for the internally used library headers.
-#
-# This includes the files uni5_for.cpp, fo_rev.cpp, and ho_rev.cpp. Even though
-# they end with .cpp, they are used like header files.  Together with some
-# preprocessor trickery this is an old-fashioned way to do generic programming.
-target_include_directories(adolc
-  PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/src>)
-
-
 # define options
 # --------------
 
@@ -143,6 +102,47 @@ option(BUILD_INTERFACE OFF)
 # build the tests
 option(BUILD_TESTS OFF)
 
+
+# definition of library target
+# ----------------------------
+
+add_library(adolc)
+add_library(adolc::adolc ALIAS adolc)
+
+target_compile_features(adolc PUBLIC cxx_std_20)
+
+# Make the version of ADOL-C available as compile definitions
+target_compile_definitions(adolc PRIVATE
+  ADOLC_VERSION=${adol-c_VERSION_MAJOR}
+  ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
+  ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
+
+
+# ensures that our api is exported in windows
+if (WIN32)
+  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)
+endif(WIN32)
+
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(adolc PUBLIC ADOLC_SHARED)
+endif()
+
+
+# Set the public include directory containing headers that will be installed
+target_include_directories(adolc
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/ADOL-C/include> # for adolc_settings.h if one uses fetchcontent
+    $<INSTALL_INTERFACE:include>)
+
+# Set an include directory for the internally used library headers.
+#
+# This includes the files uni5_for.cpp, fo_rev.cpp, and ho_rev.cpp. Even though
+# they end with .cpp, they are used like header files.  Together with some
+# preprocessor trickery this is an old-fashioned way to do generic programming.
+target_include_directories(adolc
+  PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/src>)
 
 
 # handle the options
