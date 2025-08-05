@@ -11,9 +11,6 @@ add_library(adolc::adolc ALIAS adolc)
 
 target_compile_features(adolc PUBLIC cxx_std_20)
 
-cmake_minimum_required(VERSION 3.15)
-project(MyProject CXX)
-
 # Enforce C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
