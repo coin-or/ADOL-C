@@ -6,11 +6,6 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
-add_library(adolc)
-add_library(adolc::adolc ALIAS adolc)
-
-target_compile_features(adolc PUBLIC cxx_std_20)
-
 # Enforce C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,6 +30,13 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 else()
     message(WARNING "Unknown compiler — C++20 compatibility not guaranteed.")
 endif()
+
+
+# definition of library target
+add_library(adolc)
+add_library(adolc::adolc ALIAS adolc)
+
+target_compile_features(adolc PUBLIC cxx_std_20)
 
 
 # Make the version of ADOL-C available as compile definitions
