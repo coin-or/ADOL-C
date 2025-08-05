@@ -53,7 +53,7 @@ if (WIN32)
 endif(WIN32)
 
 if (BUILD_SHARED_LIBS)
-  target_compile_definitions(adolc PRIVATE ADOLC_SHARED)
+  target_compile_definitions(adolc PUBLIC ADOLC_SHARED)
 endif()
 
 
