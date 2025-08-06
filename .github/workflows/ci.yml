@@ -1,46 +1,70 @@
 
-name: Build 
+name: Build
 on:
     push:
       branches: [ "master" ]
     pull_request:
       branches: [ "master" ]
 
-jobs: 
+jobs:
     build:
         runs-on: ${{ matrix.os }}
-        strategy: 
+        strategy:
           fail-fast: false
-          matrix: 
+          matrix:
             os: [ubuntu-latest]
             build_type: [Debug, Release]
             c_compiler: [gcc, clang]
             cpp_compiler: [g++, clang++]
+            build_shared_libs: [true, false]
             include:
               # macOS: only use clang/clang++
               - os: macos-latest
                 build_type: Debug
                 c_compiler: clang
                 cpp_compiler: clang++
+                build_shared_libs: true
               - os: macos-latest
                 build_type: Release
                 c_compiler: clang
                 cpp_compiler: clang++
-          
+                build_shared_libs: true
+              - os: macos-latest
+                build_type: Debug
+                c_compiler: clang
+                cpp_compiler: clang++
+                build_shared_libs: false
+              - os: macos-latest
+                build_type: Release
+                c_compiler: clang
+                cpp_compiler: clang++
+                build_shared_libs: false
+
               # Windows: only use MSVC
               - os: windows-latest
                 build_type: Debug
                 c_compiler: msvc
                 cpp_compiler: msvc
+                build_shared_libs: true
               - os: windows-latest
                 build_type: Release
                 c_compiler: msvc
-                cpp_compiler: msvc              
-
+                cpp_compiler: msvc
+                build_shared_libs: true
+              - os: windows-latest
+                build_type: Debug
+                c_compiler: msvc
+                cpp_compiler: msvc
+                build_shared_libs: false
+              - os: windows-latest
+                build_type: Release
+                c_compiler: msvc
+                cpp_compiler: msvc
+                build_shared_libs: false
 
         steps:
         - uses: actions/checkout@v4
-        
+
         - name: Set reusable strings
           # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
           id: strings
@@ -50,28 +74,28 @@ jobs:
 
         - name: Configure and build ADOL-C (Linux, MacOs)
           if: matrix.c_compiler != 'msvc'
-          run: > 
+          run: >
             cmake -B ${{ steps.strings.outputs.build-output-dir }}
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
             -DENABLE_DOCEXA=1
             -DENABLE_ADDEXA=1
+            -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
             -S ${{ github.workspace }}
 
         - name: Configure and build ADOL-C (Windows)
           if: matrix.c_compiler == 'msvc'
           shell: powershell
-          run: 
+          run:
             # Setup Visual Studio build environment
-            cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DENABLE_DOCEXA=1 -DENABLE_ADDEXA=1 -S ${{ github.workspace }}
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DENABLE_DOCEXA=1
+            -DENABLE_ADDEXA=1
+            -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
+            -S ${{ github.workspace }}
 
         - name: Build
           # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
           run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-          
-
-                    
-
-
-        

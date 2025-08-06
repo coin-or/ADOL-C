@@ -6,14 +6,6 @@ project(adol-c
   DESCRIPTION "A Package for Automatic Differentiation of Algorithms Written in C/C++"
   HOMEPAGE_URL "https://github.com/coin-or/ADOL-C")
 
-add_library(adolc SHARED)
-add_library(adolc::adolc ALIAS adolc)
-
-target_compile_features(adolc PUBLIC cxx_std_20)
-
-cmake_minimum_required(VERSION 3.15)
-project(MyProject CXX)
-
 # Enforce C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -40,40 +32,15 @@ else()
 endif()
 
 
-# Make the version of ADOL-C available as compile definitions
-target_compile_definitions(adolc PRIVATE
-  ADOLC_VERSION=${adol-c_VERSION_MAJOR}
-  ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
-  ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
-
-
-# ensures that our api is exported in windows
-if (WIN32)
-  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)   
-endif(WIN32) 
-
-
-# Set the public include directory containing headers that will be installed
-target_include_directories(adolc
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/ADOL-C/include> # for adolc_settings.h if one uses fetchcontent
-    $<INSTALL_INTERFACE:include>)
-
-# Set an include directory for the internally used library headers.
-#
-# This includes the files uni5_for.cpp, fo_rev.cpp, and ho_rev.cpp. Even though
-# they end with .cpp, they are used like header files.  Together with some
-# preprocessor trickery this is an old-fashioned way to do generic programming.
-target_include_directories(adolc
-  PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/src>)
-
-
 # define options
 # --------------
 
 include(FeatureSummary)
+
+# Whether to build ADOL-C as a shared library
+# see also https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html
+option(BUILD_SHARED_LIBS "build ADOL-C as a shared library" TRUE)
+add_feature_info(BUILD_SHARED_LIBS BUILD_SHARED_LIBS "build ADOL-C as a shared library")
 
 # Whether to build ADOL-C with MeDiPack (MPI) support
 option(ENABLE_MEDIPACK "Build ADOL-C with MeDiPack (MPI) support" FALSE)
@@ -136,6 +103,47 @@ option(BUILD_INTERFACE OFF)
 option(BUILD_TESTS OFF)
 
 
+# definition of library target
+# ----------------------------
+
+add_library(adolc)
+add_library(adolc::adolc ALIAS adolc)
+
+target_compile_features(adolc PUBLIC cxx_std_20)
+
+# Make the version of ADOL-C available as compile definitions
+target_compile_definitions(adolc PRIVATE
+  ADOLC_VERSION=${adol-c_VERSION_MAJOR}
+  ADOLC_SUBVERSION=${adol-c_VERSION_MINOR}
+  ADOLC_PATCHLEVEL=${adol-c_VERSION_PATCH})
+
+
+# ensures that our api is exported in windows
+if (WIN32)
+  target_compile_definitions(adolc PRIVATE BUILD_ADOLC)
+endif(WIN32)
+
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(adolc PUBLIC ADOLC_SHARED)
+endif()
+
+
+# Set the public include directory containing headers that will be installed
+target_include_directories(adolc
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/ADOL-C/include> # for adolc_settings.h if one uses fetchcontent
+    $<INSTALL_INTERFACE:include>)
+
+# Set an include directory for the internally used library headers.
+#
+# This includes the files uni5_for.cpp, fo_rev.cpp, and ho_rev.cpp. Even though
+# they end with .cpp, they are used like header files.  Together with some
+# preprocessor trickery this is an old-fashioned way to do generic programming.
+target_include_directories(adolc
+  PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ADOL-C/src>)
+
 
 # handle the options
 # ------------------
@@ -197,11 +205,11 @@ if(BUILD_INTERFACE)
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     add_subdirectory(ADOL-C/c_interface)
     install(TARGETS ADOLCInterface EXPORT ADOLCInterfaceTargets)
-    install(EXPORT ADOLCInterfaceTargets 
+    install(EXPORT ADOLCInterfaceTargets
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 endif()
 
-# build the tests 
+# build the tests
 # ------------------------------------
 
 if(BUILD_TESTS)

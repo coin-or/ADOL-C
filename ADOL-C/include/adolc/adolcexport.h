@@ -6,7 +6,7 @@
  * a user builds its code with adolc that the symbols are defined somewhere
  * else.
  */
-#ifdef _WIN32
+#if defined(_WIN32) && defined(ADOLC_SHARED)
 #ifdef BUILD_ADOLC
 #define ADOLC_API __declspec(dllexport)
 #else
