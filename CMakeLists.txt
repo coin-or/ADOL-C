@@ -175,12 +175,12 @@ if (ENABLE_SPARSE)
   endif()
 
   if (NOT ColPack_FOUND)
-    message(STATUS "System ColPack not found; pulling from GitHub")
+    message(STATUS "System ColPack not found; pulling from https://github.com/TimSiebert1/ColPack")
     include(FetchContent)
     FetchContent_declare(
         ColPack
         GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
-        GIT_TAG e90f39bdf7c19ef5124e50ae0a115452945f77ab # latest commit
+        GIT_TAG d9c92a0b267b2f4351cacd6e33d747451b850478 # latest commit
     )
     FetchContent_MakeAvailable(ColPack)
   endif()
