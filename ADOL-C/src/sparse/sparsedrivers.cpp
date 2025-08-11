@@ -14,28 +14,21 @@
 ----------------------------------------------------------------------------*/
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
+#include <adolc/adtl_indo.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/oplate.h>
 #include <adolc/sparse/sparsedrivers.h>
-
-#if defined(ADOLC_INTERNAL)
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-#endif
-
-#if HAVE_LIBCOLPACK
-#include <ColPack/ColPackHeaders.h>
-#endif
-
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/sparseinfos.h>
+#include <adolc/valuetape/valuetape.h>
+#include <cstddef>
 #include <cstring>
 #include <math.h>
+#include <memory>
 
-#if HAVE_LIBCOLPACK
-using namespace ColPack;
-#endif
-
+#ifdef SPARSE
+namespace ADOLC::Sparse {
 /****************************************************************************/
 /*******       sparse Jacobains, separate drivers             ***************/
 /****************************************************************************/
@@ -124,13 +117,12 @@ void generate_seed_jac(int m, int n, unsigned int **JP, double ***Seed, int *p,
                                        option : way of compression
                                                   0 - column compression
                           (default) 1 - row compression                */
-)
-#if HAVE_LIBCOLPACK
-{
+) {
   int dummy;
 
-  BipartiteGraphPartialColoringInterface *g =
-      new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m, n);
+  ColPack::BipartiteGraphPartialColoringInterface *g =
+      new ColPack::BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP, m,
+                                                          n);
 
   if (option == 1)
     g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, "SMALLEST_LAST",
@@ -140,11 +132,6 @@ void generate_seed_jac(int m, int n, unsigned int **JP, double ***Seed, int *p,
                                       "COLUMN_PARTIAL_DISTANCE_TWO");
   delete g;
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-}
-#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, separate drivers             ***************/
@@ -202,12 +189,11 @@ void generate_seed_hess(int n, unsigned int **HP, double ***Seed, int *p,
                                         option : way of compression
                                                    0 - indirect recovery
                            (default) 1 - direct recovery                */
-)
-#if HAVE_LIBCOLPACK
-{
+) {
   int seed_rows;
 
-  GraphColoringInterface *g = new GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
+  ColPack::GraphColoringInterface *g =
+      new ColPack::GraphColoringInterface(SRC_MEM_ADOLC, HP, n);
 
   if (option == 0)
     g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, "SMALLEST_LAST",
@@ -216,22 +202,6 @@ void generate_seed_hess(int n, unsigned int **HP, double ***Seed, int *p,
     g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, "SMALLEST_LAST",
                                      "STAR");
   delete g;
-}
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-}
-#endif
-
-static void deepcopy_HP(unsigned int ***HPnew, unsigned int **HP, int indep) {
-  int i, j, s;
-  *HPnew = (unsigned int **)malloc(indep * sizeof(unsigned int *));
-  for (i = 0; i < indep; i++) {
-    s = HP[i][0];
-    (*HPnew)[i] = (unsigned int *)malloc((s + 1) * (sizeof(unsigned int)));
-    for (j = 0; j <= s; j++)
-      (*HPnew)[i][j] = HP[i][j];
-  }
 }
 
 /****************************************************************************/
@@ -257,18 +227,13 @@ int sparse_jac(short tag,  /* tape identification                     */
                   automatic detection (default) 1 - forward mode 2 - reverse
                   mode options[3] : way of compression 0 - column compression
                   (default) 1 - row compression                         */
-)
-#if HAVE_LIBCOLPACK
-{
-  std::shared_ptr<ValueTape> tape = getTape(tag);
+) {
+  ValueTape &tape = findTape(tag);
   int i;
   unsigned int j;
-  SparseJacInfos sJinfos;
   int ret_val = 0;
-  BipartiteGraphPartialColoringInterface *g;
-  JacobianRecovery1D *jr1d;
-  JacobianRecovery1D jr1d_loc;
 
+  // generate sJinfos of copy use from tape if already exist
   if (repeat == 0) {
     if ((options[0] < 0) || (options[0] > 1))
       options[0] = 0; /* default */
@@ -279,76 +244,69 @@ int sparse_jac(short tag,  /* tape identification                     */
     if ((options[3] < 0) || (options[3] > 1))
       options[3] = 0; /* default */
 
-    sJinfos.JP = (unsigned int **)malloc(depen * sizeof(unsigned int *));
-    ret_val = jac_pat(tag, depen, indep, basepoint, sJinfos.JP, options);
+    tape.sJInfos().setJP(
+        (unsigned int **)malloc(depen * sizeof(unsigned int *)));
+    ret_val =
+        jac_pat(tag, depen, indep, basepoint, tape.sJInfos().getJP(), options);
 
     if (ret_val < 0) {
       printf(" ADOL-C error in sparse_jac() \n");
       return ret_val;
     }
 
-    sJinfos.depen = depen;
-    sJinfos.nnz_in = depen;
-    sJinfos.nnz_in = 0;
+    tape.sJInfos().depen_ = depen;
+    tape.sJInfos().nnzIn_ = 0;
     for (i = 0; i < depen; i++) {
-      for (j = 1; j <= sJinfos.JP[i][0]; j++)
-        sJinfos.nnz_in++;
+      for (j = 1; j <= tape.sJInfos().JP_[i][0]; j++)
+        tape.sJInfos().nnzIn_++;
     }
 
-    *nnz = sJinfos.nnz_in;
+    *nnz = tape.sJInfos().nnzIn_;
 
     if (options[2] == -1) {
       (*rind) = (unsigned int *)calloc(*nnz, sizeof(unsigned int));
       (*cind) = (unsigned int *)calloc(*nnz, sizeof(unsigned int));
       unsigned int index = 0;
       for (i = 0; i < depen; i++)
-        for (j = 1; j <= sJinfos.JP[i][0]; j++) {
+        for (j = 1; j <= tape.sJInfos().JP_[i][0]; j++) {
           (*rind)[index] = i;
-          (*cind)[index++] = sJinfos.JP[i][j];
+          (*cind)[index++] = tape.sJInfos().JP_[i][j];
         }
     }
 
-    /* sJinfos.Seed is memory managed by ColPack and will be deleted
-     * along with g. We only keep it in sJinfos for the repeat != 0 case */
+    /* sJInfos.Seed is memory managed by ColPack and will be deleted
+     * along with g. We only keep it in sJInfos for the repeat != 0 case */
 
-    g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, sJinfos.JP,
-                                                   depen, indep);
-    jr1d = new JacobianRecovery1D;
+    tape.sJInfos().g_ =
+        std::unique_ptr<ColPack::BipartiteGraphPartialColoringInterface>(
+            std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
+                SRC_MEM_ADOLC, tape.sJInfos().JP_, depen, indep));
+    tape.sJInfos().jr1d_ = std::unique_ptr<ColPack::JacobianRecovery1D>();
 
     if (options[3] == 1) {
-      g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows),
-                              &(sJinfos.seed_clms), "SMALLEST_LAST",
-                              "ROW_PARTIAL_DISTANCE_TWO");
-      sJinfos.seed_clms = indep;
-      ret_val = sJinfos.seed_rows;
+      tape.sJInfos().g_->GenerateSeedJacobian(
+          &(tape.sJInfos().Seed_), &(tape.sJInfos().seedRows_),
+          &(tape.sJInfos().seedClms_), "SMALLEST_LAST",
+          "ROW_PARTIAL_DISTANCE_TWO");
+      tape.sJInfos().seedClms_ = indep;
+      ret_val = tape.sJInfos().seedRows_;
     } else {
-      g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows),
-                              &(sJinfos.seed_clms), "SMALLEST_LAST",
-                              "COLUMN_PARTIAL_DISTANCE_TWO");
-      sJinfos.seed_rows = depen;
-      ret_val = sJinfos.seed_clms;
+      tape.sJInfos().g_->GenerateSeedJacobian(
+          &(tape.sJInfos().Seed_), &(tape.sJInfos().seedRows_),
+          &(tape.sJInfos().seedClms_), "SMALLEST_LAST",
+          "COLUMN_PARTIAL_DISTANCE_TWO");
+      tape.sJInfos().seedRows_ = depen;
+      ret_val = tape.sJInfos().seedClms_;
     }
 
-    sJinfos.B = myalloc2(sJinfos.seed_rows, sJinfos.seed_clms);
-    sJinfos.y = myalloc1(depen);
-
-    sJinfos.g = (void *)g;
-    sJinfos.jr1d = (void *)jr1d;
-    setTapeInfoJacSparse(tag, sJinfos);
-  } else {
-    sJinfos.depen = tape.sJinfos.depen;
-    sJinfos.nnz_in = tape.sJinfos.nnz_in;
-    sJinfos.JP = tape.sJinfos.JP;
-    sJinfos.B = tape.sJinfos.B;
-    sJinfos.y = tape.sJinfos.y;
-    sJinfos.Seed = tape.sJinfos.Seed;
-    sJinfos.seed_rows = tape.sJinfos.seed_rows;
-    sJinfos.seed_clms = tape.sJinfos.seed_clms;
-    g = (BipartiteGraphPartialColoringInterface *)tape.sJinfos.g;
-    jr1d = (JacobianRecovery1D *)tape.sJinfos.jr1d;
+    tape.sJInfos().B_ =
+        myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+    tape.sJInfos().y_ = myalloc1(depen);
   }
 
-  if (sJinfos.nnz_in != *nnz) {
+  // from here on we know the sJInfos are on the tape
+
+  if (tape.sJInfos().nnzIn_ != *nnz) {
     printf(" ADOL-C error in sparse_jac():"
            " Number of nonzeros not consistent,"
            " repeat call with repeat = 0 \n");
@@ -361,51 +319,50 @@ int sparse_jac(short tag,  /* tape identification                     */
   /* compute jacobian times matrix product */
 
   if (options[3] == 1) {
-    ret_val = zos_forward(tag, depen, indep, 1, basepoint, sJinfos.y);
+    ret_val = zos_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_);
     if (ret_val < 0)
       return ret_val;
-    MINDEC(ret_val, fov_reverse(tag, depen, indep, sJinfos.seed_rows,
-                                sJinfos.Seed, sJinfos.B));
+    MINDEC(ret_val, fov_reverse(tag, depen, indep, tape.sJInfos().seedRows_,
+                                tape.sJInfos().Seed_, tape.sJInfos().B_));
   } else
-    ret_val = fov_forward(tag, depen, indep, sJinfos.seed_clms, basepoint,
-                          sJinfos.Seed, sJinfos.y, sJinfos.B);
+    ret_val =
+        fov_forward(tag, depen, indep, tape.sJInfos().seedClms_, basepoint,
+                    tape.sJInfos().Seed_, tape.sJInfos().y_, tape.sJInfos().B_);
 
   /* recover compressed Jacobian => ColPack library */
 
-  if (*values != NULL && *rind != NULL && *cind != NULL) {
+  if (*values != nullptr && *rind != nullptr && *cind != nullptr) {
     // everything is preallocated, we assume correctly
     // call usermem versions
     if (options[3] == 1)
-      jr1d->RecoverD2Row_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP,
-                                                  rind, cind, values);
+      tape.sJInfos().jr1d_->RecoverD2Row_CoordinateFormat_usermem(
+          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_, rind,
+          cind, values);
     else
-      jr1d->RecoverD2Cln_CoordinateFormat_usermem(g, sJinfos.B, sJinfos.JP,
-                                                  rind, cind, values);
+      tape.sJInfos().jr1d_->RecoverD2Cln_CoordinateFormat_usermem(
+          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_, rind,
+          cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
-    if (*values != NULL)
+    if (*values != nullptr)
       free(*values);
-    if (*rind != NULL)
+    if (*rind != nullptr)
       free(*rind);
-    if (*cind != NULL)
+    if (*cind != nullptr)
       free(*cind);
     if (options[3] == 1)
-      jr1d->RecoverD2Row_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP,
-                                                    rind, cind, values);
+      tape.sJInfos().jr1d_->RecoverD2Row_CoordinateFormat_unmanaged(
+          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_, rind,
+          cind, values);
     else
-      jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP,
-                                                    rind, cind, values);
+      tape.sJInfos().jr1d_->RecoverD2Cln_CoordinateFormat_unmanaged(
+          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_, rind,
+          cind, values);
   }
 
   return ret_val;
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-  return -1;
-}
-#endif
 
 /****************************************************************************/
 /*******        sparse Hessians, complete driver              ***************/
@@ -427,112 +384,84 @@ int sparse_hess(short tag,  /* tape identification                     */
                                 options[1] : way of recovery
                                            0 - indirect recovery
                                            1 - direct recovery */
-)
-#if HAVE_LIBCOLPACK
-{
+) {
   ValueTape &tape = findTape(tag);
   int i, l;
   unsigned int j;
-  SparseHessInfos sHinfos;
   double **Seed;
   int dummy;
   double y;
   int ret_val = -1;
-  GraphColoringInterface *g;
-  HessianRecovery *hr;
 
   /* Generate sparsity pattern, determine nnz, allocate memory */
-  if (repeat <= 0) {
+  if (repeat == 0) {
     if ((options[0] < 0) || (options[0] > 3))
       options[0] = 0; /* default */
     if ((options[1] < 0) || (options[1] > 1))
       options[1] = 0; /* default */
 
-    if (repeat == 0) {
-      sHinfos.HP = (unsigned int **)malloc(indep * sizeof(unsigned int *));
+    tape.sHInfos().HP_ =
+        (unsigned int **)malloc(indep * sizeof(unsigned int *));
 
-      /* generate sparsity pattern */
-      ret_val = hess_pat(tag, indep, basepoint, sHinfos.HP, options[0]);
+    /* generate sparsity pattern */
+    ret_val = hess_pat(tag, indep, basepoint, tape.sHInfos().HP_, options[0]);
 
-      if (ret_val < 0) {
-        printf(" ADOL-C error in sparse_hess() \n");
-        return ret_val;
-      }
-    } else {
-      if (indep != tape.sHinfos.indep)
-        ADOLCError::fail(ADOLCError::ErrorType::SPARSE_HESS_IND,
-                         CURRENT_LOCATION);
-      deepcopy_HP(&sHinfos.HP, tape.sHinfos.HP, indep);
+    if (ret_val < 0) {
+      printf(" ADOL-C error in sparse_hess() \n");
+      return ret_val;
     }
 
-    sHinfos.indep = indep;
-    sHinfos.nnz_in = 0;
+    tape.sHInfos().indep_ = indep;
+    tape.sHInfos().nnzIn_ = 0;
 
     for (i = 0; i < indep; i++) {
-      for (j = 1; j <= sHinfos.HP[i][0]; j++)
-        if ((int)sHinfos.HP[i][j] >= i)
-          sHinfos.nnz_in++;
+      for (j = 1; j <= tape.sHInfos().HP_[i][0]; j++)
+        if ((int)tape.sHInfos().HP_[i][j] >= i)
+          tape.sHInfos().nnzIn_++;
     }
 
-    *nnz = sHinfos.nnz_in;
+    *nnz = tape.sHInfos().nnzIn_;
 
     /* compute seed matrix => ColPack library */
 
-    Seed = NULL;
+    Seed = nullptr;
 
-    g = new GraphColoringInterface(SRC_MEM_ADOLC, sHinfos.HP, indep);
-    hr = new HessianRecovery;
+    tape.sHInfos().g_ = std::make_unique<ColPack::GraphColoringInterface>(
+        SRC_MEM_ADOLC, tape.sHInfos().HP_, indep);
+    tape.sHInfos().hr_ = std::make_unique<ColPack::HessianRecovery>();
 
     if (options[1] == 0)
-      g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, "SMALLEST_LAST",
-                             "ACYCLIC_FOR_INDIRECT_RECOVERY");
+      tape.sHInfos().g_->GenerateSeedHessian(&Seed, &dummy, &tape.sHInfos().p_,
+                                             "SMALLEST_LAST",
+                                             "ACYCLIC_FOR_INDIRECT_RECOVERY");
     else
-      g->GenerateSeedHessian(&Seed, &dummy, &sHinfos.p, "SMALLEST_LAST",
-                             "STAR");
+      tape.sHInfos().g_->GenerateSeedHessian(&Seed, &dummy, &tape.sHInfos().p_,
+                                             "SMALLEST_LAST", "STAR");
 
-    sHinfos.Hcomp = myalloc2(indep, sHinfos.p);
-    sHinfos.Xppp = myalloc3(indep, sHinfos.p, 1);
+    tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
+    tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1);
 
     for (i = 0; i < indep; i++)
-      for (l = 0; l < sHinfos.p; l++)
-        sHinfos.Xppp[i][l][0] = Seed[i][l];
+      for (l = 0; l < tape.sHInfos().p_; l++)
+        tape.sHInfos().Xppp_[i][l][0] = Seed[i][l];
 
     /* Seed will be freed by ColPack when g is freed */
-    Seed = NULL;
+    Seed = nullptr;
 
-    sHinfos.Yppp = myalloc3(1, sHinfos.p, 1);
-
-    sHinfos.Zppp = myalloc3(sHinfos.p, indep, 2);
-
-    sHinfos.Upp = myalloc2(1, 2);
-    sHinfos.Upp[0][0] = 1;
-    sHinfos.Upp[0][1] = 0;
-
-    sHinfos.g = (void *)g;
-    sHinfos.hr = (void *)hr;
-
-    setTapeInfoHessSparse(tag, sHinfos);
-
-  } else {
-    sHinfos.nnz_in = tape.sHinfos.nnz_in;
-    sHinfos.HP = tape.sHinfos.HP;
-    sHinfos.Hcomp = tape.sHinfos.Hcomp;
-    sHinfos.Xppp = tape.sHinfos.Xppp;
-    sHinfos.Yppp = tape.sHinfos.Yppp;
-    sHinfos.Zppp = tape.sHinfos.Zppp;
-    sHinfos.Upp = tape.sHinfos.Upp;
-    sHinfos.p = tape.sHinfos.p;
-    g = (GraphColoringInterface *)tape.sHinfos.g;
-    hr = (HessianRecovery *)tape.sHinfos.hr;
+    tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
+    tape.sHInfos().Zppp_ = myalloc3(tape.sHInfos().p_, indep, 2);
+    tape.sHInfos().Upp_ = myalloc2(1, 2);
+    tape.sHInfos().Upp_[0][0] = 1;
+    tape.sHInfos().Upp_[0][1] = 0;
   }
 
-  if (sHinfos.Upp == NULL) {
+  if (tape.sHInfos().Upp_ == nullptr) {
     printf(" ADOL-C error in sparse_hess():"
            " First call with repeat = 0 \n");
     return -3;
   }
 
-  if (sHinfos.nnz_in != *nnz) {
+  if (tape.sHInfos().nnzIn_ != *nnz) {
     printf(" ADOL-C error in sparse_hess():"
            " Number of nonzeros not consistent,"
            " new call with repeat = 0 \n");
@@ -544,92 +473,82 @@ int sparse_hess(short tag,  /* tape identification                     */
 
   //     this is the most efficient variant. However, there was somewhere a bug
   //     in hos_ov_reverse
-  ret_val = hov_wk_forward(tag, 1, indep, 1, 2, sHinfos.p, basepoint,
-                           sHinfos.Xppp, &y, sHinfos.Yppp);
-  MINDEC(ret_val, hos_ov_reverse(tag, 1, indep, 1, sHinfos.p, sHinfos.Upp,
-                                 sHinfos.Zppp));
+  ret_val = hov_wk_forward(tag, 1, indep, 1, 2, tape.sHInfos().p_, basepoint,
+                           tape.sHInfos().Xppp_, &y, tape.sHInfos().Yppp_);
+  MINDEC(ret_val, hos_ov_reverse(tag, 1, indep, 1, tape.sHInfos().p_,
+                                 tape.sHInfos().Upp_, tape.sHInfos().Zppp_));
 
-  for (i = 0; i < sHinfos.p; ++i)
+  for (i = 0; i < tape.sHInfos().p_; ++i)
     for (l = 0; l < indep; ++l)
-      sHinfos.Hcomp[l][i] = sHinfos.Zppp[i][l][1];
+      tape.sHInfos().Hcomp_[l][i] = tape.sHInfos().Zppp_[i][l][1];
 
-  if (*values != NULL && *rind != NULL && *cind != NULL) {
+  if (*values != nullptr && *rind != nullptr && *cind != nullptr) {
     // everything is preallocated, we assume correctly
     // call usermem versions
     if (options[1] == 0)
-      hr->IndirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP,
-                                                   rind, cind, values);
+      tape.sHInfos().hr_->IndirectRecover_CoordinateFormat_usermem(
+          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_, tape.sHInfos().HP_,
+          rind, cind, values);
     else
-      hr->DirectRecover_CoordinateFormat_usermem(g, sHinfos.Hcomp, sHinfos.HP,
-                                                 rind, cind, values);
+      tape.sHInfos().hr_->DirectRecover_CoordinateFormat_usermem(
+          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_, tape.sHInfos().HP_,
+          rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
-    if (*values != NULL)
+    if (*values != nullptr)
       free(*values);
-    if (*rind != NULL)
+    if (*rind != nullptr)
       free(*rind);
-    if (*cind != NULL)
+    if (*cind != nullptr)
       free(*cind);
     if (options[1] == 0)
-      hr->IndirectRecover_CoordinateFormat_unmanaged(
-          g, sHinfos.Hcomp, sHinfos.HP, rind, cind, values);
+      tape.sHInfos().hr_->IndirectRecover_CoordinateFormat_unmanaged(
+          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_, tape.sHInfos().HP_,
+          rind, cind, values);
     else
-      hr->DirectRecover_CoordinateFormat_unmanaged(g, sHinfos.Hcomp, sHinfos.HP,
-                                                   rind, cind, values);
+      tape.sHInfos().hr_->DirectRecover_CoordinateFormat_unmanaged(
+          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_, tape.sHInfos().HP_,
+          rind, cind, values);
   }
   return ret_val;
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-  return -1;
-}
-#endif
 
 /****************************************************************************/
 /*******      sparse Hessians, set and get sparsity pattern   ***************/
 /****************************************************************************/
+void SparseHessInfos::deepCopyHP(unsigned int ***HPOut, unsigned int **HPIn,
+                                 int indep) {
+  *HPOut = (unsigned int **)malloc(indep * sizeof(unsigned int *));
+  for (int i = 0; i < indep; i++) {
+    int s = HPIn[i][0];
+    (*HPOut)[i] = (unsigned int *)malloc((s + 1) * (sizeof(unsigned int)));
+    for (int j = 0; j <= s; j++)
+      (*HPOut)[i][j] = HPIn[i][j];
+  }
+}
 
-void set_HP(short tag, /* tape identification                     */
-            int indep, /* number of independent variables         */
-            unsigned int **HP)
-#ifdef SPARSE
-{
-  std::shared_ptr<ValueTape> tape = getTape(tag);
+void SparseHessInfos::setHP(int indep, unsigned int **HPIn) {
+  indep_ = indep;
+  deepCopyHP(&HP_, HPIn, indep_);
+}
+
+void set_HP(short tapeId, /* tape identification                     */
+            int indep,    /* number of independent variables         */
+            unsigned int **HPIn) {
   SparseHessInfos sHinfos;
+  sHinfos.setHP(indep, HPIn);
+  findTape(tapeId).setTapeInfoHessSparse(std::move(sHinfos));
+}
 
-  sHinfos.nnz_in = 0;
-  deepcopy_HP(&sHinfos.HP, HP, indep);
-  sHinfos.Hcomp = NULL;
-  sHinfos.Xppp = NULL;
-  sHinfos.Yppp = NULL;
-  sHinfos.Zppp = NULL;
-  sHinfos.Upp = NULL;
-  sHinfos.p = 0;
-  sHinfos.g = NULL;
-  sHinfos.hr = NULL;
-  sHinfos.indep = indep;
-  setTapeInfoHessSparse(tag, sHinfos);
+void SparseHessInfos::getHP(unsigned int ***HPOut) {
+  deepCopyHP(HPOut, HP_, indep_);
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-}
-#endif
 
-void get_HP(short tag, /* tape identification                     */
-            int indep, /* number of independent variables         */
-            unsigned int ***HP)
-#ifdef SPARSE
-{
-  deepcopy_HP(HP, findTape(tag).sHinfos.HP, indep);
+void get_HP(short tapeId, /* tape identification                     */
+            unsigned int ***HPOut) {
+  findTape(tapeId).getHP(HPOut);
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-}
-#endif
 
 /*****************************************************************************/
 /*                                                    JACOBIAN BLOCK PATTERN */
@@ -722,9 +641,8 @@ int bit_vector_propagation(
     if (!(indep_blocks_flags =
               (unsigned char *)calloc(i_blocks_per_strip, sizeof(char))))
       ADOLCError::fail(
-          ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
-          ADOLCError::FailInfo{.info2 = i_blocks_per_strip * sizeof(char)},
-          CURRENT_LOCATION);
+          ADOLCError::ErrorType::SPARSE_JAC_MALLOC, CURRENT_LOCATION,
+          ADOLCError::FailInfo{.info2 = i_blocks_per_strip * sizeof(char)});
 
     seed = myalloc2_ulong(indep, p_stripmine);
     jac_bit_pat = myalloc2_ulong(depen, p_stripmine);
@@ -795,10 +713,9 @@ int bit_vector_propagation(
           if (!(crs[j] = (unsigned int *)realloc(
                     crs[j], (k_old + k + 1) * sizeof(unsigned int))))
             ADOLCError::fail(
-                ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
+                ADOLCError::ErrorType::SPARSE_JAC_MALLOC, CURRENT_LOCATION,
                 ADOLCError::FailInfo{.info2 = (k_old + k + 1) *
-                                              sizeof(unsigned int)},
-                CURRENT_LOCATION);
+                                              sizeof(unsigned int)});
 
           if (strip_idx == 0)
             crs[j][0] = 0;
@@ -846,9 +763,8 @@ int bit_vector_propagation(
     if (!(indep_blocks_flags =
               (unsigned char *)calloc(indep, sizeof(unsigned char))))
       ADOLCError::fail(
-          ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
-          ADOLCError::FailInfo{.info2 = indep * sizeof(unsigned char)},
-          CURRENT_LOCATION);
+          ADOLCError::ErrorType::SPARSE_JAC_MALLOC, CURRENT_LOCATION,
+          ADOLCError::FailInfo{.info2 = indep * sizeof(unsigned char)});
     seed = myalloc2_ulong(q_stripmine, depen);
     jac_bit_pat = myalloc2_ulong(q_stripmine, indep);
 
@@ -921,11 +837,10 @@ int bit_vector_propagation(
         if (!(crs[d_bl_idx] =
                   (unsigned int *)malloc((k + 1) * sizeof(unsigned int))))
           ADOLCError::fail(
-              ADOLCError::ErrorType::SPARSE_JAC_MALLOC,
-              ADOLCError::FailInfo{.info2 = (k + 1) * sizeof(unsigned int)},
-              CURRENT_LOCATION)
+              ADOLCError::ErrorType::SPARSE_JAC_MALLOC, CURRENT_LOCATION,
+              ADOLCError::FailInfo{.info2 = (k + 1) * sizeof(unsigned int)});
 
-              crs[d_bl_idx][0] = k; /* number of non-zero indep. blocks */
+        crs[d_bl_idx][0] = k; /* number of non-zero indep. blocks */
         k = 1;
         i_b_flags = indep_blocks_flags;
         for (i = 0; i < indep; i++) {
@@ -958,27 +873,18 @@ int bit_vector_propagation(
 }
 
 #include <adolc/adtl_indo.h>
+SparseJacInfos sJInfos;
+namespace adtl_indo {
 
-// namespace adtl {
-
-#ifdef SPARSE
-SparseJacInfos sJinfos = {NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0};
-#endif
-
-int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const fun,
+int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
                               func_ad<adtl_indo::adouble> *const fun_indo,
                               int n, int m, int repeat, double *basepoints,
                               int *nnz, unsigned int **rind,
-                              unsigned int **cind, double **values)
-#if HAVE_LIBCOLPACK
-{
+                              unsigned int **cind, double **values) {
   int i;
   unsigned int j;
   int ret_val = -1;
   if (!repeat) {
-    freeSparseJacInfos(sJinfos.y, sJinfos.B, sJinfos.JP, sJinfos.g,
-                       sJinfos.jr1d, sJinfos.seed_rows, sJinfos.seed_clms,
-                       sJinfos.depen);
     // setNumDir(n);
     // setMode(ADTL_INDO);
     {
@@ -998,96 +904,85 @@ int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const fun,
         return ret_val;
       }
 
-      ret_val = adtl_indo::ADOLC_get_sparse_pattern(y, m, sJinfos.JP);
+      ret_val = adtl_indo::ADOLC_get_sparse_pattern(y, m, sJInfos.JP_);
       delete[] x;
       delete[] y;
     }
-    sJinfos.depen = m;
-    sJinfos.nnz_in = 0;
+    sJInfos.depen_ = m;
+    sJInfos.nnzIn_ = 0;
     for (i = 0; i < m; i++) {
-      for (j = 1; j <= sJinfos.JP[i][0]; j++)
-        sJinfos.nnz_in++;
+      for (j = 1; j <= sJInfos.JP_[i][0]; j++)
+        sJInfos.nnzIn_++;
     }
-    *nnz = sJinfos.nnz_in;
-    /* sJinfos.Seed is memory managed by ColPack and will be deleted
-     * along with g. We only keep it in sJinfos for the repeat != 0 case */
-    BipartiteGraphPartialColoringInterface *g;
-    JacobianRecovery1D *jr1d;
+    *nnz = sJInfos.nnzIn_;
+    /* sJInfos.Seed is memory managed by ColPack and will be deleted
+     * along with g. We only keep it in sJInfos for the repeat != 0 case */
 
-    g = new BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, sJinfos.JP, m,
-                                                   n);
-    jr1d = new JacobianRecovery1D;
+    sJInfos.g_ =
+        std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
+            SRC_MEM_ADOLC, sJInfos.JP_, m, n);
+    sJInfos.jr1d_ = std::make_unique<ColPack::JacobianRecovery1D>();
 
-    g->GenerateSeedJacobian(&(sJinfos.Seed), &(sJinfos.seed_rows),
-                            &(sJinfos.seed_clms), "SMALLEST_LAST",
-                            "COLUMN_PARTIAL_DISTANCE_TWO");
-    sJinfos.seed_rows = m;
+    sJInfos.g_->GenerateSeedJacobian(&(sJInfos.Seed_), &(sJInfos.seedRows_),
+                                     &(sJInfos.seedClms_), "SMALLEST_LAST",
+                                     "COLUMN_PARTIAL_DISTANCE_TWO");
+    sJInfos.seedRows_ = m;
 
-    sJinfos.B = myalloc2(sJinfos.seed_rows, sJinfos.seed_clms);
-    sJinfos.y = myalloc1(m);
+    sJInfos.B_ = myalloc2(sJInfos.seedRows_, sJInfos.seedClms_);
+    sJInfos.y_ = myalloc1(m);
 
-    sJinfos.g = (void *)g;
-    sJinfos.jr1d = (void *)jr1d;
-
-    if (sJinfos.nnz_in != *nnz) {
+    if (sJInfos.nnzIn_ != *nnz) {
       printf(" ADOL-C error in sparse_jac():"
              " Number of nonzeros not consistent,"
              " repeat call with repeat = 0 \n");
       return -3;
     }
   }
-  //  ret_val = fov_forward(tag, depen, indep, sJinfos.seed_clms, basepoint,
-  //  sJinfos.Seed, sJinfos.y, sJinfos.B);
-  adtl::setNumDir(sJinfos.seed_clms);
+  //  ret_val = fov_forward(tag, depen, indep, sJInfos.seed_clms, basepoint,
+  //  sJInfos.Seed, sJInfos.y, sJInfos.B);
+  ::adtl::setNumDir(sJInfos.seedClms_);
   // setMode(ADTL_FOV);
   {
-    adtl::adouble *x, *y;
-    x = new adtl::adouble[n];
-    y = new adtl::adouble[m];
+    ::adtl::adouble *x, *y;
+    x = new ::adtl::adouble[n];
+    y = new ::adtl::adouble[m];
 
     for (i = 0; i < n; i++) {
       x[i] = basepoints[i];
-      for (int jj = 0; jj < sJinfos.seed_clms; jj++)
-        x[i].setADValue(jj, sJinfos.Seed[i][jj]);
+      for (int jj = 0; jj < sJInfos.seedClms_; jj++)
+        x[i].setADValue(jj, sJInfos.Seed_[i][jj]);
     }
 
     ret_val = (*fun)(n, x, m, y);
 
     for (i = 0; i < m; i++)
-      for (int jj = 0; jj < sJinfos.seed_clms; jj++)
-        sJinfos.B[i][jj] = y[i].getADValue(jj);
+      for (int jj = 0; jj < sJInfos.seedClms_; jj++)
+        sJInfos.B_[i][jj] = y[i].getADValue(jj);
 
     delete[] x;
     delete[] y;
   }
   /* recover compressed Jacobian => ColPack library */
 
-  if (*values != NULL)
+  if (*values != nullptr)
     free(*values);
-  if (*rind != NULL)
+  if (*rind != nullptr)
     free(*rind);
-  if (*cind != NULL)
+  if (*cind != nullptr)
     free(*cind);
-  BipartiteGraphPartialColoringInterface *g;
-  JacobianRecovery1D *jr1d;
-  g = (BipartiteGraphPartialColoringInterface *)sJinfos.g;
-  jr1d = (JacobianRecovery1D *)sJinfos.jr1d;
-  jr1d->RecoverD2Cln_CoordinateFormat_unmanaged(g, sJinfos.B, sJinfos.JP, rind,
-                                                cind, values);
+
+  sJInfos.jr1d_->RecoverD2Cln_CoordinateFormat_unmanaged(
+      sJInfos.g_.get(), sJInfos.B_, sJInfos.JP_, rind, cind, values);
 
   // delete g;
   // delete jr1d;
 
   return ret_val;
 }
-#else
-{
-  ADOLCError::fail(ADOLCError::ErrorType::NO_COLPACK, CURRENT_LOCATION);
-  return -1;
-}
-#endif
-
-//}
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */
+} // namespace adtl_indo
+} // namespace ADOLC::Sparse
+
+#endif

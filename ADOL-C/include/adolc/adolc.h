@@ -25,6 +25,7 @@
 #if defined(__cplusplus)
 /*--------------------------------------------------------------------------*/
 /* Operator overloading things (active doubles & vectors) */
+#include <adolc/adolc_sparse.h>
 #include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>
 #include <adolc/edfclasses.h>

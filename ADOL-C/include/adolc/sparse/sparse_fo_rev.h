@@ -13,13 +13,13 @@ package.
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#if !defined(ADOLC_SPARSE_SPARSE_H)
-#define ADOLC_SPARSE_SPARSE_H 1
+#ifndef ADOLC_SPARSE_FO_REV_H
+#define ADOLC_SPARSE_FO_REV_H
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
-#if defined(__cplusplus)
+namespace ADOLC::Sparse {
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
 /*                                                                          */
@@ -67,8 +67,6 @@ ADOLC_API int forward(short, int, int, int, size_t **, size_t **, char = 0);
 
 ADOLC_API int reverse(short, int, int, int, size_t **, size_t **, char = 0);
 
-#endif
+} // namespace ADOLC::Sparse
 
-/****************************************************************************/
-
-#endif
+#endif // ADOLC_SPARSE_FO_REV_H

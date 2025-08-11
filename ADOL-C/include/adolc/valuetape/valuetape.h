@@ -11,8 +11,8 @@
 #include <adolc/storemanager.h>
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
+#include <adolc/valuetape/sparseinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
-#include <iostream>
 #include <memory>
 #include <stack>
 
@@ -49,22 +49,16 @@ class ADOLC_API ValueTape {
   std::stack<StackElement> cp_stack_;
 
 #ifdef SPARSE
-  // updates the tape infos on sparse Jac for the given ID
-  void setTapeInfoJacSparse(SparseJacInfos sJinfos);
-  // updates the tape infos n sparse Hess for the given ID
-  void setTapeInfoHessSparse(SparseHessInfos sHinfos);
+  ADOLC::Sparse::SparseJacInfos sJInfos_;
+  ADOLC::Sparse::SparseHessInfos sHInfos_;
+
   void initSparse() {
     sJInfos_.~SparseJacInfos();
-    new (&sJInfos_) SparseJacInfos();
+    new (&sJInfos_) ADOLC::Sparse::SparseJacInfos();
 
     sHInfos_.~SparseHessInfos();
-    new (&sHInfos_) SparseHessInfos();
+    new (&sHInfos_) ADOLC::Sparse::SparseHessInfos();
   }
-  // sparse Jacobian matrices
-  SparseJacInfos sJinfos_;
-  // sparse Hessian matrices
-  SparseHessInfos &sHinfos() { return sHinfos_ };
-  SparseJacInfos &sJonfos() { return sJInfos_ };
 #endif
 
   // the compiler can not distinguish between the fct ptrs for ext_diff_fct
@@ -98,8 +92,7 @@ public:
         cp_stack_(std::move(other.cp_stack_))
 #ifdef SPARSE
         ,
-        sJinfos_(std::move(other.sJInfos_)),
-        sHinfos_(std::move(other.sHInfos_)),
+        sJInfos_(std::move(other.sJInfos_)), sHInfos_(std::move(other.sHInfos_))
 #endif
   {
   }
@@ -114,12 +107,25 @@ public:
       cp_buffer_ = std::move(other.cp_buffer_);
       cp_stack_ = std::move(other.cp_stack_);
 #ifdef SPARSE
-      sJinfos_ = std::move(other.sJInfos_);
-      sHinfos_ = std::move(other.sHInfos_);
+      sJInfos_ = std::move(other.sJInfos_);
+      sHInfos_ = std::move(other.sHInfos_);
 #endif
     }
     return *this;
   }
+
+#ifdef SPARSE
+  // updates the tape infos on sparse Jac or Hess for the given ID
+  void setTapeInfoJacSparse(ADOLC::Sparse::SparseJacInfos &&sJInfos) {
+    sJInfos_ = std::move(sJInfos);
+  }
+  void setTapeInfoHessSparse(ADOLC::Sparse::SparseHessInfos &&sHInfos) {
+    sHInfos_ = std::move(sHInfos);
+  }
+  void getHP(unsigned int ***HPOut) { sHInfos_.getHP(HPOut); }
+  ADOLC::Sparse::SparseJacInfos &sJInfos() { return sJInfos_; }
+  ADOLC::Sparse::SparseHessInfos &sHInfos() { return sHInfos_; }
+#endif
 
   // Interface to PersistentTapeInfos
   void tapeBaseNames(size_t loc, const std::string &baseName) {
@@ -750,21 +756,6 @@ public:
   void cp_restore(CpInfos *cpInfos);
   void cp_release(CpInfos *cpInfos);
   CpInfos *get_cp_fct(int index) { return cp_buffer_.getElement(index); }
-
-#ifdef SPARSE
-  // updates the tape infos on sparse Jac for the given ID
-  void setTapeInfoJacSparse(SparseJacInfos sJinfos);
-  // updates the tape infos n sparse Hess for the given ID
-  void setTapeInfoHessSparse(SparseHessInfos sHinfos);
-  void initSparse() {
-    sJInfos_.~SparseJacInfos();
-    new (&sJInfos_) SparseJacInfos();
-
-    sHInfos_.~SparseHessInfos();
-    new (&sHInfos_) SparseHessInfos();
-  }
-  sHInfos()
-#endif
 };
 
 #endif // ADOLC_VALUETAPE_H

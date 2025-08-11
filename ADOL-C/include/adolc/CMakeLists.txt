@@ -35,5 +35,6 @@ install(FILES
 add_subdirectory(drivers)
 add_subdirectory(internal)
 add_subdirectory(lie)
+add_subdirectory(sparse)
 add_subdirectory(tapedoc)
 add_subdirectory(valuetape)
