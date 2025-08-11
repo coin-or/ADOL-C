@@ -17,7 +17,7 @@
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <math.h>
 
-#if defined(__cplusplus)
+namespace ADOLC::Sparse {
 
 /****************************************************************************/
 /*                                    Bit pattern propagation; general call */
@@ -76,4 +76,4 @@ int reverse(short tag, int m, int n, int q, size_t **U, size_t **Z, char mode)
 
 /****************************************************************************/
 
-#endif
+} // namespace ADOLC::Sparse

@@ -12,11 +12,12 @@ package.
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#if !defined(ADOLC_SPARSE_SPARSE_H)
-#define ADOLC_SPARSE_SPARSE_H 1
+#ifndef ADOLC_SPARSE_DRIVERS_H
+#define ADOLC_SPARSE_DRIVERS_H
 
-#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+
+namespace ADOLC::Sparse {
 
 BEGIN_C_DECLS
 
@@ -99,6 +100,9 @@ ADOLC_API int bit_vector_propagation(short, int, int, const double *,
                                      unsigned int **, int *);
 
 /****************************************************************************/
+
 END_C_DECLS
 
-#endif
+} // namespace ADOLC::Sparse
+
+#endif // ADOLC_SPARSE_DRIVERS_H

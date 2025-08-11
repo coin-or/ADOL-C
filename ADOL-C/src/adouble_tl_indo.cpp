@@ -23,7 +23,7 @@ sparse patterns.
 
 using std::cout;
 
-namespace adtl_indo {
+namespace ADOLC::Sparse::adtl_indo {
 
 /*******************  i/o operations  ***************************************/
 ostream &operator<<(ostream &out, const adouble &a) {
@@ -68,4 +68,4 @@ int ADOLC_get_sparse_pattern(const adouble *const b, int m,
   return 3;
 }
 
-} // namespace adtl_indo
+} // namespace ADOLC::Sparse::adtl_indo

@@ -294,13 +294,14 @@ ADOLC_API inline size_t get_num_param(short tapeId) {
  * @brief Sets the Sparse Jacbian Information of the tape
  *
  * @param tapeId ID of the tape to store the jacobian information
- * @param sJinfos the information to store
+ * @param sJInfos the information to store
  *
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
-  findTape(tapeId).setTapeInfoJacSparse(sJinfos);
+ADOLC_API inline void
+setTapeInfoJacSparse(short tapeId, ADOLC::Sparse::SparseJacInfos &&sJInfos) {
+  findTape(tapeId).setTapeInfoJacSparse(std::move(sJInfos));
 }
 
 /**
@@ -312,8 +313,9 @@ ADOLC_API void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API void setTapeInfoHessSparse(short tapeId, SparseHessInfos sHInfos) {
-  findTape(tapeId).setTageInfoHessSparse(sHInfos);
+ADOLC_API inline void
+setTapeInfoHessSparse(short tapeId, ADOLC::Sparse::SparseHessInfos &&sHInfos) {
+  findTape(tapeId).setTapeInfoHessSparse(std::move(sHInfos));
 }
 #endif
 
