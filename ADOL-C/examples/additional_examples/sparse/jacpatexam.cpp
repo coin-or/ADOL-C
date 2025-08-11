@@ -16,19 +16,15 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 #include "../clock/myclock.h"
+#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
-#include <adolc/adolc_sparse.h>
 
 #include <math.h>
 #include <string.h>
 
 #include <iostream>
-using namespace std;
-
 /****************************************************************************/
 /*                                                                  DEFINES */
-
-#define TAG 11
 
 /****************************************************************************/
 /*                                                     EVALUATION FUNCTIONS */
@@ -36,10 +32,9 @@ using namespace std;
 /*--------------------------------------------------------------------------*/
 const unsigned int N = 5, M = 6;
 
-void eval_small(short tag, double *xp, double *yp) {
+void eval_small(short tapeId, double *xp, double *yp) {
   unsigned int i, j;
-
-  trace_on(tag);
+  trace_on(tapeId);
 
   adouble *x, *y;
   x = new adouble[N];
@@ -66,17 +61,17 @@ void eval_small(short tag, double *xp, double *yp) {
 
   trace_off(1); // force a numbered tape file to be written
 
-  cout << "\nproblem definition in  " << __FILE__ << ",  lines  " << PD1B
-       << " - " << PD1E << "\n";
+  std::cout << "\nproblem definition in  " << __FILE__ << ",  lines  " << PD1B
+            << " - " << PD1E << "\n";
 }
 
 /*--------------------------------------------------------------------------*/
 const unsigned int NM = 961; // PQ_STRIPMINE_MAX * 8*sizeof(size_t) + 1
 
-void eval_arrow_like_matrix(short tag, double *xp, double *yp) {
+void eval_arrow_like_matrix(short tapeId, double *xp, double *yp) {
   unsigned int i, j;
 
-  trace_on(tag);
+  trace_on(tapeId);
 
   adouble *x, *y;
   x = new adouble[NM];
@@ -104,14 +99,15 @@ void eval_arrow_like_matrix(short tag, double *xp, double *yp) {
 
   trace_off(1); // force a numbered tape file to be written
 
-  cout << "\nproblem definition in  " << __FILE__ << ",  lines  " << PD2B
-       << " - " << PD2E << "\n";
+  std::cout << "\nproblem definition in  " << __FILE__ << ",  lines  " << PD2B
+            << " - " << PD2E << "\n";
 }
 
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main(void) {
-  short tag;
+  const short tapeId = 1;
+  createNewTape(tapeId);
   int ret_c = -1, choice;
   int oper, op_buf_size, loc_buf_size, con_buf_size, maxlive, deaths;
   unsigned int depen, indep;
@@ -129,22 +125,25 @@ int main(void) {
   double basepoint;
   int ctrl[3];
 
-  cout << "----------------------------------------------------------------\n";
-  cout << "\n                Jacobian Pattern Example\n\n";
-  cout << "Tape identification tag ( [-4..-1] for standart examples ) :  ?\b";
-  cin >> choice;
+  std::cout
+      << "----------------------------------------------------------------\n";
+  std::cout << "\n                Jacobian Pattern Example\n\n";
+  std::cout
+      << "Tape identification tag ( [-4..-1] for standart examples ) :  ?\b";
+  std::cin >> choice;
 
-  cout << "\n\nOutput Jacobian pattern? (y/n)  ?\b";
-  cin >> outp;
+  std::cout << "\n\nOutput Jacobian pattern? (y/n)  ?\b";
+  std::cin >> outp;
 
-  cout << "\n\nCompare with the full Jacobian calculation? (y/n)  ?\b";
-  cin >> full_jac;
+  std::cout << "\n\nCompare with the full Jacobian calculation? (y/n)  ?\b";
+  std::cin >> full_jac;
   if ((full_jac == 'y') || (full_jac == 'Y'))
     full_jac = 1;
   else
     full_jac = 0;
 
-  cout << "----------------------------------------------------------------\n";
+  std::cout
+      << "----------------------------------------------------------------\n";
 
   /*--------------------------------------------------------------------------*/
 
@@ -156,13 +155,10 @@ int main(void) {
         base[i] = i + 1;
 
       value = new double[M];
+      eval_small(tapeIdSmall, base, value);
 
-      tag = TAG;
-      eval_small(tag, base, value);
-
-      cout << "\n\nCreated ADOL-C tape with identification tag " << tag
-           << ".\n\n";
-      cout.flush();
+      std::cout << "\n\nCreated ADOL-C tape with identification tag "
+                << tapeIdSmall << ".\n\n";
 
     } else // ( choice == -4 ) -----------------------------------------------
     {
@@ -172,64 +168,22 @@ int main(void) {
         base[i] = i;
 
       value = new double[NM];
+      eval_arrow_like_matrix(tapeId, base, value);
 
-      tag = TAG;
-      eval_arrow_like_matrix(tag, base, value);
-
-      cout << "\n\nCreated ADOL-C tape with identification tag " << tag
-           << ".\n\n";
-      cout.flush();
+      std::cout << "\n\nCreated ADOL-C tape with identification tag " << tapeId
+                << ".\n\n";
     }
 
-    tapestats(tag, tape_stats); /* Reading of tape statistics */
-    indep = tape_stats[TapeInfos::NUM_INDEPENDENTS];
-    depen = tape_stats[TapeInfos::NUM_DEPENDENTS];
-    op_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    loc_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    con_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    oper = tape_stats[TapeInfos::NUM_OPERATIONS];
-    deaths = tape_stats[TapeInfos::TAY_STACK_SIZE];
-    maxlive = tape_stats[TapeInfos::NUM_MAX_LIVES];
-
-    cout << "\nTape " << tag << ": \n";
-    cout << "  independents              " << indep << "\n";
-    cout << "  dependents                " << depen << "\n";
-    cout << "  operations                " << oper << "\n";
-    cout << "  operations buffer size    " << op_buf_size << "\n";
-    cout << "  locations buffer size     " << loc_buf_size << "\n";
-    cout << "  constants buffer size     " << con_buf_size << "\n";
-    cout << "  maxlive                   " << maxlive << "\n";
-    cout << "  valstack size             " << deaths << "\n";
-    cout << "\n";
+    printTapeStats(tapeId);
 
   } else // ( choice >= 0 ) : Take a written tape ------------------------------
   {
-    tag = choice;
+    tapeId = choice;
 
-    cout << "\nproblem definition in  tape " << tag << "\n";
+    std::cout << "\nproblem definition in  tape " << tapeId << "\n";
 
-    tapestats(tag, tape_stats);
-    indep = tape_stats[TapeInfos::NUM_INDEPENDENTS];
-    depen = tape_stats[TapeInfos::NUM_DEPENDENTS];
-    op_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    loc_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    con_buf_size = tape_stats[TapeInfos::OP_BUFFER_SIZE];
-    oper = tape_stats[TapeInfos::NUM_OPERATIONS];
-    deaths = tape_stats[TapeInfos::TAY_STACK_SIZE];
-    maxlive = tape_stats[TapeInfos::NUM_MAX_LIVES];
-
-    cout << "\nTape " << tag << ": \n";
-    cout << "  independents              " << indep << "\n";
-    cout << "  dependents                " << depen << "\n";
-    cout << "  operations                " << oper << "\n";
-    cout << "  operations buffer size    " << op_buf_size << "\n";
-    cout << "  locations buffer size     " << loc_buf_size << "\n";
-    cout << "  constants buffer size     " << con_buf_size << "\n";
-    cout << "  maxlive                   " << maxlive << "\n";
-    cout << "  valstack size             " << deaths << "\n";
-
-    cout << "\n\nbasepoint[0.." << indep << "] = ?\b";
-    cin >> basepoint;
+    printTapeStats(tapeId);
+    std::cin >> basepoint;
 
     base = new double[indep];
     value = new double[depen];
@@ -238,12 +192,12 @@ int main(void) {
       base[i] = basepoint;
   }
 
-  tape_doc(tag, depen, indep, base, value); // write a tape into a tex-file
+  tape_doc(tapeId, depen, indep, base, value); // write a tape into a tex-file
 
   /*--------------------------------------------------------------------------*/
   /*                                 Jacobian pattern by index domains, safe */
 
-  cout << "\nJacobian Pattern by index domain propagation, safe ...\n";
+  std::cout << "\nJacobian Pattern by index domain propagation, safe ...\n";
 
   jacpat = new unsigned int *[depen];
 
@@ -252,17 +206,17 @@ int main(void) {
   ctrl[2] = 0; // safe
 
   z1 = myclock();
-  ret_c = jac_pat(tag, depen, indep, base, jacpat, ctrl);
+  ret_c = ADOLC::Sparse::jac_pat(tapeId, depen, indep, base, jacpat, ctrl);
   z2 = myclock();
 
   if ((outp == 'y') || (outp == 'Y')) {
     for (i = 0; i < depen; i++) {
-      cout << "depen[" << i << "], " << jacpat[i][0] << " non-zero entries :\n";
+      std::cout << "depen[" << i << "], " << jacpat[i][0]
+                << " non-zero entries :\n";
       for (j = 1; j <= jacpat[i][0]; j++)
-        cout << jacpat[i][j] << "  ";
-      cout << "\n";
+        std::cout << jacpat[i][j] << "  ";
+      std::cout << "\n";
     }
-    cout.flush();
   }
 
   t0 = z2 - z1;
@@ -278,10 +232,10 @@ int main(void) {
       maxnz = jacpat[i][0];
   }
   nz_rel = (int)ceil(100 * nz / ((double)depen * indep));
-  cout << nz << " non-zero Jacobian elements  of total " << depen * indep
-       << " elements <= " << nz_rel << "%\n";
-  cout << "min " << minnz << " non-zeros per row;    max " << maxnz
-       << " non-zeros per row;\n";
+  std::cout << nz << " non-zero Jacobian elements  of total " << depen * indep
+            << " elements <= " << nz_rel << "%\n";
+  std::cout << "min " << minnz << " non-zeros per row;    max " << maxnz
+            << " non-zeros per row;\n";
   nzref = nz;
 
   for (i = 0; i < depen; i++)
@@ -292,7 +246,7 @@ int main(void) {
   /*--------------------------------------------------------------------------*/
   /*                                 Jacobian pattern by index domains, tight */
 
-  cout << "\nJacobian Pattern by index domain propagation, tight ...\n";
+  std::cout << "\nJacobian Pattern by index domain propagation, tight ...\n";
 
   jacpat = new unsigned int *[depen];
 
