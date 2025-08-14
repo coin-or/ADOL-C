@@ -6,4 +6,3 @@
 
 @defgroup TapeBackward Tape-based backward mode
 @brief Interfaces for tape-base backward mode AD
-
