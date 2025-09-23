@@ -1,15 +1,11 @@
 
-#include "const.h"
+
 #include <adolc/adolc.h>
-#include <boost/test/unit_test.hpp>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <omp.h>
 #include <vector>
-
-namespace tt = boost::test_tools;
-
-BOOST_AUTO_TEST_SUITE(TestOpenMp)
 
 double analytic_f(const std::vector<double> &x) {
   // f(x0, x1) = x0^2 + sin(x1)
@@ -34,7 +30,7 @@ void record_test_function(int tid) {
   trace_off();
 }
 
-BOOST_AUTO_TEST_CASE(Omp_parallel_gradient_test) {
+int main() {
   int nthreads = 4;
   omp_set_num_threads(nthreads);
 
@@ -69,8 +65,6 @@ BOOST_AUTO_TEST_CASE(Omp_parallel_gradient_test) {
 
     // compare results
     for (int d = 0; d < N; ++d)
-      BOOST_TEST(grad_true[d] == grad_out[d], tt::tolerance(tol));
+      assert(std::abs(grad_true[d] - grad_out[d]) <= 1.e-12);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()
