@@ -30,9 +30,7 @@ set(SOURCE_FILES
     traceFixedPointScalarTests.cpp
     )
 
-if (OPENMP_FOUND)
-  list(APPEND SOURCE_FILES "openmp.cpp")
-endif()
+
 
 # Add all source files from uni5_for
 file(GLOB UNI5_FOR_FILES "uni5_for/*.cpp")
@@ -58,6 +56,11 @@ target_link_libraries(boost-test-adolc PRIVATE
     Boost::unit_test_framework)
 
 
+# ADOL-C + OpenMP parallel tests
 if(OpenMP_FOUND)
-    target_link_libraries(boost-test-adolc PRIVATE OpenMP::OpenMP_CXX)
+    add_executable(boost-test-adolc-omp openmp.cpp)
+    target_include_directories(boost-test-adolc-omp PRIVATE "${ADOLC_INCLUDE_DIR}")
+    target_link_libraries(boost-test-adolc-omp PRIVATE
+        adolc
+        OpenMP::OpenMP_CXX)
 endif()
