@@ -227,16 +227,16 @@ END_C_DECLS
 #if defined(_HOV_WK_) /* keep in this vector mode */
 #define IF_KEEP_TAYLOR_CLOSE                                                   \
   if (keep) {                                                                  \
-    fprintf(DIAG_OUT, "Succeeding reverse sweep will tape.fail!\n");          \
-    tape.taylor_close(false);                                                 \
+    fprintf(DIAG_OUT, "Succeeding reverse sweep will tape.fail!\n");           \
+    tape.taylor_close(false);                                                  \
   }
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
   {                                                                            \
-    UPDATE_TAYLORWRITTEN(keep *k *p)                                           \
+    UPDATE_TAYLORWRITTEN(keep * k * p)                                         \
     if (keep) {                                                                \
-      tape.write_scaylor(dp_T0[res]);                                         \
+      tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_taylors(res, (keep - 1), k, p);                            \
+        tape.write_taylors(res, (keep - 1), k, p);                             \
     }                                                                          \
   }
 #else
@@ -246,16 +246,15 @@ END_C_DECLS
 #else /* _ZOS_, _FOS_, _HOS_ */
 #define IF_KEEP_TAYLOR_CLOSE                                                   \
   if (keep) {                                                                  \
-    fprintf(DIAG_OUT,                                                          \
-            "Otherwise succeeding reverse sweep will tape.fail!\n");          \
-    tape.taylor_close(false);                                                 \
+    fprintf(DIAG_OUT, "Otherwise succeeding reverse sweep will tape.fail!\n"); \
+    tape.taylor_close(false);                                                  \
   }
 #if defined(_ZOS_)
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
   {                                                                            \
     UPDATE_TAYLORWRITTEN(keep)                                                 \
     if (keep)                                                                  \
-      tape.write_scaylor(dp_T0[res]);                                         \
+      tape.write_scaylor(dp_T0[res]);                                          \
   }
 #else
 #if defined(_FOS_)
@@ -263,9 +262,9 @@ END_C_DECLS
   {                                                                            \
     UPDATE_TAYLORWRITTEN(keep)                                                 \
     if (keep) {                                                                \
-      tape.write_scaylor(dp_T0[res]);                                         \
+      tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_scaylor(dp_T[res]);                                        \
+        tape.write_scaylor(dp_T[res]);                                         \
     }                                                                          \
   }
 #else
@@ -274,9 +273,9 @@ END_C_DECLS
   {                                                                            \
     UPDATE_TAYLORWRITTEN(keep)                                                 \
     if (keep) {                                                                \
-      tape.write_scaylor(dp_T0[res]);                                         \
+      tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_taylor(res, keep - 1);                                     \
+        tape.write_taylor(res, keep - 1);                                      \
     }                                                                          \
   }
 #endif
@@ -826,7 +825,7 @@ int hov_forward(
 #endif
 #endif
 {
-  ValueTape& tape = findTape(tnum);
+  ValueTape &tape = findTape(tnum);
   /****************************************************************************/
   /*                                                            ALL VARIABLES */
 
@@ -1075,24 +1074,26 @@ int hov_forward(
   if ((depcheck != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (indcheck != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
-         CURRENT_LOCATION,
-         ADOLCError::FailInfo{.info1 = tnum,
-                  .info3 = depcheck,
-                  .info4 = indcheck,
-                  .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
-                  .info6 = tape.tapestats(TapeInfos::NUM_INDEPENDENTS)});
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{
+                         .info1 = tnum,
+                         .info3 = depcheck,
+                         .info4 = indcheck,
+                         .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
+                         .info6 = tape.tapestats(TapeInfos::NUM_INDEPENDENTS)});
 
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
-         ADOLCError::FailInfo{.info1 = tnum});
+                     ADOLCError::FailInfo{.info1 = tnum});
 
 #if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
   if (swcheck != tape.tapestats(TapeInfos::NUM_SWITCHES))
-    ADOLCError::fail(ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
-         ADOLCError::FailInfo{.info1 = tnum,
-                  .info3 = swcheck,
-                  .info6 = tape.tapestats(TapeInfos::NUM_SWITCHES)});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info1 = tnum,
+                             .info3 = swcheck,
+                             .info6 = tape.tapestats(TapeInfos::NUM_SWITCHES)});
 
 #endif
 #endif
@@ -3629,7 +3630,8 @@ int hov_forward(
           TRES_FOINC = r0 * TARG_INC;
 #if defined(_HIGHER_ORDER_)
           ADOLCError::fail(ADOLCError::ErrorType::HO_OP_NOT_IMPLEMENTED,
-               CURRENT_LOCATION, ADOLCError::FailInfo{.info7 = operation});
+                           CURRENT_LOCATION,
+                           ADOLCError::FailInfo{.info7 = operation});
 #endif /* _HIGHER_ORDER_ */
         }
       }
@@ -4497,7 +4499,7 @@ int hov_forward(
         idx = (size_t)trunc(fabs(dp_T0[arg]));
         if (idx >= numvar)
           ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
-               ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
+                           ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = dp_T0[arg1];
@@ -4518,7 +4520,7 @@ int hov_forward(
 #endif
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
 #endif /* ALL_TOGETHER_AGAIN */
       }
       break;
@@ -4541,13 +4543,13 @@ int hov_forward(
         idx = (size_t)trunc(fabs(dp_T0[arg]));
         if (idx >= numvar)
           ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
-               ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
+                           ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
         dp_T0[res] = arg1;
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
 #endif
       }
       break;
@@ -5233,7 +5235,7 @@ int hov_forward(
 #endif
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       }
@@ -5328,7 +5330,7 @@ int hov_forward(
 #endif
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
 
 #endif /* ALL_TOGETHER_AGAIN */
       }
@@ -5511,25 +5513,25 @@ int hov_forward(
 
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
       if (n > 0) {
         if (edfct->dp_x == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
       if (m > 0) {
         if (edfct->dp_y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
 
@@ -5596,25 +5598,25 @@ int hov_forward(
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
       if (n > 0) {
         if (edfct->dp_x == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_X == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
       if (m > 0) {
         if (edfct->dp_y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_POINTER_Y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
 
@@ -5691,25 +5693,25 @@ int hov_forward(
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
       if (edfct2->ADOLC_EXT_FCT_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
-             CURRENT_LOCATION);
+                         CURRENT_LOCATION);
       if (nin > 0) {
         if (edfct2->x == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_X == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
       if (nout > 0) {
         if (edfct2->y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #if !defined(_ZOS_)
         if (ADOLC_EXT_V2_POINTER_Y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-               CURRENT_LOCATION);
+                           CURRENT_LOCATION);
 #endif
       }
 
@@ -5874,7 +5876,7 @@ int hov_forward(
       /* Die here, we screwed up */
 
       ADOLCError::fail(ADOLCError::ErrorType::NO_SUCH_OP, CURRENT_LOCATION,
-           ADOLCError::FailInfo{.info7 = operation});
+                       ADOLCError::FailInfo{.info7 = operation});
       break;
 
     } /* endswitch */
@@ -5966,9 +5968,6 @@ int hov_forward(
     crs[i][0] = nonl_dom[i][0];
     for (l = 1; l < crs[i][0] + 1; l++)
       crs[i][l] = nonl_dom[i][l + 1];
-    free(nonl_dom[i]);
-  }
-  for (int i = 0; i < indcheck; i++) {
     delete nonl_dom[i];
   }
   delete[] nonl_dom;
@@ -5983,11 +5982,11 @@ int hov_forward(
 int get_num_switches(short tapeId) {
   int nswitch;
 
-  ValueTape& tape = findTape(tapeId);
+  ValueTape &tape = findTape(tapeId);
   tape.init_for_sweep(tapeId);
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
-         ADOLCError::FailInfo{.info1 = tapeId});
+                     ADOLCError::FailInfo{.info1 = tapeId});
 
   nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
   tape.end_sweep();
