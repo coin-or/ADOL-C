@@ -219,6 +219,8 @@ if(BUILD_TESTS)
     enable_testing()
     add_test(NAME boost-test-adolc
       COMMAND boost-test-adolc)
+    add_test(NAME boost-test-adolc-omp
+      COMMAND boost-test-adolc-omp)
 endif()
 
 # build the adolc and tests with coverage
