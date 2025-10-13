@@ -215,12 +215,21 @@ endif()
 if(BUILD_TESTS)
     set(ADOLC_INCLUDE_DIR "${CMAKE_BINARY_DIR}/ADOL-C/include")
     add_subdirectory(ADOL-C/boost-test)
+    add_subdirectory(ADOL-C/test)
 
     enable_testing()
     add_test(NAME boost-test-adolc
       COMMAND boost-test-adolc)
     add_test(NAME boost-test-adolc-omp
       COMMAND boost-test-adolc-omp)
+
+    add_test(NAME powexam_test
+      COMMAND powexam_test)
+    add_test(NAME fminmax_test
+      COMMAND fminmax_test)
+    # add_test(NAME speelpenning_test
+    #   COMMAND speelpenning_test)
+
 endif()
 
 # build the adolc and tests with coverage
