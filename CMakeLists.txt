@@ -229,6 +229,8 @@ if(BUILD_TESTS)
       COMMAND fminmax_test)
     add_test(NAME speelpenning_test
       COMMAND speelpenning_test)
+    add_test(NAME callback_test
+      COMMAND callback_test)
 
 endif()
 
