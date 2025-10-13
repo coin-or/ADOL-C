@@ -227,8 +227,8 @@ if(BUILD_TESTS)
       COMMAND powexam_test)
     add_test(NAME fminmax_test
       COMMAND fminmax_test)
-    # add_test(NAME speelpenning_test
-    #   COMMAND speelpenning_test)
+    add_test(NAME speelpenning_test
+      COMMAND speelpenning_test)
 
 endif()
 
