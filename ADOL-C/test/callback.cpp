@@ -1,10 +1,7 @@
-#include <adolc/externfcts.h>
-#include <adolc/externfcts2.h>
 #include <array>
 #include <cassert>
 
 #include <adolc/adolc.h>
-#include <adolc/edfclasses.h>
 
 const int m = 1;
 const int n = 1;
