@@ -1,4 +1,4 @@
-name: Build ubuntu-latest with g++11 and clang++-13
+name: minimal compiler version ubuntu-latest 
 on: 
   push:
     branches: ["master"]

@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #else
-#include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #endif
 
@@ -36,7 +36,6 @@ typedef uint64_t bitword_t;
 #else
 typedef uint32_t bitword_t;
 #endif
-#include <stdint.h>
 typedef unsigned int uint;
 
 /*--------------------------------------------------------------------------*/
