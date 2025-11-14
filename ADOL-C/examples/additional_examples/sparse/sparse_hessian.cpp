@@ -13,6 +13,7 @@
 
 ---------------------------------------------------------------------------*/
 
+#include <adolc/sparse/sparsedrivers.h>
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
@@ -116,13 +117,9 @@ int main() {
   unsigned int *cind = NULL;
   double *values = NULL;
   int nnz;
-  int options[2];
-
-  options[0] = 0; /*                               safe mode (default) */
-  options[1] = 0; /*                       indirect recovery (default) */
-
-  ADOLC::Sparse::sparse_hess(tapeId, dim, 0, x, &nnz, &rind, &cind, &values,
-                             options);
+  ADOLC::Sparse::sparse_hess<ADOLC::Sparse::ControlFlowMode::Safe,
+                             ADOLC::Sparse::RecoveryMethod::Indirect>(
+      tapeId, dim, 0, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format:\n");
   for (i = 0; i < nnz; i++)
@@ -135,11 +132,9 @@ int main() {
   free(values);
   values = NULL;
 
-  options[0] = 0; /*                               safe mode (default) */
-  options[1] = 1; /*                                   direct recovery */
-
-  ADOLC::Sparse::sparse_hess(tapeId, dim, 0, x, &nnz, &rind, &cind, &values,
-                             options);
+  ADOLC::Sparse::sparse_hess<ADOLC::Sparse::ControlFlowMode::Safe,
+                             ADOLC::Sparse::RecoveryMethod::Direct>(
+      tapeId, dim, 0, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format:\n");
   for (i = 0; i < nnz; i++)
@@ -168,8 +163,9 @@ int main() {
 
   /*  repeated call of sparse_hess with same sparsity pattern => repeat = 1 */
 
-  ADOLC::Sparse::sparse_hess(tapeId, dim, 0, x, &nnz, &rind, &cind, &values,
-                             options);
+  ADOLC::Sparse::sparse_hess<ADOLC::Sparse::ControlFlowMode::Safe,
+                             ADOLC::Sparse::RecoveryMethod::Direct>(
+      tapeId, dim, 0, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format:\n");
   for (i = 0; i < nnz; i++)
@@ -190,13 +186,10 @@ int main() {
   /*                                                 sparsity pattern Hessian */
   /*--------------------------------------------------------------------------*/
 
-  unsigned int **HP = NULL; /* compressed block row storage */
-  int ctrl;
-
-  HP = (unsigned int **)malloc(dim * sizeof(unsigned int *));
-  ctrl = 0;
-
-  ADOLC::Sparse::hess_pat(tapeId, dim, x, HP, ctrl);
+  std::vector<uint *> HP(dim); /* compressed block row storage */
+  std::span<uint *> HP_(HP);
+  ADOLC::Sparse::hess_pat<ADOLC::Sparse::ControlFlowMode::Safe>(tapeId, dim, x,
+                                                                HP_);
 
   printf("\n");
   printf("Sparsity pattern of Hessian: \n");
@@ -214,12 +207,9 @@ int main() {
 
   double **Seed;
   int p;
-  int option = 1;
 
-  /* option = 0  indirect recovery (default),
-     option = 1  direct recovery                       */
-
-  ADOLC::Sparse::generate_seed_hess(dim, HP, &Seed, &p, option);
+  ADOLC::Sparse::generate_seed_hess<ADOLC::Sparse::RecoveryMethod::Direct>(
+      dim, HP_, &Seed, &p);
 
   printmat(" Seed matrix", dim, p, Seed);
   printf("\n");
@@ -255,10 +245,10 @@ int main() {
   printmat("compressed H:", dim, p, Hcomp);
   printf("\n");
 
-  for (i = 0; i < dim; i++)
-    free(HP[i]);
-  free(HP);
-
+  for (i = 0; i < dim; i++) {
+    delete[] HP[i];
+    HP[i] = nullptr;
+  }
   myfree2(H);
   myfree2(Hcomp);
 
