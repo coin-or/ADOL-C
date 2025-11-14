@@ -37,6 +37,7 @@ jobs:
         -DCMAKE_C_COMPILER=gcc-13 \
         -DCMAKE_BUILD_TYPE=Debug \
         -DBUILD_TESTS_WITH_COV=ON \
+        -DENABLE_SPARSE=1 \
         -S .. \
         -B .
         cmake --build .
@@ -63,4 +64,3 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
         name: code-coverage-report
-         
