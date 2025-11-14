@@ -655,6 +655,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     throw ADOLCError("To many input directions", LocInfo);
     break;
 
+  case to_underlying(ErrorType::NOT_IMPLEMENTED):
+    throw ADOLCError("Method or Option is not implemented!", LocInfo);
+
   default:
     throw ADOLCError("ADOL-C error => unknown error type!\n", LocInfo);
   }

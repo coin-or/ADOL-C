@@ -258,24 +258,24 @@ int fov_reverse(short tnum, /* tape id */
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
 int int_reverse_tight(
-    short tnum,                    /* tape id                               */
-    int depen,                     /* consistency chk on # of deps          */
-    int indep,                     /* consistency chk on # of indeps        */
-    int nrows,                     /* # of Jacobian rows being calculated   */
-    const size_t *const *lagrange, /* domain weight vector[var][row](in)*/
-    size_t **results)              /* matrix of coeff. vectors[var][row]*/
+    short tnum, /* tape id                               */
+    int depen,  /* consistency chk on # of deps          */
+    int indep,  /* consistency chk on # of indeps        */
+    int nrows,  /* # of Jacobian rows being calculated   */
+    const bitword_t *const *lagrange, /* domain weight vector[var][row](in)*/
+    bitword_t **results)              /* matrix of coeff. vectors[var][row]*/
 
 #elif defined(_NTIGHT_)
 /****************************************************************************/
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
 int int_reverse_safe(
-    short tnum,                    /* tape id                               */
-    int depen,                     /* consistency chk on # of deps          */
-    int indep,                     /* consistency chk on # of indeps        */
-    int nrows,                     /* # of Jacobian rows being calculated   */
-    const size_t *const *lagrange, /* domain weight vector[var][row](in)*/
-    size_t **results)              /* matrix of coeff. vectors[var][row]*/
+    short tnum, /* tape id                               */
+    int depen,  /* consistency chk on # of deps          */
+    int indep,  /* consistency chk on # of indeps        */
+    int nrows,  /* # of Jacobian rows being calculated   */
+    const bitword_t *const *lagrange, /* domain weight vector[var][row](in)*/
+    bitword_t **results)              /* matrix of coeff. vectors[var][row]*/
 #else
 #error Neither _TIGHT_ nor _NTIGHT_ defined
 #endif

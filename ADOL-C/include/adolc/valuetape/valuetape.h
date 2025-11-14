@@ -122,7 +122,6 @@ public:
   void setTapeInfoHessSparse(ADOLC::Sparse::SparseHessInfos &&sHInfos) {
     sHInfos_ = std::move(sHInfos);
   }
-  void getHP(unsigned int ***HPOut) { sHInfos_.getHP(HPOut); }
   ADOLC::Sparse::SparseJacInfos &sJInfos() { return sJInfos_; }
   ADOLC::Sparse::SparseHessInfos &sHInfos() { return sHInfos_; }
 #endif

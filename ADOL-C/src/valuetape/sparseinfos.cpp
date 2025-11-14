@@ -13,13 +13,10 @@ SparseJacInfos::~SparseJacInfos() {
     myfree2(B_);
   B_ = nullptr;
 
-  if (JP_) {
-    for (int i = 0; i < depen_; i++) {
-      free(JP_[i]);
-    }
-    free(JP_);
+  for (int i = 0; i < depen_; i++) {
+    delete[] JP_[i];
+    JP_[i] = nullptr;
   }
-  JP_ = nullptr;
 }
 
 SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
@@ -29,9 +26,9 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
     myfree1(y_);
     myfree2(B_);
     for (int i = 0; i < depen_; i++) {
-      free(JP_[i]);
+      delete[] JP_[i];
+      JP_[i] = nullptr;
     }
-    free(JP_);
 
     // Move resources
     g_ = std::move(other.g_);
@@ -49,7 +46,6 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
     other.y_ = nullptr;
     other.Seed_ = nullptr;
     other.B_ = nullptr;
-    other.JP_ = nullptr;
   }
   return *this;
 }
@@ -70,11 +66,9 @@ SparseHessInfos::~SparseHessInfos() {
   myfree2(Upp_);
   Upp_ = nullptr;
 
-  if (HP_) {
-    for (int i = 0; i < indep_; i++)
-      free(HP_[i]);
-    free(HP_);
-    HP_ = nullptr;
+  for (int i = 0; i < indep_; i++) {
+    delete[] HP_[i];
+    HP_[i] = nullptr;
   }
 }
 
@@ -86,10 +80,10 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
     myfree3(Yppp_);
     myfree3(Zppp_);
     myfree2(Upp_);
-    if (HP_) {
-      for (int i = 0; i < indep_; i++)
-        free(HP_[i]);
-      free(HP_);
+
+    for (int i = 0; i < indep_; i++) {
+      delete[] HP_[i];
+      HP_[i] = nullptr;
     }
 
     // Move resources
@@ -111,7 +105,6 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
     other.Yppp_ = nullptr;
     other.Zppp_ = nullptr;
     other.Upp_ = nullptr;
-    other.HP_ = nullptr;
   }
   return *this;
 }

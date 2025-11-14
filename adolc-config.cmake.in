@@ -23,5 +23,11 @@ if(WITH_BOOST)
   find_dependency(Boost 1.54 REQUIRED COMPONENTS system)
 endif()
 
+
+if(SPARSE)
+  target_compile_definitions(adolc::adolc INTERFACE SPARSE SPARSE_DRIVERS=1)
+endif()
+
+
 # Add the targets file
 include("${CMAKE_CURRENT_LIST_DIR}/adolc-targets.cmake")

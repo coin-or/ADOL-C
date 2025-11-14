@@ -25,6 +25,7 @@
 #include <list>
 #include <ostream>
 #include <stdexcept>
+#include <vector>
 
 using std::istream;
 using std::list;
@@ -41,7 +42,7 @@ class adouble;
 ADOLC_API int ADOLC_Init_sparse_pattern(adouble *a, int n,
                                         unsigned int start_cnt);
 ADOLC_API int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                                       unsigned int **&pat);
+                                       std::vector<uint *> &pat);
 
 ADOLC_API int
 ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
@@ -209,7 +210,7 @@ public:
   ADOLC_API friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
                                                  unsigned int start_cnt);
   ADOLC_API friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                                                unsigned int **&pat);
+                                                std::vector<uint *> &pat);
   /*******************  i/o operations  *********************************/
   ADOLC_API friend ostream &operator<<(ostream &, const adouble &);
   ADOLC_API friend istream &operator>>(istream &, adouble &);

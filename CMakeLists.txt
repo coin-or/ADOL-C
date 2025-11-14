@@ -169,23 +169,34 @@ if (ENABLE_BOOST_POOL)
   set(USE_BOOST_POOL "#define USE_BOOST_POOL 1")
 endif()
 
+# choose the number of bits for the bit vector propagation
+set(ADOLC_BITWORD_BITS 32)
+target_compile_definitions(adolc PUBLIC 
+              ADOLC_BITWORD_BITS=${ADOLC_BITWORD_BITS})
 if (ENABLE_SPARSE)
+    if (WIN32)
+        message(FATAL_ERROR "Sparse drivers require OpenMP, which is not supported on Windows/MSVC. ")
+    endif()
+
+  find_package(ColPack)
   if (ColPack_FOUND)
     message(STATUS "Using system‑installed ColPack")
   endif()
 
   if (NOT ColPack_FOUND)
-    message(STATUS "System ColPack not found; pulling from https://github.com/TimSiebert1/ColPack")
+    message(STATUS "System ColPack not found! Pulling from https://github.com/TimSiebert1/ColPack")
     include(FetchContent)
     FetchContent_declare(
         ColPack
         GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
-        GIT_TAG d9c92a0b267b2f4351cacd6e33d747451b850478 # latest commit
+        GIT_TAG e691e2d70394c9ec53a24287a72e789531075257 # latest commit
+        CMAKE_ARGS -DENABLE_OPENMP=ON # colpack needs openmp to build
     )
     FetchContent_MakeAvailable(ColPack)
   endif()
 
-    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
+
+  target_link_libraries(adolc PUBLIC ColPack::ColPack_shared)
 endif()
 
 if(ENABLE_PAREXA)
@@ -197,7 +208,7 @@ endif()
 
 # Set the macros
 
-target_compile_definitions(adolc PRIVATE
+target_compile_definitions(adolc PUBLIC 
   $<$<BOOL:${ENABLE_ACTIVITY_TRACKING}>:ADOLC_TRACK_ACTIVITY=1>
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
@@ -260,11 +271,21 @@ endif()
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-install(TARGETS adolc EXPORT adolcTargets)
+if (ENABLE_SPARSE)
+  install(TARGETS adolc ColPack_shared
+          EXPORT adolcTargets
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+else()
+  install(TARGETS adolc
+          EXPORT adolcTargets
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+endif()
+
 install(EXPORT adolcTargets
   FILE adolc-targets.cmake
   NAMESPACE adolc::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+
 
 write_basic_package_version_file(adolc-config-version.cmake
   VERSION ${adol-c_VERSION}
@@ -279,9 +300,7 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/adolc-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
-export(TARGETS adolc ColPack_shared
-       NAMESPACE adolc:: 
-       FILE adolc-targets.cmake)
+
 
 # print a summary of found packages and set options
 # -------------------------------------------------

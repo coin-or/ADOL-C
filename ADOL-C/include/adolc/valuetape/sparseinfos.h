@@ -1,7 +1,9 @@
 #ifndef ADOLC_SPARSE_INFOS_H
 #define ADOLC_SPARSE_INFOS_H
-#ifdef SPARSE
+#include <cstddef>
+#include <vector>
 
+#ifdef SPARSE
 #include <ColPack/ColPackHeaders.h>
 #include <adolc/internal/common.h>
 #include <memory>
@@ -19,7 +21,9 @@ struct ADOLC_API SparseJacInfos {
   // Seed is memory managed by ColPack and will be deleted
   double **Seed_{nullptr};
   double **B_{nullptr};
-  unsigned int **JP_{nullptr};
+
+  // type is dictated by ColPack
+  std::vector<uint *> JP_;
   int depen_{0};
   int nnzIn_{0};
   int seedClms_{0};
@@ -33,8 +37,8 @@ struct ADOLC_API SparseJacInfos {
 
   SparseJacInfos(SparseJacInfos &&other) noexcept
       : g_(std::move(other.g_)), jr1d_(std::move(other.jr1d_)), y_(other.y_),
-        Seed_(other.Seed_), B_(other.B_), JP_(other.JP_), depen_(other.depen_),
-        nnzIn_(other.nnzIn_), seedClms_(other.seedClms_),
+        Seed_(other.Seed_), B_(other.B_), JP_(std::move(other.JP_)),
+        depen_(other.depen_), nnzIn_(other.nnzIn_), seedClms_(other.seedClms_),
         seedRows_(other.seedRows_) {
 
     // Null out source object's pointers to prevent double deletion
@@ -43,12 +47,14 @@ struct ADOLC_API SparseJacInfos {
     other.y_ = nullptr;
     other.Seed_ = nullptr;
     other.B_ = nullptr;
-    other.JP_ = nullptr;
   }
 
   SparseJacInfos &operator=(SparseJacInfos &&other) noexcept;
-  void setJP(unsigned int **JPIn) { JP_ = JPIn; }
-  unsigned int **getJP() { return JP_; }
+  void setJP(std::vector<uint *> &&JPIn) {
+    JP_ = std::move(JPIn);
+    depen_ = JP_.size();
+  }
+  std::vector<uint *> &getJP() { return JP_; }
 };
 
 // stores everything we have to know to compute the sparse hessian via
@@ -64,7 +70,8 @@ struct ADOLC_API SparseHessInfos {
   double ***Zppp_{nullptr};
   double **Upp_{nullptr};
 
-  unsigned int **HP_{nullptr};
+  // type is dictated by ColPack
+  std::vector<uint *> HP_;
 
   int nnzIn_{0};
   int indep_{0};
@@ -79,7 +86,7 @@ public:
   SparseHessInfos(SparseHessInfos &&other) noexcept
       : g_(std::move(other.g_)), hr_(std::move(other.hr_)),
         Hcomp_(other.Hcomp_), Xppp_(other.Xppp_), Yppp_(other.Yppp_),
-        Zppp_(other.Zppp_), Upp_(other.Upp_), HP_(other.HP_),
+        Zppp_(other.Zppp_), Upp_(other.Upp_), HP_(std::move(other.HP_)),
         nnzIn_(other.nnzIn_), indep_(other.indep_), p_(other.p_) {
 
     // Null out moved-from object's pointers
@@ -90,13 +97,14 @@ public:
     other.Yppp_ = nullptr;
     other.Zppp_ = nullptr;
     other.Upp_ = nullptr;
-    other.HP_ = nullptr;
   }
 
   SparseHessInfos &operator=(SparseHessInfos &&other) noexcept;
-  void setHP(int indep, unsigned int **HP);
-  void getHP(unsigned int ***HP);
-  static void deepCopyHP(unsigned int ***HPOut, unsigned int **HPIn, int indep);
+  std::vector<uint *> getHP() { return HP_; }
+  void setHP(int indep, std::vector<uint *> &&HPIn) {
+    indep_ = indep;
+    HP_ = std::move(HPIn);
+  }
 };
 
 } // namespace ADOLC::Sparse
