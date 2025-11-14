@@ -13,6 +13,7 @@
 
 ---------------------------------------------------------------------------*/
 
+#include <adolc/sparse/sparsedrivers.h>
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
@@ -105,15 +106,9 @@ int main() {
   unsigned int *cind = NULL; /* column indices */
   double *values = NULL;     /* values         */
   int nnz;
-  int options[4];
-
-  options[0] = 0; /* sparsity pattern by index domains (default) */
-  options[1] = 0; /*                         safe mode (default) */
-  options[2] = 0; /*              not required if options[0] = 0 */
-  options[3] = 0; /*                column compression (default) */
 
   ADOLC::Sparse::sparse_jac(tapeId, dimOut, dimIn, 0, x, &nnz, &rind, &cind,
-                            &values, options);
+                            &values);
 
   printf("In sparse format:\n");
   for (i = 0; i < nnz; i++)
@@ -129,12 +124,10 @@ int main() {
   /*  same approach but using row compression                                 */
   /*--------------------------------------------------------------------------*/
 
-  options[3] = 1; /*   row compression => reverse mode, */
-                  /* sometimes better than forward mode */
-                  /* due to sparsity structure          */
-
-  ADOLC::Sparse::sparse_jac(tapeId, dimOut, dimIn, 0, x, &nnz, &rind, &cind,
-                            &values, options);
+  ADOLC::Sparse::sparse_jac<ADOLC::Sparse::SparseMethod::IndexDomains,
+                            ADOLC::Sparse::CompressionMode::Row,
+                            ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, dimOut, dimIn, 0, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format (using row compression): \n");
   for (i = 0; i < nnz; i++)
@@ -162,29 +155,34 @@ int main() {
 
   /*  repeated call of sparse_jac with same sparsity pattern => repeat = 1 */
 
-  ADOLC::Sparse::sparse_jac(tapeId, dimOut, dimIn, 1, x, &nnz, &rind, &cind,
-                            &values, options);
+  ADOLC::Sparse::sparse_jac<ADOLC::Sparse::SparseMethod::IndexDomains,
+                            ADOLC::Sparse::CompressionMode::Row,
+                            ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, dimOut, dimIn, 1, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format:\n");
   for (i = 0; i < nnz; i++)
     printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
 
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
   /*--------------------------------------------------------------------------*/
   /*  same approach but using row compression                                 */
   /*--------------------------------------------------------------------------*/
 
-  options[3] = 1; /*   row compression => reverse mode, */
-                  /* sometimes better than forward mode */
-                  /* due to sparsity structure          */
+  ADOLC::Sparse::sparse_jac<ADOLC::Sparse::SparseMethod::IndexDomains,
+                            ADOLC::Sparse::CompressionMode::Row,
+                            ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, dimOut, dimIn, 0, x, &nnz, &rind, &cind, &values);
 
-  ADOLC::Sparse::sparse_jac(tapeId, dimOut, dimIn, 0, x, &nnz, &rind, &cind,
-                            &values, options);
+  printf("In sparse format (using row compression): \n");
+  for (i = 0; i < nnz; i++)
+    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
+
+  constexpr int dimOutCT = 3;
+  constexpr int dimInCT = 6;
+  ADOLC::Sparse::sparse_jac<ADOLC::Sparse::SparseMethod::IndexDomains,
+                            ADOLC::Sparse::CompressionMode::Row,
+                            ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, dimOutCT, dimInCT, 0, x, &nnz, &rind, &cind, &values);
 
   printf("In sparse format (using row compression): \n");
   for (i = 0; i < nnz; i++)
@@ -204,15 +202,11 @@ int main() {
   /*                                                sparsity pattern Jacobian */
   /*--------------------------------------------------------------------------*/
 
-  unsigned int **JP = NULL; /* compressed block row storage */
-  int ctrl[3];
-
-  JP = (unsigned int **)malloc(dimOut * sizeof(unsigned int *));
-  ctrl[0] = 0;
-  ctrl[1] = 0;
-  ctrl[2] = 0;
-
-  ADOLC::Sparse::jac_pat(tapeId, dimOut, dimIn, x, JP, ctrl);
+  std::vector<uint *> JP(dimOut); /* compressed block row storage */
+  std::span<uint *> JP_(JP);
+  ADOLC::Sparse::jac_pat<ADOLC::Sparse::SparseMethod::IndexDomains,
+                         ADOLC::Sparse::ControlFlowMode::Safe>(tapeId, dimOut,
+                                                               dimIn, x, JP_);
 
   printf("\n");
   printf("Sparsity pattern of Jacobian: \n");
@@ -230,12 +224,8 @@ int main() {
 
   double **Seed;
   int p;
-  int option = 0;
-
-  /* option = 0 column compression (default),
-     option = 1 rom compression                */
-
-  ADOLC::Sparse::generate_seed_jac(dimOut, dimIn, JP, &Seed, &p, option);
+  ADOLC::Sparse::generate_seed_jac<ADOLC::Sparse::CompressionMode::Column>(
+      dimOut, dimIn, JP_, &Seed, &p);
 
   printf(" p_J = %d \n", p);
   printmat(" Seed matrix", dimIn, p, Seed);
@@ -271,8 +261,7 @@ int main() {
   printf("\n");
 
   for (i = 0; i < dimOut; i++)
-    free(JP[i]);
-  free(JP);
+    delete[] JP[i];
   myfree2(J);
 
   for (i = 0; i < dimIn; i++)
