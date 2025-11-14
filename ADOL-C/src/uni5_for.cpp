@@ -558,14 +558,14 @@ int fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short tnum,                    /* tape id                              */
-    int depcheck,                  /* consistency chk on # of dependents   */
-    int indcheck,                  /* consistency chk on # of independents */
-    int p,                         /* # of taylor series, bit pattern      */
-    const double *basepoint,       /* independent variable values   (in)*/
-    const size_t *const *argument, /* Taylor coeff.                 (in)*/
-    double *valuepoint,            /* dependent variable values    (out)*/
-    size_t **taylors)              /* matrix of coefficient vectors(out)*/
+    short tnum,                       /* tape id                              */
+    int depcheck,                     /* consistency chk on # of dependents   */
+    int indcheck,                     /* consistency chk on # of independents */
+    int p,                            /* # of taylor series, bit pattern      */
+    const double *basepoint,          /* independent variable values   (in)*/
+    const bitword_t *const *argument, /* Taylor coeff.                 (in)*/
+    double *valuepoint,               /* dependent variable values    (out)*/
+    bitword_t **taylors)              /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
@@ -585,12 +585,13 @@ int int_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
-int int_forward_safe(short tnum,   /* tape id                              */
-                     int depcheck, /* consistency chk on # of dependents   */
-                     int indcheck, /* consistency chk on # of independents */
-                     int p,        /* # of taylor series, bit pattern      */
-                     const size_t *const *argument, /* Taylor coeff. (in)*/
-                     size_t **taylors) /* matrix of coefficient vectors (out)*/
+int int_forward_safe(
+    short tnum,                       /* tape id                              */
+    int depcheck,                     /* consistency chk on # of dependents   */
+    int indcheck,                     /* consistency chk on # of independents */
+    int p,                            /* # of taylor series, bit pattern      */
+    const bitword_t *const *argument, /* Taylor coeff. (in)*/
+    bitword_t **taylors)              /* matrix of coefficient vectors (out)*/
 
 /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 
@@ -616,7 +617,7 @@ int indopro_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
 
@@ -630,7 +631,7 @@ int indopro_forward_tight(
         int indcheck,            /* consistency chk on # of independents */
         int swcheck,             /* consistency chk on # of switches    */
         const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
  */
@@ -643,7 +644,7 @@ int indopro_forward_tight(
         int depcheck,            /* consistency chk on # of dependents   */
         int indcheck,            /* consistency chk on # of independents */
         const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -661,7 +662,7 @@ int nonl_ind_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 #endif
 #if defined(_NTIGHT_)
@@ -673,7 +674,7 @@ int nonl_ind_forward_tight(
         int depcheck,            /* consistency chk on # of dependents   */
         int indcheck,            /* consistency chk on # of independents */
         const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -690,7 +691,7 @@ int nonl_ind_old_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 #endif
 #if defined(_NTIGHT_)
@@ -702,7 +703,7 @@ int nonl_ind_old_forward_tight(
         int depcheck,            /* consistency chk on # of dependents   */
         int indcheck,            /* consistency chk on # of independents */
         const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -1174,7 +1175,6 @@ int hov_forward(
     ind_dom[i][0] = 0;
     ind_dom[i][1] = NUMNNZ;
   }
-
 #endif
 #if defined(_NONLIND_)
   maxopind = tape.tapestats(TapeInfos::NUM_OPERATIONS) +
@@ -1635,13 +1635,13 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
       if (ind_dom[res][0] != 0) {
-        crs[indexd] = new unsigned int[ind_dom[res][0] + 1];
+        crs[indexd] = new uint[ind_dom[res][0] + 1];
         crs[indexd][0] = ind_dom[res][0];
         for (l = 1; l <= crs[indexd][0]; l++) {
           crs[indexd][l] = ind_dom[res][l + 1];
         }
       } else {
-        crs[indexd] = new unsigned int[1];
+        crs[indexd] = new uint[1];
         crs[indexd][0] = 0;
       }
 #endif
@@ -3898,16 +3898,26 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
 #if defined(_ABS_NORM_)
+<<<<<<< HEAD
       if (ind_dom[arg][0] != 0) {
         crs[depcheck + switchnum] = (unsigned int *)malloc(
             sizeof(unsigned int) * (ind_dom[arg][0] + 1));
         crs[depcheck + switchnum][0] = ind_dom[arg][0];
+=======
+      // set index domain of switching variables that of the input independent
+      // which creates the switching variable. note: the switching variables are
+      // stored in the Compressed Row Storage (crs) AFTER the dependent
+      // variables. Therefore we have to use depcheck + switchnum as index
+      if (ind_dom[arg][0] != 0) {
+        crs[depcheck + switchnum] = new uint[ind_dom[arg][0] + 1];
+        crs[depcheck + switchnum][0] = ind_dom[arg][0];
+        // switching variable switchnum gets index-domain of the arg
+>>>>>>> 8be11171 ([REF] Refactor sparse drivers)
         for (l = 1; l <= crs[depcheck + switchnum][0]; l++) {
           crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
         }
       } else {
-        crs[depcheck + switchnum] =
-            (unsigned int *)malloc(sizeof(unsigned int));
+        crs[depcheck + switchnum] = new uint[1];
         crs[depcheck + switchnum][0] = 0;
       }
       ind_dom[res][0] = 1;

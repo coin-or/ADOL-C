@@ -15,8 +15,6 @@
 
 #if !defined(ADOLC_COMMON_H)
 #define ADOLC_COMMON_H 1
-
-#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* standard includes */
 #if !defined(__cplusplus)
@@ -29,6 +27,16 @@
 
 /*--------------------------------------------------------------------------*/
 /* type definitions */
+
+// define bit vector propagation type used in sparse drivers
+#if ADOLC_BITWORD_BITS == 32
+typedef uint32_t bitword_t;
+#elif ADOLC_BITWORD_BITS == 64
+typedef uint64_t bitword_t;
+#else
+typedef uint32_t bitword_t;
+#endif
+#include <stdint.h>
 typedef unsigned int uint;
 
 /*--------------------------------------------------------------------------*/
@@ -78,6 +86,7 @@ typedef unsigned int uint;
 #include <adolc/internal/usrparms.h>
 
 #if defined(__cplusplus)
+
 #define BEGIN_C_DECLS extern "C" {
 #define END_C_DECLS }
 #else
