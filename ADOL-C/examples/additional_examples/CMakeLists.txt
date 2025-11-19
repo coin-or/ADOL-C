@@ -5,6 +5,9 @@ add_executable(helm_auto_example helm/helm-auto-exam.cpp)
 target_link_libraries(helm_auto_example PRIVATE adolc)
 
 if (ENABLE_SPARSE)
+    add_executable(abs_normal sparse/abs_normal.cpp)
+    target_link_libraries(abs_normal PRIVATE adolc)
+
     add_executable(sparse_jacobian sparse/sparse_jacobian.cpp)
     target_link_libraries(sparse_jacobian PRIVATE adolc)
 
