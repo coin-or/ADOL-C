@@ -15,8 +15,6 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include "../clock/myclock.h"
-#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
 
 #include <math.h>

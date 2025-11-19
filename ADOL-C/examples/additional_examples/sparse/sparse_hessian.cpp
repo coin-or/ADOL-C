@@ -13,12 +13,10 @@
 
 ---------------------------------------------------------------------------*/
 
+#include <adolc/adolc.h>
 #include <adolc/sparse/sparsedrivers.h>
 #include <cstdio>
 #include <cstdlib>
-#include <math.h>
-
-#include <adolc/adolc.h>
 
 /***************************************************************************/
 

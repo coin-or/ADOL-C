@@ -39,13 +39,6 @@ void checkBVPInput<ControlFlowMode::Tight>(const double *basepoint) {
     ADOLCError::fail(ADOLCError::ErrorType::SPARSE_JAC_NO_BP, CURRENT_LOCATION);
 }
 
-int absnormal_jac_pat(short tag, int depen, int indep, int numsw,
-                      const double *basepoint,
-                      std::span<uint *> &compressedRowStorage) {
-  resetInput(compressedRowStorage);
-  return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint,
-                                   compressedRowStorage.data());
-}
 void extract(size_t wordIdx, size_t stripIdx, size_t currentStripWordIdx,
              BvpData<BitPatternPropagationDirection::Forward> &data,
              std::span<uint *> &compressedRowStorage) {
@@ -101,6 +94,14 @@ void extract(size_t wordIdx, size_t stripIdx,
 }
 
 } // namespace detail
+
+int absnormal_jac_pat(short tag, int depen, int indep, int numsw,
+                      const double *basepoint,
+                      std::span<uint *> &compressedRowStorage) {
+  detail::resetInput(compressedRowStorage);
+  return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint,
+                                   compressedRowStorage.data());
+}
 
 #include <adolc/adtl_indo.h>
 SparseJacInfos sJInfos;
