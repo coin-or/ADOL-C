@@ -1111,7 +1111,7 @@ int hov_forward(
       delete[] tape.signature();
       tape.signature(nullptr);
     }
-    tape.signature(myalloc1(tape.tapestats(TapeInfos::NUM_SWITCHES)));
+    tape.signature(new double[tape.tapestats(TapeInfos::NUM_SWITCHES)]);
   }
   tape.dpp_T(&dp_T0);
   tape.numTay(0);

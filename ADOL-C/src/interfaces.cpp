@@ -32,25 +32,13 @@
 int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
 /* forward(tag, m, n, d, keep, X[n][d+1], Y[m][d+1])                        */
 { /* olvo 980729 general ec */
-  static double *x, *y, *xp, *yp;
-  static int maxn, maxm;
+  double *x, *y, *xp, *yp;
+  int maxn, maxm;
   int rc = -1, i, k;
-  if (n > maxn) {
-    if (x)
-      myfree1(x);
-    if (xp)
-      myfree1(xp);
-    x = myalloc1(maxn = n);
-    xp = myalloc1(maxn);
-  }
-  if (m > maxm) {
-    if (y)
-      myfree1(y);
-    if (yp)
-      myfree1(yp);
-    y = myalloc1(maxm = m);
-    yp = myalloc1(maxm);
-  }
+  x = myalloc1(maxn = n);
+  xp = myalloc1(maxn);
+  y = myalloc1(maxm = m);
+  yp = myalloc1(maxm);
 
   /*------------------------------------------------------------------------*/
   /* prepare input */
@@ -89,6 +77,11 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
         Y[i][k] = Y[i][k - 1];
     Y[i][0] = y[i];
   }
+
+  myfree1(x);
+  myfree1(y);
+  myfree1(xp);
+  myfree1(yp);
 
   return rc;
 }

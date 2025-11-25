@@ -9,7 +9,7 @@
 #include <thread>
 
 PersistantTapeInfos::~PersistantTapeInfos() {
-  free(paramstore);
+  delete[] paramstore;
   free(jacSolv_ci);
   free(jacSolv_ri);
   myfree1(jacSolv_xold);
@@ -24,27 +24,27 @@ PersistantTapeInfos::~PersistantTapeInfos() {
   if (op_fileName) {
     if (!(keepTape && skipFileCleanup))
       remove(op_fileName);
-    free(op_fileName);
+    delete[] op_fileName;
     op_fileName = nullptr;
   }
   if (val_fileName) {
     if (!(keepTape && skipFileCleanup))
       remove(val_fileName);
-    free(val_fileName);
+    delete[] val_fileName;
     val_fileName = nullptr;
   }
 
   if (loc_fileName) {
     if (!(keepTape && skipFileCleanup))
       remove(loc_fileName);
-    free(loc_fileName);
+    delete[] loc_fileName;
     loc_fileName = nullptr;
   }
 
   if (tay_fileName) {
     if (!(keepTape && skipFileCleanup))
       remove(tay_fileName);
-    free(tay_fileName);
+    delete[] tay_fileName;
     tay_fileName = nullptr;
   }
 }
