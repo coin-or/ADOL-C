@@ -1,4 +1,4 @@
- 
+
 #include "../const.h"
 #include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
   double *g = new double[n];
   gradient(tapeId, n, xp, g); // gradient evaluation
 
-  double **H = new double*[n];
+  double **H = new double *[n];
   for (auto i = 0; i < n; i++)
     H[i] = new double[i + 1];
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
   BOOST_TEST(errh == 0.0, tt::tolerance(tol));
 
   for (auto i = 0; i < n; i++)
-      delete[] H[i];
+    delete[] H[i];
   delete[] H;
   delete[] g;
   delete[] xp;

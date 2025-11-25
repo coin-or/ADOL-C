@@ -3896,16 +3896,18 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
 #if defined(_ABS_NORM_)
-                if (ind_dom[arg][0] != 0) {
-                    crs[depcheck+switchnum] = (unsigned int*) malloc(sizeof(unsigned int)* (ind_dom[arg][0]+1));
-                    crs[depcheck+switchnum][0] = ind_dom[arg][0];
-                    for(l=1;l<=crs[depcheck+switchnum][0];l++) {
-                        crs[depcheck+switchnum][l] = ind_dom[arg][l+1];
-                    }
-                } else {
-                    crs[depcheck+switchnum] = (unsigned int*) malloc(sizeof(unsigned int));
-                    crs[depcheck+switchnum][0] = 0;
-                } 
+      if (ind_dom[arg][0] != 0) {
+        crs[depcheck + switchnum] = (unsigned int *)malloc(
+            sizeof(unsigned int) * (ind_dom[arg][0] + 1));
+        crs[depcheck + switchnum][0] = ind_dom[arg][0];
+        for (l = 1; l <= crs[depcheck + switchnum][0]; l++) {
+          crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
+        }
+      } else {
+        crs[depcheck + switchnum] =
+            (unsigned int *)malloc(sizeof(unsigned int));
+        crs[depcheck + switchnum][0] = 0;
+      }
       ind_dom[res][0] = 1;
       ind_dom[res][2] = indcheck + switchnum;
 #else
