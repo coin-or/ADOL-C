@@ -29,6 +29,12 @@ jobs:
       run: |
         sudo apt-get install libboost-all-dev
 
+
+    - name: Install Valgrind
+      shell: bash
+      run: |
+        sudo apt-get install valgrind
+
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -49,6 +55,10 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
         
+
+    - name: Run with Valgrind
+      run: valgrind --leak-check=full --show-leak-kinds=all ./${{ steps.strings.outputs.build-output-dir }}/ADOL-C/boost-test/boost-test-adolc
+
     - name: Run Tests
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --output-on-failure
 
