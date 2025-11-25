@@ -53,7 +53,7 @@ int main() {
   double *g = new double[n];
   gradient(tapeId, n, xp, g); // gradient evaluation
 
-  double **H = new double*[n];
+  double **H = new double *[n];
   for (auto i = 0; i < n; i++)
     H[i] = new double[i + 1];
   hessian(tapeId, n, xp, H); // H equals (n-1)g since g is
@@ -70,7 +70,6 @@ int main() {
   cout << yp - 1 / (1.0 + n) << " error in function \n";
   cout << errg << " error in gradient \n";
   cout << errh << " consistency check \n";
-
 
   for (auto i = 1; i < n; i++)
     delete[] H[i];

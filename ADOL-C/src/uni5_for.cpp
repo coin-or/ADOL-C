@@ -230,6 +230,7 @@ END_C_DECLS
     fprintf(DIAG_OUT, "Succeeding reverse sweep will tape.fail!\n");           \
     tape.taylor_close(false);                                                  \
   }
+// clang-format off
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
   {                                                                            \
     UPDATE_TAYLORWRITTEN(keep * k * p)                                         \
@@ -239,6 +240,7 @@ END_C_DECLS
         tape.write_taylors(res, (keep - 1), k, p);                             \
     }                                                                          \
   }
+// clang-format on
 #else
 #if defined(_ADOLC_VECTOR_) /* otherwise no keep */
 #define IF_KEEP_TAYLOR_CLOSE
