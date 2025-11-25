@@ -57,7 +57,12 @@ jobs:
         
 
     - name: Run with Valgrind
-      run: valgrind --leak-check=full --show-leak-kinds=all ${{ steps.strings.outputs.build-output-dir }}/ADOL-C/boost-test/boost-test-adolc
+      run: |
+        valgrind --leak-check=full \
+                 --show-leak-kinds=all \
+                 --errors-for-leak-kinds=all \
+                 --error-exitcode=1 \
+                 ${{ steps.strings.outputs.build-output-dir }}/ADOL-C/boost-test/boost-test-adolc
 
     - name: Run Tests
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --output-on-failure
