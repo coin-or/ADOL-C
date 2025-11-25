@@ -1,4 +1,5 @@
- "../const.h"
+ 
+#include "../const.h"
 #include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
 
