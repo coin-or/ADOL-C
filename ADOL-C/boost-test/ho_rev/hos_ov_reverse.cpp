@@ -116,6 +116,8 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
              tt::tolerance(tol));
   myfree3(X);
   myfree3(Y);
+  myfree2(U);
+  myfree3(Z);
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
@@ -295,6 +297,8 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
     */
   myfree3(X);
   myfree3(Y);
+  myfree2(U);
+  myfree3(Z);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

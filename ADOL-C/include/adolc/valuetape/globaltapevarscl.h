@@ -56,7 +56,7 @@ struct GlobalTapeVarsCL {
   // signals: at least one tape created (0/1)
   char newTape{0};
   char branchSwitchWarning{1};
-  uint nominmaxFlag;
+  uint nominmaxFlag{0};
   size_t numparam{0};
   size_t maxparam{0};
   double *pStore{nullptr};

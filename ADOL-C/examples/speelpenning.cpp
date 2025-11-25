@@ -53,9 +53,9 @@ int main() {
   double *g = new double[n];
   gradient(tapeId, n, xp, g); // gradient evaluation
 
-  double **H = (double **)malloc(n * sizeof(double *));
+  double **H = new double *[n];
   for (auto i = 0; i < n; i++)
-    H[i] = (double *)malloc((i + 1) * sizeof(double));
+    H[i] = new double[i + 1];
   hessian(tapeId, n, xp, H); // H equals (n-1)g since g is
   double errg = 0;           // homogeneous of degree n-1.
   double errh = 0;
@@ -71,5 +71,9 @@ int main() {
   cout << errg << " error in gradient \n";
   cout << errh << " consistency check \n";
 
+  for (auto i = 1; i < n; i++)
+    delete[] H[i];
+
+  delete[] H;
   return 0;
 } // end main

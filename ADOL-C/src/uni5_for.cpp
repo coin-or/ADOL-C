@@ -230,6 +230,7 @@ END_C_DECLS
     fprintf(DIAG_OUT, "Succeeding reverse sweep will tape.fail!\n");           \
     tape.taylor_close(false);                                                  \
   }
+// clang-format off
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
   {                                                                            \
     UPDATE_TAYLORWRITTEN(keep * k * p)                                         \
@@ -239,6 +240,7 @@ END_C_DECLS
         tape.write_taylors(res, (keep - 1), k, p);                             \
     }                                                                          \
   }
+// clang-format on
 #else
 #if defined(_ADOLC_VECTOR_) /* otherwise no keep */
 #define IF_KEEP_TAYLOR_CLOSE
@@ -1111,7 +1113,7 @@ int hov_forward(
       delete[] tape.signature();
       tape.signature(nullptr);
     }
-    tape.signature(myalloc1(tape.tapestats(TapeInfos::NUM_SWITCHES)));
+    tape.signature(new double[tape.tapestats(TapeInfos::NUM_SWITCHES)]);
   }
   tape.dpp_T(&dp_T0);
   tape.numTay(0);
@@ -3896,16 +3898,18 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
 #if defined(_ABS_NORM_)
-                if (ind_dom[arg][0] != 0) {
-                    crs[depcheck+switchnum] = (unsigned int*) malloc(sizeof(unsigned int)* (ind_dom[arg][0]+1));
-                    crs[depcheck+switchnum][0] = ind_dom[arg][0];
-                    for(l=1;l<=crs[depcheck+switchnum][0];l++) {
-                        crs[depcheck+switchnum][l] = ind_dom[arg][l+1];
-                    }
-                } else {
-                    crs[depcheck+switchnum] = (unsigned int*) malloc(sizeof(unsigned int));
-                    crs[depcheck+switchnum][0] = 0;
-                } 
+      if (ind_dom[arg][0] != 0) {
+        crs[depcheck + switchnum] = (unsigned int *)malloc(
+            sizeof(unsigned int) * (ind_dom[arg][0] + 1));
+        crs[depcheck + switchnum][0] = ind_dom[arg][0];
+        for (l = 1; l <= crs[depcheck + switchnum][0]; l++) {
+          crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
+        }
+      } else {
+        crs[depcheck + switchnum] =
+            (unsigned int *)malloc(sizeof(unsigned int));
+        crs[depcheck + switchnum][0] = 0;
+      }
       ind_dom[res][0] = 1;
       ind_dom[res][2] = indcheck + switchnum;
 #else
