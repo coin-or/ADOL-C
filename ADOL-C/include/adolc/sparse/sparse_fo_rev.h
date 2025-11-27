@@ -13,13 +13,13 @@ package.
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-#if !defined(ADOLC_SPARSE_SPARSE_H)
-#define ADOLC_SPARSE_SPARSE_H 1
-
+#ifndef ADOLC_SPARSE_FO_REV_H
+#define ADOLC_SPARSE_FO_REV_H
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <vector>
 
-#if defined(__cplusplus)
+namespace ADOLC::Sparse {
 /****************************************************************************/
 /*                                           FORWARD MODE, overloaded calls */
 /*                                                                          */
@@ -37,38 +37,40 @@ package.
 /*                                                                          */
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p], mode) : intfov       */
 
-ADOLC_API int forward(short, int, int, int, double *, size_t **, double *,
-                      size_t **, char = 0);
+ADOLC_API int forward(short tag, int m, int n, int p, double *x,
+                      std::vector<bitword_t *> &X, double *y,
+                      std::vector<bitword_t *> &Y, char mode);
 
 /*--------------------------------------------------------------------------*/
 /*  Bit pattern propagation call, d = 1, safe version (no x[] and y[])      */
 /*                                                                          */
 /* forward(tag, m, n, p, X[n][p], Y[m][p], mode) : intfov                   */
 
-ADOLC_API int forward(short, int, int, int, size_t **, size_t **, char = 0);
+ADOLC_API int forward(short tag, int m, int n, int p,
+                      std::vector<bitword_t *> &X, std::vector<bitword_t *> &Y,
+                      char mode);
 
 /****************************************************************************/
-/*                                           REVERSE MODE, overloaded calls */
+/*                                           REVERSE MODE, overloaded calls
+ */
 /*                                                                          */
-/* nBV = number of Boolean Vectors to be packed                             */
-/*       (see Chapter Dependence Analysis, ADOL-C Documentation)            */
+/* nBV = number of Boolean Vectors to be packed */
+/*       (see Chapter Dependence Analysis, ADOL-C Documentation) */
 /* bits_per_long = 8*sizeof(size_t)                              */
-/* q = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 )                 */
+/* q = nBV / bits_per_long + ( (nBV % bits_per_long) != 0 ) */
 /*                                                                          */
-/* For the full Jacobian matrix set                                         */
-/*      q = depen / bits_per_long + ((depen % bits_per_long) != 0)          */
-/* and pass a bit pattern version of the identity matrix as an argument     */
+/* For the full Jacobian matrix set */
+/*      q = depen / bits_per_long + ((depen % bits_per_long) != 0) */
+/* and pass a bit pattern version of the identity matrix as an argument */
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
-/*  Bit pattern propagation call, d = 0, tight & safe version               */
+/*  Bit pattern propagation call, d = 0, tight & safe version */
 /*                                                                          */
-/* reverse(tag, m, n, q, U[q][m], Z[q][n], mode) : intfov                   */
+/* reverse(tag, m, n, q, U[q][m], Z[q][n], mode) : intfov */
 
-ADOLC_API int reverse(short, int, int, int, size_t **, size_t **, char = 0);
-
-#endif
-
-/****************************************************************************/
-
-#endif
+ADOLC_API int reverse(short tag, int m, int n, int q,
+                      std::vector<bitword_t *> &U, std::vector<bitword_t *> &Z,
+                      char mode);
+} // namespace ADOLC::Sparse
+#endif // ADOLC_SPARSE_FO_REV_H

@@ -58,7 +58,6 @@ install_manifest.txt
 *.dll
 build/
 lib/
-include/
 
 # Nix build results
 result*

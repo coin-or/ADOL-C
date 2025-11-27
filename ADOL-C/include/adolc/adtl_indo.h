@@ -18,11 +18,14 @@
 #define ADOLC_ADTL_INDO_H
 
 #include <adolc/adolcexport.h>
+#include <adolc/adtl.h>
+#include <cmath>
+#include <iostream>
+#include <limits>
 #include <list>
 #include <ostream>
 #include <stdexcept>
-
-#include <adolc/adtl.h>
+#include <vector>
 
 using std::istream;
 using std::list;
@@ -34,13 +37,12 @@ public:
   virtual int operator()(int n, T *x, int m, T *y) = 0;
 };
 
-namespace adtl_indo {
+namespace ADOLC::Sparse::adtl_indo {
 class adouble;
 ADOLC_API int ADOLC_Init_sparse_pattern(adouble *a, int n,
                                         unsigned int start_cnt);
 ADOLC_API int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                                       unsigned int **&pat);
-} // namespace adtl_indo
+                                       std::vector<uint *> &pat);
 
 ADOLC_API int
 ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
@@ -48,8 +50,6 @@ ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
                           int m, int repeat, double *basepoints, int *nnz,
                           unsigned int **rind, unsigned int **cind,
                           double **values);
-
-namespace adtl_indo {
 
 ADOLC_API double makeNaN();
 ADOLC_API double makeInf();
@@ -210,7 +210,7 @@ public:
   ADOLC_API friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
                                                  unsigned int start_cnt);
   ADOLC_API friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                                                unsigned int **&pat);
+                                                std::vector<uint *> &pat);
   /*******************  i/o operations  *********************************/
   ADOLC_API friend ostream &operator<<(ostream &, const adouble &);
   ADOLC_API friend istream &operator>>(istream &, adouble &);
@@ -219,14 +219,6 @@ private:
   double val;
   list<unsigned int> pattern;
 };
-
-} // namespace adtl_indo
-
-#include <cmath>
-#include <iostream>
-#include <limits>
-
-namespace adtl_indo {
 
 #if defined(HAVE_BUILTIN_EXPECT) && HAVE_BUILTIN_EXPECT
 #define likely(x) __builtin_expect(!!(x), 1)
@@ -881,6 +873,6 @@ inline size_t adouble::get_pattern_size() const {
   return s;
 }
 
-} // namespace adtl_indo
+} // namespace ADOLC::Sparse::adtl_indo
 
 #endif
