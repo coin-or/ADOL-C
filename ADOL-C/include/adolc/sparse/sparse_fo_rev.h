@@ -15,7 +15,6 @@ package.
 ----------------------------------------------------------------------------*/
 #ifndef ADOLC_SPARSE_FO_REV_H
 #define ADOLC_SPARSE_FO_REV_H
-
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 #include <vector>
@@ -74,5 +73,4 @@ ADOLC_API int reverse(short tag, int m, int n, int q,
                       std::vector<bitword_t *> &U, std::vector<bitword_t *> &Z,
                       char mode);
 } // namespace ADOLC::Sparse
-
 #endif // ADOLC_SPARSE_FO_REV_H

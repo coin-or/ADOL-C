@@ -3898,12 +3898,6 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
 #if defined(_ABS_NORM_)
-<<<<<<< HEAD
-      if (ind_dom[arg][0] != 0) {
-        crs[depcheck + switchnum] = (unsigned int *)malloc(
-            sizeof(unsigned int) * (ind_dom[arg][0] + 1));
-        crs[depcheck + switchnum][0] = ind_dom[arg][0];
-=======
       // set index domain of switching variables that of the input independent
       // which creates the switching variable. note: the switching variables are
       // stored in the Compressed Row Storage (crs) AFTER the dependent
@@ -3912,7 +3906,6 @@ int hov_forward(
         crs[depcheck + switchnum] = new uint[ind_dom[arg][0] + 1];
         crs[depcheck + switchnum][0] = ind_dom[arg][0];
         // switching variable switchnum gets index-domain of the arg
->>>>>>> 8be11171 ([REF] Refactor sparse drivers)
         for (l = 1; l <= crs[depcheck + switchnum][0]; l++) {
           crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
         }

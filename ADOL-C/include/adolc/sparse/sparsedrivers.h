@@ -14,12 +14,12 @@ package.
 ----------------------------------------------------------------------------*/
 #ifndef ADOLC_SPARSE_DRIVERS_H
 #define ADOLC_SPARSE_DRIVERS_H
-
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
+#include <adolc/valuetape/sparseinfos.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cstddef>
 #include <span>
@@ -31,8 +31,6 @@ package.
 // (block) variables at once
 #define PQ_STRIPMINE_MAX 30
 
-#ifdef SPARSE
-#include <ColPack/ColPackHeaders.h>
 namespace ADOLC::Sparse {
 
 enum class SparseMethod {
@@ -613,17 +611,12 @@ ADOLC_API int jac_pat(short tag, int depen, int indep, const double *basepoint,
  *       according to ColPack's unmanaged API semantics.
  */
 template <CompressionMode CM>
-ADOLC_API void generate_seed_jac(int m, int n, const std::span<uint *> &JP,
+ADOLC_API void generate_seed_jac(int m, int n, const std::span<uint *> JP,
                                  double ***Seed, int *p) {
-  int dummy = 0;
-  auto g = std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
-      SRC_MEM_ADOLC, JP.data(), m, n);
   if constexpr (CM == CompressionMode::Row)
-    g->GenerateSeedJacobian_unmanaged(Seed, p, &dummy, "SMALLEST_LAST",
-                                      "ROW_PARTIAL_DISTANCE_TWO");
+    generateSeedJac(m, n, JP, Seed, p, "ROW_PARTIAL_DISTANCE_TWO");
   else if (CM == CompressionMode::Column)
-    g->GenerateSeedJacobian_unmanaged(Seed, &dummy, p, "SMALLEST_LAST",
-                                      "COLUMN_PARTIAL_DISTANCE_TWO");
+    generateSeedJac(m, n, JP, Seed, p, "COLUMN_PARTIAL_DISTANCE_TWO");
 }
 
 namespace detail {
@@ -700,24 +693,14 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
   }
 
   *nnz = tape.sJInfos().nnzIn_;
-
-  tape.sJInfos().g_ =
-      std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
-          SRC_MEM_ADOLC, tape.sJInfos().getJP().data(), depen, indep);
-  tape.sJInfos().jr1d_ = std::make_unique<ColPack::JacobianRecovery1D>();
+  tape.sJInfos().initColoring(depen, indep);
 
   if constexpr (CM == CompressionMode::Row) {
-    tape.sJInfos().g_->GenerateSeedJacobian(
-        &(tape.sJInfos().Seed_), &(tape.sJInfos().seedRows_),
-        &(tape.sJInfos().seedClms_), "SMALLEST_LAST",
-        "ROW_PARTIAL_DISTANCE_TWO");
+    tape.sJInfos().generateSeedJac("ROW_PARTIAL_DISTANCE_TWO");
     tape.sJInfos().seedClms_ = indep;
     ret_val = tape.sJInfos().seedRows_;
   } else if (CM == CompressionMode::Column) {
-    tape.sJInfos().g_->GenerateSeedJacobian(
-        &(tape.sJInfos().Seed_), &(tape.sJInfos().seedRows_),
-        &(tape.sJInfos().seedClms_), "SMALLEST_LAST",
-        "COLUMN_PARTIAL_DISTANCE_TWO");
+    tape.sJInfos().generateSeedJac("COLUMN_PARTIAL_DISTANCE_TWO");
     tape.sJInfos().seedRows_ = depen;
     ret_val = tape.sJInfos().seedClms_;
   }
@@ -816,13 +799,9 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
     // everything is preallocated, we assume correctly
     // call usermem versions
     if (CM == CompressionMode::Row)
-      tape.sJInfos().jr1d_->RecoverD2Row_CoordinateFormat_usermem(
-          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_.data(),
-          rind, cind, values);
+      tape.sJInfos().recoverRowFormat(rind, cind, values);
     else if (CM == CompressionMode::Column)
-      tape.sJInfos().jr1d_->RecoverD2Cln_CoordinateFormat_usermem(
-          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_.data(),
-          rind, cind, values);
+      tape.sJInfos().recoverColFormat(rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
@@ -833,13 +812,9 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
     if (cind != nullptr && *cind != nullptr)
       free(*cind);
     if (CM == CompressionMode::Row) {
-      tape.sJInfos().jr1d_->RecoverD2Row_CoordinateFormat_unmanaged(
-          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_.data(),
-          rind, cind, values);
+      tape.sJInfos().recoverRowFormat(rind, cind, values);
     } else if (CM == CompressionMode::Column) {
-      tape.sJInfos().jr1d_->RecoverD2Cln_CoordinateFormat_unmanaged(
-          tape.sJInfos().g_.get(), tape.sJInfos().B_, tape.sJInfos().JP_.data(),
-          rind, cind, values);
+      tape.sJInfos().recoverColFormat(rind, cind, values);
     }
   }
   return ret_val;
@@ -1012,17 +987,12 @@ ADOLC_API int hess_pat(short tag, int indep, const double *basepoint,
  * returned Seed.
  */
 template <RecoveryMethod RCM>
-ADOLC_API void generate_seed_hess(int n, std::span<uint *> &HP, double ***Seed,
+ADOLC_API void generate_seed_hess(int n, std::span<uint *> HP, double ***Seed,
                                   int *p) {
-  int seed_rows;
-  auto g = std::make_unique<ColPack::GraphColoringInterface>(SRC_MEM_ADOLC,
-                                                             HP.data(), n);
   if constexpr (RCM == RecoveryMethod::Indirect)
-    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, "SMALLEST_LAST",
-                                     "ACYCLIC_FOR_INDIRECT_RECOVERY");
+    generateSeedHess(n, HP, Seed, p, "ACYCLIC_FOR_INDIRECT_RECOVERY");
   else if (RCM == RecoveryMethod::Direct)
-    g->GenerateSeedHessian_unmanaged(Seed, &seed_rows, p, "SMALLEST_LAST",
-                                     "STAR");
+    generateSeedHess(n, HP, Seed, p, "STAR");
 }
 
 namespace detail {
@@ -1066,8 +1036,6 @@ template <ControlFlowMode CFM, RecoveryMethod RCM>
 int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
                             int *nnz) {
   ValueTape &tape = findTape(tag);
-  double **Seed;
-  int dummy;
   int ret_val = -1;
   // Generate sparsity pattern, determine nnz, allocate memory
   tape.sHInfos().setHP(indep, std::vector<uint *>(indep));
@@ -1093,19 +1061,12 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
 
   // compute seed matrix => ColPack library
 
-  Seed = nullptr;
-
-  tape.sHInfos().g_ = std::make_unique<ColPack::GraphColoringInterface>(
-      SRC_MEM_ADOLC, tape.sHInfos().getHP().data(), indep);
-  tape.sHInfos().hr_ = std::make_unique<ColPack::HessianRecovery>();
-
+  double **Seed = nullptr;
+  tape.sHInfos().initColoring(indep);
   if constexpr (RCM == RecoveryMethod::Indirect)
-    tape.sHInfos().g_->GenerateSeedHessian(&Seed, &dummy, &tape.sHInfos().p_,
-                                           "SMALLEST_LAST",
-                                           "ACYCLIC_FOR_INDIRECT_RECOVERY");
+    tape.sHInfos().generateSeedHess(&Seed, "ACYCLIC_FOR_INDIRECT_RECOVERY");
   else if (RCM == RecoveryMethod::Direct)
-    tape.sHInfos().g_->GenerateSeedHessian(&Seed, &dummy, &tape.sHInfos().p_,
-                                           "SMALLEST_LAST", "STAR");
+    tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
   tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
   tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1);
@@ -1195,13 +1156,9 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
     // everything is preallocated, we assume correctly
     // call usermem versions
     if constexpr (RCM == RecoveryMethod::Indirect)
-      tape.sHInfos().hr_->IndirectRecover_CoordinateFormat_usermem(
-          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_,
-          tape.sHInfos().HP_.data(), rind, cind, values);
+      tape.sHInfos().indirectRecoverUserMem(rind, cind, values);
     else if (RCM == RecoveryMethod::Direct)
-      tape.sHInfos().hr_->DirectRecover_CoordinateFormat_usermem(
-          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_,
-          tape.sHInfos().HP_.data(), rind, cind, values);
+      tape.sHInfos().directRecoverUserMem(rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
@@ -1212,13 +1169,9 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
     if (*cind != nullptr)
       free(*cind);
     if constexpr (RCM == RecoveryMethod::Indirect)
-      tape.sHInfos().hr_->IndirectRecover_CoordinateFormat_unmanaged(
-          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_,
-          tape.sHInfos().HP_.data(), rind, cind, values);
+      tape.sHInfos().indirectRecover(rind, cind, values);
     else if (RCM == RecoveryMethod::Direct)
-      tape.sHInfos().hr_->DirectRecover_CoordinateFormat_unmanaged(
-          tape.sHInfos().g_.get(), tape.sHInfos().Hcomp_,
-          tape.sHInfos().HP_.data(), rind, cind, values);
+      tape.sHInfos().directRecover(rind, cind, values);
   }
   return ret_val;
 }
@@ -1277,6 +1230,4 @@ sparse_hess(short tag, int indep, int repeat, const double *basepoint, int *nnz,
 /****************************************************************************/
 
 } // namespace ADOLC::Sparse
-
-#endif // SPARSE
 #endif // ADOLC_SPARSE_DRIVERS_H

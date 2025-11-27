@@ -173,30 +173,44 @@ endif()
 set(ADOLC_BITWORD_BITS 32)
 target_compile_definitions(adolc PUBLIC 
               ADOLC_BITWORD_BITS=${ADOLC_BITWORD_BITS})
-if (ENABLE_SPARSE)
-    if (WIN32)
-        message(FATAL_ERROR "Sparse drivers require OpenMP, which is not supported on Windows/MSVC. ")
-    endif()
 
-  find_package(ColPack)
-  if (ColPack_FOUND)
-    message(STATUS "Using system‑installed ColPack")
+if (ENABLE_SPARSE)
+  if (WIN32)
+      message(FATAL_ERROR "Sparse drivers require OpenMP, which is not supported on Windows/MSVC. ")
   endif()
 
-  if (NOT ColPack_FOUND)
-    message(STATUS "System ColPack not found! Pulling from https://github.com/TimSiebert1/ColPack")
+  # System ColPack branch
+  if (ColPack_DIR)
+    find_package(ColPack CONFIG REQUIRED "${ColPack_DIR}") 
+    message(STATUS "Using system-installed ColPack at ${ColPack_DIR}")
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
+
+  else ()
+    message(STATUS "System ColPack_DIR not provided! Pulling from https://github.com/TimSiebert1/ColPack")
     include(FetchContent)
     FetchContent_declare(
         ColPack
         GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
-        GIT_TAG e691e2d70394c9ec53a24287a72e789531075257 # latest commit
+        GIT_TAG 6ca3669b1b37f1d575cc0934628d09ee5cd8cb12 # latest commit
         CMAKE_ARGS -DENABLE_OPENMP=ON # colpack needs openmp to build
     )
     FetchContent_MakeAvailable(ColPack)
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
+
+    # Ensure feature_summary lists it
+    set_property(GLOBAL APPEND PROPERTY PACKAGES_FOUND ColPack)
+    set_property(GLOBAL APPEND PROPERTY _CMAKE_ColPack_TYPE REQUIRED)
+
+    # Install ColPack if ADOL-C is installed
+    if (TARGET ColPack_shared)
+      install(TARGETS ColPack_shared
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      )
+    endif()
   endif()
-
-
-  target_link_libraries(adolc PUBLIC ColPack::ColPack_shared)
+  set(ADOLC_SPARSE "#define ADOLC_SPARSE 1")
 endif()
 
 if(ENABLE_PAREXA)
@@ -207,16 +221,14 @@ endif()
 
 
 # Set the macros
-
 target_compile_definitions(adolc PUBLIC 
   $<$<BOOL:${ENABLE_ACTIVITY_TRACKING}>:ADOLC_TRACK_ACTIVITY=1>
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
   $<$<BOOL:${ENABLE_STDCZERO}>:ADOLC_ADOUBLE_STDCZERO=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1>
-  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>)
+  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>
+  $<$<BOOL:${ENABLE_SPARSE}>:ADOLC_SPARSE=1>)
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------
@@ -271,15 +283,12 @@ endif()
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-if (ENABLE_SPARSE)
-  install(TARGETS adolc ColPack_shared
-          EXPORT adolcTargets
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
-else()
-  install(TARGETS adolc
-          EXPORT adolcTargets
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
-endif()
+install(TARGETS adolc
+  EXPORT adolcTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 install(EXPORT adolcTargets
   FILE adolc-targets.cmake

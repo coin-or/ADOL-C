@@ -1,21 +1,21 @@
 #ifndef ADOLC_SPARSE_INFOS_H
 #define ADOLC_SPARSE_INFOS_H
+#include <adolc/internal/common.h>
 #include <cstddef>
+#include <memory>
+#include <span>
 #include <vector>
 
-#ifdef SPARSE
-#include <ColPack/ColPackHeaders.h>
-#include <adolc/internal/common.h>
-#include <memory>
-
 namespace ADOLC::Sparse {
-
+void generateSeedJac(int dimOut, int dimIn, const std::span<uint *> JP,
+                     double ***Seed, int *p,
+                     const std::string &coloringVariant);
 // stores everything we need to know to compute the sparse jacobian with
 // fov_reverse
 
 struct ADOLC_API SparseJacInfos {
-  std::unique_ptr<ColPack::BipartiteGraphPartialColoringInterface> g_{nullptr};
-  std::unique_ptr<ColPack::JacobianRecovery1D> jr1d_{nullptr};
+  struct Impl;
+  std::unique_ptr<Impl> pimpl_;
   double *y_{nullptr};
 
   // Seed is memory managed by ColPack and will be deleted
@@ -30,39 +30,36 @@ struct ADOLC_API SparseJacInfos {
   int seedRows_{0};
 
   ~SparseJacInfos();
-  SparseJacInfos() = default;
-
+  SparseJacInfos();
   SparseJacInfos(const SparseJacInfos &) = delete;
+  SparseJacInfos(SparseJacInfos &&other) noexcept;
   SparseJacInfos &operator=(const SparseJacInfos &) = delete;
-
-  SparseJacInfos(SparseJacInfos &&other) noexcept
-      : g_(std::move(other.g_)), jr1d_(std::move(other.jr1d_)), y_(other.y_),
-        Seed_(other.Seed_), B_(other.B_), JP_(std::move(other.JP_)),
-        depen_(other.depen_), nnzIn_(other.nnzIn_), seedClms_(other.seedClms_),
-        seedRows_(other.seedRows_) {
-
-    // Null out source object's pointers to prevent double deletion
-    other.g_ = nullptr;
-    other.jr1d_ = nullptr;
-    other.y_ = nullptr;
-    other.Seed_ = nullptr;
-    other.B_ = nullptr;
-  }
-
   SparseJacInfos &operator=(SparseJacInfos &&other) noexcept;
+
   void setJP(std::vector<uint *> &&JPIn) {
     JP_ = std::move(JPIn);
     depen_ = JP_.size();
   }
   std::vector<uint *> &getJP() { return JP_; }
+  void initColoring(int dimOut, int dimIn);
+  void generateSeedJac(const std::string &coloringVariant);
+  void recoverRowFormatUserMem(unsigned int **rind, unsigned int **cind,
+                               double **values);
+  void recoverColFormatUserMem(unsigned int **rind, unsigned int **cind,
+                               double **values);
+  void recoverRowFormat(unsigned int **rind, unsigned int **cind,
+                        double **values);
+  void recoverColFormat(unsigned int **rind, unsigned int **cind,
+                        double **values);
 };
 
+void generateSeedHess(int dimIn, const std::span<uint *> HP, double ***Seed,
+                      int *p, const std::string &coloringVariant);
 // stores everything we have to know to compute the sparse hessian via
 // reverse-over-forward
 struct ADOLC_API SparseHessInfos {
-
-  std::unique_ptr<ColPack::GraphColoringInterface> g_{nullptr};
-  std::unique_ptr<ColPack::HessianRecovery> hr_{nullptr};
+  struct Impl;
+  std::unique_ptr<Impl> pimpl_;
 
   double **Hcomp_{nullptr};
   double ***Xppp_{nullptr};
@@ -79,35 +76,26 @@ struct ADOLC_API SparseHessInfos {
 
 public:
   ~SparseHessInfos();
-  SparseHessInfos() = default;
+  SparseHessInfos();
   SparseHessInfos(const SparseHessInfos &) = delete;
+  SparseHessInfos(SparseHessInfos &&other) noexcept;
   SparseHessInfos &operator=(const SparseHessInfos &) = delete;
-
-  SparseHessInfos(SparseHessInfos &&other) noexcept
-      : g_(std::move(other.g_)), hr_(std::move(other.hr_)),
-        Hcomp_(other.Hcomp_), Xppp_(other.Xppp_), Yppp_(other.Yppp_),
-        Zppp_(other.Zppp_), Upp_(other.Upp_), HP_(std::move(other.HP_)),
-        nnzIn_(other.nnzIn_), indep_(other.indep_), p_(other.p_) {
-
-    // Null out moved-from object's pointers
-    other.g_ = nullptr;
-    other.hr_ = nullptr;
-    other.Hcomp_ = nullptr;
-    other.Xppp_ = nullptr;
-    other.Yppp_ = nullptr;
-    other.Zppp_ = nullptr;
-    other.Upp_ = nullptr;
-  }
-
   SparseHessInfos &operator=(SparseHessInfos &&other) noexcept;
-  std::vector<uint *> getHP() { return HP_; }
+
+  std::vector<uint *> &getHP() { return HP_; }
   void setHP(int indep, std::vector<uint *> &&HPIn) {
     indep_ = indep;
     HP_ = std::move(HPIn);
   }
+  void initColoring(int dimIn);
+  void generateSeedHess(double ***Seed, const std::string &coloringVariant);
+  void directRecoverUserMem(unsigned int **rind, unsigned int **cind,
+                            double **values);
+  void indirectRecoverUserMem(unsigned int **rind, unsigned int **cind,
+                              double **values);
+  void directRecover(unsigned int **rind, unsigned int **cind, double **values);
+  void indirectRecover(unsigned int **rind, unsigned int **cind,
+                       double **values);
 };
-
 } // namespace ADOLC::Sparse
-
-#endif // SPARSE
 #endif // ADOLC_SPARSE_INFOS_H

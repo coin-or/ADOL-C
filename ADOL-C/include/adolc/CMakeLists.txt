@@ -5,7 +5,6 @@ install(FILES
         adolcexport.h
         adolc.h
         adolc_openmp.h
-        adolc_sparse.h
         adoublecuda.h
         adtl.h
         adtl_hov.h

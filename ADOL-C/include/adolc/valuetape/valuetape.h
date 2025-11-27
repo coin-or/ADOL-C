@@ -11,10 +11,13 @@
 #include <adolc/storemanager.h>
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
-#include <adolc/valuetape/sparseinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <memory>
 #include <stack>
+
+#ifdef ADOLC_SPARSE
+#include <adolc/valuetape/sparseinfos.h>
+#endif
 
 struct ext_diff_fct;
 struct ext_diff_fct_v2;
@@ -48,7 +51,7 @@ class ADOLC_API ValueTape {
   using StackElement = double **;
   std::stack<StackElement> cp_stack_;
 
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
   ADOLC::Sparse::SparseJacInfos sJInfos_;
   ADOLC::Sparse::SparseHessInfos sHInfos_;
 
@@ -90,7 +93,7 @@ public:
         ext2_buffer_(std::move(other.ext2_buffer_)),
         cp_buffer_(std::move(other.cp_buffer_)),
         cp_stack_(std::move(other.cp_stack_))
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
         ,
         sJInfos_(std::move(other.sJInfos_)), sHInfos_(std::move(other.sHInfos_))
 #endif
@@ -106,7 +109,7 @@ public:
       ext2_buffer_ = std::move(other.ext2_buffer_);
       cp_buffer_ = std::move(other.cp_buffer_);
       cp_stack_ = std::move(other.cp_stack_);
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
       sJInfos_ = std::move(other.sJInfos_);
       sHInfos_ = std::move(other.sHInfos_);
 #endif
@@ -114,7 +117,7 @@ public:
     return *this;
   }
 
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
   // updates the tape infos on sparse Jac or Hess for the given ID
   void setTapeInfoJacSparse(ADOLC::Sparse::SparseJacInfos &&sJInfos) {
     sJInfos_ = std::move(sJInfos);
@@ -389,7 +392,7 @@ public:
   /* fill the constants buffer and write it to disk */
   void put_vals_notWriteBlock(double *reals, size_t numReals) {
     return tapeInfos_.put_vals_notWriteBlock(reals, numReals);
-  };
+  }
   /* write some constants to the buffer without disk access */
   void put_val_block(double *lastValP1) {
     return tapeInfos_.put_val_block(lastValP1, val_fileName());

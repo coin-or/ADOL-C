@@ -25,7 +25,6 @@
 #if defined(__cplusplus)
 /*--------------------------------------------------------------------------*/
 /* Operator overloading things (active doubles & vectors) */
-#include <adolc/adolc_sparse.h>
 #include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>
 #include <adolc/edfclasses.h>
@@ -54,8 +53,8 @@
 #include <adolc/tapedoc/tapedoc.h>
 
 /*--------------------------------------------------------------------------*/
-/* interfaces to SPARSE package */
-#if defined(SPARSE_DRIVERS)
+/* interfaces to sparse drivers */
+#ifdef ADOLC_SPARSE
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <adolc/sparse/sparsedrivers.h>
 #endif
