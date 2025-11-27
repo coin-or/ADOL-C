@@ -28,19 +28,19 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
 
-int abs_normal(short tag,  /* tape identifier */
-               int m,      /* number od dependents   */
-               int n,      /* number of independents */
-               int swchk,  /* number of switches (check) */
-               double *x,  /* base point */
-               double *y,  /* function value */
-               double *z,  /* switching variables */
-               double *cz, /* first constant */
-               double *cy, /* second constant */
-               double **Y, /* m times n */
-               double **J, /* m times s */
-               double **Z, /* s times n */
-               double **L) /* s times s (lowtri) */
+int abs_normal(short tag,       /* tape identifier */
+               int m,           /* number od dependents   */
+               int n,           /* number of independents */
+               int swchk,       /* number of switches (check) */
+               const double *x, /* base point */
+               double *y,       /* function value */
+               double *z,       /* switching variables */
+               double *cz,      /* first constant */
+               double *cy,      /* second constant */
+               double **Y,      /* m times n */
+               double **J,      /* m times s */
+               double **Z,      /* s times n */
+               double **L)      /* s times s (lowtri) */
 {
 
   int i, j;
@@ -93,10 +93,10 @@ int abs_normal(short tag,  /* tape identifier */
 /*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
-int directional_active_gradient(short tag,     /* trace identifier */
-                                int n,         /* number of independents */
-                                double *x,     /* value of independents */
-                                double *d,     /* direction */
+int directional_active_gradient(short tag,       /* trace identifier */
+                                int n,           /* number of independents */
+                                const double *x, /* value of independents */
+                                const double *d, /* direction */
                                 double *g,     /* directional active gradient */
                                 short *sigma_g /* sigma of g */
 ) {
