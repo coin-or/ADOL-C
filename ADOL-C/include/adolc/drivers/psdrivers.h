@@ -34,12 +34,12 @@ ADOLC_API fint directional_active_gradient_(fint, fint, double *, double *,
 /*                                              directional_active_gradient */
 /*                                                                          */
 ADOLC_API int
-directional_active_gradient(short tag,     /* trace identifier */
-                            int n,         /* number of independents */
-                            double *x,     /* value of independents */
-                            double *d,     /* direction */
-                            double *g,     /* directional active gradient */
-                            short *sigma_g /* sigma of g */
+directional_active_gradient(short tag,       /* trace identifier */
+                            int n,           /* number of independents */
+                            const double *x, /* value of independents */
+                            const double *d, /* direction */
+                            double *g,       /* directional active gradient */
+                            short *sigma_g   /* sigma of g */
 );
 
 /*--------------------------------------------------------------------------*/
@@ -48,19 +48,19 @@ directional_active_gradient(short tag,     /* trace identifier */
 ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
                            fdouble *, fdouble *, fdouble *, fdouble *,
                            fdouble *, fdouble *, fdouble *);
-ADOLC_API int abs_normal(short tag,   /* tape identifier */
-                         int m,       /* number od dependents   */
-                         int n,       /* number of independents */
-                         int swchk,   /* number of switches (check) */
-                         double *x,   /* base point */
-                         double *y,   /* function value */
-                         double *z,   /* switching variables */
-                         double *cz,  /* first constant */
-                         double *cy,  /* second constant */
-                         double **Y,  /* m times n */
-                         double **J,  /* m times s */
-                         double **Z,  /* s times n */
-                         double **L); /* s times s (lowtri) */
+ADOLC_API int abs_normal(short tag,       /* tape identifier */
+                         int m,           /* number od dependents   */
+                         int n,           /* number of independents */
+                         int swchk,       /* number of switches (check) */
+                         const double *x, /* base point */
+                         double *y,       /* function value */
+                         double *z,       /* switching variables */
+                         double *cz,      /* first constant */
+                         double *cy,      /* second constant */
+                         double **Y,      /* m times n */
+                         double **J,      /* m times s */
+                         double **Z,      /* s times n */
+                         double **L);     /* s times s (lowtri) */
 
 END_C_DECLS
 
