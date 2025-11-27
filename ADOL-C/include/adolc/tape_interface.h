@@ -288,7 +288,7 @@ ADOLC_API inline size_t get_num_param(short tapeId) {
   return findTape(tapeId).get_num_param();
 }
 
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
 namespace ADOLC::Sparse {
 /**
  * @brief Sets the Sparse Jacbian Information of the tape
@@ -384,6 +384,6 @@ ADOLC_API inline std::vector<uint *> getHP(short tapeId) {
 }
 
 } // namespace ADOLC::Sparse
-#endif // SPARSE
+#endif // ADOLC_SPARSE
 
 #endif // ADOLC_TAPE_INTERFACE_H

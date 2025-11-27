@@ -2,7 +2,7 @@
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     sparse/sparsedrivers.cpp
  Revision: $Id$
- Contents: "Easy To Use" C++ interfaces of SPARSE package
+ Contents: "Easy To Use" C++ interfaces of ADOLC_SPARSE package
 
 
  Copyright (c) Andrea Walther, Benjamin Letschert, Kshitij Kulshreshtha
@@ -25,10 +25,8 @@
 #include <cassert>
 #include <cstddef>
 #include <cstring>
-#include <math.h>
 #include <numeric>
 
-#ifdef SPARSE
 namespace ADOLC::Sparse {
 namespace detail {
 
@@ -149,16 +147,9 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
     /* sJInfos.Seed is memory managed by ColPack and will be deleted
      * along with g. We only keep it in sJInfos for the repeat != 0 case */
 
-    sJInfos.g_ =
-        std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
-            SRC_MEM_ADOLC, sJInfos.JP_.data(), m, n);
-    sJInfos.jr1d_ = std::make_unique<ColPack::JacobianRecovery1D>();
-
-    sJInfos.g_->GenerateSeedJacobian(&(sJInfos.Seed_), &(sJInfos.seedRows_),
-                                     &(sJInfos.seedClms_), "SMALLEST_LAST",
-                                     "COLUMN_PARTIAL_DISTANCE_TWO");
+    sJInfos.initColoring(m, n);
+    sJInfos.generateSeedJac("COLUMN_PARTIAL_DISTANCE_TWO");
     sJInfos.seedRows_ = m;
-
     sJInfos.B_ = myalloc2(sJInfos.seedRows_, sJInfos.seedClms_);
     sJInfos.y_ = myalloc1(m);
 
@@ -202,12 +193,7 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
   if (*cind != nullptr)
     free(*cind);
 
-  sJInfos.jr1d_->RecoverD2Cln_CoordinateFormat_unmanaged(
-      sJInfos.g_.get(), sJInfos.B_, sJInfos.JP_.data(), rind, cind, values);
-
-  // delete g;
-  // delete jr1d;
-
+  sJInfos.recoverColFormat(rind, cind, values);
   return ret_val;
 }
 
@@ -216,5 +202,3 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
  */
 } // namespace adtl_indo
 } // namespace ADOLC::Sparse
-
-#endif

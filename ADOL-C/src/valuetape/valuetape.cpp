@@ -82,7 +82,7 @@ int ValueTape::initNewTape() {
   // creates new tapeInfos object with old buffers
   // thus, we dont allocate the buffers again if they are already existent
   initTapeInfos_keep();
-#ifdef SPARSE
+#ifdef ADOLC_SPARSE
   initSparse();
 #endif
 

@@ -180,7 +180,14 @@ if (ENABLE_SPARSE)
 
   find_package(ColPack)
   if (ColPack_FOUND)
-    message(STATUS "Using system‑installed ColPack")
+      message(STATUS "Using system-installed ColPack at ${ColPack_DIR}")
+
+      # Prefer shared if it exists (usually the case)
+      if (TARGET ColPack_static)
+          target_link_libraries(adolc PRIVATE ColPack_static)
+      else()
+          message(FATAL_ERROR "ColPack was found but provides no usable CMake targets")
+      endif()
   endif()
 
   if (NOT ColPack_FOUND)
@@ -189,14 +196,13 @@ if (ENABLE_SPARSE)
     FetchContent_declare(
         ColPack
         GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
-        GIT_TAG e691e2d70394c9ec53a24287a72e789531075257 # latest commit
+        GIT_TAG 96eca73724eb517cfb2cc66d8be448e91a30483f # latest commit
         CMAKE_ARGS -DENABLE_OPENMP=ON # colpack needs openmp to build
     )
     FetchContent_MakeAvailable(ColPack)
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_static)
   endif()
-
-
-  target_link_libraries(adolc PUBLIC ColPack::ColPack_shared)
+  set(ADOLC_SPARSE "#define ADOLC_SPARSE 1")
 endif()
 
 if(ENABLE_PAREXA)
@@ -207,16 +213,14 @@ endif()
 
 
 # Set the macros
-
 target_compile_definitions(adolc PUBLIC 
   $<$<BOOL:${ENABLE_ACTIVITY_TRACKING}>:ADOLC_TRACK_ACTIVITY=1>
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
   $<$<BOOL:${ENABLE_STDCZERO}>:ADOLC_ADOUBLE_STDCZERO=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1>
-  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>)
+  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>
+  $<$<BOOL:${ENABLE_SPARSE}>:ADOLC_SPARSE=1>)
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------
@@ -271,15 +275,9 @@ endif()
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-if (ENABLE_SPARSE)
-  install(TARGETS adolc ColPack_shared
-          EXPORT adolcTargets
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
-else()
-  install(TARGETS adolc
-          EXPORT adolcTargets
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
-endif()
+install(TARGETS adolc
+        EXPORT adolcTargets
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
 install(EXPORT adolcTargets
   FILE adolc-targets.cmake
