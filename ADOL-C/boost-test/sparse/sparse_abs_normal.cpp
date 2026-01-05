@@ -252,8 +252,8 @@ template <size_t Version> struct ANFProblem<Version, UnAllocated> {
   static constexpr size_t dimIn = version_trait<Version>::dimIn;
   static constexpr size_t dimOut = version_trait<Version>::dimOut;
 
-  std::array<double, dimIn> in;
-  std::array<double, dimOut> out;
+  std::array<double, dimIn> in{};
+  std::array<double, dimOut> out{};
 
   static constexpr short tapeId = 716 + Version;
 
@@ -270,8 +270,8 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
 
   static constexpr auto crs = version_trait<Version>::crs;
 
-  std::array<double, dimIn> in;
-  std::array<double, dimOut> out;
+  std::array<double, dimIn> in{};
+  std::array<double, dimOut> out{};
 
   static constexpr short tapeId = 716 + Version;
 
@@ -347,14 +347,16 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
   if constexpr (Version == 1) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
-    y[0] = x[0] + fabs(x[0] - x[1]) + fabs(x[0] - fabs(x[1]));
+    y[0] = x[0] + fabs(x[0] - x[1]);
+    y[0] += fabs(x[0] - fabs(x[1]));
     y[1] = x[1];
     y[0] >>= anfProblem.out[0];
     y[1] >>= anfProblem.out[1];
   } else if (Version == 2) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
-    y[0] = x[0] + fabs(x[0] - x[1]) + fabs(x[0] - fabs(x[1]));
+    y[0] = x[0] + fabs(x[0] - x[1]);
+    y[0] += fabs(x[0] - fabs(x[1]));
     y[1] = fabs(x[1] - 5);
     y[0] >>= anfProblem.out[0];
     y[1] >>= anfProblem.out[1];
@@ -440,11 +442,14 @@ template <size_t Version> static void problem() {
       anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(), crsSpan);
 
   for (int row{0}; row < anfProblemAlloc.crs.size(); row++) {
-    BOOST_TEST(crs[row][0] == anfProblemAlloc.crs[row][0]);
-    for (int col{1}; col < anfProblemAlloc.crs[row][0]; col++) {
-      BOOST_TEST(crs[row][col] == anfProblemAlloc.crs[row][col]);
+    for (int col = 0; col <= anfProblemAlloc.crs[row][0]; col++) {
+      BOOST_TEST_CONTEXT("problem: " << Version << " row=" << row << " col=" << col){
+        BOOST_TEST(crs[row][col] == anfProblemAlloc.crs[row][col]);
+      }
     }
   };
+  for (auto& c: crs)
+    delete[] c;
 }
 
 BOOST_AUTO_TEST_CASE(SparseANFPatTest) {

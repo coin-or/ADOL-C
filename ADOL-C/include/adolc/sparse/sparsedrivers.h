@@ -772,6 +772,8 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
                      double **values) {
   ValueTape &tape = findTape(tag);
   int ret_val = 0;
+  myfree2(tape.sJInfos().B_);
+  myfree1(tape.sJInfos().y_);
   tape.sJInfos().B_ =
       myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
   tape.sJInfos().y_ = myalloc1(depen);
@@ -799,9 +801,9 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
     // everything is preallocated, we assume correctly
     // call usermem versions
     if (CM == CompressionMode::Row)
-      tape.sJInfos().recoverRowFormat(rind, cind, values);
+      tape.sJInfos().recoverRowFormatUserMem(rind, cind, values);
     else if (CM == CompressionMode::Column)
-      tape.sJInfos().recoverColFormat(rind, cind, values);
+      tape.sJInfos().recoverColFormatUserMem(rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
@@ -1061,6 +1063,7 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
 
   // compute seed matrix => ColPack library
 
+  // Seed is handled by ColPack
   double **Seed = nullptr;
   tape.sHInfos().initColoring(indep);
   if constexpr (RCM == RecoveryMethod::Indirect)
@@ -1068,15 +1071,19 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
   else if (RCM == RecoveryMethod::Direct)
     tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
+  // data might still be allocated, ensure that its not leaked
+  myfree2(tape.sHInfos().Hcomp_);
+  myfree3(tape.sHInfos().Xppp_);
+  myfree3(tape.sHInfos().Yppp_);
+  myfree3(tape.sHInfos().Zppp_);
+  myfree2(tape.sHInfos().Upp_);
+
   tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
   tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1);
 
   for (int i = 0; i < indep; i++)
     for (int l = 0; l < tape.sHInfos().p_; l++)
       tape.sHInfos().Xppp_[i][l][0] = Seed[i][l];
-
-  // Seed will be freed by ColPack when g is freed
-  Seed = nullptr;
 
   tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
   tape.sHInfos().Zppp_ = myalloc3(tape.sHInfos().p_, indep, 2);
@@ -1162,12 +1169,18 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
-    if (*values != nullptr)
-      free(*values);
-    if (*rind != nullptr)
-      free(*rind);
-    if (*cind != nullptr)
-      free(*cind);
+    if (*values != nullptr){
+      delete[] *values;
+      *values = nullptr;
+    }
+    if (*rind != nullptr){
+      delete[] *rind;
+      *rind = nullptr;
+    }
+    if (*cind != nullptr){
+      delete[] *cind;
+      *cind = nullptr;
+    }
     if constexpr (RCM == RecoveryMethod::Indirect)
       tape.sHInfos().indirectRecover(rind, cind, values);
     else if (RCM == RecoveryMethod::Direct)

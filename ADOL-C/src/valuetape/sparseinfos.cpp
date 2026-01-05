@@ -15,8 +15,11 @@ void generateSeedJac(int dimOut, int dimIn, const std::span<uint *> JP,
                                       coloringVariant);
 }
 struct SparseJacInfos::Impl {
-  ColPack::BipartiteGraphPartialColoringInterface g_{SRC_WAIT};
+  // unique ptr is used, because colpack does not specify copy assignment or constructor...
+  std::unique_ptr<ColPack::BipartiteGraphPartialColoringInterface> g_;
   ColPack::JacobianRecovery1D jr1d_{};
+
+  Impl() : g_(std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(SRC_WAIT)) {}
 };
 
 SparseJacInfos::~SparseJacInfos() {
@@ -27,9 +30,9 @@ SparseJacInfos::~SparseJacInfos() {
     myfree2(B_);
   B_ = nullptr;
 
-  for (int i = 0; i < depen_; i++) {
-    delete[] JP_[i];
-    JP_[i] = nullptr;
+  for (auto& j: JP_){
+    delete[] j;
+    j = nullptr;
   }
 }
 
@@ -79,13 +82,13 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
 }
 
 void SparseJacInfos::initColoring(int dimOut, int dimIn) {
-  pimpl_->g_ = ColPack::BipartiteGraphPartialColoringInterface(
+  pimpl_->g_ = std::make_unique<ColPack::BipartiteGraphPartialColoringInterface>(
       SRC_MEM_ADOLC, JP_.data(), dimOut, dimIn);
   pimpl_->jr1d_ = ColPack::JacobianRecovery1D();
 }
 
 void SparseJacInfos::generateSeedJac(const std::string &coloringVariant) {
-  pimpl_->g_.GenerateSeedJacobian(&Seed_, &seedRows_, &seedClms_,
+  pimpl_->g_->GenerateSeedJacobian(&Seed_, &seedRows_, &seedClms_,
                                   "SMALLEST_LAST", coloringVariant);
 }
 
@@ -93,26 +96,26 @@ void SparseJacInfos::recoverRowFormatUserMem(unsigned int **rind,
                                              unsigned int **cind,
                                              double **values) {
   pimpl_->jr1d_.RecoverD2Row_CoordinateFormat_usermem(
-      &pimpl_->g_, B_, JP_.data(), rind, cind, values);
+      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
 }
 
 void SparseJacInfos::recoverColFormatUserMem(unsigned int **rind,
                                              unsigned int **cind,
                                              double **values) {
   pimpl_->jr1d_.RecoverD2Cln_CoordinateFormat_usermem(
-      &pimpl_->g_, B_, JP_.data(), rind, cind, values);
+      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
 }
 
 void SparseJacInfos::recoverRowFormat(unsigned int **rind, unsigned int **cind,
                                       double **values) {
   pimpl_->jr1d_.RecoverD2Row_CoordinateFormat_unmanaged(
-      &pimpl_->g_, B_, JP_.data(), rind, cind, values);
+      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
 }
 
 void SparseJacInfos::recoverColFormat(unsigned int **rind, unsigned int **cind,
                                       double **values) {
   pimpl_->jr1d_.RecoverD2Cln_CoordinateFormat_unmanaged(
-      &pimpl_->g_, B_, JP_.data(), rind, cind, values);
+      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
 }
 
 void generateSeedHess(int dimIn, const std::span<uint *> HP, double ***Seed,
@@ -124,8 +127,11 @@ void generateSeedHess(int dimIn, const std::span<uint *> HP, double ***Seed,
 }
 
 struct SparseHessInfos::Impl {
-  ColPack::GraphColoringInterface g_{SRC_WAIT};
+  // unique ptr is used, because colpack does not specify copy assignment or constructor...
+  std::unique_ptr<ColPack::GraphColoringInterface> g_;
   ColPack::HessianRecovery hr_;
+
+  Impl() : g_(std::make_unique<ColPack::GraphColoringInterface>(SRC_WAIT)) {}
 };
 
 SparseHessInfos::~SparseHessInfos() {
@@ -144,9 +150,9 @@ SparseHessInfos::~SparseHessInfos() {
   myfree2(Upp_);
   Upp_ = nullptr;
 
-  for (int i = 0; i < indep_; i++) {
-    delete[] HP_[i];
-    HP_[i] = nullptr;
+  for(auto& h: HP_){
+    delete[] h;
+    h = nullptr;
   }
 }
 
@@ -205,14 +211,14 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
 
 void SparseHessInfos::initColoring(int dimIn) {
   pimpl_->g_ =
-      ColPack::GraphColoringInterface(SRC_MEM_ADOLC, HP_.data(), dimIn);
+      std::make_unique<ColPack::GraphColoringInterface>(SRC_MEM_ADOLC, HP_.data(), dimIn);
   pimpl_->hr_ = ColPack::HessianRecovery();
 }
 
 void SparseHessInfos::generateSeedHess(double ***Seed,
                                        const std::string &coloringVariant) {
   int dummy = 0;
-  pimpl_->g_.GenerateSeedHessian(Seed, &dummy, &p_, "SMALLEST_LAST",
+  pimpl_->g_->GenerateSeedHessian(Seed, &dummy, &p_, "SMALLEST_LAST",
                                  coloringVariant);
 }
 
@@ -220,26 +226,26 @@ void SparseHessInfos::indirectRecoverUserMem(unsigned int **rind,
                                              unsigned int **cind,
                                              double **values) {
   pimpl_->hr_.IndirectRecover_CoordinateFormat_usermem(
-      &pimpl_->g_, Hcomp_, HP_.data(), rind, cind, values);
+      pimpl_->g_.get(), Hcomp_, HP_.data(), rind, cind, values);
 }
 
 void SparseHessInfos::directRecoverUserMem(unsigned int **rind,
                                            unsigned int **cind,
                                            double **values) {
   pimpl_->hr_.DirectRecover_CoordinateFormat_usermem(
-      &pimpl_->g_, Hcomp_, HP_.data(), rind, cind, values);
+      pimpl_->g_.get(), Hcomp_, HP_.data(), rind, cind, values);
 }
 
 void SparseHessInfos::indirectRecover(unsigned int **rind, unsigned int **cind,
                                       double **values) {
   pimpl_->hr_.IndirectRecover_CoordinateFormat_unmanaged(
-      &pimpl_->g_, Hcomp_, HP_.data(), rind, cind, values);
+      pimpl_->g_.get(), Hcomp_, HP_.data(), rind, cind, values);
 }
 
 void SparseHessInfos::directRecover(unsigned int **rind, unsigned int **cind,
                                     double **values) {
   pimpl_->hr_.DirectRecover_CoordinateFormat_unmanaged(
-      &pimpl_->g_, Hcomp_, HP_.data(), rind, cind, values);
+      pimpl_->g_.get(), Hcomp_, HP_.data(), rind, cind, values);
 }
 
 } // namespace ADOLC::Sparse

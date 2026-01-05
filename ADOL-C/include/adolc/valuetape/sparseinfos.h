@@ -37,6 +37,9 @@ struct ADOLC_API SparseJacInfos {
   SparseJacInfos &operator=(SparseJacInfos &&other) noexcept;
 
   void setJP(std::vector<uint *> &&JPIn) {
+    // delete JP
+    for (auto& j: JP_)
+      delete[] j;
     JP_ = std::move(JPIn);
     depen_ = JP_.size();
   }
@@ -84,6 +87,9 @@ public:
 
   std::vector<uint *> &getHP() { return HP_; }
   void setHP(int indep, std::vector<uint *> &&HPIn) {
+    // delete HP_
+    for (auto& h: HP_)
+      delete[] h;
     indep_ = indep;
     HP_ = std::move(HPIn);
   }

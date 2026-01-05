@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <boost/test/tools/old/interface.hpp>
 #define BOOST_TEST_DYN_LINK
@@ -94,6 +93,9 @@ static void testSparseJac(short tapeId) {
       }
     }
   }
+  delete[] rowIndices;
+  delete[] columnIndices;
+  delete[] nonzeroValues;
   for (auto &j : jac)
     delete[] j;
 }
@@ -205,6 +207,9 @@ static void testSparseJacPat(short tapeId) {
   BOOST_TEST(compressedRowStorage[1][1] == 2);
   BOOST_TEST(compressedRowStorage[1][2] == 5);
   BOOST_TEST(compressedRowStorage[1][3] == 6);
+
+  for (auto& crs: compressedRowStorage)
+    delete[] crs;
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacPatIndexSafe) {
@@ -226,5 +231,4 @@ BOOST_AUTO_TEST_CASE(SparseJacPatBitPatternTight) {
   short tapeId = 578;
   testSparseJacPat<SparseMethod::BitPattern, ControlFlowMode::Tight>(tapeId);
 }
-
 BOOST_AUTO_TEST_SUITE_END()

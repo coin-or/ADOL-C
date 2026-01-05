@@ -5941,7 +5941,7 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
   for (int i = 0; i < max_ind_dom; i++) {
-    delete ind_dom[i];
+    delete[] ind_dom[i];
   }
   delete[] ind_dom;
 #endif
@@ -5955,15 +5955,15 @@ int hov_forward(
     for (int ii = 1; ii <= sod[i].entry; ii++) {
       crs[i][ii] = temp->entry;
       temp1 = temp->left;
-      free(temp);
+      delete temp;
       temp = temp1;
     }
   }
 
-  delete sod;
-  delete nonl_dom;
-  delete fod;
-  delete arg_index;
+  delete[] sod;
+  delete[] nonl_dom;
+  delete[] fod;
+  delete[] arg_index;
 
 #endif
 #if defined(_NONLIND_OLD_)
@@ -5973,7 +5973,7 @@ int hov_forward(
     crs[i][0] = nonl_dom[i][0];
     for (l = 1; l < crs[i][0] + 1; l++)
       crs[i][l] = nonl_dom[i][l + 1];
-    delete nonl_dom[i];
+    delete[] nonl_dom[i];
   }
   delete[] nonl_dom;
 
@@ -6111,7 +6111,7 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
         k++;
       }
       temp_array[0] = k - 2;
-      delete ind_dom[res];
+      delete[] ind_dom[res];
       ind_dom[res] = temp_array;
     }
   }
@@ -6146,7 +6146,7 @@ void free_tree(IndexElement *tree, int num) {
   }
   {
     if (tree->entry == num)
-      free(tree);
+      delete tree;
   }
 }
 void traverse_crs(IndexElement *tree, IndexElement_sod *sod, int num) {
@@ -6291,7 +6291,7 @@ void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
         k++;
       }
       temp_nonl[0] = k - 2;
-      delete nonl_dom[index];
+      delete[] nonl_dom[index];
       nonl_dom[index] = temp_nonl;
     }
   }

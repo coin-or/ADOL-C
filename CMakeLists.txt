@@ -191,7 +191,7 @@ if (ENABLE_SPARSE)
     FetchContent_declare(
         ColPack
         GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
-        GIT_TAG 6ca3669b1b37f1d575cc0934628d09ee5cd8cb12 # latest commit
+        GIT_TAG 060f43feb3b550fddbb5e20c1be2721eaaa89813 # latest commit
         CMAKE_ARGS -DENABLE_OPENMP=ON # colpack needs openmp to build
     )
     FetchContent_MakeAvailable(ColPack)

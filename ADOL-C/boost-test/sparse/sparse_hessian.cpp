@@ -20,7 +20,7 @@ using ADOLC::Sparse::RecoveryMethod;
  identifies and recovers only the diagonal nonzero entries.
 
  The function is:
-   f(x) = Σ_{i=0}^{4} [ sin(x_i) + (x_{i+10})^2 ]
+   f(x) = sum_{i=0}^{4} [ sin(x_i) + (x_{i+10})^2 ]
 
  Analytical Hessian (expected):
    For i = 0,... , 4:
@@ -106,7 +106,6 @@ static void testSparseHessWithDiagonal(short tapeId) {
     // we only have diagonal elements
     BOOST_TEST(rowIndices[i] == columnIndices[i]);
   }
-
   // test with rowIndices, columnIndices and sparseValues != nullptr
   ADOLC::Sparse::sparse_hess<CFM, RCM>(tapeId, dimIn, 0, in.data(),
                                        &numberOfNonzeros, &rowIndices,
@@ -127,7 +126,6 @@ static void testSparseHessWithDiagonal(short tapeId) {
     // we only have diagonal elements
     BOOST_TEST(rowIndices[i] == columnIndices[i]);
   }
-
   // test with repeat == 1
   ADOLC::Sparse::sparse_hess<CFM, RCM>(tapeId, dimIn, 1, in.data(),
                                        &numberOfNonzeros, &rowIndices,
@@ -148,7 +146,9 @@ static void testSparseHessWithDiagonal(short tapeId) {
     // we only have diagonal elements
     BOOST_TEST(rowIndices[i] == columnIndices[i]);
   }
-  delete sparseValues;
+  delete[] sparseValues;
+  delete[] columnIndices;
+  delete[] rowIndices;
   for (auto &h : hess)
     delete[] h;
 }
@@ -164,7 +164,6 @@ BOOST_AUTO_TEST_CASE(SparseHessSafeIndirect) {
   testSparseHessWithDiagonal<ControlFlowMode::Safe, RecoveryMethod::Indirect>(
       tapeId);
 }
-
 BOOST_AUTO_TEST_CASE(SparseHessTightDirect) {
   const short tapeId = 634;
   testSparseHessWithDiagonal<ControlFlowMode::Tight, RecoveryMethod::Direct>(
@@ -200,7 +199,6 @@ BOOST_AUTO_TEST_CASE(SparseHessOldTightIndirect) {
   testSparseHessWithDiagonal<ControlFlowMode::OldTight,
                              RecoveryMethod::Indirect>(tapeId);
 }
-
 /*
  This test constructs a function with mixed-product terms so that the Hessian
  contains off-diagonal nonzeros.
@@ -314,15 +312,15 @@ static void testSparseHessWithOffDiagonals(short tapeId) {
   delete[] rowIndices;
   delete[] columnIndices;
   delete[] sparseValues;
-  for (auto &ptr : hess)
-    delete[] ptr;
+  for (auto &h: hess)
+    delete[] h;
 }
-
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagSafeDirect) {
   const short tapeId = 700;
   testSparseHessWithOffDiagonals<ControlFlowMode::Safe, RecoveryMethod::Direct>(
       tapeId);
 }
+
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagSafeIndirect) {
   const short tapeId = 701;
   testSparseHessWithOffDiagonals<ControlFlowMode::Safe,
@@ -435,6 +433,9 @@ static void testSparseHessPatWithDiagonal(short tapeId) {
   BOOST_TEST(compressedRowStorage[17][0] == 0);
   BOOST_TEST(compressedRowStorage[18][0] == 0);
   BOOST_TEST(compressedRowStorage[19][0] == 0);
+
+  for (auto& crs: compressedRowStorage)
+    delete[] crs;
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatDiagSafe) {
@@ -519,6 +520,9 @@ static void testSparseHessPatWithOffDiagonal(short tapeId) {
   // sixth hessian row has fifth
   BOOST_TEST(compressedRowStorage[5][0] == 1);
   BOOST_TEST(compressedRowStorage[5][1] == 4);
+
+  for (auto& crs: compressedRowStorage)
+    delete[] crs;
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagSafe) {
@@ -540,5 +544,4 @@ BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagOldTight) {
   const short tapeId = 715;
   testSparseHessPatWithOffDiagonal<ControlFlowMode::OldTight>(tapeId);
 }
-
 BOOST_AUTO_TEST_SUITE_END()
