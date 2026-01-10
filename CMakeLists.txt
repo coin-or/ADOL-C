@@ -31,6 +31,19 @@ else()
     message(WARNING "Unknown compiler — C++20 compatibility not guaranteed.")
 endif()
 
+# Treat warnings as errors + be strict, per compiler
+if (MSVC)
+  add_compile_options(/W4 /WX /permissive-)
+  # disable MS specific warnings about deprecated fcts.
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Werror)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(
+      -Wno-sign-conversion
+    )
+  endif()
+endif()
 
 # define options
 # --------------

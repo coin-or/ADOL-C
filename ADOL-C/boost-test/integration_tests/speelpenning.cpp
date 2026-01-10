@@ -1,4 +1,3 @@
-
 #include "../const.h"
 #include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
@@ -23,11 +22,11 @@ BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
   adouble *x = new adouble[n];
   adouble y = 1;
 
-  for (auto i = 0; i < n; i++)
-    xp[i] = (i + 1.0) / (2.0 + i); // some initialization
+  for (size_t i = 0; i < n; i++)
+    xp[i] = (to_double(i) + 1.0) / (2.0 + to_double(i)); // some initialization
 
   trace_on(tapeId); // tag = 1, keep = 0 by default
-  for (auto i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     x[i] <<= xp[i]; // or  x <<= xp outside the loop
     y *= x[i];
   } // end for
@@ -43,17 +42,17 @@ BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
   gradient(tapeId, n, xp, g); // gradient evaluation
 
   double **H = new double *[n];
-  for (auto i = 0; i < n; i++)
+  for (size_t i = 0; i < n; i++)
     H[i] = new double[i + 1];
 
   hessian(tapeId, n, xp, H); // H equals (n-1)g since g is
   double errg = 0;           // homogeneous of degree n-1.
   double errh = 0;
 
-  for (auto i = 0; i < n; i++)
+  for (size_t i = 0; i < n; i++)
     errg += fabs(g[i] - yp / xp[i]); // vanishes analytically.
-  for (auto i = 0; i < n; i++) {
-    for (auto j = 0; j < n; j++) {
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
       if (i > j) // lower half of hessian
         errh += fabs(H[i][j] - g[i] / xp[j]);
     } // end for
@@ -63,7 +62,7 @@ BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
   BOOST_TEST(errg == 0.0, tt::tolerance(tol));
   BOOST_TEST(errh == 0.0, tt::tolerance(tol));
 
-  for (auto i = 0; i < n; i++)
+  for (size_t i = 0; i < n; i++)
     delete[] H[i];
   delete[] H;
   delete[] g;

@@ -59,14 +59,14 @@ ADOLC_API void freetensor(int m, int p, int d, double **tensor);
 
 /*--------------------------------------------------------------------------*/
 /* int tensor_address(d, im[d]) */
-ADOLC_API int tensor_address(int d, int *im);
+ADOLC_API size_t tensor_address(int d, int *im);
 
 /****************************************************************************/
 /*                                                                    UTILS */
 
 /*--------------------------------------------------------------------------*/
-/* int binomi(a,b)  ---> binomial coefficient to compute tensor dimension */
-ADOLC_API long binomi(int a, int b);
+/* int binomi(n,k)  ---> binomial coefficient to compute tensor dimension */
+ADOLC_API long binomi(size_t n, size_t k);
 
 /*--------------------------------------------------------------------------*/
 /* jac_solv(tag,n,x,b,mode) */

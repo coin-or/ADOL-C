@@ -21,19 +21,18 @@ std::vector<double> ynewp = {0};
 std::vector<double> u = {1.0, 1.0};
 std::vector<double> z = {0};
 
-void euler_step_act(short tapeId, size_t n, adouble *yin, size_t m,
-                    adouble *yout) {
+void euler_step_act(short, size_t, adouble *yin, size_t, adouble *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
 }
 
-int euler_step(short tapeId, size_t n, double *yin, size_t m, double *yout) {
+int euler_step(short, size_t, double *yin, size_t, double *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
   return 1;
 }
 
-int zos_for_euler_step(short tapeId, size_t n, double *yin, size_t m,
+int zos_for_euler_step(short tapeId, size_t, double *yin, size_t,
                        double *yout) {
   int rc;
   findTape(tapeId).set_nested_ctx(true);
@@ -42,7 +41,7 @@ int zos_for_euler_step(short tapeId, size_t n, double *yin, size_t m,
   return rc;
 }
 
-int fos_rev_euler_step(short tapeId, size_t n, double *u, size_t m, double *z,
+int fos_rev_euler_step(short tapeId, size_t, double *u, size_t, double *z,
                        double *, double *) {
   int rc;
   findTape(tapeId).set_nested_ctx(true);
@@ -52,7 +51,7 @@ int fos_rev_euler_step(short tapeId, size_t n, double *u, size_t m, double *z,
   return rc;
 }
 
-void setup_full_taping(const short tag_full, const std::vector<double> &conp) {
+void setup_full_taping(const std::vector<double> &conp) {
   trace_on(tapeIdFull);
   {
     std::vector<adouble> y(2), ynew(2);
@@ -138,10 +137,7 @@ BOOST_AUTO_TEST_CASE(CompareFullAndExternalGradients) {
   std::vector<double> grad_full(2);
   std::vector<double> grad_ext(2);
 
-  const double expected0 = exp(h * steps);
-  const double expected1 = exp(2 * h * steps);
-
-  setup_full_taping(tapeIdFull, conp);
+  setup_full_taping(conp);
   gradient(tapeIdFull, 2, conp.data(), grad_full.data());
 
   setup_external_function(tapeIdPart, tapeIdExt, conp);

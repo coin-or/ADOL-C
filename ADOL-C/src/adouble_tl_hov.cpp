@@ -32,9 +32,6 @@ using std::cout;
 
 namespace adtl_hov {
 
-size_t adouble::numDir = 1;
-size_t adouble::degree = 1;
-
 #ifdef USE_ADTL_REFCOUNTING
 size_t refcounter::refcnt = 0;
 #endif

@@ -18,7 +18,9 @@
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 #include <math.h>
+#include <vector>
 
 BEGIN_C_DECLS
 
@@ -42,33 +44,35 @@ int abs_normal(short tag,       /* tape identifier */
                double **Z,      /* s times n */
                double **L)      /* s times s (lowtri) */
 {
-
-  int i, j;
-  double *res;
   const size_t s = get_num_switches(tag);
 
   /* This check is required because the user is probably allocating his
    * arrays sigma, cz, Z, L, Y, J according to swchk */
-  if (s != swchk)
+  if (s != to_size_t(swchk))
     ADOLCError::fail(
         ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
         ADOLCError::FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
 
-  res = (double *)myalloc1(n + s);
+  std::vector<double> res(n + s);
 
   zos_pl_forward(tag, m, n, 1, x, y, z);
 
-  for (i = 0; i < m + s; i++) {
-    int l = i - s;
-    fos_pl_reverse(tag, m, n, s, i, res);
+  std::ptrdiff_t l = 0;
+  for (size_t i = 0; i < m + s; i++) {
+    l = static_cast<std::ptrdiff_t>(i) - static_cast<std::ptrdiff_t>(s);
+    // the cast is necessary since the type signature uses "int". Its now
+    // explicit.
+    fos_pl_reverse(tag, m, n, static_cast<int>(s), static_cast<int>(i),
+                   res.data());
 
     if (l < 0) {
       cz[i] = z[i];
-      for (j = 0; j < n; j++) {
+      for (int j = 0; j < n; j++) {
         Z[i][j] = res[j];
       }
-      for (j = 0; j < s; j++) { /* L[i][i] .. L[i][s] are theoretically zero,
-                                 *  we probably don't need to copy them */
+      for (size_t j = 0; j < s;
+           j++) { /* L[i][i] .. L[i][s] are theoretically zero,
+                   *  we probably don't need to copy them */
         L[i][j] = res[j + n];
         if (j < i) {
           cz[i] = cz[i] - L[i][j] * fabs(z[j]);
@@ -76,17 +80,15 @@ int abs_normal(short tag,       /* tape identifier */
       }
     } else {
       cy[l] = y[l];
-      for (j = 0; j < n; j++) {
+      for (int j = 0; j < n; j++) {
         Y[l][j] = res[j];
       }
-      for (j = 0; j < s; j++) {
+      for (size_t j = 0; j < s; j++) {
         J[l][j] = res[j + n];
         cy[l] = cy[l] - J[l][j] * fabs(z[j]);
       }
     }
   }
-
-  myfree1(res);
   return 0;
 }
 
@@ -100,7 +102,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
                                 double *g,     /* directional active gradient */
                                 short *sigma_g /* sigma of g */
 ) {
-  int i, j, k, s, max_dk, done, sum, keep;
+  int max_dk, keep;
   double max_entry, y, by;
   double *z;
   double **E, **grad, **gradu;
@@ -108,7 +110,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
   keep = 1;
   by = 1;
 
-  s = get_num_switches(tag);
+  const size_t s = get_num_switches(tag);
 
   z = myalloc1(s);
 
@@ -118,7 +120,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
 
   max_dk = 0;
   max_entry = -1;
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     E[i][0] = d[i];
     if (max_entry < fabs(d[i])) {
       max_dk = i;
@@ -126,21 +128,23 @@ int directional_active_gradient(short tag,       /* trace identifier */
     }
   }
 
-  k = 1;
-  done = 0;
-  j = 0;
+  int k = 1;
+  bool done = 0;
+  int j = 0;
 
   while ((k < 6) && (done == 0)) {
     fov_pl_forward(tag, 1, n, k, x, E, &y, grad, z, gradu, sigma_g);
 
-    sum = 0;
-    for (i = 0; i < s; i++) {
+    size_t sum = 0;
+    for (size_t i = 0; i < s; i++) {
       sum += abs(sigma_g[i]);
     }
 
     if (sum == s) {
       zos_pl_forward(tag, 1, n, keep, x, &y, z);
-      fos_pl_sig_reverse(tag, 1, n, s, sigma_g, &by, g);
+      // the cast is necessary since the type signature uses "int". Its now
+      // explicit.
+      fos_pl_sig_reverse(tag, 1, n, static_cast<int>(s), sigma_g, &by, g);
       done = 1;
     } else {
       if (j == max_dk)

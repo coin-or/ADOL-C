@@ -451,7 +451,7 @@ adouble advector::operator[](const adouble &index) const {
   if (tape.traceFlag()) {
     tape.put_op(subscript);
     tape.put_loc(index.loc());
-    tape.put_val(size());
+    tape.put_val(static_cast<double>(size()));
     tape.put_loc(data_[0].loc());
     tape.put_loc(ret_adouble.loc());
 
@@ -477,7 +477,7 @@ adubref advector::operator[](const adouble &index) {
   if (tape.traceFlag()) {
     tape.put_op(subscript_ref);
     tape.put_loc(index.loc());
-    tape.put_val(n);
+    tape.put_val(static_cast<double>(n));
     tape.put_loc(data_[0].loc());
     tape.put_loc(locat);
 
@@ -490,7 +490,7 @@ adubref advector::operator[](const adouble &index) {
     ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_OOB, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info5 = n, .info6 = idx});
 
-  tape.set_ad_value(locat, data_[idx].loc());
+  tape.set_ad_value(locat, static_cast<double>(data_[idx].loc()));
   return adubref(locat, data_[idx].loc());
 }
 
@@ -504,6 +504,6 @@ adouble advector::lookupindex(const adouble &a, const adouble &b) const {
                      CURRENT_LOCATION);
   adouble r = 0.0;
   for (size_t i = 0; i < size(); ++i)
-    condassign(r, a - data_[i] * b, adouble(i + 1));
+    condassign(r, a - data_[i] * b, adouble(static_cast<double>(i + 1)));
   return r;
 }

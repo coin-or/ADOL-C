@@ -15,7 +15,7 @@
 #include <math.h>
 
 // time step function
-template <class data_type> int euler_step_act(size_t dim, data_type *y) {
+template <class data_type> int euler_step_act(size_t, data_type *y) {
   // Euler step, adouble version
   y[0] = y[0] + 0.01 * y[0];
   y[1] = y[1] + 0.01 * 2 * y[1];
@@ -47,10 +47,6 @@ int main() {
   // number of checkpoints
   const size_t num_cpts = 5;
 
-  // time interval
-  const double t0 = 0.0;
-  const double tf = 1.0;
-
   // basis variant: full taping of time step loop
   trace_on(tapeIdFull);
   {
@@ -65,7 +61,7 @@ int main() {
       y[i] = con[i];
     }
 
-    for (auto i = 0; i < steps; ++i) {
+    for (size_t i = 0; i < steps; ++i) {
       euler_step_act(dim, y.data());
     }
     double f[] = {0.0};

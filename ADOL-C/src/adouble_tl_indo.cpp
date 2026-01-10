@@ -38,7 +38,7 @@ istream &operator>>(istream &in, adouble &a) {
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
 int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
-  for (unsigned int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     a[i].delete_pattern();
     a[i].pattern.push_back(i + start_cnt);
   }
@@ -47,21 +47,22 @@ int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
 
 int ADOLC_get_sparse_pattern(const adouble *const b, int m,
                              unsigned int **&pat) {
-  pat = (unsigned int **)malloc(m * sizeof(unsigned int *));
+  pat = new unsigned int *[m];
   for (int i = 0; i < m; i++) {
     // const_cast<adouble&>(b[i]).pattern.sort();
     // const_cast<adouble&>(b[i]).pattern.unique();
     if (b[i].get_pattern_size() > 0) {
-      pat[i] = (unsigned int *)malloc(sizeof(unsigned int) *
-                                      (b[i].get_pattern_size() + 1));
-      pat[i][0] = b[i].get_pattern_size();
+      pat[i] = new unsigned int[b[i].get_pattern_size() + 1];
+      // the typesystem is broken here... we should use "size_t" for the pattern
+      size_t sz = b[i].get_pattern_size();
+      assert(sz <= std::numeric_limits<unsigned int>::max());
+      pat[i][0] = static_cast<unsigned int>(sz);
       const list<unsigned int> &tmp_set = b[i].get_pattern();
-      list<unsigned int>::const_iterator it;
-      unsigned int l = 1;
-      for (it = tmp_set.begin(); it != tmp_set.end(); it++, l++)
+      size_t l = 1;
+      for (auto it = tmp_set.begin(); it != tmp_set.end(); it++, l++)
         pat[i][l] = *it;
     } else {
-      pat[i] = (unsigned int *)malloc(sizeof(unsigned int));
+      pat[i] = new unsigned int;
       pat[i][0] = 0;
     }
   }

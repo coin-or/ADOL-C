@@ -28,21 +28,21 @@ using ADOLC_restoreFct = void(void *);
 struct ADOLC_API CpInfos {
   // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
-  size_t tapeId{0};
+  short tapeId{0};
   ADOLC_TimeStepFuncion *function{nullptr};
   ADOLC_TimeStepFuncion_double *function_double{nullptr};
   ADOLC_saveFct *saveNonAdoubles{nullptr};
   ADOLC_restoreFct *restoreNonAdoubles{nullptr};
-  size_t steps{0};
-  size_t checkpoints{0};
+  int steps{0};
+  int checkpoints{0};
 
   // This is the id of the tape that stores the checkpointing steps. This id
   // should not be confused with the id of the tape that calls
   // the checkpointing process later
-  size_t cp_tape_id{0};
+  short cp_tape_id{0};
   int retaping{0}; /* != 0 forces retaping before every reverse step */
 
-  size_t dim{0};           /* number of variables in input and output (n=m) */
+  int dim{0};              /* number of variables in input and output (n=m) */
   adouble *adp_x{nullptr}; /* input of the first step */
   adouble *adp_y{nullptr}; /* output of the last step; will be set by ADOLC */
 
@@ -79,9 +79,9 @@ public:
   }
   void setSaveFct(ADOLC_saveFct sf) { cpInfos->saveNonAdoubles = sf; }
   void setRestoreFct(ADOLC_restoreFct rf) { cpInfos->restoreNonAdoubles = rf; }
-  void setNumberOfSteps(size_t number) { cpInfos->steps = number; }
-  void setNumberOfCheckpoints(size_t number) { cpInfos->checkpoints = number; }
-  void setDimensionXY(size_t dim) { cpInfos->dim = dim; }
+  void setNumberOfSteps(int number) { cpInfos->steps = number; }
+  void setNumberOfCheckpoints(int number) { cpInfos->checkpoints = number; }
+  void setDimensionXY(int dim) { cpInfos->dim = dim; }
   void setInput(adouble *x) { cpInfos->adp_x = x; }
   void setOutput(adouble *y) { cpInfos->adp_y = y; }
   void setAlwaysRetaping(bool state) {

@@ -30,10 +30,10 @@ using std::ostream;
 
 namespace adtl_hov {
 
-ADOLC_API double makeNaN();
-ADOLC_API double makeInf();
+double makeNaN();
+double makeInf();
 
-enum ADOLC_API Mode {
+enum Mode {
   ADTL_ZOS = 0x1,
   ADTL_FOV = 0x3,
   ADTL_INDO = 0x5,
@@ -47,13 +47,13 @@ class adouble;
 
 #ifdef USE_ADTL_REFCOUNTING
 
-class ADOLC_API refcounter {
+class refcounter {
 private:
-  ADOLC_API static size_t refcnt;
-  ADOLC_API friend void setNumDir(const size_t p);
-  ADOLC_API friend void setDegree(const size_t p);
-  ADOLC_API friend void setMode(enum Mode newmode);
-  ADOLC_API friend class adouble;
+  static size_t refcnt;
+  friend void setNumDir(const size_t p);
+  friend void setDegree(const size_t p);
+  friend void setMode(enum Mode newmode);
+  friend class adouble;
 
 public:
   refcounter() { ++refcnt; }
@@ -67,7 +67,7 @@ public:
   virtual int operator()(int n, adouble *x, int m, adouble *y) = 0;
 };
 
-class ADOLC_API adouble {
+class adouble {
 public:
   inline adouble();
   inline adouble(const double v);
@@ -83,22 +83,22 @@ public:
   // addition
   inline adouble operator+(const double v) const;
   inline adouble operator+(const adouble &a) const;
-  ADOLC_API inline friend adouble operator+(const double v, const adouble &a);
+  inline friend adouble operator+(const double v, const adouble &a);
 
   // subtraction
   inline adouble operator-(const double v) const;
   inline adouble operator-(const adouble &a) const;
-  ADOLC_API inline friend adouble operator-(const double v, const adouble &a);
+  inline friend adouble operator-(const double v, const adouble &a);
 
   // multiplication
   inline adouble operator*(const double v) const;
   inline adouble operator*(const adouble &a) const;
-  ADOLC_API inline friend adouble operator*(const double v, const adouble &a);
+  inline friend adouble operator*(const double v, const adouble &a);
 
   // division
   inline adouble operator/(const double v) const;
   inline adouble operator/(const adouble &a) const;
-  ADOLC_API inline friend adouble operator/(const double v, const adouble &a);
+  inline friend adouble operator/(const double v, const adouble &a);
 
   // inc/dec
   inline adouble operator++();
@@ -107,55 +107,53 @@ public:
   inline adouble operator--(int);
 
   // functions
-  ADOLC_API inline friend adouble tan(const adouble &a);
-  ADOLC_API inline friend adouble exp(const adouble &a);
-  ADOLC_API inline friend adouble log(const adouble &a);
-  ADOLC_API inline friend adouble sqrt(const adouble &a);
-  ADOLC_API inline friend adouble cbrt(const adouble &a);
-  ADOLC_API inline friend adouble sin(const adouble &a);
-  ADOLC_API inline friend adouble cos(const adouble &a);
-  ADOLC_API inline friend adouble asin(const adouble &a);
-  ADOLC_API inline friend adouble acos(const adouble &a);
-  ADOLC_API inline friend adouble atan(const adouble &a);
+  inline friend adouble tan(const adouble &a);
+  inline friend adouble exp(const adouble &a);
+  inline friend adouble log(const adouble &a);
+  inline friend adouble sqrt(const adouble &a);
+  inline friend adouble cbrt(const adouble &a);
+  inline friend adouble sin(const adouble &a);
+  inline friend adouble cos(const adouble &a);
+  inline friend adouble asin(const adouble &a);
+  inline friend adouble acos(const adouble &a);
+  inline friend adouble atan(const adouble &a);
 
-  ADOLC_API inline friend adouble atan2(const adouble &a, const adouble &b);
-  ADOLC_API inline friend adouble pow(const adouble &a, double v);
-  ADOLC_API inline friend adouble pow(const adouble &a, const adouble &b);
-  ADOLC_API inline friend adouble pow(double v, const adouble &a);
-  ADOLC_API inline friend adouble log10(const adouble &a);
+  inline friend adouble atan2(const adouble &a, const adouble &b);
+  inline friend adouble pow(const adouble &a, double v);
+  inline friend adouble pow(const adouble &a, const adouble &b);
+  inline friend adouble pow(double v, const adouble &a);
+  inline friend adouble log10(const adouble &a);
 
-  ADOLC_API inline friend adouble sinh(const adouble &a);
-  ADOLC_API inline friend adouble cosh(const adouble &a);
-  ADOLC_API inline friend adouble tanh(const adouble &a);
-  ADOLC_API inline friend adouble asinh(const adouble &a);
-  ADOLC_API inline friend adouble acosh(const adouble &a);
-  ADOLC_API inline friend adouble atanh(const adouble &a);
-  ADOLC_API inline friend adouble fabs(const adouble &a);
-  ADOLC_API inline friend adouble ceil(const adouble &a);
-  ADOLC_API inline friend adouble floor(const adouble &a);
-  ADOLC_API inline friend adouble fmax(const adouble &a, const adouble &b);
-  ADOLC_API inline friend adouble fmax(double v, const adouble &a);
-  ADOLC_API inline friend adouble fmax(const adouble &a, double v);
-  ADOLC_API inline friend adouble fmin(const adouble &a, const adouble &b);
-  ADOLC_API inline friend adouble fmin(double v, const adouble &a);
-  ADOLC_API inline friend adouble fmin(const adouble &a, double v);
-  ADOLC_API inline friend adouble ldexp(const adouble &a, const adouble &b);
-  ADOLC_API inline friend adouble ldexp(const adouble &a, const double v);
-  ADOLC_API inline friend adouble ldexp(const double v, const adouble &a);
-  ADOLC_API inline friend double frexp(const adouble &a, int *v);
-  ADOLC_API inline friend adouble erf(const adouble &a);
-  ADOLC_API inline friend adouble erfc(const adouble &a);
+  inline friend adouble sinh(const adouble &a);
+  inline friend adouble cosh(const adouble &a);
+  inline friend adouble tanh(const adouble &a);
+  inline friend adouble asinh(const adouble &a);
+  inline friend adouble acosh(const adouble &a);
+  inline friend adouble atanh(const adouble &a);
+  inline friend adouble fabs(const adouble &a);
+  inline friend adouble ceil(const adouble &a);
+  inline friend adouble floor(const adouble &a);
+  inline friend adouble fmax(const adouble &a, const adouble &b);
+  inline friend adouble fmax(double v, const adouble &a);
+  inline friend adouble fmax(const adouble &a, double v);
+  inline friend adouble fmin(const adouble &a, const adouble &b);
+  inline friend adouble fmin(double v, const adouble &a);
+  inline friend adouble fmin(const adouble &a, double v);
+  inline friend adouble ldexp(const adouble &a, const adouble &b);
+  inline friend adouble ldexp(const adouble &a, const double v);
+  inline friend adouble ldexp(const double v, const adouble &a);
+  inline friend double frexp(const adouble &a, int *v);
+  inline friend adouble erf(const adouble &a);
+  inline friend adouble erfc(const adouble &a);
 
-  ADOLC_API inline friend void condassign(adouble &res, const adouble &cond,
-                                          const adouble &arg1,
-                                          const adouble &arg2);
-  ADOLC_API inline friend void condassign(adouble &res, const adouble &cond,
-                                          const adouble &arg);
-  ADOLC_API inline friend void condeqassign(adouble &res, const adouble &cond,
-                                            const adouble &arg1,
-                                            const adouble &arg2);
-  ADOLC_API inline friend void condeqassign(adouble &res, const adouble &cond,
-                                            const adouble &arg);
+  inline friend void condassign(adouble &res, const adouble &cond,
+                                const adouble &arg1, const adouble &arg2);
+  inline friend void condassign(adouble &res, const adouble &cond,
+                                const adouble &arg);
+  inline friend void condeqassign(adouble &res, const adouble &cond,
+                                  const adouble &arg1, const adouble &arg2);
+  inline friend void condeqassign(adouble &res, const adouble &cond,
+                                  const adouble &arg);
 
   /*******************  nontemporary results  ***************************/
   // assignment
@@ -184,32 +182,32 @@ public:
   // comparison
   inline int operator!=(const adouble &) const;
   inline int operator!=(const double) const;
-  ADOLC_API inline friend int operator!=(const double, const adouble &);
+  inline friend int operator!=(const double, const adouble &);
 
   inline int operator==(const adouble &) const;
   inline int operator==(const double) const;
-  ADOLC_API inline friend int operator==(const double, const adouble &);
+  inline friend int operator==(const double, const adouble &);
 
   inline int operator<=(const adouble &) const;
   inline int operator<=(const double) const;
-  ADOLC_API inline friend int operator<=(const double, const adouble &);
+  inline friend int operator<=(const double, const adouble &);
 
   inline int operator>=(const adouble &) const;
   inline int operator>=(const double) const;
-  ADOLC_API inline friend int operator>=(const double, const adouble &);
+  inline friend int operator>=(const double, const adouble &);
 
   inline int operator>(const adouble &) const;
   inline int operator>(const double) const;
-  ADOLC_API inline friend int operator>(const double, const adouble &);
+  inline friend int operator>(const double, const adouble &);
 
   inline int operator<(const adouble &) const;
   inline int operator<(const double) const;
-  ADOLC_API inline friend int operator<(const double, const adouble &);
+  inline friend int operator<(const double, const adouble &);
 
   /*******************  getter / setter  ********************************/
   inline double getValue() const;
   inline void setValue(const double v);
-  inline const double *const getADValue() const;
+  inline double *getADValue() const;
   inline void setADValue(const double *v);
 
   inline double getADValue(const unsigned int p) const;
@@ -230,20 +228,20 @@ protected:
   inline void delete_pattern();
 
 public:
-  ADOLC_API friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
-                                                 unsigned int start_cnt);
-  ADOLC_API friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                                                unsigned int **&pat);
-  ADOLC_API friend int
-  ADOLC_get_sparse_jacobian(func_ad *const func, int n, int m, int repeat,
-                            double *basepoints, int *nnz, unsigned int **rind,
-                            unsigned int **cind, double **values);
+  friend int ADOLC_Init_sparse_pattern(adouble *a, int n,
+                                       unsigned int start_cnt);
+  friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
+                                      unsigned int **&pat);
+  friend int ADOLC_get_sparse_jacobian(func_ad *const func, int n, int m,
+                                       int repeat, double *basepoints, int *nnz,
+                                       unsigned int **rind, unsigned int **cind,
+                                       double **values);
 #if 0
-    ADOLC_API friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
+     friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
 #endif
   /*******************  i/o operations  *********************************/
-  ADOLC_API friend ostream &operator<<(ostream &, const adouble &);
-  ADOLC_API friend istream &operator>>(istream &, adouble &);
+  friend ostream &operator<<(ostream &, const adouble &);
+  friend istream &operator>>(istream &, adouble &);
 
 private:
   double val;
@@ -257,12 +255,12 @@ private:
   inline static bool _do_adval();
   inline static bool _do_hoval();
   inline static bool _do_indo();
-  static size_t numDir;
-  static size_t degree;
+  inline static size_t numDir = 1;
+  inline static size_t degree = 1;
   inline static enum Mode forward_mode = Mode::ADTL_DEFAULT;
-  ADOLC_API inline friend void setNumDir(const size_t p);
-  ADOLC_API inline friend void setDegree(const size_t p);
-  ADOLC_API inline friend void setMode(enum Mode newmode);
+  inline friend void setNumDir(const size_t p);
+  inline friend void setDegree(const size_t p);
+  inline friend void setMode(enum Mode newmode);
 };
 
 } // namespace adtl_hov
@@ -319,7 +317,7 @@ inline bool adouble::_do_hoval() {
 #define no_do_indo() likely(!adouble::_do_indo())
 #define do_hoval() unlikely(adouble::_do_hoval())
 
-inline void ADOLC_API setNumDir(const size_t p) {
+inline void setNumDir(const size_t p) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT,
@@ -336,7 +334,7 @@ inline void ADOLC_API setNumDir(const size_t p) {
   }
   adouble::numDir = p;
 }
-inline void ADOLC_API setDegree(const size_t p) {
+inline void setDegree(const size_t p) {
 
   if (p < 1) {
     fprintf(DIAG_OUT, "ADOL-C Error: Traceless: p < 1 not possible.\n");
@@ -345,7 +343,7 @@ inline void ADOLC_API setDegree(const size_t p) {
   adouble::degree = p;
 }
 
-inline void ADOLC_API setMode(enum Mode newmode) {
+inline void setMode(enum Mode newmode) {
 #ifdef USE_ADTL_REFCOUNTING
   if (refcounter::refcnt > 0) {
     fprintf(DIAG_OUT,
@@ -364,11 +362,11 @@ inline void ADOLC_API setMode(enum Mode newmode) {
   adouble::forward_mode = newmode;
 }
 
-inline double ADOLC_API makeNaN() {
+inline double makeNaN() {
   return ADOLC_MATH_NSP::numeric_limits<double>::quiet_NaN();
 }
 
-inline double ADOLC_API makeInf() {
+inline double makeInf() {
   return ADOLC_MATH_NSP::numeric_limits<double>::infinity();
 }
 
@@ -545,11 +543,7 @@ inline adouble adouble::operator+(const adouble &a) const {
   return tmp;
 }
 
-ADOLC_API inline adouble operator+(const double v, const adouble &a) {
-  adouble tmp;
-  if (do_val()) {
-    adouble tmp(v + a.val, a.adval);
-  }
+inline adouble operator+(const double v, const adouble &a) {
   if (do_hoval()) // ADTL_HOV  //how can this not be declared? it works fine in
                   // the method above
   {               // why was "a." necessary here and not after the next line?
@@ -557,17 +551,21 @@ ADOLC_API inline adouble operator+(const double v, const adouble &a) {
     throw std::exception();
     // adouble tmp(v+a.val,a.ho_deriv); //TODO: does not exist yet
   }
-  if (do_indo())
+  if (do_val() && do_indo()) {
+    adouble tmp(v + a.val, a.adval);
     tmp.add_to_pattern(a.get_pattern());
+    return tmp;
+  }
+
+  adouble tmp;
+  if (do_indo()) {
+    tmp.add_to_pattern(a.get_pattern());
+  }
   return tmp;
 }
 
 // subtraction
 inline adouble adouble::operator-(const double v) const {
-  adouble tmp;
-  if (do_val()) {
-    adouble tmp(val - v, adval);
-  }
   if (do_hoval()) // ADTL_HOV  //how can this not be declared? it works fine in
                   // the method above
   {               // why was "a." necessary here and not after the next line?
@@ -575,9 +573,17 @@ inline adouble adouble::operator-(const double v) const {
     throw std::exception();
     // adouble tmp(val-v, adval,ho_deriv); //TODO: does not exist yet
   }
-  // adouble tmp(val-v, adval); moved up
-  if (do_indo())
+  if (do_val() && do_indo()) {
+    adouble tmp(val - v, adval);
     tmp.add_to_pattern(get_pattern());
+    return tmp;
+  }
+
+  // adouble tmp(val-v, adval); moved up
+  adouble tmp;
+  if (do_indo()) {
+    tmp.add_to_pattern(get_pattern());
+  }
   return tmp;
 }
 
@@ -601,7 +607,7 @@ inline adouble adouble::operator-(const adouble &a) const {
   return tmp;
 }
 
-ADOLC_API inline adouble operator-(const double v, const adouble &a) {
+inline adouble operator-(const double v, const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = v - a.val;
@@ -648,7 +654,7 @@ inline adouble adouble::operator*(const adouble &a) const {
     tmp.val = val * a.val;
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (size_t l = 0; l < numDir; l++) {
       for (size_t k = 0; k < degree; k++) {
@@ -672,7 +678,7 @@ inline adouble adouble::operator*(const adouble &a) const {
   return tmp;
 }
 
-ADOLC_API inline adouble operator*(const double v, const adouble &a) {
+inline adouble operator*(const double v, const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = v * a.val;
@@ -721,7 +727,7 @@ inline adouble adouble::operator/(const adouble &a) const {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
@@ -746,7 +752,7 @@ inline adouble adouble::operator/(const adouble &a) const {
   return tmp;
 }
 
-ADOLC_API inline adouble operator/(const double v, const adouble &a) {
+inline adouble operator/(const double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -758,7 +764,7 @@ ADOLC_API inline adouble operator/(const double v, const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
@@ -832,7 +838,7 @@ inline adouble adouble::operator--(int) {
 }
 
 // functions
-ADOLC_API inline adouble tan(const adouble &a) {
+inline adouble tan(const adouble &a) {
   adouble tmp;
   double tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -861,7 +867,7 @@ ADOLC_API inline adouble tan(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble exp(const adouble &a) {
+inline adouble exp(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -878,14 +884,14 @@ ADOLC_API inline adouble exp(const adouble &a) {
   if (do_hoval()) // ADTL_HOV
   {
     double sum = 0;
-    int i;
+    size_t i;
     FOR_I_EQ_0_LT_NUMDIR
     for (size_t k = 0; k < adouble::degree; k++) {
-      sum = tmp.val * (k + 1) * a.ho_deriv[k][_i];
+      sum = tmp.val * to_double(k + 1) * a.ho_deriv[k][_i];
       i = k - 1;
       for (size_t j = 0; j < k; j++)
-        sum += tmp.ho_deriv[i - j][_i] * (j + 1.0) * a.ho_deriv[j][_i];
-      tmp.ho_deriv[k][_i] = (1.0 / (k + 1)) * sum;
+        sum += tmp.ho_deriv[i - j][_i] * to_double(j + 1) * a.ho_deriv[j][_i];
+      tmp.ho_deriv[k][_i] = (1.0 / to_double(k + 1)) * sum;
       sum = 0.0;
     }
   }
@@ -894,7 +900,7 @@ ADOLC_API inline adouble exp(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble log(const adouble &a) {
+inline adouble log(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -916,16 +922,16 @@ ADOLC_API inline adouble log(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
         //				ho_deriv[i-j][l]
         i = k - 1;
         for (size_t j = 0; j < k; j++)
-          sum += a.ho_deriv[i - j][l] * (j + 1) * tmp.ho_deriv[j][l];
-        tmp.ho_deriv[k][l] = (1.0 / (k + 1)) * (1.0 / a.val) *
-                             ((k + 1) * a.ho_deriv[k][l] - sum);
+          sum += a.ho_deriv[i - j][l] * to_double(j + 1) * tmp.ho_deriv[j][l];
+        tmp.ho_deriv[k][l] = (1.0 / to_double(k + 1)) * (1.0 / a.val) *
+                             (to_double(k + 1) * a.ho_deriv[k][l] - sum);
         sum = 0.0;
       }
     }
@@ -935,7 +941,7 @@ ADOLC_API inline adouble log(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble sqrt(const adouble &a) {
+inline adouble sqrt(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -957,7 +963,7 @@ ADOLC_API inline adouble sqrt(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
@@ -976,7 +982,7 @@ ADOLC_API inline adouble sqrt(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble cbrt(const adouble &a) {
+inline adouble cbrt([[maybe_unused]] const adouble &a) {
   fprintf(DIAG_OUT,
           "ADOL-C error: higher order mode of cbrt not implemented yet\n");
   throw logic_error("incorrect function call, errorcode=1");
@@ -1000,21 +1006,21 @@ inline adouble sin(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i, m;
+    size_t i, m;
     double sum1 = 0.0, sum2 = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
-        sum1 = tmp2.val * m * a.ho_deriv[k][l];
-        sum2 = -tmp.val * m * a.ho_deriv[k][l];
+        sum1 = tmp2.val * to_double(m) * a.ho_deriv[k][l];
+        sum2 = -tmp.val * to_double(m) * a.ho_deriv[k][l];
         i = k - 1;
         for (size_t j = 0; j < k; j++) {
-          sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
-          sum2 += -(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
+          sum1 += to_double(j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
+          sum2 += -to_double(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
-        tmp.ho_deriv[k][l] = (1.0 / m) * sum1;
-        tmp2.ho_deriv[k][l] = (1.0 / m) * sum2;
+        tmp.ho_deriv[k][l] = (1.0 / to_double(m)) * sum1;
+        tmp2.ho_deriv[k][l] = (1.0 / to_double(m)) * sum2;
         sum1 = 0.0;
         sum2 = 0.0;
       }
@@ -1025,7 +1031,7 @@ inline adouble sin(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble cos(const adouble &a) {
+inline adouble cos(const adouble &a) {
   adouble tmp;
   adouble tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
@@ -1043,21 +1049,22 @@ ADOLC_API inline adouble cos(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i, m;
+    size_t i, m;
     double sum1 = 0.0, sum2 = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
-        sum1 = tmp2.val * m * a.ho_deriv[k][l];
-        sum2 = -tmp.val * m * a.ho_deriv[k][l];
+        sum1 = tmp2.val * to_double(m) * a.ho_deriv[k][l];
+        sum2 = -tmp.val * to_double(m) * a.ho_deriv[k][l];
         i = k - 1;
         for (size_t j = 0; j < k; j++) {
-          sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
-          sum2 += -(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
+          sum1 += to_double(j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
+          sum2 +=
+              -(to_double(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l]);
         }
-        tmp.ho_deriv[k][l] = (1.0 / m) * sum1;
-        tmp2.ho_deriv[k][l] = (1.0 / m) * sum2;
+        tmp.ho_deriv[k][l] = (1.0 / to_double(m)) * sum1;
+        tmp2.ho_deriv[k][l] = (1.0 / to_double(m)) * sum2;
         sum1 = 0.0;
         sum2 = 0.0;
       }
@@ -1069,7 +1076,7 @@ ADOLC_API inline adouble cos(const adouble &a) {
   return tmp2;
 }
 
-ADOLC_API inline adouble asin(const adouble &a) {
+inline adouble asin(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1096,7 +1103,7 @@ ADOLC_API inline adouble asin(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble acos(const adouble &a) {
+inline adouble acos(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1123,7 +1130,7 @@ ADOLC_API inline adouble acos(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble atan(const adouble &a) {
+inline adouble atan(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1153,7 +1160,7 @@ ADOLC_API inline adouble atan(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble atan2(const adouble &a, const adouble &b) {
+inline adouble atan2(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1186,7 +1193,7 @@ ADOLC_API inline adouble atan2(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-ADOLC_API inline adouble pow(const adouble &a, double v) {
+inline adouble pow(const adouble &a, double v) {
 
   std::cout << "in adouble pow(const adouble &a, double v)  prepping for debug"
             << std::endl;
@@ -1215,33 +1222,28 @@ ADOLC_API inline adouble pow(const adouble &a, double v) {
       double factorial_val = tgamma(v + 1.0);
       for (size_t k = 0; k < adouble::degree; k++)
         for (size_t l = 0; l < adouble::numDir; l++) {
-          // TODO: This is shadowing the outer loop variable
-          for (size_t k = 0; k < adouble::degree;
-               k++) // unsure if this is needed here. keep it for the moment
-                    // TODO: check if tmp.ho_deriv is zero before here
-          {
-            tmp.ho_deriv[k][l] = 0;
-          }
           tmp.ho_deriv[k][l] =
-              (1.0 / (k + 1)) *
+              (1.0 / to_double(k + 1)) *
               factorial_val; // division with k+1 (offset because of zero index
                              // [0] ) because of distinction between tilde{u_k}
                              // and u_k
         }
     } else {
-      int i;
+      size_t i;
       double sum1 = 0.0, sum2 = 0.0;
       for (size_t l = 0; l < adouble::numDir; l++) {
         for (size_t k = 0; k < adouble::degree; k++) {
           //    				ho_deriv[k][l]
-          sum1 = tmp.val * (k + 1) * a.ho_deriv[k][l];
+          sum1 = tmp.val * to_double(k + 1) * a.ho_deriv[k][l];
           i = k - 1;
           for (size_t j = 0; j < k; j++) {
-            sum1 += tmp.ho_deriv[i - j][l] * (j + 1) * a.ho_deriv[j][l];
-            sum2 += a.ho_deriv[i - j][l] * (1 + j) * tmp.ho_deriv[j][l];
+            sum1 +=
+                tmp.ho_deriv[i - j][l] * to_double(j + 1) * a.ho_deriv[j][l];
+            sum2 +=
+                a.ho_deriv[i - j][l] * to_double(1 + j) * tmp.ho_deriv[j][l];
           }
           tmp.ho_deriv[k][l] =
-              (1.0 / (k + 1)) * (1.0 / a.val) *
+              (1.0 / to_double(k + 1)) * (1.0 / a.val) *
               (v * sum1 - sum2); // if a.val is zero we get a nan!!
           sum1 = 0.0;
           sum2 = 0.0;
@@ -1254,7 +1256,7 @@ ADOLC_API inline adouble pow(const adouble &a, double v) {
   return tmp;
 }
 
-ADOLC_API inline adouble pow(const adouble &a, const adouble &b) {
+inline adouble pow(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1284,7 +1286,7 @@ ADOLC_API inline adouble pow(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-ADOLC_API inline adouble pow(double v, const adouble &a) {
+inline adouble pow(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1301,17 +1303,18 @@ ADOLC_API inline adouble pow(double v, const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum;
     for (size_t l = 0; l < adouble::numDir; l++) {
       sum = 0.0;
       for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
-        sum = tmp.val * (k + 1) * a.ho_deriv[k][l];
+        sum = tmp.val * to_double(k + 1) * a.ho_deriv[k][l];
         i = k - 1;
         for (size_t j = 0; j < k; j++)
-          sum += tmp.ho_deriv[i - j][l] * (j + 1) * a.ho_deriv[j][l];
-        tmp.ho_deriv[k][l] = (1.0 / (k + 1)) * sum * ADOLC_MATH_NSP::log(v);
+          sum += tmp.ho_deriv[i - j][l] * to_double(j + 1) * a.ho_deriv[j][l];
+        tmp.ho_deriv[k][l] =
+            (1.0 / to_double(k + 1)) * sum * ADOLC_MATH_NSP::log(v);
         sum = 0.0;
       }
     }
@@ -1322,7 +1325,7 @@ ADOLC_API inline adouble pow(double v, const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble log10(const adouble &a) {
+inline adouble log10(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1349,7 +1352,7 @@ ADOLC_API inline adouble log10(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble sinh(const adouble &a) {
+inline adouble sinh(const adouble &a) {
   adouble tmp, tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1359,29 +1362,29 @@ ADOLC_API inline adouble sinh(const adouble &a) {
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::sinh(a.val);
   if (likely(adouble::_do_adval() && adouble::_do_val())) {
-    double tmp2 = ADOLC_MATH_NSP::cosh(a.val);
+    const double cosh_val = ADOLC_MATH_NSP::cosh(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-    tmp.ADVAL_I = a.ADVAL_I * tmp2;
+    tmp.ADVAL_I = a.ADVAL_I * cosh_val;
   }
 
   if (do_hoval()) // ADTL_HOV
   {
-    tmp2 = ADOLC_MATH_NSP::cosh(a.val);
-    int i, m;
+    tmp2.val = ADOLC_MATH_NSP::cosh(a.val);
+    size_t i, m;
     double sum1 = 0.0, sum2 = 0.0;
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
-        sum1 = tmp2.val * m * a.ho_deriv[k][l];
-        sum2 = tmp.val * m * a.ho_deriv[k][l];
+        sum1 = tmp2.val * to_double(m) * a.ho_deriv[k][l];
+        sum2 = tmp.val * to_double(m) * a.ho_deriv[k][l];
         i = k - 1;
         for (size_t j = 0; j < k; j++) {
-          sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
-          sum2 += (j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
+          sum1 += to_double(j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
+          sum2 += to_double(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
-        tmp.ho_deriv[k][l] = (1.0 / m) * sum1;
-        tmp2.ho_deriv[k][l] = (1.0 / m) * sum2;
+        tmp.ho_deriv[k][l] = (1.0 / to_double(m)) * sum1;
+        tmp2.ho_deriv[k][l] = (1.0 / to_double(m)) * sum2;
         sum1 = 0.0;
         sum2 = 0.0;
       }
@@ -1393,7 +1396,7 @@ ADOLC_API inline adouble sinh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble cosh(const adouble &a) {
+inline adouble cosh(const adouble &a) {
   adouble tmp, tmp2;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1403,29 +1406,29 @@ ADOLC_API inline adouble cosh(const adouble &a) {
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::cosh(a.val);
   if (likely(adouble::_do_adval() && adouble::_do_val())) {
-    double tmp2 = ADOLC_MATH_NSP::sinh(a.val);
+    tmp2 = ADOLC_MATH_NSP::sinh(a.val);
     FOR_I_EQ_0_LT_NUMDIR
-    tmp.ADVAL_I = a.ADVAL_I * tmp2;
+    tmp = a * tmp2;
   }
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i, m;
+    size_t i, m;
     double sum1 = 0.0, sum2 = 0.0;
     tmp2 = ADOLC_MATH_NSP::sinh(a.val);
     for (size_t l = 0; l < adouble::numDir; l++) {
       for (size_t k = 0; k < adouble::degree; k++) {
         //    				ho_deriv[k][l]
         m = k + 1;
-        sum1 = tmp2.val * m * a.ho_deriv[k][l];
-        sum2 = tmp.val * m * a.ho_deriv[k][l];
+        sum1 = tmp2.val * to_double(m) * a.ho_deriv[k][l];
+        sum2 = tmp.val * to_double(m) * a.ho_deriv[k][l];
         i = k - 1;
         for (size_t j = 0; j < k; j++) {
-          sum1 += (j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
-          sum2 += (j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
+          sum1 += to_double(j + 1) * a.ho_deriv[j][l] * tmp2.ho_deriv[i - j][l];
+          sum2 += to_double(j + 1) * a.ho_deriv[j][l] * tmp.ho_deriv[i - j][l];
         }
-        tmp.ho_deriv[k][l] = (1.0 / m) * sum1;
-        tmp2.ho_deriv[k][l] = (1.0 / m) * sum2;
+        tmp.ho_deriv[k][l] = (1.0 / to_double(m)) * sum1;
+        tmp2.ho_deriv[k][l] = (1.0 / to_double(m)) * sum2;
         sum1 = 0.0;
         sum2 = 0.0;
       }
@@ -1437,7 +1440,7 @@ ADOLC_API inline adouble cosh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble tanh(const adouble &a) {
+inline adouble tanh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1465,7 +1468,7 @@ ADOLC_API inline adouble tanh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble asinh(const adouble &a) {
+inline adouble asinh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1492,7 +1495,7 @@ ADOLC_API inline adouble asinh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble acosh(const adouble &a) {
+inline adouble acosh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1519,7 +1522,7 @@ ADOLC_API inline adouble acosh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble atanh(const adouble &a) {
+inline adouble atanh(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1546,7 +1549,7 @@ ADOLC_API inline adouble atanh(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble fabs(const adouble &a) {
+inline adouble fabs(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -1627,7 +1630,7 @@ ADOLC_API inline adouble fabs(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble ceil(const adouble &a) {
+inline adouble ceil(const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::ceil(a.val);
@@ -1645,7 +1648,7 @@ ADOLC_API inline adouble ceil(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble floor(const adouble &a) {
+inline adouble floor(const adouble &a) {
   adouble tmp;
   if (do_val())
     tmp.val = ADOLC_MATH_NSP::floor(a.val);
@@ -1663,7 +1666,7 @@ ADOLC_API inline adouble floor(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmax(const adouble &a, const adouble &b) {
+inline adouble fmax(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1715,7 +1718,7 @@ ADOLC_API inline adouble fmax(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmax(double v, const adouble &a) {
+inline adouble fmax(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1762,7 +1765,7 @@ ADOLC_API inline adouble fmax(double v, const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmax(const adouble &a, double v) {
+inline adouble fmax(const adouble &a, double v) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1809,7 +1812,7 @@ ADOLC_API inline adouble fmax(const adouble &a, double v) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmin(const adouble &a, const adouble &b) {
+inline adouble fmin(const adouble &a, const adouble &b) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1860,7 +1863,7 @@ ADOLC_API inline adouble fmin(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmin(double v, const adouble &a) {
+inline adouble fmin(double v, const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1907,7 +1910,7 @@ ADOLC_API inline adouble fmin(double v, const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble fmin(const adouble &a, double v) {
+inline adouble fmin(const adouble &a, double v) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() &&
                (adouble::_do_adval() || adouble::_do_indo()))) {
@@ -1954,7 +1957,7 @@ ADOLC_API inline adouble fmin(const adouble &a, double v) {
   return tmp;
 }
 
-ADOLC_API inline adouble ldexp(const adouble &a, const adouble &b) {
+inline adouble ldexp(const adouble &a, const adouble &b) {
   adouble tmp = a * pow(2., b);
   if (do_indo()) {
     tmp.add_to_pattern(a.get_pattern());
@@ -1963,18 +1966,18 @@ ADOLC_API inline adouble ldexp(const adouble &a, const adouble &b) {
   return tmp;
 }
 
-ADOLC_API inline adouble ldexp(const adouble &a, const double v) {
+inline adouble ldexp(const adouble &a, const double v) {
   return a * ADOLC_MATH_NSP::pow(2., v);
 }
 
-ADOLC_API inline adouble ldexp(const double v, const adouble &a) {
+inline adouble ldexp(const double v, const adouble &a) {
   adouble tmp = v * pow(2., a);
   if (do_indo())
     tmp.add_to_pattern(a.get_pattern());
   return tmp;
 }
 
-ADOLC_API inline double frexp(const adouble &a, int *v) {
+inline double frexp(const adouble &a, int *v) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -1983,7 +1986,7 @@ ADOLC_API inline double frexp(const adouble &a, int *v) {
   return ADOLC_MATH_NSP::frexp(a.val, v);
 }
 
-ADOLC_API inline adouble erf(const adouble &a) {
+inline adouble erf(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -2003,7 +2006,7 @@ ADOLC_API inline adouble erf(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline adouble erfc(const adouble &a) {
+inline adouble erfc(const adouble &a) {
   adouble tmp;
   if (unlikely(!adouble::_do_val() && adouble::_do_adval())) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
@@ -2023,8 +2026,8 @@ ADOLC_API inline adouble erfc(const adouble &a) {
   return tmp;
 }
 
-ADOLC_API inline void condassign(adouble &res, const adouble &cond,
-                                 const adouble &arg1, const adouble &arg2) {
+inline void condassign(adouble &res, const adouble &cond, const adouble &arg1,
+                       const adouble &arg2) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2038,8 +2041,7 @@ ADOLC_API inline void condassign(adouble &res, const adouble &cond,
   }
 }
 
-ADOLC_API inline void condassign(adouble &res, const adouble &cond,
-                                 const adouble &arg) {
+inline void condassign(adouble &res, const adouble &cond, const adouble &arg) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2051,8 +2053,8 @@ ADOLC_API inline void condassign(adouble &res, const adouble &cond,
   }
 }
 
-ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
-                                   const adouble &arg1, const adouble &arg2) {
+inline void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
+                         const adouble &arg2) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2066,8 +2068,8 @@ ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
   }
 }
 
-ADOLC_API inline void condeqassign(adouble &res, const adouble &cond,
-                                   const adouble &arg) {
+inline void condeqassign(adouble &res, const adouble &cond,
+                         const adouble &arg) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2199,19 +2201,19 @@ inline adouble &adouble::operator*=(const adouble &a) {
 
   if (do_hoval()) // ADTL_HOV
   {
-    int i;
+    size_t i;
     double sum;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < degree; k++) {
         sum = val * a.ho_deriv[k][l] + ho_deriv[k][l] * a.val;
         i = k - 1;
-        for (int j = 0; j < k; j++)
+        for (size_t j = 0; j < k; j++)
           sum += ho_deriv[j][l] * a.ho_deriv[i - j][l];
         tmp.ho_deriv[k][l] = sum;
         sum = 0.0;
       }
       val = tmp.val;
-      for (int k = 0; k < degree; k++)
+      for (size_t k = 0; k < degree; k++)
         ho_deriv[k][l] = tmp.ho_deriv[k][l];
     }
   }
@@ -2252,19 +2254,19 @@ inline adouble &adouble::operator/=(const adouble &a) {
   if (do_hoval()) // ADTL_HOV
   {
     adouble tmp;
-    int i;
+    size_t i;
     double sum;
-    for (int l = 0; l < adouble::numDir; l++) {
-      for (int k = 0; k < degree; k++) {
+    for (size_t l = 0; l < adouble::numDir; l++) {
+      for (size_t k = 0; k < degree; k++) {
         sum = tmp.val * a.ho_deriv[k][l];
         i = k - 1;
-        for (int j = 0; j < k; j++)
+        for (size_t j = 0; j < k; j++)
           sum += tmp.ho_deriv[j][l] * a.ho_deriv[i - j][l];
         tmp.ho_deriv[k][l] = (1.0 / a.val) * (ho_deriv[k][l] - sum);
         sum = 0.0;
       }
       val = tmp.val;
-      for (int k = 0; k < degree; k++)
+      for (size_t k = 0; k < degree; k++)
         ho_deriv[k][l] = tmp.ho_deriv[k][l];
     }
   }
@@ -2303,7 +2305,7 @@ inline int adouble::operator!=(const double v) const {
   return val != v;
 }
 
-ADOLC_API inline int operator!=(const double v, const adouble &a) {
+inline int operator!=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2330,7 +2332,7 @@ inline int adouble::operator==(const double v) const {
   return val == v;
 }
 
-ADOLC_API inline int operator==(const double v, const adouble &a) {
+inline int operator==(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2357,7 +2359,7 @@ inline int adouble::operator<=(const double v) const {
   return val <= v;
 }
 
-ADOLC_API inline int operator<=(const double v, const adouble &a) {
+inline int operator<=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2384,7 +2386,7 @@ inline int adouble::operator>=(const double v) const {
   return val >= v;
 }
 
-ADOLC_API inline int operator>=(const double v, const adouble &a) {
+inline int operator>=(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2411,7 +2413,7 @@ inline int adouble::operator>(const double v) const {
   return val > v;
 }
 
-ADOLC_API inline int operator>(const double v, const adouble &a) {
+inline int operator>(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2438,7 +2440,7 @@ inline int adouble::operator<(const double v) const {
   return val < v;
 }
 
-ADOLC_API inline int operator<(const double v, const adouble &a) {
+inline int operator<(const double v, const adouble &a) {
   if (no_do_val()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");
@@ -2493,7 +2495,7 @@ inline void adouble::setValue(const double v) {
   val = v;
 }
 
-inline const double *const adouble::getADValue() const {
+inline double *adouble::getADValue() const {
   if (no_do_adval()) {
     fprintf(DIAG_OUT, "ADOL-C error: Traceless: Incorrect mode, call "
                       "setMode(enum Mode mode)\n");

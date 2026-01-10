@@ -40,10 +40,9 @@ BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
   trace_on(tapeId12);
 
   // init independents
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    ++i;
-  });
+  }
 
   // fabs(in_2 + fabs(in_1 + fabs(in_0)))
   adouble dep =
@@ -63,7 +62,7 @@ BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // test num switches
-  int num_switches = get_num_switches(tapeId12);
+  size_t num_switches = get_num_switches(tapeId12);
   BOOST_TEST(num_switches == dim_in, tt::tolerance(tol));
 
   const int keep = 0;
@@ -100,10 +99,9 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_PL_Forward) {
   trace_on(tapeId12);
 
   // init independents
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    ++i;
-  });
+  }
 
   // fabs(in_2 + fabs(in_1 + fabs(in_0)))
   adouble dep =
@@ -123,7 +121,7 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_PL_Forward) {
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // test num switches
-  int num_switches = get_num_switches(tapeId12);
+  size_t num_switches = get_num_switches(tapeId12);
   BOOST_TEST(num_switches == dim_in, tt::tolerance(tol));
 
   const int keep = 0;

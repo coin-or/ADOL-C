@@ -187,8 +187,6 @@
 
 #define MAXINT 2147483647
 
-revolve_nums rev_num;
-
 /* ************************************************************************* */
 
 int numforw(int steps, int snaps) {
@@ -242,24 +240,20 @@ double expense(int steps, int snaps) {
 /* ************************************************************************* */
 
 int maxrange(int ss, int tt) {
-  int i, ires;
-  double res = 1.0;
-
   if ((tt < 0) || (ss < 0)) {
     printf("error in MAXRANGE: negative parameter");
     return -1;
   }
-  for (i = 1; i <= tt; i++) {
+  double res = 1.0;
+  for (int i = 1; i <= tt; i++) {
     res *= (ss + i);
     res /= i;
     if (res > MAXINT) {
-      ires = MAXINT;
-      printf("warning from MAXRANGE: returned maximal integer %d\n", ires);
-      return ires;
+      printf("warning from MAXRANGE: returned maximal integer %d\n", MAXINT);
+      return MAXINT;
     }
   }
-  ires = res;
-  return ires;
+  return static_cast<int>(res);
 }
 
 /* ************************************************************************* */
@@ -297,10 +291,11 @@ int adjust(int steps) {
 
 enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
                             int *info) {
+  revolve_nums &rev_num = get_revolve_numbers();
   int ds, oldcapo, num, bino1, bino2, bino3, bino4, bino5, bino6;
   /* (*capo,*fine) is the time range currently under consideration */
   /* ch[j] is the number of the state that is stored in checkpoint j */
-  revolve_nums &rev_num = get_revolve_numbers();
+  rev_num = get_revolve_numbers();
   rev_num.commands += 1;
   if ((*check < -1) || (*capo > *fine)) {
     *info = 9;

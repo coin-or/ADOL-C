@@ -23,7 +23,7 @@ using namespace std;
 #include <adolc/adtl.h>
 typedef adtl::adouble adouble;
 
-int main(int argc, char *argv[]) {
+int main() {
   adouble x[3], y[3];
 
   for (int i = 0; i < 3; ++i) // Initialize x_i

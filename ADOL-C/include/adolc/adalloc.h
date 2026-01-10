@@ -24,12 +24,12 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
-ADOLC_API char *populate_dpp(double ***const pointer, char *const memory, int n,
-                             int m);
+ADOLC_API char *populate_dpp(double ***const pointer, char *const memory,
+                             size_t n, size_t m);
 ADOLC_API char *populate_dppp(double ****const pointer, char *const memory,
-                              int n, int m, int p);
+                              size_t n, size_t m, size_t p);
 ADOLC_API char *populate_dppp_nodata(double ****const pointer,
-                                     char *const memory, int n, int m);
+                                     char *const memory, size_t n, size_t m);
 ADOLC_API double *myalloc1(size_t);
 ADOLC_API double **myalloc2(size_t, size_t);
 ADOLC_API double ***myalloc3(size_t, size_t, size_t);
@@ -40,13 +40,13 @@ ADOLC_API void myfree3(double ***);
 
 /*--------------------------------------------------------------------------*/
 /*                                          SPECIAL IDENTITY REPRESENTATION */
-ADOLC_API double **myallocI2(int);
-ADOLC_API void myfreeI2(int, double **);
+ADOLC_API double **myallocI2(size_t);
+ADOLC_API void myfreeI2(size_t, double **);
 
-ADOLC_API unsigned int *myalloc1_uint(int);
+ADOLC_API unsigned int *myalloc1_uint(size_t);
 
-ADOLC_API size_t *myalloc1_ulong(int);
-ADOLC_API size_t **myalloc2_ulong(int, int);
+ADOLC_API size_t *myalloc1_ulong(size_t);
+ADOLC_API size_t **myalloc2_ulong(size_t, size_t);
 
 /****************************************************************************/
 /*                              INTEGER VARIANT FOR BIT PATTERN PROPAGATION */
@@ -64,9 +64,9 @@ END_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
-ADOLC_API inline double *myalloc(int n) { return myalloc1(n); }
-ADOLC_API inline double **myalloc(int m, int n) { return myalloc2(m, n); }
-ADOLC_API inline double ***myalloc(int m, int n, int p) {
+ADOLC_API inline double *myalloc(size_t n) { return myalloc1(n); }
+ADOLC_API inline double **myalloc(size_t m, size_t n) { return myalloc2(m, n); }
+ADOLC_API inline double ***myalloc(size_t m, size_t n, size_t p) {
   return myalloc3(m, n, p);
 }
 

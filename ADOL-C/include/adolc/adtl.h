@@ -199,11 +199,11 @@ public:
   /*******************  getter / setter  ********************************/
   inline double getValue() const;
   inline void setValue(const double v);
-  inline const double *const getADValue() const;
+  inline double *getADValue() const;
   inline void setADValue(const double *v);
 
-  inline double getADValue(const unsigned int p) const;
-  inline void setADValue(const unsigned int p, const double v);
+  inline double getADValue(size_t p) const;
+  inline void setADValue(size_t p, double v);
   inline explicit operator double const &() const;
   inline explicit operator double &&();
   inline explicit operator double();
@@ -1072,14 +1072,14 @@ inline double adouble::getValue() const { return PRIMAL_VALUE; }
 
 inline void adouble::setValue(const double v) { PRIMAL_VALUE = v; }
 
-inline const double *const adouble::getADValue() const { return (adval + 1); }
+inline double *adouble::getADValue() const { return (adval + 1); }
 
 inline void adouble::setADValue(const double *const v) {
   FOR_I_EQ_1_LTEQ_NUMDIR
   ADVAL_I = v[_i - 1];
 }
 
-inline double adouble::getADValue(const unsigned int p) const {
+inline double adouble::getADValue(size_t p) const {
   if (p >= adouble::numDir) {
     fprintf(DIAG_OUT, "Derivative array accessed out of bounds"
                       " while \"getADValue(...)\"!!!\n");
@@ -1088,7 +1088,7 @@ inline double adouble::getADValue(const unsigned int p) const {
   return adval[p + 1];
 }
 
-inline void adouble::setADValue(const unsigned int p, const double v) {
+inline void adouble::setADValue(size_t p, double v) {
   if (p >= adouble::numDir) {
     fprintf(DIAG_OUT, "Derivative array accessed out of bounds"
                       " while \"setADValue(...)\"!!!\n");
