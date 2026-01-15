@@ -12,37 +12,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # only standard c++
 
 # Check for minimum compiler versions that support most of C++20
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
         message(FATAL_ERROR "GCC 11 or higher is required for ADOL-C.")
     endif()
 
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
         message(FATAL_ERROR "Clang 13 or higher is required for ADOL-C.")
     endif()
 
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.31)
         message(FATAL_ERROR "MSVC 19.31 (Visual Studio 2022 v17.1) or higher is required for ADOL-C.")
     endif()
 
 else()
     message(WARNING "Unknown compiler — C++20 compatibility not guaranteed.")
-endif()
-
-# Treat warnings as errors + be strict, per compiler
-if (MSVC)
-  add_compile_options(/W4 /WX /permissive-)
-  # disable MS specific warnings about deprecated fcts.
-  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-else()
-  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Werror)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(
-      -Wno-sign-conversion
-    )
-  endif()
 endif()
 
 # define options
@@ -121,6 +107,21 @@ option(BUILD_TESTS OFF)
 
 add_library(adolc)
 add_library(adolc::adolc ALIAS adolc)
+
+# Treat warnings as errors + be strict, per compiler
+if (MSVC)
+  target_compile_options(adolc PRIVATE /W4 /WX /permissive-)
+  # disable MS specific warnings about deprecated fcts.
+  target_compile_definitions(adolc PRIVATE _CRT_SECURE_NO_WARNINGS)
+else()
+  target_compile_options(adolc PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Werror)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(adolc PRIVATE
+      -Wno-sign-conversion
+    )
+  endif()
+endif()
+
 
 target_compile_features(adolc PUBLIC cxx_std_20)
 
