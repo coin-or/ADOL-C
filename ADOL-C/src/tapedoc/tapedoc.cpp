@@ -17,6 +17,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
+#include <adolc/internal/common.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/tapedoc/tapedoc.h>
@@ -38,32 +39,23 @@ BEGIN_C_DECLS
 static short tag;
 
 static int op_cnt;
-static int rev_op_cnt;
+static size_t rev_op_cnt;
 static int pagelength;
 static FILE *fp;
 
-static char baseName[] = "tape_";
-static char extension[] = ".tex";
+static constexpr std::string_view baseName{"tape_"};
+static constexpr std::string_view extension{".tex"};
 
 /****************************************************************************/
 /*                                                     LOCAL WRITE ROUTINES */
 
 /*--------------------------------------------------------------------------*/
 void filewrite_start(int opcode) {
-  char *fileName;
-  int num;
-
-  fileName = (char *)malloc(sizeof(char) * (9 + sizeof(tag) * 8 + 2));
-  if (fileName == NULL)
-    ADOLCError::fail(ADOLCError::ErrorType::MALLOC_FAILED, CURRENT_LOCATION);
-  strncpy(fileName, baseName, strlen(baseName));
-  num = snprintf(fileName + strlen(baseName), sizeof(tag), "%d", tag);
-  strncpy(fileName + strlen(baseName) + num, extension, strlen(extension));
-  fileName[strlen(baseName) + num + strlen(extension)] = 0;
-  if (!(fp = fopen(fileName, "w")))
+  const std::string fileName =
+      std::string(baseName) + std::to_string(tag) + std::string(extension);
+  if (!(fp = fopen(fileName.c_str(), "w")))
     ADOLCError::fail(ADOLCError::ErrorType::CANNOT_OPEN_FILE, CURRENT_LOCATION);
 
-  free((void *)fileName);
   fprintf(fp, "\\documentclass{article}\n");
   fprintf(fp, "\\headheight0cm\n");
   fprintf(fp, "\\headsep-1cm\n");
@@ -109,14 +101,14 @@ void checkPageBreak() {
 /* filewrite( opcode number,  op name, number locations, locations, values, */
 /*            number constants, constants )                                 */
 /****************************************************************************/
-void filewrite(unsigned short opcode, const char *opString, int nloc, int *loc,
-               double *val, int ncst, double *cst) {
+void filewrite(unsigned short opcode, const char *opString, int nloc,
+               size_t *loc, int ncst, double *cst) {
   int i;
 
   checkPageBreak();
 
   /* write opcode counters and  number */
-  fprintf(fp, "%i & %i & %i & ", op_cnt, rev_op_cnt, opcode);
+  fprintf(fp, "%i & %zu & %i & ", op_cnt, rev_op_cnt, opcode);
 
   /* write opcode name if available */
   if (opString)
@@ -130,13 +122,13 @@ void filewrite(unsigned short opcode, const char *opString, int nloc, int *loc,
     for (i = 0; i < (4 - nloc); i++)
       fprintf(fp, " &");
     for (i = 0; i < nloc; i++)
-      fprintf(fp, " %i &", loc[i]);
+      fprintf(fp, " %zu &", loc[i]);
   } else { /* ext_diff */
-    fprintf(fp, " fctn %i &", loc[0]);
+    fprintf(fp, " fctn %zu &", loc[0]);
     for (i = 1; i < (4 - nloc); i++)
       fprintf(fp, " &");
     for (i = 1; i < nloc; i++)
-      fprintf(fp, " %i &", loc[i]);
+      fprintf(fp, " %zu &", loc[i]);
   }
 
   /* write values */
@@ -221,8 +213,8 @@ void filewrite_end(int opcode) {
           " %i & %i & %i & end of tape & & & & & & & & & &  \\\\ \\hline \n",
           op_cnt, rev_op_cnt, opcode);
 #else
-  fprintf(fp, " %i & %i & %i & end of tape & & & & & & \\\\ \\hline \n", op_cnt,
-          rev_op_cnt, opcode);
+  fprintf(fp, " %i & %zu & %i & end of tape & & & & & & \\\\ \\hline \n",
+          op_cnt, rev_op_cnt, opcode);
 #endif
   fprintf(fp, "\\end{tabular}");
   fprintf(fp, "\\end{document}");
@@ -231,11 +223,11 @@ void filewrite_end(int opcode) {
 
 /****************************************************************************/
 /*                                                             NOW THE CODE */
-void tape_doc(short tnum,   /* tape id */
-              int depcheck, /* consistency chk on # of dependents */
-              int indcheck, /* consistency chk on # of independents */
-              const double *basepoint, /* independent variable values */
-              double *valuepoint)      /* dependent variable values */
+void tape_doc(short tnum,     /* tape id */
+              int depcheck,   /* consistency chk on # of dependents */
+              int indcheck,   /* consistency chk on # of independents */
+              const double *, /* independent variable values */
+              double *)       /* dependent variable values */
 {
   /****************************************************************************/
   /*                                                            ALL VARIABLES */
@@ -250,17 +242,16 @@ void tape_doc(short tnum,   /* tape id */
 
   double coval = 0, *d = 0;
 
+#ifdef ADOLC_TAPE_DOC_VALUES
   int indexi = 0, indexd = 0;
-
-  /* loop indices */
-  int l;
+#endif
 
   /* Taylor stuff */
   double *dp_T0;
 
   /* interface temporaries */
-  int loc_a[ValueTape::maxLocsPerOp()];
-  double val_a[4] = {0, 0, 0, 0}, cst_d[2] = {0, 0};
+  size_t loc_a[ValueTape::maxLocsPerOp()];
+  double cst_d[2] = {0, 0};
 #ifdef ADOLC_TAPE_DOC_VALUES
   locint qq;
 #endif
@@ -275,11 +266,11 @@ void tape_doc(short tnum,   /* tape id */
   int i;
   double aDouble;
 #endif
-  tape.init_for_sweep(tnum);
+  tape.init_for_sweep();
   tag = tnum;
 
-  if ((depcheck != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
-      (indcheck != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
+  if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (to_size_t(indcheck) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::TAPE_DOC_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{
@@ -307,7 +298,7 @@ void tape_doc(short tnum,   /* tape id */
 
       /*--------------------------------------------------------------------------*/
     case end_of_op: /* end_of_op */
-      filewrite(operation, "end of op", 0, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "end of op", 0, loc_a, 0, cst_d);
       tape.get_op_block_f();
       operation = tape.get_op_f();
       ++op_cnt;
@@ -317,13 +308,13 @@ void tape_doc(short tnum,   /* tape id */
 
       /*--------------------------------------------------------------------------*/
     case end_of_int: /* end_of_int */
-      filewrite(operation, "end of int", 0, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "end of int", 0, loc_a, 0, cst_d);
       tape.get_loc_block_f();
       break;
 
       /*--------------------------------------------------------------------------*/
     case end_of_val: /* end_of_val */
-      filewrite(operation, "end of val", 0, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "end of val", 0, loc_a, 0, cst_d);
       tape.get_val_block_f();
       break;
 
@@ -347,7 +338,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "eq zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq zero", 1, loc_a, 0, cst_d);
       break;
     case neq_zero: /* neq_zero */
       arg = tape.get_locint_f();
@@ -355,7 +346,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "neq zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "neq zero", 1, loc_a, 0, cst_d);
       break;
     case le_zero: /* le_zero */
       arg = tape.get_locint_f();
@@ -363,7 +354,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "le zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "le zero", 1, loc_a, 0, cst_d);
       break;
     case gt_zero: /* gt_zero */
       arg = tape.get_locint_f();
@@ -371,7 +362,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "gt zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "gt zero", 1, loc_a, 0, cst_d);
       break;
     case ge_zero: /* ge_zero */
       arg = tape.get_locint_f();
@@ -379,7 +370,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "ge zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "ge zero", 1, loc_a, 0, cst_d);
       break;
     case lt_zero: /* lt_zero */
       arg = tape.get_locint_f();
@@ -387,7 +378,7 @@ void tape_doc(short tnum,   /* tape id */
 #ifdef ADOLC_TAPE_DOC_VALUES
       val_a[0] = dp_T0[arg];
 #endif
-      filewrite(operation, "lt zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "lt zero", 1, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -406,7 +397,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "assign a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "assign a", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -419,7 +410,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = cst_d[0];
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "assigne d", 1, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "assigne d", 1, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -431,7 +422,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = 1.0;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "assign d one", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "assign d one", 1, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -443,7 +434,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = 0.0;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "assign d zero", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "assign d zero", 1, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -453,13 +444,13 @@ void tape_doc(short tnum,   /* tape id */
       loc_a[0] = res;
 #ifdef ADOLC_TAPE_DOC_VALUES
       dp_T0[res] = basepoint[indexi];
-      cst_d[0] = basepoint[indexi];
+      cst_d[0] = basepoint[indexi++];
       val_a[0] = dp_T0[res];
-      filewrite(operation, "assign ind", 1, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "assign ind", 1, loc_a, 1, cst_d);
 #else
-      filewrite(operation, "assign ind", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "assign ind", 1, loc_a, 0, cst_d);
 #endif
-      indexi++;
+
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -471,7 +462,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[0] = dp_T0[res];
       valuepoint[indexd++] = dp_T0[res];
 #endif
-      filewrite(operation, "assign dep", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "assign dep", 1, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -489,7 +480,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] += coval;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "eq plus d", 1, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "eq plus d", 1, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -504,7 +495,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] += dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "eq plus a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq plus a", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -522,7 +513,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] += dp_T0[arg1] * dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "eq plus prod", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq plus prod", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -536,7 +527,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] -= coval;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "eq min d", 1, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "eq min d", 1, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -551,7 +542,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] -= dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "eq min a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq min a", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -569,7 +560,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] -= dp_T0[arg1] * dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "eq min prod", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq min prod", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -583,7 +574,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] *= coval;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "eq mult d", 1, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "eq mult d", 1, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -598,7 +589,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] *= dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "eq mult a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "eq mult a", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -609,7 +600,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res]++;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "incr a", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "incr a", 1, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -620,7 +611,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res]--;
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "decr a", 1, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "decr a", 1, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -641,7 +632,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg1] + dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "plus a a", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "plus a a", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -658,7 +649,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg] + coval;
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "plus d a", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "plus d a", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -676,7 +667,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg1] - dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "min a a", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "min a a", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -693,7 +684,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = coval - dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "min d a", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "min d a", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -710,7 +701,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg1] * dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "mult a a", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "mult a a", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -727,7 +718,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = coval * dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "mult d a", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "mult d a", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -745,7 +736,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg1] / dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "div a a", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "div a a", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -761,7 +752,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = coval / dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "div d a", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "div d a", 2, loc_a, 1, cst_d);
       break;
 
       /****************************************************************************/
@@ -779,7 +770,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "pos sign a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "pos sign a", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -793,7 +784,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = -dp_T0[arg];
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "neg sign a", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "neg sign a", 2, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -812,7 +803,7 @@ void tape_doc(short tnum,   /* tape id */
 
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "exp op", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "exp op", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -832,7 +823,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "sin op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "sin op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -852,7 +843,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "cos op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "cos op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -870,7 +861,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "atan op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "atan op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -888,7 +879,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "asin op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "asin op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -906,7 +897,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "acos op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "acos op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -924,7 +915,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "asinh op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "asinh op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -942,7 +933,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "acosh op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "acosh op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -960,7 +951,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "atanh op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "atanh op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -978,7 +969,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "erf op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "erf op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -996,7 +987,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "erfc op", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "erfc op", 3, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1011,7 +1002,7 @@ void tape_doc(short tnum,   /* tape id */
 
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "log op", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "log op", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1028,7 +1019,7 @@ void tape_doc(short tnum,   /* tape id */
 
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "pow op", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "pow op", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1043,7 +1034,7 @@ void tape_doc(short tnum,   /* tape id */
 
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "sqrt op", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "sqrt op", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1058,7 +1049,7 @@ void tape_doc(short tnum,   /* tape id */
 
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "cbrt op", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "cbrt op", 2, loc_a, 0, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1077,7 +1068,7 @@ void tape_doc(short tnum,   /* tape id */
       val_a[1] = dp_T0[arg2];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "gen quad", 3, loc_a, val_a, 2, cst_d);
+      filewrite(operation, "gen quad", 3, loc_a, 2, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1099,7 +1090,7 @@ void tape_doc(short tnum,   /* tape id */
         dp_T0[res] = dp_T0[arg1];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "min op", 3, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "min op", 3, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1115,7 +1106,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = fabs(dp_T0[arg]);
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "abs val", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "abs val", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1131,7 +1122,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = ceil(dp_T0[arg]);
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "ceil op", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "ceil op", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1147,7 +1138,7 @@ void tape_doc(short tnum,   /* tape id */
       dp_T0[res] = floor(dp_T0[arg]);
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "floor op", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "floor op", 2, loc_a, 1, cst_d);
       break;
 
       /****************************************************************************/
@@ -1176,7 +1167,7 @@ void tape_doc(short tnum,   /* tape id */
         dp_T0[res] = dp_T0[arg2];
       val_a[3] = dp_T0[res];
 #endif
-      filewrite(operation, "cond assign $\\longrightarrow$", 4, loc_a, val_a, 1,
+      filewrite(operation, "cond assign $\\longrightarrow$", 4, loc_a, 1,
                 cst_d);
       break;
 
@@ -1197,8 +1188,8 @@ void tape_doc(short tnum,   /* tape id */
         dp_T0[res] = dp_T0[arg1];
       val_a[2] = dp_T0[res];
 #endif
-      filewrite(operation, "cond assign s $\\longrightarrow$", 3, loc_a, val_a,
-                1, cst_d);
+      filewrite(operation, "cond assign s $\\longrightarrow$", 3, loc_a, 1,
+                cst_d);
       break;
 
     case vec_copy:
@@ -1212,8 +1203,7 @@ void tape_doc(short tnum,   /* tape id */
       for (qq = 0; qq < size; qq++)
         dp_T0[res + qq] = dp_T0[arg + qq];
 #endif
-      filewrite(operation, "vec copy $\\longrightarrow$", 3, loc_a, val_a, 0,
-                cst_d);
+      filewrite(operation, "vec copy $\\longrightarrow$", 3, loc_a, 0, cst_d);
       break;
 
     case vec_dot:
@@ -1231,8 +1221,7 @@ void tape_doc(short tnum,   /* tape id */
         dp_T0[res] += dp_T0[arg1 + qq] * dp_T0[arg2 + qq];
       val_a[0] = dp_T0[res];
 #endif
-      filewrite(operation, "vec dot $\\longrightarrow$", 4, loc_a, val_a, 0,
-                cst_d);
+      filewrite(operation, "vec dot $\\longrightarrow$", 4, loc_a, 0, cst_d);
       break;
 
     case vec_axpy:
@@ -1251,8 +1240,7 @@ void tape_doc(short tnum,   /* tape id */
       for (qq = 0; qq < size; qq++)
         dp_T0[res + qq] = dp_T0[arg] * dp_T0[arg1 + qq] + dp_T0[arg2 + qq];
 #endif
-      filewrite(operation, "vec axpy $\\longrightarrow$", 4, loc_a, val_a, 0,
-                cst_d);
+      filewrite(operation, "vec axpy $\\longrightarrow$", 4, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -1268,12 +1256,12 @@ void tape_doc(short tnum,   /* tape id */
       loc_a[1] = res;
       cst_d[0] = d[0];
 #ifdef ADOLC_TAPE_DOC_VALUES
-      for (l = 0; l < size; l++)
+      for (size_t l = 0; l < size; l++)
         dp_T0[res + l] = d[l];
       val_a[0] = make_nan();
       val_a[1] = dp_T0[res];
 #endif
-      filewrite(operation, "take stock op", 2, loc_a, val_a, 1, cst_d);
+      filewrite(operation, "take stock op", 2, loc_a, 1, cst_d);
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1282,7 +1270,7 @@ void tape_doc(short tnum,   /* tape id */
       arg2 = tape.get_locint_f();
       loc_a[0] = arg1;
       loc_a[1] = arg2;
-      filewrite(operation, "death not", 2, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "death not", 2, loc_a, 0, cst_d);
       break;
 
       /****************************************************************************/
@@ -1293,12 +1281,12 @@ void tape_doc(short tnum,   /* tape id */
       loc_a[3] = tape.get_locint_f();     /* xa[0].loc */
       loc_a[3] = tape.get_locint_f();     /* ya[0].loc */
       loc_a[3] = tape.get_locint_f();     /* dummy */
-      filewrite(operation, "extern diff", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "extern diff", 3, loc_a, 0, cst_d);
       break;
 
     case ext_diff_iArr:
       loc_a[0] = tape.get_locint_f(); /* iArr length */
-      for (l = 0; l < loc_a[0]; ++l)
+      for (size_t l = 0; l < loc_a[0]; ++l)
         tape.get_locint_f();              /* iArr */
       tape.get_locint_f();                /* iArr length again */
       loc_a[0] = tape.get_locint_f() + 1; /* index */
@@ -1307,29 +1295,29 @@ void tape_doc(short tnum,   /* tape id */
       loc_a[3] = tape.get_locint_f();     /* xa[0].loc */
       loc_a[3] = tape.get_locint_f();     /* ya[0].loc */
       loc_a[3] = tape.get_locint_f();     /* dummy */
-      filewrite(operation, "extern diff iArr", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "extern diff iArr", 3, loc_a, 0, cst_d);
       break;
     case ext_diff_v2:
       loc_a[0] = tape.get_locint_f(); /* index */
       loc_a[1] = tape.get_locint_f(); /* iArr length */
-      for (l = 0; l < loc_a[1]; ++l)
+      for (size_t l = 0; l < loc_a[1]; ++l)
         tape.get_locint_f();          /* iArr */
       tape.get_locint_f();            /* iArr length again */
       loc_a[1] = tape.get_locint_f(); /* nin */
       loc_a[2] = tape.get_locint_f(); /* nout */
-      for (l = 0; l < loc_a[1]; ++l) {
+      for (size_t l = 0; l < loc_a[1]; ++l) {
         tape.get_locint_f();
         tape.get_locint_f();
       }
       /* input vectors sizes and start locs */
-      for (l = 0; l < loc_a[2]; ++l) {
+      for (size_t l = 0; l < loc_a[2]; ++l) {
         tape.get_locint_f();
         tape.get_locint_f();
       }
       /* output vectors sizes and start locs */
       tape.get_locint_f(); /* nin again */
       tape.get_locint_f(); /* nout again */
-      filewrite(operation, "extern diff v2", 3, loc_a, val_a, 0, cst_d);
+      filewrite(operation, "extern diff v2", 3, loc_a, 0, cst_d);
       break;
 #ifdef ADOLC_MEDIPACK_SUPPORT
       /*--------------------------------------------------------------------------*/
@@ -1511,7 +1499,7 @@ void tape_doc(short tnum,   /* tape id */
         TAPE_AMPI_read_int(loc_a + size++);  /* rcnt[0] */
         TAPE_AMPI_read_int(loc_a + size++);  /* displs[0] */
       }
-      for (l = 1; l < *(loc_a + 0); ++l) {
+      for (size_t l = 1; l < *(loc_a + 0); ++l) {
         TAPE_AMPI_read_int(loc_a + size);
         TAPE_AMPI_read_int(loc_a + size);
       }
@@ -1535,7 +1523,7 @@ void tape_doc(short tnum,   /* tape id */
         TAPE_AMPI_read_int(loc_a + size++);  /* rcnt[0] */
         TAPE_AMPI_read_int(loc_a + size++);  /* displs[0] */
       }
-      for (l = 1; l < *(loc_a + 0); ++l) {
+      for (size_t l = 1; l < *(loc_a + 0); ++l) {
         TAPE_AMPI_read_int(loc_a + size);
         TAPE_AMPI_read_int(loc_a + size);
       }
@@ -1554,7 +1542,7 @@ void tape_doc(short tnum,   /* tape id */
     case ampi_allgatherv:
       size = 0;
       TAPE_AMPI_read_int(loc_a + size++); /* commSizeForRootOrNull */
-      for (l = 0; l < *(loc_a); ++l) {
+      for (size_t l = 0; l < *(loc_a); ++l) {
         TAPE_AMPI_read_int(loc_a + size);     /* rcnts */
         TAPE_AMPI_read_int(loc_a + size + 1); /* displs */
       }

@@ -26,15 +26,15 @@ adouble det(const T &A, size_t row,
     return 1.0;
   else {
     adouble t = 0;
-    int p = 1;
+    size_t p = 1;
     int sign;
     if (row % 2)
       sign = 1;
     else
       sign = -1;
 
-    for (auto i = 0; i < A.size(); i++) {
-      int p1 = 2 * p;
+    for (size_t i = 0; i < A.size(); i++) {
+      size_t p1 = 2 * p;
       if (col % p1 >= p) {
         if (col == p) {
           if (sign > 0)
@@ -71,12 +71,13 @@ int main() {
 
   trace_on(tapeId, keep); // tapeId=1=keep
   double detout = 0.0;
-  double diag = 1.0;           // here keep the intermediates for
-  for (auto i = 0; i < n; i++) // the subsequent call to reverse
+  double diag = 1.0;             // here keep the intermediates for
+  for (size_t i = 0; i < n; i++) // the subsequent call to reverse
   {
     m *= 2;
-    for (auto j = 0; j < n; j++)
-      A[i][j] <<= j / (1.0 + i); // make all elements of A independent
+    for (size_t j = 0; j < n; j++)
+      A[i][j] <<= to_double(j) /
+                  (1.0 + to_double(i)); // make all elements of A independent
 
     diag += A[i][i].value(); // value(adouble) converts to double
     A[i][i] += 1.0;
@@ -95,9 +96,9 @@ int main() {
           B.data()); // call reverse to calculate the gradient
 
   std::cout << " \n first base? : ";
-  for (auto i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     adouble sum = 0;
-    for (auto j = 0; j < n; j++)     // the matrix A times the first n
+    for (size_t j = 0; j < n; j++)   // the matrix A times the first n
       sum += A[i][j] * B[j];         // components of the gradient B
     std::cout << sum.value() << " "; // must be a Cartesian basis vector
   }

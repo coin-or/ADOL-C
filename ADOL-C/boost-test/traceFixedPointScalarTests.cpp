@@ -20,23 +20,22 @@ BOOST_AUTO_TEST_SUITE(trace_fixed_point_scalar)
  *
  * \tparam T The number type.  Both double and adouble versions are needed
  */
-template <typename T>
-static int iteration(T *x, T *u, T *y, int dim_x, int dim_u) {
+template <typename T> static int iteration(T *x, T *u, T *y, size_t, size_t) {
   // Newton update: x = x - f(x)/f'(x) = x - (x*x-z) / 2x = x - x/2 + z/2x
   y[0] = 0.5 * (x[0] + u[0] / x[0]);
   return 0;
 }
 
-static double norm(double *x, int dim) {
+static double norm(double *x, size_t dim) {
   double norm = 0;
 
-  for (int i = 0; i < dim; i++)
+  for (size_t i = 0; i < dim; i++)
     norm += x[i] * x[i];
 
   return std::sqrt(norm);
 }
 
-static double traceNewtonForSquareRoot(int tapeId, int sub_tape_id,
+static double traceNewtonForSquareRoot(short tapeId, short sub_tape_id,
                                        double argument) {
   // ax1 = sqrt(ax1);
   setCurrentTape(tapeId);

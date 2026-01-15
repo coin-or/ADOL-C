@@ -19,12 +19,12 @@
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
-typedef int (*double_F)(double *, double *, double *, int, int);
-typedef int (*adouble_F)(adouble *, adouble *, adouble *, int, int);
-typedef double (*norm_F)(double *, int);
-typedef double (*norm_deriv_F)(double *, int);
+typedef int (*double_F)(double *, double *, double *, size_t, size_t);
+typedef int (*adouble_F)(adouble *, adouble *, adouble *, size_t, size_t);
+typedef double (*norm_F)(double *, size_t);
+typedef double (*norm_deriv_F)(double *, size_t);
 
-ADOLC_API int fp_iteration(short tapeId, size_t sub_tape_num, double_F,
+ADOLC_API int fp_iteration(short tapeId, short sub_tape_num, double_F,
                            adouble_F, norm_F, norm_deriv_F, double epsilon,
                            double epsilon_deriv, size_t N_max,
                            size_t N_max_deriv, adouble *x_0, adouble *u,

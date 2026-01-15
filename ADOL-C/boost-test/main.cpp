@@ -8,7 +8,7 @@ namespace utf = boost::unit_test;
 #include <adolc/adtl.h>
 
 // entry point:
-int main(int argc, char *argv[], char *envp[]) {
+int main(int argc, char *argv[]) {
   adtl::setNumDir(2);
   return utf::unit_test_main(&init_unit_test, argc, argv);
 }

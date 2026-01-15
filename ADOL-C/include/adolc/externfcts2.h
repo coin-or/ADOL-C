@@ -19,38 +19,44 @@
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
-using ADOLC_ext_fct_v2 = int(short tapeId, int iArrLen, int *iArr, int nin,
-                             int nout, int *insz, double **x, int *outsz,
-                             double **y, void *ctx);
-using ADOLC_ext_fct_v2_fos_forward = int(short tapeId, int iArrLen, int *iArr,
-                                         int nin, int nout, int *insz,
-                                         double **x, double **xp, int *outsz,
-                                         double **y, double **yp, void *ctx);
-using ADOLC_ext_fct_v2_fov_forward = int(short tapeId, int iArrLen, int *iArr,
-                                         int nin, int nout, int *insz,
-                                         double **x, int ndir, double ***Xp,
-                                         int *outsz, double **y, double ***Yp,
+using ADOLC_ext_fct_v2 = int(short tapeId, size_t iArrLen, size_t *iArr,
+                             size_t nin, size_t nout, size_t *insz, double **x,
+                             size_t *outsz, double **y, void *ctx);
+using ADOLC_ext_fct_v2_fos_forward = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nin, size_t nout,
+                                         size_t *insz, double **x, double **xp,
+                                         size_t *outsz, double **y, double **yp,
                                          void *ctx);
-using ADOLC_ext_fct_v2_fos_reverse = int(short tapeId, int iArrLen, int *iArr,
-                                         int nout, int nin, int *outsz,
-                                         double **up, int *insz, double **zp,
-                                         double **x, double **y, void *ctx);
-using ADOLC_ext_fct_v2_fov_reverse = int(short tapeId, int iArrLen, int *iArr,
-                                         int nout, int nin, int *outsz, int dir,
-                                         double ***Up, int *insz, double ***Zp,
-                                         double **x, double **y, void *ctx);
+using ADOLC_ext_fct_v2_fov_forward = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nin, size_t nout,
+                                         size_t *insz, double **x, size_t ndir,
+                                         double ***Xp, size_t *outsz,
+                                         double **y, double ***Yp, void *ctx);
+using ADOLC_ext_fct_v2_fos_reverse = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nout, size_t nin,
+                                         size_t *outsz, double **up,
+                                         size_t *insz, double **zp, double **x,
+                                         double **y, void *ctx);
+using ADOLC_ext_fct_v2_fov_reverse = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nout, size_t nin,
+                                         size_t *outsz, size_t dir,
+                                         double ***Up, size_t *insz,
+                                         double ***Zp, double **x, double **y,
+                                         void *ctx);
 
 /* The following two aren't implemented */
-using ADOLC_ext_fct_v2_hos_forward = int(short tapeId, int iArrLen, int *iArr,
-                                         int nin, int nout, int *insz,
-                                         double **x, int degree, double ***Xp,
-                                         int *outsz, double **y, double ***Yp,
-                                         void *ctx);
-using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, int iArrLen, int *iArr,
-                                         int nin, int nout, int *insz,
-                                         double **x, int degree, int ndir,
-                                         double ****Xp, int *outsz, double **y,
-                                         double ****Yp, void *ctx);
+using ADOLC_ext_fct_v2_hos_forward = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nin, size_t nout,
+                                         size_t *insz, double **x,
+                                         size_t degree, double ***Xp,
+                                         size_t *outsz, double **y,
+                                         double ***Yp, void *ctx);
+using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, size_t iArrLen,
+                                         size_t *iArr, size_t nin, size_t nout,
+                                         size_t *insz, double **x,
+                                         size_t degree, size_t ndir,
+                                         double ****Xp, size_t *outsz,
+                                         double **y, double ****Yp, void *ctx);
 
 struct ADOLC_API ext_diff_fct_v2 {
   // This is the id of the outer tape that calls the external differentiated
@@ -175,7 +181,7 @@ struct ADOLC_API ext_diff_fct_v2 {
   /**
    * track maximal dimensions when function is invoked
    */
-  locint max_nin, max_nout, max_insz, max_outsz;
+  size_t max_nin, max_nout, max_insz, max_outsz;
 
   /**
    * make the call such that Adol-C may be used inside
@@ -222,10 +228,10 @@ struct ADOLC_API ext_diff_fct_v2 {
 
 ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
                                        ADOLC_ext_fct_v2 ext_fct);
-ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, int index);
-ADOLC_API int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr,
-                           int nin, int nout, int *insz, adouble **x,
-                           int *outsz, adouble **y);
+ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, size_t index);
+ADOLC_API int call_ext_fct(ext_diff_fct_v2 *edfct, size_t iArrLen, size_t *iArr,
+                           size_t nin, size_t out, size_t *insz, adouble **x,
+                           size_t *outsz, adouble **y);
 
 ADOLC_API void edf_zero(ext_diff_fct_v2 *edfct);
 

@@ -2147,7 +2147,6 @@ BOOST_AUTO_TEST_CASE(PolarCoord_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(PolarCoordOperator_FOV_Reverse) {
   double x1 = 8.17, x2 = -3.41, x3 = 10.01, out1, out2, out3;
-  double y1, y2, y3;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);
@@ -2309,7 +2308,6 @@ BOOST_AUTO_TEST_CASE(SimpleProd_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(SimpleProdOperator_FOV_Reverse) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
-  double y1, y2, y3;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);
@@ -2465,7 +2463,6 @@ BOOST_AUTO_TEST_CASE(SimpleSum_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(SimpleSumOperator_FOV_Reverse) {
   double x1 = 2.52, x2 = 5.22, x3 = -2.25, out1, out2, out3;
-  double y1, y2, y3;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);
@@ -2653,7 +2650,6 @@ BOOST_AUTO_TEST_CASE(TrigProd_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(TrigProdOperator_FOV_Reverse) {
   double x1 = 5.5, x2 = 0.5, x3 = 5.55, x4 = 2.33, out1, out2, out3, out4;
-  double y1, y2, y3, y4;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);
@@ -2834,7 +2830,6 @@ BOOST_AUTO_TEST_CASE(PolarCoordInv_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(PolarCoordInvProdOperator_FOV_Reverse) {
   double x1 = 4.21, x2 = -0.98, x3 = 3.02, out1, out2, out3;
-  double y1, y2, y3;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);
@@ -3001,7 +2996,6 @@ BOOST_AUTO_TEST_CASE(MultiHyperb_FOV_Forward) {
 
 BOOST_AUTO_TEST_CASE(MultiHyperbProdOperator_FOV_Reverse) {
   double x1 = 1., x2 = 0.1, out1, out2, out3, out4;
-  double y1, y2, y3, y4;
   const short tapeId4 = 1;
 
   setCurrentTape(tapeId4);

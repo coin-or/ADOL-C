@@ -1,4 +1,3 @@
-
 /*----------------------------------------------------------------------------
  ADOL-C -- Automatic Differentiation by Overloading in C++
  File:     uni5_for.cpp
@@ -35,6 +34,7 @@ and _NTIGHT__
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
@@ -145,10 +145,12 @@ and _NTIGHT__
 /*--------------------------------------------------------------------------*/
 #elif defined(_INDO_)
 BEGIN_C_DECLS
-void copy_index_domain(int res, int arg, locint **ind_dom);
-void merge_2_index_domains(int res, int arg, locint **ind_dom);
-void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom);
-void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom);
+void copy_index_domain(size_t res, size_t arg, unsigned int **ind_dom);
+void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom);
+void combine_2_index_domains(size_t res, size_t arg1, size_t arg2,
+                             unsigned int **ind_dom);
+void merge_3_index_domains(size_t res, size_t arg1, size_t arg2,
+                           unsigned int **ind_dom);
 END_C_DECLS
 #define NUMNNZ 20
 #define FMIN_ADOLC(x, y) ((y < x) ? y : x)
@@ -179,10 +181,10 @@ typedef struct IndexElement_sod {
 } IndexElement_sod;
 
 BEGIN_C_DECLS
-void free_tree(IndexElement *nlf, int num);
-void traverse_crs(IndexElement *fod2, IndexElement_sod *sod, int num);
+void free_tree(IndexElement *nlf, size_t num);
+void traverse_crs(IndexElement *fod2, IndexElement_sod *sod, size_t num);
 void traverse_unary(IndexElement *fod, IndexElement *nonl_dom,
-                    IndexElement *fodi, int num, int maxopind);
+                    IndexElement *fodi, size_t num, size_t maxopind);
 END_C_DECLS
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_forward_t"
@@ -198,13 +200,14 @@ END_C_DECLS
  */
 
 BEGIN_C_DECLS
-void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
-                                            locint **ind_dom,
-                                            locint **nonl_dom);
-void extend_nonlinearity_domain_unary(int arg, locint **ind_dom,
-                                      locint **nonl_dom);
-void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
-                                       locint **nonl_dom);
+void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
+                                            unsigned int **ind_dom,
+                                            unsigned int **nonl_dom);
+void extend_nonlinearity_domain_unary(size_t arg, unsigned int **ind_dom,
+                                      unsigned int **nonl_dom);
+void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2,
+                                       unsigned int **ind_dom,
+                                       unsigned int **nonl_dom);
 END_C_DECLS
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_old_forward_t"
@@ -625,12 +628,12 @@ int indopro_forward_tight(
 #if defined(_NTIGHT_)
 #if defined(_ABS_NORM_)
     int indopro_forward_absnormal(
-        short tnum,              /* tape id                              */
-        int depcheck,            /* consistency chk on # of dependents   */
-        int indcheck,            /* consistency chk on # of independents */
-        int swcheck,             /* consistency chk on # of switches    */
-        const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        short tnum,         /* tape id                              */
+        int depcheck,       /* consistency chk on # of dependents   */
+        int indcheck,       /* consistency chk on # of independents */
+        int swcheck,        /* consistency chk on # of switches    */
+        const double *,     /* independent variable values   (in)   */
+        unsigned int **crs) /* returned row index storage (out)     */
 
 /* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
  */
@@ -639,11 +642,11 @@ int indopro_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int indopro_forward_safe(
-        short tnum,              /* tape id                              */
-        int depcheck,            /* consistency chk on # of dependents   */
-        int indcheck,            /* consistency chk on # of independents */
-        const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        short tnum,         /* tape id                              */
+        int depcheck,       /* consistency chk on # of dependents   */
+        int indcheck,       /* consistency chk on # of independents */
+        const double *,     /* independent variable values   (in)   */
+        unsigned int **crs) /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -669,11 +672,11 @@ int nonl_ind_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_forward_safe(
-        short tnum,              /* tape id                              */
-        int depcheck,            /* consistency chk on # of dependents   */
-        int indcheck,            /* consistency chk on # of independents */
-        const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        short tnum,         /* tape id                              */
+        int depcheck,       /* consistency chk on # of dependents   */
+        int indcheck,       /* consistency chk on # of independents */
+        const double *,     /* independent variable values   (in)   */
+        unsigned int **crs) /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -698,11 +701,11 @@ int nonl_ind_old_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_old_forward_safe(
-        short tnum,              /* tape id                              */
-        int depcheck,            /* consistency chk on # of dependents   */
-        int indcheck,            /* consistency chk on # of independents */
-        const double *basepoint, /* independent variable values   (in)   */
-        unsigned int **crs)      /* returned row index storage (out)     */
+        short tnum,         /* tape id                              */
+        int depcheck,       /* consistency chk on # of dependents   */
+        int indcheck,       /* consistency chk on # of independents */
+        const double *,     /* independent variable values   (in)   */
+        unsigned int **crs) /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -845,16 +848,20 @@ int hov_forward(
   double *d = nullptr;
 #endif
 
-  int indexi = 0, indexd = 0;
+  int indexi = 0;
+#if defined(_INDO_)
+#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
+  int indexd = 0;
+#endif
+#elif !defined(_NTIGHT_) || !defined(_ZOS_)
+  int indexd = 0;
+#endif
 
-  /* loop indices */
-  int ls;
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
-  int l = 0;
-  int max_ind_dom;
+  size_t max_ind_dom;
   /* index domains */
-  locint **ind_dom = nullptr;
+  unsigned int **ind_dom = nullptr;
 #endif
 #if defined(_NONLIND_)
   /* nonlinear interaction domains */
@@ -864,12 +871,12 @@ int hov_forward(
   IndexElement_sod *sod = nullptr;
   IndexElement_sod *temp = nullptr;
   IndexElement_sod *temp1 = nullptr;
-  int maxopind;
-  int opind;
+  size_t maxopind;
+  size_t opind;
 #endif
 #if defined(_NONLIND_OLD_)
   /* nonlinear interaction domains */
-  locint **nonl_dom = nullptr;
+  unsigned int **nonl_dom = nullptr;
 #endif
 #endif
 
@@ -950,8 +957,9 @@ int hov_forward(
   const int pk = k * p;
 #endif
 
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
   locint switchnum = 0;
-
+#endif
   /* extern diff. function variables */
 #if defined(_EXTERN_)
 #undef(_EXTERN_)
@@ -967,8 +975,8 @@ int hov_forward(
   zos_forward_iArr(edfct->tapeId, iArrLength, iArr, n, edfct->dp_x, m,         \
                    edfct->dp_y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  zos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, (int *)insz,         \
-              edfct2->x, (int *)outsz, edfct2->y, edfct2->context)
+  zos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
+              outsz, edfct2->y, edfct2->context)
 #define ADOLC_EXT_COPY_TAYLORS(dest, src)
 #endif
   /* FOS_FORWARD */
@@ -985,9 +993,8 @@ int hov_forward(
 #define ADOLC_EXT_POINTER_X edfct->dp_X
 #define ADOLC_EXT_POINTER_Y edfct->dp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, (int *)insz,         \
-              edfct2->x, edfct2->xp, (int *)outsz, edfct2->y, edfct2->yp,      \
-              edfct2->context)
+  fos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
+              edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->yp
 #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
@@ -1007,9 +1014,8 @@ int hov_forward(
 #define ADOLC_EXT_POINTER_X edfct->dpp_X
 #define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_forward(edfct->tapeId, iArrLength, iArr, nin, nout, (int *)insz,         \
-              edfct2->x, p, edfct2->Xp, (int *)outsz, edfct2->y, edfct2->Yp,   \
-              edfct2->context)
+  fov_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x, p,  \
+              edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->Xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
 #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
@@ -1017,20 +1023,15 @@ int hov_forward(
 #endif
 
 #if defined(_EXTERN_)
-  locint n, m;
+  size_t n, m;
   ext_diff_fct *edfct = nullptr;
   ext_diff_fct_v2 *edfct2;
-  int loop, oloop;
-  int iArrLength;
-  int *iArr = nullptr;
+  size_t iArrLength;
+  size_t *iArr = nullptr;
   int ext_retc;
-  int nin, nout;
-  locint *insz = nullptr;
-  locint *outsz = nullptr;
-#endif
-
-#if defined(_ABS_NORM_)
-  short sig;
+  size_t nin, nout;
+  size_t *insz = nullptr;
+  size_t *outsz = nullptr;
 #endif
 
 #ifdef ADOLC_AMPI_SUPPORT
@@ -1071,10 +1072,10 @@ int hov_forward(
   /* Set up stuff for the tape */
 
   /* Initialize the Forward Sweep */
-  tape.init_for_sweep(tnum);
+  tape.init_for_sweep();
 
-  if ((depcheck != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
-      (indcheck != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
+  if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (to_size_t(indcheck) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{
@@ -1090,7 +1091,7 @@ int hov_forward(
                      ADOLCError::FailInfo{.info1 = tnum});
 
 #if defined(_ABS_NORM_SIG_) || defined(_INDOPRO_)
-  if (swcheck != tape.tapestats(TapeInfos::NUM_SWITCHES))
+  if (to_size_t(swcheck) != tape.tapestats(TapeInfos::NUM_SWITCHES))
     ADOLCError::fail(
         ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
         ADOLCError::FailInfo{.info1 = tnum,
@@ -1166,11 +1167,11 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
   /* index domains */
-  ind_dom = new locint *[tape.tapestats(TapeInfos::NUM_MAX_LIVES)];
+  ind_dom = new unsigned int *[tape.tapestats(TapeInfos::NUM_MAX_LIVES)];
   max_ind_dom = tape.tapestats(TapeInfos::NUM_MAX_LIVES);
 
-  for (int i = 0; i < max_ind_dom; i++) {
-    ind_dom[i] = new locint[NUMNNZ + 2];
+  for (size_t i = 0; i < max_ind_dom; i++) {
+    ind_dom[i] = new unsigned int[NUMNNZ + 2];
     ind_dom[i][0] = 0;
     ind_dom[i][1] = NUMNNZ;
   }
@@ -1195,9 +1196,9 @@ int hov_forward(
 #endif
 #if defined(_NONLIND_OLD_)
 
-  nonl_dom = new locint *[indcheck];
+  nonl_dom = new unsigned int *[indcheck];
   for (int i = 0; i < indcheck; i++) {
-    nonl_dom[i] = new locint[NUMNNZ + 2];
+    nonl_dom[i] = new unsigned int[NUMNNZ + 2];
     nonl_dom[i][0] = 0;
     nonl_dom[i][1] = NUMNNZ;
   }
@@ -1623,42 +1624,40 @@ int hov_forward(
       /*--------------------------------------------------------------------------*/
     case assign_dep: /* assign a float variable a    assign_dep */
       /* dependent adouble value. (>>=) */
-      res = tape.get_locint_f();
-
-#if !defined(_INDO_)
-#if !defined(_NTIGHT_)
-      if (valuepoint != nullptr)
-        valuepoint[indexd] = dp_T0[res];
-#endif /* !_NTIGHT_ */
-#endif
-
+      {
+        res = tape.get_locint_f();
 #if defined(_INDO_)
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-      if (ind_dom[res][0] != 0) {
-        crs[indexd] = new unsigned int[ind_dom[res][0] + 1];
-        crs[indexd][0] = ind_dom[res][0];
-        for (l = 1; l <= crs[indexd][0]; l++) {
-          crs[indexd][l] = ind_dom[res][l + 1];
+        if (ind_dom[res][0] != 0) {
+          crs[indexd] = new unsigned int[ind_dom[res][0] + 1];
+          crs[indexd][0] = ind_dom[res][0];
+          for (unsigned int l = 1; l <= crs[indexd][0]; l++) {
+            crs[indexd][l] = ind_dom[res][l + 1];
+          }
+        } else {
+          crs[indexd] = new unsigned int[1];
+          crs[indexd][0] = 0;
         }
-      } else {
-        crs[indexd] = new unsigned int[1];
-        crs[indexd][0] = 0;
+        indexd++;
+#endif // _INDOPRO_ && !_NONLIND_OLD_
+#else
+#if !defined(_NTIGHT_)
+        if (valuepoint != nullptr)
+          valuepoint[indexd] = dp_T0[res];
+#endif // !_NTIGHT_
+#if !defined(_ZOS_)
+        ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+#if defined(_INT_FOR_)
+        if (taylors != 0) /* ??? question: why here? */
+          FOR_0_LE_l_LT_p TAYLORS(indexd, l, i) = TRES_INC;
+#else
+        if (taylors != 0) /* ??? question: why here? */
+          FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TAYLORS(indexd, l, i) = TRES_INC;
+#endif // _INT_FOR_
+        indexd++;
+#endif // !_ZOS_
+#endif // _INDO_
       }
-#endif
-#else
-#if !defined(_ZOS_) /* BREAK_ZOS */
-      ASSIGN_T(Tres, TAYLOR_BUFFER[res])
-
-#ifdef _INT_FOR_
-      if (taylors != 0) /* ??? question: why here? */
-        FOR_0_LE_l_LT_p TAYLORS(indexd, l, i) = TRES_INC;
-#else
-      if (taylors != 0) /* ??? question: why here? */
-        FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TAYLORS(indexd, l, i) = TRES_INC;
-#endif
-#endif
-#endif /* ALL_TOGETHER_AGAIN */
-      indexd++;
       break;
 
       /****************************************************************************/
@@ -3724,10 +3723,10 @@ int hov_forward(
 
       /* olvo/mitev 980721 return value (taken from below) */
       if (dp_T0[arg1] > dp_T0[arg2]) {
-        if (coval)
+        if (coval != 0.0)
           MINDEC(ret_c, 2);
       } else if (dp_T0[arg1] < dp_T0[arg2]) {
-        if (!coval)
+        if (coval == 0.0)
           MINDEC(ret_c, 2);
       } else if (arg1 != arg2)
         MINDEC(ret_c, 1);
@@ -3881,18 +3880,18 @@ int hov_forward(
 
       /* olvo/mitev 980721 ec n3l (taken from below) */
       if (dp_T0[arg] < 0.0) {
-        if (coval)
+        if (coval != 0.0)
           MINDEC(ret_c, 2);
       } else if (dp_T0[arg] > 0.0) {
-        if (!coval)
+        if (coval == 0.0)
           MINDEC(ret_c, 2);
       }
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
       if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
         tape.signature()[switchnum] = dp_T0[arg];
-#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
         swargs[switchnum] = dp_T0[arg];
-#endif
       }
+#endif
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
@@ -3902,7 +3901,7 @@ int hov_forward(
         crs[depcheck + switchnum] = (unsigned int *)malloc(
             sizeof(unsigned int) * (ind_dom[arg][0] + 1));
         crs[depcheck + switchnum][0] = ind_dom[arg][0];
-        for (l = 1; l <= crs[depcheck + switchnum][0]; l++) {
+        for (unsigned int l = 1; l <= crs[depcheck + switchnum][0]; l++) {
           crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
         }
       } else {
@@ -3911,7 +3910,8 @@ int hov_forward(
         crs[depcheck + switchnum][0] = 0;
       }
       ind_dom[res][0] = 1;
-      ind_dom[res][2] = indcheck + switchnum;
+      // its ugly but this conversion happens anyway implicitly
+      ind_dom[res][2] = static_cast<unsigned int>(indcheck + switchnum);
 #else
       copy_index_domain(res, arg, ind_dom);
 #endif
@@ -3934,7 +3934,7 @@ int hov_forward(
           y = 1.0;
       }
       FOR_0_LE_l_LT_p {
-        if ((y == 0.0) && (TARG != 0.0))
+        if ((y == 0.0) && (TARG != 0))
           MINDEC(ret_c, 1);
 
         TRES_INC = TARG_INC;
@@ -3947,14 +3947,13 @@ int hov_forward(
 #endif /* _NTIGHT_ */
 #else
 #ifdef _ABS_NORM_
-      sig = FIRSTSIGN_P(dp_T0[arg], Targ);
 #if defined(_FOV_)
-      sigsw[switchnum] = sig;
+      sigsw[switchnum] = FIRSTSIGN_P(dp_T0[arg], Targ);
 #endif
       COPYTAYL_P(swtaylors[switchnum], Targ);
       FOR_0_LE_l_LT_p TRES_INC = fabs(dp_T0[arg] + TARG_INC) - fabs(dp_T0[arg]);
 #elif defined(_ABS_NORM_SIG_)
-      double y;
+      short y;
       if (sigdir == nullptr)
         y = EXT_FIRSTSIGN2_P(sigbase[switchnum], dp_T0[arg], Targ);
       else
@@ -3984,8 +3983,10 @@ int hov_forward(
 #if !defined(_NTIGHT_)
       dp_T0[res] = fabs(dp_T0[arg]);
 #endif /* !_NTIGHT_ */
+#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
       if (tape.tapestats(TapeInfos::NO_MIN_MAX))
         switchnum++;
+#endif
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -4021,7 +4022,7 @@ int hov_forward(
 #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-      FOR_0_LE_l_LT_pk TRES_INC = 0.0;
+      FOR_0_LE_l_LT_pk TRES_INC = 0;
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -4059,7 +4060,7 @@ int hov_forward(
 #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-      FOR_0_LE_l_LT_pk TRES_INC = 0.0;
+      FOR_0_LE_l_LT_pk TRES_INC = 0;
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -4548,7 +4549,7 @@ int hov_forward(
                            ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
-        dp_T0[res] = arg1;
+        dp_T0[res] = static_cast<double>(arg1);
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
                          CURRENT_LOCATION);
@@ -5469,7 +5470,7 @@ int hov_forward(
 #endif
           tape.get_val_v_f(size);
 
-      for (ls = 0; ls < size; ls++) {
+      for (size_t ls = 0; ls < size; ls++) {
 #if !defined(_NTIGHT_)
         dp_T0[res] = *d;
 #endif /* !_NTIGHT_ */
@@ -5538,7 +5539,7 @@ int hov_forward(
       }
 
       arg = tape.lowestXLoc_for();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
@@ -5549,7 +5550,7 @@ int hov_forward(
         ++arg;
       }
       arg = tape.lowestYLoc_for();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
@@ -5564,7 +5565,7 @@ int hov_forward(
       MINDEC(ret_c, ext_retc);
 
       res = tape.lowestXLoc_for();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
@@ -5573,7 +5574,7 @@ int hov_forward(
         ++res;
       }
       res = tape.lowestYLoc_for();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
@@ -5586,8 +5587,8 @@ int hov_forward(
 
     case ext_diff_iArr: /* extern differentiated function */
       iArrLength = tape.get_locint_f();
-      iArr = new int[iArrLength];
-      for (loop = 0; loop < iArrLength; ++loop)
+      iArr = new size_t[iArrLength];
+      for (size_t loop = 0; loop < iArrLength; ++loop)
         iArr[loop] = tape.get_locint_f();
       tape.get_locint_f(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_f());
@@ -5623,7 +5624,7 @@ int hov_forward(
       }
 
       arg = tape.lowestXLoc_for();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
@@ -5634,7 +5635,7 @@ int hov_forward(
         ++arg;
       }
       arg = tape.lowestYLoc_for();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
@@ -5649,7 +5650,7 @@ int hov_forward(
       MINDEC(ret_c, ext_retc);
 
       res = tape.lowestXLoc_for();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
@@ -5658,7 +5659,7 @@ int hov_forward(
         ++res;
       }
       res = tape.lowestYLoc_for();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
@@ -5666,27 +5667,27 @@ int hov_forward(
 #endif
         ++res;
       }
-      free((void *)iArr);
-      iArr = 0;
+      delete[] iArr;
+      iArr = nullptr;
       break;
     case ext_diff_v2:
       tape.ext_diff_fct_index(tape.get_locint_f());
       iArrLength = tape.get_locint_f();
-      iArr = new int[iArrLength];
-      for (loop = 0; loop < iArrLength; ++loop)
+      iArr = new size_t[iArrLength];
+      for (size_t loop = 0; loop < iArrLength; ++loop)
         iArr[loop] = tape.get_locint_f();
       tape.get_locint_f(); /* iArrLength again */
       nin = tape.get_locint_f();
       nout = tape.get_locint_f();
-      insz = new locint[2 * (nin + nout)];
+      insz = new size_t[2 * (nin + nout)];
       outsz = insz + nin;
       tape.lowestXLoc_ext_v2(outsz + nout);
       tape.lowestYLoc_ext_v2(outsz + nout + nin);
-      for (loop = 0; loop < nin; ++loop) {
+      for (size_t loop = 0; loop < nin; ++loop) {
         insz[loop] = tape.get_locint_f();
         tape.lowestXLoc_ext_v2()[loop] = tape.get_locint_f();
       }
-      for (loop = 0; loop < nout; ++loop) {
+      for (size_t loop = 0; loop < nout; ++loop) {
         outsz[loop] = tape.get_locint_f();
         tape.lowestYLoc_ext_v2()[loop] = tape.get_locint_f();
       }
@@ -5717,10 +5718,10 @@ int hov_forward(
 #endif
       }
 
-      for (oloop = 0; oloop < nin; ++oloop) {
+      for (size_t oloop = 0; oloop < nin; ++oloop) {
         arg = tape.lowestXLoc_ext_v2()[oloop];
         memcpy(&edfct2->x[oloop][0], &dp_T0[arg], insz[oloop] * sizeof(double));
-        for (loop = 0; loop < insz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           if (edfct2->dp_x_changes) {
             IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
           }
@@ -5731,11 +5732,11 @@ int hov_forward(
           ++arg;
         }
       }
-      for (oloop = 0; oloop < nout; ++oloop) {
+      for (size_t oloop = 0; oloop < nout; ++oloop) {
         arg = tape.lowestYLoc_ext_v2()[oloop];
         memcpy(&edfct2->y[oloop][0], &dp_T0[arg],
                outsz[oloop] * sizeof(double));
-        for (loop = 0; loop < outsz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           if (edfct2->dp_y_priorRequired) {
             IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
           }
@@ -5750,11 +5751,11 @@ int hov_forward(
       ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      for (oloop = 0; oloop < nin; ++oloop) {
+      for (size_t oloop = 0; oloop < nin; ++oloop) {
         res = tape.lowestXLoc_ext_v2()[oloop];
         memcpy(&dp_T0[res], &edfct2->x[oloop][0], insz[oloop] * sizeof(double));
 #if !defined(_ZOS_)
-        for (loop = 0; loop < insz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_X[oloop][loop],
                                       TAYLOR_BUFFER[res]);
           ++res;
@@ -5762,12 +5763,12 @@ int hov_forward(
 #endif
       }
 
-      for (oloop = 0; oloop < nout; ++oloop) {
+      for (size_t oloop = 0; oloop < nout; ++oloop) {
         res = tape.lowestYLoc_ext_v2()[oloop];
         memcpy(&dp_T0[res], &edfct2->y[oloop][0],
                outsz[oloop] * sizeof(double));
 #if !defined(_ZOS_)
-        for (loop = 0; loop < outsz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_V2_POINTER_Y[oloop][loop],
                                       TAYLOR_BUFFER[res]);
           ++res;
@@ -5775,8 +5776,8 @@ int hov_forward(
 #endif
       }
 
-      delete insz;
-      delete iArr;
+      delete[] insz;
+      delete[] iArr;
       insz = nullptr;
       iArr = nullptr;
       outsz = 0;
@@ -5937,7 +5938,7 @@ int hov_forward(
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
-  for (int i = 0; i < max_ind_dom; i++) {
+  for (size_t i = 0; i < max_ind_dom; i++) {
     delete ind_dom[i];
   }
   delete[] ind_dom;
@@ -5947,20 +5948,20 @@ int hov_forward(
     traverse_crs(&nonl_dom[i], &sod[i], indcheck + 1);
     free_tree(&nonl_dom[i], indcheck + 1);
     crs[i] = new unsigned int[sod[i].entry + 1];
-    crs[i][0] = sod[i].entry;
+    crs[i][0] = static_cast<unsigned int>(sod[i].entry);
     temp = sod[i].left;
-    for (int ii = 1; ii <= sod[i].entry; ii++) {
-      crs[i][ii] = temp->entry;
+    for (size_t ii = 1; ii <= sod[i].entry; ii++) {
+      crs[i][ii] = static_cast<unsigned int>(temp->entry);
       temp1 = temp->left;
       free(temp);
       temp = temp1;
     }
   }
 
-  delete sod;
-  delete nonl_dom;
-  delete fod;
-  delete arg_index;
+  delete[] sod;
+  delete[] nonl_dom;
+  delete[] fod;
+  delete[] arg_index;
 
 #endif
 #if defined(_NONLIND_OLD_)
@@ -5968,7 +5969,7 @@ int hov_forward(
   for (int i = 0; i < indcheck; i++) {
     crs[i] = new unsigned int[nonl_dom[i][0] + 1];
     crs[i][0] = nonl_dom[i][0];
-    for (l = 1; l < crs[i][0] + 1; l++)
+    for (unsigned int l = 1; l < crs[i][0] + 1; l++)
       crs[i][l] = nonl_dom[i][l + 1];
     delete nonl_dom[i];
   }
@@ -5981,16 +5982,14 @@ int hov_forward(
 
 /****************************************************************************/
 #if defined(_ZOS_) && defined(_ABS_NORM_)
-int get_num_switches(short tapeId) {
-  int nswitch;
-
+size_t get_num_switches(short tapeId) {
   ValueTape &tape = findTape(tapeId);
-  tape.init_for_sweep(tapeId);
+  tape.init_for_sweep();
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info1 = tapeId});
 
-  nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
+  const size_t nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
   tape.end_sweep();
   return nswitch;
 }
@@ -5999,9 +5998,9 @@ int get_num_switches(short tapeId) {
 short firstsign(int p, const double *u, const double *du) {
   int i = 0;
   short tmp;
-  tmp = ((*u) > 1e-12) ? 1.0 : (((*u) < -1e-12) ? -1.0 : 0.0);
+  tmp = (*u > 1e-12) ? 1 : (((*u) < -1e-12) ? -1 : 0);
   while (i < p && tmp == 0.0) {
-    tmp = (du[i] > 0.0) ? 1.0 : ((du[i] < 0.0) ? -1.0 : 0.0);
+    tmp = (du[i] > 0) ? 1 : ((du[i] < 0) ? -1 : 0);
     i++;
   }
   return tmp;
@@ -6039,25 +6038,20 @@ short ext_firstsign2(double sigbase, int p, double *u, double *du) {
 /* operations on index domains                                              */
 
 #if defined(_TIGHT_)
-void copy_index_domain(int res, int arg, locint **ind_dom) {
-
-  int i;
-
+void copy_index_domain(size_t res, size_t arg, unsigned int **ind_dom) {
   if (ind_dom[arg][0] > ind_dom[res][1]) {
     delete ind_dom[res];
-    ind_dom[res] = new locint[2 * (ind_dom[arg][0] + 1)];
+    ind_dom[res] = new unsigned int[2 * (ind_dom[arg][0] + 1)];
     ind_dom[res][1] = 2 * ind_dom[arg][0];
   }
 
-  for (i = 2; i < ind_dom[arg][0] + 2; i++)
+  for (size_t i = 2; i < ind_dom[arg][0] + 2; i++)
     ind_dom[res][i] = ind_dom[arg][i];
   ind_dom[res][0] = ind_dom[arg][0];
 }
 
-void merge_2_index_domains(int res, int arg, locint **ind_dom) {
-
-  int num, num1, num2, i, j, k, l;
-  locint *temp_array, *arg_ind_dom, *res_ind_dom;
+void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom) {
+  unsigned int *temp_array, *arg_ind_dom, *res_ind_dom;
 
   if (ind_dom[res][0] == 0)
     copy_index_domain(res, arg, ind_dom);
@@ -6066,19 +6060,17 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
       arg_ind_dom = ind_dom[arg];
       res_ind_dom = ind_dom[res];
 
-      num = ind_dom[res][0];
-      num1 = arg_ind_dom[0];
-      num2 = ind_dom[res][1];
+      unsigned int num = ind_dom[res][0];
+      unsigned int num1 = arg_ind_dom[0];
+      const unsigned int num2 =
+          num1 + num ? ind_dom[res][1] < num1 + num : ind_dom[res][1];
 
-      if (num2 < num1 + num)
-        num2 = num1 + num;
-
-      temp_array = new locint[num2 + 2];
+      temp_array = new unsigned int[num2 + 2];
       temp_array[1] = num2;
 
-      i = 2;
-      j = 2;
-      k = 2;
+      unsigned int i = 2;
+      unsigned int j = 2;
+      unsigned int k = 2;
       num += 2;
       num1 += 2;
       while ((i < num) && (j < num1)) {
@@ -6099,11 +6091,11 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
           }
         }
       }
-      for (l = i; l < num; l++) {
+      for (size_t l = i; l < num; l++) {
         temp_array[k] = res_ind_dom[l];
         k++;
       }
-      for (l = j; l < num1; l++) {
+      for (size_t l = j; l < num1; l++) {
         temp_array[k] = arg_ind_dom[l];
         k++;
       }
@@ -6114,7 +6106,8 @@ void merge_2_index_domains(int res, int arg, locint **ind_dom) {
   }
 }
 
-void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
+void combine_2_index_domains(size_t res, size_t arg1, size_t arg2,
+                             unsigned int **ind_dom) {
 
   if (res != arg1)
     copy_index_domain(res, arg1, ind_dom);
@@ -6122,7 +6115,8 @@ void combine_2_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
   merge_2_index_domains(res, arg2, ind_dom);
 }
 
-void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
+void merge_3_index_domains(size_t res, size_t arg1, size_t arg2,
+                           unsigned int **ind_dom) {
   merge_2_index_domains(res, arg1, ind_dom);
   merge_2_index_domains(res, arg2, ind_dom);
 }
@@ -6133,7 +6127,7 @@ void merge_3_index_domains(int res, int arg1, int arg2, locint **ind_dom) {
 #if defined(_NONLIND_)
 #if defined(_TIGHT_)
 
-void free_tree(IndexElement *tree, int num) {
+void free_tree(IndexElement *tree, size_t num) {
 
   if (tree->left != nullptr) {
     free_tree(tree->left, num);
@@ -6146,7 +6140,7 @@ void free_tree(IndexElement *tree, int num) {
       free(tree);
   }
 }
-void traverse_crs(IndexElement *tree, IndexElement_sod *sod, int num) {
+void traverse_crs(IndexElement *tree, IndexElement_sod *sod, size_t num) {
 
   IndexElement_sod *temp, *temp1;
 
@@ -6199,7 +6193,7 @@ void traverse_crs(IndexElement *tree, IndexElement_sod *sod, int num) {
 }
 
 void traverse_unary(IndexElement *tree, IndexElement *nonl_dom,
-                    IndexElement *fodi, int num, int maxopind) {
+                    IndexElement *fodi, size_t num, size_t maxopind) {
   IndexElement *temp;
 
   if (tree->left != nullptr) {
@@ -6224,41 +6218,36 @@ void traverse_unary(IndexElement *tree, IndexElement *nonl_dom,
 #if defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
 
-void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
-                                            locint **ind_dom,
-                                            locint **nonl_dom) {
-  int index, num, num1, num2, i, j, k, l, m;
-  locint *temp_nonl, *index_nonl_dom;
+void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
+                                            unsigned int **ind_dom,
+                                            unsigned int **nonl_dom) {
+  const unsigned int num = ind_dom[arg2][0];
 
-  num = ind_dom[arg2][0];
-
-  for (m = 2; m < ind_dom[arg1][0] + 2; m++) {
-    index = ind_dom[arg1][m];
-    index_nonl_dom = nonl_dom[index];
+  for (size_t m = 2; m < ind_dom[arg1][0] + 2; m++) {
+    const unsigned int index = ind_dom[arg1][m];
+    unsigned int *index_nonl_dom = nonl_dom[index];
 
     if (index_nonl_dom[0] == 0) /* empty list */
     {
       if (index_nonl_dom[1] < num) {
         delete index_nonl_dom;
-        index_nonl_dom = new locint[2 * (num + 1)];
+        index_nonl_dom = new unsigned int[2 * (num + 1)];
         index_nonl_dom[1] = 2 * num;
       }
-      for (i = 2; i < num + 2; i++) /* append index domain list of "arg" */
+      for (size_t i = 2; i < num + 2;
+           i++) /* append index domain list of "arg" */
         index_nonl_dom[i] = ind_dom[arg2][i];
       index_nonl_dom[0] = num;
     } else { /* merge lists */
-      num1 = index_nonl_dom[0];
-      num2 = index_nonl_dom[1];
-
-      if (num1 + num > num2)
-        num2 = num1 + num;
-
-      temp_nonl = new locint[num2 + 2];
+      unsigned int num1 = index_nonl_dom[0];
+      unsigned int num2 =
+          num1 + num ? index_nonl_dom[1] < num1 + num : index_nonl_dom[1];
+      unsigned int *temp_nonl = new unsigned int[num2 + 2];
       temp_nonl[1] = num2;
 
-      i = 2;
-      k = 2;
-      j = 2;
+      unsigned int i = 2;
+      unsigned int k = 2;
+      unsigned int j = 2;
       num1 += 2;
       num2 = num + 2;
       while ((i < num1) && (j < num2)) {
@@ -6279,11 +6268,11 @@ void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
           }
         }
       }
-      for (l = j; l < num2; l++) {
+      for (size_t l = j; l < num2; l++) {
         temp_nonl[k] = ind_dom[arg2][l];
         k++;
       }
-      for (l = i; l < num1; l++) {
+      for (size_t l = i; l < num1; l++) {
         temp_nonl[k] = index_nonl_dom[l];
         k++;
       }
@@ -6294,13 +6283,14 @@ void extend_nonlinearity_domain_binary_step(int arg1, int arg2,
   }
 }
 
-void extend_nonlinearity_domain_unary(int arg, locint **ind_dom,
-                                      locint **nonl_dom) {
+void extend_nonlinearity_domain_unary(size_t arg, unsigned int **ind_dom,
+                                      unsigned int **nonl_dom) {
   extend_nonlinearity_domain_binary_step(arg, arg, ind_dom, nonl_dom);
 }
 
-void extend_nonlinearity_domain_binary(int arg1, int arg2, locint **ind_dom,
-                                       locint **nonl_dom) {
+void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2,
+                                       unsigned int **ind_dom,
+                                       unsigned int **nonl_dom) {
   extend_nonlinearity_domain_binary_step(arg1, arg2, ind_dom, nonl_dom);
   extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }

@@ -892,7 +892,6 @@ ADOLC_API inline adouble ldexp(adouble &&a, const int exp) {
 ADOLC_API inline adouble frexp(const adouble &a, int *exp) {
   double coval = std::frexp(a.value(), exp);
   return adouble(coval);
-  return adouble(coval);
 }
 ADOLC_API inline adouble frexp(adouble &&a, int *exp) {
   const double coval = std::frexp(a.value(), exp);
@@ -936,7 +935,6 @@ ADOLC_API void condeqassign(adouble &res, const adouble &cond,
 ADOLC_API adouble pow(const adouble &a, const double exp);
 ADOLC_API adouble pow(adouble &&a, const double exp);
 ADOLC_API inline adouble pow(double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
   adouble ret;
   if (coval <= 0)
     ADOLCError::fail(ADOLCError::ErrorType::NONPOSITIVE_BASIS,

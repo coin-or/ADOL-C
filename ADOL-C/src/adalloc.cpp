@@ -33,17 +33,17 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /*                                              MEMORY MANAGEMENT UTILITIES */
 /*--------------------------------------------------------------------------*/
-char *populate_dpp(double ***const pointer, char *const memory, int n, int m) {
+char *populate_dpp(double ***const pointer, char *const memory, size_t n,
+                   size_t m) {
   char *tmp;
   double **tmp1;
   double *tmp2;
-  int i;
   tmp = (char *)memory;
   tmp1 = (double **)memory;
   *pointer = tmp1;
   tmp = (char *)(tmp1 + n);
   tmp2 = (double *)tmp;
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     (*pointer)[i] = tmp2;
     tmp2 += m;
   }
@@ -51,26 +51,25 @@ char *populate_dpp(double ***const pointer, char *const memory, int n, int m) {
   return tmp;
 }
 /*--------------------------------------------------------------------------*/
-char *populate_dppp(double ****const pointer, char *const memory, int n, int m,
-                    int p) {
+char *populate_dppp(double ****const pointer, char *const memory, size_t n,
+                    size_t m, size_t p) {
   char *tmp;
   double ***tmp1;
   double **tmp2;
   double *tmp3;
-  int i, j;
   tmp = (char *)memory;
   tmp1 = (double ***)memory;
   *pointer = tmp1;
   tmp = (char *)(tmp1 + n);
   tmp2 = (double **)tmp;
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     (*pointer)[i] = tmp2;
     tmp2 += m;
   }
   tmp = (char *)tmp2;
   tmp3 = (double *)tmp;
-  for (i = 0; i < n; i++)
-    for (j = 0; j < m; j++) {
+  for (size_t i = 0; i < n; i++)
+    for (size_t j = 0; j < m; j++) {
       (*pointer)[i][j] = tmp3;
       tmp3 += p;
     }
@@ -78,19 +77,18 @@ char *populate_dppp(double ****const pointer, char *const memory, int n, int m,
   return tmp;
 }
 /*--------------------------------------------------------------------------*/
-char *populate_dppp_nodata(double ****const pointer, char *const memory, int n,
-                           int m) {
+char *populate_dppp_nodata(double ****const pointer, char *const memory,
+                           size_t n, size_t m) {
 
   char *tmp;
   double ***tmp1;
   double **tmp2;
-  int i;
   tmp = (char *)memory;
   tmp1 = (double ***)memory;
   *pointer = tmp1;
   tmp = (char *)(tmp1 + n);
   tmp2 = (double **)tmp;
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     (*pointer)[i] = tmp2;
     tmp2 += m;
   }
@@ -168,10 +166,9 @@ void myfree3(double ***A) {
 /*                                          SPECIAL IDENTITY REPRESENTATION */
 
 /*--------------------------------------------------------------------------*/
-double **myallocI2(int n) {
+double **myallocI2(size_t n) {
   double *Idum = (double *)ADOLC_MALLOC((2 * n - 1), sizeof(double));
   double **I = (double **)malloc(n * sizeof(double *));
-  int i;
   if (!Idum)
     ADOLCError::fail(
         ADOLCError::ErrorType::MYALLOCI2, CURRENT_LOCATION,
@@ -184,10 +181,10 @@ double **myallocI2(int n) {
   I[0] = Idum;
   *Idum = 1.0;
   /* 20020628 olvo n3l: Initialization to 0 */
-  for (i = 1; i < n; i++)
+  for (size_t i = 1; i < n; i++)
     *(++Idum) = 0.0;
   Idum -= (n - 1);
-  for (i = 1; i < n; i++) {
+  for (size_t i = 1; i < n; i++) {
     I[i] = --Idum;
     *Idum = 0.0;
   }
@@ -195,7 +192,7 @@ double **myallocI2(int n) {
 }
 
 /*--------------------------------------------------------------------------*/
-void myfreeI2(int n, double **I) {
+void myfreeI2(size_t n, double **I) {
   free((char *)I[n - 1]);
   free((char *)I);
 }
@@ -205,7 +202,7 @@ void myfreeI2(int n, double **I) {
 
 /* -------------------------------------------------------------------------
  */
-unsigned int *myalloc1_uint(int m) {
+unsigned int *myalloc1_uint(size_t m) {
   unsigned int *A = (unsigned int *)ADOLC_MALLOC(m, sizeof(unsigned int));
   if (!A)
     ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_UINT, CURRENT_LOCATION,
@@ -216,7 +213,7 @@ unsigned int *myalloc1_uint(int m) {
 
 /* -------------------------------------------------------------------------
  */
-size_t *myalloc1_ulong(int m) {
+size_t *myalloc1_ulong(size_t m) {
   size_t *A = (size_t *)ADOLC_CALLOC(m, sizeof(size_t));
   if (!A)
     ADOLCError::fail(ADOLCError::ErrorType::MYALLOC1_ULONG, CURRENT_LOCATION,
@@ -226,10 +223,9 @@ size_t *myalloc1_ulong(int m) {
 
 /* -------------------------------------------------------------------------
  */
-size_t **myalloc2_ulong(int m, int n) {
+size_t **myalloc2_ulong(size_t m, size_t n) {
   size_t *Adum = (size_t *)ADOLC_CALLOC(m * n, sizeof(size_t));
   size_t **A = (size_t **)ADOLC_CALLOC(m, sizeof(size_t *));
-  int i;
   if (!Adum)
     ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info5 = m * n * sizeof(size_t)});
@@ -238,7 +234,7 @@ size_t **myalloc2_ulong(int m, int n) {
     ADOLCError::fail(ADOLCError::ErrorType::MYALLOC2_ULONG, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info5 = m * sizeof(size_t)});
 
-  for (i = 0; i < m; i++) {
+  for (size_t i = 0; i < m; i++) {
     A[i] = Adum;
     Adum += n;
   }

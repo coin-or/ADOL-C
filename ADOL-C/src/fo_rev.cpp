@@ -189,6 +189,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
@@ -297,19 +298,10 @@ int int_reverse_safe(
   double coval = 0;
 #endif
 
-  int indexi = 0, indexd = 0;
+  size_t indexi = 0;
+  size_t indexd = 0;
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-  int switchnum;
-#endif
-
-  /* loop indices */
-  int j, ls;
-
-  /* other necessary variables */
-#if !defined(_NTIGHT_)
-  double r0, r_0;
-  int taycheck;
-  int numdep, numind;
+  int switchnum = 0;
 #endif
 
   /*--------------------------------------------------------------------------*/
@@ -362,9 +354,8 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, (int *)outsz,        \
-              edfct2->up, (int *)insz, edfct2->zp, edfct2->x, edfct2->y,       \
-              edfct2->context)
+  fos_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, edfct2->up,   \
+              insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
 #else
 #define ADOLC_EXT_FCT_U edfct->dpp_U
 #define ADOLC_EXT_FCT_Z edfct->dpp_Z
@@ -380,22 +371,21 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, (int *)outsz, p,     \
-              edfct2->Up, (int *)insz, edfct2->Zp, edfct2->x, edfct2->y,       \
+  fov_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, p,            \
+              edfct2->Up, insz, edfct2->Zp, edfct2->x, edfct2->y,              \
               edfct2->context)
 #endif
 #if !defined(_INT_REV_)
-  locint n, m;
+  size_t n, m;
   ext_diff_fct *edfct = nullptr;
   ext_diff_fct_v2 *edfct2 = nullptr;
-  int iArrLength;
-  int *iArr = nullptr;
-  int loop, oloop;
+  size_t iArrLength;
+  size_t *iArr = nullptr;
   int ext_retc;
   int oldTraceFlag;
-  locint *insz = nullptr;
-  locint *outsz = nullptr;
-  locint nin, nout;
+  size_t *insz = nullptr;
+  size_t *outsz = nullptr;
+  size_t nin, nout;
 #endif
 #ifdef ADOLC_AMPI_SUPPORT
   MPI_Op op;
@@ -428,10 +418,10 @@ int int_reverse_safe(
   /*------------------------------------------------------------------------*/
   /* Set up stuff for the tape */
   /* Initialize the Reverse Sweep */
-  tape.init_rev_sweep(tnum);
+  tape.init_rev_sweep();
 
-  if ((depen != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
-      (indep != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
+  if ((to_size_t(depen) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (to_size_t(indep) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{
@@ -448,7 +438,7 @@ int int_reverse_safe(
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info1 = tnum});
-  else if (swchk != tape.tapestats(TapeInfos::NUM_SWITCHES))
+  else if (to_size_t(swchk) != tape.tapestats(TapeInfos::NUM_SWITCHES))
     ADOLCError::fail(
         ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
         ADOLCError::FailInfo{.info1 = tnum,
@@ -522,13 +512,14 @@ int int_reverse_safe(
 
   tape.rp_T(rp_T);
 
-  tape.taylor_back(tnum, &numdep, &numind, &taycheck);
+  tape.taylor_back();
 
-  if (taycheck < 0)
+  if (tape.deg_save() < 0)
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info3 = 0, .info4 = 1});
 
-  if ((numdep != depen) || (numind != indep))
+  if ((tape.tay_numDeps() != to_size_t(depen)) ||
+      (tape.tay_numInds() != to_size_t(indep)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info1 = tape.tapeId()});
@@ -718,7 +709,7 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
 #if defined(_ABS_NORM_)
-      if (indexd + swchk == rownum)
+      if (indexd + swchk == to_size_t(rownum))
         *Ares = 1.0;
       else
         *Ares = 0.0;
@@ -1091,6 +1082,7 @@ int int_reverse_safe(
 
       /*--------------------------------------------------------------------------*/
     case div_a_a: /* Divide an adouble by an adouble    div_a_a */
+    {
       /* (/) */
       res = tape.get_locint_r();
       arg2 = tape.get_locint_r();
@@ -1101,10 +1093,10 @@ int int_reverse_safe(
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
 
       /* olvo 980922 changed order to allow x=y/x */
-#if !defined(_NTIGHT_)
-      r_0 = -TRES;
+#if !defined(_NTIGHT_) && !defined(_INT_REV_)
+      double r_0 = -TRES;
       tape.get_taylor(res);
-      r0 = 1.0 / TARG2;
+      double r0 = 1.0 / TARG2;
       r_0 *= r0;
 #endif /* !_NTIGHT_ */
 
@@ -1114,18 +1106,18 @@ int int_reverse_safe(
         ARES_INC = 0;
         AARG1_INC |= aTmp;
         AARG2_INC |= aTmp;
-#else
+#elif !defined(_NTIGHT_)
         revreal aTmp = *Ares;
         ARES_INC = 0.0;
         AARG1_INC += aTmp * r0;
         AARG2_INC += aTmp * r_0;
 #endif
       }
-
-      break;
+    } break;
 
       /*--------------------------------------------------------------------------*/
     case div_d_a: /* Division double - adouble (/)    div_d_a */
+    {
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
 
@@ -1136,9 +1128,9 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
-#if !defined(_NTIGHT_)
+#if !defined(_NTIGHT_) && !defined(_INT_REV_)
       /* olvo 980922 changed order to allow x=d/x */
-      r0 = -TRES;
+      double r0 = -TRES;
       if (arg == res)
         tape.get_taylor(arg);
       r0 /= TARG;
@@ -1149,7 +1141,7 @@ int int_reverse_safe(
         size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
-#else
+#elif !defined(_NTIGHT_)
         revreal aTmp = *Ares;
         ARES_INC = 0.0;
         AARG_INC += aTmp * r0;
@@ -1160,7 +1152,7 @@ int int_reverse_safe(
       if (arg != res)
         tape.get_taylor(res);
 #endif /* !_NTIGHT_ */
-      break;
+    } break;
 
       /****************************************************************************/
       /*                                                         SIGN OPERATIONS
@@ -1336,6 +1328,7 @@ int int_reverse_safe(
 
       /*--------------------------------------------------------------------------*/
     case log_op: /* log_op */
+    {
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
 
@@ -1347,7 +1340,7 @@ int int_reverse_safe(
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
 #if !defined(_INT_REV_)
-      r0 = 1.0 / TARG;
+      double r0 = 1.0 / TARG;
 #endif
 
       FOR_0_LE_l_LT_p {
@@ -1361,10 +1354,11 @@ int int_reverse_safe(
         AARG_INC += aTmp * r0;
 #endif
       }
-      break;
+    } break;
 
       /*--------------------------------------------------------------------------*/
     case pow_op: /* pow_op */
+    {
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
 #if !defined(_NTIGHT_)
@@ -1374,9 +1368,9 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
-#if !defined(_NTIGHT_)
+#if !defined(_NTIGHT_) && !defined(_INT_REV_)
       /* olvo 980921 changed order to allow x=pow(x,n) */
-      r0 = TRES; // r0 = pow(x, n)
+      double r0 = TRES; // r0 = pow(x, n)
       if (arg == res)
         tape.get_taylor(arg);
       if (TARG == 0.0)
@@ -1390,7 +1384,7 @@ int int_reverse_safe(
         size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
-#else
+#elif !defined(_NTIGHT_)
         revreal aTmp = *Ares;
         ARES_INC = 0.0;
         AARG_INC += aTmp * r0;
@@ -1401,20 +1395,20 @@ int int_reverse_safe(
       if (res != arg)
         tape.get_taylor(res);
 #endif /* !_NTIGHT_ */
-      break;
+    } break;
 
       /*--------------------------------------------------------------------------*/
     case sqrt_op: /* sqrt_op */
+    {
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
-#if !defined(_NTIGHT_)
-      if (TRES == 0.0)
-        r0 = 0.0;
-      else
+#if !defined(_NTIGHT_) && !defined(_INT_REV_)
+      double r0 = 0.0;
+      if (TRES != 0.0)
         r0 = 0.5 / TRES;
 #endif /* !_NTIGHT_ */
 
@@ -1423,7 +1417,7 @@ int int_reverse_safe(
         size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
-#else
+#elif !defined(_NTIGHT_)
         revreal aTmp = *Ares;
         ARES_INC = 0.0;
         AARG_INC += aTmp * r0;
@@ -1433,20 +1427,20 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       tape.get_taylor(res);
 #endif /* !_NTIGHT_ */
-      break;
+    } break;
 
       /*--------------------------------------------------------------------------*/
     case cbrt_op: /* cbrt_op */
+    {
       res = tape.get_locint_r();
       arg = tape.get_locint_r();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
 
-#if !defined(_NTIGHT_)
-      if (TRES == 0.0)
-        r0 = 0.0;
-      else
+#if !defined(_NTIGHT_) && !defined(_INT_REV_)
+      double r0 = 0.0;
+      if (TRES != 0.0)
         r0 = 1.0 / (3.0 * TRES * TRES);
 #endif /* !_NTIGHT_ */
 
@@ -1455,7 +1449,7 @@ int int_reverse_safe(
         size_t aTmp = *Ares;
         ARES_INC = 0;
         AARG_INC |= aTmp;
-#else
+#elif !defined(_NTIGHT_)
         revreal aTmp = *Ares;
         ARES_INC = 0.0;
         AARG_INC += aTmp * r0;
@@ -1465,7 +1459,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       tape.get_taylor(res);
 #endif /* !_NTIGHT_ */
-      break;
+    } break;
 
       /*--------------------------------------------------------------------------*/
     case gen_quad: /* gen_quad */
@@ -1522,7 +1516,7 @@ int int_reverse_safe(
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
 #endif
-          if ((coval) && (aTmp))
+          if ((coval != 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG2_INC |= aTmp;
@@ -1539,7 +1533,7 @@ int int_reverse_safe(
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
 #endif
-          if ((!coval) && (aTmp))
+          if ((coval == 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG1_INC |= aTmp;
@@ -1612,7 +1606,7 @@ int int_reverse_safe(
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
 #endif
-          if ((coval) && (aTmp))
+          if ((coval != 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG_INC |= aTmp;
@@ -1629,7 +1623,7 @@ int int_reverse_safe(
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
 #endif
-          if ((!coval) && (aTmp))
+          if ((coval == 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG_INC |= aTmp;
@@ -1646,7 +1640,7 @@ int int_reverse_safe(
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
 #endif
-          if (aTmp)
+          if (aTmp != 0)
             MINDEC(ret_c, 1);
         }
 #else
@@ -1677,7 +1671,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if !defined(_NTIGHT_)
-        if ((coval) && (*Ares))
+        if ((coval != 0.0) && (*Ares != 0))
           MINDEC(ret_c, 2);
 #endif /* !_NTIGHT_ */
 #if defined(_INT_REV_)
@@ -1707,7 +1701,7 @@ int int_reverse_safe(
 
       FOR_0_LE_l_LT_p {
 #if !defined(_NTIGHT_)
-        if ((coval) && (*Ares))
+        if ((coval != 0.0) && (*Ares != 0))
           MINDEC(ret_c, 2);
 #endif /* !_NTIGHT_ */
 #if defined(_INT_REV_)
@@ -1743,7 +1737,7 @@ int int_reverse_safe(
       if (TARG > 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
@@ -1754,11 +1748,12 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else {
         if (res != arg2)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG2_INC |= *Ares;
@@ -1769,7 +1764,8 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       if (res != arg1) {
@@ -1805,7 +1801,7 @@ int int_reverse_safe(
       if (TARG >= 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
@@ -1816,11 +1812,12 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else {
         if (res != arg2)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG2_INC |= *Ares;
@@ -1831,7 +1828,8 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       if (res != arg1) {
@@ -1866,20 +1864,21 @@ int int_reverse_safe(
       if (TARG > 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
-            ARES_INC = 0.0;
+            ARES_INC = 0;
 #else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else if (TARG == 0.0) /* we are at the tie */
-        FOR_0_LE_l_LT_p if (ARES_INC) MINDEC(ret_c, 0);
+        FOR_0_LE_l_LT_p if (ARES_INC != 0) MINDEC(ret_c, 0);
 #else
       if (res != arg1)
         FOR_0_LE_l_LT_p {
@@ -1907,18 +1906,19 @@ int int_reverse_safe(
       if (TARG >= 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
-            ARES_INC = 0.0;
+            ARES_INC = 0;
 #else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       if (res != arg1)
@@ -2385,7 +2385,7 @@ int int_reverse_safe(
       if (TARG > 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
@@ -2396,11 +2396,12 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else {
         if (res != arg2)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG2_INC |= *Ares;
@@ -2411,7 +2412,8 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
@@ -2441,7 +2443,7 @@ int int_reverse_safe(
       if (TARG >= 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
@@ -2452,11 +2454,12 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else {
         if (res != arg2)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG2_INC |= *Ares;
@@ -2467,7 +2470,8 @@ int int_reverse_safe(
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
@@ -2490,20 +2494,21 @@ int int_reverse_safe(
       if (TARG > 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval <= 0.0) && (*Ares))
+            if ((coval <= 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
-            ARES_INC = 0.0;
+            ARES_INC = 0;
 #else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval <= 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       } else if (TARG == 0.0) /* we are at the tie */
-        FOR_0_LE_l_LT_p if (ARES_INC) MINDEC(ret_c, 0);
+        FOR_0_LE_l_LT_p if (ARES_INC != 0) MINDEC(ret_c, 0);
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2525,18 +2530,19 @@ int int_reverse_safe(
       if (TARG >= 0.0) {
         if (res != arg1)
           FOR_0_LE_l_LT_p {
-            if ((coval < 0.0) && (*Ares))
+            if ((coval < 0.0) && (*Ares != 0))
               MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
             AARG1_INC |= *Ares;
-            ARES_INC = 0.0;
+            ARES_INC = 0;
 #else
             AARG1_INC += *Ares;
             ARES_INC = 0.0;
 #endif
           }
         else
-          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC)) MINDEC(ret_c, 2);
+          FOR_0_LE_l_LT_p if ((coval < 0.0) && (ARES_INC != 0))
+              MINDEC(ret_c, 2);
       }
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
@@ -2556,12 +2562,12 @@ int int_reverse_safe(
 #endif /* !_NTIGHT_ */
 
       res += size;
-      for (ls = size; ls > 0; ls--) {
+      for (size_t ls = size; ls > 0; ls--) {
         res--;
 
         ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
-        FOR_0_LE_l_LT_p ARES_INC = 0.0;
+        FOR_0_LE_l_LT_p ARES_INC = 0;
       }
       break;
 
@@ -2570,14 +2576,14 @@ int int_reverse_safe(
       arg2 = tape.get_locint_r();
       arg1 = tape.get_locint_r();
 
-      for (j = arg1; j <= arg2; j++) {
+      for (size_t j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, ADJOINT_BUFFER[j])
 
-        FOR_0_LE_l_LT_p AARG1_INC = 0.0;
+        FOR_0_LE_l_LT_p AARG1_INC = 0;
       }
 
 #if !defined(_NTIGHT_)
-      for (j = arg1; j <= arg2; j++)
+      for (size_t j = arg1; j <= arg2; j++)
         tape.get_taylor(j);
 #endif /* !_NTIGHT_ */
       break;
@@ -2617,47 +2623,47 @@ int int_reverse_safe(
                            CURRENT_LOCATION);
       }
       arg = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
       arg = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
       arg = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop, ++arg) {
+      for (size_t loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
       arg = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop, ++arg) {
+      for (size_t loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
       res = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
       res = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
         arg = tape.lowestYLoc_rev() + m - 1;
-        for (loop = 0; loop < m; ++loop, --arg) {
+        for (size_t loop = 0; loop < m; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
         arg = tape.lowestXLoc_rev() + n - 1;
-        for (loop = 0; loop < n; ++loop, --arg) {
+        for (size_t loop = 0; loop < n; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
@@ -2672,9 +2678,9 @@ int int_reverse_safe(
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
       iArrLength = tape.get_locint_r();
-      iArr = new int[iArrLength];
-      for (loop = iArrLength - 1; loop >= 0; --loop)
-        iArr[loop] = tape.get_locint_r();
+      iArr = new size_t[iArrLength];
+      for (size_t loop = iArrLength; loop > 0; --loop)
+        iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* get it again */
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
@@ -2702,47 +2708,47 @@ int int_reverse_safe(
                            CURRENT_LOCATION);
       }
       arg = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
       arg = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
       arg = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop, ++arg) {
+      for (size_t loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
       arg = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop, ++arg) {
+      for (size_t loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
       res = tape.lowestYLoc_rev();
-      for (loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
       res = tape.lowestXLoc_rev();
-      for (loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
         arg = tape.lowestYLoc_rev() + m - 1;
-        for (loop = 0; loop < m; ++loop, --arg) {
+        for (size_t loop = 0; loop < m; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
         arg = tape.lowestXLoc_rev() + n - 1;
-        for (loop = 0; loop < n; ++loop, --arg) {
+        for (size_t loop = 0; loop < n; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
@@ -2752,24 +2758,24 @@ int int_reverse_safe(
     case ext_diff_v2:
       nout = tape.get_locint_r();
       nin = tape.get_locint_r();
-      insz = new locint[2 * (nin + nout)];
+      insz = new size_t[2 * (nin + nout)];
       outsz = insz + nin;
       tape.lowestXLoc_ext_v2(outsz + nout);
       tape.lowestYLoc_ext_v2(outsz + nout + nin);
-      for (loop = nout - 1; loop >= 0; --loop) {
-        tape.lowestYLoc_ext_v2()[loop] = tape.get_locint_r();
-        outsz[loop] = tape.get_locint_r();
+      for (size_t loop = nout; loop > 0; --loop) {
+        tape.lowestYLoc_ext_v2()[loop - 1] = tape.get_locint_r();
+        outsz[loop - 1] = tape.get_locint_r();
       }
-      for (loop = nin - 1; loop >= 0; --loop) {
-        tape.lowestXLoc_ext_v2()[loop] = tape.get_locint_r();
-        insz[loop] = tape.get_locint_r();
+      for (size_t loop = nin; loop > 0; --loop) {
+        tape.lowestXLoc_ext_v2()[loop - 1] = tape.get_locint_r();
+        insz[loop - 1] = tape.get_locint_r();
       }
       tape.get_locint_r(); /* nout again */
       tape.get_locint_r(); /* nin again */
       iArrLength = tape.get_locint_r();
-      iArr = new int[iArrLength];
-      for (loop = iArrLength - 1; loop >= 0; --loop)
-        iArr[loop] = tape.get_locint_r();
+      iArr = new size_t[iArrLength];
+      for (size_t loop = iArrLength; loop > 0; --loop)
+        iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
@@ -2796,18 +2802,18 @@ int int_reverse_safe(
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
       }
-      for (oloop = 0; oloop < nout; ++oloop) {
+      for (size_t oloop = 0; oloop < nout; ++oloop) {
         arg = tape.lowestYLoc_ext_v2()[oloop];
-        for (loop = 0; loop < outsz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_U_LOOP,
                                       ADJOINT_BUFFER_ARG);
           edfct2->y[oloop][loop] = TARG;
           ++arg;
         }
       }
-      for (oloop = 0; oloop < nin; ++oloop) {
+      for (size_t oloop = 0; oloop < nin; ++oloop) {
         arg = tape.lowestXLoc_ext_v2()[oloop];
-        for (loop = 0; loop < insz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_Z_LOOP,
                                       ADJOINT_BUFFER_ARG);
           edfct2->x[oloop][loop] = TARG;
@@ -2816,44 +2822,44 @@ int int_reverse_safe(
       }
       ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
       MINDEC(ret_c, ext_retc);
-      for (oloop = 0; oloop < nout; ++oloop) {
+      for (size_t oloop = 0; oloop < nout; ++oloop) {
         res = tape.lowestYLoc_ext_v2()[oloop];
-        for (loop = 0; loop < outsz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           FOR_0_LE_l_LT_p {
             ADJOINT_BUFFER_RES_L = 0.0; /* \bar{v}_i = 0 !!! */
           }
           ++res;
         }
       }
-      for (oloop = 0; oloop < nin; ++oloop) {
+      for (size_t oloop = 0; oloop < nin; ++oloop) {
         res = tape.lowestXLoc_ext_v2()[oloop];
-        for (loop = 0; loop < insz[oloop]; ++loop) {
+        for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_V2_Z_LOOP,
                                            ADJOINT_BUFFER_RES);
           ++res;
         }
       }
       if (edfct2->dp_y_priorRequired) {
-        for (oloop = nout - 1; oloop >= 0; --oloop) {
-          arg = tape.lowestYLoc_ext_v2()[oloop] + outsz[oloop] - 1;
-          for (loop = outsz[oloop] - 1; loop >= 0; --loop) {
+        for (size_t oloop = nout; oloop > 0; --oloop) {
+          arg = tape.lowestYLoc_ext_v2()[oloop - 1] + outsz[oloop - 1] - 1;
+          for (size_t loop = outsz[oloop - 1]; loop > 0; --loop) {
             tape.get_taylor(arg);
             --arg;
           }
         }
       }
       if (edfct2->dp_x_changes) {
-        for (oloop = nin - 1; oloop >= 0; --oloop) {
-          arg = tape.lowestXLoc_ext_v2()[oloop] + insz[oloop] - 1;
-          for (loop = insz[oloop] - 1; loop >= 0; --loop) {
+        for (size_t oloop = nin; oloop > 0; --oloop) {
+          arg = tape.lowestXLoc_ext_v2()[oloop - 1] + insz[oloop - 1] - 1;
+          for (size_t loop = insz[oloop - 1]; loop > 0; --loop) {
             tape.get_taylor(arg);
             --arg;
           }
         }
       }
       tape.traceFlag(oldTraceFlag);
-      delete iArr;
-      delete insz;
+      delete[] iArr;
+      delete[] insz;
       insz = nullptr;
       iArr = nullptr;
       outsz = nullptr;

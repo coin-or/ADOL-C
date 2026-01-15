@@ -133,7 +133,7 @@ void StoreManagerLocint::free_loc(size_t loc) {
 #endif
 }
 
-void StoreManagerLocint::ensure_block(size_t n) {
+void StoreManagerLocint::ensure_block(size_t) {
   ADOLCError::fail(ADOLCError::ErrorType::SM_LOCINT_BLOCK, CURRENT_LOCATION);
 }
 void StoreManagerLocint::grow(size_t mingrow) {

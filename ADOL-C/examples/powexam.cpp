@@ -45,7 +45,8 @@ adouble power(adouble x, int n) {
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  int i, tag = 1;
+  int i;
+  short tag = 1;
   createNewTape(tag);
   int n;
 

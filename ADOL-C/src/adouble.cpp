@@ -265,7 +265,7 @@ adouble &adouble::operator+=(const adouble &a) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     } else if (tape.get_active_value(a.loc())) {
       const double coval = value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(plus_d_a);
         tape.put_loc(a.loc()); // = arg
         tape.put_loc(loc());   // = res
@@ -282,7 +282,7 @@ adouble &adouble::operator+=(const adouble &a) {
 
     } else if (tape.get_active_value(loc())) {
       const double coval = a.value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(eq_plus_d);
         tape.put_loc(loc()); // = res
         tape.put_val(coval); // = coval
@@ -335,7 +335,7 @@ adouble &adouble::operator+=(adouble &&a) {
 #if defined(ADOLC_TRACK_ACTIVITY)
       } else if (tape.get_active_value(a.loc())) {
         double coval = value();
-        if (coval) {
+        if (coval != 0.0) {
           tape.put_op(plus_d_a);
           tape.put_loc(a.loc()); // = arg
           tape.put_loc(loc());   // = res
@@ -352,7 +352,7 @@ adouble &adouble::operator+=(adouble &&a) {
 
       } else if (tape.get_active_value(loc())) {
         double coval = a.value();
-        if (coval) {
+        if (coval != 0.0) {
           tape.put_op(eq_plus_d);
           tape.put_loc(loc()); // = res
           tape.put_val(coval); // = coval
@@ -410,7 +410,7 @@ adouble &adouble::operator-=(const adouble &a) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     } else if (tape.get_active_value(a.loc())) {
       const double coval = value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(min_d_a);
         tape.put_loc(a.loc()); // = arg
         tape.put_loc(loc());   // = res
@@ -427,7 +427,7 @@ adouble &adouble::operator-=(const adouble &a) {
 
     } else if (tape.get_active_value(loc())) {
       const double coval = a.value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(eq_min_d);
         tape.put_loc(loc()); // = res
         tape.put_val(coval); // = coval
@@ -478,7 +478,7 @@ adouble &adouble::operator-=(adouble &&a) {
 #if defined(ADOLC_TRACK_ACTIVITY)
       } else if (tape.get_active_value(a.loc())) {
         double coval = value();
-        if (coval) {
+        if (coval != 0.0) {
           tape.put_op(min_d_a);
           tape.put_loc(a.loc()); // = arg
           tape.put_loc(loc());   // = res
@@ -495,7 +495,7 @@ adouble &adouble::operator-=(adouble &&a) {
 
       } else if (tape.get_active_value(loc())) {
         double coval = a.value();
-        if (coval) {
+        if (coval != 0.0) {
           tape.put_op(eq_min_d);
           tape.put_loc(loc()); // = res
           tape.put_val(coval); // = coval
@@ -1290,14 +1290,14 @@ adouble operator>(const adouble &a, adouble &&b) {
 
 bool operator!=(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a != 0);
   else {
     if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
       if (tape.get_active_value(a.loc())) {
 #endif
-        tape.put_op(a.value() ? neq_zero : eq_zero);
+        tape.put_op(a.value() != 0.0 ? neq_zero : eq_zero);
         tape.put_loc(a.loc());
 #if defined(ADOLC_TRACK_ACTIVITY)
       }
@@ -1308,7 +1308,7 @@ bool operator!=(const adouble &a, const double coval) {
 }
 
 bool operator!=(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a != 0);
   else
     return (a != 0);
@@ -1316,14 +1316,14 @@ bool operator!=(const double coval, const adouble &a) {
 
 bool operator==(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a == 0);
   else {
     if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
       if (tape.get_active_value(a.loc())) {
 #endif
-        tape.put_op(a.value() ? neq_zero : eq_zero);
+        tape.put_op(a.value() != 0.0 ? neq_zero : eq_zero);
         tape.put_loc(a.loc());
 #if defined(ADOLC_TRACK_ACTIVITY)
       }
@@ -1334,7 +1334,7 @@ bool operator==(const adouble &a, const double coval) {
 }
 
 inline bool operator==(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a == 0);
   else
     return (a == 0);
@@ -1342,7 +1342,7 @@ inline bool operator==(const double coval, const adouble &a) {
 
 bool operator<=(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a <= 0);
   else {
     bool b = (a.value() <= 0);
@@ -1361,7 +1361,7 @@ bool operator<=(const adouble &a, const double coval) {
 }
 
 inline bool operator<=(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a >= 0);
   else
     return (a >= 0);
@@ -1369,7 +1369,7 @@ inline bool operator<=(const double coval, const adouble &a) {
 
 bool operator>=(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a >= 0);
   else {
     bool b = (a.value() >= 0);
@@ -1388,7 +1388,7 @@ bool operator>=(const adouble &a, const double coval) {
 }
 
 bool operator>=(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a <= 0);
   else
     return (a <= 0);
@@ -1396,7 +1396,7 @@ bool operator>=(const double coval, const adouble &a) {
 
 bool operator<(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a < 0);
   else {
     bool b = (a.value() < 0);
@@ -1415,7 +1415,7 @@ bool operator<(const adouble &a, const double coval) {
 }
 
 bool operator<(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a > 0);
   else
     return (a > 0);
@@ -1423,7 +1423,7 @@ bool operator<(const double coval, const adouble &a) {
 
 bool operator>(const adouble &a, const double coval) {
   ValueTape &tape = currentTape();
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a > 0);
   else {
     bool b = (a.value() > 0);
@@ -1442,7 +1442,7 @@ bool operator>(const adouble &a, const double coval) {
 }
 
 bool operator>(const double coval, const adouble &a) {
-  if (coval)
+  if (coval != 0.0)
     return (-coval + a < 0);
   else
     return (a < 0);
@@ -1667,7 +1667,7 @@ adouble operator+(const adouble &a, const adouble &b) {
 
       const double coval = a.value();
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(plus_d_a);
         tape.put_loc(b.loc());           // = arg
         tape.put_loc(ret_adouble.loc()); // = res
@@ -1747,7 +1747,7 @@ adouble operator+(adouble &&a, const adouble &b) {
 
       const double coval = a.value();
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(plus_d_a);
         tape.put_loc(b.loc()); // = arg
         tape.put_loc(a.loc()); // = res
@@ -1801,7 +1801,7 @@ adouble operator+(const double coval, const adouble &a) {
     if (tape.get_active_value(a.loc())) {
 #endif
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(plus_d_a);
         tape.put_loc(a.loc());           // = arg
         tape.put_loc(ret_adouble.loc()); // = res
@@ -1855,7 +1855,7 @@ adouble operator+(const double coval, adouble &&a) {
     if (tape.get_active_value(a.loc())) {
 #endif
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(plus_d_a);
         tape.put_loc(a.loc()); // = arg
         tape.put_loc(a.loc()); // = res
@@ -1932,7 +1932,7 @@ adouble operator-(const adouble &a, const adouble &b) {
     } else if (tape.get_active_value(b.loc())) {
 
       const double coval = a.value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(min_d_a);
         tape.put_loc(b.loc());           // = arg
         tape.put_loc(ret_adouble.loc()); // = res
@@ -2011,7 +2011,7 @@ adouble operator-(adouble &&a, const adouble &b) {
     } else if (tape.get_active_value(b.loc())) {
 
       const double coval = a.value();
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(min_d_a);
         tape.put_loc(b.loc()); // = arg
         tape.put_loc(a.loc()); // = res
@@ -2065,7 +2065,7 @@ adouble operator-(const double coval, const adouble &a) {
     if (tape.get_active_value(a.loc())) {
 #endif
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(min_d_a);
         tape.put_loc(a.loc());           // = arg
         tape.put_loc(ret_adouble.loc()); // = res
@@ -2119,7 +2119,7 @@ adouble operator-(const double coval, adouble &&a) {
     if (tape.get_active_value(a.loc())) {
 #endif
 
-      if (coval) {
+      if (coval != 0.0) {
         tape.put_op(min_d_a);
         tape.put_loc(a.loc()); // = arg
         tape.put_loc(a.loc()); // = res
@@ -4705,7 +4705,7 @@ adouble fmin(const adouble &a, const adouble &b) {
   adouble ret_adouble;
 
   const double coval = b.value() < a.value() ? 0.0 : 1.0;
-  const double tmp = b.value() < a.value() ? b.value() : a.loc();
+  const double tmp = b.value() < a.value() ? b.value() : to_double(a.loc());
 
   if (tape.traceFlag()) {
 

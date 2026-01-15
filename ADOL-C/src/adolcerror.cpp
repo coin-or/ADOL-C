@@ -415,7 +415,7 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
 
   case to_underlying(ErrorType::CP_STORED_EXCEEDS_SNAPS):
     oss << "Number of checkpoints stored = " << failinfo.info3
-        << " exceeds snaps = " << failinfo.info6
+        << " exceeds snaps = " << failinfo.info4
         << "! Ensure 'snaps' > 0 and increase initial 'fine'!\n";
     throw ADOLCError(oss.str(), LocInfo);
     break;
@@ -450,7 +450,7 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     break;
 
   case to_underlying(ErrorType::CP_NO_SUCH_IDX):
-    oss << "There is no CPInfo with index: " << failinfo.info3 << std::endl;
+    oss << "There is no CPInfo with index: " << failinfo.info2 << std::endl;
     throw ADOLCError(oss.str(), LocInfo);
     break;
 

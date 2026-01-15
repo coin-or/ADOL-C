@@ -76,6 +76,7 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
     tape.freeTapeResources();
     tape.tapestats(TapeInfos::OP_BUFFER_SIZE, obs);
     tape.tapestats(TapeInfos::LOC_BUFFER_SIZE, lbs);
+    tape.tapestats(TapeInfos::VAL_BUFFER_SIZE, vbs);
     tape.tapestats(TapeInfos::TAY_BUFFER_SIZE, tbs);
     tape.keepTaylors(keepTaylors);
     tape.tapestats(TapeInfos::NO_MIN_MAX, tape.nominmaxFlag());
@@ -117,7 +118,7 @@ void cachedTraceTags(std::vector<short> &result) {
   }
 }
 
-void printTapeStats(int tapeId) {
+void printTapeStats(short tapeId) {
   using std::cout;
   using std::endl;
 

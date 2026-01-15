@@ -29,14 +29,14 @@ BOOST_AUTO_TEST_CASE(ExpOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 2.);
+    ad.setADValue(j, 1.0 + to_double(j) * 2.);
   }
 
   double aDerivative = std::exp(a);
   ad = adtl::exp(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 2.),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1.0 + to_double(j) * 2.),
                tt::tolerance(tol));
   }
 }
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.1);
+    ad.setADValue(j, 1. + to_double(j) * 1.1);
   }
 
   a = std::tan(a);
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(TanOperatorDerivativeVectorMode) {
   ad = adtl::tan(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.1),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.1),
                tt::tolerance(tol));
   }
 }
@@ -131,14 +131,14 @@ BOOST_AUTO_TEST_CASE(SinOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * (-1.1));
+    ad.setADValue(j, 1. + to_double(j) * (-1.1));
   }
 
   double aDerivative = std::cos(a);
   ad = adtl::sin(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * (-1.1)),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * (-1.1)),
                tt::tolerance(tol));
   }
 }
@@ -149,14 +149,14 @@ BOOST_AUTO_TEST_CASE(CosOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 3.2);
+    ad.setADValue(j, 1. + to_double(j) * 3.2);
   }
 
   double aDerivative = -std::sin(a);
   ad = adtl::cos(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 3.2),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 3.2),
                tt::tolerance(tol));
   }
 }
@@ -167,14 +167,14 @@ BOOST_AUTO_TEST_CASE(SqrtOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 0.8);
+    ad.setADValue(j, 1. + to_double(j) * 0.8);
   }
 
   double aDerivative = 1. / (2 * std::sqrt(a));
   ad = adtl::sqrt(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 0.8),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 0.8),
                tt::tolerance(tol));
   }
 }
@@ -185,14 +185,14 @@ BOOST_AUTO_TEST_CASE(LogOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 0.7);
+    ad.setADValue(j, 1. - to_double(j) * 0.7);
   }
 
   double aDerivative = 1. / a;
   ad = adtl::log(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 0.7),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 0.7),
                tt::tolerance(tol));
   }
 }
@@ -203,14 +203,14 @@ BOOST_AUTO_TEST_CASE(SinhOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.5);
+    ad.setADValue(j, 1. + to_double(j) * 1.5);
   }
 
   double aDerivative = std::cosh(a);
   ad = adtl::sinh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.5),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.5),
                tt::tolerance(tol));
   }
 }
@@ -221,14 +221,14 @@ BOOST_AUTO_TEST_CASE(CoshOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.5);
+    ad.setADValue(j, 1. + to_double(j) * 1.5);
   }
 
   double aDerivative = std::sinh(a);
   ad = adtl::cosh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.5),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.5),
                tt::tolerance(tol));
   }
 }
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.5);
+    ad.setADValue(j, 1. + to_double(j) * 1.5);
   }
 
   a = std::tanh(a);
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(TanhOperatorDerivativeVectorMode) {
   ad = adtl::tanh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.5),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.5),
                tt::tolerance(tol));
   }
 }
@@ -258,14 +258,14 @@ BOOST_AUTO_TEST_CASE(AsinOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 8.0);
+    ad.setADValue(j, 1. - to_double(j) * 8.0);
   }
 
   double aDerivative = 1. / (std::sqrt(1. - a * a));
   ad = adtl::asin(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 8.0),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 8.0),
                tt::tolerance(tol));
   }
 }
@@ -276,14 +276,14 @@ BOOST_AUTO_TEST_CASE(AcosOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 0.6);
+    ad.setADValue(j, 1. + to_double(j) * 0.6);
   }
 
   double aDerivative = -1. / (std::sqrt(1. - a * a));
   ad = adtl::acos(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 0.6),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 0.6),
                tt::tolerance(tol));
   }
 }
@@ -294,14 +294,14 @@ BOOST_AUTO_TEST_CASE(AtanOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 0.5);
+    ad.setADValue(j, 1. + to_double(j) * 0.5);
   }
 
   double aDerivative = 1. / (1. + a * a);
   ad = adtl::atan(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 0.5),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 0.5),
                tt::tolerance(tol));
   }
 }
@@ -312,14 +312,14 @@ BOOST_AUTO_TEST_CASE(Log10OperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 1.8);
+    ad.setADValue(j, 1. - to_double(j) * 1.8);
   }
 
   double aDerivative = 1. / (a * std::log(10));
   ad = adtl::log10(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 1.8),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 1.8),
                tt::tolerance(tol));
   }
 }
@@ -330,14 +330,14 @@ BOOST_AUTO_TEST_CASE(AsinhOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 0.6);
+    ad.setADValue(j, 1. + to_double(j) * 0.6);
   }
 
   double aDerivative = 1. / (std::sqrt(a * a + 1.));
   ad = adtl::asinh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 0.6),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 0.6),
                tt::tolerance(tol));
   }
 }
@@ -348,14 +348,14 @@ BOOST_AUTO_TEST_CASE(AcoshOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 2.1);
+    ad.setADValue(j, 1. - to_double(j) * 2.1);
   }
 
   double aDerivative = 1. / (std::sqrt(a * a - 1.));
   ad = adtl::acosh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 2.1),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 2.1),
                tt::tolerance(tol));
   }
 }
@@ -366,14 +366,14 @@ BOOST_AUTO_TEST_CASE(AtanhOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.3);
+    ad.setADValue(j, 1. + to_double(j) * 1.3);
   }
 
   double aDerivative = 1. / (1. - a * a);
   ad = adtl::atanh(ad);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.3),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.3),
                tt::tolerance(tol));
   }
 }
@@ -384,14 +384,14 @@ BOOST_AUTO_TEST_CASE(InclOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.);
+    ad.setADValue(j, 1. + to_double(j) * 1.);
   }
 
   double aDerivative = 1.;
   ad = ++ad;
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.),
                tt::tolerance(tol));
   }
 }
@@ -402,14 +402,14 @@ BOOST_AUTO_TEST_CASE(DeclOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.5);
+    ad.setADValue(j, 1. + to_double(j) * 1.5);
   }
 
   double aDerivative = 1.;
   ad = --ad;
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.5),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.5),
                tt::tolerance(tol));
   }
 }
@@ -420,14 +420,14 @@ BOOST_AUTO_TEST_CASE(SignPlusOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 0.4);
+    ad.setADValue(j, 1. - to_double(j) * 0.4);
   }
 
   double aDerivative = 1.;
   ad = +ad;
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 0.4),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 0.4),
                tt::tolerance(tol));
   }
 }
@@ -438,14 +438,14 @@ BOOST_AUTO_TEST_CASE(SignMinusOperatorDerivativeVectorMode) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 0.25);
+    ad.setADValue(j, 1. + to_double(j) * 0.25);
   }
 
   double aDerivative = -1.;
   ad = -ad;
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 0.25),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 0.25),
                tt::tolerance(tol));
   }
 }
@@ -472,14 +472,14 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_1) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. - j * 0.35);
+    ad.setADValue(j, 1. - to_double(j) * 0.35);
   }
 
   double aDerivative = e * std::pow(a, e - 1.);
   ad = adtl::pow(ad, e);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - j * 0.35),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. - to_double(j) * 0.35),
                tt::tolerance(tol));
   }
 }
@@ -506,14 +506,14 @@ BOOST_AUTO_TEST_CASE(PowOperatorDerivativeVectorMode_3) {
   adouble ed = e;
 
   for (size_t j = 0; j < numDir; j++) {
-    ed.setADValue(j, 1. - j * 0.35);
+    ed.setADValue(j, 1. - to_double(j) * 0.35);
   }
 
   double eDerivative = std::log(a) * std::pow(a, e);
   ed = adtl::pow(a, ed);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ed.getADValue(j) == eDerivative * (1. - j * 0.35),
+    BOOST_TEST(ed.getADValue(j) == eDerivative * (1. - to_double(j) * 0.35),
                tt::tolerance(tol));
   }
 }
@@ -542,14 +542,14 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_2) {
   adouble ad = a;
 
   for (size_t j = 0; j < numDir; j++) {
-    ad.setADValue(j, 1. + j * 1.);
+    ad.setADValue(j, 1. + to_double(j) * 1.);
   }
 
   double aDerivative = std::pow(2., b);
   ad = adtl::ldexp(ad, b);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + j * 1.),
+    BOOST_TEST(ad.getADValue(j) == aDerivative * (1. + to_double(j) * 1.),
                tt::tolerance(tol));
   }
 }
@@ -560,14 +560,14 @@ BOOST_AUTO_TEST_CASE(LdexpOperatorDerivativeVectorMode_3) {
   adouble bd = b;
 
   for (size_t j = 0; j < numDir; j++) {
-    bd.setADValue(j, 1. - j * 1.);
+    bd.setADValue(j, 1. - to_double(j) * 1.);
   }
 
   double bDerivative = a * std::log(2.) * std::pow(2., b);
   bd = adtl::ldexp(a, bd);
 
   for (size_t j = 0; j < numDir; j++) {
-    BOOST_TEST(bd.getADValue(j) == bDerivative * (1. - j * 1.),
+    BOOST_TEST(bd.getADValue(j) == bDerivative * (1. - to_double(j) * 1.),
                tt::tolerance(tol));
   }
 }
@@ -1016,7 +1016,7 @@ BOOST_AUTO_TEST_CASE(SetADValueOperatorVectorMode) {
   std::vector<double> aDerivative(numDir);
 
   for (size_t i = 0; i < numDir; i++) {
-    aDerivative[i] = 1.0 + std::exp(10 * i) * std::sqrt(2.5 * i);
+    aDerivative[i] = 1.0 + std::exp(10 * i) * std::sqrt(2.5 * to_double(i));
   }
 
   ad.setADValue(aDerivative.data());
