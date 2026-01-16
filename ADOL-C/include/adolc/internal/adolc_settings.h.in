@@ -37,7 +37,7 @@ typedef double revreal;
 
 /*--------------------------------------------------------------------------*/
 /* Sparse drivers have been compiled */
-@SPARSE_DRIVERS@
+@ADOLC_SPARSE@
 
 /*--------------------------------------------------------------------------*/
 /* Use Boost Library Pool allocator */

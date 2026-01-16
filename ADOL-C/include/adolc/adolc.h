@@ -53,8 +53,8 @@
 #include <adolc/tapedoc/tapedoc.h>
 
 /*--------------------------------------------------------------------------*/
-/* interfaces to SPARSE package */
-#if defined(SPARSE_DRIVERS)
+/* interfaces to sparse drivers */
+#ifdef ADOLC_SPARSE
 #include <adolc/sparse/sparse_fo_rev.h>
 #include <adolc/sparse/sparsedrivers.h>
 #endif

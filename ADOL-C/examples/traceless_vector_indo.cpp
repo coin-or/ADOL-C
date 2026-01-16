@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   adtl::setNumDir(n);
 
   my_function<adtl::adouble> fun;
-  my_function<adtl_indo::adouble> fun_indo;
+  my_function<ADOLC::Sparse::adtl_indo::adouble> fun_indo;
   adtl::adouble x[n], y[m];
 
   for (int i = 0; i < n; ++i) // Initialize x_i
@@ -82,8 +82,8 @@ int main(int argc, char *argv[]) {
   int nnz;
   unsigned int *rind = NULL, *cind = NULL;
   double *values = NULL;
-  retVal = ::ADOLC_get_sparse_jacobian(&fun, &fun_indo, n, m, 0, basepoints,
-                                       &nnz, &rind, &cind, &values);
+  retVal = ADOLC::Sparse::adtl_indo::ADOLC_get_sparse_jacobian(
+      &fun, &fun_indo, n, m, 0, basepoints, &nnz, &rind, &cind, &values);
 
   cout << endl;
   cout << "Checking results with ADOLC_get_sparse_jacobian functionality..."

@@ -48,6 +48,12 @@ list(APPEND SOURCE_FILES ${VALUETAPE_FILES})
 file(GLOB VALUETAPE_FILES "ho_rev/*.cpp")
 list(APPEND SOURCE_FILES ${VALUETAPE_FILES})
 
+if (ENABLE_SPARSE)
+# Add all source files from sparse
+file(GLOB VALUETAPE_FILES "sparse/*.cpp")
+list(APPEND SOURCE_FILES ${VALUETAPE_FILES})
+endif()
+
 add_executable(boost-test-adolc ${SOURCE_FILES})
 target_include_directories(boost-test-adolc PRIVATE "${ADOLC_INCLUDE_DIR}")
 target_link_libraries(boost-test-adolc PRIVATE
