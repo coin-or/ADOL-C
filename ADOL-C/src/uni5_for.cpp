@@ -4020,7 +4020,7 @@ int hov_forward(
 #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-      FOR_0_LE_l_LT_pk TRES_INC = 0.0;
+      FOR_0_LE_l_LT_pk TRES_INC = 0;
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -4058,7 +4058,7 @@ int hov_forward(
 #if !defined(_ZOS_) /* BREAK_ZOS */
       ASSIGN_T(Tres, TAYLOR_BUFFER[res])
 
-      FOR_0_LE_l_LT_pk TRES_INC = 0.0;
+      FOR_0_LE_l_LT_pk TRES_INC = 0;
 #endif
 #endif /* ALL_TOGETHER_AGAIN */
       break;
@@ -5774,8 +5774,8 @@ int hov_forward(
 #endif
       }
 
-      delete insz;
-      delete iArr;
+      delete[] insz;
+      delete[] iArr;
       insz = nullptr;
       iArr = nullptr;
       outsz = 0;
@@ -5996,9 +5996,9 @@ size_t get_num_switches(short tapeId) {
 short firstsign(int p, const double *u, const double *du) {
   int i = 0;
   short tmp;
-  tmp = ((*u) > 1e-12) ? 1.0 : (((*u) < -1e-12) ? -1.0 : 0.0);
+  tmp = ((*u) > 1e-12) ? 1 : (((*u) < -1e-12) ? -1 : 0);
   while (i < p && tmp == 0.0) {
-    tmp = (du[i] > 0.0) ? 1.0 : ((du[i] < 0.0) ? -1.0 : 0.0);
+    tmp = (du[i] > 0.0) ? 1 : ((du[i] < 0.0) ? -1 : 0);
     i++;
   }
   return tmp;
@@ -6239,7 +6239,7 @@ void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
         index_nonl_dom = new uint[2 * (num + 1)];
         index_nonl_dom[1] = 2 * num;
       }
-      for (uint i = 2; i < num + 2; i++) /* append index domain list of "arg" */
+      for (i = 2; i < num + 2; i++) /* append index domain list of "arg" */
         index_nonl_dom[i] = ind_dom[arg2][i];
       index_nonl_dom[0] = num;
     } else { /* merge lists */
