@@ -31,8 +31,8 @@ BEGIN_C_DECLS
 fint function_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
                fdouble *fresult) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int m = *fm, n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
   double *argument = myalloc1(n);
   double *result = myalloc1(m);
   spread1(n, fargument, argument);
@@ -48,8 +48,8 @@ fint function_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
 /* gradient(tag, n, x[n], g[n])                                             */
 fint gradient_(fint *ftag, fint *fn, fdouble *fargument, fdouble *fresult) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int n = static_cast<int>(*fn);
   double *argument = myalloc1(n);
   double *result = myalloc1(n);
   spread1(n, fargument, argument);
@@ -66,8 +66,9 @@ fint gradient_(fint *ftag, fint *fn, fdouble *fargument, fdouble *fresult) {
 fint vec_jac_(fint *ftag, fint *fm, fint *fn, fint *frepeat, fdouble *fargument,
               const fdouble *flagrange, fdouble *frow) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int m = *fm, n = *fn, repeat = *frepeat;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      repeat = static_cast<int>(*frepeat);
   double *argument = myalloc1(n);
   double *lagrange = myalloc1(m);
   double *row = myalloc1(n);
@@ -87,8 +88,8 @@ fint vec_jac_(fint *ftag, fint *fm, fint *fn, fint *frepeat, fdouble *fargument,
 fint jacobian_(fint *ftag, fint *fdepen, fint *findep, fdouble *fargument,
                fdouble *fjac) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int depen = *fdepen, indep = *findep;
+  short tag = static_cast<short>(*ftag);
+  int depen = static_cast<int>(*fdepen), indep = static_cast<int>(*findep);
   double **Jac = myalloc2(depen, indep);
   double *argument = myalloc1(indep);
   spread1(indep, fargument, argument);
@@ -105,8 +106,8 @@ fint jacobian_(fint *ftag, fint *fdepen, fint *findep, fdouble *fargument,
 fint jac_vec_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
               fdouble *ftangent, fdouble *fcolumn) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int m = *fm, n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
   double *argument = myalloc1(n);
   double *tangent = myalloc1(n);
   double *column = myalloc1(m);
@@ -126,8 +127,8 @@ fint jac_vec_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
 fint hess_vec_(fint *ftag, fint *fn, fdouble *fargument, fdouble *ftangent,
                fdouble *fresult) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int n = static_cast<int>(*fn);
   double *argument = myalloc1(n);
   double *tangent = myalloc1(n);
   double *result = myalloc1(n);
@@ -149,8 +150,8 @@ fint hessian_(fint *ftag, fint *fn, fdouble *fx,
                             upper half of this matrix remains unchanged */
 {
   int rc = -1;
-  short tag = (short)*ftag;
-  int n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int n = static_cast<int>(*fn);
   double **H = myalloc2(n, n);
   double *x = myalloc1(n);
   spread1(n, fx, x);
@@ -167,8 +168,8 @@ fint hessian_(fint *ftag, fint *fn, fdouble *fx,
 fint lagra_hess_vec_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
                      fdouble *ftangent, fdouble *flagrange, fdouble *fresult) {
   int rc = -1;
-  short tag = (short)*ftag;
-  int m = *fm, n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
   double *argument = myalloc1(n);
   double *tangent = myalloc1(n);
   double *lagrange = myalloc1(m);

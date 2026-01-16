@@ -273,7 +273,7 @@ tapestats(short tapeId) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API void printTapeStats(int tapeId);
+ADOLC_API void printTapeStats(short tapeId);
 
 /**
  * @brief Returns the number of parameters recorded on tape

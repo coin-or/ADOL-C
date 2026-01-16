@@ -25,20 +25,20 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /*                                                              STRUCT ITEM */
 struct item {
-  int a;             /* address in array of derivatives */
-  int b;             /* absolute value of the corresponding multiindex i */
-  double c;          /* value of the coefficient c_{i,j} */
+  size_t a;          /* address in array of derivatives */
+  size_t b;          /* absolute value of the corresponding multiindex i */
+  long double c;     /* value of the coefficient c_{i,j} */
   struct item *next; /* next item */
 };
 
 /****************************************************************************/
 /*                                                     DEALLOCATE COEFFLIST */
-void freecoefflist(int dim, struct item *coeff_list) {
-  int i;
+void freecoefflist(size_t dim, struct item *coeff_list) {
   struct item *ptr1;
   struct item *ptr2;
 
-  for (i = 0; i < dim; i++) /* sum over all multiindices jm with |jm| = d */
+  for (size_t i = 0; i < dim;
+       i++) /* sum over all multiindices jm with |jm| = d */
   {
     ptr1 = &coeff_list[i];
     ptr1 = ptr1->next;
@@ -114,47 +114,42 @@ void freetensor(int m, int n, int d, double **tensor) {
 /****************************************************************************/
 /*                                                           SOME UTILITIES */
 
-long binomi(int n, int k) {
-  long double accum = 1;
-  unsigned int i;
-
+long binomi(size_t n, size_t k) {
+  long double accum = 1.0L;
   if (k > n)
     return 0;
 
   if (k > n / 2)
     k = n - k;
 
-  for (i = 1; i <= k; i++)
-    accum = accum * (n - k + i) / i;
-
-  return (long)accum + 0.5;
+  for (size_t i = 1; i <= k; i++)
+    accum = accum * static_cast<long double>(n - k + i) /
+            static_cast<long double>(i);
+  return static_cast<long>(round(accum));
 }
 
 /*--------------------------------------------------------------------------*/
-double dbinomi(double a, int b) {
-  int i;
-  double result = 1.0;
-
-  for (i = 1; i <= b; i++)
-    result = result * (a - i + 1) / i;
+long double dbinomi(long double a, size_t b) {
+  long double result = 1.0L;
+  for (size_t i = 1; i <= b; i++)
+    result *=
+        (a - static_cast<long double>(i) + 1.0L) / static_cast<long double>(i);
   return result;
 }
 
 /*--------------------------------------------------------------------------*/
-double summand(int p, int d, int *jm, int *km, int order_im, int order_km,
-               long binomiZ) { /* calculates summation value for fixed j, i, k
-                                  with terms used in the article.*/
-  int i;
-  double result, order_k_by_d;
-
-  order_k_by_d = order_km / (double)d;
-  result = 1.0;
-  for (i = 0; i < order_im; i++)
+long double
+summand(int p, int d, int *jm, int *km, int order_im, int order_km,
+        long double binomiZ) { /* calculates summation value for fixed j, i, k
+                           with terms used in the article.*/
+  const long double order_k_by_d = order_km / static_cast<long double>(d);
+  long double result = 1.0L;
+  for (int i = 0; i < order_im; i++)
     result *= order_k_by_d; /* (|k|/d)^i */
   if ((order_im + order_km) % 2 == 1)
-    result *= -1.0; /* (-1)^(|i-k|) */
+    result *= -1.0L; /* (-1)^(|i-k|) */
   result *= binomiZ;
-  for (i = 0; i < p; i++)
+  for (int i = 0; i < p; i++)
     result *= dbinomi(d * km[i] / (double)order_km, jm[i]);
   return result;
 }
@@ -163,13 +158,13 @@ double summand(int p, int d, int *jm, int *km, int order_im, int order_km,
 /*                                                    EVALUATE COEFFICIENTS */
 
 void coeff(int p, int d, struct item *coeff_list) {
-  int i, j, u, n, index_coeff_list, order_im, order_km, address;
+  int i, j, u, n, index_coeff_list, order_im, order_km;
   int *jm = (int *)malloc(p * sizeof(int)); /* Multiindex j */
   int *im = (int *)malloc(p * sizeof(int)); /* Multiindex i */
   int *km = (int *)malloc(p * sizeof(int)); /* Multiindex k */
   struct item *ptr;
-  double sum;
-  long binomiZ; /* whole number binomial coefficient */
+  long double sum;
+  long double binomiZ; /* whole number binomial coefficient */
 
   jm[0] = d;
   for (i = 1; i < p; i++)
@@ -222,7 +217,7 @@ void coeff(int p, int d, struct item *coeff_list) {
             ptr = ptr->next;
           };
 
-          address = 0; /* calculate address for ptr->a */
+          size_t address = 0; /* calculate address for ptr->a */
           j = d - order_im + 1;
           for (u = 0; u < p; u++) /* It is sum(binomial(i+k,j+k),k=0..n-1) = */
             if (im[u] !=
@@ -279,9 +274,9 @@ void convert(int p, int d, int *im, int *multi) {
 }
 
 /*--------------------------------------------------------------------------*/
-int tensor_address(int d, int *multi) {
+size_t tensor_address(int d, int *multi) {
   int i, j, max, ind;
-  int add = 0;
+  size_t add = 0;
   int *im = (int *)malloc(d * sizeof(int));
   int *mymulti = (int *)malloc(d * sizeof(int));
 
@@ -319,31 +314,28 @@ int tensor_address(int d, int *multi) {
 /*                                                           MORE UTILITIES */
 
 /*--------------------------------------------------------------------------*/
-void multma3vec2(int n, int p, int d, int bd, double ***X, double **S,
+void multma3vec2(int n, int p, int d, size_t bd, double ***X, double **S,
                  int **jm) {
-  int i, j, k;
-  double sum;
+  double sum = 0.0;
 
-  for (i = 0; i < n; i++)
-    for (k = 0; k < bd; k++) {
-      sum = 0;
-      for (j = 0; j < p; j++)
+  for (int i = 0; i < n; i++)
+    for (size_t k = 0; k < bd; k++) {
+      sum = 0.0;
+      for (int j = 0; j < p; j++)
         sum += S[i][j] * jm[k][j];
       X[i][k][0] = sum;
-      for (j = 1; j < d; j++)
-        X[i][k][j] = 0;
+      for (int j = 1; j < d; j++)
+        X[i][k][j] = 0.0;
     }
 }
 
 /*--------------------------------------------------------------------------*/
-void multma2vec2(int n, int p, int bd, double **X, double **S, int **jm) {
-  int i, j, k;
-  double sum;
-
-  for (i = 0; i < n; i++)
-    for (k = 0; k < bd; k++) {
-      sum = 0;
-      for (j = 0; j < p; j++)
+void multma2vec2(int n, int p, size_t bd, double **X, double **S, int **jm) {
+  double sum = 0.0;
+  for (int i = 0; i < n; i++)
+    for (size_t k = 0; k < bd; k++) {
+      sum = 0.0;
+      for (int j = 0; j < p; j++)
         sum += S[i][j] * jm[k][j];
       X[i][k] = sum;
     }
@@ -633,10 +625,8 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
 /****************************************************************************/
 int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
                         double **tensor, double **S) {
-  static int dim;
   static int dold, pold;
   static struct item *coeff_list;
-  int i, j, dimten;
   int *it = (int *)malloc(d * sizeof(int));
   double **X;
   double **Y;
@@ -645,9 +635,10 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
   struct item *ptr;
   int rc = 3;
 
-  dimten = binomi(p + d, d);
-  for (i = 0; i < n; i++)
-    for (j = 0; j < dimten; j++)
+  size_t dim = 0;
+  size_t dimten = binomi(p + d, d);
+  for (int i = 0; i < n; i++)
+    for (size_t j = 0; j < dimten; j++)
       tensor[i][j] = 0;
   MINDEC(rc, zos_forward(tag, n, n, 0, x, y));
   if (d > 0) {
@@ -666,17 +657,18 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
     jm = (int *)malloc(sizeof(int) * p);
     X = myalloc2(n, d + 1);
     Y = myalloc2(n, d + 1);
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       X[i][0] = x[i];
       Y[i][0] = y[i];
-      for (j = 1; j < d; j++) {
+      for (int j = 1; j < d; j++) {
         X[i][j] = 0;
         Y[i][j] = 0;
       }
     }
     if (d == 1) {
       it[0] = 0;
-      for (i = 0; i < dim; i++) /* sum over all multiindices jm with |jm| = d */
+      for (size_t i = 0; i < dim;
+           i++) /* sum over all multiindices jm with |jm| = d */
       {
         it[0] = it[0] + 1;
         convert(p, d, it, jm);
@@ -686,21 +678,22 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
         if (rc == -3)
           return -3;
         do {
-          for (j = 0; j < n; j++)
-            tensor[j][ptr->a] += X[j][ptr->b] * ptr->c;
+          for (int j = 0; j < n; j++)
+            tensor[j][ptr->a] += static_cast<double>(X[j][ptr->b] * ptr->c);
           ptr = ptr->next;
         } while (ptr != NULL);
       }
     } else {
-      for (i = 0; i < d - 1; i++)
+      for (int i = 0; i < d - 1; i++)
         it[i] = 1;
       it[d - 1] = 0;
-      for (i = 0; i < dim; i++) /* sum over all multiindices jm with |jm| = d */
+      for (size_t i = 0; i < dim;
+           i++) /* sum over all multiindices jm with |jm| = d */
       {
         it[d - 1] = it[d - 1] + 1;
-        for (j = d - 2; j >= 0; j--)
+        for (int j = d - 2; j >= 0; j--)
           it[j] = it[j] + it[j + 1] / (p + 1);
-        for (j = 1; j < d; j++)
+        for (int j = 1; j < d; j++)
           if (it[j] > p)
             it[j] = it[j - 1];
         convert(p, d, it, jm);
@@ -710,8 +703,8 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
           return -3;
         ptr = &coeff_list[i];
         do {
-          for (j = 0; j < n; j++) {
-            tensor[j][ptr->a] += X[j][ptr->b] * ptr->c;
+          for (int j = 0; j < n; j++) {
+            tensor[j][ptr->a] += static_cast<double>(X[j][ptr->b] * ptr->c);
           }
           ptr = ptr->next;
         } while (ptr != NULL);
@@ -721,7 +714,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
     myfree2(X);
     myfree2(Y);
   }
-  for (i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
     tensor[i][0] = x[i];
   free((char *)y);
   free((char *)it);
@@ -731,11 +724,9 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
 /****************************************************************************/
 int tensor_eval(short tag, int m, int n, int d, int p, double *x,
                 double **tensor, double **S) {
-  static int bd, dim;
   static int dold, pold;
   static struct item *coeff_list;
-  int i, j, k, dimten, ctr;
-  int **jm, jmbd = 0;
+  int **jm;
   int *it = (int *)malloc(d * sizeof(int));
   double *y = (double *)malloc(m * sizeof(double));
   double ***X;
@@ -743,11 +734,13 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
   struct item *ptr[10];
   int rc = 3;
 
-  dimten = binomi(p + d, d);
-  for (i = 0; i < m; i++)
-    for (j = 0; j < dimten; j++)
+  size_t dimten = binomi(p + d, d);
+  for (int i = 0; i < m; i++)
+    for (size_t j = 0; j < dimten; j++)
       tensor[i][j] = 0;
 
+  size_t dim = 0;
+  size_t bd = 0;
   if (d == 0) {
     MINDEC(rc, zos_forward(tag, m, n, 0, x, y));
   } else {
@@ -767,16 +760,17 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
       dold = d;
       pold = p;
     }
-    jmbd = bd;
+    size_t jmbd = bd;
     jm = (int **)malloc(jmbd * sizeof(int *));
-    for (i = 0; i < jmbd; i++)
+    for (size_t i = 0; i < jmbd; i++)
       jm[i] = (int *)malloc(p * sizeof(int));
     if (d == 1) {
       X = myalloc3(1, n, bd);
       Y = myalloc3(1, m, bd);
-      ctr = 0;
+      size_t ctr = 0;
       it[0] = 0;
-      for (i = 0; i < dim; i++) /* sum over all multiindices jm with |jm| = d */
+      for (size_t i = 0; i < dim;
+           i++) /* sum over all multiindices jm with |jm| = d */
       {
         it[0] = it[0] + 1;
         convert(p, d, it, jm[ctr]);
@@ -785,11 +779,13 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
           ctr += 1;
         else {
           multma2vec2(n, p, bd, X[0], S, jm);
-          MINDEC(rc, fov_forward(tag, m, n, bd, x, X[0], y, Y[0]));
-          for (k = 0; k < bd; k++)
+          MINDEC(rc, fov_forward(tag, m, n, static_cast<int>(bd), x, X[0], y,
+                                 Y[0]));
+          for (size_t k = 0; k < bd; k++)
             do {
-              for (j = 0; j < m; j++) {
-                tensor[j][ptr[k]->a] += Y[0][j][k] * ptr[k]->c;
+              for (int j = 0; j < m; j++) {
+                tensor[j][ptr[k]->a] +=
+                    static_cast<double>(Y[0][j][k] * ptr[k]->c);
               }
               ptr[k] = ptr[k]->next;
             } while (ptr[k] != NULL);
@@ -801,16 +797,17 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
     } else {
       X = myalloc3(n, bd, d);
       Y = myalloc3(m, bd, d);
-      ctr = 0;
-      for (i = 0; i < d - 1; i++)
+      size_t ctr = 0;
+      for (int i = 0; i < d - 1; i++)
         it[i] = 1;
       it[d - 1] = 0;
-      for (i = 0; i < dim; i++) /* sum over all multiindices jm with |jm| = d */
+      for (size_t i = 0; i < dim;
+           i++) /* sum over all multiindices jm with |jm| = d */
       {
         it[d - 1] = it[d - 1] + 1;
-        for (j = d - 2; j >= 0; j--)
+        for (int j = d - 2; j >= 0; j--)
           it[j] = it[j] + it[j + 1] / (p + 1);
-        for (j = 1; j < d; j++)
+        for (int j = 1; j < d; j++)
           if (it[j] > p)
             it[j] = it[j - 1];
         convert(p, d, it, jm[ctr]);
@@ -819,11 +816,13 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
           ctr += 1;
         else {
           multma3vec2(n, p, d, bd, X, S, jm);
-          MINDEC(rc, hov_forward(tag, m, n, d, bd, x, X, y, Y));
-          for (k = 0; k < bd; k++)
+          MINDEC(rc,
+                 hov_forward(tag, m, n, d, static_cast<int>(bd), x, X, y, Y));
+          for (size_t k = 0; k < bd; k++)
             do {
-              for (j = 0; j < m; j++)
-                tensor[j][ptr[k]->a] += Y[j][k][ptr[k]->b - 1] * ptr[k]->c;
+              for (int j = 0; j < m; j++)
+                tensor[j][ptr[k]->a] +=
+                    static_cast<double>(Y[j][k][ptr[k]->b - 1] * ptr[k]->c);
               ptr[k] = ptr[k]->next;
             } while (ptr[k] != NULL);
           if (dim - i <= bd)
@@ -833,15 +832,14 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
       }
     }
 
-    for (i = 0; i < jmbd; i++)
+    for (size_t i = 0; i < jmbd; i++)
       free((char *)*(jm + i));
     free((char *)jm);
     myfree3(X);
     myfree3(Y);
   }
-  for (i = 0; i < m; i++)
+  for (int i = 0; i < m; i++)
     tensor[i][0] = y[i];
-  bd = jmbd;
   free((char *)y);
   free((char *)it);
   return rc;
@@ -849,30 +847,29 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
 
 /****************************************************************************/
 void tensor_value(int d, int m, double *y, double **tensor, int *multi) {
-  int i, j, max, ind, add;
   int *im = (int *)malloc(d * sizeof(int));
 
-  max = 0;
-  ind = d - 1;
-  for (i = 0; i < d; i++) {
+  int max = 0;
+  int ind = d - 1;
+  for (int i = 0; i < d; i++) {
     if (multi[i] > max)
       max = multi[i];
     im[i] = 0;
   }
-  for (i = 0; i < d; i++) {
+  for (int i = 0; i < d; i++) {
     if (multi[i] == max) /* olvo 980728 == instead of = */
     {
       im[ind] = multi[i];
       multi[i] = 0;
       max = 0;
       ind -= 1;
-      for (j = 0; j < d; j++)
+      for (int j = 0; j < d; j++)
         if (multi[j] > max)
           max = multi[j];
     }
   }
-  add = tensor_address(d, im);
-  for (i = 0; i < m; i++)
+  size_t add = tensor_address(d, im);
+  for (int i = 0; i < m; i++)
     y[i] = tensor[i][add];
   free((char *)im);
 }

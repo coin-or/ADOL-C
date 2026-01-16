@@ -19,10 +19,11 @@
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cstring>
+#include <vector>
 /****************************************************************************/
 /*                                    extern differentiated functions stuff */
 
-void edf_zero(ext_diff_fct_v2 *edf) {}
+void edf_zero(ext_diff_fct_v2 *) {}
 
 ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
                              ADOLC_ext_fct_v2 *ext_fct) {
@@ -34,12 +35,12 @@ ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
   return edf;
 }
 
-static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout,
-                                  int *insz, int *outsz) {
-  int m_isz = 0, m_osz = 0;
-  for (auto i = 0; i < nin; i++)
+static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, size_t nin,
+                                  size_t nout, size_t *insz, size_t *outsz) {
+  size_t m_isz = 0, m_osz = 0;
+  for (size_t i = 0; i < nin; i++)
     m_isz = (m_isz < insz[i]) ? insz[i] : m_isz;
-  for (auto i = 0; i < nout; i++)
+  for (size_t i = 0; i < nout; i++)
     m_osz = (m_osz < outsz[i]) ? outsz[i] : m_osz;
   if (edfct->max_nin < nin || edfct->max_nout < nout ||
       edfct->max_insz < m_isz || edfct->max_outsz < m_osz) {
@@ -75,31 +76,31 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, int nin, int nout,
   edfct->max_outsz = (edfct->max_outsz < m_osz) ? m_osz : edfct->max_outsz;
 }
 
-int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
-                 int nout, int *insz, adouble **x, int *outsz, adouble **y) {
+int call_ext_fct(ext_diff_fct_v2 *edfct, size_t iArrLen, size_t *iArr,
+                 size_t nin, size_t nout, size_t *insz, adouble **x,
+                 size_t *outsz, adouble **y) {
   int ret;
   int oldTraceFlag;
-  int i, j;
-  double *vals;
+  std::vector<double> vals;
 
   ValueTape &tape = findTape(edfct->tapeId);
   if (tape.traceFlag()) {
     tape.put_op(ext_diff_v2, 2 * (nin + nout) + iArrLen);
     tape.put_loc(edfct->index);
     tape.put_loc(iArrLen);
-    for (i = 0; i < iArrLen; i++)
+    for (size_t i = 0; i < iArrLen; i++)
       tape.put_loc(iArr[i]);
     tape.put_loc(iArrLen);
     tape.put_loc(nin);
     tape.put_loc(nout);
-    for (i = 0; i < nin; i++) {
+    for (size_t i = 0; i < nin; i++) {
       if (x[i][insz[i] - 1].loc() - x[i][0].loc() != (unsigned)insz[i] - 1)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_LOCATIONGAP,
                          CURRENT_LOCATION);
       tape.put_loc(insz[i]);
       tape.put_loc(x[i][0].loc());
     }
-    for (i = 0; i < nout; i++) {
+    for (size_t i = 0; i < nout; i++) {
       if (y[i][outsz[i] - 1].loc() - y[i][0].loc() != (unsigned)outsz[i] - 1)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_LOCATIONGAP,
                          CURRENT_LOCATION);
@@ -114,37 +115,37 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
     oldTraceFlag = 0;
 
   if (edfct->nestedAdolc) {
-    vals = new double[tape.storeSize()];
-    std::copy(tape.store(), tape.store() + tape.storeSize(), vals);
+    vals.resize(tape.storeSize());
+    std::copy(tape.store(), tape.store() + tape.storeSize(), vals.begin());
   }
   if (!edfct->user_allocated_mem)
     update_ext_fct_memory(edfct, nin, nout, insz, outsz);
   if (oldTraceFlag != 0) {
     if (edfct->dp_x_changes)
-      for (i = 0; i < nin; i++)
+      for (size_t i = 0; i < nin; i++)
         tape.add_numTays_Tape(insz[i]);
     if (edfct->dp_y_priorRequired)
-      for (i = 0; i < nout; i++)
+      for (size_t i = 0; i < nout; i++)
         tape.add_numTays_Tape(outsz[i]);
     if (tape.keepTaylors()) {
       if (edfct->dp_x_changes)
-        for (i = 0; i < nin; i++)
-          for (j = 0; j < insz[i]; j++)
+        for (size_t i = 0; i < nin; i++)
+          for (size_t j = 0; j < insz[i]; j++)
             tape.write_scaylor(x[i][j].value());
       if (edfct->dp_y_priorRequired)
-        for (i = 0; i < nout; i++)
-          for (j = 0; j < outsz[i]; j++)
+        for (size_t i = 0; i < nout; i++)
+          for (size_t j = 0; j < outsz[i]; j++)
             tape.write_scaylor(y[i][j].value());
     }
   }
 
-  for (i = 0; i < nin; i++)
-    for (j = 0; j < insz[i]; j++)
+  for (size_t i = 0; i < nin; i++)
+    for (size_t j = 0; j < insz[i]; j++)
       edfct->x[i][j] = x[i][j].value();
 
   if (edfct->dp_y_priorRequired)
-    for (i = 0; i < nout; i++)
-      for (j = 0; j < outsz[i]; j++)
+    for (size_t i = 0; i < nout; i++)
+      for (size_t j = 0; j < outsz[i]; j++)
         edfct->y[i][j] = y[i][j].value();
 
   tape.ext_diff_fct_index(edfct->index);
@@ -152,31 +153,30 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, int iArrLen, int *iArr, int nin,
                         edfct->x, outsz, edfct->y, edfct->context);
 
   if (edfct->nestedAdolc) {
-    std::copy(vals, vals + tape.storeSize(), tape.store());
-    delete[] vals;
-    vals = nullptr;
+    std::copy(vals.begin(), vals.end(), tape.store());
   }
   if (edfct->dp_x_changes)
-    for (i = 0; i < nin; i++)
-      for (j = 0; j < insz[i]; j++)
+    for (size_t i = 0; i < nin; i++)
+      for (size_t j = 0; j < insz[i]; j++)
         x[i][j].value(edfct->x[i][j]);
 
-  for (i = 0; i < nout; i++)
-    for (j = 0; j < outsz[i]; j++)
+  for (size_t i = 0; i < nout; i++)
+    for (size_t j = 0; j < outsz[i]; j++)
       y[i][j].value(edfct->y[i][j]);
 
   tape.traceFlag(oldTraceFlag);
   return ret;
 }
 
-ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, int index) {
+ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, size_t index) {
   ValueTape &tape = findTape(tapeId);
   return tape.ext_diff_v2_getElement(index);
 }
 
-static int edfoo_v2_wrapper_function(short tapeId, int iArrLen, int *iArr,
-                                     int nin, int nout, int *insz, double **x,
-                                     int *outsz, double **y, void *ctx) {
+static int edfoo_v2_wrapper_function(short tapeId, size_t iArrLen, size_t *iArr,
+                                     size_t nin, size_t nout, size_t *insz,
+                                     double **x, size_t *outsz, double **y,
+                                     void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 
@@ -187,10 +187,10 @@ static int edfoo_v2_wrapper_function(short tapeId, int iArrLen, int *iArr,
   return ebase->function(tapeId, iArrLen, iArr, nin, nout, insz, x, outsz, y,
                          ctx);
 }
-static int edfoo_v2_wrapper_zos_forward(short tapeId, int iArrLen, int *iArr,
-                                        int nin, int nout, int *insz,
-                                        double **x, int *outsz, double **y,
-                                        void *ctx) {
+static int edfoo_v2_wrapper_zos_forward(short tapeId, size_t iArrLen,
+                                        size_t *iArr, size_t nin, size_t nout,
+                                        size_t *insz, double **x, size_t *outsz,
+                                        double **y, void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 
@@ -201,10 +201,11 @@ static int edfoo_v2_wrapper_zos_forward(short tapeId, int iArrLen, int *iArr,
   return ebase->zos_forward(tapeId, iArrLen, iArr, nin, nout, insz, x, outsz, y,
                             ctx);
 }
-static int edfoo_v2_wrapper_fos_forward(short tapeId, int iArrLen, int *iArr,
-                                        int nin, int nout, int *insz,
-                                        double **x, double **xp, int *outsz,
-                                        double **y, double **yp, void *ctx) {
+static int edfoo_v2_wrapper_fos_forward(short tapeId, size_t iArrLen,
+                                        size_t *iArr, size_t nin, size_t nout,
+                                        size_t *insz, double **x, double **xp,
+                                        size_t *outsz, double **y, double **yp,
+                                        void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 
@@ -215,11 +216,11 @@ static int edfoo_v2_wrapper_fos_forward(short tapeId, int iArrLen, int *iArr,
   return ebase->fos_forward(tapeId, iArrLen, iArr, nin, nout, insz, x, xp,
                             outsz, y, yp, ctx);
 }
-static int edfoo_v2_wrapper_fov_forward(short tapeId, int iArrLen, int *iArr,
-                                        int nin, int nout, int *insz,
-                                        double **x, int ndir, double ***Xp,
-                                        int *outsz, double **y, double ***Yp,
-                                        void *ctx) {
+static int edfoo_v2_wrapper_fov_forward(short tapeId, size_t iArrLen,
+                                        size_t *iArr, size_t nin, size_t nout,
+                                        size_t *insz, double **x, size_t ndir,
+                                        double ***Xp, size_t *outsz, double **y,
+                                        double ***Yp, void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 
@@ -230,10 +231,11 @@ static int edfoo_v2_wrapper_fov_forward(short tapeId, int iArrLen, int *iArr,
   return ebase->fov_forward(tapeId, iArrLen, iArr, nin, nout, insz, x, ndir, Xp,
                             outsz, y, Yp, ctx);
 }
-static int edfoo_v2_wrapper_fos_reverse(short tapeId, int iArrLen, int *iArr,
-                                        int nout, int nin, int *outsz,
-                                        double **up, int *insz, double **zp,
-                                        double **x, double **y, void *ctx) {
+static int edfoo_v2_wrapper_fos_reverse(short tapeId, size_t iArrLen,
+                                        size_t *iArr, size_t nout, size_t nin,
+                                        size_t *outsz, double **up,
+                                        size_t *insz, double **zp, double **x,
+                                        double **y, void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 
@@ -244,10 +246,11 @@ static int edfoo_v2_wrapper_fos_reverse(short tapeId, int iArrLen, int *iArr,
   return ebase->fos_reverse(tapeId, iArrLen, iArr, nout, nin, outsz, up, insz,
                             zp, x, y, ctx);
 }
-static int edfoo_v2_wrapper_fov_reverse(short tapeId, int iArrLen, int *iArr,
-                                        int nout, int nin, int *outsz, int dir,
-                                        double ***Up, int *insz, double ***Zp,
-                                        double **x, double **y, void *ctx) {
+static int edfoo_v2_wrapper_fov_reverse(short tapeId, size_t iArrLen,
+                                        size_t *iArr, size_t nout, size_t nin,
+                                        size_t *outsz, size_t dir, double ***Up,
+                                        size_t *insz, double ***Zp, double **x,
+                                        double **y, void *ctx) {
   ext_diff_fct_v2 *edf;
   EDFobject_v2 *ebase;
 

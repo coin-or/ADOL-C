@@ -1,5 +1,3 @@
-
-
 #include <adolc/adolc.h>
 #include <cassert>
 #include <cmath>
@@ -16,7 +14,7 @@ std::vector<double> analytic_grad(const std::vector<double> &x) {
   return {2.0 * x[0], std::cos(x[1])};
 }
 
-void record_test_function(int tid) {
+void record_test_function(short tid) {
   const int N = 2;
   double dummy_vals[N] = {0.0, 0.0};
   adouble X[N];
@@ -37,7 +35,7 @@ int main() {
   // 1) parallel recording -- one tape per thread
 #pragma omp parallel
   {
-    int tid = omp_get_thread_num();
+    short tid = static_cast<short>(omp_get_thread_num());
     createNewTape(tid);
     setCurrentTape(tid);
     record_test_function(tid);
@@ -48,17 +46,16 @@ int main() {
       {0.0, 0.0},  {1.0, M_PI / 2.0}, {-2.5, 0.3},
       {0.7, -1.2}, {3.14, 0.5},       {-1.1, -2.2}};
   const int N = 2;
-  const double tol_rel = 1e-8;
 
   // 3) parallel grad evaluation
 #pragma omp parallel for schedule(static)
   for (int idx = 0; idx < static_cast<int>(test_points.size()); ++idx) {
-    int tid = omp_get_thread_num();
+    short tid = static_cast<short>(omp_get_thread_num());
     const auto &pt = test_points[idx];
     double x_vals[2] = {pt[0], pt[1]};
     double grad_out[2] = {0.0, 0.0};
 
-    int ret = gradient(tid, N, x_vals, grad_out);
+    gradient(tid, N, x_vals, grad_out);
 
     // analytic grad
     auto grad_true = analytic_grad(pt);

@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId165);
-  for (auto i = 0; i < in.size(); ++i)
+  for (size_t i = 0; i < in.size(); ++i)
     indep[i] <<= in[i];
 
   // x^2 + y^3
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId165);
-  for (auto i = 0; i < in.size(); ++i)
+  for (size_t i = 0; i < in.size(); ++i)
     indep[i] <<= in[i];
 
   // min(x^2, y^3)

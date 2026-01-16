@@ -1,5 +1,6 @@
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
+#include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
 #include <algorithm>
@@ -102,7 +103,7 @@ int ValueTape::initNewTape() {
 
 /* opens an existing tape or creates a new handle for a tape on hard disk
  * - called from init_for_sweep and init_rev_sweep */
-void ValueTape::openTape(char mode) {
+void ValueTape::openTape() {
   /* tape has been used before (in the current program) */
   if (!inUse()) {
     /* forward sweep */
@@ -195,7 +196,7 @@ size_t ValueTape::keep_stock() {
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
 /****************************************************************************/
-void ValueTape::taylor_begin(uint bufferSize, int degreeSave) {
+void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
   if (tayBuffer()) {
 #if defined(ADOLC_DEBUG)
     fprintf(DIAG_OUT,
@@ -249,7 +250,7 @@ void ValueTape::taylor_close(bool resetData) {
 
   if (tay_file()) {
     if (keepTaylors())
-      put_tay_block(currTay());
+      put_tay_block();
   } else {
     numTays_Tape(currTay() - tayBuffer());
   }
@@ -277,13 +278,7 @@ void ValueTape::taylor_close(bool resetData) {
 /****************************************************************************/
 /* Initializes a reverse sweep.                                             */
 /****************************************************************************/
-void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
-  /* this should be removed soon since values can be accessed via         */
-  /* tapeInfos_ directly                                    */
-  *dep = tay_numDeps();
-  *ind = tay_numInds();
-  *degree = deg_save();
-
+void ValueTape::taylor_back() {
   if (tayBuffer() == nullptr)
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_TAYLOR_STACK,
                      CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId()});
@@ -297,8 +292,8 @@ void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
       ADOLCError::fail(ADOLCError::ErrorType::TAY_NULLPTR, CURRENT_LOCATION);
 
     if (fseek(tay_file(),
-              sizeof(double) * nextBufferNumber() *
-                  tapestats(TapeInfos::TAY_BUFFER_SIZE),
+              static_cast<long>(sizeof(double) * nextBufferNumber() *
+                                tapestats(TapeInfos::TAY_BUFFER_SIZE)),
               SEEK_SET) == -1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_SEEK_VALUE_STACK,
                        CURRENT_LOCATION);
@@ -331,10 +326,10 @@ void ValueTape::taylor_back(short tag, int *dep, int *ind, int *degree) {
 void ValueTape::write_taylors(size_t loc, int keep, int degree, int numDir) {
   double *T = dpp_T(loc);
 
-  for (size_t j = 0; j < numDir; ++j) {
-    for (size_t i = 0; i < keep; ++i) {
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 0; i < keep; ++i) {
       if (currTay() == lastTayP1())
-        put_tay_block(lastTayP1());
+        put_tay_block();
 
       currTay(*T);
       increment_currTay();
@@ -349,7 +344,7 @@ void ValueTape::write_taylors(size_t loc, int keep, int degree, int numDir) {
 /****************************************************************************/
 /* Write_scaylors writes # size elements from x to the taylor buffer.       */
 /****************************************************************************/
-void ValueTape::write_scaylors(double *x, uint size) {
+void ValueTape::write_scaylors(double *x, std::ptrdiff_t size) {
   size_t j = 0;
   std::span<double> taySpan(currTay(), lastTayP1());
   /* write data to buffer and put buffer to disk as long as data remain in
@@ -359,7 +354,7 @@ void ValueTape::write_scaylors(double *x, uint size) {
       tay = x[j++];
     }
     size -= lastTayP1() - currTay();
-    put_tay_block(lastTayP1());
+    put_tay_block();
   }
 
   std::span<double> tayBufferSpan(currTay(), tayBuffer() + size);
@@ -373,7 +368,7 @@ void ValueTape::write_scaylors(double *x, uint size) {
 /* Puts a block of taylor coefficients from the value stack buffer to the   */
 /* taylor buffer. --- Higher Order Scalar                                   */
 /****************************************************************************/
-void ValueTape::get_taylors(size_t loc, int degree) {
+void ValueTape::get_taylors(size_t loc, std::ptrdiff_t degree) {
   double *T = rpp_T(loc) + degree;
   std::span<double> taySpan(currTay(), tayBuffer());
   /* As long as all values from the taylor stack buffer will be used copy
@@ -387,7 +382,7 @@ void ValueTape::get_taylors(size_t loc, int degree) {
   }
 
   /* Copy the remaining values from the stack into the buffer ... */
-  for (size_t j = 0; j < degree; ++j) {
+  for (int j = 0; j < degree; ++j) {
     decrement_currTay();
     *(--T) = *currTay();
   }
@@ -401,8 +396,8 @@ void ValueTape::get_taylors_p(size_t loc, int degree, int numDir) {
   double *T = rpp_T(loc) + degree * numDir;
 
   /* update the directions except the base point parts */
-  for (size_t j = 0; j < numDir; ++j) {
-    for (size_t i = 1; i < degree; ++i) {
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 1; i < degree; ++i) {
       if (currTay() == tayBuffer())
         get_tay_block_r();
 
@@ -417,7 +412,7 @@ void ValueTape::get_taylors_p(size_t loc, int degree, int numDir) {
     get_tay_block_r();
 
   decrement_currTay();
-  for (size_t i = 0; i < numDir; ++i) {
+  for (int i = 0; i < numDir; ++i) {
     *T = *currTay();
     T += degree;
   }
@@ -468,8 +463,10 @@ void ValueTape::start_trace() {
   put_op(start_of_tape);
 
   /* Leave space for the stats */
-  const int space = TapeInfos::STAT_SIZE * sizeof(size_t) + sizeof(ADOLC_ID);
-  if (space > statSpace * sizeof(size_t))
+  constexpr int space =
+      TapeInfos::STAT_SIZE * sizeof(size_t) + sizeof(ADOLC_ID);
+  constexpr int bound = statSpace * sizeof(size_t);
+  if constexpr (space > bound)
     ADOLCError::fail(ADOLCError::ErrorType::MORE_STAT_SPACE_REQUIRED,
                      CURRENT_LOCATION);
 
@@ -513,7 +510,7 @@ void ValueTape::save_params() {
       put_vals_notWriteBlock(paramstore() + ip, chunk);
       ip += chunk;
       if (ip < np)
-        put_val_block(lastValP1());
+        put_val_block();
     }
   }
 }
@@ -557,7 +554,7 @@ void ValueTape::close_tape(int flag) {
   /* finish operations tape, close it, update stats */
   if (flag != 0 || op_file()) {
     if (currOp() != opBuffer()) {
-      put_op_block(currOp());
+      put_op_block();
     }
     if (op_file()) {
       fclose(op_file());
@@ -574,7 +571,7 @@ void ValueTape::close_tape(int flag) {
   /* finish constants tape, close it, update stats */
   if (flag != 0 || val_file()) {
     if (currVal() != valBuffer()) {
-      put_val_block(currVal());
+      put_val_block();
     }
     if (val_file()) {
       fclose(val_file());
@@ -591,7 +588,7 @@ void ValueTape::close_tape(int flag) {
   /* finish locations tape, update and write tape stats, close tape */
   if (flag != 0 || loc_file()) {
     if (currLoc() != locBuffer()) {
-      put_loc_block(currLoc());
+      put_loc_block();
     }
     tapestats(TapeInfos::NUM_LOCATIONS, numLocs_Tape());
     tapestats(TapeInfos::LOC_FILE_ACCESS, 1);
@@ -631,7 +628,7 @@ void ValueTape::read_params() {
                    tapestats(TapeInfos::VAL_BUFFER_SIZE)) *
                   tapestats(TapeInfos::VAL_BUFFER_SIZE);
 
-  fseek(val_file, number * sizeof(double), SEEK_SET);
+  fseek(val_file, static_cast<long>(number * sizeof(double)), SEEK_SET);
   number =
       tapestats(TapeInfos::NUM_VALUES) % tapestats(TapeInfos::VAL_BUFFER_SIZE);
 
@@ -664,8 +661,9 @@ void ValueTape::read_params() {
       paramstore_view[--ip] = *--currVal;
 
     if (ip > 0) {
-      const size_t number = tapestats(TapeInfos::VAL_BUFFER_SIZE);
-      fseek(val_file, sizeof(double) * (nVT - number), SEEK_SET);
+      number = tapestats(TapeInfos::VAL_BUFFER_SIZE);
+      fseek(val_file, static_cast<long>(sizeof(double) * (nVT - number)),
+            SEEK_SET);
       const size_t chunks = number / chunkSize;
       for (size_t i = 0; i < chunks; ++i)
         if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
@@ -701,7 +699,7 @@ void ValueTape::set_param_vec(short tag, size_t numparam, double *paramvec) {
 
   /* make room for tapeInfos and read tapestats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::FORWARD);
+  openTape();
   if (tapestats(TapeInfos::NUM_PARAM) != numparam)
     ADOLCError::fail(
         ADOLCError::ErrorType::PARAM_COUNTS_MISMATCH, CURRENT_LOCATION,
@@ -780,7 +778,7 @@ void ValueTape::read_tape_stats() {
 /****************************************************************************/
 /* Initialize a forward sweep. Get stats, open tapes, fill buffers, ... */
 /****************************************************************************/
-void ValueTape::init_for_sweep(short tag) {
+void ValueTape::init_for_sweep() {
   constexpr size_t chunkSize_uchar =
       ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   constexpr size_t chunkSize_size_t = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
@@ -791,7 +789,7 @@ void ValueTape::init_for_sweep(short tag) {
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::FORWARD);
+  openTape();
   initTapeBuffers();
 
   /* init operations */
@@ -894,7 +892,7 @@ void ValueTape::init_for_sweep(short tag) {
 /****************************************************************************/
 /* Initialize a reverse sweep. Get stats, open tapes, fill buffers, ... */
 /****************************************************************************/
-void ValueTape::init_rev_sweep(short tag) {
+void ValueTape::init_rev_sweep() {
   constexpr size_t chunkSize_uchar =
       ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   constexpr size_t chunkSize_size_t = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
@@ -905,7 +903,7 @@ void ValueTape::init_rev_sweep(short tag) {
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
-  openTape(TapeInfos::REVERSE);
+  openTape();
   initTapeBuffers();
 
   /* init operations */
@@ -915,7 +913,8 @@ void ValueTape::init_rev_sweep(short tag) {
     number = (tapestats(TapeInfos::NUM_OPERATIONS) /
               tapestats(TapeInfos::OP_BUFFER_SIZE)) *
              tapestats(TapeInfos::OP_BUFFER_SIZE);
-    fseek(op_file(), number * sizeof(unsigned char), SEEK_SET);
+    fseek(op_file(), static_cast<long>(number * sizeof(unsigned char)),
+          SEEK_SET);
     number = tapestats(TapeInfos::NUM_OPERATIONS) %
              tapestats(TapeInfos::OP_BUFFER_SIZE);
     if (number != 0) {
@@ -944,7 +943,7 @@ void ValueTape::init_rev_sweep(short tag) {
     number = (tapestats(TapeInfos::NUM_LOCATIONS) /
               tapestats(TapeInfos::LOC_BUFFER_SIZE)) *
              tapestats(TapeInfos::LOC_BUFFER_SIZE);
-    fseek(loc_file(), number * sizeof(size_t), SEEK_SET);
+    fseek(loc_file(), static_cast<long>(number * sizeof(size_t)), SEEK_SET);
     number = tapestats(TapeInfos::NUM_LOCATIONS) %
              tapestats(TapeInfos::LOC_BUFFER_SIZE);
     if (number != 0) {
@@ -973,7 +972,7 @@ void ValueTape::init_rev_sweep(short tag) {
     number = (tapestats(TapeInfos::NUM_VALUES) /
               tapestats(TapeInfos::VAL_BUFFER_SIZE)) *
              tapestats(TapeInfos::VAL_BUFFER_SIZE);
-    fseek(val_file(), number * sizeof(double), SEEK_SET);
+    fseek(val_file(), static_cast<long>(number * sizeof(double)), SEEK_SET);
     number = tapestats(TapeInfos::NUM_VALUES) %
              tapestats(TapeInfos::VAL_BUFFER_SIZE);
     if (number != 0) {
@@ -1026,7 +1025,7 @@ void ValueTape::end_sweep() {
 /****************************************************************************/
 void ValueTape::discard_params_r(void) {
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-  int ip = tapestats(TapeInfos::NUM_PARAM);
+  size_t ip = tapestats(TapeInfos::NUM_PARAM);
   size_t rsize = 0;
   size_t remain = 0;
   while (ip > 0) {
@@ -1036,10 +1035,12 @@ void ValueTape::discard_params_r(void) {
     currVal(currVal() - rsize);
     if (ip > 0) {
       fseek(val_file(),
-            sizeof(double) * (numVals_Tape() - TapeInfos::VAL_BUFFER_SIZE),
+            static_cast<long>(sizeof(double) *
+                              (numVals_Tape() - TapeInfos::VAL_BUFFER_SIZE)),
             SEEK_SET);
 
-      for (size_t i = 0; i < TapeInfos::VAL_BUFFER_SIZE / chunkSize; ++i)
+      for (size_t i = 0; i < to_size_t(TapeInfos::VAL_BUFFER_SIZE / chunkSize);
+           ++i)
         if (fread(valBuffer() + i * chunkSize, chunkSize * sizeof(double), 1,
                   val_file()) != 1)
           ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,

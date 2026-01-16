@@ -24,7 +24,7 @@
 /****************************************************************************/
 /*                                    extern differentiated functions stuff */
 
-void edf_zero(ext_diff_fct *edf) {}
+void edf_zero(ext_diff_fct *) {}
 ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
                           ADOLC_ext_fct ext_fct) {
 
@@ -112,8 +112,8 @@ void check_input(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
 }
 
 void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
-                              size_t dim_y, adouble *ya, size_t &numVals,
-                              double *&vals, size_t &oldTraceFlag) {
+                              size_t dim_y, adouble *ya, double *&vals,
+                              int &oldTraceFlag) {
 
   check_input(edfct, dim_x, xa, dim_y, ya);
 
@@ -172,8 +172,8 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
 }
 
 void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
-                             size_t dim_y, adouble *ya, size_t &numVals,
-                             double *&vals, size_t &oldTraceFlag) {
+                             size_t dim_y, adouble *ya, double *&vals,
+                             int &oldTraceFlag) {
 
   ValueTape &tape = findTape(edfct->tapeId);
   if (edfct->nestedAdolc) {
@@ -196,7 +196,7 @@ void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
 int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
                  adouble *ya) {
   int ret;
-  size_t oldTraceFlag, numVals = 0;
+  int oldTraceFlag;
   double *vals = nullptr;
 
   ValueTape &tape = findTape(edfct->tapeId);
@@ -204,19 +204,17 @@ int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
   if (tape.traceFlag())
     tape.put_op(ext_diff);
 
-  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, numVals, vals,
-                           oldTraceFlag);
+  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
   ret = edfct->function(edfct->ext_tape_id, dim_x, edfct->dp_x, dim_y,
                         edfct->dp_y);
-  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, numVals, vals,
-                          oldTraceFlag);
+  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
   return ret;
 }
 
-int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, int *iArr,
+int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr,
                  size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
   int ret;
-  size_t oldTraceFlag, numVals = 0;
+  int oldTraceFlag;
   double *vals = nullptr;
 
   ValueTape &tape = findTape(edfct->tapeId);
@@ -229,16 +227,14 @@ int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, int *iArr,
 
     tape.put_loc(iArrLength); // do it again so we can read in either direction
   }
-  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, numVals, vals,
-                           oldTraceFlag);
+  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
   ret = edfct->function_iArr(edfct->ext_tape_id, iArrLength, iArr, dim_x,
                              edfct->dp_x, dim_y, edfct->dp_y);
-  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, numVals, vals,
-                          oldTraceFlag);
+  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
   return ret;
 }
 
-ext_diff_fct *get_ext_diff_fct(short tapeId, int index) {
+ext_diff_fct *get_ext_diff_fct(short tapeId, size_t index) {
   ValueTape &tape = findTape(tapeId);
   return tape.ext_diff_getElement(index);
 }
@@ -341,7 +337,7 @@ void EDFobject::init_edf(EDFobject *ebase) {
 }
 
 [[maybe_unused]] static int
-edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength, int *iArr,
+edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength, size_t *iArr,
                             size_t dim_x, double *x, size_t dim_y, double *y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
@@ -353,7 +349,7 @@ edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength, int *iArr,
   return ebase->function(tapeId, iArrLength, iArr, dim_x, x, dim_y, y);
 }
 static int edfoo_iarr_wrapper_zos_forward(short tapeId, size_t iArrLength,
-                                          int *iArr, size_t dim_x, double *x,
+                                          size_t *iArr, size_t dim_x, double *x,
                                           size_t dim_y, double *y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
@@ -366,9 +362,10 @@ static int edfoo_iarr_wrapper_zos_forward(short tapeId, size_t iArrLength,
 }
 
 static int edfoo_iarr_wrapper_fos_forward(short tapeId, size_t iArrLength,
-                                          int *iArr, size_t dim_x, double *dp_x,
-                                          double *dp_X, size_t dim_y,
-                                          double *dp_y, double *dp_Y) {
+                                          size_t *iArr, size_t dim_x,
+                                          double *dp_x, double *dp_X,
+                                          size_t dim_y, double *dp_y,
+                                          double *dp_Y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 
@@ -381,10 +378,10 @@ static int edfoo_iarr_wrapper_fos_forward(short tapeId, size_t iArrLength,
 }
 
 static int edfoo_iarr_wrapper_fov_forward(short tapeId, size_t iArrLength,
-                                          int *iArr, size_t dim_x, double *dp_x,
-                                          size_t num_dirs, double **dpp_X,
-                                          size_t dim_y, double *dp_y,
-                                          double **dpp_Y) {
+                                          size_t *iArr, size_t dim_x,
+                                          double *dp_x, size_t num_dirs,
+                                          double **dpp_X, size_t dim_y,
+                                          double *dp_y, double **dpp_Y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 
@@ -397,9 +394,10 @@ static int edfoo_iarr_wrapper_fov_forward(short tapeId, size_t iArrLength,
 }
 
 static int edfoo_iarr_wrapper_fos_reverse(short tapeId, size_t iArrLength,
-                                          int *iArr, size_t dim_y, double *dp_U,
-                                          size_t dim_x, double *dp_Z,
-                                          double *dp_x, double *dp_y) {
+                                          size_t *iArr, size_t dim_y,
+                                          double *dp_U, size_t dim_x,
+                                          double *dp_Z, double *dp_x,
+                                          double *dp_y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 
@@ -411,7 +409,7 @@ static int edfoo_iarr_wrapper_fos_reverse(short tapeId, size_t iArrLength,
                             dp_x, dp_y);
 }
 static int edfoo_iarr_wrapper_fov_reverse(short tapeId, size_t iArrLength,
-                                          int *iArr, size_t dim_y,
+                                          size_t *iArr, size_t dim_y,
                                           size_t num_weights, double **dpp_U,
                                           size_t dim_x, double **dpp_Z,
                                           double *dp_x, double *dp_y) {

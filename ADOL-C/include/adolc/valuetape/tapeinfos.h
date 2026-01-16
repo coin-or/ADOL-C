@@ -40,14 +40,12 @@ struct TapeInfos {
   enum WORKMODES {
     ADOLC_NO_MODE,
 
-    FORWARD,
     ZOS_FORWARD,
     FOS_FORWARD,
     FOV_FORWARD,
     HOS_FORWARD,
     HOV_FORWARD,
 
-    REVERSE,
     FOS_REVERSE,
     FOV_REVERSE,
     HOS_REVERSE,
@@ -66,8 +64,8 @@ struct TapeInfos {
 
   short tapeId_{-1};
   int inUse{0};
-  uint numInds{0};
-  uint numDeps{0};
+  size_t numInds{0};
+  size_t numDeps{0};
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
   std::array<size_t, STAT_SIZE> stats{0};
@@ -110,18 +108,18 @@ struct TapeInfos {
   size_t numTays_Tape{0};
   size_t numTBuffersInUse{0};
   // the next Buffer to read back
-  int nextBufferNumber{0};
+  size_t nextBufferNumber{0};
   // == 1 if last taylor buffer is still in
   // in core(first call of reverse)
   char lastTayBlockInCore{0};
   // derivative buffer - forward
   double **T_for{nullptr};
   // degree to save and saved respectively
-  uint deg_save{0};
+  int deg_save{0};
   // # of independents for the taylor stack
-  uint tay_numInds{0};
+  size_t tay_numInds{0};
   // # of dependents for the taylor stack
-  uint tay_numDeps{0};
+  size_t tay_numDeps{0};
 
   /* ---------- checkpointing --------- */
   // location of the first ind. - forward mode
@@ -142,8 +140,8 @@ struct TapeInfos {
 
   /* evaluation forward */
   double *dp_T0{nullptr};
-  int gDegree{0};
-  int numTay{0};
+  size_t gDegree{0};
+  size_t numTay{0};
   enum WORKMODES workMode;
 
   double **dpp_T{nullptr};
@@ -170,16 +168,16 @@ struct TapeInfos {
   // writes the block of size depth of taylor coefficients from point loc to
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
-  void write_taylor(size_t loc, int keep, const char *tay_fileName);
+  void write_taylor(size_t loc, std::ptrdiff_t keep, const char *tay_fileName);
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
     if (currTay == lastTayP1)
-      put_tay_block(lastTayP1, tay_fileName);
+      put_tay_block(tay_fileName);
     *currTay = val;
     ++currTay;
   }
-  void put_tay_block(double *lastTayP1, const char *tay_fileName);
+  void put_tay_block(const char *tay_fileName);
   void get_tay_block_r();
 
   // functions for handling loc tape
@@ -188,7 +186,7 @@ struct TapeInfos {
     ++currLoc;
   }
 
-  void put_loc_block(size_t *lastLocP1, const char *loc_fileName);
+  void put_loc_block(const char *loc_fileName);
   void get_loc_block_f();
   void get_loc_block_r();
   // functions for handling op tape
@@ -196,9 +194,8 @@ struct TapeInfos {
   // puts an operation into the operation buffer, ensures that location
   // buffer and constants buffer are prepared to take the belonging stuff
   void put_op(OPCODES op, const char *loc_fileName, const char *op_fileName,
-              const char *val_fileName, size_t reserveExtraLocations = 0,
-              size_t maxLocsPerOp = 10);
-  void put_op_block(unsigned char *lastOpP1, const char *op_fileName);
+              const char *val_fileName, size_t reserveExtraLocations = 0);
+  void put_op_block(const char *op_fileName);
   void get_op_block_f();
   void get_op_block_r();
 
@@ -213,7 +210,7 @@ struct TapeInfos {
       ++currVal;
     }
   }
-  void put_val_block(double *lastValP1, const char *val_fileName);
+  void put_val_block(const char *val_fileName);
   void put_vals_writeBlock(double *vals, size_t numVals,
                            const char *op_fileName, const char *val_fileName);
   void get_val_block_r();
@@ -334,4 +331,4 @@ struct TapeInfos {
   size_t get_val_space(const char *op_fileName, const char *val_fileName);
 };
 
-#endif // ADOLC_GLOBALTAPEVARSCL_H
+#endif // ADOLC_TAPEINFOS_H

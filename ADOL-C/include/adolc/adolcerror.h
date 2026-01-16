@@ -73,7 +73,7 @@ struct source_location {
  * }
  * @endcode
  */
-class ADOLC_API ADOLCError : public std::runtime_error {
+class ADOLCError : public std::runtime_error {
 
   source_location info_;
 
@@ -106,7 +106,7 @@ public:
   const source_location &where() const noexcept { return info_; }
 };
 
-enum class ADOLC_API ErrorType : size_t {
+enum class ErrorType : size_t {
   MALLOC_FAILED,
   INTEGER_TAPE_FOPEN_FAILED,
   INTEGER_TAPE_FREAD_FAILED,
@@ -239,7 +239,7 @@ enum class ADOLC_API ErrorType : size_t {
 };
 
 // wrapper for information of errors
-struct ADOLC_API FailInfo {
+struct FailInfo {
   short info1{0}; // for tapeId
   size_t info2{0};
   int info3{0}; // deps

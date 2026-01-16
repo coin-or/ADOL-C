@@ -35,10 +35,9 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId11);
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    i++;
-  });
+  }
 
   // max(x^2, y^3)
   adouble dep = fmax(pow(indep[0], 2), pow(indep[1], 3));
@@ -195,10 +194,9 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId11);
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    i++;
-  });
+  }
 
   // max(x^2, y^3)
   adouble dep = max(pow(indep[0], 2), pow(indep[1], 3));
@@ -355,10 +353,9 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId11);
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    i++;
-  });
+  }
 
   // max(x^2, y^3)
   adouble dep = fmin(-pow(indep[0], 2), -pow(indep[1], 3));
@@ -516,10 +513,9 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   trace_on(tapeId11);
-  std::for_each(in.begin(), in.end(), [&, i = 0](int value) mutable {
+  for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
-    i++;
-  });
+  }
 
   // max(x^2, y^3)
   adouble dep = min(-pow(indep[0], 2), -pow(indep[1], 3));

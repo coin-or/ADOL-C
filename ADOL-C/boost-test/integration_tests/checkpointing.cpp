@@ -10,14 +10,14 @@ namespace tt = boost::test_tools;
 #include <vector>
 
 // Euler step (double version)
-int euler_step(size_t n, double *y) {
+int euler_step(size_t, double *y) {
   y[0] = y[0] + 0.01 * y[0];
   y[1] = y[1] + 0.01 * 2 * y[1];
   return 1;
 }
 
 // Euler step (adouble version)
-int euler_step_act(size_t n, adouble *y) {
+int euler_step_act(size_t, adouble *y) {
   y[0] = y[0] + 0.01 * y[0];
   y[1] = y[1] + 0.01 * 2 * y[1];
   return 1;
@@ -36,8 +36,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
 
   const size_t n = 2;    // Number of state variables
   const int steps = 100; // Number of time steps
-  const double t0 = 0.0; // Initial time
-  const double tf = 1.0; // Final time
 
   // State variables (double and adouble versions)
   std::vector<double> y_double(n);
@@ -123,8 +121,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
 
   const size_t n = 2;    // Number of state variables
   const int steps = 100; // Number of time steps
-  const double t0 = 0.0; // Initial time
-  const double tf = 1.0; // Final time
 
   // State variables (double and adouble versions)
   std::vector<double> y_double(n);

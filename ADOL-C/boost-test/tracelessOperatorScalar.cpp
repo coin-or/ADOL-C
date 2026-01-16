@@ -1486,7 +1486,7 @@ BOOST_AUTO_TEST_CASE(NotOperatorPrimal) {
   double a = 1.0;
   adouble ad = a;
 
-  BOOST_TEST(!a == 0.0, tt::tolerance(tol));
+  BOOST_TEST(a == 1.0, tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(CompNeqOperatorPrimal) {

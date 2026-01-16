@@ -36,8 +36,9 @@ fint forodec_(fint *ftag,    /* tape identifier */
               fdouble *fy)   /* Taylor series                    */
 {
   int rc = -1;
-  short tag = (short)*ftag;
-  int n = *fn, dol = *fdol, deg = *fdeg;
+  short tag = static_cast<short>(*ftag);
+  int n = static_cast<int>(*fn), dol = static_cast<int>(*fdol),
+      deg = static_cast<int>(*fdeg);
   int i;
   double tau = *ftau;
   double **Y = myalloc2(n, deg + 1);
@@ -60,7 +61,7 @@ fint accodec_(fint *fn,      /* space dimension */
               fdouble *fb)   /* output tensor of "total" Jacobians  */
 {
   int rc = 1;
-  int n = *fn, deg = *fdeg;
+  int n = static_cast<int>(*fn), deg = static_cast<int>(*fdeg);
   double tau = *ftau;
   double ***A = myalloc3(n, n, deg);
   double ***B = myalloc3(n, n, deg);

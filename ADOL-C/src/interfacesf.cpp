@@ -25,7 +25,9 @@ fint hos_forward_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fd, const fint *fk, const fdouble *fbase,
                   const fdouble *fx, fdouble *fvalue, fdouble *fy) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd, k = *fk;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd), k = static_cast<int>(*fk);
   double *base = myalloc1(n);
   double *value = myalloc1(m);
   double **X = myalloc2(n, d);
@@ -46,7 +48,9 @@ fint hos_forward_(const fint *ftag, const fint *fm, const fint *fn,
 fint zos_forward_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fk, const fdouble *fbase, fdouble *fvalue) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, k = *fk;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      k = static_cast<int>(*fk);
   double *base = myalloc1(n);
   double *value = myalloc1(m);
   spread1(n, fbase, base);
@@ -62,7 +66,9 @@ fint hov_forward_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fd, const fint *fp, const fdouble *fbase,
                   const fdouble *fx, fdouble *fvalue, fdouble *fy) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd, p = *fp;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd), p = static_cast<int>(*fp);
   double *base = myalloc1(n);
   double *value = myalloc1(m);
   double ***X = myalloc3(n, p, d);
@@ -84,7 +90,9 @@ fint fov_forward_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fp, const fdouble *fbase, const fdouble *fx,
                   fdouble *fvalue, fdouble *fy) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, p = *fp;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      p = static_cast<int>(*fp);
   double *base = myalloc1(n);
   double *value = myalloc1(m);
   double **X = myalloc2(n, p);
@@ -105,7 +113,9 @@ fint fov_forward_(const fint *ftag, const fint *fm, const fint *fn,
 fint hos_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fd, const fdouble *fu, fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd);
   double **Z = myalloc2(n, d + 1);
   double *u = myalloc1(m);
   spread1(m, fu, u);
@@ -120,7 +130,9 @@ fint hos_reverse_(const fint *ftag, const fint *fm, const fint *fn,
 fint hos_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                      const fint *fd, const fdouble *fu, fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd);
   double **Z = myalloc2(n, d + 1);
   double **U = myalloc2(m, d + 1);
   spread2(m, d + 1, fu, U);
@@ -135,7 +147,8 @@ fint hos_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
 fint fos_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                   const fdouble *fu, fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
   double *u = myalloc1(m);
   double *Z = myalloc1(n);
   spread1(m, fu, u);
@@ -151,7 +164,9 @@ fint hov_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fd, const fint *fq, const fdouble *fu,
                   fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd, q = *fq;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd), q = static_cast<int>(*fq);
   double **U = myalloc2(q, m);
   double ***Z = myalloc3(q, n, d + 1);
   short **nop = 0;
@@ -168,7 +183,9 @@ fint hov_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                      const fint *fd, const fint *fq, const fdouble *fu,
                      fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, d = *fd, q = *fq;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      d = static_cast<int>(*fd), q = static_cast<int>(*fq);
   double ***U = myalloc3(q, m, d + 1);
   double ***Z = myalloc3(q, n, d + 1);
   short **nop = 0;
@@ -184,7 +201,9 @@ fint hov_ti_reverse_(const fint *ftag, const fint *fm, const fint *fn,
 fint fov_reverse_(const fint *ftag, const fint *fm, const fint *fn,
                   const fint *fq, const fdouble *fu, fdouble *fz) {
   int rc = -1;
-  int tag = *ftag, m = *fm, n = *fn, q = *fq;
+  short tag = static_cast<short>(*ftag);
+  int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
+      q = static_cast<int>(*fq);
   double **U = myalloc2(q, m);
   double **Z = myalloc2(q, n);
   spread2(q, m, fu, U);

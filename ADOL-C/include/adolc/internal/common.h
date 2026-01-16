@@ -88,6 +88,24 @@ typedef unsigned int uint;
 
 #define BEGIN_C_DECLS extern "C" {
 #define END_C_DECLS }
+
+#include <cassert>
+#include <type_traits>
+/// Helper to savely cast to a size_t. Used e.g., for short -> size_t for
+/// tapeId.
+template <typename T>
+constexpr size_t to_size_t(T value) noexcept
+  requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
+{
+  assert(value >= 0);
+  return static_cast<size_t>(value);
+}
+template <typename T>
+constexpr double to_double(T value) noexcept
+  requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
+{
+  return static_cast<double>(value);
+}
 #else
 #define BEGIN_C_DECLS
 #define END_C_DECLS

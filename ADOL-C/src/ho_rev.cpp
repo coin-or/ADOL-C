@@ -86,12 +86,13 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define HOV_INC(T, degree) T += degree;
 #define HOS_OV_INC(T, degree) T += degree;
 
+// clang-format off
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
-    UPDATE_TAYLORREAD(depth *p)                                                \
+    UPDATE_TAYLORREAD(depth * p)                                               \
     tape.get_taylors_p(loc, depth, p);                                         \
   }
-
+// clang-format on
 /*--------------------------------------------------------------------------*/
 #elif _HOV_
 #define GENERATED_FILENAME "hov_reverse"
@@ -202,6 +203,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
+#include <adolc/internal/common.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
@@ -311,13 +313,11 @@ int hov_ti_reverse(
 
   double coval = 0;
 
-  int indexi = 0, indexd = 0;
+  size_t indexi = 0, indexd = 0;
 
   /* other necessary variables */
   double *x = nullptr;
   size_t *jj = nullptr;
-  int taycheck;
-  int numdep, numind;
 
   /*----------------------------------------------------------------------*/
   /* Taylor stuff */
@@ -396,10 +396,10 @@ int hov_ti_reverse(
   /* Set up stuff for the tape */
 
   /* Initialize the Reverse Sweep */
-  tape.init_rev_sweep(tnum);
+  tape.init_rev_sweep();
 
-  if ((depen != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
-      (indep != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
+  if ((to_size_t(depen) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
+      (to_size_t(indep) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{
@@ -452,13 +452,14 @@ int hov_ti_reverse(
   /*                                                TAYLOR INITIALIZATION */
   tape.rpp_A(rpp_A);
   tape.rpp_T(rpp_T);
-  tape.taylor_back(tnum, &numdep, &numind, &taycheck);
+  tape.taylor_back();
 
-  if (taycheck != degre)
+  if (tape.deg_save() != degre)
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info3 = degre, .info4 = degre + 1});
 
-  if ((numdep != depen) || (numind != indep))
+  if ((tape.tay_numDeps() != to_size_t(depen)) ||
+      (tape.tay_numInds() != to_size_t(indep)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH,
                      CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tnum});
 
@@ -614,7 +615,7 @@ int hov_ti_reverse(
       for (int l = 0; l < p; l++) {
 #ifdef _HOV_
         if (nonzero) /* ??? question: why here? */
-          nonzero[l][indexi] = (int)ARES;
+          nonzero[l][indexi] = static_cast<short>(ARES);
 #endif /* _HOV_ */
         ARES_INC_O;
         for (int i = 0; i < k; i++)
@@ -638,7 +639,7 @@ int hov_ti_reverse(
         dc = -1;
         for (int i = 0; i < k; i++) {
           ARES_INC = LAGRANGE(l, indexd, i);
-          if (LAGRANGE(l, indexd, i))
+          if (LAGRANGE(l, indexd, i) != 0.0)
             dc = i;
         }
         AARG = (dc < 0) ? 0.0 : (dc > 0) ? 2.0 : 1.0;
@@ -1634,7 +1635,7 @@ int hov_ti_reverse(
 
       if (Targ1[0] > Targ2[0]) {
         for (int l = 0; l < p; l++) {
-          if ((coval) && (*AP2))
+          if ((coval != 0.0) && (*AP2 != 0.0))
             MINDEC(ret_c, 2);
 
           // increment the adjoint of res
@@ -1648,7 +1649,7 @@ int hov_ti_reverse(
         arg = 0;
       } else if (Targ1[0] < Targ2[0]) {
         for (int l = 0; l < p; l++) {
-          if ((!coval) && (*AP2))
+          if ((coval == 0.0) && (*AP2 != 0.0))
             MINDEC(ret_c, 2);
 
           // increment the adjoint of res
@@ -1674,7 +1675,7 @@ int hov_ti_reverse(
         for (int i = 1; i < k; i++) {
           if (Targ1[i] > Targ2[i]) {
             for (int l = 0; l < p; l++) {
-              if (*AP2)
+              if (*AP2 != 0.0)
                 MINDEC(ret_c, 1);
               HOV_INC(AP2, k1)
             }
@@ -1685,7 +1686,7 @@ int hov_ti_reverse(
             arg = i + 1;
           } else if (Targ1[i] < Targ2[i]) {
             for (int l = 0; l < p; l++) {
-              if (*AP2)
+              if (*AP2 != 0.0)
                 MINDEC(ret_c, 1);
               HOV_INC(AP2, k1)
             }
@@ -1792,15 +1793,15 @@ int hov_ti_reverse(
           }
           if (Targ[0] == 0.0)
             MINDEC(ret_c, 1);
-          for (int i = 0; i < jj[l]; i++)
+          for (size_t i = 0; i < jj[l]; i++)
             ARES_INC = 0.0;
           Aarg += jj[l];
-          for (int i = jj[l]; i < k; i++) {
+          for (size_t i = jj[l]; i < to_size_t(k); i++) {
             double aTmp = ARES;
             ARES_INC = 0.0;
-            if ((coval) && (x[l] < 0) && (aTmp))
+            if ((coval != 0.0) && (x[l] < 0) && (aTmp != 0.0))
               MINDEC(ret_c, 2);
-            if ((!coval) && (x[l] > 0) && (aTmp))
+            if ((coval == 0.0) && (x[l] > 0) && (aTmp != 0.0))
               MINDEC(ret_c, 2);
             AARG_INC += x[l] * aTmp;
           }
@@ -1829,7 +1830,7 @@ int hov_ti_reverse(
           ARES_INC = 0.0;
           AARG_INC = 5.0;
           for (int i = 0; i < k; i++) {
-            if ((coval) && (ARES))
+            if ((coval != 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             ARES_INC = 0.0;
           }
@@ -1858,7 +1859,7 @@ int hov_ti_reverse(
           ARES = 0.0;
           AARG_INC = 5.0;
           for (int i = 0; i < k; i++) {
-            if ((coval) && (ARES))
+            if ((coval != 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             ARES_INC = 0.0;
           }
@@ -1906,7 +1907,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval <= 0.0) && (ARES))
+            if ((coval <= 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -1940,7 +1941,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if (ARES) {
+            if (ARES != 0.0) {
               if (*Targ == 0.0) /* we are at the tie */
               {
                 MINDEC(ret_c, 0);
@@ -1991,7 +1992,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval < 0.0) && (ARES))
+            if ((coval < 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2018,7 +2019,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if (ARES) {
+            if (ARES != 0.0) {
               if (coval < 0.0)
                 MINDEC(ret_c, 2);
             }
@@ -2046,7 +2047,7 @@ int hov_ti_reverse(
       if (*Targ == 0.0) /* we are at the tie */
       {
         for (int l = 0; l < p; l++) {
-          if (ARES)
+          if (ARES != 0.0)
             AARG1 = 5.0;
           HOV_INC(Aarg1, k1)
           HOV_INC(Ares, k1)
@@ -2072,7 +2073,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval <= 0.0) && (ARES))
+            if ((coval <= 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2111,7 +2112,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval < 0.0) && (ARES))
+            if ((coval < 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2299,7 +2300,7 @@ int hov_ti_reverse(
       for (int l = 0; l < p; l++) {
 #ifdef _HOV_
         if (nonzero) /* ??? question: why here? */
-          nonzero[l][indexi] = (int)ARES;
+          nonzero[l][indexi] = static_cast<short>(ARES);
 #endif /* _HOV_ */
         ARES_INC_O;
         for (int i = 0; i < k; i++)
@@ -2586,7 +2587,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval <= 0.0) && (ARES))
+            if ((coval <= 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2620,7 +2621,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if (ARES) {
+            if (ARES != 0.0) {
               if (*Targ == 0.0) /* we are at the tie */
               {
                 MINDEC(ret_c, 0);
@@ -2675,7 +2676,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval < 0.0) && (ARES))
+            if ((coval < 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2702,7 +2703,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if (ARES) {
+            if (ARES != 0.0) {
               if (coval < 0.0)
                 MINDEC(ret_c, 2);
             }
@@ -2732,7 +2733,7 @@ int hov_ti_reverse(
       if (*Targ == 0.0) /* we are at the tie */
       {
         for (int l = 0; l < p; l++) {
-          if (ARES)
+          if (ARES != 0.0)
             AARG1 = 5.0;
           HOV_INC(Aarg1, k1)
           HOV_INC(Ares, k1)
@@ -2758,7 +2759,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval <= 0.0) && (ARES))
+            if ((coval <= 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2801,7 +2802,7 @@ int hov_ti_reverse(
           }
         else
           for (int l = 0; l < p; l++) {
-            if ((coval < 0.0) && (ARES))
+            if ((coval < 0.0) && (ARES != 0.0))
               MINDEC(ret_c, 2);
             HOV_INC(Ares, k1)
           }
@@ -2819,7 +2820,7 @@ int hov_ti_reverse(
       tape.get_val_v_r(size);
 
       res += size;
-      for (int ls = size; ls > 0; ls--) {
+      for (size_t ls = size; ls > 0; ls--) {
         res--;
 
         ASSIGN_A(Ares, rpp_A[res])
@@ -2833,7 +2834,7 @@ int hov_ti_reverse(
       arg2 = tape.get_locint_r();
       arg1 = tape.get_locint_r();
 
-      for (int j = arg1; j <= arg2; j++) {
+      for (size_t j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, rpp_A[j])
 
         for (int l = 0; l < p; l++)
@@ -2841,7 +2842,7 @@ int hov_ti_reverse(
             AARG1_INC = 0.0;
       }
 
-      for (int j = arg1; j <= arg2; j++)
+      for (size_t j = arg1; j <= arg2; j++)
         GET_TAYL(j, k, p)
 
       break;
@@ -2886,14 +2887,14 @@ int hov_ti_reverse(
                            CURRENT_LOCATION);
       }
       arg = tape.lowestYLoc_rev() + m - 1;
-      for (int loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
         dpp_U[loop] = rpp_A[arg] + 1;
         ++arg;
       }
 
       arg = tape.lowestXLoc_rev();
-      for (int loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         // This should copy data in case `revreal` is not double.
         // (Note: copy back below doesn't actually do anything until this is
         // changed to a copy.) (Note: first entry is alg. dependency which we
@@ -2903,13 +2904,13 @@ int hov_ti_reverse(
       }
       arg = tape.lowestXLoc_rev();
       double **dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
-      for (int loop = 0; loop < n; ++loop, ++arg) {
+      for (size_t loop = 0; loop < n; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
         // edfct->dp_x[loop] = rpp_T[arg];
       }
       arg = tape.lowestYLoc_rev();
       double **dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
-      for (int loop = 0; loop < m; ++loop, ++arg) {
+      for (size_t loop = 0; loop < m; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
         // edfct->dp_y[loop] = rpp_T[arg];
       }
@@ -2918,7 +2919,7 @@ int hov_ti_reverse(
 
       res = tape.lowestYLoc_rev();
       // Ares = A[res];
-      for (int loop = 0; loop < m; ++loop) {
+      for (size_t loop = 0; loop < m; ++loop) {
         for (int l = 0; l < q; ++l) {
           // ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */
           // rpp_T[res][l] = 0.0;
@@ -2927,7 +2928,7 @@ int hov_ti_reverse(
         ++res;
       }
       res = tape.lowestXLoc_rev();
-      for (int loop = 0; loop < n; ++loop) {
+      for (size_t loop = 0; loop < n; ++loop) {
         // ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],ADJOINT_BUFFER_RES);
         // Hmm, ist das nicht falsch? Wir sollten rpp_T vermutlich nicht
         // anfassen. Sonst ändert sich ja das Ergebnis wenn man das Band
@@ -2945,14 +2946,14 @@ int hov_ti_reverse(
       }
       if (edfct->dp_y_priorRequired) {
         arg = tape.lowestYLoc_rev() + m - 1;
-        for (int loop = 0; loop < m; ++loop, --arg) {
+        for (size_t loop = 0; loop < m; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }
       }
       if (edfct->dp_x_changes) {
         arg = tape.lowestXLoc_rev() + n - 1;
-        for (int loop = 0; loop < n; ++loop, --arg) {
+        for (size_t loop = 0; loop < n; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }

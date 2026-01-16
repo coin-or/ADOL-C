@@ -1643,13 +1643,13 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOV_Forward) {
   trace_on(tapeId);
   ad <<= a;
 
-  ad = ++ad;
+  ++ad;
 
   ad >>= aout;
   trace_off();
 
   double aDerivative = 1.;
-  a = ++a;
+  ++a;
 
   double *x = myalloc1(1);
   double **xd = myalloc2(1, 2);
@@ -1684,7 +1684,7 @@ BOOST_AUTO_TEST_CASE(Inclperator_FOV_Reverse) {
   trace_on(tapeId, 1);
   ad <<= a;
 
-  ad = ++ad;
+  ++ad;
 
   ad >>= aout;
   trace_off();
@@ -1716,13 +1716,13 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOV_Forward) {
   trace_on(tapeId);
   ad <<= a;
 
-  ad = --ad;
+  --ad;
 
   ad >>= aout;
   trace_off();
 
   double aDerivative = 1.;
-  a = --a;
+  --a;
 
   double *x = myalloc1(1);
   double **xd = myalloc2(1, 2);
@@ -1757,7 +1757,7 @@ BOOST_AUTO_TEST_CASE(Declperator_FOV_Reverse) {
   trace_on(tapeId, 1);
   ad <<= a;
 
-  ad = --ad;
+  --ad;
 
   ad >>= aout;
   trace_off();
@@ -2337,7 +2337,8 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_1) {
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2) {
-  double a = 4., e = 3., aout;
+  double a = 4., aout;
+  int e = 3;
 
   setCurrentTape(tapeId);
 
@@ -2378,8 +2379,8 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2) {
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_2) {
-  double a = 4., e = 3., aout;
-
+  double a = 4., aout;
+  int e = 3;
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2411,8 +2412,8 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_2) {
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3) {
-  double a = 4., e = 3., eout;
-
+  double a = 4., eout;
+  int e = 3;
   setCurrentTape(tapeId);
 
   adouble ed;
@@ -2426,7 +2427,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3) {
   trace_off();
 
   double eDerivative = a * std::log(2.) * std::pow(2., e);
-  e = std::ldexp(a, e);
+  auto res = std::ldexp(a, e);
 
   double *x = myalloc1(1);
   double **xd = myalloc2(1, 2);
@@ -2441,7 +2442,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3) {
 
   fov_forward(tapeId, 1, 1, 2, x, xd, y, yd);
 
-  BOOST_TEST(*y == e, tt::tolerance(tol));
+  BOOST_TEST(*y == res, tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == eDerivative, tt::tolerance(tol));
   BOOST_TEST(yd[0][1] == eDerivative * 2., tt::tolerance(tol));
 

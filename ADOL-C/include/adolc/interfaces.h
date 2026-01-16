@@ -441,7 +441,7 @@ ADOLC_API int int_reverse_safe(short, int, int, int, const bitword_t *const *,
                                bitword_t **);
 
 /*--------------------------------------------------------------------------*/
-ADOLC_API int get_num_switches(short);
+ADOLC_API size_t get_num_switches(short);
 ADOLC_API int zos_pl_forward(short, int, int, int, const double *, double *,
                              double *);
 ADOLC_API short firstsign(int, const double *, const double *);

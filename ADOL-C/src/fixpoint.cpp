@@ -29,7 +29,7 @@
 /* norm(x,dim_x)        */
 struct fpi_data {
   size_t edf_index;
-  size_t sub_tape_num;
+  short sub_tape_num;
   double_F double_func;
   adouble_F adouble_func;
   norm_F norm_func;
@@ -42,7 +42,7 @@ struct fpi_data {
 
 static std::vector<fpi_data> fpi_stack;
 
-static int iteration(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
+static int iteration(short, size_t dim_xu, double *xu, size_t dim_x,
                      double *x_fix) {
   double err;
   const fpi_data &current = fpi_stack.back();
@@ -54,14 +54,17 @@ static int iteration(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i];
 
-    current.double_func(xu, xu + dim_x, x_fix, dim_x, dim_xu - dim_x);
+    current.double_func(xu, xu + dim_x, x_fix, dim_x,
+                        static_cast<int>(dim_xu - dim_x));
 
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     err = current.norm_func(xu, dim_x);
     if (err < current.epsilon)
-      return k;
+      // this is bad... but the return type of all functions is fixed to "int"
+      // so it is converted implicitly anyway
+      return static_cast<int>(k);
   }
   return -1;
 }
@@ -95,7 +98,9 @@ static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
 
     err = current->norm_func(xu, dim_x);
     if (err < current->epsilon)
-      return k;
+      // this is bad... but the return type of all functions is fixed to "int"
+      // so it is converted implicitly anyway
+      return static_cast<int>(k);
   }
   return -1;
 }
@@ -126,8 +131,10 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
         xu_dot[i] = x_fix_dot[i];
     }
 
-    fos_forward(current->sub_tape_num, dim_x, dim_xu, 0, xu, xu_dot, x_fix,
-                x_fix_dot);
+    // type signatures of "external driver" and "normal" drivers are not aligned
+    // thats why we have to cast...
+    fos_forward(current->sub_tape_num, static_cast<int>(dim_x),
+                static_cast<int>(dim_xu), 0, xu, xu_dot, x_fix, x_fix_dot);
 
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
@@ -138,7 +145,9 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
 
     err_deriv = current->norm_deriv_func(xu_dot, dim_x);
     if ((err < current->epsilon) && (err_deriv < current->epsilon_deriv)) {
-      return k;
+      // this is bad... but the return type of all functions is fixed to "int"
+      // so it is converted implicitly anyway
+      return static_cast<int>(k);
     }
   }
   return -1;
@@ -168,7 +177,10 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
     for (size_t i = 0; i < dim_x; ++i)
       xi[i] = U[i];
 
-    fos_reverse(current->sub_tape_num, dim_x, dim_xu, xi, U);
+    // type signatures of "external driver" and "normal" drivers are not aligned
+    // thats why we have to cast...
+    fos_reverse(current->sub_tape_num, static_cast<int>(dim_x),
+                static_cast<int>(dim_xu), xi, U);
 
     for (size_t i = 0; i < dim_x; ++i)
       U[i] += x_fix_bar[i];
@@ -184,7 +196,9 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
 
       delete[] xi;
       delete[] U;
-      return k;
+      // this is bad... but the return type of all functions is fixed to "int"
+      // so it is converted implicitly anyway
+      return static_cast<int>(k);
     }
   }
   for (size_t i = 0; i < dim_xu - dim_x; ++i)
@@ -195,7 +209,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
   return -1;
 }
 
-int fp_iteration(short tapeId, size_t sub_tape_num, double_F double_func,
+int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
                  adouble_F adouble_func, norm_F norm_func,
                  norm_deriv_F norm_deriv_func, double epsilon,
                  double epsilon_deriv, size_t N_max, size_t N_max_deriv,
