@@ -211,6 +211,12 @@ if (ENABLE_SPARSE)
     FetchContent_MakeAvailable(ColPack)
     target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
 
+    # make colpack a systems lib, which disables our compiler warnings
+    FetchContent_GetProperties(ColPack SOURCE_DIR ColPack_SOURCE_DIR)
+    target_include_directories(adolc SYSTEM PRIVATE
+      ${ColPack_SOURCE_DIR}/inc
+    )
+
     # Ensure feature_summary lists it
     set_property(GLOBAL APPEND PROPERTY PACKAGES_FOUND ColPack)
     set_property(GLOBAL APPEND PROPERTY _CMAKE_ColPack_TYPE REQUIRED)

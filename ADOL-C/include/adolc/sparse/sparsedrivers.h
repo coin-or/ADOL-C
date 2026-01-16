@@ -167,7 +167,7 @@ template <BitPatternPropagationDirection BPPD> struct BvpData {
  * @param basepoint Pointer to the independent variable values (may be null in
  * Safe mode).
  */
-template <ControlFlowMode CFM> void checkBVPInput(const double *basepoint) {};
+template <ControlFlowMode CFM> void checkBVPInput(const double *) {};
 
 /**
  * @brief Resets all entries in the compressed row storage pointer array to
@@ -193,7 +193,7 @@ inline void resetInput(std::span<uint *> &compressedRowStorage) {
 template <BitPatternPropagationDirection BPPD>
 void resetOldSeed(BvpData<BPPD> &data, size_t dim2) {
   for (auto &s : data.seed_)
-    for (int j = 0; j < dim2; ++j)
+    for (size_t j = 0; j < dim2; ++j)
       s[j] = 0;
 }
 
@@ -206,7 +206,7 @@ void resetOldSeed(BvpData<BPPD> &data, size_t dim2) {
  * @param data     Bit-vector propagation state data.
  */
 template <BitPatternPropagationDirection BPPD>
-void prepareSeedMatrix(int indep, size_t stripIdx, BvpData<BPPD> &data) {
+void prepareSeedMatrix(size_t stripIdx, BvpData<BPPD> &data) {
   if constexpr (BPPD == BitPatternPropagationDirection::Forward) {
     resetOldSeed(data, data.wordsPerBatch_);
     createSeed(data, stripIdx, data.indep_);
@@ -441,7 +441,7 @@ int bitVectorPropagation(short tapeId, int depen, int indep,
   BvpData<BPPD> data{depen, indep};
   prepareADCalls<BPPD, CFM>(tapeId, basepoint, data);
   for (size_t stripIdx = 0; stripIdx < data.numStripmineBatches_; stripIdx++) {
-    prepareSeedMatrix(indep, stripIdx, data);
+    prepareSeedMatrix(stripIdx, data);
     ADCalls<BPPD, CFM>(tapeId, basepoint, data);
     extractCompressedRowStorage(stripIdx, compressedRowStorage, data);
   }
@@ -688,7 +688,7 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
   tape.sJInfos().depen_ = depen;
   tape.sJInfos().nnzIn_ = 0;
   for (int i = 0; i < depen; i++) {
-    for (int j = 1; j <= tape.sJInfos().JP_[i][0]; j++)
+    for (uint j = 1; j <= tape.sJInfos().JP_[i][0]; j++)
       tape.sJInfos().nnzIn_++;
   }
 
@@ -1053,8 +1053,8 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
   tape.sHInfos().indep_ = indep;
   tape.sHInfos().nnzIn_ = 0;
 
-  for (int i = 0; i < indep; i++) {
-    for (int j = 1; j <= tape.sHInfos().HP_[i][0]; j++)
+  for (uint i = 0; i < static_cast<uint>(indep); i++) {
+    for (uint j = 1; j <= tape.sHInfos().HP_[i][0]; j++)
       if (tape.sHInfos().HP_[i][j] >= i)
         tape.sHInfos().nnzIn_++;
   }
@@ -1169,15 +1169,15 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
   } else {
     // at least one of rind cind values is not allocated, deallocate others
     // and call unmanaged versions
-    if (*values != nullptr){
+    if (*values != nullptr) {
       delete[] *values;
       *values = nullptr;
     }
-    if (*rind != nullptr){
+    if (*rind != nullptr) {
       delete[] *rind;
       *rind = nullptr;
     }
-    if (*cind != nullptr){
+    if (*cind != nullptr) {
       delete[] *cind;
       *cind = nullptr;
     }

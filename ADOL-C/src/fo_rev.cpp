@@ -693,7 +693,11 @@ int int_reverse_safe(
       if (tape.in_nested_ctx()) {
         FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) += ARES_INC;
       } else {
+#if defined(_INT_REV_)
+        FOR_0_LE_l_LT_p RESULTS(l, indexi) = static_cast<bitword_t>(ARES_INC);
+#else
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
+#endif
       }
 #if !defined(_NTIGHT_)
       tape.get_taylor(res);
@@ -2150,8 +2154,11 @@ int int_reverse_safe(
       res = (size_t)trunc(fabs(TARG1));
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
-
+#if defined(_INT_REV_)
+      FOR_0_LE_l_LT_p RESULTS(l, indexi) = static_cast<bitword_t>(ARES_INC);
+#else
       FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
+#endif
 
       tape.get_taylor(res);
 #else

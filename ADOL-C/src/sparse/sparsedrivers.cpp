@@ -60,7 +60,7 @@ void extract(size_t wordIdx, size_t stripIdx, size_t currentStripWordIdx,
     uint idx = row[0] + 1;
     for (size_t i = 0; i < data.indepWordHasNonzero_.size(); i++) {
       if (data.indepWordHasNonzero_[i]) {
-        row[idx++] = currentStripWordIdx + i;
+        row[idx++] = static_cast<uint>(currentStripWordIdx + i);
         data.indepWordHasNonzero_[i] = 0;
       }
     }
@@ -70,18 +70,18 @@ void extract(size_t wordIdx, size_t stripIdx, size_t currentStripWordIdx,
   }
 }
 
-void extract(size_t wordIdx, size_t stripIdx,
+void extract(size_t wordIdx, size_t,
              BvpData<BitPatternPropagationDirection::Reverse> &data,
              std::span<uint *> &compressedRowStorage) {
 
-  size_t numNonzeros = std::accumulate(data.indepWordHasNonzero_.begin(),
-                                       data.indepWordHasNonzero_.end(), 0UL);
+  auto numNonzeros = std::accumulate(data.indepWordHasNonzero_.begin(),
+                                     data.indepWordHasNonzero_.end(), 0U);
   uint *row = new uint[numNonzeros + 1];
 
   row[0] = numNonzeros;
 
   uint idx = 1;
-  for (size_t i = 0; i < data.indepWordHasNonzero_.size(); ++i) {
+  for (uint i = 0; i < data.indepWordHasNonzero_.size(); ++i) {
     if (data.indepWordHasNonzero_[i]) {
       row[idx++] = i;
       data.indepWordHasNonzero_[i] = 0;

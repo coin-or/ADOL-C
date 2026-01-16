@@ -49,8 +49,6 @@ int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
                               int *nnz, unsigned int **rind,
                               unsigned int **cind, double **values);
 
-namespace adtl_indo {
-
 double makeNaN();
 double makeInf();
 
