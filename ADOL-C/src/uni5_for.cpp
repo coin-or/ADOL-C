@@ -3933,7 +3933,7 @@ int hov_forward(
           y = 1.0;
       }
       FOR_0_LE_l_LT_p {
-        if ((y == 0.0) && (TARG != 0.0))
+        if ((y == 0.0) && (TARG != 0))
           MINDEC(ret_c, 1);
 
         TRES_INC = TARG_INC;
@@ -4547,7 +4547,7 @@ int hov_forward(
                            ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
-        dp_T0[res] = arg1;
+        dp_T0[res] = to_double(arg1);
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
                          CURRENT_LOCATION);
@@ -5665,8 +5665,8 @@ int hov_forward(
 #endif
         ++res;
       }
-      free((void *)iArr);
-      iArr = 0;
+      delete[] iArr;
+      iArr = nullptr;
       break;
     case ext_diff_v2:
       tape.ext_diff_fct_index(tape.get_locint_f());

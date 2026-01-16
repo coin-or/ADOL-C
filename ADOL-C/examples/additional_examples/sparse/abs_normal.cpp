@@ -79,7 +79,7 @@ template <> struct ANFProblem<Allocated> {
     myfree2(Y);
     myfree2(gradz);
   }
-  constexpr ANFProblem(short numSVars, const ANFProblem<UnAllocated> &base)
+  ANFProblem(short numSVars, const ANFProblem<UnAllocated> &base)
       : in(base.in), out(base.out) {
 
     numSwitchingVars = numSVars;
