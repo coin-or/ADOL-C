@@ -236,6 +236,7 @@ int fp_iteration(short tapeId, short subTapeId, double_F double_func,
   return fp_iteration<mode>(
       FpProblem{.tapeId = tapeId,
                 .subTapeId = subTapeId,
+		.internalTapeId = -1,
                 .double_func = double_func,
                 .adouble_func = adouble_func,
                 .norm_func = norm_func,
