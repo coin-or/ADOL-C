@@ -236,7 +236,7 @@ int fp_iteration(short tapeId, short subTapeId, double_F double_func,
   return fp_iteration<mode>(
       FpProblem{.tapeId = tapeId,
                 .subTapeId = subTapeId,
-		.internalTapeId = -1,
+                .internalTapeId = -1,
                 .double_func = double_func,
                 .adouble_func = adouble_func,
                 .norm_func = norm_func,
@@ -254,13 +254,17 @@ int fp_iteration(short tapeId, short subTapeId, double_F double_func,
                                  .u = std::vector<double>(dim_u)}});
 }
 
+/// Ensures that the static_assertion is not evaluated until "mode" is known.
+template <auto> inline constexpr bool is_dependent_v = false;
+
 template <FpMode mode> int fp_iteration(const FpProblem &problem) {
   if constexpr (mode == FpMode::firstOrder)
     return firstOrderFp(problem);
-  if constexpr (mode == FpMode::secondOrder)
+  else if constexpr (mode == FpMode::secondOrder)
     return secondOrderFp(problem);
   else
-    static_assert("Not implemented for Template parameter mode!");
+    static_assert(is_dependent_v<mode>,
+                  "Not implemented for Template parameter mode!");
 }
 }; // namespace ADOLC::FpIteration
 
