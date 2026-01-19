@@ -73,7 +73,8 @@ void tapeLastFpIteration(short tapeId, const FpProblem &problem,
   // adoubles could change and the old locations are already stored on the
   // tape due to externa differentation. This would cause errors
   problem.adouble_func(xu_sub_tape.data(), xu_sub_tape.data() + problem.dim_x,
-                       x_fix_new.data(), static_cast<int>(problem.dim_x), static_cast<int>(problem.dim_u));
+                       x_fix_new.data(), static_cast<int>(problem.dim_x),
+                       static_cast<int>(problem.dim_u));
 
   double dummy_out;
   for (size_t i = 0; i < problem.dim_x; ++i)
@@ -97,17 +98,18 @@ int iteration(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
       xu[i] = x_fix[i];
 
     // passive call: x_{k+1} = F(x_k, u)
-    problem.double_func(xu, xu + dim_x, x_fix, static_cast<int>(dim_x), static_cast<int>(dim_xu - dim_x));
+    problem.double_func(xu, xu + dim_x, x_fix, static_cast<int>(dim_x),
+                        static_cast<int>(dim_xu - dim_x));
 
     // residual: x_fix - F(x_k, u)
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     // convergence check: ||xu|| < epsilon
-   const double err = problem.norm_func(xu, static_cast<int>(dim_x));
+    const double err = problem.norm_func(xu, static_cast<int>(dim_x));
     assert(err >= 0 && "Error should not be negative");
     if (err < problem.epsilon)
-       // this is bad... but the return type of all functions is fixed to "int"
+      // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
   }
@@ -126,13 +128,14 @@ int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
   for (size_t k = 1; k <= problem.N_max; ++k) {
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i];
-    problem.double_func(xu, xu + dim_x, x_fix, static_cast<int>(dim_x), static_cast<int>(dim_xu - dim_x));
+    problem.double_func(xu, xu + dim_x, x_fix, static_cast<int>(dim_x),
+                        static_cast<int>(dim_xu - dim_x));
     for (size_t i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
     err = problem.norm_func(xu, static_cast<int>(dim_x));
     assert(err >= 0 && "Error should not be negative");
     if (err < problem.epsilon)
-       // this is bad... but the return type of all functions is fixed to "int"
+      // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
   }
@@ -159,8 +162,8 @@ int fp_fos_forward(short tapeId, size_t dim_xu, double *xu, double *xu_dot,
     // Compute F(x_*,u) and F'(x_*, u)[\dot{x_k}; \dot{u}] using forward-mode AD
     // type signatures of "external driver" and "normal" drivers are not aligned
     // thats why we have to cast...
-    fos_forward(problem.subTapeId, static_cast<int>(dim_x), static_cast<int>(dim_xu), 2, xu, xu_dot, x_fix,
-                x_fix_dot);
+    fos_forward(problem.subTapeId, static_cast<int>(dim_x),
+                static_cast<int>(dim_xu), 2, xu, xu_dot, x_fix, x_fix_dot);
 
     // Compute residuals in primal and tangent values
     for (size_t i = 0; i < dim_x; ++i) {
@@ -173,7 +176,7 @@ int fp_fos_forward(short tapeId, size_t dim_xu, double *xu, double *xu_dot,
     assert(err_deriv >= 0 && "Error should not be negative");
     // check if converged
     if ((err < problem.epsilon) && (err_deriv < problem.epsilon_deriv)) {
-       // this is bad... but the return type of all functions is fixed to "int"
+      // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
     }
@@ -201,7 +204,8 @@ int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar, size_t dim_xu,
     // \xeta_k^T F_u)
     // type signatures of "external driver" and "normal" drivers are not aligned
     // thats why we have to cast...
-    fos_reverse(tapeId_, static_cast<int>(dim_x), static_cast<int>(dim_xu), xeta.data(), xeta_u.data());
+    fos_reverse(tapeId_, static_cast<int>(dim_x), static_cast<int>(dim_xu),
+                xeta.data(), xeta_u.data());
 
     // compoute xeta_u[0, ... dim_x - 1] = \xeta_{k+1}^T and residual
     for (size_t i = 0; i < dim_x; ++i) {
@@ -229,8 +233,8 @@ int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar, size_t dim_xu,
 }
 
 int fp_hos_ti_reverse(short tapeId, size_t dim_x, double **x_fix_bar,
-                      size_t dim_xu, size_t degree, double **xu_bar,
-                      double **, double **) {
+                      size_t dim_xu, size_t degree, double **xu_bar, double **,
+                      double **) {
 
   // assumption: x_N = Fx(x_N,u) \dot{x}_N + Fu(x_N,u)\dot{u} is taped!
   // assumption: x_N = F(x_N, u) is taped!
@@ -256,7 +260,8 @@ int fp_hos_ti_reverse(short tapeId, size_t dim_x, double **x_fix_bar,
   // to keep the (line 13 and part of line 21) Here we need the
   // taped fos_forward of the fp iteration -> keep = 2
   std::vector<double> xi_bar(xi_u_bar.begin(), xi_u_bar.begin() + dim_x);
-  hos_reverse(problem.subTapeId, static_cast<int>(dim_x), static_cast<int>(dim_xu), 1, xi_bar.data(), xu_bar);
+  hos_reverse(problem.subTapeId, static_cast<int>(dim_x),
+              static_cast<int>(dim_xu), 1, xi_bar.data(), xu_bar);
 
   // We now have xu_bar[1] = [xi_k^T(Fxx \dot{x} + Fxu \dot{u}),
   // xi_k^T(Fux \dot{x} + Fuu \dot(u))]
