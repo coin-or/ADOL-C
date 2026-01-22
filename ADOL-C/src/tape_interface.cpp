@@ -40,7 +40,7 @@ int trace_on(short tapeId, int keepTaylors) {
 
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
-  tapeIdBuffer().push_back(currentTape().tapeId());
+  currentTapeStack().push(currentTape().tapeId());
   setCurrentTape(tapeId);
 
   int retval = tape.initNewTape();
@@ -64,7 +64,7 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
 
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
-  tapeIdBuffer().push_back(currentTape().tapeId());
+  currentTapeStack().push(currentTape().tapeId());
   setCurrentTape(tapeId);
 
   int retval = tape.initNewTape();
@@ -105,8 +105,8 @@ void trace_off(int flag) {
   tape.releaseTape();
 
   // restore previous tapeId and delete it
-  setCurrentTape(tapeIdBuffer().back());
-  tapeIdBuffer().pop_back();
+  setCurrentTape(currentTapeStack().top());
+  currentTapeStack().pop();
 }
 
 void cachedTraceTags(std::vector<short> &result) {

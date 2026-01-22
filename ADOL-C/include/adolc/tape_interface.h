@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
+#include <stack>
 #include <vector>
 
 /**
@@ -25,18 +26,19 @@ inline std::vector<std::unique_ptr<ValueTape>> &tapeBuffer() {
 }
 
 /**
- * @brief Returns a thread-local vector holding tapeIDs.
+ * @brief Returns a thread-local stack holding tapeIDs
  *
- * This buffer is modified in trace_on and trace_off. In trace_on the ID of an
- * old currentTape is pushed into the buffer, then a (potentially) new tape is
- * set to the currentTape. Inside trace_off the ID of the old tape is poped from
- * the buffer and set as currentTape.
+ * This stack is modified in trace_on and trace_off. In trace_on the ID of a possible
+ * previous current tape is pushed onto the stack. Then, the tape to be used is
+ * set to be the currentTape. Inside trace_off the ID of the old tape is popped from
+ * the stack, and set as current tape again.  This allows the nesting of
+ * trace_on ... trace_off calls.
  *
  * @return Reference to the thread-local vector of tape IDs.
  */
-inline std::vector<short> &tapeIdBuffer() {
-  thread_local std::vector<short> tIdBuffer;
-  return tIdBuffer;
+inline std::stack<short, std::vector<short> > &currentTapeStack() {
+  thread_local std::stack<short, std::vector<short> > cTStack;
+  return cTStack;
 }
 
 /**
