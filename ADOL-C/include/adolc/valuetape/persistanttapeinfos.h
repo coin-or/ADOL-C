@@ -17,14 +17,14 @@ struct PersistantTapeInfos {
     op_fileName = createFileName(tapeId, OPERATIONS_TAPE);
     loc_fileName = createFileName(tapeId, LOCATIONS_TAPE);
     val_fileName = createFileName(tapeId, VALUES_TAPE);
-    tay_fileName = nullptr;
+    tay_fileName = createFileName(tapeId, TAYLORS_TAPE);
   }
   PersistantTapeInfos(short tapeId, std::array<std::string, 4> &&tapeBaseNames)
       : tapeBaseNames_(std::move(tapeBaseNames)) {
     op_fileName = createFileName(tapeId, OPERATIONS_TAPE);
     loc_fileName = createFileName(tapeId, LOCATIONS_TAPE);
     val_fileName = createFileName(tapeId, VALUES_TAPE);
-    tay_fileName = nullptr;
+    tay_fileName = createFileName(tapeId, TAYLORS_TAPE);
   }
   PersistantTapeInfos(const PersistantTapeInfos &) = delete;
   PersistantTapeInfos(PersistantTapeInfos &&other) noexcept;
@@ -41,10 +41,6 @@ struct PersistantTapeInfos {
     char *outstr = new char[len + 1];
     std::strncpy(outstr, instr, len);
     return outstr;
-  }
-
-  void createTayFileName(short tapeId) {
-    tay_fileName = createFileName(tapeId, TAYLORS_TAPE);
   }
 
   int forodec_nax{0};
