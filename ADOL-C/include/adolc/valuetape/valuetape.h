@@ -12,9 +12,12 @@
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
+#include <concepts>
+#include <cstdio>
 #include <limits>
 #include <memory>
 #include <stack>
+#include <type_traits>
 
 // just ignore the missing DLL interface of the class members....
 #ifdef _MSC_VER
@@ -44,6 +47,25 @@ struct ext_diff_fct_v2;
  * A lot of interface utilites that are used in various value tape handling
  * methods
  */
+
+class ADOLC_API ValueTape;
+
+template <class T>
+concept InfoType = requires(ValueTape &tape) {
+  typename T::value;
+
+  { T::num } -> std::same_as<const TapeInfos::StatEntries &>;
+  { T::fileAccess } -> std::same_as<const TapeInfos::StatEntries &>;
+  { T::bufferSize } -> std::same_as<const TapeInfos::StatEntries &>;
+  { T::error } -> std::same_as<const ADOLCError::ErrorType &>;
+  { T::chunkSize } -> std::same_as<const size_t &>;
+
+  { T::buffer(tape) } -> std::same_as<typename T::value *>;
+  T::setCurr(tape, (typename T::value *)nullptr);
+  T::setNum(tape, size_t{});
+  T::file(tape);
+  T::openFile(tape);
+};
 
 class ADOLC_API ValueTape {
   TapeInfos tapeInfos_;
@@ -143,7 +165,6 @@ public:
     perTapeInfos_.skipFileCleanup = skipFileCleanup;
   }
   int skipFileCleanup() const { return perTapeInfos_.skipFileCleanup; }
-
   double *paramstore() const { return perTapeInfos_.paramstore; }
   void paramstore(double *params) { perTapeInfos_.paramstore = params; }
 
@@ -656,6 +677,109 @@ public:
   // initialize a forward sweep, get stats, open tapes, fill buffers, ...
   void init_for_sweep();
 
+  struct OpInfos {
+    using value = unsigned char;
+    static const TapeInfos::StatEntries num = TapeInfos::NUM_OPERATIONS;
+    static const TapeInfos::StatEntries fileAccess = TapeInfos::OP_FILE_ACCESS;
+    static const TapeInfos::StatEntries bufferSize = TapeInfos::OP_BUFFER_SIZE;
+    static constexpr ADOLCError::ErrorType error =
+        ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED;
+    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+
+    static void setNum(ValueTape &tape, size_t n) { tape.numOps_Tape(n); }
+    static void setCurr(ValueTape &tape, value *p) { tape.currOp(p); }
+    static value *buffer(ValueTape &tape) { return tape.opBuffer(); }
+    static FILE *file(ValueTape &tape) { return tape.op_file(); }
+    static void openFile(ValueTape &tape) {
+      tape.op_file(fopen(tape.op_fileName(), "rb"));
+    }
+  };
+
+  struct LocInfos {
+    using value = size_t;
+    static const TapeInfos::StatEntries num = TapeInfos::NUM_LOCATIONS;
+    static const TapeInfos::StatEntries fileAccess = TapeInfos::LOC_FILE_ACCESS;
+    static const TapeInfos::StatEntries bufferSize = TapeInfos::LOC_BUFFER_SIZE;
+    static constexpr ADOLCError::ErrorType error =
+        ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED;
+    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+
+    static void setNum(ValueTape &tape, size_t n) { tape.numLocs_Tape(n); }
+    static void setCurr(ValueTape &tape, value *p) { tape.currLoc(p); }
+    static value *buffer(ValueTape &tape) { return tape.locBuffer(); }
+    static FILE *file(ValueTape &tape) { return tape.loc_file(); }
+    static void openFile(ValueTape &tape) {
+      tape.loc_file(fopen(tape.loc_fileName(), "rb"));
+    }
+  };
+
+  struct ValInfos {
+    using value = double;
+    static const TapeInfos::StatEntries num = TapeInfos::NUM_VALUES;
+    static const TapeInfos::StatEntries fileAccess = TapeInfos::VAL_FILE_ACCESS;
+    static const TapeInfos::StatEntries bufferSize = TapeInfos::VAL_BUFFER_SIZE;
+    static constexpr ADOLCError::ErrorType error =
+        ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED;
+
+    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+
+    static void setNum(ValueTape &tape, size_t n) { tape.numVals_Tape(n); }
+    static void setCurr(ValueTape &tape, value *p) { tape.currVal(p); }
+    static value *buffer(ValueTape &tape) { return tape.valBuffer(); }
+    static FILE *file(ValueTape &tape) { return tape.val_file(); }
+    static void openFile(ValueTape &tape) {
+      tape.val_file(fopen(tape.val_fileName(), "rb"));
+    }
+  };
+
+  template <InfoType Info> void setFilePosition() {
+    // set file pos to beginning of last block
+    auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
+                  tapestats(Info::bufferSize);
+    auto offset = static_cast<long>(number * sizeof(typename Info::value));
+    Info::openFile(*this);
+    fseek(Info::file(*this), offset, SEEK_SET);
+  }
+
+  template <InfoType Info> size_t lengthLastBloc() {
+    return tapestats(Info::num) % tapestats(Info::bufferSize);
+  }
+
+  template <InfoType Info> void readLastBloc(size_t lengthLB) {
+    using ADOLCError::fail;
+    const size_t numChunks = lengthLB / Info::chunkSize;
+    for (size_t chunk = 0; chunk < numChunks; chunk++) {
+      auto returnCode = fread(Info::buffer(*this) + (chunk * Info::chunkSize),
+                              Info::chunkSize * sizeof(typename Info::value), 1,
+                              Info::file(*this));
+      if (returnCode != 1)
+        fail(Info::error, CURRENT_LOCATION);
+    }
+
+    // numChunks + remain = lengthLB
+    const size_t remain = lengthLB % Info::chunkSize;
+    if (remain > 0) {
+      auto returnCode =
+          fread(Info::buffer(*this) + (numChunks * Info::chunkSize),
+                remain * sizeof(typename Info::value), 1, Info::file(*this));
+      if (returnCode != 1)
+        fail(Info::error, CURRENT_LOCATION);
+    }
+  }
+
+  template <InfoType Info> void prepare() {
+    size_t lengthLB = tapestats(Info::num);
+    if (tapestats(Info::fileAccess) == 1) {
+      // set file pos to beginning of last block
+      setFilePosition<Info>();
+      lengthLB = tapestats(Info::num) % tapestats(Info::bufferSize);
+      if (lengthLB != 0) {
+        readLastBloc<Info>(lengthLB);
+      }
+    }
+    Info::setNum(*this, tapestats(Info::num) - lengthLB);
+    Info::setCurr(*this, Info::buffer(*this) + lengthLB);
+  }
   // initialize a reverse sweep, get stats, open tapes, fill buffers, ...
   void init_rev_sweep();
 

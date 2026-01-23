@@ -600,6 +600,10 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     throw ADOLCError("cannot open file !\n", LocInfo);
     break;
 
+  case to_underlying(ErrorType::CANNOT_REMOVE_FILE):
+    throw ADOLCError("cannot remove file !\n", LocInfo);
+    break;
+
   case to_underlying(ErrorType::NO_COLPACK):
     throw ADOLCError("ADOL-C error: No ColPack found!\n", LocInfo);
     break;
