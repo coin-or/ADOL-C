@@ -250,7 +250,7 @@ void ValueTape::taylor_close(bool resetData) {
 
   if (tay_file()) {
     if (keepTaylors())
-      put_tay_block();
+      put_tay_block(currTay());
   } else {
     numTays_Tape(currTay() - tayBuffer());
   }
@@ -329,7 +329,7 @@ void ValueTape::write_taylors(size_t loc, int keep, int degree, int numDir) {
   for (int j = 0; j < numDir; ++j) {
     for (int i = 0; i < keep; ++i) {
       if (currTay() == lastTayP1())
-        put_tay_block();
+        put_tay_block(lastTayP1());
 
       currTay(*T);
       increment_currTay();
@@ -354,7 +354,7 @@ void ValueTape::write_scaylors(double *x, std::ptrdiff_t size) {
       tay = x[j++];
     }
     size -= lastTayP1() - currTay();
-    put_tay_block();
+    put_tay_block(lastTayP1());
   }
 
   std::span<double> tayBufferSpan(currTay(), tayBuffer() + size);
@@ -510,7 +510,7 @@ void ValueTape::save_params() {
       put_vals_notWriteBlock(paramstore() + ip, chunk);
       ip += chunk;
       if (ip < np)
-        put_val_block();
+        put_val_block(lastValP1());
     }
   }
 }
@@ -554,7 +554,7 @@ void ValueTape::close_tape(int flag) {
   /* finish operations tape, close it, update stats */
   if (flag != 0 || op_file()) {
     if (currOp() != opBuffer()) {
-      put_op_block();
+      put_op_block(currOp());
     }
     if (op_file()) {
       fclose(op_file());
@@ -571,7 +571,7 @@ void ValueTape::close_tape(int flag) {
   /* finish constants tape, close it, update stats */
   if (flag != 0 || val_file()) {
     if (currVal() != valBuffer()) {
-      put_val_block();
+      put_val_block(currVal());
     }
     if (val_file()) {
       fclose(val_file());
@@ -588,7 +588,7 @@ void ValueTape::close_tape(int flag) {
   /* finish locations tape, update and write tape stats, close tape */
   if (flag != 0 || loc_file()) {
     if (currLoc() != locBuffer()) {
-      put_loc_block();
+      put_loc_block(currLoc());
     }
     tapestats(TapeInfos::NUM_LOCATIONS, numLocs_Tape());
     tapestats(TapeInfos::LOC_FILE_ACCESS, 1);

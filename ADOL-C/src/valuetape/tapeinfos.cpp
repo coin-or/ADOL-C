@@ -394,7 +394,7 @@ void TapeInfos::write_taylor(size_t loc, std::ptrdiff_t keep,
       ++T;
     }
     keep -= lastTayP1 - currTay;
-    put_tay_block(tay_fileName);
+    put_tay_block(tay_fileName, lastTayP1);
   }
 
   for (i = currTay; i < currTay + keep; ++i) {
@@ -413,9 +413,9 @@ void TapeInfos::write_taylor(size_t loc, std::ptrdiff_t keep,
 /****************************************************************************/
 /* Writes the value stack buffer onto hard disk.                            */
 /****************************************************************************/
-void TapeInfos::put_tay_block(const char *tay_fileName) {
+void TapeInfos::put_tay_block(const char *tay_fileName, const double *tayPos) {
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-  const std::ptrdiff_t number = lastTayP1 - tayBuffer;
+  const std::ptrdiff_t number = tayPos - tayBuffer;
   const size_t chunks = number / chunkSize;
   const size_t remain = number % chunkSize;
   if (tay_file == nullptr) {
@@ -485,9 +485,12 @@ void TapeInfos::get_tay_block_r() {
 /* Writes a block of locations onto hard disk and handles file creation,   */
 /* removal, ...                                                             */
 /****************************************************************************/
-void TapeInfos::put_loc_block(const char *loc_fileName) {
+void TapeInfos::put_loc_block(const char *loc_fileName, const size_t *locPos) {
+  using ADOLCError::fail;
+  using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
+
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
-  const size_t number = lastLocP1 - locBuffer;
+  const std::ptrdiff_t number = locPos - locBuffer;
   const size_t chunks = number / chunkSize;
   const size_t remain = number % chunkSize;
 
@@ -594,11 +597,11 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
     if (remainder > 0)
       std::memset(currLoc, 0, (remainder - 1) * sizeof(size_t));
     *(lastLocP1 - 1) = remainder;
-    put_loc_block(loc_fileName);
+    put_loc_block(loc_fileName, lastLocP1);
     /* every operation writes 1 opcode */
     if (currOp + 1 == lastOpP1) {
       *currOp = end_of_op;
-      put_op_block(op_fileName);
+      put_op_block(op_fileName, lastOpP1);
       *currOp = end_of_op;
       ++currOp;
     }
@@ -612,11 +615,11 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
     /* avoid writing uninitialized memory to the file and get valgrind upset
      */
     std::memset(currVal, 0, valRemainder * sizeof(double));
-    put_val_block(val_fileName);
+    put_val_block(val_fileName, lastValP1);
     /* every operation writes 1 opcode */
     if (currOp + 1 == lastOpP1) {
       *currOp = end_of_op;
-      put_op_block(op_fileName);
+      put_op_block(op_fileName, lastOpP1);
       *currOp = end_of_op;
       ++currOp;
     }
@@ -626,7 +629,7 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
   /* every operation writes 1 opcode */
   if (currOp + 1 == lastOpP1) {
     *currOp = end_of_op;
-    put_op_block(op_fileName);
+    put_op_block(op_fileName, lastOpP1);
     *currOp = end_of_op;
     ++currOp;
   }
@@ -638,7 +641,8 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
 /* Writes a block of operations onto hard disk and handles file creation,   */
 /* removal, ...                                                             */
 /****************************************************************************/
-void TapeInfos::put_op_block(const char *op_fileName) {
+void TapeInfos::put_op_block(const char *op_fileName,
+                             const unsigned char *opPos) {
   size_t i, chunks;
   size_t number, remain, chunkSize;
 
@@ -660,7 +664,7 @@ void TapeInfos::put_op_block(const char *op_fileName) {
     }
   }
 
-  number = lastOpP1 - opBuffer;
+  number = opPos - opBuffer;
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
@@ -753,11 +757,11 @@ void TapeInfos::put_vals_writeBlock(double *vals, size_t numVals,
     ++currVal;
   }
   put_loc(lastValP1 - currVal);
-  put_val_block(val_fileName);
+  put_val_block(val_fileName, lastTayP1);
   /* every operation writes 1 opcode */
   if (currOp + 1 == lastOpP1) {
     *currOp = end_of_op;
-    put_op_block(op_fileName);
+    put_op_block(op_fileName, lastOpP1);
     *currOp = end_of_op;
     ++currOp;
   }
@@ -769,7 +773,7 @@ void TapeInfos::put_vals_writeBlock(double *vals, size_t numVals,
 /* Writes a block of constants (real) onto tape and handles file creation   */
 /* removal, ...                                                             */
 /****************************************************************************/
-void TapeInfos::put_val_block(const char *val_fileName) {
+void TapeInfos::put_val_block(const char *val_fileName, const double *valPos) {
   size_t i, chunks;
   size_t number, remain, chunkSize;
 
@@ -791,7 +795,7 @@ void TapeInfos::put_val_block(const char *val_fileName) {
     }
   }
 
-  number = lastValP1 - valBuffer;
+  number = valPos - valBuffer;
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
@@ -876,11 +880,11 @@ size_t TapeInfos::get_val_space(const char *op_fileName,
 
   if (lastValP1 - 5 < currVal) {
     put_loc(lastValP1 - currVal);
-    put_val_block(val_fileName);
+    put_val_block(val_fileName, lastValP1);
     /* every operation writes 1 opcode */
     if (currOp + 1 == lastOpP1) {
       *currOp = end_of_op;
-      put_op_block(op_fileName);
+      put_op_block(op_fileName, lastOpP1);
       *currOp = end_of_op;
       ++currOp;
     }

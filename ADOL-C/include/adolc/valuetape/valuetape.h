@@ -345,7 +345,9 @@ public:
     return tapeInfos_.put_op(op, loc_fileName(), op_fileName(), val_fileName(),
                              reserveExtraLocations);
   }
-  void put_op_block() { tapeInfos_.put_op_block(op_fileName()); };
+  void put_op_block(const unsigned char *opPos) {
+    tapeInfos_.put_op_block(op_fileName(), opPos);
+  };
   bool isTaping() { return tapeInfos_.traceFlag != 0; }
 
   /* writes a block of operations onto hard disk and handles file creation,
@@ -356,7 +358,9 @@ public:
   /* reads the previous block of operations into the internal buffer */
 
   /* puts a single locations into the location buffer, no disk access */
-  void put_loc_block() { return tapeInfos_.put_loc_block(loc_fileName()); };
+  void put_loc_block(const size_t *locPos) {
+    tapeInfos_.put_loc_block(loc_fileName(), locPos);
+  };
   /* writes a block of locations onto hard disk and handles file creation,
    * removal, ... */
   void get_loc_block_f() { return tapeInfos_.get_loc_block_f(); };
@@ -392,7 +396,9 @@ public:
     return tapeInfos_.put_vals_notWriteBlock(reals, numReals);
   };
   /* write some constants to the buffer without disk access */
-  void put_val_block() { return tapeInfos_.put_val_block(val_fileName()); };
+  void put_val_block(const double *valPos) {
+    tapeInfos_.put_val_block(val_fileName(), valPos);
+  };
   /* writes a block of constants (real) onto hard disk and handles file
    * creation, removal, ... */
   void get_val_block_f() { return tapeInfos_.get_val_block_f(); };
@@ -641,7 +647,9 @@ public:
   }
 
   // writes the taylor stack buffer onto hard disk
-  void put_tay_block() { return tapeInfos_.put_tay_block(tay_fileName()); }
+  void put_tay_block(const double *tayPos) {
+    tapeInfos_.put_tay_block(tay_fileName(), tayPos);
+  }
 
   // puts a taylor value from the value stack buffer to the taylor buffer
   void get_taylor(size_t loc) {
