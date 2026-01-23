@@ -2,6 +2,7 @@
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstring> // for memset
 #include <iostream>
+#include <type_traits>
 
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
@@ -486,38 +487,38 @@ void TapeInfos::get_tay_block_r() {
 /* removal, ...                                                             */
 /****************************************************************************/
 void TapeInfos::put_loc_block(const char *loc_fileName) {
+  using ADOLCError::fail;
+  using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
+
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
-  const size_t number = lastLocP1 - locBuffer;
+  const std::ptrdiff_t number = lastLocP1 - locBuffer;
   const size_t chunks = number / chunkSize;
   const size_t remain = number % chunkSize;
 
   if (loc_file == nullptr) {
     if ((loc_file = fopen(loc_fileName, "rb"))) {
-#if defined(ADOLC_DEBUG)
-      fprintf(DIAG_OUT, "ADOL-C debug: Old tapefile %s gets removed!\n",
-              loc_fileName);
-#endif
       fclose(loc_file);
       loc_file = nullptr;
-      if (remove(loc_fileName))
-        fprintf(DIAG_OUT, "ADOL-C warning: "
-                          "Unable to remove old tapefile!\n");
+      if (remove(loc_fileName) != 0) {
+        std::cerr << "ADOL-C warning: Unable to remove old tapefile!\n";
+      }
       loc_file = fopen(loc_fileName, "wb");
     } else {
       loc_file = fopen(loc_fileName, "wb");
     }
   }
-  for (size_t i = 0; i < chunks; ++i)
-    if (fwrite(locBuffer + i * chunkSize, chunkSize * sizeof(size_t), 1,
-               loc_file) != 1)
-      ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                       CURRENT_LOCATION);
+  for (size_t i = 0; i < chunks; ++i) {
+    if (fwrite(locBuffer + (i * chunkSize), chunkSize * sizeof(size_t), 1,
+               loc_file) != 1) {
+      fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
+    }
+  }
 
   if (remain != 0) {
-    if (fwrite(locBuffer + chunks * chunkSize, remain * sizeof(size_t), 1,
-               loc_file) != 1)
-      ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                       CURRENT_LOCATION);
+    if (fwrite(locBuffer + (chunks * chunkSize), remain * sizeof(size_t), 1,
+               loc_file) != 1) {
+      fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
+    }
   }
   numLocs_Tape += number;
   currLoc = locBuffer;
@@ -590,7 +591,7 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
 
   /* make sure we have enough slots to write the locs */
   if (currLoc + maxLocsPerOp + reserveExtraLocations > lastLocP1) {
-    size_t remainder = lastLocP1 - currLoc;
+    std::ptrdiff_t remainder = lastLocP1 - currLoc;
     if (remainder > 0)
       std::memset(currLoc, 0, (remainder - 1) * sizeof(size_t));
     *(lastLocP1 - 1) = remainder;
