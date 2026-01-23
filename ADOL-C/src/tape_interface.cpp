@@ -40,7 +40,7 @@ int trace_on(short tapeId, int keepTaylors) {
 
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
-  currentTapeStack().push(currentTape().tapeId());
+  currentTapeStack().push(currentTapePtr());
   setCurrentTape(tapeId);
 
   int retval = tape.initNewTape();
@@ -64,7 +64,7 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
 
   ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
-  currentTapeStack().push(currentTape().tapeId());
+  currentTapeStack().push(currentTapePtr());
   setCurrentTape(tapeId);
 
   int retval = tape.initNewTape();

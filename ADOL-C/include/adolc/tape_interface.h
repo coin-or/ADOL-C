@@ -36,8 +36,8 @@ inline std::vector<std::unique_ptr<ValueTape>> &tapeBuffer() {
  *
  * @return Reference to the thread-local vector of tape IDs.
  */
-inline std::stack<short, std::vector<short> > &currentTapeStack() {
-  thread_local std::stack<short, std::vector<short> > cTStack;
+inline std::stack<ValueTape*, std::vector<ValueTape*> > &currentTapeStack() {
+  thread_local std::stack<ValueTape*, std::vector<ValueTape*> > cTStack;
   return cTStack;
 }
 
@@ -122,6 +122,16 @@ ADOLC_API inline ValueTape &currentTape() {
   assert(currentTapePtr() && "Current Tape is nullptr!");
   return *currentTapePtr();
 }
+
+/**
+ * @brief Sets the current tape pointer to the given tape.
+ *
+ * @param tape The tape to set as the current one
+ */
+ADOLC_API inline void setCurrentTape(ValueTape* tape) noexcept {
+  currentTapePtr() = tape;
+}
+
 /**
  * @brief Sets the current tape pointer to the pointer of the tape with the
  * specified ID.
