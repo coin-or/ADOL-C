@@ -26,18 +26,18 @@ inline std::vector<std::unique_ptr<ValueTape>> &tapeBuffer() {
 }
 
 /**
- * @brief Returns a thread-local stack holding tapeIDs
+ * @brief Returns a thread-local stack holding pointers to ValueTape instances.
  *
- * This stack is modified in trace_on and trace_off. In trace_on the ID of a possible
- * previous current tape is pushed onto the stack. Then, the tape to be used is
- * set to be the currentTape. Inside trace_off the ID of the old tape is popped from
- * the stack, and set as current tape again.  This allows the nesting of
- * trace_on ... trace_off calls.
+ * This stack is modified in trace_on and trace_off. In trace_on the pointer of
+ * a possible previous current tape is pushed onto the stack. Then, the tape
+ * to be used is set to be the currentTape. Inside trace_off the pointer of the
+ * old tape is popped from the stack, and set as current tape again. This
+ * allows the nesting of trace_on ... trace_off calls.
  *
- * @return Reference to the thread-local vector of tape IDs.
+ * @return Reference to the thread-local stack of tape pointers.
  */
-inline std::stack<ValueTape*, std::vector<ValueTape*> > &currentTapeStack() {
-  thread_local std::stack<ValueTape*, std::vector<ValueTape*> > cTStack;
+inline std::stack<ValueTape *, std::vector<ValueTape *>> &currentTapeStack() {
+  thread_local std::stack<ValueTape *, std::vector<ValueTape *>> cTStack;
   return cTStack;
 }
 
@@ -128,7 +128,7 @@ ADOLC_API inline ValueTape &currentTape() {
  *
  * @param tape The tape to set as the current one
  */
-ADOLC_API inline void setCurrentTape(ValueTape* tape) noexcept {
+ADOLC_API inline void setCurrentTape(ValueTape *tape) noexcept {
   currentTapePtr() = tape;
 }
 
