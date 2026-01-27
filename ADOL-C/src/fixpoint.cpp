@@ -262,7 +262,7 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
 
   // read out xu
   for (size_t i = 0; i < dim_u; ++i)
-    u_vals[i] = xu[i].value();
+    u_vals[i] = xu[dim_x + i].value();
 
   setCurrentTape(sub_tape_num);
   currentTape().ensureContiguousLocations(2 * (dim_u + dim_x));
