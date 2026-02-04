@@ -100,12 +100,17 @@ constexpr size_t to_size_t(T value) noexcept
   assert(value >= 0);
   return static_cast<size_t>(value);
 }
+
+/// Helper to savely cast to a double.
 template <typename T>
 constexpr double to_double(T value) noexcept
   requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
 {
   return static_cast<double>(value);
 }
+
+/// Helper to evaluate a static_assert after resolving the template parameter.
+template <auto> inline constexpr bool is_dependent_v = false;
 #else
 #define BEGIN_C_DECLS
 #define END_C_DECLS

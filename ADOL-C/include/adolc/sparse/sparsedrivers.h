@@ -18,6 +18,7 @@ package.
 #include <adolc/adolcerror.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
+#include <adolc/sparse/sparse_options.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/sparseinfos.h>
 #include <adolc/valuetape/valuetape.h>
@@ -32,30 +33,6 @@ package.
 #define PQ_STRIPMINE_MAX 30
 
 namespace ADOLC::Sparse {
-
-enum class SparseMethod {
-  IndexDomains,
-  BitPattern,
-};
-
-enum class ControlFlowMode { Safe, Tight, OldSafe, OldTight };
-
-enum class BitPatternPropagationDirection {
-  Auto,
-  Forward,
-  Reverse,
-};
-
-enum class CompressionMode {
-  Column,
-  Row,
-};
-
-enum class RecoveryMethod {
-  Indirect,
-  Direct,
-};
-
 namespace detail {
 // a word represents an instance of bitword_t every letter of the word gives a
 // bit. This bit represents a depence of the input i (= location of the bit) to
@@ -78,12 +55,12 @@ static constexpr bitword_t MOST_SIGNIFICANT_BIT = static_cast<bitword_t>(1)
  *         Direction of bit pattern propagation — Forward or Reverse.
  */
 template <BitPatternPropagationDirection BPPD> struct BvpData {
-  int rc_{0};               ///< Return code from ADOL-C drivers.
-  int indep_{-1};           ///< Number of independent (input) variables.
-  int depen_{-1};           ///< Number of dependent (output) variables.
-  size_t wordsPerBatch_{0}; ///< Number of bit words per batch.
-  size_t bitsPerStrip_{0};  ///< Number of bits represented by one batch.
-  size_t numStripmineBatches_{
+  int rc_{0};            ///< Return code from ADOL-C drivers.
+  int depen_{-1};        ///< Number of dependent (output) variables.
+  int indep_{-1};        ///< Number of independent (input) variables.
+  int wordsPerBatch_{0}; ///< Number of bit words per batch.
+  int bitsPerStrip_{0};  ///< Number of bits represented by one batch.
+  int numStripmineBatches_{
       0}; ///< Number of batches needed to cover all variables.
   std::vector<unsigned char>
       indepWordHasNonzero_; ///< Flags marking independent variables that appear
@@ -119,7 +96,7 @@ template <BitPatternPropagationDirection BPPD> struct BvpData {
    * @param indep Number of independent variables.
    */
   BvpData(int depen, int indep) : depen_(depen), indep_(indep) {
-    size_t numWordsFullSeed = 0;
+    int numWordsFullSeed = 0;
     if constexpr (BPPD == BitPatternPropagationDirection::Forward)
       numWordsFullSeed =
           indep_ / BITS_PER_WORD + ((indep_ % BITS_PER_WORD) != 0);
@@ -317,16 +294,16 @@ void extract(size_t wordIdx, size_t stripIdx,
  * @param data                 Bit-vector propagation data container.
  */
 template <BitPatternPropagationDirection BPPD>
-void extractCompressedRowStorage(size_t stripIdx,
+void extractCompressedRowStorage(int stripIdx,
                                  std::span<uint *> &compressedRowStorage,
                                  BvpData<BPPD> &data) {
-  size_t currentStripWordIdx = stripIdx * data.bitsPerStrip_;
-  size_t nextStripWordIdx = (stripIdx + 1) * data.bitsPerStrip_;
+  int currentStripWordIdx = stripIdx * data.bitsPerStrip_;
+  int nextStripWordIdx = (stripIdx + 1) * data.bitsPerStrip_;
   if constexpr (BPPD == BitPatternPropagationDirection::Forward)
-    for (size_t wordIdx = 0; wordIdx < data.depen_; wordIdx++) {
-      size_t idx = 0;
+    for (int wordIdx = 0; wordIdx < data.depen_; wordIdx++) {
+      int idx = 0;
       bitword_t currentBit = MOST_SIGNIFICANT_BIT;
-      for (size_t i = 0; i < data.bitsPerStrip_; ++i) {
+      for (int i = 0; i < data.bitsPerStrip_; ++i) {
         if (currentBit == 0) {
           currentBit = MOST_SIGNIFICANT_BIT;
           idx++;
@@ -344,7 +321,7 @@ void extractCompressedRowStorage(size_t stripIdx,
       nextStripWordIdx = data.depen_;
     int idx = 0;
     bitword_t currentBit = MOST_SIGNIFICANT_BIT;
-    for (size_t wordIdx = currentStripWordIdx; wordIdx < nextStripWordIdx;
+    for (int wordIdx = currentStripWordIdx; wordIdx < nextStripWordIdx;
          wordIdx++) {
       if (currentBit == 0) {
         currentBit = MOST_SIGNIFICANT_BIT;
@@ -440,7 +417,7 @@ int bitVectorPropagation(short tapeId, int depen, int indep,
   checkBVPInput<CFM>(basepoint);
   BvpData<BPPD> data{depen, indep};
   prepareADCalls<BPPD, CFM>(tapeId, basepoint, data);
-  for (size_t stripIdx = 0; stripIdx < data.numStripmineBatches_; stripIdx++) {
+  for (int stripIdx = 0; stripIdx < data.numStripmineBatches_; stripIdx++) {
     prepareSeedMatrix(stripIdx, data);
     ADCalls<BPPD, CFM>(tapeId, basepoint, data);
     extractCompressedRowStorage(stripIdx, compressedRowStorage, data);
@@ -1205,7 +1182,6 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
  * @param tag        ADOL-C tape identifier.
  * @param indep      Number of independent variables (Hessian dimension).
  * @param repeat     If 0: compute pattern and seed (cache them). If >0: perform
- *                    numeric recovery using cached seed.
  * @param basepoint  Basepoint for tight control-flow (may be nullptr if not
  *                  required).
  * @param[in,out] nnz
