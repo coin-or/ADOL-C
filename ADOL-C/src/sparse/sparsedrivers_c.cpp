@@ -173,6 +173,7 @@ int hess_pat(short tag, int n, const double *x, unsigned int **HP,
   case ControlFlowMode::OldTight:
     return call_hess_pat<ControlFlowMode::OldTight>(tag, n, x, HP);
   }
+  return -1;
 }
 
 void generate_seed_jac(int m, int n, unsigned int **JP, double ***S, int *p,
@@ -356,5 +357,6 @@ int sparse_hess(short tag, int n, int repeat, const double *x, int *nnz,
     return call_sparse_hess<ControlFlowMode::OldSafe, RecoveryMethod::Indirect>(
         tag, n, repeat, x, nnz, rind, cind, values);
   }
+  return -1;
 }
 } // extern "C"
