@@ -159,9 +159,10 @@ int jac_pat(short tag, int m, int n, const double *x, unsigned int **JP,
   }
 }
 
-int hess_pat(short tag, int n, const double *x, unsigned int **HP, int option) {
+int hess_pat(short tag, int n, const double *x, unsigned int **HP,
+             int *option) {
   using namespace detail;
-  const auto cfm = parseHessCFM(option);
+  const auto cfm = parseHessCFM(option[0]);
   switch (cfm) {
   case ControlFlowMode::Safe:
     return call_hess_pat<ControlFlowMode::Safe>(tag, n, x, HP);

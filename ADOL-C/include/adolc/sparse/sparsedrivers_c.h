@@ -158,7 +158,7 @@ int jac_pat(short tag, int m, int n, const double *x, unsigned int **JP,
  *
  * @note This function wraps the C++ API.
  */
-int hess_pat(short tag, int n, const double *x, unsigned int **HP, int option);
+int hess_pat(short tag, int n, const double *x, unsigned int **HP, int *option);
 
 /**
  * @brief C-API to generate a seed matrix (coloring) for compressed Jacobian
