@@ -173,11 +173,11 @@ struct TapeInfos {
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
     if (currTay == lastTayP1)
-      put_tay_block(tay_fileName);
+      put_tay_block(tay_fileName, lastTayP1);
     *currTay = val;
     ++currTay;
   }
-  void put_tay_block(const char *tay_fileName);
+  void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 
   // functions for handling loc tape
@@ -186,7 +186,7 @@ struct TapeInfos {
     ++currLoc;
   }
 
-  void put_loc_block(const char *loc_fileName);
+  void put_loc_block(const char *loc_fileName, const size_t *locPos);
   void get_loc_block_f();
   void get_loc_block_r();
   // functions for handling op tape
@@ -195,7 +195,7 @@ struct TapeInfos {
   // buffer and constants buffer are prepared to take the belonging stuff
   void put_op(OPCODES op, const char *loc_fileName, const char *op_fileName,
               const char *val_fileName, size_t reserveExtraLocations = 0);
-  void put_op_block(const char *op_fileName);
+  void put_op_block(const char *op_fileName, const unsigned char *opLoc);
   void get_op_block_f();
   void get_op_block_r();
 
@@ -210,7 +210,7 @@ struct TapeInfos {
       ++currVal;
     }
   }
-  void put_val_block(const char *val_fileName);
+  void put_val_block(const char *val_fileName, const double *valPos);
   void put_vals_writeBlock(double *vals, size_t numVals,
                            const char *op_fileName, const char *val_fileName);
   void get_val_block_r();
