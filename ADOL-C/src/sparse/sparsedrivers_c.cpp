@@ -204,20 +204,6 @@ int sparse_jac(short tag, int m, int n, int repeat, const double *x, int *nnz,
   const auto cfm = parseJacCFM(options);
   const auto bpdd = parseBPPD(options);
   const auto cm = parseCM(options);
-
-  // IMPORTANT: preserve old "allocate on repeat==0" expectation:
-  // - If repeat==0, users expect this driver to allocate rind/cind/values.
-  //   The C++ implementation already does "unmanaged" when pointers are null,
-  //   so we enforce that by nulling them here.
-  if (repeat == 0) {
-    if (rind)
-      *rind = nullptr;
-    if (cind)
-      *cind = nullptr;
-    if (values)
-      *values = nullptr;
-  }
-
   // Dispatch all combinations that matter.
   // IndexDomains ignores bpdd.
   if (sm == SparseMethod::IndexDomains) {
@@ -317,15 +303,6 @@ int sparse_hess(short tag, int n, int repeat, const double *x, int *nnz,
   using namespace detail;
   const auto cfm = parseHessCFM(options[0]);
   const auto rm = parseRM(options);
-
-  if (repeat == 0) {
-    if (rind)
-      *rind = nullptr;
-    if (cind)
-      *cind = nullptr;
-    if (values)
-      *values = nullptr;
-  }
 
   switch (cfm) {
   case ControlFlowMode::Tight:
