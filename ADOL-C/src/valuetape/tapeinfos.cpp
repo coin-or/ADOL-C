@@ -423,14 +423,14 @@ void TapeInfos::put_tay_block(const char *tay_fileName, const double *tayPos) {
     if (tay_file == nullptr)
       ADOLCError::fail(ADOLCError::ErrorType::TAPING_TAYLOR_OPEN_FAILED,
                        CURRENT_LOCATION);
+  }
+  if (number != 0) {
+    for (size_t i = 0; i < chunks; ++i)
+      if (fwrite(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
+                 tay_file) != 1)
+        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
+                         CURRENT_LOCATION);
 
-    if (number != 0) {
-      for (size_t i = 0; i < chunks; ++i)
-        if (fwrite(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-                   tay_file) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                           CURRENT_LOCATION);
-    }
     if (remain != 0)
       if (fwrite(tayBuffer + chunks * chunkSize, remain * sizeof(double), 1,
                  tay_file) != 1) {
@@ -449,33 +449,31 @@ void TapeInfos::get_tay_block_r() {
 
   lastTayBlockInCore = 0;
   const size_t number = stats[TapeInfos::TAY_BUFFER_SIZE];
-  if (nextBufferNumber > 0) {
-    if (fseek(tay_file,
-              static_cast<long>(sizeof(double) * nextBufferNumber * number),
-              SEEK_SET) == -1)
-      ADOLCError::fail(ADOLCError::ErrorType::EVAL_SEEK_VALUE_STACK,
+  if (fseek(tay_file,
+            static_cast<long>(sizeof(double) * nextBufferNumber * number),
+            SEEK_SET) == -1)
+    ADOLCError::fail(ADOLCError::ErrorType::EVAL_SEEK_VALUE_STACK,
+                     CURRENT_LOCATION);
+
+  const size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
+  const size_t chunks = number / chunkSize;
+
+  for (size_t i = 0; i < chunks; ++i)
+    if (fread(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
+              tay_file) != 1) {
+      ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
                        CURRENT_LOCATION);
+    }
+  const int remain = number % chunkSize;
+  if (remain != 0)
+    if (fread(tayBuffer + chunks * chunkSize, remain * sizeof(double), 1,
+              tay_file) != 1) {
+      ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
+                       CURRENT_LOCATION);
+    }
 
-    const size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-    const size_t chunks = number / chunkSize;
-
-    for (size_t i = 0; i < chunks; ++i)
-      if (fread(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-                tay_file) != 1) {
-        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                         CURRENT_LOCATION);
-      }
-    const int remain = number % chunkSize;
-    if (remain != 0)
-      if (fread(tayBuffer + chunks * chunkSize, remain * sizeof(double), 1,
-                tay_file) != 1) {
-        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                         CURRENT_LOCATION);
-      }
-
-    currTay = lastTayP1;
-    --nextBufferNumber;
-  }
+  currTay = lastTayP1;
+  --nextBufferNumber;
 }
 /**
  * Functions for handling locations tape
