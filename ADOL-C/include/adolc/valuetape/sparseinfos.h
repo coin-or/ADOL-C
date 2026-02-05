@@ -7,9 +7,8 @@
 #include <vector>
 
 namespace ADOLC::Sparse {
-void generateSeedJac(int dimOut, int dimIn, const std::span<uint *> JP,
-                     double ***Seed, int *p,
-                     const std::string &coloringVariant);
+template <CompressionMode CM>
+void generateSeedJac(int, int, const std::span<uint *>, double ***, int *) {};
 // stores everything we need to know to compute the sparse jacobian with
 // fov_reverse
 

@@ -5,14 +5,25 @@
 #include <span>
 namespace ADOLC::Sparse {
 
-void generateSeedJac(int dimOut, int dimIn, const std::span<uint *> JP,
-                     double ***Seed, int *p,
-                     const std::string &coloringVariant) {
+template <>
+void generateSeedJac<CompressionMode::Column>(int dimOut, int dimIn,
+                                              const std::span<uint *> JP,
+                                              double ***Seed, int *p) {
   int dummy = 0;
-  return ColPack::BipartiteGraphPartialColoringInterface(
-             SRC_MEM_ADOLC, JP.data(), dimOut, dimIn)
+  ColPack::BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP.data(),
+                                                  dimOut, dimIn)
+      .GenerateSeedJacobian_unmanaged(Seed, &dummy, p, "SMALLEST_LAST",
+                                      "COLUMN_PARTIAL_DISTANCE_TWO");
+}
+template <>
+void generateSeedJac<CompressionMode::Row>(int dimOut, int dimIn,
+                                           const std::span<uint *> JP,
+                                           double ***Seed, int *p) {
+  int dummy = 0;
+  ColPack::BipartiteGraphPartialColoringInterface(SRC_MEM_ADOLC, JP.data(),
+                                                  dimOut, dimIn)
       .GenerateSeedJacobian_unmanaged(Seed, p, &dummy, "SMALLEST_LAST",
-                                      coloringVariant);
+                                      "ROW_PARTIAL_DISTANCE_TWO");
 }
 struct SparseJacInfos::Impl {
   // unique ptr is used, because colpack does not specify copy assignment or

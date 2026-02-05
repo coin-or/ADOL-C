@@ -590,10 +590,7 @@ ADOLC_API int jac_pat(short tag, int depen, int indep, const double *basepoint,
 template <CompressionMode CM>
 ADOLC_API void generate_seed_jac(int m, int n, const std::span<uint *> JP,
                                  double ***Seed, int *p) {
-  if constexpr (CM == CompressionMode::Row)
-    generateSeedJac(m, n, JP, Seed, p, "ROW_PARTIAL_DISTANCE_TWO");
-  else if (CM == CompressionMode::Column)
-    generateSeedJac(m, n, JP, Seed, p, "COLUMN_PARTIAL_DISTANCE_TWO");
+  generateSeedJac<CM>(m, n, JP, Seed, p);
 }
 
 namespace detail {
