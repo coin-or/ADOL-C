@@ -1,6 +1,7 @@
 #ifndef ADOLC_SPARSE_INFOS_H
 #define ADOLC_SPARSE_INFOS_H
 #include <adolc/internal/common.h>
+#include <adolc/sparse/sparse_options.h>
 #include <cstddef>
 #include <memory>
 #include <span>
