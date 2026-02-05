@@ -443,12 +443,13 @@ template <size_t Version> static void problem() {
 
   for (int row{0}; row < anfProblemAlloc.crs.size(); row++) {
     for (int col = 0; col <= anfProblemAlloc.crs[row][0]; col++) {
-      BOOST_TEST_CONTEXT("problem: " << Version << " row=" << row << " col=" << col){
+      BOOST_TEST_CONTEXT("problem: " << Version << " row=" << row
+                                     << " col=" << col) {
         BOOST_TEST(crs[row][col] == anfProblemAlloc.crs[row][col]);
       }
     }
   };
-  for (auto& c: crs)
+  for (auto &c : crs)
     delete[] c;
 }
 

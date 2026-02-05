@@ -208,7 +208,7 @@ static void testSparseJacPat(short tapeId) {
   BOOST_TEST(compressedRowStorage[1][2] == 5);
   BOOST_TEST(compressedRowStorage[1][3] == 6);
 
-  for (auto& crs: compressedRowStorage)
+  for (auto &crs : compressedRowStorage)
     delete[] crs;
 }
 

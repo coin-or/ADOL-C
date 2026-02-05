@@ -692,7 +692,8 @@ int int_reverse_safe(
 
 #if defined(_INT_REV_)
       if (tape.in_nested_ctx()) {
-        FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) += static_cast<bitword_t>(ARES_INC);
+        FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) +=
+            static_cast<bitword_t>(ARES_INC);
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = static_cast<bitword_t>(ARES_INC);
       }

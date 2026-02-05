@@ -312,7 +312,7 @@ static void testSparseHessWithOffDiagonals(short tapeId) {
   delete[] rowIndices;
   delete[] columnIndices;
   delete[] sparseValues;
-  for (auto &h: hess)
+  for (auto &h : hess)
     delete[] h;
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagSafeDirect) {
@@ -434,7 +434,7 @@ static void testSparseHessPatWithDiagonal(short tapeId) {
   BOOST_TEST(compressedRowStorage[18][0] == 0);
   BOOST_TEST(compressedRowStorage[19][0] == 0);
 
-  for (auto& crs: compressedRowStorage)
+  for (auto &crs : compressedRowStorage)
     delete[] crs;
 }
 
@@ -521,7 +521,7 @@ static void testSparseHessPatWithOffDiagonal(short tapeId) {
   BOOST_TEST(compressedRowStorage[5][0] == 1);
   BOOST_TEST(compressedRowStorage[5][1] == 4);
 
-  for (auto& crs: compressedRowStorage)
+  for (auto &crs : compressedRowStorage)
     delete[] crs;
 }
 
