@@ -18,15 +18,9 @@ namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(uni5_for)
 
-const short tapeId12 = 12;
-struct TapeInitializer {
-  TapeInitializer() { createNewTape(tapeId12); }
-};
-
-BOOST_GLOBAL_FIXTURE(TapeInitializer);
-
 BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
-  setCurrentTape(tapeId12);
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
   const int dim_out = 1;
   const int dim_in = 3;
 
@@ -37,7 +31,7 @@ BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
   currentTape().enableMinMaxUsingAbs();
   // ---------------------- trace on ---------------------
   // function is given by fabs(in_2 + fabs(in_1 + fabs(in_0)))
-  trace_on(tapeId12);
+  trace_on(tapeId);
 
   // init independents
   for (size_t i = 0; i < in.size(); i++) {
@@ -62,12 +56,12 @@ BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // test num switches
-  size_t num_switches = get_num_switches(tapeId12);
+  size_t num_switches = get_num_switches(tapeId);
   BOOST_TEST(num_switches == dim_in, tt::tolerance(tol));
 
   const int keep = 0;
   std::vector<double> switching_vec(num_switches);
-  zos_pl_forward(tapeId12, dim_out, dim_in, keep, in.data(), out,
+  zos_pl_forward(tapeId, dim_out, dim_in, keep, in.data(), out,
                  switching_vec.data());
 
   // test outout of zos_pl_forward
@@ -85,7 +79,8 @@ BOOST_AUTO_TEST_CASE(FAbsOperator_ZOS_PL_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_PL_Forward) {
-  setCurrentTape(tapeId12);
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
   const int dim_out = 1;
   const int dim_in = 3;
 
@@ -96,7 +91,7 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_PL_Forward) {
   currentTape().enableMinMaxUsingAbs();
   // ---------------------- trace on ---------------------
   // function is given by fabs(in_2 + fabs(in_1 + fabs(in_0)))
-  trace_on(tapeId12);
+  trace_on(tapeId);
 
   // init independents
   for (size_t i = 0; i < in.size(); i++) {
@@ -121,12 +116,12 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_PL_Forward) {
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // test num switches
-  size_t num_switches = get_num_switches(tapeId12);
+  size_t num_switches = get_num_switches(tapeId);
   BOOST_TEST(num_switches == dim_in, tt::tolerance(tol));
 
   const int keep = 0;
   std::vector<double> switching_vec(num_switches);
-  zos_pl_forward(tapeId12, dim_out, dim_in, keep, in.data(), out,
+  zos_pl_forward(tapeId, dim_out, dim_in, keep, in.data(), out,
                  switching_vec.data());
 
   // test outout of zos_pl_forward

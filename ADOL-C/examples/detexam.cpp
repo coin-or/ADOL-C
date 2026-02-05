@@ -60,8 +60,7 @@ adouble det(const T &A, size_t row,
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  const short tapeId = 0;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
 
   const int keep = 1;
   constexpr size_t n = 7;

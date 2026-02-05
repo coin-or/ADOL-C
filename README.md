@@ -75,7 +75,6 @@ template <typename T, size_t N> T your_function(const std::array<T, N> &indep) {
 
 int main() {
   constexpr size_t dim = 2;
-  const short tapeId = 0;
 
   // 1. Prepare input data
   std::array<double, dim> inputs;
@@ -83,7 +82,7 @@ int main() {
   std::array<double, 1> out;
 
   // 2. Explicitly create a new tape before using any adouble variables
-  createNewTape(tapeId);
+  const auto tapeId = createNewTape();
 
   // 3. Declare active variables after tape creation to avoid segmentation faults
   std::array<adouble, dim> indeps;
@@ -157,14 +156,12 @@ template <typename T, size_t N> T product_function(const std::array<T, N> &x) {
 
 int main() {
   constexpr size_t dim = 3;
-  const short sumTapeId = 1;
-  const short prodTapeId = 2;
 
   std::array<double, dim> inputs = {1.0, 2.0, 3.0};
   std::array<double, 1> output;
 
   // --- Taping sum function ---
-  createNewTape(sumTapeId);
+  const auto sumTapeId = createNewTape();
   setCurrentTape(sumTapeId); // IMPORTANT
   {
     std::array<adouble, dim> x;
@@ -178,7 +175,7 @@ int main() {
   }
 
   // --- Taping product function ---
-  createNewTape(prodTapeId);
+  const auto prodTapeId = createNewTape();
   setCurrentTape(prodTapeId); // IMPORTANT
   {
     std::array<adouble, dim> x;

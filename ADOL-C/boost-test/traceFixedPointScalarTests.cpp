@@ -68,11 +68,8 @@ static double traceNewtonForSquareRoot(short tapeId, short sub_tape_id,
  * square root function can be recovered from the tape.
  */
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
-  const short tapeId = 8;
-  const short sub_tape_id = 9;
-
-  createNewTape(tapeId);
-  createNewTape(sub_tape_id);
+  const auto tapeId = createNewTape();
+  const auto sub_tape_id = createNewTape();
 
   // Compute the square root of 2.0
   const double argument[1] = {2.0};

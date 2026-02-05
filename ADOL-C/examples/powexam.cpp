@@ -46,8 +46,7 @@ adouble power(adouble x, int n) {
 /*                                                             MAIN PROGRAM */
 int main() {
   int i;
-  short tag = 1;
-  createNewTape(tag);
+  const short tag = createNewTape();
   int n;
 
   cout << "COMPUTATION OF N-TH POWER (ADOL-C Documented Example)\n\n";
