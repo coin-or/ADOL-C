@@ -25,8 +25,7 @@ using namespace std;
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  const short tapeId = 1;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
   constexpr size_t n = 7;
 
   double *xp = new double[n];

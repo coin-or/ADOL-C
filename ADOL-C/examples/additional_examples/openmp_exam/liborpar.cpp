@@ -152,10 +152,7 @@ int main() {
 
 #pragma omp parallel
   {
-    // different paths for each thread
-    int index = omp_get_thread_num();
-    int init = index * slot;
-    createNewTape(init);
+    const auto init = createNewTape();
     setCurrentTape(init);
     int l, k;
     int rv = 0;

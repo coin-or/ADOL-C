@@ -12,7 +12,6 @@
 
 ---------------------------------------------------------------------------*/
 #include <adolc/adolc.h>
-#include <math.h>
 
 // time step function
 template <class data_type> int euler_step_act(size_t, data_type *y) {
@@ -27,13 +26,9 @@ int main() {
   // two input and output variables for checkpointing function
   constexpr short dim = 2;
 
-  const short tapeIdFull = 1;
-  const short tapeIdPart = 2;
-  const short tapeIdCheck = 3;
-
-  createNewTape(tapeIdFull);
-  createNewTape(tapeIdPart);
-  createNewTape(tapeIdCheck);
+  const short tapeIdFull = createNewTape();
+  const short tapeIdPart = createNewTape();
+  const short tapeIdCheck = createNewTape();
 
   // control
   std::array<double, dim> conp = {1.0, 1.0};

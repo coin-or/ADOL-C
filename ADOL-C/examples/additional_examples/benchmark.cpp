@@ -182,8 +182,7 @@ int main() {
   constexpr HelmholtzParameters params(0.01, 1.41421356237 /* sqrt(2.0)*/,
                                        1.3625E-3, 1.0 / dimIn, dimIn, 1);
 
-  const short tapeId = 1;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
   const auto benchmarkResult = HelmHoltzBenchmark{
       .timeTaping = measureTime(
           [tapeId, params]() { auto result = prepareTape<params>(tapeId); }),

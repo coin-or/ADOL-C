@@ -49,8 +49,7 @@ adouble det(const T &A, size_t row,
 
 BOOST_AUTO_TEST_SUITE(test_detem_example)
 BOOST_AUTO_TEST_CASE(DeterminanteTest) {
-  const short tapeId = 1678;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   const int keep = 1;

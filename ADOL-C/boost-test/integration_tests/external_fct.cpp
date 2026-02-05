@@ -11,9 +11,9 @@ BOOST_AUTO_TEST_SUITE(ExternalFunctionTests)
 const double h = 0.01;
 const int steps = 100;
 
-const short tapeIdFull = 41;
-const short tapeIdPart = 42;
-const short tapeIdExt = 43;
+short tapeIdFull;
+short tapeIdPart;
+short tapeIdExt;
 
 ext_diff_fct *edf;
 std::vector<double> yp = {0};
@@ -128,9 +128,9 @@ void setup_external_taping(short tapeIdPart, std::vector<double> conp) {
 
 BOOST_AUTO_TEST_CASE(CompareFullAndExternalGradients) {
 
-  createNewTape(tapeIdFull);
-  createNewTape(tapeIdPart);
-  createNewTape(tapeIdExt);
+  tapeIdFull = createNewTape();
+  tapeIdPart = createNewTape();
+  tapeIdExt = createNewTape();
 
   // Control parameters
   std::vector<double> conp = {1.0, 1.0};

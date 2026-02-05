@@ -22,16 +22,10 @@ BOOST_AUTO_TEST_SUITE(trace_vector)
  * as well.
  */
 
-const short tapeId = 2;
-struct TapeInitializer {
-  TapeInitializer() { createNewTape(tapeId); }
-};
-
-BOOST_GLOBAL_FIXTURE(TapeInitializer);
-
 BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Forward) {
   double a = 2., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -73,6 +67,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Reverse) {
   double a = 2., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -105,6 +100,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward) {
   double a = 2., b = 3.5, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -156,6 +152,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(MultOperator_FOV_Reverse) {
   double a = 2., b = 3.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -193,6 +190,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AddOperator_FOV_Forward) {
   double a = 2.5, b = 3., out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -244,6 +242,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(AddOperator_FOV_Reverse) {
   double a = 2.5, b = 3., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -281,6 +280,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward) {
   double a = 1.5, b = 3.2, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -332,6 +332,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SubOperator_FOV_Reverse) {
   double a = 1.5, b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -369,6 +370,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(DivOperator_FOV_Forward) {
   double a = 0.5, b = 4.5, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -420,6 +422,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(DivOperator_FOV_Reverse) {
   double a = 0.5, b = 4.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -457,6 +460,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(TanOperator_FOV_Forward) {
   double a = 0.7, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -500,6 +504,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(TanOperator_FOV_Reverse) {
   double a = 0.7, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -533,6 +538,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SinOperator_FOV_Forward) {
   double a = 1.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -574,6 +580,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SinOperator_FOV_Reverse) {
   double a = 1.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -606,6 +613,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(CosOperator_FOV_Forward) {
   double a = 1.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -647,6 +655,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(CosOperator_FOV_Reverse) {
   double a = 1.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -679,6 +688,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Forward) {
   double a = 2.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -720,6 +730,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Reverse) {
   double a = 2.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -752,6 +763,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOV_Forward) {
   double a = 2.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -797,6 +809,7 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOV_Reverse) {
   double a = 2.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -831,6 +844,7 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward) {
   double a = 4.9, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -872,6 +886,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(LogOperator_FOV_Reverse) {
   double a = 4.9, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -904,6 +919,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -946,6 +962,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Reverse) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -978,6 +995,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Forward) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1019,6 +1037,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Reverse) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1051,6 +1070,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1092,6 +1112,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Reverse) {
   double a = 4., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1125,6 +1146,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward) {
   double a = 0.9, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1166,6 +1188,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Reverse) {
   double a = 0.9, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1198,6 +1221,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Forward) {
   double a = 0.8, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1239,6 +1263,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Reverse) {
   double a = 0.8, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1271,6 +1296,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AtanOperator_FOV_Forward) {
   double a = 9.8, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1312,6 +1338,7 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Atanperator_FOV_Reverse) {
   double a = 9.8, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1344,6 +1371,7 @@ BOOST_AUTO_TEST_CASE(Atanperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(Log10Operator_FOV_Forward) {
   double a = 12.3, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1385,6 +1413,7 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Log10perator_FOV_Reverse) {
   double a = 12.3, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1417,6 +1446,7 @@ BOOST_AUTO_TEST_CASE(Log10perator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOV_Forward) {
   double a = 0.6, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1458,6 +1488,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Asinhperator_FOV_Reverse) {
   double a = 0.6, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1490,6 +1521,7 @@ BOOST_AUTO_TEST_CASE(Asinhperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOV_Forward) {
   double a = 1.7, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1531,6 +1563,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Acoshperator_FOV_Reverse) {
   double a = 1.6, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1563,6 +1596,7 @@ BOOST_AUTO_TEST_CASE(Acoshperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOV_Forward) {
   double a = 0.6, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1604,6 +1638,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Atanhperator_FOV_Reverse) {
   double a = 0.6, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1636,6 +1671,7 @@ BOOST_AUTO_TEST_CASE(Atanhperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(InclOperator_FOV_Forward) {
   double a = 5., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1677,6 +1713,7 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Inclperator_FOV_Reverse) {
   double a = 5., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1709,6 +1746,7 @@ BOOST_AUTO_TEST_CASE(Inclperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(DeclOperator_FOV_Forward) {
   double a = 5., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1750,6 +1788,7 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Declperator_FOV_Reverse) {
   double a = 5., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1782,6 +1821,7 @@ BOOST_AUTO_TEST_CASE(Declperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Forward) {
   double a = 1.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1823,6 +1863,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Reverse) {
   double a = 1.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1855,6 +1896,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Forward) {
   double a = 1.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1896,6 +1938,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Reverse) {
   double a = 1.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1928,6 +1971,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Forward) {
   double a = 12.3, b = 2.1, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -1979,6 +2023,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Reverse) {
   double a = 12.3, b = 2.1, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2016,6 +2061,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1) {
   double a = 2.3, e = 3.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2057,6 +2103,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1) {
   double a = 2.3, e = 3.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2088,6 +2135,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_1) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2) {
   double a = 2.3, b = 3.5, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2139,6 +2187,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_2) {
   double a = 2.3, b = 3.5, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2176,6 +2225,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3) {
   double a = 2.3, e = 3.5, eout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ed;
@@ -2217,6 +2267,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_3) {
   double a = 2.3, e = 3.4, eout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ed;
@@ -2251,6 +2302,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_1) {
   double a = 4., b = 3., out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2302,6 +2354,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_1) {
   double a = 4., b = 3., aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2340,6 +2393,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2) {
   double a = 4., aout;
   int e = 3;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2381,6 +2435,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_2) {
   double a = 4., aout;
   int e = 3;
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2414,6 +2469,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3) {
   double a = 4., eout;
   int e = 3;
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ed;
@@ -2455,6 +2511,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_3) {
   double a = 4., e = 3., eout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ed;
@@ -2487,6 +2544,7 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Forward) {
   double a = 1.4, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2550,6 +2608,7 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Reverse) {
   double a = 1.4, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2619,6 +2678,7 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Forward) {
   double a = 1.4, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2682,6 +2742,7 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Reverse) {
   double a = 1.4, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2751,6 +2812,7 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Forward) {
   double a = 3.573, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2792,6 +2854,7 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Reverse) {
   double a = 3.573, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2824,6 +2887,7 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward) {
   double a = 4.483, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2865,6 +2929,7 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Reverse) {
   double a = 4.483, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2897,6 +2962,7 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_1) {
   double a = 4., b = 3.2, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -2966,6 +3032,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_1) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3024,6 +3091,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_1) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3095,6 +3163,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3167,6 +3236,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3240,6 +3310,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3312,6 +3383,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_1) {
   double a = 4., b = 3.2, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3381,6 +3453,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_1) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3439,6 +3512,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_1) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3510,6 +3584,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3582,6 +3657,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3655,6 +3731,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3727,6 +3804,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1) {
   double a = 4., b = 3.2, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3796,6 +3874,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_1) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -3854,6 +3933,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_1) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3925,6 +4005,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -3997,6 +4078,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4070,6 +4152,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4142,6 +4225,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_1) {
   double a = 4., b = 3.2, out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4211,6 +4295,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_1) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_1) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4269,6 +4354,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_1) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -4340,6 +4426,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_2) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_2) {
   double a = 4., b = 3.2, bout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble bd;
@@ -4412,6 +4499,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_2) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4485,6 +4573,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_3) {
 BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_3) {
   double a = 4., b = 3.2, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4557,6 +4646,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Reverse_3) {
 BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Forward) {
   double a = 7.1, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4598,6 +4688,7 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Reverse) {
   double a = 7.1, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4630,6 +4721,7 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOV_Forward) {
   double a = 7.1, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4671,6 +4763,7 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOV_Reverse) {
   double a = 7.1, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4703,6 +4796,7 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOV_Forward) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4744,6 +4838,7 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOV_Reverse) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4776,6 +4871,7 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOV_Forward) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4817,6 +4913,7 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOV_Reverse) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4849,6 +4946,7 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOV_Forward) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4890,6 +4988,7 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOV_Reverse) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4922,6 +5021,7 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOV_Forward) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4963,6 +5063,7 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOV_Reverse) {
   double a = 5.132, aout;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble ad;
@@ -4995,6 +5096,7 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOV_Reverse) {
 BOOST_AUTO_TEST_CASE(CondassignOperator_FOV_Forward) {
   double out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble cond;
@@ -5046,6 +5148,7 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOV_Forward) {
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOV_Forward) {
   double out;
 
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
   adouble cond;

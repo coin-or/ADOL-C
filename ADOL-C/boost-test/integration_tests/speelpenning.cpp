@@ -4,16 +4,10 @@
 
 namespace tt = boost::test_tools;
 
-const short tapeId = 590;
-struct TapeInitializer {
-  TapeInitializer() { createNewTape(tapeId); }
-};
-
-BOOST_GLOBAL_FIXTURE(TapeInitializer);
-
 BOOST_AUTO_TEST_SUITE(SpeelpenningExample)
 
 BOOST_AUTO_TEST_CASE(CHECK_OUT_GRADIENTS_HESSIANS) {
+  const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
   constexpr size_t n = 7;
 
