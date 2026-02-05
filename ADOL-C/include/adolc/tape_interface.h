@@ -158,17 +158,15 @@ ADOLC_API inline void setCurrentTape(short tapeId) {
  * @throws ADOLCError::ErrorType::TAPE_ALREADY_EXIST if a tape with the same ID
  * already exists.
  */
-ADOLC_API inline void createNewTape(short tapeId) {
-  // try to find tape
-  if (findTapePtr_(tapeId))
-    ADOLCError::fail(ADOLCError::ErrorType::TAPE_ALREADY_EXIST,
-                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tapeId});
-
-  tapeBuffer().emplace_back(std::make_unique<ValueTape>(tapeId));
+ADOLC_API inline short createNewTape() {
+  thread_local short tapeIdCounter = 0;
+  tapeBuffer().emplace_back(std::make_unique<ValueTape>(tapeIdCounter));
 
   // set the current tape to the newly created one
-  if (!currentTapePtr())
-    setCurrentTape(tapeId);
+  if (currentTapePtr() == nullptr) {
+    setCurrentTape(tapeIdCounter);
+  }
+  return tapeIdCounter++;
 }
 
 /**

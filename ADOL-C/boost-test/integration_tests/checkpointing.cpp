@@ -25,14 +25,9 @@ int euler_step_act(size_t, adouble *y) {
 
 BOOST_AUTO_TEST_SUITE(test_checkpoint_example)
 BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
-
-  const short tapeIdFull = 30;  // Tag for full taping
-  const short tapeIdPart = 31;  // Tag for partial taping with checkpointing
-  const short tapeIdCheck = 32; // Tag for checkpointing
-
-  createNewTape(tapeIdFull);
-  createNewTape(tapeIdPart);
-  createNewTape(tapeIdCheck);
+  const auto tapeIdFull = createNewTape();
+  const auto tapeIdPart = createNewTape();
+  const auto tapeIdCheck = createNewTape();
 
   const size_t n = 2;    // Number of state variables
   const int steps = 100; // Number of time steps
@@ -111,13 +106,9 @@ BOOST_AUTO_TEST_CASE(Checkpointing_Gradient_Comparison) {
 
 BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
 
-  const short tapeIdFull = 34;  // Tag for full taping
-  const short tapeIdPart = 35;  // Tag for partial taping with checkpointing
-  const short tapeIdCheck = 36; // Tag for checkpointing
-
-  createNewTape(tapeIdFull);
-  createNewTape(tapeIdPart);
-  createNewTape(tapeIdCheck);
+  const short tapeIdFull = createNewTape();
+  const short tapeIdPart = createNewTape();
+  const short tapeIdCheck = createNewTape();
 
   const size_t n = 2;    // Number of state variables
   const int steps = 100; // Number of time steps

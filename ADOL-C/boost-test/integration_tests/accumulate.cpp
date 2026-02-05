@@ -13,8 +13,7 @@ template <typename T, size_t N> T your_function(const std::array<T, N> &indep) {
 }
 
 BOOST_AUTO_TEST_CASE(AccumulateGradientCorrectness) {
-  const short tapeId = 1111;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
   setCurrentTape(tapeId);
   constexpr size_t dim = 2;
   std::array<double, dim> inputs;

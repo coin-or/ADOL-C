@@ -30,8 +30,7 @@ adouble power(adouble x, int n) {
 
 BOOST_AUTO_TEST_SUITE(test_power_example)
 BOOST_AUTO_TEST_CASE(PowerExampTest) {
-  const short tapeId = 57;
-  createNewTape(tapeId);
+  const short tapeId = createNewTape();
   setCurrentTape(tapeId);
   int n = 4;
 

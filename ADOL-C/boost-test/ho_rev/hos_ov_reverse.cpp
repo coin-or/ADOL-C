@@ -1,4 +1,5 @@
 
+#include "adolc/tape_interface.h"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -14,15 +15,9 @@ namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(test_hos_ov_forward)
 
-const short tapeId165 = 165;
-struct TapeInitializer {
-  TapeInitializer() { createNewTape(tapeId165); }
-};
-
-BOOST_GLOBAL_FIXTURE(TapeInitializer);
-
 BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
-  setCurrentTape(tapeId165);
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree_hov_forward = 1;
@@ -33,7 +28,7 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId165);
+  trace_on(tapeId);
   for (size_t i = 0; i < in.size(); ++i)
     indep[i] <<= in[i];
 
@@ -64,11 +59,10 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   std::vector<double> test_in{2.0, 3.2};
   // x^2 + y^3)
   double test_out = std::pow(test_in[0], 2) + std::pow(test_in[1], 3);
-  hov_wk_forward(tapeId165, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
+  hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
                  test_in.data(), X, out.data(), Y);
 
-  hos_ov_reverse(tapeId165, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
-                 Z);
+  hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 2 * test_in[0] * X[0][0][0] +
@@ -121,7 +115,8 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
-  setCurrentTape(tapeId165);
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree_hov_forward = 1;
@@ -132,7 +127,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId165);
+  trace_on(tapeId);
   for (size_t i = 0; i < in.size(); ++i)
     indep[i] <<= in[i];
 
@@ -167,11 +162,10 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   // min(x^2, y^3)
   double test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
-  hov_wk_forward(tapeId165, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
+  hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
                  test_in.data(), X, out.data(), Y);
 
-  hos_ov_reverse(tapeId165, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
-                 Z);
+  hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 2 * test_in[0] * X[0][0][0], tt::tolerance(tol));
@@ -210,11 +204,10 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   test_in[1] = 1.0;
   // min(x^2, y^3)
   test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
-  hov_wk_forward(tapeId165, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
+  hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
                  test_in.data(), X, out.data(), Y);
 
-  hos_ov_reverse(tapeId165, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
-                 Z);
+  hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 3 * std::pow(test_in[1], 2) * X[1][0][0],
@@ -259,10 +252,10 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   // min(x^2, y^3)
   test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
   std::cout << "tie point" << std::endl;
-  hov_wk_forward(tapeId165, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
+  hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
                  test_in.data(), X, out.data(), Y);
 
-  hos_ov_reverse(tapeId165, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
+  hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
                  Z);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));

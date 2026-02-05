@@ -75,11 +75,11 @@ int main() {
     X[i][0] = py[i];              // and the Taylor coefficient;
     nz[i] = new short[n];         // set up sparsity array
   } // end for
-  createNewTape(1);
+  const short tapeId = createNewTape();
   tracerhs(1, py, pyp); // trace RHS with tag = 1
 
-  forode(1, n, deg, X);             // compute deg coefficients
-  reverse(1, n, n, deg - 1, Z, nz); // U defaults to the identity
+  forode(tapeId, n, deg, X);             // compute deg coefficients
+  reverse(tapeId, n, n, deg - 1, Z, nz); // U defaults to the identity
   accode(n, deg - 1, Z, B, nz);
 
   cout << "nonzero pattern:\n";

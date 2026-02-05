@@ -1,8 +1,8 @@
 #include <adolc/adolc.h>
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <omp.h>
+#include <unordered_map>
 #include <vector>
 
 double analytic_f(const std::vector<double> &x) {
@@ -31,14 +31,16 @@ void record_test_function(short tid) {
 int main() {
   int nthreads = 4;
   omp_set_num_threads(nthreads);
-
+  std::unordered_map<int, short> tapeIdOnThread(nthreads);
   // 1) parallel recording -- one tape per thread
 #pragma omp parallel
   {
-    short tid = static_cast<short>(omp_get_thread_num());
-    createNewTape(tid);
-    setCurrentTape(tid);
-    record_test_function(tid);
+
+    const auto threadId = omp_get_thread_num();
+    const short tapeId = createNewTape();
+    tapeIdOnThread[threadId] = tapeId;
+    setCurrentTape(tapeIdOnThread[threadId]);
+    record_test_function(tapeIdOnThread[threadId]);
   }
 
   // 2) prepare testpoints
@@ -50,12 +52,12 @@ int main() {
   // 3) parallel grad evaluation
 #pragma omp parallel for schedule(static)
   for (int idx = 0; idx < static_cast<int>(test_points.size()); ++idx) {
-    short tid = static_cast<short>(omp_get_thread_num());
+    const auto threadId = omp_get_thread_num();
     const auto &pt = test_points[idx];
     double x_vals[2] = {pt[0], pt[1]};
     double grad_out[2] = {0.0, 0.0};
 
-    gradient(tid, N, x_vals, grad_out);
+    gradient(tapeIdOnThread[threadId], N, x_vals, grad_out);
 
     // analytic grad
     auto grad_true = analytic_grad(pt);
