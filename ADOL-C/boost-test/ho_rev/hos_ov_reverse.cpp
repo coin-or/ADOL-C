@@ -1,16 +1,10 @@
-
-#include "adolc/tape_interface.h"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 namespace tt = boost::test_tools;
 
-#include <adolc/adolc.h>
-
 #include "../const.h"
-
-#include <array>
-#include <numeric>
+#include <adolc/adolc.h>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(test_hos_ov_forward)

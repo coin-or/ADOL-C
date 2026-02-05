@@ -11,9 +11,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
-#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
-#include <math.h>
 
 // time step function
 template <class data_type> int euler_step_act(size_t, data_type *y) {

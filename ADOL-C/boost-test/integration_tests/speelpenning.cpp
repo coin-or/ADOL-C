@@ -1,5 +1,4 @@
 #include "../const.h"
-#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
 

@@ -146,17 +146,13 @@ ADOLC_API inline void setCurrentTape(short tapeId) {
 }
 
 /**
- * @brief Creates a new tape with the specified ID and sets it as current if
- * none exists.
+ * @brief Creates a new tape and returns its ID.
  *
  * Ensures that no duplicate tapeId is used within the thread-local buffer.
  * If the current tape is not yet set, the newly created tape becomes the
  * current tape.
  *
- * @param tapeId The ID of the new tape to create.
- *
- * @throws ADOLCError::ErrorType::TAPE_ALREADY_EXIST if a tape with the same ID
- * already exists.
+ * @return The ID of the new created tape.
  */
 ADOLC_API inline short createNewTape() {
   thread_local short tapeIdCounter = 0;
