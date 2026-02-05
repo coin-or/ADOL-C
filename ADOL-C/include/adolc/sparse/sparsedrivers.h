@@ -37,7 +37,7 @@ namespace detail {
 // a word represents an instance of bitword_t every letter of the word gives a
 // bit. This bit represents a depence of the input i (= location of the bit) to
 // the output that corresponds to the word.
-static constexpr size_t BITS_PER_WORD = 8 * sizeof(bitword_t);
+static constexpr int BITS_PER_WORD = 8 * sizeof(bitword_t);
 static constexpr bitword_t MOST_SIGNIFICANT_BIT = static_cast<bitword_t>(1)
                                                   << (BITS_PER_WORD - 1);
 
