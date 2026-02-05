@@ -53,11 +53,17 @@
 #include <adolc/tapedoc/tapedoc.h>
 
 /*--------------------------------------------------------------------------*/
-/* interfaces to SPARSE package */
-#if defined(SPARSE_DRIVERS)
+/* interfaces to sparse drivers */
+#ifdef ADOLC_SPARSE
 #include <adolc/sparse/sparse_fo_rev.h>
-#include <adolc/sparse/sparsedrivers.h>
-#endif
+#include <adolc/sparse/sparse_options.h>
+#ifdef __cplusplus
+#include <adolc/sparse/sparsedrivers.h>   // modern C++ API (optional)
+#include <adolc/sparse/sparsedrivers_c.h> // legacy C API
+#else
+#include <adolc/sparse/sparsedrivers_c.h> // C can only see the C API
+#endif                                    // __cplusplus
+#endif                                    // ADOLC_SPARSE
 
 /*--------------------------------------------------------------------------*/
 /* allocation utilities */

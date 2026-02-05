@@ -49,24 +49,24 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DBUILD_TESTS=ON \
+        -DBUILD_TESTS=ON
+        -DENABLE_SPARSE=1
         -S ${{ github.workspace }}
 
     - name: Build ADOL-C
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
         
-
-    - name: Run with Valgrind
-      run: |
-        valgrind --leak-check=full \
-                 --show-leak-kinds=all \
-                 --errors-for-leak-kinds=all \
-                 --error-exitcode=1 \
-                 ${{ steps.strings.outputs.build-output-dir }}/ADOL-C/boost-test/boost-test-adolc
-
     - name: Run Tests
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --output-on-failure
 
+    - name: Run with Valgrind
+      run: |
+        # we use definite,indirect (and not possible) to not error on common omp errors
+        valgrind --leak-check=full \
+                 --show-leak-kinds=definite,indirect \
+                 --errors-for-leak-kinds=definite,indirect \
+                 --error-exitcode=1 \
+                 ${{ steps.strings.outputs.build-output-dir }}/ADOL-C/boost-test/boost-test-adolc
 
     

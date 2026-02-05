@@ -233,8 +233,9 @@ enum class ErrorType : size_t {
   SPARSE_HESS_IND,
   SPARSE_CRS,
   SPARSE_JAC_MALLOC,
-  SPARSE_JAC_NO_BP
+  SPARSE_JAC_NO_BP,
 
+  NOT_IMPLEMENTED
 };
 
 // wrapper for information of errors

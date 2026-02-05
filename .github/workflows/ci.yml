@@ -65,15 +65,25 @@ jobs:
         steps:
         - uses: actions/checkout@v4
 
+        # set up OpenMp for ColPack
+        - name: Install OpenMP (Linux)
+          if: startsWith(matrix.os, 'ubuntu')
+          run: sudo apt-get install libomp-dev
+
+        - name: Install libomp (macOS)
+          if: startsWith(matrix.os, 'macos')
+          run: |
+            brew install libomp 
+
         - name: Set reusable strings
-          # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
           id: strings
           shell: bash
           run: |
             echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-        - name: Configure and build ADOL-C (Linux, MacOs)
-          if: matrix.c_compiler != 'msvc'
+        - name: Configure and build ADOL-C (Linux)
+          if: startsWith(matrix.os, 'ubuntu')
           run: >
             cmake -B ${{ steps.strings.outputs.build-output-dir }}
             -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -81,11 +91,32 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
             -DENABLE_DOCEXA=1
             -DENABLE_ADDEXA=1
+            -DENABLE_SPARSE=1
             -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
             -S ${{ github.workspace }}
 
+
+        - name: Configure and build ADOL-C (MacOs)
+          if: startsWith(matrix.os, 'macos')
+          run: >
+            cmake -B ${{ steps.strings.outputs.build-output-dir }}
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DOpenMP_C_FLAGS="-Xclang -fopenmp -I/opt/homebrew/opt/libomp/include"
+            -DOpenMP_C_LIB_NAMES="omp"
+            -DOpenMP_CXX_FLAGS="-Xclang -fopenmp -I/opt/homebrew/opt/libomp/include"
+            -DOpenMP_CXX_LIB_NAMES="omp"
+            -DOpenMP_omp_LIBRARY="/opt/homebrew/opt/libomp/lib/libomp.dylib"
+            -DENABLE_DOCEXA=1
+            -DENABLE_ADDEXA=1
+            -DENABLE_SPARSE=1
+            -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
+            -S ${{ github.workspace }}
+
+        # we don't use sparse drivers on windows!
         - name: Configure and build ADOL-C (Windows)
-          if: matrix.c_compiler == 'msvc'
+          if: startsWith(matrix.os, 'windows') 
           shell: powershell
           run:
             # Setup Visual Studio build environment

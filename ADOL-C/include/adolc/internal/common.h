@@ -15,20 +15,27 @@
 
 #if !defined(ADOLC_COMMON_H)
 #define ADOLC_COMMON_H 1
-
-#include <stdint.h>
 /*--------------------------------------------------------------------------*/
 /* standard includes */
 #if !defined(__cplusplus)
 #include <stdio.h>
 #include <stdlib.h>
 #else
-#include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #endif
 
 /*--------------------------------------------------------------------------*/
 /* type definitions */
+
+// define bit vector propagation type used in sparse drivers
+#if ADOLC_BITWORD_BITS == 32
+typedef uint32_t bitword_t;
+#elif ADOLC_BITWORD_BITS == 64
+typedef uint64_t bitword_t;
+#else
+typedef uint32_t bitword_t;
+#endif
 typedef unsigned int uint;
 
 /*--------------------------------------------------------------------------*/
@@ -78,6 +85,7 @@ typedef unsigned int uint;
 #include <adolc/internal/usrparms.h>
 
 #if defined(__cplusplus)
+
 #define BEGIN_C_DECLS extern "C" {
 #define END_C_DECLS }
 
@@ -92,12 +100,17 @@ constexpr size_t to_size_t(T value) noexcept
   assert(value >= 0);
   return static_cast<size_t>(value);
 }
+
+/// Helper to savely cast to a double.
 template <typename T>
 constexpr double to_double(T value) noexcept
   requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
 {
   return static_cast<double>(value);
 }
+
+/// Helper to evaluate a static_assert after resolving the template parameter.
+template <auto> inline constexpr bool is_dependent_v = false;
 #else
 #define BEGIN_C_DECLS
 #define END_C_DECLS
