@@ -457,7 +457,6 @@ int int_reverse_safe(
   rp_A = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   tape.rp_A(rp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.workMode(TapeInfos::FOS_REVERSE);
 #ifdef _ABS_NORM_
   memset(results, 0, sizeof(double) * (indep + swchk));
 #endif
@@ -479,7 +478,6 @@ int int_reverse_safe(
   rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
   tape.rpp_A(rpp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.workMode(TapeInfos::FOV_REVERSE);
 #define ADJOINT_BUFFER rpp_A
 #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
 #define ADJOINT_BUFFER_RES_L rpp_A[res][l]
@@ -2992,7 +2990,6 @@ int int_reverse_safe(
 #endif
 #endif
 
-  tape.workMode(TapeInfos::ADOLC_NO_MODE);
   tape.end_sweep();
 
   return ret_c;

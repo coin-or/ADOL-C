@@ -37,22 +37,7 @@ struct TapeInfos {
   };
 
   // modes for the tape evaluation; set by functions like "fos_forward"
-  enum WORKMODES {
-    ADOLC_NO_MODE,
-
-    ZOS_FORWARD,
-    FOS_FORWARD,
-    FOV_FORWARD,
-    HOS_FORWARD,
-    HOV_FORWARD,
-
-    FOS_REVERSE,
-    FOV_REVERSE,
-    HOS_REVERSE,
-    HOV_REVERSE,
-
-    TAPING
-  };
+  enum WORKMODES { NO_MODE, WRITE_ACCESS, READ_ACCESS };
 
   ~TapeInfos();
   TapeInfos() = default;
@@ -142,7 +127,7 @@ struct TapeInfos {
   double *dp_T0{nullptr};
   size_t gDegree{0};
   size_t numTay{0};
-  enum WORKMODES workMode;
+  enum WORKMODES workMode { NO_MODE };
 
   double **dpp_T{nullptr};
 

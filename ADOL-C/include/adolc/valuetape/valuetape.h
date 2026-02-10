@@ -82,8 +82,7 @@ public:
   // a tape always need a tapeId,
   ValueTape() = delete;
   ValueTape(short tapeId)
-      : tapeInfos_(tapeId), globalTapeVars_(),
-        perTapeInfos_(tapeId, readConfigFile()),
+      : tapeInfos_(tapeId), perTapeInfos_(tapeId, readConfigFile()),
         ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
         ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>),
         cp_buffer_(init_CpInfos) {}
@@ -439,8 +438,6 @@ public:
   size_t get_num_param() { return tapeInfos_.stats[TapeInfos::NUM_PARAM]; }
   void set_nested_ctx(char nested) { tapeInfos_.in_nested_ctx = nested; }
   char currently_nested() { return tapeInfos_.in_nested_ctx; }
-  int inUse() const { return tapeInfos_.inUse; }
-  void inUse(int val) { tapeInfos_.inUse = val; }
   char tapingComplete() const { return tapeInfos_.tapingComplete; }
   void tapingComplete(char val) { tapeInfos_.tapingComplete = val; }
   FILE *tay_file() const { return tapeInfos_.tay_file; }
@@ -718,10 +715,6 @@ public:
   // close open tapes, update stats and clean up
   void close_tape(int flag);
 
-  // release the current tape and give control to the previous one
-  // if keepVS is not zero (keep value stack for reverse) => belonging
-  // TapeInfos are kept marked as being in use
-  void releaseTape();
   /****************************************************************************/
   /* Discards parameters from the end of value tape during reverse mode */
   /****************************************************************************/
@@ -733,7 +726,7 @@ public:
    */
   /* forward call after setting the parameters. */
   /****************************************************************************/
-  void set_param_vec(short tag, size_t numparam, double *paramvec);
+  void set_param_vec(short tag, size_t numparam, const double *paramvec);
   void save_params();
   /****************************************************************************/
   /* Frees parameter indices after taping is complete */

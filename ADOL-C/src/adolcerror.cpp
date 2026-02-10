@@ -43,7 +43,7 @@ void printError() {
     message += ">>> " + std::string(std::strerror(errno)) + " <<<\n";
     break;
   }
-  std::cout << message << std::endl;
+  std::cerr << message << std::endl;
 }
 
 // outputs an appropriate error message using ADOLCError and exits the running

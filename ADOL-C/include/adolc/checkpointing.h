@@ -55,9 +55,7 @@ struct ADOLC_API CpInfos {
   double *dp_internal_for{nullptr};
   double *dp_internal_rev{nullptr};
   double **dpp_internal_rev{nullptr};
-  size_t index{0}; /* please do not change */
-  char modeForward{0};
-  char modeReverse{0};
+  size_t index{0};       /* please do not change */
   char *allmem{nullptr}; /* this is dummy to get externfcts and checkpointing
                    both use buffer_temp without a problem */
 };

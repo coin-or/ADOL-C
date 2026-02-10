@@ -16,7 +16,6 @@ BOOST_AUTO_TEST_CASE(TestConstructorTapeId) {
 
 BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   TapeInfos tp(3);
-  tp.inUse = 1;
   tp.numInds = 10;
   tp.numDeps = 11;
 
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
 
   tp.gDegree = 31;
   tp.numTay = 45;
-  tp.workMode = TapeInfos::TAPING;
+  tp.workMode = TapeInfos::NO_MODE;
 
   auto e = new double *[10];
   tp.dpp_T = e;
@@ -119,7 +118,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   //======================================
   TapeInfos tp2(std::move(tp));
   BOOST_CHECK_EQUAL(tp2.tapeId_, 3);
-  BOOST_CHECK_EQUAL(tp2.inUse, 1);
   BOOST_CHECK_EQUAL(tp2.numInds, 10);
   BOOST_CHECK_EQUAL(tp2.numDeps, 11);
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);
@@ -145,7 +143,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numDirs_rev, 4);
   BOOST_CHECK_EQUAL(tp2.gDegree, 31);
   BOOST_CHECK_EQUAL(tp2.numTay, 45);
-  BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::TAPING);
+  BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::NO_MODE);
   BOOST_CHECK_EQUAL(tp2.ext_diff_fct_index, 5);
   BOOST_CHECK_EQUAL(tp2.in_nested_ctx, 4);
   BOOST_CHECK_EQUAL(tp2.numSwitches, 6);

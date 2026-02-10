@@ -91,18 +91,19 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
 }
 
 void trace_off(int flag) {
+  using ADOLCError::fail;
+  using ADOLCError::FailInfo;
+  using ADOLCError::ErrorType::TAPING_NOT_ACTUALLY_TAPING;
 
   ValueTape &tape = currentTape();
-  if (tape.workMode() != TapeInfos::TAPING)
-    ADOLCError::fail(ADOLCError::ErrorType::TAPING_NOT_ACTUALLY_TAPING,
-                     CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info1 = tape.tapeId()});
+  if (tape.workMode() != TapeInfos::WRITE_ACCESS)
+    fail(TAPING_NOT_ACTUALLY_TAPING, CURRENT_LOCATION,
+         FailInfo{.info1 = tape.tapeId()});
   tape.keepTape(flag);
   tape.keep_stock(); /* copy remaining live variables + trace_flag = 0 */
   tape.stop_trace(flag);
   tape.tapingComplete(1);
-  tape.workMode(TapeInfos::ADOLC_NO_MODE);
-  tape.releaseTape();
+  tape.workMode(TapeInfos::NO_MODE);
 
   // restore previous tapeId and delete it
   setCurrentTape(currentTapeStack().top());
