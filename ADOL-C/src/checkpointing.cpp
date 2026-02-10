@@ -281,9 +281,6 @@ int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
   if (!cpInfos)
     ADOLCError::fail(ADOLCError::ErrorType::CP_NO_SUCH_IDX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info2 = tape.cp_index()});
-  // note the mode
-  cpInfos->modeForward = TapeInfos::ZOS_FORWARD;
-  cpInfos->modeReverse = TapeInfos::ADOLC_NO_MODE;
 
   // prepare arguments
   cpInfos->dp_internal_for = new double[cpInfos->dim];
@@ -346,9 +343,6 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
   ValueTape &tape = findTape(tapeId);
 
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
-
-  // note the mode
-  cpInfos->modeReverse = TapeInfos::FOS_REVERSE;
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
@@ -450,9 +444,6 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   ValueTape &tape = findTape(tapeId);
 
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
-
-  // note the mode
-  cpInfos->modeReverse = TapeInfos::FOV_REVERSE;
 
   const int numDirs = tape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];

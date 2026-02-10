@@ -22,27 +22,27 @@ PersistantTapeInfos::~PersistantTapeInfos() {
   myfree1(forodec_y);
 
   if (op_fileName) {
-    if (!(keepTape && skipFileCleanup))
+    if (keepTape == 0 || skipFileCleanup == 0)
       remove(op_fileName);
     delete[] op_fileName;
     op_fileName = nullptr;
   }
   if (val_fileName) {
-    if (!(keepTape && skipFileCleanup))
+    if (keepTape == 0 || skipFileCleanup == 0)
       remove(val_fileName);
     delete[] val_fileName;
     val_fileName = nullptr;
   }
 
   if (loc_fileName) {
-    if (!(keepTape && skipFileCleanup))
+    if (keepTape == 0 || skipFileCleanup == 0)
       remove(loc_fileName);
     delete[] loc_fileName;
     loc_fileName = nullptr;
   }
 
   if (tay_fileName) {
-    if (!(keepTape && skipFileCleanup))
+    if (keepTape == 0 || skipFileCleanup == 0)
       remove(tay_fileName);
     delete[] tay_fileName;
     tay_fileName = nullptr;

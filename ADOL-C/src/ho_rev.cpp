@@ -422,7 +422,6 @@ int hov_ti_reverse(
   rp_Atemp = myalloc1(k1);
   rp_Atemp2 = myalloc1(k1);
   rp_Ttemp2 = myalloc1(k);
-  tape.workMode(TapeInfos::HOS_REVERSE);
 
   locint n, m;
   ext_diff_fct *edfct = nullptr;
@@ -434,7 +433,6 @@ int hov_ti_reverse(
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(k);
-  tape.workMode(TapeInfos::HOV_REVERSE);
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
   rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
@@ -442,7 +440,6 @@ int hov_ti_reverse(
   rp_Atemp = myalloc1(pk1);
   rp_Atemp2 = myalloc1(pk1);
   rp_Ttemp2 = myalloc1(p * k);
-  tape.workMode(TapeInfos::HOV_REVERSE);
 #endif
   rp_Ttemp = myalloc1(k);
   x = myalloc1(q);
@@ -3007,7 +3004,6 @@ int hov_ti_reverse(
   myfree1_ulong(jj);
   myfree1(x);
 
-  tape.workMode(TapeInfos::ADOLC_NO_MODE);
   tape.end_sweep();
 
   return ret_c;
