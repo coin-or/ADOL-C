@@ -1119,7 +1119,6 @@ int hov_forward(
   tape.dpp_T(&dp_T0);
   tape.numTay(0);
   tape.gDegree(0);
-  tape.workMode(TapeInfos::ZOS_FORWARD);
 #endif             /* !_NTIGHT_ */
 #if defined(_ZOS_) /* ZOS */
 
@@ -1147,7 +1146,6 @@ int hov_forward(
   tape.dpp_T(&dp_T);
   tape.numTay(1);
   tape.gDegree(1);
-  tape.workMode(TapeInfos::FOS_FORWARD);
 #define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
   if (keep) {
@@ -1211,7 +1209,6 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(p);
   tape.gDegree(1);
-  tape.workMode(TapeInfos::FOV_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_Ttemp = myalloc1(p);
 #define T_TEMP dp_Ttemp;
@@ -1223,7 +1220,6 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(1);
   tape.gDegree(k);
-  tape.workMode(TapeInfos::HOS_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(k);
@@ -1241,7 +1237,6 @@ int hov_forward(
   tape.dpp_T(dpp_T);
   tape.numTay(p);
   tape.gDegree(k);
-  tape.workMode(TapeInfos::HOV_FORWARD);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(p * k);
@@ -5933,7 +5928,6 @@ int hov_forward(
   myfree1(dp_z);
 #endif
 
-  tape.workMode(TapeInfos::ADOLC_NO_MODE);
   tape.end_sweep();
 
 #if defined(_INDO_)
