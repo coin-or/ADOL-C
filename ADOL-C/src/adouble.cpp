@@ -21,7 +21,7 @@
 #include <adolc/valuetape/valuetape.h>
 
 adouble::adouble() {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
 
 #if defined(ADOLC_ADOUBLE_STDCZERO)
   if (tape.traceFlag()) {
@@ -47,7 +47,7 @@ adouble::adouble() {
 }
 
 adouble::adouble(double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
 
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -80,7 +80,7 @@ adouble::adouble(double coval) {
 }
 
 adouble::adouble(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(a.loc())) {
@@ -127,7 +127,7 @@ adouble::adouble(const adouble &a) {
 /*                                                              ASSIGNMENTS */
 
 adouble &adouble::operator=(double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -160,7 +160,7 @@ adouble &adouble::operator=(double coval) {
 }
 
 adouble &adouble::operator=(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   /* test this to avoid for x=x statements adjoint(x)=0 in reverse mode */
   if (loc() != a.loc()) {
     if (tape.traceFlag()) {
@@ -205,7 +205,7 @@ adouble &adouble::operator=(const adouble &a) {
 }
 
 adouble &adouble::operator=(const pdouble &p) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 
     tape.put_op(assign_p);
@@ -229,7 +229,7 @@ adouble &adouble::operator=(const pdouble &p) {
 /*                       ARITHMETIC ASSIGNMENT                             */
 
 adouble &adouble::operator+=(const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -250,7 +250,7 @@ adouble &adouble::operator+=(const double coval) {
 }
 
 adouble &adouble::operator+=(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(a.loc()) && tape.get_active_value(loc())) {
@@ -303,7 +303,7 @@ adouble &adouble::operator+=(const adouble &a) {
 }
 
 adouble &adouble::operator+=(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   int upd = 0;
   if (tape.traceFlag())
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -374,7 +374,7 @@ adouble &adouble::operator+=(adouble &&a) {
 }
 
 adouble &adouble::operator-=(const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -395,7 +395,7 @@ adouble &adouble::operator-=(const double coval) {
 }
 
 adouble &adouble::operator-=(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(a.loc()) && tape.get_active_value(loc())) {
@@ -448,7 +448,7 @@ adouble &adouble::operator-=(const adouble &a) {
 }
 
 adouble &adouble::operator-=(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   int upd = 0;
   if (tape.traceFlag())
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -518,7 +518,7 @@ adouble &adouble::operator-=(adouble &&a) {
 }
 
 adouble &adouble::operator*=(const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -540,7 +540,7 @@ adouble &adouble::operator*=(const double coval) {
 }
 
 adouble &adouble::operator*=(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(a.loc()) && tape.get_active_value(loc())) {
@@ -598,7 +598,7 @@ adouble &adouble::operator*=(const adouble &a) {
 /*                       INCREMENT / DECREMENT                              */
 
 adouble adouble::operator++(int) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   // create adouble to store old state in it.
   adouble ret_adouble;
 
@@ -663,7 +663,7 @@ adouble adouble::operator++(int) {
 }
 
 adouble adouble::operator--(int) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   // create adouble to store old state in it.
   adouble ret_adouble;
 
@@ -728,7 +728,7 @@ adouble adouble::operator--(int) {
 }
 
 adouble &adouble::operator++() {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -748,7 +748,7 @@ adouble &adouble::operator++() {
 }
 
 adouble &adouble::operator--() {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 #if defined(ADOLC_TRACK_ACTIVITY)
     if (tape.get_active_value(loc())) {
@@ -775,7 +775,7 @@ adouble &adouble::operator--() {
 // Assign a double value to an adouble and mark the adouble as independent on
 // the tape
 adouble &adouble::operator<<=(const double input) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
     tape.increment_numInds();
     tape.put_op(assign_ind);
@@ -797,7 +797,7 @@ adouble &adouble::operator<<=(const double input) {
 // reference can be seen as output value of the function given by the trace
 // of the adouble.
 adouble &adouble::operator>>=(double &output) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
 #if defined(ADOLC_TRACK_ACTIVITY)
   if (!tape.get_active_value(loc())) {
     fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
@@ -834,7 +834,7 @@ adouble &adouble::operator>>=(double &output) {
 }
 
 void adouble::declareIndependent() {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
     tape.increment_numInds();
 
@@ -851,7 +851,7 @@ void adouble::declareIndependent() {
 }
 
 void adouble::declareDependent() {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
 #if defined(ADOLC_TRACK_ACTIVITY)
   if (!tape.get_active_value(loc())) {
     fprintf(DIAG_OUT, "ADOL-C warning: marking an inactive variable (constant) "
@@ -891,7 +891,7 @@ std::ostream &operator<<(std::ostream &out, const adouble &a) {
 }
 
 std::istream &operator>>(std::istream &in, adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   double coval;
   in >> coval;
   if (tape.traceFlag()) {
@@ -931,7 +931,7 @@ std::istream &operator>>(std::istream &in, adouble &a) {
 #ifdef ADOLC_ADVANCED_BRANCHING
 
 adouble operator!=(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   adouble ret_adouble;
@@ -954,7 +954,7 @@ adouble operator!=(const adouble &a, const adouble &b) {
 }
 
 adouble operator!=(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval != b_coval);
@@ -978,7 +978,7 @@ adouble operator!=(adouble &&a, const adouble &b) {
 adouble operator!=(const adouble &a, adouble &&b) { return std::move(b) != a; }
 
 adouble operator==(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double a_coval = a.value();
@@ -1000,7 +1000,7 @@ adouble operator==(const adouble &a, const adouble &b) {
 }
 
 adouble operator==(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval == b_coval);
@@ -1024,7 +1024,7 @@ adouble operator==(adouble &&a, const adouble &b) {
 adouble operator==(const adouble &a, adouble &&b) { return std::move(b) == a; }
 
 adouble operator<=(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double a_coval = a.value();
@@ -1046,7 +1046,7 @@ adouble operator<=(const adouble &a, const adouble &b) {
 }
 
 adouble operator<=(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval <= b_coval);
@@ -1068,7 +1068,7 @@ adouble operator<=(adouble &&a, const adouble &b) {
 }
 
 adouble operator<=(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval <= b_coval);
@@ -1089,7 +1089,7 @@ adouble operator<=(const adouble &a, adouble &&b) {
   return b;
 }
 adouble operator>=(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double a_coval = a.value();
@@ -1111,7 +1111,7 @@ adouble operator>=(const adouble &a, const adouble &b) {
 }
 
 adouble operator>=(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval >= b_coval);
@@ -1133,7 +1133,7 @@ adouble operator>=(adouble &&a, const adouble &b) {
 }
 
 adouble operator>=(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval >= b_coval);
@@ -1155,7 +1155,7 @@ adouble operator>=(const adouble &a, adouble &&b) {
 }
 
 adouble operator<(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double a_coval = a.value();
@@ -1177,7 +1177,7 @@ adouble operator<(const adouble &a, const adouble &b) {
 }
 
 adouble operator<(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval < b_coval);
@@ -1199,7 +1199,7 @@ adouble operator<(adouble &&a, const adouble &b) {
 }
 
 adouble operator<(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval < b_coval);
@@ -1221,7 +1221,7 @@ adouble operator<(const adouble &a, adouble &&b) {
 }
 
 adouble operator>(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double a_coval = a.value();
@@ -1243,7 +1243,7 @@ adouble operator>(const adouble &a, const adouble &b) {
 }
 
 adouble operator>(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval > b_coval);
@@ -1265,7 +1265,7 @@ adouble operator>(adouble &&a, const adouble &b) {
 }
 
 adouble operator>(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double a_coval = a.value();
   const double b_coval = b.value();
   const double res = static_cast<double>(a_coval > b_coval);
@@ -1289,7 +1289,7 @@ adouble operator>(const adouble &a, adouble &&b) {
 #endif // ADOLC_ADVANCED_BRANCHING
 
 bool operator!=(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a != 0);
   else {
@@ -1315,7 +1315,7 @@ bool operator!=(const double coval, const adouble &a) {
 }
 
 bool operator==(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a == 0);
   else {
@@ -1341,7 +1341,7 @@ inline bool operator==(const double coval, const adouble &a) {
 }
 
 bool operator<=(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a <= 0);
   else {
@@ -1368,7 +1368,7 @@ inline bool operator<=(const double coval, const adouble &a) {
 }
 
 bool operator>=(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a >= 0);
   else {
@@ -1395,7 +1395,7 @@ bool operator>=(const double coval, const adouble &a) {
 }
 
 bool operator<(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a < 0);
   else {
@@ -1422,7 +1422,7 @@ bool operator<(const double coval, const adouble &a) {
 }
 
 bool operator>(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (coval != 0.0)
     return (-coval + a > 0);
   else {
@@ -1452,7 +1452,7 @@ bool operator>(const double coval, const adouble &a) {
 /*                           SIGN  OPERATORS */
 
 adouble operator+(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = a.value();
 
@@ -1497,7 +1497,7 @@ adouble operator+(const adouble &a) {
 }
 
 adouble operator+(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
 
   if (tape.traceFlag()) {
 
@@ -1538,7 +1538,7 @@ adouble operator+(adouble &&a) {
 }
 
 adouble operator-(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = a.value();
 
@@ -1586,7 +1586,7 @@ adouble operator-(const adouble &a) {
 }
 
 adouble operator-(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = a.value();
 
   if (tape.traceFlag()) {
@@ -1632,7 +1632,7 @@ adouble operator-(adouble &&a) {
 /*                            BINARY OPERATORS                              */
 
 adouble operator+(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = a.value() + b.value();
 
@@ -1713,7 +1713,7 @@ adouble operator+(const adouble &a, const adouble &b) {
 }
 
 adouble operator+(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = a.value() + b.value();
 
   if (tape.traceFlag()) {
@@ -1792,7 +1792,7 @@ adouble operator+(adouble &&a, const adouble &b) {
 }
 
 adouble operator+(const double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = coval + a.value();
 
@@ -1847,7 +1847,7 @@ adouble operator+(const double coval, const adouble &a) {
 }
 
 adouble operator+(const double coval, adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = coval + a.value();
 
   if (tape.traceFlag()) {
@@ -1897,7 +1897,7 @@ adouble operator+(const double coval, adouble &&a) {
 }
 
 adouble operator-(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = a.value() - b.value();
 
@@ -1977,7 +1977,7 @@ adouble operator-(const adouble &a, const adouble &b) {
 }
 
 adouble operator-(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = a.value() - b.value();
 
   if (tape.traceFlag()) {
@@ -2056,7 +2056,7 @@ adouble operator-(adouble &&a, const adouble &b) {
 }
 
 adouble operator-(const double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = coval - a.value();
 
@@ -2111,7 +2111,7 @@ adouble operator-(const double coval, const adouble &a) {
 }
 
 adouble operator-(const double coval, adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = coval - a.value();
 
   if (tape.traceFlag()) {
@@ -2162,7 +2162,7 @@ adouble operator-(const double coval, adouble &&a) {
 }
 
 adouble operator*(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = a.value() * b.value();
 
@@ -2246,7 +2246,7 @@ adouble operator*(const adouble &a, const adouble &b) {
 }
 
 adouble operator*(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = a.value() * b.value();
 
   if (tape.traceFlag()) {
@@ -2329,7 +2329,7 @@ adouble operator*(adouble &&a, const adouble &b) {
 }
 
 adouble operator*(const double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = coval * a.value();
 
@@ -2389,7 +2389,7 @@ adouble operator*(const double coval, const adouble &a) {
 }
 
 adouble operator*(const double coval, adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = coval * a.value();
   if (tape.traceFlag()) {
 
@@ -2442,7 +2442,7 @@ adouble operator*(const double coval, adouble &&a) {
 }
 
 adouble operator/(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = a.value() / b.value();
 
@@ -2529,7 +2529,7 @@ adouble operator/(const adouble &a, const adouble &b) {
 }
 
 adouble operator/(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = a.value() / b.value();
 
   if (tape.traceFlag()) {
@@ -2597,7 +2597,7 @@ adouble operator/(adouble &&a, const adouble &b) {
 }
 
 adouble operator/(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = a.value() / b.value();
 
   if (tape.traceFlag()) {
@@ -2665,7 +2665,7 @@ adouble operator/(const adouble &a, adouble &&b) {
 }
 
 adouble operator/(const double coval, const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double coval2 = coval / a.value();
@@ -2715,7 +2715,7 @@ adouble operator/(const double coval, const adouble &a) {
 }
 
 adouble operator/(const double coval, adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = coval / a.value();
 
   if (tape.traceFlag()) {
@@ -2767,7 +2767,7 @@ adouble operator/(const double coval, adouble &&a) {
 /*                          UNARY OPERATIONS                                */
 
 adouble exp(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::exp(a.value());
   if (tape.traceFlag()) {
@@ -2811,7 +2811,7 @@ adouble exp(const adouble &a) {
 }
 
 adouble exp(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::exp(a.value());
 
   if (tape.traceFlag()) {
@@ -2859,7 +2859,7 @@ adouble exp(adouble &&a) {
 }
 
 adouble log(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::log(a.value());
 
@@ -2909,7 +2909,7 @@ adouble log(const adouble &a) {
 }
 
 adouble log(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::log(a.value());
 
   if (tape.traceFlag()) {
@@ -2958,7 +2958,7 @@ adouble log(adouble &&a) {
 }
 
 adouble sqrt(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::sqrt(a.value());
 
@@ -3008,7 +3008,7 @@ adouble sqrt(const adouble &a) {
 }
 
 adouble sqrt(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::sqrt(a.value());
 
   if (tape.traceFlag()) {
@@ -3057,7 +3057,7 @@ adouble sqrt(adouble &&a) {
 }
 
 adouble cbrt(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::cbrt(a.value());
 
@@ -3107,7 +3107,7 @@ adouble cbrt(const adouble &a) {
 }
 
 adouble cbrt(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::cbrt(a.value());
 
   if (tape.traceFlag()) {
@@ -3152,7 +3152,7 @@ adouble cbrt(adouble &&a) {
 }
 
 adouble sin(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double coval1 = ADOLC_MATH_NSP::sin(a.value());
@@ -3233,7 +3233,7 @@ adouble sin(const adouble &a) {
 }
 
 adouble sin(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval1 = ADOLC_MATH_NSP::sin(a.value());
   const double coval2 = ADOLC_MATH_NSP::cos(a.value());
 
@@ -3313,7 +3313,7 @@ adouble sin(adouble &&a) {
 }
 
 adouble cos(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
 
   const double coval1 = ADOLC_MATH_NSP::cos(a.value());
@@ -3397,7 +3397,7 @@ adouble cos(const adouble &a) {
 }
 
 adouble cos(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval1 = ADOLC_MATH_NSP::cos(a.value());
   const double coval2 = ADOLC_MATH_NSP::sin(a.value());
 
@@ -3479,7 +3479,7 @@ adouble cos(adouble &&a) {
 }
 
 adouble asin(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::asin(a.value());
   adouble b = 1.0 / sqrt(1.0 - a * a);
@@ -3535,7 +3535,7 @@ adouble asin(const adouble &a) {
 }
 
 adouble asin(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::asin(a.value());
   adouble b = 1.0 / sqrt(1.0 - a * a);
 
@@ -3590,7 +3590,7 @@ adouble asin(adouble &&a) {
 }
 
 adouble acos(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::acos(a.value());
 
@@ -3647,7 +3647,7 @@ adouble acos(const adouble &a) {
 }
 
 adouble acos(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::acos(a.value());
 
   adouble b = -1.0 / sqrt(1.0 - a * a);
@@ -3699,7 +3699,7 @@ adouble acos(adouble &&a) {
 }
 
 adouble atan(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::atan(a.value());
 
@@ -3756,7 +3756,7 @@ adouble atan(const adouble &a) {
 }
 
 adouble atan(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::atan(a.value());
 
   adouble b = 1.0 / (1.0 + a * a);
@@ -3808,7 +3808,7 @@ adouble atan(adouble &&a) {
 }
 
 adouble asinh(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP_ERF::asinh(a.value());
   adouble b = 1.0 / sqrt(1.0 + a * a);
@@ -3864,7 +3864,7 @@ adouble asinh(const adouble &a) {
 }
 
 adouble asinh(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP_ERF::asinh(a.value());
   adouble b = 1.0 / sqrt(1.0 + a * a);
 
@@ -3915,7 +3915,7 @@ adouble asinh(adouble &&a) {
 }
 
 adouble acosh(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP_ERF::acosh(a.value());
   adouble b = 1.0 / sqrt(a * a - 1.0);
@@ -3971,7 +3971,7 @@ adouble acosh(const adouble &a) {
 }
 
 adouble acosh(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP_ERF::acosh(a.value());
   adouble b = 1.0 / sqrt(a * a - 1.0);
 
@@ -4022,7 +4022,7 @@ adouble acosh(adouble &&a) {
 }
 
 adouble atanh(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP_ERF::atanh(a.value());
   adouble b = 1.0 / (1.0 - a * a);
@@ -4078,7 +4078,7 @@ adouble atanh(const adouble &a) {
 }
 
 adouble atanh(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP_ERF::atanh(a.value());
   adouble b = 1.0 / (1.0 - a * a);
 
@@ -4129,7 +4129,7 @@ adouble atanh(adouble &&a) {
 }
 
 adouble erf(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP_ERF::erf(a.value());
   adouble b =
@@ -4186,7 +4186,7 @@ adouble erf(const adouble &a) {
 }
 
 adouble erf(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP_ERF::erf(a.value());
   adouble b =
       2.0 / ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) * exp(-a * a);
@@ -4238,7 +4238,7 @@ adouble erf(adouble &&a) {
 }
 
 adouble erfc(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP_ERF::erfc(a.value());
   adouble b =
@@ -4294,7 +4294,7 @@ adouble erfc(const adouble &a) {
 }
 
 adouble erfc(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP_ERF::erfc(a.value());
   adouble b =
       -2.0 / ADOLC_MATH_NSP_ERF::sqrt(ADOLC_MATH_NSP::acos(-1.0)) * exp(-a * a);
@@ -4345,7 +4345,7 @@ adouble erfc(adouble &&a) {
 }
 
 adouble ceil(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::ceil(a.value());
 
@@ -4397,7 +4397,7 @@ adouble ceil(const adouble &a) {
 }
 
 adouble ceil(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::ceil(a.value());
 
   if (tape.traceFlag()) {
@@ -4444,7 +4444,7 @@ adouble ceil(adouble &&a) {
 }
 
 adouble floor(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval = ADOLC_MATH_NSP::floor(a.value());
 
@@ -4496,7 +4496,7 @@ adouble floor(const adouble &a) {
 }
 
 adouble floor(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval = ADOLC_MATH_NSP::floor(a.value());
 
   if (tape.traceFlag()) {
@@ -4544,7 +4544,7 @@ adouble floor(adouble &&a) {
 }
 
 adouble fabs(const adouble &a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double temp = ADOLC_MATH_NSP::fabs(a.value());
   const double coval = temp != a.value() ? 0.0 : 1.0;
@@ -4600,7 +4600,7 @@ adouble fabs(const adouble &a) {
 }
 
 adouble fabs(adouble &&a) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double temp = ADOLC_MATH_NSP::fabs(a.value());
   const double coval = temp != a.value() ? 0.0 : 1.0;
 
@@ -4651,7 +4651,7 @@ adouble fabs(adouble &&a) {
 }
 
 adouble fmin(const adouble &a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.no_min_max())
     return ((a + b - fabs(a - b)) / 2.0);
 
@@ -4758,7 +4758,7 @@ adouble fmin(const adouble &a, const adouble &b) {
 }
 
 adouble fmin(adouble &&a, const adouble &b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.no_min_max())
     return ((a + b - fabs(a - b)) / 2.0);
 
@@ -4863,7 +4863,7 @@ adouble fmin(adouble &&a, const adouble &b) {
 }
 
 adouble fmin(const adouble &a, adouble &&b) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.no_min_max())
     return ((a + b - fabs(a - b)) / 2.0);
 
@@ -4968,7 +4968,7 @@ adouble fmin(const adouble &a, adouble &&b) {
 }
 
 adouble pow(const adouble &a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   const double coval2 = ADOLC_MATH_NSP::pow(a.value(), coval);
 
@@ -5021,7 +5021,7 @@ adouble pow(const adouble &a, const double coval) {
 }
 
 adouble pow(adouble &&a, const double coval) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   const double coval2 = ADOLC_MATH_NSP::pow(a.value(), coval);
 
   if (tape.traceFlag()) {
@@ -5074,7 +5074,7 @@ adouble pow(adouble &&a, const double coval) {
 /* the same argument point otherwise it stops with a returnval */
 #define extend_quad(func, integrand)                                           \
   adouble func(const adouble &arg) {                                           \
-    ValueTape &tape = currentTape();                                           \
+    auto &tape = *currentTapePtr();                                            \
     adouble temp;                                                              \
     adouble val;                                                               \
     integrand;                                                                 \
@@ -5108,7 +5108,7 @@ double myquad(double x) {
 
 void condassign(adouble &res, const adouble &cond, const adouble &arg1,
                 const adouble &arg2) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -5236,7 +5236,7 @@ void condassign(adouble &res, const adouble &cond, const adouble &arg1,
 }
 
 void condassign(adouble &res, const adouble &cond, const adouble &arg) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -5333,7 +5333,7 @@ void condassign(adouble &res, const adouble &cond, const adouble &arg) {
 
 void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
                   const adouble &arg2) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -5463,7 +5463,7 @@ void condeqassign(adouble &res, const adouble &cond, const adouble &arg1,
 }
 
 void condeqassign(adouble &res, const adouble &cond, const adouble &arg) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (tape.traceFlag()) {
 
 #if defined(ADOLC_TRACK_ACTIVITY)
@@ -5560,7 +5560,7 @@ void condeqassign(adouble &res, const adouble &cond, const adouble &arg) {
 
 void adolc_vec_copy(adouble *const dest, const adouble *const src,
                     size_t size) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (dest[size - 1].loc() - dest[0].loc() != size - 1 ||
       src[size - 1].loc() - src[0].loc() != size - 1)
     ADOLCError::fail(ADOLCError::ErrorType::VEC_LOCATIONGAP, CURRENT_LOCATION);
@@ -5584,7 +5584,7 @@ void adolc_vec_copy(adouble *const dest, const adouble *const src,
 // requires a and b to be of size "size"
 adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
                       size_t size) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (vec_a[size - 1].loc() - vec_a[0].loc() != size - 1 ||
       vec_b[size - 1].loc() - vec_b[0].loc() != size - 1)
     ADOLCError::fail(ADOLCError::ErrorType::VEC_LOCATIONGAP, CURRENT_LOCATION);
@@ -5620,7 +5620,7 @@ adouble adolc_vec_dot(const adouble *const vec_a, const adouble *const vec_b,
 void adolc_vec_axpy(adouble *const res, const adouble &a,
                     const adouble *const vec_a, const adouble *const vec_b,
                     size_t size) {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   if (res[size - 1].loc() - res[0].loc() != size - 1 ||
       vec_a[size - 1].loc() - vec_a[0].loc() != size - 1 ||
       vec_b[size - 1].loc() - vec_b[0].loc() != size - 1)

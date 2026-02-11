@@ -13,6 +13,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
+#include "adolc/valuetape/valuetape.h"
 #if !defined(ADOLC_DRIVERS_PSDRIVERS_H)
 #define ADOLC_DRIVERS_PSDRIVERS_H 1
 
@@ -34,7 +35,7 @@ ADOLC_API fint directional_active_gradient_(fint, fint, double *, double *,
 /*                                              directional_active_gradient */
 /*                                                                          */
 ADOLC_API int
-directional_active_gradient(short tag,       /* trace identifier */
+directional_active_gradient(ValueTape &tape, /* trace identifier */
                             int n,           /* number of independents */
                             const double *x, /* value of independents */
                             const double *d, /* direction */
@@ -45,9 +46,9 @@ directional_active_gradient(short tag,       /* trace identifier */
 /*--------------------------------------------------------------------------*/
 /*                                                               abs_normal */
 /*                                                                          */
-ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
+ADOLC_API fint abs_normal_(ValueTape &, fint *, fint *, fint *, fdouble *,
                            fdouble *, fdouble *, fdouble *, fdouble *,
-                           fdouble *, fdouble *, fdouble *);
+                           fdouble *, fdouble *, fdouble *, fdouble *);
 
 /**
  * @brief Compute the ABS-normal form of a taped function.
@@ -92,9 +93,10 @@ ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
  *
  * @return Zero on success, nonzero on failure.
  */
-ADOLC_API int abs_normal(short tag, int m, int n, int swchk, const double *x,
-                         double *y, double *z, double *cz, double *cy,
-                         double **Y, double **J, double **Z, double **L);
+ADOLC_API int abs_normal(ValueTape &tape, int m, int n, int swchk,
+                         const double *x, double *y, double *z, double *cz,
+                         double *cy, double **Y, double **J, double **Z,
+                         double **L);
 
 END_C_DECLS
 

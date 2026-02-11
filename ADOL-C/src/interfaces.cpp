@@ -29,8 +29,9 @@
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
-/* forward(tag, m, n, d, keep, X[n][d+1], Y[m][d+1])                        */
+int forward(ValueTape &tape, int m, int n, int d, int keep, double **X,
+            double **Y)
+/* forward(tape, m, n, d, keep, X[n][d+1], Y[m][d+1]) */
 { /* olvo 980729 general ec */
   double *x, *y, *xp, *yp;
   int maxn, maxm;
@@ -54,11 +55,11 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
   /*------------------------------------------------------------------------*/
   /* function calls */
   if (d == 0)
-    rc = zos_forward(tag, m, n, keep, x, y);
+    rc = zos_forward(tape, m, n, keep, x, y);
   else if (d == 1)
-    rc = fos_forward(tag, m, n, keep, x, xp, y, yp);
+    rc = fos_forward(tape, m, n, keep, x, xp, y, yp);
   else
-    rc = hos_forward(tag, m, n, d, keep, x, X, y, Y);
+    rc = hos_forward(tape, m, n, d, keep, x, X, y, Y);
 
   /*------------------------------------------------------------------------*/
   /* prepare output */
@@ -89,8 +90,9 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
 /****************************************************************************/
 /*         Y can be one dimensional if m=1                                  */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
-/* forward(tag, 1, n, d, keep, X[n][d+1], Y[d+1]), m=1                      */
+int forward(ValueTape &tape, int m, int n, int d, int keep, double **X,
+            double *Y)
+/* forward(tape, 1, n, d, keep, X[n][d+1], Y[d+1]), m=1 */
 { /* olvo 980729 general ec */
   static double *x, *xp;
   static int maxn;
@@ -121,11 +123,11 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
     /*----------------------------------------------------------------------*/
     /* function calls */
     if (d == 0)
-      rc = zos_forward(tag, m, n, keep, x, &y);
+      rc = zos_forward(tape, m, n, keep, x, &y);
     else if (d == 1)
-      rc = fos_forward(tag, m, n, keep, x, xp, &y, Y);
+      rc = fos_forward(tape, m, n, keep, x, xp, &y, Y);
     else
-      rc = hos_forward(tag, m, n, d, keep, x, X, &y, &Y);
+      rc = hos_forward(tape, m, n, d, keep, x, X, &y, &Y);
 
     /*----------------------------------------------------------------------*/
     /* prepare output */
@@ -148,16 +150,16 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
 /****************************************************************************/
 /*         X and Y can be one dimensional if d = 0                          */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int keep, const double *X,
+int forward(ValueTape &tape, int m, int n, int d, int keep, const double *X,
             double *Y)
-/* forward(tag, m, n, 0, keep, X[n], Y[m]), d=0                             */
+/* forward(tape, m, n, 0, keep, X[n], Y[m]), d=0 */
 {
   int rc = -1;
 
   if (d != 0)
     ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_XY, CURRENT_LOCATION);
   else
-    rc = zos_forward(tag, m, n, keep, X, Y);
+    rc = zos_forward(tape, m, n, keep, X, Y);
 
   return rc;
 }
@@ -165,30 +167,30 @@ int forward(short tag, int m, int n, int d, int keep, const double *X,
 /****************************************************************************/
 /*         X and Y can be one dimensional if d omitted                      */
 /*                                                                          */
-int forward(short tag, int m, int n, int keep, const double *X, double *Y)
-/* forward(tag, m, n, keep, X[n], Y[m])                                     */
+int forward(ValueTape &tape, int m, int n, int keep, const double *X, double *Y)
+/* forward(tape, m, n, keep, X[n], Y[m]) */
 {
-  return zos_forward(tag, m, n, keep, X, Y);
+  return zos_forward(tape, m, n, keep, X, Y);
 }
 
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int d, int p, const double *x,
+int forward(ValueTape &tape, int m, int n, int d, int p, const double *x,
             const double *const *const *X, double *y, double ***Y)
-/* forward(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d])             */
+/* forward(tape, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d]) */
 {
-  return hov_forward(tag, m, n, d, p, x, X, y, Y);
+  return hov_forward(tape, m, n, d, p, x, X, y, Y);
 }
 
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int forward(short tag, int m, int n, int p, const double *x,
+int forward(ValueTape &tape, int m, int n, int p, const double *x,
             const double *const *X, double *y, double **Y)
-/* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])                      */
+/* forward(tape, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
 {
-  return fov_forward(tag, m, n, p, x, X, y, Y);
+  return fov_forward(tape, m, n, p, x, X, y, Y);
 }
 
 /****************************************************************************/
@@ -197,24 +199,24 @@ int forward(short tag, int m, int n, int p, const double *x,
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, const double *u, double **Z)
-/* reverse(tag, m, n, d, u[m], Z[n][d+1])                                   */
+int reverse(ValueTape &tape, int m, int n, int d, const double *u, double **Z)
+/* reverse(tape, m, n, d, u[m], Z[n][d+1]) */
 {
-  return hos_reverse(tag, m, n, d, u, Z);
+  return hos_reverse(tape, m, n, d, u, Z);
 }
 
 /****************************************************************************/
 /*         u can be a scalar if m=1                                         */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, double u, double **Z)
-/* reverse(tag, 1, n, 0, u, Z[n][d+1]), m=1 => u scalar                     */
+int reverse(ValueTape &tape, int m, int n, int d, double u, double **Z)
+/* reverse(tape, 1, n, 0, u, Z[n][d+1]), m=1 => u scalar */
 {
   int rc = -1;
 
   if (m != 1)
     ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_u, CURRENT_LOCATION);
   else
-    rc = hos_reverse(tag, m, n, d, &u, Z);
+    rc = hos_reverse(tape, m, n, d, &u, Z);
 
   return rc;
 }
@@ -222,27 +224,27 @@ int reverse(short tag, int m, int n, int d, double u, double **Z)
 /****************************************************************************/
 /*         Z can be vector if d = 0; Done by specialized code               */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, const double *u, double *Z)
-/* reverse(tag, m, n, 0, u[m], Z[n]), d=0                                   */
+int reverse(ValueTape &tape, int m, int n, int d, const double *u, double *Z)
+/* reverse(tape, m, n, 0, u[m], Z[n]), d=0 */
 {
   if (d != 0)
     ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_Z, CURRENT_LOCATION);
 
-  return fos_reverse(tag, m, n, u, Z);
+  return fos_reverse(tape, m, n, u, Z);
 }
 
 /****************************************************************************/
 /*         u and Z can be scalars if m=1 and d=0;                           */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, double u, double *Z)
-/* reverse(tag, 1, n, 0, u, Z[n]), m=1 and d=0 => u and Z scalars           */
+int reverse(ValueTape &tape, int m, int n, int d, double u, double *Z)
+/* reverse(tape, 1, n, 0, u, Z[n]), m=1 and d=0 => u and Z scalars */
 {
   int rc = -1;
 
   if (m != 1 || d != 0)
     ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_uZ, CURRENT_LOCATION);
   else
-    rc = fos_reverse(tag, m, n, &u, Z);
+    rc = fos_reverse(tape, m, n, &u, Z);
 
   return rc;
 }
@@ -250,19 +252,20 @@ int reverse(short tag, int m, int n, int d, double u, double *Z)
 /****************************************************************************/
 /*                                                             general call */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, const double *const *U,
+int reverse(ValueTape &tape, int m, int n, int d, int q, const double *const *U,
             double ***Z, short **nz)
-/* reverse(tag, m, n, d, q, U[q][m], Z[q][n][d+1], nz[q][n])                */
+/* reverse(tape, m, n, d, q, U[q][m], Z[q][n][d+1], nz[q][n]) */
 {
-  return hov_reverse(tag, m, n, d, q, U, Z, nz);
+  return hov_reverse(tape, m, n, d, q, U, Z, nz);
 }
 
 /****************************************************************************/
 /*         U can be a vector if m=1                                         */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
+int reverse(ValueTape &tape, int m, int n, int d, int q, double *U, double ***Z,
             short **nz)
-/* reverse(tag, 1, n, d, q, U[q], Z[q][n][d+1], nz[q][n]), m=1 => u vector  */
+/* reverse(tape, 1, n, d, q, U[q], Z[q][n][d+1], nz[q][n]), m=1 => u vector
+ */
 {
   int rc = -1;
 
@@ -274,7 +277,7 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
     double **upp = (double **)malloc(q * sizeof(double *));
     for (int i = 0; i < q; i++)
       upp[i] = &U[i];
-    rc = hov_reverse(tag, m, n, d, q, upp, Z, nz);
+    rc = hov_reverse(tape, m, n, d, q, upp, Z, nz);
     /* delete[] upp; */
     free((char *)upp);
   }
@@ -285,16 +288,16 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double ***Z,
 /*                                                                          */
 /*         If d=0 then Z may be matrix; Done by specialized code            */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, const double *const *U,
+int reverse(ValueTape &tape, int m, int n, int d, int q, const double *const *U,
             double **Z)
-/* reverse(tag, m, n, 0, q, U[q][m], Z[q][n]), d=0 => Z matrix              */
+/* reverse(tape, m, n, 0, q, U[q][m], Z[q][n]), d=0 => Z matrix */
 {
   int rc = -1;
 
   if (d != 0)
     ADOLCError::fail(ADOLCError::ErrorType::WRONG_DIM_D, CURRENT_LOCATION);
   else
-    rc = fov_reverse(tag, m, n, q, U, Z);
+    rc = fov_reverse(tape, m, n, q, U, Z);
 
   return rc;
 }
@@ -303,12 +306,13 @@ int reverse(short tag, int m, int n, int d, int q, const double *const *U,
 /*                                                                          */
 /*         d=0 may be omitted, then Z may be a matrix; specialized code     */
 /*                                                                          */
-int reverse(short tag, int m, int n, int q, const double *const *U, double **Z)
-/* reverse(tag, m, n, q, U[q][m], Z[q][n]), d=0 => Z matrix                 */
+int reverse(ValueTape &tape, int m, int n, int q, const double *const *U,
+            double **Z)
+/* reverse(tape, m, n, q, U[q][m], Z[q][n]), d=0 => Z matrix */
 {
   int rc = -1;
 
-  rc = fov_reverse(tag, m, n, q, U, Z);
+  rc = fov_reverse(tape, m, n, q, U, Z);
 
   return rc;
 }
@@ -317,8 +321,8 @@ int reverse(short tag, int m, int n, int q, const double *const *U, double **Z)
 /*                                                                          */
 /*         If m=1 and d=0 then U can be vector and Z a matrix but no nz.    */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, int q, double *U, double **Z)
-/* reverse(tag, 1, n, 0, q, U[q], Z[q][n]),
+int reverse(ValueTape &tape, int m, int n, int d, int q, double *U, double **Z)
+/* reverse(tape, 1, n, 0, q, U[q], Z[q][n]),
                             m=1 and d=0 => U vector and Z matrix but no nz  */
 {
   int rc = -1;
@@ -333,7 +337,7 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double **Z)
     double **upp = (double **)malloc(q * sizeof(double *));
     for (int i = 0; i < q; i++)
       upp[i] = &U[i];
-    rc = fov_reverse(tag, m, n, q, upp, Z);
+    rc = fov_reverse(tape, m, n, q, upp, Z);
     /* delete[] upp; */
     free((char *)upp);
   }
@@ -345,8 +349,8 @@ int reverse(short tag, int m, int n, int d, int q, double *U, double **Z)
 /*                                                                          */
 /*         If p and U are omitted they default to m and I so that as above  */
 /*                                                                          */
-int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
-/* reverse(tag, m, n, d, Z[p][n][d+1], nz[p][n]),
+int reverse(ValueTape &tape, int m, int n, int d, double ***Z, short **nz)
+/* reverse(tape, m, n, d, Z[p][n][d+1], nz[p][n]),
            If p and U are omitted they default to m and I                   */
 {
   static int depax;
@@ -356,7 +360,7 @@ int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
       myfreeI2(depax, I);
     I = myallocI2(depax = m);
   }
-  return hov_reverse(tag, m, n, d, m, I, Z, nz);
+  return hov_reverse(tape, m, n, d, m, I, Z, nz);
 }
 
 /****************************************************************************/

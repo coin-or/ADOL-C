@@ -29,15 +29,14 @@ template <size_t dim> void taping() {
 
 BOOST_AUTO_TEST_CASE(BigExample) {
   constexpr size_t dim = 200'000;
-  const auto tapeId = createNewTape();
-  trace_on(tapeId, 1);
+  auto tapePtr = std::make_unique<ValueTape>();
+  trace_on(*tapePtr, 1);
   taping<dim>();
-  trace_off(1);
+  trace_off(*tapePtr, 1);
   std::vector<double> tangent(dim);
   std::vector<double> out(dim);
   std::fill(tangent.begin(), tangent.end(), 1.0);
-  // printTapeStats(tapeId);
-  gradient(tapeId, dim, tangent.data(), out.data());
+  gradient(*tapePtr, dim, tangent.data(), out.data());
   for (auto i = 0; i < out.size(); i++) {
     BOOST_TEST(out[i] == (i + 1), tt::tolerance(tol));
   }

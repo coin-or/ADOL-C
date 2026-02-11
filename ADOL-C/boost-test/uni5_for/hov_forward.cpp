@@ -19,8 +19,8 @@ namespace tt = boost::test_tools;
 BOOST_AUTO_TEST_SUITE(test_hov_forward)
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 2;
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
   }
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   adouble dep = fmax(pow(indep[0], 2), pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   // max(x^2, y^3)
   double test_out = std::fmax(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::fmax(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 2;
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
   }
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   adouble dep = max(pow(indep[0], 2), pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   // max(x^2, y^3)
   double test_out = std::max(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::max(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 2;
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
   }
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   adouble dep = fmin(-pow(indep[0], 2), -pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   double test_out =
       std::fmin(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::fmin(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -500,8 +500,8 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 2;
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   std::vector<adouble> indep(dim_in);
   std::vector<double> out(dim_out);
 
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   for (size_t i = 0; i < in.size(); i++) {
     indep[i] <<= in[i];
   }
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   adouble dep = min(-pow(indep[0], 2), -pow(indep[1], 3));
 
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   double test_out =
       std::min(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -581,7 +581,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::min(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -661,8 +661,8 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -672,11 +672,11 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // exp(x1^2)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = exp(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
   // exp(x1^2)
   double test_out = std::exp(std::pow(in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -756,8 +756,8 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -767,12 +767,12 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // x1^2 * x2^3
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) * pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -798,7 +798,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   // x1^2 * x2^3
   double test_out = std::pow(test_in[0], 2) * std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -883,8 +883,8 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -894,12 +894,12 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // x1^2 + x2^3
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) + pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -925,7 +925,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   // x1^2 + x2^3
   double test_out = std::pow(test_in[0], 2) + std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -972,8 +972,8 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -983,12 +983,12 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // x1^2 - x2^3
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) - pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1014,7 +1014,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   // x1^2 - x2^3
   double test_out = std::pow(test_in[0], 2) - std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1061,8 +1061,8 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -1072,12 +1072,12 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // x1^2 / x2^3
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], 2) / pow(indep[1], 3);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   // x1^2 - x2^3
   double test_out = std::pow(test_in[0], 2) / std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1196,8 +1196,8 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1207,11 +1207,11 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // tan(x1^2)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = tan(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1229,7 +1229,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
   // tan(x1^2)
   double test_out = std::tan(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1328,8 +1328,8 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1339,11 +1339,11 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // sin(x1^2)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = sin(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1361,7 +1361,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
   // sin(x1^2)
   double test_out = std::sin(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1424,8 +1424,8 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1435,11 +1435,11 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // cos(x1^2)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = cos(pow(indep[0], 2));
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1457,7 +1457,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
   // cos(x1^2)
   double test_out = std::cos(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1520,8 +1520,8 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1531,11 +1531,11 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // sqrt(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = sqrt(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1553,7 +1553,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
   // sqrt(x)
   double test_out = std::sqrt(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1600,8 +1600,8 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1611,11 +1611,11 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // Log(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = log(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1633,7 +1633,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
   // log(x)
   double test_out = std::log(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1672,8 +1672,8 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1683,11 +1683,11 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // sinh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = sinh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1705,7 +1705,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
   // sinh(x)
   double test_out = std::sinh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1744,8 +1744,8 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1755,11 +1755,11 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // cosh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = cosh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1777,7 +1777,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   // cosh(x)
   double test_out = std::cosh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1816,8 +1816,8 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1827,11 +1827,11 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // tanh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = tanh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1849,7 +1849,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   // tanh(x)
   double test_out = std::tanh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1905,8 +1905,8 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   myfree3(Y);
 }
 BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -1916,11 +1916,11 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // asin(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = asin(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -1938,7 +1938,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   // asin(x)
   double test_out = std::asin(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -1991,8 +1991,8 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2002,11 +2002,11 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // acos(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = acos(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2024,7 +2024,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
   // acos(x)
   double test_out = std::acos(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2077,8 +2077,8 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2088,11 +2088,11 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // atan(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = atan(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2110,7 +2110,7 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
   // atan(x)
   double test_out = std::atan(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2159,8 +2159,8 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2170,11 +2170,11 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // log10(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = log10(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2192,7 +2192,7 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   // log10(x)
   double test_out = std::log10(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2236,8 +2236,8 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2247,11 +2247,11 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // asinh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = asinh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2269,7 +2269,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
   // asinh(x)
   double test_out = std::asinh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2322,8 +2322,8 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2333,11 +2333,11 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // acosh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = acosh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2355,7 +2355,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
   // acosh(x)
   double test_out = std::acosh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2418,8 +2418,8 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2429,11 +2429,11 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // atanh(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = atanh(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2451,7 +2451,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
   // atanh(x)
   double test_out = std::atanh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2498,8 +2498,8 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2510,11 +2510,11 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
   adouble dep;
 
   // x + 1
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   dep = ++indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2534,7 +2534,7 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
 
   // change the value back, since the operator increases test_in[0]
   test_in[0] = 0.2;
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2555,8 +2555,8 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2567,11 +2567,11 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
   adouble dep;
 
   // x - 1
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   dep = --indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2591,7 +2591,7 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
 
   // change the value back, since the operator increases test_in[0]
   test_in[0] = 0.2;
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2612,8 +2612,8 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2624,11 +2624,11 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   adouble dep;
 
   // x
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   dep = +indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2646,7 +2646,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   // x
   double test_out = +test_in[0];
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2667,8 +2667,8 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2679,11 +2679,11 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   adouble dep;
 
   //-x
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   dep = -indep[0];
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2701,7 +2701,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   // -x
   double test_out = -test_in[0];
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2722,8 +2722,8 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -2733,12 +2733,12 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // atan2(x, y)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = atan2(indep[0], indep[1]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2764,7 +2764,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
   // atan2(x, y)
   double test_out = std::atan2(test_in[0], test_in[1]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2923,8 +2923,8 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -2934,11 +2934,11 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
   std::vector<double> out(dim_out);
 
   // x^y
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = pow(indep[0], 3.2);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -2956,7 +2956,7 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
   // x^y
   double test_out = std::pow(test_in[0], 3.2);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -2995,8 +2995,8 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 2;
   const size_t degree = 3;
@@ -3006,12 +3006,12 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
   std::vector<double> out(dim_out);
 
   // x^y
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   indep[1] <<= in[1];
   adouble dep = pow(indep[0], indep[1]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -3037,7 +3037,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
   // x^y
   double test_out = std::pow(test_in[0], test_in[1]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -3146,8 +3146,8 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   const size_t dim_out = 1;
   const size_t dim_in = 1;
   const size_t degree = 3;
@@ -3157,11 +3157,11 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
   std::vector<double> out(dim_out);
 
   // x^y
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = pow(1.5, indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -3179,7 +3179,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
   // x^y
   double test_out = std::pow(1.5, test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
@@ -3231,11 +3231,11 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_HOV_Forward) {
   std::vector<double> out(dim_out);
 
   // cbrt(x)
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   indep[0] <<= in[0];
   adouble dep = cbrt(indep[0]);
   dep >>= out[0];
-  trace_off();
+  trace_off(*tapePtr);
 
   double ***X = myalloc3(dim_in, num_dirs, degree);
   double ***Y = myalloc3(dim_out, num_dirs, degree);
@@ -3253,7 +3253,7 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_HOV_Forward) {
   // cbrt(x)
   double test_out = std::cbrt(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
+  hov_forward(*tapePtr, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
               out.data(), Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));

@@ -15,6 +15,7 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adolc.h> /* use of ALL ADOL-C interfaces */
 
 #include <iostream>
@@ -46,7 +47,7 @@ adouble power(adouble x, int n) {
 /*                                                             MAIN PROGRAM */
 int main() {
   int i;
-  const short tag = createNewTape();
+  auto tapePtr = std::make_unique<ValueTape>();
   int n;
 
   cout << "COMPUTATION OF N-TH POWER (ADOL-C Documented Example)\n\n";
@@ -66,17 +67,17 @@ int main() {
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
-  trace_on(tag);   /* tag = 1 and keep = 0 */
-  x <<= X[0][0];   /* only one independent var */
-  y = power(x, n); /* actual function call */
-  y >>= Y[0][0];   /* only one dependent adouble */
-  trace_off();     /* no global adouble has died */
+  trace_on(*tapePtr);  /* *tapePtr = 1 and keep = 0 */
+  x <<= X[0][0];       /* only one independent var */
+  y = power(x, n);     /* actual function call */
+  y >>= Y[0][0];       /* only one dependent adouble */
+  trace_off(*tapePtr); /* no global adouble has died */
   /* end of active section */
   double u[1];                /* weighting vector */
   u[0] = 1;                   /* for reverse call */
   for (i = 0; i < n + 2; i++) /* note that keep = i+1 in call */
   {
-    forward(tag, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
+    forward(*tapePtr, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
     if (i == 0)
       cout << Y[0][i] << " - " << y.value() << " = " << Y[0][i] - y.value()
            << " (should be 0)\n";
@@ -85,7 +86,7 @@ int main() {
       cout << Y[0][i] << " - " << Z[0][i] << " = " << Y[0][i] - Z[0][i]
            << " (should be 0)\n";
     }
-    reverse(tag, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
+    reverse(*tapePtr, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
   } /* end for */
 
   return 1;

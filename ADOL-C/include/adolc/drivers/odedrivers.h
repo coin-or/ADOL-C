@@ -22,15 +22,16 @@
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
-
+class ValueTape;
 /****************************************************************************/
 /*                                                         DRIVERS FOR ODEs */
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  forodec */
 /* forodec(tag, n, tau, dold, dnew, X[n][d+1])                              */
-ADOLC_API int forodec(short, int, double, int, int, double **);
-ADOLC_API fint forodec_(fint *, fint *, fdouble *, fint *, fint *, fdouble *);
+ADOLC_API int forodec(ValueTape &, int, double, int, int, double **);
+ADOLC_API fint forodec_(ValueTape &, fint *, fdouble *, fint *, fint *,
+                        fdouble *);
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  accodec */
@@ -51,14 +52,14 @@ END_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                   forode */
 /* forode(tag, n, tau, dold, dnew, X[n][d+1])                               */
-ADOLC_API inline int forode(short tag,  // tape identifier
-                            int n,      // space dimension
-                            double tau, // scaling
+ADOLC_API inline int forode(ValueTape &tapePtr, // tape identifier
+                            int n,              // space dimension
+                            double tau,         // scaling
                             int dold,   // previous degree defaults to zero
                             int dnew,   // New degree of consistency
                             double **X) // Taylor series
 {
-  return forodec(tag, n, tau, dold, dnew, X);
+  return forodec(tapePtr, n, tau, dold, dnew, X);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -66,8 +67,9 @@ ADOLC_API inline int forode(short tag,  // tape identifier
 /*        the scaling tau defaults to 1                                     */
 /*                                                                          */
 /*  forode(tag, n, dold, dnew, X[n][d+1])                                   */
-ADOLC_API inline int forode(short tag, int n, int dold, int dnew, double **X) {
-  return forodec(tag, n, 1.0, dold, dnew, X);
+ADOLC_API inline int forode(ValueTape &tapePtr, int n, int dold, int dnew,
+                            double **X) {
+  return forodec(tapePtr, n, 1.0, dold, dnew, X);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -75,8 +77,9 @@ ADOLC_API inline int forode(short tag, int n, int dold, int dnew, double **X) {
 /*        previous order defaults to 0                                      */
 /*                                                                          */
 /* forode(tag, n, tau, dnew, X[n][d+1])                                     */
-ADOLC_API inline int forode(short tag, int n, double tau, int deg, double **X) {
-  return forodec(tag, n, tau, 0, deg, X);
+ADOLC_API inline int forode(ValueTape &tapePtr, int n, double tau, int deg,
+                            double **X) {
+  return forodec(tapePtr, n, tau, 0, deg, X);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -84,8 +87,8 @@ ADOLC_API inline int forode(short tag, int n, double tau, int deg, double **X) {
 /*        both tau and dold default                                         */
 /*                                                                          */
 /* forode(tag, n, dnew, X[n][d+1])                                          */
-ADOLC_API inline int forode(short tag, int n, int deg, double **X) {
-  return forode(tag, n, 1.0, 0, deg, X);
+ADOLC_API inline int forode(ValueTape &tapePtr, int n, int deg, double **X) {
+  return forode(tapePtr, n, 1.0, 0, deg, X);
 }
 
 /*--------------------------------------------------------------------------*/

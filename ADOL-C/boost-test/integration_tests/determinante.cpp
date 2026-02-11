@@ -1,3 +1,5 @@
+#include "adolc/valuetape/valuetape.h"
+#include <memory>
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -49,8 +51,8 @@ adouble det(const T &A, size_t row,
 
 BOOST_AUTO_TEST_SUITE(test_detem_example)
 BOOST_AUTO_TEST_CASE(DeterminanteTest) {
-  const short tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
 
   const int keep = 1;
   constexpr size_t n = 7;
@@ -58,7 +60,7 @@ BOOST_AUTO_TEST_CASE(DeterminanteTest) {
 
   std::array<std::array<adouble, n>, n> A;
 
-  trace_on(tapeId, keep); // tapeId=1=keep
+  trace_on(*tapePtr, keep);
   double detout = 0.0;
   double diag = 1.0;             // here keep the intermediates for
   for (size_t i = 0; i < n; i++) // the subsequent call to reverse
@@ -75,12 +77,12 @@ BOOST_AUTO_TEST_CASE(DeterminanteTest) {
 
   ad >>= detout;
   BOOST_TEST(detout == diag, tt ::tolerance(tol));
-  trace_off();
+  trace_off(*tapePtr);
 
   std::array<double, 1> u;
   u[0] = 1.0;
   std::array<double, n * n> B;
-  reverse(tapeId, 1, n * n, 0, u.data(),
+  reverse(*tapePtr, 1, n * n, 0, u.data(),
           B.data()); // call reverse to calculate the gradient
 
   std::array<double, n> res = {5.4071428571428601, 0, 0, 0, 0, 0, 0};

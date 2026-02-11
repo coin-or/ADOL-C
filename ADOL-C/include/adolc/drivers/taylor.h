@@ -12,6 +12,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
+
 #if !defined(ADOLC_DRIVERS_TAYLOR_H)
 #define ADOLC_DRIVERS_TAYLOR_H 1
 
@@ -19,25 +20,25 @@
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
-
+class ValueTape;
 /****************************************************************************/
 /*                                                       TENSOR EVALUATIONS */
 
 /*--------------------------------------------------------------------------*/
 /* tensor_eval(tag,m,n,d,p,x[n],tensor[m][dim],S[n][p])
       with dim = ((p+d) over d) */
-ADOLC_API int tensor_eval(short tag, int m, int n, int d, int p, double *x,
-                          double **tensor, double **S);
+ADOLC_API int tensor_eval(ValueTape &tape, int m, int n, int d, int p,
+                          double *x, double **tensor, double **S);
 
 /*--------------------------------------------------------------------------*/
 /* inverse_tensor_eval(tag,n,d,p,x,tensor[n][dim],S[n][p])
       with dim = ((p+d) over d) */
-ADOLC_API int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
-                                  double **tensor, double **S);
+ADOLC_API int inverse_tensor_eval(ValueTape &tape, int n, int d, int p,
+                                  double *x, double **tensor, double **S);
 
 /*--------------------------------------------------------------------------*/
 /*  inverse_Taylor_prop(tag,n,d,Y[n][d+1],X[n][d+1]) */
-ADOLC_API int inverse_Taylor_prop(short tag, int n, int d, double **Y,
+ADOLC_API int inverse_Taylor_prop(ValueTape &tape, int n, int d, double **Y,
                                   double **X);
 
 /****************************************************************************/
@@ -70,7 +71,7 @@ ADOLC_API long binomi(size_t n, size_t k);
 
 /*--------------------------------------------------------------------------*/
 /* jac_solv(tag,n,x,b,mode) */
-ADOLC_API int jac_solv(unsigned short tag, int n, const double *x, double *b,
+ADOLC_API int jac_solv(ValueTape &tape, int n, const double *x, double *b,
                        unsigned short mode);
 
 END_C_DECLS

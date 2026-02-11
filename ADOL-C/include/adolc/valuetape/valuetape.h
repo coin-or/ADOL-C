@@ -12,7 +12,6 @@
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
-#include <iostream>
 #include <limits>
 #include <memory>
 #include <stack>
@@ -82,10 +81,8 @@ class ADOLC_API ValueTape {
 public:
   ~ValueTape();
 
-  // a tape always need a tapeId,
-  ValueTape() = delete;
-  ValueTape(short tapeId)
-      : tapeInfos_(tapeId), perTapeInfos_(tapeId, readConfigFile()),
+  ValueTape()
+      : perTapeInfos_(readConfigFile()),
         ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
         ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>),
         cp_buffer_(init_CpInfos) {}
@@ -267,7 +264,7 @@ public:
   size_t numSwitches() const { return tapeInfos_.numSwitches; }
   void increment_numSwitches() { ++tapeInfos_.numSwitches; }
 
-  short tapeId() const { return tapeInfos_.tapeId_; }
+  short tapeId() const { return perTapeInfos_.tapeId_; }
   size_t no_min_max() { return tapeInfos_.stats[TapeInfos::NO_MIN_MAX]; }
   size_t ext_diff_fct_index() const { return tapeInfos_.ext_diff_fct_index; }
   void ext_diff_fct_index(size_t index) {
@@ -693,16 +690,12 @@ public:
 
   /* initializes a new tape
    * - returns 0 on success
-   * - returns 1 in case tapeId is already/still in use */
+   * - returns 1 in case tape is already/still in use */
   int initNewTape();
 
   // ------------------- Combined methods ------------------------
   // opens an existing tape or creates a new one
   void openTape();
-
-  // updates the tape infos for the given ID - a tapeInfos struct is created
-  // and registered if non is found but its state will remain "not in use"
-  std::shared_ptr<ValueTape> getTapeInfos(short tapeId);
 
   // close open tapes, update stats and clean up
   void close_tape(int flag);
@@ -718,7 +711,7 @@ public:
    */
   /* forward call after setting the parameters. */
   /****************************************************************************/
-  void set_param_vec(short tag, size_t numparam, const double *paramvec);
+  void set_param_vec(size_t numparam, const double *paramvec);
   void save_params();
   /****************************************************************************/
   /* Frees parameter indices after taping is complete */

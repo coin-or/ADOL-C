@@ -22,7 +22,7 @@ BEGIN_C_DECLS
 /* zos_forward_partx(tag, m, mdim[n], n, x[n][d], y[m])                     */
 /* (based on zos_forward)                                                   */
 
-int zos_forward_partx(short tag, int m, int n, const int *ndim,
+int zos_forward_partx(ValueTape &tape, int m, int n, const int *ndim,
                       const double *const *x, double *y) {
   double *x0; /* base point */
   int i, j, ind, sum_n, rc;
@@ -40,7 +40,7 @@ int zos_forward_partx(short tag, int m, int n, const int *ndim,
       ind++;
     }
 
-  rc = zos_forward(tag, m, sum_n, 0, x0, y);
+  rc = zos_forward(tape, m, sum_n, 0, x0, y);
 
   myfree1(x0);
 
@@ -52,7 +52,7 @@ int zos_forward_partx(short tag, int m, int n, const int *ndim,
 /* fos_forward_partx(tag, m, n, ndim[n], x[n][][2], y[m][2])                */
 /* (based on fos_forward)                                                   */
 
-int fos_forward_partx(short tag, int m, int n, const int *ndim,
+int fos_forward_partx(ValueTape &tape, int m, int n, const int *ndim,
                       const double *const *const *x, double **y) {
   double *x0;   /* base point */
   double *xtay; /* Taylor coefficients */
@@ -77,7 +77,7 @@ int fos_forward_partx(short tag, int m, int n, const int *ndim,
       ind++;
     }
 
-  rc = fos_forward(tag, m, sum_n, 0, x0, xtay, y0, ytay);
+  rc = fos_forward(tape, m, sum_n, 0, x0, xtay, y0, ytay);
 
   for (i = 0; i < m; i++) {
     y[i][0] = y0[i];
@@ -97,7 +97,7 @@ int fos_forward_partx(short tag, int m, int n, const int *ndim,
 /* hos_forward_partx(tag, m, n, ndim[n], d, x[n][][d+1], y[m][d+1])         */
 /* (based on hos_forward)                                                   */
 
-int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
+int hos_forward_partx(ValueTape &tape, int m, int n, const int *ndim, int d,
                       const double *const *const *x, double **y) {
   double *x0;    /* base point */
   double **xtay; /* Taylor coefficients */
@@ -123,7 +123,7 @@ int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
       ind++;
     }
 
-  rc = hos_forward(tag, m, sum_n, d, 0, x0, xtay, y0, ytay);
+  rc = hos_forward(tape, m, sum_n, d, 0, x0, xtay, y0, ytay);
 
   for (i = 0; i < m; i++) {
     y[i][0] = y0[i];
@@ -145,7 +145,7 @@ int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
                      y[m], Y[m][p]) */
 /* (based on fov_forward)                                                   */
 
-int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
+int fov_forward_partx(ValueTape &tape, int m, int n, const int *ndim, int p,
                       const double *const *x, const double *const *const *Xppp,
                       double *y, double **Ypp) {
   double *x0; /* base point */
@@ -168,7 +168,7 @@ int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
       ind++;
     }
 
-  rc = fov_forward(tag, m, sum_n, p, x0, X, y, Ypp);
+  rc = fov_forward(tape, m, sum_n, p, x0, X, y, Ypp);
 
   myfree1(x0);
   myfree2(X);
@@ -182,8 +182,8 @@ int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
                      y[m], Y[m][p][d]) */
 /* (based on hov_forward)                                                   */
 
-int hov_forward_partx(short tag, int m, int n, const int *ndim, int d, int p,
-                      const double *const *x,
+int hov_forward_partx(ValueTape &tape, int m, int n, const int *ndim, int d,
+                      int p, const double *const *x,
                       const double *const *const *const *Xpppp, double *y,
                       double ***Yppp) {
   double *x0;  /* base point */
@@ -207,7 +207,7 @@ int hov_forward_partx(short tag, int m, int n, const int *ndim, int d, int p,
       ind++;
     }
 
-  rc = hov_forward(tag, m, sum_n, d, p, x0, X, y, Yppp);
+  rc = hov_forward(tape, m, sum_n, d, p, x0, X, y, Yppp);
 
   myfree1(x0);
   myfree3(X);

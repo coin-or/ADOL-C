@@ -13,6 +13,7 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adolc.h>
 #include <array>
 #include <chrono>
@@ -85,22 +86,22 @@ ProblemInput<T, params.dimIn_> prepareInput() {
   return problemInput;
 }
 
-template <HelmholtzParameters params> double prepareTape(short tapeId) {
-  trace_on(tapeId, 1);
+template <HelmholtzParameters params> double prepareTape(ValueTape &tape) {
+  trace_on(tape, 1);
   std::array<adouble, params.dimIn_> x;
   auto problemInput = prepareInput<adouble, params>();
   adouble he = energy<adouble, params>(problemInput.x_, problemInput.bv_);
   double result;
   he >>= result;
-  trace_off();
+  trace_off(tape);
   return result;
 }
 
 template <HelmholtzParameters params>
-std::array<double, params.dimIn_> evaluateTape(short tapeId) {
+std::array<double, params.dimIn_> evaluateTape(ValueTape &tape) {
   std::array<double, params.dimIn_> grad;
   const double weight = 1.0;
-  reverse(tapeId, params.dimOut_, params.dimIn_, 0, weight, grad.data());
+  reverse(tape, params.dimOut_, params.dimIn_, 0, weight, grad.data());
   return grad;
 }
 
@@ -182,17 +183,19 @@ int main() {
   constexpr HelmholtzParameters params(0.01, 1.41421356237 /* sqrt(2.0)*/,
                                        1.3625E-3, 1.0 / dimIn, dimIn, 1);
 
-  const short tapeId = createNewTape();
+  const auto tapePtr = std::make_unique<ValueTape>();
   const auto benchmarkResult = HelmHoltzBenchmark{
-      .timeTaping = measureTime(
-          [tapeId, params]() { auto result = prepareTape<params>(tapeId); }),
-      .timeEvaluateTape = measureTime(
-          [tapeId, params]() { auto result = evaluateTape<params>(tapeId); }),
+      .timeTaping = measureTime([&tapePtr, params]() {
+        auto result = prepareTape<params>(*tapePtr);
+      }),
+      .timeEvaluateTape = measureTime([&tapePtr, params]() {
+        auto result = evaluateTape<params>(*tapePtr);
+      }),
       .timeEvaluateFiniteDiff = measureTime([delta, params]() {
         auto grad = evaluateFiniteDiff<params>(delta);
       })};
 
-  printResult(prepareTape<params>(tapeId), evaluateTape<params>(tapeId),
+  printResult(prepareTape<params>(*tapePtr), evaluateTape<params>(*tapePtr),
               evaluateFiniteDiff<params>(delta), benchmarkResult);
 
   return 0;

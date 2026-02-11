@@ -26,44 +26,45 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 function */
-/* function(tag, m, n, x[n], y[m])                                          */
-int function(short tag, int m, int n, const double *argument, double *result) {
+/* function(tape, m, n, x[n], y[m]) */
+int function(ValueTape &tape, int m, int n, const double *argument,
+             double *result) {
   int rc = -1;
 
-  rc = zos_forward(tag, m, n, 0, argument, result);
+  rc = zos_forward(tape, m, n, 0, argument, result);
 
   return rc;
 }
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 gradient */
-/* gradient(tag, n, x[n], g[n])                                             */
-int gradient(short tag, int n, const double *argument, double *result) {
+/* gradient(tape, n, x[n], g[n]) */
+int gradient(ValueTape &tape, int n, const double *argument, double *result) {
   int rc = -1;
   double one = 1.0;
 
-  rc = zos_forward(tag, 1, n, 1, argument, result);
+  rc = zos_forward(tape, 1, n, 1, argument, result);
   if (rc < 0)
     return rc;
-  MINDEC(rc, fos_reverse(tag, 1, n, &one, result));
+  MINDEC(rc, fos_reverse(tape, 1, n, &one, result));
   return rc;
 }
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
-/* vec_jac(tag, m, n, repeat, x[n], u[m], v[n])                             */
-int vec_jac(short tag, int m, int n, int repeat, const double *argument,
+/* vec_jac(tape, m, n, repeat, x[n], u[m], v[n]) */
+int vec_jac(ValueTape &tape, int m, int n, int repeat, const double *argument,
             const double *lagrange, double *row) {
   int rc = -1;
   double *y = NULL;
 
   if (!repeat) {
     y = myalloc1(m);
-    rc = zos_forward(tag, m, n, 1, argument, y);
+    rc = zos_forward(tape, m, n, 1, argument, y);
     if (rc < 0)
       return rc;
   }
-  MINDEC(rc, fos_reverse(tag, m, n, lagrange, row));
+  MINDEC(rc, fos_reverse(tape, m, n, lagrange, row));
   if (!repeat)
     myfree1(y);
   return rc;
@@ -71,9 +72,9 @@ int vec_jac(short tag, int m, int n, int repeat, const double *argument,
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 jacobian */
-/* jacobian(tag, m, n, x[n], J[m][n])                                       */
+/* jacobian(tape, m, n, x[n], J[m][n]) */
 
-int jacobian(short tag, int depen, int indep, const double *argument,
+int jacobian(ValueTape &tape, int depen, int indep, const double *argument,
              double **jacobian) {
   int rc;
   double *result, **I;
@@ -82,14 +83,14 @@ int jacobian(short tag, int depen, int indep, const double *argument,
 
   if (indep / 2 < depen) {
     I = myallocI2(indep);
-    rc = fov_forward(tag, depen, indep, indep, argument, I, result, jacobian);
+    rc = fov_forward(tape, depen, indep, indep, argument, I, result, jacobian);
     myfreeI2(indep, I);
   } else {
     I = myallocI2(depen);
-    rc = zos_forward(tag, depen, indep, 1, argument, result);
+    rc = zos_forward(tape, depen, indep, 1, argument, result);
     if (rc < 0)
       return rc;
-    MINDEC(rc, fov_reverse(tag, depen, indep, depen, I, jacobian));
+    MINDEC(rc, fov_reverse(tape, depen, indep, depen, I, jacobian));
     myfreeI2(depen, I);
   }
 
@@ -100,10 +101,10 @@ int jacobian(short tag, int depen, int indep, const double *argument,
 
 /*--------------------------------------------------------------------------*/
 /*                                                           large_jacobian */
-/* large_jacobian(tag, m, n, k, x[n], y[m], J[m][n])                        */
+/* large_jacobian(tape, m, n, k, x[n], y[m], J[m][n]) */
 
-int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
-                   double *result, double **jacobian) {
+int large_jacobian(ValueTape &tape, int depen, int indep, int runns,
+                   double *argument, double *result, double **jacobian) {
   int rc, dirs, i;
   double **I;
 
@@ -116,11 +117,11 @@ int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
   if (indep % runns)
     ++dirs;
   for (i = 0; i < runns - 1; ++i) {
-    rc = fov_offset_forward(tag, depen, indep, dirs, i * dirs, argument, I,
+    rc = fov_offset_forward(tape, depen, indep, dirs, i * dirs, argument, I,
                             result, jacobian);
   }
   dirs = indep - (runns - 1) * dirs;
-  rc = fov_offset_forward(tag, depen, indep, dirs, indep - dirs, argument, I,
+  rc = fov_offset_forward(tape, depen, indep, dirs, indep - dirs, argument, I,
                           result, jacobian);
   myfreeI2(indep, I);
   return rc;
@@ -128,15 +129,15 @@ int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  jac_vec */
-/* jac_vec(tag, m, n, x[n], v[n], u[m]);                                    */
-int jac_vec(short tag, int m, int n, const double *argument,
+/* jac_vec(tape, m, n, x[n], v[n], u[m]); */
+int jac_vec(ValueTape &tape, int m, int n, const double *argument,
             const double *tangent, double *column) {
   int rc = -1;
   double *y;
 
   y = myalloc1(m);
 
-  rc = fos_forward(tag, m, n, 0, argument, tangent, y, column);
+  rc = fos_forward(tape, m, n, 0, argument, tangent, y, column);
   myfree1(y);
 
   return rc;
@@ -144,17 +145,17 @@ int jac_vec(short tag, int m, int n, const double *argument,
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 hess_vec */
-/* hess_vec(tag, n, x[n], v[n], w[n])                                       */
-int hess_vec(short tag, int n, const double *argument, const double *tangent,
-             double *result) {
+/* hess_vec(tape, n, x[n], v[n], w[n]) */
+int hess_vec(ValueTape &tape, int n, const double *argument,
+             const double *tangent, double *result) {
   double one = 1.0;
-  return lagra_hess_vec(tag, 1, n, argument, tangent, &one, result);
+  return lagra_hess_vec(tape, 1, n, argument, tangent, &one, result);
 }
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 hess_mat */
-/* hess_mat(tag, n, q, x[n], V[n][q], W[n][q])                              */
-int hess_mat(short tag, int n, int q, const double *argument,
+/* hess_mat(tape, n, q, x[n], V[n][q], W[n][q]) */
+int hess_mat(ValueTape &tape, int n, int q, const double *argument,
              const double *const *tangent, double **result) {
   int rc;
   int i, j;
@@ -176,8 +177,8 @@ int hess_mat(short tag, int n, int q, const double *argument,
   Upp[0][0] = 1;
   Upp[0][1] = 0;
 
-  rc = hov_wk_forward(tag, 1, n, 1, 2, q, argument, Xppp, &y, Yppp);
-  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, q, Upp, Zppp));
+  rc = hov_wk_forward(tape, 1, n, 1, 2, q, argument, Xppp, &y, Yppp);
+  MINDEC(rc, hos_ov_reverse(tape, 1, n, 1, q, Upp, Zppp));
 
   for (i = 0; i < q; ++i)
     for (j = 0; j < n; ++j)
@@ -193,9 +194,9 @@ int hess_mat(short tag, int n, int q, const double *argument,
 
 /*--------------------------------------------------------------------------*/
 /*                                                                  hessian */
-/* hessian(tag, n, x[n], lower triangle of H[n][n])                         */
+/* hessian(tape, n, x[n], lower triangle of H[n][n]) */
 /* uses Hessian-vector product                                              */
-int hessian(short tag, int n, const double *argument, double **hess) {
+int hessian(ValueTape &tape, int n, const double *argument, double **hess) {
   int rc = 3;
   int i, j;
   double *v = myalloc1(n);
@@ -204,7 +205,7 @@ int hessian(short tag, int n, const double *argument, double **hess) {
     v[i] = 0;
   for (i = 0; i < n; i++) {
     v[i] = 1;
-    MINDEC(rc, hess_vec(tag, n, argument, v, w));
+    MINDEC(rc, hess_vec(tape, n, argument, v, w));
     if (rc < 0) {
       free((char *)v);
       free((char *)w);
@@ -223,9 +224,9 @@ int hessian(short tag, int n, const double *argument, double **hess) {
 
 /*--------------------------------------------------------------------------*/
 /*                                                                 hessian2 */
-/* hessian2(tag, n, x[n], lower triangle of H[n][n])                        */
+/* hessian2(tape, n, x[n], lower triangle of H[n][n]) */
 /* uses Hessian-matrix product                                              */
-int hessian2(short tag, int n, double *argument, double **hess) {
+int hessian2(ValueTape &tape, int n, double *argument, double **hess) {
   int rc;
   int i, j;
 
@@ -244,8 +245,8 @@ int hessian2(short tag, int n, double *argument, double **hess) {
   Upp[0][0] = 1;
   Upp[0][1] = 0;
 
-  rc = hov_wk_forward(tag, 1, n, 1, 2, n, argument, Xppp, y, Yppp);
-  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, n, Upp, Zppp));
+  rc = hov_wk_forward(tape, 1, n, 1, 2, n, argument, Xppp, y, Yppp);
+  MINDEC(rc, hos_ov_reverse(tape, 1, n, 1, n, Upp, Zppp));
 
   for (i = 0; i < n; i++)
     for (j = 0; j <= i; j++)
@@ -262,8 +263,8 @@ int hessian2(short tag, int n, double *argument, double **hess) {
 
 /*--------------------------------------------------------------------------*/
 /*                                                           lagra_hess_vec */
-/* lagra_hess_vec(tag, m, n, x[n], v[n], u[m], w[n])                        */
-int lagra_hess_vec(short tag, int m, int n, const double *argument,
+/* lagra_hess_vec(tape, m, n, x[n], v[n], u[m], w[n]) */
+int lagra_hess_vec(ValueTape &tape, int m, int n, const double *argument,
                    const double *tangent, const double *lagrange,
                    double *result) {
   int rc = -1;
@@ -276,12 +277,12 @@ int lagra_hess_vec(short tag, int m, int n, const double *argument,
   y = myalloc1(m);
   y_tangent = myalloc1(m);
 
-  rc = fos_forward(tag, m, n, keep, argument, tangent, y, y_tangent);
+  rc = fos_forward(tape, m, n, keep, argument, tangent, y, y_tangent);
 
   if (rc < 0)
     return rc;
 
-  MINDEC(rc, hos_reverse(tag, m, n, degree, lagrange, X));
+  MINDEC(rc, hos_reverse(tape, m, n, degree, lagrange, X));
 
   for (i = 0; i < n; ++i)
     result[i] = X[i][1];

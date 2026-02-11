@@ -11,7 +11,9 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adolc.h>
+#include <memory>
 
 // time step function
 template <class data_type> int euler_step_act(size_t, data_type *y) {
@@ -26,9 +28,9 @@ int main() {
   // two input and output variables for checkpointing function
   constexpr short dim = 2;
 
-  const short tapeIdFull = createNewTape();
-  const short tapeIdPart = createNewTape();
-  const short tapeIdCheck = createNewTape();
+  auto tapeFullPtr = std::make_unique<ValueTape>();
+  auto tapePartPtr = std::make_unique<ValueTape>();
+  auto tapeCheckPtr = std::make_unique<ValueTape>();
 
   // control
   std::array<double, dim> conp = {1.0, 1.0};
@@ -43,7 +45,7 @@ int main() {
   const size_t num_cpts = 5;
 
   // basis variant: full taping of time step loop
-  trace_on(tapeIdFull);
+  trace_on(*tapeFullPtr);
   {
     // state, double and adouble version
     std::array<adouble, dim> y;
@@ -62,16 +64,16 @@ int main() {
     double f[] = {0.0};
     y[0] + y[1] >>= f[0];
   }
-  trace_off(1);
+  trace_off(*tapeFullPtr, 1);
 
-  gradient(tapeIdFull, dim, conp.data(), grad.data());
+  gradient(*tapeFullPtr, dim, conp.data(), grad.data());
 
   printf(" full taping:\n gradient=( %f, %f)\n\n", grad[0], grad[1]);
 
-  trace_on(tapeIdPart);
+  trace_on(*tapePartPtr);
   {
     // ensure that the adoubles stored in y occupy consecutive locations
-    currentTape().ensureContiguousLocations(dim);
+    currentTapePtr()->ensureContiguousLocations(dim);
     std::array<adouble, dim> y;
 
     std::array<adouble, dim> con;
@@ -83,7 +85,7 @@ int main() {
 
     // Now using checkpointing facilities
     // generate checkpointing context => define active variante of the time step
-    CP_Context cpc(tapeIdPart, tapeIdCheck, euler_step_act<adouble>);
+    CP_Context cpc(*tapePartPtr, *tapeCheckPtr, euler_step_act<adouble>);
 
     // double variante of the time step function
     cpc.setDoubleFct(euler_step_act<double>);
@@ -103,14 +105,14 @@ int main() {
     // always retape or not ?
     cpc.setAlwaysRetaping(false);
 
-    cpc.checkpointing(tapeIdPart);
+    cpc.checkpointing(*tapePartPtr);
 
     double f[] = {0.0};
     y[0] + y[1] >>= f[0];
   }
-  trace_off(1);
+  trace_off(*tapePartPtr, 1);
 
-  gradient(tapeIdPart, dim, conp.data(), grad.data());
+  gradient(*tapePartPtr, dim, conp.data(), grad.data());
 
   printf(" taping with checkpointing facility:\n gradient=( %f, %f)\n\n",
          grad[0], grad[1]);

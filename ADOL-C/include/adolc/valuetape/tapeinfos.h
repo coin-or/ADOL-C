@@ -41,13 +41,11 @@ struct TapeInfos {
 
   ~TapeInfos();
   TapeInfos() = default;
-  TapeInfos(short tapeId);
   TapeInfos(const TapeInfos &) = delete;
   TapeInfos &operator=(const TapeInfos &) = delete;
   TapeInfos(TapeInfos &&other) noexcept;
   TapeInfos &operator=(TapeInfos &&other) noexcept;
 
-  short tapeId_{-1};
   int inUse{0};
   size_t numInds{0};
   size_t numDeps{0};

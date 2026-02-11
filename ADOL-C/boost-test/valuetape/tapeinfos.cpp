@@ -8,14 +8,8 @@
 
 BOOST_AUTO_TEST_SUITE(Test_TapeInfos)
 
-BOOST_AUTO_TEST_CASE(TestConstructorTapeId) {
-  TapeInfos ti(3);
-
-  BOOST_CHECK(ti.tapeId_ == 3);
-}
-
 BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
-  TapeInfos tp(3);
+  TapeInfos tp{};
   tp.numInds = 10;
   tp.numDeps = 11;
 
@@ -117,7 +111,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   //// ======= MOVE CONSTRUCTOR =========
   //======================================
   TapeInfos tp2(std::move(tp));
-  BOOST_CHECK_EQUAL(tp2.tapeId_, 3);
   BOOST_CHECK_EQUAL(tp2.numInds, 10);
   BOOST_CHECK_EQUAL(tp2.numDeps, 11);
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);

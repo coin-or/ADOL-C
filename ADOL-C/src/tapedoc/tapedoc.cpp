@@ -22,8 +22,6 @@
 #include <adolc/tape_interface.h>
 #include <adolc/tapedoc/tapedoc.h>
 #include <adolc/valuetape/valuetape.h>
-#include <math.h>
-#include <string.h>
 
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampi/ampi.h"
@@ -36,7 +34,7 @@ BEGIN_C_DECLS
 /*                                                         STATIC VARIABLES */
 
 /*--------------------------------------------------------------------------*/
-static short tag;
+static short tapeId;
 
 static int op_cnt;
 static size_t rev_op_cnt;
@@ -52,7 +50,7 @@ static constexpr std::string_view extension{".tex"};
 /*--------------------------------------------------------------------------*/
 void filewrite_start(int opcode) {
   const std::string fileName =
-      std::string(baseName) + std::to_string(tag) + std::string(extension);
+      std::string(baseName) + std::to_string(tapeId) + std::string(extension);
   if (!(fp = fopen(fileName.c_str(), "w")))
     ADOLCError::fail(ADOLCError::ErrorType::CANNOT_OPEN_FILE, CURRENT_LOCATION);
 
@@ -223,16 +221,15 @@ void filewrite_end(int opcode) {
 
 /****************************************************************************/
 /*                                                             NOW THE CODE */
-void tape_doc(short tnum,     /* tape id */
-              int depcheck,   /* consistency chk on # of dependents */
-              int indcheck,   /* consistency chk on # of independents */
-              const double *, /* independent variable values */
-              double *)       /* dependent variable values */
+void tape_doc(ValueTape &tape, /* tape id */
+              int depcheck,    /* consistency chk on # of dependents */
+              int indcheck,    /* consistency chk on # of independents */
+              const double *,  /* independent variable values */
+              double *)        /* dependent variable values */
 {
   /****************************************************************************/
   /*                                                            ALL VARIABLES */
   unsigned char operation;
-  ValueTape &tape = findTape(tnum);
 
   locint size = 0;
   locint res = 0;
@@ -267,14 +264,14 @@ void tape_doc(short tnum,     /* tape id */
   double aDouble;
 #endif
   tape.init_for_sweep();
-  tag = tnum;
+  tapeId = tape.tapeId();
 
   if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (to_size_t(indcheck) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
     ADOLCError::fail(ADOLCError::ErrorType::TAPE_DOC_COUNTS_MISMATCH,
                      CURRENT_LOCATION,
                      ADOLCError::FailInfo{
-                         .info1 = tag,
+                         .info1 = tapeId,
                          .info3 = depcheck,
                          .info4 = indcheck,
                          .info5 = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
@@ -1333,7 +1330,7 @@ void tape_doc(short tnum,     /* tape id */
       TAPE_AMPI_read_int(loc_a + 1);  /* count */
       TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
       TAPE_AMPI_read_int(loc_a + 2); /* endpoint */
-      TAPE_AMPI_read_int(loc_a + 3); /* tag */
+      TAPE_AMPI_read_int(loc_a + 3); /* tapeId */
       TAPE_AMPI_read_int(loc_a + 4); /* pairedWith */
       TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
       filewrite_ampi(operation, "ampi send", 5, loc_a);
@@ -1344,7 +1341,7 @@ void tape_doc(short tnum,     /* tape id */
       TAPE_AMPI_read_int(loc_a + 1);  /* count */
       TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
       TAPE_AMPI_read_int(loc_a + 2); /* endpoint */
-      TAPE_AMPI_read_int(loc_a + 3); /* tag */
+      TAPE_AMPI_read_int(loc_a + 3); /* tapeId */
       TAPE_AMPI_read_int(loc_a + 4); /* pairedWith */
       TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
       filewrite_ampi(operation, "ampi recv", 5, loc_a);
@@ -1369,7 +1366,7 @@ void tape_doc(short tnum,     /* tape id */
       TAPE_AMPI_read_int(loc_a + size++);  /* count */
       TAPE_AMPI_read_MPI_Datatype(&anMPI_Datatype);
       TAPE_AMPI_read_int(loc_a + size++); /* endpoint */
-      TAPE_AMPI_read_int(loc_a + size++); /* tag */
+      TAPE_AMPI_read_int(loc_a + size++); /* tapeId */
       TAPE_AMPI_read_int(loc_a + size++); /* pairedWith */
       TAPE_AMPI_read_MPI_Comm(&anMPI_Comm);
       TAPE_AMPI_read_MPI_Request(&anMPI_Request);

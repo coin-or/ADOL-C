@@ -193,8 +193,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
-#include <math.h>
-#include <string.h>
+#include <cmath>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 #include <adolc/medipacksupport_p.h>
@@ -217,7 +216,7 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
-int fos_pl_reverse(short tnum,      /* tape id */
+int fos_pl_reverse(ValueTape &tape, /* tape id */
                    int depen,       /* consistency chk on # of deps */
                    int indep,       /* consistency chk on # of indeps */
                    int swchk,       /* consistency chk on # of switches */
@@ -227,16 +226,16 @@ int fos_pl_reverse(short tnum,      /* tape id */
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
-int fos_pl_sig_reverse(short tnum, /* tape id */
-                       int depen,  /* consistency chk on # of deps */
-                       int indep,  /* consistency chk on # of indeps */
-                       int swchk,  /* consistency chk on # of switches */
+int fos_pl_sig_reverse(ValueTape &tape, /* tape id */
+                       int depen,       /* consistency chk on # of deps */
+                       int indep,       /* consistency chk on # of indeps */
+                       int swchk,       /* consistency chk on # of switches */
                        const short *siggrad, const double *lagrange,
                        double *results) /*  coefficient vectors */
 #else
-int fos_reverse(short tnum, /* tape id */
-                int depen,  /* consistency chk on # of deps */
-                int indep,  /* consistency chk on # of indeps */
+int fos_reverse(ValueTape &tape, /* tape id */
+                int depen,       /* consistency chk on # of deps */
+                int indep,       /* consistency chk on # of indeps */
                 const double *lagrange,
                 double *results) /*  coefficient vectors */
 
@@ -246,10 +245,10 @@ int fos_reverse(short tnum, /* tape id */
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
 
-int fov_reverse(short tnum, /* tape id */
-                int depen,  /* consistency chk on # of deps */
-                int indep,  /* consistency chk on # of indeps */
-                int nrows,  /* # of Jacobian rows being calculated */
+int fov_reverse(ValueTape &tape, /* tape id */
+                int depen,       /* consistency chk on # of deps */
+                int indep,       /* consistency chk on # of indeps */
+                int nrows,       /* # of Jacobian rows being calculated */
                 const double *const *lagrange, /* domain weight vector */
                 double **results) /* matrix of coefficient vectors */
 
@@ -259,7 +258,7 @@ int fov_reverse(short tnum, /* tape id */
 /* First Order Vector version of the reverse mode for bit patterns, tight   */
 /****************************************************************************/
 int int_reverse_tight(
-    short tnum,                    /* tape id                               */
+    ValueTape &tape,               /* tape id                               */
     int depen,                     /* consistency chk on # of deps          */
     int indep,                     /* consistency chk on # of indeps        */
     int nrows,                     /* # of Jacobian rows being calculated   */
@@ -271,7 +270,7 @@ int int_reverse_tight(
 /* First Order Vector version of the reverse mode, bit pattern, safe        */
 /****************************************************************************/
 int int_reverse_safe(
-    short tnum,                    /* tape id                               */
+    ValueTape &tape,               /* tape id                               */
     int depen,                     /* consistency chk on # of deps          */
     int indep,                     /* consistency chk on # of indeps        */
     int nrows,                     /* # of Jacobian rows being calculated   */
@@ -282,7 +281,7 @@ int int_reverse_safe(
 #endif
 #endif
 {
-  ValueTape &tape = findTape(tnum);
+
   /****************************************************************************/
   /*                                                           ALL VARIABLES  */
   unsigned char operation; /* operation code */
@@ -345,33 +344,34 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_POINTER fos_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_reverse(edfct->tapeId, m, edfct->dp_U, n, edfct->dp_Z, edfct->dp_x,      \
-              edfct->dp_y)
+  fos_reverse(*edfct->outerTapePtr, m, edfct->dp_U, n, edfct->dp_Z,            \
+              edfct->dp_x, edfct->dp_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fos_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, edfct->dp_U, n,         \
+  fos_reverse_iArr(*edfct->outerTapePtr, iArrLength, iArr, m, edfct->dp_U, n,  \
                    edfct->dp_Z, edfct->dp_x, edfct->dp_y)
 #define ADOLC_EXT_FCT_SAVE_NUMDIRS
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, edfct2->up,   \
-              insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
+  fos_reverse(*edfct->outerTapePtr, iArrLength, iArr, nout, nin, outsz,        \
+              edfct2->up, insz, edfct2->zp, edfct2->x, edfct2->y,              \
+              edfct2->context)
 #else
 #define ADOLC_EXT_FCT_U edfct->dpp_U
 #define ADOLC_EXT_FCT_Z edfct->dpp_Z
 #define ADOLC_EXT_FCT_POINTER fov_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fov_reverse(edfct->tapeId, m, p, edfct->dpp_U, n, edfct->dpp_Z, edfct->dp_x, \
-              edfct->dp_y)
+  fov_reverse(*edfct->outerTapePtr, m, p, edfct->dpp_U, n, edfct->dpp_Z,       \
+              edfct->dp_x, edfct->dp_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fov_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, p, edfct->dpp_U, n,     \
-                   edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
+  fov_reverse_iArr(*edfct->outerTapePtr, iArrLength, iArr, m, p, edfct->dpp_U, \
+                   n, edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
 #define ADOLC_EXT_FCT_SAVE_NUMDIRS tape.numDirs_rev(nrows)
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, p,            \
+  fov_reverse(*edfct->outerTapePtr, iArrLength, iArr, nout, nin, outsz, p,     \
               edfct2->Up, insz, edfct2->Zp, edfct2->x, edfct2->y,              \
               edfct2->context)
 #endif
@@ -405,7 +405,7 @@ int int_reverse_safe(
   /****************************************************************************/
   /*                                                           DEBUG MESSAGES */
   fprintf(DIAG_OUT, "Call of %s(..) with tag: %d, n: %d, m %d,\n",
-          GENERATED_FILENAME, tnum, indep, depen);
+          GENERATED_FILENAME, tape.tapeId(), indep, depen);
 #ifdef _ADOLC_VECTOR_
   fprintf(DIAG_OUT, "                    p: %d\n\n", nrows);
 #endif
@@ -437,11 +437,11 @@ int int_reverse_safe(
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info1 = tnum});
+                     ADOLCError::FailInfo{.info1 = tape.tapeId()});
   else if (to_size_t(swchk) != tape.tapestats(TapeInfos::NUM_SWITCHES))
     ADOLCError::fail(
         ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
-        ADOLCError::FailInfo{.info1 = tnum,
+        ADOLCError::FailInfo{.info1 = tape.tapeId(),
                              .info3 = swchk,
                              .info6 = tape.tapestats(TapeInfos::NUM_SWITCHES)});
   else
@@ -2596,7 +2596,7 @@ int int_reverse_safe(
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct = get_ext_diff_fct(tape, tape.ext_diff_fct_index());
 
       oldTraceFlag = tape.traceFlag();
       tape.traceFlag(0);
@@ -2681,7 +2681,7 @@ int int_reverse_safe(
         iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* get it again */
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct = get_ext_diff_fct(tape, tape.ext_diff_fct_index());
 
       oldTraceFlag = tape.traceFlag();
       tape.traceFlag(0);
@@ -2777,7 +2777,7 @@ int int_reverse_safe(
       tape.get_locint_r(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
-      edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct2 = get_ext_diff_fct_v2(tape, tape.ext_diff_fct_index());
       oldTraceFlag = tape.traceFlag();
       tape.traceFlag(0);
 

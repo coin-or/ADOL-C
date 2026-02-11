@@ -19,7 +19,7 @@
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 BEGIN_C_DECLS
@@ -30,7 +30,7 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
 
-int abs_normal(short tag,       /* tape identifier */
+int abs_normal(ValueTape &tape, /* tape identifier */
                int m,           /* number od dependents   */
                int n,           /* number of independents */
                int swchk,       /* number of switches (check) */
@@ -44,25 +44,25 @@ int abs_normal(short tag,       /* tape identifier */
                double **Z,      /* s times n */
                double **L)      /* s times s (lowtri) */
 {
-  const size_t s = get_num_switches(tag);
+  const size_t s = get_num_switches(tape);
 
   /* This check is required because the user is probably allocating his
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != to_size_t(swchk))
-    ADOLCError::fail(
-        ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
-        ADOLCError::FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
+    ADOLCError::fail(ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{
+                         .info1 = tape.tapeId(), .info3 = swchk, .info6 = s});
 
   std::vector<double> res(n + s);
 
-  zos_pl_forward(tag, m, n, 1, x, y, z);
+  zos_pl_forward(tape, m, n, 1, x, y, z);
 
   std::ptrdiff_t l = 0;
   for (size_t i = 0; i < m + s; i++) {
     l = static_cast<std::ptrdiff_t>(i) - static_cast<std::ptrdiff_t>(s);
     // the cast is necessary since the type signature uses "int". Its now
     // explicit.
-    fos_pl_reverse(tag, m, n, static_cast<int>(s), static_cast<int>(i),
+    fos_pl_reverse(tape, m, n, static_cast<int>(s), static_cast<int>(i),
                    res.data());
 
     if (l < 0) {
@@ -95,7 +95,7 @@ int abs_normal(short tag,       /* tape identifier */
 /*--------------------------------------------------------------------------*/
 /*                                              directional_active_gradient */
 /*                                                                          */
-int directional_active_gradient(short tag,       /* trace identifier */
+int directional_active_gradient(ValueTape &tape, /* trace identifier */
                                 int n,           /* number of independents */
                                 const double *x, /* value of independents */
                                 const double *d, /* direction */
@@ -110,7 +110,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
   keep = 1;
   by = 1;
 
-  const size_t s = get_num_switches(tag);
+  const size_t s = get_num_switches(tape);
 
   z = myalloc1(s);
 
@@ -133,7 +133,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
   int j = 0;
 
   while ((k < 6) && (done == 0)) {
-    fov_pl_forward(tag, 1, n, k, x, E, &y, grad, z, gradu, sigma_g);
+    fov_pl_forward(tape, 1, n, k, x, E, &y, grad, z, gradu, sigma_g);
 
     size_t sum = 0;
     for (size_t i = 0; i < s; i++) {
@@ -141,10 +141,10 @@ int directional_active_gradient(short tag,       /* trace identifier */
     }
 
     if (sum == s) {
-      zos_pl_forward(tag, 1, n, keep, x, &y, z);
+      zos_pl_forward(tape, 1, n, keep, x, &y, z);
       // the cast is necessary since the type signature uses "int". Its now
       // explicit.
-      fos_pl_sig_reverse(tag, 1, n, static_cast<int>(s), sigma_g, &by, g);
+      fos_pl_sig_reverse(tape, 1, n, static_cast<int>(s), sigma_g, &by, g);
       done = 1;
     } else {
       if (j == max_dk)

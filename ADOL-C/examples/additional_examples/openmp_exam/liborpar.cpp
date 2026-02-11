@@ -153,7 +153,7 @@ int main() {
 #pragma omp parallel
   {
     const auto init = createNewTape();
-    setCurrentTape(init);
+    setCurrentTapePtr(init);
     int l, k;
     int rv = 0;
 

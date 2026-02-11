@@ -60,7 +60,7 @@ adouble det(const T &A, size_t row,
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  const short tapeId = createNewTape();
+  const auto tapePtr = std::make_unique<ValueTape>();
 
   const int keep = 1;
   constexpr size_t n = 7;
@@ -68,7 +68,7 @@ int main() {
 
   std::array<std::array<adouble, n>, n> A;
 
-  trace_on(tapeId, keep); // tapeId=1=keep
+  trace_on(*tapePtr, keep); // *tapePtr=1=keep
   double detout = 0.0;
   double diag = 1.0;             // here keep the intermediates for
   for (size_t i = 0; i < n; i++) // the subsequent call to reverse
@@ -85,13 +85,13 @@ int main() {
 
   ad >>= detout;
   printf("\n %f - %f = %f  (should be 0)\n", detout, diag, detout - diag);
-  trace_off();
+  trace_off(*tapePtr);
 
   std::array<double, 1> u;
   u[0] = 1.0;
   std::array<double, n * n> B;
 
-  reverse(tapeId, 1, n * n, 0, u.data(),
+  reverse(*tapePtr, 1, n * n, 0, u.data(),
           B.data()); // call reverse to calculate the gradient
 
   std::cout << " \n first base? : ";

@@ -22,7 +22,7 @@
 pdouble::pdouble(const double pval) { value(pval); }
 
 pdouble::operator adouble() const {
-  ValueTape &tape = currentTape();
+  auto &tape = *currentTapePtr();
   adouble ret_adouble;
   if (tape.traceFlag()) {
     tape.put_op(assign_p);

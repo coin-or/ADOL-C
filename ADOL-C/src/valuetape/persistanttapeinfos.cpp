@@ -154,13 +154,13 @@ int getThreadIndex() {
 /* Returns the char*: tapeBaseName+thread-threadNumber+tapeId+.tap+\0       */
 /* The result string must be freed be the caller!                           */
 /****************************************************************************/
-char *PersistantTapeInfos::createFileName(short tapeId, int tapeType) {
+char *PersistantTapeInfos::createFileName(int tapeType) {
   std::string fileName(tapeBaseNames_[tapeType]);
 
   int threadId = getThreadIndex();
   fileName += "thread-" + std::to_string(threadId) + "_";
 
-  fileName += "tape-" + std::to_string(tapeId) + ".tap";
+  fileName += "tape-" + std::to_string(tapeId_) + ".tap";
 
   // don't forget space for null termination
   char *ret_char = new char[fileName.size() + 1];

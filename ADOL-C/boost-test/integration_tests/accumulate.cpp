@@ -1,4 +1,5 @@
 #include "../const.h"
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adolc.h>
 #include <array>
 #include <boost/test/unit_test.hpp>
@@ -13,8 +14,8 @@ template <typename T, size_t N> T your_function(const std::array<T, N> &indep) {
 }
 
 BOOST_AUTO_TEST_CASE(AccumulateGradientCorrectness) {
-  const short tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   constexpr size_t dim = 2;
   std::array<double, dim> inputs;
   inputs.fill(2.0);
@@ -22,7 +23,7 @@ BOOST_AUTO_TEST_CASE(AccumulateGradientCorrectness) {
 
   std::array<adouble, dim> indeps;
 
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   {
     for (size_t i = 0; i < dim; ++i) {
       indeps[i] <<= inputs[i];
@@ -31,10 +32,10 @@ BOOST_AUTO_TEST_CASE(AccumulateGradientCorrectness) {
     adouble sum = your_function(indeps);
     sum >>= out[0];
   }
-  trace_off();
+  trace_off(*tapePtr);
 
   std::array<double, dim> grad;
-  gradient(tapeId, dim, inputs.data(), grad.data());
+  gradient(*tapePtr, dim, inputs.data(), grad.data());
 
   // Expected gradient of sum(x_i) is all 1s
   for (size_t i = 0; i < dim; ++i) {

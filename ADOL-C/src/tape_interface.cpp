@@ -15,17 +15,14 @@
 
 ----------------------------------------------------------------------------*/
 
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adolcerror.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <adolc/valuetape/valuetape.h>
-#include <algorithm>
-#include <array>
 #include <cassert>
 #include <iostream>
-#include <memory>
 #include <sstream>
-#include <vector>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 #include <adolc/medipacksupport_p.h>
@@ -36,12 +33,11 @@
 #include "ampi/tape/support.h"
 #endif // ADOLC_AMPI_SUPPORT
 
-int trace_on(short tapeId, int keepTaylors) {
+int trace_on(ValueTape &tape, int keepTaylors) {
 
-  ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
   currentTapeStack().push(currentTapePtr());
-  setCurrentTape(tapeId);
+  setCurrentTapePtr(&tape);
 
   int retval = tape.initNewTape();
 #ifdef ADOLC_MEDIPACK_SUPPORT
@@ -59,13 +55,12 @@ int trace_on(short tapeId, int keepTaylors) {
   return retval;
 }
 
-int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
-             size_t tbs, int skipFileCleanup) {
+int trace_on(ValueTape &tape, int keepTaylors, size_t obs, size_t lbs,
+             size_t vbs, size_t tbs, int skipFileCleanup) {
 
-  ValueTape &tape = findTape(tapeId);
   // store Id to restore it after trace_off
   currentTapeStack().push(currentTapePtr());
-  setCurrentTape(tapeId);
+  setCurrentTapePtr(&tape);
 
   int retval = tape.initNewTape();
   if (retval) {
@@ -90,12 +85,10 @@ int trace_on(short tapeId, int keepTaylors, size_t obs, size_t lbs, size_t vbs,
     return -1;
 }
 
-void trace_off(int flag) {
+void trace_off(ValueTape &tape, int flag) {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::TAPING_NOT_ACTUALLY_TAPING;
-
-  ValueTape &tape = currentTape();
   if (tape.workMode() != TapeInfos::WRITE_ACCESS)
     fail(TAPING_NOT_ACTUALLY_TAPING, CURRENT_LOCATION,
          FailInfo{.info1 = tape.tapeId()});
@@ -106,27 +99,18 @@ void trace_off(int flag) {
   tape.workMode(TapeInfos::NO_MODE);
 
   // restore previous tapeId and delete it
-  setCurrentTape(currentTapeStack().top());
+  setCurrentTapePtr(currentTapeStack().top());
   currentTapeStack().pop();
 }
 
-void cachedTraceTags(std::vector<short> &result) {
-  if (!tapeBuffer().empty()) {
-    result.resize(tapeBuffer().size());
-    for (size_t i = 0; i < tapeBuffer().size(); ++i) {
-      result[i] = tapeBuffer()[i]->tapeId();
-    }
-  }
-}
-
-void printTapeStats(short tapeId) {
+void printTapeStats(ValueTape &tape) {
   using std::cout;
   using std::endl;
 
-  auto stats = tapestats(tapeId);
+  auto stats = tapestats(tape);
 
   std::ostringstream oss;
-  oss << "\n*** TAPE STATS (tape" << tapeId << ") **********\n"
+  oss << "\n*** TAPE STATS (tape" << tape.tapeId() << ") **********\n"
       << "Number of independents: " << stats[TapeInfos::NUM_INDEPENDENTS]
       << "\n"
       << "Number of dependents: " << stats[TapeInfos::NUM_DEPENDENTS] << "\n"

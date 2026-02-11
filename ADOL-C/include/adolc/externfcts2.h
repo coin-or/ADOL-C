@@ -18,26 +18,27 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+class ValueTape;
 
-using ADOLC_ext_fct_v2 = int(short tapeId, size_t iArrLen, size_t *iArr,
+using ADOLC_ext_fct_v2 = int(ValueTape &tape, size_t iArrLen, size_t *iArr,
                              size_t nin, size_t nout, size_t *insz, double **x,
                              size_t *outsz, double **y, void *ctx);
-using ADOLC_ext_fct_v2_fos_forward = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_fos_forward = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nin, size_t nout,
                                          size_t *insz, double **x, double **xp,
                                          size_t *outsz, double **y, double **yp,
                                          void *ctx);
-using ADOLC_ext_fct_v2_fov_forward = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_fov_forward = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nin, size_t nout,
                                          size_t *insz, double **x, size_t ndir,
                                          double ***Xp, size_t *outsz,
                                          double **y, double ***Yp, void *ctx);
-using ADOLC_ext_fct_v2_fos_reverse = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_fos_reverse = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nout, size_t nin,
                                          size_t *outsz, double **up,
                                          size_t *insz, double **zp, double **x,
                                          double **y, void *ctx);
-using ADOLC_ext_fct_v2_fov_reverse = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_fov_reverse = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nout, size_t nin,
                                          size_t *outsz, size_t dir,
                                          double ***Up, size_t *insz,
@@ -45,13 +46,13 @@ using ADOLC_ext_fct_v2_fov_reverse = int(short tapeId, size_t iArrLen,
                                          void *ctx);
 
 /* The following two aren't implemented */
-using ADOLC_ext_fct_v2_hos_forward = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_hos_forward = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nin, size_t nout,
                                          size_t *insz, double **x,
                                          size_t degree, double ***Xp,
                                          size_t *outsz, double **y,
                                          double ***Yp, void *ctx);
-using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, size_t iArrLen,
+using ADOLC_ext_fct_v2_hov_forward = int(ValueTape &tape, size_t iArrLen,
                                          size_t *iArr, size_t nin, size_t nout,
                                          size_t *insz, double **x,
                                          size_t degree, size_t ndir,
@@ -61,10 +62,10 @@ using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, size_t iArrLen,
 struct ADOLC_API ext_diff_fct_v2 {
   // This is the id of the outer tape that calls the external differentiated
   // function later
-  short tapeId{0};
+  ValueTape *outerTapePtr{nullptr};
 
   // tape that stores the external differentiated function.
-  short ext_tape_id{0};
+  ValueTape *innerTapePtr{nullptr};
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
@@ -226,9 +227,10 @@ struct ADOLC_API ext_diff_fct_v2 {
   char user_allocated_mem;
 };
 
-ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
+ADOLC_API ext_diff_fct_v2 *reg_ext_fct(ValueTape &outerTape,
+                                       ValueTape &innerTape,
                                        ADOLC_ext_fct_v2 ext_fct);
-ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, size_t index);
+ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(ValueTape &tape, size_t index);
 ADOLC_API int call_ext_fct(ext_diff_fct_v2 *edfct, size_t iArrLen, size_t *iArr,
                            size_t nin, size_t out, size_t *insz, adouble **x,
                            size_t *outsz, adouble **y);
@@ -239,5 +241,4 @@ ADOLC_API inline void edf_set_opaque_context(ext_diff_fct_v2 *edfct,
                                              void *ctx) {
   edfct->context = ctx;
 }
-
 #endif
