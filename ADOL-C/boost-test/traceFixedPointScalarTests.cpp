@@ -96,7 +96,6 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
   BOOST_TEST(value[0] == sqrt(argument[0]), tt::tolerance(tol));
 }
 
-
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
   fpi_stack_clear();
   // Compute the square root of 2.0
@@ -112,10 +111,8 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
   double value[1];
   double derivative[1];
 
-
   const double tangent[1] = {1.0};
 
-  
   fos_forward(*outerTapePtr, // Tape number
               1,             // Number of dependent variables
               1,             // Number of independent variables,
