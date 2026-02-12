@@ -1,7 +1,6 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstring> // for memset
-#include <iostream>
 
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
@@ -266,110 +265,6 @@ void TapeInfos::freeTapeResources() {
     signature = nullptr;
   }
 }
-
-#ifdef SPARSE
-SparseJacInfos::~SparseJacInfos() {
-  myfree1(y);
-  y = nullptr;
-  myfree2(B);
-  B = nullptr;
-
-  for (int i = 0; i < depen; i++) {
-    free(JP[i]);
-  }
-  free(JP);
-  JP = nullptr;
-
-#ifdef HAVE_LIBCOLPACK
-  if (g)
-    delete (BipartiteGraphPartialColoringInterface *)g;
-  if (jr1d)
-    delete (JacobianRecovery1D *)jr1d;
-#endif
-}
-
-SparseHessInfos::~SparseHessInfos() {
-  myfree2(Hcomp);
-  Hcomp = nullptr;
-
-  myfree3(Xppp);
-  Xppp = nullptr;
-
-  myfree3(Yppp);
-  Yppp = nullptr;
-
-  myfree3(Zppp);
-  Zppp = nullptr;
-
-  myfree2(Upp);
-  Upp = nullptr;
-
-  if (HP) {
-    for (int i = 0; i < indep; i++)
-      free(HP[i]);
-    free(HP);
-    HP = nullptr;
-  }
-
-#ifdef HAVE_LIBCOLPACK
-  delete (GraphColoringInterface *)g;
-  g = nullptr;
-  delete (HessianRecovery *)hr;
-  hr = nullptr;
-#endif
-}
-
-void freeSparseJacInfos(double *y, double **B, unsigned int **JP, void *g,
-                        void *jr1d, int seed_rows, int seed_clms, int depen) {
-  if (y)
-    myfree1(y);
-
-  if (B)
-    myfree2(B);
-
-  for (int i = 0; i < depen; i++) {
-    free(JP[i]);
-  }
-
-  free(JP);
-
-#ifdef HAVE_LIBCOLPACK
-  delete (BipartiteGraphPartialColoringInterface *)g;
-  delete (JacobianRecovery1D *)jr1d;
-#endif
-}
-
-void freeSparseHessInfos(double **Hcomp, double ***Xppp, double ***Yppp,
-                         double ***Zppp, double **Upp, unsigned int **HP,
-                         void *g, void *hr, int p, int indep) {
-  if (Hcomp)
-    myfree2(Hcomp);
-
-  if (Xppp)
-    myfree3(Xppp);
-
-  if (Yppp)
-    myfree3(Yppp);
-
-  if (Zppp)
-    myfree3(Zppp);
-
-  if (Upp)
-    myfree2(Upp);
-
-  if (HP) {
-    for (int i = 0; i < indep; i++)
-      free(HP[i]);
-    free(HP);
-  }
-
-#ifdef HAVE_LIBCOLPACK
-  delete (GraphColoringInterface *)g;
-  delete (HessianRecovery *)hr;
-#endif
-}
-
-#endif
 
 /****************************************************************************/
 /* Writes the block of size depth of taylor coefficients from point loc to  */

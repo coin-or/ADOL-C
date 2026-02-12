@@ -1418,339 +1418,367 @@ matrices. Therefore, ADOL-C provides additionally drivers that
 allow the exploitation of sparsity. The exploitation of sparsity is
 frequently based on {\em graph coloring} methods, discussed 
 for example in \cite{GeMaPo05} and \cite{GeTaMaPo07}. The sparse drivers of ADOL-C presented in this section
-rely on the the coloring package ColPack developed by the authors of \cite{GeMaPo05} and \cite{GeTaMaPo07}.
-ColPack is not directly incorporated in ADOL-C, and therefore needs to be installed
-separately to use the sparse drivers described here. ColPack is available for download at
-\verb=http://cscapes.cs.purdue.edu/coloringpage/software.htm=. More information about the required
-installation of ColPack is given in \autoref{install}.
+rely on the the coloring package ColPack (\verb=https://github.com/CSCsw/ColPack=) developed by the authors of \cite{GeMaPo05} and \cite{GeTaMaPo07}.
+To use the sparse drivers presented below, ColPack must be installed either automatically (using {\sf -DENABLE\_SPARSE=1})
+ or manually (providing {\sf -DColPack\_DIR}). The drivers are in the namespace {\sf ADOLC::Sparse}
 %
-\subsubsection*{Sparse Jacobians and Sparse Hessians}
+\paragraph{Sparse Jacobians}
 %
-To compute the entries of sparse Jacobians and sparse Hessians,
-respectively, in coordinate format one may use the drivers:
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int sparse\_jac(tag,m,n,repeat,x,\&nnz,\&rind,\&cind,\&values,\&options)}\\
-\>{\sf short int tag;}         \> // tape identification \\
-\>{\sf int m;}                 \> // number of dependent variables $m$\\ 
-\>{\sf int n;}                 \> // number of independent variables $n$\\
-\>{\sf int repeat;}            \> // indicate repeated call at same argument\\
-\>{\sf double x[n];}           \> // independent vector $x$ \\
-\>{\sf int nnz;}               \> // number of nonzeros \\ 
-\>{\sf unsigned int rind[nnz];}\> // row index\\  
-\>{\sf unsigned int cind[nnz];}\> // column index\\ 
-\>{\sf double values[nnz];}    \> // non-zero values\\  
-\>{\sf int options[4];}        \> // array of control parameters\\  
-\end{tabbing}
+To compute the entries of a sparse Jacobian matrix in coordinate
+format, ADOL-C provides the high-level driver
+{\sf sparse\_jac}.
+%
+In contrast to earlier driver interfaces, all algorithmic options are
+selected at compile time via template parameters rather than by a
+runtime {\sf options} array. This allows the compiler to optimize the
+chosen strategy while keeping the user interface concise.
 %
 \begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int sparse\_hess(tag,n,repeat,x,\&nnz,\&rind,\&cind,\&values,\&options)}\\
-\>{\sf short int tag;}         \> // tape identification \\
-\>{\sf int n;}                 \> // number of independent variables $n$ and $m=1$\\
-\>{\sf int repeat;}            \> // indicate repeated call at same argument\\
-\>{\sf double x[n];}           \> // independent vector $x$ \\
-\>{\sf int nnz;}               \> // number of nonzeros \\ 
-\>{\sf unsigned int rind[nnz];}\> // row indices\\  
-\>{\sf unsigned int cind[nnz];}\> // column indices\\ 
-\>{\sf double values[nnz];}    \> // non-zero values  \\
-\>{\sf int options[2];}        \> // array of control parameters\\  
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
+\>{\sf int sparse\_jac(tapeId,depen,indep,repeat,basepoint,}\\
+\>{\sf \hspace{1.25in} nnz,rind,cind,values)}\\
+\>{\sf short int tapeId;}          \> // tape identification \\
+\>{\sf int depen;}              \> // number of dependent variables (rows) $m$ \\
+\>{\sf int indep;}              \> // number of independent variables (columns) $n$ \\
+\>{\sf int repeat;}             \> // control of pattern and seed reuse\\
+\>{\sf const double *basepoint;}\> // independent vector $x$ \\
+\>{\sf int *nnz;}               \> // number of nonzero entries \\
+\>{\sf unsigned int **rind;}    \> // row indices (coordinate format) \\
+\>{\sf unsigned int **cind;}    \> // column indices (coordinate format) \\
+\>{\sf double **values;}        \> // numerical nonzero values \\
 \end{tabbing}
 %
-Once more, the input variables are the identifier for the internal
-representation {\sf tag}, if required the number of dependents {\sf m},
-and the number of independents {\sf n} for a consistency check. 
-Furthermore, the flag {\sf repeat=0} indicates that the functions are called
-at a point with a new sparsity structure, whereas  {\sf repeat=1} results in
-the re-usage of the sparsity pattern from the previous call.
-The current values of the independents are given by the array {\sf x}.
-The input/output
-variable {\sf nnz} stores the number of the nonzero entries.
-Therefore, {\sf nnz} denotes also the length of the arrays {\sf r\_ind} storing
-the row indices, {\sf c\_ind} storing the column indices, and
-{\sf values} storing the values of the nonzero entries. 
-If {\sf sparse\_jac} and {\sf sparse\_hess} are called with {\sf repeat=0},
-the functions determine the number of nonzeros for the sparsity pattern 
-defined by the value of {\sf x}, allocate appropriate arrays {\sf r\_ind},
-{\sf c\_ind}, and {\sf values} and store the desired information in these
-arrays.
-During the next function call with {\sf repeat=1} the allocated memory
-is reused such that only the values of the arrays are changed.   
-Before calling {\sf sparse\_jac} or {\sf sparse\_hess} once more with {\sf
-  repeat=0} the user is responsible for the deallocation of the array 
- {\sf r\_ind}, {\sf c\_ind}, and {\sf values} using the function {\sf
-   free()}!
-
-For each driver the array {\sf options} can be used to adapted the 
-computation of the sparse derivative matrices to the special
-needs of application under consideration. Most frequently, the default options
-will give a reasonable performance. The elements of the array {\sf options} control the action of 
-{\sf sparse\_jac} according to \autoref{options_sparse_jac}.
-\begin{table}[h]
-\center
-\begin{tabular}{|c|c|l|} \hline
-component & value &  \\ \hline
-{\sf options[0]} &    &  way of sparsity pattern computation \\
-                 & 0  &  propagation of index domains (default) \\
-                 & 1  &  propagation of bit pattern \\ \hline
-{\sf options[1]} &    &  test the computational graph control flow \\
-                 & 0  &  safe mode (default) \\
-                 & 1  &  tight mode \\ \hline
-{\sf options[2]} &    &  way of bit pattern propagation \\
-                 & 0  &  automatic detection (default) \\
-                 & 1  &  forward mode \\ 
-                 & 2  &  reverse mode \\ \hline
-{\sf options[3]} &    &  way of compression \\
-                 & 0  &  column compression (default) \\
-                 & 1  &  row compression \\ \hline
-\end{tabular}
-\caption{ {\sf sparse\_jac} parameter {\sf options}\label{options_sparse_jac}}
-\end{table}           
-
-The component {\sf options[1]} determines
-the usage of the safe or tight mode of sparsity computation.
-The first, more conservative option is the default. It accounts for all 
-dependencies that might occur for any value of the
-independent variables. For example, the intermediate 
-{\sf c}~$=$~{\sf max}$(${\sf a}$,${\sf b}$)$ is
-always assumed to depend on all independent variables that {\sf a} or {\sf b}
-dependent on, i.e.\ the bit pattern associated with {\sf c} is set to the
-logical {\sf OR} of those associated with {\sf a} and {\sf b}. 
-In contrast
-the tight option gives this result only in the unlikely event of an exact
-tie {\sf a}~$=$~{\sf b}. Otherwise it sets the bit pattern
-associated with {\sf c} either to that of {\sf a} or to that of {\sf b},
-depending on whether {\sf c}~$=$~{\sf a} or {\sf c}~$=$~{\sf b} locally.
-Obviously, the sparsity pattern obtained with the tight option may contain
-more zeros than that obtained with the safe option. On the other hand, it
-will only be valid at points belonging to an area where the function $F$ is locally
-analytic and that contains the point at which the internal representation was
-generated. Since generating the sparsity structure using the safe version does not
-require any reevaluation, it may thus reduce the overall computational cost 
-despite the fact that it produces more nonzero entries. 
-The value of {\sf options[2]} selects the direction of bit pattern propagation.
-Depending on the number of independent $n$ and of dependent variables $m$ 
-one would prefer the forward mode if $n$ is significant smaller than $m$ and
-would otherwise use the reverse mode.
-
- The elements of the array {\sf options} control the action of 
-{\sf sparse\_hess} according to \autoref{options_sparse_hess}.
-\begin{table}[h]
-\center
-\begin{tabular}{|c|c|l|} \hline
-component & value &  \\ \hline
-{\sf options[0]} &    &  test the computational graph control flow \\
-                 & 0  &  safe mode (default) \\
-                 & 1  &  tight mode \\ \hline
-{\sf options[1]} &    &  way of recovery \\
-                 & 0  &  indirect recovery (default) \\
-                 & 1  &  direct recovery \\ \hline
-\end{tabular}
-\caption{ {\sf sparse\_hess} parameter {\sf options}\label{options_sparse_hess}}
-\end{table}           
-
-The described driver routines for the computation of sparse derivative
-matrices are prototyped in the header file
-\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc/adolc.h>= (see \autoref{ssec:DesIH}).
-Example codes illustrating the usage of {\sf
-  sparse\_jac} and {\sf sparse\_hess} can be found in the file 
-\verb=sparse_jacobian.cpp=  and \verb=sparse_hessian.cpp= contained in %the subdirectory
-\verb=examples/additional_examples/sparse=.
+The behavior of {\sf sparse\_jac} is fully determined by its template
+parameters:
+\begin{itemize}
+  \item {\sf SparseMethod} selects the method used for sparsity pattern
+        detection (default: index-domain propagation),
+  \item {\sf CompressionMode} selects the compression strategy (default: column-wise compression),
+  \item {\sf ControlFlowMode} determines how control flow in the
+        computational graph is handled (default: safe mode),
+  \item {\sf BitPatternPropagationDirection} selects the direction of
+        bit-pattern propagation when applicable (default: automatic).
+\end{itemize}
 %
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\subsubsection*{Computation of Sparsity Pattern}
+If {\sf repeat = 0}, the routine determines the sparsity pattern of the
+Jacobian, generates a suitable seed matrix, and stores the associated
+metadata internally on the tape. The output variable {\sf nnz} is set
+ by the routine to the number of nonzero entries discovered.
 %
-ADOL-C offers a convenient way of determining the  
-sparsity structure of a Jacobian matrix using the function:
+For {\sf repeat $\neq$ 0}, the previously cached sparsity and seed
+information is reused to compute the numerical values of
+the Jacobian at the given point {\sf basepoint}.  In this case, {\sf nnz}
+must match the value obtained during the initial call; otherwise, the
+routine reports an error.
 %
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.3in}\= \kill    % define tab position
-\>{\sf int jac\_pat(tag, m, n, x, JP, options)}\\
-\>{\sf short int tag;} \> // tape identification \\
-\>{\sf int m;} \> // number of dependent variables $m$\\
-\>{\sf int n;} \> // number of independent variables $n$\\
-\>{\sf double x[n];} \> // independent variables $x_0$\\
-\>{\sf unsigned int JP[][];} \> // row compressed sparsity structure\\
-\>{\sf int options[2];} \> // array of control parameters
-\end{tabbing}
+The array {\sf basepoint} provides the current values of the independent
+variables. It is required whenever tight control-flow analysis is
+used; otherwise it may be {\sf nullptr}.
 %
-The sparsity pattern of the
-Jacobian is computed in a compressed row format. For this purpose,
-{\sf JP} has to be an $m$ dimensional array of pointers to {\sf
-  unsigned int}s, i.e., one has {\sf unsigned int* JP[m]}. 
-During the call of  {\sf jac\_pat}, the number $\hat{n}_i$ of nonzero
-entries in row $i$ of the Jacobian is determined for all $1\le i\le
-m$. Then, a memory allocation is performed such that {\sf JP[i-1]}
-points to a block of $\hat{n}_i+1$ {\sf  unsigned int} for all $1\le
-i\le m$ and {\sf JP[i-1][0]} is set to $\hat{n}_i$. Subsequently, the
-column indices of the $j$ nonzero entries in the $i$th row are stored
-in the components  {\sf JP[i-1][1]}, \ldots, {\sf JP[i-1][j]}.
-
-The elements of the array {\sf options} control the action of 
-{\sf jac\_pat} according to \autoref{options}.
-\begin{table}[h]
-\center
-\begin{tabular}{|c|c|l|} \hline
-component & value &  \\ \hline
-{\sf options[0]} &    &  way of sparsity pattern computation \\
-                 & 0  &  propagation of index domains (default) \\
-                 & 1  &  propagation of bit pattern \\ \hline
-{\sf options[1]} &    &  test the computational graph control flow \\
-                 & 0  &  safe mode (default) \\
-                 & 1  &  tight mode \\ \hline
-{\sf options[2]} &    &  way of bit pattern propagation \\
-                 & 0  &  automatic detection (default) \\
-                 & 1  &  forward mode \\ 
-                 & 2  &  reverse mode \\ \hline
-\end{tabular}
-\caption{ {\sf jac\_pat} parameter {\sf options}\label{options}}
-\end{table}           
-The value of {\sf options[0]} selects the way to compute the sparsity
-pattern. The component {\sf options[1]} determines
-the usage of the safe or tight mode of bit pattern propagation.
-The first, more conservative option is the default. It accounts for all 
-dependencies that might occur for any value of the
-independent variables. For example, the intermediate 
-{\sf c}~$=$~{\sf max}$(${\sf a}$,${\sf b}$)$ is
-always assumed to depend on all independent variables that {\sf a} or {\sf b}
-dependent on, i.e.\ the bit pattern associated with {\sf c} is set to the
-logical {\sf OR} of those associated with {\sf a} and {\sf b}. 
-In contrast
-the tight option gives this result only in the unlikely event of an exact
-tie {\sf a}~$=$~{\sf b}. Otherwise it sets the bit pattern
-associated with {\sf c} either to that of {\sf a} or to that of {\sf b},
-depending on whether {\sf c}~$=$~{\sf a} or {\sf c}~$=$~{\sf b} locally.
-Obviously, the sparsity pattern obtained with the tight option may contain
-more zeros than that obtained with the safe option. On the other hand, it
-will only be valid at points belonging to an area where the function $F$ is locally
-analytic and that contains the point at which the internal representation was
-generated. Since generating the sparsity structure using the safe version does not
-require any reevaluation, it may thus reduce the overall computational cost 
-despite the fact that it produces more nonzero entries. The value of
-{\sf options[2]} selects the direction of bit pattern propagation. 
-Depending on the number of independent $n$ and of dependent variables $m$ 
-one would prefer the forward mode if $n$ is significant smaller than $m$ and
-would otherwise use the reverse mode.
-
-The routine {\sf jac\_pat} may use the propagation of bitpattern to
-determine the sparsity pattern. Therefore, a kind of ``strip-mining'' 
-is used to cope with large matrix dimensions. If the system happens to run out of memory, one may reduce 
-the value of the constant {\sf PQ\_STRIPMINE\_MAX}
-following the instructions in \verb=<adolc/sparse/sparse_fo_rev.h>=.
-
+The Jacobian is returned in coordinate format via the arrays
+{\sf rind}, {\sf cind}, and {\sf values}, each of length {\sf nnz}.
+The arrays contain the row indices, column indices, and numerical values
+of the nonzero entries, respectively.
+%
+Memory ownership for {\sf rind}, {\sf cind}, and {\sf values} follows the
+semantics of the underlying routines. If the user supplies
+non-null pointers, the corresponding user-managed memory is used.
+Otherwise, the routine allocates unmanaged memory internally, and the
+caller is responsible for deallocating it using {\sf delete[]} once the
+data is no longer needed.
+%
+The routine returns a non-negative status value on success and a
+negative error code on failure.
+%
 The driver routine is prototyped in the header file
-\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc/adolc.h>= (see 
-\autoref{ssec:DesIH}). The determination of sparsity patterns is
-illustrated by the examples \verb=sparse_jacobian.cpp=
-and \verb=jacpatexam.cpp=
-contained in 
-\verb=examples/additional_examples/sparse=.
+\verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by
+the global header file \verb=<adolc/adolc.h>=.
 
-To compute the sparsity pattern of a Hessian in a row compressed form, ADOL-C provides the
-driver
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.3in}\= \kill    % define tab position
-\>{\sf int hess\_pat(tag, n, x, HP, options)}\\
-\>{\sf short int tag;}       \> // tape identification \\
-\>{\sf int n;}               \> // number of independent variables $n$\\
-\>{\sf double x[n];}         \> // independent variables $x_0$\\
-\>{\sf unsigned int HP[][];} \> // row compressed sparsity structure\\
-\>{\sf int option;}          \> // control parameter
-\end{tabbing}
-where the user has to provide {\sf HP} as an $n$ dimensional array of pointers to {\sf
- unsigned int}s. 
-After the function call {\sf HP} contains the sparsity pattern,
-where {\sf HP[j][0]} contains the number of nonzero elements in the
- $j$th row for $1 \le j\le n$. 
-The components {\sf P[j][i]}, $0<${\sf i}~$\le$~{\sf P[j][0]} store the
- indices of these entries. For determining the sparsity pattern, ADOL-C uses
- the algorithm described in \cite{Wa05a}.  The parameter{\sf option} determines
-the usage of the safe ({\sf option = 0}, default) or tight mode ({\sf
-  option = 1}) of the computation of the sparsity pattern as described
-above.
-
-This driver routine is prototyped in the header file
-\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc/adolc.h>= (see \autoref{ssec:DesIH}).
-An example employing the procedure {\sf hess\_pat}  can be found in the file
-\verb=sparse_hessian.cpp=  contained in 
-\verb=examples/additional_examples/sparse=.
+         
+\paragraph{Sparse Hessians}
 %
+To compute the entries of a sparse Hessian matrix in coordinate format,
+ADOL-C provides the high-level driver {\sf sparse\_hess}.
+%
+As for the sparse Jacobian driver, all algorithmic options are selected
+at compile time via template parameters rather than by a runtime
+{\sf options} array.
+%
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
+\>{\sf int sparse\_hess(tapeId,indep,repeat,basepoint,}\\
+\>{\sf \hspace{1.35in} nnz,rind,cind,values)}\\
+\>{\sf short int tapeId;}          \> // tape identification \\
+\>{\sf int indep;}                 \> // number of independent variables $n$ \\
+\>{\sf int repeat;}                \> // control of pattern and seed reuse \\
+\>{\sf const double *basepoint;}   \> // independent vector $x$ \\
+\>{\sf int *nnz;}                  \> // number of nonzero entries \\
+\>{\sf unsigned int **rind;}       \> // row indices (coordinate format) \\
+\>{\sf unsigned int **cind;}       \> // column indices (coordinate format) \\
+\>{\sf double **values;}           \> // numerical nonzero values \\
+\end{tabbing}
+%
+The behavior of {\sf sparse\_hess} is determined entirely by its template
+parameters:
+\begin{itemize}
+  \item {\sf ControlFlowMode} selects the handling of control flow during
+        sparsity pattern computation (safe or tight),
+  \item {\sf RecoveryMethod} selects the ColPack recovery algorithm used
+        for numerical Hessian reconstruction (indirect or direct).
+\end{itemize}
+%
+The argument {\sf repeat} controls whether sparsity pattern detection
+and seed generation are performed or reused.  If {\sf repeat = 0}, the
+routine computes the Hessian sparsity pattern, generates and caches the
+corresponding seed information on the tape, and sets {\sf nnz} to the
+number of nonzero entries discovered.
+%
+For {\sf repeat $\neq$ 0}, the cached sparsity and seed information is
+reused to compute the numerical values of the Hessian at the point
+{\sf basepoint}.  In this case, {\sf nnz} must match the value obtained
+during the initial call; otherwise, the routine reports an error.
+%
+The array {\sf basepoint} provides the current values of the independent
+variables. It is required when tight control-flow analysis is selected;
+otherwise it may be {\sf nullptr}.
+%
+The Hessian is returned in coordinate format via the arrays {\sf rind},
+{\sf cind}, and {\sf values}, each of length {\sf nnz}.  These arrays
+contain the row indices, column indices, and numerical values of the
+nonzero entries, respectively.
+%
+Memory ownership for {\sf rind}, {\sf cind}, and {\sf values} follows the
+semantics of the underlying recovery routines.  If the user supplies
+non-null pointers, the corresponding user-managed memory is used.
+Otherwise, unmanaged memory is allocated internally, and the caller is
+responsible for releasing it using {\sf delete[]}.
+%
+The routine returns a non-negative status value on success and a
+negative error code on failure.
+%
+The driver routine is prototyped in the header file
+\verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by
+the global header file \verb=<adolc/adolc.h>=.
+
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-\subsubsection*{Calculation of Seed Matrices}
+\subsubsection{Computation of Sparsity Pattern}
+\paragraph{Computation of Jacobian Sparsity Pattern}
+%
+ADOL-C provides a high-level driver for computing the sparsity pattern
+of a Jacobian matrix in compressed row storage (crs) format:
+{\sf jac\_pat}.  The routine determines which independent variables
+influence each dependent variable and records this structure without
+computing numerical derivative values.
+%
+All algorithmic choices are selected at compile time via template
+parameters rather than through a runtime {\sf options} array.
+%
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.3in}\= \kill
+\>{\sf int jac\_pat(tapeId,depen,indep,basepoint,crs)}\\
+\>{\sf short int tapeId;}        \> // tape identification \\
+\>{\sf int depen;}               \> // number of dependent variables $m$ \\
+\>{\sf int indep;}               \> // number of independent variables $n$ \\
+\>{\sf const double *basepoint;} \> // independent vector $x$ \\
+\>{\sf std::span$<$uint *$>$ csr[m];}    \> // compressed row sparsity structure \\
+\end{tabbing}
+%
+The behavior of {\sf jac\_pat} is determined by its template parameters:
+\begin{itemize}
+  \item {\sf SparseMethod} selects the method used to compute the
+        sparsity pattern (index-domain or bit-pattern propagation)
+  \item {\sf ControlFlowMode} determines how control flow in the
+        computational graph is handled (safe mode, tight mode);
+  \item {\sf BitPatternPropagationDirection} selects the direction of
+        bit-pattern propagation when applicable (forward, reverse, or
+        automatic selection).
+\end{itemize}
+%
+The array {\sf basepoint} provides the current values of the independent
+variables and is required when tight control-flow analysis is selected;
+otherwise it may be {\sf nullptr}.
+%
+The sparsity pattern is returned in compressed row storage format. The
+argument {\sf crs} must be an array of length {\sf depen} whose entries
+are pointers to arrays of type {\sf unsigned int}.  After the call,
+{\sf crs[i][0]} contains the number of nonzero entries in row $i$
+($0 \le i < m$), and the subsequent entries
+{\sf crs[i][1]}, \ldots, {\sf crs[i][crs[i][0]]} store the zero-based
+column indices of the independent variables influencing the $i$th
+dependent.
+%
+The routine returns a non-negative value equal to the total number of
+nonzero entries in the Jacobian sparsity pattern.  In case of failure, a
+negative error code originating from the underlying propagation routine
+is returned.
+%
+Ownership of the row buffers allocated for {\sf crs} is transferred to
+the caller or the tape infrastructure.  The user is responsible for
+ensuring that this memory is released appropriately once it is no
+longer required.
+%
+The driver routine is prototyped in the header file
+\verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by
+the global header file \verb=<adolc/adolc.h>=.
+
+
+\paragraph{Computation of Hessian Sparsity Pattern}
+%
+ADOL-C provides a driver routine for computing the sparsity pattern of a
+Hessian matrix in compressed row storage (crs) format:
+{\sf hess\_pat}. The routine determines which independent variables
+interact in the second derivatives of a scalar-valued function.
+%
+All algorithmic choices are selected at compile time via template
+parameters rather than by runtime control flags.
+%
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.3in}\= \kill
+\>{\sf int hess\_pat(tapeId,indep,basepoint,crs)}\\
+\>{\sf short int tapeId;}        \> // tape identification \\
+\>{\sf int indep;}               \> // number of independent variables $n$ \\
+\>{\sf const double *basepoint;} \> // independent vector $x$ \\
+\>{\sf std::span$<$uint *$>$ crs[n];}    \> // compressed row sparsity structure \\
+\end{tabbing}
+%
+The behavior of {\sf hess\_pat} is determined by the template parameter
+{\sf ControlFlowMode}, which selects how control flow in the
+computational graph is handled during sparsity propagation
+(safe, tight, oldsafe, oldtight).
+%
+The array {\sf basepoint} provides the evaluation point for tight
+control-flow analysis and is required whenever a tight mode is selected;
+otherwise it may be {\sf nullptr}.
+%
+The sparsity pattern is returned in compressed row storage format.  The
+argument {\sf crs} must be an array of length {\sf indep} whose entries
+are pointers to arrays of type {\sf unsigned int}. After the call,
+{\sf crs[i][0]} contains the number of nonzero entries in row $i$
+($0 \le i < n$), and the subsequent entries
+{\sf crs[i][1]}, \ldots, {\sf crs[i][crs[i][0]]} store the zero-based
+column indices of independent variables that interact with the $i$th
+variable in the Hessian.
+%
+Before performing the computation, the routine resets the contents of
+{\sf crs}. Memory allocated for the individual row buffers is owned by
+the caller or the tape infrastructure and must be released
+appropriately once it is no longer needed.
+%
+The routine returns a non-negative status value on success. In case of
+failure, a negative error code forwarded from the underlying sparsity
+propagation routine is returned.
+%
+The driver routine is prototyped in the header file
+\verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by
+the global header file \verb=<adolc/adolc.h>=.
+
+
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\subsubsection{Calculation of Seed Matrices}
 %
 To compute a compressed derivative matrix from a given sparsity
 pattern, one has to calculate an appropriate seed matrix that can be
-used as input for the derivative calculation. To facilitate the
-generation of seed matrices for a sparsity pattern given in
-row compressed form, ADOL-C provides the following two drivers,
-which are based on the ColPack library:
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.3in}\= \kill    % define tab position
-\>{\sf int generate\_seed\_jac(m, n, JP, S, p)}\\
-\>{\sf int m;} \> // number of dependent variables $m$\\
-\>{\sf int n;} \> // number of independent variables $n$\\
-\>{\sf unsigned int JP[][];} \> // row compressed sparsity structure
-of Jacobian\\
-\>{\sf double S[n][p];} \> // seed matrix\\
-\>{\sf int p;} \> // number of columns in $S$
-\end{tabbing}
-The input variables to {\sf generate\_seed\_jac} are the number of dependent variables $m$, the
-number of independent variables {\sf n} and the sparsity pattern {\sf
-  JP} of the Jacobian computed for example by {\sf jac\_pat}. First, 
-{\sf generate\_seed\_jac} performs a distance-2 coloring of the bipartite graph defined by the sparsity
-pattern {\sf JP} as described in \cite{GeMaPo05}. The number of colors needed for the coloring
-determines the number of columns {\sf p} in the seed
-matrix. Subsequently, {\sf generate\_seed\_jac} allocates the memory needed by {\sf
- S} and initializes {\sf S} according to the graph coloring.
-The coloring algorithm that is applied in {\sf
-  generate\_seed\_jac} is used also by the driver {\sf sparse\_jac}
-described earlier.
-
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.3in}\= \kill    % define tab position
-\>{\sf int generate\_seed\_hess(n, HP, S, p)}\\
-\>{\sf int n;} \> // number of independent variables $n$\\
-\>{\sf unsigned int HP[][];} \> // row compressed sparsity structure
-of Jacobian\\
-\>{\sf double S[n][p];} \> // seed matrix\\
-\>{\sf int p;} \> // number of columns in $S$
-\end{tabbing}
-The input variables to {\sf generate\_seed\_hess} are the number of independents $n$
-and the sparsity pattern {\sf HP} of the Hessian computed for example
-by {\sf hess\_pat}. First, {\sf generate\_seed\_hess} performs an
-appropriate coloring of the adjacency graph defined by the sparsity
-pattern {\sf HP}: An acyclic coloring in the case of an indirect recovery of the Hessian from its
-    compressed representation and a star coloring in the case of a direct recovery.
- Subsequently, {\sf generate\_seed\_hess} allocates the memory needed by {\sf
- S} and initializes {\sf S} according to the graph coloring.
-The coloring algorithm applied in {\sf
-  generate\_seed\_hess} is used also by the driver {\sf sparse\_hess}
-described earlier.
-
-The specific set of criteria used to define a seed matrix $S$ depends
-on whether the sparse derivative matrix 
-to be computed is a Jacobian (nonsymmetric) or a Hessian (symmetric).  
-It also depends on whether the entries of the derivative matrix  are to be
-recovered from the compressed representation \emph{directly}
-(without requiring any further arithmetic) or \emph{indirectly} (for
-example, by solving for unknowns via successive substitutions).
-Appropriate recovery routines are provided by ColPack and used 
-in the drivers {\sf sparse\_jac} and {\sf sparse\_hess} described in
-the previous subsection. Examples with a detailed analysis of the 
-employed drivers for the exploitation of sparsity can be found in the
-papers \cite{GePoTaWa06} and \cite{GePoWa08}.
-
-
-These driver routines are prototyped in 
-\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically by the
-global header file \verb=<adolc/adolc.h>= (see \autoref{ssec:DesIH}). 
-An example code illustrating the usage of {\sf
-generate\_seed\_jac} and {\sf generate\_seed\_hess} can be found in the file 
-\verb=sparse_jac_hess_exam.cpp= contained in \verb=examples/additional_examples/sparse=.
+used as input for the derivative calculation. ADOL-C provides drivers
+to generate such seed matrices from sparsity patterns given in
+compressed row storage (crs) form. These drivers are thin wrappers
+around the ColPack library.
 %
+In contrast to earlier interfaces, the compression orientation is
+selected at compile time via template parameters rather than by a
+runtime {\sf options} array.
+%
+\paragraph{Seed matrix for Jacobians.}
+To generate a seed matrix for sparse Jacobian recovery, ADOL-C provides
+\begin{tabbing}
+\hspace{0.5in}\={\sf int m;} \hspace{1.3in}\= \kill
+\>{\sf void generate\_seed\_jac(m,n,JP,Seed,p)}\\
+\>{\sf int m;}                 \> // number of dependent variables $m$ \\
+\>{\sf int n;}                 \> // number of independent variables $n$ \\
+\>{\sf std::span$<$uint *$>$ JP;}   \> // crs sparsity pattern of the Jacobian \\
+\>{\sf double ***Seed;}        \> // seed matrix (allocated by ColPack) \\
+\>{\sf int *p;}                \> // compressed dimension \\
+\end{tabbing}
+%
+The behavior of {\sf generate\_seed\_jac} is determined by the template
+parameter {\sf CompressionMode} selecting the orientation of the
+compression (column or row).
+%
+The input variables are the number of dependent variables {\sf m}, the
+number of independent variables {\sf n}, and the Jacobian sparsity
+pattern {\sf JP} in compressed row storage form, as for example computed
+by {\sf jac\_pat}.  Based on {\sf JP}, the routine invokes ColPack's
+bipartite graph coloring to construct a seed matrix {\sf Seed} suitable
+for recovering the full Jacobian from compressed directional evaluations.
+%
+The output variable {\sf p} denotes the compressed dimension implied by
+the coloring. Its interpretation depends on the selected compression
+orientation: for row compression, {\sf p} is the number of columns of
+the seed matrix; for column compression, {\sf p} corresponds to the
+compressed dimension in the sense of ColPack's recovery setup.
+%
+The seed matrix {\sf Seed} is allocated using ColPack's unmanaged API
+and returned to the caller through {\sf Seed}.  The caller is
+responsible for managing and releasing this memory in accordance with
+ColPack's unmanaged allocation semantics.
+%
+\paragraph{Seed matrix for Hessians.}
+To generate a seed matrix for sparse Hessian recovery, ADOL-C provides
+the driver
+\begin{tabbing}
+\hspace{0.5in}\={\sf int n;} \hspace{1.3in}\= \kill
+\>{\sf void generate\_seed\_hess(n,HP,Seed,p)}\\
+\>{\sf int n;}                 \> // number of independent variables $n$ \\
+\>{\sf std::span$<$uint *$>$HP[n];}   \> // crs sparsity pattern of the Hessian \\
+\>{\sf double ***Seed;}        \> // seed matrix (allocated by ColPack) \\
+\>{\sf int *p;}                \> // compressed dimension \\
+\end{tabbing}
+%
+The behavior of {\sf generate\_seed\_hess} is determined by the template
+parameter {\sf RecoveryMethod}, which selects the recovery strategy:
+\begin{itemize}
+  \item {\sf Indirect}: indirect Hessian recovery using an acyclic
+        coloring strategy,
+  \item {\sf Direct}: direct Hessian recovery using a star coloring
+        strategy.
+\end{itemize}
+%
+The input variable {\sf HP} provides the Hessian sparsity pattern in
+compressed row storage form, for example as computed by {\sf hess\_pat}.
+Based on this pattern and the selected recovery strategy, the routine
+invokes the corresponding ColPack coloring algorithm to construct a
+seed matrix suitable for Hessian recovery.
+%
+The output variable {\sf p} denotes the compressed dimension implied by
+the coloring.  The seed matrix {\sf Seed} is allocated using ColPack's
+unmanaged API.  Ownership of the returned memory follows ColPack's
+unmanaged semantics and must be respected by the caller.
+\\
+
+%
+The specific criteria used to construct seed matrices depend on whether
+the target derivative matrix is a Jacobian (nonsymmetric) or a Hessian
+(symmetric), and on whether the recovery from the compressed
+representation is performed directly or indirectly.  Appropriate
+recovery routines are provided by ColPack and are used internally by
+the drivers {\sf sparse\_jac} and {\sf sparse\_hess}.
+%
+These driver routines are prototyped in
+\verb=<adolc/sparse/sparsedrivers.h>=, which is included automatically
+by the global header file \verb=<adolc/adolc.h>= (see
+\autoref{ssec:DesIH}).
+%
+
+\subsubsection{Legacy interface (runtime options).}
+Earlier versions of ADOL-C provided non-templated interfaces with runtime
+{\sf options} array. These interfaces are retained for backward
+compatibility and select the underlying strategy at runtime.
+New code should prefer the typed interface described above and we only refer to the 
+documentation of release 2.7.2 for the legacy interface.
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{Higher Derivative Tensors}
 \label{higherOrderDeriv}
@@ -2750,121 +2778,133 @@ a partition of the identity matrix of order $n$.
 \subsection{Dependence Analysis}
 %
 \label{ProBit}
-% 
+%
 The sparsity pattern of Jacobians is often needed to set up data structures
-for their storage and factorization or to allow their economical evaluation 
+for their storage and factorization or to allow their economical evaluation
 by compression \cite{BeKh96}. Compared to the evaluation of the full
-Jacobian $F'(x_0)$ in real arithmetic computing the Boolean matrix 
+Jacobian $F'(x_0)$ in real arithmetic computing the Boolean matrix
 $\tilde{P}\in\left\{0,1\right\}^{m\times n}$ representing its sparsity
 pattern in the obvious way requires a little less run-time and
-certainly a lot less memory. 
+certainly a lot less memory.
 
-The entry $\tilde{P}_{ji}$ in the $j$-th row and $i$-th column 
-of $\tilde{P}$ should be $1 = true$ exactly when there is a data 
-dependence between the $i$-th independent variable $x_{i}$ and 
-the $j$-th dependent variable $y_{j}$. Just like for real arguments 
-one would wish to compute matrix-vector and vector-matrix products 
-of the form $\tilde{P}\tilde{v}$ or $\tilde{u}^{T}\tilde{P}$ 
-by appropriate {\sf forward} and {\sf reverse} routines where 
-$\tilde{v}\in\{0,1\}^{n}$ and $\tilde{u}\in\{0,1\}^{m}$. 
+The entry $\tilde{P}_{ji}$ in the $j$-th row and $i$-th column
+of $\tilde{P}$ should be $1 = true$ exactly when there is a data
+dependence between the $i$-th independent variable $x_{i}$ and
+the $j$-th dependent variable $y_{j}$. Just like for real arguments
+one would wish to compute matrix-vector and vector-matrix products
+of the form $\tilde{P}\tilde{v}$ or $\tilde{u}^{T}\tilde{P}$
+by appropriate {\sf forward} and {\sf reverse} routines where
+$\tilde{v}\in\{0,1\}^{n}$ and $\tilde{u}\in\{0,1\}^{m}$.
 Here, multiplication corresponds to logical
 {\sf AND} and addition to logical {\sf OR}, so that algebra is performed in a
 semi-ring.
 
-For practical reasons it is assumed that 
-$s=8*${\sf sizeof}$(${\sf unsigned long int}$)$ such Boolean vectors 
-$\tilde{v}$ and $\tilde{u}$ are combined to integer vectors 
-$v\in\N^{n}$ and $u\in\N^{m}$ whose components can be interpreted 
-as bit patterns. Moreover $p$ or $q$ such integer vectors may 
-be combined column-wise or row-wise to integer matrices $X\in\N^{n \times p}$ 
+For practical reasons it is assumed that
+$s=8*${\sf sizeof}$(${\sf bitword\_t}$)$ such Boolean vectors
+$\tilde{v}$ and $\tilde{u}$ are combined to integer vectors
+$v\in\N^{n}$ and $u\in\N^{m}$ whose components can be interpreted
+as bit patterns. Moreover $p$ or $q$ such integer vectors may
+be combined column-wise or row-wise to integer matrices $X\in\N^{n \times p}$
 and $U\in\N^{q \times m}$, which naturally correspond
 to Boolean matrices $\tilde{X}\in\{0,1\}^{n\times\left(sp\right)}$
 and $\tilde{U}\in\{0,1\}^{\left(sq\right)\times m}$. The provided
 bit pattern versions of {\sf forward} and {\sf reverse} allow
 to compute integer matrices $Y\in\N^{m \times p}$ and
-$Z\in\N^{q \times m}$ corresponding to
+$Z\in\N^{q \times n}$ corresponding to
 \begin{equation}
 \label{eq:int_forrev}
-\tilde{Y} = \tilde{P}\tilde{X} \qquad \mbox{and} \qquad 
+\tilde{Y} = \tilde{P}\tilde{X} \qquad \mbox{and} \qquad
 \tilde{Z} = \tilde{U}\tilde{P} \, ,
-\end{equation} 
+\end{equation}
 respectively, with $\tilde{Y}\in\{0,1\}^{m\times\left(sp\right)}$
-and $\tilde{U}\in\{0,1\}^{\left(sq\right)\times n}$.
+and $\tilde{Z}\in\{0,1\}^{\left(sq\right)\times n}$.
 In general, the application of the bit pattern versions of
-{\sf forward} or {\sf reverse} can be interpreted as 
-propagating dependencies between variables forward or backward, therefore 
+{\sf forward} or {\sf reverse} can be interpreted as
+propagating dependencies between variables forward or backward, therefore
 both the propagated integer matrices and the corresponding
 Boolean matrices are called {\em dependence structures}.
- 
-The bit pattern {\sf forward} routine 
-%
-\begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int forward(tag,m,n,p,x,X,y,Y,mode)}\\
-\>{\sf short int tag;}              \> // tape identification \\
-\>{\sf int m;}                      \> // number of dependent variables $m$\\
-\>{\sf int n;}                      \> // number of independent variables $n$\\
-\>{\sf int p;}                      \> // number of integers propagated $p$\\
-\>{\sf double x[n];}                \> // values of independent variables $x_0$\\
-\>{\sf unsigned long int X[n][p];}  \> // dependence structure $X$ \\
-\>{\sf double y[m];}                \> // values of dependent variables $y_0$\\
-\>{\sf unsigned long int Y[m][p];}  \> // dependence structure $Y$ according to 
-                                     \eqref{eq:int_forrev}\\
-\>{\sf char mode;}                  \> // 0 : safe mode (default), 1 : tight mode
-\end{tabbing}
-%
-can be used to obtain the dependence structure $Y$ for a given dependence structure
-$X$. The dependence structures are
-represented as arrays of {\sf unsigned long int} the entries of which are
-interpreted as bit patterns as described above.   
-For example, for $n=3$ the identity matrix $I_3$ should be passed
-with $p=1$ as the $3 \times 1$ array
-\begin{eqnarray*}
-{\sf X} \; = \;
-\left( \begin{array}{r}
-         {\sf 1}0000000 \: 00000000 \: 00000000 \: 00000000_2 \\
-         0{\sf 1}000000 \: 00000000 \: 00000000 \: 00000000_2 \\
-         00{\sf 1}00000 \: 00000000 \: 00000000 \: 00000000_2
-       \end{array} \right)
-\end{eqnarray*}
-in the 4-byte long integer format. The parameter {\sf mode} determines
-the mode of dependence analysis as explained already in \autoref{sparse}.
 
-A call to the corresponding bit pattern {\sf reverse} routine
-%
+\paragraph{Typed C++ interface.}
+The recommended interface selects the control-flow handling at compile time
+via the template parameter {\sf ControlFlowMode}:
+\begin{itemize}
+  \item {\sf Safe}: conservative dependence propagation (default),
+  \item {\sf Tight}: dependence propagation sensitive to control flow, evaluated
+        at a given basepoint.
+\end{itemize}
+The dependence structures are represented as arrays of {\sf bitword\_t}
+and are passed as vectors of pointers, i.e.\ a packed matrix is provided
+as a list of row pointers.
+
+The forward-mode bit-pattern propagation routine is
 \begin{tabbing}
-\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int reverse(tag,m,n,q,U,Z,mode)}\\
-\>{\sf short int tag;}         \> // tape identification \\
-\>{\sf int m;}                 \> // number of dependent variables $m$\\
-\>{\sf int n;}                 \> // number of independent variables $n$\\
-\>{\sf int q;}                 \> // number of integers propagated q\\
-\>{\sf unsigned long int U[q][m];}  \> // dependence structure $U$ \\
-\>{\sf unsigned long int Z[q][n];}  \> // dependence structure $Z$ according
-                                     to \eqref{eq:int_forrev}\\
-\>{\sf char mode;}        \> // 0 : safe mode (default), 1 : tight mode
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.1in}\= \kill
+\>{\sf int forward(tapeId,m,n,p,x,X,y,Y)}\\
+\>{\sf short int tapeId;}                 \> // tape identification \\
+\>{\sf int m;}                            \> // number of dependent variables $m$\\
+\>{\sf int n;}                            \> // number of independent variables $n$\\
+\>{\sf int p;}                            \> // number of packed words propagated $p$\\
+\>{\sf double x[n];}                      \> // basepoint values (tight mode only)\\
+\>{\sf bitword\_t *X[n];}                 \> // input dependence structure (seed)\\
+\>{\sf double y[m];}                      \> // function values (tight mode only)\\
+\>{\sf bitword\_t *Y[m];}                 \> // output dependence structure $Y$ \\
 \end{tabbing}
 %
-yields the dependence structure $Z$ for a given dependence structure
-$U$.
+In safe mode, the basepoint {\sf x} and function values {\sf y} are not required.
+In tight mode, {\sf x} must be provided; then the routine evaluates the
+taped function at {\sf x} in order to resolve control-flow dependencies and
+may write the corresponding function values into {\sf y}.
+
+The corresponding reverse-mode bit-pattern propagation routine is
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.1in}\= \kill
+\>{\sf int reverse(tapeId,m,n,q,U,Z)}\\
+\>{\sf short int tapeId;}                 \> // tape identification \\
+\>{\sf int m;}                            \> // number of dependent variables $m$\\
+\>{\sf int n;}                            \> // number of independent variables $n$\\
+\>{\sf int q;}                            \> // number of packed words propagated $q$\\
+\>{\sf bitword\_t *U[q];}                 \> // input dependence structure $U$ \\
+\>{\sf bitword\_t *Z[q];}                 \> // output dependence structure $Z$ \\
+\end{tabbing}
+%
+yielding the dependence structure $Z$ for a given dependence structure $U$.
+As in forward mode, safe propagation is conservative. Tight reverse propagation
+is control-flow sensitive and relies on the taped execution state corresponding
+to the selected basepoint; in practice this is typically established by a prior
+evaluation in tight mode.
+
+\paragraph{Legacy (mode-selected) interface.}
+For backward compatibility, ADOL-C also provides the classic entry points
+documented in earlier versions of this manual. These interfaces select the
+control-flow handling at runtime using a {\sf mode} argument:
+{\sf mode = 0} for safe (default) and {\sf mode = 1} for tight.
+%
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.1in}\= \kill
+\>{\sf int forward(tapeId,m,n,p,x,X,y,Y,mode)}\\
+\>{\sf int reverse(tapeId,m,n,q,U,Z,mode)}\\
+\end{tabbing}
+%
+These legacy routines do not allocate or free memory for the dependence
+structures; all buffers are managed by the caller.
 
 To determine the whole sparsity pattern $\tilde{P}$ of the Jacobian $F'(x)$
-as an integer matrix $P$ one may call {\sf forward} or {\sf reverse} 
-with $p \ge n/s$ or $q \ge m/s$, respectively. For this purpose the 
-corresponding dependence structure $X$ or $U$ must be defined to represent  
+as an integer matrix $P$ one may call {\sf forward} or {\sf reverse}
+with $p \ge n/s$ or $q \ge m/s$, respectively. For this purpose the
+corresponding dependence structure $X$ or $U$ must be defined to represent
 the identity matrix of the respective dimension.
 Due to the fact that always a multiple of $s$ Boolean vectors are propagated
 there may be superfluous vectors, which can be set to zero.
 
 The return values of the bit pattern {\sf forward} and {\sf reverse} routines
-correspond to those described in \autoref{retvalues}. 
+correspond to those described in \autoref{retvalues}.
 
-One can control the storage growth by the factor $p$ using
-``strip-mining'' for the calls of {\sf forward} or {\sf reverse} with successive
-groups of columns or respectively rows at a time, i.e.~partitioning 
-$X$ or $U$ appropriately as described for the computation of Jacobians 
-in \autoref{vecCas}.
-%
+One can control the storage growth by the factor $p$ or $q$ using
+``strip-mining'' for successive groups of columns or rows at a time, i.e.\
+partitioning $X$ or $U$ appropriately as described for the computation of
+Jacobians in \autoref{vecCas}. The strip-mining batch size can be influenced
+by the constant {\sf PQ\_STRIPMINE\_MAX} in the sparse package configuration.
+
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 %
 \section{Advanced algorithmic differentiation in ADOL-C}
@@ -4324,21 +4364,9 @@ called \verb=make install= and will remove all installed package files
 but will leave the created directories behind. 
 
 The sparse drivers are included in the ADOL-C libraries if the
-\verb=./configure= command is executed with the option
-\verb=--enable-sparse=. The ColPack library available at 
-\verb=http://cscapes.cs.purdue.edu/coloringpage/software.htm= is required to
-compute the sparse structures, and is searched for in all the default 
-locations. 
-In case the library and its headers are installed in a nonstandard path
-this may be specified with the \verb?--with-colpack=PATH? option.
-It is assumed that the library and its header files have the following
-directory structure: \verb?PATH/include? contains all the header
-files,
-\verb?PATH/lib? contains the 32-bit compiled library and 
-\verb?PATH/lib64? contains the 64-bit compiled library. Depending on
-the compiler used to compile {\sf ADOL-C} one of these libraries will
-be used for linking.
- 
+\verb=-DENABLE\_SPARSE=1= command. The ColPack library is either automatically 
+downloaded or can be provided specifying \verb=-DColPack\_DIR=.
+
 The option \verb=--disable-stdczero= turns off the initialization in the {\sf adouble} default 
 constructor. This will improve efficiency but requires that there be no implicit array initialization in the code, see 
 \autoref{WarSug}.  

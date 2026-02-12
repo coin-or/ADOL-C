@@ -1,3 +1,3 @@
 target_sources(adolc PRIVATE
-  sparse_fo_rev.cpp
+  sparsedrivers_c.cpp
   sparsedrivers.cpp)

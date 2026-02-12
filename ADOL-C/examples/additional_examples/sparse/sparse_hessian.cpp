@@ -13,258 +13,176 @@
 
 ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <cstdlib>
-#include <math.h>
-
 #include <adolc/adolc.h>
-#include <adolc/adolc_sparse.h>
+#include <array>
+#include <vector>
 
-#define tag 1
+namespace {
+struct ADProblem {
+  int dim;
+};
 
-double feval(double *x);
-adouble feval_ad(adouble *x);
-
-void printmat(const char *kette, int n, int m, double **M);
-
-int main() {
-  int n = 6;
-  double f, x[6];
-  adouble fad, xad[6];
-
-  int i, j;
-
-  /****************************************************************************/
-  /*******                function evaluation                   ***************/
-  /****************************************************************************/
-
-  for (i = 0; i < n; i++)
-    x[i] = log(1.0 + i);
-
-  /* Tracing of function f(x) */
-
-  trace_on(tag);
-  for (i = 0; i < n; i++)
-    xad[i] <<= x[i];
-
-  fad = feval_ad(xad);
-
-  fad >>= f;
-  trace_off();
-
-  printf("\n f = %e\n\n\n", f);
-
-  /****************************************************************************/
-  /********           For comparisons: Full Hessian                    ********/
-  /****************************************************************************/
-
-  double **H;
-  H = myalloc2(n, n);
-
-  hessian(tag, n, x, H);
-
-  printmat(" H", n, n, H);
-  printf("\n");
-
-  /****************************************************************************/
-  /*******       sparse Hessians, complete driver              ***************/
-  /****************************************************************************/
-
-  /* coordinate format for Hessian */
-  unsigned int *rind = NULL;
-  unsigned int *cind = NULL;
-  double *values = NULL;
+struct SparseHessData {
+  unsigned int *rind{nullptr};
+  unsigned int *cind{nullptr};
+  double *values{nullptr};
   int nnz;
-  int options[2];
 
-  options[0] = 0; /*                               safe mode (default) */
-  options[1] = 0; /*                       indirect recovery (default) */
-
-  sparse_hess(tag, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format:\n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-
-  options[0] = 0; /*                               safe mode (default) */
-  options[1] = 1; /*                                   direct recovery */
-
-  sparse_hess(tag, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format:\n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-
-  /*--------------------------------------------------------------------------*/
-  /*  change value of x, but not the sparsity pattern                         */
-  /*--------------------------------------------------------------------------*/
-
-  for (i = 0; i < n; i++)
-    x[i] = 2.0 * i;
-
-  /*  For comparisons: Full Hessian:                                         */
-
-  hessian(tag, n, x, H);
-
-  printmat(" H", n, n, H);
-  printf("\n");
-
-  /*  repeated call of sparse_hess with same sparsity pattern => repeat = 1 */
-
-  sparse_hess(tag, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format:\n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-
-  /****************************************************************************/
-  /*******        sparse Hessians, separate drivers             ***************/
-  /****************************************************************************/
-
-  /*--------------------------------------------------------------------------*/
-  /*                                                 sparsity pattern Hessian */
-  /*--------------------------------------------------------------------------*/
-
-  unsigned int **HP = NULL; /* compressed block row storage */
-  int ctrl;
-
-  HP = (unsigned int **)malloc(n * sizeof(unsigned int *));
-  ctrl = 0;
-
-  hess_pat(tag, n, x, HP, ctrl);
-
-  printf("\n");
-  printf("Sparsity pattern of Hessian: \n");
-  for (i = 0; i < n; i++) {
-    printf(" %d: ", i);
-    for (j = 1; j <= (int)HP[i][0]; j++)
-      printf(" %d ", HP[i][j]);
-    printf("\n");
+  void reset() {
+    delete[] rind;
+    rind = nullptr;
+    delete[] cind;
+    cind = nullptr;
+    delete[] values;
+    values = nullptr;
   }
-  printf("\n");
+};
 
-  /*--------------------------------------------------------------------------*/
-  /*                                                              seed matrix */
-  /*--------------------------------------------------------------------------*/
-
-  double **Seed;
+template <ADProblem problem> struct CompressedHessian {
+  std::vector<uint *> HP{problem.dim};
+  double **Seed{nullptr};
   int p;
-  int option = 1;
+  std::vector<double *> Hcomp;
 
-  /* option = 0  indirect recovery (default),
-     option = 1  direct recovery                       */
+  ~CompressedHessian() {
+    for (auto &hp : HP)
+      delete[] hp;
+    for (auto &hcomp : Hcomp)
+      delete[] hcomp;
 
-  generate_seed_hess(n, HP, &Seed, &p, option);
-
-  printmat(" Seed matrix", n, p, Seed);
-  printf("\n");
-
-  /*--------------------------------------------------------------------------*/
-  /*                                                       compressed Hessian */
-  /*--------------------------------------------------------------------------*/
-
-  double **Hcomp;
-  Hcomp = myalloc2(n, p);
-
-  hess_mat(tag, n, p, x, Seed, Hcomp);
-
-  printmat("compressed H:", n, p, Hcomp);
-  printf("\n");
-
-  /*--------------------------------------------------------------------------*/
-  /*  change value of x, but not the sparsity pattern                         */
-  /*--------------------------------------------------------------------------*/
-
-  for (i = 0; i < n; i++)
-    x[i] = 2.0 * i;
-
-  /*  For comparisons: Full Hessian                                           */
-
-  hessian(tag, n, x, H);
-
-  printmat(" H", n, n, H);
-  printf("\n");
-
-  hess_mat(tag, n, p, x, Seed, Hcomp);
-
-  printmat("compressed H:", n, p, Hcomp);
-  printf("\n");
-
-  for (i = 0; i < n; i++)
-    free(HP[i]);
-  free(HP);
-
-  myfree2(H);
-  myfree2(Hcomp);
-
-  for (i = 0; i < n; i++)
-    delete[] Seed[i];
-  delete[] Seed;
-}
+    for (int i = 0; i < problem.dim; i++)
+      delete[] Seed[i];
+    delete[] Seed;
+  }
+};
 
 /***************************************************************************/
-
-double feval(double *x) {
-  double res;
-
-  res = 0.5 * (x[0] - 1) * (x[0] - 1) + 0.8 * (x[1] - 2) * (x[1] - 2) +
-        0.9 * (x[2] - 3) * (x[2] - 3);
+template <typename T> T feval(const std::array<T, 6> x) {
+  T res = 0.5 * (x[0] - 1) * (x[0] - 1) + 0.8 * (x[1] - 2) * (x[1] - 2) +
+          0.9 * (x[2] - 3) * (x[2] - 3);
   res += 5 * x[0] * x[1];
   res += cos(x[3]);
   res += sin(x[4]) * pow(x[1], 2);
   res += exp(x[5]) * x[2];
   res += sin(x[4] * x[5]);
-
   return res;
 }
-
-/***************************************************************************/
-
-adouble feval_ad(adouble *x) {
-  adouble res;
-
-  res = 0.5 * (x[0] - 1) * (x[0] - 1) + 0.8 * (x[1] - 2) * (x[1] - 2) +
-        0.9 * (x[2] - 2) * (x[2] - 2);
-  res += 5 * x[0] * x[1];
-  res += cos(x[3]);
-  res += sin(x[4]) * x[1] * x[1];
-  res += exp(x[5]) * x[2];
-  res += sin(x[4] * x[5]);
-
-  return res;
-}
-
-/***************************************************************************/
 
 void printmat(const char *name, int m, int n, double **M) {
-  int i, j;
-
   printf("%s \n", name);
-  for (i = 0; i < m; i++) {
+  for (int i = 0; i < m; i++) {
     printf("\n %d: ", i);
-    for (j = 0; j < n; j++)
+    for (int j = 0; j < n; j++)
       printf(" %10.4f ", M[i][j]);
   }
   printf("\n");
+}
+template <ADProblem problem>
+void taping(std::span<double, problem.dim> x, short tapeId) {
+  trace_on(tapeId);
+  std::array<adouble, problem.dim> xad;
+
+  for (auto i = 0; i < problem.dim; i++) {
+    xad[i] <<= x[i];
+  }
+
+  auto fad = feval(xad);
+
+  double f;
+  fad >>= f;
+  trace_off();
+}
+
+template <ADProblem problem>
+void computeHess(std::span<double, problem.dim> x, short tapeId) {
+  std::array<double *, problem.dim> H;
+  for (auto &h : H)
+    h = new double[problem.dim];
+
+  hessian(tapeId, problem.dim, x.data(), H.data());
+  printmat("Hessian (non-sparse)", problem.dim, problem.dim, H.data());
+}
+
+template <ADOLC::Sparse::RecoveryMethod RM>
+void printSparse(SparseHessData &hess) {
+  if constexpr (RM == ADOLC::Sparse::RecoveryMethod::Direct)
+    std::cout << "Direct recovery in sparse format:" << std::endl;
+
+  else if constexpr (RM == ADOLC::Sparse::RecoveryMethod::Indirect)
+    std::cout << "Indirect recovery in sparse format:" << std::endl;
+
+  for (int i = 0; i < hess.nnz; i++)
+    std::cout << "(" << hess.rind[i] << "," << hess.cind[i]
+              << "): " << hess.values[i] << std::endl;
+  std::cout << std::endl;
+}
+
+template <ADProblem problem, ADOLC::Sparse::RecoveryMethod RM>
+void computeSparseHess(std::span<double, problem.dim> x, short tapeId) {
+  auto hess = SparseHessData{};
+  ADOLC::Sparse::sparse_hess<ADOLC::Sparse::ControlFlowMode::Safe, RM>(
+      tapeId, problem.dim, 0, x.data(), &hess.nnz, &hess.rind, &hess.cind,
+      &hess.values);
+
+  printSparse<RM>(hess);
+  hess.reset();
+}
+
+template <ADProblem problem>
+CompressedHessian<problem>
+computeSparsityPattern(std::span<double, problem.dim> x, short tapeId) {
+  auto cHess = CompressedHessian<problem>{};
+  std::span<uint *> HP_(cHess.HP);
+  ADOLC::Sparse::hess_pat<ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, problem.dim, x.data(), HP_);
+
+  std::cout << std::endl;
+  std::cout << "Sparsity pattern of Hessian: \n";
+  for (int i = 0; i < problem.dim; i++) {
+    std::cout << i << ": ";
+    for (uint j = 1; j <= cHess.HP[i][0]; j++)
+      std::cout << cHess.HP[i][j] << " ";
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+  return cHess;
+}
+template <ADProblem problem>
+void computeCompressedHessian(std::span<double, problem.dim> x,
+                              CompressedHessian<problem> &cHess, short tapeId) {
+  std::span<uint *> HP_(cHess.HP);
+  ADOLC::Sparse::generate_seed_hess<ADOLC::Sparse::RecoveryMethod::Direct>(
+      problem.dim, HP_, &cHess.Seed, &cHess.p);
+
+  printmat(" Seed matrix", problem.dim, cHess.p, cHess.Seed);
+  std::cout << std::endl;
+
+  cHess.Hcomp.resize(problem.dim);
+  for (auto &hcomp : cHess.Hcomp)
+    hcomp = new double[cHess.p];
+
+  hess_mat(tapeId, problem.dim, cHess.p, x.data(), cHess.Seed,
+           cHess.Hcomp.data());
+
+  printmat("compressed H:", problem.dim, cHess.p, cHess.Hcomp.data());
+}
+} // namespace
+
+int main() {
+
+  constexpr auto problem = ADProblem{6};
+  const auto tapeId = createNewTape();
+  std::array<double, problem.dim> x;
+  for (auto i = 0; i < problem.dim; i++) {
+    x[i] = log(1.0 + i);
+  }
+
+  /* Tracing of function f(x) */
+  taping<problem>(x, tapeId);
+  computeHess<problem>(x, tapeId);
+  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Indirect>(x,
+                                                                      tapeId);
+  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Direct>(x, tapeId);
+  auto cHess = computeSparsityPattern<problem>(x, tapeId);
+  computeCompressedHessian<problem>(x, cHess, tapeId);
 }

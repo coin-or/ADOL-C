@@ -49,11 +49,6 @@
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
 
-#if defined(SPARSE)
-#include <adolc/sparse/sparse_fo_rev.h>
-#include <adolc/sparse/sparsedrivers.h>
-#endif
-
 /****************************************************************************/
 /****************************************************************************/
 /*                                                       Now the C++ THINGS */
@@ -295,15 +290,16 @@ ADOLC_API fint hov_wk_forward_(const fint *, const fint *, const fint *,
 /*                                                            INT_FOR, SAFE */
 /* int_forward_safe(tag, m, n, p, X[n][p], Y[m][p])                         */
 
-ADOLC_API int int_forward_safe(short, int, int, int, const size_t *const *,
-                               size_t **);
+ADOLC_API int int_forward_safe(short, int, int, int, const bitword_t *const *,
+                               bitword_t **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INT_FOR, TIGHT */
 /* int_forward_tight(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p])            */
 
 ADOLC_API int int_forward_tight(short, int, int, int, const double *,
-                                const size_t *const *, double *, size_t **);
+                                const bitword_t *const *, double *,
+                                bitword_t **);
 
 /****************************************************************************/
 /*                                                   INDEX DOMAIN UTILITIES */
@@ -311,15 +307,13 @@ ADOLC_API int int_forward_tight(short, int, int, int, const double *,
 /*                                                            INDOPRO, SAFE */
 /* indopro_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
 
-ADOLC_API int indopro_forward_safe(short, int, int, const double *,
-                                   unsigned int **);
+ADOLC_API int indopro_forward_safe(short, int, int, const double *, uint **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INDOPRO, TIGHT */
 /* indopro_forward_tight(tag, m, n,  x[n], *Y[m])                           */
 
-ADOLC_API int indopro_forward_tight(short, int, int, const double *,
-                                    unsigned int **);
+ADOLC_API int indopro_forward_tight(short, int, int, const double *, uint **);
 
 /****************************************************************************/
 /*                                         NONLINEAR INDEX DOMAIN UTILITIES */
@@ -327,28 +321,26 @@ ADOLC_API int indopro_forward_tight(short, int, int, const double *,
 /*                                                            INDOPRO, SAFE */
 /* nonl_ind_forward_safe(tag, m, n, p, x[n], *Y[m])                          */
 
-ADOLC_API int nonl_ind_forward_safe(short, int, int, const double *,
-                                    unsigned int **);
+ADOLC_API int nonl_ind_forward_safe(short, int, int, const double *, uint **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INDOPRO, TIGHT */
 /* nonl_ind_forward_tight(tag, m, n,  x[n], *Y[m])                           */
 
-ADOLC_API int nonl_ind_forward_tight(short, int, int, const double *,
-                                     unsigned int **);
+ADOLC_API int nonl_ind_forward_tight(short, int, int, const double *, uint **);
 /*--------------------------------------------------------------------------*/
 /*                                                            INDOPRO, SAFE */
 /* nonl_ind_old_forward_safe(tag, m, n, p, x[n], *Y[m]) */
 
 ADOLC_API int nonl_ind_old_forward_safe(short, int, int, const double *,
-                                        unsigned int **);
+                                        uint **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                           INDOPRO, TIGHT */
 /* nonl_ind_old_forward_tight(tag, m, n,  x[n], *Y[m]) */
 
 ADOLC_API int nonl_ind_old_forward_tight(short, int, int, const double *,
-                                         unsigned int **);
+                                         uint **);
 
 /****************************************************************************/
 /*                                                             REVERSE MODE */
@@ -438,15 +430,15 @@ ADOLC_API fint hov_ti_reverse_(const fint *, const fint *, const fint *,
 /*                                                           INT_REV, TIGHT */
 /* int_reverse_tight(tag, m, n, q, U[q][m], Z[q][n])                        */
 
-ADOLC_API int int_reverse_tight(short, int, int, int, const size_t *const *,
-                                size_t **);
+ADOLC_API int int_reverse_tight(short, int, int, int, const bitword_t *const *,
+                                bitword_t **);
 
 /*--------------------------------------------------------------------------*/
 /*                                                            INT_REV, SAFE */
 /* int_reverse_safe(tag, m, n, q, U[q][m], Z[q][n])                         */
 
-ADOLC_API int int_reverse_safe(short, int, int, int, const size_t *const *,
-                               size_t **);
+ADOLC_API int int_reverse_safe(short, int, int, int, const bitword_t *const *,
+                               bitword_t **);
 
 /*--------------------------------------------------------------------------*/
 ADOLC_API size_t get_num_switches(short);
@@ -469,7 +461,7 @@ ADOLC_API int fov_pl_sig_forward(short, int, int, int, const double *,
                                  const short *, double *, double **, double *,
                                  double **, short *);
 ADOLC_API int indopro_forward_absnormal(short, int, int, int, const double *,
-                                        unsigned int **);
+                                        uint **);
 /*--------------------------------------------------------------------------*/
 ADOLC_API int fos_pl_reverse(short, int, int, int, int, double *);
 ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,

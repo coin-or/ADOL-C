@@ -17,13 +17,12 @@ sparse patterns.
 
 #include <adolc/adtl_indo.h>
 #include <adolc/dvlparms.h>
-#include <cmath>
 #include <iostream>
-#include <limits>
+#include <vector>
 
 using std::cout;
 
-namespace adtl_indo {
+namespace ADOLC::Sparse::adtl_indo {
 
 /*******************  i/o operations  ***************************************/
 ostream &operator<<(ostream &out, const adouble &a) {
@@ -37,7 +36,7 @@ istream &operator>>(istream &in, adouble &a) {
 }
 
 /**************** ADOLC_TRACELESS_SPARSE_PATTERN ****************************/
-int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
+int ADOLC_Init_sparse_pattern(adouble *a, int n, uint start_cnt) {
   for (int i = 0; i < n; i++) {
     a[i].delete_pattern();
     a[i].pattern.push_back(i + start_cnt);
@@ -45,14 +44,12 @@ int ADOLC_Init_sparse_pattern(adouble *a, int n, unsigned int start_cnt) {
   return 3;
 }
 
-int ADOLC_get_sparse_pattern(const adouble *const b, int m,
-                             unsigned int **&pat) {
-  pat = new unsigned int *[m];
+int ADOLC_get_sparse_pattern(const adouble *b, int m,
+                             std::vector<uint *> &pat) {
+  pat = std::vector<uint *>(m);
   for (int i = 0; i < m; i++) {
-    // const_cast<adouble&>(b[i]).pattern.sort();
-    // const_cast<adouble&>(b[i]).pattern.unique();
     if (b[i].get_pattern_size() > 0) {
-      pat[i] = new unsigned int[b[i].get_pattern_size() + 1];
+      pat[i] = new uint[b[i].get_pattern_size() + 1];
       // the typesystem is broken here... we should use "size_t" for the pattern
       size_t sz = b[i].get_pattern_size();
       assert(sz <= std::numeric_limits<unsigned int>::max());
@@ -62,11 +59,11 @@ int ADOLC_get_sparse_pattern(const adouble *const b, int m,
       for (auto it = tmp_set.begin(); it != tmp_set.end(); it++, l++)
         pat[i][l] = *it;
     } else {
-      pat[i] = new unsigned int;
+      pat[i] = new uint[1];
       pat[i][0] = 0;
     }
   }
   return 3;
 }
 
-} // namespace adtl_indo
+} // namespace ADOLC::Sparse::adtl_indo

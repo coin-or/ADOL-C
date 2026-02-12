@@ -12,273 +12,184 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ---------------------------------------------------------------------------*/
-
-#include <cstdio>
-#include <cstdlib>
-#include <math.h>
-
 #include <adolc/adolc.h>
-#include <adolc/adolc_sparse.h>
+#include <array>
+#include <vector>
 
-#define tag 1
+namespace {
+struct ADProblem {
+  int dimOut;
+  int dimIn;
+};
 
-void ceval_ad(adouble *x, adouble *c);
-void ceval(double *x, double *c);
-
-void printmat(const char *name, int n, int m, double **M);
-
-int main() {
-  int n = 6, m = 3;
-  double x[6], c[3];
-  adouble xad[6], cad[3];
-
-  int i, j;
-
-  /****************************************************************************/
-  /*******                function evaluation                   ***************/
-  /****************************************************************************/
-
-  for (i = 0; i < n; i++)
-    x[i] = log(1.0 + i);
-
-  /* Tracing of function c(x) */
-
-  trace_on(tag);
-  for (i = 0; i < n; i++)
-    xad[i] <<= x[i];
-
-  ceval_ad(xad, cad);
-
-  for (i = 0; i < m; i++)
-    cad[i] >>= c[i];
-  trace_off();
-
-  printf("\n c =  ");
-  for (j = 0; j < m; j++)
-    printf(" %e ", c[j]);
-  printf("\n");
-
-  /****************************************************************************/
-  /********           For comparisons: Full Jacobian                   ********/
-  /****************************************************************************/
-
-  double **J;
-  J = myalloc2(m, n);
-
-  jacobian(tag, m, n, x, J);
-
-  printmat(" J", m, n, J);
-  printf("\n");
-
-  /****************************************************************************/
-  /*******       sparse Jacobians, complete driver              ***************/
-  /****************************************************************************/
-
-  /* coordinate format for Jacobian */
-  unsigned int *rind = NULL; /* row indices    */
-  unsigned int *cind = NULL; /* column indices */
-  double *values = NULL;     /* values         */
+struct SparseJacData {
+  unsigned int *rind{nullptr};
+  unsigned int *cind{nullptr};
+  double *values{nullptr};
   int nnz;
-  int options[4];
 
-  options[0] = 0; /* sparsity pattern by index domains (default) */
-  options[1] = 0; /*                         safe mode (default) */
-  options[2] = 0; /*              not required if options[0] = 0 */
-  options[3] = 0; /*                column compression (default) */
-
-  sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format:\n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-  /*--------------------------------------------------------------------------*/
-  /*  same approach but using row compression                                 */
-  /*--------------------------------------------------------------------------*/
-
-  options[3] = 1; /*   row compression => reverse mode, */
-                  /* sometimes better than forward mode */
-                  /* due to sparsity structure          */
-
-  sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format (using row compression): \n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-  /*--------------------------------------------------------------------------*/
-  /*  change value of x, but not the sparsity pattern                         */
-  /*--------------------------------------------------------------------------*/
-
-  for (i = 0; i < n; i++)
-    x[i] = 2.0 * i;
-
-  /*  For comparisons: Full Jacobian                                          */
-
-  jacobian(tag, m, n, x, J);
-
-  printmat(" J", m, n, J);
-  printf("\n");
-
-  /*  repeated call of sparse_jac with same sparsity pattern => repeat = 1 */
-
-  sparse_jac(tag, m, n, 1, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format:\n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-  /*--------------------------------------------------------------------------*/
-  /*  same approach but using row compression                                 */
-  /*--------------------------------------------------------------------------*/
-
-  options[3] = 1; /*   row compression => reverse mode, */
-                  /* sometimes better than forward mode */
-                  /* due to sparsity structure          */
-
-  sparse_jac(tag, m, n, 0, x, &nnz, &rind, &cind, &values, options);
-
-  printf("In sparse format (using row compression): \n");
-  for (i = 0; i < nnz; i++)
-    printf("%2d %2d %10.6f\n\n", rind[i], cind[i], values[i]);
-
-  free(rind);
-  rind = NULL;
-  free(cind);
-  cind = NULL;
-  free(values);
-  values = NULL;
-  /****************************************************************************/
-  /*******       sparse Jacobians, separate drivers             ***************/
-  /****************************************************************************/
-
-  /*--------------------------------------------------------------------------*/
-  /*                                                sparsity pattern Jacobian */
-  /*--------------------------------------------------------------------------*/
-
-  unsigned int **JP = NULL; /* compressed block row storage */
-  int ctrl[3];
-
-  JP = (unsigned int **)malloc(m * sizeof(unsigned int *));
-  ctrl[0] = 0;
-  ctrl[1] = 0;
-  ctrl[2] = 0;
-
-  jac_pat(tag, m, n, x, JP, ctrl);
-
-  printf("\n");
-  printf("Sparsity pattern of Jacobian: \n");
-  for (i = 0; i < m; i++) {
-    printf(" %d: ", i);
-    for (j = 1; j <= (int)JP[i][0]; j++)
-      printf(" %d ", JP[i][j]);
-    printf("\n");
+  void reset() {
+    delete[] rind;
+    rind = nullptr;
+    delete[] cind;
+    cind = nullptr;
+    delete[] values;
+    values = nullptr;
   }
-  printf("\n");
+};
 
-  /*--------------------------------------------------------------------------*/
-  /*                                                              seed matrix */
-  /*--------------------------------------------------------------------------*/
-
-  double **Seed;
+template <ADProblem problem> struct CompressedJacobian {
+  std::vector<uint *> JP{problem.dimOut};
+  double **Seed{nullptr};
   int p;
-  int option = 0;
+  std::vector<double *> Jcomp;
 
-  /* option = 0 column compression (default),
-     option = 1 rom compression                */
+  ~CompressedJacobian() {
+    for (auto &jp : JP)
+      delete[] jp;
+    for (auto &jcomp : Jcomp)
+      delete[] jcomp;
 
-  generate_seed_jac(m, n, JP, &Seed, &p, option);
+    for (int i = 0; i < problem.dimIn; i++)
+      delete[] Seed[i];
+    delete[] Seed;
+  }
+};
 
-  printf(" p_J = %d \n", p);
-  printmat(" Seed matrix", n, p, Seed);
-  printf("\n");
-
-  /*--------------------------------------------------------------------------*/
-  /*                                                      compressed Jacobian */
-  /*--------------------------------------------------------------------------*/
-
-  double **Jcomp;
-  Jcomp = myalloc2(m, p);
-
-  fov_forward(tag, m, n, p, x, Seed, c, Jcomp);
-  printmat("compressed J:", m, p, Jcomp);
-  printf("\n");
-
-  /*--------------------------------------------------------------------------*/
-  /*  change value of x, but not the sparsity pattern                         */
-  /*--------------------------------------------------------------------------*/
-
-  for (i = 0; i < n; i++)
-    x[i] = 2.0 * i;
-
-  /*  For comparisons: Full Jacobian                                          */
-
-  jacobian(tag, m, n, x, J);
-
-  printmat(" J", m, n, J);
-  printf("\n");
-
-  fov_forward(tag, m, n, p, x, Seed, c, Jcomp);
-  printmat("compressed J:", m, p, Jcomp);
-  printf("\n");
-
-  for (i = 0; i < m; i++)
-    free(JP[i]);
-  free(JP);
-  myfree2(J);
-
-  for (i = 0; i < n; i++)
-    delete[] Seed[i];
-  delete[] Seed;
-
-  myfree2(Jcomp);
+template <typename T>
+void ceval(const std::array<T, 6> &x, std::array<T, 3> &out) {
+  out[0] = 2.0 * x[0] + x[1] - 2.0;
+  out[0] += cos(x[3]) * sin(x[4]);
+  out[1] = x[2] * x[2] + x[3] * x[3] - 2.0;
+  out[2] = 3 * x[4] * x[5] - 3.0 + sin(x[4] * x[5]);
 }
-
-/***************************************************************************/
-
-void ceval(double *x, double *c) {
-  c[0] = 2 * x[0] + x[1] - 2.0;
-  c[1] = x[2] * x[2] + x[3] * x[3] - 2.0;
-  c[2] = 3 * x[4] * x[5] - 3.0;
-}
-
-/***************************************************************************/
-
-void ceval_ad(adouble *x, adouble *c) {
-  c[0] = 2 * x[0] + x[1] - 2.0;
-  c[0] += cos(x[3]) * sin(x[4]);
-  c[1] = x[2] * x[2] + x[3] * x[3] - 2.0;
-  c[2] = 3 * x[4] * x[5] - 3.0 + sin(x[4] * x[5]);
-}
-
-/***************************************************************************/
 
 void printmat(const char *name, int m, int n, double **M) {
-  int i, j;
-
-  printf("%s \n", name);
-  for (i = 0; i < m; i++) {
-    printf("\n %d: ", i);
-    for (j = 0; j < n; j++)
+  std::cout << name << std::endl;
+  for (int i = 0; i < m; i++) {
+    std::cout << "\n" << i << ": ";
+    for (int j = 0; j < n; j++)
       printf(" %10.4f ", M[i][j]);
   }
-  printf("\n");
+  std::cout << "\n";
+}
+
+template <ADProblem problem>
+void taping(std::span<double, problem.dimIn> x, short tapeId) {
+  trace_on(tapeId);
+  std::array<adouble, problem.dimIn> xad;
+  for (int i = 0; i < problem.dimIn; i++)
+    xad[i] <<= x[i];
+
+  std::array<adouble, problem.dimOut> out;
+  ceval(xad, out);
+
+  std::array<double, problem.dimOut> dummyOut{};
+  for (int i = 0; i < problem.dimOut; i++)
+    out[i] >>= dummyOut[i];
+
+  trace_off();
+}
+
+template <ADProblem problem>
+void computeJac(std::span<double, problem.dimIn> x, short tapeId) {
+  std::array<double *, problem.dimOut> J;
+  for (auto &j : J)
+    j = new double[problem.dimIn];
+
+  jacobian(tapeId, problem.dimOut, problem.dimIn, x.data(), J.data());
+
+  printmat(" J", problem.dimOut, problem.dimIn, J.data());
+  std::cout << "\n";
+
+  for (auto &j : J)
+    delete[] j;
+}
+
+template <ADOLC::Sparse::CompressionMode CM>
+void printSparseJac(SparseJacData &jac) {
+  if constexpr (CM == ADOLC::Sparse::CompressionMode::Row)
+    std::cout << "In sparse format (row compression):\n";
+  else if constexpr (CM == ADOLC::Sparse::CompressionMode::Column)
+    std::cout << "In sparse format (using row compression): \n";
+
+  for (int i = 0; i < jac.nnz; i++)
+    printf("%2d %2d %10.6f\n\n", jac.rind[i], jac.cind[i], jac.values[i]);
+}
+
+template <ADProblem problem, ADOLC::Sparse::CompressionMode CM>
+void computeSparseJac(std::span<double, problem.dimIn> x, short tapeId) {
+  auto jac = SparseJacData{};
+  ADOLC::Sparse::sparse_jac<
+      ADOLC::Sparse::SparseMethod::IndexDomains, CM,
+      ADOLC::Sparse::ControlFlowMode::Safe,
+      ADOLC::Sparse::BitPatternPropagationDirection::Auto>(
+      tapeId, problem.dimOut, problem.dimIn, 0, x.data(), &jac.nnz, &jac.rind,
+      &jac.cind, &jac.values);
+  printSparseJac<CM>(jac);
+  jac.reset();
+}
+
+template <ADProblem problem>
+CompressedJacobian<problem>
+computeSparsityPattern(std::span<double, problem.dimIn> x, short tapeId) {
+  auto cJac = CompressedJacobian<problem>{};
+  std::span<uint *> JP_(cJac.JP);
+  ADOLC::Sparse::jac_pat<ADOLC::Sparse::SparseMethod::IndexDomains,
+                         ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, problem.dimOut, problem.dimIn, x.data(), JP_);
+
+  std::cout << "\n";
+  std::cout << "Sparsity pattern of Jacobian: \n";
+  for (int i = 0; i < problem.dimOut; i++) {
+    std::cout << i << ": ";
+    for (int j = 1; j <= cJac.JP[i][0]; j++)
+      std::cout << cJac.JP[i][j] << " ";
+    std::cout << "\n";
+  }
+  std::cout << "\n";
+  return cJac;
+}
+
+template <ADProblem problem>
+void computeCompressedJacobian(std::span<double, problem.dimIn> x,
+                               CompressedJacobian<problem> &cJac,
+                               short tapeId) {
+
+  std::span<uint *> JP_(cJac.JP);
+  ADOLC::Sparse::generate_seed_jac<ADOLC::Sparse::CompressionMode::Column>(
+      problem.dimOut, problem.dimIn, JP_, &cJac.Seed, &cJac.p);
+
+  std::cout << " p_J = " << cJac.p << std::endl;
+  printmat(" Seed matrix", problem.dimIn, cJac.p, cJac.Seed);
+  std::cout << "\n";
+
+  cJac.Jcomp.resize(problem.dimOut);
+  for (auto &jcomp : cJac.Jcomp)
+    jcomp = new double[cJac.p];
+
+  std::array<double, problem.dimOut> out;
+  fov_forward(tapeId, problem.dimOut, problem.dimIn, cJac.p, x.data(),
+              cJac.Seed, out.data(), cJac.Jcomp.data());
+  printmat("compressed J:", problem.dimOut, cJac.p, cJac.Jcomp.data());
+  std::cout << "\n";
+}
+
+} // namespace
+/***************************************************************************/
+
+int main() {
+  constexpr auto problem = ADProblem{.dimOut = 3, .dimIn = 6};
+  const auto tapeId = createNewTape();
+
+  std::array<double, problem.dimIn> x;
+  for (int i = 0; i < problem.dimIn; i++)
+    x[i] = log(1.0 + i);
+
+  taping<problem>(x, tapeId);
+  computeJac<problem>(x, tapeId);
+  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Column>(x, tapeId);
+  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Row>(x, tapeId);
+  auto cJac = computeSparsityPattern<problem>(x, tapeId);
+  computeCompressedJacobian(x, cJac, tapeId);
 }

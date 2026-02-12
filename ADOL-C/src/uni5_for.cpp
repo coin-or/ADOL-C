@@ -145,12 +145,12 @@ and _NTIGHT__
 /*--------------------------------------------------------------------------*/
 #elif defined(_INDO_)
 BEGIN_C_DECLS
-void copy_index_domain(size_t res, size_t arg, unsigned int **ind_dom);
-void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom);
+void copy_index_domain(size_t res, size_t arg, uint **ind_dom);
+void merge_2_index_domains(size_t res, size_t arg, uint **ind_dom);
 void combine_2_index_domains(size_t res, size_t arg1, size_t arg2,
-                             unsigned int **ind_dom);
+                             uint **ind_dom);
 void merge_3_index_domains(size_t res, size_t arg1, size_t arg2,
-                           unsigned int **ind_dom);
+                           uint **ind_dom);
 END_C_DECLS
 #define NUMNNZ 20
 #define FMIN_ADOLC(x, y) ((y < x) ? y : x)
@@ -201,13 +201,11 @@ END_C_DECLS
 
 BEGIN_C_DECLS
 void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
-                                            unsigned int **ind_dom,
-                                            unsigned int **nonl_dom);
-void extend_nonlinearity_domain_unary(size_t arg, unsigned int **ind_dom,
-                                      unsigned int **nonl_dom);
-void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2,
-                                       unsigned int **ind_dom,
-                                       unsigned int **nonl_dom);
+                                            uint **ind_dom, uint **nonl_dom);
+void extend_nonlinearity_domain_unary(size_t arg, uint **ind_dom,
+                                      uint **nonl_dom);
+void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2, uint **ind_dom,
+                                       uint **nonl_dom);
 END_C_DECLS
 #if defined(_TIGHT_)
 #define GENERATED_FILENAME "nonl_ind_old_forward_t"
@@ -561,14 +559,14 @@ int fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    short tnum,                    /* tape id                              */
-    int depcheck,                  /* consistency chk on # of dependents   */
-    int indcheck,                  /* consistency chk on # of independents */
-    int p,                         /* # of taylor series, bit pattern      */
-    const double *basepoint,       /* independent variable values   (in)*/
-    const size_t *const *argument, /* Taylor coeff.                 (in)*/
-    double *valuepoint,            /* dependent variable values    (out)*/
-    size_t **taylors)              /* matrix of coefficient vectors(out)*/
+    short tnum,                       /* tape id                              */
+    int depcheck,                     /* consistency chk on # of dependents   */
+    int indcheck,                     /* consistency chk on # of independents */
+    int p,                            /* # of taylor series, bit pattern      */
+    const double *basepoint,          /* independent variable values   (in)*/
+    const bitword_t *const *argument, /* Taylor coeff.                 (in)*/
+    double *valuepoint,               /* dependent variable values    (out)*/
+    bitword_t **taylors)              /* matrix of coefficient vectors(out)*/
 
 /* int_forward_tight( tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]),
 
@@ -588,12 +586,13 @@ int int_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
-int int_forward_safe(short tnum,   /* tape id                              */
-                     int depcheck, /* consistency chk on # of dependents   */
-                     int indcheck, /* consistency chk on # of independents */
-                     int p,        /* # of taylor series, bit pattern      */
-                     const size_t *const *argument, /* Taylor coeff. (in)*/
-                     size_t **taylors) /* matrix of coefficient vectors (out)*/
+int int_forward_safe(
+    short tnum,                       /* tape id                              */
+    int depcheck,                     /* consistency chk on # of dependents   */
+    int indcheck,                     /* consistency chk on # of independents */
+    int p,                            /* # of taylor series, bit pattern      */
+    const bitword_t *const *argument, /* Taylor coeff. (in)*/
+    bitword_t **taylors)              /* matrix of coefficient vectors (out)*/
 
 /* int_forward_safe( tag, m, n, p, X[n][p], Y[m][p]),
 
@@ -619,7 +618,7 @@ int indopro_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
 
@@ -628,12 +627,12 @@ int indopro_forward_tight(
 #if defined(_NTIGHT_)
 #if defined(_ABS_NORM_)
     int indopro_forward_absnormal(
-        short tnum,         /* tape id                              */
-        int depcheck,       /* consistency chk on # of dependents   */
-        int indcheck,       /* consistency chk on # of independents */
-        int swcheck,        /* consistency chk on # of switches    */
-        const double *,     /* independent variable values   (in)   */
-        unsigned int **crs) /* returned row index storage (out)     */
+        short tnum,     /* tape id                              */
+        int depcheck,   /* consistency chk on # of dependents   */
+        int indcheck,   /* consistency chk on # of independents */
+        int swcheck,    /* consistency chk on # of switches    */
+        const double *, /* independent variable values   (in)   */
+        uint **crs)     /* returned row index storage (out)     */
 
 /* indopro_forward_absnormal( tag, m, n, s, x[n], *crs[s+m]),
  */
@@ -642,11 +641,11 @@ int indopro_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int indopro_forward_safe(
-        short tnum,         /* tape id                              */
-        int depcheck,       /* consistency chk on # of dependents   */
-        int indcheck,       /* consistency chk on # of independents */
-        const double *,     /* independent variable values   (in)   */
-        unsigned int **crs) /* returned row index storage (out)     */
+        short tnum,     /* tape id                              */
+        int depcheck,   /* consistency chk on # of dependents   */
+        int indcheck,   /* consistency chk on # of independents */
+        const double *, /* independent variable values   (in)   */
+        uint **crs)     /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -664,7 +663,7 @@ int nonl_ind_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 #endif
 #if defined(_NTIGHT_)
@@ -672,11 +671,11 @@ int nonl_ind_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_forward_safe(
-        short tnum,         /* tape id                              */
-        int depcheck,       /* consistency chk on # of dependents   */
-        int indcheck,       /* consistency chk on # of independents */
-        const double *,     /* independent variable values   (in)   */
-        unsigned int **crs) /* returned row index storage (out)     */
+        short tnum,     /* tape id                              */
+        int depcheck,   /* consistency chk on # of dependents   */
+        int indcheck,   /* consistency chk on # of independents */
+        const double *, /* independent variable values   (in)   */
+        uint **crs)     /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -693,7 +692,7 @@ int nonl_ind_old_forward_tight(
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
-    unsigned int **crs)      /* returned row index storage (out)     */
+    uint **crs)              /* returned row index storage (out)     */
 
 #endif
 #if defined(_NTIGHT_)
@@ -701,11 +700,11 @@ int nonl_ind_old_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_old_forward_safe(
-        short tnum,         /* tape id                              */
-        int depcheck,       /* consistency chk on # of dependents   */
-        int indcheck,       /* consistency chk on # of independents */
-        const double *,     /* independent variable values   (in)   */
-        unsigned int **crs) /* returned row index storage (out)     */
+        short tnum,     /* tape id                              */
+        int depcheck,   /* consistency chk on # of dependents   */
+        int indcheck,   /* consistency chk on # of independents */
+        const double *, /* independent variable values   (in)   */
+        uint **crs)     /* returned row index storage (out)     */
 
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
@@ -847,21 +846,18 @@ int hov_forward(
   double coval = 0;
   double *d = nullptr;
 #endif
-
+#if (!defined(_INDO_) && !defined(_NTIGHT_)) ||                                \
+    (defined(_INDO_) && defined(_INDOPRO_) && !defined(_NONLIND_OLD_)) ||      \
+    (!defined(_INDO_) && !defined(_ZOS_))
+  int indexd = 0;
+#endif
   int indexi = 0;
-#if defined(_INDO_)
-#if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-  int indexd = 0;
-#endif
-#elif !defined(_NTIGHT_) || !defined(_ZOS_)
-  int indexd = 0;
-#endif
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
   size_t max_ind_dom;
   /* index domains */
-  unsigned int **ind_dom = nullptr;
+  uint **ind_dom = nullptr;
 #endif
 #if defined(_NONLIND_)
   /* nonlinear interaction domains */
@@ -876,7 +872,7 @@ int hov_forward(
 #endif
 #if defined(_NONLIND_OLD_)
   /* nonlinear interaction domains */
-  unsigned int **nonl_dom = nullptr;
+  uint **nonl_dom = nullptr;
 #endif
 #endif
 
@@ -956,9 +952,8 @@ int hov_forward(
 #if defined(_HOV_) || defined(_HOV_WK_)
   const int pk = k * p;
 #endif
-
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-  locint switchnum = 0;
+  uint switchnum = 0;
 #endif
   /* extern diff. function variables */
 #if defined(_EXTERN_)
@@ -1030,8 +1025,8 @@ int hov_forward(
   size_t *iArr = nullptr;
   int ext_retc;
   size_t nin, nout;
-  size_t *insz = nullptr;
-  size_t *outsz = nullptr;
+  locint *insz = nullptr;
+  locint *outsz = nullptr;
 #endif
 
 #ifdef ADOLC_AMPI_SUPPORT
@@ -1165,15 +1160,14 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
   /* index domains */
-  ind_dom = new unsigned int *[tape.tapestats(TapeInfos::NUM_MAX_LIVES)];
+  ind_dom = new uint *[tape.tapestats(TapeInfos::NUM_MAX_LIVES)];
   max_ind_dom = tape.tapestats(TapeInfos::NUM_MAX_LIVES);
 
   for (size_t i = 0; i < max_ind_dom; i++) {
-    ind_dom[i] = new unsigned int[NUMNNZ + 2];
+    ind_dom[i] = new uint[NUMNNZ + 2];
     ind_dom[i][0] = 0;
     ind_dom[i][1] = NUMNNZ;
   }
-
 #endif
 #if defined(_NONLIND_)
   maxopind = tape.tapestats(TapeInfos::NUM_OPERATIONS) +
@@ -1194,9 +1188,9 @@ int hov_forward(
 #endif
 #if defined(_NONLIND_OLD_)
 
-  nonl_dom = new unsigned int *[indcheck];
+  nonl_dom = new uint *[indcheck];
   for (int i = 0; i < indcheck; i++) {
-    nonl_dom[i] = new unsigned int[NUMNNZ + 2];
+    nonl_dom[i] = new uint[NUMNNZ + 2];
     nonl_dom[i][0] = 0;
     nonl_dom[i][1] = NUMNNZ;
   }
@@ -1259,7 +1253,7 @@ int hov_forward(
 #if defined(ADOLC_DEBUG)
   /* #include <string.h> */
   int v = 0;
-  unsigned int countPerOperation[256], taylorPerOperation[256];
+  uint countPerOperation[256], taylorPerOperation[256];
   memset(countPerOperation, 0, 1024);
   memset(taylorPerOperation, 0, 1024);
 #define UPDATE_TAYLORWRITTEN(X) taylorPerOperation[operation] += X;
@@ -1619,40 +1613,45 @@ int hov_forward(
       /*--------------------------------------------------------------------------*/
     case assign_dep: /* assign a float variable a    assign_dep */
       /* dependent adouble value. (>>=) */
-      {
-        res = tape.get_locint_f();
+      res = tape.get_locint_f();
+
+#if !defined(_INDO_) && !defined(_NTIGHT_)
+      if (valuepoint != nullptr)
+        valuepoint[indexd] = dp_T0[res];
+#endif // !_INDO_ && !_NTIGHT_
+
 #if defined(_INDO_)
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
-        if (ind_dom[res][0] != 0) {
-          crs[indexd] = new unsigned int[ind_dom[res][0] + 1];
-          crs[indexd][0] = ind_dom[res][0];
-          for (unsigned int l = 1; l <= crs[indexd][0]; l++) {
-            crs[indexd][l] = ind_dom[res][l + 1];
-          }
-        } else {
-          crs[indexd] = new unsigned int[1];
-          crs[indexd][0] = 0;
+      if (ind_dom[res][0] != 0) {
+        crs[indexd] = new uint[ind_dom[res][0] + 1];
+        crs[indexd][0] = ind_dom[res][0];
+        for (uint l = 1; l <= crs[indexd][0]; l++) {
+          crs[indexd][l] = ind_dom[res][l + 1];
         }
-        indexd++;
+      } else {
+        crs[indexd] = new uint[1];
+        crs[indexd][0] = 0;
+      }
 #endif // _INDOPRO_ && !_NONLIND_OLD_
 #else
-#if !defined(_NTIGHT_)
-        if (valuepoint != nullptr)
-          valuepoint[indexd] = dp_T0[res];
-#endif // !_NTIGHT_
 #if !defined(_ZOS_)
-        ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+      ASSIGN_T(Tres, TAYLOR_BUFFER[res])
+
 #if defined(_INT_FOR_)
-        if (taylors != 0) /* ??? question: why here? */
-          FOR_0_LE_l_LT_p TAYLORS(indexd, l, i) = TRES_INC;
+      if (taylors != 0) /* ??? question: why here? */
+        FOR_0_LE_l_LT_p TAYLORS(indexd, l, i) =
+            static_cast<bitword_t>(TRES_INC);
 #else
-        if (taylors != 0) /* ??? question: why here? */
-          FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TAYLORS(indexd, l, i) = TRES_INC;
+      if (taylors != 0) /* ??? question: why here? */
+        FOR_0_LE_l_LT_p FOR_0_LE_i_LT_k TAYLORS(indexd, l, i) = TRES_INC;
 #endif // _INT_FOR_
-        indexd++;
 #endif // !_ZOS_
-#endif // _INDO_
-      }
+#endif // _IND_
+#if (!defined(_INDO_) && !defined(_NTIGHT_)) ||                                \
+    (defined(_INDO_) && defined(_INDOPRO_) && !defined(_NONLIND_OLD_)) ||      \
+    (!defined(_INDO_) && !defined(_ZOS_))
+      indexd++;
+#endif
       break;
 
       /****************************************************************************/
@@ -3392,7 +3391,7 @@ int hov_forward(
           FOR_0_LE_l_LT_pk TRES_INC = tape.make_nan();
         else {
           /* coval not a whole number */
-          if (coval - floor(coval) != 0) {
+          if (coval - floor(coval != 0.0) != 0) {
             FOR_0_LE_l_LT_p {
               FOR_0_LE_i_LT_k {
                 if (coval - i > 1)
@@ -3882,31 +3881,31 @@ int hov_forward(
           MINDEC(ret_c, 2);
       }
 #if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-      if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
-        tape.signature()[switchnum] = dp_T0[arg];
-        swargs[switchnum] = dp_T0[arg];
-      }
+      tape.signature()[switchnum] = dp_T0[arg];
+      swargs[switchnum] = dp_T0[arg];
 #endif
 #endif /* !_NTIGHT_ */
 
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
 #if defined(_ABS_NORM_)
+      // set index domain of switching variables that of the input independent
+      // which creates the switching variable. note: the switching variables are
+      // stored in the Compressed Row Storage (crs) AFTER the dependent
+      // variables. Therefore we have to use depcheck + switchnum as index
       if (ind_dom[arg][0] != 0) {
-        crs[depcheck + switchnum] = (unsigned int *)malloc(
-            sizeof(unsigned int) * (ind_dom[arg][0] + 1));
+        crs[depcheck + switchnum] = new uint[ind_dom[arg][0] + 1];
         crs[depcheck + switchnum][0] = ind_dom[arg][0];
-        for (unsigned int l = 1; l <= crs[depcheck + switchnum][0]; l++) {
+        // switching variable switchnum gets index-domain of the arg
+        for (uint l = 1; l <= crs[depcheck + switchnum][0]; l++) {
           crs[depcheck + switchnum][l] = ind_dom[arg][l + 1];
         }
       } else {
-        crs[depcheck + switchnum] =
-            (unsigned int *)malloc(sizeof(unsigned int));
+        crs[depcheck + switchnum] = new uint[1];
         crs[depcheck + switchnum][0] = 0;
       }
       ind_dom[res][0] = 1;
-      // its ugly but this conversion happens anyway implicitly
-      ind_dom[res][2] = static_cast<unsigned int>(indcheck + switchnum);
+      ind_dom[res][2] = indcheck + switchnum;
 #else
       copy_index_domain(res, arg, ind_dom);
 #endif
@@ -3944,7 +3943,7 @@ int hov_forward(
 #ifdef _ABS_NORM_
 #if defined(_FOV_)
       sigsw[switchnum] = FIRSTSIGN_P(dp_T0[arg], Targ);
-#endif
+#endif // _FOV_
       COPYTAYL_P(swtaylors[switchnum], Targ);
       FOR_0_LE_l_LT_p TRES_INC = fabs(dp_T0[arg] + TARG_INC) - fabs(dp_T0[arg]);
 #elif defined(_ABS_NORM_SIG_)
@@ -3971,16 +3970,15 @@ int hov_forward(
           TRES_INC = x * TARG_INC;
         }
       }
-#endif
-#endif
-#endif
-#endif /* ALL_TOGETHER_AGAIN */
+#endif // _ABS_NORM_
+#endif // _INT_FOR_
+#endif // _INDO_
+#endif // !_ZOS_
 #if !defined(_NTIGHT_)
       dp_T0[res] = fabs(dp_T0[arg]);
 #endif /* !_NTIGHT_ */
-#if defined(_ABS_NORM_) || defined(_ABS_NORM_SIG_)
-      if (tape.tapestats(TapeInfos::NO_MIN_MAX))
-        switchnum++;
+#if defined(_ABS_NORM_) || defined(_ABS_NORN_SIG_)
+      ++switchnum;
 #endif
       break;
 
@@ -4544,7 +4542,7 @@ int hov_forward(
                            ADOLCError::FailInfo{.info5 = numvar, .info6 = idx});
         arg1 = vectorloc + idx;
         IF_KEEP_WRITE_TAYLOR(res, keep, k, p);
-        dp_T0[res] = static_cast<double>(arg1);
+        dp_T0[res] = to_double(arg1);
 #else
         ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
                          CURRENT_LOCATION);
@@ -5674,7 +5672,7 @@ int hov_forward(
       tape.get_locint_f(); /* iArrLength again */
       nin = tape.get_locint_f();
       nout = tape.get_locint_f();
-      insz = new size_t[2 * (nin + nout)];
+      insz = new locint[2 * (nin + nout)];
       outsz = insz + nin;
       tape.lowestXLoc_ext_v2(outsz + nout);
       tape.lowestYLoc_ext_v2(outsz + nout + nin);
@@ -5933,7 +5931,7 @@ int hov_forward(
 #if defined(_INDO_)
 #if defined(_INDOPRO_)
   for (size_t i = 0; i < max_ind_dom; i++) {
-    delete ind_dom[i];
+    delete[] ind_dom[i];
   }
   delete[] ind_dom;
 #endif
@@ -5941,13 +5939,13 @@ int hov_forward(
   for (int i = 0; i < indcheck; i++) {
     traverse_crs(&nonl_dom[i], &sod[i], indcheck + 1);
     free_tree(&nonl_dom[i], indcheck + 1);
-    crs[i] = new unsigned int[sod[i].entry + 1];
-    crs[i][0] = static_cast<unsigned int>(sod[i].entry);
+    crs[i] = new uint[sod[i].entry + 1];
+    crs[i][0] = static_cast<uint>(sod[i].entry);
     temp = sod[i].left;
     for (size_t ii = 1; ii <= sod[i].entry; ii++) {
-      crs[i][ii] = static_cast<unsigned int>(temp->entry);
+      crs[i][ii] = static_cast<uint>(temp->entry);
       temp1 = temp->left;
-      free(temp);
+      delete temp;
       temp = temp1;
     }
   }
@@ -5961,11 +5959,11 @@ int hov_forward(
 #if defined(_NONLIND_OLD_)
 
   for (int i = 0; i < indcheck; i++) {
-    crs[i] = new unsigned int[nonl_dom[i][0] + 1];
+    crs[i] = new uint[nonl_dom[i][0] + 1];
     crs[i][0] = nonl_dom[i][0];
-    for (unsigned int l = 1; l < crs[i][0] + 1; l++)
+    for (uint l = 1; l < crs[i][0] + 1; l++)
       crs[i][l] = nonl_dom[i][l + 1];
-    delete nonl_dom[i];
+    delete[] nonl_dom[i];
   }
   delete[] nonl_dom;
 
@@ -5983,7 +5981,7 @@ size_t get_num_switches(short tapeId) {
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info1 = tapeId});
 
-  const size_t nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
+  size_t nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
   tape.end_sweep();
   return nswitch;
 }
@@ -5992,9 +5990,9 @@ size_t get_num_switches(short tapeId) {
 short firstsign(int p, const double *u, const double *du) {
   int i = 0;
   short tmp;
-  tmp = (*u > 1e-12) ? 1 : (((*u) < -1e-12) ? -1 : 0);
+  tmp = ((*u) > 1e-12) ? 1 : (((*u) < -1e-12) ? -1 : 0);
   while (i < p && tmp == 0.0) {
-    tmp = (du[i] > 0) ? 1 : ((du[i] < 0) ? -1 : 0);
+    tmp = (du[i] > 0.0) ? 1 : ((du[i] < 0.0) ? -1 : 0);
     i++;
   }
   return tmp;
@@ -6032,20 +6030,20 @@ short ext_firstsign2(double sigbase, int p, double *u, double *du) {
 /* operations on index domains                                              */
 
 #if defined(_TIGHT_)
-void copy_index_domain(size_t res, size_t arg, unsigned int **ind_dom) {
+void copy_index_domain(size_t res, size_t arg, uint **ind_dom) {
   if (ind_dom[arg][0] > ind_dom[res][1]) {
     delete ind_dom[res];
-    ind_dom[res] = new unsigned int[2 * (ind_dom[arg][0] + 1)];
+    ind_dom[res] = new uint[2 * (ind_dom[arg][0] + 1)];
     ind_dom[res][1] = 2 * ind_dom[arg][0];
   }
 
-  for (size_t i = 2; i < ind_dom[arg][0] + 2; i++)
+  for (uint i = 2; i < ind_dom[arg][0] + 2; i++)
     ind_dom[res][i] = ind_dom[arg][i];
   ind_dom[res][0] = ind_dom[arg][0];
 }
 
-void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom) {
-  unsigned int *temp_array, *arg_ind_dom, *res_ind_dom;
+void merge_2_index_domains(size_t res, size_t arg, uint **ind_dom) {
+  uint *temp_array, *arg_ind_dom, *res_ind_dom;
 
   if (ind_dom[res][0] == 0)
     copy_index_domain(res, arg, ind_dom);
@@ -6054,17 +6052,16 @@ void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom) {
       arg_ind_dom = ind_dom[arg];
       res_ind_dom = ind_dom[res];
 
-      unsigned int num = ind_dom[res][0];
-      unsigned int num1 = arg_ind_dom[0];
-      const unsigned int num2 =
-          num1 + num ? ind_dom[res][1] < num1 + num : ind_dom[res][1];
+      uint num = ind_dom[res][0];
+      uint num1 = arg_ind_dom[0];
+      uint num2 = (ind_dom[res][1] < num1 + num) ? num1 + num : ind_dom[res][1];
 
-      temp_array = new unsigned int[num2 + 2];
+      temp_array = new uint[num2 + 2];
       temp_array[1] = num2;
 
-      unsigned int i = 2;
-      unsigned int j = 2;
-      unsigned int k = 2;
+      uint i = 2;
+      uint j = 2;
+      uint k = 2;
       num += 2;
       num1 += 2;
       while ((i < num) && (j < num1)) {
@@ -6085,23 +6082,23 @@ void merge_2_index_domains(size_t res, size_t arg, unsigned int **ind_dom) {
           }
         }
       }
-      for (size_t l = i; l < num; l++) {
+      for (uint l = i; l < num; l++) {
         temp_array[k] = res_ind_dom[l];
         k++;
       }
-      for (size_t l = j; l < num1; l++) {
+      for (uint l = j; l < num1; l++) {
         temp_array[k] = arg_ind_dom[l];
         k++;
       }
       temp_array[0] = k - 2;
-      delete ind_dom[res];
+      delete[] ind_dom[res];
       ind_dom[res] = temp_array;
     }
   }
 }
 
 void combine_2_index_domains(size_t res, size_t arg1, size_t arg2,
-                             unsigned int **ind_dom) {
+                             uint **ind_dom) {
 
   if (res != arg1)
     copy_index_domain(res, arg1, ind_dom);
@@ -6110,7 +6107,7 @@ void combine_2_index_domains(size_t res, size_t arg1, size_t arg2,
 }
 
 void merge_3_index_domains(size_t res, size_t arg1, size_t arg2,
-                           unsigned int **ind_dom) {
+                           uint **ind_dom) {
   merge_2_index_domains(res, arg1, ind_dom);
   merge_2_index_domains(res, arg2, ind_dom);
 }
@@ -6131,7 +6128,7 @@ void free_tree(IndexElement *tree, size_t num) {
   }
   {
     if (tree->entry == num)
-      free(tree);
+      delete tree;
   }
 }
 void traverse_crs(IndexElement *tree, IndexElement_sod *sod, size_t num) {
@@ -6213,35 +6210,42 @@ void traverse_unary(IndexElement *tree, IndexElement *nonl_dom,
 #if defined(_TIGHT_)
 
 void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
-                                            unsigned int **ind_dom,
-                                            unsigned int **nonl_dom) {
-  const unsigned int num = ind_dom[arg2][0];
+                                            uint **ind_dom, uint **nonl_dom) {
 
-  for (size_t m = 2; m < ind_dom[arg1][0] + 2; m++) {
-    const unsigned int index = ind_dom[arg1][m];
-    unsigned int *index_nonl_dom = nonl_dom[index];
+  uint *temp_nonl = nullptr;
+  uint *index_nonl_dom = nullptr;
+
+  const uint num = ind_dom[arg2][0];
+  uint index = 0;
+  uint num1 = 0;
+  uint num2 = 0;
+  uint i = 0;
+  uint j = 0;
+  uint k = 0;
+  for (uint m = 2; m < ind_dom[arg1][0] + 2; m++) {
+    index = ind_dom[arg1][m];
+    index_nonl_dom = nonl_dom[index];
 
     if (index_nonl_dom[0] == 0) /* empty list */
     {
       if (index_nonl_dom[1] < num) {
         delete index_nonl_dom;
-        index_nonl_dom = new unsigned int[2 * (num + 1)];
+        index_nonl_dom = new uint[2 * (num + 1)];
         index_nonl_dom[1] = 2 * num;
       }
-      for (size_t i = 2; i < num + 2;
-           i++) /* append index domain list of "arg" */
+      for (i = 2; i < num + 2; i++) /* append index domain list of "arg" */
         index_nonl_dom[i] = ind_dom[arg2][i];
       index_nonl_dom[0] = num;
     } else { /* merge lists */
-      unsigned int num1 = index_nonl_dom[0];
-      unsigned int num2 =
-          num1 + num ? index_nonl_dom[1] < num1 + num : index_nonl_dom[1];
-      unsigned int *temp_nonl = new unsigned int[num2 + 2];
+      num1 = index_nonl_dom[0];
+      num2 = (index_nonl_dom[1] < num1 + num) ? num1 + num : index_nonl_dom[1];
+
+      temp_nonl = new uint[num2 + 2];
       temp_nonl[1] = num2;
 
-      unsigned int i = 2;
-      unsigned int k = 2;
-      unsigned int j = 2;
+      i = 2;
+      k = 2;
+      j = 2;
       num1 += 2;
       num2 = num + 2;
       while ((i < num1) && (j < num2)) {
@@ -6262,29 +6266,28 @@ void extend_nonlinearity_domain_binary_step(size_t arg1, size_t arg2,
           }
         }
       }
-      for (size_t l = j; l < num2; l++) {
+      for (uint l = j; l < num2; l++) {
         temp_nonl[k] = ind_dom[arg2][l];
         k++;
       }
-      for (size_t l = i; l < num1; l++) {
+      for (uint l = i; l < num1; l++) {
         temp_nonl[k] = index_nonl_dom[l];
         k++;
       }
       temp_nonl[0] = k - 2;
-      delete nonl_dom[index];
+      delete[] nonl_dom[index];
       nonl_dom[index] = temp_nonl;
     }
   }
 }
 
-void extend_nonlinearity_domain_unary(size_t arg, unsigned int **ind_dom,
-                                      unsigned int **nonl_dom) {
+void extend_nonlinearity_domain_unary(size_t arg, uint **ind_dom,
+                                      uint **nonl_dom) {
   extend_nonlinearity_domain_binary_step(arg, arg, ind_dom, nonl_dom);
 }
 
-void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2,
-                                       unsigned int **ind_dom,
-                                       unsigned int **nonl_dom) {
+void extend_nonlinearity_domain_binary(size_t arg1, size_t arg2, uint **ind_dom,
+                                       uint **nonl_dom) {
   extend_nonlinearity_domain_binary_step(arg1, arg2, ind_dom, nonl_dom);
   extend_nonlinearity_domain_binary_step(arg2, arg1, ind_dom, nonl_dom);
 }

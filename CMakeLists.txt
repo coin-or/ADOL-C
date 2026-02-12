@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # only standard c++
 
+
 # Check for minimum compiler versions that support most of C++20
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
@@ -182,9 +183,54 @@ if (ENABLE_BOOST_POOL)
   set(USE_BOOST_POOL "#define USE_BOOST_POOL 1")
 endif()
 
+# choose the number of bits for the bit vector propagation
+set(ADOLC_BITWORD_BITS 32)
+target_compile_definitions(adolc PUBLIC 
+              ADOLC_BITWORD_BITS=${ADOLC_BITWORD_BITS})
+
 if (ENABLE_SPARSE)
-  find_package(ColPack REQUIRED) # TODO add colpack installation
-  # target_link_libraries(...)
+  if (WIN32)
+      message(FATAL_ERROR "Sparse drivers require OpenMP, which is not supported on Windows/MSVC. ")
+  endif()
+
+  # System ColPack branch
+  if (ColPack_DIR)
+    find_package(ColPack CONFIG REQUIRED "${ColPack_DIR}") 
+    message(STATUS "Using system-installed ColPack at ${ColPack_DIR}")
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
+
+  else ()
+    message(STATUS "System ColPack_DIR not provided! Pulling from https://github.com/TimSiebert1/ColPack")
+    include(FetchContent)
+    FetchContent_declare(
+        ColPack
+        GIT_REPOSITORY https://github.com/TimSiebert1/ColPack
+        GIT_TAG 060f43feb3b550fddbb5e20c1be2721eaaa89813 # latest commit
+        CMAKE_ARGS -DENABLE_OPENMP=ON # colpack needs openmp to build
+    )
+    FetchContent_MakeAvailable(ColPack)
+    target_link_libraries(adolc PRIVATE ColPack::ColPack_shared)
+
+    # make colpack a systems lib, which disables our compiler warnings
+    FetchContent_GetProperties(ColPack SOURCE_DIR ColPack_SOURCE_DIR)
+    target_include_directories(adolc SYSTEM PRIVATE
+      ${ColPack_SOURCE_DIR}/inc
+    )
+
+    # Ensure feature_summary lists it
+    set_property(GLOBAL APPEND PROPERTY PACKAGES_FOUND ColPack)
+    set_property(GLOBAL APPEND PROPERTY _CMAKE_ColPack_TYPE REQUIRED)
+
+    # Install ColPack if ADOL-C is installed
+    if (TARGET ColPack_shared)
+      install(TARGETS ColPack_shared
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      )
+    endif()
+  endif()
+  set(ADOLC_SPARSE "#define ADOLC_SPARSE 1")
 endif()
 
 if(ENABLE_PAREXA)
@@ -195,16 +241,14 @@ endif()
 
 
 # Set the macros
-
-target_compile_definitions(adolc PRIVATE
+target_compile_definitions(adolc PUBLIC 
   $<$<BOOL:${ENABLE_ACTIVITY_TRACKING}>:ADOLC_TRACK_ACTIVITY=1>
   $<$<BOOL:${ENABLE_ADVANCED_BRANCHING}>:ADOLC_ADVANCED_BRANCHING=1>
   $<$<BOOL:${ENABLE_TRACELESS_REFCOUNTING}>:USE_ADTL_REFCOUNTING=1>
   $<$<BOOL:${WITH_BOOST}>:ENABLE_BOOST_POOL=1>
   $<$<BOOL:${ENABLE_STDCZERO}>:ADOLC_ADOUBLE_STDCZERO=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE_DRIVERS=1>
-  $<$<BOOL:${ENABLE_SPARSE}>:SPARSE=1>
-  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>)
+  $<$<BOOL:${ENABLE_TAPEDOC_VALUES}>:ADOLC_TAPE_DOC_VALUES=1>
+  $<$<BOOL:${ENABLE_SPARSE}>:ADOLC_SPARSE=1>)
 
 # include subdirectories for handling of includes and source files
 # ----------------------------------------------------------------
@@ -259,11 +303,18 @@ endif()
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-install(TARGETS adolc EXPORT adolcTargets)
+install(TARGETS adolc
+  EXPORT adolcTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
 install(EXPORT adolcTargets
   FILE adolc-targets.cmake
   NAMESPACE adolc::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
+
 
 write_basic_package_version_file(adolc-config-version.cmake
   VERSION ${adol-c_VERSION}
@@ -278,7 +329,7 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/adolc-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/adolc)
 
-export(TARGETS adolc NAMESPACE adolc:: FILE adolc-targets.cmake)
+
 
 # print a summary of found packages and set options
 # -------------------------------------------------

@@ -294,19 +294,20 @@ ADOLC_API inline size_t get_num_param(short tapeId) {
   return findTape(tapeId).get_num_param();
 }
 
-#ifdef SPARSE
-
+#ifdef ADOLC_SPARSE
+namespace ADOLC::Sparse {
 /**
  * @brief Sets the Sparse Jacbian Information of the tape
  *
  * @param tapeId ID of the tape to store the jacobian information
- * @param sJinfos the information to store
+ * @param sJInfos the information to store
  *
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
-  findTape(tapeId).setTapeInfoJacSparse(sJinfos);
+ADOLC_API inline void setTapeInfoJacSparse(short tapeId,
+                                           SparseJacInfos &&sJInfos) {
+  findTape(tapeId).setTapeInfoJacSparse(std::move(sJInfos));
 }
 
 /**
@@ -318,9 +319,77 @@ ADOLC_API void setTapeInfoJacSparse(short tapeId, SparseJacInfos sJinfos) {
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API void setTapeInfoHessSparse(short tapeId, SparseHessInfos sHInfos) {
-  findTape(tapeId).setTageInfoHessSparse(sHInfos);
+ADOLC_API inline void setTapeInfoHessSparse(short tapeId,
+                                            SparseHessInfos &&sHInfos) {
+  findTape(tapeId).setTapeInfoHessSparse(std::move(sHInfos));
 }
-#endif
+
+/**
+ * @brief Sets the Hessian sparsity pattern for a given tape.
+ *
+ * This function stores a user-provided Hessian sparsity pattern
+ * (`HPIn`) for the taped function identified by `tapeId`.
+ * It allows advanced users to bypass the internal sparsity pattern
+ * computation (`hess_pat()`) when the pattern is already known.
+ *
+ * @param tapeId
+ *        Identifier of the taped function.
+ * @param indep
+ *        Number of independent variables for the taped function.
+ * @param HPIn
+ *        Pointer to the compressed row storage (CRS) representation
+ *        of the upper-triangular part of the Hessian sparsity pattern:
+ *        - `HPIn[i][0]` → number of nonzero entries in row `i`
+ *        - `HPIn[i][1..]` → column indices (1-based) of the nonzeros.
+ *
+ * @note
+ *  - Only the upper-triangular part of the Hessian needs to be provided
+ *    in `HPIn`.
+ *  - This function transfers ownership of the CRS structure into the
+ *    tape's internal storage.
+ *  - Use this function only if you already know the exact sparsity
+ *    pattern and want to skip its recomputation.
+ *
+ * @see getHP
+ * @see hess_pat
+ */
+ADOLC_API inline void setHP(short tapeId, int indep,
+                            std::vector<uint *> &&HPIn) {
+  SparseHessInfos sHinfos;
+  sHinfos.setHP(indep, std::move(HPIn));
+  findTape(tapeId).setTapeInfoHessSparse(std::move(sHinfos));
+}
+
+/**
+ * @brief Retrieves the Hessian sparsity pattern from a given tape.
+ *
+ * This function returns the Hessian sparsity pattern currently stored
+ * in the tape identified by `tapeId`. The sparsity pattern must have
+ * been either:
+ *  - Computed internally by `hess_pat()`, or
+ *  - Set explicitly via `setHP()`.
+ *
+ * @param tapeId
+ *        Identifier of the taped function.
+ * @param HPOut
+ *        Output: Pointer to the CRS representation of the
+ *        upper-triangular Hessian sparsity pattern:
+ *        - `(*HPOut)[i][0]` → number of nonzero entries in row `i`
+ *        - `(*HPOut)[i][1..]` → column indices (1-based) of the nonzeros.
+ *
+ * @note
+ *  - The returned CRS structure is owned by the tape; do not free it.
+ *  - Only the upper-triangular part of the Hessian is stored and
+ *    returned.
+ *
+ * @see setHP
+ * @see hess_pat
+ */
+ADOLC_API inline std::vector<uint *> getHP(short tapeId) {
+  return findTape(tapeId).sHInfos().getHP();
+}
+
+} // namespace ADOLC::Sparse
+#endif // ADOLC_SPARSE
 
 #endif // ADOLC_TAPE_INTERFACE_H

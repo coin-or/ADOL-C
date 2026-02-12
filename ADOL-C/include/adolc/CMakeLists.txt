@@ -5,7 +5,6 @@ install(FILES
         adolcexport.h
         adolc.h
         adolc_openmp.h
-        adolc_sparse.h
         adoublecuda.h
         adtl.h
         adtl_hov.h
@@ -35,5 +34,6 @@ install(FILES
 add_subdirectory(drivers)
 add_subdirectory(internal)
 add_subdirectory(lie)
+add_subdirectory(sparse)
 add_subdirectory(tapedoc)
 add_subdirectory(valuetape)

@@ -45,7 +45,7 @@ Customize the build with the following options
 
   `-DENABLE_BOOST_POOL=1` Enable the use of boost pool (default=False)
 
-  `-DENABLE_SPARSE=1` Build with Colpack to enable sparse AD (default=False)
+  `-DENABLE_SPARSE=1` Build with Colpack to enable sparse AD (default=False, ColPack is either downloaded via FetchContent or if `ColPack_DIR` provides a path to ColPack's `ColPackConfig.cmake` this is used instead)
 
   `-DBUILD_INTERFACE=1` Build the c interface (default=False)
 
