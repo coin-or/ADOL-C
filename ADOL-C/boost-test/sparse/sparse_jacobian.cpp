@@ -19,8 +19,8 @@ using ADOLC::Sparse::SparseMethod;
 template <
     SparseMethod SM, CompressionMode CM, ControlFlowMode CFM,
     BitPatternPropagationDirection BPPD = BitPatternPropagationDirection::Auto>
-static void testSparseJac(short tapeId) {
-  createNewTape(tapeId);
+static void testSparseJac() {
+  const auto tapeId = createNewTape();
   constexpr int dimOut = 10;
   constexpr int dimIn = 20;
 
@@ -101,71 +101,60 @@ static void testSparseJac(short tapeId) {
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacIndexColSafe) {
-  const short tapeId = 565;
   testSparseJac<SparseMethod::IndexDomains, CompressionMode::Column,
-                ControlFlowMode::Safe>(tapeId);
+                ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacIndexColTight) {
-  const short tapeId = 566;
   testSparseJac<SparseMethod::IndexDomains, CompressionMode::Column,
-                ControlFlowMode::Tight>(tapeId);
+                ControlFlowMode::Tight>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacIndexRowSafe) {
-  const short tapeId = 567;
   testSparseJac<SparseMethod::IndexDomains, CompressionMode::Row,
-                ControlFlowMode::Safe>(tapeId);
+                ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacIndexRowTight) {
-  const short tapeId = 568;
   testSparseJac<SparseMethod::IndexDomains, CompressionMode::Row,
-                ControlFlowMode::Tight>(tapeId);
+                ControlFlowMode::Tight>();
 }
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropTight) {
-  const short tapeId = 569;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
-                ControlFlowMode::Tight>(tapeId);
+                ControlFlowMode::Tight>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropSafe) {
-  const short tapeId = 570;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
-                ControlFlowMode::Safe>(tapeId);
+                ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropForwardTight) {
-  const short tapeId = 571;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
                 ControlFlowMode::Tight,
-                BitPatternPropagationDirection::Forward>(tapeId);
+                BitPatternPropagationDirection::Forward>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropForwardSafe) {
-  const short tapeId = 572;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
-                ControlFlowMode::Safe, BitPatternPropagationDirection::Forward>(
-      tapeId);
+                ControlFlowMode::Safe,
+                BitPatternPropagationDirection::Forward>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropReverseTight) {
-  const short tapeId = 573;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
                 ControlFlowMode::Tight,
-                BitPatternPropagationDirection::Reverse>(tapeId);
+                BitPatternPropagationDirection::Reverse>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropReverseSafe) {
-  const short tapeId = 574;
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
-                ControlFlowMode::Safe, BitPatternPropagationDirection::Reverse>(
-      tapeId);
+                ControlFlowMode::Safe,
+                BitPatternPropagationDirection::Reverse>();
 }
 
-template <SparseMethod SM, ControlFlowMode CFM>
-static void testSparseJacPat(short tapeId) {
-  createNewTape(tapeId);
+template <SparseMethod SM, ControlFlowMode CFM> static void testSparseJacPat() {
+  const auto tapeId = createNewTape();
   constexpr int dimIn = 7;
   constexpr int dimOut = 2;
 
@@ -213,22 +202,18 @@ static void testSparseJacPat(short tapeId) {
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacPatIndexSafe) {
-  short tapeId = 575;
-  testSparseJacPat<SparseMethod::IndexDomains, ControlFlowMode::Safe>(tapeId);
+  testSparseJacPat<SparseMethod::IndexDomains, ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacPatBitPatternSafe) {
-  short tapeId = 576;
-  testSparseJacPat<SparseMethod::BitPattern, ControlFlowMode::Safe>(tapeId);
+  testSparseJacPat<SparseMethod::BitPattern, ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacPatIndexTight) {
-  short tapeId = 577;
-  testSparseJacPat<SparseMethod::IndexDomains, ControlFlowMode::Tight>(tapeId);
+  testSparseJacPat<SparseMethod::IndexDomains, ControlFlowMode::Tight>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacPatBitPatternTight) {
-  short tapeId = 578;
-  testSparseJacPat<SparseMethod::BitPattern, ControlFlowMode::Tight>(tapeId);
+  testSparseJacPat<SparseMethod::BitPattern, ControlFlowMode::Tight>();
 }
 BOOST_AUTO_TEST_SUITE_END()

@@ -19,7 +19,6 @@
 
 namespace {
 struct ADProblem {
-  short tapeId;
   int dim;
 };
 
@@ -78,8 +77,9 @@ void printmat(const char *name, int m, int n, double **M) {
   }
   printf("\n");
 }
-template <ADProblem problem> void taping(std::span<double, problem.dim> x) {
-  trace_on(problem.tapeId);
+template <ADProblem problem>
+void taping(std::span<double, problem.dim> x, short tapeId) {
+  trace_on(tapeId);
   std::array<adouble, problem.dim> xad;
 
   for (auto i = 0; i < problem.dim; i++) {
@@ -94,12 +94,12 @@ template <ADProblem problem> void taping(std::span<double, problem.dim> x) {
 }
 
 template <ADProblem problem>
-void computeHess(std::span<double, problem.dim> x) {
+void computeHess(std::span<double, problem.dim> x, short tapeId) {
   std::array<double *, problem.dim> H;
   for (auto &h : H)
     h = new double[problem.dim];
 
-  hessian(problem.tapeId, problem.dim, x.data(), H.data());
+  hessian(tapeId, problem.dim, x.data(), H.data());
   printmat("Hessian (non-sparse)", problem.dim, problem.dim, H.data());
 }
 
@@ -118,11 +118,11 @@ void printSparse(SparseHessData &hess) {
 }
 
 template <ADProblem problem, ADOLC::Sparse::RecoveryMethod RM>
-void computeSparseHess(std::span<double, problem.dim> x) {
+void computeSparseHess(std::span<double, problem.dim> x, short tapeId) {
   auto hess = SparseHessData{};
   ADOLC::Sparse::sparse_hess<ADOLC::Sparse::ControlFlowMode::Safe, RM>(
-      problem.tapeId, problem.dim, 0, x.data(), &hess.nnz, &hess.rind,
-      &hess.cind, &hess.values);
+      tapeId, problem.dim, 0, x.data(), &hess.nnz, &hess.rind, &hess.cind,
+      &hess.values);
 
   printSparse<RM>(hess);
   hess.reset();
@@ -130,11 +130,11 @@ void computeSparseHess(std::span<double, problem.dim> x) {
 
 template <ADProblem problem>
 CompressedHessian<problem>
-computeSparsityPattern(std::span<double, problem.dim> x) {
+computeSparsityPattern(std::span<double, problem.dim> x, short tapeId) {
   auto cHess = CompressedHessian<problem>{};
   std::span<uint *> HP_(cHess.HP);
   ADOLC::Sparse::hess_pat<ADOLC::Sparse::ControlFlowMode::Safe>(
-      problem.tapeId, problem.dim, x.data(), HP_);
+      tapeId, problem.dim, x.data(), HP_);
 
   std::cout << std::endl;
   std::cout << "Sparsity pattern of Hessian: \n";
@@ -149,7 +149,7 @@ computeSparsityPattern(std::span<double, problem.dim> x) {
 }
 template <ADProblem problem>
 void computeCompressedHessian(std::span<double, problem.dim> x,
-                              CompressedHessian<problem> &cHess) {
+                              CompressedHessian<problem> &cHess, short tapeId) {
   std::span<uint *> HP_(cHess.HP);
   ADOLC::Sparse::generate_seed_hess<ADOLC::Sparse::RecoveryMethod::Direct>(
       problem.dim, HP_, &cHess.Seed, &cHess.p);
@@ -161,7 +161,7 @@ void computeCompressedHessian(std::span<double, problem.dim> x,
   for (auto &hcomp : cHess.Hcomp)
     hcomp = new double[cHess.p];
 
-  hess_mat(problem.tapeId, problem.dim, cHess.p, x.data(), cHess.Seed,
+  hess_mat(tapeId, problem.dim, cHess.p, x.data(), cHess.Seed,
            cHess.Hcomp.data());
 
   printmat("compressed H:", problem.dim, cHess.p, cHess.Hcomp.data());
@@ -170,18 +170,19 @@ void computeCompressedHessian(std::span<double, problem.dim> x,
 
 int main() {
 
-  constexpr auto problem = ADProblem{1, 6};
-  createNewTape(problem.tapeId);
+  constexpr auto problem = ADProblem{6};
+  const auto tapeId = createNewTape();
   std::array<double, problem.dim> x;
   for (auto i = 0; i < problem.dim; i++) {
     x[i] = log(1.0 + i);
   }
 
   /* Tracing of function f(x) */
-  taping<problem>(x);
-  computeHess<problem>(x);
-  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Indirect>(x);
-  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Direct>(x);
-  auto cHess = computeSparsityPattern<problem>(x);
-  computeCompressedHessian<problem>(x, cHess);
+  taping<problem>(x, tapeId);
+  computeHess<problem>(x, tapeId);
+  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Indirect>(x,
+                                                                      tapeId);
+  computeSparseHess<problem, ADOLC::Sparse::RecoveryMethod::Direct>(x, tapeId);
+  auto cHess = computeSparsityPattern<problem>(x, tapeId);
+  computeCompressedHessian<problem>(x, cHess, tapeId);
 }

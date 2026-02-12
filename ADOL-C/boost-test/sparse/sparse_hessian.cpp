@@ -37,8 +37,8 @@ using ADOLC::Sparse::RecoveryMethod;
 */
 
 template <ControlFlowMode CFM, RecoveryMethod RCM>
-static void testSparseHessWithDiagonal(short tapeId) {
-  createNewTape(tapeId);
+static void testSparseHessWithDiagonal() {
+  const auto tapeId = createNewTape();
   constexpr int dimOut = 5;
   constexpr int dimIn = 20;
 
@@ -154,50 +154,39 @@ static void testSparseHessWithDiagonal(short tapeId) {
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessSafeDirect) {
-  const short tapeId = 632;
-  testSparseHessWithDiagonal<ControlFlowMode::Safe, RecoveryMethod::Direct>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::Safe, RecoveryMethod::Direct>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessSafeIndirect) {
-  const short tapeId = 633;
-  testSparseHessWithDiagonal<ControlFlowMode::Safe, RecoveryMethod::Indirect>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::Safe, RecoveryMethod::Indirect>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessTightDirect) {
-  const short tapeId = 634;
-  testSparseHessWithDiagonal<ControlFlowMode::Tight, RecoveryMethod::Direct>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::Tight, RecoveryMethod::Direct>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessTightIndirect) {
-  const short tapeId = 635;
-  testSparseHessWithDiagonal<ControlFlowMode::Tight, RecoveryMethod::Indirect>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::Tight,
+                             RecoveryMethod::Indirect>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessOldSafeDirect) {
-  const short tapeId = 636;
-  testSparseHessWithDiagonal<ControlFlowMode::OldSafe, RecoveryMethod::Direct>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::OldSafe,
+                             RecoveryMethod::Direct>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessOldSafeIndirect) {
-  const short tapeId = 637;
   testSparseHessWithDiagonal<ControlFlowMode::OldSafe,
-                             RecoveryMethod::Indirect>(tapeId);
+                             RecoveryMethod::Indirect>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessOldTightDirect) {
-  const short tapeId = 638;
-  testSparseHessWithDiagonal<ControlFlowMode::OldTight, RecoveryMethod::Direct>(
-      tapeId);
+  testSparseHessWithDiagonal<ControlFlowMode::OldTight,
+                             RecoveryMethod::Direct>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessOldTightIndirect) {
-  const short tapeId = 639;
   testSparseHessWithDiagonal<ControlFlowMode::OldTight,
-                             RecoveryMethod::Indirect>(tapeId);
+                             RecoveryMethod::Indirect>();
 }
 /*
  This test constructs a function with mixed-product terms so that the Hessian
@@ -224,8 +213,8 @@ BOOST_AUTO_TEST_CASE(SparseHessOldTightIndirect) {
 */
 
 template <ControlFlowMode CFM, RecoveryMethod RCM>
-static void testSparseHessWithOffDiagonals(short tapeId) {
-  createNewTape(tapeId);
+static void testSparseHessWithOffDiagonals() {
+  const auto tapeId = createNewTape();
   constexpr int dimIn = 6;
 
   std::array<double, dimIn> in;
@@ -316,51 +305,42 @@ static void testSparseHessWithOffDiagonals(short tapeId) {
     delete[] h;
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagSafeDirect) {
-  const short tapeId = 700;
-  testSparseHessWithOffDiagonals<ControlFlowMode::Safe, RecoveryMethod::Direct>(
-      tapeId);
+  testSparseHessWithOffDiagonals<ControlFlowMode::Safe,
+                                 RecoveryMethod::Direct>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagSafeIndirect) {
-  const short tapeId = 701;
   testSparseHessWithOffDiagonals<ControlFlowMode::Safe,
-                                 RecoveryMethod::Indirect>(tapeId);
+                                 RecoveryMethod::Indirect>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagTightDirect) {
-  const short tapeId = 702;
   testSparseHessWithOffDiagonals<ControlFlowMode::Tight,
-                                 RecoveryMethod::Direct>(tapeId);
+                                 RecoveryMethod::Direct>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagTightIndirect) {
-  const short tapeId = 703;
   testSparseHessWithOffDiagonals<ControlFlowMode::Tight,
-                                 RecoveryMethod::Indirect>(tapeId);
+                                 RecoveryMethod::Indirect>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagOldSafeDirect) {
-  const short tapeId = 704;
   testSparseHessWithOffDiagonals<ControlFlowMode::OldSafe,
-                                 RecoveryMethod::Direct>(tapeId);
+                                 RecoveryMethod::Direct>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagOldSafeIndirect) {
-  const short tapeId = 705;
   testSparseHessWithOffDiagonals<ControlFlowMode::OldSafe,
-                                 RecoveryMethod::Indirect>(tapeId);
+                                 RecoveryMethod::Indirect>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagOldTightDirect) {
-  const short tapeId = 706;
   testSparseHessWithOffDiagonals<ControlFlowMode::OldTight,
-                                 RecoveryMethod::Direct>(tapeId);
+                                 RecoveryMethod::Direct>();
 }
 BOOST_AUTO_TEST_CASE(SparseHessNonDiagOldTightIndirect) {
-  const short tapeId = 707;
   testSparseHessWithOffDiagonals<ControlFlowMode::OldTight,
-                                 RecoveryMethod::Indirect>(tapeId);
+                                 RecoveryMethod::Indirect>();
 }
 
-template <ControlFlowMode CFM>
-static void testSparseHessPatWithDiagonal(short tapeId) {
-  createNewTape(tapeId);
+template <ControlFlowMode CFM> static void testSparseHessPatWithDiagonal() {
+  const auto tapeId = createNewTape();
   constexpr int dimOut = 5;
   constexpr int dimIn = 20;
 
@@ -439,28 +419,23 @@ static void testSparseHessPatWithDiagonal(short tapeId) {
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatDiagSafe) {
-  const short tapeId = 708;
-  testSparseHessPatWithDiagonal<ControlFlowMode::Safe>(tapeId);
+  testSparseHessPatWithDiagonal<ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatDiagTight) {
-  const short tapeId = 709;
-  testSparseHessPatWithDiagonal<ControlFlowMode::Tight>(tapeId);
+  testSparseHessPatWithDiagonal<ControlFlowMode::Tight>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatDiagOldSafe) {
-  const short tapeId = 710;
-  testSparseHessPatWithDiagonal<ControlFlowMode::OldSafe>(tapeId);
+  testSparseHessPatWithDiagonal<ControlFlowMode::OldSafe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatDiagOldTight) {
-  const short tapeId = 711;
-  testSparseHessPatWithDiagonal<ControlFlowMode::OldTight>(tapeId);
+  testSparseHessPatWithDiagonal<ControlFlowMode::OldTight>();
 }
 
-template <ControlFlowMode CFM>
-static void testSparseHessPatWithOffDiagonal(short tapeId) {
-  createNewTape(tapeId);
+template <ControlFlowMode CFM> static void testSparseHessPatWithOffDiagonal() {
+  const auto tapeId = createNewTape();
   constexpr int dimIn = 6;
 
   std::array<double, dimIn> in;
@@ -526,22 +501,18 @@ static void testSparseHessPatWithOffDiagonal(short tapeId) {
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagSafe) {
-  const short tapeId = 712;
-  testSparseHessPatWithOffDiagonal<ControlFlowMode::Safe>(tapeId);
+  testSparseHessPatWithOffDiagonal<ControlFlowMode::Safe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagTight) {
-  const short tapeId = 713;
-  testSparseHessPatWithOffDiagonal<ControlFlowMode::Tight>(tapeId);
+  testSparseHessPatWithOffDiagonal<ControlFlowMode::Tight>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagOldSafe) {
-  const short tapeId = 714;
-  testSparseHessPatWithOffDiagonal<ControlFlowMode::OldSafe>(tapeId);
+  testSparseHessPatWithOffDiagonal<ControlFlowMode::OldSafe>();
 }
 
 BOOST_AUTO_TEST_CASE(SparseHessPatOffDiagOldTight) {
-  const short tapeId = 715;
-  testSparseHessPatWithOffDiagonal<ControlFlowMode::OldTight>(tapeId);
+  testSparseHessPatWithOffDiagonal<ControlFlowMode::OldTight>();
 }
 BOOST_AUTO_TEST_SUITE_END()

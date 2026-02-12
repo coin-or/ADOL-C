@@ -34,8 +34,6 @@ template <> struct ANFProblem<UnAllocated> {
 
   std::array<double, dimOut> out;
 
-  static constexpr short tapeId = 1;
-
   constexpr ANFProblem() = default;
   ANFProblem<Allocated> allocateBuffers(short numSwitchingVars);
 };
@@ -48,8 +46,6 @@ template <> struct ANFProblem<Allocated> {
 
   std::array<double, dimIn> in;
   std::array<double, dimOut> out;
-
-  static constexpr short tapeId = 1;
 
   int numSwitchingVars;
   std::vector<double> z;
@@ -104,17 +100,17 @@ ANFProblem<Allocated>
 ANFProblem<UnAllocated>::allocateBuffers(short numSwitchingVars) {
   return ANFProblem<Allocated>(numSwitchingVars, *this);
 }
-void computeANF(ANFProblem<Allocated> &anfProblemAlloc) {
-  zos_pl_forward(anfProblemAlloc.tapeId, anfProblemAlloc.dimOut,
-                 anfProblemAlloc.dimIn, 1, anfProblemAlloc.in.data(),
-                 anfProblemAlloc.out.data(), anfProblemAlloc.z.data());
+void computeANF(ANFProblem<Allocated> &anfProblemAlloc, short tapeId) {
+  zos_pl_forward(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn, 1,
+                 anfProblemAlloc.in.data(), anfProblemAlloc.out.data(),
+                 anfProblemAlloc.z.data());
 
-  abs_normal(anfProblemAlloc.tapeId, anfProblemAlloc.dimOut,
-             anfProblemAlloc.dimIn, anfProblemAlloc.numSwitchingVars,
-             anfProblemAlloc.in.data(), anfProblemAlloc.out.data(),
-             anfProblemAlloc.z.data(), anfProblemAlloc.cz.data(),
-             anfProblemAlloc.cy.data(), anfProblemAlloc.Y, anfProblemAlloc.J,
-             anfProblemAlloc.Z, anfProblemAlloc.L);
+  abs_normal(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
+             anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(),
+             anfProblemAlloc.out.data(), anfProblemAlloc.z.data(),
+             anfProblemAlloc.cz.data(), anfProblemAlloc.cy.data(),
+             anfProblemAlloc.Y, anfProblemAlloc.J, anfProblemAlloc.Z,
+             anfProblemAlloc.L);
 }
 
 void taping(ANFProblem<UnAllocated> &anfProblem) {
@@ -129,21 +125,21 @@ void taping(ANFProblem<UnAllocated> &anfProblem) {
 
 void problem() {
   ANFProblem<UnAllocated> anfProblem{};
-  createNewTape(anfProblem.tapeId);
+  const auto tapeId = createNewTape();
   currentTape().enableMinMaxUsingAbs();
-  trace_on(anfProblem.tapeId);
+  trace_on(tapeId);
   taping(anfProblem);
   trace_off();
 
-  int numSwitchingVars = get_num_switches(anfProblem.tapeId);
+  int numSwitchingVars = get_num_switches(tapeId);
   auto anfProblemAlloc = anfProblem.allocateBuffers(numSwitchingVars);
-  computeANF(anfProblemAlloc);
+  computeANF(anfProblemAlloc, tapeId);
 
   std::vector<uint *> crs(anfProblemAlloc.dimOut +
                           anfProblemAlloc.numSwitchingVars);
   std::span<uint *> crsSpan(crs);
   ADOLC::Sparse::absnormal_jac_pat(
-      anfProblemAlloc.tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
+      tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
       anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(), crsSpan);
 
   std::cout << "Jacobian Pattern (ANF): " << std::endl;

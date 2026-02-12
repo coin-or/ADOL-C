@@ -18,7 +18,6 @@
 
 namespace {
 struct ADProblem {
-  short tapeId;
   int dimOut;
   int dimIn;
 };
@@ -75,9 +74,9 @@ void printmat(const char *name, int m, int n, double **M) {
   std::cout << "\n";
 }
 
-template <ADProblem problem> void taping(std::span<double, problem.dimIn> x) {
-
-  trace_on(problem.tapeId);
+template <ADProblem problem>
+void taping(std::span<double, problem.dimIn> x, short tapeId) {
+  trace_on(tapeId);
   std::array<adouble, problem.dimIn> xad;
   for (int i = 0; i < problem.dimIn; i++)
     xad[i] <<= x[i];
@@ -93,12 +92,12 @@ template <ADProblem problem> void taping(std::span<double, problem.dimIn> x) {
 }
 
 template <ADProblem problem>
-void computeJac(std::span<double, problem.dimIn> x) {
+void computeJac(std::span<double, problem.dimIn> x, short tapeId) {
   std::array<double *, problem.dimOut> J;
   for (auto &j : J)
     j = new double[problem.dimIn];
 
-  jacobian(problem.tapeId, problem.dimOut, problem.dimIn, x.data(), J.data());
+  jacobian(tapeId, problem.dimOut, problem.dimIn, x.data(), J.data());
 
   printmat(" J", problem.dimOut, problem.dimIn, J.data());
   std::cout << "\n";
@@ -119,26 +118,26 @@ void printSparseJac(SparseJacData &jac) {
 }
 
 template <ADProblem problem, ADOLC::Sparse::CompressionMode CM>
-void computeSparseJac(std::span<double, problem.dimIn> x) {
+void computeSparseJac(std::span<double, problem.dimIn> x, short tapeId) {
   auto jac = SparseJacData{};
   ADOLC::Sparse::sparse_jac<
       ADOLC::Sparse::SparseMethod::IndexDomains, CM,
       ADOLC::Sparse::ControlFlowMode::Safe,
       ADOLC::Sparse::BitPatternPropagationDirection::Auto>(
-      problem.tapeId, problem.dimOut, problem.dimIn, 0, x.data(), &jac.nnz,
-      &jac.rind, &jac.cind, &jac.values);
+      tapeId, problem.dimOut, problem.dimIn, 0, x.data(), &jac.nnz, &jac.rind,
+      &jac.cind, &jac.values);
   printSparseJac<CM>(jac);
   jac.reset();
 }
 
 template <ADProblem problem>
 CompressedJacobian<problem>
-computeSparsityPattern(std::span<double, problem.dimIn> x) {
+computeSparsityPattern(std::span<double, problem.dimIn> x, short tapeId) {
   auto cJac = CompressedJacobian<problem>{};
   std::span<uint *> JP_(cJac.JP);
   ADOLC::Sparse::jac_pat<ADOLC::Sparse::SparseMethod::IndexDomains,
                          ADOLC::Sparse::ControlFlowMode::Safe>(
-      problem.tapeId, problem.dimOut, problem.dimIn, x.data(), JP_);
+      tapeId, problem.dimOut, problem.dimIn, x.data(), JP_);
 
   std::cout << "\n";
   std::cout << "Sparsity pattern of Jacobian: \n";
@@ -154,7 +153,8 @@ computeSparsityPattern(std::span<double, problem.dimIn> x) {
 
 template <ADProblem problem>
 void computeCompressedJacobian(std::span<double, problem.dimIn> x,
-                               CompressedJacobian<problem> &cJac) {
+                               CompressedJacobian<problem> &cJac,
+                               short tapeId) {
 
   std::span<uint *> JP_(cJac.JP);
   ADOLC::Sparse::generate_seed_jac<ADOLC::Sparse::CompressionMode::Column>(
@@ -169,7 +169,7 @@ void computeCompressedJacobian(std::span<double, problem.dimIn> x,
     jcomp = new double[cJac.p];
 
   std::array<double, problem.dimOut> out;
-  fov_forward(problem.tapeId, problem.dimOut, problem.dimIn, cJac.p, x.data(),
+  fov_forward(tapeId, problem.dimOut, problem.dimIn, cJac.p, x.data(),
               cJac.Seed, out.data(), cJac.Jcomp.data());
   printmat("compressed J:", problem.dimOut, cJac.p, cJac.Jcomp.data());
   std::cout << "\n";
@@ -179,17 +179,17 @@ void computeCompressedJacobian(std::span<double, problem.dimIn> x,
 /***************************************************************************/
 
 int main() {
-  constexpr auto problem = ADProblem{.tapeId = 1, .dimOut = 3, .dimIn = 6};
-  createNewTape(problem.tapeId);
+  constexpr auto problem = ADProblem{.dimOut = 3, .dimIn = 6};
+  const auto tapeId = createNewTape();
 
   std::array<double, problem.dimIn> x;
   for (int i = 0; i < problem.dimIn; i++)
     x[i] = log(1.0 + i);
 
-  taping<problem>(x);
-  computeJac<problem>(x);
-  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Column>(x);
-  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Row>(x);
-  auto cJac = computeSparsityPattern<problem>(x);
-  computeCompressedJacobian(x, cJac);
+  taping<problem>(x, tapeId);
+  computeJac<problem>(x, tapeId);
+  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Column>(x, tapeId);
+  computeSparseJac<problem, ADOLC::Sparse::CompressionMode::Row>(x, tapeId);
+  auto cJac = computeSparsityPattern<problem>(x, tapeId);
+  computeCompressedJacobian(x, cJac, tapeId);
 }
