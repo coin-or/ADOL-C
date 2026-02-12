@@ -32,14 +32,13 @@ and _NTIGHT__
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
-#include <cmath>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
-
+#include <cmath>
 
 #if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
@@ -500,7 +499,7 @@ BEGIN_C_DECLS
 /* Zero Order Scalar version of the forward mode.                           */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int zos_pl_forward(ValueTape& tape, int depcheck, int indcheck, int keep,
+int zos_pl_forward(ValueTape &tape, int depcheck, int indcheck, int keep,
                    const double *basepoint, double *valuepoint, double *swargs)
 #else
 #if defined(_KEEP_)
@@ -508,9 +507,9 @@ int zos_forward(
 #else
 int zos_forward_nk(
 #endif
-    ValueTape& tape,   /* tape id */
-    int depcheck, /* consistency chk on # of deps */
-    int indcheck, /* consistency chk on # of indeps */
+    ValueTape &tape, /* tape id */
+    int depcheck,    /* consistency chk on # of deps */
+    int indcheck,    /* consistency chk on # of indeps */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
@@ -525,12 +524,12 @@ int zos_forward_nk(
 /* First Order Scalar version of the forward mode. */
 /****************************************************************************/
 #if defined(_ABS_NORM_)
-int fos_pl_forward(ValueTape& tape, int depcheck, int indcheck,
+int fos_pl_forward(ValueTape &tape, int depcheck, int indcheck,
                    const double *basepoint, const double *argument,
                    double *valuepoint, double *taylors, double *swargs,
                    double *swtaylors)
 #elif defined(_ABS_NORM_SIG_)
-int fos_pl_sig_forward(ValueTape& tape, int depcheck, int indcheck,
+int fos_pl_sig_forward(ValueTape &tape, int depcheck, int indcheck,
                        const double *basepoint, const double *argument,
                        int swcheck, const short *sigbase, const short *sigdir,
                        double *valuepoint, double *taylors, double *swargs,
@@ -541,9 +540,9 @@ int fos_forward(
 #else
 int fos_forward_nk(
 #endif
-    ValueTape& tape,   /* tape id */
-    int depcheck, /* consistency chk on # of deps */
-    int indcheck, /* consistency chk on # of indeps */
+    ValueTape &tape, /* tape id */
+    int depcheck,    /* consistency chk on # of deps */
+    int indcheck,    /* consistency chk on # of indeps */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
@@ -561,7 +560,7 @@ int fos_forward_nk(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int int_forward_tight(
-    ValueTape& tape,                    /* tape id                              */
+    ValueTape &tape,               /* tape id                              */
     int depcheck,                  /* consistency chk on # of dependents   */
     int indcheck,                  /* consistency chk on # of independents */
     int p,                         /* # of taylor series, bit pattern      */
@@ -588,10 +587,10 @@ int int_forward_tight(
 /****************************************************************************/
 /* First Order Vector version of the forward mode, bit pattern, safe        */
 /****************************************************************************/
-int int_forward_safe(ValueTape& tape,   /* tape id                              */
-                     int depcheck, /* consistency chk on # of dependents   */
-                     int indcheck, /* consistency chk on # of independents */
-                     int p,        /* # of taylor series, bit pattern      */
+int int_forward_safe(ValueTape &tape, /* tape id                              */
+                     int depcheck,    /* consistency chk on # of dependents   */
+                     int indcheck,    /* consistency chk on # of independents */
+                     int p,           /* # of taylor series, bit pattern      */
                      const size_t *const *argument, /* Taylor coeff. (in)*/
                      size_t **taylors) /* matrix of coefficient vectors (out)*/
 
@@ -615,7 +614,7 @@ and pass a bit pattern version of the identity matrix as an argument    */
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int indopro_forward_tight(
-    ValueTape& tape,              /* tape id                              */
+    ValueTape &tape,         /* tape id                              */
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
@@ -628,7 +627,7 @@ int indopro_forward_tight(
 #if defined(_NTIGHT_)
 #if defined(_ABS_NORM_)
     int indopro_forward_absnormal(
-        ValueTape& tape,         /* tape id                              */
+        ValueTape &tape,    /* tape id                              */
         int depcheck,       /* consistency chk on # of dependents   */
         int indcheck,       /* consistency chk on # of independents */
         int swcheck,        /* consistency chk on # of switches    */
@@ -642,7 +641,7 @@ int indopro_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int indopro_forward_safe(
-        ValueTape& tape,         /* tape id                              */
+        ValueTape &tape,    /* tape id                              */
         int depcheck,       /* consistency chk on # of dependents   */
         int indcheck,       /* consistency chk on # of independents */
         const double *,     /* independent variable values   (in)   */
@@ -660,7 +659,7 @@ int indopro_forward_tight(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int nonl_ind_forward_tight(
-    ValueTape& tape,              /* tape id                              */
+    ValueTape &tape,         /* tape id                              */
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
@@ -672,7 +671,7 @@ int nonl_ind_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_forward_safe(
-        ValueTape& tape,         /* tape id                              */
+        ValueTape &tape,    /* tape id                              */
         int depcheck,       /* consistency chk on # of dependents   */
         int indcheck,       /* consistency chk on # of independents */
         const double *,     /* independent variable values   (in)   */
@@ -689,7 +688,7 @@ int nonl_ind_forward_tight(
 /* First Order Vector version of the forward mode for bit patterns, tight   */
 /****************************************************************************/
 int nonl_ind_old_forward_tight(
-    ValueTape& tape,              /* tape id                              */
+    ValueTape &tape,         /* tape id                              */
     int depcheck,            /* consistency chk on # of dependents   */
     int indcheck,            /* consistency chk on # of independents */
     const double *basepoint, /* independent variable values   (in)   */
@@ -701,7 +700,7 @@ int nonl_ind_old_forward_tight(
     /* First Order Vector version of the forward mode, bit pattern, safe */
     /****************************************************************************/
     int nonl_ind_old_forward_safe(
-        ValueTape& tape,         /* tape id                              */
+        ValueTape &tape,    /* tape id                              */
         int depcheck,       /* consistency chk on # of dependents   */
         int indcheck,       /* consistency chk on # of independents */
         const double *,     /* independent variable values   (in)   */
@@ -719,7 +718,7 @@ int nonl_ind_old_forward_tight(
 /* **argument and **taylors                                                 */
 /****************************************************************************/
 int fov_offset_forward(
-    ValueTape& tape,                    /* tape id */
+    ValueTape &tape,               /* tape id */
     int depcheck,                  /* consistency chk on # of deps */
     int indcheck,                  /* consistency chk on # of indeps */
     int p,                         /* # of taylor series */
@@ -736,7 +735,7 @@ int fov_offset_forward(
 /****************************************************************************/
 #if defined(_ABS_NORM_)
 int fov_pl_forward(
-    ValueTape& tape,                    /* tape id */
+    ValueTape &tape,               /* tape id */
     int depcheck,                  /* consistency chk on # of deps */
     int indcheck,                  /* consistency chk on # of indeps */
     int p,                         /* # of taylor series */
@@ -749,7 +748,7 @@ int fov_pl_forward(
  * [var][taylor] */
 #elif defined(_ABS_NORM_SIG_)
 int fov_pl_sig_forward(
-    ValueTape& tape,                    /* tape id */
+    ValueTape &tape,               /* tape id */
     int depcheck,                  /* consistency chk on # of deps */
     int indcheck,                  /* consistency chk on # of indeps */
     int p,                         /* # of taylor series */
@@ -762,7 +761,7 @@ int fov_pl_sig_forward(
     double **taylors,              /* matrix of coifficient vectors */
     double *swargs, double **swtaylors, short *sigsw)
 #else
-int fov_forward(ValueTape& tape,              /* tape id */
+int fov_forward(ValueTape &tape,         /* tape id */
                 int depcheck,            /* consistency chk on # of deps */
                 int indcheck,            /* consistency chk on # of indeps */
                 int p,                   /* # of taylor series */
@@ -785,10 +784,10 @@ int hos_forward(
 #else
 int hos_forward_nk(
 #endif
-    ValueTape& tape,   /* tape id */
-    int depcheck, /* consistency chk on # of dependents */
-    int indcheck, /* consistency chk on # of independents */
-    int gdegree,  /* highest derivative degree */
+    ValueTape &tape, /* tape id */
+    int depcheck,    /* consistency chk on # of dependents */
+    int indcheck,    /* consistency chk on # of independents */
+    int gdegree,     /* highest derivative degree */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
@@ -806,10 +805,10 @@ int hov_wk_forward(
 #else
 int hov_forward(
 #endif
-    ValueTape& tape,   /* tape id */
-    int depcheck, /* consistency chk on # of deps */
-    int indcheck, /* consistency chk on # of indeps */
-    int gdegree,  /* highest derivative degree */
+    ValueTape &tape, /* tape id */
+    int depcheck,    /* consistency chk on # of deps */
+    int indcheck,    /* consistency chk on # of indeps */
+    int gdegree,     /* highest derivative degree */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
 #endif
@@ -971,11 +970,11 @@ int hov_forward(
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   zos_forward(*edfct->outerTapePtr, n, edfct->dp_x, m, edfct->dp_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  zos_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x, m,         \
+  zos_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x, m,  \
                    edfct->dp_y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  zos_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
-              outsz, edfct2->y, edfct2->context)
+  zos_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz,         \
+              edfct2->x, outsz, edfct2->y, edfct2->context)
 #define ADOLC_EXT_COPY_TAYLORS(dest, src)
 #endif
   /* FOS_FORWARD */
@@ -984,16 +983,17 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER fos_forward
 #define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_forward(*edfct->outerTapePtr, n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y,      \
-              edfct->dp_Y)
+  fos_forward(*edfct->outerTapePtr, n, edfct->dp_x, edfct->dp_X, m,            \
+              edfct->dp_y, edfct->dp_Y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fos_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x,            \
+  fos_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x,     \
                    edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
 #define ADOLC_EXT_POINTER_X edfct->dp_X
 #define ADOLC_EXT_POINTER_Y edfct->dp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
-              edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)
+  fos_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz,         \
+              edfct2->x, edfct2->xp, outsz, edfct2->y, edfct2->yp,             \
+              edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->yp
 #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
@@ -1005,16 +1005,17 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER fov_forward
 #define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fov_forward(*edfct->outerTapePtr, n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y,  \
-              edfct->dpp_Y)
+  fov_forward(*edfct->outerTapePtr, n, edfct->dp_x, p, edfct->dpp_X, m,        \
+              edfct->dp_y, edfct->dpp_Y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fov_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x, p,         \
+  fov_forward_iArr(*edfct->outerTapePtr, iArrLength, iArr, n, edfct->dp_x, p,  \
                    edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
 #define ADOLC_EXT_POINTER_X edfct->dpp_X
 #define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz, edfct2->x, p,  \
-              edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
+  fov_forward(*edfct->outerTapePtr, iArrLength, iArr, nin, nout, insz,         \
+              edfct2->x, p, edfct2->Xp, outsz, edfct2->y, edfct2->Yp,          \
+              edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->Xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
 #define ADOLC_EXT_COPY_TAYLORS(dest, src) dest = src
@@ -5975,7 +5976,7 @@ int hov_forward(
 
 /****************************************************************************/
 #if defined(_ZOS_) && defined(_ABS_NORM_)
-size_t get_num_switches(ValueTape& tape) {
+size_t get_num_switches(ValueTape &tape) {
   tape.init_for_sweep();
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,

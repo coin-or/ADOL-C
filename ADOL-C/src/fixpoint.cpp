@@ -206,7 +206,7 @@ static int fp_fos_reverse(ValueTape &outerTape, size_t dim_x, double *x_fix_bar,
   return -1;
 }
 
-void fpi_stack_clear(){ fpi_stack.clear();}
+void fpi_stack_clear() { fpi_stack.clear(); }
 
 int fp_iteration(ValueTape &outerTape, ValueTape &innerTape,
                  double_F double_func, adouble_F adouble_func, norm_F norm_func,
