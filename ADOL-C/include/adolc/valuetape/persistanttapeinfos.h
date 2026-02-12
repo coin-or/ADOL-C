@@ -3,6 +3,7 @@
 #define ADOLC_PERSISTANT_TAPE_INFOS_H
 
 #include <array>
+#include <atomic>
 #include <cstring>
 #include <string>
 
@@ -12,27 +13,30 @@ struct PersistantTapeInfos {
   enum TAPENAMES { LOCATIONS_TAPE, VALUES_TAPE, OPERATIONS_TAPE, TAYLORS_TAPE };
 
   ~PersistantTapeInfos();
-  PersistantTapeInfos() = default;
-  PersistantTapeInfos(short tapeId) {
-    op_fileName = createFileName(tapeId, OPERATIONS_TAPE);
-    loc_fileName = createFileName(tapeId, LOCATIONS_TAPE);
-    val_fileName = createFileName(tapeId, VALUES_TAPE);
-    tay_fileName = createFileName(tapeId, TAYLORS_TAPE);
+  PersistantTapeInfos() : tapeId_(newTapeId()) {
+    op_fileName = createFileName(OPERATIONS_TAPE);
+    loc_fileName = createFileName(LOCATIONS_TAPE);
+    val_fileName = createFileName(VALUES_TAPE);
+    tay_fileName = createFileName(TAYLORS_TAPE);
   }
-  PersistantTapeInfos(short tapeId, std::array<std::string, 4> &&tapeBaseNames)
-      : tapeBaseNames_(std::move(tapeBaseNames)) {
-    op_fileName = createFileName(tapeId, OPERATIONS_TAPE);
-    loc_fileName = createFileName(tapeId, LOCATIONS_TAPE);
-    val_fileName = createFileName(tapeId, VALUES_TAPE);
-    tay_fileName = createFileName(tapeId, TAYLORS_TAPE);
+  PersistantTapeInfos(std::array<std::string, 4> &&tapeBaseNames)
+      : tapeId_(newTapeId()), tapeBaseNames_(std::move(tapeBaseNames)) {
+    op_fileName = createFileName(OPERATIONS_TAPE);
+    loc_fileName = createFileName(LOCATIONS_TAPE);
+    val_fileName = createFileName(VALUES_TAPE);
+    tay_fileName = createFileName(TAYLORS_TAPE);
   }
   PersistantTapeInfos(const PersistantTapeInfos &) = delete;
   PersistantTapeInfos(PersistantTapeInfos &&other) noexcept;
   PersistantTapeInfos &operator=(const PersistantTapeInfos &) = delete;
   PersistantTapeInfos &operator=(PersistantTapeInfos &&other) noexcept;
 
+  static short newTapeId() {
+    static std::atomic<short> tapeId = 0;
+    return tapeId.fetch_add(1, std::memory_order_relaxed);
+  }
   // create file name depending on tape type and number
-  char *createFileName(short tapeId, int tapeType);
+  char *createFileName(int tapeType);
   /****************************************************************************/
   /* Tries to read a local config file containing, e.g., buffer sizes         */
   /****************************************************************************/
@@ -43,6 +47,7 @@ struct PersistantTapeInfos {
     return outstr;
   }
 
+  short tapeId_{-1};
   int forodec_nax{0};
   int forodec_dax{0};
   double *forodec_y{nullptr};

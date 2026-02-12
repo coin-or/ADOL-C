@@ -39,7 +39,7 @@ ADOLC_ext_fct_hos_reverse cp_hos_reverse;
 ADOLC_ext_fct_hov_reverse cp_hov_reverse;
 
 void cp_taping(CpInfos *cpInfos) {
-  trace_on(cpInfos->cp_tape_id, 1);
+  trace_on(*cpInfos->innerTapePtr, 1);
   {
     std::vector<adouble> tapingAdoubles(cpInfos->dim);
     for (int i = 0; i < cpInfos->dim; ++i)
@@ -50,7 +50,7 @@ void cp_taping(CpInfos *cpInfos) {
     for (int i = 0; i < cpInfos->dim; ++i)
       tapingAdoubles[i] >>= cpInfos->dp_internal_for[i];
   }
-  trace_off();
+  trace_off(*cpInfos->innerTapePtr);
 }
 
 /****************************************************************************/
@@ -85,14 +85,13 @@ void revolveError(CpInfos *cpInfos) {
   }
 }
 
-void revolve_for(short tapeId, CpInfos *cpInfos) {
+void revolve_for(CpInfos *cpInfos) {
   /* init revolve */
   cpInfos->check = -1;
   cpInfos->capo = 0;
   cpInfos->info = 0;
   cpInfos->fine = cpInfos->steps;
 
-  ValueTape &tape = findTape(tapeId);
   /* execute all time steps */
   enum revolve_action whattodo;
   do {
@@ -101,7 +100,7 @@ void revolve_for(short tapeId, CpInfos *cpInfos) {
 
     switch (whattodo) {
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
+      cpInfos->outerTapePtr->cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
 
@@ -128,72 +127,74 @@ void revolve_for(short tapeId, CpInfos *cpInfos) {
 }
 
 /* we do not really have an ext. diff. function that we want to be called */
-int dummy(short, size_t, double *, size_t, double *) { return 0; }
+int dummy(ValueTape &, size_t, double *, size_t, double *) { return 0; }
 
 /* register one time step function (uses buffer template) */
-CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
+CpInfos *reg_timestep_fct(ValueTape &outerTape, ValueTape &innerTape,
                           ADOLC_TimeStepFuncion timeStepFunction) {
 
-  ValueTape &tape = findTape(tapeId);
-  CpInfos *theCpInfos = tape.cp_append();
+  CpInfos *theCpInfos = outerTape.cp_append();
   theCpInfos->function = timeStepFunction;
-  theCpInfos->tapeId = tapeId;
-  theCpInfos->cp_tape_id = cp_tape_id;
+  theCpInfos->outerTapePtr = &outerTape;
+  theCpInfos->innerTapePtr = &innerTape;
   return theCpInfos;
 }
 
-void check_input(short tapeId, CpInfos *cpInfos) { // knockout
-  if (tapeId != cpInfos->tapeId)
-    ADOLCError::fail(ADOLCError::ErrorType::CP_TAPE_MISMATCH, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info2 = to_size_t(cpInfos->tapeId),
-                                          .info3 = tapeId});
+void check_input(ValueTape &tape, CpInfos *cpInfos) {
+  using ADOLCError::fail;
+  using ADOLCError::FailInfo;
+  using ADOLCError::ErrorType::CHECKPOINTING_CPINFOS_NULLPOINTER;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_ARGUMENT;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE;
+  using ADOLCError::ErrorType::CP_TAPE_MISMATCH;
+
+  if (&tape != cpInfos->outerTapePtr)
+    fail(CP_TAPE_MISMATCH, CURRENT_LOCATION,
+         FailInfo{.info2 = to_size_t(cpInfos->outerTapePtr->tapeId()),
+                  .info3 = tape.tapeId()});
   if (cpInfos == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_CPINFOS_NULLPOINTER,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_CPINFOS_NULLPOINTER, CURRENT_LOCATION);
   if (cpInfos->function == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_FUNCTION, CURRENT_LOCATION);
   if (cpInfos->function_double == nullptr)
-    ADOLCError::fail(
-        ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
-        CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE, CURRENT_LOCATION);
   if (cpInfos->adp_x == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_ARGUMENT,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_ARGUMENT, CURRENT_LOCATION);
 }
 /* This is the main checkpointing function the user calls within the taping
  * process. It performs n time steps with or without taping and registers an
  * external dummy function which calls the actual checkpointing workhorses
  * from within the used drivers. */
-int checkpointing(short tapeId, CpInfos *cpInfos) {
+int checkpointing(ValueTape &outerTape, CpInfos *cpInfos) {
 
   // throws if input is invalid
-  check_input(tapeId, cpInfos);
+  check_input(outerTape, cpInfos);
 
   // register extern function
-  ext_diff_fct *edf = reg_ext_fct(cpInfos->tapeId, cpInfos->cp_tape_id, dummy);
+  ext_diff_fct *edf = reg_ext_fct(outerTape, *cpInfos->innerTapePtr, dummy);
   init_edf(edf);
 
-  ValueTape &tape = findTape(cpInfos->tapeId);
   int oldTraceFlag = 0;
   // but we do not call it
   // we use direct taping to avoid unnecessary argument copying
-  if (tape.traceFlag()) {
-    tape.put_op(ext_diff);
-    tape.put_loc(edf->index);
-    tape.put_loc(0);
-    tape.put_loc(0);
-    tape.put_loc(cpInfos->adp_x[0].loc());
-    tape.put_loc(cpInfos->adp_y[0].loc());
+  if (outerTape.traceFlag()) {
+    outerTape.put_op(ext_diff);
+    outerTape.put_loc(edf->index);
+    outerTape.put_loc(0);
+    outerTape.put_loc(0);
+    outerTape.put_loc(cpInfos->adp_x[0].loc());
+    outerTape.put_loc(cpInfos->adp_y[0].loc());
     // this CpInfos id has to be read by the actual checkpointing
     // functions
-    tape.put_loc(cpInfos->index);
+    outerTape.put_loc(cpInfos->index);
 
-    oldTraceFlag = tape.traceFlag();
-    tape.traceFlag(0);
+    oldTraceFlag = outerTape.traceFlag();
+    outerTape.traceFlag(0);
   }
 
-  std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
+  std::vector<double> vals(outerTape.store(),
+                           outerTape.store() + outerTape.storeSize());
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
 
@@ -201,23 +202,23 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
   for (int i = 0; i < cpInfos->dim; ++i)
     cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].value();
 
-  if (tape.keepTaylors()) {
+  if (outerTape.keepTaylors()) {
     // perform all time steps, tape the last, take checkpoints
-    revolve_for(tapeId, cpInfos);
+    revolve_for(cpInfos);
   } else
     // perform all time steps without taping
     for (int i = 0; i < cpInfos->steps; ++i)
       cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
 
-  std::copy(vals.begin(), vals.end(), tape.store());
+  std::copy(vals.begin(), vals.end(), outerTape.store());
 
   // update taylor stack; same structure as in adouble.cpp +
   // correction in taping.cpp
   if (oldTraceFlag) {
-    tape.add_numTays_Tape(cpInfos->dim);
-    if (tape.keepTaylors())
+    outerTape.add_numTays_Tape(cpInfos->dim);
+    if (outerTape.keepTaylors())
       for (int i = 0; i < cpInfos->dim; ++i)
-        tape.write_scaylor(cpInfos->adp_y[i].value());
+        outerTape.write_scaylor(cpInfos->adp_y[i].value());
   }
   // save results
   for (int i = 0; i < cpInfos->dim; ++i) {
@@ -228,7 +229,7 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
   cpInfos->dp_internal_for = nullptr;
 
   // normal taping again
-  tape.traceFlag(oldTraceFlag);
+  outerTape.traceFlag(oldTraceFlag);
 
   return 0;
 }
@@ -245,7 +246,6 @@ void init_CpInfos(CpInfos *cpInfos) {
   ptr = reinterpret_cast<char *>(cpInfos);
   for (size_t i = 0; i < sizeof(CpInfos); ++i)
     ptr[i] = 0;
-  cpInfos->tapeId = -1;
 }
 
 /* initialize the information for the external function in a way that our
@@ -269,104 +269,101 @@ void init_edf(ext_diff_fct *edf) {
 /****************************************************************************/
 
 /* special case: use double version where possible, no taping */
-int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
+int cp_zos_forward(ValueTape &outerTape, size_t, double *, size_t, double *) {
 
-  ValueTape &tape = findTape(tapeId);
   // taping off
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
+  const int oldTraceFlag = outerTape.traceFlag();
+  outerTape.traceFlag(0);
 
   // get checkpointing information
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
+  CpInfos *cpInfos = outerTape.get_cp_fct(outerTape.cp_index());
   if (!cpInfos)
     ADOLCError::fail(ADOLCError::ErrorType::CP_NO_SUCH_IDX, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info2 = tape.cp_index()});
+                     ADOLCError::FailInfo{.info2 = outerTape.cp_index()});
 
   // prepare arguments
   cpInfos->dp_internal_for = new double[cpInfos->dim];
 
-  size_t arg = tape.lowestXLoc_for();
+  size_t arg = outerTape.lowestXLoc_for();
   for (int i = 0; i < cpInfos->dim; ++i) {
-    cpInfos->dp_internal_for[i] = tape.dp_T0()[arg];
+    cpInfos->dp_internal_for[i] = outerTape.dp_T0()[arg];
     ++arg;
   }
 
-  revolve_for(tapeId, cpInfos);
+  revolve_for(cpInfos);
 
   // write back
-  arg = tape.lowestYLoc_for(); // keep input
+  arg = outerTape.lowestYLoc_for(); // keep input
   for (int i = 0; i < cpInfos->dim; ++i) {
-    tape.write_scaylor(tape.dp_T0()[arg]);
-    tape.dp_T0()[arg] = cpInfos->dp_internal_for[i];
+    outerTape.write_scaylor(outerTape.dp_T0()[arg]);
+    outerTape.dp_T0()[arg] = cpInfos->dp_internal_for[i];
     ++arg;
   }
   delete[] cpInfos->dp_internal_for;
   cpInfos->dp_internal_for = nullptr;
 
   // taping "on"
-  tape.traceFlag(oldTraceFlag);
+  outerTape.traceFlag(oldTraceFlag);
 
   return 0;
 }
 
-int cp_fos_forward(short, size_t, double *, double *, size_t, double *,
+int cp_fos_forward(ValueTape &, size_t, double *, double *, size_t, double *,
                    double *) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fos_forward mode!\n");
   return 0;
 }
 
-int cp_fov_forward(short, size_t, double *, size_t, double **, size_t, double *,
-                   double **) {
+int cp_fov_forward(ValueTape &, size_t, double *, size_t, double **, size_t,
+                   double *, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fov_forward mode!\n");
   return 0;
 }
 
-int cp_hos_forward(short, size_t, double *, size_t, double **, size_t, double *,
-                   double **) {
+int cp_hos_forward(ValueTape &, size_t, double *, size_t, double **, size_t,
+                   double *, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_forward mode!\n");
   return 0;
 }
 
-int cp_hov_forward(short, size_t, double *, size_t, size_t, double ***, size_t,
-                   double *, double ***) {
+int cp_hov_forward(ValueTape &, size_t, double *, size_t, size_t, double ***,
+                   size_t, double *, double ***) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_forward mode!\n");
   return 0;
 }
 
-int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
-                   double *) {
+int cp_fos_reverse(ValueTape &outerTape, size_t, double *, size_t, double *,
+                   double *, double *) {
 
-  ValueTape &tape = findTape(tapeId);
-
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
+  CpInfos *cpInfos = outerTape.get_cp_fct(outerTape.cp_index());
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
 
   // taping "off"
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
+  const int oldTraceFlag = outerTape.traceFlag();
+  outerTape.traceFlag(0);
 
-  size_t arg = tape.lowestYLoc_rev();
+  size_t arg = outerTape.lowestYLoc_rev();
   for (int i = 0; i < cpInfos->dim; ++i) {
-    cpInfos->dp_internal_rev[i] = tape.rp_A()[arg];
+    cpInfos->dp_internal_rev[i] = outerTape.rp_A()[arg];
     ++arg;
   }
   // update taylor buffer
   for (int i = 0; i < cpInfos->dim; ++i) {
     --arg;
-    tape.get_taylor(arg);
+    outerTape.get_taylor(arg);
   }
   // execute second part of revolve_firstturn left from forward sweep
-  fos_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim,
+  fos_reverse(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim,
               cpInfos->dp_internal_rev, cpInfos->dp_internal_rev);
 
-  const char old_bsw = tape.branchSwitchWarning();
-  tape.branchSwitchWarning(0);
+  const char old_bsw = outerTape.branchSwitchWarning();
+  outerTape.branchSwitchWarning(0);
 
   // checkpointing
   enum revolve_action whattodo;
@@ -378,7 +375,7 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
       break;
 
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
+      outerTape.cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
 
@@ -392,20 +389,20 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
         cp_taping(cpInfos); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
-        if (zos_forward(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, 1,
+        if (zos_forward(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
           cp_taping(cpInfos);
       }
       // one reverse step
-      fos_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim,
+      fos_reverse(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim,
                   cpInfos->dp_internal_rev, cpInfos->dp_internal_rev);
       break;
 
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
-        tape.cp_release(cpInfos);
+        outerTape.cp_release(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
-      tape.cp_restore(cpInfos);
+      outerTape.cp_restore(cpInfos);
       break;
 
     case revolve_error:
@@ -419,13 +416,13 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
       break;
     }
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
-  tape.cp_release(cpInfos); // release first checkpoint if written
-  tape.branchSwitchWarning(old_bsw);
+  outerTape.cp_release(cpInfos); // release first checkpoint if written
+  outerTape.branchSwitchWarning(old_bsw);
 
   // save results
-  size_t start = tape.lowestYLoc_rev();
+  size_t start = outerTape.lowestYLoc_rev();
   std::copy(cpInfos->dp_internal_rev, cpInfos->dp_internal_rev + cpInfos->dim,
-            tape.rp_A() + start);
+            outerTape.rp_A() + start);
 
   // clean up
   delete[] cpInfos->dp_internal_for;
@@ -434,27 +431,25 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
   cpInfos->dp_internal_rev = nullptr;
 
   // taping "on"
-  tape.traceFlag(oldTraceFlag);
+  outerTape.traceFlag(oldTraceFlag);
   return 0;
 }
 
-int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
-                   double *, double *) {
+int cp_fov_reverse(ValueTape &outerTape, size_t, size_t, double **, size_t,
+                   double **, double *, double *) {
 
-  ValueTape &tape = findTape(tapeId);
+  CpInfos *cpInfos = outerTape.get_cp_fct(outerTape.cp_index());
 
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
-
-  const int numDirs = tape.numDirs_rev();
+  const int numDirs = outerTape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
 
   // taping "off"
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
+  const int oldTraceFlag = outerTape.traceFlag();
+  outerTape.traceFlag(0);
 
-  double **rpp_A = tape.rpp_A();
-  size_t start = tape.lowestYLoc_rev();
+  double **rpp_A = outerTape.rpp_A();
+  size_t start = outerTape.lowestYLoc_rev();
 
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
     for (int j = 0; j < numDirs; ++j) {
@@ -464,14 +459,14 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
 
   // update taylor buffer
   for (size_t i = start + cpInfos->dim; i-- > start;)
-    tape.get_taylor(i);
+    outerTape.get_taylor(i);
 
   // execute second part of revolve_firstturn left from forward sweep
-  fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, numDirs,
+  fov_reverse(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim, numDirs,
               cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
 
-  const char old_bsw = tape.branchSwitchWarning();
-  tape.branchSwitchWarning(0);
+  const char old_bsw = outerTape.branchSwitchWarning();
+  outerTape.branchSwitchWarning(0);
   // checkpointing
   enum revolve_action whattodo;
   do {
@@ -482,7 +477,7 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
       break;
 
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
+      outerTape.cp_takeshot(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
       break;
 
@@ -496,20 +491,20 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
         cp_taping(cpInfos); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
-        if (zos_forward(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, 1,
+        if (zos_forward(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
           cp_taping(cpInfos);
       }
       // one reverse step
-      fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, numDirs,
+      fov_reverse(*cpInfos->innerTapePtr, cpInfos->dim, cpInfos->dim, numDirs,
                   cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
       break;
 
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
-        tape.cp_release(cpInfos);
+        outerTape.cp_release(cpInfos);
       cpInfos->currentCP = cpInfos->capo;
-      tape.cp_restore(cpInfos);
+      outerTape.cp_restore(cpInfos);
       break;
 
     case revolve_error:
@@ -525,11 +520,11 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
 
   // release first checkpoint if written
-  tape.cp_release(cpInfos);
-  tape.branchSwitchWarning(old_bsw);
+  outerTape.cp_release(cpInfos);
+  outerTape.branchSwitchWarning(old_bsw);
 
   // save results
-  start = tape.lowestYLoc_rev();
+  start = outerTape.lowestYLoc_rev();
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
     for (int j = 0; j < numDirs; ++j) {
       rpp_A[i][j] = cpInfos->dpp_internal_rev[j][i];
@@ -543,19 +538,19 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   cpInfos->dpp_internal_rev = nullptr;
 
   // taping "on"
-  tape.traceFlag(oldTraceFlag);
+  outerTape.traceFlag(oldTraceFlag);
 
   return 0;
 }
 
-int cp_hos_reverse(short, size_t, double *, size_t, size_t, double **) {
+int cp_hos_reverse(ValueTape &, size_t, double *, size_t, size_t, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_reverse mode!\n");
   return 0;
 }
 
-int cp_hov_reverse(short, size_t, size_t, double **, size_t, size_t, double ***,
-                   short **) {
+int cp_hov_reverse(ValueTape &, size_t, size_t, double **, size_t, size_t,
+                   double ***, short **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_reverse mode!\n");
   return 0;

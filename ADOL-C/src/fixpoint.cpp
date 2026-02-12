@@ -29,7 +29,7 @@
 /* norm(x,dim_x)        */
 struct fpi_data {
   size_t edf_index;
-  short sub_tape_num;
+  ValueTape *innerTapePtr;
   double_F double_func;
   adouble_F adouble_func;
   norm_F norm_func;
@@ -42,7 +42,7 @@ struct fpi_data {
 
 static std::vector<fpi_data> fpi_stack;
 
-static int iteration(short, size_t dim_xu, double *xu, size_t dim_x,
+static int iteration(ValueTape &, size_t dim_xu, double *xu, size_t dim_x,
                      double *x_fix) {
   double err;
   const fpi_data &current = fpi_stack.back();
@@ -69,12 +69,11 @@ static int iteration(short, size_t dim_xu, double *xu, size_t dim_x,
   return -1;
 }
 
-static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
-                          double *x_fix) {
+static int fp_zos_forward(ValueTape &outerTape, size_t dim_xu, double *xu,
+                          size_t dim_x, double *x_fix) {
 
-  ValueTape &tape = findTape(tapeId);
   double err;
-  const size_t edf_index = tape.ext_diff_fct_index();
+  const size_t edf_index = outerTape.ext_diff_fct_index();
 
   // Find fpi_stack element with index 'edf_index'.
   auto current =
@@ -105,15 +104,14 @@ static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
   return -1;
 }
 
-static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
+static int fp_fos_forward(ValueTape &outerTape, size_t dim_xu, double *xu,
                           double *xu_dot, size_t dim_x, double *x_fix,
                           double *x_fix_dot) {
 
   // Piggy back
   double err, err_deriv;
-  ValueTape &tape = findTape(tapeId);
 
-  const size_t edf_index = tape.ext_diff_fct_index();
+  const size_t edf_index = outerTape.ext_diff_fct_index();
 
   // Find fpi_stack element with index 'edf_index'.
   auto current =
@@ -133,7 +131,7 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
 
     // type signatures of "external driver" and "normal" drivers are not aligned
     // thats why we have to cast...
-    fos_forward(current->sub_tape_num, static_cast<int>(dim_x),
+    fos_forward(*current->innerTapePtr, static_cast<int>(dim_x),
                 static_cast<int>(dim_xu), 0, xu, xu_dot, x_fix, x_fix_dot);
 
     for (size_t i = 0; i < dim_x; ++i)
@@ -153,14 +151,13 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
   return -1;
 }
 
-static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
+static int fp_fos_reverse(ValueTape &outerTape, size_t dim_x, double *x_fix_bar,
                           size_t dim_xu, double *xu_bar, double * /*unused*/,
                           double * /*unused*/) {
   // (d x_fix) / (d x_0) = 0 (!)
 
   double err = 0.0;
-  ValueTape &tape = findTape(tapeId);
-  const size_t edf_index = tape.ext_diff_fct_index();
+  const size_t edf_index = outerTape.ext_diff_fct_index();
 
   // Find fpi_stack element with index 'edf_index'.
   auto current =
@@ -179,7 +176,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
 
     // type signatures of "external driver" and "normal" drivers are not aligned
     // thats why we have to cast...
-    fos_reverse(current->sub_tape_num, static_cast<int>(dim_x),
+    fos_reverse(*current->innerTapePtr, static_cast<int>(dim_x),
                 static_cast<int>(dim_xu), xi, U);
 
     for (size_t i = 0; i < dim_x; ++i)
@@ -209,15 +206,17 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
   return -1;
 }
 
-int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
-                 adouble_F adouble_func, norm_F norm_func,
+void fpi_stack_clear() { fpi_stack.clear(); }
+
+int fp_iteration(ValueTape &outerTape, ValueTape &innerTape,
+                 double_F double_func, adouble_F adouble_func, norm_F norm_func,
                  norm_deriv_F norm_deriv_func, double epsilon,
                  double epsilon_deriv, size_t N_max, size_t N_max_deriv,
                  adouble *x_0, adouble *u, adouble *x_fix, size_t dim_x,
                  size_t dim_u) {
 
   // declare extern differentiated function and data
-  ext_diff_fct *edf_iteration = reg_ext_fct(tapeId, sub_tape_num, &iteration);
+  ext_diff_fct *edf_iteration = reg_ext_fct(outerTape, innerTape, &iteration);
   edf_iteration->zos_forward = &fp_zos_forward;
   edf_iteration->fos_forward = &fp_fos_forward;
   edf_iteration->fos_reverse = &fp_fos_reverse;
@@ -225,7 +224,7 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   // add new fp information
   fpi_stack.emplace_back(fpi_data{
       edf_iteration->index,
-      sub_tape_num,
+      &innerTape,
       double_func,
       adouble_func,
       norm_func,
@@ -238,13 +237,12 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   std::vector<double> u_vals(dim_u);
   std::vector<double> x_vals(dim_x);
 
-  ValueTape &tape = findTape(tapeId);
   // ensure that the adoubles are contiguous
-  tape.ensureContiguousLocations(dim_x + dim_u);
+  outerTape.ensureContiguousLocations(dim_x + dim_u);
   // to reset old default later
-  const short last_default_tape_id = currentTape().tapeId();
+  ValueTape *lastDefaultTapePtr = currentTapePtr();
   // ensure that the "new" allocates the adoubles for the "tape"
-  setCurrentTape(tape.tapeId());
+  setCurrentTapePtr(&outerTape);
   // put x and u together
   adouble *xu = new adouble[dim_x + dim_u];
 
@@ -264,8 +262,8 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_u; ++i)
     u_vals[i] = xu[dim_x + i].value();
 
-  setCurrentTape(sub_tape_num);
-  currentTape().ensureContiguousLocations(2 * (dim_u + dim_x));
+  setCurrentTapePtr(&innerTape);
+  currentTapePtr()->ensureContiguousLocations(2 * (dim_u + dim_x));
   adouble *x_fix_new = new adouble[dim_u + dim_x];
   adouble *xu_sub_tape = new adouble[dim_u + dim_x];
 
@@ -274,7 +272,7 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
     x_fix_new[i] = x_vals[i];
 
   // tape near solution
-  trace_on(sub_tape_num, 1);
+  trace_on(innerTape, 1);
 
   for (size_t i = 0; i < dim_x; ++i)
     // xu[i] <<= x_fix[i].value();
@@ -293,15 +291,15 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_x; ++i)
     x_fix_new[i] >>= dummy_out;
 
-  trace_off();
+  trace_off(innerTape);
 
   delete[] xu_sub_tape;
   delete[] x_fix_new;
 
-  setCurrentTape(tapeId);
+  setCurrentTapePtr(&outerTape);
   delete[] xu;
   // reset default tape
-  setCurrentTape(last_default_tape_id);
+  setCurrentTapePtr(lastDefaultTapePtr);
 
   return k;
 }

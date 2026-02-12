@@ -19,6 +19,7 @@
 #include <adolc/internal/common.h>
 
 class adouble;
+class ValueTape;
 
 using ADOLC_TimeStepFuncion = int(size_t dim_x, adouble *x);
 using ADOLC_TimeStepFuncion_double = int(size_t dim_x, double *x);
@@ -26,9 +27,14 @@ using ADOLC_saveFct = void *(void);
 using ADOLC_restoreFct = void(void *);
 
 struct ADOLC_API CpInfos {
-  // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
+  // outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
-  short tapeId{0};
+  ValueTape *outerTapePtr{nullptr};
+  // inner tape that stores the checkpointing steps. This id
+  // should not be confused with the id of the tape that calls
+  // the checkpointing process later
+  ValueTape *innerTapePtr{nullptr};
+
   ADOLC_TimeStepFuncion *function{nullptr};
   ADOLC_TimeStepFuncion_double *function_double{nullptr};
   ADOLC_saveFct *saveNonAdoubles{nullptr};
@@ -36,10 +42,6 @@ struct ADOLC_API CpInfos {
   int steps{0};
   int checkpoints{0};
 
-  // This is the id of the tape that stores the checkpointing steps. This id
-  // should not be confused with the id of the tape that calls
-  // the checkpointing process later
-  short cp_tape_id{0};
   int retaping{0}; /* != 0 forces retaping before every reverse step */
 
   int dim{0};              /* number of variables in input and output (n=m) */
@@ -61,15 +63,16 @@ struct ADOLC_API CpInfos {
 };
 
 ADOLC_API
-CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
+CpInfos *reg_timestep_fct(ValueTape &outerTape, ValueTape &innerTape,
                           ADOLC_TimeStepFuncion timeStepFunction);
 
-ADOLC_API int checkpointing(short tapeId, CpInfos *cpInfos);
+ADOLC_API int checkpointing(ValueTape &outerTape, CpInfos *cpInfos);
 
 class ADOLC_API CP_Context {
 public:
-  CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {
-    cpInfos = reg_timestep_fct(tapeId, cp_tape_id, tsf);
+  CP_Context(ValueTape &outerTape, ValueTape &innerTape,
+             ADOLC_TimeStepFuncion tsf) {
+    cpInfos = reg_timestep_fct(outerTape, innerTape, tsf);
   }
   ~CP_Context() = default;
   void setDoubleFct(ADOLC_TimeStepFuncion_double tsf) {
@@ -88,7 +91,9 @@ public:
     else
       cpInfos->retaping = 0;
   }
-  int checkpointing(short tapeId) { return ::checkpointing(tapeId, cpInfos); }
+  int checkpointing(ValueTape &outerTape) {
+    return ::checkpointing(outerTape, cpInfos);
+  }
 
 private:
   inline CP_Context() {}

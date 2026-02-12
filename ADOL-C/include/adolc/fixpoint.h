@@ -23,8 +23,9 @@ typedef int (*double_F)(double *, double *, double *, size_t, size_t);
 typedef int (*adouble_F)(adouble *, adouble *, adouble *, size_t, size_t);
 typedef double (*norm_F)(double *, size_t);
 typedef double (*norm_deriv_F)(double *, size_t);
-
-ADOLC_API int fp_iteration(short tapeId, short sub_tape_num, double_F,
+class ValueTape;
+void fpi_stack_clear();
+ADOLC_API int fp_iteration(ValueTape &outerTape, ValueTape &innerTape, double_F,
                            adouble_F, norm_F, norm_deriv_F, double epsilon,
                            double epsilon_deriv, size_t N_max,
                            size_t N_max_deriv, adouble *x_0, adouble *u,

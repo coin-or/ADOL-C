@@ -27,12 +27,11 @@ BEGIN_C_DECLS
 /*                                                          abs-normal form */
 /* abs_normal(tag,m,n,s,x[n],sig[s],y[m],z[s],cz[s],cy[m],                  */
 /*            J[m][n],Y[m][s],Z[s][n],L[s][s])                              */
-fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
+fint abs_normal_(ValueTape &tape, fint *fdepen, fint *findep, fint *fswchk,
                  fdouble *fx, fdouble *fy, fdouble *fz, fdouble *fcz,
                  fdouble *fcy, fdouble *fJ, fdouble *fY, fdouble *fZ,
                  fdouble *fL) {
   int rc = -1;
-  short tag = (short)*ftag;
   int m = (int)*fdepen, n = (int)*findep, s = (int)*fswchk;
   double **J, **Y, **Z, **L;
   double *cy, *cz, *x, *y, *z;
@@ -46,7 +45,7 @@ fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
   y = myalloc1(m);
   z = myalloc1(s);
   spread1(n, fx, x);
-  rc = abs_normal(tag, m, n, s, x, y, z, cz, cy, J, Y, Z, L);
+  rc = abs_normal(tape, m, n, s, x, y, z, cz, cy, J, Y, Z, L);
   pack1(m, y, fy);
   pack1(s, z, fz);
   pack1(s, cz, fcz);

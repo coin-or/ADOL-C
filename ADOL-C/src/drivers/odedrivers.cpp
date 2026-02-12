@@ -29,12 +29,12 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                  forodec */
 /* forodec(tag, n, tau, dold, dnew, X[n][d+1])                              */
-int forodec(short tag,  /* tape identifier */
-            int n,      /* space dimension */
-            double tau, /* scaling defaults to 1.0 */
-            int dol,    /* previous degree defaults to zero */
-            int deg,    /* New degree of consistency        */
-            double **Y) /* Taylor series */
+int forodec(ValueTape &tape, /* tape identifier */
+            int n,           /* space dimension */
+            double tau,      /* scaling defaults to 1.0 */
+            int dol,         /* previous degree defaults to zero */
+            int deg,         /* New degree of consistency        */
+            double **Y)      /* Taylor series */
 {
   /*********************************************************************
     This is assumed to be the autonomous case.
@@ -52,7 +52,6 @@ int forodec(short tag,  /* tape identifier */
   int rc = 3;
   int i, j, k;
   double taut;
-  ValueTape &tape = findTape(tag);
   if (n > tape.forodec_nax() || deg > tape.forodec_dax()) {
     if (tape.forodec_nax()) {
       myfree1(tape.forodec_y());
@@ -79,7 +78,7 @@ int forodec(short tag,  /* tape identifier */
   if (dol == 0) {
     j = dol;                    /* j = 0 */
     k = (deg) * (j == deg - 1); /* keep death values in prepration */
-    MINDEC(rc, zos_forward(tag, n, n, k, tape.forodec_y(), tape.forodec_z()));
+    MINDEC(rc, zos_forward(tape, n, n, k, tape.forodec_y(), tape.forodec_z()));
     /* for  reverse called by jacode   */
     if (rc < 0)
       return rc;
@@ -90,7 +89,7 @@ int forodec(short tag,  /* tape identifier */
   }
   for (j = dol; j < deg; ++j) {
     k = (deg) * (j == deg - 1); /* keep death values in prepration */
-    MINDEC(rc, hos_forward(tag, n, n, j, k, tape.forodec_y(), Y,
+    MINDEC(rc, hos_forward(tape, n, n, j, k, tape.forodec_y(), Y,
                            tape.forodec_z(), tape.forodec_Z()));
     /* for  reverse called by jacode   */
     if (rc < 0)

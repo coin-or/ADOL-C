@@ -295,7 +295,6 @@ enum revolve_action revolve(int *check, int *capo, int *fine, int snaps,
   int ds, oldcapo, num, bino1, bino2, bino3, bino4, bino5, bino6;
   /* (*capo,*fine) is the time range currently under consideration */
   /* ch[j] is the number of the state that is stored in checkpoint j */
-  rev_num = get_revolve_numbers();
   rev_num.commands += 1;
   if ((*check < -1) || (*capo > *fine)) {
     *info = 9;

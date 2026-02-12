@@ -20,12 +20,13 @@
 
 /* C++ declarations available only when compiling with C++  */
 #if defined(__cplusplus)
-
-ADOLC_API int lie_scalar(short, short, short, double *, short, double *);
-ADOLC_API int lie_scalar(short, short, short, short, double *, short,
+class ValueTape;
+ADOLC_API int lie_scalar(ValueTape &, short, short, double *, short, double *);
+ADOLC_API int lie_scalar(ValueTape &, short, short, short, double *, short,
                          double **);
-ADOLC_API int lie_gradient(short, short, short, double *, short, double **);
-ADOLC_API int lie_gradient(short, short, short, short, double *, short,
+ADOLC_API int lie_gradient(ValueTape &, short, short, double *, short,
+                           double **);
+ADOLC_API int lie_gradient(ValueTape &, short, short, short, double *, short,
                            double ***);
 
 #endif
@@ -35,14 +36,18 @@ ADOLC_API int lie_gradient(short, short, short, short, double *, short,
 extern "C" {
 #endif
 
-ADOLC_API int lie_scalarc(short, short, short, double *, short, double *);
-ADOLC_API int lie_scalarcv(short, short, short, short, double *, short,
+ADOLC_API int lie_scalarc(ValueTape &, ValueTape &, short, double *, short,
+                          double *);
+ADOLC_API int lie_scalarcv(ValueTape &, ValueTape &, short, short, double *,
+                           short, double **);
+ADOLC_API int lie_gradientc(ValueTape &, ValueTape &, short, double *, short,
+                            double **);
+ADOLC_API int lie_gradientcv(ValueTape &, ValueTape &, short, short, double *,
+                             short, double ***);
+ADOLC_API int lie_covector(ValueTape &, ValueTape &, short, double *, short,
                            double **);
-ADOLC_API int lie_gradientc(short, short, short, double *, short, double **);
-ADOLC_API int lie_gradientcv(short, short, short, short, double *, short,
-                             double ***);
-ADOLC_API int lie_covector(short, short, short, double *, short, double **);
-ADOLC_API int lie_bracket(short, short, short, double *, short, double **);
+ADOLC_API int lie_bracket(ValueTape &, ValueTape &, short, double *, short,
+                          double **);
 
 #if defined(__cplusplus)
 }

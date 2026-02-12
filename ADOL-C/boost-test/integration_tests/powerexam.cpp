@@ -1,3 +1,5 @@
+#include "adolc/valuetape/valuetape.h"
+#include <memory>
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -30,8 +32,8 @@ adouble power(adouble x, int n) {
 
 BOOST_AUTO_TEST_SUITE(test_power_example)
 BOOST_AUTO_TEST_CASE(PowerExampTest) {
-  const short tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   int n = 4;
 
   /* allocations and initializations */
@@ -48,25 +50,25 @@ BOOST_AUTO_TEST_CASE(PowerExampTest) {
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
-  trace_on(tapeId); /* tapeId = 1 and keep = 0 */
-  x <<= X[0][0];    /* only one independent var */
-  y = power(x, n);  /* actual function call */
-  y >>= Y[0][0];    /* only one dependent adouble */
-  trace_off();      /* no global adouble has died */
+  trace_on(*tapePtr);  /* *tapePtr = 1 and keep = 0 */
+  x <<= X[0][0];       /* only one independent var */
+  y = power(x, n);     /* actual function call */
+  y >>= Y[0][0];       /* only one dependent adouble */
+  trace_off(*tapePtr); /* no global adouble has died */
   /* end of active section */
 
   double u[1];                     /* weighting vector */
   u[0] = 1;                        /* for reverse call */
   for (auto i = 0; i < n + 2; i++) /* note that keep = i+1 in call */
   {
-    forward(tapeId, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
+    forward(*tapePtr, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
     if (i == 0)
       BOOST_TEST(Y[0][i] == y.value(), tt::tolerance(tol));
     else {
       Z[0][i] = Z[0][i - 1] / i; /* scale derivative to Taylorcoeff. */
       BOOST_TEST(Y[0][i] == Z[0][i], tt::tolerance(tol));
     }
-    reverse(tapeId, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
+    reverse(*tapePtr, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
   } /* end for */
   myfree2(X);
   myfree2(Y);

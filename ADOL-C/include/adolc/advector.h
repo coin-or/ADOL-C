@@ -64,10 +64,12 @@ public:
 
   size_t loc() const { return loc_; }
   size_t refloc() const { return refloc_; }
-  double refloc_value() const { return currentTape().get_ad_value(refloc_); }
-  double loc_value() const { return currentTape().get_ad_value(loc_); }
+  double refloc_value() const {
+    return currentTapePtr()->get_ad_value(refloc_);
+  }
+  double loc_value() const { return currentTapePtr()->get_ad_value(loc_); }
   void refloc_value(const double coval) {
-    currentTape().set_ad_value(refloc_, coval);
+    currentTapePtr()->set_ad_value(refloc_, coval);
   }
   operator adouble() const;
 
@@ -117,10 +119,10 @@ class ADOLC_API advector {
 public:
   advector() = default;
   explicit advector(size_t n)
-      : data_(currentTape().ensureContiguousLocations_(n)) {}
+      : data_(currentTapePtr()->ensureContiguousLocations_(n)) {}
 
   advector(const advector &ad_vec)
-      : data_(currentTape().ensureContiguousLocations_(ad_vec.size())) {
+      : data_(currentTapePtr()->ensureContiguousLocations_(ad_vec.size())) {
     adolc_vec_copy(data_.data(), ad_vec.data_.data(), ad_vec.size());
   }
 

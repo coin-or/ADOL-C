@@ -12,7 +12,6 @@
  recipient's acceptance of the terms of the accompanying license file.
 
 ----------------------------------------------------------------------------*/
-
 #if !defined(ADOLC_TAPEDOC_TAPEDOC_H)
 #define ADOLC_TAPEDOC_TAPEDOC_H 1
 
@@ -20,12 +19,12 @@
 #include <adolc/internal/common.h>
 
 BEGIN_C_DECLS
-
+class ValueTape;
 /****************************************************************************/
 /*                                                                 tape_doc */
 /* tape_doc(tag, m, n, x[n], y[m])                                          */
 
-ADOLC_API void tape_doc(short, int, int, const double *, double *);
+ADOLC_API void tape_doc(ValueTape &, int, int, const double *, double *);
 
 /****************************************************************************/
 /*                                                               THAT'S ALL */

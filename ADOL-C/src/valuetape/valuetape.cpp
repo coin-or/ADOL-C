@@ -24,7 +24,6 @@ void ValueTape::initTapeInfos_keep() {
   double *tayBuffer = tapeInfos_.tayBuffer;
   double *signature = tapeInfos_.signature;
   FILE *tay_file = tapeInfos_.tay_file;
-  short tapeId = tapeInfos_.tapeId_;
 
   // keep the stats to later know the number of indeps, etc...
   auto tmp_stats = tapeInfos_.stats;
@@ -46,12 +45,11 @@ void ValueTape::initTapeInfos_keep() {
   tapeInfos_.tayBuffer = tayBuffer;
   tapeInfos_.signature = signature;
   tapeInfos_.tay_file = tay_file;
-  tapeInfos_.tapeId_ = tapeId;
 }
 
 /* inits a new tape and updates the tape stack (called from start_trace)
  * - returns 0 without error
- * - returns 1 if tapeId was already/still in use */
+ * - returns 1 if tape was already/still in use */
 int ValueTape::initNewTape() {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
@@ -674,8 +672,7 @@ void ValueTape::read_params() {
 /* the taylor stack, so next reverse call will fail, if not preceded by a   */
 /* forward call after setting the parameters.                               */
 /****************************************************************************/
-void ValueTape::set_param_vec(short tag, size_t numparam,
-                              const double *paramvec) {
+void ValueTape::set_param_vec(size_t numparam, const double *paramvec) {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::PARAM_COUNTS_MISMATCH;
@@ -688,7 +685,7 @@ void ValueTape::set_param_vec(short tag, size_t numparam,
   openTape();
   if (tapestats(TapeInfos::NUM_PARAM) != numparam)
     fail(PARAM_COUNTS_MISMATCH, CURRENT_LOCATION,
-         FailInfo{.info1 = tag,
+         FailInfo{.info1 = tapeId(),
                   .info5 = numparam,
                   .info6 = tapeInfos_.stats[TapeInfos::NUM_PARAM]});
 

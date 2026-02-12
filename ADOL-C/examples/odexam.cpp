@@ -16,6 +16,7 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
+#include "adolc/valuetape/valuetape.h"
 #include <adolc/adalloc.h>            // use of ADOL-C allocation utilities
 #include <adolc/adtb_types.h>         // use of active double
 #include <adolc/drivers/odedrivers.h> // use of "Easy To Use" ODE drivers
@@ -32,11 +33,11 @@ using namespace std;
 
 /****************************************************************************/
 /*                                                          ADOUBLE ROUTINE */
-void tracerhs(short int tag, double *py, double *pyprime) {
+void tracerhs(ValueTape &tape, double *py, double *pyprime) {
   adouble y[3]; // we left the parameters passive
   adouble yprime[3];
 
-  trace_on(tag);
+  trace_on(tape);
   y[0] <<= py[0];
   y[1] <<= py[1];
   y[2] <<= py[2]; // initialize and mark independents
@@ -46,7 +47,7 @@ void tracerhs(short int tag, double *py, double *pyprime) {
   yprime[0] >>= pyprime[0];
   yprime[1] >>= pyprime[1];
   yprime[2] >>= pyprime[2]; // mark and pass dependents
-  trace_off(1);             // write tape array onto a file
+  trace_off(tape, 1);       // write tape array onto a file
 } // end tracerhs
 
 /****************************************************************************/
@@ -75,11 +76,11 @@ int main() {
     X[i][0] = py[i];              // and the Taylor coefficient;
     nz[i] = new short[n];         // set up sparsity array
   } // end for
-  const short tapeId = createNewTape();
-  tracerhs(1, py, pyp); // trace RHS with tag = 1
+  const auto tapePtr = std::make_unique<ValueTape>();
+  tracerhs(*tapePtr, py, pyp); // trace RHS with tag = 1
 
-  forode(tapeId, n, deg, X);             // compute deg coefficients
-  reverse(tapeId, n, n, deg - 1, Z, nz); // U defaults to the identity
+  forode(*tapePtr, n, deg, X);             // compute deg coefficients
+  reverse(*tapePtr, n, n, deg - 1, Z, nz); // U defaults to the identity
   accode(n, deg - 1, Z, B, nz);
 
   cout << "nonzero pattern:\n";

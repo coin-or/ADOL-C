@@ -134,17 +134,17 @@ ProblemInput<T, params.dimIn_> prepareInput() {
  * This function marks the independent variables, computes the energy,
  * and traces the computational graph using `ADOL-C`.
  *
- * @param tapeId Identifier for the ADOL-C tape
+ * @param tape Identifier for the ADOL-C tape
  * @return Scalar energy result from the traced computation
  */
-template <HelmholtzParameters params> double prepareTape(short tapeId) {
-  trace_on(tapeId, 1);
+template <HelmholtzParameters params> double prepareTape(ValueTape &tape) {
+  trace_on(tape, 1);
   std::array<adouble, params.dimIn_> x;
   auto problemInput = prepareInput<adouble, params>();
   adouble he = energy<adouble, params>(problemInput.x_, problemInput.bv_);
   double result;
   he >>= result;
-  trace_off();
+  trace_off(tape);
   return result;
 }
 
@@ -153,14 +153,14 @@ template <HelmholtzParameters params> double prepareTape(short tapeId) {
  *
  * Uses reverse mode  (`reverse`) on the previously created tape.
  *
- * @param tapeId Identifier for the ADOL-C tape
+ * @param tape Identifier for the ADOL-C tape
  * @return Gradient as a fixed-size array
  */
 template <HelmholtzParameters params>
-std::array<double, params.dimIn_> evaluateTape(short tapeId) {
+std::array<double, params.dimIn_> evaluateTape(ValueTape &tape) {
   std::array<double, params.dimIn_> grad;
   const double weight = 1.0;
-  reverse(tapeId, static_cast<int>(params.dimOut_),
+  reverse(tape, static_cast<int>(params.dimOut_),
           static_cast<int>(params.dimIn_), 0, weight, grad.data());
   return grad;
 }
@@ -242,8 +242,8 @@ int main() {
   constexpr HelmholtzParameters params(0.01, 1.41421356237 /* sqrt(2.0)*/,
                                        1.3625E-3, 1.0 / dimIn, dimIn, 1);
 
-  const short tapeId = createNewTape();
-  printResult(prepareTape<params>(tapeId), evaluateTape<params>(tapeId),
+  const auto tapePtr = std::make_unique<ValueTape>();
+  printResult(prepareTape<params>(*tapePtr), evaluateTape<params>(*tapePtr),
               evaluateFiniteDiff<params>(delta));
 
   return 0;

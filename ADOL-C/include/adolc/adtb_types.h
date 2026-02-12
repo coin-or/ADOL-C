@@ -76,9 +76,9 @@ template <adouble_or_pdouble T> class tape_location {
    */
   size_t next_loc() {
     if constexpr (std::is_same_v<T, adouble>)
-      return currentTape().next_loc();
+      return currentTapePtr()->next_loc();
     else
-      return currentTape().p_next_loc();
+      return currentTapePtr()->p_next_loc();
   }
 
   /**
@@ -91,11 +91,11 @@ template <adouble_or_pdouble T> class tape_location {
     assert(currentTapePtr() != nullptr &&
            "Tape was deleted before all adoubles are destroyed!");
     if constexpr (std::is_same_v<T, adouble>)
-      currentTape().free_loc(loc());
+      currentTapePtr()->free_loc(loc());
 
     // currently freeing the location of pdouble leads to errors
     // need to revisit the issue
-    // currentTape().p_free_loc(loc());
+    // currentTapePtr()->p_free_loc(loc());
   }
 
 public:
@@ -262,7 +262,7 @@ public:
    * @brief Retrieves the current value stored at the tape location.
    * @return The value of the `adouble` from the tape.
    */
-  double value() const { return currentTape().get_ad_value(loc()); }
+  double value() const { return currentTapePtr()->get_ad_value(loc()); }
 
   /**
    * @brief Retrieves the location of the `adouble` on the tape.
@@ -275,7 +275,9 @@ public:
    * @brief Updates the value stored at the tape location.
    * @param coval the new value to assign.
    */
-  void value(const double coval) { currentTape().set_ad_value(loc(), coval); }
+  void value(const double coval) {
+    currentTapePtr()->set_ad_value(loc(), coval);
+  }
 
   // Type Conversions
 
@@ -440,13 +442,13 @@ public:
    * @brief Retrieves the current value stored at the tape location.
    * @return The value of the `pdouble`.
    */
-  double value() const { return currentTape().get_pd_value(loc()); }
+  double value() const { return currentTapePtr()->get_pd_value(loc()); }
 
   /**
    * @brief Updates the value stored at the tape location.
    * @param pval The new value to assign.
    */
-  void value(const double pval) { currentTape().set_pd_value(loc(), pval); }
+  void value(const double pval) { currentTapePtr()->set_pd_value(loc(), pval); }
 };
 
 ADOLC_API std::ostream &operator<<(std::ostream &, const adouble &);

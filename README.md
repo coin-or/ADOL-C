@@ -82,13 +82,13 @@ int main() {
   std::array<double, 1> out;
 
   // 2. Explicitly create a new tape before using any adouble variables
-  const auto tapeId = createNewTape();
+  auto tapePtr = std::make_unique<ValueTape>();
 
   // 3. Declare active variables after tape creation to avoid segmentation faults
   std::array<adouble, dim> indeps;
 
   // 4. Start tracing the operation sequence
-  trace_on(tapeId);
+  trace_on(*tapePtr);
   {
     for (size_t i = 0; i < dim; ++i) {
       indeps[i] <<= inputs[i]; // declare independent variable
@@ -102,7 +102,7 @@ int main() {
 
   // 5. Evaluate the gradient (∂output / ∂inputs)
   std::array<double, dim> grad;
-  gradient(tapeId, dim, inputs.data(), grad.data());
+  gradient(*tapePtr, dim, inputs.data(), grad.data());
 
   // 6. Print the resulting gradient
   std::cout << "Gradient of sum: ";
@@ -117,21 +117,21 @@ int main() {
 
 
 If your application requires multiple differentiated functions, you can 
-manage separate tapes using unique `tapeId`'s. 
+manage separate tapes using unique `*tapePtr`'s. 
 When working with multiple tapes it is crucial to ensure that the correct tape context is active both when allocating/constructing and when deallocating/destroying `adouble`'s. 
 Failing to do so can lead to undefined behavior, memory corruption, or crashes, because each `adouble` interacts with the currently selected tape.
 
 
 1. **Create and select the tape before allocation**  
-   Before you allocate a `adouble`'s, make sure you have created the tape and called `setCurrentTape(tapeId)`. 
+   Before you allocate a `adouble`'s, make sure you have created the tape and called `setCurrentTapePtr(*tapePtr)`. 
    This ensures that each `adouble` constructor correctly registers itself with the intended tape.
 
 2. **Use the array within the correct tape context**  
-   While tracing or using the array in derivative computations, always have the correct tape selected via `setCurrentTape(tapeId)` 
+   While tracing or using the array in derivative computations, always have the correct tape selected via `setCurrentTapePtr(*tapePtr)` 
    before any ADOL-C operations (`trace_on`, marking independents/dependents, derivative drivers, etc.).
 
 3. **Select the tape before deallocation**  
-   Before calling `delete[]` on a `adouble*`, call `setCurrentTape(tapeId)` again. 
+   Before calling `delete[]` on a `adouble*`, call `setCurrentTapePtr(*tapePtr)` again. 
    This ensures that the destructor for each `adouble` runs with the correct tape active, so resources are freed appropriately.
 
 We recommend using scopes for each tape like this:
@@ -139,6 +139,7 @@ We recommend using scopes for each tape like this:
 #include <adolc/adolc.h>
 #include <array>
 #include <iostream>
+#include <memory>
 #include <numeric>
 
 // Function 1: sum of inputs
@@ -161,38 +162,38 @@ int main() {
   std::array<double, 1> output;
 
   // --- Taping sum function ---
-  const auto sumTapeId = createNewTape();
-  setCurrentTape(sumTapeId); // IMPORTANT
+  auto sumTapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(sumTape); // IMPORTANT
   {
     std::array<adouble, dim> x;
-    trace_on(sumTapeId);
+    trace_on(*sumTapePtr);
     for (size_t i = 0; i < dim; ++i)
       x[i] <<= inputs[i];
 
     adouble y = sum_function(x);
     y >>= output[0];
-    trace_off();
+    trace_off(*sumTapePtr);
   }
 
   // --- Taping product function ---
-  const auto prodTapeId = createNewTape();
-  setCurrentTape(prodTapeId); // IMPORTANT
+  auto prodTapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(*prodTapePtr); // IMPORTANT
   {
     std::array<adouble, dim> x;
-    trace_on(prodTapeId);
+    trace_on(*prodTapePtr);
     for (size_t i = 0; i < dim; ++i)
       x[i] <<= inputs[i];
 
     adouble y = product_function(x);
     y >>= output[0];
-    trace_off();
+    trace_off(*prodTapePtr);
   }
 
   // --- Evaluate gradients ---
   std::array<double, dim> grad_sum, grad_prod;
 
-  gradient(sumTapeId, dim, inputs.data(), grad_sum.data());
-  gradient(prodTapeId, dim, inputs.data(), grad_prod.data());
+  gradient(*sumTapePtr, dim, inputs.data(), grad_sum.data());
+  gradient(*prodTapePtr, dim, inputs.data(), grad_prod.data());
 
   // --- Output results ---
   std::cout << "Gradient of sum: ";

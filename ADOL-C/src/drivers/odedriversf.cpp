@@ -18,8 +18,6 @@
 #include <adolc/fortutils.h>
 #include <adolc/interfaces.h>
 
-#include <math.h>
-
 BEGIN_C_DECLS
 
 /****************************************************************************/
@@ -28,15 +26,14 @@ BEGIN_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                                                  forodec */
 /* forodec(tag, n, tau, dold, dnew, X[n][d+1])                              */
-fint forodec_(fint *ftag,    /* tape identifier */
-              fint *fn,      /* space dimension */
-              fdouble *ftau, /* scaling defaults to 1.0 */
-              fint *fdol,    /* previous degree defaults to zero */
-              fint *fdeg,    /* New degree of consistency        */
-              fdouble *fy)   /* Taylor series                    */
+fint forodec_(ValueTape &tape, /* tape identifier */
+              fint *fn,        /* space dimension */
+              fdouble *ftau,   /* scaling defaults to 1.0 */
+              fint *fdol,      /* previous degree defaults to zero */
+              fint *fdeg,      /* New degree of consistency        */
+              fdouble *fy)     /* Taylor series                    */
 {
   int rc = -1;
-  short tag = static_cast<short>(*ftag);
   int n = static_cast<int>(*fn), dol = static_cast<int>(*fdol),
       deg = static_cast<int>(*fdeg);
   int i;
@@ -44,7 +41,7 @@ fint forodec_(fint *ftag,    /* tape identifier */
   double **Y = myalloc2(n, deg + 1);
   for (i = 0; i < n; i++)
     *Y[i] = fy[i];
-  rc = forodec(tag, n, tau, dol, deg, Y);
+  rc = forodec(tape, n, tau, dol, deg, Y);
   pack2(n, deg + 1, Y, fy);
   free((char *)*Y);
   free((char *)Y);

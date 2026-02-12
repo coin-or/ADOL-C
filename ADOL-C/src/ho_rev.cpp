@@ -207,7 +207,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
-#include <math.h>
+#include <cmath>
 
 #if defined(ADOLC_DEBUG)
 #include <string.h>
@@ -222,7 +222,7 @@ BEGIN_C_DECLS
 /***************************************************************************/
 /* Higher Order Scalar Reverse Pass.                                       */
 /***************************************************************************/
-int hos_reverse(short tnum,             /* tape id */
+int hos_reverse(ValueTape &tape,        /* tape id */
                 int depen,              /* consistency chk on # of deps */
                 int indep,              /* consistency chk on # of indeps */
                 int degre,              /* highest derivative degree  */
@@ -235,15 +235,15 @@ int hos_reverse(short tnum,             /* tape id */
     for (int j = 1; j <= degre; ++j)
       L[i][j] = 0.0;
   }
-  int rc = hos_ti_reverse(tnum, depen, indep, degre, L, results);
+  int rc = hos_ti_reverse(tape, depen, indep, degre, L, results);
   myfree2(L);
   return rc;
 }
 
-int hos_ti_reverse(short tnum, /* tape id */
-                   int depen,  /* consistency chk on # of deps */
-                   int indep,  /* consistency chk on # of indeps */
-                   int degre,  /* highest derivative degre  */
+int hos_ti_reverse(ValueTape &tape, /* tape id */
+                   int depen,       /* consistency chk on # of deps */
+                   int indep,       /* consistency chk on # of indeps */
+                   int degre,       /* highest derivative degre  */
                    const double *const *lagrange, /* range weight vectors */
                    double **results) /* matrix of coefficient vectors */
 
@@ -252,11 +252,11 @@ int hos_ti_reverse(short tnum, /* tape id */
 /***************************************************************************/
 /* Higher Order Scalar Reverse Pass, Vector Keep.                          */
 /***************************************************************************/
-int hos_ov_reverse(short tnum, /* tape id */
-                   int depen,  /* consistency chk on # of deps */
-                   int indep,  /* consistency chk on # of indeps */
-                   int degre,  /* highest derivative degre  */
-                   int nrows,  /* # of Jacobian rows calculated */
+int hos_ov_reverse(ValueTape &tape, /* tape id */
+                   int depen,       /* consistency chk on # of deps */
+                   int indep,       /* consistency chk on # of indeps */
+                   int degre,       /* highest derivative degre  */
+                   int nrows,       /* # of Jacobian rows calculated */
                    const double *const *lagrange, /* range weight vector */
                    double ***results) /* matrix of coefficient vectors */
 
@@ -264,11 +264,11 @@ int hos_ov_reverse(short tnum, /* tape id */
 /***************************************************************************/
 /* Higher Order Vector Reverse Pass.                                       */
 /***************************************************************************/
-int hov_reverse(short tnum, /* tape id */
-                int depen,  /* consistency chk on # of deps */
-                int indep,  /* consistency chk on # of indeps */
-                int degre,  /* highest derivative degre */
-                int nrows,  /* # of Jacobian rows calculated */
+int hov_reverse(ValueTape &tape, /* tape id */
+                int depen,       /* consistency chk on # of deps */
+                int indep,       /* consistency chk on # of indeps */
+                int degre,       /* highest derivative degre */
+                int nrows,       /* # of Jacobian rows calculated */
                 const double *const *lagrange, /* domain weight vector */
                 double ***results, /* matrix of coefficient vectors */
                 short **nonzero)   /* structural sparsity  pattern  */
@@ -281,13 +281,13 @@ int hov_reverse(short tnum, /* tape id */
         L[k][i][j] = 0.0;
     }
   int rc =
-      hov_ti_reverse(tnum, depen, indep, degre, nrows, L, results, nonzero);
+      hov_ti_reverse(tape, depen, indep, degre, nrows, L, results, nonzero);
   myfree3(L);
   return rc;
 }
 
 int hov_ti_reverse(
-    short tnum,                           /* tape id */
+    ValueTape &tape,                      /* tape id */
     int depen,                            /* consistency chk on # of deps */
     int indep,                            /* consistency chk on # of indeps */
     int degre,                            /* highest derivative degre */
@@ -299,7 +299,6 @@ int hov_ti_reverse(
 #endif
 
 {
-  ValueTape &tape = findTape(tnum);
   /************************************************************************/
   /*                                                       ALL VARIABLES  */
   unsigned char operation; /* operation code */
@@ -366,21 +365,21 @@ int hov_ti_reverse(
 #define ADOLC_EXT_FCT_Z dpp_Z
 #define ADOLC_EXT_FCT_POINTER hos_ti_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hos_ti_reverse(edfct->tapeId, m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
+  hos_ti_reverse(*edfct->outerTapePtr, m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
 #else
 #define ADOLC_EXT_FCT_U dppp_U
 #define ADOLC_EXT_FCT_Z dppp_Z
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hov_reverse(edfct->tapeId, m, p, edfct->dpp_U, n, degre, edfct->dppp_Z,      \
-              edfct->spp_nz)
+  hov_reverse(*edfct->outerTapePtr, m, p, edfct->dpp_U, n, degre,              \
+              edfct->dppp_Z, edfct->spp_nz)
 #endif
 
 #if defined(ADOLC_DEBUG)
   /************************************************************************/
   /*                                                       DEBUG MESSAGES */
   fprintf(DIAG_OUT, "Call of %s(..) with tag: %d, n: %d, m %d,\n",
-          GENERATED_FILENAME, tnum, indep, depen);
+          GENERATED_FILENAME, tape.tapeId(), indep, depen);
 
   fprintf(DIAG_OUT, "                    degree: %d\n", degre);
 #ifdef _ADOLC_VECTOR_
@@ -458,7 +457,8 @@ int hov_ti_reverse(
   if ((tape.tay_numDeps() != to_size_t(depen)) ||
       (tape.tay_numInds() != to_size_t(indep)))
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_TAYLOR_COUNTS_MISMATCH,
-                     CURRENT_LOCATION, ADOLCError::FailInfo{.info1 = tnum});
+                     CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tape.tapeId()});
 
   /************************************************************************/
   /*                                                        REVERSE SWEEP */
@@ -2854,7 +2854,7 @@ int hov_ti_reverse(
       m = tape.get_locint_r();
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
-      edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct = get_ext_diff_fct(tape, tape.ext_diff_fct_index());
 
       oldTraceFlag = tape.traceFlag();
       tape.traceFlag(0);

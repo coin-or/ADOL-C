@@ -170,16 +170,16 @@ void accbrac(int n, int d, double ***Bs, double **b, double **result) {
 };
 
 /** Computes the Lie derivative of smooth map h : D -> R^m along a vector field
- * f : D -> R^n \param Tape_F tape identification of vector field f \param
- * Tape_H tape identification of vector field h \param n      number of
+ * f : D -> R^n \param tape_F tapePtr identification of vector field f \param
+ * tape_H tapePtr identification of vector field h \param n      number of
  * independent variables n \param m	     number of dependent variables m
  * \param x0     values of independent variables x0 (dimension [n])
  * \param d      highest derivative degree d
  * \param result resulting Lie derivatives of vectorial scalar fields (dimension
  * [m][d+1])
  */
-int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
-                 short d, double **result) {
+int lie_scalarcv(ValueTape &tape_F, ValueTape &tape_H, short n, short m,
+                 double *x0, short d, double **result) {
   double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)   */
   double **Y = myalloc2(m, d + 1); /* Taylorcoeff. expansion y(t)  */
   double *x = myalloc1(n);
@@ -192,7 +192,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   };
 
   /* see odedrivers    */
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(tape_F, n, 1.0, 0, d, X);
 
   /*  prepare for input  */
   for (i = 0; i < n; i++) {
@@ -201,7 +201,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
       X[i][k] = X[i][k + 1];
   }
 
-  hos_forward(Tape_H, m, n, d, 0, x, X, y, Y);
+  hos_forward(tape_H, m, n, d, 0, x, X, y, Y);
 
   /*  postprocess output of hos_forward  */
   for (i = 0; i < m; i++) {
@@ -229,20 +229,20 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
 }
 
 /** Lie derivative of scalar field h : D -> R^m along vector field f : D -> R^n
- *  \param Tape_F tape identification of vector field f
- *  \param Tape_H tape identification of scalar field h
+ *  \param tape_F tapePtr identification of vector field f
+ *  \param tape_H tapePtr identification of scalar field h
  *  \param n      number of independent variables n and m = 1
  *  \param x0     values of independent variables x0 (dimension [n])
  *  \param d	  highest derivative degree d
  *  \retval result resulting Lie derivatives of a scalar field (dimension [d+1])
  */
-int lie_scalarc(short Tape_F, short Tape_H, short n, double *x0, short d,
-                double *result) {
+int lie_scalarc(ValueTape &tape_F, ValueTape &tape_H, short n, double *x0,
+                short d, double *result) {
   int rc = -1;
   short m = 1, i = 0;
   double **Temp = myalloc2(m, d + 1);
 
-  rc = lie_scalarcv(Tape_F, Tape_H, n, m, x0, d, Temp);
+  rc = lie_scalarcv(tape_F, tape_H, n, m, x0, d, Temp);
 
   for (i = 0; i <= d; i++) {
     result[i] = Temp[0][i];
@@ -254,15 +254,15 @@ int lie_scalarc(short Tape_F, short Tape_H, short n, double *x0, short d,
 }
 
 /** Calculates the jacobians of the Lie derivatives of scalar fields h : D ->
- * R^m \param Tape_F tape identification of vector field f \param Tape_H tape
- * identification of vector field h \param n      number of independent
- * variables n \param m      number of dependent variables m \param x0 values of
- * independent variables x0 (dimension [n]) \param d      highest derivative
- * degree d \retval result resulting jacobians of Lie derivatives of vectorial
- * scalar fields (dimension [m][n][d+1])
+ * R^m \param tape_F tapePtr identification of vector field f \param
+ * tape_H tapePtr identification of vector field h \param n      number of
+ * independent variables n \param m      number of dependent variables m \param
+ * x0 values of independent variables x0 (dimension [n]) \param d      highest
+ * derivative degree d \retval result resulting jacobians of Lie derivatives of
+ * vectorial scalar fields (dimension [m][n][d+1])
  */
-int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
-                   short d, double ***result) {
+int lie_gradientcv(ValueTape &tape_F, ValueTape &tape_H, short n, short m,
+                   double *x0, short d, double ***result) {
   double **X = myalloc2(n, d + 1);
   double **Y = myalloc2(m, d + 1);
   double ***Pc = myalloc3(m, n, d + 1);
@@ -285,7 +285,7 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   for (i = 0; i < n; i++)
     X[i][0] = x0[i];
 
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(tape_F, n, 1.0, 0, d, X);
 
   if (n adolc_compsize depax_n) {
     if (depax_n)
@@ -298,7 +298,7 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
     Im = myallocI2(depax_m = m);
   }
 
-  hov_reverse(Tape_F, n, n, d - 1, n, In, A,
+  hov_reverse(tape_F, n, n, d - 1, n, In, A,
               0);                  /* explanation in interfaces.cpp  */
   accodec(n, 1.0, d - 1, A, B, 0); /* explanation in odedrivers.cpp    */
 
@@ -314,9 +314,9 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
     }
   }
 
-  hos_forward(Tape_H, m, n, d, d + 1, x, X, y, Y);
+  hos_forward(tape_H, m, n, d, d + 1, x, X, y, Y);
 
-  hov_reverse(Tape_H, m, n, d, m, Im, Pc, 0);
+  hov_reverse(tape_H, m, n, d, m, Im, Pc, 0);
   accodeout(m, n, d, B, Pc, D);
 
   for (l = 0; l < m; l++) {
@@ -346,21 +346,21 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
 
 /** Computes the gradients of the Lie derivatives of a scalar field h : D -> R
  *
- *  \param Tape_F tape identification of vector field f
- *  \param Tape_H tape identification of vector field h
+ *  \param tape_F tapePtr identification of vector field f
+ *  \param tape_H tapePtr identification of vector field h
  *  \param n      number of independent variables n
  *  \param x0     values of independent variables x0 (dimension [n])
  *  \param d      highest derivative degree d
  *  \retval result resulting jacobians of Lie derivatives of a scalar field
  * (dimension [n][d+1])
  */
-int lie_gradientc(short Tape_F, short Tape_H, short n, double *x0, short d,
-                  double **result) {
+int lie_gradientc(ValueTape &tape_F, ValueTape &tape_H, short n, double *x0,
+                  short d, double **result) {
   int rc = -1;
   short m = 1, i = 0, j = 0;
   double ***Temp = myalloc3(m, n, d + 1);
 
-  rc = lie_gradientcv(Tape_F, Tape_H, n, m, x0, d, Temp);
+  rc = lie_gradientcv(tape_F, tape_H, n, m, x0, d, Temp);
 
   for (i = 0; i < n; i++)
     for (j = 0; j <= d; j++) {
@@ -375,15 +375,15 @@ int lie_gradientc(short Tape_F, short Tape_H, short n, double *x0, short d,
 /** Computes the Lie derivatives of the covector field w : D -> (R^m)* along the
  * vector field f : D -> R^n
  *
- *  \param Tape_F tape identification of vector field f
- *  \param Tape_W tape identification of covector field h
+ *  \param tape_F tapePtr identification of vector field f
+ *  \param tapePtr_W tapePtr identification of covector field h
  *  \param n      number of independent variables n
  *  \param x0     values of independent variables x0 (dimension [n])
  *  \param d      highest derivative degree d
  *  \retval result resulting Lie derivatives of a covector field (dimension
  * [n][d+1])
  */
-int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
+int lie_covector(ValueTape &tape_F, ValueTape &tape_W, short int n, double *x0,
                  short int d, double **result) {
   int m = n;
   double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)  */
@@ -406,7 +406,7 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
   for (i = 0; i < n; i++)
     X[i][0] = x0[i];
 
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(tape_F, n, 1.0, 0, d, X);
 
   if (n adolc_compsize depax_n) {
     if (depax_n)
@@ -419,7 +419,7 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
     Im = myallocI2(depax_m = m);
   }
 
-  hov_reverse(Tape_F, n, n, d - 1, n, In, A,
+  hov_reverse(tape_F, n, n, d - 1, n, In, A,
               0); /* explanation in interfaces.cpp  */
 
   /* prepare for input */
@@ -432,7 +432,7 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
         X[i][k] = X[i][k + 1];
   }
 
-  hos_forward(Tape_W, m, n, d, d + 1, x, X, y, Y);
+  hos_forward(tape_W, m, n, d, d + 1, x, X, y, Y);
 
   /* postprocess output of hos_forward  */
   for (i = 0; i < m; i++) {
@@ -463,13 +463,13 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
 /** Calculates the iterated Lie derivatives (Lie brackets) of the vector field g
  * : D -> R^n along the vector field f : D -> R^n
  *
- *  \param Tape_F tape identification of vector field f
- *  \param Tape_G tape identification of vector field g
+ *  \param tape_F tapePtr identification of vector field f
+ *  \param tape_G tapePtr identification of vector field g
  *  \param n      number of independent variables n
  *  \param x0     values of independent variables x0 (dimension [n])
  *  \param d      highest derivative degree d
  */
-int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
+int lie_bracket(ValueTape &tape_F, ValueTape &tape_G, short int n, double *x0,
                 short int d, double **result) {
   int m = n;
   double **X = myalloc2(n, d + 2); /* Taylorcoeff. expansion x(t) */
@@ -488,7 +488,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
   for (i = 0; i < n; i++) {
     X[i][0] = x0[i];
   };
-  forodec(Tape_F, n, 1.0, 0, d + 1, X);
+  forodec(tape_F, n, 1.0, 0, d + 1, X);
 
   /* for hov_reverse  */
   if (n > depax_n) {
@@ -497,7 +497,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
     };
     In = myallocI2(depax_n = n);
   }
-  hov_reverse(Tape_F, n, n, d, n, In, A, 0);
+  hov_reverse(tape_F, n, n, d, n, In, A, 0);
 
   /* prepare for input  */
   for (i = 0; i < n; i++) {
@@ -505,7 +505,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
       X[i][k] = X[i][k + 1];
     }
   }
-  hos_forward(Tape_G, m, n, d + 1, d + 2, x0, X, y, Y);
+  hos_forward(tape_G, m, n, d + 1, d + 2, x0, X, y, Y);
 
   /* postprocess output of hos_forward  */
   for (i = 0; i < m; i++) {

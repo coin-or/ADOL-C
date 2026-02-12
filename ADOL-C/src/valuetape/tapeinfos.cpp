@@ -1,9 +1,6 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstring> // for memset
-#include <iostream>
-
-TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
 TapeInfos::~TapeInfos() {
   if (op_file) {
@@ -45,7 +42,7 @@ TapeInfos::~TapeInfos() {
 }
 
 TapeInfos::TapeInfos(TapeInfos &&other) noexcept
-    : tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
+    : numInds(other.numInds), numDeps(other.numDeps),
       keepTaylors(other.keepTaylors), traceFlag(other.traceFlag),
       tapingComplete(other.tapingComplete), op_file(other.op_file),
       opBuffer(other.opBuffer), currOp(other.currOp), lastOpP1(other.lastOpP1),
@@ -127,7 +124,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     delete[] signature;
 
     // **2. Move data members**
-    tapeId_ = other.tapeId_;
     numInds = other.numInds;
     numDeps = other.numDeps;
     keepTaylors = other.keepTaylors;

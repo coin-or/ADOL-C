@@ -33,20 +33,20 @@ BOOST_AUTO_TEST_SUITE(trace_sec_order_vec)
 
 BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
 
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   double x1 = 3.;
   adouble ax1;
   double y1;
   adouble ay1;
 
-  trace_on(tapeId, 1);
+  trace_on(*tapePtr, 1);
   ax1 <<= x1;
 
   ay1 = 2. * ax1 * ax1 * ax1;
 
   ay1 >>= y1;
-  trace_off();
+  trace_off(*tapePtr);
 
   double *yprim;
   yprim = myalloc1(1);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
   double ***Y;
   Y = myalloc3(1, 3, 2);
 
-  hov_forward(tapeId, 1, 1, 2, 3, x, X, y, Y);
+  hov_forward(*tapePtr, 1, 1, 2, 3, x, X, y, Y);
 
   BOOST_TEST(y[0] == yprim[0], tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == yDerivative[0][0][0], tt::tolerance(tol));
@@ -101,20 +101,20 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   double x1 = 3.;
   adouble ax1;
   double y1;
   adouble ay1;
 
-  trace_on(tapeId, 1);
+  trace_on(*tapePtr, 1);
   ax1 <<= x1;
 
   ay1 = 2. * ax1 * ax1 * ax1;
 
   ay1 >>= y1;
-  trace_off();
+  trace_off(*tapePtr);
 
   double y1x1Derivative = 6. * x1 * x1;
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
   x[0] = 3.;
   xd[0] = 1.;
 
-  fos_forward(tapeId, 1, 1, 2, x, xd, y, yd);
+  fos_forward(*tapePtr, 1, 1, 2, x, xd, y, yd);
 
   double **U = myalloc2(2, 1);
   double ***Z = myalloc3(2, 1, 2);
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
   U[0][0] = 1.;
   U[1][0] = 5.;
 
-  hov_reverse(tapeId, 1, 1, 1, 2, U, Z, nz);
+  hov_reverse(*tapePtr, 1, 1, 1, 2, U, Z, nz);
 
   BOOST_TEST(Z[0][0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[0][0][1] == y1x1x1Derivative, tt::tolerance(tol));
@@ -167,22 +167,22 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
  *                      -sin(x1)*cos(x2), -cos(x1)*sin(x2))
  */
 BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   double x1 = 1.3, x2 = 3.1;
   adouble ax1;
   adouble ax2;
   double y1;
   adouble ay1;
 
-  trace_on(tapeId, 1);
+  trace_on(*tapePtr, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ay1 = cos(ax1) * sin(ax2);
 
   ay1 >>= y1;
-  trace_off();
+  trace_off(*tapePtr);
 
   double *yprim;
   yprim = myalloc1(1);
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
   double ***Y;
   Y = myalloc3(1, 3, 2);
 
-  hov_forward(tapeId, 1, 2, 2, 3, x, X, y, Y);
+  hov_forward(*tapePtr, 1, 2, 2, 3, x, X, y, Y);
 
   BOOST_TEST(y[0] == yprim[0], tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == yDerivative[0][0][0], tt::tolerance(tol));
@@ -251,22 +251,22 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
 }
 
 BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
-  const auto tapeId = createNewTape();
-  setCurrentTape(tapeId);
+  auto tapePtr = std::make_unique<ValueTape>();
+  setCurrentTapePtr(tapePtr.get());
   double x1 = 1.3, x2 = 3.1;
   adouble ax1;
   adouble ax2;
   double y1;
   adouble ay1;
 
-  trace_on(tapeId, 1);
+  trace_on(*tapePtr, 1);
   ax1 <<= x1;
   ax2 <<= x2;
 
   ay1 = cos(ax1) * sin(ax2);
 
   ay1 >>= y1;
-  trace_off();
+  trace_off(*tapePtr);
 
   double y1x1Derivative = -std::sin(x1) * std::sin(x2);
   double y1x2Derivative = std::cos(x1) * std::cos(x2);
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   xd[0] = 1.;
   xd[1] = 0.;
 
-  fos_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+  fos_forward(*tapePtr, 1, 2, 2, x, xd, y, yd);
 
   double **U = myalloc2(2, 1);
   double ***Z = myalloc3(2, 2, 2);
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   U[0][0] = 1.;
   U[1][0] = 5.;
 
-  hov_reverse(tapeId, 1, 2, 1, 2, U, Z, nz);
+  hov_reverse(*tapePtr, 1, 2, 1, 2, U, Z, nz);
 
   BOOST_TEST(Z[0][0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[0][1][0] == y1x2Derivative, tt::tolerance(tol));
@@ -316,9 +316,9 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   xd[0] = 0.;
   xd[1] = 1.;
 
-  fos_forward(tapeId, 1, 2, 2, x, xd, y, yd);
+  fos_forward(*tapePtr, 1, 2, 2, x, xd, y, yd);
 
-  hov_reverse(tapeId, 1, 2, 1, 2, U, Z, nz);
+  hov_reverse(*tapePtr, 1, 2, 1, 2, U, Z, nz);
 
   BOOST_TEST(Z[0][0][0] == y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[0][1][0] == y1x2Derivative, tt::tolerance(tol));

@@ -430,12 +430,11 @@ void GauszSolve(double **J, int n, int *RI, int *CI, double *b) {
 }
 
 /****************************************************************************/
-int jac_solv(unsigned short tag, int n, const double *x, double *b,
+int jac_solv(ValueTape &tape, int n, const double *x, double *b,
              unsigned short mode) {
   double *y;
   int i, newX = 0;
   int rc = 3;
-  ValueTape &tape = findTape(tag);
 
   y = myalloc1(n);
   if (n != tape.jacSolv_nax()) {
@@ -462,12 +461,12 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
     }
   switch (mode) {
   case 0:
-    MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+    MINDEC(rc, zos_forward(tape, n, n, 1, x, y));
+    MINDEC(rc, fov_reverse(tape, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
     break;
   case 1:
-    MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+    MINDEC(rc, zos_forward(tape, n, n, 1, x, y));
+    MINDEC(rc, fov_reverse(tape, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
     if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
                         tape.jacSolv_ci()) < 0) {
       rc = -3;
@@ -477,8 +476,9 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
     break;
   case 2:
     if ((tape.jacSolv_modeold() < 1) || (newX == 1)) {
-      MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
-      MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+      MINDEC(rc, zos_forward(tape, n, n, 1, x, y));
+      MINDEC(rc,
+             fov_reverse(tape, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
       if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
                           tape.jacSolv_ci()) < 0) {
         rc = -3;
@@ -494,7 +494,7 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
 }
 
 /****************************************************************************/
-int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
+int inverse_Taylor_prop(ValueTape &tape, int n, int d, double **Y, double **X) {
   int i, j, l, q;
   static double **I;
   double bi;
@@ -563,7 +563,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
     cgd = 0;
     for (i = 0; i < n; i++)
       xold[i] = X[i][0];
-    MINDEC(rc, jac_solv(tag, n, xold, b, 1));
+    MINDEC(rc, jac_solv(tape, n, xold, b, 1));
     if (rc == -3)
       return -3;
   }
@@ -582,8 +582,8 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
   while (--ii > 0) {
     di = dd[ii - 1] - 1;
     Di = dd[ii - 1] - dd[ii] - 1;
-    MINDEC(rc, hos_forward(tag, n, n, di, Di + 1, xold, Xhelp, w, W));
-    MINDEC(rc, hov_reverse(tag, n, n, Di, n, I, A, nonzero));
+    MINDEC(rc, hos_forward(tape, n, n, di, Di + 1, xold, Xhelp, w, W));
+    MINDEC(rc, hov_reverse(tape, n, n, Di, n, I, A, nonzero));
     da = dd[ii];
     for (l = da; l < dd[ii - 1]; l++) {
       for (i = 0; i < n; i++) {
@@ -610,7 +610,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
           }
         b[i] = -bi;
       }
-      MINDEC(rc, jac_solv(tag, n, xold, b, 2));
+      MINDEC(rc, jac_solv(tape, n, xold, b, 2));
       if (rc == -3)
         return -3;
       for (i = 0; i < n; i++) {
@@ -623,7 +623,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
 }
 
 /****************************************************************************/
-int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
+int inverse_tensor_eval(ValueTape &tape, int n, int d, int p, double *x,
                         double **tensor, double **S) {
   static int dold, pold;
   static struct item *coeff_list;
@@ -640,7 +640,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
   for (int i = 0; i < n; i++)
     for (size_t j = 0; j < dimten; j++)
       tensor[i][j] = 0;
-  MINDEC(rc, zos_forward(tag, n, n, 0, x, y));
+  MINDEC(rc, zos_forward(tape, n, n, 0, x, y));
   if (d > 0) {
     if ((d != dold) || (p != pold)) {
       if (pold) { /* olvo 980728 */
@@ -674,7 +674,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
         convert(p, d, it, jm);
         ptr = &coeff_list[i];
         multma2vec1(n, p, d, Y, S, jm);
-        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y, X));
+        MINDEC(rc, inverse_Taylor_prop(tape, n, d, Y, X));
         if (rc == -3)
           return -3;
         do {
@@ -698,7 +698,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
             it[j] = it[j - 1];
         convert(p, d, it, jm);
         multma2vec1(n, p, d, Y, S, jm); /* Store S*jm in Y */
-        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y, X));
+        MINDEC(rc, inverse_Taylor_prop(tape, n, d, Y, X));
         if (rc == -3)
           return -3;
         ptr = &coeff_list[i];
@@ -722,7 +722,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
 }
 
 /****************************************************************************/
-int tensor_eval(short tag, int m, int n, int d, int p, double *x,
+int tensor_eval(ValueTape &tape, int m, int n, int d, int p, double *x,
                 double **tensor, double **S) {
   static int dold, pold;
   static struct item *coeff_list;
@@ -742,7 +742,7 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
   size_t dim = 0;
   size_t bd = 0;
   if (d == 0) {
-    MINDEC(rc, zos_forward(tag, m, n, 0, x, y));
+    MINDEC(rc, zos_forward(tape, m, n, 0, x, y));
   } else {
     if ((d != dold) || (p != pold)) {
       if (pold) {
@@ -779,7 +779,7 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
           ctr += 1;
         else {
           multma2vec2(n, p, bd, X[0], S, jm);
-          MINDEC(rc, fov_forward(tag, m, n, static_cast<int>(bd), x, X[0], y,
+          MINDEC(rc, fov_forward(tape, m, n, static_cast<int>(bd), x, X[0], y,
                                  Y[0]));
           for (size_t k = 0; k < bd; k++)
             do {
@@ -817,7 +817,7 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
         else {
           multma3vec2(n, p, d, bd, X, S, jm);
           MINDEC(rc,
-                 hov_forward(tag, m, n, d, static_cast<int>(bd), x, X, y, Y));
+                 hov_forward(tape, m, n, d, static_cast<int>(bd), x, X, y, Y));
           for (size_t k = 0; k < bd; k++)
             do {
               for (int j = 0; j < m; j++)

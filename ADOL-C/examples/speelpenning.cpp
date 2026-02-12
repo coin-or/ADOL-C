@@ -25,7 +25,7 @@ using namespace std;
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
 int main() {
-  const short tapeId = createNewTape();
+  const auto tapePtr = std::make_unique<ValueTape>();
   constexpr size_t n = 7;
 
   double *xp = new double[n];
@@ -36,27 +36,27 @@ int main() {
   for (size_t i = 0; i < n; i++)
     xp[i] = (to_double(i) + 1.0) / (2.0 + to_double(i)); // some initialization
 
-  trace_on(tapeId); // tag = 1, keep = 0 by default
+  trace_on(*tapePtr); // tag = 1, keep = 0 by default
   for (size_t i = 0; i < n; i++) {
     x[i] <<= xp[i]; // or  x <<= xp outside the loop
     y *= x[i];
   } // end for
   y >>= yp;
   delete[] x;
-  trace_off();
+  trace_off(*tapePtr);
 
-  auto tape_stats = tapestats(tapeId); // reading of tape statistics
+  auto tape_stats = tapestats(*tapePtr); // reading of tape statistics
   cout << "maxlive " << tape_stats[TapeInfos::NUM_MAX_LIVES] << "\n";
   // ..... print other tape stats
 
   double *g = new double[n];
-  gradient(tapeId, n, xp, g); // gradient evaluation
+  gradient(*tapePtr, n, xp, g); // gradient evaluation
 
   double **H = new double *[n];
   for (size_t i = 0; i < n; i++)
     H[i] = new double[i + 1];
-  hessian(tapeId, n, xp, H); // H equals (n-1)g since g is
-  double errg = 0;           // homogeneous of degree n-1.
+  hessian(*tapePtr, n, xp, H); // H equals (n-1)g since g is
+  double errg = 0;             // homogeneous of degree n-1.
   double errh = 0;
   for (size_t i = 0; i < n; i++)
     errg += fabs(g[i] - yp / xp[i]); // vanishes analytically.
