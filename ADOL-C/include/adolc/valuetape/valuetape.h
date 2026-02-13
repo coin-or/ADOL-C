@@ -596,13 +596,6 @@ public:
     globalTapeVars_.branchSwitchWarning = val;
   }
   char inParallelRegion() const { return globalTapeVars_.inParallelRegion; }
-  /*--------------------------------------------------------------------------*/
-  /* This function sets the flag "newTape" if either a taylor buffer has been */
-  /* created or a taping process has been performed. Calling the function is  */
-  /* also useful to "convince" the linker of including the cleaner part into  */
-  /* the binary when linking statically!                                      */
-  /*--------------------------------------------------------------------------*/
-  void markNewTape() { globalTapeVars_.newTape = 1; }
 
   // ------------------------------- Buffer utils ---------------------------
   void cp_clearStack();
