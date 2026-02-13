@@ -644,108 +644,13 @@ void ValueTape::read_tape_stats() {
 /* Initialize a forward sweep. Get stats, open tapes, fill buffers, ... */
 /****************************************************************************/
 void ValueTape::init_for_sweep() {
-  constexpr size_t chunkSize_uchar =
-      ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
-  constexpr size_t chunkSize_size_t = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
-  constexpr size_t chunkSize_double = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
   openTape();
   initTapeBuffers();
-
-  /* init operations */
-  size_t number = 0;
-  if (tapestats(TapeInfos::OP_FILE_ACCESS) == 1) {
-    op_file(fopen(op_fileName(), "rb"));
-    /* how much to read ? */
-    number = MIN_ADOLC(tapestats(TapeInfos::OP_BUFFER_SIZE),
-                       tapestats(TapeInfos::NUM_OPERATIONS));
-
-    if (number != 0) {
-      const size_t chunks = number / chunkSize_uchar;
-      for (size_t i = 0; i < chunks; ++i)
-        if (fread(opBuffer() + i * chunkSize_uchar,
-                  chunkSize_uchar * sizeof(unsigned char), 1, op_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-
-      const size_t remain = number % chunkSize_uchar;
-      if (remain != 0)
-        if (fread(opBuffer() + chunks * chunkSize_uchar,
-                  remain * sizeof(unsigned char), 1, op_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-    }
-    /* how much remains ? */
-    number = tapestats(TapeInfos::NUM_OPERATIONS) - number;
-  }
-  numOps_Tape(number);
-  currOp(opBuffer());
-
-  /* init locations */
-  number = 0;
-  if (tapestats(TapeInfos::LOC_FILE_ACCESS) == 1) {
-    loc_file(fopen(loc_fileName(), "rb"));
-    /* how much to read ? */
-    number = MIN_ADOLC(tapestats(TapeInfos::LOC_BUFFER_SIZE),
-                       tapestats(TapeInfos::NUM_LOCATIONS));
-    if (number != 0) {
-
-      const size_t chunks = number / chunkSize_size_t;
-      for (size_t i = 0; i < chunks; ++i)
-        if (fread(locBuffer() + i * chunkSize_size_t,
-                  chunkSize_size_t * sizeof(size_t), 1, loc_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-
-      const size_t remain = number % chunkSize_size_t;
-      if (remain != 0)
-        if (fread(locBuffer() + chunks * chunkSize_size_t,
-                  remain * sizeof(size_t), 1, loc_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-    }
-    /* how much remains ? */
-    number = tapestats(TapeInfos::NUM_LOCATIONS) - number;
-  }
-  numLocs_Tape(number);
-
-  /* skip stats */
-  size_t numLocsForStats = statSpace;
-  while (numLocsForStats >= tapestats(TapeInfos::LOC_BUFFER_SIZE)) {
-    get_loc_block_f();
-    numLocsForStats -= tapestats(TapeInfos::LOC_BUFFER_SIZE);
-  }
-  currLoc(locBuffer() + numLocsForStats);
-
-  /* init constants */
-  number = 0;
-  if (tapestats(TapeInfos::VAL_FILE_ACCESS) == 1) {
-    val_file(fopen(val_fileName(), "rb"));
-    /* how much to read ? */
-    number = MIN_ADOLC(tapestats(TapeInfos::VAL_BUFFER_SIZE),
-                       tapestats(TapeInfos::NUM_VALUES));
-    if (number != 0) {
-      const size_t chunks = number / chunkSize_double;
-      for (size_t i = 0; i < chunks; ++i)
-        if (fread(valBuffer() + i * chunkSize_double,
-                  chunkSize_double * sizeof(double), 1, val_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-
-      const size_t remain = number % chunkSize_double;
-      if (remain != 0)
-        if (fread(valBuffer() + chunks * chunkSize_double,
-                  remain * sizeof(double), 1, val_file()) != 1)
-          ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
-                           CURRENT_LOCATION);
-    }
-    /* how much remains ? */
-    number = tapestats(TapeInfos::NUM_VALUES) - number;
-  }
-  numVals_Tape(number);
-  currVal(valBuffer());
+  prepare_for<OpInfo>();
+  prepare_for<LocInfo>();
+  prepare_for<ValInfo>();
 #ifdef ADOLC_AMPI_SUPPORT
   TAPE_AMPI_resetBottom();
 #endif
@@ -759,10 +664,9 @@ void ValueTape::init_rev_sweep() {
    * stack information */
   openTape();
   initTapeBuffers();
-
-  prepare<OpInfos>();
-  prepare<LocInfos>();
-  prepare<ValInfos>();
+  prepare_rev<OpInfo>();
+  prepare_rev<LocInfo>();
+  prepare_rev<ValInfo>();
 #ifdef ADOLC_AMPI_SUPPORT
   TAPE_AMPI_resetTop();
 #endif

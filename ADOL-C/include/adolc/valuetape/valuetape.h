@@ -6,6 +6,7 @@
 #include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
 #include <adolc/checkpointing_p.h>
+#include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 #include <adolc/storemanager.h>
@@ -674,10 +675,8 @@ public:
 
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }
-  // initialize a forward sweep, get stats, open tapes, fill buffers, ...
-  void init_for_sweep();
 
-  struct OpInfos {
+  struct OpInfo {
     using value = unsigned char;
     static const TapeInfos::StatEntries num = TapeInfos::NUM_OPERATIONS;
     static const TapeInfos::StatEntries fileAccess = TapeInfos::OP_FILE_ACCESS;
@@ -695,7 +694,7 @@ public:
     }
   };
 
-  struct LocInfos {
+  struct LocInfo {
     using value = size_t;
     static const TapeInfos::StatEntries num = TapeInfos::NUM_LOCATIONS;
     static const TapeInfos::StatEntries fileAccess = TapeInfos::LOC_FILE_ACCESS;
@@ -713,7 +712,7 @@ public:
     }
   };
 
-  struct ValInfos {
+  struct ValInfo {
     using value = double;
     static const TapeInfos::StatEntries num = TapeInfos::NUM_VALUES;
     static const TapeInfos::StatEntries fileAccess = TapeInfos::VAL_FILE_ACCESS;
@@ -732,17 +731,18 @@ public:
     }
   };
 
-  template <InfoType Info> void setFilePosition() {
-    // set file pos to beginning of last block
-    auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
-                  tapestats(Info::bufferSize);
-    auto offset = static_cast<long>(number * sizeof(typename Info::value));
-    Info::openFile(*this);
-    fseek(Info::file(*this), offset, SEEK_SET);
-  }
-
-  template <InfoType Info> size_t lengthLastBloc() {
-    return tapestats(Info::num) % tapestats(Info::bufferSize);
+  template <InfoType Info>
+  void readRemaining(size_t numChunks, size_t lengthBlock) {
+    using ADOLCError::fail;
+    // numChunks + remain = lengthBlock
+    const size_t remain = lengthBlock % Info::chunkSize;
+    if (remain > 0) {
+      auto returnCode =
+          fread(Info::buffer(*this) + (numChunks * Info::chunkSize),
+                remain * sizeof(typename Info::value), 1, Info::file(*this));
+      if (returnCode != 1)
+        fail(Info::error, CURRENT_LOCATION);
+    }
   }
 
   template <InfoType Info> void readLastBloc(size_t lengthLB) {
@@ -755,19 +755,45 @@ public:
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
-
-    // numChunks + remain = lengthLB
-    const size_t remain = lengthLB % Info::chunkSize;
-    if (remain > 0) {
-      auto returnCode =
-          fread(Info::buffer(*this) + (numChunks * Info::chunkSize),
-                remain * sizeof(typename Info::value), 1, Info::file(*this));
-      if (returnCode != 1)
-        fail(Info::error, CURRENT_LOCATION);
-    }
+    readRemaining<Info>(numChunks, lengthLB);
   }
 
-  template <InfoType Info> void prepare() {
+  template <InfoType Info> void prepare_for() {
+    size_t lengthBlock = 0;
+    if (tapestats(Info::fileAccess) == 1) {
+      Info::openFile(*this);
+      // how much to read from file
+      lengthBlock = std::min(tapestats(Info::bufferSize), tapestats(Info::num));
+      if (lengthBlock != 0) {
+        readLastBloc<Info>(lengthBlock);
+      }
+      lengthBlock = tapestats(Info::num) - lengthBlock;
+    }
+    Info::setNum(*this, lengthBlock);
+    if constexpr (std::is_same_v<Info, LocInfo>) {
+      size_t numLocsForStats = statSpace;
+      while (numLocsForStats >= tapestats(Info::bufferSize)) {
+        get_loc_block_f();
+        numLocsForStats -= tapestats(Info::bufferSize);
+      }
+      Info::setCurr(*this, Info::buffer(*this) + numLocsForStats);
+    } else {
+      Info::setCurr(*this, Info::buffer(*this));
+    }
+  }
+  // initialize a forward sweep, get stats, open tapes, fill buffers, ...
+  void init_for_sweep();
+
+  template <InfoType Info> void setFilePosition() {
+    // set file pos to beginning of last block
+    auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
+                  tapestats(Info::bufferSize);
+    auto offset = static_cast<long>(number * sizeof(typename Info::value));
+    Info::openFile(*this);
+    fseek(Info::file(*this), offset, SEEK_SET);
+  }
+
+  template <InfoType Info> void prepare_rev() {
     size_t lengthLB = tapestats(Info::num);
     if (tapestats(Info::fileAccess) == 1) {
       // set file pos to beginning of last block

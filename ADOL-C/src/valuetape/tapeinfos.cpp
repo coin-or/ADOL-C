@@ -436,9 +436,6 @@ void TapeInfos::get_tay_block_r() {
 /****************************************************************************/
 void TapeInfos::put_loc_block(const char *loc_fileName, const size_t *locPos) {
   using ADOLCError::fail;
-  using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
-
-  using ADOLCError::fail;
   using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
   using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
 
