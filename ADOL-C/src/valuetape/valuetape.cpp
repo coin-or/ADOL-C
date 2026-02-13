@@ -457,9 +457,6 @@ void ValueTape::start_trace() {
   /* initialize value stack if necessary */
   if (keepTaylors())
     taylor_begin(tapestats(TapeInfos::TAY_BUFFER_SIZE), 0);
-
-  /* mark possible (hard disk) tape creation */
-  markNewTape();
 }
 
 void ValueTape::save_params() {
@@ -680,9 +677,6 @@ void ValueTape::set_param_vec(short tag, size_t numparam,
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::PARAM_COUNTS_MISMATCH;
 
-  /* mark possible (hard disk) tape creation */
-  markNewTape();
-
   /* make room for tapeInfos and read tapestats if necessary, keep value
    * stack information */
   openTape();
@@ -769,9 +763,6 @@ void ValueTape::init_for_sweep() {
       ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   constexpr size_t chunkSize_size_t = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
   constexpr size_t chunkSize_double = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-
-  /* mark possible (hard disk) tape creation */
-  markNewTape();
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
@@ -883,9 +874,6 @@ void ValueTape::init_rev_sweep() {
       ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   constexpr size_t chunkSize_size_t = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
   constexpr size_t chunkSize_double = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-
-  /* mark possible (hard disk) tape creation */
-  markNewTape();
 
   /* make room for tapeInfos and read tape stats if necessary, keep value
    * stack information */
