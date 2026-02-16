@@ -301,27 +301,6 @@ void ValueTape::taylor_back() {
 }
 
 /****************************************************************************/
-/* Writes the block of size depth of taylor coefficients from point loc to  */
-/* the taylor buffer.  If the buffer is filled, then it is written to the   */
-/* taylor tape.                                                             */
-/*--------------------------------------------------------------------------*/
-void ValueTape::write_taylors(double *taylorCoefficientPos, int keep,
-                              int degree, int numDir) {
-  for (int j = 0; j < numDir; ++j) {
-    for (int i = 0; i < keep; ++i) {
-      if (currTay() == lastTayP1())
-        put_tay_block(lastTayP1());
-
-      currTay(*taylorCoefficientPos);
-      increment_currTay();
-      ++taylorCoefficientPos;
-    }
-    if (degree > keep)
-      taylorCoefficientPos += degree - keep;
-  }
-}
-
-/****************************************************************************/
 /* Write_scaylors writes # size elements from x to the taylor buffer.       */
 /****************************************************************************/
 void ValueTape::write_scaylors(double *x, std::ptrdiff_t size) {

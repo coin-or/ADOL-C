@@ -312,7 +312,6 @@ public:
   double *currTay() const { return tapeInfos_.currTay; }
   void currTay(double *pos) { tapeInfos_.currTay = pos; }
   void currTay(double val) { *tapeInfos_.currTay = val; }
-  void increment_currTay() { ++tapeInfos_.currTay; }
   void decrement_currTay() { --tapeInfos_.currTay; }
 
   void lastTayP1(double *pos) { tapeInfos_.lastTayP1 = pos; }
@@ -627,10 +626,13 @@ public:
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
   void write_taylors(double *taylorCoefficientPos, int keep, int degree,
-                     int numDir);
+                     int numDir) {
+    tapeInfos_.write_taylors(taylorCoefficientPos, keep, degree, numDir,
+                             tay_fileName());
+  }
 
   void write_scaylor(double val) {
-    return tapeInfos_.write_scaylor(val, tay_fileName());
+    tapeInfos_.write_scaylor(val, tay_fileName());
   }
 
   // write_scaylors writes #size elements from x to the taylor buffer void
@@ -648,13 +650,7 @@ public:
   }
 
   // puts a taylor value from the value stack buffer to the taylor buffer
-  void get_taylor(size_t loc) {
-    if (tapeInfos_.currTay == tapeInfos_.tayBuffer)
-      get_tay_block_r();
-
-    --tapeInfos_.currTay;
-    tapeInfos_.rp_T[loc] = *tapeInfos_.currTay;
-  }
+  void get_taylor(size_t loc) { tapeInfos_.get_taylor(loc); }
 
   // puts a block of taylor coefficients from the value stack buffer to the
   // taylor buffer --- Higher Order Scalar

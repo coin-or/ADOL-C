@@ -153,6 +153,15 @@ struct TapeInfos {
   // taylor tape
   void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
                     const char *tay_fileName);
+
+  // puts a taylor value from the value stack buffer to the taylor buffer
+  void get_taylor(size_t loc) {
+    if (currTay == tayBuffer)
+      get_tay_block_r();
+
+    --currTay;
+    rp_T[loc] = *currTay;
+  }
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
@@ -161,6 +170,15 @@ struct TapeInfos {
     *currTay = val;
     ++currTay;
   }
+
+  /****************************************************************************/
+  /* Writes the block of size depth of taylor coefficients from point loc to  */
+  /* the taylor buffer.  If the buffer is filled, then it is written to the   */
+  /* taylor tape.                                                             */
+  /*--------------------------------------------------------------------------*/
+  void write_taylors(double *taylorCoefficientPos, int keep, int degree,
+                     int numDir, const char *tay_fileName);
+
   void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 

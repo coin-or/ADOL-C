@@ -291,6 +291,23 @@ void TapeInfos::write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
   currTay += keep;
 }
 
+void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
+                              int degree, int numDir,
+                              const char *tay_fileName) {
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 0; i < keep; ++i) {
+      if (currTay == lastTayP1)
+        put_tay_block(tay_fileName, lastTayP1);
+
+      *currTay = *taylorCoefficientPos;
+      ++currTay;
+      ++taylorCoefficientPos;
+    }
+    if (degree > keep)
+      taylorCoefficientPos += degree - keep;
+  }
+}
+
 /**
  * Functions to handle the taylor tape
  */
