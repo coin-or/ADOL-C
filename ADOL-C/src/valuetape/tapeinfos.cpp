@@ -69,8 +69,8 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       lowestXLoc_ext_v2(other.lowestXLoc_ext_v2),
       lowestYLoc_ext_v2(other.lowestYLoc_ext_v2), dp_T0(other.dp_T0),
       gDegree(other.gDegree), numTay(other.numTay), workMode(other.workMode),
-      dpp_T(other.dpp_T), rp_T(other.rp_T), rpp_T(other.rpp_T),
-      rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
+      rp_T(other.rp_T), rpp_T(other.rpp_T), rp_A(other.rp_A),
+      rpp_A(other.rpp_A), upp_A(other.upp_A),
       ext_diff_fct_index(other.ext_diff_fct_index),
       in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
       switchlocs(other.switchlocs), signature(other.signature) {
@@ -102,7 +102,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.lowestYLoc_ext_v2 = nullptr;
 
   other.dp_T0 = nullptr;
-  other.dpp_T = nullptr;
 
   other.rp_T = nullptr;
   other.rpp_T = nullptr;
@@ -182,7 +181,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     gDegree = other.gDegree;
     numTay = other.numTay;
     workMode = other.workMode;
-    dpp_T = other.dpp_T;
 
     rp_T = other.rp_T;
     rpp_T = other.rpp_T;
@@ -217,7 +215,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.lowestXLoc_ext_v2 = nullptr;
     other.lowestYLoc_ext_v2 = nullptr;
     other.dp_T0 = nullptr;
-    other.dpp_T = nullptr;
     other.rp_T = nullptr;
     other.rpp_T = nullptr;
     other.rp_A = nullptr;
@@ -271,31 +268,25 @@ void TapeInfos::freeTapeResources() {
 /* the taylor buffer. If the buffer is filled, then it is written to the    */
 /* taylor tape.                                                             */
 /****************************************************************************/
-void TapeInfos::write_taylor(size_t loc, std::ptrdiff_t keep,
+void TapeInfos::write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
                              const char *tay_fileName) {
   double *i;
-  double *T;
-
-  T = dpp_T[loc];
-
   /* write data to buffer and put buffer to disk as long as data remain in
    * the T-buffer => don't create an empty value stack buffer! */
   while (currTay + keep > lastTayP1) {
     for (i = currTay; i < lastTayP1; ++i) {
-      *i = (double)*T;
+      *i = *taylorCoefficientPos;
       /* In this assignment the precision will be sacrificed if the type
        * double is defined as float. */
-      ++T;
+      ++taylorCoefficientPos;
     }
     keep -= lastTayP1 - currTay;
     put_tay_block(tay_fileName, lastTayP1);
   }
 
   for (i = currTay; i < currTay + keep; ++i) {
-    *i = (double)*T;
-    /* In this assignment the precision will be sacrificed
-     * if the type double is defined as float. */
-    ++T;
+    *i = *taylorCoefficientPos;
+    ++taylorCoefficientPos;
   }
   currTay += keep;
 }

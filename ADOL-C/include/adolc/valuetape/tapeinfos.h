@@ -129,8 +129,6 @@ struct TapeInfos {
   size_t numTay{0};
   enum WORKMODES workMode { NO_MODE };
 
-  double **dpp_T{nullptr};
-
   /* ---------- evaluation reverse------- */
   double *rp_T{nullptr};
   double **rpp_T{nullptr};
@@ -153,7 +151,8 @@ struct TapeInfos {
   // writes the block of size depth of taylor coefficients from point loc to
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
-  void write_taylor(size_t loc, std::ptrdiff_t keep, const char *tay_fileName);
+  void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
+                    const char *tay_fileName);
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {

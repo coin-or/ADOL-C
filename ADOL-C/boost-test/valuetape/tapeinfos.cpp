@@ -92,8 +92,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.numTay = 45;
   tp.workMode = TapeInfos::NO_MODE;
 
-  auto e = new double *[10];
-  tp.dpp_T = e;
   auto f = new double[11];
   tp.rp_T = f;
   auto g = new double *[4];
@@ -173,7 +171,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.lowestXLoc_ext_v2, b);
   BOOST_CHECK_EQUAL(tp2.lowestYLoc_ext_v2, c);
   BOOST_CHECK_EQUAL(tp2.dp_T0, d);
-  BOOST_CHECK_EQUAL(tp2.dpp_T, e);
   BOOST_CHECK_EQUAL(tp2.rp_T, f);
   BOOST_CHECK_EQUAL(tp2.rpp_T, g);
   BOOST_CHECK_EQUAL(tp2.rp_A, h);
@@ -186,7 +183,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   delete[] b;
   delete[] c;
   delete[] d;
-  delete[] e;
   delete[] f;
   delete[] g;
   delete[] h;

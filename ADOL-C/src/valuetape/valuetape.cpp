@@ -305,21 +305,19 @@ void ValueTape::taylor_back() {
 /* the taylor buffer.  If the buffer is filled, then it is written to the   */
 /* taylor tape.                                                             */
 /*--------------------------------------------------------------------------*/
-void ValueTape::write_taylors(size_t loc, int keep, int degree, int numDir) {
-  double *T = dpp_T(loc);
-
+void ValueTape::write_taylors(double *taylorCoefficientPos, int keep,
+                              int degree, int numDir) {
   for (int j = 0; j < numDir; ++j) {
     for (int i = 0; i < keep; ++i) {
       if (currTay() == lastTayP1())
         put_tay_block(lastTayP1());
 
-      currTay(*T);
+      currTay(*taylorCoefficientPos);
       increment_currTay();
-      ++T;
+      ++taylorCoefficientPos;
     }
-    /*        for (i = keep; i < degree; ++i) ++T;*/
     if (degree > keep)
-      T += degree - keep;
+      taylorCoefficientPos += degree - keep;
   }
 }
 

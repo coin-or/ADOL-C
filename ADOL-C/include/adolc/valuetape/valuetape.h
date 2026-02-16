@@ -337,9 +337,6 @@ public:
   void dp_T0(double *T0) { tapeInfos_.dp_T0 = T0; }
   void rp_T(double *T) { tapeInfos_.rp_T = T; }
 
-  void dpp_T(double **T) { tapeInfos_.dpp_T = T; }
-  double *dpp_T(size_t loc) { return tapeInfos_.dpp_T[loc]; }
-
   void rpp_T(double **T) { tapeInfos_.rpp_T = T; }
   double *rpp_T(size_t loc) { return tapeInfos_.rpp_T[loc]; }
   void rp_A(double *A) { tapeInfos_.rp_A = A; }
@@ -622,14 +619,15 @@ public:
   // initializes a reverse sweep
   void taylor_back();
 
-  void write_taylor(size_t loc, std::ptrdiff_t keep) {
-    return tapeInfos_.write_taylor(loc, keep, tay_fileName());
+  void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep) {
+    return tapeInfos_.write_taylor(taylorCoefficientPos, keep, tay_fileName());
   }
 
   // writes the block of size depth of taylor coefficients from point loc to
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
-  void write_taylors(size_t, int keep, int degree, int numDir);
+  void write_taylors(double *taylorCoefficientPos, int keep, int degree,
+                     int numDir);
 
   void write_scaylor(double val) {
     return tapeInfos_.write_scaylor(val, tay_fileName());
