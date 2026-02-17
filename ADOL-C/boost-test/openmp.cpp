@@ -31,14 +31,13 @@ void record_test_function(short tid) {
 int main() {
   int nthreads = 4;
   omp_set_num_threads(nthreads);
-  std::unordered_map<int, short> tapeIdOnThread(nthreads);
+  std::vector<short> tapeIdOnThread(nthreads);
   // 1) parallel recording -- one tape per thread
 #pragma omp parallel
   {
 
     const auto threadId = omp_get_thread_num();
-    const short tapeId = createNewTape();
-    tapeIdOnThread[threadId] = tapeId;
+    tapeIdOnThread[threadId] = createNewTape();
     setCurrentTape(tapeIdOnThread[threadId]);
     record_test_function(tapeIdOnThread[threadId]);
   }
