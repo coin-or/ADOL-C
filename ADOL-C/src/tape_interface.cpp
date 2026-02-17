@@ -102,7 +102,6 @@ void trace_off(int flag) {
   tape.keepTape(flag);
   tape.keep_stock(); /* copy remaining live variables + trace_flag = 0 */
   tape.stop_trace(flag);
-  tape.tapingComplete(1);
   tape.workMode(TapeInfos::NO_MODE);
 
   // restore previous tapeId and delete it

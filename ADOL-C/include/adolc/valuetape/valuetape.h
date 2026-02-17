@@ -224,13 +224,11 @@ public:
   void traceFlag(int flag) { tapeInfos_.traceFlag = flag; }
   int keepTaylors() const { return tapeInfos_.keepTaylors; }
   void keepTaylors(int val) { tapeInfos_.keepTaylors = val; }
-  void numTay(size_t num) { tapeInfos_.numTay = num; }
 
   size_t numTBuffersInUse() const { return tapeInfos_.numTBuffersInUse; }
   void increment_numTBuffersInUse() { tapeInfos_.numTBuffersInUse++; }
 
   size_t numparam() const { return globalTapeVars_.numparam; }
-  void gDegree(size_t degree) { tapeInfos_.gDegree = degree; }
 
   void workMode(TapeInfos::WORKMODES mode) { tapeInfos_.workMode = mode; }
   TapeInfos::WORKMODES workMode() const { return tapeInfos_.workMode; }
@@ -312,7 +310,6 @@ public:
   double *currTay() const { return tapeInfos_.currTay; }
   void currTay(double *pos) { tapeInfos_.currTay = pos; }
   void currTay(double val) { *tapeInfos_.currTay = val; }
-  void increment_currTay() { ++tapeInfos_.currTay; }
   void decrement_currTay() { --tapeInfos_.currTay; }
 
   void lastTayP1(double *pos) { tapeInfos_.lastTayP1 = pos; }
@@ -336,9 +333,6 @@ public:
   // Setter for tapeInfos_ arrays
   void dp_T0(double *T0) { tapeInfos_.dp_T0 = T0; }
   void rp_T(double *T) { tapeInfos_.rp_T = T; }
-
-  void dpp_T(double **T) { tapeInfos_.dpp_T = T; }
-  double *dpp_T(size_t loc) { return tapeInfos_.dpp_T[loc]; }
 
   void rpp_T(double **T) { tapeInfos_.rpp_T = T; }
   double *rpp_T(size_t loc) { return tapeInfos_.rpp_T[loc]; }
@@ -438,8 +432,6 @@ public:
   size_t get_num_param() { return tapeInfos_.stats[TapeInfos::NUM_PARAM]; }
   void set_nested_ctx(char nested) { tapeInfos_.in_nested_ctx = nested; }
   char currently_nested() { return tapeInfos_.in_nested_ctx; }
-  char tapingComplete() const { return tapeInfos_.tapingComplete; }
-  void tapingComplete(char val) { tapeInfos_.tapingComplete = val; }
   FILE *tay_file() const { return tapeInfos_.tay_file; }
   FILE *op_file() const { return tapeInfos_.op_file; }
   FILE *val_file() const { return tapeInfos_.val_file; }
@@ -622,22 +614,27 @@ public:
   // initializes a reverse sweep
   void taylor_back();
 
-  void write_taylor(size_t loc, std::ptrdiff_t keep) {
-    return tapeInfos_.write_taylor(loc, keep, tay_fileName());
+  void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep) {
+    return tapeInfos_.write_taylor(taylorCoefficientPos, keep, tay_fileName());
   }
 
   // writes the block of size depth of taylor coefficients from point loc to
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
-  void write_taylors(size_t, int keep, int degree, int numDir);
+  void write_taylors(double *taylorCoefficientPos, int keep, int degree,
+                     int numDir) {
+    tapeInfos_.write_taylors(taylorCoefficientPos, keep, degree, numDir,
+                             tay_fileName());
+  }
 
   void write_scaylor(double val) {
-    return tapeInfos_.write_scaylor(val, tay_fileName());
+    tapeInfos_.write_scaylor(val, tay_fileName());
   }
 
   // write_scaylors writes #size elements from x to the taylor buffer void
-  void write_scaylors(double *x, std::ptrdiff_t size);
-
+  void write_scaylors(const double *taylorCoefficientPos, std::ptrdiff_t size) {
+    tapeInfos_.write_scaylors(taylorCoefficientPos, size, tay_fileName());
+  }
   // deletes the last (single) element (x) of the taylor buffer
   void delete_scaylor(size_t loc) {
     --tapeInfos_.currTay;
@@ -650,21 +647,19 @@ public:
   }
 
   // puts a taylor value from the value stack buffer to the taylor buffer
-  void get_taylor(size_t loc) {
-    if (tapeInfos_.currTay == tapeInfos_.tayBuffer)
-      get_tay_block_r();
-
-    --tapeInfos_.currTay;
-    tapeInfos_.rp_T[loc] = *tapeInfos_.currTay;
-  }
+  void get_taylor(size_t loc) { tapeInfos_.get_taylor(loc); }
 
   // puts a block of taylor coefficients from the value stack buffer to the
   // taylor buffer --- Higher Order Scalar
-  void get_taylors(size_t, std::ptrdiff_t degree);
+  void get_taylors(size_t loc, std::ptrdiff_t degree) {
+    tapeInfos_.get_taylors(loc, degree);
+  };
 
   // puts a block of taylor coefficients from the value stack buffer to the
   // taylor buffer --- Higher Order Vector
-  void get_taylors_p(size_t, int degree, int numDir);
+  void get_taylors_p(size_t loc, int degree, int numDir) {
+    tapeInfos_.get_taylors_p(loc, degree, numDir);
+  };
 
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }

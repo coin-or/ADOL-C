@@ -238,7 +238,7 @@ END_C_DECLS
     if (keep) {                                                                \
       tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_taylors(res, (keep - 1), k, p);                             \
+        tape.write_taylors(dpp_T[res], (keep - 1), k, p);                             \
     }                                                                          \
   }
 // clang-format on
@@ -278,7 +278,7 @@ END_C_DECLS
     if (keep) {                                                                \
       tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_taylor(res, keep - 1);                                      \
+        tape.write_taylor(dpp_T[res], keep - 1);                               \
     }                                                                          \
   }
 #endif
@@ -1111,9 +1111,6 @@ int hov_forward(
     }
     tape.signature(new double[tape.tapestats(TapeInfos::NUM_SWITCHES)]);
   }
-  tape.dpp_T(&dp_T0);
-  tape.numTay(0);
-  tape.gDegree(0);
 #endif             /* !_NTIGHT_ */
 #if defined(_ZOS_) /* ZOS */
 
@@ -1138,9 +1135,6 @@ int hov_forward(
 
 #endif
   dp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.dpp_T(&dp_T);
-  tape.numTay(1);
-  tape.gDegree(1);
 #define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
   if (keep) {
@@ -1200,9 +1194,6 @@ int hov_forward(
 #else /* FOV */
 #if defined(_FOV_)
   dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
-  tape.dpp_T(dpp_T);
-  tape.numTay(p);
-  tape.gDegree(1);
 #define TAYLOR_BUFFER dpp_T
   dp_Ttemp = myalloc1(p);
 #define T_TEMP dp_Ttemp;
@@ -1211,9 +1202,6 @@ int hov_forward(
 #else /* HOS */
 #if defined(_HOS_)
   dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
-  tape.dpp_T(dpp_T);
-  tape.numTay(1);
-  tape.gDegree(k);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(k);
@@ -1228,9 +1216,6 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* HOV and HOV_WK */
   dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
-  tape.dpp_T(dpp_T);
-  tape.numTay(p);
-  tape.gDegree(k);
 #define TAYLOR_BUFFER dpp_T
   dp_z = myalloc1(k);
   dp_Ttemp = myalloc1(p * k);
@@ -5903,18 +5888,15 @@ int hov_forward(
   /* clean up */
 #if !defined(_NTIGHT_)
   myfree1(dp_T0);
-  tape.dpp_T(nullptr);
   tape.dp_T0(nullptr);
 #endif /* !_NTIGHT_ */
 #if !defined(_INDO_)
 #if !defined(_ZOS_)
 #if defined(_FOS_)
   myfree1(dp_T);
-  tape.dpp_T(nullptr);
 #else
 #if !defined(_INT_FOR_)
   myfree2(dpp_T);
-  tape.dpp_T(nullptr);
   myfree1(dp_Ttemp);
 #else
   myfree2_ulong(up_T);

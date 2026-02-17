@@ -4,7 +4,6 @@
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cassert>
-#include <span>
 #include <string>
 #include <sys/stat.h> // used in readconfigFile
 
@@ -102,7 +101,6 @@ void ValueTape::openTape() {
       rewind(tay_file());
     initTapeInfos_keep();
     traceFlag(1);
-    tapingComplete(1);
     read_tape_stats();
   }
   // must be after initTapeInfos_keep, to not get overwritten!
@@ -298,106 +296,6 @@ void ValueTape::taylor_back() {
                          CURRENT_LOCATION);
   }
   decrement_nextBufferNumber();
-}
-
-/****************************************************************************/
-/* Writes the block of size depth of taylor coefficients from point loc to  */
-/* the taylor buffer.  If the buffer is filled, then it is written to the   */
-/* taylor tape.                                                             */
-/*--------------------------------------------------------------------------*/
-void ValueTape::write_taylors(size_t loc, int keep, int degree, int numDir) {
-  double *T = dpp_T(loc);
-
-  for (int j = 0; j < numDir; ++j) {
-    for (int i = 0; i < keep; ++i) {
-      if (currTay() == lastTayP1())
-        put_tay_block(lastTayP1());
-
-      currTay(*T);
-      increment_currTay();
-      ++T;
-    }
-    /*        for (i = keep; i < degree; ++i) ++T;*/
-    if (degree > keep)
-      T += degree - keep;
-  }
-}
-
-/****************************************************************************/
-/* Write_scaylors writes # size elements from x to the taylor buffer.       */
-/****************************************************************************/
-void ValueTape::write_scaylors(double *x, std::ptrdiff_t size) {
-  size_t j = 0;
-  std::span<double> taySpan(currTay(), lastTayP1());
-  /* write data to buffer and put buffer to disk as long as data remain in
-   * the x-buffer => don't create an empty value stack buffer! */
-  while (currTay() + size > lastTayP1()) {
-    for (double &tay : taySpan) {
-      tay = x[j++];
-    }
-    size -= lastTayP1() - currTay();
-    put_tay_block(lastTayP1());
-  }
-
-  std::span<double> tayBufferSpan(currTay(), tayBuffer() + size);
-  for (double &tay : tayBufferSpan) {
-    tay = x[j++];
-  }
-  currTay(currTay() + size);
-}
-
-/****************************************************************************/
-/* Puts a block of taylor coefficients from the value stack buffer to the   */
-/* taylor buffer. --- Higher Order Scalar                                   */
-/****************************************************************************/
-void ValueTape::get_taylors(size_t loc, std::ptrdiff_t degree) {
-  double *T = rpp_T(loc) + degree;
-  std::span<double> taySpan(currTay(), tayBuffer());
-  /* As long as all values from the taylor stack buffer will be used copy
-   * them into the taylor buffer and load the next (previous) buffer. */
-  while (currTay() - degree < tayBuffer()) {
-    for (auto tay = taySpan.rbegin(); tay != taySpan.rend(); tay++) {
-      *(T--) = *tay;
-    }
-    degree -= currTay() - tayBuffer();
-    get_tay_block_r();
-  }
-
-  /* Copy the remaining values from the stack into the buffer ... */
-  for (int j = 0; j < degree; ++j) {
-    decrement_currTay();
-    *(--T) = *currTay();
-  }
-}
-
-/****************************************************************************/
-/* Puts a block of taylor coefficients from the value stack buffer to the   */
-/* taylor buffer. --- Higher Order Vector                                   */
-/****************************************************************************/
-void ValueTape::get_taylors_p(size_t loc, int degree, int numDir) {
-  double *T = rpp_T(loc) + degree * numDir;
-
-  /* update the directions except the base point parts */
-  for (int j = 0; j < numDir; ++j) {
-    for (int i = 1; i < degree; ++i) {
-      if (currTay() == tayBuffer())
-        get_tay_block_r();
-
-      decrement_currTay();
-      --T;
-      *T = *currTay();
-    }
-    --T; /* skip the base point part */
-  }
-  /* now update the base point parts */
-  if (currTay() == tayBuffer())
-    get_tay_block_r();
-
-  decrement_currTay();
-  for (int i = 0; i < numDir; ++i) {
-    *T = *currTay();
-    T += degree;
-  }
 }
 
 /****************************************************************************/
@@ -750,7 +648,6 @@ void ValueTape::read_tape_stats() {
 
   compare_adolc_ids(get_adolc_id(), tape_ADOLC_ID);
   fclose(loc_file);
-  tapingComplete(1);
   if (tapestats(TapeInfos::NUM_PARAM) > 0)
     read_params();
 }

@@ -48,14 +48,12 @@ struct TapeInfos {
   TapeInfos &operator=(TapeInfos &&other) noexcept;
 
   short tapeId_{-1};
-  int inUse{0};
   size_t numInds{0};
   size_t numDeps{0};
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
-  std::array<size_t, STAT_SIZE> stats{0};
+  std::array<size_t, STAT_SIZE> stats{};
   int traceFlag{0};
-  char tapingComplete{0};
 
   /* ------ operations tape ------- */
   // file descriptor
@@ -97,8 +95,6 @@ struct TapeInfos {
   // == 1 if last taylor buffer is still in
   // in core(first call of reverse)
   char lastTayBlockInCore{0};
-  // derivative buffer - forward
-  double **T_for{nullptr};
   // degree to save and saved respectively
   int deg_save{0};
   // # of independents for the taylor stack
@@ -125,11 +121,8 @@ struct TapeInfos {
 
   /* evaluation forward */
   double *dp_T0{nullptr};
-  size_t gDegree{0};
-  size_t numTay{0};
-  enum WORKMODES workMode { NO_MODE };
 
-  double **dpp_T{nullptr};
+  enum WORKMODES workMode { NO_MODE };
 
   /* ---------- evaluation reverse------- */
   double *rp_T{nullptr};
@@ -143,7 +136,6 @@ struct TapeInfos {
   char in_nested_ctx{0};
 
   size_t numSwitches{0};
-  size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
   constexpr static size_t maxLocsPerOp{10}; // used in tape_loc_...
@@ -153,7 +145,17 @@ struct TapeInfos {
   // writes the block of size depth of taylor coefficients from point loc to
   // the taylor buffer, if the buffer is filled, then it is written to the
   // taylor tape
-  void write_taylor(size_t loc, std::ptrdiff_t keep, const char *tay_fileName);
+  void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
+                    const char *tay_fileName);
+
+  // puts a taylor value from the value stack buffer to the taylor buffer
+  void get_taylor(size_t loc) {
+    if (currTay == tayBuffer)
+      get_tay_block_r();
+
+    --currTay;
+    rp_T[loc] = *currTay;
+  }
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
@@ -162,6 +164,32 @@ struct TapeInfos {
     *currTay = val;
     ++currTay;
   }
+
+  /****************************************************************************/
+  /* Writes the block of size depth of taylor coefficients from point loc to  */
+  /* the taylor buffer.  If the buffer is filled, then it is written to the   */
+  /* taylor tape.                                                             */
+  /*--------------------------------------------------------------------------*/
+  void write_taylors(double *taylorCoefficientPos, int keep, int degree,
+                     int numDir, const char *tay_fileName);
+
+  /****************************************************************************/
+  /* Write_scaylors writes # size elements from x to the taylor buffer.       */
+  /****************************************************************************/
+  void write_scaylors(const double *taylorCoefficientPos, std::ptrdiff_t size,
+                      const char *tay_fileName);
+
+  /****************************************************************************/
+  /* Puts a block of taylor coefficients from the value stack buffer to the   */
+  /* taylor buffer. --- Higher Order Scalar                                   */
+  /****************************************************************************/
+  void get_taylors(size_t loc, std::ptrdiff_t degree);
+
+  /****************************************************************************/
+  /* Puts a block of taylor coefficients from the value stack buffer to the   */
+  /* taylor buffer. --- Higher Order Vector                                   */
+  /****************************************************************************/
+  void get_taylors_p(size_t loc, int degree, int numDir);
   void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 

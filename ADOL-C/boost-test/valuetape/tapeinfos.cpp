@@ -22,7 +22,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.keepTaylors = 1;
   tp.stats[2] = 5;
   tp.traceFlag = 8;
-  tp.tapingComplete = 1;
 
   auto fileH = fopen("test_move_constr_op.txt", "w");
   tp.op_file = fileH;
@@ -67,8 +66,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
 
   tp.lastTayBlockInCore = 1;
 
-  auto a = new double *[10];
-  tp.T_for = a;
   tp.deg_save = 1;
   tp.tay_numInds = 3;
   tp.tay_numDeps = 5;
@@ -88,12 +85,8 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   auto d = new double[3];
   tp.dp_T0 = d;
 
-  tp.gDegree = 31;
-  tp.numTay = 45;
   tp.workMode = TapeInfos::NO_MODE;
 
-  auto e = new double *[10];
-  tp.dpp_T = e;
   auto f = new double[11];
   tp.rp_T = f;
   auto g = new double *[4];
@@ -109,8 +102,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.in_nested_ctx = 4;
   tp.numSwitches = 6;
 
-  auto k = new size_t[3];
-  tp.switchlocs = k;
   auto l = new double[23];
   tp.signature = l;
 
@@ -123,7 +114,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);
   BOOST_CHECK_EQUAL(tp2.stats[2], 5);
   BOOST_CHECK_EQUAL(tp2.traceFlag, 8);
-  BOOST_CHECK_EQUAL(tp2.tapingComplete, 1);
   BOOST_CHECK_EQUAL(tp2.numOps_Tape, 10);
   BOOST_CHECK_EQUAL(tp2.num_eq_prod, 4);
   BOOST_CHECK_EQUAL(tp2.numVals_Tape, 70);
@@ -141,8 +131,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.lowestYLoc_rev, 21);
   BOOST_CHECK_EQUAL(tp2.cpIndex, 12);
   BOOST_CHECK_EQUAL(tp2.numDirs_rev, 4);
-  BOOST_CHECK_EQUAL(tp2.gDegree, 31);
-  BOOST_CHECK_EQUAL(tp2.numTay, 45);
   BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::NO_MODE);
   BOOST_CHECK_EQUAL(tp2.ext_diff_fct_index, 5);
   BOOST_CHECK_EQUAL(tp2.in_nested_ctx, 4);
@@ -169,24 +157,19 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.currTay, tayBuffer + 4);
   BOOST_CHECK_EQUAL(tp2.lastTayP1, tayBuffer + 13);
 
-  BOOST_CHECK_EQUAL(tp2.T_for, a);
   BOOST_CHECK_EQUAL(tp2.lowestXLoc_ext_v2, b);
   BOOST_CHECK_EQUAL(tp2.lowestYLoc_ext_v2, c);
   BOOST_CHECK_EQUAL(tp2.dp_T0, d);
-  BOOST_CHECK_EQUAL(tp2.dpp_T, e);
   BOOST_CHECK_EQUAL(tp2.rp_T, f);
   BOOST_CHECK_EQUAL(tp2.rpp_T, g);
   BOOST_CHECK_EQUAL(tp2.rp_A, h);
   BOOST_CHECK_EQUAL(tp2.rpp_A, i);
   BOOST_CHECK_EQUAL(tp2.upp_A, j);
-  BOOST_CHECK_EQUAL(tp2.switchlocs, k);
   BOOST_CHECK_EQUAL(tp2.signature, l);
 
-  delete[] a;
   delete[] b;
   delete[] c;
   delete[] d;
-  delete[] e;
   delete[] f;
   delete[] g;
   delete[] h;

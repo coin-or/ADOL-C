@@ -1,6 +1,7 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstring> // for memset
+#include <span>
 
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
@@ -36,9 +37,6 @@ TapeInfos::~TapeInfos() {
   --numTBuffersInUse;
   tayBuffer = nullptr;
 
-  delete[] switchlocs;
-  switchlocs = nullptr;
-
   delete[] signature;
   signature = nullptr;
 }
@@ -46,34 +44,32 @@ TapeInfos::~TapeInfos() {
 TapeInfos::TapeInfos(TapeInfos &&other) noexcept
     : tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
       keepTaylors(other.keepTaylors), traceFlag(other.traceFlag),
-      tapingComplete(other.tapingComplete), op_file(other.op_file),
-      opBuffer(other.opBuffer), currOp(other.currOp), lastOpP1(other.lastOpP1),
-      numOps_Tape(other.numOps_Tape), num_eq_prod(other.num_eq_prod),
-      val_file(other.val_file), valBuffer(other.valBuffer),
-      currVal(other.currVal), lastValP1(other.lastValP1),
-      numVals_Tape(other.numVals_Tape), loc_file(other.loc_file),
-      locBuffer(other.locBuffer), currLoc(other.currLoc),
-      lastLocP1(other.lastLocP1), numLocs_Tape(other.numLocs_Tape),
-      tay_file(other.tay_file), tayBuffer(other.tayBuffer),
-      currTay(other.currTay), lastTayP1(other.lastTayP1),
-      numTays_Tape(other.numTays_Tape),
+      op_file(other.op_file), opBuffer(other.opBuffer), currOp(other.currOp),
+      lastOpP1(other.lastOpP1), numOps_Tape(other.numOps_Tape),
+      num_eq_prod(other.num_eq_prod), val_file(other.val_file),
+      valBuffer(other.valBuffer), currVal(other.currVal),
+      lastValP1(other.lastValP1), numVals_Tape(other.numVals_Tape),
+      loc_file(other.loc_file), locBuffer(other.locBuffer),
+      currLoc(other.currLoc), lastLocP1(other.lastLocP1),
+      numLocs_Tape(other.numLocs_Tape), tay_file(other.tay_file),
+      tayBuffer(other.tayBuffer), currTay(other.currTay),
+      lastTayP1(other.lastTayP1), numTays_Tape(other.numTays_Tape),
       numTBuffersInUse(other.numTBuffersInUse),
       nextBufferNumber(other.nextBufferNumber),
-      lastTayBlockInCore(other.lastTayBlockInCore), T_for(other.T_for),
-      deg_save(other.deg_save), tay_numInds(other.tay_numInds),
-      tay_numDeps(other.tay_numDeps), lowestXLoc_for(other.lowestXLoc_for),
+      lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
+      tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
+      lowestXLoc_for(other.lowestXLoc_for),
       lowestYLoc_for(other.lowestYLoc_for),
       lowestXLoc_rev(other.lowestXLoc_rev),
       lowestYLoc_rev(other.lowestYLoc_rev), cpIndex(other.cpIndex),
       numDirs_rev(other.numDirs_rev),
       lowestXLoc_ext_v2(other.lowestXLoc_ext_v2),
       lowestYLoc_ext_v2(other.lowestYLoc_ext_v2), dp_T0(other.dp_T0),
-      gDegree(other.gDegree), numTay(other.numTay), workMode(other.workMode),
-      dpp_T(other.dpp_T), rp_T(other.rp_T), rpp_T(other.rpp_T),
+      workMode(other.workMode), rp_T(other.rp_T), rpp_T(other.rpp_T),
       rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
       ext_diff_fct_index(other.ext_diff_fct_index),
       in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
-      switchlocs(other.switchlocs), signature(other.signature) {
+      signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
 
   // Null out source object's pointers
@@ -97,12 +93,10 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.currTay = nullptr;
   other.lastTayP1 = nullptr;
 
-  other.T_for = nullptr;
   other.lowestXLoc_ext_v2 = nullptr;
   other.lowestYLoc_ext_v2 = nullptr;
 
   other.dp_T0 = nullptr;
-  other.dpp_T = nullptr;
 
   other.rp_T = nullptr;
   other.rpp_T = nullptr;
@@ -110,7 +104,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.rpp_A = nullptr;
   other.upp_A = nullptr;
 
-  other.switchlocs = nullptr;
   other.signature = nullptr;
 }
 
@@ -122,7 +115,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     delete[] locBuffer;
     delete[] tayBuffer;
 
-    delete[] switchlocs;
     delete[] signature;
 
     // **2. Move data members**
@@ -131,7 +123,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     numDeps = other.numDeps;
     keepTaylors = other.keepTaylors;
     traceFlag = other.traceFlag;
-    tapingComplete = other.tapingComplete;
     std::copy(std::begin(other.stats), std::end(other.stats),
               std::begin(stats));
 
@@ -163,7 +154,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     nextBufferNumber = other.nextBufferNumber;
     lastTayBlockInCore = other.lastTayBlockInCore;
 
-    T_for = other.T_for;
     deg_save = other.deg_save;
     tay_numInds = other.tay_numInds;
     tay_numDeps = other.tay_numDeps;
@@ -179,10 +169,7 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     lowestYLoc_ext_v2 = other.lowestYLoc_ext_v2;
 
     dp_T0 = other.dp_T0;
-    gDegree = other.gDegree;
-    numTay = other.numTay;
     workMode = other.workMode;
-    dpp_T = other.dpp_T;
 
     rp_T = other.rp_T;
     rpp_T = other.rpp_T;
@@ -193,7 +180,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     ext_diff_fct_index = other.ext_diff_fct_index;
     in_nested_ctx = other.in_nested_ctx;
     numSwitches = other.numSwitches;
-    switchlocs = other.switchlocs;
     signature = other.signature;
 
     // **3. Null out source object’s pointers to prevent double deletion**
@@ -213,17 +199,14 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.tayBuffer = nullptr;
     other.currTay = nullptr;
     other.lastTayP1 = nullptr;
-    other.T_for = nullptr;
     other.lowestXLoc_ext_v2 = nullptr;
     other.lowestYLoc_ext_v2 = nullptr;
     other.dp_T0 = nullptr;
-    other.dpp_T = nullptr;
     other.rp_T = nullptr;
     other.rpp_T = nullptr;
     other.rp_A = nullptr;
     other.rpp_A = nullptr;
     other.upp_A = nullptr;
-    other.switchlocs = nullptr;
     other.signature = nullptr;
   }
   return *this;
@@ -271,35 +254,112 @@ void TapeInfos::freeTapeResources() {
 /* the taylor buffer. If the buffer is filled, then it is written to the    */
 /* taylor tape.                                                             */
 /****************************************************************************/
-void TapeInfos::write_taylor(size_t loc, std::ptrdiff_t keep,
+void TapeInfos::write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
                              const char *tay_fileName) {
   double *i;
-  double *T;
-
-  T = dpp_T[loc];
-
   /* write data to buffer and put buffer to disk as long as data remain in
    * the T-buffer => don't create an empty value stack buffer! */
   while (currTay + keep > lastTayP1) {
     for (i = currTay; i < lastTayP1; ++i) {
-      *i = (double)*T;
+      *i = *taylorCoefficientPos;
       /* In this assignment the precision will be sacrificed if the type
        * double is defined as float. */
-      ++T;
+      ++taylorCoefficientPos;
     }
     keep -= lastTayP1 - currTay;
     put_tay_block(tay_fileName, lastTayP1);
   }
 
   for (i = currTay; i < currTay + keep; ++i) {
-    *i = (double)*T;
-    /* In this assignment the precision will be sacrificed
-     * if the type double is defined as float. */
-    ++T;
+    *i = *taylorCoefficientPos;
+    ++taylorCoefficientPos;
   }
   currTay += keep;
 }
 
+void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
+                              int degree, int numDir,
+                              const char *tay_fileName) {
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 0; i < keep; ++i) {
+      if (currTay == lastTayP1)
+        put_tay_block(tay_fileName, lastTayP1);
+
+      *currTay = *taylorCoefficientPos;
+      ++currTay;
+      ++taylorCoefficientPos;
+    }
+    if (degree > keep)
+      taylorCoefficientPos += degree - keep;
+  }
+}
+
+void TapeInfos::write_scaylors(const double *taylorCoefficientPos,
+                               std::ptrdiff_t size, const char *tay_fileName) {
+  size_t pos = 0;
+  std::span<double> taySpan(currTay, lastTayP1);
+  /* write data to buffer and put buffer to disk as long as data remain in
+   * the x-buffer => don't create an empty value stack buffer! */
+  while (currTay + size > lastTayP1) {
+    for (double &tay : taySpan) {
+      tay = taylorCoefficientPos[pos++];
+    }
+    size -= lastTayP1 - currTay;
+    put_tay_block(tay_fileName, lastTayP1);
+  }
+
+  std::span<double> tayBufferSpan(currTay, tayBuffer + size);
+  for (double &tay : tayBufferSpan) {
+    tay = taylorCoefficientPos[pos++];
+  }
+  currTay += size;
+}
+
+void TapeInfos::get_taylors(size_t loc, std::ptrdiff_t degree) {
+  double *T = rpp_T[loc] + degree;
+  std::span<double> taySpan(currTay, tayBuffer);
+  /* As long as all values from the taylor stack buffer will be used copy
+   * them into the taylor buffer and load the next (previous) buffer. */
+  while (currTay - degree < tayBuffer) {
+    for (auto tay = taySpan.rbegin(); tay != taySpan.rend(); tay++) {
+      *(T--) = *tay;
+    }
+    degree -= currTay - tayBuffer;
+    get_tay_block_r();
+  }
+
+  /* Copy the remaining values from the stack into the buffer ... */
+  for (int j = 0; j < degree; ++j) {
+    --currTay;
+    *(--T) = *currTay;
+  }
+}
+
+void TapeInfos::get_taylors_p(size_t loc, int degree, int numDir) {
+  double *T = rpp_T[loc] + degree * numDir;
+
+  /* update the directions except the base point parts */
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 1; i < degree; ++i) {
+      if (currTay == tayBuffer)
+        get_tay_block_r();
+
+      --currTay;
+      --T;
+      *T = *currTay;
+    }
+    --T; /* skip the base point part */
+  }
+  /* now update the base point parts */
+  if (currTay == tayBuffer)
+    get_tay_block_r();
+
+  --currTay;
+  for (int i = 0; i < numDir; ++i) {
+    *T = *currTay;
+    T += degree;
+  }
+}
 /**
  * Functions to handle the taylor tape
  */
