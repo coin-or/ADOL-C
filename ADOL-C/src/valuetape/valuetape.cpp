@@ -191,14 +191,8 @@ void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
   } else {
     if (tay_fileName() == nullptr)
       tay_fileName();
-  }
-
-  /* initial setups */
-  if (tayBuffer() == nullptr)
     tayBuffer(new double[bufferSize]);
-
-  if (tayBuffer() == nullptr)
-    fail(TAPING_TBUFFER_ALLOCATION_FAILED, CURRENT_LOCATION);
+  }
 
   deg_save(degreeSave);
   if (degreeSave >= 0)
