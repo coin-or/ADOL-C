@@ -278,7 +278,7 @@ END_C_DECLS
     if (keep) {                                                                \
       tape.write_scaylor(dp_T0[res]);                                          \
       if (keep > 1)                                                            \
-        tape.write_taylor(dpp_T[res], keep - 1);                                      \
+        tape.write_taylor(dpp_T[res], keep - 1);                               \
     }                                                                          \
   }
 #endif
