@@ -37,9 +37,6 @@ TapeInfos::~TapeInfos() {
   --numTBuffersInUse;
   tayBuffer = nullptr;
 
-  delete[] switchlocs;
-  switchlocs = nullptr;
-
   delete[] signature;
   signature = nullptr;
 }
@@ -72,7 +69,7 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
       ext_diff_fct_index(other.ext_diff_fct_index),
       in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
-      switchlocs(other.switchlocs), signature(other.signature) {
+      signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
 
   // Null out source object's pointers
@@ -107,7 +104,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.rpp_A = nullptr;
   other.upp_A = nullptr;
 
-  other.switchlocs = nullptr;
   other.signature = nullptr;
 }
 
@@ -119,7 +115,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     delete[] locBuffer;
     delete[] tayBuffer;
 
-    delete[] switchlocs;
     delete[] signature;
 
     // **2. Move data members**
@@ -185,7 +180,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     ext_diff_fct_index = other.ext_diff_fct_index;
     in_nested_ctx = other.in_nested_ctx;
     numSwitches = other.numSwitches;
-    switchlocs = other.switchlocs;
     signature = other.signature;
 
     // **3. Null out source object’s pointers to prevent double deletion**
@@ -213,7 +207,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.rp_A = nullptr;
     other.rpp_A = nullptr;
     other.upp_A = nullptr;
-    other.switchlocs = nullptr;
     other.signature = nullptr;
   }
   return *this;

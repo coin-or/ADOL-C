@@ -102,8 +102,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.in_nested_ctx = 4;
   tp.numSwitches = 6;
 
-  auto k = new size_t[3];
-  tp.switchlocs = k;
   auto l = new double[23];
   tp.signature = l;
 
@@ -167,7 +165,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.rp_A, h);
   BOOST_CHECK_EQUAL(tp2.rpp_A, i);
   BOOST_CHECK_EQUAL(tp2.upp_A, j);
-  BOOST_CHECK_EQUAL(tp2.switchlocs, k);
   BOOST_CHECK_EQUAL(tp2.signature, l);
 
   delete[] b;

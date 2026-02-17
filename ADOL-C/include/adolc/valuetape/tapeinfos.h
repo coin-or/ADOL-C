@@ -136,7 +136,6 @@ struct TapeInfos {
   char in_nested_ctx{0};
 
   size_t numSwitches{0};
-  size_t *switchlocs{nullptr};
   double *signature{nullptr};
 
   constexpr static size_t maxLocsPerOp{10}; // used in tape_loc_...
