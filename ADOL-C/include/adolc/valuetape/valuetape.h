@@ -636,8 +636,9 @@ public:
   }
 
   // write_scaylors writes #size elements from x to the taylor buffer void
-  void write_scaylors(double *x, std::ptrdiff_t size);
-
+  void write_scaylors(const double *taylorCoefficientPos, std::ptrdiff_t size) {
+    tapeInfos_.write_scaylors(taylorCoefficientPos, size, tay_fileName());
+  }
   // deletes the last (single) element (x) of the taylor buffer
   void delete_scaylor(size_t loc) {
     --tapeInfos_.currTay;
@@ -654,11 +655,15 @@ public:
 
   // puts a block of taylor coefficients from the value stack buffer to the
   // taylor buffer --- Higher Order Scalar
-  void get_taylors(size_t, std::ptrdiff_t degree);
+  void get_taylors(size_t loc, std::ptrdiff_t degree) {
+    tapeInfos_.get_taylors(loc, degree);
+  };
 
   // puts a block of taylor coefficients from the value stack buffer to the
   // taylor buffer --- Higher Order Vector
-  void get_taylors_p(size_t, int degree, int numDir);
+  void get_taylors_p(size_t loc, int degree, int numDir) {
+    tapeInfos_.get_taylors_p(loc, degree, numDir);
+  };
 
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }

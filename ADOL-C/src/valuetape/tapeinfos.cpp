@@ -1,6 +1,7 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstring> // for memset
+#include <span>
 
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
@@ -308,6 +309,72 @@ void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
   }
 }
 
+void TapeInfos::write_scaylors(const double *taylorCoefficientPos,
+                               std::ptrdiff_t size, const char *tay_fileName) {
+  size_t pos = 0;
+  std::span<double> taySpan(currTay, lastTayP1);
+  /* write data to buffer and put buffer to disk as long as data remain in
+   * the x-buffer => don't create an empty value stack buffer! */
+  while (currTay + size > lastTayP1) {
+    for (double &tay : taySpan) {
+      tay = taylorCoefficientPos[pos++];
+    }
+    size -= lastTayP1 - currTay;
+    put_tay_block(tay_fileName, lastTayP1);
+  }
+
+  std::span<double> tayBufferSpan(currTay, tayBuffer + size);
+  for (double &tay : tayBufferSpan) {
+    tay = taylorCoefficientPos[pos++];
+  }
+  currTay += size;
+}
+
+void TapeInfos::get_taylors(size_t loc, std::ptrdiff_t degree) {
+  double *T = rpp_T[loc] + degree;
+  std::span<double> taySpan(currTay, tayBuffer);
+  /* As long as all values from the taylor stack buffer will be used copy
+   * them into the taylor buffer and load the next (previous) buffer. */
+  while (currTay - degree < tayBuffer) {
+    for (auto tay = taySpan.rbegin(); tay != taySpan.rend(); tay++) {
+      *(T--) = *tay;
+    }
+    degree -= currTay - tayBuffer;
+    get_tay_block_r();
+  }
+
+  /* Copy the remaining values from the stack into the buffer ... */
+  for (int j = 0; j < degree; ++j) {
+    --currTay;
+    *(--T) = *currTay;
+  }
+}
+
+void TapeInfos::get_taylors_p(size_t loc, int degree, int numDir) {
+  double *T = rpp_T[loc] + degree * numDir;
+
+  /* update the directions except the base point parts */
+  for (int j = 0; j < numDir; ++j) {
+    for (int i = 1; i < degree; ++i) {
+      if (currTay == tayBuffer)
+        get_tay_block_r();
+
+      --currTay;
+      --T;
+      *T = *currTay;
+    }
+    --T; /* skip the base point part */
+  }
+  /* now update the base point parts */
+  if (currTay == tayBuffer)
+    get_tay_block_r();
+
+  --currTay;
+  for (int i = 0; i < numDir; ++i) {
+    *T = *currTay;
+    T += degree;
+  }
+}
 /**
  * Functions to handle the taylor tape
  */

@@ -179,6 +179,23 @@ struct TapeInfos {
   void write_taylors(double *taylorCoefficientPos, int keep, int degree,
                      int numDir, const char *tay_fileName);
 
+  /****************************************************************************/
+  /* Write_scaylors writes # size elements from x to the taylor buffer.       */
+  /****************************************************************************/
+  void write_scaylors(const double *taylorCoefficientPos, std::ptrdiff_t size,
+                      const char *tay_fileName);
+
+  /****************************************************************************/
+  /* Puts a block of taylor coefficients from the value stack buffer to the   */
+  /* taylor buffer. --- Higher Order Scalar                                   */
+  /****************************************************************************/
+  void get_taylors(size_t loc, std::ptrdiff_t degree);
+
+  /****************************************************************************/
+  /* Puts a block of taylor coefficients from the value stack buffer to the   */
+  /* taylor buffer. --- Higher Order Vector                                   */
+  /****************************************************************************/
+  void get_taylors_p(size_t loc, int degree, int numDir);
   void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 
