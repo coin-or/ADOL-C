@@ -225,9 +225,6 @@ public:
   int keepTaylors() const { return tapeInfos_.keepTaylors; }
   void keepTaylors(int val) { tapeInfos_.keepTaylors = val; }
 
-  size_t numTBuffersInUse() const { return tapeInfos_.numTBuffersInUse; }
-  void increment_numTBuffersInUse() { tapeInfos_.numTBuffersInUse++; }
-
   size_t numparam() const { return globalTapeVars_.numparam; }
 
   void workMode(TapeInfos::WORKMODES mode) { tapeInfos_.workMode = mode; }
@@ -481,13 +478,6 @@ public:
   size_t taylorBufferSize() const { return globalTapeVars_.taylorBufferSize; }
   void taylorBufferSize(size_t size) {
     globalTapeVars_.taylorBufferSize = size;
-  }
-
-  size_t maxNumberTaylorBuffers() const {
-    return globalTapeVars_.maxNumberTaylorBuffers;
-  }
-  void maxNumberTaylorBuffers(size_t num) {
-    globalTapeVars_.maxNumberTaylorBuffers = num;
   }
 
   size_t initalStoreSize() const { return globalTapeVars_.initialStoreSize; }

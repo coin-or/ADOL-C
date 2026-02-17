@@ -15,7 +15,6 @@ GlobalTapeVarsCL::GlobalTapeVarsCL(GlobalTapeVarsCL &&other) noexcept
       locationBufferSize(other.locationBufferSize),
       valueBufferSize(other.valueBufferSize),
       taylorBufferSize(other.taylorBufferSize),
-      maxNumberTaylorBuffers(other.maxNumberTaylorBuffers),
 
       inParallelRegion(other.inParallelRegion), newTape(other.newTape),
       branchSwitchWarning(other.branchSwitchWarning),
@@ -59,7 +58,6 @@ GlobalTapeVarsCL::operator=(GlobalTapeVarsCL &&other) noexcept {
     locationBufferSize = other.locationBufferSize;
     valueBufferSize = other.valueBufferSize;
     taylorBufferSize = other.taylorBufferSize;
-    maxNumberTaylorBuffers = other.maxNumberTaylorBuffers;
     inParallelRegion = other.inParallelRegion;
     newTape = other.newTape;
     branchSwitchWarning = other.branchSwitchWarning;

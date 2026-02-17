@@ -34,7 +34,6 @@ TapeInfos::~TapeInfos() {
   }
 
   delete[] tayBuffer;
-  --numTBuffersInUse;
   tayBuffer = nullptr;
 
   delete[] signature;
@@ -54,7 +53,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       numLocs_Tape(other.numLocs_Tape), tay_file(other.tay_file),
       tayBuffer(other.tayBuffer), currTay(other.currTay),
       lastTayP1(other.lastTayP1), numTays_Tape(other.numTays_Tape),
-      numTBuffersInUse(other.numTBuffersInUse),
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
@@ -150,7 +148,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     currTay = other.currTay;
     lastTayP1 = other.lastTayP1;
     numTays_Tape = other.numTays_Tape;
-    numTBuffersInUse = other.numTBuffersInUse;
     nextBufferNumber = other.nextBufferNumber;
     lastTayBlockInCore = other.lastTayBlockInCore;
 
@@ -225,7 +222,6 @@ void TapeInfos::freeTapeResources() {
   if (tayBuffer) {
     delete[] tayBuffer;
     tayBuffer = nullptr;
-    --numTBuffersInUse;
   }
   if (op_file) {
     fclose(op_file);

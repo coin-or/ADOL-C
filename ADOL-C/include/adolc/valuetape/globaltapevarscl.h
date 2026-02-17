@@ -49,7 +49,6 @@ struct GlobalTapeVarsCL {
   size_t locationBufferSize{0};
   size_t valueBufferSize{0};
   size_t taylorBufferSize{0};
-  size_t maxNumberTaylorBuffers{0};
 
   // set to 1 if in an OpenMP parallel region
   char inParallelRegion{0};
