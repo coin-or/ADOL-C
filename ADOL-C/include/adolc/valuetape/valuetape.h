@@ -230,7 +230,6 @@ public:
   void increment_numTBuffersInUse() { tapeInfos_.numTBuffersInUse++; }
 
   size_t numparam() const { return globalTapeVars_.numparam; }
-  void gDegree(size_t degree) { tapeInfos_.gDegree = degree; }
 
   void workMode(TapeInfos::WORKMODES mode) { tapeInfos_.workMode = mode; }
   TapeInfos::WORKMODES workMode() const { return tapeInfos_.workMode; }

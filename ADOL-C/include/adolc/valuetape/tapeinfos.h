@@ -121,7 +121,6 @@ struct TapeInfos {
 
   /* evaluation forward */
   double *dp_T0{nullptr};
-  size_t gDegree{0};
   size_t numTay{0};
   enum WORKMODES workMode { NO_MODE };
 
