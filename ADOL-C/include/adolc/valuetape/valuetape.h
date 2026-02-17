@@ -434,8 +434,6 @@ public:
   size_t get_num_param() { return tapeInfos_.stats[TapeInfos::NUM_PARAM]; }
   void set_nested_ctx(char nested) { tapeInfos_.in_nested_ctx = nested; }
   char currently_nested() { return tapeInfos_.in_nested_ctx; }
-  char tapingComplete() const { return tapeInfos_.tapingComplete; }
-  void tapingComplete(char val) { tapeInfos_.tapingComplete = val; }
   FILE *tay_file() const { return tapeInfos_.tay_file; }
   FILE *op_file() const { return tapeInfos_.op_file; }
   FILE *val_file() const { return tapeInfos_.val_file; }

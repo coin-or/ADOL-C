@@ -22,7 +22,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.keepTaylors = 1;
   tp.stats[2] = 5;
   tp.traceFlag = 8;
-  tp.tapingComplete = 1;
 
   auto fileH = fopen("test_move_constr_op.txt", "w");
   tp.op_file = fileH;
@@ -67,8 +66,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
 
   tp.lastTayBlockInCore = 1;
 
-  auto a = new double *[10];
-  tp.T_for = a;
   tp.deg_save = 1;
   tp.tay_numInds = 3;
   tp.tay_numDeps = 5;
@@ -121,7 +118,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);
   BOOST_CHECK_EQUAL(tp2.stats[2], 5);
   BOOST_CHECK_EQUAL(tp2.traceFlag, 8);
-  BOOST_CHECK_EQUAL(tp2.tapingComplete, 1);
   BOOST_CHECK_EQUAL(tp2.numOps_Tape, 10);
   BOOST_CHECK_EQUAL(tp2.num_eq_prod, 4);
   BOOST_CHECK_EQUAL(tp2.numVals_Tape, 70);
@@ -167,7 +163,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.currTay, tayBuffer + 4);
   BOOST_CHECK_EQUAL(tp2.lastTayP1, tayBuffer + 13);
 
-  BOOST_CHECK_EQUAL(tp2.T_for, a);
   BOOST_CHECK_EQUAL(tp2.lowestXLoc_ext_v2, b);
   BOOST_CHECK_EQUAL(tp2.lowestYLoc_ext_v2, c);
   BOOST_CHECK_EQUAL(tp2.dp_T0, d);
@@ -179,7 +174,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.switchlocs, k);
   BOOST_CHECK_EQUAL(tp2.signature, l);
 
-  delete[] a;
   delete[] b;
   delete[] c;
   delete[] d;

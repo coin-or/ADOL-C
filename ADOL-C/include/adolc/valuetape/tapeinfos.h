@@ -52,9 +52,8 @@ struct TapeInfos {
   size_t numDeps{0};
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
-  std::array<size_t, STAT_SIZE> stats{0};
+  std::array<size_t, STAT_SIZE> stats{};
   int traceFlag{0};
-  char tapingComplete{0};
 
   /* ------ operations tape ------- */
   // file descriptor
@@ -96,8 +95,6 @@ struct TapeInfos {
   // == 1 if last taylor buffer is still in
   // in core(first call of reverse)
   char lastTayBlockInCore{0};
-  // derivative buffer - forward
-  double **T_for{nullptr};
   // degree to save and saved respectively
   int deg_save{0};
   // # of independents for the taylor stack

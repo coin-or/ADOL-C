@@ -47,22 +47,21 @@ TapeInfos::~TapeInfos() {
 TapeInfos::TapeInfos(TapeInfos &&other) noexcept
     : tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
       keepTaylors(other.keepTaylors), traceFlag(other.traceFlag),
-      tapingComplete(other.tapingComplete), op_file(other.op_file),
-      opBuffer(other.opBuffer), currOp(other.currOp), lastOpP1(other.lastOpP1),
-      numOps_Tape(other.numOps_Tape), num_eq_prod(other.num_eq_prod),
-      val_file(other.val_file), valBuffer(other.valBuffer),
-      currVal(other.currVal), lastValP1(other.lastValP1),
-      numVals_Tape(other.numVals_Tape), loc_file(other.loc_file),
-      locBuffer(other.locBuffer), currLoc(other.currLoc),
-      lastLocP1(other.lastLocP1), numLocs_Tape(other.numLocs_Tape),
-      tay_file(other.tay_file), tayBuffer(other.tayBuffer),
-      currTay(other.currTay), lastTayP1(other.lastTayP1),
-      numTays_Tape(other.numTays_Tape),
+      op_file(other.op_file), opBuffer(other.opBuffer), currOp(other.currOp),
+      lastOpP1(other.lastOpP1), numOps_Tape(other.numOps_Tape),
+      num_eq_prod(other.num_eq_prod), val_file(other.val_file),
+      valBuffer(other.valBuffer), currVal(other.currVal),
+      lastValP1(other.lastValP1), numVals_Tape(other.numVals_Tape),
+      loc_file(other.loc_file), locBuffer(other.locBuffer),
+      currLoc(other.currLoc), lastLocP1(other.lastLocP1),
+      numLocs_Tape(other.numLocs_Tape), tay_file(other.tay_file),
+      tayBuffer(other.tayBuffer), currTay(other.currTay),
+      lastTayP1(other.lastTayP1), numTays_Tape(other.numTays_Tape),
       numTBuffersInUse(other.numTBuffersInUse),
       nextBufferNumber(other.nextBufferNumber),
-      lastTayBlockInCore(other.lastTayBlockInCore), T_for(other.T_for),
-      deg_save(other.deg_save), tay_numInds(other.tay_numInds),
-      tay_numDeps(other.tay_numDeps), lowestXLoc_for(other.lowestXLoc_for),
+      lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
+      tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
+      lowestXLoc_for(other.lowestXLoc_for),
       lowestYLoc_for(other.lowestYLoc_for),
       lowestXLoc_rev(other.lowestXLoc_rev),
       lowestYLoc_rev(other.lowestYLoc_rev), cpIndex(other.cpIndex),
@@ -98,7 +97,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.currTay = nullptr;
   other.lastTayP1 = nullptr;
 
-  other.T_for = nullptr;
   other.lowestXLoc_ext_v2 = nullptr;
   other.lowestYLoc_ext_v2 = nullptr;
 
@@ -131,7 +129,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     numDeps = other.numDeps;
     keepTaylors = other.keepTaylors;
     traceFlag = other.traceFlag;
-    tapingComplete = other.tapingComplete;
     std::copy(std::begin(other.stats), std::end(other.stats),
               std::begin(stats));
 
@@ -163,7 +160,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     nextBufferNumber = other.nextBufferNumber;
     lastTayBlockInCore = other.lastTayBlockInCore;
 
-    T_for = other.T_for;
     deg_save = other.deg_save;
     tay_numInds = other.tay_numInds;
     tay_numDeps = other.tay_numDeps;
@@ -212,7 +208,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.tayBuffer = nullptr;
     other.currTay = nullptr;
     other.lastTayP1 = nullptr;
-    other.T_for = nullptr;
     other.lowestXLoc_ext_v2 = nullptr;
     other.lowestYLoc_ext_v2 = nullptr;
     other.dp_T0 = nullptr;

@@ -101,7 +101,6 @@ void ValueTape::openTape() {
       rewind(tay_file());
     initTapeInfos_keep();
     traceFlag(1);
-    tapingComplete(1);
     read_tape_stats();
   }
   // must be after initTapeInfos_keep, to not get overwritten!
@@ -649,7 +648,6 @@ void ValueTape::read_tape_stats() {
 
   compare_adolc_ids(get_adolc_id(), tape_ADOLC_ID);
   fclose(loc_file);
-  tapingComplete(1);
   if (tapestats(TapeInfos::NUM_PARAM) > 0)
     read_params();
 }
