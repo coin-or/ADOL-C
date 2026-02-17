@@ -48,7 +48,6 @@ struct TapeInfos {
   TapeInfos &operator=(TapeInfos &&other) noexcept;
 
   short tapeId_{-1};
-  int inUse{0};
   size_t numInds{0};
   size_t numDeps{0};
   // 1 - write taylor stack in taping mode
