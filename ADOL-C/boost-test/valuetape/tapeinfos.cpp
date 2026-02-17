@@ -60,7 +60,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.lastTayP1 = tp.tayBuffer + 13;
 
   tp.numTays_Tape = 13;
-  tp.numTBuffersInUse = 1;
 
   tp.nextBufferNumber = 4;
 
@@ -119,7 +118,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numVals_Tape, 70);
   BOOST_CHECK_EQUAL(tp2.numLocs_Tape, 13);
   BOOST_CHECK_EQUAL(tp2.numTays_Tape, 13);
-  BOOST_CHECK_EQUAL(tp2.numTBuffersInUse, 1);
   BOOST_CHECK_EQUAL(tp2.nextBufferNumber, 4);
   BOOST_CHECK_EQUAL(tp2.lastTayBlockInCore, 1);
   BOOST_CHECK_EQUAL(tp2.deg_save, 1);

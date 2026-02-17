@@ -96,11 +96,7 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
         << "!\n";
     throw ADOLCError(oss.str(), LocInfo);
     break;
-  case to_underlying(ErrorType::TAPING_TO_MANY_TAYLOR_BUFFERS):
-    throw ADOLCError("ADOL-C error: To many taylor buffers!\n Increase "
-                     "maxNumberTaylorBuffers\n",
-                     LocInfo);
-    break;
+
   case to_underlying(ErrorType::TAPING_TO_MANY_LOCINTS):
 
     oss << "ADOL-C error: Maximal number (" << failinfo.info3

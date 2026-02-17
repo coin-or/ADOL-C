@@ -34,7 +34,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructorTransfersOwnership) {
   obj1.locationBufferSize = 12;
   obj1.valueBufferSize = 13;
   obj1.taylorBufferSize = 14;
-  obj1.maxNumberTaylorBuffers = 15;
 
   obj1.inParallelRegion = 1;
   obj1.newTape = 1;
@@ -59,7 +58,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructorTransfersOwnership) {
   BOOST_CHECK(obj2.locationBufferSize == 12);
   BOOST_CHECK(obj2.valueBufferSize == 13);
   BOOST_CHECK(obj2.taylorBufferSize == 14);
-  BOOST_CHECK(obj2.maxNumberTaylorBuffers == 15);
 
   BOOST_CHECK(obj2.inParallelRegion == 1);
   BOOST_CHECK(obj2.newTape == 1);
@@ -91,7 +89,6 @@ BOOST_AUTO_TEST_CASE(TestMoveAssignmentTransfersOwnership) {
   obj1.locationBufferSize = 12;
   obj1.valueBufferSize = 13;
   obj1.taylorBufferSize = 14;
-  obj1.maxNumberTaylorBuffers = 15;
 
   obj1.inParallelRegion = 1;
   obj1.newTape = 1;
@@ -115,7 +112,6 @@ BOOST_AUTO_TEST_CASE(TestMoveAssignmentTransfersOwnership) {
   BOOST_CHECK(obj2.locationBufferSize == 12);
   BOOST_CHECK(obj2.valueBufferSize == 13);
   BOOST_CHECK(obj2.taylorBufferSize == 14);
-  BOOST_CHECK(obj2.maxNumberTaylorBuffers == 15);
 
   BOOST_CHECK(obj2.inParallelRegion == 1);
   BOOST_CHECK(obj2.newTape == 1);

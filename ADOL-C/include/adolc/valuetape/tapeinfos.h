@@ -89,7 +89,6 @@ struct TapeInfos {
   double *currTay{nullptr};
   double *lastTayP1{nullptr};
   size_t numTays_Tape{0};
-  size_t numTBuffersInUse{0};
   // the next Buffer to read back
   size_t nextBufferNumber{0};
   // == 1 if last taylor buffer is still in

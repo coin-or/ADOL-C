@@ -179,7 +179,6 @@ void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::TAPING_TBUFFER_ALLOCATION_FAILED;
-  using ADOLCError::ErrorType::TAPING_TO_MANY_TAYLOR_BUFFERS;
 
   if (tayBuffer()) {
 #if defined(ADOLC_DEBUG)
@@ -189,21 +188,11 @@ void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
             tapeId());
 #endif
     taylor_close(false);
-  } else { /* check if new buffer is allowed */
-    if (numTBuffersInUse() == maxNumberTaylorBuffers())
-      fail(TAPING_TO_MANY_TAYLOR_BUFFERS, CURRENT_LOCATION);
-
-    increment_numTBuffersInUse();
+  } else {
     if (tay_fileName() == nullptr)
       tay_fileName();
-  }
-
-  /* initial setups */
-  if (tayBuffer() == nullptr)
     tayBuffer(new double[bufferSize]);
-
-  if (tayBuffer() == nullptr)
-    fail(TAPING_TBUFFER_ALLOCATION_FAILED, CURRENT_LOCATION);
+  }
 
   deg_save(degreeSave);
   if (degreeSave >= 0)
@@ -960,7 +949,6 @@ std::array<std::string, 4> ValueTape::readConfigFile() {
   locationBufferSize(LBUFSIZE);
   valueBufferSize(VBUFSIZE);
   taylorBufferSize(TBUFSIZE);
-  maxNumberTaylorBuffers(TBUFNUM);
   if ((configFile = fopen(".adolcrc", "r")) != nullptr) {
     fprintf(DIAG_OUT, "\nFile .adolcrc found! => Try to parse it!\n");
     fprintf(DIAG_OUT, "****************************************\n");
@@ -1049,12 +1037,6 @@ std::array<std::string, 4> ValueTape::readConfigFile() {
           } else if (std::strcmp(pos1 + 1, "TBUFSIZE") == 0) {
             taylorBufferSize(number);
             fprintf(DIAG_OUT, "Found taylor buffer size: %zu\n", number);
-          } else if (std::strcmp(pos1 + 1, "TBUFNUM") == 0) {
-            maxNumberTaylorBuffers(number);
-            fprintf(DIAG_OUT,
-                    "Found maximal number of taylor buffers: "
-                    "%zu\n",
-                    number);
           } else if (std::strcmp(pos1 + 1, "INITLIVE") == 0) {
             initialStoreSize(number);
             fprintf(DIAG_OUT, "Found initial live variable store size : %zu\n",
