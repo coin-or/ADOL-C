@@ -224,7 +224,6 @@ public:
   void traceFlag(int flag) { tapeInfos_.traceFlag = flag; }
   int keepTaylors() const { return tapeInfos_.keepTaylors; }
   void keepTaylors(int val) { tapeInfos_.keepTaylors = val; }
-  void numTay(size_t num) { tapeInfos_.numTay = num; }
 
   size_t numTBuffersInUse() const { return tapeInfos_.numTBuffersInUse; }
   void increment_numTBuffersInUse() { tapeInfos_.numTBuffersInUse++; }

@@ -68,9 +68,9 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       numDirs_rev(other.numDirs_rev),
       lowestXLoc_ext_v2(other.lowestXLoc_ext_v2),
       lowestYLoc_ext_v2(other.lowestYLoc_ext_v2), dp_T0(other.dp_T0),
-      numTay(other.numTay), workMode(other.workMode), rp_T(other.rp_T),
-      rpp_T(other.rpp_T), rp_A(other.rp_A), rpp_A(other.rpp_A),
-      upp_A(other.upp_A), ext_diff_fct_index(other.ext_diff_fct_index),
+      workMode(other.workMode), rp_T(other.rp_T), rpp_T(other.rpp_T),
+      rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
+      ext_diff_fct_index(other.ext_diff_fct_index),
       in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
       switchlocs(other.switchlocs), signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
@@ -174,7 +174,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     lowestYLoc_ext_v2 = other.lowestYLoc_ext_v2;
 
     dp_T0 = other.dp_T0;
-    numTay = other.numTay;
     workMode = other.workMode;
 
     rp_T = other.rp_T;
