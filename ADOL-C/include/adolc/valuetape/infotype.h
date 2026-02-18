@@ -22,7 +22,7 @@ concept InfoType =
       { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value *>;
       T::setCurr(tapeInfos, (typename T::value *)nullptr);
       T::setNum(tapeInfos, size_t{});
-      { T::getNum(tapeInfos) } -> std::same_as<size_t>;
+      { T::getNum(tapeInfos) };
       T::file(tapeInfos);
       T::openFile(tapeInfos, fileName);
       { T::removeFile(fileName) } -> std::same_as<int>;
@@ -30,9 +30,10 @@ concept InfoType =
 
 template <class TInfos, class EType> struct OpInfo {
   using value = unsigned char;
-  static const TInfos::StatEntries num = TInfos::NUM_OPERATIONS;
-  static const TInfos::StatEntries fileAccess = TInfos::OP_FILE_ACCESS;
-  static const TInfos::StatEntries bufferSize = TInfos::OP_BUFFER_SIZE;
+  using StatEntries = typename TInfos::StatEntries;
+  static const StatEntries num = TInfos::NUM_OPERATIONS;
+  static const StatEntries fileAccess = TInfos::OP_FILE_ACCESS;
+  static const StatEntries bufferSize = TInfos::OP_BUFFER_SIZE;
   static constexpr EType error = EType::EVAL_OP_TAPE_READ_FAILED;
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
 
@@ -52,9 +53,10 @@ template <class TInfos, class EType> struct OpInfo {
 
 template <class TInfos, class EType> struct LocInfo {
   using value = size_t;
-  static const TInfos::StatEntries num = TInfos::NUM_LOCATIONS;
-  static const TInfos::StatEntries fileAccess = TInfos::LOC_FILE_ACCESS;
-  static const TInfos::StatEntries bufferSize = TInfos::LOC_BUFFER_SIZE;
+  using StatEntries = typename TInfos::StatEntries;
+  static const StatEntries num = TInfos::NUM_LOCATIONS;
+  static const StatEntries fileAccess = TInfos::LOC_FILE_ACCESS;
+  static const StatEntries bufferSize = TInfos::LOC_BUFFER_SIZE;
   static constexpr EType error = EType::EVAL_LOC_TAPE_READ_FAILED;
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
 
@@ -76,9 +78,10 @@ template <class TInfos, class EType> struct LocInfo {
 
 template <class TInfos, class EType> struct ValInfo {
   using value = double;
-  static const TInfos::StatEntries num = TInfos::NUM_VALUES;
-  static const TInfos::StatEntries fileAccess = TInfos::VAL_FILE_ACCESS;
-  static const TInfos::StatEntries bufferSize = TInfos::VAL_BUFFER_SIZE;
+  using StatEntries = typename TInfos::StatEntries;
+  static const StatEntries num = TInfos::NUM_VALUES;
+  static const StatEntries fileAccess = TInfos::VAL_FILE_ACCESS;
+  static const StatEntries bufferSize = TInfos::VAL_BUFFER_SIZE;
   static constexpr EType error = EType::EVAL_VAL_TAPE_READ_FAILED;
 
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
