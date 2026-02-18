@@ -1,79 +1,101 @@
 
 #ifndef ADOLC_INFO_TYPE_H
 #define ADOLC_INFO_TYPE_H
-#include <adolc/adolcerror.h>
-#include <adolc/valuetape/tapeinfos.h>
+#include <adolc/internal/usrparms.h>
 #include <concepts>
+#include <cstddef>
+#include <cstdio>
+#include <string_view>
 
 namespace ADOLC::detail {
-template <class T, class Tape>
-concept InfoType = requires(Tape &tape) {
-  typename T::value;
+template <class T, class TInfos, class ErrorType>
+concept InfoType =
+    requires(TInfos &tapeInfos, std::string_view fileName, std::string_view) {
+      typename T::value;
 
-  { T::num } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::fileAccess } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::bufferSize } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::error } -> std::same_as<const ADOLCError::ErrorType &>;
-  { T::chunkSize } -> std::same_as<const size_t &>;
+      { T::num } -> std::same_as<const typename TInfos::StatEntries &>;
+      { T::fileAccess } -> std::same_as<const typename TInfos::StatEntries &>;
+      { T::bufferSize } -> std::same_as<const typename TInfos::StatEntries &>;
+      { T::error } -> std::convertible_to<ErrorType>;
+      { T::chunkSize } -> std::convertible_to<size_t>;
 
-  { T::buffer(tape) } -> std::same_as<typename T::value *>;
-  T::setCurr(tape, (typename T::value *)nullptr);
-  T::setNum(tape, size_t{});
-  T::file(tape);
-  T::openFile(tape);
-};
+      { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value *>;
+      T::setCurr(tapeInfos, (typename T::value *)nullptr);
+      T::setNum(tapeInfos, size_t{});
+      { T::getNum(tapeInfos) } -> std::same_as<size_t>;
+      T::file(tapeInfos);
+      T::openFile(tapeInfos, fileName);
+      { T::removeFile(fileName) } -> std::same_as<int>;
+    };
 
-template <class Tape> struct OpInfo {
+template <class TInfos, class EType> struct OpInfo {
   using value = unsigned char;
-  static const TapeInfos::StatEntries num = TapeInfos::NUM_OPERATIONS;
-  static const TapeInfos::StatEntries fileAccess = TapeInfos::OP_FILE_ACCESS;
-  static const TapeInfos::StatEntries bufferSize = TapeInfos::OP_BUFFER_SIZE;
-  static constexpr ADOLCError::ErrorType error =
-      ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED;
+  static const TInfos::StatEntries num = TInfos::NUM_OPERATIONS;
+  static const TInfos::StatEntries fileAccess = TInfos::OP_FILE_ACCESS;
+  static const TInfos::StatEntries bufferSize = TInfos::OP_BUFFER_SIZE;
+  static constexpr EType error = EType::EVAL_OP_TAPE_READ_FAILED;
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
 
-  static void setNum(Tape &tape, size_t n) { tape.numOps_Tape(n); }
-  static void setCurr(Tape &tape, value *p) { tape.currOp(p); }
-  static value *buffer(Tape &tape) { return tape.opBuffer(); }
-  static FILE *file(Tape &tape) { return tape.op_file(); }
-  static void openFile(Tape &tape) {
-    tape.op_file(fopen(tape.op_fileName(), "rb"));
+  static void setNum(TInfos &tapeInfos, size_t n) { tapeInfos.numOps_Tape = n; }
+  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numOps_Tape; }
+  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currOp = p; }
+  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.opBuffer; }
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.op_file; }
+  static void openFile(TInfos &tapeInfos, std::string_view fileName,
+                       std::string_view mode = "rb") {
+    tapeInfos.op_file = fopen(fileName.data(), mode.data());
+  }
+  static int removeFile(std::string_view fileName) {
+    return remove(fileName.data());
   }
 };
-template <class Tape> struct LocInfo {
+
+template <class TInfos, class EType> struct LocInfo {
   using value = size_t;
-  static const TapeInfos::StatEntries num = TapeInfos::NUM_LOCATIONS;
-  static const TapeInfos::StatEntries fileAccess = TapeInfos::LOC_FILE_ACCESS;
-  static const TapeInfos::StatEntries bufferSize = TapeInfos::LOC_BUFFER_SIZE;
-  static constexpr ADOLCError::ErrorType error =
-      ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED;
+  static const TInfos::StatEntries num = TInfos::NUM_LOCATIONS;
+  static const TInfos::StatEntries fileAccess = TInfos::LOC_FILE_ACCESS;
+  static const TInfos::StatEntries bufferSize = TInfos::LOC_BUFFER_SIZE;
+  static constexpr EType error = EType::EVAL_LOC_TAPE_READ_FAILED;
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
 
-  static void setNum(Tape &tape, size_t n) { tape.numLocs_Tape(n); }
-  static void setCurr(Tape &tape, value *p) { tape.currLoc(p); }
-  static value *buffer(Tape &tape) { return tape.locBuffer(); }
-  static FILE *file(Tape &tape) { return tape.loc_file(); }
-  static void openFile(Tape &tape) {
-    tape.loc_file(fopen(tape.loc_fileName(), "rb"));
+  static void setNum(TInfos &tapeInfos, size_t n) {
+    tapeInfos.numLocs_Tape = n;
+  }
+  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numLocs_Tape; }
+  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currLoc = p; }
+  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.locBuffer; }
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.loc_file; }
+  static void openFile(TInfos &tapeInfos, std::string_view fileName,
+                       std::string_view mode = "rb") {
+    tapeInfos.loc_file = fopen(fileName.data(), mode.data());
+  }
+  static int removeFile(std::string_view fileName) {
+    return remove(fileName.data());
   }
 };
 
-template <class Tape> struct ValInfo {
+template <class TInfos, class EType> struct ValInfo {
   using value = double;
-  static const TapeInfos::StatEntries num = TapeInfos::NUM_VALUES;
-  static const TapeInfos::StatEntries fileAccess = TapeInfos::VAL_FILE_ACCESS;
-  static const TapeInfos::StatEntries bufferSize = TapeInfos::VAL_BUFFER_SIZE;
-  static constexpr ADOLCError::ErrorType error =
-      ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED;
+  static const TInfos::StatEntries num = TInfos::NUM_VALUES;
+  static const TInfos::StatEntries fileAccess = TInfos::VAL_FILE_ACCESS;
+  static const TInfos::StatEntries bufferSize = TInfos::VAL_BUFFER_SIZE;
+  static constexpr EType error = EType::EVAL_VAL_TAPE_READ_FAILED;
 
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
 
-  static void setNum(Tape &tape, size_t n) { tape.numVals_Tape(n); }
-  static void setCurr(Tape &tape, value *p) { tape.currVal(p); }
-  static value *buffer(Tape &tape) { return tape.valBuffer(); }
-  static FILE *file(Tape &tape) { return tape.val_file(); }
-  static void openFile(Tape &tape) {
-    tape.val_file(fopen(tape.val_fileName(), "rb"));
+  static void setNum(TInfos &tapeInfos, size_t n) {
+    tapeInfos.numVals_Tape = n;
+  }
+  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numVals_Tape; }
+  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currVal = p; }
+  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.valBuffer; }
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.val_file; }
+  static void openFile(TInfos &tapeInfos, std::string_view fileName,
+                       std::string_view mode = "rb") {
+    tapeInfos.val_file = fopen(fileName.data(), mode.data());
+  }
+  static int removeFile(std::string_view fileName) {
+    return remove(fileName.data());
   }
 };
 }; // namespace ADOLC::detail

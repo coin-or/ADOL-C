@@ -376,7 +376,8 @@ void ValueTape::save_params() {
       put_vals_notWriteBlock(paramstore() + ip, chunk);
       ip += chunk;
       if (ip < np)
-        put_val_block(lastValP1());
+        tapeInfos_.put_block<ValInfo<TapeInfos, ErrorType>>(
+            perTapeInfos_.val_fileName, lastValP1());
     }
   }
 }
@@ -419,7 +420,8 @@ void ValueTape::close_tape(int flag) {
   /* finish operations tape, close it, update stats */
   if (flag != 0 || op_file()) {
     if (currOp() != opBuffer()) {
-      put_op_block(currOp());
+      tapeInfos_.put_block<OpInfo<TapeInfos, ErrorType>>(
+          perTapeInfos_.op_fileName, currOp());
     }
     if (op_file()) {
       fclose(op_file());
@@ -436,7 +438,8 @@ void ValueTape::close_tape(int flag) {
   /* finish constants tape, close it, update stats */
   if (flag != 0 || val_file()) {
     if (currVal() != valBuffer()) {
-      put_val_block(currVal());
+      tapeInfos_.put_block<ValInfo<TapeInfos, ErrorType>>(
+          perTapeInfos_.val_fileName, currVal());
     }
     if (val_file()) {
       fclose(val_file());
@@ -453,7 +456,8 @@ void ValueTape::close_tape(int flag) {
   /* finish locations tape, update and write tape stats, close tape */
   if (flag != 0 || (loc_file() != nullptr)) {
     if (currLoc() != locBuffer()) {
-      put_loc_block(currLoc());
+      tapeInfos_.put_block<LocInfo<TapeInfos, ErrorType>>(
+          perTapeInfos_.loc_fileName, currLoc());
     }
     tapestats(TapeInfos::NUM_LOCATIONS, numLocs_Tape());
     tapestats(TapeInfos::LOC_FILE_ACCESS, 1);
