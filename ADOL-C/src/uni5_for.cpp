@@ -1067,7 +1067,7 @@ int hov_forward(
   /* Set up stuff for the tape */
 
   /* Initialize the Forward Sweep */
-  tape.init_for_sweep();
+  tape.init_sweep<ValueTape::Forward>();
 
   if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (to_size_t(indcheck) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
@@ -5958,7 +5958,7 @@ int hov_forward(
 #if defined(_ZOS_) && defined(_ABS_NORM_)
 size_t get_num_switches(short tapeId) {
   ValueTape &tape = findTape(tapeId);
-  tape.init_for_sweep();
+  tape.init_sweep<ValueTape::Forward>();
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info1 = tapeId});

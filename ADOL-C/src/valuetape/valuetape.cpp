@@ -2,6 +2,7 @@
 #include <adolc/dvlparms.h>
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
+#include <adolc/valuetape/infotype.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cassert>
 #include <string>
@@ -79,7 +80,7 @@ int ValueTape::initNewTape() {
   tapestats(TapeInfos::LOC_BUFFER_SIZE, locationBufferSize());
   tapestats(TapeInfos::VAL_BUFFER_SIZE, valueBufferSize());
   tapestats(TapeInfos::TAY_BUFFER_SIZE, taylorBufferSize());
-  skipFileCleanup(0);
+  ;
   return 0;
 }
 
@@ -638,38 +639,6 @@ void ValueTape::read_tape_stats() {
   fclose(loc_file);
   if (tapestats(TapeInfos::NUM_PARAM) > 0)
     read_params();
-}
-
-/****************************************************************************/
-/* Initialize a forward sweep. Get stats, open tapes, fill buffers, ... */
-/****************************************************************************/
-void ValueTape::init_for_sweep() {
-  /* make room for tapeInfos and read tape stats if necessary, keep value
-   * stack information */
-  openTape();
-  initTapeBuffers();
-  prepare_for<OpInfo>();
-  prepare_for<LocInfo>();
-  prepare_for<ValInfo>();
-#ifdef ADOLC_AMPI_SUPPORT
-  TAPE_AMPI_resetBottom();
-#endif
-}
-
-/****************************************************************************/
-/* Initialize a reverse sweep. Get stats, open tapes, fill buffers, ... */
-/****************************************************************************/
-void ValueTape::init_rev_sweep() {
-  /* make room for tapeInfos and read tape stats if necessary, keep value
-   * stack information */
-  openTape();
-  initTapeBuffers();
-  prepare_rev<OpInfo>();
-  prepare_rev<LocInfo>();
-  prepare_rev<ValInfo>();
-#ifdef ADOLC_AMPI_SUPPORT
-  TAPE_AMPI_resetTop();
-#endif
 }
 
 /****************************************************************************/

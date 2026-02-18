@@ -11,14 +11,14 @@
 #include <adolc/externfcts2.h>
 #include <adolc/storemanager.h>
 #include <adolc/valuetape/globaltapevarscl.h>
+#include <adolc/valuetape/infotype.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
-#include <concepts>
+#include <cstdarg>
 #include <cstdio>
 #include <limits>
 #include <memory>
 #include <stack>
-#include <type_traits>
 
 // just ignore the missing DLL interface of the class members....
 #ifdef _MSC_VER
@@ -48,25 +48,6 @@ struct ext_diff_fct_v2;
  * A lot of interface utilites that are used in various value tape handling
  * methods
  */
-
-class ADOLC_API ValueTape;
-
-template <class T>
-concept InfoType = requires(ValueTape &tape) {
-  typename T::value;
-
-  { T::num } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::fileAccess } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::bufferSize } -> std::same_as<const TapeInfos::StatEntries &>;
-  { T::error } -> std::same_as<const ADOLCError::ErrorType &>;
-  { T::chunkSize } -> std::same_as<const size_t &>;
-
-  { T::buffer(tape) } -> std::same_as<typename T::value *>;
-  T::setCurr(tape, (typename T::value *)nullptr);
-  T::setNum(tape, size_t{});
-  T::file(tape);
-  T::openFile(tape);
-};
 
 class ADOLC_API ValueTape {
   TapeInfos tapeInfos_;
@@ -676,62 +657,12 @@ public:
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }
 
-  struct OpInfo {
-    using value = unsigned char;
-    static const TapeInfos::StatEntries num = TapeInfos::NUM_OPERATIONS;
-    static const TapeInfos::StatEntries fileAccess = TapeInfos::OP_FILE_ACCESS;
-    static const TapeInfos::StatEntries bufferSize = TapeInfos::OP_BUFFER_SIZE;
-    static constexpr ADOLCError::ErrorType error =
-        ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED;
-    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+  template <typename... Ts> struct AllTypes {};
+  using AllInfoTypes = AllTypes<ADOLC::detail::OpInfo<ValueTape>,
+                                ADOLC::detail::LocInfo<ValueTape>,
+                                ADOLC::detail::ValInfo<ValueTape>>;
 
-    static void setNum(ValueTape &tape, size_t n) { tape.numOps_Tape(n); }
-    static void setCurr(ValueTape &tape, value *p) { tape.currOp(p); }
-    static value *buffer(ValueTape &tape) { return tape.opBuffer(); }
-    static FILE *file(ValueTape &tape) { return tape.op_file(); }
-    static void openFile(ValueTape &tape) {
-      tape.op_file(fopen(tape.op_fileName(), "rb"));
-    }
-  };
-
-  struct LocInfo {
-    using value = size_t;
-    static const TapeInfos::StatEntries num = TapeInfos::NUM_LOCATIONS;
-    static const TapeInfos::StatEntries fileAccess = TapeInfos::LOC_FILE_ACCESS;
-    static const TapeInfos::StatEntries bufferSize = TapeInfos::LOC_BUFFER_SIZE;
-    static constexpr ADOLCError::ErrorType error =
-        ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED;
-    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
-
-    static void setNum(ValueTape &tape, size_t n) { tape.numLocs_Tape(n); }
-    static void setCurr(ValueTape &tape, value *p) { tape.currLoc(p); }
-    static value *buffer(ValueTape &tape) { return tape.locBuffer(); }
-    static FILE *file(ValueTape &tape) { return tape.loc_file(); }
-    static void openFile(ValueTape &tape) {
-      tape.loc_file(fopen(tape.loc_fileName(), "rb"));
-    }
-  };
-
-  struct ValInfo {
-    using value = double;
-    static const TapeInfos::StatEntries num = TapeInfos::NUM_VALUES;
-    static const TapeInfos::StatEntries fileAccess = TapeInfos::VAL_FILE_ACCESS;
-    static const TapeInfos::StatEntries bufferSize = TapeInfos::VAL_BUFFER_SIZE;
-    static constexpr ADOLCError::ErrorType error =
-        ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED;
-
-    static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
-
-    static void setNum(ValueTape &tape, size_t n) { tape.numVals_Tape(n); }
-    static void setCurr(ValueTape &tape, value *p) { tape.currVal(p); }
-    static value *buffer(ValueTape &tape) { return tape.valBuffer(); }
-    static FILE *file(ValueTape &tape) { return tape.val_file(); }
-    static void openFile(ValueTape &tape) {
-      tape.val_file(fopen(tape.val_fileName(), "rb"));
-    }
-  };
-
-  template <InfoType Info>
+  template <ADOLC::detail::InfoType<ValueTape> Info>
   void readRemaining(size_t numChunks, size_t lengthBlock) {
     using ADOLCError::fail;
     // numChunks + remain = lengthBlock
@@ -745,7 +676,8 @@ public:
     }
   }
 
-  template <InfoType Info> void readLastBloc(size_t lengthLB) {
+  template <ADOLC::detail::InfoType<ValueTape> Info>
+  void readLastBloc(size_t lengthLB) {
     using ADOLCError::fail;
     const size_t numChunks = lengthLB / Info::chunkSize;
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
@@ -758,7 +690,7 @@ public:
     readRemaining<Info>(numChunks, lengthLB);
   }
 
-  template <InfoType Info> void prepare_for() {
+  template <ADOLC::detail::InfoType<ValueTape> Info> void prepare_for() {
     size_t lengthBlock = 0;
     if (tapestats(Info::fileAccess) == 1) {
       Info::openFile(*this);
@@ -770,7 +702,7 @@ public:
       lengthBlock = tapestats(Info::num) - lengthBlock;
     }
     Info::setNum(*this, lengthBlock);
-    if constexpr (std::is_same_v<Info, LocInfo>) {
+    if constexpr (std::is_same_v<Info, ADOLC::detail::LocInfo<ValueTape>>) {
       size_t numLocsForStats = statSpace;
       while (numLocsForStats >= tapestats(Info::bufferSize)) {
         get_loc_block_f();
@@ -781,10 +713,7 @@ public:
       Info::setCurr(*this, Info::buffer(*this));
     }
   }
-  // initialize a forward sweep, get stats, open tapes, fill buffers, ...
-  void init_for_sweep();
-
-  template <InfoType Info> void setFilePosition() {
+  template <ADOLC::detail::InfoType<ValueTape> Info> void setFilePosition() {
     // set file pos to beginning of last block
     auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
                   tapestats(Info::bufferSize);
@@ -793,7 +722,7 @@ public:
     fseek(Info::file(*this), offset, SEEK_SET);
   }
 
-  template <InfoType Info> void prepare_rev() {
+  template <ADOLC::detail::InfoType<ValueTape> Info> void prepare_rev() {
     size_t lengthLB = tapestats(Info::num);
     if (tapestats(Info::fileAccess) == 1) {
       // set file pos to beginning of last block
@@ -806,9 +735,45 @@ public:
     Info::setNum(*this, tapestats(Info::num) - lengthLB);
     Info::setCurr(*this, Info::buffer(*this) + lengthLB);
   }
-  // initialize a reverse sweep, get stats, open tapes, fill buffers, ...
-  void init_rev_sweep();
 
+  template <ADOLC::detail::InfoType<ValueTape>... Infos>
+  void prepare_for_all(AllTypes<Infos...> /*unused*/) {
+    (prepare_for<Infos>(), ...);
+  }
+
+  template <ADOLC::detail::InfoType<ValueTape>... Infos>
+  void prepare_rev_all(AllTypes<Infos...> /*unused*/) {
+    (prepare_rev<Infos>(), ...);
+  }
+
+  struct Mode {};
+  struct Forward : Mode {};
+  struct Reverse : Mode {};
+
+  /****************************************************************************/
+  /* Initialize a forward sweep or reverse sweep. Get stats, open tapes,
+   * fill buffers, ... */
+  /****************************************************************************/
+  template <class Mode> void init_sweep() {
+    using namespace ADOLC::detail;
+    /* make room for tapeInfos and read tape stats if necessary, keep value
+     * stack information */
+    openTape();
+    initTapeBuffers();
+    if constexpr (std::is_same_v<Mode, Forward>) {
+      prepare_for_all(AllInfoTypes{});
+#ifdef ADOLC_AMPI_SUPPORT
+      TAPE_AMPI_resetBottom();
+#endif
+    } else if constexpr (std::is_same_v<Mode, Reverse>) {
+      prepare_rev_all(AllInfoTypes{});
+#ifdef ADOLC_AMPI_SUPPORT
+      TAPE_AMPI_resetTop();
+#endif
+    } else {
+      static_assert(!std::is_same_v<Mode, Mode>, "Mode not implemented!");
+    }
+  }
   // finish a forward or reverse sweep
   void end_sweep();
   // initialization for the taping process -> buffer allocation, sets files

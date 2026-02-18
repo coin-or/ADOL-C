@@ -396,7 +396,7 @@ int hov_ti_reverse(
   /* Set up stuff for the tape */
 
   /* Initialize the Reverse Sweep */
-  tape.init_rev_sweep();
+  tape.init_sweep<ValueTape::Reverse>();
 
   if ((to_size_t(depen) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (to_size_t(indep) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))

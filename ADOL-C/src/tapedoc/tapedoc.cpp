@@ -266,7 +266,7 @@ void tape_doc(short tnum,     /* tape id */
   int i;
   double aDouble;
 #endif
-  tape.init_for_sweep();
+  tape.init_sweep<ValueTape::Forward>();
   tag = tnum;
 
   if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
