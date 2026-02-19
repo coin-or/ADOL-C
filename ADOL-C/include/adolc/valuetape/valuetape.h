@@ -6,15 +6,20 @@
 #include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
 #include <adolc/checkpointing_p.h>
+#include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 #include <adolc/storemanager.h>
 #include <adolc/valuetape/globaltapevarscl.h>
+#include <adolc/valuetape/infotype.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/tapeinfos.h>
+#include <cstdarg>
+#include <cstdio>
 #include <limits>
 #include <memory>
 #include <stack>
+#include <type_traits>
 
 // just ignore the missing DLL interface of the class members....
 #ifdef _MSC_VER
@@ -28,6 +33,15 @@
 
 struct ext_diff_fct;
 struct ext_diff_fct_v2;
+
+using ADOLC::detail::InfoType;
+using ADOLC::detail::LocInfo;
+using ADOLC::detail::OpInfo;
+using ADOLC::detail::ValInfo;
+using ADOLCError::ErrorType;
+using OpInfoT = OpInfo<TapeInfos, ErrorType>;
+using LocInfoT = LocInfo<TapeInfos, ErrorType>;
+using ValInfoT = ValInfo<TapeInfos, ErrorType>;
 
 /**
  * class ValueTape
@@ -143,7 +157,6 @@ public:
     perTapeInfos_.skipFileCleanup = skipFileCleanup;
   }
   int skipFileCleanup() const { return perTapeInfos_.skipFileCleanup; }
-
   double *paramstore() const { return perTapeInfos_.paramstore; }
   void paramstore(double *params) { perTapeInfos_.paramstore = params; }
 
@@ -343,9 +356,6 @@ public:
     return tapeInfos_.put_op(op, loc_fileName(), op_fileName(), val_fileName(),
                              reserveExtraLocations);
   }
-  void put_op_block(const unsigned char *opPos) {
-    tapeInfos_.put_op_block(op_fileName(), opPos);
-  };
   bool isTaping() { return tapeInfos_.traceFlag != 0; }
 
   /* writes a block of operations onto hard disk and handles file creation,
@@ -355,10 +365,6 @@ public:
   void get_op_block_r() { return tapeInfos_.get_op_block_r(); };
   /* reads the previous block of operations into the internal buffer */
 
-  /* puts a single locations into the location buffer, no disk access */
-  void put_loc_block(const size_t *locPos) {
-    tapeInfos_.put_loc_block(loc_fileName(), locPos);
-  };
   /* writes a block of locations onto hard disk and handles file creation,
    * removal, ... */
   void get_loc_block_f() { return tapeInfos_.get_loc_block_f(); };
@@ -393,10 +399,7 @@ public:
   void put_vals_notWriteBlock(double *reals, size_t numReals) {
     return tapeInfos_.put_vals_notWriteBlock(reals, numReals);
   }
-  /* write some constants to the buffer without disk access */
-  void put_val_block(const double *valPos) {
-    tapeInfos_.put_val_block(val_fileName(), valPos);
-  };
+
   /* writes a block of constants (real) onto hard disk and handles file
    * creation, removal, ... */
   void get_val_block_f() { return tapeInfos_.get_val_block_f(); };
@@ -631,11 +634,6 @@ public:
     globalTapeVars_.store[loc] = *tapeInfos_.currTay;
   }
 
-  // writes the taylor stack buffer onto hard disk
-  void put_tay_block(const double *tayPos) {
-    tapeInfos_.put_tay_block(tay_fileName(), tayPos);
-  }
-
   // puts a taylor value from the value stack buffer to the taylor buffer
   void get_taylor(size_t loc) { tapeInfos_.get_taylor(loc); }
 
@@ -653,12 +651,136 @@ public:
 
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }
-  // initialize a forward sweep, get stats, open tapes, fill buffers, ...
-  void init_for_sweep();
 
-  // initialize a reverse sweep, get stats, open tapes, fill buffers, ...
-  void init_rev_sweep();
+  template <InfoType<TapeInfos, ErrorType> Info> std::string_view fileName() {
+    if constexpr (std::is_same_v<Info, OpInfoT>)
+      return perTapeInfos_.op_fileName;
+    else if constexpr (std::is_same_v<Info, LocInfoT>)
+      return perTapeInfos_.loc_fileName;
+    else if constexpr (std::is_same_v<Info, ValInfoT>)
+      return perTapeInfos_.val_fileName;
 
+    else
+      static_assert(!std::is_same_v<Info, Info>, "Not Implemented!");
+  }
+
+  template <typename... Ts> struct AllTypes {};
+  using AllInfoTypes = AllTypes<OpInfoT, LocInfoT, ValInfoT>;
+
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void readRemaining(size_t numChunks, size_t lengthBlock) {
+    using ADOLCError::fail;
+    // numChunks + remain = lengthBlock
+    const size_t remain = lengthBlock % Info::chunkSize;
+    if (remain > 0) {
+      auto returnCode = fread(
+          Info::bufferBegin(tapeInfos_) + (numChunks * Info::chunkSize),
+          remain * sizeof(typename Info::value), 1, Info::file(tapeInfos_));
+      if (returnCode != 1)
+        fail(Info::error, CURRENT_LOCATION);
+    }
+  }
+
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void readLastBloc(size_t lengthLB) {
+    using ADOLCError::fail;
+    const size_t numChunks = lengthLB / Info::chunkSize;
+    for (size_t chunk = 0; chunk < numChunks; chunk++) {
+      auto returnCode =
+          fread(Info::bufferBegin(tapeInfos_) + (chunk * Info::chunkSize),
+                Info::chunkSize * sizeof(typename Info::value), 1,
+                Info::file(tapeInfos_));
+      if (returnCode != 1)
+        fail(Info::error, CURRENT_LOCATION);
+    }
+    readRemaining<Info>(numChunks, lengthLB);
+  }
+
+  template <InfoType<TapeInfos, ErrorType> Info> void prepare_for() {
+    size_t lengthBlock = 0;
+    if (tapestats(Info::fileAccess) == 1) {
+      Info::openFile(tapeInfos_, fileName<Info>());
+      // how much to read from file
+      lengthBlock = std::min(tapestats(Info::bufferSize), tapestats(Info::num));
+      if (lengthBlock != 0) {
+        readLastBloc<Info>(lengthBlock);
+      }
+      lengthBlock = tapestats(Info::num) - lengthBlock;
+    }
+    Info::setNum(tapeInfos_, lengthBlock);
+    if constexpr (std::is_same_v<Info, LocInfoT>) {
+      size_t numLocsForStats = statSpace;
+      while (numLocsForStats >= tapestats(Info::bufferSize)) {
+        get_loc_block_f();
+        numLocsForStats -= tapestats(Info::bufferSize);
+      }
+      Info::setCurr(tapeInfos_,
+                    Info::bufferBegin(tapeInfos_) + numLocsForStats);
+    } else {
+      Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_));
+    }
+  }
+  template <InfoType<TapeInfos, ErrorType> Info> void setFilePosition() {
+    // set file pos to beginning of last block
+    auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
+                  tapestats(Info::bufferSize);
+    auto offset = static_cast<long>(number * sizeof(typename Info::value));
+    Info::openFile(tapeInfos_, fileName<Info>());
+    fseek(Info::file(tapeInfos_), offset, SEEK_SET);
+  }
+
+  template <InfoType<TapeInfos, ErrorType> Info> void prepare_rev() {
+    size_t lengthLB = tapestats(Info::num);
+    if (tapestats(Info::fileAccess) == 1) {
+      // set file pos to beginning of last block
+      setFilePosition<Info>();
+      lengthLB = tapestats(Info::num) % tapestats(Info::bufferSize);
+      if (lengthLB != 0) {
+        readLastBloc<Info>(lengthLB);
+      }
+    }
+    Info::setNum(tapeInfos_, tapestats(Info::num) - lengthLB);
+    Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_) + lengthLB);
+  }
+
+  template <InfoType<TapeInfos, ErrorType>... Infos>
+  void prepare_for_all(AllTypes<Infos...> /*unused*/) {
+    (prepare_for<Infos>(), ...);
+  }
+
+  template <InfoType<TapeInfos, ErrorType>... Infos>
+  void prepare_rev_all(AllTypes<Infos...> /*unused*/) {
+    (prepare_rev<Infos>(), ...);
+  }
+
+  struct Mode {};
+  struct Forward : Mode {};
+  struct Reverse : Mode {};
+
+  /****************************************************************************/
+  /* Initialize a forward sweep or reverse sweep. Get stats, open tapes,
+   * fill buffers, ... */
+  /****************************************************************************/
+  template <class Mode> void init_sweep() {
+    using namespace ADOLC::detail;
+    /* make room for tapeInfos and read tape stats if necessary, keep value
+     * stack information */
+    openTape();
+    initTapeBuffers();
+    if constexpr (std::is_same_v<Mode, Forward>) {
+      prepare_for_all(AllInfoTypes{});
+#ifdef ADOLC_AMPI_SUPPORT
+      TAPE_AMPI_resetBottom();
+#endif
+    } else if constexpr (std::is_same_v<Mode, Reverse>) {
+      prepare_rev_all(AllInfoTypes{});
+#ifdef ADOLC_AMPI_SUPPORT
+      TAPE_AMPI_resetTop();
+#endif
+    } else {
+      static_assert(!std::is_same_v<Mode, Mode>, "Mode not implemented!");
+    }
+  }
   // finish a forward or reverse sweep
   void end_sweep();
   // initialization for the taping process -> buffer allocation, sets files

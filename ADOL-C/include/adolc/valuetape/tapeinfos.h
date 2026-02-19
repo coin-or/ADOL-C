@@ -2,10 +2,15 @@
 #define ADOLC_TAPEINFOS_H
 
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/oplate.h>
+#include <adolc/valuetape/infotype.h>
 #include <array>
 #include <memory>
 
+using ADOLC::detail::InfoType;
+using ADOLC::detail::TayInfo;
+using ADOLCError::ErrorType;
 struct TapeInfos {
 
   // named indices of to print out value tape stats
@@ -159,7 +164,7 @@ struct TapeInfos {
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
     if (currTay == lastTayP1)
-      put_tay_block(tay_fileName, lastTayP1);
+      put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
     *currTay = val;
     ++currTay;
   }
@@ -189,7 +194,6 @@ struct TapeInfos {
   /* taylor buffer. --- Higher Order Vector                                   */
   /****************************************************************************/
   void get_taylors_p(size_t loc, int degree, int numDir);
-  void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 
   // functions for handling loc tape
@@ -198,7 +202,6 @@ struct TapeInfos {
     ++currLoc;
   }
 
-  void put_loc_block(const char *loc_fileName, const size_t *locPos);
   void get_loc_block_f();
   void get_loc_block_r();
   // functions for handling op tape
@@ -207,10 +210,63 @@ struct TapeInfos {
   // buffer and constants buffer are prepared to take the belonging stuff
   void put_op(OPCODES op, const char *loc_fileName, const char *op_fileName,
               const char *val_fileName, size_t reserveExtraLocations = 0);
-  void put_op_block(const char *op_fileName, const unsigned char *opLoc);
   void get_op_block_f();
   void get_op_block_r();
 
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void openFile(std::string_view fileName) {
+    using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
+    if (Info::file(*this) == nullptr) {
+      if constexpr (!std::is_same_v<Info, TayInfo<TapeInfos, ErrorType>>) {
+        Info::openFile(*this, fileName);
+        if (Info::file(*this) != nullptr) {
+          fclose(Info::file(*this));
+          if (Info::removeFile(fileName)) {
+            fail(CANNOT_REMOVE_FILE, CURRENT_LOCATION);
+          }
+        }
+        Info::openFile(*this, fileName, "wb");
+      } else if constexpr (std::is_same_v<Info,
+                                          TayInfo<TapeInfos, ErrorType>>) {
+        Info::openFile(*this, fileName, "w+b");
+      } else {
+        static_assert(!std::is_same_v<Info, Info>, "Not Implemented!");
+      }
+    }
+  }
+
+  /****************************************************************************/
+  /* Writes a block of operations onto hard disk and handles file creation,   */
+  /* removal, ...                                                             */
+  /****************************************************************************/
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void put_block(std::string_view fileName,
+                 const typename Info::value *bufferPos) {
+    using ADOLCError::fail;
+    using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
+    using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
+
+    openFile<Info>(fileName);
+    const std::size_t lengthBlock = bufferPos - Info::bufferBegin(*this);
+    const size_t numChunks = lengthBlock / Info::chunkSize;
+    for (size_t chunk = 0; chunk < numChunks; chunk++) {
+      auto returnCode = fwrite(
+          Info::bufferBegin(*this) + (chunk * Info::chunkSize),
+          Info::chunkSize * sizeof(typename Info::value), 1, Info::file(*this));
+      if (returnCode != 1)
+        fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
+    }
+    const size_t remain = lengthBlock % Info::chunkSize;
+    if (remain != 0) {
+      auto returnCode =
+          fwrite(Info::bufferBegin(*this) + (numChunks * Info::chunkSize),
+                 remain * sizeof(typename Info::value), 1, Info::file(*this));
+      if (returnCode != 1)
+        fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
+    }
+    Info::setNum(*this, Info::getNum(*this) + lengthBlock);
+    Info::setCurr(*this, Info::bufferBegin(*this));
+  }
   // functions for handling val tape
 
   /****************************************************************************/
@@ -222,7 +278,6 @@ struct TapeInfos {
       ++currVal;
     }
   }
-  void put_val_block(const char *val_fileName, const double *valPos);
   void put_vals_writeBlock(double *vals, size_t numVals,
                            const char *op_fileName, const char *val_fileName);
   void get_val_block_r();
@@ -299,7 +354,7 @@ struct TapeInfos {
     return 0;
   }
 
-  /****************************************************************************/
+/****************************************************************************/
 /*                                                          DEBUG FUNCTIONS */
 #ifdef ADOLC_HARDDEBUG
   unsigned char get_op_f() {
