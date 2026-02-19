@@ -129,7 +129,7 @@ int main() { /*-----------------------------------------------------------------
   fprintf(stdout, "    maxlive                 %zu\n",
           tape_stats[TapeInfos::NUM_MAX_LIVES]);
   fprintf(stdout, "    valstack size           %zu\n\n",
-          tape_stats[TapeInfos::TAY_STACK_SIZE]);
+          tape_stats[TapeInfos::NUM_TAYS]);
 
   /*------------------------------------------------------------------------*/
   /* That's it */
