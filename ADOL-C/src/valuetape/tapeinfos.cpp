@@ -264,7 +264,7 @@ void TapeInfos::write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
       ++taylorCoefficientPos;
     }
     keep -= lastTayP1 - currTay;
-    put_tay_block(tay_fileName, lastTayP1);
+    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
   }
 
   for (i = currTay; i < currTay + keep; ++i) {
@@ -280,7 +280,7 @@ void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
   for (int j = 0; j < numDir; ++j) {
     for (int i = 0; i < keep; ++i) {
       if (currTay == lastTayP1)
-        put_tay_block(tay_fileName, lastTayP1);
+        put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
 
       *currTay = *taylorCoefficientPos;
       ++currTay;
@@ -302,7 +302,7 @@ void TapeInfos::write_scaylors(const double *taylorCoefficientPos,
       tay = taylorCoefficientPos[pos++];
     }
     size -= lastTayP1 - currTay;
-    put_tay_block(tay_fileName, lastTayP1);
+    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
   }
 
   std::span<double> tayBufferSpan(currTay, tayBuffer + size);
@@ -360,38 +360,6 @@ void TapeInfos::get_taylors_p(size_t loc, int degree, int numDir) {
 /**
  * Functions to handle the taylor tape
  */
-
-/****************************************************************************/
-/* Writes the value stack buffer onto hard disk.                            */
-/****************************************************************************/
-void TapeInfos::put_tay_block(const char *tay_fileName, const double *tayPos) {
-  constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
-  const std::ptrdiff_t number = tayPos - tayBuffer;
-  const size_t chunks = number / chunkSize;
-  const size_t remain = number % chunkSize;
-  if (tay_file == nullptr) {
-    tay_file = fopen(tay_fileName, "w+b");
-    if (tay_file == nullptr)
-      ADOLCError::fail(ADOLCError::ErrorType::TAPING_TAYLOR_OPEN_FAILED,
-                       CURRENT_LOCATION);
-  }
-  if (number != 0) {
-    for (size_t i = 0; i < chunks; ++i)
-      if (fwrite(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-                 tay_file) != 1)
-        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                         CURRENT_LOCATION);
-
-    if (remain != 0)
-      if (fwrite(tayBuffer + chunks * chunkSize, remain * sizeof(double), 1,
-                 tay_file) != 1) {
-        ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
-                         CURRENT_LOCATION);
-      }
-    numTays_Tape += number;
-  }
-  currTay = tayBuffer;
-}
 
 /****************************************************************************/
 /* Gets the next (previous block) of the value stack                        */

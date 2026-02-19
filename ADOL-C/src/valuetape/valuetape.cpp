@@ -3,6 +3,7 @@
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/infotype.h>
+#include <adolc/valuetape/tapeinfos.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cassert>
 #include <string>
@@ -220,7 +221,8 @@ void ValueTape::taylor_close(bool resetData) {
 
   if (tay_file()) {
     if (keepTaylors())
-      put_tay_block(currTay());
+      tapeInfos_.put_block<TayInfo<TapeInfos, ErrorType>>(
+          perTapeInfos_.tay_fileName, currTay());
   } else {
     numTays_Tape(currTay() - tayBuffer());
   }

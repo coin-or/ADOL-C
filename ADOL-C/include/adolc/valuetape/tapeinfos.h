@@ -9,6 +9,7 @@
 #include <memory>
 
 using ADOLC::detail::InfoType;
+using ADOLC::detail::TayInfo;
 using ADOLCError::ErrorType;
 struct TapeInfos {
 
@@ -163,7 +164,7 @@ struct TapeInfos {
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
     if (currTay == lastTayP1)
-      put_tay_block(tay_fileName, lastTayP1);
+      put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
     *currTay = val;
     ++currTay;
   }
@@ -193,7 +194,6 @@ struct TapeInfos {
   /* taylor buffer. --- Higher Order Vector                                   */
   /****************************************************************************/
   void get_taylors_p(size_t loc, int degree, int numDir);
-  void put_tay_block(const char *tay_fileName, const double *tayPos);
   void get_tay_block_r();
 
   // functions for handling loc tape
@@ -217,14 +217,21 @@ struct TapeInfos {
   void openFile(std::string_view fileName) {
     using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
     if (Info::file(*this) == nullptr) {
-      Info::openFile(*this, fileName);
-      if (Info::file(*this) != nullptr) {
-        fclose(Info::file(*this));
-        if (Info::removeFile(fileName)) {
-          fail(CANNOT_REMOVE_FILE, CURRENT_LOCATION);
+      if constexpr (!std::is_same_v<Info, TayInfo<TapeInfos, ErrorType>>) {
+        Info::openFile(*this, fileName);
+        if (Info::file(*this) != nullptr) {
+          fclose(Info::file(*this));
+          if (Info::removeFile(fileName)) {
+            fail(CANNOT_REMOVE_FILE, CURRENT_LOCATION);
+          }
         }
+        Info::openFile(*this, fileName, "wb");
+      } else if constexpr (std::is_same_v<Info,
+                                          TayInfo<TapeInfos, ErrorType>>) {
+        Info::openFile(*this, fileName, "w+b");
+      } else {
+        static_assert(!std::is_same_v<Info, Info>, "Not Implemented!");
       }
-      Info::openFile(*this, fileName, "wb");
     }
   }
 

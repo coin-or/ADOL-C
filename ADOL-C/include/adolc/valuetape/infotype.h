@@ -101,6 +101,32 @@ template <class TInfos, class EType> struct ValInfo {
     return remove(fileName.data());
   }
 };
+
+template <class TInfos, class EType> struct TayInfo {
+  using value = double;
+  using StatEntries = typename TInfos::StatEntries;
+  static const StatEntries num = TInfos::NUM_TAYS;
+  static const StatEntries fileAccess = TInfos::STAT_SIZE;
+  static const StatEntries bufferSize = TInfos::TAY_BUFFER_SIZE;
+  static constexpr EType error = EType::TAPING_TAYLOR_OPEN_FAILED;
+
+  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+
+  static void setNum(TInfos &tapeInfos, size_t n) {
+    tapeInfos.numTays_Tape = n;
+  }
+  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numTays_Tape; }
+  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currTay = p; }
+  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.tayBuffer; }
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.tay_file; }
+  static void openFile(TInfos &tapeInfos, std::string_view fileName,
+                       std::string_view mode = "rb") {
+    tapeInfos.tay_file = fopen(fileName.data(), mode.data());
+  }
+  static int removeFile(std::string_view fileName) {
+    return remove(fileName.data());
+  }
+};
 }; // namespace ADOLC::detail
 
 #endif // ADOLC_INFO_TYPE_H

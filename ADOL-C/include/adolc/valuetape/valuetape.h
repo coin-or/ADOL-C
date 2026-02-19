@@ -634,11 +634,6 @@ public:
     globalTapeVars_.store[loc] = *tapeInfos_.currTay;
   }
 
-  // writes the taylor stack buffer onto hard disk
-  void put_tay_block(const double *tayPos) {
-    tapeInfos_.put_tay_block(tay_fileName(), tayPos);
-  }
-
   // puts a taylor value from the value stack buffer to the taylor buffer
   void get_taylor(size_t loc) { tapeInfos_.get_taylor(loc); }
 
