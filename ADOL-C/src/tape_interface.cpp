@@ -130,7 +130,7 @@ void printTapeStats(short tapeId) {
       << "\n"
       << "Number of dependents: " << stats[TapeInfos::NUM_DEPENDENTS] << "\n"
       << "Max # of live adoubles: " << stats[TapeInfos::NUM_MAX_LIVES] << "\n"
-      << "Taylor stack size: " << stats[TapeInfos::TAY_STACK_SIZE] << "\n"
+      << "Taylor stack size: " << stats[TapeInfos::NUM_TAYS] << "\n"
       << "Number of operations: " << stats[TapeInfos::NUM_OPERATIONS] << "\n"
       << "Number of locations: " << stats[TapeInfos::NUM_LOCATIONS] << "\n"
       << "Number of values: " << stats[TapeInfos::NUM_VALUES] << "\n"

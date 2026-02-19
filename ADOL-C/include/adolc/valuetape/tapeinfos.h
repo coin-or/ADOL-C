@@ -13,7 +13,7 @@ struct TapeInfos {
     NUM_INDEPENDENTS, /* # of independent variables */
     NUM_DEPENDENTS,   /* # of dependent variables */
     NUM_MAX_LIVES,    /* max # of live variables */
-    TAY_STACK_SIZE,   /* # of values in the taylor (value) stack */
+    NUM_TAYS,         /* # of values in the taylor (value) stack */
     OP_BUFFER_SIZE,  /* # of operations per buffer == OBUFSIZE   (usrparms.h) */
     NUM_OPERATIONS,  /* overall # of operations */
     OP_FILE_ACCESS,  /* operations file written or not */

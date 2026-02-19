@@ -224,7 +224,7 @@ void ValueTape::taylor_close(bool resetData) {
     numTays_Tape(currTay() - tayBuffer());
   }
   lastTayBlockInCore(1);
-  tapestats(TapeInfos::TAY_STACK_SIZE, numTays_Tape());
+  tapestats(TapeInfos::NUM_TAYS, numTays_Tape());
 
   /* keep track of the Ind/Dep counts of the taylor stack */
   tay_numInds(tapestats(TapeInfos::NUM_INDEPENDENTS));
@@ -396,15 +396,14 @@ void ValueTape::stop_trace(int flag) {
   if (keepTaylors())
     taylor_close(true);
 
-  tapestats(TapeInfos::TAY_STACK_SIZE, numTays_Tape());
+  tapestats(TapeInfos::NUM_TAYS, numTays_Tape());
 
   /* The taylor stack size base estimation results in a doubled taylor count
    * if we tape with keep (taylors counted in adouble.cpp/avector.cpp and
    * "keep_stock" even if not written and a second time when actually
    * written by "put_tay_block"). Correction follows here. */
   if (keepTaylors() != 0 && tay_file()) {
-    tapestats(TapeInfos::TAY_STACK_SIZE,
-              tapestats(TapeInfos::TAY_STACK_SIZE) / 2);
+    tapestats(TapeInfos::NUM_TAYS, tapestats(TapeInfos::NUM_TAYS) / 2);
     numTays_Tape(numTays_Tape() / 2);
   }
 

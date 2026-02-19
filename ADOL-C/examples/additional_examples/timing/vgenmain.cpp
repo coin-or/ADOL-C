@@ -267,7 +267,7 @@ int main() {
   fprintf(stdout, "    maxlive                 %zu\n",
           tape_stats[TapeInfos::NUM_MAX_LIVES]);
   fprintf(stdout, "    valstack size           %zu\n\n",
-          tape_stats[TapeInfos::TAY_STACK_SIZE]);
+          tape_stats[TapeInfos::NUM_TAYS]);
 
   fprintf(stdout, "           ");
   fprintf(stdout, TIMEFORMAT, (t01 - t00) * timeUnit * evalCount, (t01 - t00));
