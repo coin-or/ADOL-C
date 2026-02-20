@@ -44,8 +44,8 @@ int abs_normal(short tag,       /* tape identifier */
                double **Z,      /* s times n */
                double **L)      /* s times s (lowtri) */
 {
-  const size_t s = get_num_switches(tag);
 
+  const size_t s = get_num_switches(tag);
   /* This check is required because the user is probably allocating his
    * arrays sigma, cz, Z, L, Y, J according to swchk */
   if (s != to_size_t(swchk))
@@ -56,7 +56,6 @@ int abs_normal(short tag,       /* tape identifier */
   std::vector<double> res(n + s);
 
   zos_pl_forward(tag, m, n, 1, x, y, z);
-
   std::ptrdiff_t l = 0;
   for (size_t i = 0; i < m + s; i++) {
     l = static_cast<std::ptrdiff_t>(i) - static_cast<std::ptrdiff_t>(s);

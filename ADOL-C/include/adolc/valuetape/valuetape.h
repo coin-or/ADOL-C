@@ -35,6 +35,7 @@ struct ext_diff_fct;
 struct ext_diff_fct_v2;
 
 using ADOLC::detail::InfoType;
+using ADOLC::detail::InfoTypeBase;
 using ADOLC::detail::LocInfo;
 using ADOLC::detail::OpInfo;
 using ADOLC::detail::ValInfo;
@@ -652,6 +653,18 @@ public:
   // gets the next (previous block) of the value stack
   void get_tay_block_r() { return tapeInfos_.get_tay_block_r(); }
 
+  /**
+   * @brief Return the tape file name associated with the given Info adapter.
+   *
+   * Maps an Info type (Op/Loc/Val) to the corresponding per-tape filename
+   * stored in perTapeInfos_. This is used to open the correct backing file for
+   * the current sweep.
+   *
+   * Note:
+   *  - Only OpInfoT, LocInfoT, ValInfoT are supported here.
+   *  - TayInfo is intentionally not part of this dispatch (different
+   * lifecycle).
+   */
   template <InfoType<TapeInfos, ErrorType> Info> std::string_view fileName() {
     if constexpr (std::is_same_v<Info, OpInfoT>)
       return perTapeInfos_.op_fileName;
@@ -664,10 +677,25 @@ public:
       static_assert(!std::is_same_v<Info, Info>, "Not Implemented!");
   }
 
+  /// Simple type list used to run prepare_* for all tape types via
+  /// fold-expressions.
   template <typename... Ts> struct AllTypes {};
   using AllInfoTypes = AllTypes<OpInfoT, LocInfoT, ValInfoT>;
 
-  template <InfoType<TapeInfos, ErrorType> Info>
+  /**
+   * @brief Read the trailing partial chunk of a block from the tape file.
+   *
+   * readLastBloc() reads full chunks of size Info::chunkSize. If lengthBlock is
+   * not a multiple of chunkSize, this reads the remaining elements at the end.
+   *
+   * Preconditions:
+   *  - Info::file(tapeInfos_) is open and positioned at the start of the block.
+   *  - numChunks == lengthBlock / Info::chunkSize.
+   *
+   * Errors:
+   *  - Fails with Info::error if the fread does not succeed.
+   */
+  template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void readRemaining(size_t numChunks, size_t lengthBlock) {
     using ADOLCError::fail;
     // numChunks + remain = lengthBlock
@@ -681,10 +709,25 @@ public:
     }
   }
 
-  template <InfoType<TapeInfos, ErrorType> Info>
-  void readLastBloc(size_t lengthLB) {
+  /**
+   * @brief Read a block (up to lengthBlock elements) from a tape file
+   * into the in-memory buffer.
+   *
+   * Reads lengthBlock elements starting at the current file position into the
+   * buffer (Info::bufferBegin). Data is read in full chunks of Info::chunkSize,
+   * plus an optional trailing partial chunk via readRemaining().
+   *
+   * Preconditions:
+   *  - Info::file(tapeInfos_) is open and positioned at the start of the region
+   *    to read (typically the beginning of "block" on disk).
+   *
+   * Errors:
+   *  - Fails with Info::error if any fread does not succeed.
+   */
+  template <InfoTypeBase<TapeInfos, ErrorType> Info>
+  void readBloc(size_t lengthBlock) {
     using ADOLCError::fail;
-    const size_t numChunks = lengthLB / Info::chunkSize;
+    const size_t numChunks = lengthBlock / Info::chunkSize;
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
       auto returnCode =
           fread(Info::bufferBegin(tapeInfos_) + (chunk * Info::chunkSize),
@@ -693,22 +736,46 @@ public:
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
-    readRemaining<Info>(numChunks, lengthLB);
+    readRemaining<Info>(numChunks, lengthBlock);
   }
 
+  /**
+   * @brief Prepare for a forward sweep.
+   *
+   * If something is stored on disk (tapestats(Info::fileAccess)!=0), this
+   * function opens the tape file, preloads up to one block of data into the
+   * in-memory buffer, and sets the internal counters/pointers so subsequent
+   * reads can continue from the correct position.
+   *
+   * The logic is:
+   *  - optionally read a block into buffer (up to bufferSize)
+   *  - set the remaining element count (Info::num) to what is still left on
+   * disk after the preload
+   *  - initialize the current buffer pointer (Info::curr)
+   *
+   * If nothing was written to disk, we assume all data is already in memory
+   * and only initialize the counters/pointers accordingly.
+   *
+   * Special case:
+   *  - Loc tape adjusts the current pointer based on statSpace and may trigger
+   *    get_loc_block_f() to align buffer state with statistics bookkeeping.
+   */
   template <InfoType<TapeInfos, ErrorType> Info> void prepare_for() {
     size_t lengthBlock = 0;
     if (tapestats(Info::fileAccess) == 1) {
       Info::openFile(tapeInfos_, fileName<Info>());
-      // how much to read from file
+
+      // preload at most one block, but never more than total elements on tape
       lengthBlock = std::min(tapestats(Info::bufferSize), tapestats(Info::num));
       if (lengthBlock != 0) {
-        readLastBloc<Info>(lengthBlock);
+        readBloc<Info>(lengthBlock);
       }
+      // remaining elements still residing on disk (not yet in buffer)
       lengthBlock = tapestats(Info::num) - lengthBlock;
     }
     Info::setNum(tapeInfos_, lengthBlock);
     if constexpr (std::is_same_v<Info, LocInfoT>) {
+      // location pointer initialization depends on statSpace bookkeeping
       size_t numLocsForStats = statSpace;
       while (numLocsForStats >= tapestats(Info::bufferSize)) {
         get_loc_block_f();
@@ -720,8 +787,20 @@ public:
       Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_));
     }
   }
-  template <InfoType<TapeInfos, ErrorType> Info> void setFilePosition() {
-    // set file pos to beginning of last block
+
+  /**
+   * @brief Position the tape file at the beginning of the last on-disk block.
+   *
+   * Computes the offset of the last full block boundary:
+   *   floor(num / bufferSize) * bufferSize
+   * and seeks the file to that position (in bytes).
+   *
+   * Used by reverse sweeps to read the final block of the tape first.
+   *
+   * Preconditions:
+   *  - tapestats(Info::num) and tapestats(Info::bufferSize) are initialized.
+   */
+  template <InfoTypeBase<TapeInfos, ErrorType> Info> void setFilePosition() {
     auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
                   tapestats(Info::bufferSize);
     auto offset = static_cast<long>(number * sizeof(typename Info::value));
@@ -729,38 +808,79 @@ public:
     fseek(Info::file(tapeInfos_), offset, SEEK_SET);
   }
 
+  /**
+   * @brief Prepare for reverse sweep.
+   *
+   * Reverse sweeps start at the end of the tape. If data was written to disk,
+   * this function seeks to the last on-disk block and preloads the (possibly
+   * partial) final block into the in-memory buffer.
+   *
+   * After the preload:
+   *  - Info::num is set to the number of elements still remaining on disk
+   *    before the loaded block.
+   *  - Info::curr is set to the end of the loaded region inside the buffer
+   *    (bufferBegin + lengthLB), so reverse logic can walk backwards.
+   *
+   * If nothing was written to disk, we assume all data is already in memory
+   * and only initialize the counters/pointers accordingly.
+   */
   template <InfoType<TapeInfos, ErrorType> Info> void prepare_rev() {
     size_t lengthLB = tapestats(Info::num);
     if (tapestats(Info::fileAccess) == 1) {
-      // set file pos to beginning of last block
       setFilePosition<Info>();
+
+      // size of last (possibly partial) block
       lengthLB = tapestats(Info::num) % tapestats(Info::bufferSize);
       if (lengthLB != 0) {
-        readLastBloc<Info>(lengthLB);
+        readBloc<Info>(lengthLB);
       }
     }
     Info::setNum(tapeInfos_, tapestats(Info::num) - lengthLB);
     Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_) + lengthLB);
   }
 
+  /**
+   * @brief Run prepare_for() for all tape types listed in AllTypes.
+   *
+   * This is just a compile-time loop (fold expression) over the Info types.
+   */
   template <InfoType<TapeInfos, ErrorType>... Infos>
   void prepare_for_all(AllTypes<Infos...> /*unused*/) {
     (prepare_for<Infos>(), ...);
   }
 
+  /**
+   * @brief Run prepare_for() for all tape types listed in AllTypes.
+   *
+   * This is just a compile-time loop (fold expression) over the Info types.
+   */
   template <InfoType<TapeInfos, ErrorType>... Infos>
   void prepare_rev_all(AllTypes<Infos...> /*unused*/) {
     (prepare_rev<Infos>(), ...);
   }
 
+  /// Tag types selecting sweep direction for init_sweep().
   struct Mode {};
   struct Forward : Mode {};
   struct Reverse : Mode {};
 
-  /****************************************************************************/
-  /* Initialize a forward sweep or reverse sweep. Get stats, open tapes,
-   * fill buffers, ... */
-  /****************************************************************************/
+  /**
+   * @brief Initialize a tape sweep.
+   *
+   * Performs the common setup required before starting either a forward or
+   * reverse sweep.
+   *
+   * Actions performed:
+   *  - Reads or refreshes tape statistics.
+   *  - Allocates and initializes in-memory tape buffers.
+   *  - Prepares all tape types depending on the sweep direction:
+   *      * Forward:  open files and preload initial data blocks.
+   *      * Reverse:  seek to last on-disk block and preload final data.
+   *  - If ADOLC_AMPI_SUPPORT is enabled, resets the AMPI stack bounds
+   *    (bottom for forward, top for reverse).
+   *
+   * @tparam Mode Sweep direction selector. Must be either Forward or Reverse.
+   */
   template <class Mode> void init_sweep() {
     using namespace ADOLC::detail;
     /* make room for tapeInfos and read tape stats if necessary, keep value

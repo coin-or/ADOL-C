@@ -8,7 +8,7 @@
 #include <array>
 #include <memory>
 
-using ADOLC::detail::InfoType;
+using ADOLC::detail::InfoTypeBase;
 using ADOLC::detail::TayInfo;
 using ADOLCError::ErrorType;
 struct TapeInfos {
@@ -213,7 +213,38 @@ struct TapeInfos {
   void get_op_block_f();
   void get_op_block_r();
 
-  template <InfoType<TapeInfos, ErrorType> Info>
+  /**
+   * @brief Ensure that the tape file associated with Info exists and is ready
+   *        for writing.
+   *
+   * This function lazily creates (or recreates) the file represented by the
+   * Info adapter. The behavior differs slightly between normal tapes
+   * (Op/Loc/Val) and the Taylor tape:
+   *
+   *  - Op/Loc/Val tapes:
+   *      If the file does not yet exist, we first probe for an existing file
+   *      with the same name. If such a file is present it is removed, and a
+   *      new empty file is created in binary write mode ("wb").
+   *
+   *      This guarantees that a fresh recording always starts with a clean
+   *      tape and no leftover data from a previous run.
+   *
+   *  - Taylor tape:
+   *      The Taylor tape is opened using "w+b". Unlike the other tapes, it is
+   *      not removed beforehand because we want to keep already stored data.
+   *
+   * The function does nothing if the file is already open.
+   *
+   * Errors:
+   *  - Fails with CANNOT_REMOVE_FILE if an old tape file cannot be deleted.
+   *
+   * Notes:
+   *  - The actual file handle and buffer fields are provided by the Info
+   * adapter.
+   *  - The class itself does not know which concrete members are used; Info
+   * maps the generic operations to the appropriate TInfos fields.
+   */
+  template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void openFile(std::string_view fileName) {
     using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
     if (Info::file(*this) == nullptr) {
@@ -235,11 +266,29 @@ struct TapeInfos {
     }
   }
 
-  /****************************************************************************/
-  /* Writes a block of operations onto hard disk and handles file creation,   */
-  /* removal, ...                                                             */
-  /****************************************************************************/
-  template <InfoType<TapeInfos, ErrorType> Info>
+  /**
+   * @brief Flush the current in-memory tape buffer to disk.
+   *
+   * Writes all elements from the beginning of the Info buffer up to bufferPos
+   * to the tape file in fixed-size chunks (Info::chunkSize).  A final partial
+   * chunk is written if necessary.
+   *
+   * After the write:
+   *   - the total number of stored elements (Info::num) is increased,
+   *   - the current buffer pointer is reset to the start of the buffer.
+   *
+   * The file is created automatically if it does not yet exist (see
+   * openFile()).
+   *
+   * Errors:
+   *  - Fails with TAPING_FATAL_IO_ERROR if any write operation fails.
+   *
+   * Notes:
+   *  - This function implements the buffered tape output mechanism of ADOL-C.
+   *    The buffer accumulates operations/locations/values in memory and is
+   *    periodically flushed to disk to avoid excessive I/O calls.
+   */
+  template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void put_block(std::string_view fileName,
                  const typename Info::value *bufferPos) {
     using ADOLCError::fail;
@@ -247,8 +296,11 @@ struct TapeInfos {
     using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
 
     openFile<Info>(fileName);
+
     const std::size_t lengthBlock = bufferPos - Info::bufferBegin(*this);
     const size_t numChunks = lengthBlock / Info::chunkSize;
+
+    // write full chunks
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
       auto returnCode = fwrite(
           Info::bufferBegin(*this) + (chunk * Info::chunkSize),
@@ -256,6 +308,8 @@ struct TapeInfos {
       if (returnCode != 1)
         fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
     }
+
+    // write one final partial chunk
     const size_t remain = lengthBlock % Info::chunkSize;
     if (remain != 0) {
       auto returnCode =
@@ -264,6 +318,7 @@ struct TapeInfos {
       if (returnCode != 1)
         fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
     }
+
     Info::setNum(*this, Info::getNum(*this) + lengthBlock);
     Info::setCurr(*this, Info::bufferBegin(*this));
   }
