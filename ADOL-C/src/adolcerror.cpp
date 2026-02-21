@@ -299,8 +299,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     throw ADOLCError(
         "ADOL-C warning: change from native Min/Max to using Abs during "
         "tracing will lead to inconsistent results, not changing behaviour "
-        "now\n call enableMinMaxUsingAbs before trace_on(tapeId) for the "
-        "correct behaviour\n",
+        "now.\n Call currentTape().enableMinMaxUsingAbs before "
+        "trace_on(tapeId) for the correct behaviour. (after setting the "
+        "correspoding tape to the current one!)\n",
         LocInfo);
     break;
 
@@ -452,9 +453,9 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
 
   case to_underlying(ErrorType::NO_MINMAX):
     oss << "ADOL-C error: Tape " << failinfo.info1
-        << " is not created compatible "
-           "for abs norm\n Please "
-           "call enableMinMaxUsingAbs() before tracing\n";
+        << " is not created compatible for abs norm\n Please call "
+           "currentTape().enableMinMaxUsingAbs() before tracing. (after "
+           "setting the correspoding tape to the current one!) \n";
     throw ADOLCError(oss.str(), LocInfo);
     break;
 
