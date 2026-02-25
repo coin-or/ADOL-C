@@ -1063,11 +1063,12 @@ int hov_forward(
 
   /****************************************************************************/
   /*                                                                    INITs */
-
+     tape.workMode(TapeInfos::READ_ACCESS);
   /* Set up stuff for the tape */
 
+
   /* Initialize the Forward Sweep */
-  tape.init_sweep<ValueTape::Forward>();
+  auto reader = tape.init_sweep<ValueTape::Forward>();
 
   if ((to_size_t(depcheck) != tape.tapestats(TapeInfos::NUM_DEPENDENTS)) ||
       (to_size_t(indcheck) != tape.tapestats(TapeInfos::NUM_INDEPENDENTS)))
@@ -1102,14 +1103,10 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #if !defined(_NTIGHT_)
   dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.dp_T0(dp_T0);
+  reader.dp_T0 = dp_T0;
 
   if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
-    if (tape.signature()) {
-      delete[] tape.signature();
-      tape.signature(nullptr);
-    }
-    tape.signature(new double[tape.tapestats(TapeInfos::NUM_SWITCHES)]);
+    reader.signature = new double[tape.tapestats(TapeInfos::NUM_SWITCHES)];
   }
 #endif             /* !_NTIGHT_ */
 #if defined(_ZOS_) /* ZOS */
@@ -1121,8 +1118,7 @@ int hov_forward(
 #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = tape.tapestats(TapeInfos::TAY_BUFFER_SIZE);
-
-    tape.taylor_begin(taylbuf, keep - 1);
+    tape.taylor_begin(reader, taylbuf, keep - 1);
   }
 #endif
 
@@ -5958,6 +5954,7 @@ int hov_forward(
 #if defined(_ZOS_) && defined(_ABS_NORM_)
 size_t get_num_switches(short tapeId) {
   ValueTape &tape = findTape(tapeId);
+  tape.workMode(TapeInfos::READ_ACCESS);
   tape.init_sweep<ValueTape::Forward>();
   if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
     ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,

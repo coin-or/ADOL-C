@@ -415,6 +415,7 @@ int int_reverse_safe(
   /*                                                                    INITs */
 
   /*------------------------------------------------------------------------*/
+  tape.workMode(TapeInfos::READ_ACCESS);
   /* Set up stuff for the tape */
   /* Initialize the Reverse Sweep */
   tape.init_sweep<ValueTape::Reverse>();

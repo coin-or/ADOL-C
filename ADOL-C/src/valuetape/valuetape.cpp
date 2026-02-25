@@ -1,3 +1,4 @@
+#include "adolc/valuetape/tape_reader.h"
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/internal/common.h>
@@ -80,13 +81,12 @@ int ValueTape::initNewTape() {
   tapestats(TapeInfos::LOC_BUFFER_SIZE, locationBufferSize());
   tapestats(TapeInfos::VAL_BUFFER_SIZE, valueBufferSize());
   tapestats(TapeInfos::TAY_BUFFER_SIZE, taylorBufferSize());
-  ;
   return 0;
 }
 
 /* opens an existing tape or creates a new handle for a tape on hard disk
  * - called from init_for_sweep and init_rev_sweep */
-void ValueTape::openTape() {
+void ValueTape::openTape(TapeReader &reader) const {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::TAPING_TAPE_STILL_IN_USE;
@@ -100,11 +100,8 @@ void ValueTape::openTape() {
              tapestats(TapeInfos::VAL_FILE_ACCESS) == 1) {
     if (tay_file())
       rewind(tay_file());
-    initTapeInfos_keep();
-    read_tape_stats();
+    read_tape_stats(reader);
   }
-  // must be after initTapeInfos_keep, to not get overwritten!
-  workMode(TapeInfos::READ_ACCESS);
 }
 
 /* record all existing adoubles on the tape
@@ -173,12 +170,13 @@ size_t ValueTape::keep_stock() {
 /****************************************************************************/
 /* Set up statics for writing taylor data                                   */
 /****************************************************************************/
-void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
+void ValueTape::taylor_begin(TapeReader &reader, size_t bufferSize,
+                             int degreeSave) const {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::TAPING_TBUFFER_ALLOCATION_FAILED;
 
-  if (tayBuffer()) {
+  if (reader.tayBuffer_) {
 #if defined(ADOLC_DEBUG)
     fprintf(DIAG_OUT,
             "\nADOL-C warning: !!! Taylor information for tape %d"
@@ -220,7 +218,7 @@ void ValueTape::taylor_close() {
       tapeInfos_.put_block<TayInfo<TapeInfos, ErrorType>>(
           perTapeInfos_.tay_fileName, currTay());
   } else {
-    numTays_Tape(currTay() - tayBuffer());
+    reader.numTays_Tape_ = reader.currTay_ - reader.tayBuffer_;
   }
   lastTayBlockInCore(1);
   tapestats(TapeInfos::NUM_TAYS, numTays_Tape());
@@ -462,11 +460,11 @@ void ValueTape::close_tape(int flag) {
 /****************************************************************************/
 /* Reads parameters from the end of value tape for disk based tapes         */
 /****************************************************************************/
-void ValueTape::read_params() {
+void ValueTape::read_params(TapeReader &reader) const {
   constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
 
-  if (!paramstore())
-    paramstore(new double[tapestats(TapeInfos::NUM_PARAM)]);
+  if (reader.paramstore() == nullptr)
+    reader.paramstore(new double[tapestats(TapeInfos::NUM_PARAM)]);
 
   double *valBuffer = new double[tapestats(TapeInfos::VAL_BUFFER_SIZE)];
   double *lastValP1 = valBuffer + tapestats(TapeInfos::VAL_BUFFER_SIZE);
@@ -508,7 +506,7 @@ void ValueTape::read_params() {
   while (ip > 0) {
     size_t avail = currVal - valBuffer;
     size_t rsize = (avail < ip) ? avail : ip;
-    double *paramstore_view = paramstore();
+    double *paramstore_view = reader.paramstore();
     for (size_t i = 0; i < rsize; ++i)
       paramstore_view[--ip] = *--currVal;
 
@@ -608,7 +606,7 @@ void ValueTape::compare_adolc_ids(const ADOLC_ID &id1, const ADOLC_ID &id2) {
 /****************************************************************************/
 /* Does the actual reading from the hard disk into the stats buffer */
 /****************************************************************************/
-void ValueTape::read_tape_stats() {
+void ValueTape::read_tape_stats(TapeReader &reader) const {
   using ADOLCError::fail;
   using ADOLCError::FailInfo;
   using ADOLCError::ErrorType::INTEGER_TAPE_FOPEN_FAILED;
@@ -618,7 +616,7 @@ void ValueTape::read_tape_stats() {
   FILE *loc_file = fopen(loc_fileName(), "rb");
   if (loc_file == nullptr ||
       (fread(&tape_ADOLC_ID, sizeof(ADOLC_ID), 1, loc_file) != 1) ||
-      (fread(tapestats().data(), TapeInfos::STAT_SIZE * sizeof(size_t), 1,
+      (fread(reader.stats().data(), TapeInfos::STAT_SIZE * sizeof(size_t), 1,
              loc_file) != 1)) {
     fail(INTEGER_TAPE_FOPEN_FAILED, CURRENT_LOCATION,
          FailInfo{.info1 = tapeId()});
@@ -627,7 +625,7 @@ void ValueTape::read_tape_stats() {
   compare_adolc_ids(get_adolc_id(), tape_ADOLC_ID);
   fclose(loc_file);
   if (tapestats(TapeInfos::NUM_PARAM) > 0)
-    read_params();
+    read_params(reader);
 }
 
 /****************************************************************************/

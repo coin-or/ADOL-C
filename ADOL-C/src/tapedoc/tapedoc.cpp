@@ -266,6 +266,7 @@ void tape_doc(short tnum,     /* tape id */
   int i;
   double aDouble;
 #endif
+  tape.workMode(TapeInfos::READ_ACCESS);
   tape.init_sweep<ValueTape::Forward>();
   tag = tnum;
 

@@ -13,6 +13,7 @@
 #include <adolc/valuetape/globaltapevarscl.h>
 #include <adolc/valuetape/infotype.h>
 #include <adolc/valuetape/persistanttapeinfos.h>
+#include <adolc/valuetape/tape_reader.h>
 #include <adolc/valuetape/tapeinfos.h>
 #include <cstdarg>
 #include <cstdio>
@@ -197,9 +198,9 @@ public:
   void forodec_Z(double **Z) { perTapeInfos_.forodec_Z = Z; }
 
   // Interface to TapeInfos
-  void read_params();
+  void read_params(TapeReader &reader) const;
   void compare_adolc_ids(const ADOLC_ID &id1, const ADOLC_ID &id2);
-  void read_tape_stats();
+  void read_tape_stats(TapeReader &reader) const;
   /****************************************************************************/
   /* Tapestats: */
   /* Returns statistics on the tape tag with following meaning: */
@@ -454,7 +455,7 @@ public:
   // free all resources used by a tape before overwriting the tape
   void freeTapeResources() { tapeInfos_.freeTapeResources(); }
   // free/allocate memory for buffers, initialize pointers
-  void initTapeBuffers();
+  void initTapeBuffers(TapeReader &reader) const;
 
   //--------------------------------------------------------------
 
@@ -694,14 +695,14 @@ public:
    *  - Fails with Info::error if the fread does not succeed.
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
-  void readRemaining(size_t numChunks, size_t lengthBlock) {
+  void readRemaining(size_t numChunks, size_t lengthBlock, TapeReader &reader) {
     using ADOLCError::fail;
     // numChunks + remain = lengthBlock
     const size_t remain = lengthBlock % Info::chunkSize;
     if (remain > 0) {
-      auto returnCode = fread(
-          Info::bufferBegin(tapeInfos_) + (numChunks * Info::chunkSize),
-          remain * sizeof(typename Info::value), 1, Info::file(tapeInfos_));
+      auto returnCode =
+          fread(Info::bufferBegin(reader) + (numChunks * Info::chunkSize),
+                remain * sizeof(typename Info::value), 1, Info::file(reader));
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
@@ -723,18 +724,18 @@ public:
    *  - Fails with Info::error if any fread does not succeed.
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
-  void readBloc(size_t lengthBlock) {
+  void readBloc(size_t lengthBlock, TapeReader &reader) {
     using ADOLCError::fail;
     const size_t numChunks = lengthBlock / Info::chunkSize;
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
       auto returnCode =
-          fread(Info::bufferBegin(tapeInfos_) + (chunk * Info::chunkSize),
+          fread(Info::bufferBegin(reader) + (chunk * Info::chunkSize),
                 Info::chunkSize * sizeof(typename Info::value), 1,
-                Info::file(tapeInfos_));
+                Info::file(reader));
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
-    readRemaining<Info>(numChunks, lengthBlock);
+    readRemaining<Info>(numChunks, lengthBlock, reader);
   }
 
   /**
@@ -758,31 +759,31 @@ public:
    *  - Loc tape adjusts the current pointer based on statSpace and may trigger
    *    get_loc_block_f() to align buffer state with statistics bookkeeping.
    */
-  template <InfoType<TapeInfos, ErrorType> Info> void prepare_for() {
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void prepare_for(TapeReader &reader) {
     size_t lengthBlock = 0;
     if (tapestats(Info::fileAccess) == 1) {
-      Info::openFile(tapeInfos_, fileName<Info>());
+      Info::openFile(reader, fileName<Info>());
 
       // preload at most one block, but never more than total elements on tape
       lengthBlock = std::min(tapestats(Info::bufferSize), tapestats(Info::num));
       if (lengthBlock != 0) {
-        readBloc<Info>(lengthBlock);
+        readBloc<Info>(lengthBlock, reader);
       }
       // remaining elements still residing on disk (not yet in buffer)
       lengthBlock = tapestats(Info::num) - lengthBlock;
     }
-    Info::setNum(tapeInfos_, lengthBlock);
+    Info::setNum(reader, lengthBlock);
     if constexpr (std::is_same_v<Info, LocInfoT>) {
       // location pointer initialization depends on statSpace bookkeeping
       size_t numLocsForStats = statSpace;
       while (numLocsForStats >= tapestats(Info::bufferSize)) {
-        get_loc_block_f();
+        get_loc_block_f(reader);
         numLocsForStats -= tapestats(Info::bufferSize);
       }
-      Info::setCurr(tapeInfos_,
-                    Info::bufferBegin(tapeInfos_) + numLocsForStats);
+      Info::setCurr(reader, Info::bufferBegin(reader) + numLocsForStats);
     } else {
-      Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_));
+      Info::setCurr(reader, Info::bufferBegin(reader));
     }
   }
 
@@ -798,12 +799,13 @@ public:
    * Preconditions:
    *  - tapestats(Info::num) and tapestats(Info::bufferSize) are initialized.
    */
-  template <InfoTypeBase<TapeInfos, ErrorType> Info> void setFilePosition() {
+  template <InfoTypeBase<TapeInfos, ErrorType> Info>
+  void setFilePosition(TapeInfos &reader) {
     auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
                   tapestats(Info::bufferSize);
     auto offset = static_cast<long>(number * sizeof(typename Info::value));
-    Info::openFile(tapeInfos_, fileName<Info>());
-    fseek(Info::file(tapeInfos_), offset, SEEK_SET);
+    Info::openFile(reader, fileName<Info>());
+    fseek(Info::file(reader), offset, SEEK_SET);
   }
 
   /**
@@ -822,19 +824,20 @@ public:
    * If nothing was written to disk, we assume all data is already in memory
    * and only initialize the counters/pointers accordingly.
    */
-  template <InfoType<TapeInfos, ErrorType> Info> void prepare_rev() {
+  template <InfoType<TapeInfos, ErrorType> Info>
+  void prepare_rev(TapeReader &reader) const {
     size_t lengthLB = tapestats(Info::num);
     if (tapestats(Info::fileAccess) == 1) {
-      setFilePosition<Info>();
+      setFilePosition<Info>(reader);
 
       // size of last (possibly partial) block
       lengthLB = tapestats(Info::num) % tapestats(Info::bufferSize);
       if (lengthLB != 0) {
-        readBloc<Info>(lengthLB);
+        readBloc<Info>(lengthLB, reader);
       }
     }
-    Info::setNum(tapeInfos_, tapestats(Info::num) - lengthLB);
-    Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_) + lengthLB);
+    Info::setNum(reader, tapestats(Info::num) - lengthLB);
+    Info::setCurr(reader, Info::bufferBegin(reader) + lengthLB);
   }
 
   /**
@@ -843,8 +846,9 @@ public:
    * This is just a compile-time loop (fold expression) over the Info types.
    */
   template <InfoType<TapeInfos, ErrorType>... Infos>
-  void prepare_for_all(AllTypes<Infos...> /*unused*/) {
-    (prepare_for<Infos>(), ...);
+  void prepare_for_all(AllTypes<Infos...> /*unused*/,
+                       TapeReader &reader) const {
+    (prepare_for<Infos>(reader), ...);
   }
 
   /**
@@ -853,8 +857,9 @@ public:
    * This is just a compile-time loop (fold expression) over the Info types.
    */
   template <InfoType<TapeInfos, ErrorType>... Infos>
-  void prepare_rev_all(AllTypes<Infos...> /*unused*/) {
-    (prepare_rev<Infos>(), ...);
+  void prepare_rev_all(AllTypes<Infos...> /*unused*/,
+                       TapeReader &reader) const {
+    (prepare_rev<Infos>(reader), ...);
   }
 
   /// Tag types selecting sweep direction for init_sweep().
@@ -879,25 +884,26 @@ public:
    *
    * @tparam Mode Sweep direction selector. Must be either Forward or Reverse.
    */
-  template <class Mode> void init_sweep() {
+  template <class Mode> TapeReader init_sweep() const {
     using namespace ADOLC::detail;
     /* make room for tapeInfos and read tape stats if necessary, keep value
      * stack information */
-    openTape();
-    initTapeBuffers();
+    TapeReader reader(tapeInfos_);
+    openTape(reader);
     if constexpr (std::is_same_v<Mode, Forward>) {
-      prepare_for_all(AllInfoTypes{});
+      prepare_for_all(AllInfoTypes{}, reader);
 #ifdef ADOLC_AMPI_SUPPORT
       TAPE_AMPI_resetBottom();
 #endif
     } else if constexpr (std::is_same_v<Mode, Reverse>) {
-      prepare_rev_all(AllInfoTypes{});
+      prepare_rev_all(AllInfoTypes{}, reader);
 #ifdef ADOLC_AMPI_SUPPORT
       TAPE_AMPI_resetTop();
 #endif
     } else {
       static_assert(!std::is_same_v<Mode, Mode>, "Mode not implemented!");
     }
+    return reader;
   }
   // finish a forward or reverse sweep
   void end_sweep();
@@ -924,7 +930,7 @@ public:
 
   // ------------------- Combined methods ------------------------
   // opens an existing tape or creates a new one
-  void openTape();
+  void openTape(TapeReader &reader) const;
 
   // updates the tape infos for the given ID - a tapeInfos struct is created
   // and registered if non is found but its state will remain "not in use"
