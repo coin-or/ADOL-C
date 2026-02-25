@@ -43,17 +43,17 @@ TapeInfos::~TapeInfos() {
 
 TapeInfos::TapeInfos(TapeInfos &&other) noexcept
     : tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
-      keepTaylors(other.keepTaylors), traceFlag(other.traceFlag),
-      op_file(other.op_file), opBuffer(other.opBuffer), currOp(other.currOp),
-      lastOpP1(other.lastOpP1), numOps_Tape(other.numOps_Tape),
-      num_eq_prod(other.num_eq_prod), val_file(other.val_file),
-      valBuffer(other.valBuffer), currVal(other.currVal),
-      lastValP1(other.lastValP1), numVals_Tape(other.numVals_Tape),
-      loc_file(other.loc_file), locBuffer(other.locBuffer),
-      currLoc(other.currLoc), lastLocP1(other.lastLocP1),
-      numLocs_Tape(other.numLocs_Tape), tay_file(other.tay_file),
-      tayBuffer(other.tayBuffer), currTay(other.currTay),
-      lastTayP1(other.lastTayP1), numTays_Tape(other.numTays_Tape),
+      keepTaylors(other.keepTaylors), op_file(other.op_file),
+      opBuffer(other.opBuffer), currOp(other.currOp), lastOpP1(other.lastOpP1),
+      numOps_Tape(other.numOps_Tape), num_eq_prod(other.num_eq_prod),
+      val_file(other.val_file), valBuffer(other.valBuffer),
+      currVal(other.currVal), lastValP1(other.lastValP1),
+      numVals_Tape(other.numVals_Tape), loc_file(other.loc_file),
+      locBuffer(other.locBuffer), currLoc(other.currLoc),
+      lastLocP1(other.lastLocP1), numLocs_Tape(other.numLocs_Tape),
+      tay_file(other.tay_file), tayBuffer(other.tayBuffer),
+      currTay(other.currTay), lastTayP1(other.lastTayP1),
+      numTays_Tape(other.numTays_Tape),
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
@@ -121,7 +121,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     numInds = other.numInds;
     numDeps = other.numDeps;
     keepTaylors = other.keepTaylors;
-    traceFlag = other.traceFlag;
     std::copy(std::begin(other.stats), std::end(other.stats),
               std::begin(stats));
 

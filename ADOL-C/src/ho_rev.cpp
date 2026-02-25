@@ -425,7 +425,6 @@ int hov_ti_reverse(
 
   locint n, m;
   ext_diff_fct *edfct = nullptr;
-  int oldTraceFlag;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
   rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
@@ -2856,9 +2855,6 @@ int hov_ti_reverse(
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
-      oldTraceFlag = tape.traceFlag();
-      tape.traceFlag(0);
-
       /* degree is not known when registering external functions,
          so do memory allocation here (at least for now) */
       double **dpp_U = new double *[m];
@@ -2955,8 +2951,6 @@ int hov_ti_reverse(
           GET_TAYL(arg, k, p);
         }
       }
-      tape.traceFlag(oldTraceFlag);
-
       delete[] dpp_Z;
       delete[] dpp_U;
 

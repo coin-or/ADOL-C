@@ -175,23 +175,18 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
   init_edf(edf);
 
   ValueTape &tape = findTape(cpInfos->tapeId);
-  int oldTraceFlag = 0;
   // but we do not call it
   // we use direct taping to avoid unnecessary argument copying
-  if (tape.traceFlag()) {
-    tape.put_op(ext_diff);
-    tape.put_loc(edf->index);
-    tape.put_loc(0);
-    tape.put_loc(0);
-    tape.put_loc(cpInfos->adp_x[0].loc());
-    tape.put_loc(cpInfos->adp_y[0].loc());
-    // this CpInfos id has to be read by the actual checkpointing
-    // functions
-    tape.put_loc(cpInfos->index);
 
-    oldTraceFlag = tape.traceFlag();
-    tape.traceFlag(0);
-  }
+  tape.put_op(ext_diff);
+  tape.put_loc(edf->index);
+  tape.put_loc(0);
+  tape.put_loc(0);
+  tape.put_loc(cpInfos->adp_x[0].loc());
+  tape.put_loc(cpInfos->adp_y[0].loc());
+  // this CpInfos id has to be read by the actual checkpointing
+  // functions
+  tape.put_loc(cpInfos->index);
 
   std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
 
@@ -213,12 +208,11 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
 
   // update taylor stack; same structure as in adouble.cpp +
   // correction in taping.cpp
-  if (oldTraceFlag) {
-    tape.add_numTays_Tape(cpInfos->dim);
-    if (tape.keepTaylors())
-      for (int i = 0; i < cpInfos->dim; ++i)
-        tape.write_scaylor(cpInfos->adp_y[i].value());
-  }
+  tape.add_numTays_Tape(cpInfos->dim);
+  if (tape.keepTaylors())
+    for (int i = 0; i < cpInfos->dim; ++i)
+      tape.write_scaylor(cpInfos->adp_y[i].value());
+
   // save results
   for (int i = 0; i < cpInfos->dim; ++i) {
     cpInfos->adp_y[i].value(cpInfos->dp_internal_for[i]);
@@ -226,10 +220,6 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
 
   delete[] cpInfos->dp_internal_for;
   cpInfos->dp_internal_for = nullptr;
-
-  // normal taping again
-  tape.traceFlag(oldTraceFlag);
-
   return 0;
 }
 
@@ -273,8 +263,6 @@ int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
 
   ValueTape &tape = findTape(tapeId);
   // taping off
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
 
   // get checkpointing information
   CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
@@ -302,10 +290,6 @@ int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
   }
   delete[] cpInfos->dp_internal_for;
   cpInfos->dp_internal_for = nullptr;
-
-  // taping "on"
-  tape.traceFlag(oldTraceFlag);
-
   return 0;
 }
 
@@ -346,10 +330,6 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
-
-  // taping "off"
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
 
   size_t arg = tape.lowestYLoc_rev();
   for (int i = 0; i < cpInfos->dim; ++i) {
@@ -433,8 +413,6 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
   delete[] cpInfos->dp_internal_rev;
   cpInfos->dp_internal_rev = nullptr;
 
-  // taping "on"
-  tape.traceFlag(oldTraceFlag);
   return 0;
 }
 
@@ -448,10 +426,6 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   const int numDirs = tape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
-
-  // taping "off"
-  const int oldTraceFlag = tape.traceFlag();
-  tape.traceFlag(0);
 
   double **rpp_A = tape.rpp_A();
   size_t start = tape.lowestYLoc_rev();
@@ -541,10 +515,6 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   cpInfos->dp_internal_for = nullptr;
   myfree2(cpInfos->dpp_internal_rev);
   cpInfos->dpp_internal_rev = nullptr;
-
-  // taping "on"
-  tape.traceFlag(oldTraceFlag);
-
   return 0;
 }
 

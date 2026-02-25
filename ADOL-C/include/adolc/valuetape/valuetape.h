@@ -234,8 +234,6 @@ public:
   void deg_save(int val) { tapeInfos_.deg_save = val; }
   int deg_save() const { return tapeInfos_.deg_save; }
 
-  int traceFlag() const { return tapeInfos_.traceFlag; }
-  void traceFlag(int flag) { tapeInfos_.traceFlag = flag; }
   int keepTaylors() const { return tapeInfos_.keepTaylors; }
   void keepTaylors(int val) { tapeInfos_.keepTaylors = val; }
 
@@ -357,7 +355,6 @@ public:
     return tapeInfos_.put_op(op, loc_fileName(), op_fileName(), val_fileName(),
                              reserveExtraLocations);
   }
-  bool isTaping() { return tapeInfos_.traceFlag != 0; }
 
   /* writes a block of operations onto hard disk and handles file creation,
    * removal, ... */
@@ -496,7 +493,7 @@ public:
     globalTapeVars_.branchSwitchWarning = 0;
   }
   void enableMinMaxUsingAbs() {
-    if (!isTaping())
+    if (workMode() != TapeInfos::READ_ACCESS)
       globalTapeVars_.nominmaxFlag = 1;
     else
       ADOLCError::fail(ADOLCError::ErrorType::ENABLE_MINMAX_USING_ABS,
@@ -504,7 +501,7 @@ public:
   }
 
   void disableMinMaxUsingAbs() {
-    if (!isTaping())
+    if (workMode() != TapeInfos::READ_ACCESS)
       globalTapeVars_.nominmaxFlag = 0;
     else
       ADOLCError::fail(ADOLCError::ErrorType::DISABLE_MINMAX_USING_ABS,
