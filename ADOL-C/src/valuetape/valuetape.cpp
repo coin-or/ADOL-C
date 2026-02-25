@@ -185,7 +185,7 @@ void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
             " found that will be overwritten !!!\n\n",
             tapeId());
 #endif
-    taylor_close(false);
+    finish_tay_file();
   } else {
     if (tay_fileName() == nullptr)
       tay_fileName();
@@ -203,18 +203,18 @@ void ValueTape::taylor_begin(size_t bufferSize, int degreeSave) {
 /****************************************************************************/
 /* Close the taylor file, reset data.                                       */
 /****************************************************************************/
-void ValueTape::taylor_close(bool resetData) {
-  if (resetData == false) {
-    /* enforces failure of reverse => retaping */
-    deg_save(-1);
-    if (tay_file()) {
-      fclose(tay_file());
-      remove(tay_fileName());
-      tay_file(nullptr);
-    }
-    return;
+void ValueTape::finish_tay_file() {
+  /* enforces failure of reverse => retaping */
+  deg_save(-1);
+  if (tay_file()) {
+    fclose(tay_file());
+    remove(tay_fileName());
+    tay_file(nullptr);
   }
+  return;
+}
 
+void ValueTape::taylor_close() {
   if (tay_file()) {
     if (keepTaylors())
       tapeInfos_.put_block<TayInfo<TapeInfos, ErrorType>>(
@@ -224,23 +224,8 @@ void ValueTape::taylor_close(bool resetData) {
   }
   lastTayBlockInCore(1);
   tapestats(TapeInfos::NUM_TAYS, numTays_Tape());
-
-  /* keep track of the Ind/Dep counts of the taylor stack */
   tay_numInds(tapestats(TapeInfos::NUM_INDEPENDENTS));
   tay_numDeps(tapestats(TapeInfos::NUM_DEPENDENTS));
-
-#if defined(ADOLC_DEBUG)
-  if (tapeInfos_.tay_file != nullptr)
-    fprintf(DIAG_OUT,
-            "\n ADOL-C debug: Taylor file of length %d bytes "
-            "completed\n",
-            (int)(tapeInfos_.numTays_Tape * sizeof(double)));
-  else
-    fprintf(DIAG_OUT,
-            "\n ADOL-C debug: Taylor array of length %d bytes "
-            "completed\n",
-            (int)(tapeInfos_.numTays_Tape * sizeof(double)));
-#endif
 }
 
 /****************************************************************************/
@@ -394,7 +379,7 @@ void ValueTape::stop_trace(int flag) {
   tapestats(TapeInfos::NUM_SWITCHES, numSwitches());
 
   if (keepTaylors())
-    taylor_close(true);
+    taylor_close();
 
   tapestats(TapeInfos::NUM_TAYS, numTays_Tape());
 
@@ -583,7 +568,7 @@ void ValueTape::set_param_vec(short tag, size_t numparam,
   for (size_t i = 0; i < tapestats(TapeInfos::NUM_PARAM); ++i)
     paramstore_view[i] = paramvec[i];
 
-  taylor_close(false);
+  finish_tay_file();
   workMode(TapeInfos::NO_MODE);
 }
 
