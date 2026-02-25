@@ -601,7 +601,8 @@ public:
   void taylor_begin(size_t bufferSize, int degreeSave);
 
   // close taylor file if necessary and refill buffer if possible
-  void taylor_close(bool resetData);
+  void finish_tay_file();
+  void taylor_close();
   // initializes a reverse sweep
   void taylor_back();
 

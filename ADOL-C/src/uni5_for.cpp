@@ -229,7 +229,7 @@ END_C_DECLS
 #define IF_KEEP_TAYLOR_CLOSE                                                   \
   if (keep) {                                                                  \
     fprintf(DIAG_OUT, "Succeeding reverse sweep will tape.fail!\n");           \
-    tape.taylor_close(false);                                                  \
+    tape.finish_tay_file();                                                    \
   }
 // clang-format off
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
@@ -250,7 +250,7 @@ END_C_DECLS
 #define IF_KEEP_TAYLOR_CLOSE                                                   \
   if (keep) {                                                                  \
     fprintf(DIAG_OUT, "Otherwise succeeding reverse sweep will tape.fail!\n"); \
-    tape.taylor_close(false);                                                  \
+    tape.finish_tay_file();                                                    \
   }
 #if defined(_ZOS_)
 #define IF_KEEP_WRITE_TAYLOR(res, keep, k, p)                                  \
@@ -5882,7 +5882,7 @@ int hov_forward(
 
 #if defined(_KEEP_)
   if (keep)
-    tape.taylor_close(true);
+    tape.taylor_close();
 #endif
 
   /* clean up */
