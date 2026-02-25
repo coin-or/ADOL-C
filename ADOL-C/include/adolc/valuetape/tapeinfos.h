@@ -58,7 +58,6 @@ struct TapeInfos {
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
   std::array<size_t, STAT_SIZE> stats{};
-  int traceFlag{0};
 
   /* ------ operations tape ------- */
   // file descriptor

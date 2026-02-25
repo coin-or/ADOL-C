@@ -73,7 +73,6 @@ int ValueTape::initNewTape() {
 #ifdef ADOLC_SPARSE
   initSparse();
 #endif
-  traceFlag(1);
   // those are the old values from the globaltapevars
   // require to init the tape-buffers with correct size
   // or set the last location pointers.
@@ -102,7 +101,6 @@ void ValueTape::openTape() {
     if (tay_file())
       rewind(tay_file());
     initTapeInfos_keep();
-    traceFlag(1);
     read_tape_stats();
   }
   // must be after initTapeInfos_keep, to not get overwritten!
@@ -143,7 +141,6 @@ void ValueTape::take_stock() {
       put_vals_notWriteBlock(vals, vals_left);
     }
   }
-  tapeInfos_.traceFlag = 1;
 }
 
 /****************************************************************************/
@@ -170,7 +167,6 @@ size_t ValueTape::keep_stock() {
       write_scaylor(globalTapeVars_.store[loc2]);
     } while (loc2-- > 0);
   }
-  tapeInfos_.traceFlag = 0;
   return globalTapeVars_.storeSize;
 }
 
@@ -573,6 +569,7 @@ void ValueTape::set_param_vec(short tag, size_t numparam,
   /* make room for tapeInfos and read tapestats if necessary, keep value
    * stack information */
   openTape();
+  workMode(TapeInfos::WRITE_ACCESS);
   if (tapestats(TapeInfos::NUM_PARAM) != numparam)
     fail(PARAM_COUNTS_MISMATCH, CURRENT_LOCATION,
          FailInfo{.info1 = tag,
@@ -587,6 +584,7 @@ void ValueTape::set_param_vec(short tag, size_t numparam,
     paramstore_view[i] = paramvec[i];
 
   taylor_close(false);
+  workMode(TapeInfos::NO_MODE);
 }
 
 /**

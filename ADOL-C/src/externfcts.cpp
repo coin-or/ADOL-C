@@ -112,25 +112,19 @@ void check_input(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
 }
 
 void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
-                              size_t dim_y, adouble *ya, double *&vals,
-                              int &oldTraceFlag) {
+                              size_t dim_y, adouble *ya, double *&vals) {
 
   check_input(edfct, dim_x, xa, dim_y, ya);
 
   ValueTape &tape = findTape(edfct->tapeId);
-  if (tape.traceFlag()) {
-    tape.put_loc(edfct->index);
-    tape.put_loc(dim_x);
-    tape.put_loc(dim_y);
-    tape.put_loc(xa[0].loc());
-    tape.put_loc(ya[0].loc());
-    /* keep space for checkpointing index */
-    tape.put_loc(0);
 
-    oldTraceFlag = tape.traceFlag();
-    tape.traceFlag(0);
-  } else
-    oldTraceFlag = 0;
+  tape.put_loc(edfct->index);
+  tape.put_loc(dim_x);
+  tape.put_loc(dim_y);
+  tape.put_loc(xa[0].loc());
+  tape.put_loc(ya[0].loc());
+  /* keep space for checkpointing index */
+  tape.put_loc(0);
 
   if (edfct->nestedAdolc) {
     vals = new double[tape.storeSize()];
@@ -143,22 +137,20 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   /* update taylor buffer if keep != 0 ; possible double counting as in
    * adouble.cpp => correction in taping.cpp */
 
-  if (oldTraceFlag != 0) {
+  if (edfct->dp_x_changes)
+    tape.add_numTays_Tape(dim_x);
+
+  if (edfct->dp_y_priorRequired)
+    tape.add_numTays_Tape(dim_y);
+
+  if (tape.keepTaylors()) {
     if (edfct->dp_x_changes)
-      tape.add_numTays_Tape(dim_x);
+      for (size_t i = 0; i < dim_x; ++i)
+        tape.write_scaylor(xa[i].value());
 
     if (edfct->dp_y_priorRequired)
-      tape.add_numTays_Tape(dim_y);
-
-    if (tape.keepTaylors()) {
-      if (edfct->dp_x_changes)
-        for (size_t i = 0; i < dim_x; ++i)
-          tape.write_scaylor(xa[i].value());
-
-      if (edfct->dp_y_priorRequired)
-        for (size_t i = 0; i < dim_y; ++i)
-          tape.write_scaylor(ya[i].value());
-    }
+      for (size_t i = 0; i < dim_y; ++i)
+        tape.write_scaylor(ya[i].value());
   }
 
   for (size_t i = 0; i < dim_x; ++i)
@@ -172,8 +164,7 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
 }
 
 void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
-                             size_t dim_y, adouble *ya, double *&vals,
-                             int &oldTraceFlag) {
+                             size_t dim_y, adouble *ya, double *&vals) {
 
   ValueTape &tape = findTape(edfct->tapeId);
   if (edfct->nestedAdolc) {
@@ -189,48 +180,42 @@ void call_ext_fct_commonPost(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
 
   for (size_t i = 0; i < dim_y; ++i)
     ya[i].value(edfct->dp_y[i]);
-
-  tape.traceFlag(oldTraceFlag);
 }
 
 int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa, size_t dim_y,
                  adouble *ya) {
   int ret;
-  int oldTraceFlag;
   double *vals = nullptr;
 
   ValueTape &tape = findTape(edfct->tapeId);
 
-  if (tape.traceFlag())
-    tape.put_op(ext_diff);
+  tape.put_op(ext_diff);
 
-  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
+  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals);
   ret = edfct->function(edfct->ext_tape_id, dim_x, edfct->dp_x, dim_y,
                         edfct->dp_y);
-  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
+  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals);
   return ret;
 }
 
 int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr,
                  size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
   int ret;
-  int oldTraceFlag;
   double *vals = nullptr;
 
   ValueTape &tape = findTape(edfct->tapeId);
-  if (tape.traceFlag()) {
-    tape.put_op(ext_diff_iArr, iArrLength + 2);
-    tape.put_loc(iArrLength);
+  tape.put_op(ext_diff_iArr, iArrLength + 2);
+  tape.put_loc(iArrLength);
 
-    for (size_t i = 0; i < iArrLength; ++i)
-      tape.put_loc(iArr[i]);
+  for (size_t i = 0; i < iArrLength; ++i)
+    tape.put_loc(iArr[i]);
 
-    tape.put_loc(iArrLength); // do it again so we can read in either direction
-  }
-  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
+  tape.put_loc(iArrLength); // do it again so we can read in either direction
+
+  call_ext_fct_commonPrior(edfct, dim_x, xa, dim_y, ya, vals);
   ret = edfct->function_iArr(edfct->ext_tape_id, iArrLength, iArr, dim_x,
                              edfct->dp_x, dim_y, edfct->dp_y);
-  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals, oldTraceFlag);
+  call_ext_fct_commonPost(edfct, dim_x, xa, dim_y, ya, vals);
   return ret;
 }
 

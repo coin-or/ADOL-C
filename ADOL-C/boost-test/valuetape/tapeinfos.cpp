@@ -21,7 +21,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
 
   tp.keepTaylors = 1;
   tp.stats[2] = 5;
-  tp.traceFlag = 8;
 
   auto fileH = fopen("test_move_constr_op.txt", "w");
   tp.op_file = fileH;
@@ -112,7 +111,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numDeps, 11);
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);
   BOOST_CHECK_EQUAL(tp2.stats[2], 5);
-  BOOST_CHECK_EQUAL(tp2.traceFlag, 8);
   BOOST_CHECK_EQUAL(tp2.numOps_Tape, 10);
   BOOST_CHECK_EQUAL(tp2.num_eq_prod, 4);
   BOOST_CHECK_EQUAL(tp2.numVals_Tape, 70);

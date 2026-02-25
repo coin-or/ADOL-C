@@ -382,7 +382,6 @@ int int_reverse_safe(
   size_t iArrLength;
   size_t *iArr = nullptr;
   int ext_retc;
-  int oldTraceFlag;
   size_t *insz = nullptr;
   size_t *outsz = nullptr;
   size_t nin, nout;
@@ -2610,9 +2609,6 @@ int int_reverse_safe(
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
-      oldTraceFlag = tape.traceFlag();
-      tape.traceFlag(0);
-
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
@@ -2677,7 +2673,6 @@ int int_reverse_safe(
           tape.get_taylor(arg);
         }
       }
-      tape.traceFlag(oldTraceFlag);
 
       break;
     case ext_diff_iArr: /* extern differntiated function */
@@ -2694,9 +2689,6 @@ int int_reverse_safe(
       tape.get_locint_r(); /* get it again */
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-
-      oldTraceFlag = tape.traceFlag();
-      tape.traceFlag(0);
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
@@ -2762,7 +2754,6 @@ int int_reverse_safe(
           tape.get_taylor(arg);
         }
       }
-      tape.traceFlag(oldTraceFlag);
 
       break;
     case ext_diff_v2:
@@ -2790,8 +2781,6 @@ int int_reverse_safe(
       tape.ext_diff_fct_index(tape.get_locint_r());
       ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
-      oldTraceFlag = tape.traceFlag();
-      tape.traceFlag(0);
 
       if (edfct2->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
@@ -2867,7 +2856,6 @@ int int_reverse_safe(
           }
         }
       }
-      tape.traceFlag(oldTraceFlag);
       delete[] iArr;
       delete[] insz;
       insz = nullptr;

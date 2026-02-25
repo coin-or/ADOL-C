@@ -38,7 +38,7 @@ adubref::~adubref() { currentTape().free_loc(loc_); }
 
 adubref &adubref::operator=(const double coval) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     if (coval == 0) {
 
       tape.put_op(ref_assign_d_zero);
@@ -66,7 +66,7 @@ adubref &adubref::operator=(const adouble &a) {
   ValueTape &tape = currentTape();
   /* test this to avoid for x=x statements adjoint(x)=0 in reverse mode */
   if (loc_ != a.loc()) {
-    if (tape.traceFlag()) {
+    if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
       tape.put_op(ref_assign_a);
       tape.put_loc(a.loc()); // = arg
@@ -87,7 +87,7 @@ adubref::operator adouble() const {
   ValueTape &tape = currentTape();
   adouble ret_adouble;
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_copyout);
     tape.put_loc(loc_);              // = arg
@@ -107,7 +107,7 @@ adouble adubref::operator++(int) {
   ValueTape &tape = currentTape();
   adouble ret_adouble;
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(ref_copyout);
     tape.put_loc(loc_);              // = arg
     tape.put_loc(ret_adouble.loc()); // = res
@@ -120,7 +120,7 @@ adouble adubref::operator++(int) {
 
   ret_adouble.value(refloc_value());
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_incr_a);
     tape.put_loc(loc_); // = res
@@ -139,7 +139,7 @@ adouble adubref::operator--(int) {
   ValueTape &tape = currentTape();
   adouble ret_adouble;
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(ref_copyout);
     tape.put_loc(loc_);              // = arg
     tape.put_loc(ret_adouble.loc()); // = res
@@ -152,7 +152,7 @@ adouble adubref::operator--(int) {
 
   ret_adouble.value(refloc_value());
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_decr_a);
     tape.put_loc(loc_); // = res
@@ -169,7 +169,7 @@ adouble adubref::operator--(int) {
 
 adubref &adubref::operator++() {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_incr_a);
     tape.put_loc(loc_); // = res
@@ -185,7 +185,7 @@ adubref &adubref::operator++() {
 
 adubref &adubref::operator--() {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_decr_a);
     tape.put_loc(loc_); // = res
@@ -202,7 +202,7 @@ adubref &adubref::operator--() {
 
 adubref &adubref::operator+=(const double coval) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_eq_plus_d);
     tape.put_loc(loc_);  // = res
@@ -220,7 +220,7 @@ adubref &adubref::operator+=(const double coval) {
 
 adubref &adubref::operator+=(const adouble &a) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(ref_eq_plus_a);
     tape.put_loc(a.loc()); // = arg
     tape.put_loc(loc_);    // = res
@@ -237,7 +237,7 @@ adubref &adubref::operator+=(const adouble &a) {
 
 adubref &adubref::operator-=(const double coval) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_eq_min_d);
     tape.put_loc(loc_);  // = res
@@ -255,7 +255,7 @@ adubref &adubref::operator-=(const double coval) {
 
 adubref &adubref::operator-=(const adouble &a) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_eq_min_a);
     tape.put_loc(a.loc()); // = arg
@@ -273,7 +273,7 @@ adubref &adubref::operator-=(const adouble &a) {
 
 adubref &adubref::operator*=(const double coval) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_eq_mult_d);
     tape.put_loc(loc_);  // = res
@@ -291,7 +291,7 @@ adubref &adubref::operator*=(const double coval) {
 
 adubref &adubref::operator*=(const adouble &a) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_eq_mult_a);
     tape.put_loc(a.loc()); // = arg
@@ -309,7 +309,7 @@ adubref &adubref::operator*=(const adouble &a) {
 
 adubref &adubref::operator<<=(const double coval) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.increment_numInds();
 
     tape.put_op(ref_assign_ind);
@@ -328,7 +328,7 @@ adubref &adubref::operator<<=(const double coval) {
 
 void adubref::declareIndependent() {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.increment_numInds();
 
     tape.put_op(ref_assign_ind);
@@ -351,7 +351,7 @@ void adubref::declareDependent() { adouble(*this).declareDependent(); }
 void condassign(adubref &res, const adouble &cond, const adouble &arg1,
                 const adouble &arg2) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(ref_cond_assign);
     tape.put_loc(cond.loc()); // = arg
     tape.put_val(cond.value());
@@ -373,7 +373,7 @@ void condassign(adubref &res, const adouble &cond, const adouble &arg1,
 
 void condassign(adubref &res, const adouble &cond, const adouble &arg) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_cond_assign_s);
     tape.put_loc(cond.loc()); // = arg
@@ -394,7 +394,7 @@ void condassign(adubref &res, const adouble &cond, const adouble &arg) {
 void condeqassign(adubref &res, const adouble &cond, const adouble &arg1,
                   const adouble &arg2) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_cond_eq_assign);
     tape.put_loc(cond.loc()); // = arg
@@ -417,7 +417,7 @@ void condeqassign(adubref &res, const adouble &cond, const adouble &arg1,
 
 void condeqassign(adubref &res, const adouble &cond, const adouble &arg) {
   ValueTape &tape = currentTape();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
 
     tape.put_op(ref_cond_eq_assign_s);
     tape.put_loc(cond.loc()); // = arg
@@ -448,7 +448,7 @@ adouble advector::operator[](const adouble &index) const {
   const size_t idx = (size_t)trunc(fabs(index.value()));
   adouble ret_adouble;
 
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(subscript);
     tape.put_loc(index.loc());
     tape.put_val(static_cast<double>(size()));
@@ -474,7 +474,7 @@ adubref advector::operator[](const adouble &index) {
   const size_t idx = (size_t)trunc(fabs(index.value()));
   size_t locat = tape.next_loc();
   size_t n = data_.size();
-  if (tape.traceFlag()) {
+  if (tape.workMode() == TapeInfos::WRITE_ACCESS) {
     tape.put_op(subscript_ref);
     tape.put_loc(index.loc());
     tape.put_val(static_cast<double>(n));
