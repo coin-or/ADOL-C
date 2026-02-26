@@ -14,7 +14,6 @@ ValueTape::~ValueTape() {
   // deleted!
   assert(numLives() == 0 &&
          "Can not destroy ValueTape there are still active variables!");
-  cp_clearStack();
 }
 
 void ValueTape::initTapeInfos_keep() {

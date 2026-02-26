@@ -13,6 +13,7 @@
 ---------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include <adolc/adolcerror.h>
 #include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>
 #include <adolc/checkpointing_p.h>
@@ -38,17 +39,17 @@ ADOLC_ext_fct_fov_reverse cp_fov_reverse;
 ADOLC_ext_fct_hos_reverse cp_hos_reverse;
 ADOLC_ext_fct_hov_reverse cp_hov_reverse;
 
-void cp_taping(CpInfos *cpInfos) {
-  trace_on(cpInfos->cp_tape_id, 1);
+void CpInfos::taping() {
+  trace_on(cp_tape_id, 1);
   {
-    std::vector<adouble> tapingAdoubles(cpInfos->dim);
-    for (int i = 0; i < cpInfos->dim; ++i)
-      tapingAdoubles[i] <<= cpInfos->dp_internal_for[i];
+    std::vector<adouble> tapingAdoubles(dim);
+    for (int i = 0; i < dim; ++i)
+      tapingAdoubles[i] <<= dp_internal_for[i];
 
-    cpInfos->function(cpInfos->dim, tapingAdoubles.data());
+    function(dim, tapingAdoubles.data());
 
-    for (int i = 0; i < cpInfos->dim; ++i)
-      tapingAdoubles[i] >>= cpInfos->dp_internal_for[i];
+    for (int i = 0; i < dim; ++i)
+      tapingAdoubles[i] >>= dp_internal_for[i];
   }
   trace_off();
 }
@@ -56,17 +57,16 @@ void cp_taping(CpInfos *cpInfos) {
 /****************************************************************************/
 /*                                                   revolve error function */
 /****************************************************************************/
-void revolveError(CpInfos *cpInfos) {
-  switch (cpInfos->info) {
+void CpInfos::revolveError() {
+  switch (info) {
   case 10:
     ADOLCError::fail(ADOLCError::ErrorType::CP_STORED_EXCEEDS_CU,
                      CURRENT_LOCATION);
     break;
   case 11:
-    ADOLCError::fail(ADOLCError::ErrorType::CP_STORED_EXCEEDS_SNAPS,
-                     CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info3 = cpInfos->check + 1,
-                                          .info4 = cpInfos->checkpoints});
+    ADOLCError::fail(
+        ADOLCError::ErrorType::CP_STORED_EXCEEDS_SNAPS, CURRENT_LOCATION,
+        ADOLCError::FailInfo{.info3 = check + 1, .info4 = checkpoints});
     break;
   case 12:
     ADOLCError::fail(ADOLCError::ErrorType::CP_NUMFORW, CURRENT_LOCATION);
@@ -85,38 +85,36 @@ void revolveError(CpInfos *cpInfos) {
   }
 }
 
-void revolve_for(short tapeId, CpInfos *cpInfos) {
+void CpInfos::revolve_for() {
   /* init revolve */
-  cpInfos->check = -1;
-  cpInfos->capo = 0;
-  cpInfos->info = 0;
-  cpInfos->fine = cpInfos->steps;
+  check = -1;
+  capo = 0;
+  info = 0;
+  fine = steps;
 
-  ValueTape &tape = findTape(tapeId);
   /* execute all time steps */
   enum revolve_action whattodo;
   do {
-    whattodo = revolve(&cpInfos->check, &cpInfos->capo, &cpInfos->fine,
-                       cpInfos->checkpoints, &cpInfos->info);
+    whattodo = revolve(&check, &capo, &fine, checkpoints, &info);
 
     switch (whattodo) {
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
-      cpInfos->currentCP = cpInfos->capo;
+      takeshot();
+      currentCP = capo;
       break;
 
     case revolve_advance:
-      for (int i = 0; i < cpInfos->capo - cpInfos->currentCP; ++i) {
-        cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
+      for (int i = 0; i < capo - currentCP; ++i) {
+        function_double(dim, dp_internal_for);
       }
       break;
 
     case revolve_firsturn:
-      cp_taping(cpInfos);
+      taping();
       break;
 
     case revolve_error:
-      revolveError(cpInfos);
+      revolveError();
       break;
 
     default:
@@ -198,7 +196,7 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
 
   if (tape.keepTaylors()) {
     // perform all time steps, tape the last, take checkpoints
-    revolve_for(tapeId, cpInfos);
+    cpInfos->revolve_for();
   } else
     // perform all time steps without taping
     for (int i = 0; i < cpInfos->steps; ++i)
@@ -279,7 +277,7 @@ int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
     ++arg;
   }
 
-  revolve_for(tapeId, cpInfos);
+  cpInfos->revolve_for();
 
   // write back
   arg = tape.lowestYLoc_for(); // keep input
@@ -358,7 +356,7 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
       break;
 
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
+      cpInfos->takeshot();
       cpInfos->currentCP = cpInfos->capo;
       break;
 
@@ -369,12 +367,12 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
 
     case revolve_youturn:
       if (cpInfos->retaping != 0)
-        cp_taping(cpInfos); // retaping forced
+        cpInfos->taping(); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
         if (zos_forward(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
-          cp_taping(cpInfos);
+          cpInfos->taping();
       }
       // one reverse step
       fos_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim,
@@ -383,13 +381,13 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
 
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
-        tape.cp_release(cpInfos);
+        cpInfos->release();
       cpInfos->currentCP = cpInfos->capo;
-      tape.cp_restore(cpInfos);
+      cpInfos->restore();
       break;
 
     case revolve_error:
-      revolveError(cpInfos);
+      cpInfos->revolveError();
       break;
 
     default:
@@ -399,7 +397,7 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
       break;
     }
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
-  tape.cp_release(cpInfos); // release first checkpoint if written
+  cpInfos->release(); // release first checkpoint if written
   tape.branchSwitchWarning(old_bsw);
 
   // save results
@@ -456,7 +454,7 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
       break;
 
     case revolve_takeshot:
-      tape.cp_takeshot(cpInfos);
+      cpInfos->takeshot();
       cpInfos->currentCP = cpInfos->capo;
       break;
 
@@ -467,12 +465,12 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
 
     case revolve_youturn:
       if (cpInfos->retaping != 0)
-        cp_taping(cpInfos); // retaping forced
+        cpInfos->taping(); // retaping forced
       else {
         // one forward step with keep and retaping if necessary
         if (zos_forward(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, 1,
                         cpInfos->dp_internal_for, cpInfos->dp_internal_for) < 0)
-          cp_taping(cpInfos);
+          cpInfos->taping();
       }
       // one reverse step
       fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, numDirs,
@@ -481,13 +479,13 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
 
     case revolve_restore:
       if (cpInfos->capo != cpInfos->currentCP)
-        tape.cp_release(cpInfos);
+        cpInfos->release();
       cpInfos->currentCP = cpInfos->capo;
-      tape.cp_restore(cpInfos);
+      cpInfos->restore();
       break;
 
     case revolve_error:
-      revolveError(cpInfos);
+      cpInfos->revolveError();
       break;
 
     default:
@@ -499,7 +497,7 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   } while (whattodo != revolve_terminate && whattodo != revolve_error);
 
   // release first checkpoint if written
-  tape.cp_release(cpInfos);
+  cpInfos->release();
   tape.branchSwitchWarning(old_bsw);
 
   // save results
@@ -535,51 +533,50 @@ int cp_hov_reverse(short, size_t, size_t, double **, size_t, size_t, double ***,
 /*                              functions for handling the checkpoint stack */
 /****************************************************************************/
 
-void ValueTape::cp_clearStack() {
-  StackElement se;
-
-  while (!cp_stack_.empty()) {
-    se = cp_stack_.top();
-    cp_stack_.pop();
-    delete[] se[0];
-    delete[] se;
+void CpInfos::clearStack() {
+  StackElement shot;
+  while (!cp_stack.empty()) {
+    shot = cp_stack.top();
+    cp_stack.pop();
+    delete[] shot[0];
+    delete[] shot[1];
   }
 }
 
-void ValueTape::cp_takeshot(CpInfos *cpInfos) {
-
-  StackElement se = new double *[2];
-  cp_stack_.push(se);
-  se[0] = new double[cpInfos->dim];
-
-  for (int i = 0; i < cpInfos->dim; ++i)
-    se[0][i] = cpInfos->dp_internal_for[i];
-
-  if (cpInfos->saveNonAdoubles != nullptr)
-    se[1] = static_cast<double *>(cpInfos->saveNonAdoubles());
+void CpInfos::takeshot() {
+  StackElement shot;
+  shot[0] = new double[dim];
+  for (int i = 0; i < dim; ++i)
+    shot[0][i] = dp_internal_for[i];
+  if (saveNonAdoubles != nullptr)
+    shot[1] = static_cast<double *>(saveNonAdoubles());
   else
-    se[1] = nullptr;
+    shot[1] = nullptr;
+  cp_stack.push(shot);
 }
 
-void ValueTape::cp_restore(CpInfos *cpInfos) {
+void CpInfos::restore() {
+  using ADOLCError::fail;
+  using ADOLCError::FailInfo;
+  using ADOLCError::ErrorType::CP_EMPTY_STACK;
+  if (cp_stack.empty())
+    fail(CP_EMPTY_STACK, CURRENT_LOCATION, FailInfo{.info2 = index});
 
-  StackElement se = cp_stack_.top();
-  for (int i = 0; i < cpInfos->dim; ++i)
-    cpInfos->dp_internal_for[i] = se[0][i];
+  StackElement shot = cp_stack.top();
+  for (int i = 0; i < dim; ++i)
+    dp_internal_for[i] = shot[0][i];
 
-  if (se[1] != nullptr)
-    cpInfos->restoreNonAdoubles(static_cast<void *>(se[1]));
+  if (shot[1] != nullptr)
+    restoreNonAdoubles(static_cast<void *>(shot[1]));
 }
 
-void ValueTape::cp_release(CpInfos *) {
-  if (!cp_stack_.empty()) {
-    StackElement se = cp_stack_.top();
-    cp_stack_.pop();
-    delete[] se[0];
+void CpInfos::release() {
+  if (!cp_stack.empty()) {
+    StackElement shot = cp_stack.top();
+    cp_stack.pop();
+    delete[] shot[0];
 
-    if (se[1] != nullptr)
-      delete[] se[1];
-
-    delete[] se;
+    if (shot[1] != nullptr)
+      delete[] shot[1];
   }
 }

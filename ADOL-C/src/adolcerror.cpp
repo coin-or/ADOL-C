@@ -451,6 +451,12 @@ void fail(ErrorType error, source_location LocInfo, const FailInfo &failinfo) {
     throw ADOLCError(oss.str(), LocInfo);
     break;
 
+  case to_underlying(ErrorType::CP_EMPTY_STACK):
+    oss << "CP stack of CPInfo with index " << failinfo.info2
+        << " is empty! Restore should not be called!" << std::endl;
+    throw ADOLCError(oss.str(), LocInfo);
+    break;
+
   case to_underlying(ErrorType::NO_MINMAX):
     oss << "ADOL-C error: Tape " << failinfo.info1
         << " is not created compatible for abs norm\n Please call "

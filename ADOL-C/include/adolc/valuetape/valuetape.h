@@ -70,9 +70,6 @@ class ADOLC_API ValueTape {
   Buffer<ext_diff_fct_v2, EDFCTS_BLOCK_SIZE> ext2_buffer_;
   Buffer<CpInfos, EDFCTS_BLOCK_SIZE> cp_buffer_;
 
-  using StackElement = double **;
-  std::stack<StackElement> cp_stack_;
-
 #ifdef ADOLC_SPARSE
   ADOLC::Sparse::SparseJacInfos sJInfos_;
   ADOLC::Sparse::SparseHessInfos sHInfos_;
@@ -112,8 +109,7 @@ public:
         perTapeInfos_(std::move(other.perTapeInfos_)),
         ext_buffer_(std::move(other.ext_buffer_)),
         ext2_buffer_(std::move(other.ext2_buffer_)),
-        cp_buffer_(std::move(other.cp_buffer_)),
-        cp_stack_(std::move(other.cp_stack_))
+        cp_buffer_(std::move(other.cp_buffer_))
 #ifdef ADOLC_SPARSE
         ,
         sJInfos_(std::move(other.sJInfos_)), sHInfos_(std::move(other.sHInfos_))
@@ -129,7 +125,6 @@ public:
       ext_buffer_ = std::move(other.ext_buffer_);
       ext2_buffer_ = std::move(other.ext2_buffer_);
       cp_buffer_ = std::move(other.cp_buffer_);
-      cp_stack_ = std::move(other.cp_stack_);
 #ifdef ADOLC_SPARSE
       sJInfos_ = std::move(other.sJInfos_);
       sHInfos_ = std::move(other.sHInfos_);
@@ -581,7 +576,6 @@ public:
   char inParallelRegion() const { return globalTapeVars_.inParallelRegion; }
 
   // ------------------------------- Buffer utils ---------------------------
-  void cp_clearStack();
   CpInfos *cp_append() { return cp_buffer_.append(); }
   CpInfos *cp_getElement(size_t index) { return cp_buffer_.getElement(index); }
 
