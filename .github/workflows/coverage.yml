@@ -1,71 +1,46 @@
-on: ["push", "pull_request"]
-
+on: [push, pull_request]
 name: Test Coverage
 
 jobs:
   run-coverage:
-    name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - name: Install gcc-13 g++-13 for c++20
-      run: | # get gcc-13 on 22.04
-        sudo apt-get update
-        sudo apt-get install -y software-properties-common
-        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
+      - uses: actions/checkout@v4
 
-        # IMPORTANT: allow upgrading libstdc++6/libcc1-0/etc from the PPA
-        sudo apt-get -y --fix-broken install
-        sudo apt-get -y full-upgrade
-        
-        sudo apt-get install -y gcc-13 g++-13
-        echo "CXX=g++-13" >> $GITHUB_ENV
-        echo "CC=gcc-13" >> $GITHUB_ENV
+      - name: Install deps (GCC, lcov, Boost)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov libboost-all-dev gcc-14 g++-14
+          echo "CC=gcc-14" >> $GITHUB_ENV
+          echo "CXX=g++-14" >> $GITHUB_ENV
 
-    - name: Install lcov
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y lcov
+      - name: Configure and build ADOL-C
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS_WITH_COV=ON \
+            -DENABLE_SPARSE=1 \
+            -DCMAKE_C_COMPILER=gcc-14 \
+            -DCMAKE_CXX_COMPILER=g++-14
+          cmake --build build
 
-    - name: Install Boost
-      shell: bash
-      run: |
-        sudo apt-get install -y libboost-all-dev
+      - name: Run Tests
+        run: |
+          set +e
+          ctest --test-dir build --output-on-failure
+          exit 0
 
-    - name: Configure and build ADOL-C
-      run: |
-        mkdir build
-        cd build
-        cmake \
-        -DCMAKE_CXX_COMPILER=g++-13 \
-        -DCMAKE_C_COMPILER=gcc-13 \
-        -DCMAKE_BUILD_TYPE=Debug \
-        -DBUILD_TESTS_WITH_COV=ON \
-        -DENABLE_SPARSE=1 \
-        -S .. \
-        -B .
-        cmake --build .
-    
-    - name: Run Tests
-      run: |
-        set +e # otherwise the coverage report fails if ctest finds errors
-        ctest --test-dir build/
-        exit 0
+      - name: Generate coverage report
+        run: |
+          cd build
+          lcov --gcov-tool $(which gcov-14) --capture --directory . --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' 'boost/*' 'c++/*' '*boost-test/*' --output-file coverage.info
+          lcov --list coverage.info
 
-    # Capture coverage data
-    - name: Generate coverage report
-      run: |
-        cd build
-        lcov --gcov-tool $(which gcov-13) --capture --directory . --output-file coverage.info
-        lcov --remove coverage.info '/usr/*' 'boost/*' 'c++11/*' '/home/runner/work/ADOL-C/ADOL-C/ADOL-C/boost-test/*' --output-file coverage.info
-        lcov --list coverage.info
-
-      # Upload coverage report to Codecov
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: build/coverage.info
-        token: ${{ secrets.CODECOV_TOKEN }}
-        flags: unittests
-        name: code-coverage-report
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: build/coverage.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          name: code-coverage-report
