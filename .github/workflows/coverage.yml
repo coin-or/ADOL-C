@@ -33,7 +33,7 @@ jobs:
       - name: Generate coverage report
         run: |
           cd build
-          lcov --gcov-tool $(which gcov-14) --capture --directory . --output-file coverage.info
+          lcov --gcov-tool $(which gcov-14) --capture --ignore-errors mismatch,inconsistent,corrupt --directory . --output-file coverage.info
           lcov --remove coverage.info '/usr/*' 'boost/*' 'c++/*' '*boost-test/*' --output-file coverage.info
           lcov --list coverage.info
 
