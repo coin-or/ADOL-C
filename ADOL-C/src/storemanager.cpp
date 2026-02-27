@@ -14,7 +14,6 @@
 ---------------------------------------------------------------------------*/
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
-#include <adolc/checkpointing_p.h>
 #include <adolc/dvlparms.h>
 #include <adolc/revolve.h>
 #include <adolc/storemanager.h>

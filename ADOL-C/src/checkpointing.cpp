@@ -16,7 +16,6 @@
 #include <adolc/adolcerror.h>
 #include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>
-#include <adolc/checkpointing_p.h>
 #include <adolc/externfcts.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
@@ -219,21 +218,6 @@ int checkpointing(short tapeId, CpInfos *cpInfos) {
   delete[] cpInfos->dp_internal_for;
   cpInfos->dp_internal_for = nullptr;
   return 0;
-}
-
-/* - reinit external function buffer and checkpointing buffer
- * - necessary when using tape within a different program */
-void reinit_checkpointing() {}
-
-/* initialize the CpInfos variable (function and index are set within
- * the template code */
-void init_CpInfos(CpInfos *cpInfos) {
-  char *ptr = nullptr;
-
-  ptr = reinterpret_cast<char *>(cpInfos);
-  for (size_t i = 0; i < sizeof(CpInfos); ++i)
-    ptr[i] = 0;
-  cpInfos->tapeId = -1;
 }
 
 /* initialize the information for the external function in a way that our

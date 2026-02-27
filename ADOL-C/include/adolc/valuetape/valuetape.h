@@ -5,7 +5,7 @@
 #include <adolc/adolcerror.h>
 #include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
-#include <adolc/checkpointing_p.h>
+#include <adolc/checkpointing.h>
 #include <adolc/dvlparms.h>
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
@@ -96,8 +96,7 @@ public:
   ValueTape(short tapeId)
       : tapeInfos_(tapeId), perTapeInfos_(tapeId, readConfigFile()),
         ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
-        ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>),
-        cp_buffer_(init_CpInfos) {}
+        ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>) {}
 
   // copying ValueTape is not allowed!
   ValueTape(const ValueTape &other) = delete;
