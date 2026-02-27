@@ -16,7 +16,9 @@ jobs:
         sudo apt-get update
 
         # IMPORTANT: allow upgrading libstdc++6/libcc1-0/etc from the PPA
+        sudo apt-get -y --fix-broken install
         sudo apt-get -y full-upgrade
+        
         sudo apt-get install -y gcc-13 g++-13
         echo "CXX=g++-13" >> $GITHUB_ENV
         echo "CC=gcc-13" >> $GITHUB_ENV
