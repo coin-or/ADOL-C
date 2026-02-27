@@ -7,17 +7,19 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     steps:
-    - uses: egor-tensin/setup-gcc@v1
-      with:
-        version: 13
-        platform: x64
-      
-    - name: Use gcc 13
-      run: |
+    - uses: actions/checkout@v4
+    - name: Install gcc-13 g++-13 for c++20
+      run: | # get gcc-13 on 22.04
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+
+        # IMPORTANT: allow upgrading libstdc++6/libcc1-0/etc from the PPA
+        sudo apt-get -y full-upgrade
+        sudo apt-get install -y gcc-13 g++-13
         echo "CXX=g++-13" >> $GITHUB_ENV
         echo "CC=gcc-13" >> $GITHUB_ENV
-
-
 
     - name: Install lcov
       run: |
