@@ -13,7 +13,6 @@ install(FILES
         adutils.h
         advector.h
         buffer_temp.h   
-        checkpointing_p.h   
         checkpointing.h
         convolut.h
         dvlparms.h

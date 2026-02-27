@@ -17,15 +17,19 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <array>
+#include <stack>
 
 class adouble;
 
+using StackElement = std::array<double *, 2>;
 using ADOLC_TimeStepFuncion = int(size_t dim_x, adouble *x);
 using ADOLC_TimeStepFuncion_double = int(size_t dim_x, double *x);
 using ADOLC_saveFct = void *(void);
 using ADOLC_restoreFct = void(void *);
 
-struct ADOLC_API CpInfos {
+struct CpInfos {
+  ~CpInfos() { clearStack(); }
   // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
   short tapeId{0};
@@ -58,18 +62,24 @@ struct ADOLC_API CpInfos {
   size_t index{0};       /* please do not change */
   char *allmem{nullptr}; /* this is dummy to get externfcts and checkpointing
                    both use buffer_temp without a problem */
-};
 
-ADOLC_API
-CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
-                          ADOLC_TimeStepFuncion timeStepFunction);
+  std::stack<StackElement> cp_stack;
+  void takeshot();
+  void restore();
+  void release();
+  void clearStack();
+  void taping();
+  void revolve_for();
+  void revolveError();
+};
 
 ADOLC_API int checkpointing(short tapeId, CpInfos *cpInfos);
 
 class ADOLC_API CP_Context {
 public:
+  CP_Context() = delete;
   CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {
-    cpInfos = reg_timestep_fct(tapeId, cp_tape_id, tsf);
+    reg_timestep_fct(tapeId, cp_tape_id, tsf);
   }
   ~CP_Context() = default;
   void setDoubleFct(ADOLC_TimeStepFuncion_double tsf) {
@@ -91,8 +101,8 @@ public:
   int checkpointing(short tapeId) { return ::checkpointing(tapeId, cpInfos); }
 
 private:
-  inline CP_Context() {}
-
+  void reg_timestep_fct(short tapeId, short cp_tape_id,
+                        ADOLC_TimeStepFuncion timeStepFunction);
   CpInfos *cpInfos;
 };
 
