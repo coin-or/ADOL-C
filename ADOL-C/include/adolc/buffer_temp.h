@@ -29,7 +29,6 @@ concept AllMemType = requires(T t) {
 
 template <AllMemType T, size_t buff_size> class Buffer {
   using InitFunctionPointer = void (*)(T *subBufferElement);
-  static void zeroAll(T *subBufferElement) { subBufferElement = nullptr; }
 
   struct SubBuffer {
     std::array<T, buff_size> elements;
@@ -38,9 +37,9 @@ template <AllMemType T, size_t buff_size> class Buffer {
   };
 
 public:
-  Buffer() : initFunction(zeroAll) {}
+  Buffer() = default;
   Buffer(InitFunctionPointer _initFunction) : initFunction(_initFunction) {}
-  inline ~Buffer();
+  ~Buffer();
   Buffer(const Buffer &) = delete;
   Buffer &operator=(const Buffer &) = delete;
 
