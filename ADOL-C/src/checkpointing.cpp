@@ -128,15 +128,14 @@ void CpInfos::revolve_for() {
 int dummy(short, size_t, double *, size_t, double *) { return 0; }
 
 /* register one time step function (uses buffer template) */
-CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
-                          ADOLC_TimeStepFuncion timeStepFunction) {
+void CP_Context::reg_timestep_fct(short tapeId, short cp_tape_id,
+                                  ADOLC_TimeStepFuncion timeStepFunction) {
 
   ValueTape &tape = findTape(tapeId);
-  CpInfos *theCpInfos = tape.cp_append();
-  theCpInfos->function = timeStepFunction;
-  theCpInfos->tapeId = tapeId;
-  theCpInfos->cp_tape_id = cp_tape_id;
-  return theCpInfos;
+  cpInfos = tape.cp_append();
+  cpInfos->function = timeStepFunction;
+  cpInfos->tapeId = tapeId;
+  cpInfos->cp_tape_id = cp_tape_id;
 }
 
 void check_input(short tapeId, CpInfos *cpInfos) { // knockout

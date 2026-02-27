@@ -28,7 +28,7 @@ using ADOLC_TimeStepFuncion_double = int(size_t dim_x, double *x);
 using ADOLC_saveFct = void *(void);
 using ADOLC_restoreFct = void(void *);
 
-struct ADOLC_API CpInfos {
+struct CpInfos {
   ~CpInfos() { clearStack(); }
   // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
@@ -73,16 +73,13 @@ struct ADOLC_API CpInfos {
   void revolveError();
 };
 
-ADOLC_API
-CpInfos *reg_timestep_fct(short tapeId, short cp_tape_id,
-                          ADOLC_TimeStepFuncion timeStepFunction);
-
 ADOLC_API int checkpointing(short tapeId, CpInfos *cpInfos);
 
 class ADOLC_API CP_Context {
 public:
+  CP_Context() = delete;
   CP_Context(short tapeId, short cp_tape_id, ADOLC_TimeStepFuncion tsf) {
-    cpInfos = reg_timestep_fct(tapeId, cp_tape_id, tsf);
+    reg_timestep_fct(tapeId, cp_tape_id, tsf);
   }
   ~CP_Context() = default;
   void setDoubleFct(ADOLC_TimeStepFuncion_double tsf) {
@@ -104,8 +101,8 @@ public:
   int checkpointing(short tapeId) { return ::checkpointing(tapeId, cpInfos); }
 
 private:
-  inline CP_Context() {}
-
+  void reg_timestep_fct(short tapeId, short cp_tape_id,
+                        ADOLC_TimeStepFuncion timeStepFunction);
   CpInfos *cpInfos;
 };
 
