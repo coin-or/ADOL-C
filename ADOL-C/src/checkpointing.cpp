@@ -159,67 +159,6 @@ void check_input(short tapeId, CpInfos *cpInfos) {
   if (cpInfos->adp_x == nullptr)
     fail(CHECKPOINTING_NULLPOINTER_ARGUMENT, CURRENT_LOCATION);
 }
-/* This is the main checkpointing function the user calls within the taping
- * process. It performs n time steps with or without taping and registers an
- * external dummy function which calls the actual checkpointing workhorses
- * from within the used drivers. */
-int checkpointing(short tapeId, CpInfos *cpInfos) {
-
-  // throws if input is invalid
-  check_input(tapeId, cpInfos);
-
-  // register extern function
-  ext_diff_fct *edf = reg_ext_fct(cpInfos->tapeId, cpInfos->cp_tape_id, dummy);
-  init_edf(edf);
-
-  ValueTape &tape = findTape(cpInfos->tapeId);
-  // but we do not call it
-  // we use direct taping to avoid unnecessary argument copying
-
-  tape.put_op(ext_diff);
-  tape.put_loc(edf->index);
-  tape.put_loc(0);
-  tape.put_loc(0);
-  tape.put_loc(cpInfos->adp_x[0].loc());
-  tape.put_loc(cpInfos->adp_y[0].loc());
-  // this CpInfos id has to be read by the actual checkpointing
-  // functions
-  tape.put_loc(cpInfos->index);
-
-  std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
-
-  cpInfos->dp_internal_for = new double[cpInfos->dim];
-
-  // initialize internal arguments
-  for (int i = 0; i < cpInfos->dim; ++i)
-    cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].value();
-
-  if (tape.keepTaylors()) {
-    // perform all time steps, tape the last, take checkpoints
-    cpInfos->revolve_for();
-  } else
-    // perform all time steps without taping
-    for (int i = 0; i < cpInfos->steps; ++i)
-      cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
-
-  std::copy(vals.begin(), vals.end(), tape.store());
-
-  // update taylor stack; same structure as in adouble.cpp +
-  // correction in taping.cpp
-  tape.add_numTays_Tape(cpInfos->dim);
-  if (tape.keepTaylors())
-    for (int i = 0; i < cpInfos->dim; ++i)
-      tape.write_scaylor(cpInfos->adp_y[i].value());
-
-  // save results
-  for (int i = 0; i < cpInfos->dim; ++i) {
-    cpInfos->adp_y[i].value(cpInfos->dp_internal_for[i]);
-  }
-
-  delete[] cpInfos->dp_internal_for;
-  cpInfos->dp_internal_for = nullptr;
-  return 0;
-}
 
 /* initialize the information for the external function in a way that our
  * checkpointing functions are called */
@@ -564,4 +503,61 @@ void CpInfos::release() {
     if (shot[1] != nullptr)
       delete[] shot[1];
   }
+}
+
+int CP_Context::checkpointing(short tapeId) {
+  // throws if input is invalid
+  check_input(tapeId, cpInfos);
+
+  // register extern function
+  ext_diff_fct *edf = reg_ext_fct(cpInfos->tapeId, cpInfos->cp_tape_id, dummy);
+  init_edf(edf);
+
+  ValueTape &tape = findTape(cpInfos->tapeId);
+  // but we do not call it
+  // we use direct taping to avoid unnecessary argument copying
+
+  tape.put_op(ext_diff);
+  tape.put_loc(edf->index);
+  tape.put_loc(0);
+  tape.put_loc(0);
+  tape.put_loc(cpInfos->adp_x[0].loc());
+  tape.put_loc(cpInfos->adp_y[0].loc());
+  // this CpInfos id has to be read by the actual checkpointing
+  // functions
+  tape.put_loc(cpInfos->index);
+
+  std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
+
+  cpInfos->dp_internal_for = new double[cpInfos->dim];
+
+  // initialize internal arguments
+  for (int i = 0; i < cpInfos->dim; ++i)
+    cpInfos->dp_internal_for[i] = cpInfos->adp_x[i].value();
+
+  if (tape.keepTaylors()) {
+    // perform all time steps, tape the last, take checkpoints
+    cpInfos->revolve_for();
+  } else
+    // perform all time steps without taping
+    for (int i = 0; i < cpInfos->steps; ++i)
+      cpInfos->function_double(cpInfos->dim, cpInfos->dp_internal_for);
+
+  std::copy(vals.begin(), vals.end(), tape.store());
+
+  // update taylor stack; same structure as in adouble.cpp +
+  // correction in taping.cpp
+  tape.add_numTays_Tape(cpInfos->dim);
+  if (tape.keepTaylors())
+    for (int i = 0; i < cpInfos->dim; ++i)
+      tape.write_scaylor(cpInfos->adp_y[i].value());
+
+  // save results
+  for (int i = 0; i < cpInfos->dim; ++i) {
+    cpInfos->adp_y[i].value(cpInfos->dp_internal_for[i]);
+  }
+
+  delete[] cpInfos->dp_internal_for;
+  cpInfos->dp_internal_for = nullptr;
+  return 0;
 }
