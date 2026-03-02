@@ -138,24 +138,26 @@ void CP_Context::reg_timestep_fct(short tapeId, short cp_tape_id,
   cpInfos->cp_tape_id = cp_tape_id;
 }
 
-void check_input(short tapeId, CpInfos *cpInfos) { // knockout
-  if (tapeId != cpInfos->tapeId)
-    ADOLCError::fail(ADOLCError::ErrorType::CP_TAPE_MISMATCH, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info2 = to_size_t(cpInfos->tapeId),
-                                          .info3 = tapeId});
+void check_input(short tapeId, CpInfos *cpInfos) {
+  using ADOLCError::fail;
+  using ADOLCError::FailInfo;
+  using ADOLCError::ErrorType::CHECKPOINTING_CPINFOS_NULLPOINTER;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_ARGUMENT;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION;
+  using ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE;
+  using ADOLCError::ErrorType::CP_TAPE_MISMATCH;
+
   if (cpInfos == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_CPINFOS_NULLPOINTER,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_CPINFOS_NULLPOINTER, CURRENT_LOCATION);
+  if (tapeId != cpInfos->tapeId)
+    fail(CP_TAPE_MISMATCH, CURRENT_LOCATION,
+         FailInfo{.info2 = to_size_t(cpInfos->tapeId), .info3 = tapeId});
   if (cpInfos->function == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_FUNCTION, CURRENT_LOCATION);
   if (cpInfos->function_double == nullptr)
-    ADOLCError::fail(
-        ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE,
-        CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_FUNCTION_DOUBLE, CURRENT_LOCATION);
   if (cpInfos->adp_x == nullptr)
-    ADOLCError::fail(ADOLCError::ErrorType::CHECKPOINTING_NULLPOINTER_ARGUMENT,
-                     CURRENT_LOCATION);
+    fail(CHECKPOINTING_NULLPOINTER_ARGUMENT, CURRENT_LOCATION);
 }
 /* This is the main checkpointing function the user calls within the taping
  * process. It performs n time steps with or without taping and registers an
