@@ -50,7 +50,7 @@ public:
     initFunction = _initFunction;
   }
   T *append();
-  T *getElement(size_t index);
+  T *getElement(size_t index) const;
 
 private:
   SubBuffer *firstSubBuffer{nullptr};
@@ -130,7 +130,7 @@ template <AllMemType T, size_t buff_size> T *Buffer<T, buff_size>::append() {
 }
 
 template <AllMemType T, size_t buff_size>
-T *Buffer<T, buff_size>::getElement(size_t index) {
+T *Buffer<T, buff_size>::getElement(size_t index) const {
   if (index >= numEntries)
     ADOLCError::fail(ADOLCError::ErrorType::BUFFER_INDEX_TO_LARGE,
                      CURRENT_LOCATION);

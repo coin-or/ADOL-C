@@ -957,10 +957,9 @@ public:
 
   static double make_inf() { return std::numeric_limits<double>::infinity(); }
 
-  void cp_takeshot(CpInfos *cpInfos);
-  void cp_restore(CpInfos *cpInfos);
-  void cp_release(CpInfos *cpInfos);
-  CpInfos *get_cp_fct(size_t index) { return cp_buffer_.getElement(index); }
+  CpInfos *get_cp_fct(size_t index) const {
+    return cp_buffer_.getElement(index);
+  }
 };
 
 #endif // ADOLC_VALUETAPE_H
