@@ -2600,7 +2600,6 @@ int int_reverse_safe(
 #if !defined(_INT_REV_)
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differntiated function */
-      tape.cp_index(tape.get_locint_r());
       tape.lowestYLoc_rev(tape.get_locint_r());
       tape.lowestXLoc_rev(tape.get_locint_r());
       m = tape.get_locint_r();
@@ -2676,7 +2675,6 @@ int int_reverse_safe(
 
       break;
     case ext_diff_iArr: /* extern differntiated function */
-      tape.cp_index(tape.get_locint_r());
       tape.lowestYLoc_rev(tape.get_locint_r());
       tape.lowestXLoc_rev(tape.get_locint_r());
       m = tape.get_locint_r();

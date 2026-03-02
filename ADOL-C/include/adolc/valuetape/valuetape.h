@@ -282,8 +282,6 @@ public:
   void ext_diff_fct_index(size_t index) {
     tapeInfos_.ext_diff_fct_index = index;
   }
-  size_t cp_index() const { return tapeInfos_.cpIndex; }
-  void cp_index(size_t index) { tapeInfos_.cpIndex = index; }
 
   unsigned char *currOp() const { return tapeInfos_.currOp; }
   void currOp(unsigned char *op) { tapeInfos_.currOp = op; }

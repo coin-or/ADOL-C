@@ -27,17 +27,6 @@
 #include <cstring>
 
 /* forward function declarations */
-void init_edf(ext_diff_fct *edf);
-ADOLC_ext_fct cp_zos_forward;
-ADOLC_ext_fct_fos_forward cp_fos_forward;
-ADOLC_ext_fct_fov_forward cp_fov_forward;
-ADOLC_ext_fct_hos_forward cp_hos_forward;
-ADOLC_ext_fct_hov_forward cp_hov_forward;
-ADOLC_ext_fct_fos_reverse cp_fos_reverse;
-ADOLC_ext_fct_fov_reverse cp_fov_reverse;
-ADOLC_ext_fct_hos_reverse cp_hos_reverse;
-ADOLC_ext_fct_hov_reverse cp_hov_reverse;
-
 void CpInfos::taping() {
   trace_on(cp_tape_id, 1);
   {
@@ -160,37 +149,21 @@ void check_input(short tapeId, CpInfos *cpInfos) {
     fail(CHECKPOINTING_NULLPOINTER_ARGUMENT, CURRENT_LOCATION);
 }
 
-/* initialize the information for the external function in a way that our
- * checkpointing functions are called */
-void init_edf(ext_diff_fct *edf) {
-  edf->function = dummy;
-  edf->zos_forward = cp_zos_forward;
-  edf->fos_forward = cp_fos_forward;
-  edf->fov_forward = cp_fov_forward;
-  edf->hos_forward = cp_hos_forward;
-  edf->hov_forward = cp_hov_forward;
-  edf->fos_reverse = cp_fos_reverse;
-  edf->fov_reverse = cp_fov_reverse;
-  edf->hos_reverse = cp_hos_reverse;
-  edf->hov_reverse = cp_hov_reverse;
-}
-
 /****************************************************************************/
 /* the following are the main checkpointing functions called by the         */
 /* external differentiated function alogrithms                              */
 /****************************************************************************/
 
 /* special case: use double version where possible, no taping */
-int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
-
+int cp_zos_forward(size_t cpIndex, short tapeId, size_t, double *, size_t,
+                   double *) {
   ValueTape &tape = findTape(tapeId);
-  // taping off
 
   // get checkpointing information
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
+  CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
   if (!cpInfos)
     ADOLCError::fail(ADOLCError::ErrorType::CP_NO_SUCH_IDX, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info2 = tape.cp_index()});
+                     ADOLCError::FailInfo{.info2 = cpIndex});
 
   // prepare arguments
   cpInfos->dp_internal_for = new double[cpInfos->dim];
@@ -215,40 +188,40 @@ int cp_zos_forward(short tapeId, size_t, double *, size_t, double *) {
   return 0;
 }
 
-int cp_fos_forward(short, size_t, double *, double *, size_t, double *,
+int cp_fos_forward(size_t, short, size_t, double *, double *, size_t, double *,
                    double *) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fos_forward mode!\n");
   return 0;
 }
 
-int cp_fov_forward(short, size_t, double *, size_t, double **, size_t, double *,
-                   double **) {
+int cp_fov_forward(size_t, short, size_t, double *, size_t, double **, size_t,
+                   double *, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fov_forward mode!\n");
   return 0;
 }
 
-int cp_hos_forward(short, size_t, double *, size_t, double **, size_t, double *,
-                   double **) {
+int cp_hos_forward(size_t, short, size_t, double *, size_t, double **, size_t,
+                   double *, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_forward mode!\n");
   return 0;
 }
 
-int cp_hov_forward(short, size_t, double *, size_t, size_t, double ***, size_t,
-                   double *, double ***) {
+int cp_hov_forward(size_t, short, size_t, double *, size_t, size_t, double ***,
+                   size_t, double *, double ***) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_forward mode!\n");
   return 0;
 }
 
-int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
-                   double *) {
+int cp_fos_reverse(size_t cpIndex, short tapeId, size_t, double *, size_t,
+                   double *, double *, double *) {
 
   ValueTape &tape = findTape(tapeId);
 
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
+  CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
@@ -338,12 +311,12 @@ int cp_fos_reverse(short tapeId, size_t, double *, size_t, double *, double *,
   return 0;
 }
 
-int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
-                   double *, double *) {
+int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
+                   size_t, double **, double *, double *) {
 
   ValueTape &tape = findTape(tapeId);
 
-  CpInfos *cpInfos = tape.get_cp_fct(tape.cp_index());
+  CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
 
   const int numDirs = tape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];
@@ -440,14 +413,14 @@ int cp_fov_reverse(short tapeId, size_t, size_t, double **, size_t, double **,
   return 0;
 }
 
-int cp_hos_reverse(short, size_t, double *, size_t, size_t, double **) {
+int cp_hos_reverse(size_t, short, size_t, double *, size_t, size_t, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_reverse mode!\n");
   return 0;
 }
 
-int cp_hov_reverse(short, size_t, size_t, double **, size_t, size_t, double ***,
-                   short **) {
+int cp_hov_reverse(size_t, short, size_t, size_t, double **, size_t, size_t,
+                   double ***, short **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hov_reverse mode!\n");
   return 0;
@@ -505,6 +478,66 @@ void CpInfos::release() {
   }
 }
 
+/* initialize the information for the external function in a way that our
+ * checkpointing functions are called */
+void init_edf(ext_diff_fct *edf) {
+  edf->function = dummy;
+
+  // ZOS FORWARD
+  edf->zos_forward = [edf](short tapeId, size_t n1, double *x, size_t n2,
+                           double *y) {
+    return cp_zos_forward(edf->cp_index, tapeId, n1, x, n2, y);
+  };
+
+  // FOS FORWARD
+  edf->fos_forward = [edf](short tapeId, size_t n, double *x, double *xp,
+                           size_t m, double *y, double *yp) {
+    return cp_fos_forward(edf->cp_index, tapeId, n, x, xp, m, y, yp);
+  };
+
+  // FOV FORWARD
+  edf->fov_forward = [edf](short tapeId, size_t n, double *x, size_t p,
+                           double **xp, size_t m, double *y, double **yp) {
+    return cp_fov_forward(edf->cp_index, tapeId, n, x, p, xp, m, y, yp);
+  };
+
+  // HOS FORWARD
+  edf->hos_forward = [edf](short tapeId, size_t n, double *x, size_t d,
+                           double **xp, size_t m, double *y, double **yp) {
+    return cp_hos_forward(edf->cp_index, tapeId, n, x, d, xp, m, y, yp);
+  };
+
+  // HOV FORWARD
+  edf->hov_forward = [edf](short tapeId, size_t n, double *x, size_t d,
+                           size_t p, double ***xp, size_t m, double *y,
+                           double ***yp) {
+    return cp_hov_forward(edf->cp_index, tapeId, n, x, d, p, xp, m, y, yp);
+  };
+
+  // FOS REVERSE
+  edf->fos_reverse = [edf](short tapeId, size_t n, double *x, size_t m,
+                           double *y, double *u, double *z) {
+    return cp_fos_reverse(edf->cp_index, tapeId, n, x, m, y, u, z);
+  };
+
+  // FOV REVERSE
+  edf->fov_reverse = [edf](short tapeId, size_t n, size_t p, double **x,
+                           size_t m, double **y, double *u, double *z) {
+    return cp_fov_reverse(edf->cp_index, tapeId, n, p, x, m, y, u, z);
+  };
+
+  // HOS REVERSE
+  edf->hos_reverse = [edf](short tapeId, size_t n, double *x, size_t d,
+                           size_t m, double **y) {
+    return cp_hos_reverse(edf->cp_index, tapeId, n, x, d, m, y);
+  };
+
+  // HOV REVERSE
+  edf->hov_reverse = [edf](short tapeId, size_t n, size_t d, double **x,
+                           size_t m, size_t p, double ***y, short **nz) {
+    return cp_hov_reverse(edf->cp_index, tapeId, n, d, x, m, p, y, nz);
+  };
+}
 int CP_Context::checkpointing(short tapeId) {
   // throws if input is invalid
   check_input(tapeId, cpInfos);
@@ -512,6 +545,7 @@ int CP_Context::checkpointing(short tapeId) {
   // register extern function
   ext_diff_fct *edf = reg_ext_fct(cpInfos->tapeId, cpInfos->cp_tape_id, dummy);
   init_edf(edf);
+  edf->cp_index = cpInfos->index;
 
   ValueTape &tape = findTape(cpInfos->tapeId);
   // but we do not call it
@@ -523,9 +557,6 @@ int CP_Context::checkpointing(short tapeId) {
   tape.put_loc(0);
   tape.put_loc(cpInfos->adp_x[0].loc());
   tape.put_loc(cpInfos->adp_y[0].loc());
-  // this CpInfos id has to be read by the actual checkpointing
-  // functions
-  tape.put_loc(cpInfos->index);
 
   std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
 

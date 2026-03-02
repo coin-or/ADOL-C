@@ -5489,7 +5489,6 @@ int hov_forward(
       m = tape.get_locint_f();
       tape.lowestXLoc_for(tape.get_locint_f());
       tape.lowestYLoc_for(tape.get_locint_f());
-      tape.cp_index(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
@@ -5574,7 +5573,6 @@ int hov_forward(
       m = tape.get_locint_f();
       tape.lowestXLoc_for(tape.get_locint_f());
       tape.lowestYLoc_for(tape.get_locint_f());
-      tape.cp_index(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)

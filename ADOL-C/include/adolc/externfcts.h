@@ -18,39 +18,47 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <functional>
+
+// ignore missing dll-interface of stl for the moment
+// would require a bigger refactor
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4251) // STL members in exported classes
+#endif
 
 class adouble;
 
-using ADOLC_ext_fct = int(short tapeId, size_t dim_x, double *x, size_t dim_y,
-                          double *y);
-using ADOLC_ext_fct_fos_forward = int(short tapeId, size_t n, double *dp_x,
-                                      double *dp_X, size_t m, double *dp_y,
-                                      double *dp_Y);
-using ADOLC_ext_fct_fov_forward = int(short tapeId, size_t n, double *dp_x,
-                                      size_t p, double **dpp_X, size_t m,
-                                      double *dp_y, double **dpp_Y);
-using ADOLC_ext_fct_hos_forward = int(short tapeId, size_t n, double *dp_x,
-                                      size_t d, double **dpp_X, size_t m,
-                                      double *dp_y, double **dpp_Y);
-using ADOLC_ext_fct_hov_forward = int(short tapeId, size_t n, double *dp_x,
-                                      size_t d, size_t p, double ***dppp_X,
-                                      size_t m, double *dp_y, double ***dppp_Y);
-using ADOLC_ext_fct_fos_reverse = int(short tapeId, size_t m, double *dp_U,
-                                      size_t n, double *dp_Z, double *dp_x,
-                                      double *dp_y);
-using ADOLC_ext_fct_fov_reverse = int(short tapeId, size_t m, size_t p,
-                                      double **dpp_U, size_t n, double **dpp_Z,
-                                      double *dp_x, double *dp_y);
-using ADOLC_ext_fct_hos_reverse = int(short tapeId, size_t m, double *dp_U,
-                                      size_t n, size_t d, double **dpp_Z);
+using ADOLC_ext_fct = std::function<int(short tapeId, size_t dim_x, double *x,
+                                        size_t dim_y, double *y)>;
+using ADOLC_ext_fct_fos_forward =
+    std::function<int(short tapeId, size_t n, double *dp_x, double *dp_X,
+                      size_t m, double *dp_y, double *dp_Y)>;
+using ADOLC_ext_fct_fov_forward =
+    std::function<int(short tapeId, size_t n, double *dp_x, size_t p,
+                      double **dpp_X, size_t m, double *dp_y, double **dpp_Y)>;
+using ADOLC_ext_fct_hos_forward =
+    std::function<int(short tapeId, size_t n, double *dp_x, size_t d,
+                      double **dpp_X, size_t m, double *dp_y, double **dpp_Y)>;
+using ADOLC_ext_fct_hov_forward = std::function<int(
+    short tapeId, size_t n, double *dp_x, size_t d, size_t p, double ***dppp_X,
+    size_t m, double *dp_y, double ***dppp_Y)>;
+using ADOLC_ext_fct_fos_reverse =
+    std::function<int(short tapeId, size_t m, double *dp_U, size_t n,
+                      double *dp_Z, double *dp_x, double *dp_y)>;
+using ADOLC_ext_fct_fov_reverse =
+    std::function<int(short tapeId, size_t m, size_t p, double **dpp_U,
+                      size_t n, double **dpp_Z, double *dp_x, double *dp_y)>;
+using ADOLC_ext_fct_hos_reverse = std::function<int(
+    short tapeId, size_t m, double *dp_U, size_t n, size_t d, double **dpp_Z)>;
 // dpp_x: {x_{0,0}, x{0,1}, ..., x_{0,keep}}, {x1,0, ..., x_1,keep}, ...} ; n
 // Taylor polynomials of degree keep (i.e., array of size n * (keep+1))
-using ADOLC_ext_fct_hos_ti_reverse = int(short tapeId, size_t m, double **dp_U,
-                                         size_t n, size_t d, double **dpp_Z,
-                                         double **dpp_x, double **dpp_y);
-using ADOLC_ext_fct_hov_reverse = int(short tapeId, size_t m, size_t p,
-                                      double **dpp_U, size_t n, size_t d,
-                                      double ***dppp_Z, short **spp_nz);
+using ADOLC_ext_fct_hos_ti_reverse =
+    std::function<int(short tapeId, size_t m, double **dp_U, size_t n, size_t d,
+                      double **dpp_Z, double **dpp_x, double **dpp_y)>;
+using ADOLC_ext_fct_hov_reverse =
+    std::function<int(short tapeId, size_t m, size_t p, double **dpp_U,
+                      size_t n, size_t d, double ***dppp_Z, short **spp_nz)>;
 
 /**
  * we add a second set of function pointers with a signature expanded by a an
@@ -62,41 +70,34 @@ using ADOLC_ext_fct_hov_reverse = int(short tapeId, size_t m, size_t p,
  * separate stack to contain the extra data but this would break the
  * self-containment of the tape.
  */
-using ADOLC_ext_fct_iArr = int(short tapeId, size_t iArrLength, size_t *iArr,
-                               size_t n, double *x, size_t m, double *y);
-using ADOLC_ext_fct_iArr_fos_forward = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t n, double *dp_x,
-                                           double *dp_X, size_t m, double *dp_y,
-                                           double *dp_Y);
-using ADOLC_ext_fct_iArr_fov_forward = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t n, double *dp_x,
-                                           size_t p, double **dpp_X, size_t m,
-                                           double *dp_y, double **dpp_Y);
-using ADOLC_ext_fct_iArr_hos_forward = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t n, double *dp_x,
-                                           size_t d, double **dpp_X, size_t m,
-                                           double *dp_y, double **dpp_Y);
-using ADOLC_ext_fct_iArr_hov_forward = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t n, double *dp_x,
-                                           size_t d, size_t p, double ***dppp_X,
-                                           size_t m, double *dp_y,
-                                           double ***dppp_Y);
-using ADOLC_ext_fct_iArr_fos_reverse = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t m, double *dp_U,
-                                           size_t n, double *dp_Z, double *dp_x,
-                                           double *dp_y);
-using ADOLC_ext_fct_iArr_fov_reverse = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t m, size_t p,
-                                           double **dpp_U, size_t n,
-                                           double **dpp_Z, double *dp_x,
-                                           double *dp_y);
-using ADOLC_ext_fct_iArr_hos_reverse = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t m, double *dp_U,
-                                           size_t n, size_t d, double **dpp_Z);
-using ADOLC_ext_fct_iArr_hov_reverse = int(short tapeId, size_t iArrLength,
-                                           size_t *iArr, size_t m, size_t p,
-                                           double **dpp_U, size_t n, size_t d,
-                                           double ***dppp_Z, short **spp_nz);
+using ADOLC_ext_fct_iArr =
+    std::function<int(short tapeId, size_t iArrLength, size_t *iArr, size_t n,
+                      double *x, size_t m, double *y)>;
+using ADOLC_ext_fct_iArr_fos_forward = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t n, double *dp_x,
+    double *dp_X, size_t m, double *dp_y, double *dp_Y)>;
+using ADOLC_ext_fct_iArr_fov_forward = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t n, double *dp_x,
+    size_t p, double **dpp_X, size_t m, double *dp_y, double **dpp_Y)>;
+using ADOLC_ext_fct_iArr_hos_forward = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t n, double *dp_x,
+    size_t d, double **dpp_X, size_t m, double *dp_y, double **dpp_Y)>;
+using ADOLC_ext_fct_iArr_hov_forward =
+    std::function<int(short tapeId, size_t iArrLength, size_t *iArr, size_t n,
+                      double *dp_x, size_t d, size_t p, double ***dppp_X,
+                      size_t m, double *dp_y, double ***dppp_Y)>;
+using ADOLC_ext_fct_iArr_fos_reverse = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t m, double *dp_U,
+    size_t n, double *dp_Z, double *dp_x, double *dp_y)>;
+using ADOLC_ext_fct_iArr_fov_reverse = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t m, size_t p,
+    double **dpp_U, size_t n, double **dpp_Z, double *dp_x, double *dp_y)>;
+using ADOLC_ext_fct_iArr_hos_reverse =
+    std::function<int(short tapeId, size_t iArrLength, size_t *iArr, size_t m,
+                      double *dp_U, size_t n, size_t d, double **dpp_Z)>;
+using ADOLC_ext_fct_iArr_hov_reverse = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, size_t m, size_t p,
+    double **dpp_U, size_t n, size_t d, double ***dppp_Z, short **spp_nz)>;
 
 /**
  * A variable of this type has to be instantiated by reg_ext_fct (see below) and
@@ -114,13 +115,15 @@ struct ADOLC_API ext_diff_fct {
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
-  ADOLC_ext_fct *function{nullptr};
-  ADOLC_ext_fct_iArr *function_iArr{nullptr};
+  ADOLC_ext_fct function{nullptr};
+  ADOLC_ext_fct_iArr function_iArr{nullptr};
 
   /**
    * DO NOT touch - the index is set through reg_ext_fct
    */
   size_t index{0};
+
+  size_t cp_index{0};
 
   /**
    * below are function pointers used for call back from the corresponding
@@ -137,16 +140,16 @@ struct ADOLC_API ext_diff_fct {
    * makes sense for this to be different as illustrated in
    * examples/additional_examples/ext_diff_func/ext_diff_func.cpp
    */
-  ADOLC_ext_fct *zos_forward{nullptr};
-  ADOLC_ext_fct_iArr *zos_forward_iArr{nullptr};
+  ADOLC_ext_fct zos_forward{nullptr};
+  ADOLC_ext_fct_iArr zos_forward_iArr{nullptr};
 
   /**
    * this points to a  method implementing a forward execution of the externally
    * differentiated function dp_y=f(dp_x) and computing the projection
    * dp_Y=Jacobian*dp_x see also the explanation of the dp_X/Y  members below.
    */
-  ADOLC_ext_fct_fos_forward *fos_forward{nullptr};
-  ADOLC_ext_fct_iArr_fos_forward *fos_forward_iArr{nullptr};
+  ADOLC_ext_fct_fos_forward fos_forward{nullptr};
+  ADOLC_ext_fct_iArr_fos_forward fos_forward_iArr{nullptr};
 
   /**
    * this points to a  method implementing a forward execution of the externally
@@ -154,47 +157,47 @@ struct ADOLC_API ext_diff_fct {
    * dpp_Y=Jacobian*dpp_x see also the explanation of the dpp_X/Y  members
    * below.
    */
-  ADOLC_ext_fct_fov_forward *fov_forward{nullptr};
-  ADOLC_ext_fct_iArr_fov_forward *fov_forward_iArr{nullptr};
+  ADOLC_ext_fct_fov_forward fov_forward{nullptr};
+  ADOLC_ext_fct_iArr_fov_forward fov_forward_iArr{nullptr};
   /**
    * higher order scalar forward for external functions  is currently not
    * implemented in uni5_for.cpp
    */
-  ADOLC_ext_fct_hos_forward *hos_forward{nullptr};
-  ADOLC_ext_fct_iArr_hos_forward *hos_forward_iArr{nullptr};
+  ADOLC_ext_fct_hos_forward hos_forward{nullptr};
+  ADOLC_ext_fct_iArr_hos_forward hos_forward_iArr{nullptr};
   /**
    * higher order vector forward for external functions  is currently not
    * implemented in uni5_for.cpp
    */
-  ADOLC_ext_fct_hov_forward *hov_forward{nullptr};
-  ADOLC_ext_fct_iArr_hov_forward *hov_forward_iArr{nullptr};
+  ADOLC_ext_fct_hov_forward hov_forward{nullptr};
+  ADOLC_ext_fct_iArr_hov_forward hov_forward_iArr{nullptr};
   /**
    * this points to a  method computing the projection dp_Z=transpose(dp_U) *
    * Jacobian see also the explanation of the dp_U/Z  members below.
    */
-  ADOLC_ext_fct_fos_reverse *fos_reverse{nullptr};
-  ADOLC_ext_fct_iArr_fos_reverse *fos_reverse_iArr{nullptr};
+  ADOLC_ext_fct_fos_reverse fos_reverse{nullptr};
+  ADOLC_ext_fct_iArr_fos_reverse fos_reverse_iArr{nullptr};
   /**
    * this points to a  method computing the projection dpp_Z=transpose(dpp_U) *
    * Jacobian see also the explanation of the dpp_U/Z  members below.
    */
-  ADOLC_ext_fct_fov_reverse *fov_reverse{nullptr};
-  ADOLC_ext_fct_iArr_fov_reverse *fov_reverse_iArr{nullptr};
+  ADOLC_ext_fct_fov_reverse fov_reverse{nullptr};
+  ADOLC_ext_fct_iArr_fov_reverse fov_reverse_iArr{nullptr};
   /**
    * higher order scalar reverse for external functions  is currently not
    * implemented in ho_rev.cpp
    */
-  ADOLC_ext_fct_hos_reverse *hos_reverse{nullptr};
-  ADOLC_ext_fct_iArr_hos_reverse *hos_reverse_iArr{nullptr};
+  ADOLC_ext_fct_hos_reverse hos_reverse{nullptr};
+  ADOLC_ext_fct_iArr_hos_reverse hos_reverse_iArr{nullptr};
 
-  ADOLC_ext_fct_hos_ti_reverse *hos_ti_reverse{nullptr};
+  ADOLC_ext_fct_hos_ti_reverse hos_ti_reverse{nullptr};
 
   /**
    * higher order vector reverse for external functions  is currently not
    * implemented in ho_rev.cpp
    */
-  ADOLC_ext_fct_hov_reverse *hov_reverse{nullptr};
-  ADOLC_ext_fct_iArr_hov_reverse *hov_reverse_iArr{nullptr};
+  ADOLC_ext_fct_hov_reverse hov_reverse{nullptr};
+  ADOLC_ext_fct_iArr_hov_reverse hov_reverse_iArr{nullptr};
 
   /**
    * The names of the variables below correspond to the formal parameters names

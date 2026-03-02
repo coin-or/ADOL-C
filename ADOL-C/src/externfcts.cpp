@@ -123,8 +123,6 @@ void call_ext_fct_commonPrior(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
   tape.put_loc(dim_y);
   tape.put_loc(xa[0].loc());
   tape.put_loc(ya[0].loc());
-  /* keep space for checkpointing index */
-  tape.put_loc(0);
 
   if (edfct->nestedAdolc) {
     vals = new double[tape.storeSize()];
