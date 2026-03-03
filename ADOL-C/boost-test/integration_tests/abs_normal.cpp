@@ -1,6 +1,13 @@
+#include "../const.h"
+#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
-#include <iostream>
+#include <array>
+#include <boost/test/unit_test.hpp>
+#include <numeric>
 
+BOOST_AUTO_TEST_SUITE(AbsNormalFormTest)
+
+namespace {
 struct ADProblem {
   static constexpr size_t dimIn = 2;
   static constexpr size_t dimOut = 1;
@@ -15,6 +22,7 @@ struct ADProblem {
 };
 
 void taping(ADProblem &problem) {
+  setCurrentTape(problem.tapeId);
   currentTape().enableMinMaxUsingAbs();
   trace_on(problem.tapeId);
 
@@ -24,26 +32,17 @@ void taping(ADProblem &problem) {
   for (int i = 0; i < ADProblem::dimIn; i++)
     ax[i] <<= problem.x[i];
 
-  ay[0] = ax[0] + ax[1] - fabs(ax[0]) - fabs(ax[1]);
+  auto z1 = fabs(ax[0]);
+  auto z2 = fabs(ax[1]);
+  ay[0] = ax[0] + ax[1] - z1 - z2;
 
   ay[0] >>= problem.y[0];
   trace_off();
 
   problem.numSwitches = get_num_switches(problem.tapeId);
-  std::cout << "s = " << problem.numSwitches << "\n";
+  BOOST_TEST(problem.numSwitches == 2);
 }
 
-void printMatrix(std::string_view description, std::vector<double *> matrix,
-                 size_t dimx, size_t dimy) {
-
-  std::cout << description << " \n";
-  for (int i = 0; i < dimx; ++i) {
-    for (int j = 0; j < dimy; ++j) {
-      std::cout << matrix[i][j] << " ";
-    }
-    std::cout << "\n";
-  }
-}
 void computerAbsNormal(ADProblem &problem) {
   std::vector<double> z(problem.numSwitches);
   std::vector<double> cz(problem.numSwitches);
@@ -77,15 +76,28 @@ void computerAbsNormal(ADProblem &problem) {
                       z.data(), cz.data(), cy.data(), Y.data(), J.data(),
                       Z.data(), L.data());
 
-  std::cout << "rc = " << rc << "\n";
+  BOOST_TEST(L[0][0] == 0.0);
+  BOOST_TEST(L[1][0] == 0.0);
+  BOOST_TEST(L[0][1] == 0.0);
+  BOOST_TEST(L[1][1] == 0.0);
 
-  printMatrix("L (s x s):", L, problem.numSwitches, problem.numSwitches);
-  printMatrix("Z (s x n):", Z, problem.numSwitches, ADProblem::dimIn);
-  printMatrix("Y (m x n):", Y, ADProblem::dimOut, ADProblem::dimIn);
-  printMatrix("J (m x s):", J, ADProblem::dimOut, problem.numSwitches);
+  BOOST_TEST(Z[0][0] == 1.0);
+  BOOST_TEST(Z[1][0] == 0.0);
+  BOOST_TEST(Z[0][1] == 0.0);
+  BOOST_TEST(Z[1][1] == 1.0);
+
+  BOOST_TEST(Y[0][0] == 1.0);
+  BOOST_TEST(Y[0][1] == 1.0);
+
+  BOOST_TEST(J[0][0] == -1.0);
+  BOOST_TEST(J[0][1] == -1.0);
 }
-int main() {
+} // namespace
+BOOST_AUTO_TEST_CASE(AbsNormalForm) {
+
   ADProblem problem{};
   taping(problem);
   computerAbsNormal(problem);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
