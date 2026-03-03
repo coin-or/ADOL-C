@@ -2847,7 +2847,6 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differentiated function */
     {
-      tape.cp_index(tape.get_locint_r());
       tape.lowestYLoc_rev(tape.get_locint_r());
       tape.lowestXLoc_rev(tape.get_locint_r());
       m = tape.get_locint_r();

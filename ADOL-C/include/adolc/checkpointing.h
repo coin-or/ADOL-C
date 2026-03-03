@@ -73,8 +73,6 @@ struct CpInfos {
   void revolveError();
 };
 
-ADOLC_API int checkpointing(short tapeId, CpInfos *cpInfos);
-
 class ADOLC_API CP_Context {
 public:
   CP_Context() = delete;
@@ -98,7 +96,12 @@ public:
     else
       cpInfos->retaping = 0;
   }
-  int checkpointing(short tapeId) { return ::checkpointing(tapeId, cpInfos); }
+
+  /* This is the main checkpointing function the user calls within the taping
+   * process. It performs n time steps with or without taping and registers an
+   * external dummy function which calls the actual checkpointing workhorses
+   * from within the used drivers. */
+  int checkpointing(short tapeId);
 
 private:
   void reg_timestep_fct(short tapeId, short cp_tape_id,
