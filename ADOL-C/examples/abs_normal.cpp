@@ -81,7 +81,7 @@ void computerAbsNormal(ADProblem &problem) {
 
   printMatrix("L (s x s):", L, problem.numSwitches, problem.numSwitches);
   printMatrix("Z (s x n):", Z, problem.numSwitches, ADProblem::dimIn);
-  printMatrix("Y (m x n):", L, ADProblem::dimOut, ADProblem::dimIn);
+  printMatrix("Y (m x n):", Y, ADProblem::dimOut, ADProblem::dimIn);
   printMatrix("J (m x s):", J, ADProblem::dimOut, problem.numSwitches);
 }
 int main() {
