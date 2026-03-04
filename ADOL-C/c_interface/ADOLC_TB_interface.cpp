@@ -11,7 +11,8 @@ inline adouble borrow(const tape_loc v) {
   return adouble::borrow_location(v.loc);
 }
 
-// Transfer the produced adouble location into plain C token and invalidate source.
+// Transfer the produced adouble location into plain C token and invalidate
+// source.
 inline tape_loc release_to_tape_loc(adouble &&a) { return {a.release_loc()}; }
 
 } // namespace
@@ -330,7 +331,9 @@ bool adolc_tb_d_eq(const double x, const tape_loc a) {
   return aa == x;
 }
 
-int adolc_trace_on(const short tag, const int keep) { return trace_on(tag, keep); }
+int adolc_trace_on(const short tag, const int keep) {
+  return trace_on(tag, keep);
+}
 void adolc_trace_off(const int flag) { trace_off(flag); }
 void adolc_ensure_tape(const short tape_id) {
   while (findTapePtr_(tape_id) == nullptr) {
@@ -358,7 +361,9 @@ size_t adolc_num_dependent(const short tape_id) {
   return stats[TapeInfos::NUM_DEPENDENTS];
 }
 
-void adolc_enable_min_max_using_abs(void) { currentTape().enableMinMaxUsingAbs(); }
+void adolc_enable_min_max_using_abs(void) {
+  currentTape().enableMinMaxUsingAbs();
+}
 void adolc_disable_min_max_using_abs(void) {
   currentTape().disableMinMaxUsingAbs();
 }
