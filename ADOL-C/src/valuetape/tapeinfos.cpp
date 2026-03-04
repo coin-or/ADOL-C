@@ -57,10 +57,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
-      lowestXLoc_for(other.lowestXLoc_for),
-      lowestYLoc_for(other.lowestYLoc_for),
-      lowestXLoc_rev(other.lowestXLoc_rev),
-      lowestYLoc_rev(other.lowestYLoc_rev), cpIndex(other.cpIndex),
       numDirs_rev(other.numDirs_rev),
       lowestXLoc_ext_v2(other.lowestXLoc_ext_v2),
       lowestYLoc_ext_v2(other.lowestYLoc_ext_v2), dp_T0(other.dp_T0),
@@ -155,11 +151,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     tay_numInds = other.tay_numInds;
     tay_numDeps = other.tay_numDeps;
 
-    lowestXLoc_for = other.lowestXLoc_for;
-    lowestYLoc_for = other.lowestYLoc_for;
-    lowestXLoc_rev = other.lowestXLoc_rev;
-    lowestYLoc_rev = other.lowestYLoc_rev;
-    cpIndex = other.cpIndex;
     numDirs_rev = other.numDirs_rev;
 
     lowestXLoc_ext_v2 = other.lowestXLoc_ext_v2;

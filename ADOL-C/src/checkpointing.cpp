@@ -164,11 +164,12 @@ int cp_zos_forward(size_t cpIndex, short tapeId, size_t, double *, size_t,
   if (!cpInfos)
     ADOLCError::fail(ADOLCError::ErrorType::CP_NO_SUCH_IDX, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info2 = cpIndex});
+  const ext_diff_fct *edfct = tape.ext_diff_getElement(cpInfos->extDiffIndex);
 
   // prepare arguments
   cpInfos->dp_internal_for = new double[cpInfos->dim];
 
-  size_t arg = tape.lowestXLoc_for();
+  size_t arg = edfct->firstIndLocation;
   for (int i = 0; i < cpInfos->dim; ++i) {
     cpInfos->dp_internal_for[i] = tape.dp_T0()[arg];
     ++arg;
@@ -177,7 +178,7 @@ int cp_zos_forward(size_t cpIndex, short tapeId, size_t, double *, size_t,
   cpInfos->revolve_for();
 
   // write back
-  arg = tape.lowestYLoc_for(); // keep input
+  arg = edfct->firstDepLocation; // keep input
   for (int i = 0; i < cpInfos->dim; ++i) {
     tape.write_scaylor(tape.dp_T0()[arg]);
     tape.dp_T0()[arg] = cpInfos->dp_internal_for[i];
@@ -222,11 +223,12 @@ int cp_fos_reverse(size_t cpIndex, short tapeId, size_t, double *, size_t,
   ValueTape &tape = findTape(tapeId);
 
   CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
+  const ext_diff_fct *edfct = tape.ext_diff_getElement(cpInfos->extDiffIndex);
 
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dp_internal_rev = new double[cpInfos->dim];
 
-  size_t arg = tape.lowestYLoc_rev();
+  size_t arg = edfct->firstDepLocation;
   for (int i = 0; i < cpInfos->dim; ++i) {
     cpInfos->dp_internal_rev[i] = tape.rp_A()[arg];
     ++arg;
@@ -298,7 +300,7 @@ int cp_fos_reverse(size_t cpIndex, short tapeId, size_t, double *, size_t,
   tape.branchSwitchWarning(old_bsw);
 
   // save results
-  size_t start = tape.lowestYLoc_rev();
+  size_t start = edfct->firstDepLocation;
   std::copy(cpInfos->dp_internal_rev, cpInfos->dp_internal_rev + cpInfos->dim,
             tape.rp_A() + start);
 
@@ -317,13 +319,14 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
   ValueTape &tape = findTape(tapeId);
 
   CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
+  const ext_diff_fct *edfct = tape.ext_diff_getElement(cpInfos->extDiffIndex);
 
   const int numDirs = tape.numDirs_rev();
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
 
   double **rpp_A = tape.rpp_A();
-  size_t start = tape.lowestYLoc_rev();
+  size_t start = edfct->firstDepLocation;
 
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
     for (int j = 0; j < numDirs; ++j) {
@@ -398,7 +401,7 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
   tape.branchSwitchWarning(old_bsw);
 
   // save results
-  start = tape.lowestYLoc_rev();
+  start = edfct->firstDepLocation;
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
     for (int j = 0; j < numDirs; ++j) {
       rpp_A[i][j] = cpInfos->dpp_internal_rev[j][i];
@@ -546,6 +549,7 @@ int CP_Context::checkpointing(short tapeId) {
   ext_diff_fct *edf = reg_ext_fct(cpInfos->tapeId, cpInfos->cp_tape_id, dummy);
   init_edf(edf);
   edf->cp_index = cpInfos->index;
+  cpInfos->extDiffIndex = edf->index;
 
   ValueTape &tape = findTape(cpInfos->tapeId);
   // but we do not call it
@@ -553,10 +557,12 @@ int CP_Context::checkpointing(short tapeId) {
 
   tape.put_op(ext_diff);
   tape.put_loc(edf->index);
+  // Keep n/m at zero so generic extern-fct interpreter paths skip their
+  // argument/taylor handling; checkpointing manages this internally.
   tape.put_loc(0);
   tape.put_loc(0);
-  tape.put_loc(cpInfos->adp_x[0].loc());
-  tape.put_loc(cpInfos->adp_y[0].loc());
+  edf->firstIndLocation = cpInfos->adp_x[0].loc();
+  edf->firstDepLocation = cpInfos->adp_y[0].loc();
 
   std::vector<double> vals(tape.store(), tape.store() + tape.storeSize());
 

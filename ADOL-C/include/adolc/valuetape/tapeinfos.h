@@ -105,17 +105,6 @@ struct TapeInfos {
   // # of dependents for the taylor stack
   size_t tay_numDeps{0};
 
-  /* ---------- checkpointing --------- */
-  // location of the first ind. - forward mode
-  size_t lowestXLoc_for{0};
-  // location of the first dep. - forward mode
-  size_t lowestYLoc_for{0};
-  // location of the first ind. - reverse mode
-  size_t lowestXLoc_rev{0};
-  // location of the first dep. - reverse mode
-  size_t lowestYLoc_rev{0};
-  // index of the curr. cp function <- tape
-  size_t cpIndex{0};
   // # of directions for **v_reverse (checkpointing)
   int numDirs_rev{0};
 

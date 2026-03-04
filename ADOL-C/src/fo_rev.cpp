@@ -2600,8 +2600,6 @@ int int_reverse_safe(
 #if !defined(_INT_REV_)
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differntiated function */
-      tape.lowestYLoc_rev(tape.get_locint_r());
-      tape.lowestXLoc_rev(tape.get_locint_r());
       m = tape.get_locint_r();
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
@@ -2627,47 +2625,47 @@ int int_reverse_safe(
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
       }
-      arg = tape.lowestYLoc_rev();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
-      arg = tape.lowestXLoc_rev();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
-      arg = tape.lowestXLoc_rev();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
-      arg = tape.lowestYLoc_rev();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = tape.lowestYLoc_rev();
+      res = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
-      res = tape.lowestXLoc_rev();
+      res = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
-        arg = tape.lowestYLoc_rev() + m - 1;
+        arg = edfct->firstDepLocation + m - 1;
         for (size_t loop = 0; loop < m; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
-        arg = tape.lowestXLoc_rev() + n - 1;
+        arg = edfct->firstIndLocation + n - 1;
         for (size_t loop = 0; loop < n; ++loop, --arg) {
           tape.get_taylor(arg);
         }
@@ -2675,8 +2673,6 @@ int int_reverse_safe(
 
       break;
     case ext_diff_iArr: /* extern differntiated function */
-      tape.lowestYLoc_rev(tape.get_locint_r());
-      tape.lowestXLoc_rev(tape.get_locint_r());
       m = tape.get_locint_r();
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
@@ -2707,47 +2703,47 @@ int int_reverse_safe(
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
       }
-      arg = tape.lowestYLoc_rev();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
 
-      arg = tape.lowestXLoc_rev();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
         ++arg;
       }
-      arg = tape.lowestXLoc_rev();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop, ++arg) {
         edfct->dp_x[loop] = TARG;
       }
-      arg = tape.lowestYLoc_rev();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop, ++arg) {
         edfct->dp_y[loop] = TARG;
       }
       ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = tape.lowestYLoc_rev();
+      res = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
         ++res;
       }
-      res = tape.lowestXLoc_rev();
+      res = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
                                          ADJOINT_BUFFER_RES);
         ++res;
       }
       if (edfct->dp_y_priorRequired) {
-        arg = tape.lowestYLoc_rev() + m - 1;
+        arg = edfct->firstDepLocation + m - 1;
         for (size_t loop = 0; loop < m; ++loop, --arg) {
           tape.get_taylor(arg);
         }
       }
       if (edfct->dp_x_changes) {
-        arg = tape.lowestXLoc_rev() + n - 1;
+        arg = edfct->firstIndLocation + n - 1;
         for (size_t loop = 0; loop < n; ++loop, --arg) {
           tape.get_taylor(arg);
         }

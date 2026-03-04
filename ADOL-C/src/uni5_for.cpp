@@ -5487,8 +5487,6 @@ int hov_forward(
       tape.ext_diff_fct_index(tape.get_locint_f());
       n = tape.get_locint_f();
       m = tape.get_locint_f();
-      tape.lowestXLoc_for(tape.get_locint_f());
-      tape.lowestYLoc_for(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
@@ -5515,7 +5513,7 @@ int hov_forward(
 #endif
       }
 
-      arg = tape.lowestXLoc_for();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
@@ -5526,7 +5524,7 @@ int hov_forward(
 #endif
         ++arg;
       }
-      arg = tape.lowestYLoc_for();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
@@ -5541,7 +5539,7 @@ int hov_forward(
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = tape.lowestXLoc_for();
+      res = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
 #if !defined(_ZOS_)
@@ -5550,7 +5548,7 @@ int hov_forward(
 #endif
         ++res;
       }
-      res = tape.lowestYLoc_for();
+      res = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
 #if !defined(_ZOS_)
@@ -5571,8 +5569,6 @@ int hov_forward(
       tape.ext_diff_fct_index(tape.get_locint_f());
       n = tape.get_locint_f();
       m = tape.get_locint_f();
-      tape.lowestXLoc_for(tape.get_locint_f());
-      tape.lowestYLoc_for(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)
@@ -5599,7 +5595,7 @@ int hov_forward(
 #endif
       }
 
-      arg = tape.lowestXLoc_for();
+      arg = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
@@ -5610,7 +5606,7 @@ int hov_forward(
 #endif
         ++arg;
       }
-      arg = tape.lowestYLoc_for();
+      arg = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
@@ -5625,7 +5621,7 @@ int hov_forward(
       ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
-      res = tape.lowestXLoc_for();
+      res = edfct->firstIndLocation;
       for (size_t loop = 0; loop < n; ++loop) {
         dp_T0[res] = edfct->dp_x[loop];
 #if !defined(_ZOS_)
@@ -5634,7 +5630,7 @@ int hov_forward(
 #endif
         ++res;
       }
-      res = tape.lowestYLoc_for();
+      res = edfct->firstDepLocation;
       for (size_t loop = 0; loop < m; ++loop) {
         dp_T0[res] = edfct->dp_y[loop];
 #if !defined(_ZOS_)

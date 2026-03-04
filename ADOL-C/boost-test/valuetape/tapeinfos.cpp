@@ -67,18 +67,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.deg_save = 1;
   tp.tay_numInds = 3;
   tp.tay_numDeps = 5;
-
-  tp.lowestXLoc_for = 10;
-  tp.lowestYLoc_for = 17;
-  tp.lowestXLoc_rev = 20;
-  tp.lowestYLoc_rev = 21;
-  tp.cpIndex = 12;
   tp.numDirs_rev = 4;
-
-  auto b = new size_t[4];
-  tp.lowestXLoc_ext_v2 = b;
-  auto c = new size_t[6];
-  tp.lowestYLoc_ext_v2 = c;
 
   auto d = new double[3];
   tp.dp_T0 = d;
@@ -121,11 +110,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.deg_save, 1);
   BOOST_CHECK_EQUAL(tp2.tay_numInds, 3);
   BOOST_CHECK_EQUAL(tp2.tay_numDeps, 5);
-  BOOST_CHECK_EQUAL(tp2.lowestXLoc_for, 10);
-  BOOST_CHECK_EQUAL(tp2.lowestYLoc_for, 17);
-  BOOST_CHECK_EQUAL(tp2.lowestXLoc_rev, 20);
-  BOOST_CHECK_EQUAL(tp2.lowestYLoc_rev, 21);
-  BOOST_CHECK_EQUAL(tp2.cpIndex, 12);
   BOOST_CHECK_EQUAL(tp2.numDirs_rev, 4);
   BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::NO_MODE);
   BOOST_CHECK_EQUAL(tp2.ext_diff_fct_index, 5);
@@ -153,8 +137,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.currTay, tayBuffer + 4);
   BOOST_CHECK_EQUAL(tp2.lastTayP1, tayBuffer + 13);
 
-  BOOST_CHECK_EQUAL(tp2.lowestXLoc_ext_v2, b);
-  BOOST_CHECK_EQUAL(tp2.lowestYLoc_ext_v2, c);
   BOOST_CHECK_EQUAL(tp2.dp_T0, d);
   BOOST_CHECK_EQUAL(tp2.rp_T, f);
   BOOST_CHECK_EQUAL(tp2.rpp_T, g);
@@ -163,8 +145,6 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.upp_A, j);
   BOOST_CHECK_EQUAL(tp2.signature, l);
 
-  delete[] b;
-  delete[] c;
   delete[] d;
   delete[] f;
   delete[] g;
