@@ -1,6 +1,8 @@
 #ifndef ADOLC_TL_INTERFACE_H
 #define ADOLC_TL_INTERFACE_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

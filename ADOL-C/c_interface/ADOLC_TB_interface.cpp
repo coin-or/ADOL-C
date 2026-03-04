@@ -1,233 +1,377 @@
 #include "ADOLC_TB_interface.h"
+
 #include <adolc/adolc.h>
+#include <adolc/tape_interface.h>
+#include <cassert>
 
-/*
-Constructor & Destructor for class tape-based adouble
-*/
+namespace {
+
+// Build a non-owning adouble wrapper around an existing tape location token.
+inline adouble borrow(const tape_loc v) {
+  return adouble::borrow_location(v.loc);
+}
+
+// Transfer the produced adouble location into plain C token and invalidate source.
+inline tape_loc release_to_tape_loc(adouble &&a) { return {a.release_loc()}; }
+
+} // namespace
+
 extern "C" {
-TBAdoubleHandle create_tb_adouble(const double x) { return new adouble(x); }
-TBAdoubleHandle create_tb_adouble_empty() { return new adouble(); }
 
-void free_tb_adouble(TBAdoubleHandle a) {
-  return delete static_cast<adouble *>(a);
-}
+tape_loc adolc_tb_new(const double x) {
+  adouble a(x);
+  return release_to_tape_loc(std::move(a));
 }
 
-/*
-Utilities for adouble
-*/
-extern "C" {
-double get_tb_value(TBAdoubleHandle a) {
-  return static_cast<adouble *>(a)->getValue();
-}
+tape_loc adolc_tb_new_empty(void) {
+  adouble a;
+  return release_to_tape_loc(std::move(a));
 }
 
-/*
-Arithmetics for class adouble
-*/
-extern "C" {
-TBAdoubleHandle add_tb_adouble(const TBAdoubleHandle a,
-                               const TBAdoubleHandle b) {
-  return new adouble(*static_cast<adouble *>(a) + *static_cast<adouble *>(b));
-}
-TBAdoubleHandle add_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(x + *static_cast<adouble *>(b));
-}
-TBAdoubleHandle add_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(*static_cast<adouble *>(a) + x);
-}
-TBAdoubleHandle mult_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(*static_cast<adouble *>(a) * *static_cast<adouble *>(b));
-}
-TBAdoubleHandle mult_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(x * *static_cast<adouble *>(b));
-}
-TBAdoubleHandle mult_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(*static_cast<adouble *>(a) * x);
-}
-TBAdoubleHandle subtr_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(*static_cast<adouble *>(a) - *static_cast<adouble *>(b));
-}
-TBAdoubleHandle subtr_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(x - *static_cast<adouble *>(b));
-}
-TBAdoubleHandle subtr_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(*static_cast<adouble *>(a) - x);
-}
-TBAdoubleHandle div_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(*static_cast<adouble *>(a) / *static_cast<adouble *>(b));
-}
-TBAdoubleHandle div_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(x / *static_cast<adouble *>(b));
-}
-TBAdoubleHandle div_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(*static_cast<adouble *>(a) / x);
-}
-TBAdoubleHandle max_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(
-      fmax(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
-}
-TBAdoubleHandle max_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(fmax(x, *static_cast<adouble *>(b)));
-}
-TBAdoubleHandle max_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(fmax(*static_cast<adouble *>(a), x));
-}
-TBAdoubleHandle min_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(
-      fmin(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
-}
-TBAdoubleHandle min_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return new adouble(fmin(x, *static_cast<adouble *>(b)));
-}
-TBAdoubleHandle min_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(fmin(*static_cast<adouble *>(a), x));
-}
-TBAdoubleHandle pow_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return new adouble(
-      pow(*static_cast<adouble *>(a), *static_cast<adouble *>(b)));
-}
-TBAdoubleHandle pow_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return new adouble(pow(*static_cast<adouble *>(a), x));
-}
-bool ge_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return *static_cast<adouble *>(a) >= *static_cast<adouble *>(b);
-}
-bool ge_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return x >= *static_cast<adouble *>(b);
-}
-bool ge_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return *static_cast<adouble *>(a) >= x;
-}
-bool g_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return *static_cast<adouble *>(a) > *static_cast<adouble *>(b);
-}
-bool g_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return x > *static_cast<adouble *>(b);
-}
-bool g_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return *static_cast<adouble *>(a) > x;
-}
-bool le_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return *static_cast<adouble *>(a) <= *static_cast<adouble *>(b);
-}
-bool le_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return x <= *static_cast<adouble *>(b);
-}
-bool le_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return *static_cast<adouble *>(a) <= x;
-}
-bool l_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return *static_cast<adouble *>(a) < *static_cast<adouble *>(b);
-}
-bool l_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return x < *static_cast<adouble *>(b);
-}
-bool l_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return *static_cast<adouble *>(a) < x;
-}
-bool eq_tb_adouble(TBAdoubleHandle a, TBAdoubleHandle b) {
-  return *static_cast<adouble *>(a) == *static_cast<adouble *>(b);
-}
-bool eq_double_tb_adouble(const double x, TBAdoubleHandle b) {
-  return x == *static_cast<adouble *>(b);
-}
-bool eq_tb_adouble_double(TBAdoubleHandle a, const double x) {
-  return *static_cast<adouble *>(a) == x;
-}
-TBAdoubleHandle tb_abs(TBAdoubleHandle a) {
-  return new adouble(fabs(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_sqrt(TBAdoubleHandle a) {
-  return new adouble(sqrt(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_log(TBAdoubleHandle a) {
-  return new adouble(log(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_log10(TBAdoubleHandle a) {
-  return new adouble(log10(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_sin(TBAdoubleHandle a) {
-  return new adouble(sin(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_cos(TBAdoubleHandle a) {
-  return new adouble(cos(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_tan(TBAdoubleHandle a) {
-  return new adouble(tan(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_exp(TBAdoubleHandle a) {
-  return new adouble(exp(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_asin(TBAdoubleHandle a) {
-  return new adouble(asin(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_acos(TBAdoubleHandle a) {
-  return new adouble(acos(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_atan(TBAdoubleHandle a) {
-  return new adouble(atan(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_sinh(TBAdoubleHandle a) {
-  return new adouble(sinh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_cosh(TBAdoubleHandle a) {
-  return new adouble(cosh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_tanh(TBAdoubleHandle a) {
-  return new adouble(tanh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_asinh(TBAdoubleHandle a) {
-  return new adouble(asinh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_acosh(TBAdoubleHandle a) {
-  return new adouble(acosh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_atanh(TBAdoubleHandle a) {
-  return new adouble(atanh(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_ceil(TBAdoubleHandle a) {
-  return new adouble(ceil(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_floor(TBAdoubleHandle a) {
-  return new adouble(floor(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_ldexp(TBAdoubleHandle a, const int n) {
-  return new adouble(ldexp(*static_cast<adouble *>(a), n));
-}
-TBAdoubleHandle tb_erf(TBAdoubleHandle a) {
-  return new adouble(erf(*static_cast<adouble *>(a)));
-}
-TBAdoubleHandle tb_erfc(TBAdoubleHandle a) {
-  return new adouble(erfc(*static_cast<adouble *>(a)));
-}
+void adolc_tb_free(const tape_loc v) {
+  if (v.loc == ADOLC_TB_INVALID_LOC) {
+    return;
+  }
+  tape_location<adouble> owning_loc(v.loc, tape_location<adouble>::OWNING);
 }
 
-/*
-Tape utilities
-*/
-extern "C" {
-int c_trace_on(short int tag, int keep) { return trace_on(tag, keep); }
-void c_trace_off(int flag) { return trace_off(flag); }
-void create_independent(TBAdoubleHandle a, const double x) {
-  *static_cast<adouble *>(a) <<= x;
+void adolc_tb_free_on_tape(const short tape_id, const tape_loc v) {
+  if (v.loc == ADOLC_TB_INVALID_LOC) {
+    return;
+  }
+  assert(findTapePtr_(tape_id) != nullptr &&
+         "adolc_tb_free_on_tape: tape_id does not exist");
+  setCurrentTape(tape_id);
+  tape_location<adouble> owning_loc(v.loc, tape_location<adouble>::OWNING);
 }
-void create_dependent(TBAdoubleHandle a, double *y) {
-  *static_cast<adouble *>(a) >>= *y;
+
+double adolc_tb_value(const tape_loc v) { return borrow(v).value(); }
+
+void adolc_tb_set_value(const tape_loc v, const double x) {
+  adouble a = borrow(v);
+  a = x;
 }
-size_t num_independent(short tapeId) {
-  size_t y[TapeInfos::STAT_SIZE];
-  tapestats(tapeId, y);
-  return y[TapeInfos::NUM_INDEPENDENTS];
+
+tape_loc adolc_tb_assign(const double x) { return adolc_tb_new(x); }
+
+void adolc_tb_assign_to(const tape_loc out, const tape_loc in) {
+  adouble out_a = borrow(out);
+  adouble in_a = borrow(in);
+  out_a = in_a;
 }
-size_t num_dependent(short tapeId) {
-  size_t y[TapeInfos::STAT_SIZE];
-  tapestats(tapeId, y);
-  return y[TapeInfos::NUM_DEPENDENTS];
+
+void adolc_tb_assign_double_to(const tape_loc out, const double x) {
+  adouble out_a = borrow(out);
+  out_a = x;
 }
-void enable_min_max_using_abs() { return enableMinMaxUsingAbs(); }
-void disable_min_max_using_abs() { return disableMinMaxUsingAbs(); }
-TBAdoubleHandle mkparam_(const double val) {
-  return new adouble(pdouble::mkparam(val));
+
+tape_loc adolc_tb_add(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(aa + bb);
 }
+tape_loc adolc_tb_sub(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(aa - bb);
 }
+tape_loc adolc_tb_mul(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(aa * bb);
+}
+tape_loc adolc_tb_div(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(aa / bb);
+}
+tape_loc adolc_tb_pow(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(pow(aa, bb));
+}
+tape_loc adolc_tb_min(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(fmin(aa, bb));
+}
+tape_loc adolc_tb_max(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return release_to_tape_loc(fmax(aa, bb));
+}
+
+tape_loc adolc_tb_add_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(aa + x);
+}
+tape_loc adolc_tb_sub_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(aa - x);
+}
+tape_loc adolc_tb_mul_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(aa * x);
+}
+tape_loc adolc_tb_div_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(aa / x);
+}
+tape_loc adolc_tb_pow_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(pow(aa, x));
+}
+tape_loc adolc_tb_min_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(fmin(aa, x));
+}
+tape_loc adolc_tb_max_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(fmax(aa, x));
+}
+tape_loc adolc_tb_d_add(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(x + aa);
+}
+tape_loc adolc_tb_d_sub(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(x - aa);
+}
+tape_loc adolc_tb_d_mul(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(x * aa);
+}
+tape_loc adolc_tb_d_div(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(x / aa);
+}
+tape_loc adolc_tb_d_min(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(fmin(x, aa));
+}
+tape_loc adolc_tb_d_max(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(fmax(x, aa));
+}
+
+tape_loc adolc_tb_abs(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(fabs(aa));
+}
+tape_loc adolc_tb_sqrt(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(sqrt(aa));
+}
+tape_loc adolc_tb_log(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(log(aa));
+}
+tape_loc adolc_tb_log10(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(log10(aa));
+}
+tape_loc adolc_tb_sin(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(sin(aa));
+}
+tape_loc adolc_tb_cos(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(cos(aa));
+}
+tape_loc adolc_tb_tan(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(tan(aa));
+}
+tape_loc adolc_tb_exp(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(exp(aa));
+}
+tape_loc adolc_tb_asin(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(asin(aa));
+}
+tape_loc adolc_tb_acos(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(acos(aa));
+}
+tape_loc adolc_tb_atan(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(atan(aa));
+}
+tape_loc adolc_tb_sinh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(sinh(aa));
+}
+tape_loc adolc_tb_cosh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(cosh(aa));
+}
+tape_loc adolc_tb_tanh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(tanh(aa));
+}
+tape_loc adolc_tb_asinh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(asinh(aa));
+}
+tape_loc adolc_tb_acosh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(acosh(aa));
+}
+tape_loc adolc_tb_atanh(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(atanh(aa));
+}
+tape_loc adolc_tb_ceil(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(ceil(aa));
+}
+tape_loc adolc_tb_floor(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(floor(aa));
+}
+tape_loc adolc_tb_ldexp(const tape_loc a, const int n) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(ldexp(aa, n));
+}
+tape_loc adolc_tb_erf(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(erf(aa));
+}
+tape_loc adolc_tb_erfc(const tape_loc a) {
+  adouble aa = borrow(a);
+  return release_to_tape_loc(erfc(aa));
+}
+
+void adolc_tb_add_to(const tape_loc out, const tape_loc rhs) {
+  adouble out_a = borrow(out);
+  adouble rhs_a = borrow(rhs);
+  out_a += rhs_a;
+}
+void adolc_tb_sub_to(const tape_loc out, const tape_loc rhs) {
+  adouble out_a = borrow(out);
+  adouble rhs_a = borrow(rhs);
+  out_a -= rhs_a;
+}
+void adolc_tb_mul_to(const tape_loc out, const tape_loc rhs) {
+  adouble out_a = borrow(out);
+  adouble rhs_a = borrow(rhs);
+  out_a *= rhs_a;
+}
+void adolc_tb_div_to(const tape_loc out, const tape_loc rhs) {
+  adouble out_a = borrow(out);
+  adouble rhs_a = borrow(rhs);
+  out_a /= rhs_a;
+}
+
+bool adolc_tb_ge(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return aa >= bb;
+}
+bool adolc_tb_g(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return aa > bb;
+}
+bool adolc_tb_le(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return aa <= bb;
+}
+bool adolc_tb_l(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return aa < bb;
+}
+bool adolc_tb_eq(const tape_loc a, const tape_loc b) {
+  adouble aa = borrow(a);
+  adouble bb = borrow(b);
+  return aa == bb;
+}
+bool adolc_tb_ge_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return aa >= x;
+}
+bool adolc_tb_g_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return aa > x;
+}
+bool adolc_tb_le_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return aa <= x;
+}
+bool adolc_tb_l_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return aa < x;
+}
+bool adolc_tb_eq_d(const tape_loc a, const double x) {
+  adouble aa = borrow(a);
+  return aa == x;
+}
+bool adolc_tb_d_ge(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return x >= aa;
+}
+bool adolc_tb_d_g(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return x > aa;
+}
+bool adolc_tb_d_le(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return !(x > aa);
+}
+bool adolc_tb_d_l(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return x < aa;
+}
+bool adolc_tb_d_eq(const double x, const tape_loc a) {
+  adouble aa = borrow(a);
+  return aa == x;
+}
+
+int adolc_trace_on(const short tag, const int keep) { return trace_on(tag, keep); }
+void adolc_trace_off(const int flag) { trace_off(flag); }
+void adolc_ensure_tape(const short tape_id) {
+  while (findTapePtr_(tape_id) == nullptr) {
+    createNewTape();
+  }
+}
+
+void adolc_tb_independent(const tape_loc v, const double x) {
+  adouble a = borrow(v);
+  a <<= x;
+}
+
+void adolc_tb_dependent(const tape_loc v, double *y) {
+  adouble a = borrow(v);
+  a >>= *y;
+}
+
+size_t adolc_num_independent(const short tape_id) {
+  const auto stats = tapestats(tape_id);
+  return stats[TapeInfos::NUM_INDEPENDENTS];
+}
+
+size_t adolc_num_dependent(const short tape_id) {
+  const auto stats = tapestats(tape_id);
+  return stats[TapeInfos::NUM_DEPENDENTS];
+}
+
+void adolc_enable_min_max_using_abs(void) { currentTape().enableMinMaxUsingAbs(); }
+void adolc_disable_min_max_using_abs(void) {
+  currentTape().disableMinMaxUsingAbs();
+}
+
+tape_loc adolc_mkparam(const double val) {
+  pdouble p(val);
+  adouble a = adouble(p);
+  return release_to_tape_loc(std::move(a));
+}
+
+void adolc_set_param_vec(const short tape_id, const unsigned int numparam,
+                         const double *paramvec) {
+  findTape(tape_id).set_param_vec(tape_id, numparam, paramvec);
+}
+
+} // extern "C"
