@@ -33,6 +33,9 @@ struct CpInfos {
   // id of the outer tape, used to get checkpoint in the cp_fos_forward... and
   // reverse methods later
   short tapeId{0};
+  // cpInfos requires some information from the ext_diff_fct struct. We get them
+  // via read access on the tape.
+  size_t extDiffIndex{0};
   ADOLC_TimeStepFuncion *function{nullptr};
   ADOLC_TimeStepFuncion_double *function_double{nullptr};
   ADOLC_saveFct *saveNonAdoubles{nullptr};

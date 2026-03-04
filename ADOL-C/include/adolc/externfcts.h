@@ -112,6 +112,13 @@ struct ADOLC_API ext_diff_fct {
 
   // tape that stores the external differentiated function.
   short ext_tape_id{0};
+
+  // storage for the adouble locations to select the right locations to read and
+  // write for the taylor buffer later on! note: We can not just use the
+  // location of adp_y[0] etc. later, because the location might change while
+  // evaluation of the ext function
+  size_t firstDepLocation{0};
+  size_t firstIndLocation{0};
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */

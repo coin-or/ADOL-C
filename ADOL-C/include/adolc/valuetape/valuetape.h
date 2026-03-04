@@ -292,14 +292,6 @@ public:
   double *currVal() const { return tapeInfos_.currVal; }
   void currVal(double *val) { tapeInfos_.currVal = val; }
 
-  size_t lowestXLoc_for() const { return tapeInfos_.lowestXLoc_for; }
-  size_t lowestYLoc_for() const { return tapeInfos_.lowestYLoc_for; }
-  size_t lowestXLoc_rev() const { return tapeInfos_.lowestXLoc_rev; }
-  size_t lowestYLoc_rev() const { return tapeInfos_.lowestYLoc_rev; }
-  void lowestXLoc_for(size_t loc) { tapeInfos_.lowestXLoc_for = loc; }
-  void lowestYLoc_for(size_t loc) { tapeInfos_.lowestYLoc_for = loc; }
-  void lowestXLoc_rev(size_t loc) { tapeInfos_.lowestXLoc_rev = loc; }
-  void lowestYLoc_rev(size_t loc) { tapeInfos_.lowestYLoc_rev = loc; }
   size_t *lowestXLoc_ext_v2() const { return tapeInfos_.lowestXLoc_ext_v2; }
   size_t *lowestYLoc_ext_v2() const { return tapeInfos_.lowestYLoc_ext_v2; }
   void lowestXLoc_ext_v2(size_t *locs) { tapeInfos_.lowestXLoc_ext_v2 = locs; }
