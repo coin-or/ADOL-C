@@ -17,7 +17,6 @@ find_package(OpenMP)
 
 set(SOURCE_FILES
     adouble.cpp
-    c_interface_tape_loc.cpp
     main.cpp
     pdouble.cpp
     traceCompositeTests.cpp
@@ -63,6 +62,7 @@ target_link_libraries(boost-test-adolc PRIVATE
     Boost::unit_test_framework)
 
 if(TARGET ADOLCInterface)
+  target_sources(boost-test-adolc PRIVATE c_interface_tape_loc.cpp)
   target_include_directories(boost-test-adolc PRIVATE "${CMAKE_SOURCE_DIR}/ADOL-C/c_interface")
   target_link_libraries(boost-test-adolc PRIVATE ADOLCInterface)
 endif()

@@ -61,6 +61,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_CXX_FLAGS="-stdlib=libc++"
         -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++abi"
+        -DBUILD_INTERFACE=ON
         -S ${{ github.workspace }}
 
     - name: Configure ADOL-C (g++-11)
@@ -70,6 +71,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DBUILD_INTERFACE=ON
         -S ${{ github.workspace }}
 
     - name: Build ADOL-C

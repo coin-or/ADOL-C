@@ -96,8 +96,9 @@ option(ENABLE_BOOST_POOL "Enable the use of boost pool" FALSE)
 option(ENABLE_SPARSE "Build with Colpack to enable sparse AD" FALSE)
 add_feature_info(ENABLE_SPARSE ENABLE_SPARSE "build sparse drivers (colpack required!)")
 
-# build the c interface
-option(BUILD_INTERFACE OFF)
+# build the C interface for foreign language bindings
+option(BUILD_INTERFACE "Build the C interface library and headers for foreign language bindings" OFF)
+add_feature_info(BUILD_INTERFACE BUILD_INTERFACE "build the C interface library and headers for foreign language bindings")
 
 # build the tests
 option(BUILD_TESTS OFF)
