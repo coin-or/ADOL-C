@@ -358,9 +358,5 @@ ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr,
                            size_t dim_x, adouble *xa, size_t dim_y,
                            adouble *ya);
 
-/**
- * zeros out the edf pointers and sets bools to defaults
- */
-ADOLC_API void edf_zero(ext_diff_fct *edfct);
 /****************************************************************************/
 #endif // ADOLC_EXTERNFCTS_H

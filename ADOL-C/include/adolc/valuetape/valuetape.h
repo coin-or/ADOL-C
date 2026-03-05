@@ -83,20 +83,13 @@ class ADOLC_API ValueTape {
   }
 #endif
 
-  // the compiler can not distinguish between the fct ptrs for ext_diff_fct
-  // and ext_diff_fct_v2. The wrapper makes the types explicit in the
-  // constructor of ValueTape
-  template <typename T> static void edf_zero_wrapper(T *arg) { edf_zero(arg); }
-
 public:
   ~ValueTape();
 
   // a tape always need a tapeId,
   ValueTape() = delete;
-  ValueTape(short tapeId)
-      : tapeInfos_(tapeId), perTapeInfos_(tapeId, readConfigFile()),
-        ext_buffer_(edf_zero_wrapper<ext_diff_fct>),
-        ext2_buffer_(edf_zero_wrapper<ext_diff_fct_v2>) {}
+  explicit ValueTape(short tapeId)
+      : tapeInfos_(tapeId), perTapeInfos_(tapeId, readConfigFile()) {}
 
   // copying ValueTape is not allowed!
   ValueTape(const ValueTape &other) = delete;
@@ -292,10 +285,6 @@ public:
   double *currVal() const { return tapeInfos_.currVal; }
   void currVal(double *val) { tapeInfos_.currVal = val; }
 
-  size_t *lowestXLoc_ext_v2() const { return tapeInfos_.lowestXLoc_ext_v2; }
-  size_t *lowestYLoc_ext_v2() const { return tapeInfos_.lowestYLoc_ext_v2; }
-  void lowestXLoc_ext_v2(size_t *locs) { tapeInfos_.lowestXLoc_ext_v2 = locs; }
-  void lowestYLoc_ext_v2(size_t *locs) { tapeInfos_.lowestYLoc_ext_v2 = locs; }
   int numDirs_rev() const { return tapeInfos_.numDirs_rev; }
   void numDirs_rev(int dir) { tapeInfos_.numDirs_rev = dir; }
   char in_nested_ctx() const { return tapeInfos_.in_nested_ctx; }

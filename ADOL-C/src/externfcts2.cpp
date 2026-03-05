@@ -42,7 +42,10 @@ static void update_ext_fct_memory(ext_diff_fct_v2 *edfct, size_t nin,
     m_isz = (m_isz < insz[i]) ? insz[i] : m_isz;
   for (size_t i = 0; i < nout; i++)
     m_osz = (m_osz < outsz[i]) ? outsz[i] : m_osz;
-  if (edfct->max_nin < nin || edfct->max_nout < nout ||
+  if (edfct->x == nullptr || edfct->y == nullptr || edfct->xp == nullptr ||
+      edfct->yp == nullptr || edfct->up == nullptr || edfct->zp == nullptr ||
+      edfct->Xp == nullptr || edfct->Yp == nullptr || edfct->Up == nullptr ||
+      edfct->Zp == nullptr || edfct->max_nin < nin || edfct->max_nout < nout ||
       edfct->max_insz < m_isz || edfct->max_outsz < m_osz) {
     char *tmp;
     size_t q = nout * m_osz;

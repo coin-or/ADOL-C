@@ -970,7 +970,7 @@ int hov_forward(
   zos_forward_iArr(edfct->tapeId, iArrLength, iArr, n, edfct->dp_x, m,         \
                    edfct->dp_y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  zos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
+  zos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               outsz, edfct2->y, edfct2->context)
 #define ADOLC_EXT_COPY_TAYLORS(dest, src)
 #endif
@@ -988,7 +988,7 @@ int hov_forward(
 #define ADOLC_EXT_POINTER_X edfct->dp_X
 #define ADOLC_EXT_POINTER_Y edfct->dp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,     \
+  fos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->yp
@@ -1009,7 +1009,7 @@ int hov_forward(
 #define ADOLC_EXT_POINTER_X edfct->dpp_X
 #define ADOLC_EXT_POINTER_Y edfct->dpp_Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_forward(edfct->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x, p,  \
+  fov_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x, p, \
               edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
 #define ADOLC_EXT_V2_POINTER_X edfct2->Xp
 #define ADOLC_EXT_V2_POINTER_Y edfct2->Yp
@@ -5642,7 +5642,7 @@ int hov_forward(
       delete[] iArr;
       iArr = nullptr;
       break;
-    case ext_diff_v2:
+    case ext_diff_v2: {
       tape.ext_diff_fct_index(tape.get_locint_f());
       iArrLength = tape.get_locint_f();
       iArr = new size_t[iArrLength];
@@ -5653,15 +5653,15 @@ int hov_forward(
       nout = tape.get_locint_f();
       insz = new locint[2 * (nin + nout)];
       outsz = insz + nin;
-      tape.lowestXLoc_ext_v2(outsz + nout);
-      tape.lowestYLoc_ext_v2(outsz + nout + nin);
+      size_t *lowestXLoc_ext_v2 = outsz + nout;
+      size_t *lowestYLoc_ext_v2 = outsz + nout + nin;
       for (size_t loop = 0; loop < nin; ++loop) {
         insz[loop] = tape.get_locint_f();
-        tape.lowestXLoc_ext_v2()[loop] = tape.get_locint_f();
+        lowestXLoc_ext_v2[loop] = tape.get_locint_f();
       }
       for (size_t loop = 0; loop < nout; ++loop) {
         outsz[loop] = tape.get_locint_f();
-        tape.lowestYLoc_ext_v2()[loop] = tape.get_locint_f();
+        lowestYLoc_ext_v2[loop] = tape.get_locint_f();
       }
       tape.get_locint_f(); /* nin again */
       tape.get_locint_f(); /* nout again */
@@ -5691,7 +5691,7 @@ int hov_forward(
       }
 
       for (size_t oloop = 0; oloop < nin; ++oloop) {
-        arg = tape.lowestXLoc_ext_v2()[oloop];
+        arg = lowestXLoc_ext_v2[oloop];
         memcpy(&edfct2->x[oloop][0], &dp_T0[arg], insz[oloop] * sizeof(double));
         for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           if (edfct2->dp_x_changes) {
@@ -5705,7 +5705,7 @@ int hov_forward(
         }
       }
       for (size_t oloop = 0; oloop < nout; ++oloop) {
-        arg = tape.lowestYLoc_ext_v2()[oloop];
+        arg = lowestYLoc_ext_v2[oloop];
         memcpy(&edfct2->y[oloop][0], &dp_T0[arg],
                outsz[oloop] * sizeof(double));
         for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
@@ -5724,7 +5724,7 @@ int hov_forward(
       MINDEC(ret_c, ext_retc);
 
       for (size_t oloop = 0; oloop < nin; ++oloop) {
-        res = tape.lowestXLoc_ext_v2()[oloop];
+        res = lowestXLoc_ext_v2[oloop];
         memcpy(&dp_T0[res], &edfct2->x[oloop][0], insz[oloop] * sizeof(double));
 #if !defined(_ZOS_)
         for (size_t loop = 0; loop < insz[oloop]; ++loop) {
@@ -5736,7 +5736,7 @@ int hov_forward(
       }
 
       for (size_t oloop = 0; oloop < nout; ++oloop) {
-        res = tape.lowestYLoc_ext_v2()[oloop];
+        res = lowestYLoc_ext_v2[oloop];
         memcpy(&dp_T0[res], &edfct2->y[oloop][0],
                outsz[oloop] * sizeof(double));
 #if !defined(_ZOS_)
@@ -5752,10 +5752,11 @@ int hov_forward(
       delete[] iArr;
       insz = nullptr;
       iArr = nullptr;
-      outsz = 0;
-      tape.lowestXLoc_ext_v2(nullptr);
-      tape.lowestYLoc_ext_v2(nullptr);
+      outsz = nullptr;
+      lowestXLoc_ext_v2 = nullptr;
+      lowestYLoc_ext_v2 = nullptr;
       break;
+    }
 #endif
 #ifdef ADOLC_MEDIPACK_SUPPORT
       /*--------------------------------------------------------------------------*/

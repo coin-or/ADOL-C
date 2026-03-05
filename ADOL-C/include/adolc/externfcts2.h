@@ -68,11 +68,11 @@ struct ADOLC_API ext_diff_fct_v2 {
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
-  ADOLC_ext_fct_v2 *function;
+  ADOLC_ext_fct_v2 *function{nullptr};
   /**
    * DO NOT touch - the index is set through reg_ext_fct
    */
-  locint index;
+  locint index{0};
 
   /**
    * below are function pointers used for call back from the corresponding
@@ -89,33 +89,33 @@ struct ADOLC_API ext_diff_fct_v2 {
    * for this to be different as illustrated in
    * examples/additional_examples/ext_diff_func/ext_diff_func.cpp
    */
-  ADOLC_ext_fct_v2 *zos_forward;
+  ADOLC_ext_fct_v2 *zos_forward{nullptr};
 
   /**
    * this points to a  method implementing a forward execution of the externally
    * differentiated function y=f(x) and computing the projection yp=Jacobian*xp
    * see also the explanation of the xp,yp members below.
    */
-  ADOLC_ext_fct_v2_fos_forward *fos_forward;
+  ADOLC_ext_fct_v2_fos_forward *fos_forward{nullptr};
 
   /**
    * this points to a  method implementing a forward execution of the externally
    * differentiated function y=f(x) and computing the projection Yp=Jacobian*Xp
    * see also the explanation of the Xp/Yp  members below.
    */
-  ADOLC_ext_fct_v2_fov_forward *fov_forward;
+  ADOLC_ext_fct_v2_fov_forward *fov_forward{nullptr};
 
   /**
    * this points to a  method computing the projection zp=transpose(zp) *
    * Jacobian see also the explanation of the up/zp  members below.
    */
-  ADOLC_ext_fct_v2_fos_reverse *fos_reverse;
+  ADOLC_ext_fct_v2_fos_reverse *fos_reverse{nullptr};
 
   /**
    * this points to a  method computing the projection Zp=transpose(Up) *
    * Jacobian see also the explanation of the Up/Zp  members below.
    */
-  ADOLC_ext_fct_v2_fov_reverse *fov_reverse;
+  ADOLC_ext_fct_v2_fov_reverse *fov_reverse{nullptr};
 
   /**
    * The names of the variables below correspond to the formal parameters names
@@ -126,62 +126,62 @@ struct ADOLC_API ext_diff_fct_v2 {
    * function and all _forward calls: function argument, dimension
    * nin*insz[0..nin]
    */
-  double **x;
+  double **x{nullptr};
 
   /**
    * fos_forward: tangent direction, dimension nin*insz[0..nin]
    */
-  double **xp;
+  double **xp{nullptr};
 
   /**
    * fov_forward: seed matrix for p directions, dimensions nin*insz[0..nin]*p
    * (p=nin*insz[0..nin])
    */
-  double ***Xp;
+  double ***Xp{nullptr};
 
   /**
    * function and all _forward calls: function result, dimension
    * nout*outsz[0..nout]
    */
-  double **y;
+  double **y{nullptr};
 
   /**
    * fos_forward: Jacobian projection, dimension nout*outsz[0..nout]
    */
-  double **yp;
+  double **yp{nullptr};
 
   /**
    * fov_forward: Jacobian projection in p directions, dimension
    * nout*outsz[0..nout]*p (p=nin*insz[0..nin])
    */
-  double ***Yp;
+  double ***Yp{nullptr};
 
   /**
    * fos_reverse and hos_reverse:  weight vector, dimension nout*outsz[0..nout]
    */
-  double **up;
+  double **up{nullptr};
 
   /**
    * fov_reverse and hov_reverse: q weight vectors, dimensions
    * (q=nout*outsz[0..nout]) q*nout*outsz[0..nout]
    */
-  double ***Up;
+  double ***Up{nullptr};
 
   /**
    * fos_reverse: Jacobian projection, dimension nin*insz[0..nin]
    */
-  double **zp;
+  double **zp{nullptr};
 
   /**
    * fov_reverse: Jacobian projection for q weight vectors, dimensions
    * (q=nout*outsz[0..nout]) q*nin*insz[0..nin]
    */
-  double ***Zp;
+  double ***Zp{nullptr};
 
   /**
    * track maximal dimensions when function is invoked
    */
-  size_t max_nin, max_nout, max_insz, max_outsz;
+  size_t max_nin{0}, max_nout{0}, max_insz{0}, max_outsz{0};
 
   /**
    * make the call such that Adol-C may be used inside
@@ -190,40 +190,40 @@ struct ADOLC_API ext_diff_fct_v2 {
    * this implies certain storage duplication that can
    * be avoided if no nested use of Adol-C takes place
    */
-  char nestedAdolc;
+  char nestedAdolc{0};
 
   /**
    * if 0, then the 'function' does not change dp_x;
    * defaults to non-0 which implies dp_x values are saved in taylors
    */
-  char dp_x_changes;
+  char dp_x_changes{1};
 
   /**
    * if 0, then the value of dp_y prior to calling 'function'
    * is not required for reverse;
    * defaults to non-0 which implies  dp_y values are saved in taylors
    */
-  char dp_y_priorRequired;
+  char dp_y_priorRequired{1};
   /**
    * This is a opaque context pointer that the user may set and use
    * in his implementation of the above functions
    */
-  void *context;
+  void *context{nullptr};
   /**
    * This is an all-memory pointer for allocating and deallocating
    * all other pointers can point to memory within here.
    */
-  char *allmem;
+  char *allmem{nullptr};
   /**
    * This is a reference to an object for the C++ object-oriented
    * implementation of the external function ** do not touch **
    */
-  void *obj;
+  void *obj{nullptr};
   /**
    * This flag indicates that user allocates memory and internally no
    * memory should be allocated
    */
-  char user_allocated_mem;
+  char user_allocated_mem{0};
 };
 
 ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,

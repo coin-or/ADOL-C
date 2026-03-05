@@ -354,7 +354,7 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fos_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, edfct2->up,   \
+  fos_reverse(edfct2->tapeId, iArrLength, iArr, nout, nin, outsz, edfct2->up,  \
               insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
 #else
 #define ADOLC_EXT_FCT_U edfct->dpp_U
@@ -371,7 +371,7 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
-  fov_reverse(edfct->tapeId, iArrLength, iArr, nout, nin, outsz, p,            \
+  fov_reverse(edfct2->tapeId, iArrLength, iArr, nout, nin, outsz, p,           \
               edfct2->Up, insz, edfct2->Zp, edfct2->x, edfct2->y,              \
               edfct2->context)
 #endif
@@ -2750,19 +2750,19 @@ int int_reverse_safe(
       }
 
       break;
-    case ext_diff_v2:
+    case ext_diff_v2: {
       nout = tape.get_locint_r();
       nin = tape.get_locint_r();
       insz = new size_t[2 * (nin + nout)];
       outsz = insz + nin;
-      tape.lowestXLoc_ext_v2(outsz + nout);
-      tape.lowestYLoc_ext_v2(outsz + nout + nin);
+      size_t *lowestXLoc_ext_v2 = outsz + nout;
+      size_t *lowestYLoc_ext_v2 = outsz + nout + nin;
       for (size_t loop = nout; loop > 0; --loop) {
-        tape.lowestYLoc_ext_v2()[loop - 1] = tape.get_locint_r();
+        lowestYLoc_ext_v2[loop - 1] = tape.get_locint_r();
         outsz[loop - 1] = tape.get_locint_r();
       }
       for (size_t loop = nin; loop > 0; --loop) {
-        tape.lowestXLoc_ext_v2()[loop - 1] = tape.get_locint_r();
+        lowestXLoc_ext_v2[loop - 1] = tape.get_locint_r();
         insz[loop - 1] = tape.get_locint_r();
       }
       tape.get_locint_r(); /* nout again */
@@ -2796,7 +2796,7 @@ int int_reverse_safe(
                            CURRENT_LOCATION);
       }
       for (size_t oloop = 0; oloop < nout; ++oloop) {
-        arg = tape.lowestYLoc_ext_v2()[oloop];
+        arg = lowestYLoc_ext_v2[oloop];
         for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_U_LOOP,
                                       ADJOINT_BUFFER_ARG);
@@ -2805,7 +2805,7 @@ int int_reverse_safe(
         }
       }
       for (size_t oloop = 0; oloop < nin; ++oloop) {
-        arg = tape.lowestXLoc_ext_v2()[oloop];
+        arg = lowestXLoc_ext_v2[oloop];
         for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_V2_Z_LOOP,
                                       ADJOINT_BUFFER_ARG);
@@ -2816,7 +2816,7 @@ int int_reverse_safe(
       ext_retc = edfct2->ADOLC_EXT_FCT_V2_COMPLETE;
       MINDEC(ret_c, ext_retc);
       for (size_t oloop = 0; oloop < nout; ++oloop) {
-        res = tape.lowestYLoc_ext_v2()[oloop];
+        res = lowestYLoc_ext_v2[oloop];
         for (size_t loop = 0; loop < outsz[oloop]; ++loop) {
           FOR_0_LE_l_LT_p {
             ADJOINT_BUFFER_RES_L = 0.0; /* \bar{v}_i = 0 !!! */
@@ -2825,7 +2825,7 @@ int int_reverse_safe(
         }
       }
       for (size_t oloop = 0; oloop < nin; ++oloop) {
-        res = tape.lowestXLoc_ext_v2()[oloop];
+        res = lowestXLoc_ext_v2[oloop];
         for (size_t loop = 0; loop < insz[oloop]; ++loop) {
           ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_V2_Z_LOOP,
                                            ADJOINT_BUFFER_RES);
@@ -2834,7 +2834,7 @@ int int_reverse_safe(
       }
       if (edfct2->dp_y_priorRequired) {
         for (size_t oloop = nout; oloop > 0; --oloop) {
-          arg = tape.lowestYLoc_ext_v2()[oloop - 1] + outsz[oloop - 1] - 1;
+          arg = lowestYLoc_ext_v2[oloop - 1] + outsz[oloop - 1] - 1;
           for (size_t loop = outsz[oloop - 1]; loop > 0; --loop) {
             tape.get_taylor(arg);
             --arg;
@@ -2843,7 +2843,7 @@ int int_reverse_safe(
       }
       if (edfct2->dp_x_changes) {
         for (size_t oloop = nin; oloop > 0; --oloop) {
-          arg = tape.lowestXLoc_ext_v2()[oloop - 1] + insz[oloop - 1] - 1;
+          arg = lowestXLoc_ext_v2[oloop - 1] + insz[oloop - 1] - 1;
           for (size_t loop = insz[oloop - 1]; loop > 0; --loop) {
             tape.get_taylor(arg);
             --arg;
@@ -2855,9 +2855,10 @@ int int_reverse_safe(
       insz = nullptr;
       iArr = nullptr;
       outsz = nullptr;
-      tape.lowestXLoc_ext_v2(nullptr);
-      tape.lowestYLoc_ext_v2(nullptr);
+      lowestXLoc_ext_v2 = nullptr;
+      lowestYLoc_ext_v2 = nullptr;
       break;
+    }
 #ifdef ADOLC_MEDIPACK_SUPPORT
       /*--------------------------------------------------------------------------*/
     case medi_call: {

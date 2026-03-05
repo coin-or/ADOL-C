@@ -57,9 +57,7 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
-      numDirs_rev(other.numDirs_rev),
-      lowestXLoc_ext_v2(other.lowestXLoc_ext_v2),
-      lowestYLoc_ext_v2(other.lowestYLoc_ext_v2), dp_T0(other.dp_T0),
+      numDirs_rev(other.numDirs_rev), dp_T0(other.dp_T0),
       workMode(other.workMode), rp_T(other.rp_T), rpp_T(other.rpp_T),
       rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
       ext_diff_fct_index(other.ext_diff_fct_index),
@@ -87,9 +85,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.tayBuffer = nullptr;
   other.currTay = nullptr;
   other.lastTayP1 = nullptr;
-
-  other.lowestXLoc_ext_v2 = nullptr;
-  other.lowestYLoc_ext_v2 = nullptr;
 
   other.dp_T0 = nullptr;
 
@@ -153,9 +148,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
 
     numDirs_rev = other.numDirs_rev;
 
-    lowestXLoc_ext_v2 = other.lowestXLoc_ext_v2;
-    lowestYLoc_ext_v2 = other.lowestYLoc_ext_v2;
-
     dp_T0 = other.dp_T0;
     workMode = other.workMode;
 
@@ -187,8 +179,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.tayBuffer = nullptr;
     other.currTay = nullptr;
     other.lastTayP1 = nullptr;
-    other.lowestXLoc_ext_v2 = nullptr;
-    other.lowestYLoc_ext_v2 = nullptr;
     other.dp_T0 = nullptr;
     other.rp_T = nullptr;
     other.rpp_T = nullptr;

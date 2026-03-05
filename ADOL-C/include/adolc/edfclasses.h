@@ -28,7 +28,7 @@ protected:
 
 public:
   EDFobject() { init_edf(this); }
-  virtual ~EDFobject() { edf_zero(edf); }
+  virtual ~EDFobject() = default;
   virtual int function(short tapeId, size_t dim_x, double *x, size_t dim_y,
                        double *y) = 0;
   virtual int zos_forward(short tapeId, size_t dim_x, double *x, size_t dim_y,
@@ -60,7 +60,7 @@ protected:
 
 public:
   EDFobject_iArr() { init_edf(this); }
-  virtual ~EDFobject_iArr() { edf_zero(edf); }
+  virtual ~EDFobject_iArr() = default;
   virtual int function(short tapeId, size_t iArrLength, size_t *iArr,
                        size_t dim_x, double *x, size_t dim_y, double *y) = 0;
   virtual int zos_forward(short tapeId, size_t iArrLength, size_t *iArr,
@@ -97,7 +97,7 @@ protected:
 
 public:
   EDFobject_v2() { init_edf(this); }
-  virtual ~EDFobject_v2() { edf_zero(edf); }
+  virtual ~EDFobject_v2() = default;
   virtual int function(short tapeId, size_t iArrLen, size_t *iArr,
                        size_t dim_in, size_t dim_out, size_t *insz, double **x,
                        size_t *outsz, double **y, void *ctx) = 0;
