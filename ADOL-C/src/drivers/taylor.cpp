@@ -642,13 +642,13 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
       tensor[i][j] = 0;
   MINDEC(rc, zos_forward(tag, n, n, 0, x, y));
   if (d > 0) {
+    dim = binomi(p + d - 1, d);
     if ((d != dold) || (p != pold)) {
       if (pold) { /* olvo 980728 */
         dim = binomi(pold + dold - 1, dold);
         freecoefflist(dim, coeff_list);
         free((char *)coeff_list);
       }
-      dim = binomi(p + d - 1, d);
       coeff_list = (struct item *)malloc(sizeof(struct item) * dim);
       coeff(p, d, coeff_list);
       dold = d;
@@ -739,22 +739,19 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
     for (size_t j = 0; j < dimten; j++)
       tensor[i][j] = 0;
 
-  size_t dim = 0;
   size_t bd = 0;
   if (d == 0) {
     MINDEC(rc, zos_forward(tag, m, n, 0, x, y));
   } else {
+    size_t dim = binomi(p + d - 1, d);
+    bd = (dim < 10) ? dim : 10;
     if ((d != dold) || (p != pold)) {
       if (pold) {
-        dim = binomi(pold + dold - 1, dold);
-        freecoefflist(dim, coeff_list);
+        // set to old dim to free
+        auto oldDim = binomi(pold + dold - 1, dold);
+        freecoefflist(oldDim, coeff_list);
         free((char *)coeff_list);
       }
-      dim = binomi(p + d - 1, d);
-      if (dim < 10)
-        bd = dim;
-      else
-        bd = 10;
       coeff_list = (struct item *)malloc(sizeof(struct item) * dim);
       coeff(p, d, coeff_list);
       dold = d;
