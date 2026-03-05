@@ -24,7 +24,6 @@
 /****************************************************************************/
 /*                                    extern differentiated functions stuff */
 
-void edf_zero(ext_diff_fct *) {}
 ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
                           ADOLC_ext_fct ext_fct) {
 

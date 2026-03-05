@@ -108,9 +108,6 @@ struct TapeInfos {
   // # of directions for **v_reverse (checkpointing)
   int numDirs_rev{0};
 
-  size_t *lowestXLoc_ext_v2{nullptr};
-  size_t *lowestYLoc_ext_v2{nullptr};
-
   /* evaluation forward */
   double *dp_T0{nullptr};
 
