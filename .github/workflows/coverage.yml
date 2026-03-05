@@ -37,6 +37,7 @@ jobs:
         -DCMAKE_C_COMPILER=gcc-13 \
         -DCMAKE_BUILD_TYPE=Debug \
         -DBUILD_TESTS_WITH_COV=ON \
+        -DBUILD_INTERFACE=ON \
         -DENABLE_SPARSE=1 \
         -S .. \
         -B .

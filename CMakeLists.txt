@@ -96,8 +96,9 @@ option(ENABLE_BOOST_POOL "Enable the use of boost pool" FALSE)
 option(ENABLE_SPARSE "Build with Colpack to enable sparse AD" FALSE)
 add_feature_info(ENABLE_SPARSE ENABLE_SPARSE "build sparse drivers (colpack required!)")
 
-# build the c interface
-option(BUILD_INTERFACE OFF)
+# build the C interface for foreign language bindings
+option(BUILD_INTERFACE "Build the C interface library and headers for foreign language bindings" OFF)
+add_feature_info(BUILD_INTERFACE BUILD_INTERFACE "build the C interface library and headers for foreign language bindings")
 
 # build the tests
 option(BUILD_TESTS OFF)
@@ -259,6 +260,11 @@ add_subdirectory(ADOL-C)
 # include the c interface of adolc
 # ----------------------------------------------------------------
 if(BUILD_INTERFACE)
+    # ADOLCInterface is a shared library. If adolc is built static, it must be
+    # position-independent to be linkable into ADOLCInterface on ELF platforms.
+    if(NOT BUILD_SHARED_LIBS)
+      set_target_properties(adolc PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    endif()
     # set rpath for execution to the install location of adolc
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     add_subdirectory(ADOL-C/c_interface)

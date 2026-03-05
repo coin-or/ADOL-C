@@ -61,6 +61,12 @@ target_link_libraries(boost-test-adolc PRIVATE
     Boost::system 
     Boost::unit_test_framework)
 
+if(TARGET ADOLCInterface)
+  target_sources(boost-test-adolc PRIVATE c_interface_tape_loc.cpp)
+  target_include_directories(boost-test-adolc PRIVATE "${CMAKE_SOURCE_DIR}/ADOL-C/c_interface")
+  target_link_libraries(boost-test-adolc PRIVATE ADOLCInterface)
+endif()
+
 
 # ADOL-C + OpenMP parallel tests
 if(OpenMP_FOUND)

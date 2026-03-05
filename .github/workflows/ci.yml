@@ -91,6 +91,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
             -DENABLE_DOCEXA=1
             -DENABLE_ADDEXA=1
+            -DBUILD_INTERFACE=ON
             -DENABLE_SPARSE=1
             -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
             -S ${{ github.workspace }}
@@ -110,6 +111,7 @@ jobs:
             -DOpenMP_omp_LIBRARY="/opt/homebrew/opt/libomp/lib/libomp.dylib"
             -DENABLE_DOCEXA=1
             -DENABLE_ADDEXA=1
+            -DBUILD_INTERFACE=ON
             -DENABLE_SPARSE=1
             -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
             -S ${{ github.workspace }}
@@ -124,6 +126,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
             -DENABLE_DOCEXA=1
             -DENABLE_ADDEXA=1
+            -DBUILD_INTERFACE=ON
             -DBUILD_SHARED_LIBS=${{ matrix.build_shared_libs }}
             -S ${{ github.workspace }}
 

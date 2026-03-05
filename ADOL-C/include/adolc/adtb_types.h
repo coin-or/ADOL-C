@@ -100,13 +100,29 @@ template <adouble_or_pdouble T> class tape_location {
 
 public:
   /**
+   * State model:
+   * - OWNING: usable token, frees tape location in destructor.
+   * - BORROWED: usable token, does not free tape location.
+   * - INVALID: unusable token (e.g., moved-from / release_loc source).
+   *
+   * This separation is required to prevent "use-after-release" while still
+   * allowing borrowed bridge objects from the C interface to participate in
+   * operations.
+   */
+  enum ownership_mode {
+    INVALID = 0,
+    OWNING = 1,
+    BORROWED = 2,
+  };
+
+  /**
    * @brief Destructor. Releases the location from the tape.
    *
    * The destructor removes the location only if `tape_location` ownes `loc_`,
    * i.e., if `valid_=1`.
    */
   ~tape_location() {
-    if (valid_) {
+    if (owns_location()) {
       free_loc();
     }
   }
@@ -116,6 +132,15 @@ public:
    * tape.
    */
   tape_location() : loc_(next_loc()) {}
+
+  /**
+   * @brief Constructs a tape location from an existing location.
+   *
+   * @param loc Existing tape location.
+   * @param mode Ownership mode (owning or borrowed).
+   */
+  explicit tape_location(size_t loc, ownership_mode mode = OWNING)
+      : loc_(loc), valid_(mode) {}
 
   /** @brief Deleted copy constructor. */
   tape_location(const tape_location &) = delete;
@@ -128,8 +153,9 @@ public:
    *
    * @param other The `tape_location` to move from.
    */
-  tape_location(tape_location &&other) noexcept : loc_(other.loc_) {
-    other.valid_ = 0;
+  tape_location(tape_location &&other) noexcept
+      : loc_(other.loc_), valid_(other.valid_) {
+    other.valid_ = INVALID;
   };
 
   /**
@@ -144,14 +170,14 @@ public:
       return *this;
 
     // free location of *this
-    if (valid_)
+    if (owns_location())
       free_loc();
 
     // Transfer ownership
     loc_ = other.loc_;
     valid_ = other.valid_;
 
-    other.valid_ = 0;
+    other.valid_ = INVALID;
     return *this;
   };
 
@@ -161,6 +187,27 @@ public:
    * @return The index of the location on the tape.
    */
   size_t loc() const { return loc_; }
+
+  /**
+   * @brief Returns whether this location owns tape memory.
+   */
+  bool owns_location() const { return valid_ == OWNING; }
+  bool is_valid() const { return valid_ != INVALID; }
+
+  /**
+   * @brief Releases ownership token and returns the raw location.
+   *
+   * Important semantic:
+   * the source object becomes INVALID, not BORROWED.
+   * This guarantees that
+   *   adouble a(...); auto loc = a.release_loc(); a + ...
+   * is treated as invalid object use in debug builds.
+   */
+  size_t release() {
+    assert(is_valid());
+    valid_ = INVALID;
+    return loc_;
+  }
 };
 
 /**
@@ -175,6 +222,8 @@ public:
 class ADOLC_API adouble {
   /** @brief Stores the location of the `adouble` on the tape. */
   tape_location<adouble> tape_loc_;
+
+  explicit adouble(tape_location<adouble> &&loc) : tape_loc_(std::move(loc)) {}
 
 public:
   /** @brief Default destructor. */
@@ -214,6 +263,26 @@ public:
    * @param other The `adouble` to transfer.
    */
   adouble(adouble &&other) noexcept : tape_loc_(std::move(other.tape_loc_)) {};
+
+  /**
+   * @brief Constructs an adouble borrowing an existing tape location.
+   *
+   * The resulting adouble does not own the location and therefore does not
+   * free it on destruction.
+   */
+  static adouble borrow_location(size_t loc) {
+    return adouble(
+        tape_location<adouble>(loc, tape_location<adouble>::BORROWED));
+  }
+
+  /**
+   * @brief Releases ownership of this adouble's location.
+   *
+   * The returned location can be re-wrapped via borrow_location(). The source
+   * adouble is invalid after this call.
+   */
+  size_t release_loc() { return tape_loc_.release(); }
+  bool is_valid() const { return tape_loc_.is_valid(); }
 
   // Assignment Operators
 
@@ -261,21 +330,33 @@ public:
   /**
    * @brief Retrieves the current value stored at the tape location.
    * @return The value of the `adouble` from the tape.
+   *
+   * Central validity guard: operator implementations call value()/loc(), so we
+   * keep validity assertions here instead of duplicating checks per operator.
    */
-  double value() const { return currentTape().get_ad_value(loc()); }
+  double value() const {
+    assert(is_valid());
+    return currentTape().get_ad_value(loc());
+  }
 
   /**
    * @brief Retrieves the location of the `adouble` on the tape.
    * @return The location on the tape.
    */
-  size_t loc() const { return tape_loc_.loc(); }
+  size_t loc() const {
+    assert(is_valid());
+    return tape_loc_.loc();
+  }
 
   // Mutators
   /**
    * @brief Updates the value stored at the tape location.
    * @param coval the new value to assign.
    */
-  void value(const double coval) { currentTape().set_ad_value(loc(), coval); }
+  void value(const double coval) {
+    assert(is_valid());
+    currentTape().set_ad_value(loc(), coval);
+  }
 
   // Type Conversions
 
