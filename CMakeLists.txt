@@ -260,6 +260,11 @@ add_subdirectory(ADOL-C)
 # include the c interface of adolc
 # ----------------------------------------------------------------
 if(BUILD_INTERFACE)
+    # ADOLCInterface is a shared library. If adolc is built static, it must be
+    # position-independent to be linkable into ADOLCInterface on ELF platforms.
+    if(NOT BUILD_SHARED_LIBS)
+      set_target_properties(adolc PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    endif()
     # set rpath for execution to the install location of adolc
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     add_subdirectory(ADOL-C/c_interface)
