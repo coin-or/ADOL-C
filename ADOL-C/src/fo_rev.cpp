@@ -307,6 +307,10 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
   /* Adjoint stuff */
 #ifdef _FOS_
+  // We want to store number of directions in edfct. Since we have scalar and
+  // vector methods in the same file we have to define nrows for the case that
+  // its not declared by the function signature.
+  int nrows = 0;
   double *rp_A = nullptr;
 #endif
 #ifdef _FOV_
@@ -350,7 +354,6 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fos_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, edfct->dp_U, n,         \
                    edfct->dp_Z, edfct->dp_x, edfct->dp_y)
-#define ADOLC_EXT_FCT_SAVE_NUMDIRS
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
@@ -367,7 +370,6 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fov_reverse_iArr(edfct->tapeId, iArrLength, iArr, m, p, edfct->dpp_U, n,     \
                    edfct->dpp_Z, edfct->dp_x, edfct->dp_y)
-#define ADOLC_EXT_FCT_SAVE_NUMDIRS tape.numDirs_rev(nrows)
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
@@ -2603,8 +2605,8 @@ int int_reverse_safe(
       m = tape.get_locint_r();
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
-      ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct->numDirs = nrows;
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
@@ -2681,8 +2683,8 @@ int int_reverse_safe(
       for (size_t loop = iArrLength; loop > 0; --loop)
         iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* get it again */
-      ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct->numDirs = nrows;
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
@@ -2773,8 +2775,8 @@ int int_reverse_safe(
         iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_r());
-      ADOLC_EXT_FCT_SAVE_NUMDIRS;
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct2->numDirs = nrows;
 
       if (edfct2->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,

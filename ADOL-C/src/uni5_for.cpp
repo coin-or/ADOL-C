@@ -505,17 +505,17 @@ int zos_pl_forward(short tnum, int depcheck, int indcheck, int keep,
 int zos_forward(
 #else
 int zos_forward_nk(
-#endif
+#endif // _KEEP_
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of deps */
     int indcheck, /* consistency chk on # of indeps */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#endif
+#endif // _KEEP_
     const double *basepoint, /* independent variable values */
     double *valuepoint)      /* dependent variable values */
 
-#endif
+#endif // _ABS_NORM_
 
 #else
 #if defined(_FOS_)
@@ -538,19 +538,19 @@ int fos_pl_sig_forward(short tnum, int depcheck, int indcheck,
 int fos_forward(
 #else
 int fos_forward_nk(
-#endif
+#endif // _KEEP_
     short tnum,   /* tape id */
     int depcheck, /* consistency chk on # of deps */
     int indcheck, /* consistency chk on # of indeps */
 #if defined(_KEEP_)
     int keep, /* flag for reverse sweep */
-#endif
+#endif // _KEEP_
     const double *basepoint, /* independent variable values */
     const double *argument,  /* Taylor coefficients (input) */
     double *valuepoint,      /* Taylor coefficients (output) */
     double *taylors)         /* matrix of coefficient vectors */
 /* the order of the indices in argument and taylors is [var][taylor] */
-#endif
+#endif // _ABS_NORM_
 
 #else
 #if defined(_INT_FOR_)
@@ -606,7 +606,7 @@ The order of the indices in argument and taylors is [var][taylor]
 For the full Jacobian matrix set
 p = indep / bits_per_long + ((indep % bits_per_long) != 0)
 and pass a bit pattern version of the identity matrix as an argument    */
-#endif
+#endif // _TIGHT_
 #else
 #if defined(_INDOPRO_) && !defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
@@ -623,7 +623,7 @@ int indopro_forward_tight(
 /* indopro_forward_tight( tag, m, n, x[n], *crs[m]),
 
   */
-#endif
+#endif // _TIGHT_
 #if defined(_NTIGHT_)
 #if defined(_ABS_NORM_)
     int indopro_forward_absnormal(
@@ -650,8 +650,8 @@ int indopro_forward_tight(
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
   */
-#endif
-#endif
+#endif // _ABS_NORM_
+#endif // _NTIGHT_
 #else
 #if defined(_NONLIND_)
 #if defined(_TIGHT_)
@@ -665,7 +665,7 @@ int nonl_ind_forward_tight(
     const double *basepoint, /* independent variable values   (in)   */
     uint **crs)              /* returned row index storage (out)     */
 
-#endif
+#endif // _TIGHT_
 #if defined(_NTIGHT_)
     /****************************************************************************/
     /* First Order Vector version of the forward mode, bit pattern, safe */
@@ -680,7 +680,7 @@ int nonl_ind_forward_tight(
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
   */
-#endif
+#endif // _NTIGHT_
 #else
 #if defined(_NONLIND_OLD_)
 #if defined(_TIGHT_)
@@ -694,7 +694,7 @@ int nonl_ind_old_forward_tight(
     const double *basepoint, /* independent variable values   (in)   */
     uint **crs)              /* returned row index storage (out)     */
 
-#endif
+#endif // _TIGHT_
 #if defined(_NTIGHT_)
     /****************************************************************************/
     /* First Order Vector version of the forward mode, bit pattern, safe */
@@ -709,7 +709,7 @@ int nonl_ind_old_forward_tight(
 /* indopro_forward_safe( tag, m, n, x[n], *crs[m]),
 
   */
-#endif
+#endif // _NTIGHT_
 #else
 #if defined(_FOV_)
 #if defined(_CHUNKED_)
@@ -841,6 +841,15 @@ int hov_forward(
   locint arg = 0;
   locint arg1 = 0;
   locint arg2 = 0;
+
+#if _ZOS_ || _FOS_
+  // We want to store number of directions in edfct. Since we have scalar and
+  // vector methods in the same file we have to define "p" for the case that
+  // "p" not declared by the function signature.
+  // The listes macros are all the cases where external differentiation is
+  // defined but "p" is not declared by the function signature
+  int p = 0;
+#endif
 
 #if !defined(_NTIGHT_)
   double coval = 0;
@@ -5488,7 +5497,7 @@ int hov_forward(
       n = tape.get_locint_f();
       m = tape.get_locint_f();
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-
+      edfct->numDirs = p;
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
                          CURRENT_LOCATION);
@@ -5570,7 +5579,7 @@ int hov_forward(
       n = tape.get_locint_f();
       m = tape.get_locint_f();
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-
+      edfct->numDirs = p;
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
                          CURRENT_LOCATION);
@@ -5666,6 +5675,7 @@ int hov_forward(
       tape.get_locint_f(); /* nin again */
       tape.get_locint_f(); /* nout again */
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
+      edfct2->numDirs = p;
       if (edfct2->ADOLC_EXT_FCT_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
                          CURRENT_LOCATION);
@@ -5757,9 +5767,10 @@ int hov_forward(
       lowestYLoc_ext_v2 = nullptr;
       break;
     }
+
 #endif
 #ifdef ADOLC_MEDIPACK_SUPPORT
-      /*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     case medi_call: {
       locint mediIndex = tape.get_locint_f();
       short tapeId = tape.tapeId();

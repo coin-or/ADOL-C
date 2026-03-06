@@ -105,9 +105,6 @@ struct TapeInfos {
   // # of dependents for the taylor stack
   size_t tay_numDeps{0};
 
-  // # of directions for **v_reverse (checkpointing)
-  int numDirs_rev{0};
-
   /* evaluation forward */
   double *dp_T0{nullptr};
 

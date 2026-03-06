@@ -355,6 +355,10 @@ int hov_ti_reverse(
   const int pk1 = p * k1;
   const int q = p;
 #else
+  // We want to store number of directions in edfct. Since we have scalar and
+  // vector methods in the same file we have to define nrows for the case that
+  // its not declared by the function signature.
+  int nrows = 0;
   const int q = 1;
   const int p = 1;
 #endif
@@ -2851,7 +2855,7 @@ int hov_ti_reverse(
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-
+      edfct->numDirs = nrows;
       /* degree is not known when registering external functions,
          so do memory allocation here (at least for now) */
       double **dpp_U = new double *[m];

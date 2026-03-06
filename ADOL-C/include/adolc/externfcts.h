@@ -119,6 +119,13 @@ struct ADOLC_API ext_diff_fct {
   // evaluation of the ext function
   size_t firstDepLocation{0};
   size_t firstIndLocation{0};
+
+  /**
+   * Allows the propagation of the number of directions to the derivative
+   * drivers. This includes directions for reverse and forward calls.
+   */
+  int numDirs{0};
+
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */

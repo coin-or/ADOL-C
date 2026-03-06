@@ -321,7 +321,7 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
   CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
   const ext_diff_fct *edfct = tape.ext_diff_getElement(cpInfos->extDiffIndex);
 
-  const int numDirs = tape.numDirs_rev();
+  const int numDirs = edfct->numDirs;
   cpInfos->dp_internal_for = new double[cpInfos->dim];
   cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
 
