@@ -285,8 +285,6 @@ public:
   double *currVal() const { return tapeInfos_.currVal; }
   void currVal(double *val) { tapeInfos_.currVal = val; }
 
-  int numDirs_rev() const { return tapeInfos_.numDirs_rev; }
-  void numDirs_rev(int dir) { tapeInfos_.numDirs_rev = dir; }
   char in_nested_ctx() const { return tapeInfos_.in_nested_ctx; }
 
   double *currTay() const { return tapeInfos_.currTay; }

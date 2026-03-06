@@ -57,10 +57,9 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
-      numDirs_rev(other.numDirs_rev), dp_T0(other.dp_T0),
-      workMode(other.workMode), rp_T(other.rp_T), rpp_T(other.rpp_T),
-      rp_A(other.rp_A), rpp_A(other.rpp_A), upp_A(other.upp_A),
-      ext_diff_fct_index(other.ext_diff_fct_index),
+      dp_T0(other.dp_T0), workMode(other.workMode), rp_T(other.rp_T),
+      rpp_T(other.rpp_T), rp_A(other.rp_A), rpp_A(other.rpp_A),
+      upp_A(other.upp_A), ext_diff_fct_index(other.ext_diff_fct_index),
       in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
       signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
@@ -145,8 +144,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     deg_save = other.deg_save;
     tay_numInds = other.tay_numInds;
     tay_numDeps = other.tay_numDeps;
-
-    numDirs_rev = other.numDirs_rev;
 
     dp_T0 = other.dp_T0;
     workMode = other.workMode;
