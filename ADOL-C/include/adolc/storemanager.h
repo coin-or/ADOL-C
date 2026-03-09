@@ -68,13 +68,14 @@
 #include "config.h"
 #endif
 #endif
-#if USE_BOOST_POOL
-#include <boost/pool/pool_alloc.hpp>
-#endif
 #include <adolc/internal/adolc_settings.h>
 #include <adolc/internal/common.h>
 #include <cassert>
 #include <forward_list>
+
+#if USE_BOOST_POOL
+#include <boost/pool/pool_alloc.hpp>
+#endif
 
 class StoreManager {
 
@@ -169,13 +170,13 @@ protected:
     bool operator<(const struct FreeBlock &b) const { return (next < b.next); }
   };
 
-  std::forward_list<struct FreeBlock
 #if USE_BOOST_POOL
-                    ,
-                    boost::fast_pool_allocator<struct FreeBlock>
+  std::forward_list<FreeBlock, boost::fast_pool_allocator<FreeBlock>> indexFree{
+      0};
+#else
+  std::forward_list<FreeBlock> indexFree{0};
 #endif
-                    >
-      indexFree{0};
+
   size_t &maxsize;
   size_t &currentfill;
 
