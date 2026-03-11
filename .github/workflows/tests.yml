@@ -15,6 +15,7 @@ jobs:
         build_type: [Release, Debug]
         c_compiler: [gcc, clang]
         cpp_compiler: [g++, clang++]
+        boost_flag: [ENABLE_BOOST_POOL, DISABLE_BOOST_POOL]
 
     steps:
     - uses: actions/checkout@v4
@@ -44,6 +45,20 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure and build ADOL-C
+      if: startsWith(matrix.boost_flag, 'ENABLE_BOOST_POOL')
+      run: > 
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DBUILD_TESTS=ON
+        -DBUILD_INTERFACE=ON
+        -DENABLE_SPARSE=1
+        -DENABLE_BOOST_POOL=ON
+        -S ${{ github.workspace }}
+
+    - name: Configure and build ADOL-C
+      if: startsWith(matrix.boost_flag, 'DISABLE_BOOST_POOL')
       run: > 
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -53,6 +68,7 @@ jobs:
         -DBUILD_INTERFACE=ON
         -DENABLE_SPARSE=1
         -S ${{ github.workspace }}
+
 
     - name: Build ADOL-C
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
