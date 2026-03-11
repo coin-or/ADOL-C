@@ -179,8 +179,8 @@ endif (ENABLE_HARDDEBUG)
 
 
 if (ENABLE_BOOST_POOL)
-  find_package(Boost 1.54 REQUIRED COMPONENTS system)
-  target_link_libraries(adolc PUBLIC Boost::boost Boost::system)
+  find_package(Boost 1.54 REQUIRED COMPONENTS)
+  target_link_libraries(adolc PUBLIC Boost::boost)
   set(USE_BOOST_POOL "#define USE_BOOST_POOL 1")
 endif()
 
