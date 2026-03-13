@@ -29,22 +29,23 @@ protected:
 public:
   EDFobject() { init_edf(this); }
   virtual ~EDFobject() = default;
-  virtual int function(short tapeId, size_t dim_x, double *x, size_t dim_y,
-                       double *y) = 0;
-  virtual int zos_forward(short tapeId, size_t dim_x, double *x, size_t dim_y,
-                          double *y) = 0;
-  virtual int fos_forward(short tapeId, size_t dim_x, double *dp_x,
-                          double *dp_X, size_t dim_y, double *dp_y,
-                          double *dp_Y) = 0;
-  virtual int fov_forward(short tapeId, size_t dim_x, double *dp_x,
-                          size_t num_dirs, double **dpp_X, size_t dim_y,
-                          double *dp_y, double **dpp_Y) = 0;
-  virtual int fos_reverse(short tapeId, size_t dim_y, double *dp_U,
-                          size_t dim_x, double *dp_Z, double *dp_x,
-                          double *dp_y) = 0;
-  virtual int fov_reverse(short tapeId, size_t dim_y, size_t num_weights,
-                          double **dpp_U, size_t dim_x, double **dpp_Z,
-                          double *dp_x, double *dp_y) = 0;
+  virtual int function(short tapeId, int m, int n, double *x, double *y) = 0;
+  virtual int zos_forward(short tapeId, int m, int n, double *x, double *y) = 0;
+  virtual int fos_forward(short tapeId, int m, int n, double *x, double *X,
+                          double *y, double *Y) = 0;
+  virtual int fov_forward(short tapeId, int m, int n, int p, double *x,
+                          double **X, double *y, double **Y) = 0;
+  virtual int hos_forward(short tapeId, int m, int n, int d, double *x,
+                          double **X, double *y, double **Y) = 0;
+  virtual int hov_forward(short tapeId, int m, int n, int d, int p, double *x,
+                          double ***X, double *y, double ***Y) = 0;
+  virtual int fos_reverse(short tapeId, int m, int n, double *u, double *z) = 0;
+  virtual int fov_reverse(short tapeId, int m, int n, int q, double **Uq,
+                          double **Zq) = 0;
+  virtual int hos_reverse(short tapeId, int m, int n, int d, double *u,
+                          double **Zd) = 0;
+  virtual int hov_reverse(short tapeId, int m, int n, int d, int q, double **Uq,
+                          double ***Zqd, short **nz) = 0;
   int call(size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
     return call_ext_fct(edf, dim_x, xa, dim_y, ya);
   }
@@ -61,24 +62,31 @@ protected:
 public:
   EDFobject_iArr() { init_edf(this); }
   virtual ~EDFobject_iArr() = default;
-  virtual int function(short tapeId, size_t iArrLength, size_t *iArr,
-                       size_t dim_x, double *x, size_t dim_y, double *y) = 0;
-  virtual int zos_forward(short tapeId, size_t iArrLength, size_t *iArr,
-                          size_t dim_x, double *x, size_t dim_y, double *y) = 0;
-  virtual int fos_forward(short tapeId, size_t iArrLength, size_t *iArr,
-                          size_t dim_x, double *dp_x, double *dp_X,
-                          size_t dim_y, double *dp_y, double *dp_Y) = 0;
-  virtual int fov_forward(short tapeId, size_t iArrLength, size_t *iArr,
-                          size_t dim_x, double *dp_x, size_t num_dirs,
-                          double **dpp_X, size_t dim_y, double *dp_y,
-                          double **dpp_Y) = 0;
-  virtual int fos_reverse(short tapeId, size_t iArrLength, size_t *iArr,
-                          size_t dim_y, double *dp_U, size_t dim_x,
-                          double *dp_Z, double *dp_x, double *dp_y) = 0;
-  virtual int fov_reverse(short tapeId, size_t iArrLength, size_t *iArr,
-                          size_t dim_y, size_t num_weights, double **dpp_U,
-                          size_t dim_x, double **dpp_Z, double *dp_x,
-                          double *dp_y) = 0;
+  virtual int function(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                       int n, double *x, double *y) = 0;
+  virtual int zos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, double *x, double *y) = 0;
+  virtual int fos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, double *x, double *X, double *y,
+                          double *Y) = 0;
+  virtual int fov_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int p, double *x, double **X, double *y,
+                          double **Y) = 0;
+  virtual int hos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int d, double *x, double **X, double *y,
+                          double **Y) = 0;
+  virtual int hov_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int d, int p, double *x, double ***X,
+                          double *y, double ***Y) = 0;
+  virtual int fos_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, double *u, double *z) = 0;
+  virtual int fov_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int q, double **Uq, double **Zq) = 0;
+  virtual int hos_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int d, double *u, double **Zd) = 0;
+  virtual int hov_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
+                          int n, int d, int q, double **Uq, double ***Zqd,
+                          short **nz) = 0;
   int call(size_t iArrLength, size_t *iArr, size_t dim_x, adouble *xa,
            size_t dim_y, adouble *ya) {
     return call_ext_fct(edf, iArrLength, iArr, dim_x, xa, dim_y, ya);

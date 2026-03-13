@@ -16,31 +16,30 @@ short tapeIdPart;
 short tapeIdExt;
 
 ext_diff_fct *edf;
-std::vector<double> yp = {0};
-std::vector<double> ynewp = {0};
+std::vector<double> x = {0.0, 0.0};
+std::vector<double> y = {0.0, 0.0};
 std::vector<double> u = {1.0, 1.0};
-std::vector<double> z = {0};
+std::vector<double> z = {0.0, 0.0};
 
 void euler_step_act(short, size_t, adouble *yin, size_t, adouble *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
 }
 
-int euler_step(short, size_t, double *yin, size_t, double *yout) {
+int euler_step(short, int, int, double *yin, double *yout) {
   yout[0] = yin[0] + h * yin[0];
   yout[1] = yin[1] + h * 2 * yin[1];
   return 1;
 }
 
-int zos_for_euler_step(short, size_t, double *yin, size_t, double *yout) {
+int zos_for_euler_step(short, int, int, double *yin, double *yout) {
   return zos_forward(edf->ext_tape_id, 2, 2, 0, yin, yout);
 }
 
-int fos_rev_euler_step(short tapeId, size_t, double *u, size_t, double *z,
-                       double *, double *) {
+int fos_rev_euler_step(short tapeId, int, int, double *u, double *z) {
   int rc;
   findTape(tapeId).nestedReverseEval(true);
-  zos_forward(edf->ext_tape_id, 2, 2, 1, edf->dp_x, edf->dp_y);
+  zos_forward(edf->ext_tape_id, 2, 2, 1, edf->x, edf->y);
   rc = fos_reverse(edf->ext_tape_id, 2, 2, u, z);
   findTape(tapeId).nestedReverseEval(false);
   return rc;
@@ -88,33 +87,34 @@ void setup_external_function(short tapeIdPart, const short tapeIdExt,
 
   edf = reg_ext_fct(tapeIdPart, tapeIdExt, euler_step);
   edf->zos_forward = zos_for_euler_step;
-  edf->dp_x = yp.data();
-  edf->dp_y = ynewp.data();
+  edf->x = x.data();
+  edf->y = y.data();
   edf->fos_reverse = fos_rev_euler_step;
-  edf->dp_U = u.data();
-  edf->dp_Z = z.data();
+  edf->u = u.data();
+  edf->z = z.data();
 }
 
 void setup_external_taping(short tapeIdPart, std::vector<double> conp) {
   trace_on(tapeIdPart);
   {
     currentTape().ensureContiguousLocations(4);
-    std::vector<adouble> y(2), ynew(2);
+    std::vector<adouble> x(2);
+    std::vector<adouble> y(2);
     std::vector<adouble> con(2);
 
     con[0] <<= conp[0];
     con[1] <<= conp[1];
-    y[0] = con[0];
-    y[1] = con[1];
+    x[0] = con[0];
+    x[1] = con[1];
 
     for (int i = 0; i < steps; i++) {
-      call_ext_fct(edf, 2, y.data(), 2, ynew.data());
-      y[0] = ynew[0];
-      y[1] = ynew[1];
+      call_ext_fct(edf, 2, x.data(), 2, y.data());
+      x[0] = y[0];
+      x[1] = y[1];
     }
 
     adouble f;
-    f = y[0] + y[1];
+    f = x[0] + x[1];
     double f_out;
     f >>= f_out;
   }
