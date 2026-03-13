@@ -42,8 +42,7 @@ struct fpi_data {
 
 static std::vector<fpi_data> fpi_stack;
 
-static int iteration(short, int dim_x, int dim_xu, double *xu,
-                     double *x_fix) {
+static int iteration(short, int dim_x, int dim_xu, double *xu, double *x_fix) {
   double err;
   const fpi_data &current = fpi_stack.back();
 
@@ -106,8 +105,7 @@ static int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
 }
 
 static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
-                          double *xu_dot, double *x_fix,
-                          double *x_fix_dot) {
+                          double *xu_dot, double *x_fix, double *x_fix_dot) {
 
   // Piggy back
   double err, err_deriv;
@@ -253,7 +251,8 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] = u[i];
 
-  const int k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
+  const int k = call_ext_fct(edf_iteration, static_cast<int>(dim_x + dim_u), xu,
+                             static_cast<int>(dim_x), x_fix);
 
   // read out x_fix
   for (size_t i = 0; i < dim_x; ++i)

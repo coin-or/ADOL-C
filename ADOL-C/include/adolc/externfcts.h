@@ -352,11 +352,10 @@ ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
 
 ADOLC_API ext_diff_fct *get_ext_diff_fct(short tapeId, size_t index);
 
-ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t dim_x, adouble *xa,
-                           size_t dim_y, adouble *ya);
-ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr,
-                           size_t dim_x, adouble *xa, size_t dim_y,
+ADOLC_API int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa, int m,
                            adouble *ya);
+ADOLC_API int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr,
+                           int n, adouble *xa, int m, adouble *ya);
 
 /****************************************************************************/
 #endif // ADOLC_EXTERNFCTS_H
