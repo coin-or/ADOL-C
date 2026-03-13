@@ -114,7 +114,7 @@ void CpInfos::revolve_for() {
 }
 
 /* we do not really have an ext. diff. function that we want to be called */
-int dummy(short, size_t, double *, size_t, double *) { return 0; }
+int dummy(short, int, int, double *, double *) { return 0; }
 
 /* register one time step function (uses buffer template) */
 void CP_Context::reg_timestep_fct(short tapeId, short cp_tape_id,
@@ -487,58 +487,56 @@ void init_edf(ext_diff_fct *edf) {
   edf->function = dummy;
 
   // ZOS FORWARD
-  edf->zos_forward = [edf](short tapeId, size_t n1, double *x, size_t n2,
-                           double *y) {
-    return cp_zos_forward(edf->cp_index, tapeId, n1, x, n2, y);
+  edf->zos_forward = [edf](short tapeId, int m, int n, double *x, double *y) {
+    return cp_zos_forward(edf->cp_index, tapeId, n, x, m, y);
   };
 
   // FOS FORWARD
-  edf->fos_forward = [edf](short tapeId, size_t n, double *x, double *xp,
-                           size_t m, double *y, double *yp) {
-    return cp_fos_forward(edf->cp_index, tapeId, n, x, xp, m, y, yp);
+  edf->fos_forward = [edf](short tapeId, int m, int n, double *x, double *X,
+                           double *y, double *Y) {
+    return cp_fos_forward(edf->cp_index, tapeId, n, x, X, m, y, Y);
   };
 
   // FOV FORWARD
-  edf->fov_forward = [edf](short tapeId, size_t n, double *x, size_t p,
-                           double **xp, size_t m, double *y, double **yp) {
-    return cp_fov_forward(edf->cp_index, tapeId, n, x, p, xp, m, y, yp);
+  edf->fov_forward = [edf](short tapeId, int m, int n, int p, double *x,
+                           double **Xp, double *y, double **Yp) {
+    return cp_fov_forward(edf->cp_index, tapeId, n, x, p, Xp, m, y, Yp);
   };
 
   // HOS FORWARD
-  edf->hos_forward = [edf](short tapeId, size_t n, double *x, size_t d,
-                           double **xp, size_t m, double *y, double **yp) {
-    return cp_hos_forward(edf->cp_index, tapeId, n, x, d, xp, m, y, yp);
+  edf->hos_forward = [edf](short tapeId, int m, int n, int d, double *x,
+                           double **Xd, double *y, double **Yd) {
+    return cp_hos_forward(edf->cp_index, tapeId, n, x, d, Xd, m, y, Yd);
   };
 
   // HOV FORWARD
-  edf->hov_forward = [edf](short tapeId, size_t n, double *x, size_t d,
-                           size_t p, double ***xp, size_t m, double *y,
-                           double ***yp) {
-    return cp_hov_forward(edf->cp_index, tapeId, n, x, d, p, xp, m, y, yp);
+  edf->hov_forward = [edf](short tapeId, int m, int n, int d, int p, double *x,
+                           double ***Xpd, double *y, double ***Ypd) {
+    return cp_hov_forward(edf->cp_index, tapeId, n, x, d, p, Xpd, m, y, Ypd);
   };
 
   // FOS REVERSE
-  edf->fos_reverse = [edf](short tapeId, size_t n, double *x, size_t m,
-                           double *y, double *u, double *z) {
-    return cp_fos_reverse(edf->cp_index, tapeId, n, x, m, y, u, z);
+  edf->fos_reverse = [edf](short tapeId, int m, int n, double *u, double *z) {
+    return cp_fos_reverse(edf->cp_index, tapeId, n, u, m, z, edf->x, edf->y);
   };
 
   // FOV REVERSE
-  edf->fov_reverse = [edf](short tapeId, size_t n, size_t p, double **x,
-                           size_t m, double **y, double *u, double *z) {
-    return cp_fov_reverse(edf->cp_index, tapeId, n, p, x, m, y, u, z);
+  edf->fov_reverse = [edf](short tapeId, int m, int n, int q, double **Uq,
+                           double **Zq) {
+    return cp_fov_reverse(edf->cp_index, tapeId, n, q, Uq, m, Zq, edf->x,
+                          edf->y);
   };
 
   // HOS REVERSE
-  edf->hos_reverse = [edf](short tapeId, size_t n, double *x, size_t d,
-                           size_t m, double **y) {
-    return cp_hos_reverse(edf->cp_index, tapeId, n, x, d, m, y);
+  edf->hos_reverse = [edf](short tapeId, int m, int n, int d, double *u,
+                           double **Zd) {
+    return cp_hos_reverse(edf->cp_index, tapeId, n, u, d, m, Zd);
   };
 
   // HOV REVERSE
-  edf->hov_reverse = [edf](short tapeId, size_t n, size_t d, double **x,
-                           size_t m, size_t p, double ***y, short **nz) {
-    return cp_hov_reverse(edf->cp_index, tapeId, n, d, x, m, p, y, nz);
+  edf->hov_reverse = [edf](short tapeId, int m, int n, int d, int q,
+                           double **Uq, double ***Zqd, short **nz) {
+    return cp_hov_reverse(edf->cp_index, tapeId, n, d, Uq, m, q, Zqd, nz);
   };
 }
 int CP_Context::checkpointing(short tapeId) {

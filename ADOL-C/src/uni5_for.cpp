@@ -974,10 +974,11 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER zos_forward
 #define ADOLC_EXT_FCT_IARR_POINTER zos_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  zos_forward(edfct->tapeId, n, edfct->dp_x, m, edfct->dp_y)
+  zos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),         \
+              edfct->x, edfct->y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  zos_forward_iArr(edfct->tapeId, iArrLength, iArr, n, edfct->dp_x, m,         \
-                   edfct->dp_y)
+  zos_forward_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
+                   static_cast<int>(n), edfct->x, edfct->y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   zos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               outsz, edfct2->y, edfct2->context)
@@ -989,13 +990,14 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER fos_forward
 #define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_forward(edfct->tapeId, n, edfct->dp_x, edfct->dp_X, m, edfct->dp_y,      \
-              edfct->dp_Y)
+  fos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),         \
+              edfct->x, edfct->X, edfct->y, edfct->Y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fos_forward_iArr(edfct->tapeId, iArrLength, iArr, n, edfct->dp_x,            \
-                   edfct->dp_X, m, edfct->dp_y, edfct->dp_Y)
-#define ADOLC_EXT_POINTER_X edfct->dp_X
-#define ADOLC_EXT_POINTER_Y edfct->dp_Y
+  fos_forward_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
+                   static_cast<int>(n), edfct->x, edfct->X, edfct->y,          \
+                   edfct->Y)
+#define ADOLC_EXT_POINTER_X edfct->X
+#define ADOLC_EXT_POINTER_Y edfct->Y
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   fos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)
@@ -1010,13 +1012,14 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER fov_forward
 #define ADOLC_EXT_FCT_IARR_POINTER fov_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fov_forward(edfct->tapeId, n, edfct->dp_x, p, edfct->dpp_X, m, edfct->dp_y,  \
-              edfct->dpp_Y)
+  fov_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), p,      \
+              edfct->x, edfct->Xp, edfct->y, edfct->Yp)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
-  fov_forward_iArr(edfct->tapeId, iArrLength, iArr, n, edfct->dp_x, p,         \
-                   edfct->dpp_X, m, edfct->dp_y, edfct->dpp_Y)
-#define ADOLC_EXT_POINTER_X edfct->dpp_X
-#define ADOLC_EXT_POINTER_Y edfct->dpp_Y
+  fov_forward_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
+                   static_cast<int>(n), p, edfct->x, edfct->Xp, edfct->y,      \
+                   edfct->Yp)
+#define ADOLC_EXT_POINTER_X edfct->Xp
+#define ADOLC_EXT_POINTER_Y edfct->Yp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   fov_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x, p, \
               edfct2->Xp, outsz, edfct2->y, edfct2->Yp, edfct2->context)
@@ -1027,7 +1030,7 @@ int hov_forward(
 #endif
 
 #if defined(_EXTERN_)
-  size_t n, m;
+  int n, m;
   ext_diff_fct *edfct = nullptr;
   ext_diff_fct_v2 *edfct2;
   size_t iArrLength;
@@ -5494,15 +5497,15 @@ int hov_forward(
 #if defined(_EXTERN_) /* ZOS,  FOS, FOV up to now */
     case ext_diff:    /* extern differentiated function */
       tape.ext_diff_fct_index(tape.get_locint_f());
-      n = tape.get_locint_f();
-      m = tape.get_locint_f();
+      n = static_cast<int>(tape.get_locint_f());
+      m = static_cast<int>(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
       edfct->numDirs = p;
       if (edfct->ADOLC_EXT_FCT_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
                          CURRENT_LOCATION);
       if (n > 0) {
-        if (edfct->dp_x == nullptr)
+        if (edfct->x == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
 #if !defined(_ZOS_)
@@ -5512,7 +5515,7 @@ int hov_forward(
 #endif
       }
       if (m > 0) {
-        if (edfct->dp_y == nullptr)
+        if (edfct->y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
 #if !defined(_ZOS_)
@@ -5523,22 +5526,22 @@ int hov_forward(
       }
 
       arg = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
+      for (int loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
-        edfct->dp_x[loop] = dp_T0[arg];
+        edfct->x[loop] = dp_T0[arg];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop], TAYLOR_BUFFER[arg]);
 #endif
         ++arg;
       }
       arg = edfct->firstDepLocation;
-      for (size_t loop = 0; loop < m; ++loop) {
+      for (int loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
-        edfct->dp_y[loop] = dp_T0[arg];
+        edfct->y[loop] = dp_T0[arg];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop], TAYLOR_BUFFER[arg]);
 #endif
@@ -5549,8 +5552,8 @@ int hov_forward(
       MINDEC(ret_c, ext_retc);
 
       res = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
-        dp_T0[res] = edfct->dp_x[loop];
+      for (int loop = 0; loop < n; ++loop) {
+        dp_T0[res] = edfct->x[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
                                     TAYLOR_BUFFER[res]);
@@ -5558,8 +5561,8 @@ int hov_forward(
         ++res;
       }
       res = edfct->firstDepLocation;
-      for (size_t loop = 0; loop < m; ++loop) {
-        dp_T0[res] = edfct->dp_y[loop];
+      for (int loop = 0; loop < m; ++loop) {
+        dp_T0[res] = edfct->y[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
                                     TAYLOR_BUFFER[res]);
@@ -5576,15 +5579,15 @@ int hov_forward(
         iArr[loop] = tape.get_locint_f();
       tape.get_locint_f(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_f());
-      n = tape.get_locint_f();
-      m = tape.get_locint_f();
+      n = static_cast<int>(tape.get_locint_f());
+      m = static_cast<int>(tape.get_locint_f());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
       edfct->numDirs = p;
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == nullptr)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_DIFFFUNC,
                          CURRENT_LOCATION);
       if (n > 0) {
-        if (edfct->dp_x == nullptr)
+        if (edfct->x == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
 #if !defined(_ZOS_)
@@ -5594,7 +5597,7 @@ int hov_forward(
 #endif
       }
       if (m > 0) {
-        if (edfct->dp_y == nullptr)
+        if (edfct->y == nullptr)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
 #if !defined(_ZOS_)
@@ -5605,22 +5608,22 @@ int hov_forward(
       }
 
       arg = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
+      for (int loop = 0; loop < n; ++loop) {
         if (edfct->dp_x_changes) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
-        edfct->dp_x[loop] = dp_T0[arg];
+        edfct->x[loop] = dp_T0[arg];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_X[loop], TAYLOR_BUFFER[arg]);
 #endif
         ++arg;
       }
       arg = edfct->firstDepLocation;
-      for (size_t loop = 0; loop < m; ++loop) {
+      for (int loop = 0; loop < m; ++loop) {
         if (edfct->dp_y_priorRequired) {
           IF_KEEP_WRITE_TAYLOR(arg, keep, k, p);
         }
-        edfct->dp_y[loop] = dp_T0[arg];
+        edfct->y[loop] = dp_T0[arg];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS(ADOLC_EXT_POINTER_Y[loop], TAYLOR_BUFFER[arg]);
 #endif
@@ -5631,8 +5634,8 @@ int hov_forward(
       MINDEC(ret_c, ext_retc);
 
       res = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
-        dp_T0[res] = edfct->dp_x[loop];
+      for (int loop = 0; loop < n; ++loop) {
+        dp_T0[res] = edfct->x[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_X[loop],
                                     TAYLOR_BUFFER[res]);
@@ -5640,8 +5643,8 @@ int hov_forward(
         ++res;
       }
       res = edfct->firstDepLocation;
-      for (size_t loop = 0; loop < m; ++loop) {
-        dp_T0[res] = edfct->dp_y[loop];
+      for (int loop = 0; loop < m; ++loop) {
+        dp_T0[res] = edfct->y[loop];
 #if !defined(_ZOS_)
         ADOLC_EXT_COPY_TAYLORS_BACK(ADOLC_EXT_POINTER_Y[loop],
                                     TAYLOR_BUFFER[res]);
