@@ -370,14 +370,15 @@ int hov_ti_reverse(
 #define ADOLC_EXT_FCT_Z dpp_Z
 #define ADOLC_EXT_FCT_POINTER hos_ti_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hos_ti_reverse(edfct->tapeId, m, dpp_U, n, degre, dpp_Z, dpp_x, dpp_y)
+  hos_ti_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),      \
+                 degre, dpp_U, dpp_Z, dpp_x, dpp_y)
 #else
 #define ADOLC_EXT_FCT_U dppp_U
 #define ADOLC_EXT_FCT_Z dppp_Z
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  hov_reverse(edfct->tapeId, m, p, edfct->dpp_U, n, degre, edfct->dppp_Z,      \
-              edfct->spp_nz)
+  hov_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), degre,  \
+              p, edfct->Uq, edfct->Zqd, edfct->nz)
 #endif
 
 #if defined(ADOLC_DEBUG)
@@ -2868,7 +2869,7 @@ int hov_ti_reverse(
         if (ADOLC_EXT_FCT_U == NULL)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
-        if (edfct->dp_y == NULL)
+        if (edfct->y == NULL)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
       }
@@ -2876,7 +2877,7 @@ int hov_ti_reverse(
         if (ADOLC_EXT_FCT_Z == NULL)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
-        if (edfct->dp_x == NULL)
+        if (edfct->x == NULL)
           ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
                            CURRENT_LOCATION);
       }
@@ -2900,13 +2901,13 @@ int hov_ti_reverse(
       double **dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
       for (size_t loop = 0; loop < n; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
-        // edfct->dp_x[loop] = rpp_T[arg];
+        // edfct->x[loop] = rpp_T[arg];
       }
       arg = edfct->firstDepLocation;
       double **dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
       for (size_t loop = 0; loop < m; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
-        // edfct->dp_y[loop] = rpp_T[arg];
+        // edfct->y[loop] = rpp_T[arg];
       }
       int ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
