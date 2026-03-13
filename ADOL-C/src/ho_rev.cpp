@@ -429,7 +429,7 @@ int hov_ti_reverse(
   rp_Atemp2 = myalloc1(k1);
   rp_Ttemp2 = myalloc1(k);
 
-  locint n, m;
+  int n, m;
   ext_diff_fct *edfct = nullptr;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
@@ -2859,8 +2859,8 @@ int hov_ti_reverse(
              "TODO: add nestedReverseEval accumulation semantics to ho_rev.cpp "
              "before supporting nested higher-order reverse passes.");
 
-      m = tape.get_locint_r();
-      n = tape.get_locint_r();
+      m = static_cast<int>(tape.get_locint_r());
+      n = static_cast<int>(tape.get_locint_r());
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
       edfct->numDirs = nrows;
@@ -2889,14 +2889,14 @@ int hov_ti_reverse(
                            CURRENT_LOCATION);
       }
       arg = edfct->firstDepLocation + m - 1;
-      for (size_t loop = 0; loop < m; ++loop) {
+      for (int loop = 0; loop < m; ++loop) {
         // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
         dpp_U[loop] = rpp_A[arg] + 1;
         ++arg;
       }
 
       arg = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
+      for (int loop = 0; loop < n; ++loop) {
         // This should copy data in case `revreal` is not double.
         // (Note: copy back below doesn't actually do anything until this is
         // changed to a copy.) (Note: first entry is alg. dependency which we
@@ -2906,13 +2906,13 @@ int hov_ti_reverse(
       }
       arg = edfct->firstIndLocation;
       double **dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
-      for (size_t loop = 0; loop < n; ++loop, ++arg) {
+      for (int loop = 0; loop < n; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
         // edfct->x[loop] = rpp_T[arg];
       }
       arg = edfct->firstDepLocation;
       double **dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
-      for (size_t loop = 0; loop < m; ++loop, ++arg) {
+      for (int loop = 0; loop < m; ++loop, ++arg) {
         // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
         // edfct->y[loop] = rpp_T[arg];
       }
@@ -2921,7 +2921,7 @@ int hov_ti_reverse(
 
       res = edfct->firstDepLocation;
       // Ares = A[res];
-      for (size_t loop = 0; loop < m; ++loop) {
+      for (int loop = 0; loop < m; ++loop) {
         for (int l = 0; l < q; ++l) {
           // ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */
           // rpp_T[res][l] = 0.0;
@@ -2930,7 +2930,7 @@ int hov_ti_reverse(
         ++res;
       }
       res = edfct->firstIndLocation;
-      for (size_t loop = 0; loop < n; ++loop) {
+      for (int loop = 0; loop < n; ++loop) {
         // ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],ADJOINT_BUFFER_RES);
         // Hmm, ist das nicht falsch? Wir sollten rpp_T vermutlich nicht
         // anfassen. Sonst ändert sich ja das Ergebnis wenn man das Band
@@ -2948,14 +2948,14 @@ int hov_ti_reverse(
       }
       if (edfct->dp_y_priorRequired) {
         arg = edfct->firstDepLocation + m - 1;
-        for (size_t loop = 0; loop < m; ++loop, --arg) {
+        for (int loop = 0; loop < m; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }
       }
       if (edfct->dp_x_changes) {
         arg = edfct->firstIndLocation + n - 1;
-        for (size_t loop = 0; loop < n; ++loop, --arg) {
+        for (int loop = 0; loop < n; ++loop, --arg) {
           // ADOLC_GET_TAYLOR(arg);
           GET_TAYL(arg, k, p);
         }

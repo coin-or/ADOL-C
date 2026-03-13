@@ -47,7 +47,8 @@ public:
   virtual int hov_reverse(short tapeId, int m, int n, int d, int q, double **Uq,
                           double ***Zqd, short **nz) = 0;
   int call(size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
-    return call_ext_fct(edf, dim_x, xa, dim_y, ya);
+    return call_ext_fct(edf, static_cast<int>(dim_x), xa,
+                        static_cast<int>(dim_y), ya);
   }
   int call(size_t dim_x, advector &x, size_t dim_y, advector &y) {
     return call(dim_x, x.operator adouble *(), dim_y, y.operator adouble *());
@@ -89,7 +90,8 @@ public:
                           short **nz) = 0;
   int call(size_t iArrLength, size_t *iArr, size_t dim_x, adouble *xa,
            size_t dim_y, adouble *ya) {
-    return call_ext_fct(edf, iArrLength, iArr, dim_x, xa, dim_y, ya);
+    return call_ext_fct(edf, iArrLength, iArr, static_cast<int>(dim_x), xa,
+                        static_cast<int>(dim_y), ya);
   }
   int call(size_t iArrLength, size_t *iArr, size_t dim_x, advector &x,
            size_t dim_y, advector &y) {
