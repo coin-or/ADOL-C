@@ -95,9 +95,10 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_zos_forward) {
 
 BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
   // Compute the square root of 2.0
-  const short tapeId = 1;
+  const auto tapeId = createNewTape();
+  const auto sub_tape_id = createNewTape();
   const double argument[1] = {2.0};
-  double out = traceNewtonForSquareRoot(tapeId, 2, argument[0]);
+  double out = traceNewtonForSquareRoot(tapeId, sub_tape_id, argument[0]);
 
   // Did taping really produce the correct value?
   BOOST_TEST(out == std::sqrt(argument[0]), tt::tolerance(tol));

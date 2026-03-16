@@ -379,7 +379,7 @@ int hov_ti_reverse(
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   hov_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), degre,  \
-              p, edfct->Uq, edfct->Zqd, edfct->nz)
+              p, edfct->Uq, edfct->Zqd, edfct->nz, dpp_x, dpp_y)
 #endif
 
 #if defined(ADOLC_DEBUG)
@@ -2863,7 +2863,7 @@ int hov_ti_reverse(
       n = static_cast<int>(tape.get_locint_r());
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-      edfct->numDirs = nrows;
+      edfct->q = nrows;
       /* degree is not known when registering external functions,
          so do memory allocation here (at least for now) */
       double **dpp_U = new double *[m];
@@ -2872,22 +2872,7 @@ int hov_ti_reverse(
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
-      if (m > 0) {
-        if (ADOLC_EXT_FCT_U == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->y == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
-      if (n > 0) {
-        if (ADOLC_EXT_FCT_Z == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->x == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
+
       arg = edfct->firstDepLocation + m - 1;
       for (int loop = 0; loop < m; ++loop) {
         // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
@@ -2905,17 +2890,9 @@ int hov_ti_reverse(
         ++arg;
       }
       arg = edfct->firstIndLocation;
-      double **dpp_x = rpp_T + arg; // TODO: change to copy, use loop below
-      for (int loop = 0; loop < n; ++loop, ++arg) {
-        // TODO: copy rpp_T[arg][0,...,keep] -> dpp_x[loop][0,...,keep]
-        // edfct->x[loop] = rpp_T[arg];
-      }
+      double **dpp_x = rpp_T + arg;
       arg = edfct->firstDepLocation;
-      double **dpp_y = rpp_T + arg; // TODO: change to copy, use loop below
-      for (int loop = 0; loop < m; ++loop, ++arg) {
-        // TODO: copy rpp_T[arg][0,...,keep] -> dpp_y[loop][0,...,keep]
-        // edfct->y[loop] = rpp_T[arg];
-      }
+      double **dpp_y = rpp_T + arg;
       int ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 

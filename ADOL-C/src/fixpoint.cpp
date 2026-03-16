@@ -152,7 +152,8 @@ static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
 }
 
 static int fp_fos_reverse(short tapeId, int dim_x, int dim_xu,
-                          double *x_fix_bar, double *xu_bar) {
+                          double *x_fix_bar, double *xu_bar, double *,
+                          double *) {
   // (d x_fix) / (d x_0) = 0 (!)
 
   double err = 0.0;

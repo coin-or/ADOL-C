@@ -42,18 +42,20 @@ using ADOLC_ext_fct_hos_forward =
 using ADOLC_ext_fct_hov_forward =
     std::function<int(short tapeId, int m, int n, int d, int p, double *x,
                       double ***Xpd, double *y, double ***Ypd)>;
-using ADOLC_ext_fct_fos_reverse =
-    std::function<int(short tapeId, int m, int n, double *u, double *z)>;
-using ADOLC_ext_fct_fov_reverse = std::function<int(
-    short tapeId, int m, int n, int q, double **Uq, double **Zq)>;
-using ADOLC_ext_fct_hos_reverse = std::function<int(
-    short tapeId, int m, int n, int d, double *u, double **Zd)>;
+using ADOLC_ext_fct_fos_reverse = std::function<int(
+    short tapeId, int m, int n, double *u, double *z, double *x, double *y)>;
+using ADOLC_ext_fct_fov_reverse =
+    std::function<int(short tapeId, int m, int n, int q, double **Uq,
+                      double **Zq, double *x, double *y)>;
+using ADOLC_ext_fct_hos_reverse =
+    std::function<int(short tapeId, int m, int n, int d, double *u, double **Zd,
+                      double **Xd, double **Yd)>;
 using ADOLC_ext_fct_hos_ti_reverse =
     std::function<int(short tapeId, int m, int n, int d, double **Ud,
                       double **Zd, double **Xd, double **Yd)>;
 using ADOLC_ext_fct_hov_reverse =
     std::function<int(short tapeId, int m, int n, int d, int q, double **Uq,
-                      double ***Zqd, short **nz)>;
+                      double ***Zqd, short **nz, double **Xd, double **Yd)>;
 
 /**
  * we add a second set of function pointers with a signature expanded by a an
@@ -82,16 +84,16 @@ using ADOLC_ext_fct_iArr_hov_forward = std::function<int(
     double *x, double ***Xpd, double *y, double ***Ypd)>;
 using ADOLC_ext_fct_iArr_fos_reverse =
     std::function<int(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                      int n, double *u, double *z)>;
-using ADOLC_ext_fct_iArr_fov_reverse =
-    std::function<int(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                      int n, int q, double **Uq, double **Zq)>;
-using ADOLC_ext_fct_iArr_hos_reverse =
-    std::function<int(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                      int n, int d, double *u, double **Zd)>;
+                      int n, double *u, double *z, double *x, double *y)>;
+using ADOLC_ext_fct_iArr_fov_reverse = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int q,
+    double **Uq, double **Zq, double *x, double *y)>;
+using ADOLC_ext_fct_iArr_hos_reverse = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int d,
+    double *u, double **Zd, double **Xd, double **Yd)>;
 using ADOLC_ext_fct_iArr_hov_reverse = std::function<int(
     short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int d, int q,
-    double **Uq, double ***Zqd, short **nz)>;
+    double **Uq, double ***Zqd, short **nz, double **Xd, double **Yd)>;
 
 /**
  * A variable of this type has to be instantiated by reg_ext_fct (see below) and
@@ -115,10 +117,14 @@ struct ADOLC_API ext_diff_fct {
   size_t firstIndLocation{0};
 
   /**
-   * Allows the propagation of the number of directions to the derivative
-   * drivers. This includes directions for reverse and forward calls.
+   * Number of forward directions in fos/fov forward calls.
    */
-  int numDirs{0};
+  int p{0};
+
+  /**
+   * Number of reverse weight vectors in fov/hov reverse calls.
+   */
+  int q{0};
 
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
@@ -302,6 +308,16 @@ struct ADOLC_API ext_diff_fct {
   size_t max_m{0};
 
   /**
+   * track maximal forward directions when vector forward is invoked
+   */
+  size_t max_p{0};
+
+  /**
+   * track maximal reverse directions when vector reverse is invoked
+   */
+  size_t max_q{0};
+
+  /**
    * make the call such that Adol-C may be used inside
    * of the externally differentiated function;
    * defaults to non-0;
@@ -344,6 +360,8 @@ struct ADOLC_API ext_diff_fct {
 
 /****************************************************************************/
 /*                                                          This is all C++ */
+
+void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m, int p, int q);
 
 ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
                                     ADOLC_ext_fct ext_fct);

@@ -39,13 +39,15 @@ public:
                           double **X, double *y, double **Y) = 0;
   virtual int hov_forward(short tapeId, int m, int n, int d, int p, double *x,
                           double ***X, double *y, double ***Y) = 0;
-  virtual int fos_reverse(short tapeId, int m, int n, double *u, double *z) = 0;
+  virtual int fos_reverse(short tapeId, int m, int n, double *u, double *z,
+                          double *x, double *y) = 0;
   virtual int fov_reverse(short tapeId, int m, int n, int q, double **Uq,
-                          double **Zq) = 0;
+                          double **Zq, double *x, double *y) = 0;
   virtual int hos_reverse(short tapeId, int m, int n, int d, double *u,
-                          double **Zd) = 0;
+                          double **Zd, double **Xd, double **Yd) = 0;
   virtual int hov_reverse(short tapeId, int m, int n, int d, int q, double **Uq,
-                          double ***Zqd, short **nz) = 0;
+                          double ***Zqd, short **nz, double **Xd,
+                          double **Yd) = 0;
   int call(size_t dim_x, adouble *xa, size_t dim_y, adouble *ya) {
     return call_ext_fct(edf, static_cast<int>(dim_x), xa,
                         static_cast<int>(dim_y), ya);
@@ -80,14 +82,17 @@ public:
                           int n, int d, int p, double *x, double ***X,
                           double *y, double ***Y) = 0;
   virtual int fos_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, double *u, double *z) = 0;
+                          int n, double *u, double *z, double *x,
+                          double *y) = 0;
   virtual int fov_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, int q, double **Uq, double **Zq) = 0;
+                          int n, int q, double **Uq, double **Zq, double *x,
+                          double *y) = 0;
   virtual int hos_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, int d, double *u, double **Zd) = 0;
+                          int n, int d, double *u, double **Zd, double **Xd,
+                          double **Yd) = 0;
   virtual int hov_reverse(short tapeId, size_t iArrLength, size_t *iArr, int m,
                           int n, int d, int q, double **Uq, double ***Zqd,
-                          short **nz) = 0;
+                          short **nz, double **Xd, double **Yd) = 0;
   int call(size_t iArrLength, size_t *iArr, size_t dim_x, adouble *xa,
            size_t dim_y, adouble *ya) {
     return call_ext_fct(edf, iArrLength, iArr, static_cast<int>(dim_x), xa,

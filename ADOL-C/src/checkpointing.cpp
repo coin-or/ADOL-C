@@ -321,15 +321,15 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
   CpInfos *cpInfos = tape.get_cp_fct(cpIndex);
   const ext_diff_fct *edfct = tape.ext_diff_getElement(cpInfos->extDiffIndex);
 
-  const int numDirs = edfct->numDirs;
+  const int q = edfct->q;
   cpInfos->dp_internal_for = new double[cpInfos->dim];
-  cpInfos->dpp_internal_rev = myalloc2(numDirs, cpInfos->dim);
+  cpInfos->dpp_internal_rev = myalloc2(q, cpInfos->dim);
 
   double **rpp_A = tape.rpp_A();
   size_t start = edfct->firstDepLocation;
 
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
-    for (int j = 0; j < numDirs; ++j) {
+    for (int j = 0; j < q; ++j) {
       cpInfos->dpp_internal_rev[j][i - start] = rpp_A[i][j];
     }
   }
@@ -339,7 +339,7 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
     tape.get_taylor(i);
 
   // execute second part of revolve_firstturn left from forward sweep
-  fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, numDirs,
+  fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, q,
               cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
 
   const char old_bsw = tape.branchSwitchWarning();
@@ -373,7 +373,7 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
           cpInfos->taping();
       }
       // one reverse step
-      fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, numDirs,
+      fov_reverse(cpInfos->cp_tape_id, cpInfos->dim, cpInfos->dim, q,
                   cpInfos->dpp_internal_rev, cpInfos->dpp_internal_rev);
       break;
 
@@ -403,7 +403,7 @@ int cp_fov_reverse(size_t cpIndex, short tapeId, size_t, size_t, double **,
   // save results
   start = edfct->firstDepLocation;
   for (size_t i = start; i < cpInfos->dim + start; ++i) {
-    for (int j = 0; j < numDirs; ++j) {
+    for (int j = 0; j < q; ++j) {
       rpp_A[i][j] = cpInfos->dpp_internal_rev[j][i];
     }
   }
@@ -516,26 +516,31 @@ void init_edf(ext_diff_fct *edf) {
   };
 
   // FOS REVERSE
-  edf->fos_reverse = [edf](short tapeId, int m, int n, double *u, double *z) {
-    return cp_fos_reverse(edf->cp_index, tapeId, n, u, m, z, edf->x, edf->y);
+  edf->fos_reverse = [edf](short tapeId, int m, int n, double *u, double *z,
+                           double *x, double *y) {
+    return cp_fos_reverse(edf->cp_index, tapeId, n, u, m, z, x, y);
   };
 
   // FOV REVERSE
   edf->fov_reverse = [edf](short tapeId, int m, int n, int q, double **Uq,
-                           double **Zq) {
-    return cp_fov_reverse(edf->cp_index, tapeId, n, q, Uq, m, Zq, edf->x,
-                          edf->y);
+                           double **Zq, double *x, double *y) {
+    return cp_fov_reverse(edf->cp_index, tapeId, n, q, Uq, m, Zq, x, y);
   };
 
   // HOS REVERSE
   edf->hos_reverse = [edf](short tapeId, int m, int n, int d, double *u,
-                           double **Zd) {
+                           double **Zd, double **Xd, double **Yd) {
+    (void)Xd;
+    (void)Yd;
     return cp_hos_reverse(edf->cp_index, tapeId, n, u, d, m, Zd);
   };
 
   // HOV REVERSE
   edf->hov_reverse = [edf](short tapeId, int m, int n, int d, int q,
-                           double **Uq, double ***Zqd, short **nz) {
+                           double **Uq, double ***Zqd, short **nz, double **Xd,
+                           double **Yd) {
+    (void)Xd;
+    (void)Yd;
     return cp_hov_reverse(edf->cp_index, tapeId, n, d, Uq, m, q, Zqd, nz);
   };
 }

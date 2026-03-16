@@ -344,32 +344,42 @@ int int_reverse_safe(
   /****************************************************************************/
   /*                                          extern diff. function variables */
 #if defined(_FOS_)
+  double *ext_u = nullptr;
+  double *ext_z = nullptr;
+  double *ext_x = nullptr;
+  double *ext_y = nullptr;
 #define ADOLC_EXT_FCT_U edfct->u
 #define ADOLC_EXT_FCT_Z edfct->z
 #define ADOLC_EXT_FCT_POINTER fos_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),         \
-              edfct->u, edfct->z)
+  fos_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), ext_u,  \
+              ext_z, ext_x, ext_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fos_reverse_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
-                   static_cast<int>(n), edfct->u, edfct->z)
+                   static_cast<int>(n), ext_u, ext_z, ext_x, ext_y)
 #define ADOLC_EXT_FCT_V2_U edfct2->up
 #define ADOLC_EXT_FCT_V2_Z edfct2->zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   fos_reverse(edfct2->tapeId, iArrLength, iArr, nout, nin, outsz, edfct2->up,  \
               insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
 #else
+#ifndef _INT_REV_
+  double **ext_Uq = nullptr;
+  double **ext_Zq = nullptr;
+  double *ext_x = nullptr;
+  double *ext_y = nullptr;
+#endif // _INT_REV_
 #define ADOLC_EXT_FCT_U edfct->Uq
 #define ADOLC_EXT_FCT_Z edfct->Zq
 #define ADOLC_EXT_FCT_POINTER fov_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   fov_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), p,      \
-              edfct->Uq, edfct->Zq)
+              ext_Uq, ext_Zq, ext_x, ext_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fov_reverse_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
-                   static_cast<int>(n), p, edfct->Uq, edfct->Zq)
+                   static_cast<int>(n), p, ext_Uq, ext_Zq, ext_x, ext_y)
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
@@ -2592,7 +2602,6 @@ int int_reverse_safe(
 
       for (size_t j = arg1; j <= arg2; j++) {
         ASSIGN_A(Aarg1, ADJOINT_BUFFER[j])
-
         FOR_0_LE_l_LT_p AARG1_INC = 0;
       }
 
@@ -2609,46 +2618,37 @@ int int_reverse_safe(
       n = static_cast<int>(tape.get_locint_r());
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-      edfct->numDirs = nrows;
+      edfct->q = nrows;
 
       if (edfct->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
-      if (m > 0) {
-        if (ADOLC_EXT_FCT_U == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->y == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
-      if (n > 0) {
-        if (ADOLC_EXT_FCT_Z == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->x == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
+#ifdef _FOS_
+      ext_u = rp_A + edfct->firstDepLocation;
+      ext_z = rp_A + edfct->firstIndLocation;
+#elif defined _FOV_
+      ext_Uq = myalloc2(edfct->q, m);
+      ext_Zq = myalloc2(edfct->q, n);
+#endif
+      ext_x = rp_T + edfct->firstIndLocation;
+      ext_y = rp_T + edfct->firstDepLocation;
       arg = edfct->firstDepLocation;
-      for (int loop = 0; loop < m; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
-        ++arg;
+#if defined _FOV_
+      for (int loop = 0; loop < m; ++loop, ++arg) {
+        for (int l = 0; l < edfct->q; l++) {
+          ext_Uq[l][loop] = rpp_A[arg][l];
+        }
       }
+#endif
 
       arg = edfct->firstIndLocation;
-      for (int loop = 0; loop < n; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
-        ++arg;
-      }
-      arg = edfct->firstIndLocation;
+#if defined _FOV_
       for (int loop = 0; loop < n; ++loop, ++arg) {
-        edfct->x[loop] = TARG;
+        for (int l = 0; l < edfct->q; l++) {
+          ext_Zq[l][loop] = rpp_A[arg][l];
+        }
       }
-      arg = edfct->firstDepLocation;
-      for (int loop = 0; loop < m; ++loop, ++arg) {
-        edfct->y[loop] = TARG;
-      }
+#endif
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
@@ -2658,11 +2658,13 @@ int int_reverse_safe(
         ++res;
       }
       res = edfct->firstIndLocation;
-      for (int loop = 0; loop < n; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
-                                         ADJOINT_BUFFER_RES);
-        ++res;
+#if defined _FOV_
+      for (int loop = 0; loop < n; ++loop, ++res) {
+        for (int l = 0; l < edfct->q; l++) {
+          rpp_A[res][l] = ext_Zq[l][loop];
+        }
       }
+#endif
       if (edfct->dp_y_priorRequired) {
         arg = edfct->firstDepLocation + m - 1;
         for (int loop = 0; loop < m; ++loop, --arg) {
@@ -2675,7 +2677,10 @@ int int_reverse_safe(
           tape.get_taylor(arg);
         }
       }
-
+#ifdef _FOV_
+      myfree2(ext_Uq);
+      myfree2(ext_Zq);
+#endif
       break;
     case ext_diff_iArr: /* extern differntiated function */
       m = static_cast<int>(tape.get_locint_r());
@@ -2687,46 +2692,37 @@ int int_reverse_safe(
         iArr[loop - 1] = tape.get_locint_r();
       tape.get_locint_r(); /* get it again */
       edfct = get_ext_diff_fct(tape.tapeId(), tape.ext_diff_fct_index());
-      edfct->numDirs = nrows;
+      edfct->q = nrows;
 
       if (edfct->ADOLC_EXT_FCT_IARR_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
-      if (m > 0) {
-        if (ADOLC_EXT_FCT_U == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->y == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
-      if (n > 0) {
-        if (ADOLC_EXT_FCT_Z == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-        if (edfct->x == NULL)
-          ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_ARGUMENT,
-                           CURRENT_LOCATION);
-      }
+#ifdef _FOS_
+      ext_u = rp_A + edfct->firstDepLocation;
+      ext_z = rp_A + edfct->firstIndLocation;
+#elif defined _FOV_
+      ext_Uq = myalloc2(edfct->q, m);
+      ext_Zq = myalloc2(edfct->q, n);
+#endif
+      ext_x = rp_T + edfct->firstIndLocation;
+      ext_y = rp_T + edfct->firstDepLocation;
       arg = edfct->firstDepLocation;
-      for (int loop = 0; loop < m; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_U[loop], ADJOINT_BUFFER_ARG);
-        ++arg;
+#if defined _FOV_
+      for (int loop = 0; loop < m; ++loop, ++arg) {
+        for (int l = 0; l < edfct->q; l++) {
+          ext_Uq[l][loop] = rpp_A[arg][l];
+        }
       }
+#endif
 
       arg = edfct->firstIndLocation;
-      for (int loop = 0; loop < n; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS(ADOLC_EXT_FCT_Z[loop], ADJOINT_BUFFER_ARG);
-        ++arg;
-      }
-      arg = edfct->firstIndLocation;
+#if defined _FOV_
       for (int loop = 0; loop < n; ++loop, ++arg) {
-        edfct->x[loop] = TARG;
+        for (int l = 0; l < edfct->q; l++) {
+          ext_Zq[l][loop] = rpp_A[arg][l];
+        }
       }
-      arg = edfct->firstDepLocation;
-      for (int loop = 0; loop < m; ++loop, ++arg) {
-        edfct->y[loop] = TARG;
-      }
+#endif
       ext_retc = edfct->ADOLC_EXT_FCT_IARR_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
@@ -2736,11 +2732,13 @@ int int_reverse_safe(
         ++res;
       }
       res = edfct->firstIndLocation;
-      for (int loop = 0; loop < n; ++loop) {
-        ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(ADOLC_EXT_FCT_Z[loop],
-                                         ADJOINT_BUFFER_RES);
-        ++res;
+#ifdef _FOV_
+      for (int loop = 0; loop < n; ++loop, ++res) {
+        for (int l = 0; l < edfct->q; l++) {
+          rpp_A[res][l] = ext_Zq[l][loop];
+        }
       }
+#endif
       if (edfct->dp_y_priorRequired) {
         arg = edfct->firstDepLocation + m - 1;
         for (int loop = 0; loop < m; ++loop, --arg) {
@@ -2753,7 +2751,12 @@ int int_reverse_safe(
           tape.get_taylor(arg);
         }
       }
-
+#ifdef _FOV_
+      myfree2(ext_Uq);
+      myfree2(ext_Zq);
+#endif
+      delete[] iArr;
+      iArr = nullptr;
       break;
     case ext_diff_v2: {
       nout = tape.get_locint_r();
@@ -2779,7 +2782,7 @@ int int_reverse_safe(
       tape.get_locint_r(); /* iArrLength again */
       tape.ext_diff_fct_index(tape.get_locint_r());
       edfct2 = get_ext_diff_fct_v2(tape.tapeId(), tape.ext_diff_fct_index());
-      edfct2->numDirs = nrows;
+      edfct2->q = nrows;
 
       if (edfct2->ADOLC_EXT_FCT_POINTER == NULL)
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,

@@ -36,10 +36,11 @@ int zos_for_euler_step(short, int, int, double *yin, double *yout) {
   return zos_forward(edf->ext_tape_id, 2, 2, 0, yin, yout);
 }
 
-int fos_rev_euler_step(short tapeId, int, int, double *u, double *z) {
+int fos_rev_euler_step(short tapeId, int, int, double *u, double *z, double *x,
+                       double *y) {
   int rc;
   findTape(tapeId).nestedReverseEval(true);
-  zos_forward(edf->ext_tape_id, 2, 2, 1, edf->x, edf->y);
+  zos_forward(edf->ext_tape_id, 2, 2, 1, x, y);
   rc = fos_reverse(edf->ext_tape_id, 2, 2, u, z);
   findTape(tapeId).nestedReverseEval(false);
   return rc;
@@ -70,8 +71,8 @@ void setup_full_taping(const std::vector<double> &conp) {
   trace_off();
 }
 
-void setup_external_function(short tapeIdPart, const short tapeIdExt,
-                             const std::vector<double> &conp) {
+void setup_external_function_user_mem(short tapeIdPart, const short tapeIdExt,
+                                      const std::vector<double> &conp) {
   trace_on(tapeIdExt);
   {
     std::vector<adouble> y(2), ynew(2);
@@ -92,6 +93,31 @@ void setup_external_function(short tapeIdPart, const short tapeIdExt,
   edf->fos_reverse = fos_rev_euler_step;
   edf->u = u.data();
   edf->z = z.data();
+
+  // we already allocated the mem
+  edf->user_allocated_mem = 1;
+}
+
+void setup_external_function_auto_mem(short tapeIdPart, const short tapeIdExt,
+                                      const std::vector<double> &conp) {
+  trace_on(tapeIdExt);
+  {
+    std::vector<adouble> y(2), ynew(2);
+    y[0] <<= conp[0];
+    y[1] <<= conp[1];
+    euler_step_act(tapeIdExt, 2, y.data(), 2, ynew.data());
+
+    double f_out;
+    ynew[0] >>= f_out; // Dummy output
+    ynew[1] >>= f_out; // Dummy output
+  }
+  trace_off();
+
+  edf = reg_ext_fct(tapeIdPart, tapeIdExt, euler_step);
+  edf->zos_forward = zos_for_euler_step;
+  edf->fos_reverse = fos_rev_euler_step;
+  // we don't allocated the mem
+  edf->user_allocated_mem = 0;
 }
 
 void setup_external_taping(short tapeIdPart, std::vector<double> conp) {
@@ -135,7 +161,32 @@ BOOST_AUTO_TEST_CASE(CompareFullAndExternalGradients) {
   setup_full_taping(conp);
   gradient(tapeIdFull, 2, conp.data(), grad_full.data());
 
-  setup_external_function(tapeIdPart, tapeIdExt, conp);
+  setup_external_function_user_mem(tapeIdPart, tapeIdExt, conp);
+  setup_external_taping(tapeIdPart, conp);
+
+  gradient(tapeIdPart, 2, conp.data(), grad_ext.data());
+
+  // Verify gradients match
+  for (int i = 0; i < 2; ++i) {
+    BOOST_TEST(grad_full[i] == grad_ext[i], tt::tolerance(tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(CompareFullAndExternalGradientsAutoMem) {
+
+  tapeIdFull = createNewTape();
+  tapeIdPart = createNewTape();
+  tapeIdExt = createNewTape();
+
+  // Control parameters
+  std::vector<double> conp = {1.0, 1.0};
+  std::vector<double> grad_full(2);
+  std::vector<double> grad_ext(2);
+
+  setup_full_taping(conp);
+  gradient(tapeIdFull, 2, conp.data(), grad_full.data());
+
+  setup_external_function_auto_mem(tapeIdPart, tapeIdExt, conp);
   setup_external_taping(tapeIdPart, conp);
 
   gradient(tapeIdPart, 2, conp.data(), grad_ext.data());

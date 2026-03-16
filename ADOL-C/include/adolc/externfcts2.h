@@ -184,11 +184,14 @@ struct ADOLC_API ext_diff_fct_v2 {
   size_t max_nin{0}, max_nout{0}, max_insz{0}, max_outsz{0};
 
   /**
-   * Allows the propagation of the number of directions to the derivative
-   * drivers. This includes directions for reverse and forward calls.
+   * Number of forward directions in fos/fov forward calls.
    */
+  int p{0};
 
-  int numDirs{0};
+  /**
+   * Number of reverse weight vectors in fov/hov reverse calls.
+   */
+  int q{0};
   /**
    * make the call such that Adol-C may be used inside
    * of the externally differentiated function;
