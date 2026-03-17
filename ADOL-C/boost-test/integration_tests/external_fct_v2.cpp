@@ -40,10 +40,8 @@ int grouped_zos_forward_v2(short tapeId, size_t, size_t *, size_t, size_t,
   ext_diff_fct_v2 *edf = current_edf_v2(tapeId);
   std::array<double, 2> xin{x[0][0], x[0][1]};
   std::array<double, 2> yout{};
-  findTape(tapeId).set_nested_ctx(true);
   const int rc =
       zos_forward(edf->ext_tape_id, 2, 2, 0, xin.data(), yout.data());
-  findTape(tapeId).set_nested_ctx(false);
   y[0][0] = yout[0];
   y[0][1] = yout[1];
   return rc;
@@ -58,10 +56,10 @@ int grouped_fos_reverse_v2(short tapeId, size_t, size_t *, size_t, size_t,
   std::array<double, 2> uin{up[0][0], up[0][1]};
   std::array<double, 2> zout{};
 
-  findTape(tapeId).set_nested_ctx(true);
+  findTape(tapeId).nestedReverseEval(true);
   zos_forward(edf->ext_tape_id, 2, 2, 1, xin.data(), yout.data());
   const int rc = fos_reverse(edf->ext_tape_id, 2, 2, uin.data(), zout.data());
-  findTape(tapeId).set_nested_ctx(false);
+  findTape(tapeId).nestedReverseEval(false);
 
   zp[0][0] = zout[0];
   zp[0][1] = zout[1];

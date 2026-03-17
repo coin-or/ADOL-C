@@ -32,22 +32,17 @@ int euler_step(short, size_t, double *yin, size_t, double *yout) {
   return 1;
 }
 
-int zos_for_euler_step(short tapeId, size_t, double *yin, size_t,
-                       double *yout) {
-  int rc;
-  findTape(tapeId).set_nested_ctx(true);
-  rc = zos_forward(edf->ext_tape_id, 2, 2, 0, yin, yout);
-  findTape(tapeId).set_nested_ctx(false);
-  return rc;
+int zos_for_euler_step(short, size_t, double *yin, size_t, double *yout) {
+  return zos_forward(edf->ext_tape_id, 2, 2, 0, yin, yout);
 }
 
 int fos_rev_euler_step(short tapeId, size_t, double *u, size_t, double *z,
                        double *, double *) {
   int rc;
-  findTape(tapeId).set_nested_ctx(true);
+  findTape(tapeId).nestedReverseEval(true);
   zos_forward(edf->ext_tape_id, 2, 2, 1, edf->dp_x, edf->dp_y);
   rc = fos_reverse(edf->ext_tape_id, 2, 2, u, z);
-  findTape(tapeId).set_nested_ctx(false);
+  findTape(tapeId).nestedReverseEval(false);
   return rc;
 }
 
