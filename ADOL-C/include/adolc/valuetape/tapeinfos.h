@@ -119,7 +119,15 @@ struct TapeInfos {
 
   /* extern diff. fcts */
   size_t ext_diff_fct_index{0}; /* set by forward and reverse (from tape) */
-  char in_nested_ctx{0};
+
+  /**
+   * Indicates that reverse evaluation of this tape happens inside an outer
+   * tape evaluation.
+   *
+   * First-order reverse uses this flag to accumulate adjoints for independent
+   * and dependent variables into the outer tape instead of overwriting them.
+   */
+  bool nestedReverseEval{false};
 
   size_t numSwitches{0};
   double *signature{nullptr};

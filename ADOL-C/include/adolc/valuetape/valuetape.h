@@ -285,8 +285,6 @@ public:
   double *currVal() const { return tapeInfos_.currVal; }
   void currVal(double *val) { tapeInfos_.currVal = val; }
 
-  char in_nested_ctx() const { return tapeInfos_.in_nested_ctx; }
-
   double *currTay() const { return tapeInfos_.currTay; }
   void currTay(double *pos) { tapeInfos_.currTay = pos; }
   void currTay(double val) { *tapeInfos_.currTay = val; }
@@ -399,8 +397,11 @@ public:
     return tapeInfos_.upd_resloc_inc_prod(temp, newlhs, newop);
   }
   size_t get_num_param() { return tapeInfos_.stats[TapeInfos::NUM_PARAM]; }
-  void set_nested_ctx(char nested) { tapeInfos_.in_nested_ctx = nested; }
-  char currently_nested() { return tapeInfos_.in_nested_ctx; }
+  // Marks reverse evaluation as nested so reverse outputs accumulate on the
+  // surrounding tape instead of overwriting its adjoints.
+  void nestedReverseEval(bool flag) { tapeInfos_.nestedReverseEval = flag; }
+  // Returns whether reverse evaluation should accumulate into an outer tape.
+  bool nestedReverseEval() const { return tapeInfos_.nestedReverseEval; }
   FILE *tay_file() const { return tapeInfos_.tay_file; }
   FILE *op_file() const { return tapeInfos_.op_file; }
   FILE *val_file() const { return tapeInfos_.val_file; }

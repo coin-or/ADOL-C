@@ -229,29 +229,34 @@ ADOLC_API void trace_off(int flag = 0);
 ADOLC_API void cachedTraceTags(std::vector<short> &result);
 
 /**
- * @brief Sets the tape to nestec_ctx
+ * @brief Marks whether reverse evaluation of this tape is nested inside an
+ * outer tape evaluation.
  *
- * @param tapeId the ID of the tape to set nested
- * @param nested char to set
+ * When enabled, reverse sweeps accumulate adjoints into the outer tape's
+ * independent and dependent slots instead of overwriting them.
+ *
+ * @param tapeId the ID of the tape to update
+ * @param flag `true` for nested reverse evaluation, `false` otherwise
  *
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API inline void set_nested_ctx(short tapeId, char nested) {
-  findTape(tapeId).set_nested_ctx(nested);
+ADOLC_API inline void nestedReverseEval(short tapeId, bool flag) {
+  findTape(tapeId).nestedReverseEval(flag);
 }
 
 /**
- * @brief Read the nested state of the tape
+ * @brief Returns whether reverse evaluation of this tape is treated as nested.
  *
- * @param tapeId the ID of the tape to set nested
- * @return char that characterizes the stated of the nesting
+ * @param tapeId the ID of the tape to query
+ * @return `true` if reverse sweeps accumulate into an outer tape, `false`
+ * otherwise
  *
  * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
  * exist.
  */
-ADOLC_API inline char currently_nested(short tapeId) {
-  return findTape(tapeId).currently_nested();
+ADOLC_API inline bool nestedReverseEval(short tapeId) {
+  return findTape(tapeId).nestedReverseEval();
 }
 
 /**

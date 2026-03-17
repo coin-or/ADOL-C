@@ -60,8 +60,8 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       dp_T0(other.dp_T0), workMode(other.workMode), rp_T(other.rp_T),
       rpp_T(other.rpp_T), rp_A(other.rp_A), rpp_A(other.rpp_A),
       upp_A(other.upp_A), ext_diff_fct_index(other.ext_diff_fct_index),
-      in_nested_ctx(other.in_nested_ctx), numSwitches(other.numSwitches),
-      signature(other.signature) {
+      nestedReverseEval(other.nestedReverseEval),
+      numSwitches(other.numSwitches), signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
 
   // Null out source object's pointers
@@ -155,7 +155,7 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     upp_A = other.upp_A;
 
     ext_diff_fct_index = other.ext_diff_fct_index;
-    in_nested_ctx = other.in_nested_ctx;
+    nestedReverseEval = other.nestedReverseEval;
     numSwitches = other.numSwitches;
     signature = other.signature;
 

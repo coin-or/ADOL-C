@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.upp_A = j;
 
   tp.ext_diff_fct_index = 5;
-  tp.in_nested_ctx = 4;
+  tp.nestedReverseEval = true;
   tp.numSwitches = 6;
 
   auto l = new double[23];
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.tay_numDeps, 5);
   BOOST_CHECK_EQUAL(tp2.workMode, TapeInfos::NO_MODE);
   BOOST_CHECK_EQUAL(tp2.ext_diff_fct_index, 5);
-  BOOST_CHECK_EQUAL(tp2.in_nested_ctx, 4);
+  BOOST_CHECK_EQUAL(tp2.nestedReverseEval, true);
   BOOST_CHECK_EQUAL(tp2.numSwitches, 6);
 
   // === Validate: pointers moved ===

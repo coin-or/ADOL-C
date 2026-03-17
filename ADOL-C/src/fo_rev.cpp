@@ -690,14 +690,16 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
 #if defined(_INT_REV_)
-      if (tape.in_nested_ctx()) {
+      // Nested reverse calls must accumulate into the outer tape's result.
+      if (tape.nestedReverseEval()) {
         FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) +=
             static_cast<bitword_t>(ARES_INC);
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = static_cast<bitword_t>(ARES_INC);
       }
 #else
-      if (tape.in_nested_ctx()) {
+      // Nested reverse calls must accumulate into the outer tape's result.
+      if (tape.nestedReverseEval()) {
         FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) += ARES_INC;
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
@@ -722,7 +724,8 @@ int int_reverse_safe(
       else
         *Ares = 0.0;
 #else
-      if (tape.in_nested_ctx()) {
+      // Nested reverse calls read the outer tape's incoming adjoints.
+      if (tape.nestedReverseEval()) {
         FOR_0_LE_l_LT_p { ARES_INC = LAGRANGETRANS(l, indexd); }
       } else {
         FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);

@@ -207,6 +207,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
+#include <cassert>
 #include <math.h>
 
 #if defined(ADOLC_DEBUG)
@@ -2851,6 +2852,12 @@ int hov_ti_reverse(
       /*--------------------------------------------------------------------------*/
     case ext_diff: /* extern differentiated function */
     {
+      // TODO: higher-order reverse does not yet honor nestedReverseEval the way
+      // fo_rev.cpp does for nested reverse callbacks.
+      assert(false &&
+             "TODO: add nestedReverseEval accumulation semantics to ho_rev.cpp "
+             "before supporting nested higher-order reverse passes.");
+
       m = tape.get_locint_r();
       n = tape.get_locint_r();
       tape.ext_diff_fct_index(tape.get_locint_r());
