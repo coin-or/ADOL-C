@@ -374,12 +374,12 @@ int hov_ti_reverse(
   hos_ti_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),      \
                  degre, dpp_U, dpp_Z, dpp_x, dpp_y)
 #else
-#define ADOLC_EXT_FCT_U dppp_U
-#define ADOLC_EXT_FCT_Z dppp_Z
+#define ADOLC_EXT_FCT_U ext_Uq
+#define ADOLC_EXT_FCT_Z ext_Zqd
 #define ADOLC_EXT_FCT_POINTER hov_reverse
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   hov_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), degre,  \
-              p, edfct->Uq, edfct->Zqd, edfct->nz, dpp_x, dpp_y)
+              p, ext_Uq, ext_Zqd, ext_nz, dpp_x, dpp_y)
 #endif
 
 #if defined(ADOLC_DEBUG)

@@ -348,8 +348,8 @@ int int_reverse_safe(
   double *ext_z = nullptr;
   double *ext_x = nullptr;
   double *ext_y = nullptr;
-#define ADOLC_EXT_FCT_U edfct->u
-#define ADOLC_EXT_FCT_Z edfct->z
+#define ADOLC_EXT_FCT_U ext_u
+#define ADOLC_EXT_FCT_Z ext_z
 #define ADOLC_EXT_FCT_POINTER fos_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fos_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
@@ -370,8 +370,8 @@ int int_reverse_safe(
   double *ext_x = nullptr;
   double *ext_y = nullptr;
 #endif // _INT_REV_
-#define ADOLC_EXT_FCT_U edfct->Uq
-#define ADOLC_EXT_FCT_Z edfct->Zq
+#define ADOLC_EXT_FCT_U ext_Uq
+#define ADOLC_EXT_FCT_Z ext_Zq
 #define ADOLC_EXT_FCT_POINTER fov_reverse
 #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
@@ -476,8 +476,8 @@ int int_reverse_safe(
 #define ADJOINT_BUFFER_RES_L rp_A[res]
 #define ADJOINT_BUFFER_ARG rp_A[arg]
 #define ADJOINT_BUFFER_RES rp_A[res]
-#define ADOLC_EXT_FCT_U_L_LOOP edfct->u[loop]
-#define ADOLC_EXT_FCT_Z_L_LOOP edfct->z[loop]
+#define ADOLC_EXT_FCT_U_L_LOOP ext_u[loop]
+#define ADOLC_EXT_FCT_Z_L_LOOP ext_z[loop]
 #define ADOLC_EXT_FCT_V2_U_LOOP edfct2->up[oloop][loop]
 #define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->zp[oloop][loop]
 #define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
@@ -494,8 +494,8 @@ int int_reverse_safe(
 #define ADJOINT_BUFFER_RES_L rpp_A[res][l]
 #define ADJOINT_BUFFER_ARG rpp_A[arg]
 #define ADJOINT_BUFFER_RES rpp_A[res]
-#define ADOLC_EXT_FCT_U_L_LOOP edfct->Uq[l][loop]
-#define ADOLC_EXT_FCT_Z_L_LOOP edfct->Zq[l][loop]
+#define ADOLC_EXT_FCT_U_L_LOOP ext_Uq[l][loop]
+#define ADOLC_EXT_FCT_Z_L_LOOP ext_Zq[l][loop]
 #define ADOLC_EXT_FCT_V2_U_LOOP edfct2->Up[oloop][loop]
 #define ADOLC_EXT_FCT_V2_Z_LOOP edfct2->Zp[oloop][loop]
 #define ADOLC_EXT_FCT_COPY_ADJOINTS(dest, src) dest = src
@@ -700,17 +700,18 @@ int int_reverse_safe(
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
 #if defined(_INT_REV_)
-      // Nested reverse calls must accumulate into the outer tape's result.
+      // Nested reverse calls for ext_diff use the public fov_reverse layout
+      // [q][n], so they must not transpose result access here.
       if (tape.nestedReverseEval()) {
-        FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) +=
-            static_cast<bitword_t>(ARES_INC);
+        FOR_0_LE_l_LT_p RESULTS(l, indexi) += static_cast<bitword_t>(ARES_INC);
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = static_cast<bitword_t>(ARES_INC);
       }
 #else
-      // Nested reverse calls must accumulate into the outer tape's result.
+      // Nested reverse calls for ext_diff use the public fov_reverse layout
+      // [q][n], so they must not transpose result access here.
       if (tape.nestedReverseEval()) {
-        FOR_0_LE_l_LT_p RESULTSTRANS(l, indexi) += ARES_INC;
+        FOR_0_LE_l_LT_p RESULTS(l, indexi) += ARES_INC;
       } else {
         FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
       }
@@ -734,12 +735,9 @@ int int_reverse_safe(
       else
         *Ares = 0.0;
 #else
-      // Nested reverse calls read the outer tape's incoming adjoints.
-      if (tape.nestedReverseEval()) {
-        FOR_0_LE_l_LT_p { ARES_INC = LAGRANGETRANS(l, indexd); }
-      } else {
-        FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
-      }
+      // Nested reverse calls for ext_diff use the public fov_reverse layout
+      // [q][m], so they must not transpose incoming adjoint access here.
+      FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
 #endif
       indexd--;
       break;

@@ -213,111 +213,6 @@ struct ADOLC_API ext_diff_fct {
   ADOLC_ext_fct_iArr_hov_reverse hov_reverse_iArr{nullptr};
 
   /**
-   * The names of the variables below correspond to the formal parameters names
-   * in the call back functions above;
-   */
-
-  /**
-   * function and all _forward calls: function argument, dimension [n]
-   */
-  double *x{nullptr};
-
-  /**
-   * fos_forward: tangent direction, dimension [n]
-   */
-  double *X{nullptr};
-
-  /**
-   * fov_forward: seed matrix for p directions, dimensions [n][p]
-   * hos_forward: argument Taylor polynomial coefficients up to order d,
-   * dimensions [n][d]
-   */
-  double **Xp{nullptr};
-
-  /**
-   * hov_forward: argument Taylor polynomial coefficients up to order d in p
-   * directions, dimensions [n][p][d]
-   */
-  double ***Xpd{nullptr};
-
-  /**
-   * function and all _forward calls: function result, dimension [m]
-   */
-  double *y{nullptr};
-
-  /**
-   * fos_forward: Jacobian projection, dimension [m]
-   */
-  double *Y{nullptr};
-
-  /**
-   * fov_forward: Jacobian projection in p directions, dimension [m][p]
-   * hos_forward: result Taylor polynomial coefficients up to order d,
-   * dimensions [m][d]
-   */
-  double **Yp{nullptr};
-
-  /**
-   * hov_forward: result Taylor polynomial coefficients up to order d in p
-   * directions, dimensions [m][p][d]
-   */
-  double ***Ypd{nullptr};
-
-  /**
-   * fos_reverse and hos_reverse: weight vector, dimension [m]
-   */
-  double *u{nullptr};
-
-  /**
-   * fov_reverse and hov_reverse: q weight vectors, dimensions [q][m]
-   */
-  double **Uq{nullptr};
-
-  /**
-   * fos_reverse: Jacobian projection, dimension [n]
-   */
-  double *z{nullptr};
-
-  /**
-   * fov_reverse: Jacobian projection for q weight vectors, dimensions [q][n]
-   * hos_reverse: adjoint Taylor polynomial coefficients up to order d,
-   * dimensions [n][d+1]
-   */
-  double **Zq{nullptr};
-
-  /**
-   * hov_reverse: adjoint Taylor polynomial coefficients up to order d for q
-   * weight vectors, dimension [q][n][d+1]
-   */
-  double ***Zqd{nullptr};
-
-  /**
-   * hov_reverse: non-zero pattern of Zqd, dimension [q][n], see also the
-   * hov_reverse ADOL-C driver
-   */
-  short **nz{nullptr};
-
-  /**
-   * track maximal value of n when function is invoked
-   */
-  size_t max_n{0};
-
-  /**
-   * track maximal value of m when function is invoked
-   */
-  size_t max_m{0};
-
-  /**
-   * track maximal forward directions when vector forward is invoked
-   */
-  size_t max_p{0};
-
-  /**
-   * track maximal reverse directions when vector reverse is invoked
-   */
-  size_t max_q{0};
-
-  /**
    * make the call such that Adol-C may be used inside
    * of the externally differentiated function;
    * defaults to non-0;
@@ -350,18 +245,10 @@ struct ADOLC_API ext_diff_fct {
    * implementation of the external function ** do not touch **
    */
   void *obj{nullptr};
-
-  /**
-   * This flag indicates that user allocates memory and internally no
-   * memory should be allocated
-   */
-  char user_allocated_mem{0};
 };
 
 /****************************************************************************/
 /*                                                          This is all C++ */
-
-void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m, int p, int q);
 
 ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
                                     ADOLC_ext_fct ext_fct);

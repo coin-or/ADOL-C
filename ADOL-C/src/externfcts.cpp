@@ -46,56 +46,6 @@ ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
   return edf;
 }
 
-/*
- * The externfcts.h had a comment previously that said the following:
- ****
- * The user has to preallocate the variables and set the pointers for any of the
- *call back functions that will be called during trace interpretation. The
- *dimensions given below correspond to the formal arguments in the call back
- *funtions signatures above. If the dimensions n and m change between multiple
- *calls to the same external function, then the variables have to be
- *preallocation with the maximum of the respective dimension values. The x
- *and y pointers have to be valid during both, the tracing phase and the
- *trace interpretation; all the other pointers are required to be valid only for
- *the trace interpretation.
- ****
- * Doing this now internally saves the user from doing it, as well as updating
- * when using multiple problem sizes.
- */
-void update_ext_fct_memory(ext_diff_fct *edfct, int n, int m, int p, int q) {
-  if (edfct->max_n < to_size_t(n) || edfct->max_m < to_size_t(m) ||
-      edfct->max_p < to_size_t(p) || edfct->max_q < to_size_t(q)) {
-    /* We need memory stored in the edfct x[n], X[n], z[n],
-     * y[m], Y[m], u[m], Xp[n][p], Yp[m][p],
-     * Uq[q][m], Zq[q][n]. We have no implementation for higher order
-     * so leave it out.
-     */
-    size_t totalmem =
-        (3 * n + 3 * m + (n + m) * p + q * (m + n)) * sizeof(double) +
-        (n + m + 2 * q) * sizeof(double *);
-    char *tmp;
-    if (edfct->allmem != NULL)
-      free(edfct->allmem);
-    edfct->allmem = (char *)malloc(totalmem);
-    memset(edfct->allmem, 0, totalmem);
-    edfct->x = (double *)edfct->allmem;
-    edfct->y = edfct->x + n;
-    edfct->X = edfct->y + m;
-    edfct->Y = edfct->X + n;
-    edfct->u = edfct->Y + m;
-    edfct->z = edfct->u + m;
-    tmp = (char *)(edfct->z + n);
-    tmp = populate_dpp(&edfct->Xp, tmp, n, p);
-    tmp = populate_dpp(&edfct->Yp, tmp, m, p);
-    tmp = populate_dpp(&edfct->Uq, tmp, q, m);
-    tmp = populate_dpp(&edfct->Zq, tmp, q, n);
-  }
-
-  edfct->max_n = (edfct->max_n < to_size_t(n)) ? to_size_t(n) : edfct->max_n;
-  edfct->max_m = (edfct->max_m < to_size_t(m)) ? to_size_t(m) : edfct->max_m;
-  edfct->max_p = (edfct->max_p < to_size_t(p)) ? to_size_t(p) : edfct->max_p;
-  edfct->max_q = (edfct->max_q < to_size_t(q)) ? to_size_t(q) : edfct->max_q;
-}
 void check_input(ext_diff_fct *edfct, int n, adouble *xa, int m, adouble *ya) {
   if (xa[n - 1].loc() - xa[0].loc() != to_size_t(n - 1) ||
       ya[m - 1].loc() - ya[0].loc() != to_size_t(m - 1))
