@@ -26,6 +26,7 @@ pdouble.
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <span>
 #include <type_traits>
 
 // Forward declarations for concept
@@ -400,15 +401,23 @@ public:
 
   /**
    * @brief Registers the assignment of the input value to the `adouble` and
-   * mark the `adouble` as independent variable.
-   * @param in Value that is assigned to the `adouble`
+   * marks the `adouble` as an independent variable.
+   *
+   * Use the span overload below to register several contiguous independent
+   * variables in one call while preserving their order on the tape.
+   *
+   * @param indep Value that is assigned to the `adouble`
    * @return A reference to the `adouble`.
    */
-  adouble &operator<<=(double in);
+  adouble &operator<<=(const double input);
 
   /**
-   * @brief Stores the value of `adouble` in the provided reference and mark
-   * `adouble` as dependent variable.
+   * @brief Stores the value of `adouble` in the provided reference and marks
+   * the `adouble` as a dependent variable.
+   *
+   * Use the span overload below to register several contiguous dependent
+   * variables in one call while preserving their order on the tape.
+   *
    * @param out Value that will get the value of `adouble`
    * @return A reference to the `adouble`.
    */
@@ -529,6 +538,47 @@ public:
    */
   void value(const double pval) { currentTape().set_pd_value(loc(), pval); }
 };
+
+/**
+ * @brief Assigns passive values to a contiguous sequence of `adouble`s and
+ * marks them as independent variables.
+ *
+ * This is a bulk shorthand for applying scalar `<<=` element-wise in span
+ * order. The ordering of entries still determines the ordering of
+ * independents on the tape.
+ *
+ * @param indeps Active variables to register as independents.
+ * @param input Passive values to assign to the corresponding active
+ * variables.
+ * @pre `indeps.size() == input.size()`
+ */
+ADOLC_API inline void operator<<=(std::span<adouble> indeps,
+                                  std::span<const double> inputs) {
+  assert(indeps.size() == inputs.size() && "Size mismatch!");
+  for (size_t i = 0; i < indeps.size(); ++i) {
+    indeps[i] <<= inputs[i];
+  }
+}
+
+/**
+ * @brief Stores a contiguous sequence of `adouble` values into passive storage
+ * and marks them as dependent variables.
+ *
+ * This is a bulk shorthand for applying scalar `>>=` element-wise in span
+ * order. The ordering of entries still determines the ordering of dependents
+ * on the tape.
+ *
+ * @param deps Active variables to register as dependents.
+ * @param output Passive values that receive the corresponding active values.
+ * @pre `deps.size() == output.size()`
+ */
+ADOLC_API inline void operator>>=(std::span<adouble> deps,
+                                  std::span<double> outputs) {
+  assert(deps.size() == outputs.size() && "Size mismatch!");
+  for (size_t i = 0; i < deps.size(); ++i) {
+    deps[i] >>= outputs[i];
+  }
+}
 
 ADOLC_API std::ostream &operator<<(std::ostream &, const adouble &);
 ADOLC_API std::istream &operator>>(std::istream &, const adouble &);

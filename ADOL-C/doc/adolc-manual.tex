@@ -289,6 +289,17 @@ derivative evaluations. However, these variables do not have to be
 combined into contiguous vectors. ADOL-C counts the number of
 independent and dependent variable specifications within each active
 section and records them in the header of the tape.
+
+For contiguous collections, ADOL-C also provides bulk overloads based
+on \verb|std::span|:
+\begin{center}
+\verb|std::span<adouble>(x, n) <<= std::span<const double>(px, n);|\\
+\verb|std::span<adouble>(y, m) >>= std::span<double>(py, m);|
+\end{center}
+These span overloads are equivalent to applying the scalar
+\boldmath $\ll=$ \unboldmath and \boldmath $\gg=$ \unboldmath assignments element-wise,
+require matching span sizes, and preserve the same ordering of
+independent and dependent variables on the tape.
 %
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 \subsection{A Subprogram as an Active Section} 
@@ -5083,4 +5094,3 @@ various ways with the development and documentation of ADOL-C.
 \printbibliography
 
 \end{document}
-
