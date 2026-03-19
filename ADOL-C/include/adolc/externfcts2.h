@@ -64,7 +64,7 @@ struct ADOLC_API ext_diff_fct_v2 {
   short tapeId{0};
 
   // tape that stores the external differentiated function.
-  short ext_tape_id{0};
+  short extTapeId{0};
   /**
    * DO NOT touch - the function pointer is set through reg_ext_fct
    */
@@ -235,7 +235,7 @@ struct ADOLC_API ext_diff_fct_v2 {
   char user_allocated_mem{0};
 };
 
-ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
+ADOLC_API ext_diff_fct_v2 *reg_ext_fct(short tapeId, short extTapeId,
                                        ADOLC_ext_fct_v2 ext_fct);
 ADOLC_API ext_diff_fct_v2 *get_ext_diff_fct_v2(short tapeId, size_t index);
 ADOLC_API int call_ext_fct(ext_diff_fct_v2 *edfct, size_t iArrLen, size_t *iArr,

@@ -25,24 +25,24 @@
 /****************************************************************************/
 /*                                    extern differentiated functions stuff */
 
-ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
                           ADOLC_ext_fct ext_fct) {
 
   // this call sets edf->index:
   ext_diff_fct *edf = findTape(tapeId).ext_diff_append();
   edf->function = ext_fct;
   edf->tapeId = tapeId;
-  edf->ext_tape_id = ext_tape_id;
+  edf->extTapeId = extTapeId;
   return edf;
 }
 
-ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
                           ADOLC_ext_fct_iArr ext_fct) {
   // this call sets  edf->index:
   ext_diff_fct *edf = findTape(tapeId).ext_diff_append();
   edf->function_iArr = ext_fct;
   edf->tapeId = tapeId;
-  edf->ext_tape_id = ext_tape_id;
+  edf->extTapeId = extTapeId;
   return edf;
 }
 
@@ -131,7 +131,7 @@ int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa, int m, adouble *ya) {
     x[i] = xa[i].value();
   for (int i = 0; i < m; ++i)
     y[i] = ya[i].value();
-  ret = edfct->function(edfct->ext_tape_id, m, n, x, y);
+  ret = edfct->function(edfct->extTapeId, m, n, x, y);
   call_ext_fct_commonPost(edfct, vals);
   if (edfct->dp_x_changes)
     for (int i = 0; i < n; ++i)
@@ -168,7 +168,7 @@ int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr, int n,
     x[i] = xa[i].value();
   for (int i = 0; i < m; ++i)
     y[i] = ya[i].value();
-  ret = edfct->function_iArr(edfct->ext_tape_id, iArrLength, iArr, m, n, x, y);
+  ret = edfct->function_iArr(edfct->extTapeId, iArrLength, iArr, m, n, x, y);
   call_ext_fct_commonPost(edfct, vals);
   if (edfct->dp_x_changes)
     for (int i = 0; i < n; ++i)
@@ -264,9 +264,11 @@ static int edfoo_wrapper_fov_reverse(short tapeId, int m, int n, int q,
   return ebase->fov_reverse(tapeId, m, n, q, Uq, Zq, x, y);
 }
 
-void EDFobject::init_edf(EDFobject *ebase) {
-  ValueTape &tape = currentTape();
+void EDFobject::init_edf(EDFobject *ebase, short outerTapeId, short extTapeId) {
+  ValueTape &tape = findTape(outerTapeId);
   edf = tape.ext_diff_append();
+  edf->tapeId = outerTapeId;
+  edf->extTapeId = extTapeId;
   edf->obj = reinterpret_cast<void *>(ebase);
   edf->function = edfoo_wrapper_function;
   edf->zos_forward = edfoo_wrapper_zos_forward;

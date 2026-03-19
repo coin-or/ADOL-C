@@ -107,7 +107,7 @@ struct ADOLC_API ext_diff_fct {
   short tapeId{0};
 
   // tape that stores the external differentiated function.
-  short ext_tape_id{0};
+  short extTapeId{0};
 
   // storage for the adouble locations to select the right locations to read and
   // write for the taylor buffer later on! note: We can not just use the
@@ -250,9 +250,9 @@ struct ADOLC_API ext_diff_fct {
 /****************************************************************************/
 /*                                                          This is all C++ */
 
-ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
                                     ADOLC_ext_fct ext_fct);
-ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short ext_tape_id,
+ADOLC_API ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
                                     ADOLC_ext_fct_iArr ext_fct);
 
 ADOLC_API ext_diff_fct *get_ext_diff_fct(short tapeId, size_t index);

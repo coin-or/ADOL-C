@@ -24,10 +24,13 @@
 class ADOLC_API EDFobject {
 protected:
   ext_diff_fct *edf;
-  void init_edf(EDFobject *ebase);
+  void init_edf(EDFobject *ebase, short outerTapeId, short extTapeId);
 
 public:
-  EDFobject() { init_edf(this); }
+  EDFobject() = delete;
+  explicit EDFobject(short outerTapeId, short extTapeId) {
+    init_edf(this, outerTapeId, extTapeId);
+  }
   virtual ~EDFobject() = default;
   virtual int function(short tapeId, int m, int n, double *x, double *y) = 0;
   virtual int zos_forward(short tapeId, int m, int n, double *x, double *y) = 0;
@@ -108,10 +111,13 @@ public:
 class ADOLC_API EDFobject_v2 {
 protected:
   ext_diff_fct_v2 *edf;
-  void init_edf(EDFobject_v2 *ebase);
+  void init_edf(EDFobject_v2 *ebase, short outerTapeId, short extTapeId);
 
 public:
-  EDFobject_v2() { init_edf(this); }
+  EDFobject_v2() = delete;
+  explicit EDFobject_v2(short outerTapeId, short extTapeId) {
+    init_edf(this, outerTapeId, extTapeId);
+  }
   virtual ~EDFobject_v2() = default;
   virtual int function(short tapeId, size_t iArrLen, size_t *iArr,
                        size_t dim_in, size_t dim_out, size_t *insz, double **x,
