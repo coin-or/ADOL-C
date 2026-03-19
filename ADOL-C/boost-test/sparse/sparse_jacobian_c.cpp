@@ -1,8 +1,9 @@
-#include "adolc/sparse/sparse_options.h"
 #include <algorithm>
+#include <array>
 #include <boost/test/tools/old/interface.hpp>
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <span>
 namespace tt = boost::test_tools;
 
 #include <adolc/adolc.h>
@@ -44,16 +45,14 @@ static void testSparseJac() {
   trace_on(tapeId);
   {
     std::array<adouble, dimIn> indeps;
-    for (int i{0}; i < indeps.size(); ++i)
-      indeps[i] <<= in[i];
+    indeps <<= in;
 
     std::array<adouble, dimOut> deps;
     for (int i{0}; i < deps.size(); ++i)
       deps[i] = sin(indeps[i]) + indeps[i + 10] * indeps[i + 10];
 
-    std::array<double, dimOut> out;
-    for (int i{0}; i < deps.size(); ++i)
-      deps[i] >>= out[i];
+    std::array<double, dimOut> out{};
+    deps >>= out;
   }
   trace_off();
   std::array<double *, dimOut> jac;
@@ -180,18 +179,17 @@ template <SparseMethod SM, ControlFlowMode CFM> static void testSparseJacPat() {
   trace_on(tapeId);
   {
     std::array<adouble, dimIn> indeps;
-    int i = 0;
-    std::for_each(indeps.begin(), indeps.end(),
-                  [&i, &in](auto &&v) { v <<= in[i++]; });
-    adouble out1 = pow(indeps[0], 3);
-    out1 += indeps[1] * indeps[4];
+    indeps <<= in;
 
-    double dummyOut = 0.0;
-    out1 >>= dummyOut;
+    std::array<adouble, dimOut> deps;
+    deps[0] = pow(indeps[0], 3);
+    deps[0] += indeps[1] * indeps[4];
 
-    adouble out2 = exp(indeps[6] + indeps[5]);
-    out2 -= indeps[2];
-    out2 >>= dummyOut;
+    deps[1] = exp(indeps[6] + indeps[5]);
+    deps[1] -= indeps[2];
+
+    std::array<double, dimOut> out{};
+    deps >>= out;
   }
   trace_off();
 

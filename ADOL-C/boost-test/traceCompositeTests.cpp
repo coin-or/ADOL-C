@@ -34,26 +34,27 @@ BOOST_AUTO_TEST_SUITE(trace_composite)
  *                  )
  */
 BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward) {
-  double x1 = 0.289, x2 = 1.927, out;
+  double out;
 
   const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
 
-  adouble ax1;
-  adouble ax2;
+  adouble indeps[2];
+  double input[] = {0.289, 1.927};
 
   trace_on(tapeId);
-  ax1 <<= x1;
-  ax2 <<= x2;
+  std::span<adouble, 2>{indeps} <<= input;
 
-  ax1 = sin(ax1) * sin(ax1) + cos(ax1) * cos(ax1) + ax2;
+  indeps[0] = sin(indeps[0]) * sin(indeps[0]) +
+              cos(indeps[0]) * cos(indeps[0]) + indeps[1];
 
-  ax1 >>= out;
+  indeps[0] >>= out;
   trace_off();
 
   double x1Derivative = 0.;
   double x2Derivative = 1.;
-  x1 = std::sin(x1) * std::sin(x1) + std::cos(x1) * std::cos(x1) + x2;
+  input[0] = std::sin(input[0]) * std::sin(input[0]) +
+             std::cos(input[0]) * std::cos(input[0]) + input[1];
 
   double *x = myalloc1(2);
   double **xd = myalloc2(2, 2);
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE(CompositeTrig1_FOV_Forward) {
 
   fov_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
-  BOOST_TEST(*y == x1, tt::tolerance(tol));
+  BOOST_TEST(*y == input[0], tt::tolerance(tol));
   BOOST_TEST(yd[0][0] == x1Derivative, tt::tolerance(tol));
   BOOST_TEST(yd[0][1] == x2Derivative, tt::tolerance(tol));
 
