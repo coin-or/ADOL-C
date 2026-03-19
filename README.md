@@ -90,9 +90,7 @@ int main() {
   // 4. Start tracing the operation sequence
   trace_on(tapeId);
   {
-    for (size_t i = 0; i < dim; ++i) {
-      indeps[i] <<= inputs[i]; // declare independent variable
-    }
+    indeps <<= inputs; // declare independent variable
 
     adouble result = your_function(indeps);
 
