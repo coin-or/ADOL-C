@@ -12,167 +12,234 @@
 
 ---------------------------------------------------------------------------*/
 #include <adolc/adolc.h>
-#include <math.h>
 
-#define h 0.01
-#define steps 100
+#include <array>
+#include <cstdio>
 
-// time step function
-// double version
-int euler_step(int n, double *yin, int m, double *yout);
+namespace {
 
-// adouble version
-void euler_step_act(int n, adouble *yin, int m, adouble *yout);
+constexpr double h = 0.01;
+constexpr int steps = 100;
 
-// versions for usage as external differentiated function
-ADOLC_ext_fct zos_for_euler_step;
-ADOLC_ext_fct_fos_reverse fos_rev_euler_step;
+using PassiveState = std::array<double, 2>;
+using ActiveState = std::array<adouble, 2>;
 
-ext_diff_fct *edf;
-int tag_full, tag_part, tag_ext_fct;
+void eulerStepAct(const adouble *yin, adouble *yout) {
+  yout[0] = yin[0] + h * yin[0];
+  yout[1] = yin[1] + h * 2.0 * yin[1];
+}
 
-int main() {
-  // time interval
-  double t0, tf;
+int eulerStep(short, int m, int n, double *yin, double *yout) {
+  if (m != 2 || n != 2)
+    return -1;
 
-  // state, double and adouble version
-  adouble y[2];
-  adouble ynew[2];
-  int n, m;
-
-  // control, double and adouble version
-  adouble con[2];
-  double conp[2];
-
-  // target value;
-  double f;
-
-  // variables for derivative caluclation
-  double yp[2], ynewp[2];
-  double u[2], z[2];
-  double grad[2];
-
-  int i, j;
-
-  // tape identifiers
-  tag_full = 1;
-  tag_part = 2;
-  tag_ext_fct = 3;
-
-  // two input variables for external differentiated function
-  n = 2;
-  // two output variables for external differentiated function
-  m = 2;
-
-  // time interval
-  t0 = 0.0;
-  tf = 1.0;
-
-  // control
-  conp[0] = 1.0;
-  conp[1] = 1.0;
-
-  trace_on(tag_full);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
-  y[0] = con[0];
-  y[1] = con[1];
-
-  for (i = 0; i < steps; i++) {
-    euler_step_act(n, y, m, ynew);
-    for (j = 0; j < 2; j++)
-      y[j] = ynew[j];
-  }
-  y[0] + y[1] >>= f;
-  trace_off(1);
-
-  gradient(tag_full, 2, conp, grad);
-
-  printf(" full taping:\n gradient=( %f, %f)\n\n", grad[0], grad[1]);
-
-  // Now using external function facilities
-
-  // tape external differentiated function
-
-  trace_on(tag_ext_fct);
-  y[0] <<= conp[0];
-  y[1] <<= conp[1];
-
-  euler_step_act(2, y, 2, ynew);
-  ynew[0] >>= f;
-  ynew[1] >>= f;
-  trace_off(1);
-
-  // register external function
-  edf = reg_ext_fct(euler_step);
-
-  // information for Zero-Order-Scalar (=zos) forward
-  //   yp = new double[2];
-  //   ynewp = new double[2];
-  edf->zos_forward = zos_for_euler_step;
-  edf->dp_x = yp;
-  edf->dp_y = ynewp;
-  // information for First-Order-Scalar (=fos) reverse
-  edf->fos_reverse = fos_rev_euler_step;
-  edf->dp_U = u;
-  edf->dp_Z = z;
-
-  trace_on(tag_part);
-  con[0] <<= conp[0];
-  con[1] <<= conp[1];
-  y[0] = con[0];
-  y[1] = con[1];
-
-  for (i = 0; i < steps; i++) {
-    call_ext_fct(edf, 2, y, 2, ynew);
-    for (j = 0; j < 2; j++)
-      y[j] = ynew[j];
-  }
-  y[0] + y[1] >>= f;
-  trace_off(1);
-  gradient(tag_part, 2, conp, grad);
-
-  printf(" taping with external function facility:\n gradient=( %f, %f)\n\n",
-         grad[0], grad[1]);
-
+  yout[0] = yin[0] + h * yin[0];
+  yout[1] = yin[1] + h * 2.0 * yin[1];
   return 0;
 }
 
-void euler_step_act(int n, adouble *yin, int m, adouble *yout) {
+// derivatives
+constexpr double eulerScale0() { return 1.0 + h; }
+constexpr double eulerScale1() { return 1.0 + 2.0 * h; }
 
-  // Euler step, adouble version
+ext_diff_fct *registerNestedEulerExternalFunction(short outerTapeId,
+                                                  short innerTapeId) {
+  ext_diff_fct *edf =
+      reg_ext_fct(outerTapeId, innerTapeId, ADOLC_ext_fct(eulerStep));
 
-  yout[0] = yin[0] + h * yin[0];
-  yout[1] = yin[1] + h * 2 * yin[1];
+  edf->zos_forward = [innerTapeId](short, int m, int n, double *x, double *y) {
+    return ::zos_forward(innerTapeId, m, n, 0, x, y);
+  };
+
+  edf->fos_forward = [innerTapeId](short, int m, int n, double *x, double *X,
+                                   double *y, double *Y) {
+    return ::fos_forward(innerTapeId, m, n, 0, x, X, y, Y);
+  };
+
+  edf->fov_forward = [innerTapeId](short, int m, int n, int p, double *x,
+                                   double **Xp, double *y, double **Yp) {
+    return ::fov_forward(innerTapeId, m, n, p, x, Xp, y, Yp);
+  };
+
+  edf->fos_reverse = [innerTapeId](short, int m, int n, double *u, double *z,
+                                   double *x, double *y) {
+    ::zos_forward(innerTapeId, m, n, 1, x, y);
+    findTape(innerTapeId).nestedReverseEval(true);
+    const int rc = ::fos_reverse(innerTapeId, m, n, u, z);
+    findTape(innerTapeId).nestedReverseEval(false);
+    return rc;
+  };
+
+  edf->fov_reverse = [innerTapeId](short, int m, int n, int q, double **Uq,
+                                   double **Zq, double *x, double *y) {
+    ::zos_forward(innerTapeId, m, n, 1, x, y);
+    findTape(innerTapeId).nestedReverseEval(true);
+    const int rc = ::fov_reverse(innerTapeId, m, n, q, Uq, Zq);
+    findTape(innerTapeId).nestedReverseEval(false);
+    return rc;
+  };
+
+  return edf;
 }
 
-int euler_step(int n, double *yin, int m, double *yout) {
+ext_diff_fct *registerManualEulerExternalFunction(short outerTapeId,
+                                                  short placeholderTapeId) {
+  ext_diff_fct *edf =
+      reg_ext_fct(outerTapeId, placeholderTapeId, ADOLC_ext_fct(eulerStep));
+  edf->nestedAdolc = 0;
 
-  // Euler step, double version
-  yout[0] = yin[0] + h * yin[0];
-  yout[1] = yin[1] + h * 2 * yin[1];
+  edf->zos_forward = [](short tapeId, int m, int n, double *x, double *y) {
+    return eulerStep(tapeId, m, n, x, y);
+  };
 
-  return 1;
+  edf->fos_forward = [](short tapeId, int m, int n, double *x, double *X,
+                        double *y, double *Y) {
+    const int rc = eulerStep(tapeId, m, n, x, y);
+    if (rc != 0)
+      return rc;
+
+    Y[0] = eulerScale0() * X[0];
+    Y[1] = eulerScale1() * X[1];
+    return 0;
+  };
+
+  edf->fov_forward = [](short tapeId, int m, int n, int p, double *x,
+                        double **Xp, double *y, double **Yp) {
+    const int rc = eulerStep(tapeId, m, n, x, y);
+    if (rc != 0)
+      return rc;
+
+    for (int direction = 0; direction < p; ++direction) {
+      Yp[0][direction] = eulerScale0() * Xp[0][direction];
+      Yp[1][direction] = eulerScale1() * Xp[1][direction];
+    }
+    return 0;
+  };
+
+  edf->fos_reverse = [](short, int m, int n, double *u, double *z, double *,
+                        double *) {
+    if (m != 2 || n != 2)
+      return -1;
+
+    // important to add here. z could contain already computed results.
+    z[0] += eulerScale0() * u[0];
+    z[1] += eulerScale1() * u[1];
+    return 0;
+  };
+
+  edf->fov_reverse = [](short, int m, int n, int q, double **Uq, double **Zq,
+                        double *, double *) {
+    if (m != 2 || n != 2)
+      return -1;
+
+    // important to add here. Z could contain already computed results.
+    for (int weight = 0; weight < q; ++weight) {
+      Zq[weight][0] += eulerScale0() * Uq[weight][0];
+      Zq[weight][1] += eulerScale1() * Uq[weight][1];
+    }
+    return 0;
+  };
+
+  return edf;
 }
 
-int zos_for_euler_step(int n, double *yin, int m, double *yout) {
-  int rc;
+void traceFullTape(short tapeId, const PassiveState &controls) {
+  trace_on(tapeId);
+  {
+    ActiveState control{};
+    ActiveState state{};
+    ActiveState nextState{};
 
-  set_nested_ctx(tag_ext_fct, true);
-  rc = zos_forward(tag_ext_fct, 2, 2, 0, yin, yout);
-  set_nested_ctx(tag_ext_fct, false);
+    control <<= controls;
+    state = control;
 
-  return rc;
+    for (int i = 0; i < steps; ++i) {
+      eulerStepAct(state.data(), nextState.data());
+      state = nextState;
+    }
+
+    double objective = 0.0;
+    adouble(state[0] + state[1]) >>= objective;
+  }
+  trace_off();
 }
 
-int fos_rev_euler_step(int n, double *u, int m, double *z,
-                       double * /* unused */, double * /*unused*/) {
-  int rc;
+void traceEulerInnerTape(short tapeId, const PassiveState &controls) {
+  trace_on(tapeId);
+  {
+    ActiveState y{};
+    ActiveState ynew{};
+    y <<= controls;
+    eulerStepAct(y.data(), ynew.data());
 
-  set_nested_ctx(tag_ext_fct, true);
-  zos_forward(tag_ext_fct, 2, 2, 1, edf->dp_x, edf->dp_y);
-  rc = fos_reverse(tag_ext_fct, 2, 2, u, z);
-  set_nested_ctx(tag_ext_fct, false);
+    std::array<double, 2> dummy{};
+    ynew >>= dummy;
+  }
+  trace_off();
+}
 
-  return rc;
+void traceWithExternal(short tapeId, ext_diff_fct *edf,
+                       const PassiveState &controls) {
+  trace_on(tapeId);
+  {
+    currentTape().ensureContiguousLocations(4);
+
+    ActiveState control{};
+    ActiveState state{};
+    ActiveState nextState{};
+
+    control <<= controls;
+    state = control;
+
+    for (int i = 0; i < steps; ++i) {
+      call_ext_fct(edf, 2, state.data(), 2, nextState.data());
+      state = nextState;
+    }
+
+    double objective = 0.0;
+    adouble(state[0] + state[1]) >>= objective;
+  }
+  trace_off();
+}
+
+void printGradient(const char *label, const PassiveState &gradient) {
+  std::printf("%s:\n gradient=( %f, %f)\n\n", label, gradient[0], gradient[1]);
+}
+
+} // namespace
+
+int main() {
+  const PassiveState controls{1.0, 1.0};
+  PassiveState gradFull{0.0, 0.0};
+  PassiveState gradNested{0.0, 0.0};
+  PassiveState gradManual{0.0, 0.0};
+
+  const short fullTapeId = createNewTape();
+  const short nestedOuterTapeId = createNewTape();
+  const short nestedInnerTapeId = createNewTape();
+  const short manualOuterTapeId = createNewTape();
+  // Manual callbacks do not use an inner tape. A placeholder tape id is only
+  // passed here because reg_ext_fct still stores one on the edf object.
+  const short manualPlaceholderTapeId = -1;
+
+  traceFullTape(fullTapeId, controls);
+  gradient(fullTapeId, 2, controls.data(), gradFull.data());
+  printGradient("full taping", gradFull);
+
+  traceEulerInnerTape(nestedInnerTapeId, controls);
+  ext_diff_fct *nestedEdf =
+      registerNestedEulerExternalFunction(nestedOuterTapeId, nestedInnerTapeId);
+  traceWithExternal(nestedOuterTapeId, nestedEdf, controls);
+  gradient(nestedOuterTapeId, 2, controls.data(), gradNested.data());
+  printGradient("taping with external function facility (nested ADOL-C)",
+                gradNested);
+
+  ext_diff_fct *manualEdf = registerManualEulerExternalFunction(
+      manualOuterTapeId, manualPlaceholderTapeId);
+  traceWithExternal(manualOuterTapeId, manualEdf, controls);
+  gradient(manualOuterTapeId, 2, controls.data(), gradManual.data());
+  printGradient("taping with external function facility (manual callbacks)",
+                gradManual);
+
+  return 0;
 }
