@@ -3020,7 +3020,7 @@ function (for example named {\sf\em euler\_step} ) has the following signature
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf int euler\_step(int n, double *x, int m, double *y);} .
+\hspace*{2cm}{\sf int euler\_step(short tapeId, int m, int n, double *x, double *y);} .
 \medskip
 
 \noindent
@@ -3031,53 +3031,89 @@ be {\em registered}\footnote{we record the function pointer} using an \mbox{ADOL
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf ext\_diff\_fct *edf = reg\_ext\_fct(euler\_step);} .
+\hspace*{2cm}{\sf ext\_diff\_fct *edf = reg\_ext\_fct(outerTapeId, extTapeId, euler\_step);} .
 \smallskip
 
 \noindent
-This returns a pointer to an {\sf ext\_diff\_fct} instance specific to the registered function. 
-Then, the user has to supply the function pointers for the callback methods (for example here 
-{\sf zos\_for\_euler\_step} and {\sf  fos\_rev\_euler\_step}) the user implemented 
-to compute the derivatives as follows:
+Here {\sf outerTapeId} is the tape on which the external call is recorded and
+{\sf extTapeId} is the tape that represents the external function itself.
+This returns a pointer to an {\sf ext\_diff\_fct} instance specific to the
+registered function. Then, the user supplies the callback methods of type {\sf std::function} that are
+needed by the ADOL-C drivers used later. The callback signatures follow the
+corresponding public ADOL-C driver signatures. For example, to register the callbacks for zero-order
+forward and first-order scalar reverse one may write
 \begin{tabbing}
-\hspace*{2cm}\= {\sf edf-$>$zos\_forward = {\em zos\_for\_euler\_step};}\\
-             \> {\sf // function pointer for computing
-               Zero-Order-Scalar (=zos)}\\
-             \> {\sf // forward information}\\
-%             \> {\sf edf-$>$dp\_x = xp;}\\
-%             \> {\sf edf-$>$dp\_y = yp;}\\
-%             \> {\sf // double arrays for arguments and results}\\
-             \> {\sf edf-$>$fos\_reverse = fos\_rev\_euler\_step;} \\
-             \> {\sf // function pointer for computing
-               First-Order-Scalar (=fos)}\\ 
-             \> {\sf reverse information}
+\hspace*{2cm}\= {\sf edf-$>$zos\_forward = zos\_for\_euler\_step;}\\
+             \> {\sf edf-$>$fos\_reverse = fos\_rev\_euler\_step;} .
 \end{tabbing}
-To facilitate the switch between active and passive versions of the parameters {\sf x} and {\sf y}
-one has to provide (allocate) both variants. I.e. if the call to {\sf euler\_step} was originally
+\noindent
+The corresponding callback implementations typically call the ADOL-C driver on
+the external tape:
+\begin{verbatim}
+  auto zos_for_euler_step = [edf](short, int m, int n, double *yin, double *yout) {
+    return zos_forward(edf->extTapeId, m, n, 0, yin, yout);
+  };
+
+  auto fos_rev_euler_step = [edf](short tapeId, int m, int n, double *u, double *z,
+                           double *x, double *y) {
+    zos_forward(edf->extTapeId, m, n, 1, x, y);
+    findTape(edf->extTapeId).nestedReverseEval(true);
+    const int rc = fos_reverse(edf->extTapeId, m, n, u, z);
+    findTape(edf->extTapeId).nestedReverseEval(false);
+    return rc;
+  };
+\end{verbatim}
+
+\noindent
+The reverse callbacks receive the primal values {\sf x} and {\sf y} explicitly.
+No user-managed scratch buffers are required for {\sf ext\_diff\_fct} in this
+interface.  The call to {\sf nestedReverseEval(true)} belongs on
+{\sf edf-$>$extTapeId}, that is, on the inner tape that is actually
+reverse-evaluated by the callback. This flag is only needed in first-order
+reverse callbacks such as {\sf fos\_reverse} and {\sf fov\_reverse}. It tells
+ADOL-C to accumulate the inner reverse contribution into the existing input
+adjoints {\sf z} instead of overwriting them, which is required when the outer
+reverse sweep has already contributed to the same adjoint entries before the
+external callback is executed.
+
+\medskip
+To record an external-function operation on the tape, inside the {\sf trace\_on(outerTape)} - {\sf trace\_off} block, the call to the external function must be replaced by
 \smallskip
 
 \noindent
-\hspace*{2cm}{\sf rc=euler\_step(n, sOld, m, sNew);}
+\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, ax, m, ay);},
 \medskip
 
 \noindent
-then the ADOL-C typechange for the calling context will turn  {\sf sOld} and {\sf sNew} in {\sf adouble} pointers.
-To trigger the appropriate action for the derivative computation (i.e. creating an external differentiation entry on the trace) 
-the original call to the externally differentiated function 
-must be substituted by 
-\smallskip
+where {\sf ax} and {\sf ay} are {\sf adouble} arrays from which the data is passed to {\sf x} and {\sf y}.
+The arrays passed to {\sf call\_ext\_fct} must each occupy contiguous active
+locations in ascending order. If the arguments are assembled inside a larger
+active section, it is often convenient to reserve the required block using
+{\sf ensureContiguousLocations(n+m)} before allocating the corresponding
+{\sf adouble} objects.
+
+\medskip
 
 \noindent
-\hspace*{2cm}{\sf rc=call\_ext\_fct(edf, n, sOld, m, sNew);} .
-\medskip
+In practice the most common workflow is:
+\begin{enumerate}
+\item provide derivatives of the external function via ADOLC (taping on extTapeId) or define a closed form for the derivative;
+\item implement driver callbacks that wire the derivative of the external function with the outer tape;
+\item register {\sf ext\_diff\_fct} on the outer tape and assign the driver
+callbacks that are needed later;
+\item tape the outer computation, replacing the original call by
+{\sf call\_ext\_fct};
+\item call the derivative driver as usually.
+\end{enumerate}
 
 \noindent
 The usage of the external function facility is illustrated by the
-example \verb=ext_diff_func= contained in
-\verb=examples/additional_examples/ext_diff_func=.
-There, the external differentiated function is also a C code, but the
-handling as external differentiated function decreases the
-overall required tape size.
+example \verb=ext_diff_func= contained in \verb=examples/additional_examples/ext_diff_func=. The integration tests in
+\verb=boost-test/integration_tests/external_fct.cpp= provide additional
+examples for three complementary scenarios: repeated Euler-step parity,
+standard driver parity for representative problems, and a nested reverse
+accumulation regression that demonstrates why {\sf nestedReverseEval} must be
+set on the inner tape during reverse callbacks.
 
 %
 \subsection{Advanced algorithmic differentiation of time integration processes}

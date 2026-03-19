@@ -25,13 +25,13 @@
 
 void edf_zero(ext_diff_fct_v2 *) {}
 
-ext_diff_fct_v2 *reg_ext_fct(short tapeId, short ext_tape_id,
+ext_diff_fct_v2 *reg_ext_fct(short tapeId, short extTapeId,
                              ADOLC_ext_fct_v2 *ext_fct) {
   ValueTape &tape = findTape(tapeId);
   ext_diff_fct_v2 *edf = tape.ext_diff_v2_append();
   edf->function = ext_fct;
   edf->tapeId = tapeId;
-  edf->ext_tape_id = ext_tape_id;
+  edf->extTapeId = extTapeId;
   return edf;
 }
 
@@ -145,7 +145,7 @@ int call_ext_fct(ext_diff_fct_v2 *edfct, size_t iArrLen, size_t *iArr,
         edfct->y[i][j] = y[i][j].value();
 
   tape.ext_diff_fct_index(edfct->index);
-  ret = edfct->function(edfct->ext_tape_id, iArrLen, iArr, nin, nout, insz,
+  ret = edfct->function(edfct->extTapeId, iArrLen, iArr, nin, nout, insz,
                         edfct->x, outsz, edfct->y, edfct->context);
 
   if (edfct->nestedAdolc) {
@@ -257,9 +257,12 @@ static int edfoo_v2_wrapper_fov_reverse(short tapeId, size_t iArrLen,
                             insz, Zp, x, y, ctx);
 }
 
-void EDFobject_v2::init_edf(EDFobject_v2 *ebase) {
-  ValueTape &tape = currentTape();
+void EDFobject_v2::init_edf(EDFobject_v2 *ebase, short outerTapeId,
+                            short extTapeId) {
+  ValueTape &tape = findTape(outerTapeId);
   edf = tape.ext_diff_v2_append();
+  edf->tapeId = outerTapeId;
+  edf->extTapeId = extTapeId;
   edf->obj = reinterpret_cast<void *>(ebase);
   edf->function = edfoo_v2_wrapper_function;
   edf->zos_forward = edfoo_v2_wrapper_zos_forward;

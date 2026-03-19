@@ -42,22 +42,21 @@ struct fpi_data {
 
 static std::vector<fpi_data> fpi_stack;
 
-static int iteration(short, size_t dim_xu, double *xu, size_t dim_x,
-                     double *x_fix) {
+static int iteration(short, int dim_x, int dim_xu, double *xu, double *x_fix) {
   double err;
   const fpi_data &current = fpi_stack.back();
 
-  for (size_t i = 0; i < dim_x; ++i)
+  for (int i = 0; i < dim_x; ++i)
     x_fix[i] = xu[i];
 
   for (size_t k = 1; k <= current.N_max; ++k) {
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i];
 
     current.double_func(xu, xu + dim_x, x_fix, dim_x,
                         static_cast<int>(dim_xu - dim_x));
 
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     err = current.norm_func(xu, dim_x);
@@ -69,7 +68,7 @@ static int iteration(short, size_t dim_xu, double *xu, size_t dim_x,
   return -1;
 }
 
-static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
+static int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
                           double *x_fix) {
 
   ValueTape &tape = findTape(tapeId);
@@ -84,16 +83,16 @@ static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
   if (current == fpi_stack.end())
     ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
 
-  for (size_t i = 0; i < dim_x; ++i)
+  for (int i = 0; i < dim_x; ++i)
     x_fix[i] = xu[i];
 
   for (size_t k = 1; k <= current->N_max; ++k) {
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i];
 
     current->double_func(xu, xu + dim_x, x_fix, dim_x, dim_xu - dim_x);
 
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     err = current->norm_func(xu, dim_x);
@@ -105,9 +104,8 @@ static int fp_zos_forward(short tapeId, size_t dim_xu, double *xu, size_t dim_x,
   return -1;
 }
 
-static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
-                          double *xu_dot, size_t dim_x, double *x_fix,
-                          double *x_fix_dot) {
+static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
+                          double *xu_dot, double *x_fix, double *x_fix_dot) {
 
   // Piggy back
   double err, err_deriv;
@@ -124,10 +122,10 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
     ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
   for (size_t k = 1; (k < current->N_max_deriv) || (k < current->N_max); ++k) {
     if (k > 1) {
-      for (size_t i = 0; i < dim_x; ++i)
+      for (int i = 0; i < dim_x; ++i)
         xu[i] = x_fix[i];
 
-      for (size_t i = 0; i < dim_x; ++i)
+      for (int i = 0; i < dim_x; ++i)
         xu_dot[i] = x_fix_dot[i];
     }
 
@@ -136,11 +134,11 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
     fos_forward(current->sub_tape_num, static_cast<int>(dim_x),
                 static_cast<int>(dim_xu), 0, xu, xu_dot, x_fix, x_fix_dot);
 
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     err = current->norm_func(xu, dim_x);
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xu_dot[i] = x_fix_dot[i] - xu_dot[i];
 
     err_deriv = current->norm_deriv_func(xu_dot, dim_x);
@@ -153,9 +151,9 @@ static int fp_fos_forward(short tapeId, size_t dim_xu, double *xu,
   return -1;
 }
 
-static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
-                          size_t dim_xu, double *xu_bar, double * /*unused*/,
-                          double * /*unused*/) {
+static int fp_fos_reverse(short tapeId, int dim_x, int dim_xu,
+                          double *x_fix_bar, double *xu_bar, double *,
+                          double *) {
   // (d x_fix) / (d x_0) = 0 (!)
 
   double err = 0.0;
@@ -174,7 +172,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
   double *xi = new double[dim_x];
 
   for (size_t k = 1; k < current->N_max_deriv; ++k) {
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xi[i] = U[i];
 
     // type signatures of "external driver" and "normal" drivers are not aligned
@@ -182,15 +180,15 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
     fos_reverse(current->sub_tape_num, static_cast<int>(dim_x),
                 static_cast<int>(dim_xu), xi, U);
 
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       U[i] += x_fix_bar[i];
 
-    for (size_t i = 0; i < dim_x; ++i)
+    for (int i = 0; i < dim_x; ++i)
       xi[i] = U[i] - xi[i];
 
     err = current->norm_deriv_func(xi, dim_x);
     if (err < current->epsilon_deriv) {
-      for (size_t i = 0; i < dim_xu - dim_x; ++i) {
+      for (int i = 0; i < dim_xu - dim_x; ++i) {
         xu_bar[dim_x + i] += U[dim_x + i];
       }
 
@@ -201,7 +199,7 @@ static int fp_fos_reverse(short tapeId, size_t dim_x, double *x_fix_bar,
       return static_cast<int>(k);
     }
   }
-  for (size_t i = 0; i < dim_xu - dim_x; ++i)
+  for (int i = 0; i < dim_xu - dim_x; ++i)
     xu_bar[dim_x + i] += U[dim_x + i];
 
   delete[] xi;
@@ -254,7 +252,8 @@ int fp_iteration(short tapeId, short sub_tape_num, double_F double_func,
   for (size_t i = 0; i < dim_u; ++i)
     xu[dim_x + i] = u[i];
 
-  const int k = call_ext_fct(edf_iteration, dim_x + dim_u, xu, dim_x, x_fix);
+  const int k = call_ext_fct(edf_iteration, static_cast<int>(dim_x + dim_u), xu,
+                             static_cast<int>(dim_x), x_fix);
 
   // read out x_fix
   for (size_t i = 0; i < dim_x; ++i)
