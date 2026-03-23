@@ -16,6 +16,7 @@
 #ifndef ADOLC_FIXPOINT_H
 #define ADOLC_FIXPOINT_H
 
+#include <adolc/adolcerror.h>
 #include <adolc/adolcexport.h>
 #include <adolc/externfcts.h>
 #include <adolc/internal/common.h>
@@ -85,10 +86,17 @@ inline static std::vector<fpi_data> &fpiStack() {
   static std::vector<fpi_data> fpi_stack;
   return fpi_stack;
 }
-inline FpProblem &getFpProblem(size_t edfIdx) {
+
+ADOLC_API void resetFpiStack();
+inline FpProblem &getFpProblem(short tapeId, size_t edfIdx) {
   // Locate iteration parameters
-  auto fpiDataPtr = std::find_if(fpiStack().begin(), fpiStack().end(),
-                                 [&](auto &&v) { return v.edfIdx == edfIdx; });
+  auto fpiDataPtr =
+      std::find_if(fpiStack().begin(), fpiStack().end(), [&](auto &&v) {
+        const bool tapeMatches = v.problem.tapeId == tapeId ||
+                                 v.problem.subTapeId == tapeId ||
+                                 v.problem.internalTapeId == tapeId;
+        return tapeMatches && v.edfIdx == edfIdx;
+      });
 
   if (fpiDataPtr == fpiStack().end())
     ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
@@ -185,23 +193,10 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
                       double **x_fix_bar, double **xu_bar, double **dpp_x,
                       double **dpp_y);
 
-inline ext_diff_fct *registerFpIteration(const FpProblem &problem) {
-  // declare extern differentiated function using the fixed-point functions
-  ext_diff_fct *edfIteration =
-      reg_ext_fct(problem.tapeId, problem.subTapeId, iteration);
-  edfIteration->zos_forward = fp_zos_forward;
-  edfIteration->fos_forward = fp_fos_forward;
-  edfIteration->fos_reverse = fp_fos_reverse;
-  edfIteration->hos_ti_reverse = fp_hos_ti_reverse;
+ext_diff_fct *registerFpIteration(const FpProblem &problem);
 
-  // add parameters of the fp iteration to the stack
-  fpiStack().emplace_back(fpi_data{edfIteration->index, problem, edfIteration});
-
-  return edfIteration;
-}
-
-int firstOrderFp(const FpProblem &problem);
-int secondOrderFp(const FpProblem &problem);
+int firstOrderFp(FpProblem &problem);
+int secondOrderFp(FpProblem &problem);
 /**
  * @brief Register and perform fixed-point iteration
  * with active (adouble) types, using advanced taping of subtapes.
@@ -257,7 +252,7 @@ int fp_iteration(short tapeId, short subTapeId, double_F double_func,
 /// Ensures that the static_assertion is not evaluated until "mode" is known.
 template <auto> inline constexpr bool is_dependent_v = false;
 
-template <FpMode mode> int fp_iteration(const FpProblem &problem) {
+template <FpMode mode> int fp_iteration(FpProblem problem) {
   if constexpr (mode == FpMode::firstOrder)
     return firstOrderFp(problem);
   else if constexpr (mode == FpMode::secondOrder)

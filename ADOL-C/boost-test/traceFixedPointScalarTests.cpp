@@ -1,13 +1,16 @@
+
+#include "adolc/adalloc.h"
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 namespace tt = boost::test_tools;
 
 #include <adolc/adolc.h>
+#include <array>
 
 #include "const.h"
 
-BOOST_AUTO_TEST_SUITE(trace_fixed_point_scalar)
+BOOST_AUTO_TEST_SUITE(FixedPointBasicDriverTest)
 
 /************************************************************/
 /* Tests for automatic differentiation of fixed-point loops */
@@ -124,6 +127,186 @@ BOOST_AUTO_TEST_CASE(NewtonScalarFixedPoint_fos_forward) {
 
   BOOST_TEST(value[0] == out, tt::tolerance(tol));
   BOOST_TEST(derivative[0] == exactDerivative, tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(FixedPointSecondOrder1DTest)
+
+namespace {
+template <typename T> T f(T x, T u) {
+  using std::cos;
+  return (cos(u) * x) + 1.0;
+}
+double derivativeFx(double, double u) {
+  using std::cos;
+  return cos(u);
+}
+double derivativeFu(double x, double u) {
+  using std::sin;
+  return -sin(u) * x;
+}
+double fixedPoint(double u) {
+  using std::cos;
+  return 1.0 / (1.0 - cos(u));
+}
+double derivativeFP(double u) {
+  using std::cos;
+  using std::pow;
+  using std::sin;
+  return -std::sin(u) / std::pow(1.0 - std::cos(u), 2);
+}
+
+double secondDerivFP(double u) {
+  using std::cos;
+  using std::pow;
+  using std::sin;
+  return (2.0 * std::pow(std::sin(u), 2) / std::pow(1.0 - std::cos(u), 3)) -
+         (std::cos(u) / std::pow(1.0 - std::cos(u), 2));
+}
+double norm(double *x, int dim) {
+  double norm = 0.0;
+
+  for (int i = 0; i < dim; i++) {
+    norm += x[i] * x[i];
+  }
+  return std::sqrt(norm);
+}
+
+void tapeFP(short outerTapeId, short innerTapeId, std::span<double, 2> xu,
+            int keep = 0) {
+  findTape(outerTapeId).ensureContiguousLocations(3);
+  trace_on(outerTapeId, keep);
+  {
+    adouble x = 0.0;
+    adouble x_fix;
+    adouble u;
+    u <<= xu[1];
+
+    auto f_double = [](double *x, double *u, double *x_fix, int, int) {
+      x_fix[0] = f(x[0], u[0]);
+      return 0;
+    };
+    auto f_adouble = [](adouble *x, adouble *u, adouble *x_fix, int, int) {
+      x_fix[0] = f<adouble>(x[0], u[0]);
+      return 0;
+    };
+    ADOLC::FpIteration::fp_iteration(
+        outerTapeId, innerTapeId, f_double, f_adouble, norm,
+        norm,   // Norm for the termination criterion for the adjoint
+        1e-8,   // Termination threshold for fixed-point iteration
+        1e-8,   // Termination threshold
+        188,    // Maximum number of iterations
+        188,    // Maximum number of adjoint iterations
+        &x,     // [in] Initial iterate of fixed-point iteration
+        &u,     // [in] The parameters: We compute the derivative wrt this
+        &x_fix, // [out] Final state of the iteration
+        1,      // Size of the vector x_0
+        1);     // Number of parameters
+
+    double out;
+    x_fix >>= out;
+  }
+  trace_off();
+}
+
+void tapeSec(short outerTapeId, short innerTapeId, short secoInnerTape,
+             std::span<double, 2> xu) {
+  findTape(outerTapeId).ensureContiguousLocations(3);
+  trace_on(outerTapeId);
+  {
+    adouble x = 0.0;
+    adouble x_fix;
+    adouble u;
+    u <<= xu[1];
+
+    auto f_double = [](double *x, double *u, double *x_fix, int, int) {
+      x_fix[0] = f(x[0], u[0]);
+      return 0;
+    };
+    auto f_adouble = [](adouble *x, adouble *u, adouble *x_fix, int, int) {
+      x_fix[0] = f<adouble>(x[0], u[0]);
+      return 0;
+    };
+    ADOLC::FpIteration::FpProblem problem{
+        outerTapeId, innerTapeId, secoInnerTape, f_double, f_adouble, norm,
+        norm,   // Norm for the termination criterion for the
+                // adjoint
+        1e-9,   // Termination threshold for fixed-point iteration
+        1e-9,   // Termination threshold
+        188,    // Maximum number of iterations
+        188,    // Maximum number of adjoint iterations
+        &x,     // [in] Initial iterate of fixed-point iteration
+        &u,     // [in] The parameters: We compute the derivative wrt
+                // this
+        &x_fix, // [out] Final state of the iteration
+        1,      // Size of the vector x_0
+        1};
+    ADOLC::FpIteration::fp_iteration<ADOLC::FpIteration::FpMode::secondOrder>(
+        problem); // Number of parameters
+
+    double out;
+    x_fix >>= out;
+  }
+  trace_off();
+}
+} // namespace
+
+BOOST_AUTO_TEST_CASE(zos_forward_) {
+  ADOLC::FpIteration::resetFpiStack();
+  const short outerTapeId = createNewTape();
+  const short innerTapeId = createNewTape();
+  std::array<double, 2> xu{0.0, 0.5};
+  tapeFP(outerTapeId, innerTapeId, xu);
+  std::array<double, 1> y{};
+  zos_forward(outerTapeId, 1, 1, 0, xu.data() + 1, y.data());
+  BOOST_TEST(fixedPoint(xu[1]) == y[0], tt::tolerance(tol));
+}
+BOOST_AUTO_TEST_CASE(fos_forward_) {
+  ADOLC::FpIteration::resetFpiStack();
+  const short outerTapeId = createNewTape();
+  const short innerTapeId = createNewTape();
+  std::array<double, 2> xu{0.0, 0.5};
+  tapeFP(outerTapeId, innerTapeId, xu);
+  std::array<double, 1> y{};
+  std::array<double, 1> tangent{1.0};
+  std::array<double, 1> Y{};
+  fos_forward(outerTapeId, 1, 1, 0, xu.data() + 1, tangent.data(), y.data(),
+              Y.data());
+  BOOST_TEST(fixedPoint(xu[1]) == y[0], tt::tolerance(tol));
+  BOOST_TEST(derivativeFP(xu[1]) == Y[0], tt::tolerance(tol));
+}
+BOOST_AUTO_TEST_CASE(fos_reverse_) {
+  ADOLC::FpIteration::resetFpiStack();
+  const short outerTapeId = createNewTape();
+  const short innerTapeId = createNewTape();
+  std::array<double, 2> xu{0.0, 0.5};
+  tapeFP(outerTapeId, innerTapeId, xu, 1);
+  std::array<double, 1> weight{1.0};
+  std::array<double, 1> z{};
+
+  fos_reverse(outerTapeId, 1, 1, weight.data(), z.data());
+  BOOST_TEST(derivativeFP(xu[1]) == z[0], tt::tolerance(1e-07));
+}
+BOOST_AUTO_TEST_CASE(hos_reverse_) {
+  ADOLC::FpIteration::resetFpiStack();
+  const short outerTapeId = createNewTape();
+  const short innerTapeId = createNewTape();
+  const short secInnerTape = createNewTape();
+  std::array<double, 2> xu{0.0, 0.5};
+  tapeSec(outerTapeId, innerTapeId, secInnerTape, xu);
+  std::array<double, 1> y{};
+  std::array<double, 1> tangent{1.0};
+  double Y[1];
+  fos_forward(outerTapeId, 1, 1, 2, xu.data() + 1, tangent.data(), y.data(), Y);
+  BOOST_TEST(fixedPoint(xu[1]) == y[0], tt::tolerance(tol));
+  BOOST_TEST(derivativeFP(xu[1]) == Y[0], tt::tolerance(tol));
+  std::array<double, 1> weight{1.0};
+  double **Z = myalloc2(1, 2);
+  hos_reverse(outerTapeId, 1, 1, 1, weight.data(), Z);
+  BOOST_TEST(derivativeFP(xu[1]) == Z[0][0], tt::tolerance(tol));
+  BOOST_TEST(secondDerivFP(xu[1]) == Z[0][1], tt::tolerance(tol));
+  myfree2(Z);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
