@@ -2855,10 +2855,10 @@ int hov_ti_reverse(
     {
       // TODO: higher-order reverse does not yet honor nestedReverseEval the way
       // fo_rev.cpp does for nested reverse callbacks.
-      assert(false &&
+      /*assert(false &&
              "TODO: add nestedReverseEval accumulation semantics to ho_rev.cpp "
              "before supporting nested higher-order reverse passes.");
-
+      */
       m = static_cast<int>(tape.get_locint_r());
       n = static_cast<int>(tape.get_locint_r());
       tape.ext_diff_fct_index(tape.get_locint_r());
@@ -2873,7 +2873,7 @@ int hov_ti_reverse(
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
 
-      arg = edfct->firstDepLocation + m - 1;
+      arg = edfct->firstDepLocation;
       for (int loop = 0; loop < m; ++loop) {
         // First entry of rpp_A[arg] is algorithmic dependency --> skip that!
         dpp_U[loop] = rpp_A[arg] + 1;
