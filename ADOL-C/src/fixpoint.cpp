@@ -22,17 +22,59 @@
 #include <adolc/fixpoint.h>
 #include <adolc/valuetape/valuetape.h>
 #include <algorithm>
-#include <cmath>
-#include <limits>
-#include <stdexcept>
-#include <string>
 #include <vector>
 
 namespace ADOLC::FpIteration {
+namespace {
+struct FixedPoint {
+  size_t lastIter{0};
+  std::vector<double> x;
+  std::vector<double> u;
+};
 
-void resetFpiStack() { fpiStack().clear(); }
+struct fpi_data {
+  size_t edfIdx;
+  FpProblem problem;
+  ext_diff_fct *edfIteration;
+  FixedPoint fp;
+  bool isInternal{false};
+};
 
-ext_diff_fct *registerFpIteration(const FpProblem &problem) {
+int iteration(short tapeId, int dim_x, int dim_xu, double *xu, double *x_fix);
+int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
+                   double *x_fix);
+int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
+                   double *xu_dot, double *x_fix, double *x_fix_dot);
+int fp_fos_reverse(short tapeId, int dim_x, int dim_xu, double *x_bar,
+                   double *xi_u_bar, double *, double *);
+int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
+                      double **x_bar_ti, double **xu_bar, double **dpp_x,
+                      double **dpp_y);
+int firstOrderFp(FpProblem &problem);
+int secondOrderFp(FpProblem &problem);
+
+std::vector<fpi_data> &fpiStack() {
+  static std::vector<fpi_data> fpi_stack;
+  return fpi_stack;
+}
+
+fpi_data &getfpiData(short tapeId, size_t edfIdx) {
+  // Locate iteration parameters
+  auto fpiDataPtr =
+      std::find_if(fpiStack().begin(), fpiStack().end(), [&](auto &&v) {
+        const bool tapeMatches = v.problem.tapeId == tapeId ||
+                                 v.problem.subTapeId == tapeId ||
+                                 v.problem.internalTapeId == tapeId;
+        return tapeMatches && v.edfIdx == edfIdx;
+      });
+
+  if (fpiDataPtr == fpiStack().end())
+    ADOLCError::fail(ADOLCError::ErrorType::FP_NO_EDF, CURRENT_LOCATION);
+
+  return *fpiDataPtr;
+}
+
+ext_diff_fct *registerFpIData(const FpProblem &problem) {
   // declare extern differentiated function using the fixed-point functions
   ext_diff_fct *edfIteration =
       reg_ext_fct(problem.tapeId, problem.subTapeId, iteration);
@@ -40,11 +82,21 @@ ext_diff_fct *registerFpIteration(const FpProblem &problem) {
   edfIteration->fos_forward = fp_fos_forward;
   edfIteration->fos_reverse = fp_fos_reverse;
   edfIteration->hos_ti_reverse = fp_hos_ti_reverse;
-  fpiStack().emplace_back(fpi_data{edfIteration->index, problem, edfIteration});
+  fpiStack().emplace_back(fpi_data{
+      .edfIdx = edfIteration->index,
+      .problem = problem,
+      .edfIteration = edfIteration,
+      .fp = FixedPoint{},
+      .isInternal = false,
+  });
   return edfIteration;
 }
 
-void prepareFixedPoint(ext_diff_fct *edfIteration, FpProblem &problem) {
+void prepareFixedPoint(ext_diff_fct *edfIteration, FpProblem &problem,
+                       FixedPoint &fp) {
+  fp.x.resize(static_cast<size_t>(problem.dim_x));
+  fp.u.resize(static_cast<size_t>(problem.dim_u));
+
   // put x and u together for the iteration
   std::vector<adouble> xu(problem.dim_x + problem.dim_u);
 
@@ -56,38 +108,38 @@ void prepareFixedPoint(ext_diff_fct *edfIteration, FpProblem &problem) {
   for (int i = 0; i < problem.dim_u; ++i)
     xu[problem.dim_x + i] = problem.u[i];
 
-  problem.fp.lastIter =
-      call_ext_fct(edfIteration, problem.dim_x + problem.dim_u, xu.data(),
-                   problem.dim_x, problem.x_fix);
+  fp.lastIter = call_ext_fct(edfIteration, problem.dim_x + problem.dim_u,
+                             xu.data(), problem.dim_x, problem.x_fix);
 
   // copy fixed-point of x for output
   for (int i = 0; i < problem.dim_x; ++i) {
-    problem.fp.x[i] = problem.x_fix[i].value();
+    fp.x[i] = problem.x_fix[i].value();
   }
 
   // copy fixed-point of u for output
   for (int i = 0; i < problem.dim_u; ++i) {
-    problem.fp.u[i] = xu[problem.dim_x + i].value();
+    fp.u[i] = xu[problem.dim_x + i].value();
   }
 }
 
-void tapeLastFpIteration(short tapeId, FpProblem &problem) {
+void tapeLastFpIteration(short tapeId, FpProblem &problem,
+                         const FixedPoint &fp) {
   currentTape().ensureContiguousLocations(problem.dim_u + (2 * problem.dim_x));
   std::vector<adouble> x_fix_new(problem.dim_x);
   std::vector<adouble> xu_sub_tape(problem.dim_u + problem.dim_x);
   // copy fixed-point
   for (int i = 0; i < problem.dim_x; ++i) {
-    x_fix_new[i] = problem.fp.x[i];
+    x_fix_new[i] = fp.x[i];
   }
 
   // tape the last fixed-point iteration and keep the result
   trace_on(tapeId, 1);
   for (int i = 0; i < problem.dim_x; ++i) {
-    xu_sub_tape[i] <<= problem.fp.x[i];
+    xu_sub_tape[i] <<= fp.x[i];
   }
 
   for (int i = 0; i < problem.dim_u; ++i) {
-    xu_sub_tape[problem.dim_x + i] <<= problem.fp.u[i];
+    xu_sub_tape[problem.dim_x + i] <<= fp.u[i];
   }
 
   // IMPORTANT: Dont reuse x_fix here. The location of the x_fix's
@@ -105,31 +157,31 @@ void tapeLastFpIteration(short tapeId, FpProblem &problem) {
 
 int iteration(short tapeId, int dim_x, int dim_xu, double *xu, double *x_fix) {
   assert(dim_xu > dim_x && "Dimension mismatch, dim_xu <= dim_x");
-  FpProblem problem =
-      getFpProblem(tapeId, findTape(tapeId).ext_diff_fct_index());
+  const fpi_data &data =
+      getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
   // Initialize x_0 from xu[0..dim_x-1]
   for (int i = 0; i < dim_x; ++i) {
     x_fix[i] = xu[i];
   }
 
   // Main fixed-point loop (eq. (2))
-  for (size_t k = 1; k <= problem.N_max; ++k) {
+  for (size_t k = 1; k <= data.problem.N_max; ++k) {
     // copy x_fix to xu
     for (int i = 0; i < dim_x; ++i) {
       xu[i] = x_fix[i];
     }
 
     // passive call: x_{k+1} = F(x_k, u)
-    problem.double_func(xu, xu + dim_x, x_fix, dim_x, (dim_xu - dim_x));
+    data.problem.double_func(xu, xu + dim_x, x_fix, dim_x, (dim_xu - dim_x));
 
     // residual: x_fix - F(x_k, u)
     for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];
 
     // convergence check: ||xu|| < epsilon
-    const double err = problem.norm_func(xu, dim_x);
+    const double err = data.problem.norm_func(xu, dim_x);
     assert(err >= 0 && "Error should not be negative");
-    if (err < problem.epsilon) {
+    if (err < data.problem.epsilon) {
       // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
@@ -142,24 +194,24 @@ int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
                    double *x_fix) {
   assert(dim_xu > dim_x && "Dimension mismatch, dim_xu <= dim_x");
   double err = 0.0;
-  FpProblem problem =
-      getFpProblem(tapeId, findTape(tapeId).ext_diff_fct_index());
+  const fpi_data &data =
+      getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
 
   for (int i = 0; i < dim_x; ++i) {
-    x_fix[i] = problem.fp.x[i];
+    x_fix[i] = data.fp.x[i];
   }
-  for (size_t k = 1; k <= problem.N_max; ++k) {
+  for (size_t k = 1; k <= data.problem.N_max; ++k) {
     for (int i = 0; i < dim_x; ++i) {
       xu[i] = x_fix[i];
     }
-    problem.double_func(xu, xu + dim_x, x_fix, dim_x, (dim_xu - dim_x));
+    data.problem.double_func(xu, xu + dim_x, x_fix, dim_x, (dim_xu - dim_x));
 
     for (int i = 0; i < dim_x; ++i) {
       xu[i] = x_fix[i] - xu[i];
     }
-    err = problem.norm_func(xu, dim_x);
+    err = data.problem.norm_func(xu, dim_x);
     assert(err >= 0 && "Error should not be negative");
-    if (err < problem.epsilon)
+    if (err < data.problem.epsilon)
       // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
@@ -194,11 +246,11 @@ int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
                    double *xu_dot, double *x_fix, double *x_fix_dot) {
   std::cout << "add keep to fp_fos_forward signauture!" << std::endl;
   assert(dim_xu > dim_x && "Dimension mismatch, dim_xu <= dim_x");
-  FpProblem problem =
-      getFpProblem(tapeId, findTape(tapeId).ext_diff_fct_index());
-  const size_t maxIter = std::max(problem.N_max_deriv, problem.N_max);
+  const fpi_data &data =
+      getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
+  const size_t maxIter = std::max(data.problem.N_max_deriv, data.problem.N_max);
   // initialize with the x fixed point
-  std::copy(problem.fp.x.begin(), problem.fp.x.end(), x_fix);
+  std::copy(data.fp.x.begin(), data.fp.x.end(), x_fix);
   std::vector<double> residual(dim_x);
   std::vector<double> residualDeriv(dim_x);
   double err = 0;
@@ -209,7 +261,7 @@ int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
     std::copy(x_fix_dot, x_fix_dot + dim_x, xu_dot);
 
     // Compute F(x_*,u) and F'(x_*, u)[\dot{x_k}; \dot{u}]
-    fos_forward(problem.subTapeId, dim_x, dim_xu, 2, xu, xu_dot, x_fix,
+    fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2, xu, xu_dot, x_fix,
                 x_fix_dot);
 
     // Compute residuals in primal and tangent values
@@ -217,12 +269,13 @@ int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
       residual[i] = x_fix[i] - xu[i];
       residualDeriv[i] = x_fix_dot[i] - xu_dot[i];
     }
-    err = problem.norm_func(residual.data(), dim_x);
-    err_deriv = problem.norm_deriv_func(residualDeriv.data(), dim_x);
+    err = data.problem.norm_func(residual.data(), dim_x);
+    err_deriv = data.problem.norm_deriv_func(residualDeriv.data(), dim_x);
     assert(err >= 0 && "Error should not be negative");
     assert(err_deriv >= 0 && "Error should not be negative");
     // check if converged
-    if ((err < problem.epsilon) && (err_deriv < problem.epsilon_deriv)) {
+    if ((err < data.problem.epsilon) &&
+        (err_deriv < data.problem.epsilon_deriv)) {
       // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
       return static_cast<int>(k);
@@ -260,15 +313,15 @@ int fp_fos_reverse(short tapeId, int dim_x, int dim_xu, double *x_bar,
   assert(dim_xu > dim_x && "Dimension mismatch, dim_xu <= dim_x");
   double err = 0.0;
 
-  FpProblem problem =
-      getFpProblem(tapeId, findTape(tapeId).ext_diff_fct_index());
-  short tapeId_ =
-      problem.isInternal ? problem.internalTapeId : problem.subTapeId;
+  const fpi_data &data =
+      getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
+  const short tapeId_ =
+      data.isInternal ? data.problem.internalTapeId : data.problem.subTapeId;
 
   std::vector<double> xi_u(dim_xu, 0.0);
   std::vector<double> xi(dim_x);
   std::vector<double> residual(dim_x);
-  for (size_t k = 1; k < problem.N_max_deriv; ++k) {
+  for (size_t k = 1; k < data.problem.N_max_deriv; ++k) {
     std::copy(xi_u.begin(), xi_u.begin() + dim_x, xi.begin());
 
     // do one fixed point iteration:
@@ -282,10 +335,10 @@ int fp_fos_reverse(short tapeId, int dim_x, int dim_xu, double *x_bar,
     for (int i = 0; i < dim_x; i++) {
       residual[i] = xi_u[i] - xi[i];
     }
-    err = problem.norm_deriv_func(residual.data(), dim_x);
+    err = data.problem.norm_deriv_func(residual.data(), dim_x);
     assert(err >= 0 && "Error should not be negative");
     // check convergence
-    if (err < problem.epsilon_deriv) {
+    if (err < data.problem.epsilon_deriv) {
       // add up the resulting adjoints \bar{x} and \bar{u}
       for (int i = 0; i < dim_xu; ++i) {
         xi_u_bar[i] += xi_u[i];
@@ -315,8 +368,7 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
     std::cerr << "fp_hos_reverse is not defined for degree != 1" << std::endl;
 
   // reference because we set the "isInternal"
-  FpProblem &problem =
-      getFpProblem(tapeId, findTape(tapeId).ext_diff_fct_index());
+  fpi_data &data = getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
 
   // 1. compute [\bar{xi_N}, \bar{u}] via fp_fos_reverse (line 8-10 in algo)
   std::vector<double> xi_u_bar(dim_xu, 0.0);
@@ -328,10 +380,10 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
   }
 
   // use internal Tape!
-  problem.isInternal = true;
-  fp_fos_reverse(problem.tapeId, dim_x, dim_xu, x_bar.data(), xi_u_bar.data(),
-                 nullptr, nullptr);
-  problem.isInternal = false;
+  data.isInternal = true;
+  fp_fos_reverse(data.problem.tapeId, dim_x, dim_xu, x_bar.data(),
+                 xi_u_bar.data(), nullptr, nullptr);
+  data.isInternal = false;
 
   //  2. compute r and u via hos_reverse of subTapeNum, thus we have
   //  to keep the (line 13 and part of line 21) Here we need the
@@ -342,19 +394,19 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
   std::vector<double> x_fix_dot(dim_x);
   // store x fix and \dot
   for (int i = 0; i < dim_x; ++i) {
-    xu[i] = problem.fp.x[i];
+    xu[i] = data.fp.x[i];
     xu_dot[i] = dpp_y[i][1];
   }
   // store u and \dot{u}
-  for (int i = 0; i < problem.dim_u; ++i) {
-    xu[dim_x + i] = problem.fp.u[i];
+  for (int i = 0; i < data.problem.dim_u; ++i) {
+    xu[dim_x + i] = data.fp.u[i];
     xu_dot[dim_x + i] = dpp_x[dim_x + i][1];
   }
-  fos_forward(problem.subTapeId, dim_x, dim_xu, 2, xu.data(), xu_dot.data(),
-              x_fix.data(), x_fix_dot.data());
+  fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2, xu.data(),
+              xu_dot.data(), x_fix.data(), x_fix_dot.data());
 
   std::vector<double> xi_bar(xi_u_bar.begin(), xi_u_bar.begin() + dim_x);
-  hos_reverse(problem.subTapeId, dim_x, dim_xu, 1, xi_bar.data(), xu_bar);
+  hos_reverse(data.problem.subTapeId, dim_x, dim_xu, 1, xi_bar.data(), xu_bar);
 
   // We now have xu_bar[1] = [xi_k^T(Fxx \dot{x} + Fxu \dot{u}),
   // xi_k^T(Fux \dot{x} + Fuu \dot{u})]
@@ -367,14 +419,15 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
     r_bar_dot[i] = xu_bar[i][1];
   }
 
-  problem.isInternal = true;
-  fp_fos_reverse(problem.tapeId, dim_x, dim_xu, r_bar_dot.data(),
+  data.isInternal = true;
+  fp_fos_reverse(data.problem.tapeId, dim_x, dim_xu, r_bar_dot.data(),
                  xi_bar_dot.data(), nullptr, nullptr);
-  problem.isInternal = false;
-  // We now have xi_bar_dot = [xi_K^T Fx + \bar{r}, xi_K^T Fu]
+  data.isInternal = false;
+  // We now have xi_bar_dot = [xi_K^T Fx + \bar{r}, xi_K^T Fu]_K^T Fx + \bar{r},
+  // xi_K^T Fu]
 
   // 4. return xi_k, u = u part of last fos_reverse + u part of hos_reverse
-  for (int i = 0; i < problem.dim_u; ++i) {
+  for (int i = 0; i < data.problem.dim_u; ++i) {
     xu_bar[dim_x + i][1] += xi_bar_dot[dim_x + i];
   }
 
@@ -383,52 +436,65 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
 
 int firstOrderFp(FpProblem &problem) {
   std::cout << "TODO: document firstOrderFP" << std::endl;
-  auto edfIteration = registerFpIteration(problem);
-  FpProblem &storedProblem = getFpProblem(problem.tapeId, edfIteration->index);
+  auto edfIteration = registerFpIData(problem);
+  fpi_data &data = getfpiData(problem.tapeId, edfIteration->index);
 
-  storedProblem.fp = {.x = std::vector<double>(storedProblem.dim_x),
-                      .u = std::vector<double>(storedProblem.dim_u)};
+  FixedPoint fp;
 
-  ValueTape &tape = findTape(storedProblem.tapeId);
+  ValueTape &tape = findTape(problem.tapeId);
   // ensure that the adoubles are contiguous
-  tape.ensureContiguousLocations(storedProblem.dim_x + storedProblem.dim_u);
+  tape.ensureContiguousLocations(problem.dim_x + problem.dim_u);
   // to reset old default later
   const short last_default_tape_id = currentTape().tapeId();
-  // ensure that the "new" allocates the adoubles for the "tape"
+  // ensure that the adoubles are allocated the correct tape
   setCurrentTape(tape.tapeId());
-  prepareFixedPoint(edfIteration, storedProblem);
-  setCurrentTape(storedProblem.subTapeId);
-  tapeLastFpIteration(storedProblem.subTapeId, storedProblem);
+  prepareFixedPoint(edfIteration, problem, fp);
+  setCurrentTape(problem.subTapeId);
+  tapeLastFpIteration(problem.subTapeId, problem, fp);
 
   // reset previous default tape
   setCurrentTape(last_default_tape_id);
 
-  return static_cast<int>(storedProblem.fp.lastIter);
+  data.fp = fp;
+  return static_cast<int>(fp.lastIter);
 }
 
 int secondOrderFp(FpProblem &problem) {
   std::cout << "TODO: document secondOrderFP" << std::endl;
-  auto edfIteration = registerFpIteration(problem);
-  FpProblem &storedProblem = getFpProblem(problem.tapeId, edfIteration->index);
-  ValueTape &tape = findTape(storedProblem.tapeId);
+  auto edfIteration = registerFpIData(problem);
+  fpi_data &data = getfpiData(problem.tapeId, edfIteration->index);
+  ValueTape &tape = findTape(problem.tapeId);
 
-  storedProblem.fp = {.x = std::vector<double>(storedProblem.dim_x),
-                      .u = std::vector<double>(storedProblem.dim_u)};
+  FixedPoint fp;
 
   // ensure that the adoubles are contiguous
-  tape.ensureContiguousLocations(storedProblem.dim_x + storedProblem.dim_u);
+  tape.ensureContiguousLocations(problem.dim_x + problem.dim_u);
   // to reset old default later
   const short last_default_tape_id = currentTape().tapeId();
-  // ensure that the "new" allocates the adoubles for the "tape"
+  // ensure that the adoubles are allocated for the correct tape
   setCurrentTape(tape.tapeId());
-  prepareFixedPoint(edfIteration, storedProblem);
-  setCurrentTape(storedProblem.subTapeId);
-  tapeLastFpIteration(storedProblem.subTapeId, storedProblem);
+  prepareFixedPoint(edfIteration, problem, fp);
+  setCurrentTape(problem.subTapeId);
+  tapeLastFpIteration(problem.subTapeId, problem, fp);
 
-  setCurrentTape(storedProblem.internalTapeId);
-  tapeLastFpIteration(storedProblem.internalTapeId, storedProblem);
+  setCurrentTape(problem.internalTapeId);
+  tapeLastFpIteration(problem.internalTapeId, problem, fp);
   setCurrentTape(last_default_tape_id);
 
-  return static_cast<int>(storedProblem.fp.lastIter);
+  data.fp = fp;
+  return static_cast<int>(fp.lastIter);
 }
+} // namespace
+
+template <>
+int fp_iteration<FpMode::firstOrder>(FpProblem problem) {
+  return firstOrderFp(problem);
+}
+
+template <>
+int fp_iteration<FpMode::secondOrder>(FpProblem problem) {
+  return secondOrderFp(problem);
+}
+
+void resetFpiStack() { fpiStack().clear(); }
 }; // namespace ADOLC::FpIteration
