@@ -56,35 +56,40 @@ int abs_normal(short tag,       /* tape identifier */
   std::vector<double> res(n + s);
 
   zos_pl_forward(tag, m, n, 1, x, y, z);
-  std::ptrdiff_t l = 0;
+  std::vector<double> weights(m + s, 0.0);
   for (size_t i = 0; i < m + s; i++) {
-    l = static_cast<std::ptrdiff_t>(i) - static_cast<std::ptrdiff_t>(s);
-    // the cast is necessary since the type signature uses "int". Its now
-    // explicit.
-    fos_pl_reverse(tag, m, n, static_cast<int>(s), static_cast<int>(i),
-                   res.data());
+    weights[i] = 1.0;
 
-    if (l < 0) {
-      cz[i] = z[i];
+    // fos_pl_reverse now expects weights ordered as [dependent rows; switch
+    // rows], while the abs-normal output itself is still exposed as
+    // [switch rows; dependent rows] via (Z, L) and (Y, J).
+    fos_pl_reverse(tag, m, n, static_cast<int>(s), weights.data(), res.data());
+
+    weights[i] = 0.0;
+
+    if (i >= static_cast<size_t>(m)) {
+      const size_t switchRow = i - static_cast<size_t>(m);
+      cz[switchRow] = z[switchRow];
       for (int j = 0; j < n; j++) {
-        Z[i][j] = res[j];
+        Z[switchRow][j] = res[j];
       }
       for (size_t j = 0; j < s;
            j++) { /* L[i][i] .. L[i][s] are theoretically zero,
                    *  we probably don't need to copy them */
-        L[i][j] = res[j + n];
-        if (j < i) {
-          cz[i] = cz[i] - L[i][j] * fabs(z[j]);
+        L[switchRow][j] = res[j + n];
+        if (j < switchRow) {
+          cz[switchRow] = cz[switchRow] - L[switchRow][j] * fabs(z[j]);
         }
       }
     } else {
-      cy[l] = y[l];
+      const size_t depRow = i;
+      cy[depRow] = y[depRow];
       for (int j = 0; j < n; j++) {
-        Y[l][j] = res[j];
+        Y[depRow][j] = res[j];
       }
       for (size_t j = 0; j < s; j++) {
-        J[l][j] = res[j + n];
-        cy[l] = cy[l] - J[l][j] * fabs(z[j]);
+        J[depRow][j] = res[j + n];
+        cy[depRow] = cy[depRow] - J[depRow][j] * fabs(z[j]);
       }
     }
   }
