@@ -25,6 +25,7 @@ target_sources(adolc PRIVATE
                fov_pl_sig_forward.cpp
                fos_pl_sig_reverse.cpp
                fov_pl_forward.cpp
+               fov_pl_reverse.cpp
                fov_reverse.cpp
                hos_forward.cpp
                hos_ov_reverse.cpp

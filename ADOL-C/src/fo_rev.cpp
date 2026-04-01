@@ -80,15 +80,17 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 
 /*--------------------------------------------------------------------------*/
 #elif _FOV_
+#ifdef _ABS_NORM_
+#define GENERATED_FILENAME "fov_pl_reverse"
+#else
 #define GENERATED_FILENAME "fov_reverse"
-
+#endif // _ABS_NORM_
 #define _ADOLC_VECTOR_
 
 #define RESULTS(l, indexi) results[l][indexi]
 #define LAGRANGE(l, indexd) lagrange[l][indexd]
 #define RESULTSTRANS(l, indexi) results[indexi][l]
 #define LAGRANGETRANS(l, indexd) lagrange[indexd][l]
-
 #else
 #if defined(_INT_REV_)
 #if defined(_TIGHT_)
@@ -217,11 +219,11 @@ BEGIN_C_DECLS
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
 /****************************************************************************/
-int fos_pl_reverse(short tnum,      /* tape id */
-                   int depen,       /* consistency chk on # of deps */
-                   int indep,       /* consistency chk on # of indeps */
-                   int swchk,       /* consistency chk on # of switches */
-                   int rownum,      /* required row no. of abs-normal form */
+int fos_pl_reverse(short tnum, /* tape id */
+                   int depen,  /* consistency chk on # of deps */
+                   int indep,  /* consistency chk on # of indeps */
+                   int swchk,  /* consistency chk on # of switches */
+                   const double *lagrange,
                    double *results) /*  coefficient vectors */
 #elif defined(_ABS_NORM_SIG_)
 /****************************************************************************/
@@ -245,13 +247,23 @@ int fos_reverse(short tnum, /* tape id */
 /****************************************************************************/
 /* First-Order Vector Reverse Pass.                                         */
 /****************************************************************************/
+#ifdef _ABS_NORM_
+int fov_pl_reverse(short tnum, /* tape id */
+                   int depen,  /* consistency chk on # of deps */
+                   int indep,  /* consistency chk on # of indeps */
+                   int swchk,
+                   int nrows, /* # of Jacobian rows being calculated */
+                   const double *const *lagrange, /* domain weight vector */
+                   double **results) /* matrix of coefficient vectors */
 
+#else
 int fov_reverse(short tnum, /* tape id */
                 int depen,  /* consistency chk on # of deps */
                 int indep,  /* consistency chk on # of indeps */
                 int nrows,  /* # of Jacobian rows being calculated */
                 const double *const *lagrange, /* domain weight vector */
                 double **results) /* matrix of coefficient vectors */
+#endif // _ABS_NORM_
 
 #elif defined(_INT_REV_)
 #if defined(_TIGHT_)
@@ -468,9 +480,6 @@ int int_reverse_safe(
   rp_A = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   tape.rp_A(rp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-#ifdef _ABS_NORM_
-  memset(results, 0, sizeof(double) * (indep + swchk));
-#endif
 #define ADJOINT_BUFFER rp_A
 #define ADJOINT_BUFFER_ARG_L rp_A[arg]
 #define ADJOINT_BUFFER_RES_L rp_A[res]
@@ -729,16 +738,9 @@ int int_reverse_safe(
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
 
-#if defined(_ABS_NORM_)
-      if (indexd + swchk == to_size_t(rownum))
-        *Ares = 1.0;
-      else
-        *Ares = 0.0;
-#else
       // Nested reverse calls for ext_diff use the public fov_reverse layout
       // [q][m], so they must not transpose incoming adjoint access here.
       FOR_0_LE_l_LT_p ARES_INC = LAGRANGE(l, indexd);
-#endif
       indexd--;
       break;
 
@@ -1601,15 +1603,32 @@ int int_reverse_safe(
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
-
 #if defined(_ABS_NORM_)
-      if (rownum == switchnum) {
-        AARG = 1.0;
-      } else {
-        results[indep + switchnum] = *Ares;
-        *Ares = 0.0;
+#ifdef _FOS_
+      // The current adjoint of |z_i| contributes to the column corresponding
+      // to |z_i| in the extended Jacobian
+      results[indep + switchnum] = *Ares;
+      *Ares = 0.0;
+      // The weight for z_i seeds the reverse sweep at its defining
+      // switching variable, which could already hold accumulated values.
+      *Aarg += lagrange[depen + switchnum];
+#elif _FOV_
+      // The current adjoint of |z_i| contributes to the column corresponding
+      // to |z_i| in the extended Jacobian
+
+      for (int row = 0; row < nrows; row++) {
+        results[row][indep + switchnum] = Ares[row];
+        Ares[row] = 0.0;
       }
+
+      // The weight for z_i seeds the reverse sweep at its defining
+      // switching variable, which could already hold accumulated values.
+      for (int row = 0; row < nrows; row++) {
+        Aarg[row] += lagrange[row][depen + switchnum];
+      }
+#endif // _FOS_
       switchnum--;
+
 #elif defined(_ABS_NORM_SIG_)
       ARES_INC = 0.0;
       AARG_INC += siggrad[switchnum] * (*Ares);
@@ -1624,14 +1643,14 @@ int int_reverse_safe(
 #else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-#endif
+#endif // _INT_REV_
           if ((coval != 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG_INC |= aTmp;
 #else
           AARG_INC -= aTmp;
-#endif
+#endif // _INT_REV_
         }
       else if (TARG > 0.0)
         FOR_0_LE_l_LT_p {
@@ -1641,14 +1660,14 @@ int int_reverse_safe(
 #else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-#endif
+#endif // _INT_REV_
           if ((coval == 0.0) && (aTmp != 0))
             MINDEC(ret_c, 2);
 #if defined(_INT_REV_)
           AARG_INC |= aTmp;
 #else
           AARG_INC += aTmp;
-#endif
+#endif // _INT_REV_
         }
       else
         FOR_0_LE_l_LT_p {
@@ -1658,7 +1677,7 @@ int int_reverse_safe(
 #else
           revreal aTmp = *Ares;
           ARES_INC = 0.0;
-#endif
+#endif // _INT_REV_
           if (aTmp != 0)
             MINDEC(ret_c, 1);
         }
@@ -1668,8 +1687,8 @@ int int_reverse_safe(
         ARES_INC = 0;
         AARG_INC |= aTmp;
       }
-#endif /* !_NTIGHT_ */
-#endif /* _ABS_NORM */
+#endif // !_NTIGHT_
+#endif // _ABS_NORM
       break;
 
       /*--------------------------------------------------------------------------*/
