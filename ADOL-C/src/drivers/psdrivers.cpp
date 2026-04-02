@@ -53,43 +53,46 @@ int abs_normal(short tag,       /* tape identifier */
         ADOLCError::ErrorType::SWITCHES_MISMATCH, CURRENT_LOCATION,
         ADOLCError::FailInfo{.info1 = tag, .info3 = swchk, .info6 = s});
 
-  std::vector<double> res(n + s);
-
   zos_pl_forward(tag, m, n, 1, x, y, z);
-  std::vector<double> weights(m + s, 0.0);
-  for (size_t i = 0; i < m + s; i++) {
-    weights[i] = 1.0;
 
-    // fos_pl_reverse now expects weights ordered as [dependent rows; switch
-    // rows], while the abs-normal output itself is still exposed as
-    // [switch rows; dependent rows] via (Z, L) and (Y, J).
-    fos_pl_reverse(tag, m, n, static_cast<int>(s), weights.data(), res.data());
+  // Build an identity matrix of size (m+s)x(m+s) for the weights and fill in
+  // the row pointers provided by the user to the respective results.
+  // Notice that the weight row vectors are ordered [dep vars, switch vars].
+  // Therefore the first m rows of the results/resultsSwitch are for Y and J,
+  // while the following s rows are for Z and L.
+  std::vector<double> weights_mem((m + s) * (m + s), 0.0);
+  std::vector<double *> weights(m + s);
+  std::vector<double *> results(m + s);
+  std::vector<double *> resultsSwitch(m + s);
+  for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
+    weights[depRow] = weights_mem.data() + depRow * (m + s);
+    weights[depRow][depRow] = 1.0;
+    results[depRow] = Y[depRow];
+    resultsSwitch[depRow] = J[depRow];
+  }
+  for (size_t switchRow = 0; switchRow < s; switchRow++) {
+    weights[m + switchRow] = weights_mem.data() + (m + switchRow) * (m + s);
+    weights[m + switchRow][m + switchRow] = 1.0;
+    results[m + switchRow] = Z[switchRow];
+    resultsSwitch[m + switchRow] = L[switchRow];
+  }
 
-    weights[i] = 0.0;
+  // vectorized reverse mode for all (m+s) rows at onces
+  fov_pl_reverse(tag, m, n, static_cast<int>(s), m + static_cast<int>(s),
+                 weights.data(), results.data(), resultsSwitch.data());
 
-    if (i >= static_cast<size_t>(m)) {
-      const size_t switchRow = i - static_cast<size_t>(m);
-      cz[switchRow] = z[switchRow];
-      for (int j = 0; j < n; j++) {
-        Z[switchRow][j] = res[j];
-      }
-      for (size_t j = 0; j < s;
-           j++) { /* L[i][i] .. L[i][s] are theoretically zero,
-                   *  we probably don't need to copy them */
-        L[switchRow][j] = res[j + n];
-        if (j < switchRow) {
-          cz[switchRow] = cz[switchRow] - L[switchRow][j] * fabs(z[j]);
-        }
-      }
-    } else {
-      const size_t depRow = i;
-      cy[depRow] = y[depRow];
-      for (int j = 0; j < n; j++) {
-        Y[depRow][j] = res[j];
-      }
-      for (size_t j = 0; j < s; j++) {
-        J[depRow][j] = res[j + n];
-        cy[depRow] = cy[depRow] - J[depRow][j] * fabs(z[j]);
+  // compute cy = y - J|z| and cz = z - L|z|.
+  for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
+    cy[depRow] = 0.0;
+    for (size_t col = 0; col < s; col++) {
+      cy[depRow] = cy[depRow] - J[depRow][col] * fabs(z[col]);
+    }
+  }
+  for (size_t switchRow = 0; switchRow < s; switchRow++) {
+    cz[switchRow] = 0.0;
+    for (size_t col = 0; col < s; col++) {
+      if (col < switchRow) {
+        cz[switchRow] = cz[switchRow] - L[switchRow][col] * fabs(z[col]);
       }
     }
   }
@@ -97,7 +100,8 @@ int abs_normal(short tag,       /* tape identifier */
 }
 
 /*--------------------------------------------------------------------------*/
-/*                                              directional_active_gradient */
+/*                                              directional_active_gradient
+ */
 /*                                                                          */
 int directional_active_gradient(short tag,       /* trace identifier */
                                 int n,           /* number of independents */
