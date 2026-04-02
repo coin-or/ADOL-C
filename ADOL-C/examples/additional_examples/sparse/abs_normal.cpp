@@ -70,9 +70,9 @@ void problem() {
               << "\n";
   }
 
-  std::free(rind);
-  std::free(cind);
-  std::free(values);
+  delete[] rind;
+  delete[] cind;
+  delete[] values;
 }
 //******************************************************************
 

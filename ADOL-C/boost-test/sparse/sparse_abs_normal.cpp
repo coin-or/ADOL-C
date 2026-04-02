@@ -603,9 +603,9 @@ template <size_t Version> static void problemSparseJac() {
   runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
                                 &rind, &cind, &values);
 
-  std::free(rind);
-  std::free(cind);
-  std::free(values);
+  delete[] rind;
+  delete[] cind;
+  delete[] values;
 }
 
 template <size_t Version> static void problemSparseJacBranches() {
@@ -625,9 +625,9 @@ template <size_t Version> static void problemSparseJacBranches() {
   double *values = nullptr;
   runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
                                 &rind, &cind, &values);
-  std::free(rind);
-  std::free(cind);
-  std::free(values);
+  delete[] rind;
+  delete[] cind;
+  delete[] values;
 
   nnz = 0;
   rind = nullptr;
@@ -635,18 +635,18 @@ template <size_t Version> static void problemSparseJacBranches() {
   values = nullptr;
   runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
                                 &rind, &cind, &values);
-  std::free(rind);
-  std::free(cind);
-  std::free(values);
+  delete[] rind;
+  delete[] cind;
+  delete[] values;
 
   rind = nullptr;
   cind = nullptr;
   values = nullptr;
   runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1, &nnz,
                                 &rind, &cind, &values);
-  std::free(rind);
-  std::free(cind);
-  std::free(values);
+  delete[] rind;
+  delete[] cind;
+  delete[] values;
 
   std::vector<unsigned int> rowStorage(nnz);
   std::vector<unsigned int> colStorage(nnz);
