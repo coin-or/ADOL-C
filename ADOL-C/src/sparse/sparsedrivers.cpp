@@ -93,14 +93,6 @@ void extract(size_t wordIdx, size_t,
 
 } // namespace detail
 
-int absnormal_jac_pat(short tag, int depen, int indep, int numsw,
-                      const double *basepoint,
-                      std::span<uint *> &compressedRowStorage) {
-  detail::resetInput(compressedRowStorage);
-  return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint,
-                                   compressedRowStorage.data());
-}
-
 #include <adolc/adtl_indo.h>
 SparseJacInfos sJInfos;
 namespace adtl_indo {

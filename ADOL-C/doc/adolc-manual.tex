@@ -1471,6 +1471,23 @@ parameters:
         bit-pattern propagation when applicable (default: automatic).
 \end{itemize}
 %
+For piecewise-linear abs-normal forms, ADOL-C also provides the overload
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
+\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
+\>{\sf \hspace{1.55in} x,nnz,rind,cind,values)}\\
+\end{tabbing}
+This overload takes the additional argument {\sf s} for the number of
+switching variables and computes the sparse extended Jacobian. The rows are
+ordered as $[y;z]$, the columns as $[x;|z|]$, and the numerical values
+correspond to the block matrix
+\[
+  \left[\begin{array}{cc}
+    Y & J\\ Z & L
+  \end{array}\right].
+\]
+Further details are given in \autoref{absdrivers}.
+%
 If {\sf repeat = 0}, the routine determines the sparsity pattern of the
 Jacobian, generates a suitable seed matrix, and stores the associated
 metadata internally on the tape. The output variable {\sf nnz} is set
@@ -1495,7 +1512,7 @@ Memory ownership for {\sf rind}, {\sf cind}, and {\sf values} follows the
 semantics of the underlying routines. If the user supplies
 non-null pointers, the corresponding user-managed memory is used.
 Otherwise, the routine allocates unmanaged memory internally, and the
-caller is responsible for deallocating it using {\sf delete[]} once the
+caller is responsible for deallocating it using {\sf free()} once the
 data is no longer needed.
 %
 The routine returns a non-negative status value on success and a
@@ -1585,13 +1602,13 @@ All algorithmic choices are selected at compile time via template
 parameters rather than through a runtime {\sf options} array.
 %
 \begin{tabbing}
-\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.3in}\= \kill
-\>{\sf int jac\_pat(tapeId,depen,indep,basepoint,crs)}\\
+\hspace{0.5in}\={\sf std::span$<$uint *$>$ \&compressedRowStorage;} \hspace{0.6in}\= \kill
+\>{\sf int jac\_pat(tapeId,depen,indep,basepoint,compressedRowStorage)}\\
 \>{\sf short int tapeId;}        \> // tape identification \\
 \>{\sf int depen;}               \> // number of dependent variables $m$ \\
 \>{\sf int indep;}               \> // number of independent variables $n$ \\
 \>{\sf const double *basepoint;} \> // independent vector $x$ \\
-\>{\sf std::span$<$uint *$>$ csr[m];}    \> // compressed row sparsity structure \\
+\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS row pointers \\
 \end{tabbing}
 %
 The behavior of {\sf jac\_pat} is determined by its template parameters:
@@ -1605,28 +1622,36 @@ The behavior of {\sf jac\_pat} is determined by its template parameters:
         automatic selection).
 \end{itemize}
 %
+For abs-normal forms, ADOL-C also provides the overload \\
+{\sf jac\_pat$<$PiecewiseLinear\{\}$>$(tag,m,n,s,x,compressedRowStorage)},
+which computes the sparsity pattern of the extended Jacobian. The rows are
+ordered as $[y;z]$, and the column indices refer to the variables
+$[x;|z|]$. Further details are given in \autoref{absdrivers}.
+%
 The array {\sf basepoint} provides the current values of the independent
 variables and is required when tight control-flow analysis is selected;
 otherwise it may be {\sf nullptr}.
 %
 The sparsity pattern is returned in compressed row storage format. The
-argument {\sf crs} must be an array of length {\sf depen} whose entries
-are pointers to arrays of type {\sf unsigned int}.  After the call,
-{\sf crs[i][0]} contains the number of nonzero entries in row $i$
+argument {\sf compressedRowStorage} must be a span of length {\sf depen}
+whose entries are pointers to arrays of type {\sf unsigned int}.  After
+the call, {\sf compressedRowStorage[i][0]} contains the number of nonzero
+entries in row $i$
 ($0 \le i < m$), and the subsequent entries
-{\sf crs[i][1]}, \ldots, {\sf crs[i][crs[i][0]]} store the zero-based
-column indices of the independent variables influencing the $i$th
-dependent.
+{\sf compressedRowStorage[i][1]}, \ldots,
+{\sf compressedRowStorage[i][compressedRowStorage[i][0]]} store the
+zero-based column indices of the independent variables influencing the
+$i$th dependent.
 %
 The routine returns a non-negative value equal to the total number of
 nonzero entries in the Jacobian sparsity pattern.  In case of failure, a
 negative error code originating from the underlying propagation routine
 is returned.
 %
-Ownership of the row buffers allocated for {\sf crs} is transferred to
-the caller or the tape infrastructure.  The user is responsible for
-ensuring that this memory is released appropriately once it is no
-longer required.
+Ownership of the row buffers referenced by {\sf compressedRowStorage} is
+transferred to the caller or the tape infrastructure.  The user is
+responsible for ensuring that this memory is released appropriately once
+it is no longer required.
 %
 The driver routine is prototyped in the header file
 \verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by

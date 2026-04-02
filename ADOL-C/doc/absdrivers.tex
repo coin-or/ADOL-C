@@ -196,22 +196,41 @@ where {\sf cy} stores $b$ and {\sf cz} stores $c$.
 \end{tabbing}
 
 One may also compute the sparsity pattern of the extended Jacobian
-matrix, ordered by rows $[y;z]$ and columns $[x;|z|]$, by using
+matrix, ordered by rows $[y;z]$ and columns $[x;|z|]$, by using the sparse drivers
+ provided in the namespace {\sf ADOLC::Sparse}.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf std::span$<$uint *$>$ \&compressedRowStorage;} \hspace{0.6in}\= \kill    % define tab position
-\>{\sf int absnormal\_jac\_pat(tag,m,n,s,x,compressedRowStorage)}\\
+\>{\sf int jac\_pat$<$PiecewiseLinear\{\}$>$(tag,m,n,s,x,compressedRowStorage)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
 \>{\sf int s;}                 \> // number of switching variables\\
 \>{\sf const double* x;}       \> // point of evaluation\\     
-\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span of length $m+s$ over CRS rows of the extended Jacobian \\
+\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS rows of $[Y\;J;Z\;L]$ \\
 \end{tabbing}
-The first $m$ rows of {\sf compressedRowStorage} correspond to the dependent
-variables $y$, and the remaining $s$ rows correspond to the switching
-equations $z$. The row buffers are allocated by the driver and must be
-released by the caller using {\sf delete[]} for each row.
+
+To compute the numerical nonzero entries of the same extended Jacobian in
+coordinate format, one may use
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
+\>{\sf \hspace{1.95in} x,nnz,rind,cind,values)}\\
+\>{\sf short int tag;}          \> // tape identification \\
+\>{\sf int m;}                  \> // number of dependent variables $m$ \\
+\>{\sf int n;}                  \> // number of independent variables $n$ \\
+\>{\sf int s;}                  \> // number of switching variables \\
+\>{\sf int repeat;}             \> // pattern / seed reuse flag \\
+\>{\sf const double *x;}        \> // point of evaluation \\
+\>{\sf int *nnz;}               \> // number of nonzero entries \\
+\>{\sf unsigned int **rind;}    \> // row indices \\
+\>{\sf unsigned int **cind;}    \> // column indices \\
+\>{\sf double **values;}        \> // numerical nonzero values \\
+\end{tabbing}
+Again, the rows of the recovered sparse matrix are ordered as $[y;z]$, the columns as
+$[x;|z|]$, and the values correspond to the block matrix $[Y\;J;Z\;L]$.
+If unmanaged memory is requested for {\sf rind}, {\sf cind}, and {\sf values},
+the returned arrays must be released with {\sf delete[]}.
 % \bibitem{Griewank13}
 % Andreas Griewank,
 % {\em On stable piecewise linearization and generalized algorithmic differentiation}.
