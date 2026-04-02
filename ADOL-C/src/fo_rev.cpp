@@ -225,7 +225,8 @@ int fos_pl_reverse(short tnum, /* tape id */
                    int depen,  /* consistency chk on # of deps */
                    int indep,  /* consistency chk on # of indeps */
                    int swchk,  /* consistency chk on # of switches */
-                   const double *lagrange, double *results,
+                   const double *lagrange, const double *lagrangeSwitch,
+                   double *results,
                    double *resultsSwitch) /*  coefficient vectors */
 #elif defined(_ABS_NORM_SIG_)
 /****************************************************************************/
@@ -256,7 +257,8 @@ int fov_pl_reverse(short tnum, /* tape id */
                    int swchk,
                    int nrows, /* # of Jacobian rows being calculated */
                    const double *const *lagrange, /* domain weight vector */
-                   double **results,              /* result matrix indeps*/
+                   const double *const *lagrangeSwitch,
+                   double **results,       /* result matrix indeps*/
                    double **resultsSwitch) /* result matrix switchvars */
 
 #else
@@ -1614,7 +1616,7 @@ int int_reverse_safe(
       *Ares = 0.0;
       // The weight for z_i seeds the reverse sweep at its defining
       // switching variable, which could already hold accumulated values.
-      *Aarg += lagrange[depen + switchnum];
+      *Aarg += lagrangeSwitch[switchnum];
 #elif _FOV_
       // The current adjoint of |z_i| contributes to the column corresponding
       // to |z_i| in the extended Jacobian
@@ -1627,7 +1629,7 @@ int int_reverse_safe(
       // The weight for z_i seeds the reverse sweep at its defining
       // switching variable, which could already hold accumulated values.
       for (int row = 0; row < nrows; row++) {
-        Aarg[row] += lagrange[row][depen + switchnum];
+        Aarg[row] += lagrangeSwitch[row][switchnum];
       }
 #endif // _FOS_
       switchnum--;

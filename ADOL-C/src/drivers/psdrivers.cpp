@@ -60,34 +60,41 @@ int abs_normal(short tag,       /* tape identifier */
   // Notice that the weight row vectors are ordered [dep vars, switch vars].
   // Therefore the first m rows of the results/resultsSwitch are for Y and J,
   // while the following s rows are for Z and L.
-  std::vector<double> weights_mem((m + s) * (m + s), 0.0);
-  std::vector<double *> weights(m + s);
+  std::vector<double> lagrange_mem((m + s) * (m), 0.0);
+  std::vector<double *> lagrange(m + s);
+  std::vector<double> lagrangeSwitch_mem((m + s) * (s), 0.0);
+  std::vector<double *> lagrangeSwitch(m + s);
   std::vector<double *> results(m + s);
   std::vector<double *> resultsSwitch(m + s);
   for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
-    weights[depRow] = weights_mem.data() + depRow * (m + s);
-    weights[depRow][depRow] = 1.0;
+    lagrange[depRow] = lagrange_mem.data() + depRow * m;
+    lagrange[depRow][depRow] = 1.0;
+    lagrangeSwitch[depRow] = lagrangeSwitch_mem.data() + depRow * s;
     results[depRow] = Y[depRow];
     resultsSwitch[depRow] = J[depRow];
   }
   for (size_t switchRow = 0; switchRow < s; switchRow++) {
-    weights[m + switchRow] = weights_mem.data() + (m + switchRow) * (m + s);
-    weights[m + switchRow][m + switchRow] = 1.0;
+    lagrange[m + switchRow] = lagrange_mem.data() + (m + switchRow) * m;
+    lagrangeSwitch[m + switchRow] =
+        lagrangeSwitch_mem.data() + (m + switchRow) * s;
+    [m + switchRow][switchRow] = 1.0;
     results[m + switchRow] = Z[switchRow];
     resultsSwitch[m + switchRow] = L[switchRow];
   }
 
   // vectorized reverse mode for all (m+s) rows at onces
   fov_pl_reverse(tag, m, n, static_cast<int>(s), m + static_cast<int>(s),
-                 weights.data(), results.data(), resultsSwitch.data());
+                 lagrange.data(), lagrangeSwitch.data(), results.data(),
+                 resultsSwitch.data());
 
-  // compute cy = y - J|z| and cz = z - L|z|.
+  // compute cy = y - J|z|
   for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
     cy[depRow] = 0.0;
     for (size_t col = 0; col < s; col++) {
       cy[depRow] = cy[depRow] - J[depRow][col] * fabs(z[col]);
     }
   }
+  // compute cz = z - L|z|
   for (size_t switchRow = 0; switchRow < s; switchRow++) {
     cz[switchRow] = 0.0;
     for (size_t col = 0; col < s; col++) {
