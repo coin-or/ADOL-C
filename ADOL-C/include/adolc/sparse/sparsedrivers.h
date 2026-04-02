@@ -123,7 +123,7 @@ template <BitPatternPropagationDirection BPPD> struct BvpData {
 
       indepWordHasNonzero_.resize(bitsPerStrip_);
 
-    } else if (BPPD == BitPatternPropagationDirection::Reverse) {
+    } else if constexpr (BPPD == BitPatternPropagationDirection::Reverse) {
       seed_.resize(wordsPerBatch_);
       for (auto &s : seed_)
         s = new bitword_t[depen_];
@@ -187,7 +187,7 @@ void prepareSeedMatrix(size_t stripIdx, BvpData<BPPD> &data) {
   if constexpr (BPPD == BitPatternPropagationDirection::Forward) {
     resetOldSeed(data, data.wordsPerBatch_);
     createSeed(data, stripIdx, data.indep_);
-  } else if (BPPD == BitPatternPropagationDirection::Reverse) {
+  } else if constexpr (BPPD == BitPatternPropagationDirection::Reverse) {
     resetOldSeed(data, data.depen_);
     createSeed(data, stripIdx, data.depen_);
   }
@@ -208,7 +208,7 @@ void setSeed(BvpData<BPPD> &data, size_t idx, size_t currentStripWordIdx) {
     data.seed_[idx][(idx - currentStripWordIdx) / BITS_PER_WORD] =
         MOST_SIGNIFICANT_BIT >> ((idx - currentStripWordIdx) % BITS_PER_WORD);
 
-  else if (BPPD == BitPatternPropagationDirection::Reverse)
+  else if constexpr (BPPD == BitPatternPropagationDirection::Reverse)
     data.seed_[(idx - currentStripWordIdx) / BITS_PER_WORD][idx] =
         MOST_SIGNIFICANT_BIT >> ((idx - currentStripWordIdx) % BITS_PER_WORD);
 }
@@ -316,7 +316,7 @@ void extractCompressedRowStorage(int stripIdx,
       extract(wordIdx, stripIdx, currentStripWordIdx, data,
               compressedRowStorage);
     }
-  else if (BPPD == BitPatternPropagationDirection::Reverse) {
+  else if constexpr (BPPD == BitPatternPropagationDirection::Reverse) {
     if (nextStripWordIdx > data.depen_)
       nextStripWordIdx = data.depen_;
     int idx = 0;
@@ -377,17 +377,17 @@ void ADCalls(short tapeId, const double *basepoint, BvpData<BPPD> &data) {
                                    data.wordsPerBatch_, basepoint,
                                    data.seed_.data(), data.valuepoint_.data(),
                                    data.jacobianBitPattern_.data());
-    } else if (CFM == ControlFlowMode::Safe)
+    } else if constexpr (CFM == ControlFlowMode::Safe)
       data.rc_ = int_forward_safe(tapeId, data.depen_, data.indep_,
                                   data.wordsPerBatch_, data.seed_.data(),
                                   data.jacobianBitPattern_.data());
 
-  } else if (BPPD == BitPatternPropagationDirection::Reverse) {
+  } else if constexpr (BPPD == BitPatternPropagationDirection::Reverse) {
     if constexpr (CFM == ControlFlowMode::Tight)
       data.rc_ = int_reverse_tight(tapeId, data.depen_, data.indep_,
                                    data.wordsPerBatch_, data.seed_.data(),
                                    data.jacobianBitPattern_.data());
-    else if (CFM == ControlFlowMode::Safe)
+    else if constexpr (CFM == ControlFlowMode::Safe)
       data.rc_ = int_reverse_safe(tapeId, data.depen_, data.indep_,
                                   data.wordsPerBatch_, data.seed_.data(),
                                   data.jacobianBitPattern_.data());
@@ -553,10 +553,11 @@ ADOLC_API int jac_pat(short tag, int depen, int indep, const double *basepoint,
                 CFM == ControlFlowMode::Tight)
     return indopro_forward_tight(tag, depen, indep, basepoint,
                                  compressedRowStorage.data());
-  else if (SM == SparseMethod::IndexDomains && CFM == ControlFlowMode::Safe)
+  else if constexpr (SM == SparseMethod::IndexDomains &&
+                     CFM == ControlFlowMode::Safe)
     return indopro_forward_safe(tag, depen, indep, basepoint,
                                 compressedRowStorage.data());
-  else if (SM == SparseMethod::BitPattern)
+  else if constexpr (SM == SparseMethod::BitPattern)
     return bit_vector_propagation<CFM, BPPD>(tag, depen, indep, basepoint,
                                              compressedRowStorage);
 };
@@ -673,7 +674,7 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
     tape.sJInfos().generateSeedJac("ROW_PARTIAL_DISTANCE_TWO");
     tape.sJInfos().seedClms_ = indep;
     ret_val = tape.sJInfos().seedRows_;
-  } else if (CM == CompressionMode::Column) {
+  } else if constexpr (CM == CompressionMode::Column) {
     tape.sJInfos().generateSeedJac("COLUMN_PARTIAL_DISTANCE_TWO");
     tape.sJInfos().seedRows_ = depen;
     ret_val = tape.sJInfos().seedClms_;
@@ -765,7 +766,7 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
       return ret_val;
     MINDEC(ret_val, fov_reverse(tag, depen, indep, tape.sJInfos().seedRows_,
                                 tape.sJInfos().Seed_, tape.sJInfos().B_));
-  } else if (CM == CompressionMode::Column)
+  } else if constexpr (CM == CompressionMode::Column)
     ret_val =
         fov_forward(tag, depen, indep, tape.sJInfos().seedClms_, basepoint,
                     tape.sJInfos().Seed_, tape.sJInfos().y_, tape.sJInfos().B_);
@@ -774,9 +775,9 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
       *rind != nullptr && cind != nullptr && *cind != nullptr) {
     // everything is preallocated, we assume correctly
     // call usermem versions
-    if (CM == CompressionMode::Row)
+    if constexpr (CM == CompressionMode::Row)
       tape.sJInfos().recoverRowFormatUserMem(rind, cind, values);
-    else if (CM == CompressionMode::Column)
+    else if constexpr (CM == CompressionMode::Column)
       tape.sJInfos().recoverColFormatUserMem(rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
@@ -787,9 +788,9 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
       free(*rind);
     if (cind != nullptr && *cind != nullptr)
       free(*cind);
-    if (CM == CompressionMode::Row) {
+    if constexpr (CM == CompressionMode::Row) {
       tape.sJInfos().recoverRowFormat(rind, cind, values);
-    } else if (CM == CompressionMode::Column) {
+    } else if constexpr (CM == CompressionMode::Column) {
       tape.sJInfos().recoverColFormat(rind, cind, values);
     }
   }
@@ -929,13 +930,13 @@ ADOLC_API int hess_pat(short tag, int indep, const double *basepoint,
   if constexpr (CFM == ControlFlowMode::OldTight)
     return nonl_ind_old_forward_tight(tag, 1, indep, basepoint,
                                       compressedRowStorage.data());
-  else if (CFM == ControlFlowMode::OldSafe)
+  else if constexpr (CFM == ControlFlowMode::OldSafe)
     return nonl_ind_old_forward_safe(tag, 1, indep, basepoint,
                                      compressedRowStorage.data());
-  else if (CFM == ControlFlowMode::Tight)
+  else if constexpr (CFM == ControlFlowMode::Tight)
     return nonl_ind_forward_tight(tag, 1, indep, basepoint,
                                   compressedRowStorage.data());
-  else if (CFM == ControlFlowMode::Safe)
+  else if constexpr (CFM == ControlFlowMode::Safe)
     return nonl_ind_forward_safe(tag, 1, indep, basepoint,
                                  compressedRowStorage.data());
 }
@@ -967,7 +968,7 @@ ADOLC_API void generate_seed_hess(int n, std::span<uint *> HP, double ***Seed,
                                   int *p) {
   if constexpr (RCM == RecoveryMethod::Indirect)
     generateSeedHess(n, HP, Seed, p, "ACYCLIC_FOR_INDIRECT_RECOVERY");
-  else if (RCM == RecoveryMethod::Direct)
+  else if constexpr (RCM == RecoveryMethod::Direct)
     generateSeedHess(n, HP, Seed, p, "STAR");
 }
 
@@ -1042,7 +1043,7 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
   tape.sHInfos().initColoring(indep);
   if constexpr (RCM == RecoveryMethod::Indirect)
     tape.sHInfos().generateSeedHess(&Seed, "ACYCLIC_FOR_INDIRECT_RECOVERY");
-  else if (RCM == RecoveryMethod::Direct)
+  else if constexpr (RCM == RecoveryMethod::Direct)
     tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
   // data might still be allocated, ensure that its not leaked
@@ -1138,7 +1139,7 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
     // call usermem versions
     if constexpr (RCM == RecoveryMethod::Indirect)
       tape.sHInfos().indirectRecoverUserMem(rind, cind, values);
-    else if (RCM == RecoveryMethod::Direct)
+    else if constexpr (RCM == RecoveryMethod::Direct)
       tape.sHInfos().directRecoverUserMem(rind, cind, values);
   } else {
     // at least one of rind cind values is not allocated, deallocate others
@@ -1157,7 +1158,7 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
     }
     if constexpr (RCM == RecoveryMethod::Indirect)
       tape.sHInfos().indirectRecover(rind, cind, values);
-    else if (RCM == RecoveryMethod::Direct)
+    else if constexpr (RCM == RecoveryMethod::Direct)
       tape.sHInfos().directRecover(rind, cind, values);
   }
   return ret_val;
