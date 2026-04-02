@@ -1471,6 +1471,23 @@ parameters:
         bit-pattern propagation when applicable (default: automatic).
 \end{itemize}
 %
+For piecewise-linear abs-normal forms, ADOL-C also provides the overload
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
+\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
+\>{\sf \hspace{1.55in} x,nnz,rind,cind,values)}\\
+\end{tabbing}
+This overload takes the additional argument {\sf s} for the number of
+switching variables and computes the sparse extended Jacobian. The rows are
+ordered as $[y;z]$, the columns as $[x;|z|]$, and the numerical values
+correspond to the block matrix
+\[
+  \left[\begin{array}{cc}
+    Y & J\\ Z & L
+  \end{array}\right].
+\]
+Further details are given in \autoref{absdrivers}.
+%
 If {\sf repeat = 0}, the routine determines the sparsity pattern of the
 Jacobian, generates a suitable seed matrix, and stores the associated
 metadata internally on the tape. The output variable {\sf nnz} is set
@@ -1585,13 +1602,13 @@ All algorithmic choices are selected at compile time via template
 parameters rather than through a runtime {\sf options} array.
 %
 \begin{tabbing}
-\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.3in}\= \kill
-\>{\sf int jac\_pat(tapeId,depen,indep,basepoint,crs)}\\
+\hspace{0.5in}\={\sf std::span$<$uint *$>$ \&compressedRowStorage;} \hspace{0.6in}\= \kill
+\>{\sf int jac\_pat(tapeId,depen,indep,basepoint,compressedRowStorage)}\\
 \>{\sf short int tapeId;}        \> // tape identification \\
 \>{\sf int depen;}               \> // number of dependent variables $m$ \\
 \>{\sf int indep;}               \> // number of independent variables $n$ \\
 \>{\sf const double *basepoint;} \> // independent vector $x$ \\
-\>{\sf std::span$<$uint *$>$ csr[m];}    \> // compressed row sparsity structure \\
+\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS row pointers \\
 \end{tabbing}
 %
 The behavior of {\sf jac\_pat} is determined by its template parameters:
@@ -1605,28 +1622,36 @@ The behavior of {\sf jac\_pat} is determined by its template parameters:
         automatic selection).
 \end{itemize}
 %
+For abs-normal forms, ADOL-C also provides the overload \\
+{\sf jac\_pat$<$PiecewiseLinear\{\}$>$(tag,m,n,s,x,compressedRowStorage)},
+which computes the sparsity pattern of the extended Jacobian. The rows are
+ordered as $[y;z]$, and the column indices refer to the variables
+$[x;|z|]$. Further details are given in \autoref{absdrivers}.
+%
 The array {\sf basepoint} provides the current values of the independent
 variables and is required when tight control-flow analysis is selected;
 otherwise it may be {\sf nullptr}.
 %
 The sparsity pattern is returned in compressed row storage format. The
-argument {\sf crs} must be an array of length {\sf depen} whose entries
-are pointers to arrays of type {\sf unsigned int}.  After the call,
-{\sf crs[i][0]} contains the number of nonzero entries in row $i$
+argument {\sf compressedRowStorage} must be a span of length {\sf depen}
+whose entries are pointers to arrays of type {\sf unsigned int}.  After
+the call, {\sf compressedRowStorage[i][0]} contains the number of nonzero
+entries in row $i$
 ($0 \le i < m$), and the subsequent entries
-{\sf crs[i][1]}, \ldots, {\sf crs[i][crs[i][0]]} store the zero-based
-column indices of the independent variables influencing the $i$th
-dependent.
+{\sf compressedRowStorage[i][1]}, \ldots,
+{\sf compressedRowStorage[i][compressedRowStorage[i][0]]} store the
+zero-based column indices of the independent variables influencing the
+$i$th dependent.
 %
 The routine returns a non-negative value equal to the total number of
 nonzero entries in the Jacobian sparsity pattern.  In case of failure, a
 negative error code originating from the underlying propagation routine
 is returned.
 %
-Ownership of the row buffers allocated for {\sf crs} is transferred to
-the caller or the tape infrastructure.  The user is responsible for
-ensuring that this memory is released appropriately once it is no
-longer required.
+Ownership of the row buffers referenced by {\sf compressedRowStorage} is
+transferred to the caller or the tape infrastructure.  The user is
+responsible for ensuring that this memory is released appropriately once
+it is no longer required.
 %
 The driver routine is prototyped in the header file
 \verb=<adolc/sparse/sparsedrivers.h>= and is included automatically by
@@ -1644,12 +1669,12 @@ All algorithmic choices are selected at compile time via template
 parameters rather than by runtime control flags.
 %
 \begin{tabbing}
-\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.3in}\= \kill
-\>{\sf int hess\_pat(tapeId,indep,basepoint,crs)}\\
+\hspace{0.5in}\={\sf std::span$<$uint *$>$ \&compressedRowStorage;} \hspace{0.6in}\= \kill
+\>{\sf int hess\_pat(tapeId,indep,basepoint,compressedRowStorage)}\\
 \>{\sf short int tapeId;}        \> // tape identification \\
 \>{\sf int indep;}               \> // number of independent variables $n$ \\
 \>{\sf const double *basepoint;} \> // independent vector $x$ \\
-\>{\sf std::span$<$uint *$>$ crs[n];}    \> // compressed row sparsity structure \\
+\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS row pointers \\
 \end{tabbing}
 %
 The behavior of {\sf hess\_pat} is determined by the template parameter
@@ -1662,18 +1687,20 @@ control-flow analysis and is required whenever a tight mode is selected;
 otherwise it may be {\sf nullptr}.
 %
 The sparsity pattern is returned in compressed row storage format.  The
-argument {\sf crs} must be an array of length {\sf indep} whose entries
-are pointers to arrays of type {\sf unsigned int}. After the call,
-{\sf crs[i][0]} contains the number of nonzero entries in row $i$
+argument {\sf compressedRowStorage} must be a span of length {\sf indep}
+whose entries are pointers to arrays of type {\sf unsigned int}. After
+the call, {\sf compressedRowStorage[i][0]} contains the number of
+nonzero entries in row $i$
 ($0 \le i < n$), and the subsequent entries
-{\sf crs[i][1]}, \ldots, {\sf crs[i][crs[i][0]]} store the zero-based
-column indices of independent variables that interact with the $i$th
-variable in the Hessian.
+{\sf compressedRowStorage[i][1]}, \ldots,
+{\sf compressedRowStorage[i][compressedRowStorage[i][0]]} store the
+zero-based column indices of independent variables that interact with the
+$i$th variable in the Hessian.
 %
 Before performing the computation, the routine resets the contents of
-{\sf crs}. Memory allocated for the individual row buffers is owned by
-the caller or the tape infrastructure and must be released
-appropriately once it is no longer needed.
+{\sf compressedRowStorage}. Memory allocated for the individual row
+buffers is owned by the caller or the tape infrastructure and must be
+released appropriately once it is no longer needed.
 %
 The routine returns a non-negative status value on success. In case of
 failure, a negative error code forwarded from the underlying sparsity
@@ -1702,11 +1729,11 @@ runtime {\sf options} array.
 \paragraph{Seed matrix for Jacobians.}
 To generate a seed matrix for sparse Jacobian recovery, ADOL-C provides
 \begin{tabbing}
-\hspace{0.5in}\={\sf int m;} \hspace{1.3in}\= \kill
+\hspace{0.5in}\={\sf const std::span$<$uint *$>$ JP;} \hspace{0.8in}\= \kill
 \>{\sf void generate\_seed\_jac(m,n,JP,Seed,p)}\\
 \>{\sf int m;}                 \> // number of dependent variables $m$ \\
 \>{\sf int n;}                 \> // number of independent variables $n$ \\
-\>{\sf std::span$<$uint *$>$ JP;}   \> // crs sparsity pattern of the Jacobian \\
+\>{\sf const std::span$<$uint *$>$ JP;} \> // CRS sparsity pattern of the Jacobian \\
 \>{\sf double ***Seed;}        \> // seed matrix (allocated by ColPack) \\
 \>{\sf int *p;}                \> // compressed dimension \\
 \end{tabbing}
@@ -1737,10 +1764,10 @@ ColPack's unmanaged allocation semantics.
 To generate a seed matrix for sparse Hessian recovery, ADOL-C provides
 the driver
 \begin{tabbing}
-\hspace{0.5in}\={\sf int n;} \hspace{1.3in}\= \kill
+\hspace{0.5in}\={\sf std::span$<$uint *$>$ HP;} \hspace{1.0in}\= \kill
 \>{\sf void generate\_seed\_hess(n,HP,Seed,p)}\\
 \>{\sf int n;}                 \> // number of independent variables $n$ \\
-\>{\sf std::span$<$uint *$>$HP[n];}   \> // crs sparsity pattern of the Hessian \\
+\>{\sf std::span$<$uint *$>$ HP;} \> // CRS sparsity pattern of the Hessian \\
 \>{\sf double ***Seed;}        \> // seed matrix (allocated by ColPack) \\
 \>{\sf int *p;}                \> // compressed dimension \\
 \end{tabbing}

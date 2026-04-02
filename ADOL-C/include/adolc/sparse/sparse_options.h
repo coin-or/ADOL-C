@@ -160,5 +160,16 @@ enum class RecoveryMethod {
   Direct,
 };
 
+/**
+ * @brief Tag type selecting sparse drivers for piecewise-linear abs-normal
+ *        forms.
+ *
+ * Use this tag with `jac_pat` and `sparse_jac` when the taped function should
+ * be interpreted as abs-smooth function. The resulting extended Jacobian uses
+ * row order `[y ; z]` and column order `[x ; |z|]`, where `z` denotes the
+ * switching equations and `|z|` the absolute switching variables.
+ */
+struct PiecewiseLinear {};
+
 } // namespace ADOLC::Sparse
 #endif // ADOLC_SPARSE_OPTIONS

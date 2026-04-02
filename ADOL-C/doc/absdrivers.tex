@@ -18,7 +18,7 @@ The piecewise linearization is given in \textit{abs-normal} form by
           c\\b
          \end{array}\right]      
     +\left[\begin{array}{cc}
-          Z & L\\ J & Y
+          Z & L\\ Y & J
          \end{array}\right] 
     \left[\begin{array}{c}
           x\\|z|
@@ -26,8 +26,16 @@ The piecewise linearization is given in \textit{abs-normal} form by
 \]
 Here $z\in\R^s$ is a vector of $s\ge 0$ \textit{switching variables} and correspondingly 
 the two vectors and four matrices specifying the function $F$ have the format
-\[c\in\R^s,\quad Z\in\R^{s\times n},\quad L\in\R^{s\times s},\quad b\in \R^m,\quad J\in\R^{m\times n}, Y\in\R^{m\times s}.\]
+\[c\in\R^s,\quad Z\in\R^{s\times n},\quad L\in\R^{s\times s},\quad b\in \R^m,\quad Y\in\R^{m\times n}, \quad J\in\R^{m\times s}.\]
 The matrix $L$ is strictly lower triangular.
+For the weighted reverse and sparse drivers described below, the same extended
+Jacobian is addressed in the row order $[y;z]$ and the column order
+$[x;|z|]$. In that ordering the block matrix becomes
+\[
+  \left[\begin{array}{cc}
+    Y & J\\ Z & L
+  \end{array}\right].
+\]
 
 To compute the piecewise linearization $\Delta F(x_0;x)$ the abs-normal mode has to be 
 enabled by using
@@ -55,7 +63,7 @@ order mode. The vector $\sigma\equiv \{-1,0,1\}^s$ is called signature vector.
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
 \>{\sf int zos\_pl\_forward(tag,m,n,keep,x,y,z)}\\
 \>{\sf short int tag;}         \> // tape identification \\
-\>{\sf int n;}                 \> // number of independent variables $n$ and $m=1$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int keep;}              \> // flag for reverse mode preparation\\
 \>{\sf double x[n];}           \> // independent vector $x$ \\
@@ -78,7 +86,7 @@ More detailed information can be found in \cite{Griewank13}.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fos\_pl\_forward(tag,m,n,x0,x1,y0,y1,z0,z2)}\\
+\>{\sf int fos\_pl\_forward(tag,m,n,x0,x1,y0,y1,z0,z1)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
@@ -105,34 +113,86 @@ More detailed information can be found in \cite{Griewank13}.
 \>{\sf double Z[s][p];}        \> // first derivative matrix $Z=z^\prime (x)X$
 \end{tabbing}
 
-In contrast to the drivers above the reverse mode does not require any directions. 
-It always returns one row of the Jacobian matrix.
+In contrast to the forward drivers, the reverse mode applies a vector-Jacobian product using weight vectors. The weight vectors are
+ordered as $[y;z]$, and the resulting vectors are ordered as $[x;|z|]$.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fov\_pl\_reverse(tag,m,n,s,rownum,z)}\\
+\>{\sf int fos\_pl\_reverse(tag,m,n,s,u,w)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
-\>{\sf int s;}                 \> // number of sign switches\\
-\>{\sf int rownum;}            \> // required row no. of abs-normal form \\
-\>{\sf double z[n];}           \> // resulting adjoint value $z^T = u^T F^\prime (x)$\\
+\>{\sf int s;}                 \> // number of switching variables\\
+\>{\sf double u[m+s];}         \> // weights for the extended rows $[y;z]$\\
+\>{\sf double w[n+s];}         \> // weighted row $u^T [Y\;J;Z\;L]$\\
 \end{tabbing}
 
-One may also compute the sparsity pattern of the extended Jacobian
-matrix 
-
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf \#include $<$adolc/sparse/sparsedrivers.h$>$} \>\phantom{something}\\
-\>{\sf int absnormal\_jac\_pat(tag,m,n,s,x,JP)}\\
+\>{\sf int fov\_pl\_reverse(tag,m,n,s,p,U,W)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
-\>{\sf int s;}                 \> // number of sign switches\\
+\>{\sf int s;}                 \> // number of switching variables\\
+\>{\sf int p;}                 \> // number of weight vectors\\
+\>{\sf double* U[p];}          \> // weights for the extended rows $[y;z]$\\
+\>{\sf double* W[p];}          \> // weighted rows in the columns $[x;|z|]$\\
+\end{tabbing}
+
+To extract the coefficients of the piecewise linearization directly, ADOL-C
+provides the driver
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int abs\_normal(tag,m,n,s,x,y,z,cz,cy,Y,J,Z,L)}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf int m;}                 \> // number of dependent variables $m$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
+\>{\sf int s;}                 \> // number of switching variables\\
+\>{\sf const double *x;}       \> // point of evaluation\\
+\>{\sf double y[m];}           \> // function value $y=F(x)$\\
+\>{\sf double z[s];}           \> // switching variables\\
+\>{\sf double cz[s];}          \> // constant vector $c$\\
+\>{\sf double cy[m];}          \> // constant vector $b$\\
+\>{\sf double **Y;}            \> // matrix $Y \in \R^{m\times n}$\\
+\>{\sf double **J;}            \> // matrix $J \in \R^{m\times s}$\\
+\>{\sf double **Z;}            \> // matrix $Z \in \R^{s\times n}$\\
+\>{\sf double **L;}            \> // lower triangular matrix $L \in \R^{s\times s}$\\
+\end{tabbing}
+
+One may also compute the sparsity pattern of the extended Jacobian matrix,
+ordered by rows $[y;z]$ and columns $[x;|z|]$, by using the sparse driver
+interface. The following functions can be found in the namespace {\sf ADOLC::Sparse}.
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf std::span$<$uint *$>$ \&compressedRowStorage;} \hspace{0.6in}\= \kill    % define tab position
+\>{\sf int jac\_pat$<$PiecewiseLinear\{\}$>$(tag,m,n,s,x,compressedRowStorage)}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf int m;}                 \> // number of dependent variables $m$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
+\>{\sf int s;}                 \> // number of switching variables\\
 \>{\sf const double* x;}       \> // point of evaluation\\     
-\>{\sf unsigned int** JP;}     \> // sparsity pattern of abs-normal form \\
+\>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS rows of $[Y\;J;Z\;L]$ \\
 \end{tabbing}
+
+To compute the nonzero entries of the same extended Jacobian in coordinate
+format, one may use
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
+\>{\sf \hspace{1.95in} x,nnz,rind,cind,values)}\\
+\>{\sf short int tag;}          \> // tape identification \\
+\>{\sf int m;}                  \> // number of dependent variables $m$ \\
+\>{\sf int n;}                  \> // number of independent variables $n$ \\
+\>{\sf int s;}                  \> // number of switching variables \\
+\>{\sf int repeat;}             \> // pattern / seed reuse flag \\
+\>{\sf const double *x;}        \> // point of evaluation \\
+\>{\sf int *nnz;}               \> // number of nonzero entries \\
+\>{\sf unsigned int **rind;}    \> // row indices \\
+\>{\sf unsigned int **cind;}    \> // column indices \\
+\>{\sf double **values;}        \> // numerical nonzero values \\
+\end{tabbing}
+If unmanaged memory is requested for {\sf rind}, {\sf cind}, and {\sf values},
+the returned arrays must be released with {\sf delete[] }.
 % \bibitem{Griewank13}
 % Andreas Griewank,
 % {\em On stable piecewise linearization and generalized algorithmic differentiation}.

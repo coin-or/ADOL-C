@@ -563,6 +563,36 @@ ADOLC_API int jac_pat(short tag, int depen, int indep, const double *basepoint,
 };
 
 /**
+ * @brief Computes the Jacobian sparsity pattern for an abs-smooth function.
+ *
+ * This function computes the sparsity pattern of the extended Jacobian
+ * (aka abs-normal form) of an abs-smooth function. Internally, it
+ * performs an index-domain propagation through the recorded function,
+ * represented using switching variables.
+ *
+ * @param tag  ADOL-C tape identifier.
+ * @param depen Number of dependent (output) variables.
+ * @param indep Number of independent (input) variables.
+ * @param numsw Number of switching variables.
+ * @param basepoint Pointer to basepoint values (independent variable array).
+ * @param[out] compressedRowStorage
+ *        Span over an array of row pointers, each representing one row of the
+ *        extended Jacobian in Compressed Row Storage (CRS) format. Rows are
+ *        ordered as `[y ; z]`, while columns are ordered as `[x ; |z|]`.
+ *
+ * @return Return code from `indopro_forward_absnormal()`:
+ *         - `0` → success,
+ *         - nonzero → warning or error code from ADOL-C.
+ */
+template <PiecewiseLinear>
+ADOLC_API int jac_pat(short tag, int depen, int indep, int numsw,
+                      const double *basepoint,
+                      std::span<uint *> &compressedRowStorage) {
+  detail::resetInput(compressedRowStorage);
+  return indopro_forward_absnormal(tag, depen, indep, numsw, basepoint,
+                                   compressedRowStorage.data());
+}
+/**
  * @brief Generate a seed matrix (coloring) for compressed Jacobian recovery.
  *
  * Uses ColPack's Bipartite graph coloring to produce the seed matrix suitable
@@ -683,6 +713,46 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
 }
 
 /**
+ * @brief Build pattern and seed data for the piecewise-linear sparse Jacobian.
+ *
+ * This specializes the generic sparse Jacobian setup for abs-smooth functions.
+ * It computes the sparsity pattern of the extended Jacobian via
+ * `indopro_forward_absnormal()`, then generates a row-compression seed for the
+ * `[y ; z]` by `[x ; |z|]` matrix. This driver currently supports only
+ * row-compression because the compressed Jacobian is computed with
+ * `fov_pl_reverse()`.
+ */
+template <PiecewiseLinear>
+int buildJacPatternAndSeed(short tag, int depen, int indep, int numSwitches,
+                           const double *basepoint, int *nnz) {
+  auto &tape = findTape(tag);
+  tape.sJInfos().setJP(std::vector<uint *>(depen + numSwitches));
+  std::span<uint *> JPSpan{tape.sJInfos().getJP()};
+
+  int ret_val = jac_pat<PiecewiseLinear{}>(tag, depen, indep, numSwitches,
+                                           basepoint, JPSpan);
+  if (ret_val < 0) {
+    printf(" ADOL-C error in sparse_jac() \n");
+    return ret_val;
+  }
+
+  tape.sJInfos().depen_ = depen + numSwitches;
+  tape.sJInfos().nnzIn_ = 0;
+  for (int i = 0; i < depen + numSwitches; i++) {
+    for (uint j = 1; j <= tape.sJInfos().getJP()[i][0]; j++) {
+      tape.sJInfos().nnzIn_++;
+    }
+  }
+  *nnz = tape.sJInfos().nnzIn_;
+  tape.sJInfos().initColoring(depen + numSwitches, indep + numSwitches);
+
+  tape.sJInfos().generateSeedJac("ROW_PARTIAL_DISTANCE_TWO");
+  tape.sJInfos().seedClms_ = indep + numSwitches;
+  ret_val = tape.sJInfos().seedRows_;
+
+  return ret_val;
+}
+/**
  * @brief Compute sparse Jacobian using precomputed seed matrix and recovery
  * information.
  *
@@ -797,6 +867,58 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
   return ret_val;
 }
 
+/**
+ * @brief Recover the piecewise-linear sparse Jacobian.
+ *
+ * It evaluates the taped function with `zos_pl_forward()` and then
+ * applies `fov_pl_reverse()` to the row-compression seed. The recovered
+ * matrix is the extended Jacobian (aka abs-normal form) `[Y J; Z L]` with row
+ * order `[y ; z]` and column order `[x ; |z|]`.
+ */
+template <PiecewiseLinear>
+int computeSparseJac(short tag, int depen, int indep, int numSwitches,
+                     const double *basepoint, int *nnz, unsigned int **rind,
+                     unsigned int **cind, double **values) {
+  ValueTape &tape = findTape(tag);
+  int ret_val = 0;
+  myfree2(tape.sJInfos().B_);
+  myfree1(tape.sJInfos().y_);
+  tape.sJInfos().B_ =
+      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+  tape.sJInfos().y_ = myalloc1(depen);
+
+  if (tape.sJInfos().nnzIn_ != *nnz) {
+    printf(" ADOL-C error in sparse_jac():"
+           " Number of nonzeros not consistent,"
+           " repeat call with repeat = 0 \n");
+    return -3;
+  }
+
+  std::vector<double> z(numSwitches);
+  ret_val = zos_pl_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_,
+                           z.data());
+  if (ret_val < 0)
+    return ret_val;
+  MINDEC(ret_val, fov_pl_reverse(tag, depen, indep, numSwitches,
+                                 tape.sJInfos().seedRows_, tape.sJInfos().Seed_,
+                                 tape.sJInfos().B_));
+
+  if (values != nullptr && *values != nullptr && rind != nullptr &&
+      *rind != nullptr && cind != nullptr && *cind != nullptr) {
+    tape.sJInfos().recoverRowFormatUserMem(rind, cind, values);
+  } else {
+    // at least one of rind cind values is not allocated, deallocate others
+    // and call unmanaged versions
+    if (values != nullptr && *values != nullptr)
+      free(*values);
+    if (rind != nullptr && *rind != nullptr)
+      free(*rind);
+    if (cind != nullptr && *cind != nullptr)
+      free(*cind);
+    tape.sJInfos().recoverRowFormat(rind, cind, values);
+  }
+  return ret_val;
+}
 } // namespace detail
 
 /**
@@ -861,31 +983,53 @@ ADOLC_API int sparse_jac(short tag, int depen, int indep, int repeat,
 }
 
 /**
- * @brief Computes the Jacobian sparsity pattern for an abs-normal form.
+ * @brief Compute the sparse extended Jacobian of a piecewise-linear
+ *        abs-normal form.
  *
- * This driver handles sparsity detection for functions represented in
- * *abs-normal form* — i.e., functions involving piecewise smooth structures
- * that depend on switching variables.
+ * This overload computes the sparse extended Jacobian of the abs-normal form
+ * associated with a taped abs-smooth function. The recovered sparse
+ * matrix corresponds to the block matrix `[Y J; Z L]`, where the dependent
+ * rows come first and the switching-equation rows follow (`[y ; z]`). Columns
+ * are ordered as the original independents followed by the absolute switching
+ * variables by (`[x ; |z|]`).
  *
- * Internally, it performs an index-domain propagation through the recorded
- * abs-normal tape.
+ * Currently only row-compressed recovery is supported.
  *
- * @param tag  ADOL-C tape identifier.
- * @param depen Number of dependent (output) variables.
- * @param indep Number of independent (input) variables.
- * @param numsw Number of switching variables in the abs-normal representation.
- * @param basepoint Pointer to basepoint values (independent variable array).
- * @param[out] compressedRowStorage
- *        Span over an array of row pointers, each representing one Jacobian
- *        row in Compressed Row Storage (CRS) format.
+ * @param tag          Tape identifier.
+ * @param depen        Number of dependent variables `y`.
+ * @param indep        Number of independent variables `x`.
+ * @param numSwitches  Number of switching variables `z`.
+ * @param repeat       If 0: rebuild sparsity and seed data before
+ *                     recovery. If >0: reuse cached recovery data.
+ * @param basepoint    Independent basepoint values.
+ * @param[in,out] nnz  On `repeat == 0`, set to the number of nonzeros in the
+ *                     extended Jacobian. On `repeat != 0`, must match the
+ *                     cached nonzero count.
+ * @param[out] rind    Row indices of the recovered sparse matrix.
+ * @param[out] cind    Column indices of the recovered sparse matrix.
+ * @param[out] values  Numerical nonzero values of the recovered sparse matrix.
  *
- * @return Return code from `indopro_forward_absnormal()`:
- *         - `0` → success,
- *         - nonzero → warning or error code from ADOL-C.
+ * @return 0 or a positive driver status on success, negative error code on
+ *         failure.
  */
-ADOLC_API int absnormal_jac_pat(short tag, int depen, int indep, int numsw,
-                                const double *basepoint,
-                                std::span<uint *> &compressedRowStorage);
+template <PiecewiseLinear>
+ADOLC_API int sparse_jac(short tag, int depen, int indep, int numSwitches,
+                         int repeat, const double *basepoint, int *nnz,
+                         unsigned int **rind, unsigned int **cind,
+                         double **values) {
+
+  using namespace detail;
+  int ret_val = 0;
+  if (repeat == 0)
+    ret_val = buildJacPatternAndSeed<PiecewiseLinear{}>(
+        tag, depen, indep, numSwitches, basepoint, nnz);
+  if (ret_val < 0) {
+    printf(" ADOL-C error in sparse_jac() \n");
+    return ret_val;
+  }
+  return computeSparseJac<PiecewiseLinear{}>(
+      tag, depen, indep, numSwitches, basepoint, nnz, rind, cind, values);
+}
 
 /**
  * @brief Compute Hessian sparsity pattern (dispatch by control-flow mode).
