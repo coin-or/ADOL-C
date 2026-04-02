@@ -144,13 +144,26 @@ sparsity pattern (crs):
 [3, 0, 2, 3]
 --------------------------------------------------------------------
 */
+#include <algorithm>
+#include <array>
 #include <numeric>
 #define BOOST_TEST_DYN_LINK
 #include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
+#include <vector>
+
+#include "../const.h"
+
+namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(test_sparse_abs_normal)
+
+struct ExpectedEntry {
+  unsigned int row;
+  unsigned int col;
+  double value;
+};
 
 template <size_t Version> struct version_trait {};
 
@@ -160,6 +173,15 @@ template <> struct version_trait<1> {
   static constexpr size_t dimOut = 2;
   static constexpr std::array<std::array<size_t, 4>, 5> crs = {
       {{3, 0, 2, 4}, {1, 1, 0, 0}, {2, 0, 1, 0}, {1, 1, 0, 0}, {2, 0, 3, 0}}};
+  static constexpr std::array<ExpectedEntry, 9> sparse = {{{0, 0, 1.0},
+                                                           {0, 2, 1.0},
+                                                           {0, 4, 1.0},
+                                                           {1, 1, 1.0},
+                                                           {2, 0, 1.0},
+                                                           {2, 1, -1.0},
+                                                           {3, 1, 1.0},
+                                                           {4, 0, 1.0},
+                                                           {4, 3, -1.0}}};
 };
 
 template <> struct version_trait<2> {
@@ -172,6 +194,16 @@ template <> struct version_trait<2> {
                                                                 {1, 1, 0, 0},
                                                                 {2, 0, 3, 0},
                                                                 {1, 1, 0, 0}}};
+  static constexpr std::array<ExpectedEntry, 10> sparse = {{{0, 0, 1.0},
+                                                            {0, 2, 1.0},
+                                                            {0, 4, 1.0},
+                                                            {1, 5, 1.0},
+                                                            {2, 0, 1.0},
+                                                            {2, 1, -1.0},
+                                                            {3, 1, 1.0},
+                                                            {4, 0, 1.0},
+                                                            {4, 3, -1.0},
+                                                            {5, 1, 1.0}}};
 };
 
 template <> struct version_trait<3> {
@@ -180,6 +212,14 @@ template <> struct version_trait<3> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 3> crs = {
       {{4, 0, 1, 2, 3}, {1, 0, 0, 0, 0}, {3, 0, 1, 2, 0}}};
+  static constexpr std::array<ExpectedEntry, 8> sparse = {{{0, 0, -0.25},
+                                                           {0, 1, 1.0},
+                                                           {0, 2, -0.25},
+                                                           {0, 3, 0.5},
+                                                           {1, 0, 1.0},
+                                                           {2, 0, -0.5},
+                                                           {2, 1, 2.0},
+                                                           {2, 2, -0.5}}};
 };
 
 template <> struct version_trait<4> {
@@ -197,6 +237,26 @@ template <> struct version_trait<4> {
        {6, 5, 6, 7, 8, 9, 10, 0, 0, 0},
        {5, 0, 1, 2, 3, 4, 0, 0, 0, 0},
        {8, 5, 6, 7, 8, 9, 10, 11, 12, 0}}};
+  static constexpr std::array<ExpectedEntry, 54> sparse = {{
+      {0, 5, 1.0 / 16.0},  {0, 6, 1.0 / 16.0},  {0, 7, 1.0 / 16.0},
+      {0, 8, 1.0 / 8.0},   {0, 9, 1.0 / 8.0},   {0, 10, 1.0 / 4.0},
+      {0, 11, 1.0 / 4.0},  {0, 12, 1.0 / 2.0},  {0, 13, 1.0 / 2.0},
+      {1, 0, 1.0},         {1, 1, 1.0 / 2.0},   {1, 2, 1.0 / 3.0},
+      {1, 3, 1.0 / 4.0},   {1, 4, 1.0 / 5.0},   {2, 0, 1.0 / 2.0},
+      {2, 1, 1.0 / 3.0},   {2, 2, 1.0 / 4.0},   {2, 3, 1.0 / 5.0},
+      {2, 4, 1.0 / 6.0},   {3, 5, -1.0},        {3, 6, 1.0},
+      {4, 0, 1.0 / 3.0},   {4, 1, 1.0 / 4.0},   {4, 2, 1.0 / 5.0},
+      {4, 3, 1.0 / 6.0},   {4, 4, 1.0 / 7.0},   {5, 5, -1.0 / 2.0},
+      {5, 6, -1.0 / 2.0},  {5, 7, -1.0 / 2.0},  {5, 8, 1.0},
+      {6, 0, 1.0 / 4.0},   {6, 1, 1.0 / 5.0},   {6, 2, 1.0 / 6.0},
+      {6, 3, 1.0 / 7.0},   {6, 4, 1.0 / 8.0},   {7, 5, -1.0 / 4.0},
+      {7, 6, -1.0 / 4.0},  {7, 7, -1.0 / 4.0},  {7, 8, -1.0 / 2.0},
+      {7, 9, -1.0 / 2.0},  {7, 10, 1.0},        {8, 0, 1.0 / 5.0},
+      {8, 1, 1.0 / 6.0},   {8, 2, 1.0 / 7.0},   {8, 3, 1.0 / 8.0},
+      {8, 4, 1.0 / 9.0},   {9, 5, -1.0 / 8.0},  {9, 6, -1.0 / 8.0},
+      {9, 7, -1.0 / 8.0},  {9, 8, -1.0 / 4.0},  {9, 9, -1.0 / 4.0},
+      {9, 10, -1.0 / 2.0}, {9, 11, -1.0 / 2.0}, {9, 12, 1.0},
+  }};
 };
 
 template <> struct version_trait<5> {
@@ -210,6 +270,15 @@ template <> struct version_trait<5> {
        {4, 0, 1, 2, 3, 0, 0, 0},
        {5, 0, 1, 2, 3, 4, 0, 0},
        {6, 0, 1, 2, 3, 4, 5, 0}}};
+  static constexpr std::array<ExpectedEntry, 27> sparse = {{
+      {0, 0, 1.25},   {0, 1, 0.09375}, {0, 2, 0.03125}, {0, 3, 0.0625},
+      {0, 4, 0.125},  {0, 5, 0.25},    {0, 6, 0.5},     {1, 0, 2.0},
+      {1, 1, -5.0},   {2, 0, 2.0},     {2, 1, 4.5},     {2, 2, -0.5},
+      {3, 0, 0.0},    {3, 1, 5.25},    {3, 2, -0.25},   {3, 3, -0.5},
+      {4, 0, 1.0},    {4, 1, -4.375},  {4, 2, -0.125},  {4, 3, -0.25},
+      {4, 4, -0.5},   {5, 0, -2.5},    {5, 1, -0.1875}, {5, 2, -0.0625},
+      {5, 3, -0.125}, {5, 4, -0.25},   {5, 5, -0.5},
+  }};
 };
 
 template <> struct version_trait<6> {
@@ -218,6 +287,14 @@ template <> struct version_trait<6> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 3> crs = {
       {{4, 0, 1, 2, 3}, {1, 0, 0, 0, 0}, {3, 0, 1, 2, 0}}};
+  static constexpr std::array<ExpectedEntry, 8> sparse = {{{0, 0, -0.75},
+                                                           {0, 1, -1.0},
+                                                           {0, 2, -0.25},
+                                                           {0, 3, 0.5},
+                                                           {1, 0, -1.0},
+                                                           {2, 0, 1.5},
+                                                           {2, 1, 2.0},
+                                                           {2, 2, 0.5}}};
 };
 
 template <> struct version_trait<7> {
@@ -232,6 +309,12 @@ template <> struct version_trait<7> {
        {3, 0, 2, 3, 0},
        {2, 0, 2, 0, 0},
        {3, 0, 2, 5, 0}}};
+  static constexpr std::array<ExpectedEntry, 19> sparse = {{
+      {0, 0, 1.75}, {0, 2, 3.0},  {0, 3, 0.25}, {0, 4, 0.5},  {1, 0, 1.75},
+      {1, 2, 3.0},  {1, 5, 0.25}, {1, 6, 0.5},  {2, 1, 1.0},  {3, 0, 3.0},
+      {3, 2, 2.0},  {4, 0, 0.5},  {4, 2, 4.0},  {4, 3, -0.5}, {5, 0, 3.0},
+      {5, 2, 2.0},  {6, 0, 0.5},  {6, 2, 4.0},  {6, 5, -0.5},
+  }};
 };
 
 template <> struct version_trait<8> {
@@ -240,6 +323,16 @@ template <> struct version_trait<8> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 4> crs = {
       {{4, 0, 2, 3, 4}, {1, 1, 0, 0, 0}, {2, 0, 2, 0, 0}, {3, 0, 2, 3, 0}}};
+  static constexpr std::array<ExpectedEntry, 10> sparse = {{{0, 0, 1.75},
+                                                            {0, 2, 3.0},
+                                                            {0, 3, 0.25},
+                                                            {0, 4, 0.5},
+                                                            {1, 1, 1.0},
+                                                            {2, 0, 3.0},
+                                                            {2, 2, 2.0},
+                                                            {3, 0, 0.5},
+                                                            {3, 2, 4.0},
+                                                            {3, 3, -0.5}}};
 };
 
 struct UnAllocated {};
@@ -349,7 +442,7 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
     y[1] = x[1];
     y[0] >>= anfProblem.out[0];
     y[1] >>= anfProblem.out[1];
-  } else if (Version == 2) {
+  } else if constexpr (Version == 2) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     y[0] = x[0] + fabs(x[0] - x[1]);
@@ -357,12 +450,12 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
     y[1] = fabs(x[1] - 5);
     y[0] >>= anfProblem.out[0];
     y[1] >>= anfProblem.out[1];
-  } else if (Version == 3) {
+  } else if constexpr (Version == 3) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     y[0] = fmax(0, x[1] * x[1] - fmax(0, x[0]));
     y[0] >>= anfProblem.out[0];
-  } else if (Version == 4) {
+  } else if constexpr (Version == 4) {
     {
       for (int i = 0; i < anfProblem.dimIn; i++) {
         x[i] <<= anfProblem.in[i];
@@ -386,7 +479,7 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
       y[0] = z1;
       y[0] >>= anfProblem.out[0];
     }
-  } else if (Version == 5) {
+  } else if constexpr (Version == 5) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     y[0] = 0;
@@ -396,13 +489,13 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
     y[0] = fmax(y[0], 3 * x[0] - 2 * x[1]);
     y[0] = fmax(y[0], static_cast<adouble>(-100));
     y[0] >>= anfProblem.out[0];
-  } else if (Version == 6) {
+  } else if constexpr (Version == 6) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     adouble z1 = x[1] * x[1] - x[0] - 1.0 - (x[0] + fabs(-x[0])) / 2.0;
     y[0] = (z1 + fabs(-z1)) / 2.0;
     y[0] >>= anfProblem.out[0];
-  } else if (Version == 7) {
+  } else if constexpr (Version == 7) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     adouble z1 = fabs(x[1]);
@@ -410,7 +503,7 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
     y[1] = fmax(fmax(-100, 3 * x[0] + 2 * z1), 2 * x[0] + 5 * z1);
     y[0] >>= anfProblem.out[0];
     y[1] >>= anfProblem.out[1];
-  } else if (Version == 8) {
+  } else if constexpr (Version == 8) {
     x[0] <<= anfProblem.in[0];
     x[1] <<= anfProblem.in[1];
     adouble z1 = fabs(x[1]);
@@ -418,6 +511,48 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
     y[0] >>= anfProblem.out[0];
   }
 }
+
+static std::vector<ExpectedEntry> collectSparseEntries(int nnz,
+                                                       const unsigned int *rind,
+                                                       const unsigned int *cind,
+                                                       const double *values) {
+  std::vector<ExpectedEntry> entries;
+  entries.reserve(nnz);
+  for (int i = 0; i < nnz; ++i)
+    entries.push_back({rind[i], cind[i], values[i]});
+  return entries;
+}
+
+template <size_t Version>
+static void checkSparseEntries(int nnz, const unsigned int *rind,
+                               const unsigned int *cind, const double *values) {
+  auto actual = collectSparseEntries(nnz, rind, cind, values);
+  std::vector<ExpectedEntry> expected(version_trait<Version>::sparse.begin(),
+                                      version_trait<Version>::sparse.end());
+
+  BOOST_TEST(actual.size() == expected.size());
+  for (size_t i = 0; i < expected.size(); ++i) {
+    BOOST_TEST_CONTEXT("problem: " << Version << " entry=" << i) {
+      BOOST_TEST(actual[i].row == expected[i].row);
+      BOOST_TEST(actual[i].col == expected[i].col);
+      BOOST_TEST(actual[i].value == expected[i].value, tt::tolerance(tol));
+    }
+  }
+}
+
+template <size_t Version>
+static void runSparseJacAndCheck(
+    short tapeId, const ANFProblem<Version, UnAllocated> &problem,
+    int numSwitchingVars, int repeat, int *nnz, unsigned int **rind,
+    unsigned int **cind, double **values) {
+  using ADOLC::Sparse::PiecewiseLinear;
+  const int ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}>(
+      tapeId, problem.dimOut, problem.dimIn, numSwitchingVars, repeat,
+      problem.in.data(), nnz, rind, cind, values);
+  BOOST_TEST(ret >= 0);
+  checkSparseEntries<Version>(*nnz, *rind, *cind, *values);
+}
+
 template <size_t Version> static void problem() {
   ANFProblem<Version, UnAllocated> anfProblem{};
   const auto tapeId = createNewTape();
@@ -434,7 +569,7 @@ template <size_t Version> static void problem() {
   std::vector<uint *> crs(anfProblemAlloc.dimOut +
                           anfProblemAlloc.numSwitchingVars);
   std::span<uint *> crsSpan(crs);
-  ADOLC::Sparse::absnormal_jac_pat(
+  ADOLC::Sparse::jac_pat<ADOLC::Sparse::PiecewiseLinear{}>(
       tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
       anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(), crsSpan);
 
@@ -450,13 +585,100 @@ template <size_t Version> static void problem() {
     delete[] c;
 }
 
-BOOST_AUTO_TEST_CASE(SparseANFPatTest) {
+template <size_t Version> static void problemSparseJac() {
+  ANFProblem<Version, UnAllocated> anfProblem{};
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
+  currentTape().enableMinMaxUsingAbs();
+  trace_on(tapeId);
+  taping(anfProblem);
+  trace_off();
+
+  int nnz = 0;
+  int numSwitchingVars = get_num_switches(tapeId);
+  unsigned int *rind = nullptr;
+  unsigned int *cind = nullptr;
+  double *values = nullptr;
+
+  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
+                                &rind, &cind, &values);
+
+  std::free(rind);
+  std::free(cind);
+  std::free(values);
+}
+
+template <size_t Version> static void problemSparseJacBranches() {
+  ANFProblem<Version, UnAllocated> anfProblem{};
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
+  currentTape().enableMinMaxUsingAbs();
+  trace_on(tapeId);
+  taping(anfProblem);
+  trace_off();
+
+  const int numSwitchingVars = get_num_switches(tapeId);
+
+  int nnz = 0;
+  unsigned int *rind = nullptr;
+  unsigned int *cind = nullptr;
+  double *values = nullptr;
+  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
+                                &rind, &cind, &values);
+  std::free(rind);
+  std::free(cind);
+  std::free(values);
+
+  nnz = 0;
+  rind = nullptr;
+  cind = nullptr;
+  values = nullptr;
+  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
+                                &rind, &cind, &values);
+  std::free(rind);
+  std::free(cind);
+  std::free(values);
+
+  rind = nullptr;
+  cind = nullptr;
+  values = nullptr;
+  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1, &nnz,
+                                &rind, &cind, &values);
+  std::free(rind);
+  std::free(cind);
+  std::free(values);
+
+  std::vector<unsigned int> rowStorage(nnz);
+  std::vector<unsigned int> colStorage(nnz);
+  std::vector<double> valueStorage(nnz);
+  unsigned int *userRind = rowStorage.data();
+  unsigned int *userCind = colStorage.data();
+  double *userValues = valueStorage.data();
+  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1, &nnz,
+                                &userRind, &userCind, &userValues);
+}
+
+BOOST_AUTO_TEST_CASE(PiecewiseLinearJacPatMatchesExpectedPattern) {
   constexpr std::array<void (*)(), 8> problems = {
       problem<1>, problem<2>, problem<3>, problem<4>,
       problem<5>, problem<6>, problem<7>, problem<8>};
   for (auto problem : problems) {
     problem();
   }
+}
+
+BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseJacMatchesExpectedTriplets) {
+  constexpr std::array<void (*)(), 8> problems = {
+      problemSparseJac<1>, problemSparseJac<2>, problemSparseJac<3>,
+      problemSparseJac<4>, problemSparseJac<5>, problemSparseJac<6>,
+      problemSparseJac<7>, problemSparseJac<8>};
+  for (auto problem : problems) {
+    problem();
+  }
+}
+
+BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseJacCoversDriverBranches) {
+  problemSparseJacBranches<8>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
