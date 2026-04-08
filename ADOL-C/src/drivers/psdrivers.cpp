@@ -55,11 +55,12 @@ int abs_normal(short tag,       /* tape identifier */
 
   zos_pl_forward(tag, m, n, 1, x, y, z);
 
-  // Build an identity matrix of size (m+s)x(m+s) for the weights and fill in
-  // the row pointers provided by the user to the respective results.
-  // Notice that the weight row vectors are ordered [dep vars, switch vars].
-  // Therefore the first m rows of the results/resultsSwitch are for Y and J,
-  // while the following s rows are for Z and L.
+  // Build (lagrange) weights of size (m+s)xm and (m+s)xs such that they combine
+  // to an identity of size (m+s)x(m+s) to obtain all entries of Y,J,Z,L at
+  // once. Fill in the row pointers provided by the user to the respective
+  // results. Notice that the weight row vectors are ordered [dep vars, switch
+  // vars]. Therefore the first m rows of the results/resultsSwitch are for Y
+  // and J, while the following s rows are for Z and L.
   std::vector<double> lagrange_mem((m + s) * (m), 0.0);
   std::vector<double *> lagrange(m + s);
   std::vector<double> lagrangeSwitch_mem((m + s) * (s), 0.0);
@@ -77,7 +78,7 @@ int abs_normal(short tag,       /* tape identifier */
     lagrange[m + switchRow] = lagrange_mem.data() + (m + switchRow) * m;
     lagrangeSwitch[m + switchRow] =
         lagrangeSwitch_mem.data() + (m + switchRow) * s;
-    [m + switchRow][switchRow] = 1.0;
+    lagrangeSwitch[m + switchRow][switchRow] = 1.0;
     results[m + switchRow] = Z[switchRow];
     resultsSwitch[m + switchRow] = L[switchRow];
   }

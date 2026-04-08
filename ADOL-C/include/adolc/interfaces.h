@@ -466,13 +466,13 @@ ADOLC_API int indopro_forward_absnormal(short, int, int, int, const double *,
 
 /* fos_reverse(tag, m, n, s, u[m + s], z[n + s]) */
 /* (defined in fo_rev.cpp)*/
-ADOLC_API int fos_pl_reverse(short, int, int, int, const double *, double *,
-                               double *);
+ADOLC_API int fos_pl_reverse(short, int, int, int, const double *,
+                               const double *, double *, double *);
 
 /* fov_pl_reverse(tag, m, n, s, p, U[p][m + s], Z[p][n + s]) */
 /* (defined in fo_rev.cpp)                                                    */
 ADOLC_API int fov_pl_reverse(short, int, int, int, int, const double *const *,
-                             double **, double **);
+                             const double *const *, double **, double **);
 
 ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,
                                  const double *, double *);
