@@ -203,8 +203,8 @@ static int edfoo_wrapper_function(short tapeId, int m, int n, double *x,
   return ebase->function(tapeId, m, n, x, y);
 }
 
-static int edfoo_wrapper_zos_forward(short tapeId, int m, int n, double *x,
-                                     double *y) {
+static int edfoo_wrapper_zos_forward(short tapeId, int m, int n, int keep,
+                                     double *x, double *y) {
   ext_diff_fct *edf;
   EDFobject *ebase;
 
@@ -212,11 +212,12 @@ static int edfoo_wrapper_zos_forward(short tapeId, int m, int n, double *x,
   // figure out which edf
   edf = get_ext_diff_fct(tapeId, tape.ext_diff_fct_index());
   ebase = reinterpret_cast<EDFobject *>(edf->obj);
-  return ebase->zos_forward(tapeId, m, n, x, y);
+  return ebase->zos_forward(tapeId, m, n, keep, x, y);
 }
 
-static int edfoo_wrapper_fos_forward(short tapeId, int m, int n, double *x,
-                                     double *X, double *y, double *Y) {
+static int edfoo_wrapper_fos_forward(short tapeId, int m, int n, int keep,
+                                     double *x, double *X, double *y,
+                                     double *Y) {
   ext_diff_fct *edf;
   EDFobject *ebase;
 
@@ -224,7 +225,7 @@ static int edfoo_wrapper_fos_forward(short tapeId, int m, int n, double *x,
   // figure out which edf
   edf = get_ext_diff_fct(tapeId, tape.ext_diff_fct_index());
   ebase = reinterpret_cast<EDFobject *>(edf->obj);
-  return ebase->fos_forward(tapeId, m, n, x, X, y, Y);
+  return ebase->fos_forward(tapeId, m, n, keep, x, X, y, Y);
 }
 
 static int edfoo_wrapper_fov_forward(short tapeId, int m, int n, int p,
@@ -291,8 +292,8 @@ edfoo_iarr_wrapper_function(short tapeId, size_t iArrLength, size_t *iArr,
   return ebase->function(tapeId, iArrLength, iArr, m, n, x, y);
 }
 static int edfoo_iarr_wrapper_zos_forward(short tapeId, size_t iArrLength,
-                                          size_t *iArr, int m, int n, double *x,
-                                          double *y) {
+                                          size_t *iArr, int m, int n, int keep,
+                                          double *x, double *y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 
@@ -300,12 +301,13 @@ static int edfoo_iarr_wrapper_zos_forward(short tapeId, size_t iArrLength,
   // figure out which edf
   edf = get_ext_diff_fct(tapeId, tape.ext_diff_fct_index());
   ebase = reinterpret_cast<EDFobject_iArr *>(edf->obj);
-  return ebase->zos_forward(tapeId, iArrLength, iArr, m, n, x, y);
+  return ebase->zos_forward(tapeId, iArrLength, iArr, m, n, keep, x, y);
 }
 
 static int edfoo_iarr_wrapper_fos_forward(short tapeId, size_t iArrLength,
-                                          size_t *iArr, int m, int n, double *x,
-                                          double *X, double *y, double *Y) {
+                                          size_t *iArr, int m, int n, int keep,
+                                          double *x, double *X, double *y,
+                                          double *Y) {
   ext_diff_fct *edf;
   EDFobject_iArr *ebase;
 
@@ -313,7 +315,7 @@ static int edfoo_iarr_wrapper_fos_forward(short tapeId, size_t iArrLength,
   // figure out which edf
   edf = get_ext_diff_fct(tapeId, tape.ext_diff_fct_index());
   ebase = reinterpret_cast<EDFobject_iArr *>(edf->obj);
-  return ebase->fos_forward(tapeId, iArrLength, iArr, m, n, x, X, y, Y);
+  return ebase->fos_forward(tapeId, iArrLength, iArr, m, n, keep, x, X, y, Y);
 }
 
 static int edfoo_iarr_wrapper_fov_forward(short tapeId, size_t iArrLength,

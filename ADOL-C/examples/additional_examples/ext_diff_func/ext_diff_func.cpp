@@ -47,13 +47,14 @@ ext_diff_fct *registerNestedEulerExternalFunction(short outerTapeId,
   ext_diff_fct *edf =
       reg_ext_fct(outerTapeId, innerTapeId, ADOLC_ext_fct(eulerStep));
 
-  edf->zos_forward = [innerTapeId](short, int m, int n, double *x, double *y) {
-    return ::zos_forward(innerTapeId, m, n, 0, x, y);
+  edf->zos_forward = [innerTapeId](short, int m, int n, int keep, double *x,
+                                   double *y) {
+    return ::zos_forward(innerTapeId, m, n, keep, x, y);
   };
 
-  edf->fos_forward = [innerTapeId](short, int m, int n, double *x, double *X,
-                                   double *y, double *Y) {
-    return ::fos_forward(innerTapeId, m, n, 0, x, X, y, Y);
+  edf->fos_forward = [innerTapeId](short, int m, int n, int keep, double *x,
+                                   double *X, double *y, double *Y) {
+    return ::fos_forward(innerTapeId, m, n, keep, x, X, y, Y);
   };
 
   edf->fov_forward = [innerTapeId](short, int m, int n, int p, double *x,
@@ -88,11 +89,11 @@ ext_diff_fct *registerManualEulerExternalFunction(short outerTapeId,
       reg_ext_fct(outerTapeId, placeholderTapeId, ADOLC_ext_fct(eulerStep));
   edf->nestedAdolc = 0;
 
-  edf->zos_forward = [](short tapeId, int m, int n, double *x, double *y) {
+  edf->zos_forward = [](short tapeId, int m, int n, int, double *x, double *y) {
     return eulerStep(tapeId, m, n, x, y);
   };
 
-  edf->fos_forward = [](short tapeId, int m, int n, double *x, double *X,
+  edf->fos_forward = [](short tapeId, int m, int n, int, double *x, double *X,
                         double *y, double *Y) {
     const int rc = eulerStep(tapeId, m, n, x, y);
     if (rc != 0)

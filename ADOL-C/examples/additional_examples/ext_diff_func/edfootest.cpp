@@ -53,13 +53,14 @@ public:
     return eulerStep(tapeId, m, n, x, y);
   }
 
-  int zos_forward(short, int m, int n, double *x, double *y) override {
-    return ::zos_forward(innerTapeId_, m, n, 0, x, y);
+  int zos_forward(short, int m, int n, int keep, double *x,
+                  double *y) override {
+    return ::zos_forward(innerTapeId_, m, n, keep, x, y);
   }
 
-  int fos_forward(short, int m, int n, double *x, double *X, double *y,
-                  double *Y) override {
-    return ::fos_forward(innerTapeId_, m, n, 0, x, X, y, Y);
+  int fos_forward(short, int m, int n, int keep, double *x, double *X,
+                  double *y, double *Y) override {
+    return ::fos_forward(innerTapeId_, m, n, keep, x, X, y, Y);
   }
 
   int fov_forward(short, int m, int n, int p, double *x, double **Xp, double *y,
@@ -85,7 +86,7 @@ public:
     return rc;
   }
 
-  int hos_forward(short, int, int, int, double *, double **, double *,
+  int hos_forward(short, int, int, int, int, double *, double **, double *,
                   double **) override {
     return -1;
   }
@@ -122,12 +123,13 @@ public:
     return eulerStep(tapeId, m, n, x, y);
   }
 
-  int zos_forward(short tapeId, int m, int n, double *x, double *y) override {
+  int zos_forward(short tapeId, int m, int n, int, double *x,
+                  double *y) override {
     return eulerStep(tapeId, m, n, x, y);
   }
 
-  int fos_forward(short tapeId, int m, int n, double *x, double *X, double *y,
-                  double *Y) override {
+  int fos_forward(short tapeId, int m, int n, int, double *x, double *X,
+                  double *y, double *Y) override {
     const int rc = eulerStep(tapeId, m, n, x, y);
     if (rc != 0)
       return rc;
@@ -174,7 +176,7 @@ public:
     return 0;
   }
 
-  int hos_forward(short, int, int, int, double *, double **, double *,
+  int hos_forward(short, int, int, int, int, double *, double **, double *,
                   double **) override {
     return -1;
   }

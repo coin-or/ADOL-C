@@ -33,13 +33,14 @@ public:
   }
   virtual ~EDFobject() = default;
   virtual int function(short tapeId, int m, int n, double *x, double *y) = 0;
-  virtual int zos_forward(short tapeId, int m, int n, double *x, double *y) = 0;
-  virtual int fos_forward(short tapeId, int m, int n, double *x, double *X,
-                          double *y, double *Y) = 0;
+  virtual int zos_forward(short tapeId, int m, int n, int keep, double *x,
+                          double *y) = 0;
+  virtual int fos_forward(short tapeId, int m, int n, int keep, double *x,
+                          double *X, double *y, double *Y) = 0;
   virtual int fov_forward(short tapeId, int m, int n, int p, double *x,
                           double **X, double *y, double **Y) = 0;
-  virtual int hos_forward(short tapeId, int m, int n, int d, double *x,
-                          double **X, double *y, double **Y) = 0;
+  virtual int hos_forward(short tapeId, int m, int n, int d, int keep,
+                          double *x, double **X, double *y, double **Y) = 0;
   virtual int hov_forward(short tapeId, int m, int n, int d, int p, double *x,
                           double ***X, double *y, double ***Y) = 0;
   virtual int fos_reverse(short tapeId, int m, int n, double *u, double *z,
@@ -71,16 +72,16 @@ public:
   virtual int function(short tapeId, size_t iArrLength, size_t *iArr, int m,
                        int n, double *x, double *y) = 0;
   virtual int zos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, double *x, double *y) = 0;
+                          int n, int keep, double *x, double *y) = 0;
   virtual int fos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, double *x, double *X, double *y,
+                          int n, int keep, double *x, double *X, double *y,
                           double *Y) = 0;
   virtual int fov_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
                           int n, int p, double *x, double **X, double *y,
                           double **Y) = 0;
   virtual int hos_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                          int n, int d, double *x, double **X, double *y,
-                          double **Y) = 0;
+                          int n, int d, int keep, double *x, double **X,
+                          double *y, double **Y) = 0;
   virtual int hov_forward(short tapeId, size_t iArrLength, size_t *iArr, int m,
                           int n, int d, int p, double *x, double ***X,
                           double *y, double ***Y) = 0;
