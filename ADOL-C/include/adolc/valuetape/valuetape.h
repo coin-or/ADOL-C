@@ -68,7 +68,7 @@ class ADOLC_API ValueTape {
 #define EDFCTS_BLOCK_SIZE 10
   Buffer<ext_diff_fct, EDFCTS_BLOCK_SIZE> ext_buffer_;
   Buffer<ext_diff_fct_v2, EDFCTS_BLOCK_SIZE> ext2_buffer_;
-  Buffer<CpInfos, EDFCTS_BLOCK_SIZE> cp_buffer_;
+  Buffer<ADOLC::CP::detail::Infos, EDFCTS_BLOCK_SIZE> cp_buffer_;
 
 #ifdef ADOLC_SPARSE
   ADOLC::Sparse::SparseJacInfos sJInfos_;
@@ -553,8 +553,10 @@ public:
   char inParallelRegion() const { return globalTapeVars_.inParallelRegion; }
 
   // ------------------------------- Buffer utils ---------------------------
-  CpInfos *cp_append() { return cp_buffer_.append(); }
-  CpInfos *cp_getElement(size_t index) { return cp_buffer_.getElement(index); }
+  ADOLC::CP::detail::Infos *cp_append() { return cp_buffer_.append(); }
+  ADOLC::CP::detail::Infos *cp_getElement(size_t index) {
+    return cp_buffer_.getElement(index);
+  }
 
   ext_diff_fct *ext_diff_append() { return ext_buffer_.append(); }
   ext_diff_fct *ext_diff_getElement(size_t index) {
@@ -935,7 +937,7 @@ public:
 
   static double make_inf() { return std::numeric_limits<double>::infinity(); }
 
-  CpInfos *get_cp_fct(size_t index) const {
+  ADOLC::CP::detail::Infos *get_cp_fct(size_t index) const {
     return cp_buffer_.getElement(index);
   }
 };

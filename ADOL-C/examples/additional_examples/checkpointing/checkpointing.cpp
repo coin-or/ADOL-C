@@ -83,7 +83,7 @@ int main() {
 
     // Now using checkpointing facilities
     // generate checkpointing context => define active variante of the time step
-    CP_Context cpc(tapeIdPart, tapeIdCheck, euler_step_act<adouble>);
+    ADOLC::CP::Context cpc(tapeIdPart, tapeIdCheck, euler_step_act<adouble>);
 
     // double variante of the time step function
     cpc.setDoubleFct(euler_step_act<double>);
