@@ -31,14 +31,17 @@ class adouble;
 
 using ADOLC_ext_fct =
     std::function<int(short tapeId, int m, int n, double *x, double *y)>;
-using ADOLC_ext_fct_fos_forward = std::function<int(
-    short tapeId, int m, int n, double *x, double *X, double *y, double *Y)>;
+using ADOLC_ext_fct_zos_forward = std::function<int(
+    short tapeId, int m, int n, int keep, double *x, double *y)>;
+using ADOLC_ext_fct_fos_forward =
+    std::function<int(short tapeId, int m, int n, int keep, double *x,
+                      double *X, double *y, double *Y)>;
 using ADOLC_ext_fct_fov_forward =
     std::function<int(short tapeId, int m, int n, int p, double *x, double **Xp,
                       double *y, double **Yp)>;
 using ADOLC_ext_fct_hos_forward =
-    std::function<int(short tapeId, int m, int n, int d, double *x, double **Xd,
-                      double *y, double **Yd)>;
+    std::function<int(short tapeId, int m, int n, int d, int keep, double *x,
+                      double **Xd, double *y, double **Yd)>;
 using ADOLC_ext_fct_hov_forward =
     std::function<int(short tapeId, int m, int n, int d, int p, double *x,
                       double ***Xpd, double *y, double ***Ypd)>;
@@ -70,15 +73,18 @@ using ADOLC_ext_fct_hov_reverse =
 using ADOLC_ext_fct_iArr =
     std::function<int(short tapeId, size_t iArrLength, size_t *iArr, int m,
                       int n, double *x, double *y)>;
-using ADOLC_ext_fct_iArr_fos_forward =
+using ADOLC_ext_fct_iArr_zos_forward =
     std::function<int(short tapeId, size_t iArrLength, size_t *iArr, int m,
-                      int n, double *x, double *X, double *y, double *Y)>;
+                      int n, int keep, double *x, double *y)>;
+using ADOLC_ext_fct_iArr_fos_forward = std::function<int(
+    short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int keep,
+    double *x, double *X, double *y, double *Y)>;
 using ADOLC_ext_fct_iArr_fov_forward = std::function<int(
     short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int p,
     double *x, double **Xp, double *y, double **Yp)>;
 using ADOLC_ext_fct_iArr_hos_forward = std::function<int(
     short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int d,
-    double *x, double **Xd, double *y, double **Yd)>;
+    int keep, double *x, double **Xd, double *y, double **Yd)>;
 using ADOLC_ext_fct_iArr_hov_forward = std::function<int(
     short tapeId, size_t iArrLength, size_t *iArr, int m, int n, int d, int p,
     double *x, double ***Xpd, double *y, double ***Ypd)>;
@@ -154,8 +160,8 @@ struct ADOLC_API ext_diff_fct {
    * makes sense for this to be different as illustrated in
    * examples/additional_examples/ext_diff_func/ext_diff_func.cpp
    */
-  ADOLC_ext_fct zos_forward{nullptr};
-  ADOLC_ext_fct_iArr zos_forward_iArr{nullptr};
+  ADOLC_ext_fct_zos_forward zos_forward{nullptr};
+  ADOLC_ext_fct_iArr_zos_forward zos_forward_iArr{nullptr};
 
   /**
    * this points to a  method implementing a forward execution of the externally

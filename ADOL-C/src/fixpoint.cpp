@@ -68,7 +68,7 @@ static int iteration(short, int dim_x, int dim_xu, double *xu, double *x_fix) {
   return -1;
 }
 
-static int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
+static int fp_zos_forward(short tapeId, int dim_x, int dim_xu, int, double *xu,
                           double *x_fix) {
 
   ValueTape &tape = findTape(tapeId);
@@ -104,8 +104,9 @@ static int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
   return -1;
 }
 
-static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
-                          double *xu_dot, double *x_fix, double *x_fix_dot) {
+static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, int keep,
+                          double *xu, double *xu_dot, double *x_fix,
+                          double *x_fix_dot) {
 
   // Piggy back
   double err, err_deriv;
@@ -132,7 +133,7 @@ static int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
     // type signatures of "external driver" and "normal" drivers are not aligned
     // thats why we have to cast...
     fos_forward(current->sub_tape_num, static_cast<int>(dim_x),
-                static_cast<int>(dim_xu), 0, xu, xu_dot, x_fix, x_fix_dot);
+                static_cast<int>(dim_xu), keep, xu, xu_dot, x_fix, x_fix_dot);
 
     for (int i = 0; i < dim_x; ++i)
       xu[i] = x_fix[i] - xu[i];

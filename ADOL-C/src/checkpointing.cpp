@@ -155,7 +155,7 @@ void check_input(short tapeId, CpInfos *cpInfos) {
 /****************************************************************************/
 
 /* special case: use double version where possible, no taping */
-int cp_zos_forward(size_t cpIndex, short tapeId, size_t, double *, size_t,
+int cp_zos_forward(size_t cpIndex, short tapeId, size_t, int, double *, size_t,
                    double *) {
   ValueTape &tape = findTape(tapeId);
 
@@ -189,8 +189,8 @@ int cp_zos_forward(size_t cpIndex, short tapeId, size_t, double *, size_t,
   return 0;
 }
 
-int cp_fos_forward(size_t, short, size_t, double *, double *, size_t, double *,
-                   double *) {
+int cp_fos_forward(size_t, short, size_t, int, double *, double *, size_t,
+                   double *, double *) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the fos_forward mode!\n");
   return 0;
@@ -203,8 +203,8 @@ int cp_fov_forward(size_t, short, size_t, double *, size_t, double **, size_t,
   return 0;
 }
 
-int cp_hos_forward(size_t, short, size_t, double *, size_t, double **, size_t,
-                   double *, double **) {
+int cp_hos_forward(size_t, short, size_t, double *, size_t, int, double **,
+                   size_t, double *, double **) {
   printf("WARNING: Checkpointing algorithm not "
          "implemented for the hos_forward mode!\n");
   return 0;
@@ -487,14 +487,15 @@ void init_edf(ext_diff_fct *edf) {
   edf->function = dummy;
 
   // ZOS FORWARD
-  edf->zos_forward = [edf](short tapeId, int m, int n, double *x, double *y) {
-    return cp_zos_forward(edf->cp_index, tapeId, n, x, m, y);
+  edf->zos_forward = [edf](short tapeId, int m, int n, int keep, double *x,
+                           double *y) {
+    return cp_zos_forward(edf->cp_index, tapeId, n, keep, x, m, y);
   };
 
   // FOS FORWARD
-  edf->fos_forward = [edf](short tapeId, int m, int n, double *x, double *X,
-                           double *y, double *Y) {
-    return cp_fos_forward(edf->cp_index, tapeId, n, x, X, m, y, Y);
+  edf->fos_forward = [edf](short tapeId, int m, int n, int keep, double *x,
+                           double *X, double *y, double *Y) {
+    return cp_fos_forward(edf->cp_index, tapeId, n, keep, x, X, m, y, Y);
   };
 
   // FOV FORWARD
@@ -504,9 +505,9 @@ void init_edf(ext_diff_fct *edf) {
   };
 
   // HOS FORWARD
-  edf->hos_forward = [edf](short tapeId, int m, int n, int d, double *x,
-                           double **Xd, double *y, double **Yd) {
-    return cp_hos_forward(edf->cp_index, tapeId, n, x, d, Xd, m, y, Yd);
+  edf->hos_forward = [edf](short tapeId, int m, int n, int d, int keep,
+                           double *x, double **Xd, double *y, double **Yd) {
+    return cp_hos_forward(edf->cp_index, tapeId, n, x, d, keep, Xd, m, y, Yd);
   };
 
   // HOV FORWARD

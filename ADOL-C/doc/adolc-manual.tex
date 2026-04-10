@@ -3050,8 +3050,8 @@ forward and first-order scalar reverse one may write
 The corresponding callback implementations typically call the ADOL-C driver on
 the external tape:
 \begin{verbatim}
-  auto zos_for_euler_step = [edf](short, int m, int n, double *yin, double *yout) {
-    return zos_forward(edf->extTapeId, m, n, 0, yin, yout);
+  auto zos_for_euler_step = [edf](short, int m, int n, int keep, double *yin, double *yout) {
+    return zos_forward(edf->extTapeId, m, n, keep, yin, yout);
   };
 
   auto fos_rev_euler_step = [edf](short tapeId, int m, int n, double *u, double *z,

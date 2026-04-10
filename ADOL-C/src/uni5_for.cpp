@@ -968,17 +968,22 @@ int hov_forward(
 #if defined(_EXTERN_)
 #undef(_EXTERN_)
 #endif
+#if defined(_KEEP_)
+#define ADOLC_EXT_KEEP keep
+#else
+#define ADOLC_EXT_KEEP 0
+#endif
   /* ZOS_FORWARD */
 #if defined(_ZOS_)
 #define _EXTERN_ 1
 #define ADOLC_EXT_FCT_POINTER zos_forward
 #define ADOLC_EXT_FCT_IARR_POINTER zos_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  zos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), ext_x,  \
-              ext_y)
+  zos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),         \
+              ADOLC_EXT_KEEP, ext_x, ext_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   zos_forward_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
-                   static_cast<int>(n), ext_x, ext_y)
+                   static_cast<int>(n), ADOLC_EXT_KEEP, ext_x, ext_y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   zos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               outsz, edfct2->y, edfct2->context)
@@ -990,11 +995,12 @@ int hov_forward(
 #define ADOLC_EXT_FCT_POINTER fos_forward
 #define ADOLC_EXT_FCT_IARR_POINTER fos_forward_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
-  fos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), ext_x,  \
-              ext_X, ext_y, ext_Y)
+  fos_forward(edfct->tapeId, static_cast<int>(m), static_cast<int>(n),         \
+              ADOLC_EXT_KEEP, ext_x, ext_X, ext_y, ext_Y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fos_forward_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
-                   static_cast<int>(n), ext_x, ext_X, ext_y, ext_Y)
+                   static_cast<int>(n), ADOLC_EXT_KEEP, ext_x, ext_X, ext_y,   \
+                   ext_Y)
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
   fos_forward(edfct2->tapeId, iArrLength, iArr, nin, nout, insz, edfct2->x,    \
               edfct2->xp, outsz, edfct2->y, edfct2->yp, edfct2->context)

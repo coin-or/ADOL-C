@@ -53,17 +53,16 @@ static int f_nested(int n, double *x, int m, double *y) {
 /**
  * Implement first derivatives by calling fos_forward
  */
-static int f_fos_forward(int n, double *x, double *dx, int m, double *y,
-                         double *dy) {
-  const int keep = 2;
+static int f_fos_forward(short, int m, int n, int keep, double *x, double *dx,
+                         double *y, double *dy) {
   return fos_forward(f_tape, m, n, keep, x, dx, y, dy);
 }
 
 /**
  * Implement first derivatives by hand
  */
-static int f_fos_forward_manual(int n, double *x, double *dx, int m, double *y,
-                                double *dy) {
+static int f_fos_forward_manual(short, int m, int n, int, double *x, double *dx,
+                                double *y, double *dy) {
   assert(n == 3 && m == 1);
   y[0] = x[0] * x[0] * x[0] * x[0] + x[1] * x[1] * x[1] * x[1] +
          x[2] * x[2] * x[2] * x[2] + x[0] * x[1];
@@ -167,7 +166,9 @@ static std::array<std::array<double, 3>, 3> g_hessian(int n, const double *x) {
 struct Fixture {
   Fixture() {
     f_ext = reg_ext_fct(f_nested);
-    f_ext->zos_forward = f<double>;
+    f_ext->zos_forward = [](short, int m, int n, int, double *x, double *y) {
+      return f(n, x, m, y);
+    };
     f_ext->fos_forward = f_fos_forward;
     f_ext->hos_ti_reverse = f_hos_ti_reverse;
     f_ext->nestedAdolc = 1;
