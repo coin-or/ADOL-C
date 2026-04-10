@@ -3192,59 +3192,67 @@ with the signatures
 \medskip
 
 \noindent
-\hspace*{2cm}{\sf int time\_step\_function(int n, adouble *u);}\\
-\hspace*{2cm}{\sf int time\_step\_function(int n, double *u);}
+\hspace*{2cm}{\sf int timeStepFunction(size\_t n, adouble *state);}\\
+\hspace*{2cm}{\sf int timeStepFunction(size\_t n, double *state);}
 \medskip
 
 \noindent
 where the function names can be chosen by the user as long as the names are
-unique.It is possible that the result vector of one time step
+unique. It is possible that the result vector of one time step
 iteration overwrites the argument vector of the same time step. Then, no
 copy operations are required to prepare the next time step.
 
 At first, the {\sf adouble} version of the time step function has to
-be {\em registered} using the \mbox{ADOL-C} function
+be {\em registered} by constructing a checkpointing context. Assuming the
+outer tape identifier {\sf tapeId} and the checkpoint tape identifier
+{\sf tapeIdCheck} are available, this is done with
 \medskip
 
 \noindent
-\hspace*{2cm}{\sf CP\_Context cpc(time\_step\_function);}.
+\hspace*{2cm}{\sf ADOLC::CP::Context cpc(tapeId, tapeIdCheck, timeStepFunction);}.
 \medskip
 
 \noindent
-This function initializes the structure {\sf cpc}. Then, 
+This initializes the checkpointing context {\sf cpc}. Then,
 the user has to provide the remaining checkpointing information
 by the following commands:
 \begin{tabbing}
-\hspace*{2cm}\= {\sf cpc.setDoubleFct(time\_step\_function);}\\
-             \> {\sf // double variante of the time step function}\\
+\hspace*{2cm}\= {\sf cpc.setDoubleFct(timeStepFunction);}\\
+             \> {\sf // passive variant of the time step function}\\
+             \> {\sf cpc.setSaveFct(saveState);}\\
+             \> {\sf // optional: save extra non-adouble checkpoint data}\\
+             \> {\sf cpc.setRestoreFct(restoreState);}\\
+             \> {\sf // optional: restore extra non-adouble checkpoint data}\\
              \> {\sf cpc.setNumberOfSteps(N);}\\
              \> {\sf // number of time steps to perform}\\
              \> {\sf cpc.setNumberOfCheckpoints(10);}\\
-             \> {\sf // number of checkpoint} \\
+             \> {\sf // number of checkpoints} \\
              \> {\sf cpc.setDimensionXY(n);}\\
              \> {\sf // dimension of input/output}\\
              \> {\sf cpc.setInput(y);}\\
              \> {\sf // input vector} \\
              \> {\sf cpc.setOutput(y);}\\
              \> {\sf // output vector }\\
-             \> {\sf cpc.setTapeNumber(tag\_check);}\\
-             \> {\sf // subtape number for checkpointing} \\
              \> {\sf cpc.setAlwaysRetaping(false);}\\
              \> {\sf // always retape or not ?}
 \end{tabbing}
+The save and restore hooks are optional. They are only needed if the time
+step depends on additional non-{\sf adouble} state that must travel with a
+checkpoint.
+
 Subsequently, the time loop in the function evaluation can be
 substituted by a call of the function
 \medskip
 
 \noindent
-\hspace*{2cm}{\sf int cpc.checkpointing();}
+\hspace*{2cm}{\sf int cpc.checkpointing(tapeId);}
 \medskip
 
 \noindent
 Then, ADOL-C computes derivative information using the optimal checkpointing
 strategy provided by {\sf revolve} internally, i.e., completely hidden from the user.
 
-The presented driver is prototyped in the header file 
+The presented interface is prototyped in the header file
 \verb=<adolc/checkpointing.h>=. This header
 is included by the global header file \verb=<adolc/adolc.h>= automatically. 
 An example program \verb=checkpointing.cpp= illustrates the

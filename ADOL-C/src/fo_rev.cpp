@@ -195,8 +195,10 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <adolc/oplate.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
+#include <algorithm>
 #include <math.h>
 #include <string.h>
+#include <vector>
 
 #ifdef ADOLC_MEDIPACK_SUPPORT
 #include <adolc/medipacksupport_p.h>
@@ -2630,7 +2632,7 @@ int int_reverse_safe(
 
 #if !defined(_INT_REV_)
       /*--------------------------------------------------------------------------*/
-    case ext_diff: /* extern differntiated function */
+    case ext_diff: { /* extern differntiated function */
       m = static_cast<int>(tape.get_locint_r());
       n = static_cast<int>(tape.get_locint_r());
       tape.ext_diff_fct_index(tape.get_locint_r());
@@ -2641,8 +2643,13 @@ int int_reverse_safe(
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
 #ifdef _FOS_
+      // Checkpointing can use the same memory for input and output.
+      // Keep z in a temp so clearing u does not wipe it.
+      std::vector<double> ext_z_buffer(to_size_t(n));
       ext_u = rp_A + edfct->firstDepLocation;
-      ext_z = rp_A + edfct->firstIndLocation;
+      std::copy(rp_A + edfct->firstIndLocation,
+                rp_A + edfct->firstIndLocation + n, ext_z_buffer.begin());
+      ext_z = ext_z_buffer.data();
 #elif defined _FOV_
       ext_Uq = myalloc2(edfct->q, m);
       ext_Zq = myalloc2(edfct->q, n);
@@ -2669,12 +2676,16 @@ int int_reverse_safe(
       ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
+      // Set u to zero
       res = edfct->firstDepLocation;
       for (int loop = 0; loop < m; ++loop) {
-        FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; /* \bar{v}_i = 0 !!! */ }
+        FOR_0_LE_l_LT_p { ADJOINT_BUFFER_RES_L = 0.; }
         ++res;
       }
       res = edfct->firstIndLocation;
+#ifdef _FOS_
+      std::copy(ext_z_buffer.begin(), ext_z_buffer.end(), rp_A + res);
+#endif
 #if defined _FOV_
       for (int loop = 0; loop < n; ++loop, ++res) {
         for (int l = 0; l < edfct->q; l++) {
@@ -2699,6 +2710,7 @@ int int_reverse_safe(
       myfree2(ext_Zq);
 #endif
       break;
+    }
     case ext_diff_iArr: /* extern differntiated function */
       m = static_cast<int>(tape.get_locint_r());
       n = static_cast<int>(tape.get_locint_r());
