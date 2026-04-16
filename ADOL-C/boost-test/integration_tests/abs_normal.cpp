@@ -233,9 +233,10 @@ BOOST_AUTO_TEST_CASE(FosPlReverse_BasisWeightsReturnExtendedJacobianRows) {
               weights.begin());
     std::fill(result.begin(), result.end(), 0.0);
 
-    const int rc =
-        fos_pl_reverse(problem.tapeId, problem.dimOut, problem.dimIn,
-                       problem.numSwitches, weights.data(), weights.data() + problem.dimOut, result.data(), result.data() + problem.dimIn);
+    const int rc = fos_pl_reverse(problem.tapeId, problem.dimOut, problem.dimIn,
+                                  problem.numSwitches, weights.data(),
+                                  weights.data() + problem.dimOut,
+                                  result.data(), result.data() + problem.dimIn);
 
     BOOST_TEST(rc >= 0);
     checkCloseContainer(result, kNestedExpectedRows[row], "row");
@@ -255,9 +256,10 @@ BOOST_AUTO_TEST_CASE(FosPlReverse_CombinesSwitchRowWeightsLinearly) {
   std::copy(kNestedWeights[4].begin(), kNestedWeights[4].end(),
             weights.begin());
 
-  const int rc =
-      fos_pl_reverse(problem.tapeId, problem.dimOut, problem.dimIn,
-                       problem.numSwitches, weights.data(), weights.data() + problem.dimOut, result.data(), result.data() + problem.dimIn);
+  const int rc = fos_pl_reverse(problem.tapeId, problem.dimOut, problem.dimIn,
+                                problem.numSwitches, weights.data(),
+                                weights.data() + problem.dimOut, result.data(),
+                                result.data() + problem.dimIn);
 
   BOOST_TEST(rc >= 0);
   checkCloseContainer(result, kNestedExpectedRows[4], "weighted_result");
@@ -285,20 +287,19 @@ BOOST_AUTO_TEST_CASE(FovPlReverse_MultipleWeightsReturnExpectedRows) {
       kNestedWeights.size() * (problem.dimIn + problem.numSwitches), 0.0);
   auto results = makeRowPointers(resultStorage, kNestedWeights.size(),
                                  problem.dimIn + problem.numSwitches);
-  
 
   std::vector<double *> weightsSwitch(kNestedWeights.size());
-  std::vector<double *> resultsSwitch(kNestedWeights.size()); 
+  std::vector<double *> resultsSwitch(kNestedWeights.size());
 
   for (int i = 0; i < kNestedWeights.size(); i++) {
-      resultsSwitch[i] = results[i] + problem.dimIn;
-      weightsSwitch[i] = weights[i] + problem.dimIn;
+    resultsSwitch[i] = results[i] + problem.dimIn;
+    weightsSwitch[i] = weights[i] + problem.dimOut;
   }
-  
 
   const int rc = fov_pl_reverse(
       problem.tapeId, problem.dimOut, problem.dimIn, problem.numSwitches,
-      static_cast<int>(kNestedWeights.size()), weights.data(), weightsSwitch.data(), results.data(), resultsSwitch.data());
+      static_cast<int>(kNestedWeights.size()), weights.data(),
+      weightsSwitch.data(), results.data(), resultsSwitch.data());
 
   BOOST_TEST(rc >= 0);
   checkCloseMatrix(results.data(), kNestedExpectedRows, "fov_pl_reverse");
