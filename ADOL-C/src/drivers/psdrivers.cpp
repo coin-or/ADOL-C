@@ -83,7 +83,6 @@ int abs_normal(short tag,       /* tape identifier */
     resultsSwitch[m + switchRow] = L[switchRow];
   }
 
-  // vectorized reverse mode for all (m+s) rows at onces
   fov_pl_reverse(tag, m, n, static_cast<int>(s), m + static_cast<int>(s),
                  lagrange.data(), lagrangeSwitch.data(), results.data(),
                  resultsSwitch.data());
