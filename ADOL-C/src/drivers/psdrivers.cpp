@@ -107,8 +107,7 @@ int abs_normal(short tag,       /* tape identifier */
 }
 
 /*--------------------------------------------------------------------------*/
-/*                                              directional_active_gradient
- */
+/*                                              directional_active_gradient */
 /*                                                                          */
 int directional_active_gradient(short tag,       /* trace identifier */
                                 int n,           /* number of independents */
