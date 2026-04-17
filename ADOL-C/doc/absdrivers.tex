@@ -76,7 +76,7 @@ has to be used. \textit{firstsign(u)} of a vector $u$ is defined as the \textit{
 of the first non-vanishing component of $u$ if that exists; otherwise the value is zero. 
 More detailed information can be found in \cite{Griewank13}. 
 
-The following function evaluates the non-smooth function $y_0 = F(x_0)$ as well as its
+The following function evaluates the abs-smooth function $y_0 = F(x_0)$ as well as its
 abs-linearization with expansionpoint $x_0$ at $x_1$, usually denoted by 
 $ y_1 = \Delta f(x_0, x_1)$. The corresponding switching values are also returned. 
 
@@ -109,7 +109,7 @@ $ y_1 = \Delta f(x_0, x_1)$. The corresponding switching values are also returne
 \>{\sf double Z[s][p];}        \> // first derivative matrix $Z=z^\prime (x)X$
 \end{tabbing}
 
-The reverse mode of abs-normal computes Jacobian-vector product of the extended
+This reverse mode function computes Jacobian-vector product of the extended
 Jacobian, i.e., 
 \[ \left[\begin{array}{cc}
             Z & L\\ J & Y
@@ -127,7 +127,7 @@ and $\texttt{resultsSwitch} = L^Tv + Y^Tw$.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fos\_pl\_reverse(tag,m,n,s,lagrange,lagrangeSwitch,results, resultsSwitch)}\\
+\>{\sf int fos\_pl\_reverse(tag,m,n,s,lagrange,lagrangeSwitch,results,resultsSwitch)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
@@ -141,7 +141,7 @@ and $\texttt{resultsSwitch} = L^Tv + Y^Tw$.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fos\_pl\_reverse(tag,m,n,s,lagrange,lagrangeSwitch,results, resultsSwitch)}\\
+\>{\sf int fov\_pl\_reverse(tag,m,n,s,p,lagrange,lagrangeSwitch,results,resultsSwitch)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
