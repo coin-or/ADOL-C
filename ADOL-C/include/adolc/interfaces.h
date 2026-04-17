@@ -464,14 +464,56 @@ ADOLC_API int indopro_forward_absnormal(short, int, int, int, const double *,
                                         uint **);
 /*--------------------------------------------------------------------------*/
 
-/* fos_reverse(tag, m, n, s, u[m + s], z[n + s]) */
-/* (defined in fo_rev.cpp)*/
-ADOLC_API int fos_pl_reverse(short, int, int, int, const double *, double *);
+/**
+ * @brief Computes vector-Jacobian product of the extended Jacobian of the
+ * abs-linearization.
+ *
+ * Using the evaluation point of the previous call of zos_pl_forward this
+ * function will compute vector-Jacobian product of the extended Jacobian:
+ * \[ [Y J \\ Z L\] \]
+ *
+ * \p result = \p lagrange . Y + \p lagrangeSwitch . Z
+ *
+ * \p resultSwitch = \p lagrange . J + \p lagrangeSwitch . L
+ *
+ * @param tag            Tape identifier.
+ * @param m              Number of dependent variables.
+ * @param n              Number of independent variables.
+ * @param s              Number of switching variables.
+ * @param lagrange       Seedvector for dependents of size \p m.
+ * @param lagrangeSwitch Seedvector for switches of size \p s.
+ * @param results        Derivatives wrt. indeps of size \p n.
+ * @param resultsSwitch  Derivatives wrt. switches of size \p s.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API int fos_pl_reverse(short tag, int m, int n, int s,
+                             const double *lagrange,
+                             const double *lagrangeSwitch, double *results,
+                             double *resultsSwitch);
 
-/* fov_pl_reverse(tag, m, n, s, p, U[p][m + s], Z[p][n + s]) */
-/* (defined in fo_rev.cpp)                                                    */
-ADOLC_API int fov_pl_reverse(short, int, int, int, int, const double *const *,
-                             double **);
+/**
+ * @brief Computes several vector-Jacobian product of the extended Jacobian of
+ * the abs-linearization.
+ *
+ * This is the vectormode of fos_pl_reverse, check there for more info
+ *
+ * @param tag            Tape identifier.
+ * @param m              Number of dependent variables.
+ * @param n              Number of independent variables.
+ * @param s              Number of switching variables.
+ * @param nrow           Number of rows.
+ * @param lagrange       Seedvectors for dependents of size \p nrow x \p m.
+ * @param lagrangeSwitch Seedvectors for switches of size \p nrow x \p s.
+ * @param results        Derivatives wrt. indeps of size \p nrow x \p n.
+ * @param resultsSwitch  Derivatives wrt. switches of size \p nrow x \p s.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API int fov_pl_reverse(short tag, int m, int n, int s, int nrow,
+                             const double *const *lagrange,
+                             const double *const *lagrangeSwitch,
+                             double **results, double **resultsSwitch);
 
 ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,
                                  const double *, double *);

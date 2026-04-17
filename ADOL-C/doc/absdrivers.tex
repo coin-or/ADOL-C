@@ -76,6 +76,10 @@ has to be used. \textit{firstsign(u)} of a vector $u$ is defined as the \textit{
 of the first non-vanishing component of $u$ if that exists; otherwise the value is zero. 
 More detailed information can be found in \cite{Griewank13}. 
 
+The following function evaluates the abs-smooth function $y_0 = F(x_0)$ as well as its
+abs-linearization with expansionpoint $x_0$ at $x_1$, usually denoted by 
+$ y_1 = \Delta f(x_0, x_1)$. The corresponding switching values are also returned. 
+
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
 \>{\sf int fos\_pl\_forward(tag,m,n,x0,x1,y0,y1,z0,z2)}\\
@@ -105,18 +109,48 @@ More detailed information can be found in \cite{Griewank13}.
 \>{\sf double Z[s][p];}        \> // first derivative matrix $Z=z^\prime (x)X$
 \end{tabbing}
 
-In contrast to the drivers above the reverse mode does not require any directions. 
-It always returns one row of the Jacobian matrix.
+This reverse mode function computes Jacobian-vector product of the extended
+Jacobian, i.e., 
+\[ \left[\begin{array}{cc}
+            Z & L\\ J & Y
+         \end{array}\right]^T 
+         \left[\begin{array}{cc}
+            v\\ w
+         \end{array}\right] =
+         \left[\begin{array}{cc}
+          Z^Tv + J^Tw \\L^Tv+ Y^Tw
+         \end{array}\right]
+         \] 
+Two weight vectors $\texttt{lagrange} = w$ and $\texttt{lagrageSwitch} = v$
+are used. The result are then also two vectors $\texttt{results} = Z^Tv + J^Tw$ 
+and $\texttt{resultsSwitch} = L^Tv + Y^Tw$.
 
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int fov\_pl\_reverse(tag,m,n,s,rownum,z)}\\
+\>{\sf int fos\_pl\_reverse(tag,m,n,s,lagrange,lagrangeSwitch,results,resultsSwitch)}\\
 \>{\sf short int tag;}         \> // tape identification \\
 \>{\sf int m;}                 \> // number of dependent variables $m$\\
 \>{\sf int n;}                 \> // number of independent variables $n$\\
 \>{\sf int s;}                 \> // number of sign switches\\
-\>{\sf int rownum;}            \> // required row no. of abs-normal form \\
-\>{\sf double z[n];}           \> // resulting adjoint value $z^T = u^T F^\prime (x)$\\
+\>{\sf double lagrange[m];}    \> // weights/seeds for dependent variables \\
+\>{\sf double lagrangeSwitch[s];} \> // weights/seeds for switching variables \\
+\>{\sf double results[n];}     \> // resulting adjoint values for independent variables\\
+\>{\sf double resultsSwitch[s];} \> // resulting adjoint values for swtiching variables \\
+\end{tabbing}
+
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int fov\_pl\_reverse(tag,m,n,s,p,lagrange,lagrangeSwitch,results,resultsSwitch)}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf int m;}                 \> // number of dependent variables $m$\\
+\>{\sf int n;}                 \> // number of independent variables $n$\\
+\>{\sf int s;}                 \> // number of sign switches\\
+\>{\sf int p;}                 \> // number of rows\\
+\>{\sf double lagrange[p, m];}      \> // weights/seeds for dependent variables \\
+\>{\sf double lagrangeSwitch[p, s];}\> // weights/seeds for switching variables \\
+\>{\sf double results[p, n];}       \> // resulting adjoint values for independent variables\\
+\>{\sf double resultsSwitch[p, s];} \> // resulting adjoint values for swtiching variables \\
 \end{tabbing}
 
 One may also compute the sparsity pattern of the extended Jacobian

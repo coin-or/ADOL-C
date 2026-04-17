@@ -225,8 +225,9 @@ int fos_pl_reverse(short tnum, /* tape id */
                    int depen,  /* consistency chk on # of deps */
                    int indep,  /* consistency chk on # of indeps */
                    int swchk,  /* consistency chk on # of switches */
-                   const double *lagrange,
-                   double *results) /*  coefficient vectors */
+                   const double *lagrange, const double *lagrangeSwitch,
+                   double *results,
+                   double *resultsSwitch) /*  coefficient vectors */
 #elif defined(_ABS_NORM_SIG_)
 /****************************************************************************/
 /* Abs-Normal extended adjoint row computation.                             */
@@ -256,7 +257,9 @@ int fov_pl_reverse(short tnum, /* tape id */
                    int swchk,
                    int nrows, /* # of Jacobian rows being calculated */
                    const double *const *lagrange, /* domain weight vector */
-                   double **results) /* matrix of coefficient vectors */
+                   const double *const *lagrangeSwitch,
+                   double **results,       /* result matrix indeps*/
+                   double **resultsSwitch) /* result matrix switchvars */
 
 #else
 int fov_reverse(short tnum, /* tape id */
@@ -1609,24 +1612,24 @@ int int_reverse_safe(
 #ifdef _FOS_
       // The current adjoint of |z_i| contributes to the column corresponding
       // to |z_i| in the extended Jacobian
-      results[indep + switchnum] = *Ares;
+      resultsSwitch[switchnum] = *Ares;
       *Ares = 0.0;
       // The weight for z_i seeds the reverse sweep at its defining
       // switching variable, which could already hold accumulated values.
-      *Aarg += lagrange[depen + switchnum];
+      *Aarg += lagrangeSwitch[switchnum];
 #elif _FOV_
       // The current adjoint of |z_i| contributes to the column corresponding
       // to |z_i| in the extended Jacobian
 
       for (int row = 0; row < nrows; row++) {
-        results[row][indep + switchnum] = Ares[row];
+        resultsSwitch[row][switchnum] = Ares[row];
         Ares[row] = 0.0;
       }
 
       // The weight for z_i seeds the reverse sweep at its defining
       // switching variable, which could already hold accumulated values.
       for (int row = 0; row < nrows; row++) {
-        Aarg[row] += lagrange[row][depen + switchnum];
+        Aarg[row] += lagrangeSwitch[row][switchnum];
       }
 #endif // _FOS_
       switchnum--;
