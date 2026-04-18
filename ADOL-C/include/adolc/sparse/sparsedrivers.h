@@ -877,7 +877,9 @@ ADOLC_API int sparse_jac(short tag, int depen, int indep, int repeat,
  * @param basepoint Pointer to basepoint values (independent variable array).
  * @param[out] compressedRowStorage
  *        Span over an array of row pointers, each representing one Jacobian
- *        row in Compressed Row Storage (CRS) format.
+ *        row in Compressed Row Storage (CRS) format. The span must have length
+ *        `depen + numsw`. Rows are ordered as `[y ; z]`, while columns are
+ *        ordered as `[x ; |z|]`.
  *
  * @return Return code from `indopro_forward_absnormal()`:
  *         - `0` → success,

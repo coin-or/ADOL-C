@@ -469,8 +469,13 @@ ADOLC_API int indopro_forward_absnormal(short, int, int, int, const double *,
  * abs-linearization.
  *
  * Using the evaluation point of the previous call of zos_pl_forward this
- * function will compute vector-Jacobian product of the extended Jacobian:
- * \[ [Y J \\ Z L\] \]
+ * function computes vector-Jacobian products with the extended Jacobian
+ * written in row order `[y ; z]` and column order `[x ; |z|]`, i.e.
+ * \f[
+ *   \left[\begin{array}{cc}
+ *     Y & J\\ Z & L
+ *   \end{array}\right].
+ * \f]
  *
  * \p result = \p lagrange . Y + \p lagrangeSwitch . Z
  *
@@ -496,7 +501,7 @@ ADOLC_API int fos_pl_reverse(short tag, int m, int n, int s,
  * @brief Computes several vector-Jacobian product of the extended Jacobian of
  * the abs-linearization.
  *
- * This is the vectormode of fos_pl_reverse, check there for more info
+ * This is the vectormode of fos_pl_reverse, check there for more info.
  *
  * @param tag            Tape identifier.
  * @param m              Number of dependent variables.
