@@ -52,7 +52,26 @@ ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
 /**
  * @brief Compute the ABS-normal form of a taped function.
  *
- * This routine evaluates the abs-normal form (see Griwank et al.: Solving
+ * This routine evaluates the abs-normal form in the same ordering used by the
+ * driver interfaces: function outputs first and switching variables second,
+ * i.e.
+ * \f[
+ *   \left[\begin{array}{c}
+ *     y\\ z
+ *   \end{array}\right]
+ *   =
+ *   \left[\begin{array}{c}
+ *     b\\ c
+ *   \end{array}\right]
+ *   +
+ *   \left[\begin{array}{cc}
+ *     Y & J\\ Z & L
+ *   \end{array}\right]
+ *   \left[\begin{array}{c}
+ *     x\\ |z|
+ *   \end{array}\right]
+ * \f]
+ * (see Griewank et al.: Solving
  * piecewise linear equations in abs-normal form) associated with a previously
  * recorded tape. It computes function values, switching variables, and the
  * components needed for piecewise-linear / piecewise-smooth analysis.
@@ -83,8 +102,8 @@ ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
  * @param x      Base point (input values), array of length \p n.
  * @param y      Function values at \p x, array of length \p m.
  * @param z      Switching variable values, array of length \p swchk.
- * @param cz     First constant term, array of length \p swchk.
- * @param cy     Second constant term, array of length \p m.
+ * @param cz     Constant vector \f$c\f$, array of length \p swchk.
+ * @param cy     Constant vector \f$b\f$, array of length \p m.
  * @param Y      Matrix of size \p m × \p n.
  * @param J      Matrix of size \p m × \p swchk.
  * @param Z      Matrix of size \p swchk × \p n.
