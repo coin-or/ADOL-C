@@ -1,6 +1,7 @@
 #include <adolc/adolcerror.h>
 #include <adolc/valuetape/infotype.h>
 #include <adolc/valuetape/tapeinfos.h>
+#include <cstddef>
 #include <cstring> // for memset
 #include <span>
 
@@ -57,9 +58,7 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
-      dp_T0(other.dp_T0), workMode(other.workMode), rp_T(other.rp_T),
-      rpp_T(other.rpp_T), rp_A(other.rp_A), rpp_A(other.rpp_A),
-      upp_A(other.upp_A), ext_diff_fct_index(other.ext_diff_fct_index),
+      workMode(other.workMode), ext_diff_fct_index(other.ext_diff_fct_index),
       nestedReverseEval(other.nestedReverseEval),
       numSwitches(other.numSwitches), signature(other.signature) {
   std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
@@ -84,14 +83,6 @@ TapeInfos::TapeInfos(TapeInfos &&other) noexcept
   other.tayBuffer = nullptr;
   other.currTay = nullptr;
   other.lastTayP1 = nullptr;
-
-  other.dp_T0 = nullptr;
-
-  other.rp_T = nullptr;
-  other.rpp_T = nullptr;
-  other.rp_A = nullptr;
-  other.rpp_A = nullptr;
-  other.upp_A = nullptr;
 
   other.signature = nullptr;
 }
@@ -145,15 +136,7 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     tay_numInds = other.tay_numInds;
     tay_numDeps = other.tay_numDeps;
 
-    dp_T0 = other.dp_T0;
     workMode = other.workMode;
-
-    rp_T = other.rp_T;
-    rpp_T = other.rpp_T;
-    rp_A = other.rp_A;
-    rpp_A = other.rpp_A;
-    upp_A = other.upp_A;
-
     ext_diff_fct_index = other.ext_diff_fct_index;
     nestedReverseEval = other.nestedReverseEval;
     numSwitches = other.numSwitches;
@@ -176,12 +159,6 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     other.tayBuffer = nullptr;
     other.currTay = nullptr;
     other.lastTayP1 = nullptr;
-    other.dp_T0 = nullptr;
-    other.rp_T = nullptr;
-    other.rpp_T = nullptr;
-    other.rp_A = nullptr;
-    other.rpp_A = nullptr;
-    other.upp_A = nullptr;
     other.signature = nullptr;
   }
   return *this;
@@ -289,8 +266,8 @@ void TapeInfos::write_scaylors(const double *taylorCoefficientPos,
   currTay += size;
 }
 
-void TapeInfos::get_taylors(size_t loc, std::ptrdiff_t degree) {
-  double *T = rpp_T[loc] + degree;
+void TapeInfos::get_taylors(double *taylorCoefficients, std::ptrdiff_t degree) {
+  double *T = taylorCoefficients + degree;
   std::span<double> taySpan(currTay, tayBuffer);
   /* As long as all values from the taylor stack buffer will be used copy
    * them into the taylor buffer and load the next (previous) buffer. */
@@ -309,8 +286,9 @@ void TapeInfos::get_taylors(size_t loc, std::ptrdiff_t degree) {
   }
 }
 
-void TapeInfos::get_taylors_p(size_t loc, int degree, int numDir) {
-  double *T = rpp_T[loc] + degree * numDir;
+void TapeInfos::get_taylors_p(double *taylorCoefficients, int degree,
+                              int numDir) {
+  double *T = taylorCoefficients + (static_cast<ptrdiff_t>(degree * numDir));
 
   /* update the directions except the base point parts */
   for (int j = 0; j < numDir; ++j) {

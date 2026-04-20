@@ -303,21 +303,6 @@ public:
   size_t nextBufferNumber() const { return tapeInfos_.nextBufferNumber; }
   void decrement_nextBufferNumber() { --tapeInfos_.nextBufferNumber; }
 
-  // Accessors for tapeInfos_ arrays
-  double *dp_T0() const { return tapeInfos_.dp_T0; }
-  double *rp_T() const { return tapeInfos_.rp_T; }
-  double *rp_A() const { return tapeInfos_.rp_A; }
-  double **rpp_A() const { return tapeInfos_.rpp_A; }
-  // Setter for tapeInfos_ arrays
-  void dp_T0(double *T0) { tapeInfos_.dp_T0 = T0; }
-  void rp_T(double *T) { tapeInfos_.rp_T = T; }
-
-  void rpp_T(double **T) { tapeInfos_.rpp_T = T; }
-  double *rpp_T(size_t loc) { return tapeInfos_.rpp_T[loc]; }
-  void rp_A(double *A) { tapeInfos_.rp_A = A; }
-  void rpp_A(double **A) { tapeInfos_.rpp_A = A; }
-  void upp_A(size_t **A) { tapeInfos_.upp_A = A; }
-
   constexpr static size_t maxLocsPerOp() { return TapeInfos::maxLocsPerOp; }
 
   void put_op(OPCODES op, size_t reserveExtraLocations = 0) {
@@ -606,19 +591,24 @@ public:
     globalTapeVars_.store[loc] = *tapeInfos_.currTay;
   }
 
-  // puts a taylor value from the value stack buffer to the taylor buffer
-  void get_taylor(size_t loc) { tapeInfos_.get_taylor(loc); }
+  ///@brief returns current taylor coefficient and advances the stack pointer
+  double get_taylor() { return tapeInfos_.get_taylor(); }
 
-  // puts a block of taylor coefficients from the value stack buffer to the
-  // taylor buffer --- Higher Order Scalar
-  void get_taylors(size_t loc, std::ptrdiff_t degree) {
-    tapeInfos_.get_taylors(loc, degree);
+  /*
+   * Puts a block of taylor coefficients from the value stack buffer to the
+   * buffer pointed ty by taylorCoefficients. The buffer is expected to be
+   * contiguous in memory. Use in Higher Order Scalar drivers.
+   */
+  void get_taylors(double *taylorCoefficients, std::ptrdiff_t degree) {
+    tapeInfos_.get_taylors(taylorCoefficients, degree);
   };
-
-  // puts a block of taylor coefficients from the value stack buffer to the
-  // taylor buffer --- Higher Order Vector
-  void get_taylors_p(size_t loc, int degree, int numDir) {
-    tapeInfos_.get_taylors_p(loc, degree, numDir);
+  /*
+   * Puts a block of taylor coefficients from the value stack buffer to buffer
+   * pointed to by taylorCoefficients. The buffer is expected to be contiguous
+   * in memory. Use in Higher Order Vector drivers.
+   */
+  void get_taylors_p(double *taylorCoefficients, int degree, int numDir) {
+    tapeInfos_.get_taylors_p(taylorCoefficients, degree, numDir);
   };
 
   // gets the next (previous block) of the value stack

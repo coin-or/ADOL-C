@@ -483,7 +483,6 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
   rp_A = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.rp_A(rp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #define ADJOINT_BUFFER rp_A
 #define ADJOINT_BUFFER_ARG_L rp_A[arg]
@@ -501,7 +500,6 @@ int int_reverse_safe(
 #else
 #if defined _FOV_ /* FOV */
   rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
-  tape.rpp_A(rpp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #define ADJOINT_BUFFER rpp_A
 #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
@@ -518,7 +516,6 @@ int int_reverse_safe(
 #if defined _INT_REV_
   upp_A = myalloc2_ulong(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
 #if defined _TIGHT_
-  tape.upp_A(upp_A);
   rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #endif
 #define ADJOINT_BUFFER upp_A
@@ -532,9 +529,6 @@ int int_reverse_safe(
   /*                                                    TAYLOR INITIALIZATION */
 
 #if !defined(_NTIGHT_)
-
-  tape.rp_T(rp_T);
-
   tape.taylor_back();
 
   if (tape.deg_save() < 0)
@@ -640,7 +634,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -662,7 +656,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -684,7 +678,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
       /*--------------------------------------------------------------------------*/
@@ -702,7 +696,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -731,7 +725,7 @@ int int_reverse_safe(
       }
 #endif
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       indexi--;
       break;
@@ -760,7 +754,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -781,7 +775,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -792,7 +786,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -813,7 +807,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -832,7 +826,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -843,7 +837,7 @@ int int_reverse_safe(
       arg = tape.get_locint_r();
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -867,7 +861,7 @@ int int_reverse_safe(
       res = tape.get_locint_r();
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -900,7 +894,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -929,7 +923,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -959,7 +953,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -988,7 +982,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -999,7 +993,7 @@ int int_reverse_safe(
       arg1 = tape.get_locint_r();
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1102,7 +1096,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1121,7 +1115,7 @@ int int_reverse_safe(
       /* olvo 980922 changed order to allow x=y/x */
 #if !defined(_NTIGHT_) && !defined(_INT_REV_)
       double r_0 = -TRES;
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
       double r0 = 1.0 / TARG2;
       r_0 *= r0;
 #endif /* !_NTIGHT_ */
@@ -1158,7 +1152,7 @@ int int_reverse_safe(
       /* olvo 980922 changed order to allow x=d/x */
       double r0 = -TRES;
       if (arg == res)
-        tape.get_taylor(arg);
+        rp_T[arg] = tape.get_taylor();
       r0 /= TARG;
 #endif /* !_NTIGHT_ */
 
@@ -1176,7 +1170,7 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
       if (arg != res)
-        tape.get_taylor(res);
+        rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -1205,7 +1199,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1230,7 +1224,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1259,7 +1253,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1285,8 +1279,8 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
-      tape.get_taylor(arg2); /* olvo 980710 covalue */
+      rp_T[res] = tape.get_taylor();
+      rp_T[arg2] = tape.get_taylor(); /* olvo 980710 covalue */
       /* NOTE: ADJOINT_BUFFER[arg2] should be 0 already */
 #endif /* !_NTIGHT_ */
       break;
@@ -1313,10 +1307,10 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
-      tape.get_taylor(arg2); /* olvo 980710 covalue */
-                             /* NOTE ADJOINT_BUFFER[arg2] should be 0 already */
-#endif                       /* !_NTIGHT_ */
+      rp_T[res] = tape.get_taylor();
+      rp_T[arg2] = tape.get_taylor(); /* olvo 980710 covalue */
+      /* NOTE ADJOINT_BUFFER[arg2] should be 0 already */
+#endif /* !_NTIGHT_ */
       break;
 
       /*--------------------------------------------------------------------------*/
@@ -1333,7 +1327,7 @@ int int_reverse_safe(
       arg1 = tape.get_locint_r();
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1359,7 +1353,7 @@ int int_reverse_safe(
       arg = tape.get_locint_r();
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1398,7 +1392,7 @@ int int_reverse_safe(
       /* olvo 980921 changed order to allow x=pow(x,n) */
       double r0 = TRES; // r0 = pow(x, n)
       if (arg == res)
-        tape.get_taylor(arg);
+        rp_T[arg] = tape.get_taylor();
       if (TARG == 0.0)
         r0 = 0.0;
       else
@@ -1419,7 +1413,7 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
       if (res != arg)
-        tape.get_taylor(res);
+        rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -1451,7 +1445,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -1483,7 +1477,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
     } break;
 
@@ -1513,7 +1507,7 @@ int int_reverse_safe(
       }
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -1525,7 +1519,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1603,7 +1597,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1703,7 +1697,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1732,7 +1726,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -1768,7 +1762,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1832,7 +1826,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1896,7 +1890,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1938,7 +1932,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
@@ -1998,7 +1992,7 @@ int int_reverse_safe(
 #endif
 
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
 
       break;
@@ -2036,7 +2030,7 @@ int int_reverse_safe(
         *Ares = 0.0;
 #endif
       }
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
                        CURRENT_LOCATION);
@@ -2073,7 +2067,7 @@ int int_reverse_safe(
         ADOLCError::fail(
             ADOLCError::ErrorType::ADUBREF_SAFE_MODE, CURRENT_LOCATION,
             ADOLCError::FailInfo{.info5 = vectorloc + idx, .info6 = arg1});
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ACTIVE_SUBSCRIPTING,
                        CURRENT_LOCATION);
@@ -2097,7 +2091,7 @@ int int_reverse_safe(
         ARES_INC = 0.0;
 #endif
       }
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif
@@ -2109,7 +2103,7 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2131,7 +2125,7 @@ int int_reverse_safe(
           ARES_INC = 0.0;
 #endif
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2152,7 +2146,7 @@ int int_reverse_safe(
 #else
           ARES_INC = 0.0;
 #endif
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2179,7 +2173,7 @@ int int_reverse_safe(
 #endif
       }
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2199,7 +2193,7 @@ int int_reverse_safe(
       FOR_0_LE_l_LT_p RESULTS(l, indexi) = ARES_INC;
 #endif
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2213,7 +2207,7 @@ int int_reverse_safe(
       res = (size_t)trunc(fabs(TARG1));
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2237,7 +2231,7 @@ int int_reverse_safe(
           AARG_INC += ARES_INC;
 #endif
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2250,7 +2244,7 @@ int int_reverse_safe(
       res = (size_t)trunc(fabs(TARG1));
       coval = tape.get_val_r();
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2273,7 +2267,7 @@ int int_reverse_safe(
           AARG_INC -= ARES_INC;
 #endif
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2292,7 +2286,7 @@ int int_reverse_safe(
       FOR_0_LE_l_LT_p ARES_INC *= coval;
 #endif
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #else
       ADOLCError::fail(ADOLCError::ErrorType::ADUBREF_VE_REF, CURRENT_LOCATION);
 #endif /* !_NTIGHT_ */
@@ -2305,7 +2299,7 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
       res = (size_t)trunc(fabs(TARG1));
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
       ASSIGN_A(Aarg, ADJOINT_BUFFER[arg])
@@ -2345,7 +2339,7 @@ int int_reverse_safe(
         }
 
 #if !defined(_NTIGHT_)
-        tape.get_taylor(res + qq);
+        rp_T[res + qq] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       }
 
@@ -2373,7 +2367,7 @@ int int_reverse_safe(
         arg1++;
       }
 #if !defined(_NTIGHT_)
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -2400,7 +2394,7 @@ int int_reverse_safe(
 #endif
         }
 #if !defined(_NTIGHT_)
-        tape.get_taylor(res);
+        rp_T[res] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
         arg2++;
         arg1++;
@@ -2421,7 +2415,7 @@ int int_reverse_safe(
       coval = tape.get_val_r();
       res = (size_t)trunc(fabs(rp_T[ref]));
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2479,7 +2473,7 @@ int int_reverse_safe(
       coval = tape.get_val_r();
       res = (size_t)trunc(fabs(rp_T[ref]));
 
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2531,7 +2525,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
       res = (size_t)trunc(fabs(TARG2));
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2567,7 +2561,7 @@ int int_reverse_safe(
 #if !defined(_NTIGHT_)
       coval = tape.get_val_r();
       res = (size_t)trunc(fabs(TARG2));
-      tape.get_taylor(res);
+      rp_T[res] = tape.get_taylor();
 
       ASSIGN_A(Aarg1, ADJOINT_BUFFER[arg1])
       ASSIGN_A(Ares, ADJOINT_BUFFER[res])
@@ -2629,7 +2623,7 @@ int int_reverse_safe(
 
 #if !defined(_NTIGHT_)
       for (size_t j = arg1; j <= arg2; j++)
-        tape.get_taylor(j);
+        rp_T[j] = tape.get_taylor();
 #endif /* !_NTIGHT_ */
       break;
 
@@ -2699,13 +2693,13 @@ int int_reverse_safe(
       if (edfct->dp_y_priorRequired) {
         arg = edfct->firstDepLocation + m - 1;
         for (int loop = 0; loop < m; ++loop, --arg) {
-          tape.get_taylor(arg);
+          rp_T[arg] = tape.get_taylor();
         }
       }
       if (edfct->dp_x_changes) {
         arg = edfct->firstIndLocation + n - 1;
         for (int loop = 0; loop < n; ++loop, --arg) {
-          tape.get_taylor(arg);
+          rp_T[arg] = tape.get_taylor();
         }
       }
 #ifdef _FOV_
@@ -2774,13 +2768,13 @@ int int_reverse_safe(
       if (edfct->dp_y_priorRequired) {
         arg = edfct->firstDepLocation + m - 1;
         for (int loop = 0; loop < m; ++loop, --arg) {
-          tape.get_taylor(arg);
+          rp_T[arg] = tape.get_taylor();
         }
       }
       if (edfct->dp_x_changes) {
         arg = edfct->firstIndLocation + n - 1;
         for (int loop = 0; loop < n; ++loop, --arg) {
-          tape.get_taylor(arg);
+          rp_T[arg] = tape.get_taylor();
         }
       }
 #ifdef _FOV_
@@ -2876,7 +2870,7 @@ int int_reverse_safe(
         for (size_t oloop = nout; oloop > 0; --oloop) {
           arg = lowestYLoc_ext_v2[oloop - 1] + outsz[oloop - 1] - 1;
           for (size_t loop = outsz[oloop - 1]; loop > 0; --loop) {
-            tape.get_taylor(arg);
+            rp_T[arg] = tape.get_taylor();
             --arg;
           }
         }
@@ -2885,7 +2879,7 @@ int int_reverse_safe(
         for (size_t oloop = nin; oloop > 0; --oloop) {
           arg = lowestXLoc_ext_v2[oloop - 1] + insz[oloop - 1] - 1;
           for (size_t loop = insz[oloop - 1]; loop > 0; --loop) {
-            tape.get_taylor(arg);
+            rp_T[arg] = tape.get_taylor();
             --arg;
           }
         }
@@ -2995,21 +2989,15 @@ int int_reverse_safe(
 #ifdef _FOS_
   myfree1(rp_A);
   myfree1(rp_T);
-  tape.rp_T(nullptr);
-  tape.rp_A(nullptr);
 #endif
 #ifdef _FOV_
   myfree2(rpp_A);
   myfree1(rp_T);
-  tape.rp_T(nullptr);
-  tape.rpp_A(nullptr);
 #endif
 #ifdef _INT_REV_
   myfree2_ulong(upp_A);
 #ifdef _TIGHT_
-  tape.upp_A(nullptr);
   myfree1(rp_T);
-  tape.rp_T(nullptr);
 #endif
 #endif
 

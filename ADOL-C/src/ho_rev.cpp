@@ -73,7 +73,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth)                                                   \
-    tape.get_taylors(loc, depth);                                              \
+    tape.get_taylors(rpp_T[loc], depth);                                       \
   }
 
 /*--------------------------------------------------------------------------*/
@@ -90,7 +90,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth * p)                                               \
-    tape.get_taylors_p(loc, depth, p);                                         \
+    tape.get_taylors_p(rpp_T[loc], depth, p);                                         \
   }
 // clang-format on
 /*--------------------------------------------------------------------------*/
@@ -111,7 +111,7 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #define GET_TAYL(loc, depth, p)                                                \
   {                                                                            \
     UPDATE_TAYLORREAD(depth)                                                   \
-    tape.get_taylors(loc, depth);                                              \
+    tape.get_taylors(rpp_T[loc], depth);                                       \
   }
 
 #else
@@ -452,8 +452,6 @@ int hov_ti_reverse(
 
   /************************************************************************/
   /*                                                TAYLOR INITIALIZATION */
-  tape.rpp_A(rpp_A);
-  tape.rpp_T(rpp_T);
   tape.taylor_back();
 
   if (tape.deg_save() != degre)
@@ -2971,11 +2969,7 @@ int hov_ti_reverse(
 
   /* clean up */
   myfree2(rpp_T);
-  tape.rpp_T(nullptr);
-
   myfree2(rpp_A);
-  tape.rpp_A(nullptr);
-
   myfree1(rp_Ttemp);
   myfree1(rp_Ttemp2);
   myfree1(rp_Atemp);

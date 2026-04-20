@@ -1128,7 +1128,6 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #if !defined(_NTIGHT_)
   dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  tape.dp_T0(dp_T0);
 
   if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
     if (tape.signature()) {
@@ -5839,7 +5838,6 @@ int hov_forward(
   /* clean up */
 #if !defined(_NTIGHT_)
   myfree1(dp_T0);
-  tape.dp_T0(nullptr);
 #endif /* !_NTIGHT_ */
 #if !defined(_INDO_)
 #if !defined(_ZOS_)
