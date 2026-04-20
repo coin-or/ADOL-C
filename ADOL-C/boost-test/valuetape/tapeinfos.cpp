@@ -68,21 +68,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.tay_numInds = 3;
   tp.tay_numDeps = 5;
 
-  auto d = new double[3];
-  tp.dp_T0 = d;
-
   tp.workMode = TapeInfos::NO_MODE;
-
-  auto f = new double[11];
-  tp.rp_T = f;
-  auto g = new double *[4];
-  tp.rpp_T = g;
-  auto h = new double[2];
-  tp.rp_A = h;
-  auto i = new double *[22];
-  tp.rpp_A = i;
-  auto j = new size_t *[3];
-  tp.upp_A = j;
 
   tp.ext_diff_fct_index = 5;
   tp.nestedReverseEval = true;
@@ -134,21 +120,7 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.tayBuffer, tayBuffer);
   BOOST_CHECK_EQUAL(tp2.currTay, tayBuffer + 4);
   BOOST_CHECK_EQUAL(tp2.lastTayP1, tayBuffer + 13);
-
-  BOOST_CHECK_EQUAL(tp2.dp_T0, d);
-  BOOST_CHECK_EQUAL(tp2.rp_T, f);
-  BOOST_CHECK_EQUAL(tp2.rpp_T, g);
-  BOOST_CHECK_EQUAL(tp2.rp_A, h);
-  BOOST_CHECK_EQUAL(tp2.rpp_A, i);
-  BOOST_CHECK_EQUAL(tp2.upp_A, j);
   BOOST_CHECK_EQUAL(tp2.signature, l);
-
-  delete[] d;
-  delete[] f;
-  delete[] g;
-  delete[] h;
-  delete[] i;
-  delete[] j;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

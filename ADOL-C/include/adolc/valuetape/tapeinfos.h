@@ -35,12 +35,6 @@ struct TapeInfos {
     NUM_PARAM, /* no of parameters (doubles) interchangeable without retaping */
     STAT_SIZE  /* represents the size of the stats vector */
   };
-  // option for removeTape
-  enum TapeRemovalType {
-    REMOVE_FROM_CORE,
-    REMOVE_COMPLETELY // also remove the tape files
-  };
-
   // modes for the tape evaluation; set by functions like "fos_forward"
   enum WORKMODES { NO_MODE, WRITE_ACCESS, READ_ACCESS };
 
@@ -105,17 +99,7 @@ struct TapeInfos {
   // # of dependents for the taylor stack
   size_t tay_numDeps{0};
 
-  /* evaluation forward */
-  double *dp_T0{nullptr};
-
   enum WORKMODES workMode { NO_MODE };
-
-  /* ---------- evaluation reverse------- */
-  double *rp_T{nullptr};
-  double **rpp_T{nullptr};
-  double *rp_A{nullptr};
-  double **rpp_A{nullptr};
-  size_t **upp_A{nullptr};
 
   /* extern diff. fcts */
   size_t ext_diff_fct_index{0}; /* set by forward and reverse (from tape) */
@@ -142,13 +126,11 @@ struct TapeInfos {
   void write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
                     const char *tay_fileName);
 
-  // puts a taylor value from the value stack buffer to the taylor buffer
-  void get_taylor(size_t loc) {
+  ///@brief returns current taylor coefficient and advances the stack pointer
+  double get_taylor() {
     if (currTay == tayBuffer)
       get_tay_block_r();
-
-    --currTay;
-    rp_T[loc] = *currTay;
+    return *(--currTay);
   }
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
@@ -173,17 +155,19 @@ struct TapeInfos {
   void write_scaylors(const double *taylorCoefficientPos, std::ptrdiff_t size,
                       const char *tay_fileName);
 
-  /****************************************************************************/
-  /* Puts a block of taylor coefficients from the value stack buffer to the   */
-  /* taylor buffer. --- Higher Order Scalar                                   */
-  /****************************************************************************/
-  void get_taylors(size_t loc, std::ptrdiff_t degree);
+  /*
+   * Puts a block of taylor coefficients from the value stack buffer to the
+   * buffer pointed ty by taylorCoefficients. The buffer is expected to be
+   * contiguous in memory. Use in Higher Order Scalar drivers.
+   */
+  void get_taylors(double *taylorCoefficients, std::ptrdiff_t degree);
 
-  /****************************************************************************/
-  /* Puts a block of taylor coefficients from the value stack buffer to the   */
-  /* taylor buffer. --- Higher Order Vector                                   */
-  /****************************************************************************/
-  void get_taylors_p(size_t loc, int degree, int numDir);
+  /*
+   * Puts a block of taylor coefficients from the value stack buffer to buffer
+   * pointed to by taylorCoefficients. The buffer is expected to be contiguous
+   * in memory. Use in Higher Order Vector drivers.
+   */
+  void get_taylors_p(double *taylorCoefficients, int degree, int numDir);
   void get_tay_block_r();
 
   // functions for handling loc tape
