@@ -264,7 +264,8 @@ struct TapeInfos {
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void put_block(std::string_view fileName,
-                 const typename Info::value *bufferPos) {
+                 const typename Info::value_type *bufferPos) {
+    using ADOLC::detail::write;
     using ADOLCError::fail;
     using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
     using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
@@ -276,9 +277,8 @@ struct TapeInfos {
 
     // write full chunks
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
-      auto returnCode = fwrite(
-          Info::bufferBegin(*this) + (chunk * Info::chunkSize),
-          Info::chunkSize * sizeof(typename Info::value), 1, Info::file(*this));
+      auto returnCode =
+          write<TapeInfos, ErrorType, Info>(*this, chunk, Info::chunkSize);
       if (returnCode != 1)
         fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
     }
@@ -287,8 +287,7 @@ struct TapeInfos {
     const size_t remain = lengthBlock % Info::chunkSize;
     if (remain != 0) {
       auto returnCode =
-          fwrite(Info::bufferBegin(*this) + (numChunks * Info::chunkSize),
-                 remain * sizeof(typename Info::value), 1, Info::file(*this));
+          write<TapeInfos, ErrorType, Info>(*this, numChunks, remain);
       if (returnCode != 1)
         fail(TAPING_FATAL_IO_ERROR, CURRENT_LOCATION);
     }
