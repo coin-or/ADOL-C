@@ -658,13 +658,13 @@ public:
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void readRemaining(size_t numChunks, size_t lengthBlock) {
+    using ADOLC::detail::read;
     using ADOLCError::fail;
     // numChunks + remain = lengthBlock
     const size_t remain = lengthBlock % Info::chunkSize;
     if (remain > 0) {
-      auto returnCode = fread(
-          Info::bufferBegin(tapeInfos_) + (numChunks * Info::chunkSize),
-          remain * sizeof(typename Info::value), 1, Info::file(tapeInfos_));
+      auto returnCode =
+          read<TapeInfos, ErrorType, Info>(tapeInfos_, numChunks, lengthBlock);
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
@@ -687,13 +687,12 @@ public:
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
   void readBloc(size_t lengthBlock) {
+    using ADOLC::detail::read;
     using ADOLCError::fail;
     const size_t numChunks = lengthBlock / Info::chunkSize;
     for (size_t chunk = 0; chunk < numChunks; chunk++) {
       auto returnCode =
-          fread(Info::bufferBegin(tapeInfos_) + (chunk * Info::chunkSize),
-                Info::chunkSize * sizeof(typename Info::value), 1,
-                Info::file(tapeInfos_));
+          read<TapeInfos, ErrorType, Info>(tapeInfos_, chunk, Info::chunkSize);
       if (returnCode != 1)
         fail(Info::error, CURRENT_LOCATION);
     }
@@ -764,7 +763,7 @@ public:
   template <InfoTypeBase<TapeInfos, ErrorType> Info> void setFilePosition() {
     auto number = (tapestats(Info::num) / tapestats(Info::bufferSize)) *
                   tapestats(Info::bufferSize);
-    auto offset = static_cast<long>(number * sizeof(typename Info::value));
+    auto offset = static_cast<long>(number * sizeof(typename Info::value_type));
     Info::openFile(tapeInfos_, fileName<Info>());
     fseek(Info::file(tapeInfos_), offset, SEEK_SET);
   }

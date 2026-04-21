@@ -24,7 +24,7 @@
     void do_something(TInfos& ti, ...);
 
   Each Info struct is a stateless “adapter” that:
-    - names the element type stored in the buffer (Info::value)
+    - names the element type stored in the buffer (Info::value_type)
     - exposes a few bookkeeping constants (Info::num, Info::bufferSize, ...)
     - maps generic operations to the concrete fields in TInfos
   (Info::removeFile, ...)
@@ -41,7 +41,7 @@ namespace ADOLC::detail {
  * @tparam ErrorType The error enum/type used by higher-level code.
  *
  * The concept intentionally checks:
- *   - existence of the nested element type (T::value)
+ *   - existence of the nested element type (T::value_type)
  *   - presence of a few static “category” constants (num/bufferSize)
  *   - presence of an error code constant (T::error) convertible to ErrorType
  *   - chunkSize convertible to size_t (bytes per I/O block / element size)
@@ -57,7 +57,7 @@ template <class T, class TInfos, class ErrorType>
 concept InfoTypeBase =
     requires(TInfos &tapeInfos, std::string_view fileName, std::string_view) {
       // element type stored in the tape buffer
-      typename T::value;
+      typename T::value_type;
 
       // “statistic entry” identifiers used by ADOL-C bookkeeping
       { T::num } -> std::same_as<const typename TInfos::StatEntries &>;
@@ -71,10 +71,10 @@ concept InfoTypeBase =
       { T::chunkSize } -> std::convertible_to<size_t>;
 
       // pointer to the begin of the tape buffer
-      { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value *>;
+      { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value_type *>;
 
       // map generic “current pointer” and “count” operations to TInfos fields
-      T::setCurr(tapeInfos, (typename T::value *)nullptr);
+      T::setCurr(tapeInfos, (typename T::value_type *)nullptr);
       T::setNum(tapeInfos, size_t{});
       { T::getNum(tapeInfos) };
 
@@ -102,6 +102,24 @@ template <class T, class TInfos, class ErrorType>
 concept InfoType =
     InfoTypeBase<T, TInfos, ErrorType> && HasFileAccessEntry<T, TInfos>;
 
+/// Wrapper for fread
+template <typename TInfos, typename ErrorType,
+          InfoTypeBase<TInfos, ErrorType> Info>
+static size_t read(TInfos &tapeInfos, size_t chunk, size_t size) {
+  return fread(Info::bufferBegin(tapeInfos) + (chunk * Info::chunkSize),
+               size * sizeof(typename Info::value_type), 1,
+               Info::file(tapeInfos));
+}
+
+/// Wrapper of fread
+template <typename TInfos, typename ErrorType,
+          InfoTypeBase<TInfos, ErrorType> Info>
+static size_t write(TInfos &tapeInfos, size_t chunk, size_t size) {
+  return fwrite(Info::bufferBegin(tapeInfos) + (chunk * Info::chunkSize),
+                size * sizeof(typename Info::value_type), 1,
+                Info::file(tapeInfos));
+}
+
 /**
  * @brief Adapter for the operations tape (op tape). Fulfills InfoType.
  *
@@ -115,7 +133,7 @@ concept InfoType =
  * statistics/counters.
  */
 template <class TInfos, class EType> struct OpInfo {
-  using value = unsigned char;
+  using value_type = unsigned char;
   using StatEntries = typename TInfos::StatEntries;
 
   static const StatEntries num = TInfos::NUM_OPERATIONS;
@@ -124,13 +142,17 @@ template <class TInfos, class EType> struct OpInfo {
 
   static constexpr EType error = EType::EVAL_OP_TAPE_READ_FAILED;
 
-  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) { tapeInfos.numOps_Tape = n; }
   static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numOps_Tape; }
-  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currOp = p; }
+  static void setCurr(TInfos &tapeInfos, value_type *p) {
+    tapeInfos.currOp = p;
+  }
 
-  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.opBuffer; }
+  static value_type *bufferBegin(TInfos &tapeInfos) {
+    return tapeInfos.opBuffer;
+  }
 
   static FILE *file(TInfos &tapeInfos) { return tapeInfos.op_file; }
   static void openFile(TInfos &tapeInfos, std::string_view fileName,
@@ -152,7 +174,7 @@ template <class TInfos, class EType> struct OpInfo {
  *   - tapeInfos.loc_file
  */
 template <class TInfos, class EType> struct LocInfo {
-  using value = size_t;
+  using value_type = size_t;
   using StatEntries = typename TInfos::StatEntries;
 
   static const StatEntries num = TInfos::NUM_LOCATIONS;
@@ -161,15 +183,19 @@ template <class TInfos, class EType> struct LocInfo {
 
   static constexpr EType error = EType::EVAL_LOC_TAPE_READ_FAILED;
 
-  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
     tapeInfos.numLocs_Tape = n;
   }
   static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numLocs_Tape; }
-  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currLoc = p; }
+  static void setCurr(TInfos &tapeInfos, value_type *p) {
+    tapeInfos.currLoc = p;
+  }
 
-  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.locBuffer; }
+  static value_type *bufferBegin(TInfos &tapeInfos) {
+    return tapeInfos.locBuffer;
+  }
 
   static FILE *file(TInfos &tapeInfos) { return tapeInfos.loc_file; }
   static void openFile(TInfos &tapeInfos, std::string_view fileName,
@@ -191,7 +217,7 @@ template <class TInfos, class EType> struct LocInfo {
  *   - tapeInfos.val_file
  */
 template <class TInfos, class EType> struct ValInfo {
-  using value = double;
+  using value_type = double;
   using StatEntries = typename TInfos::StatEntries;
 
   static const StatEntries num = TInfos::NUM_VALUES;
@@ -201,15 +227,19 @@ template <class TInfos, class EType> struct ValInfo {
 
   static constexpr EType error = EType::EVAL_VAL_TAPE_READ_FAILED;
 
-  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
     tapeInfos.numVals_Tape = n;
   }
   static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numVals_Tape; }
-  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currVal = p; }
+  static void setCurr(TInfos &tapeInfos, value_type *p) {
+    tapeInfos.currVal = p;
+  }
 
-  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.valBuffer; }
+  static value_type *bufferBegin(TInfos &tapeInfos) {
+    return tapeInfos.valBuffer;
+  }
 
   static FILE *file(TInfos &tapeInfos) { return tapeInfos.val_file; }
   static void openFile(TInfos &tapeInfos, std::string_view fileName,
@@ -231,7 +261,7 @@ template <class TInfos, class EType> struct ValInfo {
  *   - tapeInfos.tay_file
  */
 template <class TInfos, class EType> struct TayInfo {
-  using value = double;
+  using value_type = double;
   using StatEntries = typename TInfos::StatEntries;
 
   static const StatEntries num = TInfos::NUM_TAYS;
@@ -239,15 +269,19 @@ template <class TInfos, class EType> struct TayInfo {
 
   static constexpr EType error = EType::TAPING_TAYLOR_OPEN_FAILED;
 
-  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value);
+  static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
     tapeInfos.numTays_Tape = n;
   }
   static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numTays_Tape; }
-  static void setCurr(TInfos &tapeInfos, value *p) { tapeInfos.currTay = p; }
+  static void setCurr(TInfos &tapeInfos, value_type *p) {
+    tapeInfos.currTay = p;
+  }
 
-  static value *bufferBegin(TInfos &tapeInfos) { return tapeInfos.tayBuffer; }
+  static value_type *bufferBegin(TInfos &tapeInfos) {
+    return tapeInfos.tayBuffer;
+  }
 
   static FILE *file(TInfos &tapeInfos) { return tapeInfos.tay_file; }
   static void openFile(TInfos &tapeInfos, std::string_view fileName,
