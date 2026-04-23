@@ -8,93 +8,29 @@
 TapeInfos::TapeInfos(short tapeId) { tapeId_ = tapeId; }
 
 TapeInfos::~TapeInfos() {
-  if (op_file) {
-    fclose(op_file);
-    op_file = nullptr;
-  }
-  delete[] opBuffer;
-  opBuffer = nullptr;
-
-  if (val_file) {
-    fclose(val_file);
-    val_file = nullptr;
-  }
-
-  delete[] valBuffer;
-  valBuffer = nullptr;
-
-  if (loc_file) {
-    fclose(loc_file);
-    loc_file = nullptr;
-  }
-  delete[] locBuffer;
-  locBuffer = nullptr;
-
-  if (tay_file) {
-    fclose(tay_file);
-    tay_file = nullptr;
-  }
-
-  delete[] tayBuffer;
-  tayBuffer = nullptr;
-
   delete[] signature;
   signature = nullptr;
 }
 
 TapeInfos::TapeInfos(TapeInfos &&other) noexcept
-    : tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
-      keepTaylors(other.keepTaylors), op_file(other.op_file),
-      opBuffer(other.opBuffer), currOp(other.currOp), lastOpP1(other.lastOpP1),
-      numOps_Tape(other.numOps_Tape), num_eq_prod(other.num_eq_prod),
-      val_file(other.val_file), valBuffer(other.valBuffer),
-      currVal(other.currVal), lastValP1(other.lastValP1),
-      numVals_Tape(other.numVals_Tape), loc_file(other.loc_file),
-      locBuffer(other.locBuffer), currLoc(other.currLoc),
-      lastLocP1(other.lastLocP1), numLocs_Tape(other.numLocs_Tape),
-      tay_file(other.tay_file), tayBuffer(other.tayBuffer),
-      currTay(other.currTay), lastTayP1(other.lastTayP1),
-      numTays_Tape(other.numTays_Tape),
+    : opBuffer_(std::move(other.opBuffer_)),
+      valBuffer_(std::move(other.valBuffer_)),
+      locBuffer_(std::move(other.locBuffer_)),
+      tayBuffer_(std::move(other.tayBuffer_)), stats(other.stats),
+      tapeId_(other.tapeId_), numInds(other.numInds), numDeps(other.numDeps),
+      keepTaylors(other.keepTaylors), num_eq_prod(other.num_eq_prod),
       nextBufferNumber(other.nextBufferNumber),
       lastTayBlockInCore(other.lastTayBlockInCore), deg_save(other.deg_save),
       tay_numInds(other.tay_numInds), tay_numDeps(other.tay_numDeps),
       workMode(other.workMode), ext_diff_fct_index(other.ext_diff_fct_index),
       nestedReverseEval(other.nestedReverseEval),
       numSwitches(other.numSwitches), signature(other.signature) {
-  std::copy(std::begin(other.stats), std::end(other.stats), std::begin(stats));
-
-  // Null out source object's pointers
-  other.op_file = nullptr;
-  other.opBuffer = nullptr;
-  other.currOp = nullptr;
-  other.lastOpP1 = nullptr;
-
-  other.val_file = nullptr;
-  other.valBuffer = nullptr;
-  other.currVal = nullptr;
-  other.lastValP1 = nullptr;
-
-  other.loc_file = nullptr;
-  other.locBuffer = nullptr;
-  other.currLoc = nullptr;
-  other.lastLocP1 = nullptr;
-
-  other.tay_file = nullptr;
-  other.tayBuffer = nullptr;
-  other.currTay = nullptr;
-  other.lastTayP1 = nullptr;
-
   other.signature = nullptr;
 }
 
 TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
   if (this != &other) {
     // Free existing resources to avoid leaks
-    delete[] opBuffer;
-    delete[] valBuffer;
-    delete[] locBuffer;
-    delete[] tayBuffer;
-
     delete[] signature;
 
     // **2. Move data members**
@@ -105,30 +41,11 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     std::copy(std::begin(other.stats), std::end(other.stats),
               std::begin(stats));
 
-    op_file = other.op_file;
-    opBuffer = other.opBuffer;
-    currOp = other.currOp;
-    lastOpP1 = other.lastOpP1;
-    numOps_Tape = other.numOps_Tape;
     num_eq_prod = other.num_eq_prod;
-
-    val_file = other.val_file;
-    valBuffer = other.valBuffer;
-    currVal = other.currVal;
-    lastValP1 = other.lastValP1;
-    numVals_Tape = other.numVals_Tape;
-
-    loc_file = other.loc_file;
-    locBuffer = other.locBuffer;
-    currLoc = other.currLoc;
-    lastLocP1 = other.lastLocP1;
-    numLocs_Tape = other.numLocs_Tape;
-
-    tay_file = other.tay_file;
-    tayBuffer = other.tayBuffer;
-    currTay = other.currTay;
-    lastTayP1 = other.lastTayP1;
-    numTays_Tape = other.numTays_Tape;
+    opBuffer_ = std::move(other.opBuffer_);
+    valBuffer_ = std::move(other.valBuffer_);
+    locBuffer_ = std::move(other.locBuffer_);
+    tayBuffer_ = std::move(other.tayBuffer_);
     nextBufferNumber = other.nextBufferNumber;
     lastTayBlockInCore = other.lastTayBlockInCore;
 
@@ -143,57 +60,16 @@ TapeInfos &TapeInfos::operator=(TapeInfos &&other) noexcept {
     signature = other.signature;
 
     // **3. Null out source object’s pointers to prevent double deletion**
-    other.op_file = nullptr;
-    other.opBuffer = nullptr;
-    other.currOp = nullptr;
-    other.lastOpP1 = nullptr;
-    other.val_file = nullptr;
-    other.valBuffer = nullptr;
-    other.currVal = nullptr;
-    other.lastValP1 = nullptr;
-    other.loc_file = nullptr;
-    other.locBuffer = nullptr;
-    other.currLoc = nullptr;
-    other.lastLocP1 = nullptr;
-    other.tay_file = nullptr;
-    other.tayBuffer = nullptr;
-    other.currTay = nullptr;
-    other.lastTayP1 = nullptr;
     other.signature = nullptr;
   }
   return *this;
 }
 
 void TapeInfos::freeTapeResources() {
-  delete[] opBuffer;
-  opBuffer = nullptr;
-
-  delete[] locBuffer;
-  locBuffer = nullptr;
-
-  delete[] valBuffer;
-  valBuffer = nullptr;
-
-  if (tayBuffer) {
-    delete[] tayBuffer;
-    tayBuffer = nullptr;
-  }
-  if (op_file) {
-    fclose(op_file);
-    op_file = nullptr;
-  }
-  if (loc_file) {
-    fclose(loc_file);
-    loc_file = nullptr;
-  }
-  if (val_file) {
-    fclose(val_file);
-    val_file = nullptr;
-  }
-  if (tay_file) {
-    fclose(tay_file);
-    tay_file = nullptr;
-  }
+  opBuffer_ = {};
+  valBuffer_ = {};
+  locBuffer_ = {};
+  tayBuffer_ = {};
   if (signature) {
     delete[] signature;
     signature = nullptr;
@@ -207,25 +83,21 @@ void TapeInfos::freeTapeResources() {
 /****************************************************************************/
 void TapeInfos::write_taylor(double *taylorCoefficientPos, std::ptrdiff_t keep,
                              const char *tay_fileName) {
-  double *i;
-  /* write data to buffer and put buffer to disk as long as data remain in
-   * the T-buffer => don't create an empty value stack buffer! */
-  while (currTay + keep > lastTayP1) {
-    for (i = currTay; i < lastTayP1; ++i) {
-      *i = *taylorCoefficientPos;
-      /* In this assignment the precision will be sacrificed if the type
-       * double is defined as float. */
+  while (tayBuffer_.position() > tayBuffer_.capacity() - keep) {
+    for (auto i = tayBuffer_.position(); i < tayBuffer_.capacity(); ++i) {
+      tayBuffer_[i] = *taylorCoefficientPos;
       ++taylorCoefficientPos;
     }
-    keep -= lastTayP1 - currTay;
-    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
+    keep -= tayBuffer_.remainingCapacity();
+    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName,
+                                             tayBuffer_.capacity());
   }
 
-  for (i = currTay; i < currTay + keep; ++i) {
-    *i = *taylorCoefficientPos;
+  for (int i = 0; i < keep; ++i) {
+    tayBuffer_[i + tayBuffer_.position()] = *taylorCoefficientPos;
     ++taylorCoefficientPos;
   }
-  currTay += keep;
+  tayBuffer_.position(tayBuffer_.position() + keep);
 }
 
 void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
@@ -233,11 +105,11 @@ void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
                               const char *tay_fileName) {
   for (int j = 0; j < numDir; ++j) {
     for (int i = 0; i < keep; ++i) {
-      if (currTay == lastTayP1)
-        put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
+      if (tayBuffer_.position() == tayBuffer_.capacity())
+        put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName,
+                                                 tayBuffer_.capacity());
 
-      *currTay = *taylorCoefficientPos;
-      ++currTay;
+      tayBuffer_.writeAndAdvance(*taylorCoefficientPos);
       ++taylorCoefficientPos;
     }
     if (degree > keep)
@@ -248,41 +120,39 @@ void TapeInfos::write_taylors(double *taylorCoefficientPos, int keep,
 void TapeInfos::write_scaylors(const double *taylorCoefficientPos,
                                std::ptrdiff_t size, const char *tay_fileName) {
   size_t pos = 0;
-  std::span<double> taySpan(currTay, lastTayP1);
-  /* write data to buffer and put buffer to disk as long as data remain in
-   * the x-buffer => don't create an empty value stack buffer! */
-  while (currTay + size > lastTayP1) {
+  while (tayBuffer_.position() > tayBuffer_.capacity() - size) {
+    std::span<double> taySpan(tayBuffer_.current(),
+                              tayBuffer_.begin() + tayBuffer_.capacity());
     for (double &tay : taySpan) {
       tay = taylorCoefficientPos[pos++];
     }
-    size -= lastTayP1 - currTay;
-    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
+    size -= tayBuffer_.remainingCapacity();
+    put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName,
+                                             tayBuffer_.capacity());
   }
 
-  std::span<double> tayBufferSpan(currTay, tayBuffer + size);
+  std::span<double> tayBufferSpan(tayBuffer_.current(),
+                                  tayBuffer_.current() + size);
   for (double &tay : tayBufferSpan) {
     tay = taylorCoefficientPos[pos++];
   }
-  currTay += size;
+  tayBuffer_.position(tayBuffer_.position() + size);
 }
 
 void TapeInfos::get_taylors(double *taylorCoefficients, std::ptrdiff_t degree) {
   double *T = taylorCoefficients + degree;
-  std::span<double> taySpan(currTay, tayBuffer);
-  /* As long as all values from the taylor stack buffer will be used copy
-   * them into the taylor buffer and load the next (previous) buffer. */
-  while (currTay - degree < tayBuffer) {
+  while (tayBuffer_.position() < static_cast<size_t>(degree)) {
+    std::span<double> taySpan(tayBuffer_.begin(), tayBuffer_.current());
     for (auto tay = taySpan.rbegin(); tay != taySpan.rend(); tay++) {
       *(T--) = *tay;
     }
-    degree -= currTay - tayBuffer;
+    degree -= tayBuffer_.position();
     get_tay_block_r();
   }
 
   /* Copy the remaining values from the stack into the buffer ... */
   for (int j = 0; j < degree; ++j) {
-    --currTay;
-    *(--T) = *currTay;
+    *(--T) = tayBuffer_.retreatAndRead();
   }
 }
 
@@ -293,22 +163,21 @@ void TapeInfos::get_taylors_p(double *taylorCoefficients, int degree,
   /* update the directions except the base point parts */
   for (int j = 0; j < numDir; ++j) {
     for (int i = 1; i < degree; ++i) {
-      if (currTay == tayBuffer)
+      if (tayBuffer_.position() == 0)
         get_tay_block_r();
 
-      --currTay;
       --T;
-      *T = *currTay;
+      *T = tayBuffer_.retreatAndRead();
     }
     --T; /* skip the base point part */
   }
   /* now update the base point parts */
-  if (currTay == tayBuffer)
+  if (tayBuffer_.position() == 0)
     get_tay_block_r();
 
-  --currTay;
+  tayBuffer_.retreat();
   for (int i = 0; i < numDir; ++i) {
-    *T = *currTay;
+    *T = *tayBuffer_.current();
     T += degree;
   }
 }
@@ -323,7 +192,7 @@ void TapeInfos::get_tay_block_r() {
 
   lastTayBlockInCore = 0;
   const size_t number = stats[TapeInfos::TAY_BUFFER_SIZE];
-  if (fseek(tay_file,
+  if (fseek(tayBuffer_.file(),
             static_cast<long>(sizeof(double) * nextBufferNumber * number),
             SEEK_SET) == -1)
     ADOLCError::fail(ADOLCError::ErrorType::EVAL_SEEK_VALUE_STACK,
@@ -333,20 +202,20 @@ void TapeInfos::get_tay_block_r() {
   const size_t chunks = number / chunkSize;
 
   for (size_t i = 0; i < chunks; ++i)
-    if (fread(tayBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-              tay_file) != 1) {
+    if (fread(tayBuffer_.begin() + i * chunkSize, chunkSize * sizeof(double), 1,
+              tayBuffer_.file()) != 1) {
       ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
                        CURRENT_LOCATION);
     }
   const int remain = number % chunkSize;
   if (remain != 0)
-    if (fread(tayBuffer + chunks * chunkSize, remain * sizeof(double), 1,
-              tay_file) != 1) {
+    if (fread(tayBuffer_.begin() + chunks * chunkSize, remain * sizeof(double),
+              1, tayBuffer_.file()) != 1) {
       ADOLCError::fail(ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR,
                        CURRENT_LOCATION);
     }
 
-  currTay = lastTayP1;
+  tayBuffer_.position(tayBuffer_.capacity());
   --nextBufferNumber;
 }
 /**
@@ -360,22 +229,22 @@ void TapeInfos::get_loc_block_f() {
   size_t i, chunks;
   size_t number, remain, chunkSize;
 
-  number = MIN_ADOLC(stats[TapeInfos::LOC_BUFFER_SIZE], numLocs_Tape);
+  number = MIN_ADOLC(stats[TapeInfos::LOC_BUFFER_SIZE], locBuffer_.numOnTape());
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(size_t);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
-    if (fread(locBuffer + i * chunkSize, chunkSize * sizeof(size_t), 1,
-              loc_file) != 1)
+    if (fread(locBuffer_.begin() + i * chunkSize, chunkSize * sizeof(size_t), 1,
+              locBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
   remain = number % chunkSize;
   if (remain != 0)
-    if (fread(locBuffer + chunks * chunkSize, remain * sizeof(size_t), 1,
-              loc_file) != 1)
+    if (fread(locBuffer_.begin() + chunks * chunkSize, remain * sizeof(size_t),
+              1, locBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
-  numLocs_Tape -= number;
-  currLoc = locBuffer;
+  locBuffer_.numOnTape(locBuffer_.numOnTape() - number);
+  locBuffer_.position(0);
 }
 
 /****************************************************************************/
@@ -387,24 +256,27 @@ void TapeInfos::get_loc_block_r() {
   const size_t chunks = number / chunkSize;
   const size_t remain = number % chunkSize;
 
-  fseek(loc_file, static_cast<long>(sizeof(size_t) * (numLocs_Tape - number)),
+  fseek(locBuffer_.file(),
+        static_cast<long>(sizeof(size_t) * (locBuffer_.numOnTape() - number)),
         SEEK_SET);
   for (size_t i = 0; i < chunks; ++i) {
-    if (fread(locBuffer + i * chunkSize, chunkSize * sizeof(size_t), 1,
-              loc_file) != 1)
+    if (fread(locBuffer_.begin() + i * chunkSize, chunkSize * sizeof(size_t), 1,
+              locBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
   }
 
   if (remain != 0) {
-    if (fread(locBuffer + chunks * chunkSize, remain * sizeof(size_t), 1,
-              loc_file) != 1) {
+    if (fread(locBuffer_.begin() + chunks * chunkSize, remain * sizeof(size_t),
+              1, locBuffer_.file()) != 1) {
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_LOC_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
     }
   }
-  numLocs_Tape -= stats[TapeInfos::LOC_BUFFER_SIZE];
-  currLoc = lastLocP1 - *(lastLocP1 - 1);
+  locBuffer_.numOnTape(locBuffer_.numOnTape() -
+                       stats[TapeInfos::LOC_BUFFER_SIZE]);
+  locBuffer_.position(locBuffer_.capacity() -
+                      locBuffer_[locBuffer_.capacity() - 1]);
 }
 
 /**
@@ -422,49 +294,48 @@ void TapeInfos::put_op(OPCODES op, const char *loc_fileName,
   using ADOLC::detail::ValInfo;
   using ADOLCError::ErrorType;
   /* make sure we have enough slots to write the locs */
-  if (currLoc + maxLocsPerOp + reserveExtraLocations > lastLocP1) {
-    std::ptrdiff_t remainder = lastLocP1 - currLoc;
+  if (locBuffer_.position() >
+      locBuffer_.capacity() - maxLocsPerOp - reserveExtraLocations) {
+    const size_t remainder = locBuffer_.remainingCapacity();
     if (remainder > 0)
-      std::memset(currLoc, 0, (remainder - 1) * sizeof(size_t));
-    *(lastLocP1 - 1) = remainder;
-    put_block<LocInfo<TapeInfos, ErrorType>>(loc_fileName, lastLocP1);
+      std::memset(locBuffer_.current(), 0, (remainder - 1) * sizeof(size_t));
+    locBuffer_[locBuffer_.capacity() - 1] = remainder;
+    put_block<LocInfo<TapeInfos, ErrorType>>(loc_fileName,
+                                             locBuffer_.capacity());
     /* every operation writes 1 opcode */
-    if (currOp + 1 == lastOpP1) {
-      *currOp = end_of_op;
-      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, lastOpP1);
-      *currOp = end_of_op;
-      ++currOp;
+    if (opBuffer_.position() == opBuffer_.capacity() - 1) {
+      opBuffer_.writeCurrent(static_cast<unsigned char>(end_of_op));
+      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName,
+                                              opBuffer_.capacity());
+      opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_op));
     }
-    *currOp = end_of_int;
-    ++currOp;
+    opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_int));
   }
   /* every operation writes <5 values --- 3 should be sufficient */
-  if (currVal + 5 > lastValP1) {
-    size_t valRemainder = lastValP1 - currVal;
+  if (valBuffer_.position() > valBuffer_.capacity() - 5) {
+    const size_t valRemainder = valBuffer_.remainingCapacity();
     put_loc(valRemainder);
     /* avoid writing uninitialized memory to the file and get valgrind upset
      */
-    std::memset(currVal, 0, valRemainder * sizeof(double));
-    put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName, lastValP1);
+    std::memset(valBuffer_.current(), 0, valRemainder * sizeof(double));
+    put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName,
+                                             valBuffer_.capacity());
     /* every operation writes 1 opcode */
-    if (currOp + 1 == lastOpP1) {
-      *currOp = end_of_op;
-      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, lastOpP1);
-      *currOp = end_of_op;
-      ++currOp;
+    if (opBuffer_.position() == opBuffer_.capacity() - 1) {
+      opBuffer_.writeCurrent(static_cast<unsigned char>(end_of_op));
+      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName,
+                                              opBuffer_.capacity());
+      opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_op));
     }
-    *currOp = end_of_val;
-    ++currOp;
+    opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_val));
   }
   /* every operation writes 1 opcode */
-  if (currOp + 1 == lastOpP1) {
-    *currOp = end_of_op;
-    put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, lastOpP1);
-    *currOp = end_of_op;
-    ++currOp;
+  if (opBuffer_.position() == opBuffer_.capacity() - 1) {
+    opBuffer_.writeCurrent(static_cast<unsigned char>(end_of_op));
+    put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, opBuffer_.capacity());
+    opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_op));
   }
-  *currOp = static_cast<unsigned char>(op);
-  ++currOp;
+  opBuffer_.writeAndAdvance(static_cast<unsigned char>(op));
 }
 
 /****************************************************************************/
@@ -474,22 +345,22 @@ void TapeInfos::get_op_block_f() {
   size_t i, chunks;
   size_t number, remain, chunkSize;
 
-  number = MIN_ADOLC(stats[TapeInfos::OP_BUFFER_SIZE], numOps_Tape);
+  number = MIN_ADOLC(stats[TapeInfos::OP_BUFFER_SIZE], opBuffer_.numOnTape());
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
-    if (fread(opBuffer + i * chunkSize, chunkSize * sizeof(unsigned char), 1,
-              op_file) != 1)
+    if (fread(opBuffer_.begin() + i * chunkSize,
+              chunkSize * sizeof(unsigned char), 1, opBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
   remain = number % chunkSize;
   if (remain != 0)
-    if (fread(opBuffer + chunks * chunkSize, remain * sizeof(unsigned char), 1,
-              op_file) != 1)
+    if (fread(opBuffer_.begin() + chunks * chunkSize,
+              remain * sizeof(unsigned char), 1, opBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
-  numOps_Tape -= remain;
-  currOp = opBuffer;
+  opBuffer_.numOnTape(opBuffer_.numOnTape() - remain);
+  opBuffer_.position(0);
 }
 
 /****************************************************************************/
@@ -500,26 +371,27 @@ void TapeInfos::get_op_block_r() {
   size_t number, remain, chunkSize;
 
   number = stats[TapeInfos::OP_BUFFER_SIZE];
-  fseek(op_file,
-        static_cast<long>(sizeof(unsigned char) * (numOps_Tape - number)),
+  fseek(opBuffer_.file(),
+        static_cast<long>(sizeof(unsigned char) *
+                          (opBuffer_.numOnTape() - number)),
         SEEK_SET);
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(unsigned char);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
-    if (fread(opBuffer + i * chunkSize, chunkSize * sizeof(unsigned char), 1,
-              op_file) != 1)
+    if (fread(opBuffer_.begin() + i * chunkSize,
+              chunkSize * sizeof(unsigned char), 1, opBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
 
   remain = number % chunkSize;
   if (remain != 0)
-    if (fread(opBuffer + chunks * chunkSize, remain * sizeof(unsigned char), 1,
-              op_file) != 1)
+    if (fread(opBuffer_.begin() + chunks * chunkSize,
+              remain * sizeof(unsigned char), 1, opBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_OP_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
 
-  numOps_Tape -= number;
-  currOp = opBuffer + number;
+  opBuffer_.numOnTape(opBuffer_.numOnTape() - number);
+  opBuffer_.position(number);
 }
 
 /**
@@ -539,20 +411,17 @@ void TapeInfos::put_vals_writeBlock(double *vals, size_t numVals,
   using ADOLC::detail::ValInfo;
   using ADOLCError::ErrorType;
   for (size_t i = 0; i < numVals; ++i) {
-    *currVal = vals[i];
-    ++currVal;
+    valBuffer_.writeAndAdvance(vals[i]);
   }
-  put_loc(lastValP1 - currVal);
-  put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName, lastTayP1);
+  put_loc(valBuffer_.capacity() - valBuffer_.position());
+  put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName, valBuffer_.capacity());
   /* every operation writes 1 opcode */
-  if (currOp + 1 == lastOpP1) {
-    *currOp = end_of_op;
-    put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, lastOpP1);
-    *currOp = end_of_op;
-    ++currOp;
+  if (opBuffer_.position() == opBuffer_.capacity() - 1) {
+    opBuffer_.writeCurrent(static_cast<unsigned char>(end_of_op));
+    put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, opBuffer_.capacity());
+    opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_op));
   }
-  *currOp = end_of_val;
-  ++currOp;
+  opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_val));
 }
 
 /****************************************************************************/
@@ -562,25 +431,25 @@ void TapeInfos::get_val_block_f() {
   size_t i, chunks;
   size_t number, remain, chunkSize;
 
-  number = MIN_ADOLC(stats[TapeInfos::VAL_BUFFER_SIZE], numVals_Tape);
+  number = MIN_ADOLC(stats[TapeInfos::VAL_BUFFER_SIZE], valBuffer_.numOnTape());
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
-    if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-              val_file) != 1)
+    if (fread(valBuffer_.begin() + i * chunkSize, chunkSize * sizeof(double), 1,
+              valBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
 
   remain = number % chunkSize;
   if (remain != 0)
-    if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
-              val_file) != 1)
+    if (fread(valBuffer_.begin() + chunks * chunkSize, remain * sizeof(double),
+              1, valBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
-  numVals_Tape -= number;
-  currVal = valBuffer;
+  valBuffer_.numOnTape(valBuffer_.numOnTape() - number);
+  valBuffer_.position(0);
   /* get_size_t_f(); value used in reverse only */
-  ++currLoc;
+  locBuffer_.advance();
 }
 
 /****************************************************************************/
@@ -592,25 +461,25 @@ void TapeInfos::get_val_block_r() {
   size_t temp;
 
   number = stats[TapeInfos::VAL_BUFFER_SIZE];
-  fseek(val_file, static_cast<long>(sizeof(double) * (numVals_Tape - number)),
+  fseek(valBuffer_.file(),
+        static_cast<long>(sizeof(double) * (valBuffer_.numOnTape() - number)),
         SEEK_SET);
   chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(double);
   chunks = number / chunkSize;
   for (i = 0; i < chunks; ++i)
-    if (fread(valBuffer + i * chunkSize, chunkSize * sizeof(double), 1,
-              val_file) != 1)
+    if (fread(valBuffer_.begin() + i * chunkSize, chunkSize * sizeof(double), 1,
+              valBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
   remain = number % chunkSize;
   if (remain != 0)
-    if (fread(valBuffer + chunks * chunkSize, remain * sizeof(double), 1,
-              val_file) != 1)
+    if (fread(valBuffer_.begin() + chunks * chunkSize, remain * sizeof(double),
+              1, valBuffer_.file()) != 1)
       ADOLCError::fail(ADOLCError::ErrorType::EVAL_VAL_TAPE_READ_FAILED,
                        CURRENT_LOCATION);
-  numVals_Tape -= number;
-  --currLoc;
-  temp = *currLoc;
-  currVal = lastValP1 - temp;
+  valBuffer_.numOnTape(valBuffer_.numOnTape() - number);
+  temp = locBuffer_.retreatAndRead();
+  valBuffer_.position(valBuffer_.capacity() - temp);
 }
 
 /****************************************************************************/
@@ -624,18 +493,18 @@ size_t TapeInfos::get_val_space(const char *op_fileName,
   using ADOLC::detail::ValInfo;
   using ADOLCError::ErrorType;
 
-  if (lastValP1 - 5 < currVal) {
-    put_loc(lastValP1 - currVal);
-    put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName, lastValP1);
+  if (valBuffer_.position() > valBuffer_.capacity() - 5) {
+    put_loc(valBuffer_.remainingCapacity());
+    put_block<ValInfo<TapeInfos, ErrorType>>(val_fileName,
+                                             valBuffer_.capacity());
     /* every operation writes 1 opcode */
-    if (currOp + 1 == lastOpP1) {
-      *currOp = end_of_op;
-      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName, lastOpP1);
-      *currOp = end_of_op;
-      ++currOp;
+    if (opBuffer_.position() == opBuffer_.capacity() - 1) {
+      opBuffer_.writeCurrent(static_cast<unsigned char>(end_of_op));
+      put_block<OpInfo<TapeInfos, ErrorType>>(op_fileName,
+                                              opBuffer_.capacity());
+      opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_op));
     }
-    *currOp = end_of_val;
-    ++currOp;
+    opBuffer_.writeAndAdvance(static_cast<unsigned char>(end_of_val));
   }
-  return (lastValP1 - currVal);
+  return (valBuffer_.remainingCapacity());
 }

@@ -4,6 +4,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/oplate.h>
+#include <adolc/valuetape/bufferstate.h>
 #include <adolc/valuetape/infotype.h>
 #include <array>
 #include <memory>
@@ -46,47 +47,20 @@ struct TapeInfos {
   TapeInfos(TapeInfos &&other) noexcept;
   TapeInfos &operator=(TapeInfos &&other) noexcept;
 
+  ADOLC::detail::OpBuffer opBuffer_{};
+  ADOLC::detail::ValBuffer valBuffer_{};
+  ADOLC::detail::LocBuffer locBuffer_{};
+  ADOLC::detail::TayBuffer tayBuffer_{};
+  std::array<size_t, STAT_SIZE> stats{};
+
   short tapeId_{-1};
   size_t numInds{0};
   size_t numDeps{0};
   // 1 - write taylor stack in taping mode
   int keepTaylors{0};
-  std::array<size_t, STAT_SIZE> stats{};
 
-  /* ------ operations tape ------- */
-  // file descriptor
-  FILE *op_file{nullptr};
-  // pointer to the current tape buffer
-  unsigned char *opBuffer{nullptr};
-  // pointer to the current opcode
-  unsigned char *currOp{nullptr};
-  // pointer to element following the buffer
-  unsigned char *lastOpP1{nullptr};
-  // overall number of opcodes
-  size_t numOps_Tape{0};
-  // overall number of eq_*_prod for nlf
   size_t num_eq_prod{0};
 
-  /* --------- values (real) tape ------- */
-  FILE *val_file{nullptr};
-  double *valBuffer{nullptr};
-  double *currVal{nullptr};
-  double *lastValP1{nullptr};
-  size_t numVals_Tape{0};
-
-  /* ---------- locations tape --------- */
-  FILE *loc_file{nullptr};
-  size_t *locBuffer{nullptr};
-  size_t *currLoc{nullptr};
-  size_t *lastLocP1{nullptr};
-  size_t numLocs_Tape{0};
-
-  /* taylor stack tape */
-  FILE *tay_file{nullptr};
-  double *tayBuffer{nullptr};
-  double *currTay{nullptr};
-  double *lastTayP1{nullptr};
-  size_t numTays_Tape{0};
   // the next Buffer to read back
   size_t nextBufferNumber{0};
   // == 1 if last taylor buffer is still in
@@ -128,17 +102,17 @@ struct TapeInfos {
 
   ///@brief returns current taylor coefficient and advances the stack pointer
   double get_taylor() {
-    if (currTay == tayBuffer)
+    if (tayBuffer_.position() == 0)
       get_tay_block_r();
-    return *(--currTay);
+    return tayBuffer_.retreatAndRead();
   }
   // writes a single element (x) to the taylor buffer and writes the buffer
   // to disk if necessary
   void write_scaylor(double val, const char *tay_fileName) {
-    if (currTay == lastTayP1)
-      put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName, lastTayP1);
-    *currTay = val;
-    ++currTay;
+    if (tayBuffer_.position() == tayBuffer_.capacity())
+      put_block<TayInfo<TapeInfos, ErrorType>>(tay_fileName,
+                                               tayBuffer_.capacity());
+    tayBuffer_.writeAndAdvance(val);
   }
 
   /****************************************************************************/
@@ -171,10 +145,7 @@ struct TapeInfos {
   void get_tay_block_r();
 
   // functions for handling loc tape
-  void put_loc(size_t loc) {
-    *currLoc = loc;
-    ++currLoc;
-  }
+  void put_loc(size_t loc) { locBuffer_.writeAndAdvance(loc); }
 
   void get_loc_block_f();
   void get_loc_block_r();
@@ -219,7 +190,7 @@ struct TapeInfos {
    * maps the generic operations to the appropriate TInfos fields.
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
-  void openFile(std::string_view fileName) {
+  void openFile(const char *fileName) {
     using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
     if (Info::file(*this) == nullptr) {
       if constexpr (!std::is_same_v<Info, TayInfo<TapeInfos, ErrorType>>) {
@@ -263,16 +234,13 @@ struct TapeInfos {
    *    periodically flushed to disk to avoid excessive I/O calls.
    */
   template <InfoTypeBase<TapeInfos, ErrorType> Info>
-  void put_block(std::string_view fileName,
-                 const typename Info::value_type *bufferPos) {
+  void put_block(const char *fileName, size_t lengthBlock) {
     using ADOLC::detail::write;
     using ADOLCError::fail;
     using ADOLCError::ErrorType::CANNOT_REMOVE_FILE;
     using ADOLCError::ErrorType::TAPING_FATAL_IO_ERROR;
 
     openFile<Info>(fileName);
-
-    const std::size_t lengthBlock = bufferPos - Info::bufferBegin(*this);
     const size_t numChunks = lengthBlock / Info::chunkSize;
 
     // write full chunks
@@ -293,7 +261,7 @@ struct TapeInfos {
     }
 
     Info::setNum(*this, Info::getNum(*this) + lengthBlock);
-    Info::setCurr(*this, Info::bufferBegin(*this));
+    Info::setCurr(*this, 0);
   }
   // functions for handling val tape
 
@@ -302,8 +270,7 @@ struct TapeInfos {
   /****************************************************************************/
   void put_vals_notWriteBlock(double *vals, size_t numVals) {
     for (size_t i = 0; i < numVals; ++i) {
-      *currVal = vals[i];
-      ++currVal;
+      valBuffer_.writeAndAdvance(vals[i]);
     }
   }
   void put_vals_writeBlock(double *vals, size_t numVals,
@@ -315,21 +282,24 @@ struct TapeInfos {
   /* vector. -- Forward Mode --                                               */
   /****************************************************************************/
   double *get_val_v_f(size_t size) {
-    double *temp = currVal;
-    currVal += size;
+    double *temp = valBuffer_.current();
+    valBuffer_.position(valBuffer_.position() + size);
     return temp;
   }
   /****************************************************************************/
   /* Returns a pointer to the first element of a values vector and skips the  */
   /* vector. -- Reverse Mode --                                               */
   /****************************************************************************/
-  double *get_val_v_r(size_t size) { return currVal -= size; }
+  double *get_val_v_r(size_t size) {
+    valBuffer_.position(valBuffer_.position() - size);
+    return valBuffer_.current();
+  }
 
   /****************************************************************************/
   /* Not sure what's going on here! -> vector class ?  --- kowarz             */
   /****************************************************************************/
   void reset_val_r(void) {
-    if (currVal == valBuffer)
+    if (valBuffer_.position() == 0)
       get_val_block_r();
   }
 
@@ -341,10 +311,10 @@ struct TapeInfos {
     // LocBuffer points to the first entry of the Locations and CurrLoc-1 to the
     // last placed location in the buffer. Thus, the check ask if there is no
     // element on the tape.
-    if (currLoc - locBuffer < 1)
+    if (locBuffer_.position() < 1)
       return 0;
-    if (temp == *(currLoc - 1)) {
-      *(currLoc - 1) = lhs;
+    if (temp == locBuffer_[locBuffer_.position() - 1]) {
+      locBuffer_[locBuffer_.position() - 1] = lhs;
       return 1;
     }
     return 0;
@@ -354,10 +324,10 @@ struct TapeInfos {
     // LocBuffer points to the first entry of the Locations and CurrLoc-1 to the
     // last placed location in the buffer. Thus, the check ask if there is no
     // element on the tape.
-    if (currLoc - locBuffer < 1)
+    if (locBuffer_.position() < 1)
       return 0;
     // checks if tape-element represented by "tmp" is the last created.
-    if (temp == *(currLoc - 1)) {
+    if (temp == locBuffer_[locBuffer_.position() - 1]) {
       return 1;
     }
     return 0;
@@ -368,15 +338,17 @@ struct TapeInfos {
   /* temporary variables. e.g.  t = a * b ; y += t  =>  y += a * b            */
   /****************************************************************************/
   int upd_resloc_inc_prod(size_t temp, size_t newlhs, unsigned char newop) {
-    if (currLoc - locBuffer < 3)
+    if (locBuffer_.position() < 3)
       return 0;
-    if (currOp - opBuffer < 1)
+    if (opBuffer_.position() < 1)
       return 0;
-    if (temp == *(currLoc - 1) && mult_a_a == *(currOp - 1) &&
+    if (temp == locBuffer_[locBuffer_.position() - 1] &&
+        mult_a_a == opBuffer_[opBuffer_.position() - 1] &&
         /* skipping recursive case */
-        newlhs != *(currLoc - 2) && newlhs != *(currLoc - 3)) {
-      *(currLoc - 1) = newlhs;
-      *(currOp - 1) = newop;
+        newlhs != locBuffer_[locBuffer_.position() - 2] &&
+        newlhs != locBuffer_[locBuffer_.position() - 3]) {
+      locBuffer_[locBuffer_.position() - 1] = newlhs;
+      opBuffer_[opBuffer_.position() - 1] = newop;
       return 1;
     }
     return 0;
@@ -386,38 +358,32 @@ struct TapeInfos {
 /*                                                          DEBUG FUNCTIONS */
 #ifdef ADOLC_HARDDEBUG
   unsigned char get_op_f() {
-    unsigned char temp = *currOp;
-    ++currOp;
+    unsigned char temp = opBuffer_.readAndAdvance();
     fprintf(DIAG_OUT, "f_op: %i\n", temp - '\0'); /* why -'\0' ??? kowarz */
     return temp;
   }
   unsigned char get_op_r() {
-    --currOp;
-    unsigned char temp = *currOp;
+    unsigned char temp = opBuffer_.retreatAndRead();
     fprintf(DIAG_OUT, "r_op: %i\n", temp - '\0');
     return temp;
   }
   size_t get_size_t_f() {
-    size_t temp = *currLoc;
-    ++currLoc;
+    size_t temp = locBuffer_.readAndAdvance();
     fprintf(DIAG_OUT, "f_loc: %i\n", temp);
     return temp;
   }
   size_t get_size_t_r() {
-    --currLoc;
-    unsigned char temp = *currLoc;
+    size_t temp = locBuffer_.retreatAndRead();
     fprintf(DIAG_OUT, "r_loc: %i\n", temp);
     return temp;
   }
   double get_val_f() {
-    double temp = *currVal;
-    ++currVal;
+    double temp = valBuffer_.readAndAdvance();
     fprintf(DIAG_OUT, "f_val: %e\n", temp);
     return temp;
   }
   double get_val_r() {
-    --currVal;
-    double temp = *currVal;
+    double temp = valBuffer_.retreatAndRead();
     fprintf(DIAG_OUT, "r_val: %e\n", temp);
     return temp;
   }

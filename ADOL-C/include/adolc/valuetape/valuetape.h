@@ -229,24 +229,19 @@ public:
   void workMode(TapeInfos::WORKMODES mode) { tapeInfos_.workMode = mode; }
   TapeInfos::WORKMODES workMode() const { return tapeInfos_.workMode; }
 
-  void increment_numTays_Tape() { ++(tapeInfos_.numTays_Tape); }
-  void add_numTays_Tape(size_t val) { tapeInfos_.numTays_Tape += val; }
-  size_t numTays_Tape() const { return tapeInfos_.numTays_Tape; }
-  void numTays_Tape(size_t val) { tapeInfos_.numTays_Tape = val; }
-
-  size_t numLocs_Tape() const { return tapeInfos_.numLocs_Tape; }
-  void numLocs_Tape(size_t num) { tapeInfos_.numLocs_Tape = num; }
-
-  size_t numOps_Tape() const { return tapeInfos_.numOps_Tape; }
-  void numOps_Tape(size_t num) { tapeInfos_.numOps_Tape = num; }
-
-  size_t numVals_Tape() const { return tapeInfos_.numVals_Tape; }
-  void numVals_Tape(size_t num) { tapeInfos_.numVals_Tape = num; }
+  void increment_numTays_Tape() {
+    tapeInfos_.tayBuffer_.numOnTape(tapeInfos_.tayBuffer_.numOnTape() + 1);
+  }
+  void add_numTays_Tape(size_t val) {
+    tapeInfos_.tayBuffer_.numOnTape(tapeInfos_.tayBuffer_.numOnTape() + val);
+  }
 
   void lastTayBlockInCore(char val) { tapeInfos_.lastTayBlockInCore = val; }
   char lastTayBlockInCore() const { return tapeInfos_.lastTayBlockInCore; }
 
-  void decrement_numTays_Tape() { --(tapeInfos_.numTays_Tape); }
+  void decrement_numTays_Tape() {
+    tapeInfos_.tayBuffer_.numOnTape(tapeInfos_.tayBuffer_.numOnTape() - 1);
+  }
 
   size_t num_eq_prod() const { return tapeInfos_.num_eq_prod; }
   void num_eq_prod(size_t num) { tapeInfos_.num_eq_prod = num; }
@@ -276,29 +271,6 @@ public:
     tapeInfos_.ext_diff_fct_index = index;
   }
 
-  unsigned char *currOp() const { return tapeInfos_.currOp; }
-  void currOp(unsigned char *op) { tapeInfos_.currOp = op; }
-
-  size_t *currLoc() const { return tapeInfos_.currLoc; }
-  void currLoc(size_t *loc) { tapeInfos_.currLoc = loc; }
-
-  double *currVal() const { return tapeInfos_.currVal; }
-  void currVal(double *val) { tapeInfos_.currVal = val; }
-
-  double *currTay() const { return tapeInfos_.currTay; }
-  void currTay(double *pos) { tapeInfos_.currTay = pos; }
-  void currTay(double val) { *tapeInfos_.currTay = val; }
-  void decrement_currTay() { --tapeInfos_.currTay; }
-
-  void lastTayP1(double *pos) { tapeInfos_.lastTayP1 = pos; }
-  double *lastTayP1() const { return tapeInfos_.lastTayP1; }
-
-  void lastOpP1(unsigned char *lastOp) { tapeInfos_.lastOpP1 = lastOp; }
-  void lastLocP1(size_t *lastLoc) { tapeInfos_.lastLocP1 = lastLoc; }
-
-  void lastValP1(double *lastVal) { tapeInfos_.lastValP1 = lastVal; }
-  double *lastValP1() const { return tapeInfos_.lastValP1; }
-
   void nextBufferNumber(size_t num) { tapeInfos_.nextBufferNumber = num; }
   size_t nextBufferNumber() const { return tapeInfos_.nextBufferNumber; }
   void decrement_nextBufferNumber() { --tapeInfos_.nextBufferNumber; }
@@ -324,12 +296,12 @@ public:
   void get_loc_block_r() { return tapeInfos_.get_loc_block_r(); };
   void put_loc(size_t loc) { return tapeInfos_.put_loc(loc); };
 #ifndef ADOLC_HARDDEBUG
-  char get_op_f() { return *(tapeInfos_.currOp)++; }
-  char get_op_r() { return *--(tapeInfos_.currOp); }
-  size_t get_locint_f() { return *(tapeInfos_.currLoc)++; }
-  size_t get_locint_r() { return *--(tapeInfos_.currLoc); }
-  double get_val_f() { return *(tapeInfos_.currVal)++; }
-  double get_val_r() { return *--(tapeInfos_.currVal); }
+  char get_op_f() { return tapeInfos_.opBuffer_.readAndAdvance(); }
+  char get_op_r() { return tapeInfos_.opBuffer_.retreatAndRead(); }
+  size_t get_locint_f() { return tapeInfos_.locBuffer_.readAndAdvance(); }
+  size_t get_locint_r() { return tapeInfos_.locBuffer_.retreatAndRead(); }
+  double get_val_f() { return tapeInfos_.valBuffer_.readAndAdvance(); }
+  double get_val_r() { return tapeInfos_.valBuffer_.retreatAndRead(); }
 #else
   unsigned char ValueTape::get_op_f() { return tapeInfos_.get_op_f(); }
   unsigned char ValueTape::get_op_r() { return tapeInfos_.get_op_r(); }
@@ -338,10 +310,7 @@ public:
   double ValueTape::get_val_f() { return tapeInfos_.get_val_f(); }
   double ValueTape::get_val_r() { return tapeInfos_.get_val_r(); }
 #endif // ADOLC_HARDDEBUG
-  void put_val(const double val) {
-    *tapeInfos_.currVal = val;
-    ++tapeInfos_.currVal;
-  }
+  void put_val(const double val) { tapeInfos_.valBuffer_.writeAndAdvance(val); }
   /* puts a single constant into the location buffer, no disk access */
   void put_vals_writeBlock(double *reals, size_t numReals) {
     return tapeInfos_.put_vals_writeBlock(reals, numReals, op_fileName(),
@@ -387,25 +356,8 @@ public:
   void nestedReverseEval(bool flag) { tapeInfos_.nestedReverseEval = flag; }
   // Returns whether reverse evaluation should accumulate into an outer tape.
   bool nestedReverseEval() const { return tapeInfos_.nestedReverseEval; }
-  FILE *tay_file() const { return tapeInfos_.tay_file; }
-  FILE *op_file() const { return tapeInfos_.op_file; }
-  FILE *val_file() const { return tapeInfos_.val_file; }
-  FILE *loc_file() const { return tapeInfos_.loc_file; }
-  void tay_file(FILE *file) { tapeInfos_.tay_file = file; }
-  void op_file(FILE *file) { tapeInfos_.op_file = file; }
-  void val_file(FILE *file) { tapeInfos_.val_file = file; }
-  void loc_file(FILE *file) { tapeInfos_.loc_file = file; }
-  unsigned char *opBuffer() const { return tapeInfos_.opBuffer; }
-  double *valBuffer() const { return tapeInfos_.valBuffer; }
-  size_t *locBuffer() const { return tapeInfos_.locBuffer; }
   double *signature() const { return tapeInfos_.signature; }
-  double *tayBuffer() const { return tapeInfos_.tayBuffer; }
-
-  void opBuffer(unsigned char *buffer) { tapeInfos_.opBuffer = buffer; }
-  void valBuffer(double *buffer) { tapeInfos_.valBuffer = buffer; }
-  void locBuffer(size_t *buffer) { tapeInfos_.locBuffer = buffer; }
   void signature(double *buffer) { tapeInfos_.signature = buffer; }
-  void tayBuffer(double *buffer) { tapeInfos_.tayBuffer = buffer; }
 
   void initTapeInfos_keep();
   // free all resources used by a tape before overwriting the tape
@@ -587,8 +539,7 @@ public:
   }
   // deletes the last (single) element (x) of the taylor buffer
   void delete_scaylor(size_t loc) {
-    --tapeInfos_.currTay;
-    globalTapeVars_.store[loc] = *tapeInfos_.currTay;
+    globalTapeVars_.store[loc] = tapeInfos_.tayBuffer_.retreatAndRead();
   }
 
   ///@brief returns current taylor coefficient and advances the stack pointer
@@ -626,7 +577,7 @@ public:
    *  - TayInfo is intentionally not part of this dispatch (different
    * lifecycle).
    */
-  template <InfoType<TapeInfos, ErrorType> Info> std::string_view fileName() {
+  template <InfoType<TapeInfos, ErrorType> Info> const char *fileName() {
     if constexpr (std::is_same_v<Info, OpInfoT>)
       return perTapeInfos_.op_fileName;
     else if constexpr (std::is_same_v<Info, LocInfoT>)
@@ -741,10 +692,9 @@ public:
         get_loc_block_f();
         numLocsForStats -= tapestats(Info::bufferSize);
       }
-      Info::setCurr(tapeInfos_,
-                    Info::bufferBegin(tapeInfos_) + numLocsForStats);
+      Info::setCurr(tapeInfos_, numLocsForStats);
     } else {
-      Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_));
+      Info::setCurr(tapeInfos_, 0);
     }
   }
 
@@ -796,7 +746,7 @@ public:
       }
     }
     Info::setNum(tapeInfos_, tapestats(Info::num) - lengthLB);
-    Info::setCurr(tapeInfos_, Info::bufferBegin(tapeInfos_) + lengthLB);
+    Info::setCurr(tapeInfos_, lengthLB);
   }
 
   /**
