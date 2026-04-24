@@ -22,43 +22,31 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   tp.keepTaylors = 1;
   tp.stats[2] = 5;
 
-  auto fileH = fopen("test_move_constr_op.txt", "w");
-  tp.op_file = fileH;
   auto opBuffer = new unsigned char[10];
-  tp.opBuffer = opBuffer;
-  tp.currOp = tp.opBuffer + 3;
-  tp.lastOpP1 = tp.opBuffer + 11;
+  tp.opBuffer_ = ADOLC::detail::OpBuffer(opBuffer, 10);
+  tp.opBuffer_.openFile("test_move_constr_op.txt", "w");
+  tp.opBuffer_.position(3);
+  tp.opBuffer_.numOnTape(10);
 
-  tp.numOps_Tape = 10;
   tp.num_eq_prod = 4;
 
-  auto fileH2 = fopen("test_move_constr_val.txt", "w");
-  tp.val_file = fileH2;
-  auto valBuffer = new double[12];
-  tp.valBuffer = valBuffer;
-  tp.currVal = tp.valBuffer + 3;
-  tp.lastValP1 = tp.valBuffer + 11;
+  auto valBuffer = new double[123];
+  tp.valBuffer_ = ADOLC::detail::ValBuffer(valBuffer, 123);
+  tp.valBuffer_.openFile("test_move_constr_val.txt", "w");
+  tp.valBuffer_.position(15);
+  tp.valBuffer_.numOnTape(123);
 
-  tp.numVals_Tape = 70;
-
-  auto fileH3 = fopen("test_move_constr_loc.txt", "w");
-  tp.loc_file = fileH3;
   auto locBuffer = new size_t[14];
+  tp.locBuffer_ = ADOLC::detail::LocBuffer(locBuffer, 14);
+  tp.locBuffer_.openFile("test_move_constr_loc.txt", "w");
+  tp.locBuffer_.position(3);
+  tp.locBuffer_.numOnTape(13);
 
-  tp.locBuffer = locBuffer;
-  tp.currLoc = tp.locBuffer + 3;
-  tp.lastLocP1 = tp.locBuffer + 13;
-
-  tp.numLocs_Tape = 13;
-
-  auto fileH4 = fopen("test_move_constr_tay.txt", "w");
-  tp.tay_file = fileH4;
   auto tayBuffer = new double[14];
-  tp.tayBuffer = tayBuffer;
-  tp.currTay = tp.tayBuffer + 4;
-  tp.lastTayP1 = tp.tayBuffer + 13;
-
-  tp.numTays_Tape = 13;
+  tp.tayBuffer_ = ADOLC::detail::TayBuffer(tayBuffer, 14);
+  tp.tayBuffer_.openFile("test_move_constr_tay.txt", "w");
+  tp.tayBuffer_.position(4);
+  tp.tayBuffer_.numOnTape(13);
 
   tp.nextBufferNumber = 4;
 
@@ -85,11 +73,12 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numDeps, 11);
   BOOST_CHECK_EQUAL(tp2.keepTaylors, 1);
   BOOST_CHECK_EQUAL(tp2.stats[2], 5);
-  BOOST_CHECK_EQUAL(tp2.numOps_Tape, 10);
+  BOOST_CHECK_EQUAL(tp2.opBuffer_.numOnTape(), 10);
+  BOOST_CHECK_EQUAL(tp2.valBuffer_.numOnTape(), 123);
   BOOST_CHECK_EQUAL(tp2.num_eq_prod, 4);
-  BOOST_CHECK_EQUAL(tp2.numVals_Tape, 70);
-  BOOST_CHECK_EQUAL(tp2.numLocs_Tape, 13);
-  BOOST_CHECK_EQUAL(tp2.numTays_Tape, 13);
+
+  BOOST_CHECK_EQUAL(tp2.locBuffer_.numOnTape(), 13);
+  BOOST_CHECK_EQUAL(tp2.tayBuffer_.numOnTape(), 13);
   BOOST_CHECK_EQUAL(tp2.nextBufferNumber, 4);
   BOOST_CHECK_EQUAL(tp2.lastTayBlockInCore, 1);
   BOOST_CHECK_EQUAL(tp2.deg_save, 1);
@@ -101,25 +90,20 @@ BOOST_AUTO_TEST_CASE(TestMoveConstructor) {
   BOOST_CHECK_EQUAL(tp2.numSwitches, 6);
 
   // === Validate: pointers moved ===
-  BOOST_CHECK_EQUAL(tp2.op_file, fileH);
-  BOOST_CHECK_EQUAL(tp2.opBuffer, opBuffer);
-  BOOST_CHECK_EQUAL(tp2.currOp, opBuffer + 3);
-  BOOST_CHECK_EQUAL(tp2.lastOpP1, opBuffer + 11);
+  BOOST_CHECK_EQUAL(tp2.opBuffer_.file() != nullptr, true);
+  BOOST_CHECK_EQUAL(tp2.opBuffer_.begin(), opBuffer);
+  BOOST_CHECK_EQUAL(tp2.opBuffer_.position(), 3);
+  BOOST_CHECK_EQUAL(tp2.valBuffer_.file() != nullptr, true);
+  BOOST_CHECK_EQUAL(tp2.valBuffer_.begin(), valBuffer);
+  BOOST_CHECK_EQUAL(tp2.valBuffer_.position(), 15);
 
-  BOOST_CHECK_EQUAL(tp2.val_file, fileH2);
-  BOOST_CHECK_EQUAL(tp2.valBuffer, valBuffer);
-  BOOST_CHECK_EQUAL(tp2.currVal, valBuffer + 3);
-  BOOST_CHECK_EQUAL(tp2.lastValP1, valBuffer + 11);
+  BOOST_CHECK_EQUAL(tp2.locBuffer_.file() != nullptr, true);
+  BOOST_CHECK_EQUAL(tp2.locBuffer_.begin(), locBuffer);
+  BOOST_CHECK_EQUAL(tp2.locBuffer_.position(), 3);
 
-  BOOST_CHECK_EQUAL(tp2.loc_file, fileH3);
-  BOOST_CHECK_EQUAL(tp2.locBuffer, locBuffer);
-  BOOST_CHECK_EQUAL(tp2.currLoc, locBuffer + 3);
-  BOOST_CHECK_EQUAL(tp2.lastLocP1, locBuffer + 13);
-
-  BOOST_CHECK_EQUAL(tp2.tay_file, fileH4);
-  BOOST_CHECK_EQUAL(tp2.tayBuffer, tayBuffer);
-  BOOST_CHECK_EQUAL(tp2.currTay, tayBuffer + 4);
-  BOOST_CHECK_EQUAL(tp2.lastTayP1, tayBuffer + 13);
+  BOOST_CHECK_EQUAL(tp2.tayBuffer_.file() != nullptr, true);
+  BOOST_CHECK_EQUAL(tp2.tayBuffer_.begin(), tayBuffer);
+  BOOST_CHECK_EQUAL(tp2.tayBuffer_.position(), 4);
   BOOST_CHECK_EQUAL(tp2.signature, l);
 }
 

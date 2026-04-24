@@ -1,4 +1,5 @@
 install(FILES
+        bufferstate.h
         globaltapevarscl.h
         infotype.h
         tapeinfos.h

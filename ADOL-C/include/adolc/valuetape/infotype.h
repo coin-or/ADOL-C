@@ -5,7 +5,6 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdio>
-#include <string_view>
 
 /*
   This header defines a small “policy” interface used by ADOL-C tape I/O code.
@@ -54,35 +53,34 @@ namespace ADOLC::detail {
  *     (constexpr) and the exact reference category is not important.
  */
 template <class T, class TInfos, class ErrorType>
-concept InfoTypeBase =
-    requires(TInfos &tapeInfos, std::string_view fileName, std::string_view) {
-      // element type stored in the tape buffer
-      typename T::value_type;
+concept InfoTypeBase = requires(TInfos &tapeInfos, const char *fileName) {
+  // element type stored in the tape buffer
+  typename T::value_type;
 
-      // “statistic entry” identifiers used by ADOL-C bookkeeping
-      { T::num } -> std::same_as<const typename TInfos::StatEntries &>;
-      { T::bufferSize } -> std::same_as<const typename TInfos::StatEntries &>;
+  // “statistic entry” identifiers used by ADOL-C bookkeeping
+  { T::num } -> std::same_as<const typename TInfos::StatEntries &>;
+  { T::bufferSize } -> std::same_as<const typename TInfos::StatEntries &>;
 
-      // error code associated with this tape type (must be usable as ErrorType)
-      { T::error } -> std::convertible_to<ErrorType>;
+  // error code associated with this tape type (must be usable as ErrorType)
+  { T::error } -> std::convertible_to<ErrorType>;
 
-      // number of elements read/written per I/O chunk (must be usable as
-      // size_t)
-      { T::chunkSize } -> std::convertible_to<size_t>;
+  // number of elements read/written per I/O chunk (must be usable as
+  // size_t)
+  { T::chunkSize } -> std::convertible_to<size_t>;
 
-      // pointer to the begin of the tape buffer
-      { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value_type *>;
+  // pointer to the begin of the tape buffer
+  { T::bufferBegin(tapeInfos) } -> std::same_as<typename T::value_type *>;
 
-      // map generic “current pointer” and “count” operations to TInfos fields
-      T::setCurr(tapeInfos, (typename T::value_type *)nullptr);
-      T::setNum(tapeInfos, size_t{});
-      { T::getNum(tapeInfos) };
+  // map generic “current pointer” and “count” operations to TInfos fields
+  T::setCurr(tapeInfos, size_t{});
+  T::setNum(tapeInfos, size_t{});
+  { T::getNum(tapeInfos) };
 
-      // file handle access and file lifecycle operations
-      T::file(tapeInfos);
-      T::openFile(tapeInfos, fileName);
-      { T::removeFile(fileName) } -> std::same_as<int>;
-    };
+  // file handle access and file lifecycle operations
+  T::file(tapeInfos);
+  T::openFile(tapeInfos, fileName);
+  { T::removeFile(fileName) } -> std::same_as<int>;
+};
 
 template <class T, class TInfos>
 concept HasFileAccessEntry = requires {
@@ -124,10 +122,7 @@ static size_t write(TInfos &tapeInfos, size_t chunk, size_t size) {
  * @brief Adapter for the operations tape (op tape). Fulfills InfoType.
  *
  * Maps generic operations to:
- *   - tapeInfos.numOps_Tape
- *   - tapeInfos.currOp
- *   - tapeInfos.opBuffer
- *   - tapeInfos.op_file
+ *   - tapeInfos.opBuffer_
  *
  * The StatEntries constants (num/fileAccess/bufferSize) are used for ADOL-C
  * statistics/counters.
@@ -144,34 +139,33 @@ template <class TInfos, class EType> struct OpInfo {
 
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
-  static void setNum(TInfos &tapeInfos, size_t n) { tapeInfos.numOps_Tape = n; }
-  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numOps_Tape; }
-  static void setCurr(TInfos &tapeInfos, value_type *p) {
-    tapeInfos.currOp = p;
+  static void setNum(TInfos &tapeInfos, size_t n) {
+    tapeInfos.opBuffer_.numOnTape(n);
+  }
+  static size_t getNum(TInfos &tapeInfos) {
+    return tapeInfos.opBuffer_.numOnTape();
+  }
+  static void setCurr(TInfos &tapeInfos, size_t loc) {
+    tapeInfos.opBuffer_.position(loc);
   }
 
   static value_type *bufferBegin(TInfos &tapeInfos) {
-    return tapeInfos.opBuffer;
+    return tapeInfos.opBuffer_.begin();
   }
 
-  static FILE *file(TInfos &tapeInfos) { return tapeInfos.op_file; }
-  static void openFile(TInfos &tapeInfos, std::string_view fileName,
-                       std::string_view mode = "rb") {
-    tapeInfos.op_file = fopen(fileName.data(), mode.data());
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.opBuffer_.file(); }
+  static void openFile(TInfos &tapeInfos, const char *fileName,
+                       const char *mode = "rb") {
+    tapeInfos.opBuffer_.openFile(fileName, mode);
   }
-  static int removeFile(std::string_view fileName) {
-    return remove(fileName.data());
-  }
+  static int removeFile(const char *fileName) { return remove(fileName); }
 };
 
 /**
  * @brief Adapter for the locations tape (loc tape). Fulfills InfoType.
  *
  * Maps generic operations to:
- *   - tapeInfos.numLocs_Tape
- *   - tapeInfos.currLoc
- *   - tapeInfos.locBuffer
- *   - tapeInfos.loc_file
+ *   - tapeInfos.locBuffer_
  */
 template <class TInfos, class EType> struct LocInfo {
   using value_type = size_t;
@@ -186,35 +180,32 @@ template <class TInfos, class EType> struct LocInfo {
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
-    tapeInfos.numLocs_Tape = n;
+    tapeInfos.locBuffer_.numOnTape(n);
   }
-  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numLocs_Tape; }
-  static void setCurr(TInfos &tapeInfos, value_type *p) {
-    tapeInfos.currLoc = p;
+  static size_t getNum(TInfos &tapeInfos) {
+    return tapeInfos.locBuffer_.numOnTape();
+  }
+  static void setCurr(TInfos &tapeInfos, size_t loc) {
+    tapeInfos.locBuffer_.position(loc);
   }
 
   static value_type *bufferBegin(TInfos &tapeInfos) {
-    return tapeInfos.locBuffer;
+    return tapeInfos.locBuffer_.begin();
   }
 
-  static FILE *file(TInfos &tapeInfos) { return tapeInfos.loc_file; }
-  static void openFile(TInfos &tapeInfos, std::string_view fileName,
-                       std::string_view mode = "rb") {
-    tapeInfos.loc_file = fopen(fileName.data(), mode.data());
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.locBuffer_.file(); }
+  static void openFile(TInfos &tapeInfos, const char *fileName,
+                       const char *mode = "rb") {
+    tapeInfos.locBuffer_.openFile(fileName, mode);
   }
-  static int removeFile(std::string_view fileName) {
-    return remove(fileName.data());
-  }
+  static int removeFile(const char *fileName) { return remove(fileName); }
 };
 
 /**
  * @brief Adapter for the values tape (val tape). Fulfills InfoType.
  *
  * Maps generic operations to:
- *   - tapeInfos.numVals_Tape
- *   - tapeInfos.currVal
- *   - tapeInfos.valBuffer
- *   - tapeInfos.val_file
+ *   - tapeInfos.valBuffer_
  */
 template <class TInfos, class EType> struct ValInfo {
   using value_type = double;
@@ -230,35 +221,32 @@ template <class TInfos, class EType> struct ValInfo {
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
-    tapeInfos.numVals_Tape = n;
+    tapeInfos.valBuffer_.numOnTape(n);
   }
-  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numVals_Tape; }
-  static void setCurr(TInfos &tapeInfos, value_type *p) {
-    tapeInfos.currVal = p;
+  static size_t getNum(TInfos &tapeInfos) {
+    return tapeInfos.valBuffer_.numOnTape();
+  }
+  static void setCurr(TInfos &tapeInfos, size_t loc) {
+    tapeInfos.valBuffer_.position(loc);
   }
 
   static value_type *bufferBegin(TInfos &tapeInfos) {
-    return tapeInfos.valBuffer;
+    return tapeInfos.valBuffer_.begin();
   }
 
-  static FILE *file(TInfos &tapeInfos) { return tapeInfos.val_file; }
-  static void openFile(TInfos &tapeInfos, std::string_view fileName,
-                       std::string_view mode = "rb") {
-    tapeInfos.val_file = fopen(fileName.data(), mode.data());
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.valBuffer_.file(); }
+  static void openFile(TInfos &tapeInfos, const char *fileName,
+                       const char *mode = "rb") {
+    tapeInfos.valBuffer_.openFile(fileName, mode);
   }
-  static int removeFile(std::string_view fileName) {
-    return remove(fileName.data());
-  }
+  static int removeFile(const char *fileName) { return remove(fileName); }
 };
 
 /**
  * @brief Adapter for the Taylor tape (tay tape). Fulfills InfoTypeBase.
  *
  * Maps generic operations to:
- *   - tapeInfos.numTays_Tape
- *   - tapeInfos.currTay
- *   - tapeInfos.tayBuffer
- *   - tapeInfos.tay_file
+ *   - tapeInfos.tayBuffer_
  */
 template <class TInfos, class EType> struct TayInfo {
   using value_type = double;
@@ -272,25 +260,25 @@ template <class TInfos, class EType> struct TayInfo {
   static constexpr size_t chunkSize = ADOLC_IO_CHUNK_SIZE / sizeof(value_type);
 
   static void setNum(TInfos &tapeInfos, size_t n) {
-    tapeInfos.numTays_Tape = n;
+    tapeInfos.tayBuffer_.numOnTape(n);
   }
-  static size_t getNum(TInfos &tapeInfos) { return tapeInfos.numTays_Tape; }
-  static void setCurr(TInfos &tapeInfos, value_type *p) {
-    tapeInfos.currTay = p;
+  static size_t getNum(TInfos &tapeInfos) {
+    return tapeInfos.tayBuffer_.numOnTape();
+  }
+  static void setCurr(TInfos &tapeInfos, size_t loc) {
+    tapeInfos.tayBuffer_.position(loc);
   }
 
   static value_type *bufferBegin(TInfos &tapeInfos) {
-    return tapeInfos.tayBuffer;
+    return tapeInfos.tayBuffer_.begin();
   }
 
-  static FILE *file(TInfos &tapeInfos) { return tapeInfos.tay_file; }
-  static void openFile(TInfos &tapeInfos, std::string_view fileName,
-                       std::string_view mode = "rb") {
-    tapeInfos.tay_file = fopen(fileName.data(), mode.data());
+  static FILE *file(TInfos &tapeInfos) { return tapeInfos.tayBuffer_.file(); }
+  static void openFile(TInfos &tapeInfos, const char *fileName,
+                       const char *mode = "rb") {
+    tapeInfos.tayBuffer_.openFile(fileName, mode);
   }
-  static int removeFile(std::string_view fileName) {
-    return remove(fileName.data());
-  }
+  static int removeFile(const char *fileName) { return remove(fileName); }
 };
 }; // namespace ADOLC::detail
 
