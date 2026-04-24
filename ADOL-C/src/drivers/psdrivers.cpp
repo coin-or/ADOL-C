@@ -89,17 +89,17 @@ int abs_normal(short tag,       /* tape identifier */
 
   // compute cy = y - J|z|
   for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
-    cy[depRow] = 0.0;
+    cy[depRow] = y[depRow];
     for (size_t col = 0; col < s; col++) {
-      cy[depRow] = cy[depRow] - J[depRow][col] * fabs(z[col]);
+      cy[depRow] -= J[depRow][col] * fabs(z[col]);
     }
   }
   // compute cz = z - L|z|
   for (size_t switchRow = 0; switchRow < s; switchRow++) {
-    cz[switchRow] = 0.0;
+    cz[switchRow] = z[switchRow];
     for (size_t col = 0; col < s; col++) {
       if (col < switchRow) {
-        cz[switchRow] = cz[switchRow] - L[switchRow][col] * fabs(z[col]);
+        cz[switchRow] -= L[switchRow][col] * fabs(z[col]);
       }
     }
   }
