@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <boost/test/unit_test.hpp>
+#include <limits>
 #include <vector>
 
 namespace tt = boost::test_tools;
@@ -83,9 +84,13 @@ void taping(SimpleAbsProblem &problem) {
 }
 
 void checkAbsNormal(SimpleAbsProblem &problem) {
+  std::vector<double> y(problem.dimOut,
+                        std::numeric_limits<double>::quiet_NaN());
   std::vector<double> z(problem.numSwitches);
-  std::vector<double> cz(problem.numSwitches);
-  std::vector<double> cy(problem.dimOut);
+  std::vector<double> cz(problem.numSwitches,
+                         std::numeric_limits<double>::quiet_NaN());
+  std::vector<double> cy(problem.dimOut,
+                         std::numeric_limits<double>::quiet_NaN());
 
   std::vector<double> yStorage(problem.dimOut * problem.dimIn);
   auto Y = makeRowPointers(yStorage, problem.dimOut, problem.dimIn);
@@ -99,13 +104,16 @@ void checkAbsNormal(SimpleAbsProblem &problem) {
   std::vector<double> lStorage(problem.numSwitches * problem.numSwitches);
   auto L = makeRowPointers(lStorage, problem.numSwitches, problem.numSwitches);
 
-  const int rc = abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
-                            problem.numSwitches, problem.x.data(),
-                            problem.y.data(), z.data(), cz.data(), cy.data(),
-                            Y.data(), J.data(), Z.data(), L.data());
+  const int rc =
+      abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
+                 problem.numSwitches, problem.x.data(), y.data(), z.data(),
+                 cz.data(), cy.data(), Y.data(), J.data(), Z.data(), L.data());
 
   BOOST_TEST(rc == 0);
+  checkCloseContainer(y, std::array<double, 1>{-4.0}, "y");
   checkCloseContainer(z, std::array<double, 2>{1.0, -2.0}, "z");
+  checkCloseContainer(cz, std::array<double, 2>{1.0, -2.0}, "cz");
+  checkCloseContainer(cy, std::array<double, 1>{-1.0}, "cy");
   checkCloseMatrix(
       L.data(), std::array<std::array<double, 2>, 2>{{{0.0, 0.0}, {0.0, 0.0}}},
       "L");
@@ -180,9 +188,13 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_NestedAbsForwardAndMatrices) {
   NestedAbsProblem problem{};
   taping(problem);
 
+  std::vector<double> y(problem.dimOut,
+                        std::numeric_limits<double>::quiet_NaN());
   std::vector<double> z(problem.numSwitches);
-  std::vector<double> cz(problem.numSwitches);
-  std::vector<double> cy(problem.dimOut);
+  std::vector<double> cz(problem.numSwitches,
+                         std::numeric_limits<double>::quiet_NaN());
+  std::vector<double> cy(problem.dimOut,
+                         std::numeric_limits<double>::quiet_NaN());
 
   std::vector<double> yStorage(problem.dimOut * problem.dimIn);
   auto Y = makeRowPointers(yStorage, problem.dimOut, problem.dimIn);
@@ -196,13 +208,16 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_NestedAbsForwardAndMatrices) {
   std::vector<double> lStorage(problem.numSwitches * problem.numSwitches);
   auto L = makeRowPointers(lStorage, problem.numSwitches, problem.numSwitches);
 
-  const int rc = abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
-                            problem.numSwitches, problem.x.data(),
-                            problem.y.data(), z.data(), cz.data(), cy.data(),
-                            Y.data(), J.data(), Z.data(), L.data());
+  const int rc =
+      abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
+                 problem.numSwitches, problem.x.data(), y.data(), z.data(),
+                 cz.data(), cy.data(), Y.data(), J.data(), Z.data(), L.data());
 
   BOOST_TEST(rc == 0);
+  checkCloseContainer(y, std::array<double, 1>{2.6}, "y");
   checkCloseContainer(z, std::array<double, 3>{-1.3, -20.0, -18.7}, "z");
+  checkCloseContainer(cz, std::array<double, 3>{-1.3, -21.3, 0.0}, "cz");
+  checkCloseContainer(cy, std::array<double, 1>{0.0}, "cy");
   checkCloseMatrix(Z.data(),
                    std::array<std::array<double, 2>, 3>{
                        {{1.0, 0.0}, {0.0, -1.0}, {0.0, 0.0}}},
