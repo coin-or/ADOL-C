@@ -20,6 +20,44 @@
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 
+namespace ADOLC {
+/**
+ * @brief Structural concept for abs-normal form objects.
+ *
+ * A type models `AbsNormalFormType` when it exposes the six components of the
+ * output-first abs-normal form
+ * \f[
+ *   \left[\begin{array}{c}
+ *     y\\ z
+ *   \end{array}\right]
+ *   =
+ *   \left[\begin{array}{c}
+ *     cy\\ cz
+ *   \end{array}\right]
+ *   +
+ *   \left[\begin{array}{cc}
+ *     Y & J\\ Z & L
+ *   \end{array}\right]
+ *   \left[\begin{array}{c}
+ *     x\\ |z|
+ *   \end{array}\right].
+ * \f]
+ *
+ * The concept intentionally constrains only the presence of the named
+ * components. It does not prescribe a concrete storage layout, so both dense
+ * and sparse representations may satisfy it.
+ */
+template <typename T>
+concept AbsNormalFormType = requires(T &t) {
+  t.Y;
+  t.J;
+  t.Z;
+  t.L;
+  t.cy;
+  t.cz;
+};
+
+} // namespace ADOLC
 BEGIN_C_DECLS
 
 /****************************************************************************/
