@@ -19,8 +19,112 @@
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
+#include <adolc/tape_interface.h>
+#include <adolc/valuetape/valuetape.h>
 #include <math.h>
 #include <vector>
+
+namespace ADOLC {
+
+// Resize storage arrays and recompute pointers for double**
+void DenseAbsNormalForm::resize(size_t num_in, size_t num_out,
+                                size_t num_switch) {
+  n = num_in;
+  m = num_out;
+  s = num_switch;
+
+  Y_storage.resize(m * n, 0.0);
+  J_storage.resize(m * s, 0.0);
+  Z_storage.resize(s * n, 0.0);
+  L_storage.resize(s * s, 0.0);
+
+  Y.resize(m);
+  J.resize(m);
+  Z.resize(s);
+  L.resize(s);
+
+  for (size_t i = 0; i < m; ++i) {
+    Y[i] = Y_storage.data() + (i * n);
+  }
+  for (size_t i = 0; i < m; ++i) {
+    J[i] = J_storage.data() + (i * s);
+  }
+  for (size_t i = 0; i < s; ++i) {
+    Z[i] = Z_storage.data() + (i * n);
+  }
+  for (size_t i = 0; i < s; ++i) {
+    L[i] = L_storage.data() + (i * s);
+  }
+
+  y.resize(m, 0.0);
+  z.resize(s, 0.0);
+  cy.resize(m, 0.0);
+  cz.resize(s, 0.0);
+}
+
+// Move constructor to prevent pointer corruption
+DenseAbsNormalForm::DenseAbsNormalForm(DenseAbsNormalForm &&other) noexcept
+    : n(other.n), m(other.m), s(other.s), Y_storage(std::move(other.Y_storage)),
+      J_storage(std::move(other.J_storage)),
+      Z_storage(std::move(other.Z_storage)),
+      L_storage(std::move(other.L_storage)), cz(std::move(other.cz)),
+      cy(std::move(other.cy)), y(std::move(other.y)), z(std::move(other.z)) {
+  resize(n, m, s);
+  other.n = other.m = other.s = 0;
+}
+
+// Move assignment
+DenseAbsNormalForm &
+DenseAbsNormalForm::operator=(DenseAbsNormalForm &&other) noexcept {
+  if (this != &other) {
+    n = other.n;
+    m = other.m;
+    s = other.s;
+    Y_storage = std::move(other.Y_storage);
+    J_storage = std::move(other.J_storage);
+    Z_storage = std::move(other.Z_storage);
+    L_storage = std::move(other.L_storage);
+    cz = std::move(other.cz);
+    cy = std::move(other.cy);
+    y = std::move(other.y);
+    z = std::move(other.z);
+
+    resize(n, m, s);
+    other.n = other.m = other.s = 0;
+  }
+  return *this;
+}
+
+// Build Absnormal form from tapeid (is this seep required?)
+DenseAbsNormalForm DenseAbsNormalForm::fromTape(short tape_id) {
+  ValueTape &tape = findTape(tape_id);
+  tape.init_sweep<ValueTape::Forward>();
+  size_t m = tape.tapestats(TapeInfos::NUM_DEPENDENTS);
+  size_t n = tape.tapestats(TapeInfos::NUM_INDEPENDENTS);
+  size_t s = tape.tapestats(TapeInfos::NUM_SWITCHES);
+  tape.end_sweep();
+  return DenseAbsNormalForm(n, m, s);
+}
+
+void DenseAbsNormalForm::update_cy() {
+  cy.resize(m, 0.0);
+  for (size_t depRow = 0; depRow < m; depRow++) {
+    cy[depRow] = y[depRow];
+    for (size_t col = 0; col < s; col++) {
+      cy[depRow] -= J[depRow][col] * std::fabs(z[col]);
+    }
+  }
+}
+
+void DenseAbsNormalForm::update_cz() {
+  cz.resize(s, 0.0);
+  for (size_t switchRow = 0; switchRow < s; switchRow++) {
+    cz[switchRow] = z[switchRow];
+    for (size_t col = 0; col < s; col++) {
+      cz[switchRow] -= L[switchRow][col] * std::fabs(z[col]);
+    }
+  }
+}
 
 BEGIN_C_DECLS
 
@@ -181,3 +285,17 @@ int directional_active_gradient(short tag,       /* trace identifier */
 }
 
 END_C_DECLS
+
+int abs_normal(short tag, const double *x, DenseAbsNormalForm &anf,
+               bool update_consts) {
+  int rc = abs_normal(tag, static_cast<int>(anf.m), static_cast<int>(anf.n),
+                      static_cast<int>(anf.s), x, anf.y.data(), anf.z.data(),
+                      anf.cz.data(), anf.cy.data(), anf.Y.data(), anf.J.data(),
+                      anf.Z.data(), anf.L.data());
+  if (update_consts) {
+    anf.update_cy();
+    anf.update_cz();
+  }
+  return rc;
+}
+} // namespace ADOLC

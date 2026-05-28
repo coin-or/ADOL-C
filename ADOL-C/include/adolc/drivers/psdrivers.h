@@ -19,6 +19,9 @@
 #include <adolc/adolcexport.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
+#include <cmath>
+#include <cstddef>
+#include <vector>
 
 namespace ADOLC {
 /**
@@ -49,13 +52,80 @@ namespace ADOLC {
  */
 template <typename T>
 concept AbsNormalFormType = requires(T &t) {
+  t.m;
+  t.n;
+  t.s;
   t.Y;
   t.J;
   t.Z;
   t.L;
-  t.cy;
-  t.cz;
+  t.y;
+  t.z;
 };
+
+struct DenseAbsNormalForm {
+public:
+  size_t n = 0;
+  size_t m = 0;
+  size_t s = 0;
+
+  std::vector<double *> Y;
+  std::vector<double *> J;
+  std::vector<double *> Z;
+  std::vector<double *> L;
+
+  std::vector<double> Y_storage;
+  std::vector<double> J_storage;
+  std::vector<double> Z_storage;
+  std::vector<double> L_storage;
+
+  std::vector<double> cz;
+  std::vector<double> cy;
+  std::vector<double> y;
+  std::vector<double> z;
+
+  /** @brief Updates cy = y - J|z|. */
+  void update_cy();
+
+  /** @brief Updates cz = z - L|z|. */
+  void update_cz();
+
+  /** @brief Resizes all storage vectors used for the ABS-normal form. */
+  void resize(size_t num_in, size_t num_out, size_t num_switch);
+
+  /** @brief Extracts dimensions from a tape and creates a DenseAbsNormalForm
+   * object. */
+  static DenseAbsNormalForm fromTape(short tape_id);
+
+  DenseAbsNormalForm() = default;
+
+  /** @brief Constructor that initializes storage for the specified dimensions.
+   */
+  DenseAbsNormalForm(size_t num_in, size_t num_out, size_t num_switch) {
+    resize(num_in, num_out, num_switch);
+  }
+
+  DenseAbsNormalForm(const DenseAbsNormalForm &) = delete;
+  DenseAbsNormalForm &operator=(const DenseAbsNormalForm &) = delete;
+
+  /** @brief Move constructor. */
+  DenseAbsNormalForm(DenseAbsNormalForm &&other) noexcept;
+
+  /** @brief Move assignment operator. */
+  DenseAbsNormalForm &operator=(DenseAbsNormalForm &&other) noexcept;
+};
+
+/**
+ * @brief Interface to compute the ABS-normal form of a function on a tape
+ * at a point into a DenseAbsNormalForm object.
+ *
+ * @param tag           Tape identifier.
+ * @param x             Base point (input values).
+ * @param anf           DenseAbsNormalForm object to store results.
+ * @param update_consts If true, updates cy and cz after evaluation.
+ */
+int abs_normal(short tag, const double *x, DenseAbsNormalForm &anf,
+               bool update_consts = true);
 
 } // namespace ADOLC
 BEGIN_C_DECLS
