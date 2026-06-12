@@ -1,5 +1,6 @@
 #ifndef ADOLC_SPARSE_INFOS_H
 #define ADOLC_SPARSE_INFOS_H
+#include <adolc/adalloc.h>
 #include <adolc/internal/common.h>
 #include <adolc/sparse/sparse_options.h>
 #include <adolc/sparse/sparsematrix.h>
@@ -137,6 +138,11 @@ struct ADOLC_API SparseHessInfos {
   double ***Yppp_{nullptr};
   double ***Zppp_{nullptr};
   double **Upp_{nullptr};
+  Matrix<double> Hcomp_cont{};
+  Tensor<double> Xppp_cont{};
+  Tensor<double> Yppp_cont{};
+  Tensor<double> Zppp_cont{};
+  Matrix<double> Upp_cont{};
 
   // type is dictated by ColPack
   std::vector<uint *> HP_;
