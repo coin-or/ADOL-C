@@ -38,11 +38,11 @@ struct SparseJacInfos::Impl {
 };
 
 SparseJacInfos::~SparseJacInfos() {
-  if (y_)
-    myfree1(y_);
+  /* if (y_)
+    myfree1(y_); */
   y_ = nullptr;
-  if (B_)
-    myfree2(B_);
+  /* if (B_)
+    myfree2(B_); */
   B_ = nullptr;
 
   for (auto &j : JP_) {
@@ -70,8 +70,8 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
   if (this != &other) {
     // Free existing resources
 
-    myfree1(y_);
-    myfree2(B_);
+    /* myfree1(y_); */
+    /* myfree2(B_); */
     for (auto &jp : JP_) {
       delete[] jp;
       jp = nullptr;
@@ -288,19 +288,19 @@ struct SparseHessInfos::Impl {
 };
 
 SparseHessInfos::~SparseHessInfos() {
-  myfree2(Hcomp_);
+  /* myfree2(Hcomp_); */
   Hcomp_ = nullptr;
 
-  myfree3(Xppp_);
+  /* myfree3(Xppp_); */
   Xppp_ = nullptr;
 
-  myfree3(Yppp_);
+  /* myfree3(Yppp_); */
   Yppp_ = nullptr;
 
-  myfree3(Zppp_);
+  /* myfree3(Zppp_); */
   Zppp_ = nullptr;
 
-  myfree2(Upp_);
+  /* myfree2(Upp_); */
   Upp_ = nullptr;
 
   for (auto &h : HP_) {
@@ -329,11 +329,11 @@ SparseHessInfos::SparseHessInfos(SparseHessInfos &&other) noexcept
 SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
   if (this != &other) {
     // Free existing resources
-    myfree2(Hcomp_);
+    /* myfree2(Hcomp_);
     myfree3(Xppp_);
     myfree3(Yppp_);
     myfree3(Zppp_);
-    myfree2(Upp_);
+    myfree2(Upp_); */
 
     for (auto &hp : HP_) {
       delete[] hp;

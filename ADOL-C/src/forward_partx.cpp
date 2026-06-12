@@ -14,6 +14,7 @@
 
 #include <adolc/adalloc.h>
 #include <adolc/interfaces.h>
+#include <vector>
 
 BEGIN_C_DECLS
 
@@ -24,14 +25,15 @@ BEGIN_C_DECLS
 
 int zos_forward_partx(short tag, int m, int n, const int *ndim,
                       const double *const *x, double *y) {
-  double *x0; /* base point */
+  /* double *x0; */ /* base point */
   int i, j, ind, sum_n, rc;
 
   sum_n = 0;
   for (i = 0; i < n; i++)
     sum_n += ndim[i];
 
-  x0 = myalloc1(sum_n);
+  /* x0 = myalloc1(sum_n); */
+  std::vector<double> x0(sum_n); /* base point */
 
   ind = 0;
   for (i = 0; i < n; i++)
@@ -40,9 +42,9 @@ int zos_forward_partx(short tag, int m, int n, const int *ndim,
       ind++;
     }
 
-  rc = zos_forward(tag, m, sum_n, 0, x0, y);
+  rc = zos_forward(tag, m, sum_n, 0, x0.data(), y);
 
-  myfree1(x0);
+  /* myfree1(x0); */
 
   return rc;
 }
@@ -54,20 +56,24 @@ int zos_forward_partx(short tag, int m, int n, const int *ndim,
 
 int fos_forward_partx(short tag, int m, int n, const int *ndim,
                       const double *const *const *x, double **y) {
-  double *x0;   /* base point */
-  double *xtay; /* Taylor coefficients */
-  double *y0;   /* result */
-  double *ytay; /* derivatives */
+  // double *x0;   /* base point */
+  // double *xtay; /* Taylor coefficients */
+  // double *y0;   /* result */
+  // double *ytay; /* derivatives */
   int i, j, ind, sum_n, rc;
 
   sum_n = 0;
   for (i = 0; i < n; i++)
     sum_n += ndim[i];
 
-  x0 = myalloc1(sum_n);
+  /* x0 = myalloc1(sum_n);
   xtay = myalloc1(sum_n);
   y0 = myalloc1(m);
-  ytay = myalloc1(m);
+  ytay = myalloc1(m); */
+  std::vector<double> x0(sum_n);   /* base point */
+  std::vector<double> xtay(sum_n); /* Taylor coefficients */
+  std::vector<double> y0(m);       /* result */
+  std::vector<double> ytay(m);     /* derivatives */
 
   ind = 0;
   for (i = 0; i < n; i++)
@@ -84,10 +90,10 @@ int fos_forward_partx(short tag, int m, int n, const int *ndim,
     y[i][1] = ytay[i];
   }
 
-  myfree1(x0);
+  /* myfree1(x0);
   myfree1(xtay);
   myfree1(y0);
-  myfree1(ytay);
+  myfree1(ytay); */
 
   return rc;
 }
@@ -99,20 +105,26 @@ int fos_forward_partx(short tag, int m, int n, const int *ndim,
 
 int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
                       const double *const *const *x, double **y) {
-  double *x0;    /* base point */
-  double **xtay; /* Taylor coefficients */
-  double *y0;    /* result */
-  double **ytay; /* derivatives */
+  // double *x0;    /* base point */
+  // double **xtay; /* Taylor coefficients */
+  // double *y0;    /* result */
+  // double **ytay; /* derivatives */
   int i, j, k, ind, sum_n, rc;
 
   sum_n = 0;
   for (i = 0; i < n; i++)
     sum_n += ndim[i];
 
-  x0 = myalloc1(sum_n);
+  /* x0 = myalloc1(sum_n);
   xtay = myalloc2(sum_n, d);
   y0 = myalloc1(m);
-  ytay = myalloc2(m, d);
+  ytay = myalloc2(m, d); */
+  std::vector<double> x0(sum_n); /* base point */
+  Matrix<double> xtay{static_cast<size_t>(sum_n),
+                      static_cast<size_t>(d)}; /* Taylor coefficients */
+  std::vector<double> y0(m);                   /* result */
+  Matrix<double> ytay{static_cast<size_t>(m),
+                      static_cast<size_t>(d)}; /* derivatives */
 
   ind = 0;
   for (i = 0; i < n; i++)
@@ -131,10 +143,10 @@ int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
       y[i][j + 1] = ytay[i][j];
   }
 
-  myfree1(x0);
+  /* myfree1(x0);
   myfree2(xtay);
   myfree1(y0);
-  myfree2(ytay);
+  myfree2(ytay); */
 
   return rc;
 }
@@ -148,16 +160,19 @@ int hos_forward_partx(short tag, int m, int n, const int *ndim, int d,
 int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
                       const double *const *x, const double *const *const *Xppp,
                       double *y, double **Ypp) {
-  double *x0; /* base point */
-  double **X; /* Taylor coefficients */
+  // double *x0; /* base point */
+  // double **X; /* Taylor coefficients */
   int i, j, k, ind, sum_n, rc;
 
   sum_n = 0;
   for (i = 0; i < n; i++)
     sum_n += ndim[i];
 
-  x0 = myalloc1(sum_n);
-  X = myalloc2(sum_n, p);
+  /* x0 = myalloc1(sum_n);
+  X = myalloc2(sum_n, p); */
+  std::vector<double> x0(sum_n); /* base point */
+  Matrix<double> X{static_cast<size_t>(sum_n),
+                   static_cast<size_t>(p)}; /* Taylor coefficients */
 
   ind = 0;
   for (i = 0; i < n; i++)
@@ -168,10 +183,10 @@ int fov_forward_partx(short tag, int m, int n, const int *ndim, int p,
       ind++;
     }
 
-  rc = fov_forward(tag, m, sum_n, p, x0, X, y, Ypp);
+  rc = fov_forward(tag, m, sum_n, p, x0.data(), X.data(), y, Ypp);
 
-  myfree1(x0);
-  myfree2(X);
+  /* myfree1(x0);
+  myfree2(X); */
 
   return rc;
 }
@@ -186,16 +201,19 @@ int hov_forward_partx(short tag, int m, int n, const int *ndim, int d, int p,
                       const double *const *x,
                       const double *const *const *const *Xpppp, double *y,
                       double ***Yppp) {
-  double *x0;  /* base point */
-  double ***X; /* Taylor coefficients */
+  // double *x0;  /* base point */
+  // double ***X; /* Taylor coefficients */
   int i, j, k, l, ind, sum_n, rc;
 
   sum_n = 0;
   for (i = 0; i < n; i++)
     sum_n += ndim[i];
 
-  x0 = myalloc1(sum_n);
-  X = myalloc3(sum_n, p, d);
+  /* x0 = myalloc1(sum_n);
+  X = myalloc3(sum_n, p, d); */
+  std::vector<double> x0(sum_n); /* base point */
+  Tensor<double> X{static_cast<size_t>(sum_n), static_cast<size_t>(p),
+                   static_cast<size_t>(d)}; /* Taylor coefficients */
 
   ind = 0;
   for (i = 0; i < n; i++)
@@ -207,10 +225,10 @@ int hov_forward_partx(short tag, int m, int n, const int *ndim, int d, int p,
       ind++;
     }
 
-  rc = hov_forward(tag, m, sum_n, d, p, x0, X, y, Yppp);
+  rc = hov_forward(tag, m, sum_n, d, p, x0.data(), X.data(), y, Yppp);
 
-  myfree1(x0);
-  myfree3(X);
+  /* myfree1(x0);
+  myfree3(X); */
 
   return rc;
 }

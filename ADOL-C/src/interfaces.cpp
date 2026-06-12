@@ -17,6 +17,7 @@
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
+#include <vector>
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -32,13 +33,19 @@
 int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
 /* forward(tag, m, n, d, keep, X[n][d+1], Y[m][d+1])                        */
 { /* olvo 980729 general ec */
-  double *x, *y, *xp, *yp;
+  /* double *x, *y, *xp, *yp; */
   int maxn, maxm;
   int rc = -1, i, k;
-  x = myalloc1(maxn = n);
+  maxn = n;
+  maxm = m;
+  /* x = myalloc1(maxn = n);
   xp = myalloc1(maxn);
   y = myalloc1(maxm = m);
-  yp = myalloc1(maxm);
+  yp = myalloc1(maxm); */
+  std::vector<double> x(maxn);
+  std::vector<double> xp(maxn);
+  std::vector<double> y(maxm);
+  std::vector<double> yp(maxm);
 
   /*------------------------------------------------------------------------*/
   /* prepare input */
@@ -54,11 +61,11 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
   /*------------------------------------------------------------------------*/
   /* function calls */
   if (d == 0)
-    rc = zos_forward(tag, m, n, keep, x, y);
+    rc = zos_forward(tag, m, n, keep, x.data(), y.data());
   else if (d == 1)
     rc = fos_forward(tag, m, n, keep, x, xp, y, yp);
   else
-    rc = hos_forward(tag, m, n, d, keep, x, X, y, Y);
+    rc = hos_forward(tag, m, n, d, keep, x.data(), X, y.data(), Y);
 
   /*------------------------------------------------------------------------*/
   /* prepare output */
@@ -78,10 +85,10 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
     Y[i][0] = y[i];
   }
 
-  myfree1(x);
+  /* myfree1(x);
   myfree1(y);
   myfree1(xp);
-  myfree1(yp);
+  myfree1(yp); */
 
   return rc;
 }
@@ -92,19 +99,23 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
 int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
 /* forward(tag, 1, n, d, keep, X[n][d+1], Y[d+1]), m=1                      */
 { /* olvo 980729 general ec */
-  static double *x, *xp;
+  /* static double *x, *xp; */
+  static std::vector<double> x, xp;
   static int maxn;
   double y;
   int rc = -1, i, k;
 
   if (m == 1) {
     if (n > maxn) {
-      if (x)
+      /* if (x)
         myfree1(x);
       if (xp)
-        myfree1(xp);
-      x = myalloc1(maxn = n);
-      xp = myalloc1(maxn);
+        myfree1(xp); */
+      /* x = myalloc1(maxn = n);
+      xp = myalloc1(maxn); */
+      maxn = n;
+      static std::vector<double> x(maxn);
+      static std::vector<double> xp(maxn);
     }
 
     /*----------------------------------------------------------------------*/
@@ -121,11 +132,11 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
     /*----------------------------------------------------------------------*/
     /* function calls */
     if (d == 0)
-      rc = zos_forward(tag, m, n, keep, x, &y);
+      rc = zos_forward(tag, m, n, keep, x.data(), &y);
     else if (d == 1)
-      rc = fos_forward(tag, m, n, keep, x, xp, &y, Y);
+      rc = fos_forward(tag, m, n, keep, x.data(), xp.data(), &y, Y);
     else
-      rc = hos_forward(tag, m, n, d, keep, x, X, &y, &Y);
+      rc = hos_forward(tag, m, n, d, keep, x.data(), X, &y, &Y);
 
     /*----------------------------------------------------------------------*/
     /* prepare output */
@@ -350,13 +361,16 @@ int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
            If p and U are omitted they default to m and I                   */
 {
   static int depax;
-  static double **I;
+  /* static double **I; */
+  static Matrix<double> I;
   if (m adolc_compsize depax) {
     if (depax)
-      myfreeI2(depax, I);
-    I = myallocI2(depax = m);
+      /*   myfreeI2(depax, I);
+      I = myallocI2(depax = m); */
+      depax = m;
+    I = unitMatrix<double>(depax);
   }
-  return hov_reverse(tag, m, n, d, m, I, Z, nz);
+  return hov_reverse(tag, m, n, d, m, I.data(), Z, nz);
 }
 
 /****************************************************************************/
