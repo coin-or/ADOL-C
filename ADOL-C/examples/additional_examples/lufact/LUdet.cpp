@@ -23,6 +23,7 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 #include "LU.h"
+#include <vector>
 
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
@@ -33,11 +34,23 @@ int main() { /*-----------------------------------------------------------------
   const int indep = size * size; // # of indeps
   const int depen = 1;           // # of deps
 
-  double A[size][size], a1[size], a2[size], det; // passive variables
-  adouble **AA, *AAp, Adet;                      // active variables
-  double *args = myalloc1(indep);                // arguments
+  // double A[size][size], a1[size], a2[size], det; // passive variables
+  // adouble **AA, *AAp, Adet;                      // active variables
+  // passive variables
+  Matrix<double> A(size);
+  std::vector<double> a1(size);
+  std::vector<double> a2(size);
+  double det;
+  // active variables
+  Matrix<adouble> AA;
+  adouble Adet;
+
+  /* double *args = myalloc1(indep);                // arguments
   double *grad = myalloc1(indep);                // the gradient
-  double **hess = myalloc2(indep, indep);        // the hessian
+  double **hess = myalloc2(indep, indep);        // the hessian */
+  std::vector<double> args(indep); // argument
+  std::vector<double> grad(indep); // gradient
+  Matrix<double> hess(indep);      // hessian
 
   int i, j;
 
@@ -47,12 +60,14 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allcoation und initialization of the system matrix */
-  AA = new adouble *[size];
-  AAp = new adouble[size * size];
-  for (i = 0; i < size; i++) {
+  /* AA = new adouble *[size];
+  AAp = new adouble[size * size]; */
+  /* for (i = 0; i < size; i++) {
     AA[i] = AAp;
     AAp += size;
-  }
+  } */
+  AA = Matrix<adouble>{size};
+
   for (i = 0; i < size; i++) {
     a1[i] = i * 0.25;
     a2[i] = i * 0.33;
@@ -71,7 +86,7 @@ int main() { /*-----------------------------------------------------------------
     for (j = 0; j < size; j++)
       AA[i][j] <<= (args[i * size + j] = A[i][j]); // indep. vars
   /* LU-factorization and computation of determinant */
-  LUfact(size, AA);
+  LUfact(size, AA.data());
   Adet = AA[0][0];
   for (i = 1; i < size; i++)
     Adet *= AA[i][i];
@@ -82,12 +97,12 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Recomputation of determinant */
-  function(tag, depen, indep, args, &det);
+  function(tag, depen, indep, args.data(), &det);
   fprintf(stdout, " Determinant (from tape): %16.4E\n", det);
 
   /*------------------------------------------------------------------------*/
   /* Computation of gradient */
-  gradient(tag, indep, args, grad);
+  gradient(tag, indep, args.data(), grad.data());
   fprintf(stdout, " Gradient:\n");
   for (i = 0; i < size; i++) {
     for (j = 0; j < size; j++)
@@ -97,17 +112,17 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Computation of hessian */
-  hessian(tag, indep, args, hess);
+  hessian(tag, indep, args.data(), hess.data());
   fprintf(stdout, " Part of Hessian:\n");
   for (i = 0; i < size; i++) {
     for (j = 0; j < size; j++)
-      fprintf(stdout, " %14.6E", hess[0][i * size + j]);
+      fprintf(stdout, " %14.6E", hess[i][j]);
     fprintf(stdout, "\n");
   }
 
   /*------------------------------------------------------------------------*/
   /* Tape-documentation */
-  tape_doc(tag, depen, indep, args, &det);
+  tape_doc(tag, depen, indep, args.data(), &det);
 
   /*------------------------------------------------------------------------*/
   /* Tape statistics */

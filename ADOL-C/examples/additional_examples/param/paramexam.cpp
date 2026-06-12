@@ -110,9 +110,12 @@ int main() {
   double *px = new double[n];
   double *lpx = new double[2 * n];
   double *grad_a = new double[2 * n];
-  double **hess = myalloc2(n, n);
+  /* double **hess = myalloc2(n, n);
   double **hess_p = myalloc2(n, n);
-  double **hess_a = myalloc2(2 * n, 2 * n);
+  double **hess_a = myalloc2(2 * n, 2 * n); */
+  Matrix<double> hess(n);
+  Matrix<double> hess_p(n);
+  Matrix<double> hess_a(2 * n);
 
   adouble *x = new adouble[n];
   adouble *b = new adouble[n];
@@ -132,7 +135,7 @@ int main() {
   he >>= result;
   trace_off();
   reverse(1, 1, n, 0, 1.0, grad); /* reverse computation of gradient */
-  hessian2(1, n, px, hess);
+  hessian2(1, n, px, hess.data());
   tt1e = myclock();
 
   /*--------------------------------------------------------------------------*/
@@ -145,7 +148,7 @@ int main() {
   he >>= result_p;
   trace_off();
   reverse(2, 1, n, 0, 1.0, grad_p); /* reverse computation of gradient */
-  hessian2(2, n, px, hess_p);
+  hessian2(2, n, px, hess_p.data());
   tt2e = myclock();
 
   /*--------------------------------------------------------------------------*/
@@ -165,7 +168,7 @@ int main() {
   he >>= result_a;
   trace_off();
   reverse(3, 1, 2 * n, 0, 1.0, grad_a); /* reverse computation of gradient */
-  hessian2(3, 2 * n, lpx, hess_a);
+  hessian2(3, 2 * n, lpx, hess_a.data());
   tt3e = myclock();
   /*--------------------------------------------------------------------------*/
 
@@ -193,7 +196,7 @@ int main() {
   set_param_vec(2, n, bv);
   zos_forward(2, 1, n, 1, px, &result_p);
   reverse(2, 1, n, 0, 1.0, grad_p);
-  hessian2(2, n, px, hess_p);
+  hessian2(2, n, px, hess_p.data());
   tpxe = myclock();
 
   /* double independents tape */
@@ -204,7 +207,7 @@ int main() {
   tixs = myclock();
   zos_forward(3, 1, 2 * n, 1, lpx, &result_a);
   reverse(3, 1, 2 * n, 0, 1.0, grad_a);
-  hessian2(3, 2 * n, lpx, hess_a);
+  hessian2(3, 2 * n, lpx, hess_a.data());
   tixe = myclock();
 
   /*--------------------------------------------------------------------------*/
@@ -218,7 +221,7 @@ int main() {
   trace_off();
 
   reverse(1, 1, n, 0, 1.0, grad); /* reverse computation of gradient */
-  hessian2(1, n, px, hess);
+  hessian2(1, n, px, hess.data());
   trt1e = myclock();
 
   fprintf(stdout, "%14.6E -- energy\n", result);
@@ -237,9 +240,9 @@ int main() {
   fprintf(stdout, "\n Point change grad + Hess2 2: \t%E", tpxe - tpxs);
   fprintf(stdout, "\n Point change grad + Hess2 3: \t%E", tixe - tixs);
 
-  myfree2(hess);
+  /* myfree2(hess);
   myfree2(hess_p);
-  myfree2(hess_a);
+  myfree2(hess_a); */
   delete[] bv;
   delete[] px;
   delete[] grad;

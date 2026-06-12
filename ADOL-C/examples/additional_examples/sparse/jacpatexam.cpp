@@ -237,7 +237,7 @@ int main(void) {
   nzref = nz;
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 
@@ -288,7 +288,7 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 
@@ -338,7 +338,7 @@ int main(void) {
     cout << "\n\n!!! This method found a different number of non-zeros !!!\n\n";
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 
@@ -389,7 +389,7 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 
@@ -440,7 +440,7 @@ int main(void) {
     cout << "\n\n!!! This method found a different number of non-zeros !!!\n\n";
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 
@@ -492,7 +492,7 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
   delete[] jacpat;
   jacpat = NULL;
 

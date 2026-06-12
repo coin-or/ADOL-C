@@ -90,7 +90,8 @@ int main() {
   /* Initialize the independent variables */
   double *indeps = new double[indepDim];
   double *deps = new double[depDim];
-  double **indeps2 = myalloc(indepDim, degree + 1);
+  /* double **indeps2 = myalloc(indepDim, degree + 1); */
+  Matrix<double> indeps2(indepDim, degree + 1);
   initIndependents(indeps);
   for (i = 0; i < indepDim; i++) {
     indeps2[i][0] = indeps[i];
@@ -100,9 +101,12 @@ int main() {
 
   /*------------------------------------------------------------------------*/
   /* Necessary variable */
-  double ***B = myalloc(indepDim, indepDim, degree);
+  /* double ***B = myalloc(indepDim, indepDim, degree);
   double ***A = myalloc(indepDim, indepDim, degree);
-  double **w = myalloc(indepDim, degree + 1);
+  double **w = myalloc(indepDim, degree + 1); */
+  Tensor<double> B(indepDim, indepDim, degree);
+  Tensor<double> A(indepDim, indepDim, degree);
+  Matrix<double> w(indepDim, degree + 1);
   ;
   short **nonzero = new short *[indepDim];
   for (i = 0; i < indepDim; i++)
@@ -178,7 +182,7 @@ int main() {
           taskCount++, indepDim, tau, degree);
   t00 = myclock();
   for (j = 0; j < evalCount; j++)
-    forode(tag, indepDim, tau, degree, indeps2);
+    forode(tag, indepDim, tau, degree, indeps2.data());
   t01 = myclock();
 
   fprintf(stdout, TIMEFORMAT, (t01 - t00) * rtu, (t01 - t00) * stu,
@@ -194,7 +198,7 @@ int main() {
 
   t00 = myclock();
   for (j = 0; j < evalCount; j++)
-    reverse(tag, depDim, indepDim, degree - 1, A, nonzero);
+    reverse(tag, depDim, indepDim, degree - 1, A.data(), nonzero);
   t01 = myclock();
 
   fprintf(stdout, TIMEFORMAT, (t01 - t00) * rtu, (t01 - t00) * stu,
@@ -210,7 +214,7 @@ int main() {
 
   t00 = myclock();
   for (j = 0; j < evalCount; j++)
-    accode(indepDim, tau, degree - 1, A, B, nonzero);
+    accode(indepDim, tau, degree - 1, A.data(), B.data(), nonzero);
   t01 = myclock();
 
   fprintf(stdout, TIMEFORMAT, (t01 - t00) * rtu, (t01 - t00) * stu,
@@ -242,7 +246,7 @@ int main() {
      we obtain a coeffient array w, whose columns should
      equal to the shifted and scaled columns of z */
   fprintf(stdout, "\n Check that forward reproduces the Taylor series \n");
-  forward(tag, depDim, indepDim, degree - 1, degree, indeps2, w);
+  forward(tag, depDim, indepDim, degree - 1, degree, indeps2.data(), w.data());
   double err = 0, avg;
   for (i = 0; i < degree; i++)
     for (j = 0; j < indepDim; j++) {
@@ -274,14 +278,17 @@ int main() {
   double h;
   scanf("%le", &h);
   for (i = 0; i < indepDim; i++)
-    *w[i] = *indeps2[i];
+    /* *w[i] = *indeps2[i]; */
+    w[i][0] = indeps2[i][0];
   if (h != 0)
     for (i = 0; i < degree; i++) {
       err = 0;
       for (k = 0; k < indepDim; k++) {
-        *w[k] += h;
-        forode(tag, indepDim, tau, degree, w);
-        *w[k] -= h;
+        /* *w[k] += h; */
+        w[k][0] += h;
+        forode(tag, indepDim, tau, degree, w.data());
+        /* *w[k] -= h; */
+        w[k][0] -= h;
         for (j = 0; j < indepDim; j++)
           err +=
               B[j][k][i] != 0

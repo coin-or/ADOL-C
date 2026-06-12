@@ -62,13 +62,16 @@ int main() {
   cin >> deg;
 
   short **nz = new short *[n];
-  double **X;
+  /* double **X;
   double ***Z;
-  double ***B;
+  double ***B; */
 
-  X = myalloc2(n, deg + 1);
+  /* X = myalloc2(n, deg + 1);
   Z = myalloc3(n, n, deg);
-  B = myalloc3(n, n, deg);
+  B = myalloc3(n, n, deg); */
+  Matrix<double> X(n, deg + 1);
+  Tensor<double> Z(n, n, deg);
+  Tensor<double> B(n, n, deg);
 
   for (i = 0; i < n; i++) {
     py[i] = (i == 0) ? 1.0 : 0.0; // Initialize the base point
@@ -78,9 +81,9 @@ int main() {
   const short tapeId = createNewTape();
   tracerhs(1, py, pyp); // trace RHS with tag = 1
 
-  forode(tapeId, n, deg, X);             // compute deg coefficients
-  reverse(tapeId, n, n, deg - 1, Z, nz); // U defaults to the identity
-  accode(n, deg - 1, Z, B, nz);
+  forode(tapeId, n, deg, X.data());             // compute deg coefficients
+  reverse(tapeId, n, n, deg - 1, Z.data(), nz); // U defaults to the identity
+  accode(n, deg - 1, Z.data(), B.data(), nz);
 
   cout << "nonzero pattern:\n";
   for (i = 0; i < n; i++) {
