@@ -23,6 +23,7 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 #include "LU.h"
+#include <vector>
 
 /****************************************************************************/
 /*                                                             MAIN PROGRAM */
@@ -33,12 +34,23 @@ int main() { /*-----------------------------------------------------------------
   const int indep = size * size + size; // # of indeps
   const int depen = size;               // # of deps
 
-  double A[size][size], a1[size], a2[size], // passive variables
-      b[size], x[size];
-  adouble **AA, *AAp, *Abx;              // active variables
-  double *args = myalloc1(indep);        // arguments
+  /* double A[size][size], a1[size], a2[size], // passive variables
+      b[size], x[size]; */
+  // passive variables
+  Matrix<double> A(size);
+  std::vector<double> a1(size);
+  std::vector<double> a2(size);
+  std::vector<double> b(size);
+  std::vector<double> x(size);
+  /* adouble **AA, *AAp, *Abx; */ // active variables
+  Matrix<adouble> AA;
+  std::vector<adouble> Abx;
+  /* double *args = myalloc1(indep);        // arguments
   double **jac = myalloc2(depen, indep); // the Jacobian
-  double *laghessvec = myalloc1(indep);  // Hessian-vector product
+  double *laghessvec = myalloc1(indep);  // Hessian-vector product */
+  std::vector<double> args(indep);
+  Matrix<double> jac(depen, indep);
+  std::vector<double> laghessvec(indep);
 
   int i, j;
 
@@ -49,13 +61,15 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allocation und initialization of the system matrix */
-  AA = new adouble *[size];
+  /* AA = new adouble *[size];
   AAp = new adouble[size * size];
   for (i = 0; i < size; i++) {
     AA[i] = AAp;
     AAp += size;
-  }
-  Abx = new adouble[size];
+  } */
+  AA = Matrix<adouble>(size);
+  /* Abx = new adouble[size]; */
+  Abx = std::vector<adouble>(size);
   for (i = 0; i < size; i++) {
     a1[i] = i * 0.25;
     a2[i] = i * 0.33;
@@ -77,8 +91,8 @@ int main() { /*-----------------------------------------------------------------
   for (i = 0; i < size; i++)
     Abx[i] <<= (args[size * size + i] = b[i]);
   /* LU-factorization and computation of solution */
-  LUfact(size, AA);
-  LUsolve(size, AA, Abx);
+  LUfact(size, AA.data());
+  LUsolve(size, AA.data(), Abx.data());
   /* marking deps */
   for (i = 0; i < size; i++)
     Abx[i] >>= x[i];
@@ -87,12 +101,12 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Recomputation  */
-  function(tag, depen, indep, args, x);
+  function(tag, depen, indep, args.data(), x.data());
   fprintf(stdout, " x[0] (from tape): %16.4E\n", x[0]);
 
   /*------------------------------------------------------------------------*/
   /* Computation of Jacobian */
-  jacobian(tag, depen, indep, args, jac);
+  jacobian(tag, depen, indep, args.data(), jac.data());
   fprintf(stdout, " Jacobian:\n");
   for (i = 0; i < depen; i++) {
     for (j = 0; j < indep; j++)
@@ -102,7 +116,8 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Computation of Lagrange-Hessian-vector product */
-  lagra_hess_vec(tag, depen, indep, args, args, x, laghessvec);
+  lagra_hess_vec(tag, depen, indep, args.data(), args.data(), x.data(),
+                 laghessvec.data());
   fprintf(stdout, " Part of Lagrange-Hessian-vector product:\n");
   for (i = 0; i < size; i++) {
     for (j = 0; j < size; j++)
@@ -112,7 +127,7 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Tape-documentation */
-  tape_doc(tag, depen, indep, args, x);
+  tape_doc(tag, depen, indep, args.data(), x.data());
 
   /*------------------------------------------------------------------------*/
   /* Tape statistics */
