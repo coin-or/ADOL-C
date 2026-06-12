@@ -27,6 +27,7 @@
 #include <adolc/adolc.h>
 #include <adolc/lie/drivers.h>
 #include <iostream>
+#include <vector>
 
 /****************************************************************************/
 /*                                                   NAMESPACES AND DEFINES */
@@ -40,7 +41,8 @@ using namespace std;
 /*                                                             MAIN PROGRAM */
 int main() {
   const int n = 4, m_H = 2;
-  double *x0 = myalloc(n);
+  /* double *x0 = myalloc(n); */
+  std::vector<double> x0(n);
   double vf[n], vg[n], vh[n];
   adouble aX[n], af[n], ag[n], ah[m_H];
   const double mc = 1.0, ml = 1.0, l = 1.0, g = 9.81;
@@ -115,12 +117,13 @@ int main() {
    * calculation of Lie derivatives of scalar fields *
    ***************************************************/
 
-  double **scalar = myalloc2(m_H, d + 1);
+  /* double **scalar = myalloc2(m_H, d + 1); */
+  Matrix<double> scalar(m_H, d + 1);
 
   cout << "Lie derivatives:" << endl << endl;
 
   // calculate Lie derivatives using Lie drivers
-  lie_scalar(TAPE_F, TAPE_H, n, m_H, x0, d, scalar);
+  lie_scalar(TAPE_F, TAPE_H, n, m_H, x0.data(), d, scalar.data());
 
   for (int i = 0; i <= d; i++) {
     for (int j = 0; j < m_H; j++)
@@ -129,18 +132,19 @@ int main() {
   }
 
   cout << endl;
-  myfree2(scalar);
+  /* myfree2(scalar); */
 
   /****************************************************************
    * calculation of gradients of Lie derivatives of scalar fields *
    ****************************************************************/
 
-  double ***gradient = myalloc3(m_H, n, d + 1);
+  /* double ***gradient = myalloc3(m_H, n, d + 1); */
+  Tensor<double> gradient(m_H, n, d + 1);
 
   cout << "gradients of Lie derivatives:" << endl << endl;
 
   // calculate gradients of Lie derivatives using Lie drivers
-  lie_gradient(TAPE_F, TAPE_H, n, m_H, x0, d, gradient);
+  lie_gradient(TAPE_F, TAPE_H, n, m_H, x0.data(), d, gradient.data());
 
   for (int i = 0; i <= d; i++) {
     for (int j = 0; j < m_H; j++)
@@ -151,18 +155,19 @@ int main() {
   }
 
   cout << endl;
-  myfree3(gradient);
+  /* myfree3(gradient); */
 
   /*******************************
    * calculation of Lie brackets *
    *******************************/
 
-  double **bracket = myalloc2(n, d + 1);
+  /* double **bracket = myalloc2(n, d + 1); */
+  Matrix<double> bracket(n, d + 1);
 
   cout << "Lie brackets:" << endl << endl;
 
   // calculate Lie brackets using Lie drivers
-  lie_bracket(TAPE_F, TAPE_G, n, x0, d, bracket);
+  lie_bracket(TAPE_F, TAPE_G, n, x0.data(), d, bracket.data());
 
   for (int i = 0; i <= d; i++) {
     for (int j = 0; j < n; j++)
@@ -170,8 +175,8 @@ int main() {
     cout << endl;
   }
 
-  myfree2(bracket);
-  myfree(x0);
+  /* myfree2(bracket);
+  myfree(x0); */
 
   cout << "Press RETURN to continue" << endl;
   cin.get();
