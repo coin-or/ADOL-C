@@ -908,11 +908,16 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
                      SparseMatrix &sparseJac) {
   ValueTape &tape = findTape(tag);
   int ret_val = 0;
-  myfree2(tape.sJInfos().B_);
+  /* myfree2(tape.sJInfos().B_);
   myfree1(tape.sJInfos().y_);
   tape.sJInfos().B_ =
       myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
-  tape.sJInfos().y_ = myalloc1(depen);
+  tape.sJInfos().y_ = myalloc1(depen); */
+  Matrix<double> B_cont{static_cast<size_t>(tape.sJInfos().seedRows_),
+                        static_cast<size_t>(tape.sJInfos().seedClms_)};
+  tape.sJInfos().B_ = B_cont.data();
+  std::vector<double> y_cont(depen);
+  tape.sJInfos().y_ = y_cont.data();
 
   if constexpr (CM == CompressionMode::Row) {
     ret_val = zos_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_);
@@ -948,7 +953,8 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
   /* myfree2(tape.sJInfos().B_);
   tape.sJInfos().B_ =
       myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_); */
-  Matrix<double> B_cont(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+  Matrix<double> B_cont{static_cast<size_t>(tape.sJInfos().seedRows_),
+                        static_cast<size_t>(tape.sJInfos().seedClms_)};
   tape.sJInfos().B_ = B_cont.data();
 
   std::vector<double *> results(tape.sJInfos().seedRows_);
@@ -1264,22 +1270,36 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
     tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
   // data might still be allocated, ensure that its not leaked
-  myfree2(tape.sHInfos().Hcomp_);
+  /* myfree2(tape.sHInfos().Hcomp_);
   myfree3(tape.sHInfos().Xppp_);
   myfree3(tape.sHInfos().Yppp_);
   myfree3(tape.sHInfos().Zppp_);
-  myfree2(tape.sHInfos().Upp_);
+  myfree2(tape.sHInfos().Upp_); */
 
-  tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
-  tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1);
+  /* tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
+  tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1); */
+  tape.sHInfos().Hcomp_cont = Matrix<double>{
+      static_cast<size_t>(indep), static_cast<size_t>(tape.sHInfos().p_)};
+  tape.sHInfos().Hcomp_ = tape.sHInfos().Hcomp_cont.data();
+  tape.sHInfos().Xppp_cont = Tensor<double>{
+      static_cast<size_t>(indep), static_cast<size_t>(tape.sHInfos().p_), 1};
+  tape.sHInfos().Xppp_ = tape.sHInfos().Xppp_cont.data();
 
   for (int i = 0; i < indep; i++)
     for (int l = 0; l < tape.sHInfos().p_; l++)
       tape.sHInfos().Xppp_[i][l][0] = Seed[i][l];
 
-  tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
+  /* tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
   tape.sHInfos().Zppp_ = myalloc3(tape.sHInfos().p_, indep, 2);
-  tape.sHInfos().Upp_ = myalloc2(1, 2);
+  tape.sHInfos().Upp_ = myalloc2(1, 2); */
+  tape.sHInfos().Yppp_cont =
+      Tensor<double>{1, static_cast<size_t>(tape.sHInfos().p_), 1};
+  tape.sHInfos().Yppp_ = tape.sHInfos().Yppp_cont.data();
+  tape.sHInfos().Zppp_cont = Tensor<double>{
+      static_cast<size_t>(tape.sHInfos().p_), static_cast<size_t>(indep), 2};
+  tape.sHInfos().Zppp_ = tape.sHInfos().Zppp_cont.data();
+  tape.sHInfos().Upp_cont = Matrix<double>{1, 2};
+  tape.sHInfos().Upp_ = tape.sHInfos().Upp_cont.data();
   tape.sHInfos().Upp_[0][0] = 1;
   tape.sHInfos().Upp_[0][1] = 0;
   return ret_val;
