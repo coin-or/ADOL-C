@@ -17,6 +17,8 @@
 #include <adolc/dvlparms.h>
 #include <adolc/lie/drivers.h>
 
+#include <vector>
+
 /** Computes the total derivative of the output
  *
  *  @param p Number of rows of C (number of outputs)
@@ -180,10 +182,18 @@ void accbrac(int n, int d, double ***Bs, double **b, double **result) {
  */
 int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
                  short d, double **result) {
-  double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)   */
-  double **Y = myalloc2(m, d + 1); /* Taylorcoeff. expansion y(t)  */
-  double *x = myalloc1(n);
-  double *y = myalloc1(m);
+  // double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)   */
+  // double **Y = myalloc2(m, d + 1); /* Taylorcoeff. expansion y(t)  */
+  // double *x = myalloc1(n);
+  // double *y = myalloc1(m);
+  Matrix<double> X{
+      static_cast<size_t>(n),
+      static_cast<size_t>(d + 1)}; /* Taylorcoeff. expansion x(t)   */
+  Matrix<double> Y{
+      static_cast<size_t>(m),
+      static_cast<size_t>(d + 1)}; /* Taylorcoeff. expansion y(t)  */
+  std::vector<double> x(n);
+  std::vector<double> y(m);
   int i = 0, j = 0, k = 0;
   double Fak = 1.0;
 
@@ -192,7 +202,7 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   };
 
   /* see odedrivers    */
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(Tape_F, n, 1.0, 0, d, X.data());
 
   /*  prepare for input  */
   for (i = 0; i < n; i++) {
@@ -220,10 +230,10 @@ int lie_scalarcv(short Tape_F, short Tape_H, short n, short m, double *x0,
     Fak = 1.0;
   }
 
-  myfree2(X);
+  /* myfree2(X);
   myfree2(Y);
   myfree1(x);
-  myfree1(y);
+  myfree1(y); */
 
   return -1;
 }
@@ -240,15 +250,16 @@ int lie_scalarc(short Tape_F, short Tape_H, short n, double *x0, short d,
                 double *result) {
   int rc = -1;
   short m = 1, i = 0;
-  double **Temp = myalloc2(m, d + 1);
+  /* double **Temp = myalloc2(m, d + 1); */
+  Matrix<double> Temp{static_cast<size_t>(m), static_cast<size_t>(d + 1)};
 
-  rc = lie_scalarcv(Tape_F, Tape_H, n, m, x0, d, Temp);
+  rc = lie_scalarcv(Tape_F, Tape_H, n, m, x0, d, Temp.data());
 
   for (i = 0; i <= d; i++) {
     result[i] = Temp[0][i];
   }
 
-  myfree2(Temp);
+  /* myfree2(Temp); */
 
   return rc;
 }
@@ -263,21 +274,37 @@ int lie_scalarc(short Tape_F, short Tape_H, short n, double *x0, short d,
  */
 int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
                    short d, double ***result) {
-  double **X = myalloc2(n, d + 1);
+  /* double **X = myalloc2(n, d + 1);
   double **Y = myalloc2(m, d + 1);
   double ***Pc = myalloc3(m, n, d + 1);
   double ***A = myalloc3(n, n, d);
   double ***B = myalloc3(n, n, d);
-  double ***D = myalloc3(m, n, d + 1);
+  double ***D = myalloc3(m, n, d + 1); */
+  Matrix<double> X{static_cast<size_t>(n), static_cast<size_t>(d) + 1};
+  Matrix<double> Y{static_cast<size_t>(m), static_cast<size_t>(d) + 1};
+  Tensor<double> Pc{static_cast<size_t>(m), static_cast<size_t>(n),
+                    static_cast<size_t>(d) + 1};
+  Tensor<double> A{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(d)};
+  Tensor<double> B{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(d)};
+  Tensor<double> D{static_cast<size_t>(m), static_cast<size_t>(n),
+                   static_cast<size_t>(d) + 1};
 
-  double *x = myalloc1(n);
+  /* double *x = myalloc1(n);
   double *y = myalloc1(m);
   double *xp = myalloc1(n);
-  double *yp = myalloc1(m);
+  double *yp = myalloc1(m); */
+  std::vector<double> x(n);
+  std::vector<double> y(m);
+  std::vector<double> xp(n);
+  std::vector<double> yp(m);
 
   static int depax_m, depax_n;
-  static double **In;
-  static double **Im;
+  /* static double **In;
+  static double **Im; */
+  static Matrix<double> In;
+  static Matrix<double> Im;
 
   int i = 0, j = 0, l = 0, k = 0, rc = -1;
   double Fak = 1.0;
@@ -285,22 +312,27 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   for (i = 0; i < n; i++)
     X[i][0] = x0[i];
 
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(Tape_F, n, 1.0, 0, d, X.data());
 
   if (n adolc_compsize depax_n) {
-    if (depax_n)
+    /* if (depax_n)
       myfreeI2(depax_n, In);
-    In = myallocI2(depax_n = n);
+    In = myallocI2(depax_n = n); */
+    depax_n = n;
+    In = unitMatrix<double>(n);
   }
   if (m adolc_compsize depax_m) {
-    if (depax_m)
+    /* if (depax_m)
       myfreeI2(depax_m, Im);
-    Im = myallocI2(depax_m = m);
+    Im = myallocI2(depax_m = m); */
+    depax_m = m;
+    Im = unitMatrix<double>(depax_m);
   }
 
-  hov_reverse(Tape_F, n, n, d - 1, n, In, A,
-              0);                  /* explanation in interfaces.cpp  */
-  accodec(n, 1.0, d - 1, A, B, 0); /* explanation in odedrivers.cpp    */
+  hov_reverse(Tape_F, n, n, d - 1, n, In.data(), A.data(),
+              0); /* explanation in interfaces.cpp  */
+  accodec(n, 1.0, d - 1, A.data(), B.data(),
+          0); /* explanation in odedrivers.cpp    */
 
   /* prepare for input   */
   for (i = 0; i < n; i++) {
@@ -316,8 +348,8 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
 
   hos_forward(Tape_H, m, n, d, d + 1, x, X, y, Y);
 
-  hov_reverse(Tape_H, m, n, d, m, Im, Pc, 0);
-  accodeout(m, n, d, B, Pc, D);
+  hov_reverse(Tape_H, m, n, d, m, Im.data(), Pc.data(), 0);
+  accodeout(m, n, d, B.data(), Pc.data(), D.data());
 
   for (l = 0; l < m; l++) {
     for (i = 0; i < n; i++) {
@@ -329,7 +361,7 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
     }
   }
 
-  myfree2(X);
+  /* myfree2(X);
   myfree2(Y);
   myfree3(Pc);
   myfree3(A);
@@ -339,7 +371,7 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   myfree1(x);
   myfree1(y);
   myfree1(xp);
-  myfree1(yp);
+  myfree1(yp); */
 
   return rc;
 }
@@ -358,16 +390,18 @@ int lie_gradientc(short Tape_F, short Tape_H, short n, double *x0, short d,
                   double **result) {
   int rc = -1;
   short m = 1, i = 0, j = 0;
-  double ***Temp = myalloc3(m, n, d + 1);
+  /* double ***Temp = myalloc3(m, n, d + 1); */
+  Tensor<double> Temp{static_cast<size_t>(m), static_cast<size_t>(n),
+                      static_cast<size_t>(d) + 1};
 
-  rc = lie_gradientcv(Tape_F, Tape_H, n, m, x0, d, Temp);
+  rc = lie_gradientcv(Tape_F, Tape_H, n, m, x0, d, Temp.data());
 
   for (i = 0; i < n; i++)
     for (j = 0; j <= d; j++) {
       result[i][j] = Temp[0][i][j];
     }
 
-  myfree3(Temp);
+  /* myfree3(Temp); */
 
   return rc;
 }
@@ -386,40 +420,60 @@ int lie_gradientc(short Tape_F, short Tape_H, short n, double *x0, short d,
 int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
                  short int d, double **result) {
   int m = n;
-  double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)  */
-  double **Y = myalloc2(m, d + 1); /* Taylorcoeff. expansion y(t)  */
+  // double **X = myalloc2(n, d + 1); /* Taylorcoeff. expansion x(t)  */
+  // double **Y = myalloc2(m, d + 1); /* Taylorcoeff. expansion y(t)  */
+  Matrix<double> X{static_cast<size_t>(n),
+                   static_cast<size_t>(d) +
+                       1}; /* Taylorcoeff. expansion x(t)  */
+  Matrix<double> Y{static_cast<size_t>(m),
+                   static_cast<size_t>(d) +
+                       1}; /* Taylorcoeff. expansion y(t)  */
 
-  double ***A = myalloc3(n, n, d);
-  double ***B = myalloc3(n, n, d + 1);
+  /* double ***A = myalloc3(n, n, d);
+  double ***B = myalloc3(n, n, d + 1); */
+  Tensor<double> A{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(d)};
+  Tensor<double> B{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(d) + 1};
 
-  double *x = myalloc1(n);
+  /* double *x = myalloc1(n);
   double *y = myalloc1(m);
   double *xp = myalloc1(n);
-  double *yp = myalloc1(m);
+  double *yp = myalloc1(m); */
+  std::vector<double> x(n);
+  std::vector<double> y(m);
+  std::vector<double> xp(n);
+  std::vector<double> yp(m);
 
   int i = 0, k = 0;
 
   static int depax_m, depax_n;
-  static double **In;
-  static double **Im;
+  /* static double **In;
+  static double **Im; */
+  static Matrix<double> In;
+  static Matrix<double> Im;
 
   for (i = 0; i < n; i++)
     X[i][0] = x0[i];
 
-  forodec(Tape_F, n, 1.0, 0, d, X);
+  forodec(Tape_F, n, 1.0, 0, d, X.data());
 
   if (n adolc_compsize depax_n) {
-    if (depax_n)
+    /* if (depax_n)
       myfreeI2(depax_n, In);
-    In = myallocI2(depax_n = n);
+    In = myallocI2(depax_n = n); */
+    depax_n = n;
+    In = unitMatrix<double>(depax_n);
   }
   if (m adolc_compsize depax_m) {
-    if (depax_m)
+    /* if (depax_m)
       myfreeI2(depax_m, Im);
-    Im = myallocI2(depax_m = m);
+    Im = myallocI2(depax_m = m); */
+    depax_m = m;
+    Im = unitMatrix<double>(depax_m);
   }
 
-  hov_reverse(Tape_F, n, n, d - 1, n, In, A,
+  hov_reverse(Tape_F, n, n, d - 1, n, In.data(), A.data(),
               0); /* explanation in interfaces.cpp  */
 
   /* prepare for input */
@@ -444,10 +498,11 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
     Y[i][0] = y[i];
   }
 
-  accodec(n, 1.0, d - 1, A, B, 0); /*  explanation in odedrivers.cpp */
-  acccov(n, d, B, Y, result);
+  accodec(n, 1.0, d - 1, A.data(), B.data(),
+          0); /*  explanation in odedrivers.cpp */
+  acccov(n, d, B.data(), Y.data(), result);
 
-  myfree2(X);
+  /* myfree2(X);
   myfree2(Y);
   myfree3(A);
   myfree3(B);
@@ -455,7 +510,7 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
   myfree1(x);
   myfree1(y);
   myfree1(xp);
-  myfree1(yp);
+  myfree1(yp); */
 
   return -1;
 }
@@ -472,32 +527,46 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
 int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
                 short int d, double **result) {
   int m = n;
-  double **X = myalloc2(n, d + 2); /* Taylorcoeff. expansion x(t) */
-  double **Y = myalloc2(m, d + 2); /* Taylorcoeff. expansion y(t)  */
-  double ***A = myalloc3(n, n, d + 1);
-  double ***Xs = myalloc3(n, n, d + 1);
+  // double **X = myalloc2(n, d + 2); /* Taylorcoeff. expansion x(t) */
+  // double **Y = myalloc2(m, d + 2); /* Taylorcoeff. expansion y(t)  */
+  // double ***A = myalloc3(n, n, d + 1);
+  // double ***Xs = myalloc3(n, n, d + 1);
+  Matrix<double> X{static_cast<size_t>(n),
+                   static_cast<size_t>(d) +
+                       2}; /* Taylorcoeff. expansion x(t) */
+  Matrix<double> Y{static_cast<size_t>(m),
+                   static_cast<size_t>(d) +
+                       2}; /* Taylorcoeff. expansion y(t)  */
+  Tensor<double> A{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(d) + 1};
+  Tensor<double> Xs{static_cast<size_t>(n), static_cast<size_t>(n),
+                    static_cast<size_t>(d) + 1};
 
-  double *y = myalloc1(m);
+  /* double *y = myalloc1(m); */
+  std::vector<double> y(m);
 
   int i, k;
 
   /* static identity matrix for hov_reverse  */
   static int depax_n = 0;
-  static double **In = NULL;
+  /* static double **In = NULL; */
+  static Matrix<double> In;
 
   for (i = 0; i < n; i++) {
     X[i][0] = x0[i];
   };
-  forodec(Tape_F, n, 1.0, 0, d + 1, X);
+  forodec(Tape_F, n, 1.0, 0, d + 1, X.data());
 
   /* for hov_reverse  */
   if (n > depax_n) {
-    if (depax_n) {
+    /* if (depax_n) {
       myfreeI2(depax_n, In);
     };
-    In = myallocI2(depax_n = n);
+    In = myallocI2(depax_n = n); */
+    depax_n = n;
+    In = unitMatrix<double>(depax_n);
   }
-  hov_reverse(Tape_F, n, n, d, n, In, A, 0);
+  hov_reverse(Tape_F, n, n, d, n, In.data(), A.data(), 0);
 
   /* prepare for input  */
   for (i = 0; i < n; i++) {
@@ -505,7 +574,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
       X[i][k] = X[i][k + 1];
     }
   }
-  hos_forward(Tape_G, m, n, d + 1, d + 2, x0, X, y, Y);
+  hos_forward(Tape_G, m, n, d + 1, d + 2, x0, X.data(), y.data(), Y.data());
 
   /* postprocess output of hos_forward  */
   for (i = 0; i < m; i++) {
@@ -515,14 +584,14 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
     Y[i][0] = y[i];
   }
 
-  accadj(n, d, A, Xs);
-  accbrac(n, d, Xs, Y, result);
+  accadj(n, d, A.data(), Xs.data());
+  accbrac(n, d, Xs.data(), Y.data(), result);
 
-  myfree1(y);
+  /* myfree1(y);
   myfree2(X);
   myfree2(Y);
   myfree3(A);
-  myfree3(Xs);
+  myfree3(Xs); */
 
   return -1;
 };
