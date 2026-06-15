@@ -1,7 +1,7 @@
 #include <adolc/adolc.h>
 #include <adolc/drivers/psdrivers.h>
-#include <iostream>
 #include <array>
+#include <iostream>
 #include <vector>
 
 struct ADProblem {

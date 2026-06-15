@@ -30,15 +30,34 @@ namespace ADOLC {
  *   form data has been populated.
  * - `UpdateConsts::False` leaves `cy` and `cz` untouched.
  */
+enum class UpdateConsts {
+  True,
+  False,
 };
 
 /**
+ * @brief Compute the abs-normal form of a taped function at a point.
  *
  * @param tag           Tape identifier.
  * @param x             Base point (input values).
  * @param anf           AbsNormalForm object to store results.
+ *
+ * @tparam uc           Dispatcher for version with or without updating
+ *                      the constant terms `cy` and `cz`.
+ *
+ * @return Zero on success, nonzero on failure.
  */
+template <UpdateConsts uc = UpdateConsts::True>
 int abs_normal(short tag, const double *x, AbsNormalForm &anf);
+
+/// @brief Specialization that updates `cy` and `cz` after evaluation.
+template <>
+int abs_normal<UpdateConsts::True>(short tag, const double *x,
+                                   AbsNormalForm &anf);
+/// @brief Specialization that leaves `cy` and `cz` unchanged.
+template <>
+int abs_normal<UpdateConsts::False>(short tag, const double *x,
+                                    AbsNormalForm &anf);
 
 } // namespace ADOLC
 BEGIN_C_DECLS
@@ -64,12 +83,11 @@ directional_active_gradient(short tag,       /* trace identifier */
 );
 
 /*--------------------------------------------------------------------------*/
-/*                                                               abs_normal */
-/*                                                                          */
-ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
-                           fdouble *, fdouble *, fdouble *, fdouble *,
-                           fdouble *, fdouble *, fdouble *);
-
+/*                                                          abs-normal form */
+ADOLC_API fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
+                           fdouble *fx, fdouble *fy, fdouble *fz, fdouble *fcz,
+                           fdouble *fcy, fdouble *fJ, fdouble *fY, fdouble *fZ,
+                           fdouble *fL);
 /**
  * @brief Compute the ABS-normal form of a taped function.
  *
@@ -123,8 +141,6 @@ ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
  * @param x      Base point (input values), array of length \p n.
  * @param y      Function values at \p x, array of length \p m.
  * @param z      Switching variable values, array of length \p swchk.
- * @param cz     Constant vector \f$c\f$, array of length \p swchk.
- * @param cy     Constant vector \f$b\f$, array of length \p m.
  * @param Y      Matrix of size \p m × \p n.
  * @param J      Matrix of size \p m × \p swchk.
  * @param Z      Matrix of size \p swchk × \p n.
@@ -133,8 +149,8 @@ ADOLC_API fint abs_normal_(fint *, fint *, fint *, fint *, fdouble *, fdouble *,
  * @return Zero on success, nonzero on failure.
  */
 ADOLC_API int abs_normal(short tag, int m, int n, int swchk, const double *x,
-                         double *y, double *z, double *cz, double *cy,
-                         double **Y, double **J, double **Z, double **L);
+                         double *y, double *z, double **Y, double **J,
+                         double **Z, double **L);
 
 END_C_DECLS
 

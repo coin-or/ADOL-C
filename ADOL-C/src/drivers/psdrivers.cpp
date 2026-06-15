@@ -32,7 +32,6 @@ BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                                          abs-normal form */
-
 int abs_normal(short tag,       /* tape identifier */
                int m,           /* number od dependents   */
                int n,           /* number of independents */
@@ -40,8 +39,6 @@ int abs_normal(short tag,       /* tape identifier */
                const double *x, /* base point */
                double *y,       /* function value */
                double *z,       /* switching variables */
-               double *cz,      /* first constant */
-               double *cy,      /* second constant */
                double **Y,      /* m times n */
                double **J,      /* m times s */
                double **Z,      /* s times n */
@@ -89,23 +86,6 @@ int abs_normal(short tag,       /* tape identifier */
   fov_pl_reverse(tag, m, n, static_cast<int>(s), m + static_cast<int>(s),
                  lagrange.data(), lagrangeSwitch.data(), results.data(),
                  resultsSwitch.data());
-
-  // compute cy = y - J|z|
-  for (size_t depRow = 0; depRow < static_cast<size_t>(m); depRow++) {
-    cy[depRow] = y[depRow];
-    for (size_t col = 0; col < s; col++) {
-      cy[depRow] -= J[depRow][col] * fabs(z[col]);
-    }
-  }
-  // compute cz = z - L|z|
-  for (size_t switchRow = 0; switchRow < s; switchRow++) {
-    cz[switchRow] = z[switchRow];
-    for (size_t col = 0; col < s; col++) {
-      if (col < switchRow) {
-        cz[switchRow] -= L[switchRow][col] * fabs(z[col]);
-      }
-    }
-  }
   return 0;
 }
 
@@ -185,14 +165,27 @@ int directional_active_gradient(short tag,       /* trace identifier */
 
 END_C_DECLS
 
-int abs_normal(short tag, const double *x, AbsNormalForm &anf) {
-  int rc =
-      abs_normal(tag, static_cast<int>(anf.get_m()),
-                 static_cast<int>(anf.get_n()), static_cast<int>(anf.get_s()),
-                 x, anf.y.data(), anf.z.data(), anf.cz.data(), anf.cy.data(),
-                 anf.Y.data(), anf.J.data(), anf.Z.data(), anf.L.data());
-  anf.update_cy();
-  anf.update_cz();
+template <>
+int abs_normal<UpdateConsts::True>(short tag, const double *x,
+                                   AbsNormalForm &anf) {
+
+  int rc = ::abs_normal(
+      tag, static_cast<int>(anf.dims().m), static_cast<int>(anf.dims().n),
+      static_cast<int>(anf.dims().s), x, anf.y.data(), anf.z.data(),
+      anf.Y.data(), anf.J.data(), anf.Z.data(), anf.L.data());
+  anf.updateCy();
+  anf.updateCz();
+  return rc;
+}
+
+template <>
+int abs_normal<UpdateConsts::False>(short tag, const double *x,
+                                    AbsNormalForm &anf) {
+
+  int rc = ::abs_normal(
+      tag, static_cast<int>(anf.dims().m), static_cast<int>(anf.dims().n),
+      static_cast<int>(anf.dims().s), x, anf.y.data(), anf.z.data(),
+      anf.Y.data(), anf.J.data(), anf.Z.data(), anf.L.data());
   return rc;
 }
 } // namespace ADOLC

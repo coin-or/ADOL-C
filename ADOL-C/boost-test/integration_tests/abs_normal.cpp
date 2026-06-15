@@ -11,6 +11,8 @@ namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(AbsNormalFormTest)
 
+static_assert(ADOLC::AbsNormalFormType<ADOLC::AbsNormalForm>);
+
 namespace {
 
 template <typename ActualContainer, typename ExpectedContainer>
@@ -104,16 +106,13 @@ void checkAbsNormal(SimpleAbsProblem &problem) {
   std::vector<double> lStorage(problem.numSwitches * problem.numSwitches);
   auto L = makeRowPointers(lStorage, problem.numSwitches, problem.numSwitches);
 
-  const int rc =
-      abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
-                 problem.numSwitches, problem.x.data(), y.data(), z.data(),
-                 cz.data(), cy.data(), Y.data(), J.data(), Z.data(), L.data());
+  const int rc = abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
+                            problem.numSwitches, problem.x.data(), y.data(),
+                            z.data(), Y.data(), J.data(), Z.data(), L.data());
 
   BOOST_TEST(rc == 0);
   checkCloseContainer(y, std::array<double, 1>{-4.0}, "y");
   checkCloseContainer(z, std::array<double, 2>{1.0, -2.0}, "z");
-  checkCloseContainer(cz, std::array<double, 2>{1.0, -2.0}, "cz");
-  checkCloseContainer(cy, std::array<double, 1>{-1.0}, "cy");
   checkCloseMatrix(
       L.data(), std::array<std::array<double, 2>, 2>{{{0.0, 0.0}, {0.0, 0.0}}},
       "L");
@@ -208,16 +207,13 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_NestedAbsForwardAndMatrices) {
   std::vector<double> lStorage(problem.numSwitches * problem.numSwitches);
   auto L = makeRowPointers(lStorage, problem.numSwitches, problem.numSwitches);
 
-  const int rc =
-      abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
-                 problem.numSwitches, problem.x.data(), y.data(), z.data(),
-                 cz.data(), cy.data(), Y.data(), J.data(), Z.data(), L.data());
+  const int rc = abs_normal(problem.tapeId, problem.dimOut, problem.dimIn,
+                            problem.numSwitches, problem.x.data(), y.data(),
+                            z.data(), Y.data(), J.data(), Z.data(), L.data());
 
   BOOST_TEST(rc == 0);
   checkCloseContainer(y, std::array<double, 1>{2.6}, "y");
   checkCloseContainer(z, std::array<double, 3>{-1.3, -20.0, -18.7}, "z");
-  checkCloseContainer(cz, std::array<double, 3>{-1.3, -21.3, 0.0}, "cz");
-  checkCloseContainer(cy, std::array<double, 1>{0.0}, "cy");
   checkCloseMatrix(Z.data(),
                    std::array<std::array<double, 2>, 3>{
                        {{1.0, 0.0}, {0.0, -1.0}, {0.0, 0.0}}},
@@ -320,13 +316,12 @@ BOOST_AUTO_TEST_CASE(FovPlReverse_MultipleWeightsReturnExpectedRows) {
   checkCloseMatrix(results.data(), kNestedExpectedRows, "fov_pl_reverse");
 }
 
-
 BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct) {
   SimpleAbsProblem problem{};
   taping(problem);
 
-  ADOLC::AbsNormalForm anf(SimpleAbsProblem::dimIn,
-                                SimpleAbsProblem::dimOut, problem.numSwitches);
+  ADOLC::AbsNormalForm anf(
+      {SimpleAbsProblem::dimOut, SimpleAbsProblem::dimIn, problem.numSwitches});
 
   const int rc = ADOLC::abs_normal(problem.tapeId, problem.x.data(), anf);
 
@@ -354,9 +349,9 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_FromTape) {
 
   auto anf = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
 
-  BOOST_TEST(anf.get_n() == SimpleAbsProblem::dimIn);
-  BOOST_TEST(anf.get_m() == SimpleAbsProblem::dimOut);
-  BOOST_TEST(anf.get_s() == problem.numSwitches);
+  BOOST_TEST(anf.dims().m == SimpleAbsProblem::dimOut);
+  BOOST_TEST(anf.dims().n == SimpleAbsProblem::dimIn);
+  BOOST_TEST(anf.dims().s == problem.numSwitches);
 
   const int rc = ADOLC::abs_normal(problem.tapeId, problem.x.data(), anf);
 
@@ -369,28 +364,78 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_MoveSemantics) {
   SimpleAbsProblem problem{};
   taping(problem);
 
-  auto original_anf = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
-  ADOLC::abs_normal(problem.tapeId, problem.x.data(), original_anf);
+  auto originalANF = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
+  ADOLC::abs_normal(problem.tapeId, problem.x.data(), originalANF);
 
   // test for move constructor
-  ADOLC::AbsNormalForm moved_anf(std::move(original_anf));
+  ADOLC::AbsNormalForm movedANF(std::move(originalANF));
 
   // test for move assignment
-  ADOLC::AbsNormalForm assigned_anf;
-  assigned_anf = std::move(moved_anf);
-  checkCloseContainer(assigned_anf.y, std::array<double, 1>{-4.0}, "y_moved");
+  ADOLC::AbsNormalForm assignedANF;
+  assignedANF = std::move(movedANF);
+  checkCloseContainer(assignedANF.y, std::array<double, 1>{-4.0}, "y_moved");
 
   checkCloseMatrix(
-      assigned_anf.L.data(),
+      assignedANF.L.data(),
       std::array<std::array<double, 2>, 2>{{{0.0, 0.0}, {0.0, 0.0}}}, "L");
   checkCloseMatrix(
-      assigned_anf.Z.data(),
+      assignedANF.Z.data(),
       std::array<std::array<double, 2>, 2>{{{1.0, 0.0}, {0.0, 1.0}}}, "Z");
-  checkCloseMatrix(assigned_anf.Y.data(),
+  checkCloseMatrix(assignedANF.Y.data(),
                    std::array<std::array<double, 2>, 1>{{{1.0, 1.0}}}, "Y");
-  checkCloseMatrix(assigned_anf.J.data(),
+  checkCloseMatrix(assignedANF.J.data(),
                    std::array<std::array<double, 2>, 1>{{{-1.0, -1.0}}}, "J");
 }
 
+BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_ClearAndResize) {
+  ADOLC::AbsNormalForm anf({1, 2, 1});
+
+  anf.y[0] = 5.0;
+  anf.z[0] = -3.0;
+  anf.cy[0] = 7.0;
+  anf.cz[0] = 11.0;
+
+  BOOST_TEST(!anf.empty());
+  BOOST_TEST(anf.dims().m == 1);
+  BOOST_TEST(anf.dims().n == 2);
+  BOOST_TEST(anf.dims().s == 1);
+
+  anf.resize({2, 2, 2});
+
+  BOOST_TEST(anf.dims().m == 2);
+  BOOST_TEST(anf.dims().n == 2);
+  BOOST_TEST(anf.dims().s == 2);
+  BOOST_TEST(anf.y.size() == 2);
+  BOOST_TEST(anf.z.size() == 2);
+  BOOST_TEST(anf.cy.size() == 2);
+  BOOST_TEST(anf.cz.size() == 2);
+  BOOST_TEST(anf.y[0] == 5.0);
+  BOOST_TEST(anf.z[0] == -3.0);
+  BOOST_TEST(anf.cy[0] == 7.0);
+  BOOST_TEST(anf.cz[0] == 11.0);
+  BOOST_TEST(anf.y[1] == 0.0);
+  BOOST_TEST(anf.z[1] == 0.0);
+  BOOST_TEST(anf.cy[1] == 0.0);
+  BOOST_TEST(anf.cz[1] == 0.0);
+
+  anf.clear();
+
+  BOOST_TEST(anf.empty());
+  BOOST_TEST(anf.dims().m == 0);
+  BOOST_TEST(anf.dims().n == 0);
+  BOOST_TEST(anf.dims().s == 0);
+  BOOST_TEST(anf.Y.empty());
+  BOOST_TEST(anf.J.empty());
+  BOOST_TEST(anf.Z.empty());
+  BOOST_TEST(anf.L.empty());
+  BOOST_TEST(anf.Y_storage.empty());
+  BOOST_TEST(anf.J_storage.empty());
+  BOOST_TEST(anf.Z_storage.empty());
+  BOOST_TEST(anf.L_storage.empty());
+  BOOST_TEST(anf.y.empty());
+  BOOST_TEST(anf.z.empty());
+  BOOST_TEST(anf.cy.empty());
+  BOOST_TEST(anf.cz.empty());
+}
 
 BOOST_AUTO_TEST_SUITE_END()
