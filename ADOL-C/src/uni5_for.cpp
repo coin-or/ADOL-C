@@ -5904,19 +5904,6 @@ int hov_forward(
 }
 
 /****************************************************************************/
-#if defined(_ZOS_) && defined(_ABS_NORM_)
-size_t get_num_switches(short tapeId) {
-  ValueTape &tape = findTape(tapeId);
-  tape.init_sweep<ValueTape::Forward>();
-  if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
-    ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info1 = tapeId});
-
-  size_t nswitch = tape.tapestats(TapeInfos::NUM_SWITCHES);
-  tape.end_sweep();
-  return nswitch;
-}
-#endif
 #if defined(_ABS_NORM_) && defined(_FOV_)
 short firstsign(int p, const double *u, const double *du) {
   int i = 0;

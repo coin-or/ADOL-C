@@ -299,6 +299,25 @@ ADOLC_API inline size_t get_num_param(short tapeId) {
   return findTape(tapeId).get_num_param();
 }
 
+/**
+ * @brief Returns the number of switching variables recorded on tape
+ *
+ * @param tapeId ID of the tape to read the number of switching variables
+ * @return number of switching variables
+ *
+ * @throws ADOLCError::ErrorType::NO_TAPE_ID if the specified tape does not
+ * exist.
+ * @throws ADOLCError::ErrorType::NO_MINMAX if tape was not recorded without
+ * `enableMinMaxUsingAbs()`.
+ */
+ADOLC_API inline size_t get_num_switches(short tapeId) {
+  const auto &tape = findTape(tapeId);
+  if (!tape.tapestats(TapeInfos::NO_MIN_MAX))
+    ADOLCError::fail(ADOLCError::ErrorType::NO_MINMAX, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info1 = tapeId});
+  return tape.tapestats(TapeInfos::NUM_SWITCHES);
+}
+
 #ifdef ADOLC_SPARSE
 namespace ADOLC::Sparse {
 /**

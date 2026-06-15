@@ -19,6 +19,7 @@
 #include <adolc/dvlparms.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
+#include <adolc/tape_interface.h>
 #include <math.h>
 #include <vector>
 
