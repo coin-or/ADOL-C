@@ -17,107 +17,26 @@
 #define ADOLC_DRIVERS_PSDRIVERS_H 1
 
 #include <adolc/adolcexport.h>
+#include <adolc/drivers/absnormalform.h>
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
-#include <cstddef>
-#include <vector>
 
 namespace ADOLC {
 /**
- * @brief Structural concept for abs-normal form objects.
+ * @brief Compile-time selector for constant-term updates in
+ * `ADOLC::abs_normal`.
  *
- * A type models `AbsNormalFormType` when it exposes the six components of the
- * output-first abs-normal form
- * \f[
- *   \left[\begin{array}{c}
- *     y\\ z
- *   \end{array}\right]
- *   =
- *   \left[\begin{array}{c}
- *     cy\\ cz
- *   \end{array}\right]
- *   +
- *   \left[\begin{array}{cc}
- *     Y & J\\ Z & L
- *   \end{array}\right]
- *   \left[\begin{array}{c}
- *     x\\ |z|
- *   \end{array}\right].
- * \f]
- *
- * The concept intentionally constrains only the presence of the named
- * components. It does not prescribe a concrete storage layout, so both dense
- * and sparse representations may satisfy it.
+ * - `UpdateConsts::True` computes `cy` and `cz` after the abs-normal
+ *   form data has been populated.
+ * - `UpdateConsts::False` leaves `cy` and `cz` untouched.
  */
-template <typename T>
-concept AbsNormalFormType = requires(T &t) {
-  t.Y;
-  t.J;
-  t.Z;
-  t.L;
-  t.y;
-  t.z;
-  t.cy;
-  t.cz;
-};
-
-struct AbsNormalForm {
-  std::vector<double *> Y;
-  std::vector<double *> J;
-  std::vector<double *> Z;
-  std::vector<double *> L;
-
-  std::vector<double> Y_storage;
-  std::vector<double> J_storage;
-  std::vector<double> Z_storage;
-  std::vector<double> L_storage;
-
-  std::vector<double> cz;
-  std::vector<double> cy;
-  std::vector<double> y;
-  std::vector<double> z;
-
-  AbsNormalForm(AbsNormalForm &&) = default;
-  AbsNormalForm &operator=(AbsNormalForm &&) = default;
-
-  /** @brief Factory method for creating ANF from tape with consistent
-   * containers in terms of dimensions */
-  static AbsNormalForm fromTape(short tape_id);
-
-  AbsNormalForm() = default;
-
-  /** @brief Constructor that initializes storage for the specified dimensions.
-   */
-  AbsNormalForm(size_t num_in, size_t num_out, size_t num_switch) {
-    resize(num_in, num_out, num_switch);
-  }
-
-  ~AbsNormalForm() = default;
-
-  size_t get_m() const { return Y.size(); }
-
-  size_t get_s() const { return Z.size(); }
-
-  size_t get_n() const { return Y_storage.size() / Y.size(); }
-
-  /** @brief Updates cy = y - J|z|. */
-  void update_cy();
-
-  /** @brief Updates cz = z - L|z|. */
-  void update_cz();
-
-  /** @brief Resizes all storage vectors used for the ABS-normal form. */
-  void resize(size_t num_in, size_t num_out, size_t num_switch);
 };
 
 /**
- * @brief Interface to compute the ABS-normal form of a function on a tape
- * at a point into a AbsNormalForm object.
  *
  * @param tag           Tape identifier.
  * @param x             Base point (input values).
  * @param anf           AbsNormalForm object to store results.
- * @param update_consts If true, updates cy and cz after evaluation.
  */
 int abs_normal(short tag, const double *x, AbsNormalForm &anf);
 
