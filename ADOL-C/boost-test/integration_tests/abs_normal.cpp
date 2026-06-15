@@ -320,4 +320,77 @@ BOOST_AUTO_TEST_CASE(FovPlReverse_MultipleWeightsReturnExpectedRows) {
   checkCloseMatrix(results.data(), kNestedExpectedRows, "fov_pl_reverse");
 }
 
+
+BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct) {
+  SimpleAbsProblem problem{};
+  taping(problem);
+
+  ADOLC::AbsNormalForm anf(SimpleAbsProblem::dimIn,
+                                SimpleAbsProblem::dimOut, problem.numSwitches);
+
+  const int rc = ADOLC::abs_normal(problem.tapeId, problem.x.data(), anf);
+
+  BOOST_TEST(rc == 0);
+  checkCloseContainer(anf.y, std::array<double, 1>{-4.0}, "y");
+  checkCloseContainer(anf.z, std::array<double, 2>{1.0, -2.0}, "z");
+  checkCloseContainer(anf.cz, std::array<double, 2>{1.0, -2.0}, "cz");
+  checkCloseContainer(anf.cy, std::array<double, 1>{-1.0}, "cy");
+
+  checkCloseMatrix(
+      anf.L.data(),
+      std::array<std::array<double, 2>, 2>{{{0.0, 0.0}, {0.0, 0.0}}}, "L");
+  checkCloseMatrix(
+      anf.Z.data(),
+      std::array<std::array<double, 2>, 2>{{{1.0, 0.0}, {0.0, 1.0}}}, "Z");
+  checkCloseMatrix(anf.Y.data(),
+                   std::array<std::array<double, 2>, 1>{{{1.0, 1.0}}}, "Y");
+  checkCloseMatrix(anf.J.data(),
+                   std::array<std::array<double, 2>, 1>{{{-1.0, -1.0}}}, "J");
+}
+
+BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_FromTape) {
+  SimpleAbsProblem problem{};
+  taping(problem);
+
+  auto anf = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
+
+  BOOST_TEST(anf.get_n() == SimpleAbsProblem::dimIn);
+  BOOST_TEST(anf.get_m() == SimpleAbsProblem::dimOut);
+  BOOST_TEST(anf.get_s() == problem.numSwitches);
+
+  const int rc = ADOLC::abs_normal(problem.tapeId, problem.x.data(), anf);
+
+  BOOST_TEST(rc == 0);
+  checkCloseContainer(anf.y, std::array<double, 1>{-4.0}, "y");
+  checkCloseContainer(anf.z, std::array<double, 2>{1.0, -2.0}, "z");
+}
+
+BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_MoveSemantics) {
+  SimpleAbsProblem problem{};
+  taping(problem);
+
+  auto original_anf = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
+  ADOLC::abs_normal(problem.tapeId, problem.x.data(), original_anf);
+
+  // test for move constructor
+  ADOLC::AbsNormalForm moved_anf(std::move(original_anf));
+
+  // test for move assignment
+  ADOLC::AbsNormalForm assigned_anf;
+  assigned_anf = std::move(moved_anf);
+  checkCloseContainer(assigned_anf.y, std::array<double, 1>{-4.0}, "y_moved");
+
+  checkCloseMatrix(
+      assigned_anf.L.data(),
+      std::array<std::array<double, 2>, 2>{{{0.0, 0.0}, {0.0, 0.0}}}, "L");
+  checkCloseMatrix(
+      assigned_anf.Z.data(),
+      std::array<std::array<double, 2>, 2>{{{1.0, 0.0}, {0.0, 1.0}}}, "Z");
+  checkCloseMatrix(assigned_anf.Y.data(),
+                   std::array<std::array<double, 2>, 1>{{{1.0, 1.0}}}, "Y");
+  checkCloseMatrix(assigned_anf.J.data(),
+                   std::array<std::array<double, 2>, 1>{{{-1.0, -1.0}}}, "J");
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -27,12 +27,7 @@
 namespace ADOLC {
 
 // Resize storage arrays and recompute pointers for double**
-void DenseAbsNormalForm::resize(size_t num_in, size_t num_out,
-                                size_t num_switch) {
-  n = num_in;
-  m = num_out;
-  s = num_switch;
-
+void AbsNormalForm::resize(size_t n, size_t m, size_t s) {
   Y_storage.resize(m * n, 0.0);
   J_storage.resize(m * s, 0.0);
   Z_storage.resize(s * n, 0.0);
@@ -62,65 +57,28 @@ void DenseAbsNormalForm::resize(size_t num_in, size_t num_out,
   cz.resize(s, 0.0);
 }
 
-// Move constructor to prevent pointer corruption
-DenseAbsNormalForm::DenseAbsNormalForm(DenseAbsNormalForm &&other) noexcept
-    : n(other.n), m(other.m), s(other.s), Y_storage(std::move(other.Y_storage)),
-      J_storage(std::move(other.J_storage)),
-      Z_storage(std::move(other.Z_storage)),
-      L_storage(std::move(other.L_storage)), cz(std::move(other.cz)),
-      cy(std::move(other.cy)), y(std::move(other.y)), z(std::move(other.z)) {
-  resize(n, m, s);
-  other.n = other.m = other.s = 0;
-}
-
-// Move assignment
-DenseAbsNormalForm &
-DenseAbsNormalForm::operator=(DenseAbsNormalForm &&other) noexcept {
-  if (this != &other) {
-    n = other.n;
-    m = other.m;
-    s = other.s;
-    Y_storage = std::move(other.Y_storage);
-    J_storage = std::move(other.J_storage);
-    Z_storage = std::move(other.Z_storage);
-    L_storage = std::move(other.L_storage);
-    cz = std::move(other.cz);
-    cy = std::move(other.cy);
-    y = std::move(other.y);
-    z = std::move(other.z);
-
-    resize(n, m, s);
-    other.n = other.m = other.s = 0;
-  }
-  return *this;
-}
-
 // Build Absnormal form from tapeid (is this seep required?)
-DenseAbsNormalForm DenseAbsNormalForm::fromTape(short tape_id) {
-  ValueTape &tape = findTape(tape_id);
-  tape.init_sweep<ValueTape::Forward>();
+AbsNormalForm AbsNormalForm::fromTape(short tape_id) {
+  const ValueTape &tape = findTape(tape_id);
   size_t m = tape.tapestats(TapeInfos::NUM_DEPENDENTS);
   size_t n = tape.tapestats(TapeInfos::NUM_INDEPENDENTS);
   size_t s = tape.tapestats(TapeInfos::NUM_SWITCHES);
-  tape.end_sweep();
-  return DenseAbsNormalForm(n, m, s);
+  return AbsNormalForm(n, m, s);
 }
 
-void DenseAbsNormalForm::update_cy() {
-  cy.resize(m, 0.0);
-  for (size_t depRow = 0; depRow < m; depRow++) {
-    cy[depRow] = y[depRow];
-    for (size_t col = 0; col < s; col++) {
+void AbsNormalForm::update_cy() {
+  cy = y;
+  for (size_t depRow = 0; depRow < get_m(); depRow++) {
+    for (size_t col = 0; col < get_s(); col++) {
       cy[depRow] -= J[depRow][col] * std::fabs(z[col]);
     }
   }
 }
 
-void DenseAbsNormalForm::update_cz() {
-  cz.resize(s, 0.0);
-  for (size_t switchRow = 0; switchRow < s; switchRow++) {
-    cz[switchRow] = z[switchRow];
-    for (size_t col = 0; col < s; col++) {
+void AbsNormalForm::update_cz() {
+  cz = z;
+  for (size_t switchRow = 0; switchRow < get_s(); switchRow++) {
+    for (size_t col = 0; col < get_s(); col++) {
       cz[switchRow] -= L[switchRow][col] * std::fabs(z[col]);
     }
   }
@@ -286,16 +244,14 @@ int directional_active_gradient(short tag,       /* trace identifier */
 
 END_C_DECLS
 
-int abs_normal(short tag, const double *x, DenseAbsNormalForm &anf,
-               bool update_consts) {
-  int rc = abs_normal(tag, static_cast<int>(anf.m), static_cast<int>(anf.n),
-                      static_cast<int>(anf.s), x, anf.y.data(), anf.z.data(),
-                      anf.cz.data(), anf.cy.data(), anf.Y.data(), anf.J.data(),
-                      anf.Z.data(), anf.L.data());
-  if (update_consts) {
-    anf.update_cy();
-    anf.update_cz();
-  }
+int abs_normal(short tag, const double *x, AbsNormalForm &anf) {
+  int rc =
+      abs_normal(tag, static_cast<int>(anf.get_m()),
+                 static_cast<int>(anf.get_n()), static_cast<int>(anf.get_s()),
+                 x, anf.y.data(), anf.z.data(), anf.cz.data(), anf.cy.data(),
+                 anf.Y.data(), anf.J.data(), anf.Z.data(), anf.L.data());
+  anf.update_cy();
+  anf.update_cz();
   return rc;
 }
 } // namespace ADOLC
