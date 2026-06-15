@@ -20,69 +20,10 @@
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
-#include <adolc/valuetape/valuetape.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 namespace ADOLC {
-
-// Resize storage arrays and recompute pointers for double**
-void AbsNormalForm::resize(size_t n, size_t m, size_t s) {
-  Y_storage.resize(m * n, 0.0);
-  J_storage.resize(m * s, 0.0);
-  Z_storage.resize(s * n, 0.0);
-  L_storage.resize(s * s, 0.0);
-
-  Y.resize(m);
-  J.resize(m);
-  Z.resize(s);
-  L.resize(s);
-
-  for (size_t i = 0; i < m; ++i) {
-    Y[i] = Y_storage.data() + (i * n);
-  }
-  for (size_t i = 0; i < m; ++i) {
-    J[i] = J_storage.data() + (i * s);
-  }
-  for (size_t i = 0; i < s; ++i) {
-    Z[i] = Z_storage.data() + (i * n);
-  }
-  for (size_t i = 0; i < s; ++i) {
-    L[i] = L_storage.data() + (i * s);
-  }
-
-  y.resize(m, 0.0);
-  z.resize(s, 0.0);
-  cy.resize(m, 0.0);
-  cz.resize(s, 0.0);
-}
-
-// Build Absnormal form from tapeid (is this seep required?)
-AbsNormalForm AbsNormalForm::fromTape(short tape_id) {
-  const ValueTape &tape = findTape(tape_id);
-  size_t m = tape.tapestats(TapeInfos::NUM_DEPENDENTS);
-  size_t n = tape.tapestats(TapeInfos::NUM_INDEPENDENTS);
-  size_t s = tape.tapestats(TapeInfos::NUM_SWITCHES);
-  return AbsNormalForm(n, m, s);
-}
-
-void AbsNormalForm::update_cy() {
-  cy = y;
-  for (size_t depRow = 0; depRow < get_m(); depRow++) {
-    for (size_t col = 0; col < get_s(); col++) {
-      cy[depRow] -= J[depRow][col] * std::fabs(z[col]);
-    }
-  }
-}
-
-void AbsNormalForm::update_cz() {
-  cz = z;
-  for (size_t switchRow = 0; switchRow < get_s(); switchRow++) {
-    for (size_t col = 0; col < get_s(); col++) {
-      cz[switchRow] -= L[switchRow][col] * std::fabs(z[col]);
-    }
-  }
-}
 
 BEGIN_C_DECLS
 
