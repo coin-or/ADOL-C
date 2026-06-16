@@ -425,7 +425,6 @@ static void computeANF(ANFProblem<Version, Allocated> &anfProblemAlloc,
   abs_normal(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
              anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(),
              anfProblemAlloc.out.data(), anfProblemAlloc.z.data(),
-             anfProblemAlloc.cz.data(), anfProblemAlloc.cy.data(),
              anfProblemAlloc.Y, anfProblemAlloc.J, anfProblemAlloc.Z,
              anfProblemAlloc.L);
 }

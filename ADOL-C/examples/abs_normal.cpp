@@ -46,8 +46,6 @@ void printMatrix(std::string_view description, std::vector<double *> matrix,
 }
 void computerAbsNormal(ADProblem &problem) {
   std::vector<double> z(problem.numSwitches);
-  std::vector<double> cz(problem.numSwitches);
-  std::vector<double> cy(problem.numSwitches);
 
   std::vector<double> Y_storage(ADProblem::dimOut * ADProblem::dimIn);
   std::vector<double *> Y(ADProblem::dimOut);
@@ -74,8 +72,7 @@ void computerAbsNormal(ADProblem &problem) {
 
   int rc = abs_normal(problem.tapeId, ADProblem::dimOut, ADProblem::dimIn,
                       problem.numSwitches, problem.x.data(), problem.y.data(),
-                      z.data(), cz.data(), cy.data(), Y.data(), J.data(),
-                      Z.data(), L.data());
+                      z.data(), Y.data(), J.data(), Z.data(), L.data());
 
   std::cout << "rc = " << rc << "\n";
 

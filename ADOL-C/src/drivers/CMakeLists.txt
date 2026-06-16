@@ -1,4 +1,5 @@
 target_sources(adolc PRIVATE
+               absnormalform.cpp
                drivers.cpp
                driversf.cpp
                odedrivers.cpp

@@ -1,4 +1,5 @@
 install(FILES
+        absnormalform.h
         drivers.h
         odedrivers.h
         psdrivers.h
