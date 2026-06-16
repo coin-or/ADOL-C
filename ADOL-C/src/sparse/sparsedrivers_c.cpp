@@ -3,16 +3,18 @@
 #include <adolc/sparse/sparsedrivers.h>
 #include <adolc/sparse/sparsedrivers_c.h>
 #include <cstdio>
+#include <cstdlib>
 #include <span>
 
 using ADOLC::Sparse::BitPatternPropagationDirection;
 using ADOLC::Sparse::CompressionMode;
 using ADOLC::Sparse::ControlFlowMode;
+using ADOLC::Sparse::MemoryHandler;
 using ADOLC::Sparse::RecoveryMethod;
 using ADOLC::Sparse::SparseMethod;
 
 /// Helpers to map the sparse options
-namespace detail {
+namespace {
 
 inline SparseMethod parseSM(const int *options) {
   return (options[0] == 1) ? SparseMethod::BitPattern
@@ -92,12 +94,11 @@ void call_generate_seed_hess(int n, unsigned int **HP, double ***S, int *p) {
 }
 
 template <SparseMethod SM, CompressionMode CM, ControlFlowMode CFM,
-          BitPatternPropagationDirection BPPD>
+          BitPatternPropagationDirection BPPD, MemoryHandler MH>
 int call_sparse_jac(short tag, int m, int n, int repeat, const double *x,
-                    int *nnz, unsigned int **rind, unsigned int **cind,
-                    double **values) {
-  return ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD>(tag, m, n, repeat, x, nnz,
-                                                      rind, cind, values);
+                    ADOLC::Sparse::SparseMatrix &sparseJac) {
+  return ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD, MH>(tag, m, n, repeat, x,
+                                                          sparseJac);
 }
 
 template <ControlFlowMode CFM, RecoveryMethod RM>
@@ -108,13 +109,53 @@ int call_sparse_hess(short tag, int n, int repeat, const double *x, int *nnz,
                                              values);
 }
 
-} // namespace detail
+template <typename T> void freeBuffer(T **buffer) {
+  if (buffer != nullptr && *buffer != nullptr) {
+    delete[] *buffer;
+    *buffer = nullptr;
+  }
+}
+
+bool writeJacToBuffers(const ADOLC::Sparse::SparseMatrix &sparseJac,
+                       int requestedNnz, int *nnz, unsigned int **rind,
+                       unsigned int **cind, double **values,
+                       bool hasUserMemory) {
+  const auto actualNnz = sparseJac.size();
+  if (nnz != nullptr)
+    *nnz = static_cast<int>(actualNnz);
+  const bool canReuseUserMemory =
+      hasUserMemory && requestedNnz == static_cast<int>(actualNnz);
+
+  if (!canReuseUserMemory) {
+    freeBuffer(rind);
+    freeBuffer(cind);
+    freeBuffer(values);
+
+    *rind = new unsigned int[*nnz];
+    *cind = new unsigned int[*nnz];
+    *values = new double[*nnz];
+  }
+
+  if (rind == nullptr || cind == nullptr || values == nullptr ||
+      *rind == nullptr || *cind == nullptr || *values == nullptr) {
+    return actualNnz == 0;
+  }
+
+  for (size_t i = 0; i < actualNnz; ++i) {
+    const auto &entry = sparseJac[i];
+    (*rind)[i] = entry.rowIndex();
+    (*cind)[i] = entry.colIndex();
+    (*values)[i] = entry.value();
+  }
+  return true;
+}
+
+} // namespace
 
 extern "C" {
 
 int jac_pat(short tag, int m, int n, const double *x, unsigned int **JP,
             int *options) {
-  using namespace detail;
   const auto sm = parseSM(options);
   const auto cfm = parseJacCFM(options);
   const auto bpdd = parseBPPD(options);
@@ -161,7 +202,6 @@ int jac_pat(short tag, int m, int n, const double *x, unsigned int **JP,
 
 int hess_pat(short tag, int n, const double *x, unsigned int **HP,
              int *option) {
-  using namespace detail;
   const auto cfm = parseHessCFM(option[0]);
   switch (cfm) {
   case ControlFlowMode::Safe:
@@ -178,7 +218,6 @@ int hess_pat(short tag, int n, const double *x, unsigned int **HP,
 
 void generate_seed_jac(int m, int n, unsigned int **JP, double ***S, int *p,
                        int *option) {
-  using namespace detail;
   const auto cm = parseCM_(option[0]);
   if (cm == CompressionMode::Column)
     return call_generate_seed_jac<CompressionMode::Column>(m, n, JP, S, p);
@@ -188,7 +227,6 @@ void generate_seed_jac(int m, int n, unsigned int **JP, double ***S, int *p,
 
 void generate_seed_hess(int n, unsigned int **HP, double ***S, int *p,
                         int *option) {
-  using namespace detail;
   const auto rm = parseRM_(option[0]);
   if (rm == RecoveryMethod::Indirect)
     return call_generate_seed_hess<RecoveryMethod::Indirect>(n, HP, S, p);
@@ -199,108 +237,124 @@ void generate_seed_hess(int n, unsigned int **HP, double ***S, int *p,
 int sparse_jac(short tag, int m, int n, int repeat, const double *x, int *nnz,
                unsigned int **rind, unsigned int **cind, double **values,
                int *options) {
-  using namespace detail;
   const auto sm = parseSM(options);
   const auto cfm = parseJacCFM(options);
   const auto bpdd = parseBPPD(options);
   const auto cm = parseCM(options);
-  // Dispatch all combinations that matter.
-  // IndexDomains ignores bpdd.
-  if (sm == SparseMethod::IndexDomains) {
-    if (cm == CompressionMode::Row) {
-      if (cfm == ControlFlowMode::Tight)
-        return call_sparse_jac<SparseMethod::IndexDomains, CompressionMode::Row,
-                               ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Auto>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::IndexDomains, CompressionMode::Row,
-                             ControlFlowMode::Safe,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
-    } else {
-      if (cfm == ControlFlowMode::Tight)
-        return call_sparse_jac<SparseMethod::IndexDomains,
-                               CompressionMode::Column, ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Auto>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::IndexDomains,
-                             CompressionMode::Column, ControlFlowMode::Safe,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
-    }
-  }
+  const int requestedNnz = (nnz != nullptr) ? *nnz : 0;
 
-  if (cm == CompressionMode::Row) {
-    if (cfm == ControlFlowMode::Tight) {
-      if (bpdd == BitPatternPropagationDirection::Forward)
+  const bool hasUserMemory = rind != nullptr && *rind != nullptr &&
+                             cind != nullptr && *cind != nullptr &&
+                             values != nullptr && *values != nullptr;
+  ADOLC::Sparse::SparseMatrix sparseJac{};
+
+  auto dispatchWithMemoryHandler = [&]<MemoryHandler MH>() -> int {
+    if (sm == SparseMethod::IndexDomains) {
+      if (cm == CompressionMode::Row) {
+        if (cfm == ControlFlowMode::Tight)
+          return call_sparse_jac<SparseMethod::IndexDomains,
+                                 CompressionMode::Row, ControlFlowMode::Tight,
+                                 BitPatternPropagationDirection::Auto, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        return call_sparse_jac<SparseMethod::IndexDomains, CompressionMode::Row,
+                               ControlFlowMode::Safe,
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      } else {
+        if (cfm == ControlFlowMode::Tight)
+          return call_sparse_jac<
+              SparseMethod::IndexDomains, CompressionMode::Column,
+              ControlFlowMode::Tight, BitPatternPropagationDirection::Auto, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        return call_sparse_jac<SparseMethod::IndexDomains,
+                               CompressionMode::Column, ControlFlowMode::Safe,
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      }
+    }
+
+    if (cm == CompressionMode::Row) {
+      if (cfm == ControlFlowMode::Tight) {
+        if (bpdd == BitPatternPropagationDirection::Forward)
+          return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
+                                 ControlFlowMode::Tight,
+                                 BitPatternPropagationDirection::Forward, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        if (bpdd == BitPatternPropagationDirection::Reverse)
+          return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
+                                 ControlFlowMode::Tight,
+                                 BitPatternPropagationDirection::Reverse, MH>(
+              tag, m, n, repeat, x, sparseJac);
         return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
                                ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Forward>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      if (bpdd == BitPatternPropagationDirection::Reverse)
-        return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
-                               ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Reverse>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
-                             ControlFlowMode::Tight,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
-    } else {
-      if (bpdd == BitPatternPropagationDirection::Forward)
-        return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
-                               ControlFlowMode::Safe,
-                               BitPatternPropagationDirection::Forward>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      if (bpdd == BitPatternPropagationDirection::Reverse)
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      } else {
+        if (bpdd == BitPatternPropagationDirection::Forward)
+          return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
+                                 ControlFlowMode::Safe,
+                                 BitPatternPropagationDirection::Forward, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        if (bpdd == BitPatternPropagationDirection::Reverse)
+          return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
+                                 ControlFlowMode::Safe,
+                                 BitPatternPropagationDirection::Reverse, MH>(
+              tag, m, n, repeat, x, sparseJac);
         return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
                                ControlFlowMode::Safe,
-                               BitPatternPropagationDirection::Reverse>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Row,
-                             ControlFlowMode::Safe,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
-    }
-  } else { // Column
-    if (cfm == ControlFlowMode::Tight) {
-      if (bpdd == BitPatternPropagationDirection::Forward)
-        return call_sparse_jac<SparseMethod::BitPattern,
-                               CompressionMode::Column, ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Forward>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      if (bpdd == BitPatternPropagationDirection::Reverse)
-        return call_sparse_jac<SparseMethod::BitPattern,
-                               CompressionMode::Column, ControlFlowMode::Tight,
-                               BitPatternPropagationDirection::Reverse>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Column,
-                             ControlFlowMode::Tight,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      }
     } else {
-      if (bpdd == BitPatternPropagationDirection::Forward)
+      if (cfm == ControlFlowMode::Tight) {
+        if (bpdd == BitPatternPropagationDirection::Forward)
+          return call_sparse_jac<SparseMethod::BitPattern,
+                                 CompressionMode::Column,
+                                 ControlFlowMode::Tight,
+                                 BitPatternPropagationDirection::Forward, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        if (bpdd == BitPatternPropagationDirection::Reverse)
+          return call_sparse_jac<SparseMethod::BitPattern,
+                                 CompressionMode::Column,
+                                 ControlFlowMode::Tight,
+                                 BitPatternPropagationDirection::Reverse, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        return call_sparse_jac<SparseMethod::BitPattern,
+                               CompressionMode::Column, ControlFlowMode::Tight,
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      } else {
+        if (bpdd == BitPatternPropagationDirection::Forward)
+          return call_sparse_jac<SparseMethod::BitPattern,
+                                 CompressionMode::Column, ControlFlowMode::Safe,
+                                 BitPatternPropagationDirection::Forward, MH>(
+              tag, m, n, repeat, x, sparseJac);
+        if (bpdd == BitPatternPropagationDirection::Reverse)
+          return call_sparse_jac<SparseMethod::BitPattern,
+                                 CompressionMode::Column, ControlFlowMode::Safe,
+                                 BitPatternPropagationDirection::Reverse, MH>(
+              tag, m, n, repeat, x, sparseJac);
         return call_sparse_jac<SparseMethod::BitPattern,
                                CompressionMode::Column, ControlFlowMode::Safe,
-                               BitPatternPropagationDirection::Forward>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      if (bpdd == BitPatternPropagationDirection::Reverse)
-        return call_sparse_jac<SparseMethod::BitPattern,
-                               CompressionMode::Column, ControlFlowMode::Safe,
-                               BitPatternPropagationDirection::Reverse>(
-            tag, m, n, repeat, x, nnz, rind, cind, values);
-      return call_sparse_jac<SparseMethod::BitPattern, CompressionMode::Column,
-                             ControlFlowMode::Safe,
-                             BitPatternPropagationDirection::Auto>(
-          tag, m, n, repeat, x, nnz, rind, cind, values);
+                               BitPatternPropagationDirection::Auto, MH>(
+            tag, m, n, repeat, x, sparseJac);
+      }
     }
-  }
+  };
+
+  const int ret =
+      dispatchWithMemoryHandler.template operator()<MemoryHandler::Auto>();
+  if (ret < 0)
+    return ret;
+  if (!writeJacToBuffers(sparseJac, requestedNnz, nnz, rind, cind, values,
+                         hasUserMemory))
+    return -1;
+  return ret;
 }
 
 int sparse_hess(short tag, int n, int repeat, const double *x, int *nnz,
                 unsigned int **rind, unsigned int **cind, double **values,
                 int *options) {
-  using namespace detail;
   const auto cfm = parseHessCFM(options[0]);
   const auto rm = parseRM(options);
 

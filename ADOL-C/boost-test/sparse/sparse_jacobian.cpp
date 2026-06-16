@@ -1,25 +1,45 @@
-#include <algorithm>
-#include <boost/test/tools/old/interface.hpp>
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-namespace tt = boost::test_tools;
-
+#include "../const.h"
 #include <adolc/adolc.h>
+#include <boost/test/tools/old/interface.hpp>
+#include <boost/test/unit_test.hpp>
 #include <cstdlib>
 
-#include "../const.h"
+namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(test_sparse_jacobian)
 
 using ADOLC::Sparse::BitPatternPropagationDirection;
 using ADOLC::Sparse::CompressionMode;
 using ADOLC::Sparse::ControlFlowMode;
+using ADOLC::Sparse::CoordinateFormatTripled;
+using ADOLC::Sparse::MemoryHandler;
+using ADOLC::Sparse::SparseMatrix;
 using ADOLC::Sparse::SparseMethod;
+
+namespace {
+
+template <size_t dimOut, size_t dimIn>
+void testResult(const std::array<double *, dimOut> &jac,
+                const SparseMatrix &sparseJac) {
+  BOOST_TEST(sparseJac.size() == 20);
+  int nonzeroCounter = 0;
+  // go through all entries: either 0 or == sparse_jac
+  for (int row{0}; row < dimOut; ++row) {
+    for (int col{0}; col < dimIn; ++col) {
+      if (jac[row][col] != 0) {
+        BOOST_TEST(jac[row][col] == sparseJac.value(nonzeroCounter++),
+                   tt::tolerance(tol));
+      }
+    }
+  }
+  BOOST_TEST(nonzeroCounter == 20);
+}
 
 template <
     SparseMethod SM, CompressionMode CM, ControlFlowMode CFM,
     BitPatternPropagationDirection BPPD = BitPatternPropagationDirection::Auto>
-static void testSparseJac() {
+void testSparseJac() {
   const auto tapeId = createNewTape();
   constexpr int dimOut = 10;
   constexpr int dimIn = 20;
@@ -29,16 +49,14 @@ static void testSparseJac() {
   trace_on(tapeId);
   {
     std::array<adouble, dimIn> indeps;
-    for (int i{0}; i < indeps.size(); ++i)
-      indeps[i] <<= in[i];
+    indeps <<= in;
 
     std::array<adouble, dimOut> deps;
     for (int i{0}; i < deps.size(); ++i)
       deps[i] = sin(indeps[i]) + indeps[i + 10] * indeps[i + 10];
 
-    std::array<double, dimOut> out;
-    for (int i{0}; i < deps.size(); ++i)
-      deps[i] >>= out[i];
+    std::array<double, dimOut> out{};
+    deps >>= out;
   }
   trace_off();
   std::array<double *, dimOut> jac;
@@ -46,58 +64,94 @@ static void testSparseJac() {
     j = new double[dimIn];
   jacobian(tapeId, dimOut, dimIn, in.data(), jac.data());
 
-  unsigned int *rowIndices = nullptr;    /* row indices    */
-  unsigned int *columnIndices = nullptr; /* column indices */
-  double *nonzeroValues = nullptr;       /* values         */
-  int numberOfNonzeros = 0;
-
-  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD>(
-      tapeId, dimOut, dimIn, 0, in.data(), &numberOfNonzeros, &rowIndices,
-      &columnIndices, &nonzeroValues);
-  BOOST_TEST(numberOfNonzeros == 20);
-  // go through all entries: either 0 or == sparse_jac
-  int nonzeroCounter = 0;
-  for (int row{0}; row < dimOut; ++row) {
-    for (int col{0}; col < dimIn; ++col) {
-      if (jac[row][col] != 0) {
-        BOOST_TEST(jac[row][col] == nonzeroValues[nonzeroCounter++],
-                   tt::tolerance(tol));
-      }
-    }
-  }
-  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD>(
-      tapeId, dimOut, dimIn, 0, in.data(), &numberOfNonzeros, &rowIndices,
-      &columnIndices, &nonzeroValues);
-  BOOST_TEST(numberOfNonzeros == 20);
-  nonzeroCounter = 0;
-  // go through all entries: either 0 or == sparse_jac
-  for (int row{0}; row < dimOut; ++row) {
-    for (int col{0}; col < dimIn; ++col) {
-      if (jac[row][col] != 0) {
-        BOOST_TEST(jac[row][col] == nonzeroValues[nonzeroCounter++],
-                   tt::tolerance(tol));
-      }
-    }
-  }
-  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD>(
-      tapeId, dimOut, dimIn, 1, in.data(), &numberOfNonzeros, &rowIndices,
-      &columnIndices, &nonzeroValues);
-  BOOST_TEST(numberOfNonzeros == 20);
-  nonzeroCounter = 0;
-  // go through all entries: either 0 or == sparse_jac
-  for (int row{0}; row < dimOut; ++row) {
-    for (int col{0}; col < dimIn; ++col) {
-      if (jac[row][col] != 0) {
-        BOOST_TEST(jac[row][col] == nonzeroValues[nonzeroCounter++],
-                   tt::tolerance(tol));
-      }
-    }
-  }
-  delete[] rowIndices;
-  delete[] columnIndices;
-  delete[] nonzeroValues;
+  SparseMatrix sparseJac;
+  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD, MemoryHandler::Auto>(
+      tapeId, dimOut, dimIn, 0, in.data(), sparseJac);
+  testResult<dimOut, dimIn>(jac, sparseJac);
+  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD, MemoryHandler::Manual>(
+      tapeId, dimOut, dimIn, 0, in.data(), sparseJac);
+  testResult<dimOut, dimIn>(jac, sparseJac);
+  ADOLC::Sparse::sparse_jac<SM, CM, CFM, BPPD, MemoryHandler::Manual>(
+      tapeId, dimOut, dimIn, 1, in.data(), sparseJac);
+  testResult<dimOut, dimIn>(jac, sparseJac);
   for (auto &j : jac)
     delete[] j;
+}
+
+void testSparseJacManualSizeMismatch() {
+  const auto tapeId = createNewTape();
+  constexpr int dimOut = 10;
+  constexpr int dimIn = 20;
+
+  std::array<double, dimIn> in;
+  in.fill(std::rand());
+  trace_on(tapeId);
+  {
+    std::array<adouble, dimIn> indeps;
+    indeps <<= in;
+
+    std::array<adouble, dimOut> deps;
+    for (int i{0}; i < deps.size(); ++i)
+      deps[i] = sin(indeps[i]) + indeps[i + 10] * indeps[i + 10];
+
+    std::array<double, dimOut> out{};
+    deps >>= out;
+  }
+  trace_off();
+
+  SparseMatrix wrongSize(19);
+  int ret =
+      ADOLC::Sparse::sparse_jac<SparseMethod::IndexDomains,
+                                CompressionMode::Column, ControlFlowMode::Safe,
+                                BitPatternPropagationDirection::Auto,
+                                MemoryHandler::Manual>(tapeId, dimOut, dimIn, 0,
+                                                       in.data(), wrongSize);
+  BOOST_TEST(ret == -3);
+
+  SparseMatrix sparseJac;
+  ret =
+      ADOLC::Sparse::sparse_jac<SparseMethod::IndexDomains,
+                                CompressionMode::Column, ControlFlowMode::Safe,
+                                BitPatternPropagationDirection::Auto,
+                                MemoryHandler::Auto>(tapeId, dimOut, dimIn, 0,
+                                                     in.data(), sparseJac);
+  BOOST_TEST(ret >= 0);
+
+  ret =
+      ADOLC::Sparse::sparse_jac<SparseMethod::IndexDomains,
+                                CompressionMode::Column, ControlFlowMode::Safe,
+                                BitPatternPropagationDirection::Auto,
+                                MemoryHandler::Manual>(tapeId, dimOut, dimIn, 1,
+                                                       in.data(), wrongSize);
+  BOOST_TEST(ret == -3);
+}
+} // namespace
+
+BOOST_AUTO_TEST_CASE(SparseMatrixContainerSmokeTest) {
+  const std::array<CoordinateFormatTripled, 2> entries = {
+      CoordinateFormatTripled(0, 1, 2.0), CoordinateFormatTripled(2, 0, -1.5)};
+  SparseMatrix sparseFromArray(entries);
+  BOOST_TEST(sparseFromArray.size() == 2u);
+  BOOST_TEST(sparseFromArray.rowIndex(0) == 0u);
+  BOOST_TEST(sparseFromArray.colIndex(0) == 1u);
+  BOOST_TEST(sparseFromArray.value(0) == 2.0, tt::tolerance(tol));
+  BOOST_TEST(sparseFromArray.rowIndex(1) == 2u);
+  BOOST_TEST(sparseFromArray.colIndex(1) == 0u);
+  BOOST_TEST(sparseFromArray.value(1) == -1.5, tt::tolerance(tol));
+
+  SparseMatrix sparseManual(1);
+  sparseManual[0] = CoordinateFormatTripled(1, 1, 5.0);
+  sparseManual.push_back(CoordinateFormatTripled(0, 0, 7.0));
+  BOOST_TEST(sparseManual.size() == 2u);
+
+  SparseMatrix sparseMoved(std::move(sparseManual));
+  BOOST_TEST(sparseMoved.size() == 2u);
+  BOOST_TEST(sparseMoved.rowIndex(0) == 1u);
+  BOOST_TEST(sparseMoved.colIndex(0) == 1u);
+  BOOST_TEST(sparseMoved.value(0) == 5.0, tt::tolerance(tol));
+  BOOST_TEST(sparseMoved.rowIndex(1) == 0u);
+  BOOST_TEST(sparseMoved.colIndex(1) == 0u);
+  BOOST_TEST(sparseMoved.value(1) == 7.0, tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(SparseJacIndexColSafe) {
@@ -151,6 +205,10 @@ BOOST_AUTO_TEST_CASE(SparseJacBitPatterPropReverseSafe) {
   testSparseJac<SparseMethod::BitPattern, CompressionMode::Row,
                 ControlFlowMode::Safe,
                 BitPatternPropagationDirection::Reverse>();
+}
+
+BOOST_AUTO_TEST_CASE(SparseJacManualSizeMismatch) {
+  testSparseJacManualSizeMismatch();
 }
 
 template <SparseMethod SM, ControlFlowMode CFM> static void testSparseJacPat() {

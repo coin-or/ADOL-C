@@ -13,23 +13,25 @@ extern "C" {
  *
  * This function coordinates sparsity detection, seed generation (via ColPack),
  * compressed AD evaluations, and recovery. When @p repeat == 0 the function
- * computes and caches the sparsity/seed information (stored on the tape).
- * Subsequent calls (repeat != 0) reuse cached seeds to compute numerical
- * Jacobian values more efficiently.
+ * rebuilds and caches the sparsity/seed information (stored on the tape) and
+ * then performs numeric recovery. Subsequent calls (repeat != 0) reuse the
+ * cached sparsity/seed information and perform numeric recovery at the current
+ * basepoint.
  *
  * @param tag        Tape identifier.
  * @param depen      Number of dependent variables (rows).
  * @param indep      Number of independent variables (columns).
- * @param repeat     If 0: compute sparsity and prepare seed (no numeric
- *                   recovery). If >0: perform numeric recovery using cached
- *                   seed.
+ * @param repeat     If 0: rebuild sparsity/seed metadata and perform numeric
+ *                   recovery. If >0: reuse cached metadata and perform
+ *                   numeric recovery.
  * @param basepoint  Array of independent values (required if tight
  *                   control-flow).
  * @param[in,out] nnz
- *                   Input/Output: when repeat==0 set by the routine to the
- *                   number of nonzeros discovered. When repeat!=0 must equal
- *                   the earlier computed number of nonzeros (consistency
- *                   check).
+ *                   On entry: optional reuse hint for caller-provided buffers.
+ *                   If `rind`, `cind`, and `values` are all non-null and
+ *                   `*nnz` matches the recovered nonzero count, those buffers
+ *                   are reused in place. On exit: overwritten with the actual
+ *                   recovered nonzero count.
  * @param[out] rind  Pointer-to-pointer receiving row indices (coordinate
  *                   format).
  * @param[out] cind  Pointer-to-pointer receiving column indices (coordinate
@@ -40,10 +42,12 @@ extern "C" {
  *
  * @return 0 or positive status on success, negative error code on failure.
  *
- * @note Memory ownership semantics for rind/cind/values mirror the underlying
- *       recovery routines: if user provides non-null pointers they will be used
- *       (usermem variants), otherwise unmanaged (allocator) variants are used
- *       and the caller is responsible for freeing the allocated memory.
+ * @note This wrapper always computes into the C++ `SparseMatrix` container and
+ *       then adapts the result back to `rind`, `cind`, and `values`. If the
+ *       caller provides non-null buffers and `*nnz` already matches the
+ *       recovered nonzero count, those buffers are reused in place; otherwise
+ *       the wrapper allocates fresh arrays with `new[]` and returns them to the
+ *       caller.
  *
  * @note This function wraps the C++ API.
  */

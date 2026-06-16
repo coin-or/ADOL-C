@@ -17,12 +17,9 @@
 /****************************************************************************/
 /*                                                                 INCLUDES */
 
+#include <adolc/adolc.h>
 #include <iostream>
 using namespace std;
-
-#include <adolc/adtl_indo.h>
-#include <adolc/sparse/sparsedrivers.h>
-
 template <typename T> class my_function : public func_ad<T> {
 public:
   int operator()(int n, T *x, int m, T *y) {
@@ -79,23 +76,21 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < n; i++)
     basepoints[i] = x[i].getValue();
   int retVal;
-  int nnz;
-  unsigned int *rind = NULL, *cind = NULL;
-  double *values = NULL;
+  ADOLC::Sparse::SparseMatrix sparseJac;
   retVal = ADOLC::Sparse::adtl_indo::ADOLC_get_sparse_jacobian(
-      &fun, &fun_indo, n, m, 0, basepoints, &nnz, &rind, &cind, &values);
+      &fun, &fun_indo, n, m, 0, basepoints, sparseJac);
 
   cout << endl;
   cout << "Checking results with ADOLC_get_sparse_jacobian functionality..."
        << endl;
-  cout << "number of non-zero elements in jacobian: " << nnz << endl;
+  cout << "number of non-zero elements in jacobian: " << sparseJac.size()
+       << endl;
   cout << "Elements are:" << endl;
 
-  for (int i = 0; i < nnz; i++) {
-    cout << "[" << *rind << "][" << *cind << "]: " << *values << endl;
-    rind++;
-    cind++;
-    values++;
+  for (int i = 0; i < sparseJac.size(); i++) {
+    auto entry = sparseJac[i];
+    cout << "[" << entry.rowIndex() << "][" << entry.colIndex()
+         << "]: " << entry.value() << endl;
   }
 
   return 0;

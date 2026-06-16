@@ -22,22 +22,6 @@ struct ADProblem {
   int dimIn;
 };
 
-struct SparseJacData {
-  unsigned int *rind{nullptr};
-  unsigned int *cind{nullptr};
-  double *values{nullptr};
-  int nnz;
-
-  void reset() {
-    delete[] rind;
-    rind = nullptr;
-    delete[] cind;
-    cind = nullptr;
-    delete[] values;
-    values = nullptr;
-  }
-};
-
 template <ADProblem problem> struct CompressedJacobian {
   std::vector<uint *> JP{problem.dimOut};
   double **Seed{nullptr};
@@ -107,27 +91,24 @@ void computeJac(std::span<double, problem.dimIn> x, short tapeId) {
 }
 
 template <ADOLC::Sparse::CompressionMode CM>
-void printSparseJac(SparseJacData &jac) {
+void printSparseJac(ADOLC::Sparse::SparseMatrix &sparseJac) {
   if constexpr (CM == ADOLC::Sparse::CompressionMode::Row)
     std::cout << "In sparse format (row compression):\n";
   else if constexpr (CM == ADOLC::Sparse::CompressionMode::Column)
     std::cout << "In sparse format (using row compression): \n";
 
-  for (int i = 0; i < jac.nnz; i++)
-    printf("%2d %2d %10.6f\n\n", jac.rind[i], jac.cind[i], jac.values[i]);
+  for (int i = 0; i < sparseJac.size(); i++)
+    printf("%2d %2d %10.6f\n\n", sparseJac.rowIndex(i), sparseJac.colIndex(i),
+           sparseJac.value(i));
 }
 
 template <ADProblem problem, ADOLC::Sparse::CompressionMode CM>
 void computeSparseJac(std::span<double, problem.dimIn> x, short tapeId) {
-  auto jac = SparseJacData{};
-  ADOLC::Sparse::sparse_jac<
-      ADOLC::Sparse::SparseMethod::IndexDomains, CM,
-      ADOLC::Sparse::ControlFlowMode::Safe,
-      ADOLC::Sparse::BitPatternPropagationDirection::Auto>(
-      tapeId, problem.dimOut, problem.dimIn, 0, x.data(), &jac.nnz, &jac.rind,
-      &jac.cind, &jac.values);
-  printSparseJac<CM>(jac);
-  jac.reset();
+  ADOLC::Sparse::SparseMatrix sparseJac{};
+  ADOLC::Sparse::sparse_jac<ADOLC::Sparse::SparseMethod::IndexDomains, CM,
+                            ADOLC::Sparse::ControlFlowMode::Safe>(
+      tapeId, problem.dimOut, problem.dimIn, 0, x.data(), sparseJac);
+  printSparseJac<CM>(sparseJac);
 }
 
 template <ADProblem problem>

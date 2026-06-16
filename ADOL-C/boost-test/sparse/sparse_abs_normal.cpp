@@ -144,28 +144,38 @@ sparsity pattern (crs):
 [3, 0, 2, 3]
 --------------------------------------------------------------------
 */
+#define BOOST_TEST_DYN_LINK
+#include "../const.h"
+#include <adolc/adolc.h>
 #include <algorithm>
 #include <array>
-#include <numeric>
-#define BOOST_TEST_DYN_LINK
-#include <adolc/adolc.h>
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
+#include <numeric>
 #include <vector>
-
-#include "../const.h"
 
 namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(test_sparse_abs_normal)
 
-struct ExpectedEntry {
-  unsigned int row;
-  unsigned int col;
-  double value;
-};
+static_assert(ADOLC::AbsNormalFormType<ADOLC::Sparse::SparseANF>);
 
+namespace {
+using ADOLC::Sparse::CoordinateFormatTripled;
+using ADOLC::Sparse::SparseANF;
+using ADOLC::Sparse::SparseMatrix;
 template <size_t Version> struct version_trait {};
+
+std::vector<double> updateConstant(const SparseMatrix &sparseEntries,
+                                   const std::vector<double> &vals,
+                                   const std::vector<double> &z) {
+  std::vector<double> res(vals);
+  for (int i = 0; i < sparseEntries.size(); i++) {
+    const auto entry = sparseEntries[i];
+    res[entry.rowIndex()] -= entry.value() * std::fabs(z[entry.colIndex()]);
+  }
+  return res;
+}
 
 template <> struct version_trait<1> {
   static constexpr size_t dimIn = 2;
@@ -173,15 +183,16 @@ template <> struct version_trait<1> {
   static constexpr size_t dimOut = 2;
   static constexpr std::array<std::array<size_t, 4>, 5> crs = {
       {{3, 0, 2, 4}, {1, 1, 0, 0}, {2, 0, 1, 0}, {1, 1, 0, 0}, {2, 0, 3, 0}}};
-  static constexpr std::array<ExpectedEntry, 9> sparse = {{{0, 0, 1.0},
-                                                           {0, 2, 1.0},
-                                                           {0, 4, 1.0},
-                                                           {1, 1, 1.0},
-                                                           {2, 0, 1.0},
-                                                           {2, 1, -1.0},
-                                                           {3, 1, 1.0},
-                                                           {4, 0, 1.0},
-                                                           {4, 3, -1.0}}};
+  static constexpr std::array<CoordinateFormatTripled, 9> sparse = {
+      {{0, 0, 1.0},
+       {0, 2, 1.0},
+       {0, 4, 1.0},
+       {1, 1, 1.0},
+       {2, 0, 1.0},
+       {2, 1, -1.0},
+       {3, 1, 1.0},
+       {4, 0, 1.0},
+       {4, 3, -1.0}}};
 };
 
 template <> struct version_trait<2> {
@@ -194,16 +205,17 @@ template <> struct version_trait<2> {
                                                                 {1, 1, 0, 0},
                                                                 {2, 0, 3, 0},
                                                                 {1, 1, 0, 0}}};
-  static constexpr std::array<ExpectedEntry, 10> sparse = {{{0, 0, 1.0},
-                                                            {0, 2, 1.0},
-                                                            {0, 4, 1.0},
-                                                            {1, 5, 1.0},
-                                                            {2, 0, 1.0},
-                                                            {2, 1, -1.0},
-                                                            {3, 1, 1.0},
-                                                            {4, 0, 1.0},
-                                                            {4, 3, -1.0},
-                                                            {5, 1, 1.0}}};
+  static constexpr std::array<CoordinateFormatTripled, 10> sparse = {
+      {{0, 0, 1.0},
+       {0, 2, 1.0},
+       {0, 4, 1.0},
+       {1, 5, 1.0},
+       {2, 0, 1.0},
+       {2, 1, -1.0},
+       {3, 1, 1.0},
+       {4, 0, 1.0},
+       {4, 3, -1.0},
+       {5, 1, 1.0}}};
 };
 
 template <> struct version_trait<3> {
@@ -212,14 +224,15 @@ template <> struct version_trait<3> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 3> crs = {
       {{4, 0, 1, 2, 3}, {1, 0, 0, 0, 0}, {3, 0, 1, 2, 0}}};
-  static constexpr std::array<ExpectedEntry, 8> sparse = {{{0, 0, -0.25},
-                                                           {0, 1, 1.0},
-                                                           {0, 2, -0.25},
-                                                           {0, 3, 0.5},
-                                                           {1, 0, 1.0},
-                                                           {2, 0, -0.5},
-                                                           {2, 1, 2.0},
-                                                           {2, 2, -0.5}}};
+  static constexpr std::array<CoordinateFormatTripled, 8> sparse = {
+      {{0, 0, -0.25},
+       {0, 1, 1.0},
+       {0, 2, -0.25},
+       {0, 3, 0.5},
+       {1, 0, 1.0},
+       {2, 0, -0.5},
+       {2, 1, 2.0},
+       {2, 2, -0.5}}};
 };
 
 template <> struct version_trait<4> {
@@ -237,7 +250,7 @@ template <> struct version_trait<4> {
        {6, 5, 6, 7, 8, 9, 10, 0, 0, 0},
        {5, 0, 1, 2, 3, 4, 0, 0, 0, 0},
        {8, 5, 6, 7, 8, 9, 10, 11, 12, 0}}};
-  static constexpr std::array<ExpectedEntry, 54> sparse = {{
+  static constexpr std::array<CoordinateFormatTripled, 54> sparse = {{
       {0, 5, 1.0 / 16.0},  {0, 6, 1.0 / 16.0},  {0, 7, 1.0 / 16.0},
       {0, 8, 1.0 / 8.0},   {0, 9, 1.0 / 8.0},   {0, 10, 1.0 / 4.0},
       {0, 11, 1.0 / 4.0},  {0, 12, 1.0 / 2.0},  {0, 13, 1.0 / 2.0},
@@ -270,7 +283,7 @@ template <> struct version_trait<5> {
        {4, 0, 1, 2, 3, 0, 0, 0},
        {5, 0, 1, 2, 3, 4, 0, 0},
        {6, 0, 1, 2, 3, 4, 5, 0}}};
-  static constexpr std::array<ExpectedEntry, 27> sparse = {{
+  static constexpr std::array<CoordinateFormatTripled, 27> sparse = {{
       {0, 0, 1.25},   {0, 1, 0.09375}, {0, 2, 0.03125}, {0, 3, 0.0625},
       {0, 4, 0.125},  {0, 5, 0.25},    {0, 6, 0.5},     {1, 0, 2.0},
       {1, 1, -5.0},   {2, 0, 2.0},     {2, 1, 4.5},     {2, 2, -0.5},
@@ -287,14 +300,15 @@ template <> struct version_trait<6> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 3> crs = {
       {{4, 0, 1, 2, 3}, {1, 0, 0, 0, 0}, {3, 0, 1, 2, 0}}};
-  static constexpr std::array<ExpectedEntry, 8> sparse = {{{0, 0, -0.75},
-                                                           {0, 1, -1.0},
-                                                           {0, 2, -0.25},
-                                                           {0, 3, 0.5},
-                                                           {1, 0, -1.0},
-                                                           {2, 0, 1.5},
-                                                           {2, 1, 2.0},
-                                                           {2, 2, 0.5}}};
+  static constexpr std::array<CoordinateFormatTripled, 8> sparse = {
+      {{0, 0, -0.75},
+       {0, 1, -1.0},
+       {0, 2, -0.25},
+       {0, 3, 0.5},
+       {1, 0, -1.0},
+       {2, 0, 1.5},
+       {2, 1, 2.0},
+       {2, 2, 0.5}}};
 };
 
 template <> struct version_trait<7> {
@@ -309,7 +323,7 @@ template <> struct version_trait<7> {
        {3, 0, 2, 3, 0},
        {2, 0, 2, 0, 0},
        {3, 0, 2, 5, 0}}};
-  static constexpr std::array<ExpectedEntry, 19> sparse = {{
+  static constexpr std::array<CoordinateFormatTripled, 19> sparse = {{
       {0, 0, 1.75}, {0, 2, 3.0},  {0, 3, 0.25}, {0, 4, 0.5},  {1, 0, 1.75},
       {1, 2, 3.0},  {1, 5, 0.25}, {1, 6, 0.5},  {2, 1, 1.0},  {3, 0, 3.0},
       {3, 2, 2.0},  {4, 0, 0.5},  {4, 2, 4.0},  {4, 3, -0.5}, {5, 0, 3.0},
@@ -323,16 +337,17 @@ template <> struct version_trait<8> {
   static constexpr size_t dimOut = 1;
   static constexpr std::array<std::array<size_t, 5>, 4> crs = {
       {{4, 0, 2, 3, 4}, {1, 1, 0, 0, 0}, {2, 0, 2, 0, 0}, {3, 0, 2, 3, 0}}};
-  static constexpr std::array<ExpectedEntry, 10> sparse = {{{0, 0, 1.75},
-                                                            {0, 2, 3.0},
-                                                            {0, 3, 0.25},
-                                                            {0, 4, 0.5},
-                                                            {1, 1, 1.0},
-                                                            {2, 0, 3.0},
-                                                            {2, 2, 2.0},
-                                                            {3, 0, 0.5},
-                                                            {3, 2, 4.0},
-                                                            {3, 3, -0.5}}};
+  static constexpr std::array<CoordinateFormatTripled, 10> sparse = {
+      {{0, 0, 1.75},
+       {0, 2, 3.0},
+       {0, 3, 0.25},
+       {0, 4, 0.5},
+       {1, 1, 1.0},
+       {2, 0, 3.0},
+       {2, 2, 2.0},
+       {3, 0, 0.5},
+       {3, 2, 4.0},
+       {3, 3, -0.5}}};
 };
 
 struct UnAllocated {};
@@ -415,8 +430,7 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
 };
 
 template <size_t Version>
-static void computeANF(ANFProblem<Version, Allocated> &anfProblemAlloc,
-                       short tapeId) {
+void computeANF(ANFProblem<Version, Allocated> &anfProblemAlloc, short tapeId) {
 
   zos_pl_forward(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn, 1,
                  anfProblemAlloc.in.data(), anfProblemAlloc.out.data(),
@@ -430,7 +444,7 @@ static void computeANF(ANFProblem<Version, Allocated> &anfProblemAlloc,
 }
 
 template <size_t Version>
-static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
+void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
   std::vector<adouble> x(anfProblem.dimIn);
   std::vector<adouble> y(anfProblem.dimOut);
   if constexpr (Version == 1) {
@@ -511,48 +525,154 @@ static void taping(ANFProblem<Version, UnAllocated> &anfProblem) {
   }
 }
 
-static std::vector<ExpectedEntry> collectSparseEntries(int nnz,
-                                                       const unsigned int *rind,
-                                                       const unsigned int *cind,
-                                                       const double *values) {
-  std::vector<ExpectedEntry> entries;
-  entries.reserve(nnz);
-  for (int i = 0; i < nnz; ++i)
-    entries.push_back({rind[i], cind[i], values[i]});
-  return entries;
+void sortSparseEntries(SparseMatrix &mat) {
+  std::sort(mat.entries().begin(), mat.entries().end(),
+            [](const CoordinateFormatTripled &lhs,
+               const CoordinateFormatTripled &rhs) {
+              if (lhs.rowIndex() != rhs.rowIndex())
+                return lhs.rowIndex() < rhs.rowIndex();
+              if (lhs.colIndex() != rhs.colIndex())
+                return lhs.colIndex() < rhs.colIndex();
+              return lhs.value() < rhs.value();
+            });
 }
 
-template <size_t Version>
-static void checkSparseEntries(int nnz, const unsigned int *rind,
-                               const unsigned int *cind, const double *values) {
-  auto actual = collectSparseEntries(nnz, rind, cind, values);
-  std::vector<ExpectedEntry> expected(version_trait<Version>::sparse.begin(),
-                                      version_trait<Version>::sparse.end());
+void checkEntries(const SparseMatrix &actualEntries,
+                  const SparseMatrix &expectedEntries, size_t version,
+                  const char *label) {
+  auto actual = actualEntries;
+  auto expected = expectedEntries;
+  sortSparseEntries(actual);
+  sortSparseEntries(expected);
 
   BOOST_TEST(actual.size() == expected.size());
+  if (actual.size() != expected.size()) {
+    return;
+  }
   for (size_t i = 0; i < expected.size(); ++i) {
-    BOOST_TEST_CONTEXT("problem: " << Version << " entry=" << i) {
-      BOOST_TEST(actual[i].row == expected[i].row);
-      BOOST_TEST(actual[i].col == expected[i].col);
-      BOOST_TEST(actual[i].value == expected[i].value, tt::tolerance(tol));
+    BOOST_TEST_CONTEXT("problem: " << version << " block=" << label
+                                   << " entry=" << i) {
+      BOOST_TEST(actual[i].rowIndex() == expected[i].rowIndex());
+      BOOST_TEST(actual[i].colIndex() == expected[i].colIndex());
+      BOOST_TEST(actual[i].value() == expected[i].value(), tt::tolerance(tol));
     }
   }
 }
 
-template <size_t Version>
-static void runSparseJacAndCheck(
-    short tapeId, const ANFProblem<Version, UnAllocated> &problem,
-    int numSwitchingVars, int repeat, int *nnz, unsigned int **rind,
-    unsigned int **cind, double **values) {
-  using ADOLC::Sparse::PiecewiseLinear;
-  const int ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}>(
-      tapeId, problem.dimOut, problem.dimIn, numSwitchingVars, repeat,
-      problem.in.data(), nnz, rind, cind, values);
-  BOOST_TEST(ret >= 0);
-  checkSparseEntries<Version>(*nnz, *rind, *cind, *values);
+void checkVector(const std::vector<double> &actual,
+                 const std::vector<double> &expected, size_t version,
+                 const char *label) {
+  BOOST_TEST_CONTEXT("problem: " << version << " vector=" << label) {
+    BOOST_TEST(actual.size() == expected.size());
+    if (actual.size() != expected.size()) {
+      return;
+    }
+    for (size_t i = 0; i < expected.size(); ++i) {
+      BOOST_TEST(actual[i] == expected[i], tt::tolerance(tol));
+    }
+  }
 }
 
-template <size_t Version> static void problem() {
+template <size_t Version> SparseANF splitExpectedSparseANFEntries() {
+  using ADOLC::Sparse::detail::classifySparseANFBlock;
+  using ADOLC::Sparse::detail::SparseANFBlock;
+  SparseANF expected;
+  for (const auto &entry : version_trait<Version>::sparse) {
+    switch (classifySparseANFBlock({entry.rowIndex(), entry.colIndex()},
+                                   version_trait<Version>::dimOut,
+                                   version_trait<Version>::dimIn)) {
+    case SparseANFBlock::Y:
+      expected.Y.push_back(entry);
+      break;
+
+    case SparseANFBlock::J:
+      expected.J.push_back(
+          {entry.rowIndex(),
+           static_cast<unsigned int>(entry.colIndex() -
+                                     version_trait<Version>::dimIn),
+           entry.value()});
+      break;
+
+    case SparseANFBlock::Z:
+      expected.Z.push_back(
+          {static_cast<unsigned int>(entry.rowIndex() -
+                                     version_trait<Version>::dimOut),
+           entry.colIndex(), entry.value()});
+      break;
+    case SparseANFBlock::L:
+      expected.L.push_back(
+          {static_cast<unsigned int>(entry.rowIndex() -
+                                     version_trait<Version>::dimOut),
+           static_cast<unsigned int>(entry.colIndex() -
+                                     version_trait<Version>::dimIn),
+           entry.value()});
+      break;
+    }
+  }
+  return expected;
+}
+
+template <size_t Version>
+void checkSparseANFEntries(const ADOLC::Sparse::SparseANF &sparseANF) {
+  const auto expected = splitExpectedSparseANFEntries<Version>();
+  checkEntries(sparseANF.Y, expected.Y, Version, "Y");
+  checkEntries(sparseANF.J, expected.J, Version, "J");
+  checkEntries(sparseANF.Z, expected.Z, Version, "Z");
+  checkEntries(sparseANF.L, expected.L, Version, "L");
+}
+
+template <size_t Version>
+void checkSparseANF(const ADOLC::Sparse::SparseANF &sparseANF,
+                    const ANFProblem<Version, Allocated> &expectedDenseANF) {
+  checkSparseANFEntries<Version>(sparseANF);
+  BOOST_TEST(sparseANF.cy.size() == to_size_t(expectedDenseANF.dimOut));
+  BOOST_TEST(sparseANF.cz.size() ==
+             to_size_t(expectedDenseANF.numSwitchingVars));
+
+  checkVector(sparseANF.cy,
+              updateConstant(sparseANF.J, sparseANF.y, sparseANF.z), Version,
+              "cy");
+  checkVector(sparseANF.cz,
+              updateConstant(sparseANF.L, sparseANF.z, sparseANF.z), Version,
+              "cz");
+}
+
+template <size_t Version>
+void runsparseAnfAndCheck(short tapeId,
+                          const ANFProblem<Version, UnAllocated> &problem,
+                          int numSwitchingVars, int repeat,
+                          ADOLC::Sparse::SparseANF &sparseAnf) {
+  using ADOLC::Sparse::MemoryHandler;
+  using ADOLC::Sparse::PiecewiseLinear;
+
+  const bool hasUserMemory = !sparseAnf.empty();
+  const int ret =
+      hasUserMemory
+          ? ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MemoryHandler::Manual>(
+                tapeId, problem.dimOut, problem.dimIn, numSwitchingVars, repeat,
+                problem.in.data(), sparseAnf)
+          : ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MemoryHandler::Auto>(
+                tapeId, problem.dimOut, problem.dimIn, numSwitchingVars, repeat,
+                problem.in.data(), sparseAnf);
+  BOOST_TEST(ret >= 0);
+  checkSparseANFEntries<Version>(sparseAnf);
+}
+
+template <size_t Version, ADOLC::Sparse::MemoryHandler MH>
+void runSparseANFAndCheck(
+    short tapeId, const ANFProblem<Version, UnAllocated> &problem,
+    const ANFProblem<Version, Allocated> &expectedDenseANF,
+    int numSwitchingVars, int repeat, ADOLC::Sparse::SparseANF &sparseANF) {
+  using ADOLC::Sparse::PiecewiseLinear;
+
+  const int ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MH>(
+      tapeId, problem.dimOut, problem.dimIn, numSwitchingVars, repeat,
+      problem.in.data(), sparseANF);
+  BOOST_TEST(ret >= 0);
+  checkSparseANF<Version>(sparseANF, expectedDenseANF);
+}
+
+template <size_t Version> void problem() {
   ANFProblem<Version, UnAllocated> anfProblem{};
   const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
@@ -584,7 +704,7 @@ template <size_t Version> static void problem() {
     delete[] c;
 }
 
-template <size_t Version> static void problemSparseJac() {
+template <size_t Version> void problemsparseAnf() {
   ANFProblem<Version, UnAllocated> anfProblem{};
   const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
@@ -593,21 +713,15 @@ template <size_t Version> static void problemSparseJac() {
   taping(anfProblem);
   trace_off();
 
-  int nnz = 0;
   int numSwitchingVars = get_num_switches(tapeId);
-  unsigned int *rind = nullptr;
-  unsigned int *cind = nullptr;
-  double *values = nullptr;
+  ADOLC::Sparse::SparseANF sparseAnf;
 
-  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
-                                &rind, &cind, &values);
-
-  delete[] rind;
-  delete[] cind;
-  delete[] values;
+  runsparseAnfAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0,
+                                sparseAnf);
 }
 
-template <size_t Version> static void problemSparseJacBranches() {
+template <size_t Version> void problemSparseANF() {
+  using ADOLC::Sparse::SparseShape;
   ANFProblem<Version, UnAllocated> anfProblem{};
   const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
@@ -617,46 +731,97 @@ template <size_t Version> static void problemSparseJacBranches() {
   trace_off();
 
   const int numSwitchingVars = get_num_switches(tapeId);
+  auto anfProblemAlloc = anfProblem.allocateBuffers(numSwitchingVars);
+  computeANF(anfProblemAlloc, tapeId);
 
-  int nnz = 0;
-  unsigned int *rind = nullptr;
-  unsigned int *cind = nullptr;
-  double *values = nullptr;
-  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
-                                &rind, &cind, &values);
-  delete[] rind;
-  delete[] cind;
-  delete[] values;
+  ADOLC::Sparse::SparseANF sparseANF;
+  runSparseANFAndCheck<Version, ADOLC::Sparse::MemoryHandler::Auto>(
+      tapeId, anfProblem, anfProblemAlloc, numSwitchingVars, 0, sparseANF);
 
-  nnz = 0;
-  rind = nullptr;
-  cind = nullptr;
-  values = nullptr;
-  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0, &nnz,
-                                &rind, &cind, &values);
-  delete[] rind;
-  delete[] cind;
-  delete[] values;
+  const auto expected = splitExpectedSparseANFEntries<Version>();
+  ADOLC::Sparse::SparseANF sparseANF2(
+      SparseShape{expected.Y.size(), expected.J.size(), expected.Z.size(),
+                  expected.L.size()});
+  runSparseANFAndCheck<Version, ADOLC::Sparse::MemoryHandler::Manual>(
+      tapeId, anfProblem, anfProblemAlloc, numSwitchingVars, 0, sparseANF2);
 
-  rind = nullptr;
-  cind = nullptr;
-  values = nullptr;
-  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1, &nnz,
-                                &rind, &cind, &values);
-  delete[] rind;
-  delete[] cind;
-  delete[] values;
-
-  std::vector<unsigned int> rowStorage(nnz);
-  std::vector<unsigned int> colStorage(nnz);
-  std::vector<double> valueStorage(nnz);
-  unsigned int *userRind = rowStorage.data();
-  unsigned int *userCind = colStorage.data();
-  double *userValues = valueStorage.data();
-  runSparseJacAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1, &nnz,
-                                &userRind, &userCind, &userValues);
+  ADOLC::Sparse::SparseANF sparseANF3(
+      SparseShape{expected.Y.size(), expected.J.size(), expected.Z.size(),
+                  expected.L.size()});
+  runSparseANFAndCheck<Version, ADOLC::Sparse::MemoryHandler::Manual>(
+      tapeId, anfProblem, anfProblemAlloc, numSwitchingVars, 1, sparseANF3);
 }
 
+template <size_t Version> void problemsparseAnfBranches() {
+  ANFProblem<Version, UnAllocated> anfProblem{};
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
+  currentTape().enableMinMaxUsingAbs();
+  trace_on(tapeId);
+  taping(anfProblem);
+  trace_off();
+
+  const int numSwitchingVars = get_num_switches(tapeId);
+  const auto expected = splitExpectedSparseANFEntries<Version>();
+
+  ADOLC::Sparse::SparseANF sparseAnf;
+  runsparseAnfAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0,
+                                sparseAnf);
+  sparseAnf.clear();
+  runsparseAnfAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 0,
+                                sparseAnf);
+
+  sparseAnf.clear();
+  runsparseAnfAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1,
+                                sparseAnf);
+
+  ADOLC::Sparse::SparseANF sparseAnf2;
+  sparseAnf2.Y = ADOLC::Sparse::SparseMatrix(expected.Y.size());
+  sparseAnf2.J = ADOLC::Sparse::SparseMatrix(expected.J.size());
+  sparseAnf2.Z = ADOLC::Sparse::SparseMatrix(expected.Z.size());
+  sparseAnf2.L = ADOLC::Sparse::SparseMatrix(expected.L.size());
+  runsparseAnfAndCheck<Version>(tapeId, anfProblem, numSwitchingVars, 1,
+                                sparseAnf2);
+}
+
+template <size_t Version> void problemSparseANFManualSizeMismatch() {
+  using ADOLC::Sparse::MemoryHandler;
+  using ADOLC::Sparse::PiecewiseLinear;
+
+  ANFProblem<Version, UnAllocated> anfProblem{};
+  const auto tapeId = createNewTape();
+  setCurrentTape(tapeId);
+  currentTape().enableMinMaxUsingAbs();
+  trace_on(tapeId);
+  taping(anfProblem);
+  trace_off();
+
+  const int numSwitchingVars = get_num_switches(tapeId);
+  const auto expected = splitExpectedSparseANFEntries<Version>();
+
+  ADOLC::Sparse::SparseANF wrongSized;
+  wrongSized.Y = ADOLC::Sparse::SparseMatrix(expected.Y.size());
+  wrongSized.J = ADOLC::Sparse::SparseMatrix(expected.J.size());
+  wrongSized.Z = ADOLC::Sparse::SparseMatrix(expected.Z.size());
+  wrongSized.L = ADOLC::Sparse::SparseMatrix(expected.L.size() + 1);
+
+  int ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MemoryHandler::Manual>(
+      tapeId, anfProblem.dimOut, anfProblem.dimIn, numSwitchingVars, 0,
+      anfProblem.in.data(), wrongSized);
+  BOOST_TEST(ret == -3);
+
+  ADOLC::Sparse::SparseANF sparseANF;
+  ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MemoryHandler::Auto>(
+      tapeId, anfProblem.dimOut, anfProblem.dimIn, numSwitchingVars, 0,
+      anfProblem.in.data(), sparseANF);
+  BOOST_TEST(ret >= 0);
+
+  ret = ADOLC::Sparse::sparse_jac<PiecewiseLinear{}, MemoryHandler::Manual>(
+      tapeId, anfProblem.dimOut, anfProblem.dimIn, numSwitchingVars, 1,
+      anfProblem.in.data(), wrongSized);
+  BOOST_TEST(ret == -3);
+}
+} // namespace
 BOOST_AUTO_TEST_CASE(PiecewiseLinearJacPatMatchesExpectedPattern) {
   constexpr std::array<void (*)(), 8> problems = {
       problem<1>, problem<2>, problem<3>, problem<4>,
@@ -666,18 +831,32 @@ BOOST_AUTO_TEST_CASE(PiecewiseLinearJacPatMatchesExpectedPattern) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseJacMatchesExpectedTriplets) {
+BOOST_AUTO_TEST_CASE(PiecewiseLinearsparseAnfMatchesExpectedTriplets) {
   constexpr std::array<void (*)(), 8> problems = {
-      problemSparseJac<1>, problemSparseJac<2>, problemSparseJac<3>,
-      problemSparseJac<4>, problemSparseJac<5>, problemSparseJac<6>,
-      problemSparseJac<7>, problemSparseJac<8>};
+      problemsparseAnf<1>, problemsparseAnf<2>, problemsparseAnf<3>,
+      problemsparseAnf<4>, problemsparseAnf<5>, problemsparseAnf<6>,
+      problemsparseAnf<7>, problemsparseAnf<8>};
   for (auto problem : problems) {
     problem();
   }
 }
 
-BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseJacCoversDriverBranches) {
-  problemSparseJacBranches<8>();
+BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseANFMatchesExpectedBlocks) {
+  constexpr std::array<void (*)(), 8> problems = {
+      problemSparseANF<1>, problemSparseANF<2>, problemSparseANF<3>,
+      problemSparseANF<4>, problemSparseANF<5>, problemSparseANF<6>,
+      problemSparseANF<7>, problemSparseANF<8>};
+  for (auto problem : problems) {
+    problem();
+  }
+}
+
+BOOST_AUTO_TEST_CASE(PiecewiseLinearsparseAnfCoversDriverBranches) {
+  problemsparseAnfBranches<8>();
+}
+
+BOOST_AUTO_TEST_CASE(PiecewiseLinearSparseANFManualSizeMismatch) {
+  problemSparseANFManualSizeMismatch<8>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

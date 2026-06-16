@@ -19,6 +19,7 @@
 
 #include <adolc/adalloc.h> //for myalloc2
 #include <adolc/adolcexport.h>
+#include <adolc/sparse/sparsematrix.h>
 #include <list>
 #include <ostream>
 #include <stdexcept>
@@ -233,12 +234,8 @@ public:
   friend int ADOLC_get_sparse_pattern(const adouble *const b, int m,
                                       unsigned int **&pat);
   friend int ADOLC_get_sparse_jacobian(func_ad *const func, int n, int m,
-                                       int repeat, double *basepoints, int *nnz,
-                                       unsigned int **rind, unsigned int **cind,
-                                       double **values);
-#if 0
-     friend int ADOLC_get_sparse_jacobian(int n, int m, adouble *x, int *nnz, unsigned int *rind, unsigned int *cind, double *values);
-#endif
+                                       int repeat, double *basepoints,
+                                       ADOLC::Sparse::SparseMatrix &sparseJac);
   /*******************  i/o operations  *********************************/
   friend ostream &operator<<(ostream &, const adouble &);
   friend istream &operator>>(istream &, adouble &);

@@ -3,4 +3,5 @@ install(FILES
         sparse_options.h
         sparsedrivers_c.h
         sparsedrivers.h 
+        sparsematrix.h
         DESTINATION "include/adolc/sparse")

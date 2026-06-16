@@ -19,6 +19,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/adtl.h>
+#include <adolc/sparse/sparsematrix.h>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -46,8 +47,7 @@ int ADOLC_get_sparse_pattern(const adouble *const b, int m,
 int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
                               func_ad<adtl_indo::adouble> *const func_indo,
                               int n, int m, int repeat, double *basepoints,
-                              int *nnz, unsigned int **rind,
-                              unsigned int **cind, double **values);
+                              SparseMatrix &sparseJac);
 
 double makeNaN();
 double makeInf();

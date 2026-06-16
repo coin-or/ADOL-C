@@ -69,6 +69,9 @@ static void testSparseJac() {
   sparse_jac(tapeId, dimOut, dimIn, 0, in.data(), &numberOfNonzeros,
              &rowIndices, &columnIndices, &nonzeroValues, options);
   BOOST_TEST(numberOfNonzeros == 20);
+  const auto *rowIndicesFirst = rowIndices;
+  const auto *columnIndicesFirst = columnIndices;
+  const auto *nonzeroValuesFirst = nonzeroValues;
   // go through all entries: either 0 or == sparse_jac
   int nonzeroCounter = 0;
   for (int row{0}; row < dimOut; ++row) {
@@ -82,6 +85,9 @@ static void testSparseJac() {
   sparse_jac(tapeId, dimOut, dimIn, 0, in.data(), &numberOfNonzeros,
              &rowIndices, &columnIndices, &nonzeroValues, options);
   BOOST_TEST(numberOfNonzeros == 20);
+  BOOST_TEST(rowIndices == rowIndicesFirst);
+  BOOST_TEST(columnIndices == columnIndicesFirst);
+  BOOST_TEST(nonzeroValues == nonzeroValuesFirst);
   nonzeroCounter = 0;
   // go through all entries: either 0 or == sparse_jac
   for (int row{0}; row < dimOut; ++row) {
@@ -95,6 +101,9 @@ static void testSparseJac() {
   sparse_jac(tapeId, dimOut, dimIn, 1, in.data(), &numberOfNonzeros,
              &rowIndices, &columnIndices, &nonzeroValues, options);
   BOOST_TEST(numberOfNonzeros == 20);
+  BOOST_TEST(rowIndices == rowIndicesFirst);
+  BOOST_TEST(columnIndices == columnIndicesFirst);
+  BOOST_TEST(nonzeroValues == nonzeroValuesFirst);
   nonzeroCounter = 0;
   // go through all entries: either 0 or == sparse_jac
   for (int row{0}; row < dimOut; ++row) {

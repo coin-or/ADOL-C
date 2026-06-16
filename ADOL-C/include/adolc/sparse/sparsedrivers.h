@@ -19,11 +19,14 @@ package.
 #include <adolc/interfaces.h>
 #include <adolc/internal/common.h>
 #include <adolc/sparse/sparse_options.h>
+#include <adolc/sparse/sparsematrix.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/sparseinfos.h>
 #include <adolc/valuetape/valuetape.h>
+#include <cmath>
 #include <cstddef>
 #include <span>
+#include <utility>
 #include <vector>
 
 // Max. number of unsigned ints to store the seed / jacobian matrix strips.
@@ -63,8 +66,8 @@ template <BitPatternPropagationDirection BPPD> struct BvpData {
   int numStripmineBatches_{
       0}; ///< Number of batches needed to cover all variables.
   std::vector<unsigned char>
-      indepWordHasNonzero_; ///< Flags marking independent variables that appear
-                            ///< in nonzero entries.
+      indepWordHasNonzero_;        ///< Flags marking independent variables that
+                                   ///< appear in nonzero entries.
   std::vector<double> valuepoint_; ///< Evaluation point values (used in tight
                                    ///< control-flow mode).
   std::vector<bitword_t *> seed_;  ///< Seed matrix partitions.
@@ -678,7 +681,7 @@ template <
     SparseMethod SM, CompressionMode CM, ControlFlowMode CFM,
     BitPatternPropagationDirection BPPD = BitPatternPropagationDirection::Auto>
 int buildJacPatternAndSeed(short tag, int depen, int indep,
-                           const double *basepoint, int *nnz) {
+                           const double *basepoint) {
 
   ValueTape &tape = findTape(tag);
   tape.sJInfos().setJP(std::vector<uint *>(depen));
@@ -697,7 +700,6 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
       tape.sJInfos().nnzIn_++;
   }
 
-  *nnz = tape.sJInfos().nnzIn_;
   tape.sJInfos().initColoring(depen, indep);
 
   if constexpr (CM == CompressionMode::Row) {
@@ -724,7 +726,7 @@ int buildJacPatternAndSeed(short tag, int depen, int indep,
  */
 template <PiecewiseLinear>
 int buildJacPatternAndSeed(short tag, int depen, int indep, int numSwitches,
-                           const double *basepoint, int *nnz) {
+                           const double *basepoint) {
   auto &tape = findTape(tag);
   tape.sJInfos().setJP(std::vector<uint *>(depen + numSwitches));
   std::span<uint *> JPSpan{tape.sJInfos().getJP()};
@@ -743,7 +745,6 @@ int buildJacPatternAndSeed(short tag, int depen, int indep, int numSwitches,
       tape.sJInfos().nnzIn_++;
     }
   }
-  *nnz = tape.sJInfos().nnzIn_;
   tape.sJInfos().initColoring(depen + numSwitches, indep + numSwitches);
 
   tape.sJInfos().generateSeedJac("ROW_PARTIAL_DISTANCE_TWO");
@@ -752,69 +753,159 @@ int buildJacPatternAndSeed(short tag, int depen, int indep, int numSwitches,
 
   return ret_val;
 }
+namespace {
+inline int ensureSparseJacCacheInitialized(const ValueTape &tape) {
+  if (tape.sJInfos().Seed_ == nullptr || tape.sJInfos().seedRows_ == 0 ||
+      tape.sJInfos().seedClms_ == 0) {
+    printf(" ADOL-C error in sparse_jac():"
+           " First call with repeat = 0 \n");
+    return -3;
+  }
+  return 0;
+}
+
+inline int validateManualStorage(const ValueTape &tape,
+                                 const SparseMatrix &sparseJac) {
+  if (sparseJac.size() != to_size_t(tape.sJInfos().nnzIn_)) {
+    printf(" ADOL-C error in sparse_jac():"
+           " SparseMatrix size mismatch for MemoryHandler::Manual,"
+           " expected %d entries but got %zu \n",
+           tape.sJInfos().nnzIn_, sparseJac.size());
+    return -3;
+  }
+  return 0;
+}
+
+inline SparseShape countSparseANFEntries(const SparseJacInfos &sJInfos,
+                                         int depen, int indep) {
+  using Coordinates = CoordinateFormatTripled::Coordinates;
+  using coordinate_type = CoordinateFormatTripled::coordinate_type;
+  using detail::classifySparseANFBlock;
+
+  SparseShape counts;
+  for (coordinate_type rowIndex = 0; rowIndex < sJInfos.JP_.size();
+       ++rowIndex) {
+    const auto numOfNonZeros = sJInfos.JP_[rowIndex][0];
+    for (unsigned int j = 1; j <= numOfNonZeros; ++j) {
+      const Coordinates coords{rowIndex, sJInfos.JP_[rowIndex][j]};
+      switch (classifySparseANFBlock(coords, depen, indep)) {
+      case SparseANFBlock::Y:
+        ++counts.y;
+        break;
+      case SparseANFBlock::J:
+        ++counts.j;
+        break;
+      case SparseANFBlock::Z:
+        ++counts.z;
+        break;
+      case SparseANFBlock::L:
+        ++counts.l;
+        break;
+      }
+    }
+  }
+  return counts;
+}
+
+inline int validateManualStorage(const ValueTape &tape,
+                                 const SparseANF &sparseANF, int depen,
+                                 int indep) {
+  const auto counts = countSparseANFEntries(tape.sJInfos(), depen, indep);
+  if (sparseANF.dims().y != counts.y || sparseANF.dims().j != counts.j ||
+      sparseANF.dims().z != counts.z || sparseANF.dims().l != counts.l) {
+    printf(" ADOL-C error in sparse_jac():"
+           " SparseANF block sizes mismatch for MemoryHandler::Manual"
+           " (expected Y=%zu J=%zu Z=%zu L=%zu,"
+           " got Y=%zu J=%zu Z=%zu L=%zu) \n",
+           counts.y, counts.j, counts.z, counts.l, sparseANF.dims().y,
+           sparseANF.dims().j, sparseANF.dims().z, sparseANF.dims().l);
+    return -3;
+  }
+  return 0;
+}
+} // namespace
+/// @brief Passes args to jacobian-recover method based on the template-args.
+template <CompressionMode CM, MemoryHandler MH>
+void recover(const ValueTape &tape, SparseMatrix &sparseJac) {
+  if constexpr (MH == MemoryHandler::Manual) {
+    assert(sparseJac.size() == to_size_t(tape.sJInfos().nnzIn_) &&
+           "Mismatch in allocated size and required size!");
+    if constexpr (CM == CompressionMode::Row) {
+      tape.sJInfos().recoverRowFormatUserMem(sparseJac);
+    } else if constexpr (CM == CompressionMode::Column) {
+      tape.sJInfos().recoverColFormatUserMem(sparseJac);
+    }
+  } else {
+    if constexpr (CM == CompressionMode::Row) {
+      tape.sJInfos().recoverRowFormat(sparseJac);
+    } else if constexpr (CM == CompressionMode::Column) {
+      tape.sJInfos().recoverColFormat(sparseJac);
+    }
+  }
+}
+
+/// @brief Passes args to ANF recovery methods based on the template args.
+template <MemoryHandler MH>
+void recover(const ValueTape &tape, SparseANF &sparseANF) {
+  const int numInds = static_cast<int>(tape.numInds());
+  const int numSwitches = static_cast<int>(tape.numSwitches());
+  if constexpr (MH == MemoryHandler::Manual) {
+    tape.sJInfos().recoverANFUserMem(sparseANF, numInds, numSwitches);
+  } else {
+    tape.sJInfos().recoverANF(sparseANF, numInds, numSwitches);
+  }
+}
+
 /**
  * @brief Compute sparse Jacobian using precomputed seed matrix and recovery
  * information.
  *
  * This routine performs the actual compressed Jacobian computation using the
  * seed matrix and graph/recovery structures stored in the tape's `sJInfos()`.
- * It supports both row- and column-oriented compression strategies and both
- * user-allocated and internally allocated (unmanaged) output buffers.
+ * It supports both row- and column-oriented compression strategies and writes
+ * the recovered coordinate-format entries into a `SparseMatrix`.
  *
- * @tparam CM
- *        Compression orientation (Row or Column) chosen when the seed was
- *        generated.
+ * @tparam CM Compression orientation (Row or Column) chosen when the seed was
+ *            generated.
+ * @tparam MH Selects whether `sparseJac` may be resized automatically or must
+ *            already contain exactly `nnzIn_` entry slots.
  *
  * @param tag        ADOL-C tape identifier.
  * @param depen      Number of dependent variables (rows).
  * @param indep      Number of independent variables (columns).
  * @param basepoint  Pointer to basepoint values (length `indep`) used for
  *                   evaluation in tight control-flow or other drivers.
- * @param nnz        Expected number of nonzeros (must match
- *                   `tape.sJInfos().nnzIn_`). On exit: unchanged.
- * @param[out] rind  Pointer to pointer which will receive the row-index array
- *                   of the coordinate-format Jacobian (allocated by this
- *                   function if `*rind == nullptr`, otherwise user-provided).
- * @param[out] cind  Pointer to pointer which will receive the column-index
- *                   array of the coordinate-format Jacobian (allocated by
- *                   this function if `*cind == nullptr`, otherwise
- * user-provided).
- * @param[out] values Pointer to pointer which will receive the nonzero values
- *                    (allocated by this function if `*values == nullptr`,
- *                    otherwise user-provided).
+ * @param[in,out] sparseJac
+ *                   Sparse matrix receiving recovered coordinate-format
+ *                   entries.
  *
  * @return
  *   - `0` on success (or driver-specific non-negative codes),
  *   - negative error code on failure (propagated from internal ADOL-C calls).
  *
  * @pre
- *  - `buildJacPatternAndSeed` must have been called previously for this tape to
- *    populate `tape.sJInfos()` with a valid seed (`Seed_`), graph (`g_`) and
- *    recovery object (`jr1d_`).
- *  - `*nnz` must equal the number of nonzeros discovered earlier and stored
- *    in `tape.sJInfos().nnzIn_`. If not, the function returns error `-3`.
+t already equal
+ *    the number of nonzeros stored in `tape.sJInfos().nnzIn_`; otherwise the
+ *    function returns `-3`.
  *
  * @post
- *  - On success, `rind`, `cind`, and `values` point to coordinate-format
- *    arrays describing the sparse Jacobian. If the user supplied non-null
- *    pointers, user memory is used; otherwise memory is allocated by the
- *    recovery routine and must be freed by the caller.
+ *  - On success, `sparseJac` contains one entry per recovered Jacobian
+ *    nonzero.
  *
  * @note
+ *  - `repeat` and `MemoryHandler` are orthogonal: `repeat` controls whether
+ *    pattern/seed metadata is rebuilt or reused, while `MemoryHandler`
+ *    controls only whether `sparseJac` is resized automatically.
  *  - The function allocates intermediate storage `B_` and `y_` inside the
- *    tape; these are freed with the tape lifecycle or overwritten on subsequent
- * calls.
- *  - For `CompressionMode::Row`, a forward evaluation `zos_forward` is used to
- *    compute `y_` followed by `fov_reverse` to obtain `B_`. For
- *    `CompressionMode::Column`, `fov_forward` is used.
- *  - The ColPack `RecoverD2*` functions are invoked to transform the compressed
- *    representation to coordinate format; they accept both user-managed and
- *    unmanaged memory usage patterns (usermem vs unmanaged).
+ *    tape; these are freed with the tape lifecycle or overwritten on
+ *    subsequent calls.
+ *  - For `CompressionMode::Row`, a forward evaluation `zos_forward` is used
+ *    to compute `y_` followed by `fov_reverse` to obtain `B_`. For
+ *    `CompressionMode::Column`, `fov_forward` is used to obtain `B_`.
  */
-template <CompressionMode CM>
+template <CompressionMode CM, MemoryHandler MH>
 int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
-                     int *nnz, unsigned int **rind, unsigned int **cind,
-                     double **values) {
+                     SparseMatrix &sparseJac) {
   ValueTape &tape = findTape(tag);
   int ret_val = 0;
   myfree2(tape.sJInfos().B_);
@@ -822,13 +913,6 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
   tape.sJInfos().B_ =
       myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
   tape.sJInfos().y_ = myalloc1(depen);
-
-  if (tape.sJInfos().nnzIn_ != *nnz) {
-    printf(" ADOL-C error in sparse_jac():"
-           " Number of nonzeros not consistent,"
-           " repeat call with repeat = 0 \n");
-    return -3;
-  }
 
   if constexpr (CM == CompressionMode::Row) {
     ret_val = zos_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_);
@@ -840,59 +924,30 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
     ret_val =
         fov_forward(tag, depen, indep, tape.sJInfos().seedClms_, basepoint,
                     tape.sJInfos().Seed_, tape.sJInfos().y_, tape.sJInfos().B_);
-
-  if (values != nullptr && *values != nullptr && rind != nullptr &&
-      *rind != nullptr && cind != nullptr && *cind != nullptr) {
-    // everything is preallocated, we assume correctly
-    // call usermem versions
-    if constexpr (CM == CompressionMode::Row)
-      tape.sJInfos().recoverRowFormatUserMem(rind, cind, values);
-    else if constexpr (CM == CompressionMode::Column)
-      tape.sJInfos().recoverColFormatUserMem(rind, cind, values);
-  } else {
-    // at least one of rind cind values is not allocated, deallocate others
-    // and call unmanaged versions
-    if (values != nullptr && *values != nullptr)
-      free(*values);
-    if (rind != nullptr && *rind != nullptr)
-      free(*rind);
-    if (cind != nullptr && *cind != nullptr)
-      free(*cind);
-    if constexpr (CM == CompressionMode::Row) {
-      tape.sJInfos().recoverRowFormat(rind, cind, values);
-    } else if constexpr (CM == CompressionMode::Column) {
-      tape.sJInfos().recoverColFormat(rind, cind, values);
-    }
-  }
+  recover<CM, MH>(tape, sparseJac);
   return ret_val;
 }
 
 /**
- * @brief Recover the piecewise-linear sparse Jacobian.
+ * @brief Recover the piecewise-linear sparse Jacobian into ANF blocks.
  *
- * It evaluates the taped function with `zos_pl_forward()` and then
- * applies `fov_pl_reverse()` to the row-compression seed. The recovered
- * matrix is the extended Jacobian (aka abs-normal form) `[Y J; Z L]` with row
- * order `[y ; z]` and column order `[x ; |z|]`.
- *
- * The cached compressed buffers are split into the dependent/switch seed views
- * required by `fov_pl_reverse()` and into the independent/switch result views
- * consumed by ColPack recovery.
+ * This variant partitions the recovered extended Jacobian into the four
+ * abs-normal blocks `Y`, `J`, `Z`, and `L`. Entries inside each block use
+ * block-local coordinates, while `cy` and `cz` are filled with the dense
+ * constants derived from the same primal `y` and `z` evaluation
+ * used for recovery.
  */
-template <PiecewiseLinear>
+template <MemoryHandler MH>
 int computeSparseJac(short tag, int depen, int indep, int numSwitches,
-                     const double *basepoint, int *nnz, unsigned int **rind,
-                     unsigned int **cind, double **values) {
+                     const double *basepoint, SparseANF &sparseANF) {
   ValueTape &tape = findTape(tag);
   assert(tape.sJInfos().seedClms_ == indep + numSwitches &&
          "Row Compression must have a seed with column number equal to indep + "
          "numSwitches!");
   int ret_val = 0;
   myfree2(tape.sJInfos().B_);
-  myfree1(tape.sJInfos().y_);
   tape.sJInfos().B_ =
       myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
-  tape.sJInfos().y_ = myalloc1(depen);
 
   std::vector<double *> results(tape.sJInfos().seedRows_);
   std::vector<double *> resultsSwitch(tape.sJInfos().seedRows_);
@@ -906,16 +961,11 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
     seedResults[i] = tape.sJInfos().Seed_[i];
     seedSwitches[i] = tape.sJInfos().Seed_[i] + depen;
   }
-  if (tape.sJInfos().nnzIn_ != *nnz) {
-    printf(" ADOL-C error in sparse_jac():"
-           " Number of nonzeros not consistent,"
-           " repeat call with repeat = 0 \n");
-    return -3;
-  }
 
-  std::vector<double> z(numSwitches);
-  ret_val = zos_pl_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_,
-                           z.data());
+  sparseANF.y.resize(depen);
+  sparseANF.z.resize(numSwitches);
+  ret_val = zos_pl_forward(tag, depen, indep, 1, basepoint, sparseANF.y.data(),
+                           sparseANF.z.data());
   if (ret_val < 0)
     return ret_val;
   MINDEC(ret_val, fov_pl_reverse(tag, depen, indep, numSwitches,
@@ -923,20 +973,12 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
                                  seedSwitches.data(), results.data(),
                                  resultsSwitch.data()));
 
-  if (values != nullptr && *values != nullptr && rind != nullptr &&
-      *rind != nullptr && cind != nullptr && *cind != nullptr) {
-    tape.sJInfos().recoverRowFormatUserMem(rind, cind, values);
-  } else {
-    // at least one of rind cind values is not allocated, deallocate others
-    // and call unmanaged versions
-    if (values != nullptr && *values != nullptr)
-      free(*values);
-    if (rind != nullptr && *rind != nullptr)
-      free(*rind);
-    if (cind != nullptr && *cind != nullptr)
-      free(*cind);
-    tape.sJInfos().recoverRowFormat(rind, cind, values);
-  }
+  recover<MH>(tape, sparseANF);
+
+  // update consts
+  sparseANF.updateCy();
+  sparseANF.updateCz();
+
   return ret_val;
 }
 } // namespace detail
@@ -946,109 +988,118 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
  *
  * This function coordinates sparsity detection, seed generation (via ColPack),
  * compressed AD evaluations, and recovery. When @p repeat == 0 the function
- * computes and caches the sparsity/seed information (stored on the tape).
- * Subsequent calls (repeat != 0) reuse cached seeds to compute numerical
- * Jacobian values more efficiently.
+ * rebuilds and caches the sparsity/seed information stored on the tape, then
+ * performs numeric recovery. Subsequent calls (repeat != 0) reuse the cached
+ * pattern/seed metadata and perform numeric recovery at the new basepoint.
  *
  * @tparam SM   Default SparseMethod used for pattern detection (IndexDomains).
  * @tparam CM   Default CompressionMode used for recovery (Column).
  * @tparam CFM  Default ControlFlowMode for propagation (Safe).
  * @tparam BPPD Default bit-propagation direction (Auto).
+ * @tparam MH   Selects whether @p sparseJac may be resized automatically or
+ *              must already provide the exact number of output entries.
  *
  * @param tag        Tape identifier.
  * @param depen      Number of dependent variables (rows).
  * @param indep      Number of independent variables (columns).
- * @param repeat     If 0: compute sparsity and prepare seed (no numeric
- *                   recovery). If >0: perform numeric recovery using cached
- *                   seed.
+ * @param repeat     If 0: rebuild sparsity/seed metadata and perform numeric
+ *                   recovery. If >0: reuse cached sparsity/seed metadata and
+ *                   perform numeric recovery.
  * @param basepoint  Array of independent values (required if tight
  *                   control-flow).
- * @param[in,out] nnz
- *                   Input/Output: when repeat==0 set by the routine to the
- *                   number of nonzeros discovered. When repeat!=0 must equal
- *                   the earlier computed number of nonzeros (consistency
- *                   check).
- * @param[out] rind  Pointer-to-pointer receiving row indices (coordinate
- *                   format).
- * @param[out] cind  Pointer-to-pointer receiving column indices (coordinate
- *                   format).
- * @param[out] values Pointer-to-pointer receiving numerical nonzero values.
+ * @param[in,out] sparseJac
+ *                   Sparse matrix receiving the recovered coordinate-format
+ *                   nonzeros.
  *
  * @return 0 or positive status on success, negative error code on failure.
  *
- * @note Memory ownership semantics for rind/cind/values mirror the underlying
- *       recovery routines: if user provides non-null pointers they will be used
- *       (usermem variants), otherwise unmanaged (allocator) variants are used
- *       and the caller is responsible for freeing the allocated memory.
+ * @note `repeat` and `MemoryHandler` are orthogonal. `MemoryHandler::Auto`
+ *       resizes `sparseJac` to the recovered nonzero count, while
+ *       `MemoryHandler::Manual` overwrites caller-provided storage and
+ *       requires that `sparseJac.size()` already matches that count.
  */
 template <
     SparseMethod SM = SparseMethod::IndexDomains,
     CompressionMode CM = CompressionMode::Column,
     ControlFlowMode CFM = ControlFlowMode::Safe,
-    BitPatternPropagationDirection BPPD = BitPatternPropagationDirection::Auto>
+    BitPatternPropagationDirection BPPD = BitPatternPropagationDirection::Auto,
+    MemoryHandler MH = MemoryHandler::Auto>
 ADOLC_API int sparse_jac(short tag, int depen, int indep, int repeat,
-                         const double *basepoint, int *nnz, unsigned int **rind,
-                         unsigned int **cind, double **values) {
+                         const double *basepoint, SparseMatrix &sparseJac) {
   using namespace detail;
   int ret_val = 0;
   if (repeat == 0)
-    ret_val = buildJacPatternAndSeed<SM, CM, CFM, BPPD>(tag, depen, indep,
-                                                        basepoint, nnz);
+    ret_val =
+        buildJacPatternAndSeed<SM, CM, CFM, BPPD>(tag, depen, indep, basepoint);
+  else
+    ret_val = ensureSparseJacCacheInitialized(findTape(tag));
   if (ret_val < 0) {
     printf(" ADOL-C error in sparse_jac() \n");
     return ret_val;
   }
-  return computeSparseJac<CM>(tag, depen, indep, basepoint, nnz, rind, cind,
-                              values);
-}
+  if constexpr (MH == MemoryHandler::Manual) {
 
+    ret_val = validateManualStorage(findTape(tag), sparseJac);
+    if (ret_val < 0)
+      return ret_val;
+  }
+  return computeSparseJac<CM, MH>(tag, depen, indep, basepoint, sparseJac);
+}
 /**
  * @brief Compute the sparse extended Jacobian of a piecewise-linear
- *        abs-normal form.
+ *        abs-normal form in block form.
  *
  * This overload computes the sparse extended Jacobian of the abs-normal form
- * associated with a taped abs-smooth function. The recovered sparse
- * matrix corresponds to the block matrix `[Y J; Z L]`, where the dependent
- * rows come first and the switching-equation rows follow (`[y ; z]`). Columns
- * are ordered as the original independents followed by the absolute switching
- * variables by (`[x ; |z|]`).
- *
- * Currently only row-compressed recovery is supported.
+ * associated with a taped abs-smooth function and partitions it into the four
+ * blocks `Y`, `J`, `Z`, and `L`.
  *
  * @param tag          Tape identifier.
  * @param depen        Number of dependent variables `y`.
  * @param indep        Number of independent variables `x`.
  * @param numSwitches  Number of switching variables `z`.
- * @param repeat       If 0: rebuild sparsity and seed data before
- *                     recovery. If >0: reuse cached recovery data.
+ * @param repeat       If 0: rebuild sparsity/seed metadata and perform
+ *                     numeric recovery. If >0: reuse cached metadata and
+ *                     perform numeric recovery.
  * @param basepoint    Independent basepoint values.
- * @param[in,out] nnz  On `repeat == 0`, set to the number of nonzeros in the
- *                     extended Jacobian. On `repeat != 0`, must match the
- *                     cached nonzero count.
- * @param[out] rind    Row indices of the recovered sparse matrix.
- * @param[out] cind    Column indices of the recovered sparse matrix.
- * @param[out] values  Numerical nonzero values of the recovered sparse matrix.
+ * @param[in,out] sparseANF
+ *                     Sparse abs-normal container receiving the recovered
+ *                     `Y`, `J`, `Z`, and `L` blocks, plus the dense vectors
+ *                     `y`, `z` and cy` and `cz`.
  *
  * @return 0 or a positive driver status on success, negative error code on
  *         failure.
+ *
+ * @note `repeat` and `MemoryHandler` are orthogonal. `MemoryHandler::Auto`
+ *       resizes the sparse blocks of `sparseANF` to the recovered nonzero
+ *       counts. `MemoryHandler::Manual` requires that `sparseANF.Y`,
+ *       `sparseANF.J`, `sparseANF.Z`, and `sparseANF.L` are already sized
+ *       correctly. In both modes, `cy`,`cz`, `y` and `z` are overwritten with
+ *       internally computed constants.
  */
-template <PiecewiseLinear>
+template <PiecewiseLinear PL = PiecewiseLinear{},
+          MemoryHandler MH = MemoryHandler::Auto>
 ADOLC_API int sparse_jac(short tag, int depen, int indep, int numSwitches,
-                         int repeat, const double *basepoint, int *nnz,
-                         unsigned int **rind, unsigned int **cind,
-                         double **values) {
+                         int repeat, const double *basepoint,
+                         SparseANF &sparseANF) {
 
   using namespace detail;
   int ret_val = 0;
   if (repeat == 0)
-    ret_val = buildJacPatternAndSeed<PiecewiseLinear{}>(
-        tag, depen, indep, numSwitches, basepoint, nnz);
+    ret_val =
+        buildJacPatternAndSeed<PL>(tag, depen, indep, numSwitches, basepoint);
+  else
+    ret_val = ensureSparseJacCacheInitialized(findTape(tag));
   if (ret_val < 0) {
     printf(" ADOL-C error in sparse_jac() \n");
     return ret_val;
   }
-  return computeSparseJac<PiecewiseLinear{}>(
-      tag, depen, indep, numSwitches, basepoint, nnz, rind, cind, values);
+  if constexpr (MH == MemoryHandler::Manual) {
+    ret_val = validateManualStorage(findTape(tag), sparseANF, depen, indep);
+    if (ret_val < 0)
+      return ret_val;
+  }
+  return computeSparseJac<MH>(tag, depen, indep, numSwitches, basepoint,
+                              sparseANF);
 }
 
 /**

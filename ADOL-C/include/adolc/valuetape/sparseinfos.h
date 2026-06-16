@@ -2,6 +2,7 @@
 #define ADOLC_SPARSE_INFOS_H
 #include <adolc/internal/common.h>
 #include <adolc/sparse/sparse_options.h>
+#include <adolc/sparse/sparsematrix.h>
 #include <cstddef>
 #include <memory>
 #include <span>
@@ -10,9 +11,13 @@
 namespace ADOLC::Sparse {
 template <CompressionMode CM>
 void generateSeedJac(int, int, const std::span<uint *>, double ***, int *) {};
-// stores everything we need to know to compute the sparse jacobian with
-// fov_reverse
-
+/**
+ * @brief Cached sparse Jacobian recovery data stored on a tape.
+ *
+ * This helper owns the ColPack graph/coloring objects and all temporary
+ * buffers required to recover sparse Jacobians from compressed directional
+ * evaluations.
+ */
 struct ADOLC_API SparseJacInfos {
   struct Impl;
   std::unique_ptr<Impl> pimpl_;
@@ -36,6 +41,13 @@ struct ADOLC_API SparseJacInfos {
   SparseJacInfos &operator=(const SparseJacInfos &) = delete;
   SparseJacInfos &operator=(SparseJacInfos &&other) noexcept;
 
+  /**
+   * @brief Replace the cached sparsity pattern.
+   *
+   * Existing CRS rows are deleted before the new storage is adopted.
+   *
+   * @param JPIn New CRS sparsity rows.
+   */
   void setJP(std::vector<uint *> &&JPIn) {
     // delete JP
     for (auto &j : JP_)
@@ -43,23 +55,79 @@ struct ADOLC_API SparseJacInfos {
     JP_ = std::move(JPIn);
     depen_ = static_cast<int>(JP_.size());
   }
+  /** @brief Access the cached CRS Jacobian pattern. */
   std::vector<uint *> &getJP() { return JP_; }
+  /** @brief Initialize ColPack coloring state for the given matrix shape. */
   void initColoring(int dimOut, int dimIn);
+  /** @brief Generate and cache a Jacobian seed matrix. */
   void generateSeedJac(const std::string &coloringVariant);
-  void recoverRowFormatUserMem(unsigned int **rind, unsigned int **cind,
-                               double **values);
-  void recoverColFormatUserMem(unsigned int **rind, unsigned int **cind,
-                               double **values);
-  void recoverRowFormat(unsigned int **rind, unsigned int **cind,
-                        double **values);
-  void recoverColFormat(unsigned int **rind, unsigned int **cind,
-                        double **values);
+  /**
+   * @brief Recover row-compressed sparse Jacobian entries into `SparseMatrix`.
+   *
+   * @note The structure is adapted from ColPack's
+   *      `JacobianRecovery1D::RecoverD2Row_CoordinateFormat_usermem` to work
+   *       with an array of row-column-value triplets (aka.
+   *       `CoordinateFormatTripled`) rather than separate arrays for rows,
+   *       columns, and values.
+   */
+  void recoverRowFormatUserMem(SparseMatrix &sparseJac) const;
+  /**
+   * @brief Resize and recover a row-compressed sparse Jacobian.
+   */
+  void recoverRowFormat(SparseMatrix &sparseJac) const;
+  /**
+   * @brief Recover column-compressed sparse Jacobian entries into
+   * `SparseMatrix`.
+   *
+   * @note The structure is adapted from ColPack's
+   *      `JacobianRecovery1D::RecoverD2Cln_CoordinateFormat_usermem` to work
+   * with an array of row-column-value triplets (aka. `CoordinateFormatTripled`)
+   *       rather than separate arrays for rows, columns, and values.
+   */
+  void recoverColFormatUserMem(SparseMatrix &sparseJac) const;
+
+  /**
+   * @brief Resize and recover a column-compressed sparse Jacobian.
+   */
+  void recoverColFormat(SparseMatrix &sparseJac) const;
+  /**
+   * @brief Split the recovered extended Jacobian into caller-sized ANF blocks.
+   *
+   * `sparseANF.Y`, `sparseANF.J`, `sparseANF.Z`, and `sparseANF.L` must
+   * already contain exactly the number of entries required by the cached
+   * abs-normal sparsity pattern. Recovered entries use block-local
+   * coordinates.
+   */
+  void recoverANFUserMem(SparseANF &sparseANF, int indep,
+                         int numSwitches) const;
+  /**
+   * @brief Split the recovered extended Jacobian into abs-normal blocks.
+   *
+   * The recovered matrix is interpreted as `[Y J; Z L]` with rows `[y ; z]`
+   * and columns `[x ; |z|]`. The four sparse blocks are resized
+   * automatically and filled with block-local coordinates.
+   */
+  void recoverANF(SparseANF &sparseANF, int indep, int numSwitches) const;
 };
 
+/**
+ * @brief Generate a Hessian seed matrix using ColPack.
+ *
+ * @param dimIn             Hessian dimension.
+ * @param HP                Hessian sparsity pattern in CRS form.
+ * @param[out] Seed         Seed matrix returned by ColPack.
+ * @param[out] p            Compressed dimension of the seed matrix.
+ * @param coloringVariant   ColPack coloring strategy.
+ */
 void generateSeedHess(int dimIn, const std::span<uint *> HP, double ***Seed,
                       int *p, const std::string &coloringVariant);
-// stores everything we have to know to compute the sparse hessian via
-// reverse-over-forward
+
+/**
+ * @brief Cached sparse Hessian recovery data stored on a tape.
+ *
+ * This helper owns the ColPack graph/recovery objects and the compressed
+ * buffers needed by the sparse Hessian drivers.
+ */
 struct ADOLC_API SparseHessInfos {
   struct Impl;
   std::unique_ptr<Impl> pimpl_;

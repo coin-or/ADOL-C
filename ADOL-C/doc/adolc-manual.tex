@@ -1437,7 +1437,7 @@ To use the sparse drivers presented below, ColPack must be installed either auto
 %
 To compute the entries of a sparse Jacobian matrix in coordinate
 format, ADOL-C provides the high-level driver
-{\sf sparse\_jac}.
+{\sf sparse\_jac} with an owning {\sf SparseMatrix} result.
 %
 In contrast to earlier driver interfaces, all algorithmic options are
 selected at compile time via template parameters rather than by a
@@ -1447,16 +1447,13 @@ chosen strategy while keeping the user interface concise.
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
 \>{\sf int sparse\_jac(tapeId,depen,indep,repeat,basepoint,}\\
-\>{\sf \hspace{1.25in} nnz,rind,cind,values)}\\
+\>{\sf \hspace{1.25in} sparseJac)}\\
 \>{\sf short int tapeId;}          \> // tape identification \\
 \>{\sf int depen;}              \> // number of dependent variables (rows) $m$ \\
 \>{\sf int indep;}              \> // number of independent variables (columns) $n$ \\
 \>{\sf int repeat;}             \> // control of pattern and seed reuse\\
 \>{\sf const double *basepoint;}\> // independent vector $x$ \\
-\>{\sf int *nnz;}               \> // number of nonzero entries \\
-\>{\sf unsigned int **rind;}    \> // row indices (coordinate format) \\
-\>{\sf unsigned int **cind;}    \> // column indices (coordinate format) \\
-\>{\sf double **values;}        \> // numerical nonzero values \\
+\>{\sf ADOLC::Sparse::SparseMatrix \&sparseJac;} \> // coordinate-format sparse Jacobian \\
 \end{tabbing}
 %
 The behavior of {\sf sparse\_jac} is fully determined by its template
@@ -1468,19 +1465,25 @@ parameters:
   \item {\sf ControlFlowMode} determines how control flow in the
         computational graph is handled (default: safe mode),
   \item {\sf BitPatternPropagationDirection} selects the direction of
-        bit-pattern propagation when applicable (default: automatic).
+        bit-pattern propagation when applicable (default: automatic),
+  \item {\sf MemoryHandler} selects whether the output container is resized
+        automatically or whether caller-provided storage is overwritten in
+        place (default: automatic).
 \end{itemize}
 %
 For piecewise-linear abs-normal forms, ADOL-C also provides the overload
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
 \>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
-\>{\sf \hspace{1.55in} x,nnz,rind,cind,values)}\\
+\>{\sf \hspace{1.55in} x,sparseANF)}\\
 \end{tabbing}
 This overload takes the additional argument {\sf s} for the number of
-switching variables and computes the sparse extended Jacobian. The rows are
-ordered as $[y;z]$, the columns as $[x;|z|]$, and the numerical values
-correspond to the block matrix
+switching variables and computes the sparse extended Jacobian. The structured
+result object {\sf ADOLC::Sparse::SparseANF} partitions that extended Jacobian
+into sparse blocks {\sf Y}, {\sf J}, {\sf Z}, and {\sf L} and additionally
+stores the recovered values {\sf y} and {\sf z} together with the dense
+constants {\sf cy} and {\sf cz}. The rows are ordered as $[y;z]$, the columns
+as $[x;|z|]$, and the numerical values correspond to the block matrix
 \[
   \left[\begin{array}{cc}
     Y & J\\ Z & L
@@ -1489,31 +1492,36 @@ correspond to the block matrix
 Further details are given in \autoref{absdrivers}.
 %
 If {\sf repeat = 0}, the routine determines the sparsity pattern of the
-Jacobian, generates a suitable seed matrix, and stores the associated
-metadata internally on the tape. The output variable {\sf nnz} is set
- by the routine to the number of nonzero entries discovered.
+Jacobian, generates a suitable seed matrix, stores the associated metadata
+internally on the tape, and then performs numeric recovery.
 %
 For {\sf repeat $\neq$ 0}, the previously cached sparsity and seed
 information is reused to compute the numerical values of
-the Jacobian at the given point {\sf basepoint}.  In this case, {\sf nnz}
-must match the value obtained during the initial call; otherwise, the
-routine reports an error.
+the Jacobian at the given point {\sf basepoint}.  Thus {\sf repeat} controls
+only metadata rebuild versus reuse; numerical recovery happens in both cases.
 %
 The array {\sf basepoint} provides the current values of the independent
 variables. It is required whenever tight control-flow analysis is
 used; otherwise it may be {\sf nullptr}.
 %
-The Jacobian is returned in coordinate format via the arrays
-{\sf rind}, {\sf cind}, and {\sf values}, each of length {\sf nnz}.
-The arrays contain the row indices, column indices, and numerical values
-of the nonzero entries, respectively.
+In {\sf MemoryHandler::Auto} mode the output container is resized
+automatically to the recovered nonzero count. In {\sf MemoryHandler::Manual}
+mode the caller must already provide correctly sized output storage. The
+choices of {\sf repeat} and {\sf MemoryHandler} are orthogonal.
 %
-Memory ownership for {\sf rind}, {\sf cind}, and {\sf values} follows the
-semantics of the underlying routines. If the user supplies
-non-null pointers, the corresponding user-managed memory is used.
-Otherwise, the routine allocates unmanaged memory internally, and the
-caller is responsible for deallocating it using {\sf free()} once the
-data is no longer needed.
+For the legacy C wrapper, the interface remains
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tapeId;} \hspace{1.2in}\= \kill
+\>{\sf int sparse\_jac(tapeId,depen,indep,repeat,basepoint,}\\
+\>{\sf \hspace{1.25in} nnz,rind,cind,values,options)}\\
+\end{tabbing}
+There, memory ownership for {\sf rind}, {\sf cind}, and {\sf values} follows
+adapter semantics: the Jacobian is first recovered into {\sf SparseMatrix}
+and then copied into the three output arrays. If the user supplies non-null
+arrays and {\sf *nnz} already matches the recovered nonzero count, those arrays
+are reused in place. Otherwise, fresh arrays are allocated with {\sf new[]}
+and returned to the caller, who must release them with {\sf delete[]}. On
+exit, {\sf *nnz} is always overwritten with the actual recovered nonzero count.
 %
 The routine returns a non-negative status value on success and a
 negative error code on failure.

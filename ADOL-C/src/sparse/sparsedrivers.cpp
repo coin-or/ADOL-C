@@ -100,8 +100,7 @@ namespace adtl_indo {
 int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
                               func_ad<adtl_indo::adouble> *const fun_indo,
                               int n, int m, int repeat, double *basepoints,
-                              int *nnz, unsigned int **rind,
-                              unsigned int **cind, double **values) {
+                              SparseMatrix &sparseJac) {
   int i;
   unsigned int j;
   int ret_val = -1;
@@ -135,7 +134,6 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
       for (j = 1; j <= sJInfos.JP_[i][0]; j++)
         sJInfos.nnzIn_++;
     }
-    *nnz = sJInfos.nnzIn_;
     /* sJInfos.Seed is memory managed by ColPack and will be deleted
      * along with g. We only keep it in sJInfos for the repeat != 0 case */
 
@@ -144,13 +142,6 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
     sJInfos.seedRows_ = m;
     sJInfos.B_ = myalloc2(sJInfos.seedRows_, sJInfos.seedClms_);
     sJInfos.y_ = myalloc1(m);
-
-    if (sJInfos.nnzIn_ != *nnz) {
-      printf(" ADOL-C error in sparse_jac():"
-             " Number of nonzeros not consistent,"
-             " repeat call with repeat = 0 \n");
-      return -3;
-    }
   }
   //  ret_val = fov_forward(tag, depen, indep, sJInfos.seed_clms, basepoint,
   //  sJInfos.Seed, sJInfos.y, sJInfos.B);
@@ -178,14 +169,7 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
   }
   /* recover compressed Jacobian => ColPack library */
 
-  if (*values != nullptr)
-    free(*values);
-  if (*rind != nullptr)
-    free(*rind);
-  if (*cind != nullptr)
-    free(*cind);
-
-  sJInfos.recoverColFormat(rind, cind, values);
+  sJInfos.recoverColFormat(sparseJac);
   return ret_val;
 }
 
