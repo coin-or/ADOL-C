@@ -195,6 +195,56 @@ where {\sf cy} stores $b$ and {\sf cz} stores $c$.
 \>{\sf double **L;}            \> // lower triangular matrix $L \in \R^{s\times s}$\\
 \end{tabbing}
 
+\subsubsection{Abs-Normal Form Container}
+
+ADOL-C provides a container class \texttt{ADOLC::AbsNormalForm} that manages the storage for all components 
+automatically. It is defined in \texttt{adolc/drivers/absnormalform.h}.
+
+\begin{tabbing}
+\hspace{0.2in}\={\sf short int tag;} \hspace{3.4in}\= \kill    % define tab position
+\>{\sf struct ANFShape \{ size\_t m, n, s; \};}\\
+\>{\sf struct AbsNormalForm \{} \\
+\>{\sf \quad ANFShape shape;} \> // logical dimensions \\
+\>{\sf \quad std::vector$<$double*$>$ Y, J, Z, L;} \> // row-pointer views \\
+\>{\sf \quad std::vector$<$double$>$ Y\_storage, J\_storage, Z\_storage, L\_storage;} \> // owning storage\\
+\>{\sf \quad std::vector$<$double$>$ y, z, cy, cz;} \> // values and constants \\
+\>{\sf \};}
+\end{tabbing}
+
+The \texttt{AbsNormalForm} container can be initialized in several ways:
+\begin{tabbing}
+\hspace{0.4in}\={\sf short int tag;} \hspace{3.3in}\= \kill    % define tab position
+\>{\sf AbsNormalForm anf;} \> // empty container \\
+\>{\sf AbsNormalForm anf(ANFShape shape);} \> // from given shape \\
+\>{\sf AbsNormalForm anf = AbsNormalForm::fromTape(short int tag);} \> // sized from tape
+\end{tabbing}
+
+The \texttt{AbsNormalForm} object can be populated using the following 
+template driver from the \texttt{ADOLC} namespace:
+
+\begin{tabbing}
+\hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
+\>{\sf int abs\_normal$<$UpdateConsts uc = UpdateConsts::True$>$(tag, x, anf);}\\
+\>{\sf short int tag;}         \> // tape identification \\
+\>{\sf const double *x;}       \> // point of evaluation \\
+\>{\sf AbsNormalForm \&anf;}   \> // container for results
+\end{tabbing}
+
+The template parameter \texttt{uc} controls whether the constant vectors 
+$b$ (\texttt{cy}) and $c$ (\texttt{cz}) are automatically recomputed 
+from the recovered matrices and vectors such that they satisfy 
+Eq.~\eqref{absdrivers}. If \texttt{UpdateConsts::False} is passed, 
+only the matrices $Y, J, Z, L$ and the values $y, z$ are recovered 
+from the tape.
+
+The \texttt{AbsNormalForm} container provides several utility member
+functions. \texttt{clear()} resets the container and its dimensions to zero.
+\texttt{resize(dims)} can be used to manually adjust the internal storage,
+while \texttt{updateCy()} and \texttt{updateCz()} allow for manual recomputation
+of the constant terms $b$ and $c$ from the current data.
+
+\subsubsection{Sparse Abs-Normal Form}
+
 One may also compute the sparsity pattern of the extended Jacobian
 matrix, ordered by rows $[y;z]$ and columns $[x;|z|]$, by using the sparse drivers
  provided in the namespace {\sf ADOLC::Sparse}.

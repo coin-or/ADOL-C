@@ -30,7 +30,7 @@ namespace ADOLC {
  *   form data has been populated.
  * - `UpdateConsts::False` leaves `cy` and `cz` untouched.
  */
-enum class UpdateConsts {
+ADOLC_API enum class UpdateConsts {
   True,
   False,
 };
@@ -48,16 +48,16 @@ enum class UpdateConsts {
  * @return Zero on success, nonzero on failure.
  */
 template <UpdateConsts uc = UpdateConsts::True>
-int abs_normal(short tag, const double *x, AbsNormalForm &anf);
+ADOLC_API int abs_normal(short tag, const double *x, AbsNormalForm &anf);
 
 /// @brief Specialization that updates `cy` and `cz` after evaluation.
 template <>
-int abs_normal<UpdateConsts::True>(short tag, const double *x,
-                                   AbsNormalForm &anf);
+ADOLC_API int abs_normal<UpdateConsts::True>(short tag, const double *x,
+                                             AbsNormalForm &anf);
 /// @brief Specialization that leaves `cy` and `cz` unchanged.
 template <>
-int abs_normal<UpdateConsts::False>(short tag, const double *x,
-                                    AbsNormalForm &anf);
+ADOLC_API int abs_normal<UpdateConsts::False>(short tag, const double *x,
+                                              AbsNormalForm &anf);
 
 } // namespace ADOLC
 BEGIN_C_DECLS

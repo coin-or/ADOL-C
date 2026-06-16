@@ -23,8 +23,6 @@
 #include <cmath>
 #include <vector>
 
-namespace ADOLC {
-
 BEGIN_C_DECLS
 
 /****************************************************************************/
@@ -165,6 +163,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
 
 END_C_DECLS
 
+namespace ADOLC {
 template <>
 int abs_normal<UpdateConsts::True>(short tag, const double *x,
                                    AbsNormalForm &anf) {

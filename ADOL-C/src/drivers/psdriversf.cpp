@@ -17,6 +17,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/fortutils.h>
+#include <vector>
 
 BEGIN_C_DECLS
 
@@ -34,14 +35,13 @@ fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
   int rc = -1;
   short tag = (short)*ftag;
   int m = (int)*fdepen, n = (int)*findep, s = (int)*fswchk;
-  double *x;
+  std::vector<double> x(n);
 
   ADOLC::AbsNormalForm anf(
       {static_cast<size_t>(m), static_cast<size_t>(n), static_cast<size_t>(s)});
 
-  x = myalloc1(n);
-  spread1(n, fx, x);
-  rc = ADOLC::abs_normal(tag, x, anf);
+  spread1(n, fx, x.data());
+  rc = ADOLC::abs_normal(tag, x.data(), anf);
   pack1(m, anf.y.data(), fy);
   pack1(s, anf.z.data(), fz);
   pack1(s, anf.cz.data(), fcz);
@@ -51,7 +51,6 @@ fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
   pack2(m, s, anf.J.data(), fJ);
   pack2(s, n, anf.Z.data(), fZ);
   pack2(s, s, anf.L.data(), fL);
-  myfree1(x);
   return rc;
 }
 
