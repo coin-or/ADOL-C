@@ -1,5 +1,4 @@
 #include "../const.h"
-#include "adolc/tape_interface.h"
 #include <adolc/adolc.h>
 #include <algorithm>
 #include <array>
@@ -317,11 +316,13 @@ BOOST_AUTO_TEST_CASE(FovPlReverse_MultipleWeightsReturnExpectedRows) {
 }
 
 BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct) {
+  using ADOLC::AbsNormalForm;
+  using ADOLC::DenseShape;
   SimpleAbsProblem problem{};
   taping(problem);
 
-  ADOLC::AbsNormalForm anf(
-      {SimpleAbsProblem::dimOut, SimpleAbsProblem::dimIn, problem.numSwitches});
+  AbsNormalForm anf{
+      {SimpleAbsProblem::dimOut, SimpleAbsProblem::dimIn, problem.numSwitches}};
 
   const int rc = ADOLC::abs_normal(problem.tapeId, problem.x, anf);
 
@@ -388,7 +389,9 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_MoveSemantics) {
 }
 
 BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_ClearAndResize) {
-  ADOLC::AbsNormalForm anf({1, 2, 1});
+  using ADOLC::AbsNormalForm;
+  using ADOLC::DenseShape;
+  AbsNormalForm anf{{1, 2, 1}};
 
   anf.y[0] = 5.0;
   anf.z[0] = -3.0;

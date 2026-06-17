@@ -2,6 +2,8 @@
 #define ADOLC_ABSNORMALFORM_H
 
 #include <adolc/adolcexport.h>
+#include <adolc/tape_interface.h>
+#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
@@ -9,19 +11,29 @@
 
 namespace ADOLC {
 
+/// @brief Base tag for abs-normal form shapes.
+struct ANFShape {};
+
 /**
- * @brief Stores the principal dimensions of an abs-normal form.
+ * @brief Stores the principal dimensions of an (dense) abs-normal form.
  *
  * The three entries record the sizes of the abs-normal form blocks:
  * - `m`: number of dependent variables
  * - `n`: number of independent variables
  * - `s`: number of switching variables
  */
-ADOLC_API struct ANFShape {
+ADOLC_API struct DenseShape : ANFShape {
   size_t m{};
   size_t n{};
   size_t s{};
+
+  constexpr DenseShape() = default;
+  constexpr DenseShape(size_t m, size_t n, size_t s) : m(m), n(n), s(s) {}
 };
+
+template <typename U>
+concept DerivedFromANFShape =
+    std::derived_from<std::remove_cvref_t<U>, ANFShape>;
 
 /**
  * @brief Structural concept for abs-normal form objects.
@@ -64,10 +76,9 @@ concept AbsNormalFormType = requires(T &t) {
   t.z;
   t.cy;
   t.cz;
-
   { t.empty() } -> std::convertible_to<bool>;
   { t.clear() } -> std::same_as<void>;
-  { t.dims() } -> std::same_as<ANFShape>;
+  { t.dims() } -> DerivedFromANFShape;
   { t.resize(t.dims()) } -> std::same_as<void>;
   { t.updateCy() } -> std::same_as<void>;
   { t.updateCz() } -> std::same_as<void>;
@@ -81,7 +92,7 @@ concept AbsNormalFormType = requires(T &t) {
  * interfaces.
  */
 ADOLC_API struct AbsNormalForm {
-  using Shape = ANFShape;
+  using Shape = DenseShape;
 
   /// Principal dimensions of the represented ABS-normal form.
   Shape shape{};
@@ -136,7 +147,12 @@ ADOLC_API struct AbsNormalForm {
    * @param tapeId Tape identifier whose dependent, independent, and switching
    * counts determine the returned principal dimensions.
    */
-  static AbsNormalForm fromTape(short tapeId);
+  static AbsNormalForm fromTape(short tapeId) {
+    const ValueTape &tape = findTape(tapeId);
+    return AbsNormalForm({tape.tapestats(TapeInfos::NUM_DEPENDENTS),
+                          tape.tapestats(TapeInfos::NUM_INDEPENDENTS),
+                          tape.tapestats(TapeInfos::NUM_SWITCHES)});
+  }
 
   /**
    * @brief Report whether all principal dimensions are zero.
@@ -157,10 +173,24 @@ ADOLC_API struct AbsNormalForm {
   Shape dims() const { return shape; }
 
   /** @brief Compute `cy = y - J|z|` from the current data. */
-  void updateCy();
+  void updateCy() {
+    cy = y;
+    for (size_t depRow = 0; depRow < dims().m; ++depRow) {
+      for (size_t col = 0; col < dims().s; ++col) {
+        cy[depRow] -= J[depRow][col] * std::fabs(z[col]);
+      }
+    }
+  }
 
   /** @brief Compute `cz = z - L|z|` from the current data. */
-  void updateCz();
+  void updateCz() {
+    cz = z;
+    for (size_t switchRow = 0; switchRow < dims().s; ++switchRow) {
+      for (size_t col = 0; col < dims().s; ++col) {
+        cz[switchRow] -= L[switchRow][col] * std::fabs(z[col]);
+      }
+    }
+  }
 
   /**
    * @brief Resize the dense abs-normal form to the given principal
