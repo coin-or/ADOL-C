@@ -1,9 +1,13 @@
 #include <adolc/drivers/absnormalform.h>
-#include <adolc/tape_interface.h>
-#include <adolc/valuetape/valuetape.h>
 
 namespace ADOLC {
 
+DenseShape getShapeFromTape(short tapeId) {
+  const ValueTape &tape = findTape(tapeId);
+  return DenseShape{tape.tapestats(TapeInfos::NUM_DEPENDENTS),
+                    tape.tapestats(TapeInfos::NUM_INDEPENDENTS),
+                    tape.tapestats(TapeInfos::NUM_SWITCHES)};
+}
 void AbsNormalForm::clear() {
   shape = {};
 
