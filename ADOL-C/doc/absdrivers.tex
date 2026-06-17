@@ -213,15 +213,15 @@ The \texttt{AbsNormalForm} container can be initialized in several ways:
 \>{\sf AbsNormalForm anf = AbsNormalForm::fromTape(short int tapeId);} \> // principal dimensions inferred from tape
 \end{tabbing}
 
-The same header also defines the concept
-\texttt{ADOLC::AbsNormalFormType}. It describes the public interface of an
-abs-normal form container, namely the blocks \texttt{Y}, \texttt{J},
+The companion header \texttt{adolc/drivers/absnormalformconcept.h} defines the
+concept \texttt{ADOLC::AbsNormalFormType}. It describes the public interface of
+an abs-normal form container, namely the blocks \texttt{Y}, \texttt{J},
 \texttt{Z}, \texttt{L}, the vectors \texttt{y}, \texttt{z}, \texttt{cy},
 \texttt{cz}, and the helper routines \texttt{empty()}, \texttt{clear()},
 \texttt{dims()}, \texttt{resize(...)}, \texttt{updateCy()}, and
-\texttt{updateCz()}. In particular, \texttt{dims()} may return any shape type
-convertible to \texttt{ANFShape}, so other containers, such as a sparse
-variant, can satisfy this concept as long as they expose the same interface.
+\texttt{updateCz()}. In particular, \texttt{dims()} must return a shape type
+derived from \texttt{ANFShape}, so other containers, such as a sparse variant,
+can satisfy this concept as long as they expose the same interface.
 
 The \texttt{AbsNormalForm} object can be computed using the following 
 template driver from the \texttt{ADOLC} namespace:
@@ -301,27 +301,33 @@ matrix, ordered by rows $[y;z]$ and columns $[x;|z|]$, by using the sparse drive
 \>{\sf std::span$<$uint *$>$ \&compressedRowStorage;} \> // span over CRS rows of $[Y\;J;Z\;L]$ \\
 \end{tabbing}
 
-To compute the numerical nonzero entries of the same extended Jacobian in
-coordinate format, one may use
+To compute the numerical nonzero entries of the same extended Jacobian in the, one may use
 \begin{tabbing}
 \hspace{0.5in}\={\sf short int tag;} \hspace{1.1in}\= \kill    % define tab position
-\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}$>$(tag,m,n,s,repeat,}\\
-\>{\sf \hspace{1.95in} x,nnz,rind,cind,values)}\\
+\>{\sf int sparse\_jac$<$PiecewiseLinear\{\}, MemoryHandler::Auto$>$(tag,m,n,s,repeat,x,sparseANF)}\\
 \>{\sf short int tag;}          \> // tape identification \\
 \>{\sf int m;}                  \> // number of dependent variables $m$ \\
 \>{\sf int n;}                  \> // number of independent variables $n$ \\
 \>{\sf int s;}                  \> // number of switching variables \\
 \>{\sf int repeat;}             \> // pattern / seed reuse flag \\
 \>{\sf const double *x;}        \> // point of evaluation \\
-\>{\sf int *nnz;}               \> // number of nonzero entries \\
-\>{\sf unsigned int **rind;}    \> // row indices \\
-\>{\sf unsigned int **cind;}    \> // column indices \\
-\>{\sf double **values;}        \> // numerical nonzero values \\
+\>{\sf ADOLC::Sparse::SparseANF \&sparseANF;} \> // stores $Y$, $J$, $Z$, $L$, $y$, $z$, $cy$, and $cz$ \\
 \end{tabbing}
-Again, the rows of the recovered sparse matrix are ordered as $[y;z]$, the columns as
-$[x;|z|]$, and the values correspond to the block matrix $[Y\;J;Z\;L]$.
-If unmanaged memory is requested for {\sf rind}, {\sf cind}, and {\sf values},
-the returned arrays must be released with {\sf delete[]}.
+Again, the rows of the recovered extended Jacobian are ordered as $[y;z]$, the
+columns as $[x;|z|]$, and the values correspond to the block matrix
+$[Y\;J;Z\;L]$. The object {\sf sparseANF} partitions this extended Jacobian into
+the four sparse blocks
+{\sf Y}, {\sf J}, {\sf Z}, and {\sf L} using block-local coordinates and
+stores the recovered values in {\sf y} and {\sf z} together with the dense
+constants in {\sf cy} and {\sf cz}. The argument
+{\sf repeat} controls only whether the sparse pattern and seed metadata are
+rebuilt ({\sf repeat = 0}) or reused ({\sf repeat $\neq$ 0}); in both cases the
+numerical values are recovered. The {\sf MemoryHandler} template parameter is
+orthogonal to this choice: in {\sf MemoryHandler::Auto} mode the sparse blocks
+are resized automatically, while in {\sf MemoryHandler::Manual} mode the four
+sparse blocks must already have the correct sizes. The dense vectors
+{\sf cy} and {\sf cz} are always recomputed from the current {\sf y},
+{\sf z}, {\sf J}, and {\sf L} data.
 % \bibitem{Griewank13}
 % Andreas Griewank,
 % {\em On stable piecewise linearization and generalized algorithmic differentiation}.

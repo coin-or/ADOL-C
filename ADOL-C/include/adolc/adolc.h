@@ -26,6 +26,9 @@
 /*--------------------------------------------------------------------------*/
 /* Operator overloading things (active doubles & vectors) */
 #include <adolc/adtb_types.h>
+#include <adolc/adtl.h>
+#include <adolc/adtl_hov.h>
+#include <adolc/adtl_indo.h>
 #include <adolc/checkpointing.h>
 #include <adolc/edfclasses.h>
 #include <adolc/externfcts.h>
@@ -60,6 +63,7 @@
 #ifdef __cplusplus
 #include <adolc/sparse/sparsedrivers.h>   // modern C++ API (optional)
 #include <adolc/sparse/sparsedrivers_c.h> // legacy C API
+#include <adolc/sparse/sparsematrix.h>    // sparse matrix definiton
 #else
 #include <adolc/sparse/sparsedrivers_c.h> // C can only see the C API
 #endif                                    // __cplusplus

@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE(AbsNormalForm_Struct_ClearAndResize) {
   BOOST_TEST(anf.dims().n == 2);
   BOOST_TEST(anf.dims().s == 1);
 
-  anf.resize({2, 2, 2});
+  anf.resize(ADOLC::DenseShape{2, 2, 2});
 
   BOOST_TEST(anf.dims().m == 2);
   BOOST_TEST(anf.dims().n == 2);

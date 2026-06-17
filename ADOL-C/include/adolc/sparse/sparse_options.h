@@ -171,5 +171,17 @@ enum class RecoveryMethod {
  */
 struct PiecewiseLinear {};
 
+/**
+ * @brief Selects how sparse coordinate buffers are provided.
+ *
+ * Use `Auto` when the recovery routine should resize and overwrite the
+ * supplied `SparseMatrix` or `SparseANF`. Use `Manual` when the caller
+ * already provides container storage whose entry counts exactly match the
+ * sparse pattern expected for the requested recovery. This choice is
+ * orthogonal to `repeat`, which only controls whether sparse metadata is
+ * rebuilt or reused.
+ */
+enum class MemoryHandler { Auto, Manual };
+
 } // namespace ADOLC::Sparse
 #endif // ADOLC_SPARSE_OPTIONS

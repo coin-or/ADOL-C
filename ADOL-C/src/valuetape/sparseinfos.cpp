@@ -1,6 +1,7 @@
 #ifdef ADOLC_SPARSE
 #include <ColPack/ColPackHeaders.h>
 #include <adolc/adalloc.h>
+#include <adolc/sparse/sparsematrix.h>
 #include <adolc/valuetape/sparseinfos.h>
 #include <span>
 namespace ADOLC::Sparse {
@@ -71,9 +72,9 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
 
     myfree1(y_);
     myfree2(B_);
-    for (int i = 0; i < depen_; i++) {
-      delete[] JP_[i];
-      JP_[i] = nullptr;
+    for (auto &jp : JP_) {
+      delete[] jp;
+      jp = nullptr;
     }
 
     // Move resources
@@ -81,7 +82,7 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
     y_ = other.y_;
     Seed_ = other.Seed_;
     B_ = other.B_;
-    JP_ = other.JP_;
+    JP_ = std::move(other.JP_);
     depen_ = other.depen_;
     nnzIn_ = other.nnzIn_;
     seedClms_ = other.seedClms_;
@@ -91,6 +92,10 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
     other.y_ = nullptr;
     other.Seed_ = nullptr;
     other.B_ = nullptr;
+    other.depen_ = 0;
+    other.nnzIn_ = 0;
+    other.seedClms_ = 0;
+    other.seedRows_ = 0;
   }
   return *this;
 }
@@ -107,30 +112,162 @@ void SparseJacInfos::generateSeedJac(const std::string &coloringVariant) {
                                    "SMALLEST_LAST", coloringVariant);
 }
 
-void SparseJacInfos::recoverRowFormatUserMem(unsigned int **rind,
-                                             unsigned int **cind,
-                                             double **values) {
-  pimpl_->jr1d_.RecoverD2Row_CoordinateFormat_usermem(
-      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
+void SparseJacInfos::recoverRowFormatUserMem(SparseMatrix &sparseJac) const {
+  using coordinate_type = CoordinateFormatTripled::coordinate_type;
+  assert(pimpl_->g_.get() != nullptr);
+  assert(sparseJac.size() == to_size_t(nnzIn_));
+
+  // The following is ColPack's routine adapted to our CoordinateFormatTriplet
+  // layout
+  const auto rowCount =
+      static_cast<coordinate_type>(pimpl_->g_->GetRowVertexCount());
+  std::vector<int> vi_LeftVertexColors;
+  pimpl_->g_->GetLeftVertexColors(vi_LeftVertexColors);
+
+  size_t numOfNonZeros_count = 0;
+  for (coordinate_type i = 0; i < rowCount; i++) {
+    const size_t numOfNonZeros = JP_[i][0];
+    for (size_t j = 1; j <= numOfNonZeros; j++) {
+      sparseJac[numOfNonZeros_count] = {i, JP_[i][j],
+                                        B_[vi_LeftVertexColors[i]][JP_[i][j]]};
+      numOfNonZeros_count++;
+    }
+  }
 }
 
-void SparseJacInfos::recoverColFormatUserMem(unsigned int **rind,
-                                             unsigned int **cind,
-                                             double **values) {
-  pimpl_->jr1d_.RecoverD2Cln_CoordinateFormat_usermem(
-      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
+void SparseJacInfos::recoverRowFormat(SparseMatrix &sparseJac) const {
+  sparseJac.resize(nnzIn_);
+  recoverRowFormatUserMem(sparseJac);
 }
 
-void SparseJacInfos::recoverRowFormat(unsigned int **rind, unsigned int **cind,
-                                      double **values) {
-  pimpl_->jr1d_.RecoverD2Row_CoordinateFormat_unmanaged(
-      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
+void SparseJacInfos::recoverColFormatUserMem(SparseMatrix &sparseJac) const {
+  using coordinate_type = CoordinateFormatTripled::coordinate_type;
+  assert(pimpl_->g_.get() != nullptr);
+  assert(sparseJac.size() == to_size_t(nnzIn_));
+
+  // The following is ColPack's routine adapted to our CoordinateFormatTriplet
+  // layout
+  const auto rowCount =
+      static_cast<coordinate_type>(pimpl_->g_->GetRowVertexCount());
+  std::vector<int> vi_RightVertexColors;
+  pimpl_->g_->GetRightVertexColors(vi_RightVertexColors);
+
+  size_t numOfNonZeros_count = 0;
+  for (coordinate_type i = 0; i < rowCount; i++) {
+    const size_t numOfNonZeros = JP_[i][0];
+    for (size_t j = 1; j <= numOfNonZeros; j++) {
+      sparseJac[numOfNonZeros_count] = {i, JP_[i][j],
+                                        B_[i][vi_RightVertexColors[JP_[i][j]]]};
+      numOfNonZeros_count++;
+    }
+  }
 }
 
-void SparseJacInfos::recoverColFormat(unsigned int **rind, unsigned int **cind,
-                                      double **values) {
-  pimpl_->jr1d_.RecoverD2Cln_CoordinateFormat_unmanaged(
-      pimpl_->g_.get(), B_, JP_.data(), rind, cind, values);
+void SparseJacInfos::recoverColFormat(SparseMatrix &sparseJac) const {
+  sparseJac.resize(nnzIn_);
+  recoverColFormatUserMem(sparseJac);
+}
+
+namespace {
+using detail::classifySparseANFBlock;
+using detail::SparseANFBlock;
+using Coordinates = CoordinateFormatTripled::Coordinates;
+using coordinate_type = CoordinateFormatTripled::coordinate_type;
+
+SparseShape countSparseANFEntries(const std::vector<uint *> &JP, int depen,
+                                  int indep) {
+  SparseShape counts;
+  for (coordinate_type row = 0; row < JP.size(); ++row) {
+    const auto numOfNonZeros = JP[row][0];
+    for (unsigned int j = 1; j <= numOfNonZeros; ++j) {
+      switch (classifySparseANFBlock(
+          Coordinates{.rowIndex_ = row, .colIndex_ = JP[row][j]}, depen,
+          indep)) {
+      case SparseANFBlock::Y:
+        ++counts.y;
+        break;
+      case SparseANFBlock::J:
+        ++counts.j;
+        break;
+      case SparseANFBlock::Z:
+        ++counts.z;
+        break;
+      case SparseANFBlock::L:
+        ++counts.l;
+        break;
+      }
+    }
+  }
+  return counts;
+}
+
+void fillSparseANF(const std::vector<uint *> JP, double **B,
+                   const std::vector<int> &leftVertexColors, int depen,
+                   int indep, SparseANF &sparseANF) {
+
+  SparseShape offsets;
+  for (coordinate_type row = 0; row < JP.size(); ++row) {
+    const auto numOfNonZeros = JP[row][0];
+    for (unsigned int j = 1; j <= numOfNonZeros; ++j) {
+      const auto col = JP[row][j];
+      const auto value = B[leftVertexColors[row]][col];
+
+      Coordinates coords{.rowIndex_ = row, .colIndex_ = col};
+      switch (classifySparseANFBlock(coords, depen, indep)) {
+      case SparseANFBlock::Y:
+        sparseANF.Y[offsets.y++] = CoordinateFormatTripled(coords, value);
+        break;
+      case SparseANFBlock::J:
+        coords = {coords.rowIndex_, coords.colIndex_ - indep};
+        sparseANF.J[offsets.j++] = CoordinateFormatTripled(coords, value);
+        break;
+      case SparseANFBlock::Z:
+        coords = {coords.rowIndex_ - depen, col};
+        sparseANF.Z[offsets.z++] = CoordinateFormatTripled(coords, value);
+        break;
+      case SparseANFBlock::L:
+        coords = {coords.rowIndex_ - depen, coords.colIndex_ - indep};
+        sparseANF.L[offsets.l++] = CoordinateFormatTripled(coords, value);
+        break;
+      }
+    }
+  }
+}
+} // namespace
+
+/**
+ * @brief Split the recovered extended Jacobian into caller-provided ANF blocks.
+ *
+ * @note The recovery loop is based on the same ColPack data used by
+ *       `recoverRowFormatUserMem`, but partitions the extended Jacobian into
+ *       block-local `Y`, `J`, `Z`, and `L` sparse matrices.
+ */
+void SparseJacInfos::recoverANFUserMem(SparseANF &sparseANF, int indep,
+                                       int numSwitches) const {
+  assert(pimpl_->g_.get() != nullptr);
+  const int depen = depen_ - numSwitches;
+  assert(depen > 0);
+
+  std::vector<int> leftVertexColors;
+  pimpl_->g_->GetLeftVertexColors(leftVertexColors);
+  fillSparseANF(JP_, B_, leftVertexColors, depen, indep, sparseANF);
+}
+
+/**
+ * @brief Split the recovered extended Jacobian into the four ANF blocks.
+ *
+ * @note The recovered entries are partitioned according to the abs-normal
+ *       block structure `[Y J; Z L]`, with rows ordered as `[y ; z]` and
+ *       columns ordered as `[x ; |z|]`. Entries inside the returned blocks
+ *       use block-local coordinates.
+ */
+void SparseJacInfos::recoverANF(SparseANF &sparseANF, int indep,
+                                int numSwitches) const {
+  assert(pimpl_->g_.get() != nullptr);
+  const int depen = depen_ - numSwitches;
+  assert(depen >= 0);
+  sparseANF.resize(countSparseANFEntries(JP_, depen, indep));
+  recoverANFUserMem(sparseANF, indep, numSwitches);
 }
 
 void generateSeedHess(int dimIn, const std::span<uint *> HP, double ***Seed,
@@ -198,9 +335,9 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
     myfree3(Zppp_);
     myfree2(Upp_);
 
-    for (int i = 0; i < indep_; i++) {
-      delete[] HP_[i];
-      HP_[i] = nullptr;
+    for (auto &hp : HP_) {
+      delete[] hp;
+      hp = nullptr;
     }
 
     // Move resources
@@ -210,7 +347,7 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
     Yppp_ = other.Yppp_;
     Zppp_ = other.Zppp_;
     Upp_ = other.Upp_;
-    HP_ = other.HP_;
+    HP_ = std::move(other.HP_);
     nnzIn_ = other.nnzIn_;
     indep_ = other.indep_;
     p_ = other.p_;
@@ -221,6 +358,9 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
     other.Yppp_ = nullptr;
     other.Zppp_ = nullptr;
     other.Upp_ = nullptr;
+    other.nnzIn_ = 0;
+    other.indep_ = 0;
+    other.p_ = 0;
   }
   return *this;
 }

@@ -135,6 +135,8 @@ public:
   }
   ADOLC::Sparse::SparseJacInfos &sJInfos() { return sJInfos_; }
   ADOLC::Sparse::SparseHessInfos &sHInfos() { return sHInfos_; }
+  const ADOLC::Sparse::SparseJacInfos &sJInfos() const { return sJInfos_; }
+  const ADOLC::Sparse::SparseHessInfos &sHInfos() const { return sHInfos_; }
 #endif
 
   // Interface to PersistentTapeInfos

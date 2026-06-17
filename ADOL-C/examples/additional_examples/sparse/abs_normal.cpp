@@ -26,6 +26,7 @@ Recovered sparse entries:
 #include <array>
 #include <cstdlib>
 #include <iostream>
+#include <unordered_map>
 
 struct ExampleProblem {
   static constexpr size_t dimIn = 2;
@@ -44,8 +45,26 @@ void taping(ExampleProblem &problem) {
   y >>= problem.out;
 }
 
+namespace {
+
+using ADOLC::Sparse::SparseMatrix;
+using ADOLC::Sparse::detail::SparseANFBlock;
+std::unordered_map<SparseANFBlock, std::string> blockString{
+    {SparseANFBlock::Y, "Y"},
+    {SparseANFBlock::Z, "Z"},
+    {SparseANFBlock::J, "J"},
+    {SparseANFBlock::L, "L"}};
+
+void printBlock(SparseANFBlock block, const SparseMatrix &mat) {
+  std::cout << blockString[block] << ": \n";
+  for (const auto &entry : mat.entries()) {
+    std::cout << "(" << entry.rowIndex() << ", " << entry.colIndex()
+              << "): " << entry.value() << std::endl;
+  }
+}
+} // namespace
 void problem() {
-  using ADOLC::Sparse::PiecewiseLinear;
+  using ADOLC::Sparse::SparseANF;
   ExampleProblem example{};
   const auto tapeId = createNewTape();
   setCurrentTape(tapeId);
@@ -55,24 +74,14 @@ void problem() {
   trace_off();
 
   int numSwitchingVars = get_num_switches(tapeId);
-  int nnz = 0;
-  unsigned int *rind = nullptr;
-  unsigned int *cind = nullptr;
-  double *values = nullptr;
-  ADOLC::Sparse::sparse_jac<PiecewiseLinear{}>(
-      tapeId, ExampleProblem::dimOut, ExampleProblem::dimIn, numSwitchingVars,
-      0, example.in.data(), &nnz, &rind, &cind, &values);
-
-  std::cout << "Sparse extended Jacobian with " << nnz << " nonzeros\n";
-  std::cout << "Rows are [y ; z], columns are [x ; |z|]\n";
-  for (int i = 0; i < nnz; ++i) {
-    std::cout << "(" << rind[i] << ", " << cind[i] << ") = " << values[i]
-              << "\n";
-  }
-
-  delete[] rind;
-  delete[] cind;
-  delete[] values;
+  SparseANF sparseANF{};
+  ADOLC::Sparse::sparse_jac(tapeId, ExampleProblem::dimOut,
+                            ExampleProblem::dimIn, numSwitchingVars, 0,
+                            ExampleProblem::in.data(), sparseANF);
+  printBlock(SparseANFBlock::Y, sparseANF.Y);
+  printBlock(SparseANFBlock::Z, sparseANF.Z);
+  printBlock(SparseANFBlock::J, sparseANF.J);
+  printBlock(SparseANFBlock::L, sparseANF.L);
 }
 //******************************************************************
 
