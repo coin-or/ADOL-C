@@ -1,7 +1,6 @@
 #include <adolc/drivers/absnormalform.h>
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
-#include <cmath>
 
 namespace ADOLC {
 
@@ -54,32 +53,6 @@ void AbsNormalForm::resize(AbsNormalForm::Shape dims) {
   z.resize(dims.s, 0.0);
   cy.resize(dims.m, 0.0);
   cz.resize(dims.s, 0.0);
-}
-
-AbsNormalForm AbsNormalForm::fromTape(short tape_id) {
-  const ValueTape &tape = findTape(tape_id);
-  const Shape dims = {.m = tape.tapestats(TapeInfos::NUM_DEPENDENTS),
-                      .n = tape.tapestats(TapeInfos::NUM_INDEPENDENTS),
-                      .s = tape.tapestats(TapeInfos::NUM_SWITCHES)};
-  return AbsNormalForm(dims);
-}
-
-void AbsNormalForm::updateCy() {
-  cy = y;
-  for (size_t depRow = 0; depRow < dims().m; ++depRow) {
-    for (size_t col = 0; col < dims().s; ++col) {
-      cy[depRow] -= J[depRow][col] * std::fabs(z[col]);
-    }
-  }
-}
-
-void AbsNormalForm::updateCz() {
-  cz = z;
-  for (size_t switchRow = 0; switchRow < dims().s; ++switchRow) {
-    for (size_t col = 0; col < dims().s; ++col) {
-      cz[switchRow] -= L[switchRow][col] * std::fabs(z[col]);
-    }
-  }
 }
 
 } // namespace ADOLC

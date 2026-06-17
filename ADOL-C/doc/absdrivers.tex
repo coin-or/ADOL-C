@@ -180,13 +180,16 @@ where \texttt{cy} stores $b$ and \texttt{cz} stores $c$.
 
 \subsubsection{abs\_normal Function}
 
-ADOL-C provides a container class \texttt{ADOLC::AbsNormalForm} that manages the storage for all components 
+ADOL-C provides a container class \texttt{ADOLC::AbsNormalForm} that manages the storage for all components
 automatically. It is defined in \texttt{adolc/drivers/absnormalform.h}. The
-header also defines \texttt{ANFShape}, which stores the principal dimensions of
+header also defines the common shape base \texttt{ANFShape} together with the
+dense shape type \texttt{DenseShape}, which stores the principal dimensions of
 the abs-normal form:
 \begin{tabbing}
 \hspace{0.2in}\={\sf short int tapeId;} \hspace{3.4in}\= \kill    % define tab position
 \>{\sf struct ANFShape \{} \\
+\>{\sf \};} \\
+\>{\sf struct DenseShape : ANFShape \{} \\
 \>{\sf \quad size\_t m;} \> // output dimension \\
 \>{\sf \quad size\_t n;} \> // input dimension \\
 \>{\sf \quad size\_t s;} \> // number of switches \\
@@ -195,7 +198,7 @@ the abs-normal form:
 \begin{tabbing}
 \hspace{0.2in}\={\sf short int tapeId;} \hspace{3.4in}\= \kill    % define tab position
 \>{\sf struct AbsNormalForm \{} \\
-\>{\sf \quad ANFShape shape;} \> // principal dimensions \\
+\>{\sf \quad DenseShape shape;} \> // principal dimensions \\
 \>{\sf \quad std::vector$<$double*$>$ Y, J, Z, L;} \> // row-pointer views defining the matrices \\
 \>{\sf \quad std::vector$<$double$>$ Y\_storage, J\_storage, Z\_storage, L\_storage;} \> // owning storage\\
 \>{\sf \quad std::vector$<$double$>$ y, z, cy, cz;} \> // values and constants \\
@@ -206,7 +209,7 @@ The \texttt{AbsNormalForm} container can be initialized in several ways:
 \begin{tabbing}
 \hspace{0.4in}\={\sf short int tapeId;} \hspace{3.3in}\= \kill    % define tab position
 \>{\sf AbsNormalForm anf;} \> // empty container \\
-\>{\sf AbsNormalForm anf(ANFShape dims);} \> // from given principal dimensions \\
+\>{\sf AbsNormalForm anf(DenseShape dims);} \> // from given principal dimensions \\
 \>{\sf AbsNormalForm anf = AbsNormalForm::fromTape(short int tapeId);} \> // principal dimensions inferred from tape
 \end{tabbing}
 
@@ -216,8 +219,9 @@ abs-normal form container, namely the blocks \texttt{Y}, \texttt{J},
 \texttt{Z}, \texttt{L}, the vectors \texttt{y}, \texttt{z}, \texttt{cy},
 \texttt{cz}, and the helper routines \texttt{empty()}, \texttt{clear()},
 \texttt{dims()}, \texttt{resize(...)}, \texttt{updateCy()}, and
-\texttt{updateCz()}. Other containers, such as a sparse variant, can satisfy
-this concept as long as they expose the same interface.
+\texttt{updateCz()}. In particular, \texttt{dims()} may return any shape type
+convertible to \texttt{ANFShape}, so other containers, such as a sparse
+variant, can satisfy this concept as long as they expose the same interface.
 
 The \texttt{AbsNormalForm} object can be computed using the following 
 template driver from the \texttt{ADOLC} namespace:

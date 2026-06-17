@@ -15,8 +15,10 @@
 ----------------------------------------------------------------------------*/
 
 #include <adolc/adalloc.h>
+#include <adolc/drivers/absnormalform.h>
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/fortutils.h>
+#include <adolc/internal/common.h>
 #include <vector>
 
 BEGIN_C_DECLS
@@ -32,13 +34,14 @@ fint abs_normal_(fint *ftag, fint *fdepen, fint *findep, fint *fswchk,
                  fdouble *fx, fdouble *fy, fdouble *fz, fdouble *fcz,
                  fdouble *fcy, fdouble *fJ, fdouble *fY, fdouble *fZ,
                  fdouble *fL) {
+  using ADOLC::AbsNormalForm;
+  using ADOLC::DenseShape;
   int rc = -1;
   short tag = (short)*ftag;
   int m = (int)*fdepen, n = (int)*findep, s = (int)*fswchk;
   std::vector<double> x(n);
 
-  ADOLC::AbsNormalForm anf(
-      {static_cast<size_t>(m), static_cast<size_t>(n), static_cast<size_t>(s)});
+  AbsNormalForm anf({to_size_t(m), to_size_t(n), to_size_t(s)});
 
   spread1(n, fx, x.data());
   rc = ADOLC::abs_normal(tag, x, anf);
