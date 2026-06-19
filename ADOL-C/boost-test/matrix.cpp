@@ -422,6 +422,38 @@ BOOST_AUTO_TEST_CASE(Matrix_1_2_double_Copy_fill) {
   BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(Matrix_2_double_Copy_ass) {
+  auto test = Matrix<double>(2, 2, 2.0);
+  Matrix<double> copy{2, 2};
+  copy = test;
+
+  BOOST_TEST(2.0 == copy[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Matrix_2_double_Move) {
+  auto test = Matrix<double>(2, 2, 2.0);
+  auto moved(std::move(test));
+
+  BOOST_TEST(2.0 == moved[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Matrix_2_double_Move_ass) {
+  auto test = Matrix<double>(2, 2, 2.0);
+  Matrix<double> moved;
+  moved = std::move(test);
+
+  BOOST_TEST(2.0 == moved[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
+}
+
 BOOST_AUTO_TEST_CASE(Matrix_2_2_double_man_fill) {
   auto test = Matrix<double>(2);
   test[0][0] = 1.0;
@@ -594,6 +626,38 @@ BOOST_AUTO_TEST_CASE(ArrayMatrix_1_2_double_Copy_fill) {
   BOOST_TEST(2.0 == test[0][1], tt::tolerance(tol));
   BOOST_TEST(4.0 == copy[0][0], tt::tolerance(tol));
   BOOST_TEST(4.0 == copy[0][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Copy_ass) {
+  auto test = Matrix<double, 2, 2>(2.0);
+  Matrix<double, 2, 2> copy;
+  copy = test;
+
+  BOOST_TEST(2.0 == copy[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == copy[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move) {
+  auto test = Matrix<double, 2, 2>(2.0);
+  auto moved(std::move(test));
+
+  BOOST_TEST(2.0 == moved[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move_ass) {
+  auto test = Matrix<double, 2, 2>(2.0);
+  Matrix<double, 2, 2> moved;
+  moved = std::move(test);
+
+  BOOST_TEST(2.0 == moved[0][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
+  BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(ArrayMatrix_2_2_int_man_fill) {
@@ -895,6 +959,50 @@ BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_copy_fill) {
   BOOST_TEST(6.0 == copy[1][0][1], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][0], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_copy_ass) {
+  auto test = Tensor<double>(2, 2, 2, 6.0);
+  Tensor<double> copy{2, 2, 2};
+  copy = test;
+
+  BOOST_TEST(6.0 == copy[0][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[0][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[0][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[0][1][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[1][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[1][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[1][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == copy[1][1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_Move) {
+  auto test = Tensor<double>(2, 2, 2, 6.0);
+  auto moved(std::move(test));
+
+  BOOST_TEST(6.0 == moved[0][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][1][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_Move_ass) {
+  auto test = Tensor<double>{2, 2, 2, 6.0};
+  Tensor<double> moved;
+  moved = std::move(test);
+
+  BOOST_TEST(6.0 == moved[0][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[0][1][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][0][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][0][1], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][1][0], tt::tolerance(tol));
+  BOOST_TEST(6.0 == moved[1][1][1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(Tensor_2_2_2_man_fill) {

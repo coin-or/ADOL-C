@@ -17,6 +17,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 BEGIN_C_DECLS
 
@@ -74,6 +75,50 @@ ADOLC_API int jac_solv(unsigned short tag, int n, const double *x, double *b,
                        unsigned short mode);
 
 END_C_DECLS
+
+/**
+ * @brief Wrapper for tensor_eval().
+ *
+ * Used for higher order derivative tensors with
+ * dim = ((p+d) over d).
+ *
+ * @param tag    Tape identifier.
+ * @param m      Number of dependent variables.
+ * @param n      Number of independent variables.
+ * @param d      Highest derivative degree d.
+ * @param p      Number of directions p.
+ * @param x      Base point (input value).
+ * @param tensor Result in compressed form.
+ * @param S      Seed matrix.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API inline int tensor_eval(short tag, int m, int n, int d, int p,
+                                 std::span<double> x,
+                                 std::span<double *> tensor,
+                                 std::span<double *> S) {
+  return tensor_eval(tag, m, n, d, p, x.data(), tensor.data(), S.data());
+};
+
+/**
+ * @brief Wrapper for tensor_value().
+ *
+ * Used for higher order derivative tensors with
+ * dim = ((p+d) over d).
+ *
+ * @param d      Highest derivative degreee d.
+ * @param m      number of dependent variables.
+ * @param y      Dependent vector y = F(x).
+ * @param tensor Result in compressed form.
+ * @param multi  Derivative adress.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API inline void tensor_value(int d, int m, std::span<double> y,
+                                   std::span<double *> tensor,
+                                   std::span<int> multi) {
+  return tensor_value(d, m, y.data(), tensor.data(), multi.data());
+};
 
 /****************************************************************************/
 #endif
