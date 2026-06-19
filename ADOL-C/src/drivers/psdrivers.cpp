@@ -21,6 +21,7 @@
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
 #include <cmath>
+#include <span>
 #include <vector>
 
 BEGIN_C_DECLS
