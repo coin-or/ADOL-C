@@ -37,20 +37,24 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
   trace_off();
 
   const size_t dim = binomi(p + d, d);
-  double **S = myalloc2(n, p);
+  /* double **S = myalloc2(n, p); */
+  Matrix<double> S(n, p);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < p; ++j) {
       S[i][j] = (i == j) ? 1.0 : 0.0;
     }
   }
 
-  double **tensor1 = myalloc2(m, dim);
-  double **tensor2 = myalloc2(m, dim);
+  /* double **tensor1 = myalloc2(m, dim);
+  double **tensor2 = myalloc2(m, dim); */
+  Matrix<double> tensor1(m, dim);
+  Matrix<double> tensor2(m, dim);
 
-  const int rc1 = tensor_eval(tapeId, m, n, d, p, x0.data(), tensor1, S);
+  const int rc1 = tensor_eval(tapeId, m, n, d, p, x0, tensor1, S);
   // there was a bug before that caused the second call to get corrupted. This
   // call and corresponding check is to ensure this does not happen again.
-  const int rc2 = tensor_eval(tapeId, m, n, d, p, x0.data(), tensor2, S);
+  const int rc2 =
+      tensor_eval(tapeId, m, n, d, p, x0.data(), tensor2.data(), S.data());
 
   BOOST_TEST(rc1 == rc2);
   BOOST_TEST(rc1 > 0);
@@ -65,28 +69,29 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
     BOOST_TEST(tensor1[i][0] == y0[i], tt::tolerance(tol));
   }
 
-  double **J = myalloc2(m, n);
-  jacobian(tapeId, m, n, x0.data(), J);
+  /* double **J = myalloc2(m, n); */
+  Matrix<double> J(m, n);
+  jacobian(tapeId, m, n, x0, J);
 
   std::array<int, 1> multi{};
   std::array<double, m> dirDeriv{};
 
   multi[0] = 1;
-  tensor_value(d, m, dirDeriv.data(), tensor1, multi.data());
+  tensor_value(d, m, dirDeriv, tensor1, multi);
   for (int i = 0; i < m; ++i) {
     BOOST_TEST(dirDeriv[i] == J[i][0], tt::tolerance(tol));
   }
 
   multi[0] = 2;
-  tensor_value(d, m, dirDeriv.data(), tensor1, multi.data());
+  tensor_value(d, m, dirDeriv.data(), tensor1.data(), multi.data());
   for (int i = 0; i < m; ++i) {
     BOOST_TEST(dirDeriv[i] == J[i][1], tt::tolerance(tol));
   }
 
-  myfree2(J);
+  /* myfree2(J);
   myfree2(tensor1);
   myfree2(tensor2);
-  myfree2(S);
+  myfree2(S); */
 }
 
 BOOST_AUTO_TEST_SUITE_END()

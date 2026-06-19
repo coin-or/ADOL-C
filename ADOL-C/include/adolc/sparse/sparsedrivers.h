@@ -945,9 +945,11 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
          "Row Compression must have a seed with column number equal to indep + "
          "numSwitches!");
   int ret_val = 0;
-  myfree2(tape.sJInfos().B_);
+  /* myfree2(tape.sJInfos().B_);
   tape.sJInfos().B_ =
-      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_); */
+  Matrix<double> B_cont(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+  tape.sJInfos().B_ = B_cont.data();
 
   std::vector<double *> results(tape.sJInfos().seedRows_);
   std::vector<double *> resultsSwitch(tape.sJInfos().seedRows_);

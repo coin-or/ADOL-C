@@ -537,13 +537,16 @@ void checkManualExternalAnalyticCallbacks() {
                ManualExternalPoint{dy[0], dy[1]});
 
   const int p = 2;
-  double **Xp = myalloc2(2, p);
-  double **Yp = myalloc2(2, p);
+  /* double **Xp = myalloc2(2, p);
+  double **Yp = myalloc2(2, p); */
+  Matrix<double> Xp(2, p);
+  Matrix<double> Yp(2, p);
   Xp[0][0] = 1.0;
   Xp[1][0] = -0.5;
   Xp[0][1] = 0.25;
   Xp[1][1] = 1.5;
-  rc = fov_forward(outputsTapeId, 2, 2, p, x.data(), Xp, y.data(), Yp);
+  rc = fov_forward(outputsTapeId, 2, 2, p, x.data(), Xp.data(), y.data(),
+                   Yp.data());
   BOOST_REQUIRE_EQUAL(rc, 0);
   compareArray(expectedValue, ManualExternalPoint{y[0], y[1]});
   ManualExternalMatrix expectedYp{
@@ -553,8 +556,8 @@ void checkManualExternalAnalyticCallbacks() {
                                    ManualExternalPoint{Xp[0][1], Xp[1][1]})}};
   ManualExternalMatrix actualYp{{{Yp[0][0], Yp[1][0]}, {Yp[0][1], Yp[1][1]}}};
   compareArrayMatrix(expectedYp, actualYp);
-  myfree2(Yp);
-  myfree2(Xp);
+  /* myfree2(Yp);
+  myfree2(Xp); */
 
   ManualExternalPoint weights{1.25, -0.75};
   std::vector<double> z(2, 0.0);
@@ -564,13 +567,15 @@ void checkManualExternalAnalyticCallbacks() {
                ManualExternalPoint{z[0], z[1]});
 
   const int q = 2;
-  double **Uq = myalloc2(q, 2);
-  double **Zq = myalloc2(q, 2);
+  /* double **Uq = myalloc2(q, 2);
+  double **Zq = myalloc2(q, 2); */
+  Matrix<double> Uq(q, 2);
+  Matrix<double> Zq(q, 2);
   Uq[0][0] = 1.25;
   Uq[0][1] = -0.75;
   Uq[1][0] = -0.5;
   Uq[1][1] = 2.0;
-  rc = fov_reverse(outputsTapeId, 2, 2, q, Uq, Zq);
+  rc = fov_reverse(outputsTapeId, 2, 2, q, Uq.data(), Zq.data());
   BOOST_REQUIRE_EQUAL(rc, 0);
   ManualExternalMatrix expectedZq{
       {applyManualExternalTranspose(jacobian,
@@ -579,8 +584,8 @@ void checkManualExternalAnalyticCallbacks() {
                                     ManualExternalPoint{Uq[1][0], Uq[1][1]})}};
   ManualExternalMatrix actualZq{{{Zq[0][0], Zq[0][1]}, {Zq[1][0], Zq[1][1]}}};
   compareArrayMatrix(expectedZq, actualZq);
-  myfree2(Zq);
-  myfree2(Uq);
+  /* myfree2(Zq);
+  myfree2(Uq); */
 
   std::vector<double> gradientResult(2, 0.0);
   gradient(scalarTapeId, 2, x.data(), gradientResult.data());
@@ -821,29 +826,33 @@ void checkStandardWorkflowParity(const ADProblem &problem) {
   compareVector(ydWoExtern, ydWExtern);
 
   const int p = 2;
-  double **XpWoExtern = myalloc2(problem.n, p);
+  /* double **XpWoExtern = myalloc2(problem.n, p);
   double **XpWExtern = myalloc2(problem.n, p);
   double **YpWoExtern = myalloc2(problem.m, p);
-  double **YpWExtern = myalloc2(problem.m, p);
+  double **YpWExtern = myalloc2(problem.m, p); */
+  Matrix<double> XpWoExtern(problem.n, p);
+  Matrix<double> XpWExtern(problem.n, p);
+  Matrix<double> YpWoExtern(problem.m, p);
+  Matrix<double> YpWExtern(problem.m, p);
   for (int i = 0; i < problem.n; ++i) {
     XpWoExtern[i][0] = problem.xd[i];
     XpWoExtern[i][1] = problem.xd_alt[i];
     XpWExtern[i][0] = problem.xd[i];
     XpWExtern[i][1] = problem.xd_alt[i];
   }
-  rcWoExtern =
-      fov_forward(tapes.woExternTapeId, problem.m, problem.n, p,
-                  problem.x.data(), XpWoExtern, yWoExtern.data(), YpWoExtern);
-  rcWExtern =
-      fov_forward(tapes.wExternTapeId, problem.m, problem.n, p,
-                  problem.x.data(), XpWExtern, yWExtern.data(), YpWExtern);
+  rcWoExtern = fov_forward(tapes.woExternTapeId, problem.m, problem.n, p,
+                           problem.x.data(), XpWoExtern.data(),
+                           yWoExtern.data(), YpWoExtern.data());
+  rcWExtern = fov_forward(tapes.wExternTapeId, problem.m, problem.n, p,
+                          problem.x.data(), XpWExtern.data(), yWExtern.data(),
+                          YpWExtern.data());
   BOOST_REQUIRE_EQUAL(rcWoExtern, rcWExtern);
   compareVector(yWoExtern, yWExtern);
-  compareMatrix(YpWoExtern, YpWExtern, problem.m, p);
-  myfree2(YpWExtern);
+  compareMatrix(YpWoExtern.data(), YpWExtern.data(), problem.m, p);
+  /* myfree2(YpWExtern);
   myfree2(YpWoExtern);
   myfree2(XpWExtern);
-  myfree2(XpWoExtern);
+  myfree2(XpWoExtern); */
 
   std::vector<double> zWoExtern(problem.n, 0.0);
   std::vector<double> zWExtern(problem.n, 0.0);
@@ -855,10 +864,14 @@ void checkStandardWorkflowParity(const ADProblem &problem) {
   compareVector(zWoExtern, zWExtern);
 
   const int q = 2;
-  double **UqWoExtern = myalloc2(q, problem.m);
+  /* double **UqWoExtern = myalloc2(q, problem.m);
   double **UqWExtern = myalloc2(q, problem.m);
   double **ZqWoExtern = myalloc2(q, problem.n);
-  double **ZqWExtern = myalloc2(q, problem.n);
+  double **ZqWExtern = myalloc2(q, problem.n); */
+  Matrix<double> UqWoExtern(q, problem.m);
+  Matrix<double> UqWExtern(q, problem.m);
+  Matrix<double> ZqWoExtern(q, problem.n);
+  Matrix<double> ZqWExtern(q, problem.n);
   for (int j = 0; j < problem.m; ++j) {
     UqWoExtern[0][j] = problem.u[j];
     UqWoExtern[1][j] = problem.u_alt[j];
@@ -870,11 +883,11 @@ void checkStandardWorkflowParity(const ADProblem &problem) {
   rcWExtern = fov_reverse(tapes.wExternTapeId, problem.m, problem.n, q,
                           UqWExtern, ZqWExtern);
   BOOST_REQUIRE_EQUAL(rcWoExtern, rcWExtern);
-  compareMatrix(ZqWoExtern, ZqWExtern, q, problem.n);
-  myfree2(ZqWExtern);
+  compareMatrix(ZqWoExtern.data(), ZqWExtern.data(), q, problem.n);
+  /* myfree2(ZqWExtern);
   myfree2(ZqWoExtern);
   myfree2(UqWExtern);
-  myfree2(UqWoExtern);
+  myfree2(UqWoExtern); */
 }
 
 std::vector<double> gradientForTape(short tapeId, const ADProblem &problem) {

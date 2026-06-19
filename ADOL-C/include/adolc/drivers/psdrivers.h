@@ -155,6 +155,16 @@ ADOLC_API int abs_normal(short tag, int m, int n, int swchk, const double *x,
 
 END_C_DECLS
 
+/* abs_normal_wrapper*/
+ADOLC_API inline int abs_normal(short tag, int m, int n, int swchk,
+                                std::span<double> x, std::span<double> y,
+                                std::span<double> z, std::span<double *> Y,
+                                std::span<double *> J, std::span<double *> Z,
+                                std::span<double *> L) {
+  return abs_normal(tag, m, n, swchk, x.data(), y.data(), z.data(), Y.data(),
+                    J.data(), Z.data(), L.data());
+};
+
 /****************************************************************************/
 
 #endif

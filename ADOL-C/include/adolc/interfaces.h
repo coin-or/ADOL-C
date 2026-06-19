@@ -48,6 +48,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 /****************************************************************************/
 /****************************************************************************/
@@ -94,7 +95,55 @@ ADOLC_API int forward(short, int, int, int, int, const double *,
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) : fov                */
 ADOLC_API int forward(short, int, int, int, const double *,
                       const double *const *, double *, double **);
-
+/*--------------------------------------------------------------------------*/
+/* forward_wrapper(tag, m, n, d, keep, X[n][d+1], Y[m][d+1]) : hos || fos || zos
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double *> X, std::span<double *> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    Y can be one dimensional if m=1. d=0 or d=1 done by specialized code  */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, d, keep, X[n][d+1], Y[d+1]) : hos || fos || zos */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double *> X, std::span<double> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    X and Y can be one dimensional if d = 0; done by specialized code     */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, d, keep, X[n], Y[m]) : zos */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double> X, std::span<double> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    X and Y can be one dimensional if d omitted; done by specialized code */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, keep, X[n], Y[m]) : zos */
+ADOLC_API inline int forward(short tnum, int m, int n, int keep,
+                             std::span<double> X, std::span<double> Y) {
+  return forward(tnum, m, n, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*  General vector call                                                     */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d]) : hov */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int p,
+                             std::span<double> x, std::span<double **> X,
+                             std::span<double> y, std::span<double **> Y) {
+  return forward(tnum, m, n, d, p, x.data(), X.data(), y.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*  d = 1 may be omitted. General vector call, done by specialized code     */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) : fov */
+ADOLC_API inline int forward(short tnum, int m, int n, int p,
+                             std::span<double> x, std::span<double *> X,
+                             std::span<double> y, std::span<double *> Y) {
+  return forward(tnum, m, n, p, x.data(), X.data(), y.data(), Y.data());
+};
 /****************************************************************************/
 /*                                           REVERSE MODE, overloaded calls */
 
@@ -166,6 +215,104 @@ ADOLC_API int reverse(short, int, int, int, int, double *, double **);
 /* reverse(tag, m, n, d, Z[q][n][d+1], nz[q][n]) : hov                      */
 ADOLC_API int reverse(short, int, int, int, double ***, short ** = 0);
 
+/*--------------------------------------------------------------------------*/
+/*  General call                                                            */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u[m], Z[n][d+1]) : hos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double> u, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, u.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    u can be a scalar if m=1                                              */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u, Z[n][d+1]) : hos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, double u,
+                             std::span<double *> Z) {
+  return reverse(tnum, m, n, d, u, Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    Z can be vector if d = 0; done by specialized code                    */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u[m], Z[n]) : fos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double> U, std::span<double> Z) {
+  return reverse(tnum, m, n, d, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    u can be a scalar if m=1 and d=0; done by specialized code            */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u, Z[n]) : fos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, double u,
+                             std::span<double> Z) {
+  return reverse(tnum, m, n, d, u, Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*  General vector call                                                     */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, q, U[q][m], Z[q][n][d+1], nz[q][n]) : hov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double *> U, std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data(), nz.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    U can be a vector if m=1                                              */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, q, U[q], Z[q][n][d+1], nz[q][n]) : hov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double> U, std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data(), nz.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If d=0 then Z may be a matrix, no nz; done by specialized code        */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, q, U[q][m], Z[q][n]) : fov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double *> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    d=0 may be omitted, Z is a matrix, no nz; done by specialized code    */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, q, U[q][m], Z[q][n]) : fov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int q,
+                             std::span<double *> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If m=1 and d=0 then U can be vector and Z a matrix but no nz.         */
+/*    Done by specialized code                                              */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, q, U[q], Z[q][n]) : fov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If q and U are omitted they default to m and I so that as above       */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, Z[q][n][d+1], nz[q][n]) : hov */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, Z.data(), nz.data());
+};
+
 #endif
 
 /****************************************************************************/
@@ -174,16 +321,18 @@ ADOLC_API int reverse(short, int, int, int, double ***, short ** = 0);
 BEGIN_C_DECLS
 
 /****************************************************************************/
-/*                                                             FORWARD MODE */
+/*                                                             FORWARD MODE
+ */
 
 /*--------------------------------------------------------------------------*/
-/*                                                                      ZOS */
-/* zos_forward(tag, m, n, keep, x[n], y[m])                                 */
-/* (defined in uni5_for.cpp)                                                 */
+/*                                                                      ZOS
+ */
+/* zos_forward(tag, m, n, keep, x[n], y[m]) */
+/* (defined in uni5_for.cpp) */
 ADOLC_API int zos_forward(short, int, int, int, const double *, double *);
 
 /* zos_forward_nk(tag, m, n, x[n], y[m])                                    */
-/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)        */
+/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)      */
 ADOLC_API int zos_forward_nk(short, int, int, const double *, double *);
 
 /* zos_forward_partx(tag, m, n, ndim[n], x[n][d], y[m])                     */
@@ -523,5 +672,123 @@ ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,
                                  const double *, double *);
 
 END_C_DECLS
+
+/* zos_forward_wrapper(tag, m, n, keep, x[n], y[m])                         */
+ADOLC_API inline int zos_forward(short tnum, int depen, int indep, int keep,
+                                 std::span<double> argument,
+                                 std::span<double> result) {
+  return zos_forward(tnum, depen, indep, keep, argument.data(), result.data());
+};
+
+/* fos_forward_wrapper(tag, m, n, keep, x[n], X[n], y[m], Y[m])              */
+ADOLC_API inline int fos_forward(short tnum, int depen, int indep, int keep,
+                                 std::span<double> basepoint,
+                                 std::span<double> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double> taylors) {
+  return fos_forward(tnum, depen, indep, keep, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/* fov_forward_wrapper(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) */
+ADOLC_API inline int fov_forward(short tnum, int depen, int indep, int p,
+                                 std::span<double> basepoint,
+                                 std::span<double *> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double *> taylors) {
+  return fov_forward(tnum, depen, indep, p, basepoint.data(), argument.data(),
+                     valuepoint.data(), taylors.data());
+};
+/* ADOLC_API inline int fov_forward(short tnum, int depen, int indep, int p,
+                                 std::span<double> basepoint,
+                                 const double *const *argument,
+                                 std::span<double> valuepoint,
+                                 double **taylors) {
+  return fov_forward(tnum, depen, indep, p, basepoint.data(), argument,
+                     valuepoint.data(), taylors);
+}; */
+
+/* fos_reverse_wrapper(tag, m, n, u[m], z[n]) */
+ADOLC_API inline int fos_reverse(short tnum, int depen, int indep,
+                                 std::span<double> lagrange,
+                                 std::span<double> results) {
+  return fos_reverse(tnum, depen, indep, lagrange.data(), results.data());
+};
+
+/* fov_reverse_wrapper(tag, m, n, p, U[p][m], Z[p][n]) */
+ADOLC_API inline int fov_reverse(short tnum, int depend, int indep, int nrows,
+                                 std::span<double *> lagrange,
+                                 std::span<double *> results) {
+  return fov_reverse(tnum, depend, indep, nrows, lagrange.data(),
+                     results.data());
+};
+
+/* hos_forward_wrapper(tag, m, n, d, keep, x[n], X[n][d], y[m], Y[m][d]) */
+ADOLC_API inline int hos_forward(short tnum, int depen, int indep, int degree,
+                                 int keep, std::span<double> basepoint,
+                                 std::span<double *> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double *> taylors) {
+  return hos_forward(tnum, depen, indep, degree, keep, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/* hov_forward_wrapper(tag, m, n, d, p, x[n], X[n][p][d], y[m], Y[m][p][d]) */
+ADOLC_API inline int hov_forward(short tnum, int depen, int indep, int degree,
+                                 int p, std::span<double> basepoint,
+                                 std::span<double **> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double **> taylors) {
+  return hov_forward(tnum, depen, indep, degree, p, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/* hov_wk_forward_wrapper(tag, m, n, d, keep, p, x[n], X[n][p][d], y[m],
+ * Y[m][p][d])  */
+ADOLC_API inline int
+hov_wk_forward(short tnum, int dim_out, int dim_in, int degree, int keep,
+               int num_dirs, std::span<double> input, std::span<double **> X,
+               std::span<double> result, std::span<double **> Y) {
+  return hov_wk_forward(tnum, dim_out, dim_in, degree, keep, num_dirs,
+                        input.data(), X.data(), result.data(), Y.data());
+};
+
+/*  hos_reverse_wrapper(tag, m, n, d, u[m], Z[n][d+1]) */
+ADOLC_API inline int hos_reverse(short tnum, int depen, int indep, int degree,
+                                 std::span<double> lagrange,
+                                 std::span<double *> results) {
+  return hos_reverse(tnum, depen, indep, degree, lagrange.data(),
+                     results.data());
+};
+/* ADOLC_API inline int hos_reverse(short tnum, int depen, int indep, int
+degree, std::span<double> lagrange, double **results) { return hos_reverse(tnum,
+depen, indep, degree, lagrange.data(), results);
+}; */
+
+/*  hos_ov_reverse_wrapper(tag, m, n, d, p, U[m][d+1], Z[p][n][d+1]) */
+ADOLC_API inline int hos_ov_reverse(short tnum, int depen, int indep,
+                                    int degree, int nrows,
+                                    std::span<double *> lagrange,
+                                    std::span<double **> results) {
+  return hos_ov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),
+                        results.data());
+};
+
+/* hov_reverse_wrapper(tag, m, n, d, p, U[p][m], Z[p][n][d+1], nz[p][n]) */
+ADOLC_API inline int hov_reverse(short tnum, int depen, int indep, int degree,
+                                 int nrows, std::span<double *> lagrange,
+                                 std::span<double **> results,
+                                 std::span<short *> nonzero) {
+  return hov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),
+                     results.data(), nonzero.data());
+};
+
+/* zos_pl_forward_wrapper()*/
+ADOLC_API inline int zos_pl_forward(short tnum, int depen, int indep, int keep,
+                                    std::span<double> x, std::span<double> y,
+                                    std::span<double> switching_vec) {
+  return zos_pl_forward(tnum, depen, indep, keep, x.data(), y.data(),
+                        switching_vec.data());
+};
 
 #endif
