@@ -77,7 +77,6 @@ int main() {
 
   /*--------------------------------------------------------------------------*/
   dim = binomi(p + d, d); /* tensor_eval */
-  /* tensorhelp = myalloc2(n, dim); */
   Matrix<double> tensorhelp(n, dim);
   cout << " d = " << d << ", dim = " << dim << "\n";
   tensor_eval(1, m, n, d, p, xp, tensorhelp.data(), S);

@@ -45,12 +45,9 @@ int main() { /*-----------------------------------------------------------------
   /* adouble **AA, *AAp, *Abx; */ // active variables
   Matrix<adouble> AA;
   std::vector<adouble> Abx;
-  /* double *args = myalloc1(indep);        // arguments
-  double **jac = myalloc2(depen, indep); // the Jacobian
-  double *laghessvec = myalloc1(indep);  // Hessian-vector product */
-  std::vector<double> args(indep);
-  Matrix<double> jac(depen, indep);
-  std::vector<double> laghessvec(indep);
+  std::vector<double> args(indep);       // arguments
+  Matrix<double> jac(depen, indep);      // the Jacobian
+  std::vector<double> laghessvec(indep); // Hessian-vector-product
 
   int i, j;
 

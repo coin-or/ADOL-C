@@ -89,7 +89,6 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 1:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(m, dim); */
   Matrix<double> tensoren(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
@@ -103,14 +102,11 @@ int main() {
     cout << "\n";
   }
 
-  /* myfree2(tensoren); */
-
   /*--------------------------------------------------------------------------*/
   d = d + 1; /* 2. tensor_eval */
   dim = binomi(p + d, d);
   cout << "TASK 2:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(m, dim); */
   tensoren = Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
@@ -143,14 +139,11 @@ int main() {
     cout << "\n";
   }
 
-  /* myfree2(tensoren); */
-
   /*--------------------------------------------------------------------------*/
   d = d - 1; /* 4. tensor_eval */
   dim = binomi(p + d, d);
   cout << "TASK 4:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(m, dim); */
   tensoren = Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
@@ -162,8 +155,6 @@ int main() {
       cout << " " << test[j] << " ";
     cout << "\n";
   }
-
-  /* myfree2(tensoren); */
 
   /*--------------------------------------------------------------------------*/
   d = d + 1; /* 5. tensor_eval */
@@ -172,7 +163,6 @@ int main() {
   cout << "TASK 5:\n";
   cout << " OLD independend values !!!\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(m, dim); */
   tensoren = Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
@@ -184,8 +174,6 @@ int main() {
       cout << " " << test[j] << " ";
     cout << "\n";
   }
-
-  /* myfree2(tensoren); */
 
   return 1;
 }

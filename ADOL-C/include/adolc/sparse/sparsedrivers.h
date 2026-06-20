@@ -908,11 +908,6 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
                      SparseMatrix &sparseJac) {
   ValueTape &tape = findTape(tag);
   int ret_val = 0;
-  /* myfree2(tape.sJInfos().B_);
-  myfree1(tape.sJInfos().y_);
-  tape.sJInfos().B_ =
-      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
-  tape.sJInfos().y_ = myalloc1(depen); */
   Matrix<double> B_cont{static_cast<size_t>(tape.sJInfos().seedRows_),
                         static_cast<size_t>(tape.sJInfos().seedClms_)};
   tape.sJInfos().B_ = B_cont.data();
@@ -950,9 +945,6 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
          "Row Compression must have a seed with column number equal to indep + "
          "numSwitches!");
   int ret_val = 0;
-  /* myfree2(tape.sJInfos().B_);
-  tape.sJInfos().B_ =
-      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_); */
   Matrix<double> B_cont{static_cast<size_t>(tape.sJInfos().seedRows_),
                         static_cast<size_t>(tape.sJInfos().seedClms_)};
   tape.sJInfos().B_ = B_cont.data();
@@ -1270,14 +1262,6 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
     tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
   // data might still be allocated, ensure that its not leaked
-  /* myfree2(tape.sHInfos().Hcomp_);
-  myfree3(tape.sHInfos().Xppp_);
-  myfree3(tape.sHInfos().Yppp_);
-  myfree3(tape.sHInfos().Zppp_);
-  myfree2(tape.sHInfos().Upp_); */
-
-  /* tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
-  tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1); */
   Matrix<double> Hcomp_cont{static_cast<size_t>(indep),
                             static_cast<size_t>(tape.sHInfos().p_)};
   tape.sHInfos().Hcomp_ = Hcomp_cont.data();
@@ -1289,9 +1273,6 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
     for (int l = 0; l < tape.sHInfos().p_; l++)
       tape.sHInfos().Xppp_[i][l][0] = Seed[i][l];
 
-  /* tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
-  tape.sHInfos().Zppp_ = myalloc3(tape.sHInfos().p_, indep, 2);
-  tape.sHInfos().Upp_ = myalloc2(1, 2); */
   Tensor<double> Yppp_cont{1, static_cast<size_t>(tape.sHInfos().p_), 1};
   tape.sHInfos().Yppp_ = Yppp_cont.data();
   Tensor<double> Zppp_cont{static_cast<size_t>(tape.sHInfos().p_),

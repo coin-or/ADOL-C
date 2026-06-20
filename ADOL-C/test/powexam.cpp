@@ -52,18 +52,12 @@ int main() {
   cout << "monomial degree=5 \n"; /* input the desired degree */
   n = 5;
   /* allocations and initializations */
-  /* double **X;
-  double **Y;
-  X = myalloc2(1, n + 4);
-  Y = myalloc2(1, n + 4); */
   Matrix<double> X{1, n + 4};
   Matrix<double> Y{1, n + 4};
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
   for (i = 0; i < n + 2; i++)
-    X[0][i + 2] = 0; /* further coefficients */
-  // double **Z;             /* used for checking consistency */
-  // Z = myalloc2(1, n + 2); /* between forward and reverse */
+    X[0][i + 2] = 0;          /* further coefficients */
   Matrix<double> Z{1, n + 2}; /* used for checking consistency */
                               /* between forward and reverse */
 

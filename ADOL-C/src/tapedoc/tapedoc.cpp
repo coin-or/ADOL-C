@@ -285,7 +285,6 @@ void tape_doc(short tnum,     /* tape id */
   op_cnt = 0;
   rev_op_cnt = tape.tapestats(TapeInfos::NUM_OPERATIONS) + 1;
 
-  /* dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
   std::vector<double> dp_T0(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   /* dp_T0 = dp_T0_cont.data(); */
 

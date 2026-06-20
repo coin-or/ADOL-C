@@ -405,13 +405,6 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
   ANFProblem &operator=(ANFProblem &anfProblem) = default;
   ANFProblem &operator=(ANFProblem &&anfProblem) = default;
 
-  /* ~ANFProblem() {
-    myfree2(Z);
-    myfree2(L);
-    myfree2(J);
-    myfree2(Y);
-    myfree2(gradz);
-  } */
   ~ANFProblem() = default;
   constexpr ANFProblem(short numSVars,
                        const ANFProblem<Version, UnAllocated> &base)
@@ -424,10 +417,7 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
 
     cz.resize(numSwitchingVars);
     cy.resize(dimOut);
-    /* Z = myalloc2(numSwitchingVars, dimIn);
-    L = myalloc2(numSwitchingVars, numSwitchingVars);
-    J = myalloc2(dimOut, numSwitchingVars);
-    Y = myalloc2(dimOut, dimIn); */
+
     Z = Matrix<double>(numSwitchingVars, dimIn);
     L = Matrix<double>(numSwitchingVars, numSwitchingVars);
     J = Matrix<double>(dimOut, numSwitchingVars);

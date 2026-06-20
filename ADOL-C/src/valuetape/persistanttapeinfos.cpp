@@ -12,14 +12,6 @@ PersistantTapeInfos::~PersistantTapeInfos() {
   delete[] paramstore;
   free(jacSolv_ci);
   free(jacSolv_ri);
-  /* myfree1(jacSolv_xold); */
-  /* if (jacSolv_nax)
-    myfreeI2(jacSolv_nax, jacSolv_I); */
-  /* myfree2(jacSolv_J); */
-
-  /* myfree2(forodec_Z);
-  myfree1(forodec_z); */
-  /* myfree1(forodec_y); */
 
   if (op_fileName) {
     if (keepTape == 0 || skipFileCleanup == 0)
@@ -82,13 +74,6 @@ PersistantTapeInfos &
 PersistantTapeInfos::operator=(PersistantTapeInfos &&other) noexcept {
   if (this != &other) {
 
-    /* myfree1(forodec_y); */
-    /* myfree1(forodec_z);
-    myfree2(forodec_Z); */
-    /* myfree2(jacSolv_J);
-    if (jacSolv_nax)
-      myfreeI2(jacSolv_nax, jacSolv_I); */
-    /* delete[] jacSolv_xold; */
     delete[] jacSolv_ri;
     delete[] jacSolv_ci;
 

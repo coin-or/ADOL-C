@@ -48,8 +48,6 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
   ay1 >>= y1;
   trace_off();
 
-  /* double *yprim;
-  yprim = myalloc1(1); */
   std::vector<double> yprim(1);
   yprim[0] = 2. * x1 * x1 * x1;
 
@@ -63,8 +61,6 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
   yDerivative[0][2][1] =
       3. * 2. * 3. * x1 * x1 + 0.5 * (2. * 3. * 2. * x1) * 3. * 3.;
 
-  /* double *x;
-  x = myalloc1(1); */
   std::vector<double> x(1);
   x[0] = 3.;
 
@@ -76,8 +72,6 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
   X[0][1][1] = 2.;
   X[0][2][1] = 3.;
 
-  /* double *y;
-  y = myalloc1(1); */
   std::vector<double> y(1);
 
   auto Y = Tensor(1, 3, 2);
@@ -91,10 +85,6 @@ BOOST_AUTO_TEST_CASE(CustomCube_HOV_Forward) {
   BOOST_TEST(Y[0][1][1] == yDerivative[0][1][1], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][0] == yDerivative[0][2][0], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][1] == yDerivative[0][2][1], tt::tolerance(tol));
-
-  /* myfree1(yprim);
-  myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
@@ -117,10 +107,6 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
 
   double y1x1x1Derivative = 12. * x1;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -131,14 +117,9 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
 
   fos_forward(tapeId, 1, 1, 2, x, xd, y, yd);
 
-  /* double **U = myalloc2(2, 1); */
   std::vector<double> UCont(2 * 1);
   auto U = MatrixView(UCont, 2, 1);
   auto Z = Tensor(2, 1, 2);
-  /* short int **nz = (short int **)malloc(sizeof(short int *) * 2);
-
-  nz[0] = (short int *)malloc(sizeof(short int) * 1);
-  nz[1] = (short int *)malloc(sizeof(short int) * 1); */
 
   std::vector<short int> nzCont(2 * 2);
   auto nz = MatrixView(nzCont, 2, 2);
@@ -155,16 +136,6 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
   BOOST_TEST(Z[0][0][1] == y1x1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[1][0][0] == 5. * y1x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[1][0][1] == 5. * y1x1x1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd);
-  myfree2(U);
-
-  free(nz[0]);
-  free(nz[1]);
-  free(nz); */
 }
 
 /* Tested function: cos(x1)*sin(x2)
@@ -190,8 +161,6 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
   ay1 >>= y1;
   trace_off();
 
-  /* double *yprim;
-  yprim = myalloc1(1); */
   std::vector<double> yprim(1);
   yprim[0] = std::cos(x1) * std::sin(x2);
 
@@ -211,8 +180,6 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
                                 3. * (-5. * std::sin(x1) * std::cos(x2) +
                                       3. * -std::cos(x1) * std::sin(x2)));
 
-  /* double *x;
-  x = myalloc1(2); */
   std::vector<double> x(2);
   x[0] = 1.3;
   x[1] = 3.1;
@@ -232,12 +199,8 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
   X[1][1][1] = 1.;
   X[1][2][1] = -1.;
 
-  /* double *y;
-  y = myalloc1(1); */
   std::vector<double> y(1);
 
-  /* double ***Y;
-  Y = myalloc3(1, 3, 2); */
   Tensor<double> Y(1, 3, 2);
 
   hov_forward(tapeId, 1, 2, 2, 3, x, X, y, Y);
@@ -249,11 +212,6 @@ BOOST_AUTO_TEST_CASE(CustomTrigProd_HOV_Forward) {
   BOOST_TEST(Y[0][1][1] == yDerivative[0][1][1], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][0] == yDerivative[0][2][0], tt::tolerance(tol));
   BOOST_TEST(Y[0][2][1] == yDerivative[0][2][1], tt::tolerance(tol));
-
-  /* myfree1(yprim);
-  myfree1(x);
-  myfree1(y);
-  myfree3(Y); */
 }
 
 BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
@@ -282,10 +240,6 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   double y1x2x1Derivative = -std::sin(x1) * cos(x2);
   double y1x2x2Derivative = -std::cos(x1) * std::sin(x2);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -298,15 +252,9 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
 
   fos_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
-  /* double **U = myalloc2(2, 1); */
   std::array<double, 2 * 1> UCont;
   auto U = MatrixView<2, 1, double>(UCont);
-  /* double ***Z = myalloc3(2, 2, 2); */
   Tensor<double> Z(2, 2, 2);
-  /* short int **nz = (short int **)malloc(sizeof(short int *) * 2);
-
-  nz[0] = (short int *)malloc(sizeof(short int) * 2);
-  nz[1] = (short int *)malloc(sizeof(short int) * 2); */
 
   std::array<short int, 2 * 2> nzCont;
   auto nz = MatrixView<2, 2, short int>(nzCont);
@@ -345,17 +293,6 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   BOOST_TEST(Z[1][1][0] == 5. * y1x2Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[1][0][1] == 5. * y1x2x1Derivative, tt::tolerance(tol));
   BOOST_TEST(Z[1][1][1] == 5. * y1x2x2Derivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd);
-  myfree2(U);
-  myfree3(Z);
-
-  free(nz[0]);
-  free(nz[1]);
-  free(nz); */
 }
 
 BOOST_AUTO_TEST_SUITE_END()

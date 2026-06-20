@@ -484,8 +484,6 @@ int int_reverse_safe(
 
   /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
-  /* rp_A = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
   std::vector<double> rp_A_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   rp_A = rp_A_data.data();
   std::vector<double> rp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
@@ -506,8 +504,6 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_ /* FOV */
-  /* rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
-  rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
   Matrix<double> rpp_A_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                             static_cast<size_t>(p)};
   rpp_A = rpp_A_data.data();
@@ -526,11 +522,9 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src)
 #else
 #if defined _INT_REV_
-  /* upp_A = myalloc2_ulong(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p); */
   Matrix<size_t> upp_A_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
   upp_A = upp_A_data.data();
 #if defined _TIGHT_
-  /* rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
   std::vector<double> rp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
   rp_T = rp_T_data.data();
 #endif
@@ -2664,8 +2658,6 @@ int int_reverse_safe(
                 rp_A + edfct->firstIndLocation + n, ext_z_buffer.begin());
       ext_z = ext_z_buffer.data();
 #elif defined _FOV_
-      /* ext_Uq = myalloc2(edfct->q, m);
-      ext_Zq = myalloc2(edfct->q, n); */
       ext_Uq_data = Matrix<double>(edfct->q, m);
       ext_Uq = ext_Uq_data.data();
       ext_Zq_data = Matrix<double>(edfct->q, n);
@@ -2723,8 +2715,6 @@ int int_reverse_safe(
         }
       }
 #ifdef _FOV_
-      /* myfree2(ext_Uq);
-      myfree2(ext_Zq); */
 #endif
       break;
     }
@@ -2747,8 +2737,6 @@ int int_reverse_safe(
       ext_u = rp_A + edfct->firstDepLocation;
       ext_z = rp_A + edfct->firstIndLocation;
 #elif defined _FOV_
-      /* ext_Uq = myalloc2(edfct->q, m);
-      ext_Zq = myalloc2(edfct->q, n); */
       ext_Uq_data = Matrix<double>(edfct->q, m);
       ext_Uq = ext_Uq_data.data();
       ext_Zq_data = Matrix<double>(edfct->q, n);
@@ -2802,8 +2790,6 @@ int int_reverse_safe(
         }
       }
 #ifdef _FOV_
-      /* myfree2(ext_Uq);
-      myfree2(ext_Zq); */
 #endif
       delete[] iArr;
       iArr = nullptr;
@@ -3011,17 +2997,11 @@ int int_reverse_safe(
 
   /* clean up */
 #ifdef _FOS_
-  /* myfree1(rp_A);
-  myfree1(rp_T); */
 #endif
 #ifdef _FOV_
-  /* myfree2(rpp_A);
-  myfree1(rp_T); */
 #endif
 #ifdef _INT_REV_
-  /* myfree2_ulong(upp_A); */
 #ifdef _TIGHT_
-  /* myfree1(rp_T); */
 #endif
 #endif
 

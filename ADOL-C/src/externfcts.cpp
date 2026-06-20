@@ -125,8 +125,6 @@ int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa, int m, adouble *ya) {
   tape.put_op(ext_diff);
 
   call_ext_fct_commonPrior(edfct, n, xa, m, ya, vals);
-  /* x = myalloc1(to_size_t(n));
-  y = myalloc1(to_size_t(m)); */
   std::vector<double> x(to_size_t(n));
   std::vector<double> y(to_size_t(m));
   for (int i = 0; i < n; ++i)
@@ -140,8 +138,6 @@ int call_ext_fct(ext_diff_fct *edfct, int n, adouble *xa, int m, adouble *ya) {
       xa[i].value(x[i]);
   for (int i = 0; i < m; ++i)
     ya[i].value(y[i]);
-  /* myfree1(y);
-  myfree1(x); */
   return ret;
 }
 
@@ -164,8 +160,6 @@ int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr, int n,
   tape.put_loc(iArrLength); // do it again so we can read in either direction
 
   call_ext_fct_commonPrior(edfct, n, xa, m, ya, vals);
-  /* x = myalloc1(to_size_t(n));
-  y = myalloc1(to_size_t(m)); */
   std::vector<double> x(to_size_t(n));
   std::vector<double> y(to_size_t(m));
   for (int i = 0; i < n; ++i)
@@ -180,8 +174,6 @@ int call_ext_fct(ext_diff_fct *edfct, size_t iArrLength, size_t *iArr, int n,
       xa[i].value(x[i]);
   for (int i = 0; i < m; ++i)
     ya[i].value(y[i]);
-  /* myfree1(y);
-  myfree1(x); */
   return ret;
 }
 

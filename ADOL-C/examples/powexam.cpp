@@ -53,19 +53,14 @@ int main() {
   cout << "monomial degree=? \n"; /* input the desired degree */
   cin >> n;
   /* allocations and initializations */
-  /* double **X;
-  double **Y;
-  X = myalloc2(1, n + 4);
-  Y = myalloc2(1, n + 4); */
   Matrix<double> X(1, n + 4);
   Matrix<double> Y(1, n + 4);
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
   for (i = 0; i < n + 2; i++)
-    X[0][i + 2] = 0; /* further coefficients */
-  // double **Z;             /* used for checking consistency */
-  // Z = myalloc2(1, n + 2); /* between forward and reverse */
-  Matrix<double> Z(1, n + 2);
+    X[0][i + 2] = 0;          /* further coefficients */
+  Matrix<double> Z(1, n + 2); /* used for checking consistency */
+                              /* between forward and reverse */
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
