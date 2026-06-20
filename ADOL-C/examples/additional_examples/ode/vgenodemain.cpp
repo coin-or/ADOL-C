@@ -90,7 +90,6 @@ int main() {
   /* Initialize the independent variables */
   double *indeps = new double[indepDim];
   double *deps = new double[depDim];
-  /* double **indeps2 = myalloc(indepDim, degree + 1); */
   Matrix<double> indeps2(indepDim, degree + 1);
   initIndependents(indeps);
   for (i = 0; i < indepDim; i++) {
@@ -101,9 +100,6 @@ int main() {
 
   /*------------------------------------------------------------------------*/
   /* Necessary variable */
-  /* double ***B = myalloc(indepDim, indepDim, degree);
-  double ***A = myalloc(indepDim, indepDim, degree);
-  double **w = myalloc(indepDim, degree + 1); */
   Tensor<double> B(indepDim, indepDim, degree);
   Tensor<double> A(indepDim, indepDim, degree);
   Matrix<double> w(indepDim, degree + 1);
@@ -278,16 +274,13 @@ int main() {
   double h;
   scanf("%le", &h);
   for (i = 0; i < indepDim; i++)
-    /* *w[i] = *indeps2[i]; */
     w[i][0] = indeps2[i][0];
   if (h != 0)
     for (i = 0; i < degree; i++) {
       err = 0;
       for (k = 0; k < indepDim; k++) {
-        /* *w[k] += h; */
         w[k][0] += h;
         forode(tag, indepDim, tau, degree, w.data());
-        /* *w[k] -= h; */
         w[k][0] -= h;
         for (j = 0; j < indepDim; j++)
           err +=

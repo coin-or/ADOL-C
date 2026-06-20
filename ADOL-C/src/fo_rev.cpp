@@ -333,13 +333,13 @@ int int_reverse_safe(
   // vector methods in the same file we have to define nrows for the case that
   // its not declared by the function signature.
   int nrows = 0;
-  double *rp_A = nullptr;
+  std::vector<double> rp_A;
 #endif
 #ifdef _FOV_
-  double **rpp_A = nullptr;
+  Matrix<double> rpp_A{};
 #endif
 #if !defined(_NTIGHT_)
-  double *rp_T = nullptr;
+  std::vector<double> rp_T;
 #endif /* !_NTIGHT_ */
 #if !defined _INT_REV_
   double *Ares = nullptr;
@@ -347,7 +347,7 @@ int int_reverse_safe(
   double *Aarg1 = nullptr;
   double *Aarg2 = nullptr;
 #else
-  size_t **upp_A = nullptr;
+  Matrix<size_t> upp_A{};
   size_t *Ares = nullptr;
   size_t *Aarg = nullptr;
   size_t *Aarg1 = nullptr;
@@ -387,10 +387,8 @@ int int_reverse_safe(
               insz, edfct2->zp, edfct2->x, edfct2->y, edfct2->context)
 #else
 #ifndef _INT_REV_
-  double **ext_Uq = nullptr;
-  double **ext_Zq = nullptr;
-  Matrix<double> ext_Uq_data{};
-  Matrix<double> ext_Zq_data{};
+  Matrix<double> ext_Uq{};
+  Matrix<double> ext_Zq{};
   double *ext_x = nullptr;
   double *ext_y = nullptr;
 #endif // _INT_REV_
@@ -400,10 +398,11 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_IARR_POINTER fov_reverse_iArr
 #define ADOLC_EXT_FCT_COMPLETE                                                 \
   fov_reverse(edfct->tapeId, static_cast<int>(m), static_cast<int>(n), p,      \
-              ext_Uq, ext_Zq, ext_x, ext_y)
+              ext_Uq.data(), ext_Zq.data(), ext_x, ext_y)
 #define ADOLC_EXT_FCT_IARR_COMPLETE                                            \
   fov_reverse_iArr(edfct->tapeId, iArrLength, iArr, static_cast<int>(m),       \
-                   static_cast<int>(n), p, ext_Uq, ext_Zq, ext_x, ext_y)
+                   static_cast<int>(n), p, ext_Uq.data(), ext_Zq.data(),       \
+                   ext_x, ext_y)
 #define ADOLC_EXT_FCT_V2_U edfct2->Up
 #define ADOLC_EXT_FCT_V2_Z edfct2->Zp
 #define ADOLC_EXT_FCT_V2_COMPLETE                                              \
@@ -489,12 +488,8 @@ int int_reverse_safe(
 
   /*--------------------------------------------------------------------------*/
 #ifdef _FOS_ /* FOS */
-  /* rp_A = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
-  std::vector<double> rp_A_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_A = rp_A_data.data();
-  std::vector<double> rp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_T = rp_T_data.data();
+  rp_A = std::vector<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  rp_T = std::vector<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 
 #define ADJOINT_BUFFER rp_A
 #define ADJOINT_BUFFER_ARG_L rp_A[arg]
@@ -511,13 +506,9 @@ int int_reverse_safe(
   /*--------------------------------------------------------------------------*/
 #else
 #if defined _FOV_ /* FOV */
-  /* rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
-  rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
-  Matrix<double> rpp_A_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
-                            static_cast<size_t>(p)};
-  rpp_A = rpp_A_data.data();
-  std::vector<double> rp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_T = rp_T_data.data();
+  rpp_A = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(p));
+  rp_T = std::vector<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #define ADJOINT_BUFFER rpp_A
 #define ADJOINT_BUFFER_ARG_L rpp_A[arg][l]
 #define ADJOINT_BUFFER_RES_L rpp_A[res][l]
@@ -531,13 +522,9 @@ int int_reverse_safe(
 #define ADOLC_EXT_FCT_COPY_ADJOINTS_BACK(dest, src)
 #else
 #if defined _INT_REV_
-  /* upp_A = myalloc2_ulong(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p); */
-  Matrix<size_t> upp_A_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
-  upp_A = upp_A_data.data();
+  upp_A = Matrix<size_t>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
 #if defined _TIGHT_
-  /* rp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
-  std::vector<double> rp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  rp_T = rp_T_data.data();
+  rp_T = std::vector<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #endif
 #define ADJOINT_BUFFER upp_A
 #define ADJOINT_BUFFER_ARG_L upp_A[arg][l]
@@ -554,20 +541,6 @@ int int_reverse_safe(
                       tape.tay_fileName());
 
   if (tape.deg_save() < 0) {
-#ifdef _FOS_
-    myfree1(rp_A);
-    myfree1(rp_T);
-#endif
-#ifdef _FOV_
-    myfree2(rpp_A);
-    myfree1(rp_T);
-#endif
-#ifdef _INT_REV_
-    myfree2_ulong(upp_A);
-#ifdef _TIGHT_
-    myfree1(rp_T);
-#endif
-#endif
     ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
                      ADOLCError::FailInfo{.info3 = 0, .info4 = 1});
   }
@@ -2931,20 +2904,17 @@ int int_reverse_safe(
       // Checkpointing can use the same memory for input and output.
       // Keep z in a temp so clearing u does not wipe it.
       std::vector<double> ext_z_buffer(to_size_t(n));
-      ext_u = rp_A + edfct->firstDepLocation;
-      std::copy(rp_A + edfct->firstIndLocation,
-                rp_A + edfct->firstIndLocation + n, ext_z_buffer.begin());
+      ext_u = rp_A.data() + edfct->firstDepLocation;
+      std::copy(rp_A.data() + edfct->firstIndLocation,
+                rp_A.data() + edfct->firstIndLocation + n,
+                ext_z_buffer.begin());
       ext_z = ext_z_buffer.data();
 #elif defined _FOV_
-      /* ext_Uq = myalloc2(edfct->q, m);
-      ext_Zq = myalloc2(edfct->q, n); */
-      ext_Uq_data = Matrix<double>(edfct->q, m);
-      ext_Uq = ext_Uq_data.data();
-      ext_Zq_data = Matrix<double>(edfct->q, n);
-      ext_Zq = ext_Zq_data.data();
+      ext_Uq = Matrix<double>(edfct->q, m);
+      ext_Zq = Matrix<double>(edfct->q, n);
 #endif
-      ext_x = rp_T + edfct->firstIndLocation;
-      ext_y = rp_T + edfct->firstDepLocation;
+      ext_x = rp_T.data() + edfct->firstIndLocation;
+      ext_y = rp_T.data() + edfct->firstDepLocation;
       arg = edfct->firstDepLocation;
 #if defined _FOV_
       for (int loop = 0; loop < m; ++loop, ++arg) {
@@ -2973,7 +2943,7 @@ int int_reverse_safe(
       }
       res = edfct->firstIndLocation;
 #ifdef _FOS_
-      std::copy(ext_z_buffer.begin(), ext_z_buffer.end(), rp_A + res);
+      std::copy(ext_z_buffer.begin(), ext_z_buffer.end(), rp_A.data() + res);
 #endif
 #if defined _FOV_
       for (int loop = 0; loop < n; ++loop, ++res) {
@@ -2996,10 +2966,6 @@ int int_reverse_safe(
               tape.tapestats(TayInfo::bufferSize));
         }
       }
-#ifdef _FOV_
-      /* myfree2(ext_Uq);
-      myfree2(ext_Zq); */
-#endif
       break;
     }
     case ext_diff_iArr: /* extern differntiated function */
@@ -3024,18 +2990,14 @@ int int_reverse_safe(
         ADOLCError::fail(ADOLCError::ErrorType::EXT_DIFF_NULLPOINTER_FUNCTION,
                          CURRENT_LOCATION);
 #ifdef _FOS_
-      ext_u = rp_A + edfct->firstDepLocation;
-      ext_z = rp_A + edfct->firstIndLocation;
+      ext_u = rp_A.data() + edfct->firstDepLocation;
+      ext_z = rp_A.data() + edfct->firstIndLocation;
 #elif defined _FOV_
-      /* ext_Uq = myalloc2(edfct->q, m);
-      ext_Zq = myalloc2(edfct->q, n); */
-      ext_Uq_data = Matrix<double>(edfct->q, m);
-      ext_Uq = ext_Uq_data.data();
-      ext_Zq_data = Matrix<double>(edfct->q, n);
-      ext_Zq = ext_Zq_data.data();
+      ext_Uq = Matrix<double>(edfct->q, m);
+      ext_Zq = Matrix<double>(edfct->q, n);
 #endif
-      ext_x = rp_T + edfct->firstIndLocation;
-      ext_y = rp_T + edfct->firstDepLocation;
+      ext_x = rp_T.data() + edfct->firstIndLocation;
+      ext_y = rp_T.data() + edfct->firstDepLocation;
       arg = edfct->firstDepLocation;
 #if defined _FOV_
       for (int loop = 0; loop < m; ++loop, ++arg) {
@@ -3083,10 +3045,6 @@ int int_reverse_safe(
               tape.tapestats(TayInfo::bufferSize));
         }
       }
-#ifdef _FOV_
-      /* myfree2(ext_Uq);
-      myfree2(ext_Zq); */
-#endif
       delete[] iArr;
       iArr = nullptr;
       break;
@@ -3221,9 +3179,11 @@ int int_reverse_safe(
       short tapeId = tape.tapeId();
 
 #if defined _FOS_
-      mediCallHandleReverse(tapeId, mediIndex, rp_T, &ADJOINT_BUFFER, 1);
+      mediCallHandleReverse(tapeId, mediIndex, rp_T.data(),
+                            ADJOINT_BUFFER.data(), 1);
 #elif defined _FOV_
-      mediCallHandleReverse(tapeId, mediIndex, rp_T, ADJOINT_BUFFER, p);
+      mediCallHandleReverse(tapeId, mediIndex, rp_T.data(),
+                            ADJOINT_BUFFER.data(), p);
 #endif
       break;
     }
@@ -3308,20 +3268,6 @@ int int_reverse_safe(
   } /* endwhile */
 
   /* clean up */
-#ifdef _FOS_
-  /* myfree1(rp_A);
-  myfree1(rp_T); */
-#endif
-#ifdef _FOV_
-  /* myfree2(rpp_A);
-  myfree1(rp_T); */
-#endif
-#ifdef _INT_REV_
-  /* myfree2_ulong(upp_A); */
-#ifdef _TIGHT_
-  /* myfree1(rp_T); */
-#endif
-#endif
 
   if (tape.isExclusiveNonLocking()) {
     tape.end_sweep(std::move(evalCtx));

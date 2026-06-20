@@ -43,8 +43,6 @@ BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -53,9 +51,6 @@ BOOST_AUTO_TEST_CASE(ExpOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
@@ -76,31 +71,18 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Forward) {
   double aDerivative = std::exp(a);
   a = std::exp(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::array<double, 1> x;
   std::vector<double> xd(1);
   std::vector<double> y(1);
   std::array<double, 1> yd;
 
-  /* *x = 2.;
-   *xd = 1.; */
   x[0] = 2.;
   xd[0] = 1.;
 
   fos_forward(tapeId, 1, 1, 0, x, xd, y, yd);
 
-  /* BOOST_TEST(*y == a, tt::tolerance(tol));
-  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol)); */
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
@@ -122,8 +104,6 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
 
   double aDerivative = std::exp(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -132,9 +112,6 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
@@ -160,23 +137,15 @@ BOOST_AUTO_TEST_CASE(MultOperator_ZOS_Forward) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::array<double, 2> x;
   std::vector<double> y(1);
 
-  /* *x = 2.;
-   *(x + 1) = 3.5; */
   x[0] = 2.;
   x[1] = 3.5;
 
   zos_forward(tapeId, 1, 2, 0, x, y);
 
-  /* BOOST_TEST(*y == a, tt::tolerance(tol)); */
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
@@ -200,20 +169,12 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
   double bDerivative = a;
   a = a * b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::array<double, 2> xd;
   std::array<double, 1> y;
   std::vector<double> yd(1);
 
   /* Test partial derivative wrt a. */
-  /* x = 2.;
-   *(x + 1) = 3.5;
-   *xd = 1.;
-   *(xd + 1) = 0.; */
   x[0] = 2.;
   x[1] = 3.5;
   xd[0] = 1.;
@@ -221,26 +182,17 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Forward) {
 
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
-  /* BOOST_TEST(*y == a, tt::tolerance(tol));
-  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol)); */
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
 
   /* Test partial derivative wrt b. */
-  /* *xd = 0.;
-   *(xd + 1) = 1.; */
+
   xd[0] = 0.;
   xd[1] = 1.;
 
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
-  /* BOOST_TEST(*yd == bDerivative, tt::tolerance(tol)); */
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
@@ -265,22 +217,13 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOS_Reverse) {
   double aDerivative = b;
   double bDerivative = a;
 
-  /*  double *u = myalloc1(1);
-   double *z = myalloc1(2); */
   std::vector<double> u{1.};
   std::vector<double> z(2);
 
-  /* *u = 1.; */
-
   fos_reverse(tapeId, 1, 2, u, z);
 
-  /* BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol)); */
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
@@ -305,8 +248,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -316,9 +257,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
@@ -343,10 +281,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
   double bDerivative = 1.;
   a = a + b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -370,11 +304,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Forward) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
@@ -398,8 +327,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
   double aDerivative = 1.;
   double bDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -409,9 +336,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOS_Reverse) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
@@ -436,8 +360,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -447,9 +369,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
@@ -474,10 +393,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
   double bDerivative = -1.;
   a = a - b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -501,11 +416,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Forward) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
@@ -529,8 +439,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
   double aDerivative = 1.;
   double bDerivative = -1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -540,9 +448,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOS_Reverse) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
@@ -567,8 +472,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -578,9 +481,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
@@ -605,10 +505,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
   double bDerivative = -a / (b * b);
   a = a / b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -632,11 +528,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Forward) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
@@ -660,8 +551,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -671,9 +560,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOS_Reverse) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
@@ -696,8 +582,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -706,9 +590,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
@@ -730,10 +611,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
   a = std::tan(a);
   double aDerivative = 1. + a * a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -746,11 +623,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
@@ -772,8 +644,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
   a = std::tan(a);
   double aDerivative = 1. + a * a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -782,9 +652,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
@@ -807,8 +674,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -817,9 +682,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
@@ -841,10 +703,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
   double aDerivative = std::cos(a);
   a = std::sin(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -857,11 +715,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
@@ -883,8 +736,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
   double aDerivative = std::cos(a);
   a = std::sin(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -893,9 +744,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
@@ -918,8 +766,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -928,9 +774,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
@@ -952,10 +795,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
   double aDerivative = -std::sin(a);
   a = std::cos(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -968,11 +807,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
@@ -994,8 +828,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
   double aDerivative = -std::sin(a);
   a = std::cos(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1004,9 +836,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
@@ -1029,8 +858,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1039,9 +866,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
@@ -1063,10 +887,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
   a = std::sqrt(a);
   double aDerivative = 1. / (2 * a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1079,11 +899,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
@@ -1105,8 +920,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
   a = std::sqrt(a);
   double aDerivative = 1. / (2 * a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1115,9 +928,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
@@ -1142,8 +952,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1152,9 +960,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
@@ -1180,10 +985,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
   // 1 / 3 * a^(-2/3)
   double aDerivative = 1. / (3 * std::pow(a, 2.0 / 3.0));
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1196,11 +997,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == out, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative * xd[0], tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
@@ -1223,8 +1019,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
   // 1 / 3 * a^(-2/3)
   double aDerivative = 1. / (3.0 * std::pow(a, 2.0 / 3.0));
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1233,9 +1027,6 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == u[0] * aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
@@ -1258,8 +1049,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1268,9 +1057,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
@@ -1292,10 +1078,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
   double aDerivative = 1. / a;
   a = std::log(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1308,11 +1090,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
@@ -1334,8 +1111,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
   double aDerivative = 1. / a;
   a = std::log(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1344,9 +1119,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
@@ -1369,8 +1141,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1379,9 +1149,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
@@ -1403,10 +1170,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
   double aDerivative = std::cosh(a);
   a = std::sinh(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1419,11 +1182,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
@@ -1445,8 +1203,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
   double aDerivative = std::cosh(a);
   a = std::sinh(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1455,9 +1211,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
@@ -1480,8 +1233,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1490,9 +1241,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
@@ -1514,10 +1262,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
   double aDerivative = std::sinh(a);
   a = std::cosh(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1530,11 +1274,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
@@ -1556,8 +1295,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
   double aDerivative = std::sinh(a);
   a = std::cosh(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1566,9 +1303,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
@@ -1591,8 +1325,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1601,9 +1333,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
@@ -1625,10 +1354,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
   a = std::tanh(a);
   double aDerivative = 1. - a * a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1641,11 +1366,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
@@ -1667,8 +1387,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   a = std::tanh(a);
   double aDerivative = 1. - a * a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1677,9 +1395,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
@@ -1702,8 +1417,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1712,9 +1425,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
@@ -1736,10 +1446,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
   double aDerivative = 1. / (std::sqrt(1. - a * a));
   a = std::asin(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1752,11 +1458,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
@@ -1778,8 +1479,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
   double aDerivative = 1. / (std::sqrt(1. - a * a));
   a = std::asin(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1788,9 +1487,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
@@ -1813,8 +1509,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1823,9 +1517,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
@@ -1847,10 +1538,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
   double aDerivative = -1. / (std::sqrt(1. - a * a));
   a = std::acos(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1863,11 +1550,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
@@ -1889,8 +1571,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
   double aDerivative = -1. / (std::sqrt(1. - a * a));
   a = std::acos(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -1899,9 +1579,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
@@ -1924,8 +1601,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -1934,9 +1609,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
@@ -1958,10 +1630,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
   double aDerivative = 1. / (1. + a * a);
   a = std::atan(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -1974,11 +1642,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
@@ -2000,8 +1663,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
   double aDerivative = 1. / (1. + a * a);
   a = std::atan(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2010,9 +1671,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
@@ -2035,8 +1693,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2045,9 +1701,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
@@ -2069,10 +1722,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
   double aDerivative = 1. / (a * std::log(10));
   a = std::log10(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2085,11 +1734,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
@@ -2111,8 +1755,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
   double aDerivative = 1. / (a * std::log(10));
   a = std::log10(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2121,9 +1763,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
@@ -2146,8 +1785,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2156,9 +1793,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
@@ -2180,10 +1814,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
   double aDerivative = 1. / (std::sqrt(a * a + 1.));
   a = std::asinh(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2196,11 +1826,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
@@ -2222,8 +1847,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
   double aDerivative = 1. / (std::sqrt(a * a + 1.));
   a = std::asinh(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2232,9 +1855,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
@@ -2257,8 +1877,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2267,9 +1885,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
@@ -2291,10 +1906,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
   double aDerivative = 1. / (std::sqrt(a * a - 1));
   a = std::acosh(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2307,11 +1918,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
@@ -2333,8 +1939,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
   double aDerivative = 1. / (std::sqrt(a * a - 1.));
   a = std::acosh(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2343,9 +1947,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
@@ -2368,8 +1969,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2378,9 +1977,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
@@ -2402,10 +1998,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
   double aDerivative = 1. / (1. - a * a);
   a = std::atanh(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2418,11 +2010,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
@@ -2444,8 +2031,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
   double aDerivative = 1. / (1. - a * a);
   a = std::atanh(a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2454,9 +2039,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
@@ -2479,8 +2061,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2489,9 +2069,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
@@ -2513,10 +2090,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
   double aDerivative = 1.;
   ++a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2529,11 +2102,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
@@ -2555,8 +2123,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
   double aDerivative = 1.;
   ++a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2565,9 +2131,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
@@ -2590,8 +2153,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2600,9 +2161,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
@@ -2624,10 +2182,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
   double aDerivative = 1.;
   --a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2640,11 +2194,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
@@ -2666,8 +2215,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
   double aDerivative = 1.;
   --a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2676,9 +2223,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
@@ -2701,8 +2245,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2711,9 +2253,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
@@ -2735,10 +2274,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
   double aDerivative = 1.;
   a = +a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2751,11 +2286,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
@@ -2777,8 +2307,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
   double aDerivative = 1.;
   a = +a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2787,9 +2315,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
@@ -2812,8 +2337,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -2822,9 +2345,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
@@ -2846,10 +2366,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
   double aDerivative = -1.;
   a = -a;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -2862,11 +2378,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
@@ -2888,8 +2399,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
   double aDerivative = -1.;
   a = -a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -2898,9 +2407,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
@@ -2925,8 +2431,6 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -2936,9 +2440,6 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_ZOS_Forward) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
@@ -2963,10 +2464,6 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
   double bDerivative = -a / (a * a + b * b);
   a = std::atan2(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -2990,11 +2487,6 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Forward) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
@@ -3018,22 +2510,13 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOS_Reverse) {
   double aDerivative = b / (a * a + b * b);
   double bDerivative = -a / (a * a + b * b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::array<double, 1> u{1.};
   std::array<double, 2> z;
 
-  /* *u = 1.; */
-
   fos_reverse(tapeId, 1, 2, u, z);
 
-  /* BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol)); */
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
@@ -3056,8 +2539,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -3066,9 +2547,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
@@ -3090,10 +2568,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
   double aDerivative = e * std::pow(a, e - 1.);
   a = std::pow(a, e);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -3106,11 +2580,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_1) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 /*
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_1)
@@ -3134,8 +2603,6 @@ setCurrentTape(tapeId);
   double aDerivative = e * std::pow(a, e - 1.);
   a = std::pow(a, e);
 
-  // double *u = myalloc1(1);
-  // double *z = myalloc1(1);
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3145,8 +2612,6 @@ setCurrentTape(tapeId);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
 
-  // myfree1(u);
-  // myfree1(z);
 }
 */
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
@@ -3171,8 +2636,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -3182,9 +2645,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
@@ -3209,43 +2669,25 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_2) {
   double bDerivative = std::log(a) * std::pow(a, b);
   a = std::pow(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::array<double, 2> x{2.3, 3.5};
   std::array<double, 2> xd{1., 0.};
   std::vector<double> y(1);
   std::vector<double> yd(1);
 
   /* Test partial derivative wrt a. */
-  /* *x = 2.3;
-   *(x + 1) = 3.5;
-   *xd = 1.;
-   *(xd + 1) = 0.; */
 
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
-  /* BOOST_TEST(*y == a, tt::tolerance(tol));
-  BOOST_TEST(*yd == aDerivative, tt::tolerance(tol)); */
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
 
   /* Test partial derivative wrt b. */
-  /* *xd = 0.;
-   *(xd + 1) = 1.; */
   xd[0] = 0.;
   xd[1] = 1.;
 
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
-  /* BOOST_TEST(*yd == bDerivative, tt::tolerance(tol)); */
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
@@ -3269,22 +2711,13 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_2) {
   double aDerivative = b * std::pow(a, b - 1.);
   double bDerivative = std::log(a) * std::pow(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u{1.};
   std::array<double, 2> z;
 
-  /* *u = 1.; */
-
   fos_reverse(tapeId, 1, 2, u, z);
 
-  /* BOOST_TEST(*z == aDerivative, tt::tolerance(tol));
-  BOOST_TEST(*(z + 1) == bDerivative, tt::tolerance(tol)); */
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
@@ -3307,8 +2740,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
 
   BOOST_TEST(eout == e, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -3317,9 +2748,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_ZOS_Forward_3) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == e, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
@@ -3341,10 +2769,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
   double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -3357,11 +2781,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Forward_3) {
 
   BOOST_TEST(y[0] == e, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aderivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
@@ -3383,8 +2802,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
   double aderivative = std::log(a) * std::pow(a, e);
   e = std::pow(a, e);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3393,9 +2810,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aderivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 /* Frexp does not nead to be testad, because it is non-differentiable. */
@@ -3424,8 +2838,6 @@ ad; adouble bd;
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  // double *x = myalloc1(2);
-  // double *y = myalloc1(1);
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -3436,8 +2848,6 @@ ad; adouble bd;
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
 
-  // myfree1(x);
-  // myfree1(y);
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_1)
@@ -3463,10 +2873,6 @@ ad; adouble bd;
   double bDerivative = a * std::log(2.) * std::pow(2., b);
   a = a * std::pow(2., b);
 
-  // double *x = myalloc1(2);
-  // double *xd = myalloc1(2);
-  // double *y = myalloc1(1);
-  // double *yd = myalloc1(1);
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -3489,10 +2895,6 @@ ad; adouble bd;
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
 
-  // myfree1(x);
-  // myfree1(xd);
-  // myfree1(y);
-  // myfree1(yd);
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_1)
@@ -3517,8 +2919,6 @@ ad; adouble bd;
   double aDerivative = std::pow(2., b);
   double bDerivative = a * std::log(2.) * std::pow(2., b);
 
-  // double *u = myalloc1(1);
-  // double *z = myalloc1(2);
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -3529,8 +2929,6 @@ ad; adouble bd;
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
 
-  // myfree1(u);
-  // myfree1(z);
 }
 */
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
@@ -3553,8 +2951,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -3563,9 +2959,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
@@ -3587,10 +2980,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
   double aDerivative = std::pow(2., e);
   a = a * std::pow(2., e);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -3603,11 +2992,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_2) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
@@ -3630,8 +3014,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
   double aDerivative = std::pow(2., e);
   a = a * std::pow(2., e);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3640,9 +3022,6 @@ BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 /*
 BOOST_AUTO_TEST_CASE(LdexpOperator_ZOS_Forward_3)
@@ -3667,8 +3046,6 @@ setCurrentTape(tapeId);
 
   BOOST_TEST(eout == e, tt::tolerance(tol));
 
-  // double *x = myalloc1(1);
-  // double *y = myalloc1(1);
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -3678,8 +3055,6 @@ setCurrentTape(tapeId);
 
   BOOST_TEST(y[0] == e, tt::tolerance(tol));
 
-  // myfree1(x);
-  // myfree1(y);
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Forward_3)
@@ -3703,10 +3078,6 @@ setCurrentTape(tapeId);
   double aderivative = a * std::log(2.) * std::pow(2., e);
   e = std::pow(a, e);
 
-  // double *x = myalloc1(1);
-  // double *xd = myalloc1(1);
-  // double *y = myalloc1(1);
-  // double *yd = myalloc1(1);
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -3720,10 +3091,6 @@ setCurrentTape(tapeId);
   BOOST_TEST(y[0] == e, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aderivative, tt::tolerance(tol));
 
-  // myfree1(x);
-  // myfree1(xd);
-  // myfree1(y);
-  // myfree1(yd);
 }
 
 BOOST_AUTO_TEST_CASE(LdexpOperator_FOS_Reverse_3)
@@ -3747,8 +3114,6 @@ setCurrentTape(tapeId);
   double aderivative = a * std::log(2.) * std::pow(2., e);
   e = a * std::pow(2., e);
 
-  // double *u = myalloc1(1);
-  // double *z = myalloc1(1);
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3758,8 +3123,6 @@ setCurrentTape(tapeId);
 
   BOOST_TEST(z[0] == aderivative, tt::tolerance(tol));
 
-  // myfree1(u);
-  // myfree1(z);
 }
 */
 
@@ -3785,12 +3148,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x1 = myalloc1(1);
-  double *y1 = myalloc1(1);
-  double *x2 = myalloc1(1);
-  double *y2 = myalloc1(1);
-  double *x3 = myalloc1(1);
-  double *y3 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> y1(1);
   std::array<double, 1> x2;
@@ -3798,9 +3155,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
   std::vector<double> x3(1);
   std::array<double, 1> y3;
 
-  /* *x1 = 1.4;
-   *x2 = -5.;
-   *x3 = 0.; */
   x1[0] = 1.4;
   x2[0] = -5.;
   x3[0] = 0.;
@@ -3809,19 +3163,9 @@ BOOST_AUTO_TEST_CASE(FabsOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x2, y2);
   zos_forward(tapeId, 1, 1, 0, x3, y3);
 
-  /* BOOST_TEST(*y1 == a, tt::tolerance(tol));
-  BOOST_TEST(*y2 == b, tt::tolerance(tol));
-  BOOST_TEST(*y3 == c, tt::tolerance(tol)); */
   BOOST_TEST(y1[0] == a, tt::tolerance(tol));
   BOOST_TEST(y2[0] == b, tt::tolerance(tol));
   BOOST_TEST(y3[0] == c, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(y1);
-  myfree1(x2);
-  myfree1(y2);
-  myfree1(x3);
-  myfree1(y3); */
 }
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
@@ -3845,14 +3189,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
   a = std::fabs(a);
   b = std::fabs(b);
 
-  /* double *x1 = myalloc1(1);
-  double *xd1 = myalloc1(1);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1);
-  double *x2 = myalloc1(1);
-  double *xd2 = myalloc1(1);
-  double *y2 = myalloc1(1);
-  double *yd2 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -3875,11 +3211,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
   BOOST_TEST(y2[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd2[0] == bDerivative, tt::tolerance(tol));
 
-  /* double *x3 = myalloc1(1);
-  double *xd3_1 = myalloc1(1);
-  double *xd3_2 = myalloc1(1);
-  double *y3 = myalloc1(1);
-  double *yd3 = myalloc1(1); */
   std::vector<double> x3(1);
   std::vector<double> xd3_1(1);
   std::vector<double> xd3_2(1);
@@ -3899,20 +3230,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Forward) {
 
   BOOST_TEST(y3[0] == 0.0, tt::tolerance(tol));
   BOOST_TEST(yd3[0] == 3.5, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1);
-  myfree1(x2);
-  myfree1(xd2);
-  myfree1(y2);
-  myfree1(yd2);
-  myfree1(x3);
-  myfree1(xd3_1);
-  myfree1(xd3_2);
-  myfree1(y3);
-  myfree1(yd3); */
 }
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
@@ -3933,8 +3250,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
 
   double aDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3943,9 +3258,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Pos) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
@@ -3966,8 +3278,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
 
   double aDerivative = -1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -3976,9 +3286,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Neg) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
@@ -4000,8 +3307,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   /* In reverse mode, the derivative at zero is calculatad to be zero. */
   double aDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4010,9 +3315,6 @@ BOOST_AUTO_TEST_CASE(FabsOperator_FOS_Reverse_Zero) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_Forward) {
@@ -4037,12 +3339,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x1 = myalloc1(1);
-  double *y1 = myalloc1(1);
-  double *x2 = myalloc1(1);
-  double *y2 = myalloc1(1);
-  double *x3 = myalloc1(1);
-  double *y3 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> x2(1);
   std::vector<double> x3(1);
@@ -4061,13 +3357,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_ZOS_Forward) {
   BOOST_TEST(y1[0] == a, tt::tolerance(tol));
   BOOST_TEST(y2[0] == b, tt::tolerance(tol));
   BOOST_TEST(y3[0] == c, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(y1);
-  myfree1(x2);
-  myfree1(y2);
-  myfree1(x3);
-  myfree1(y3); */
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
@@ -4091,14 +3380,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
   a = std::abs(a);
   b = std::abs(b);
 
-  /* double *x1 = myalloc1(1);
-  double *xd1 = myalloc1(1);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1);
-  double *x2 = myalloc1(1);
-  double *xd2 = myalloc1(1);
-  double *y2 = myalloc1(1);
-  double *yd2 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -4121,11 +3402,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
   BOOST_TEST(y2[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd2[0] == bDerivative, tt::tolerance(tol));
 
-  /* double *x3 = myalloc1(1);
-  double *xd3_1 = myalloc1(1);
-  double *xd3_2 = myalloc1(1);
-  double *y3 = myalloc1(1);
-  double *yd3 = myalloc1(1); */
   std::vector<double> x3(1);
   std::vector<double> xd3_1(1);
   std::vector<double> xd3_2(1);
@@ -4145,20 +3421,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Forward) {
 
   BOOST_TEST(y3[0] == 0.0, tt::tolerance(tol));
   BOOST_TEST(yd3[0] == 3.5, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1);
-  myfree1(x2);
-  myfree1(xd2);
-  myfree1(y2);
-  myfree1(yd2);
-  myfree1(x3);
-  myfree1(xd3_1);
-  myfree1(xd3_2);
-  myfree1(y3);
-  myfree1(yd3); */
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Pos) {
@@ -4179,8 +3441,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Pos) {
 
   double aDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4189,9 +3449,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Pos) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Neg) {
@@ -4212,8 +3469,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Neg) {
 
   double aDerivative = -1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4222,9 +3477,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Neg) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Zero) {
@@ -4246,8 +3498,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Zero) {
   /* In reverse mode, the derivative at zero is calculatad to be zero. */
   double aDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4256,9 +3506,6 @@ BOOST_AUTO_TEST_CASE(AbsOperator_FOS_Reverse_Zero) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
@@ -4281,8 +3528,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -4291,9 +3536,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
@@ -4315,10 +3557,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
   double aDerivative = 0.;
   a = std::ceil(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -4331,11 +3569,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
@@ -4356,8 +3589,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
 
   double aDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4366,9 +3597,6 @@ BOOST_AUTO_TEST_CASE(CeilOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
@@ -4391,8 +3619,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -4401,9 +3627,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
@@ -4425,10 +3648,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
   double aDerivative = 0.;
   a = std::floor(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -4441,11 +3660,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
@@ -4466,8 +3680,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
 
   double aDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4476,9 +3688,6 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
@@ -4503,8 +3712,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -4514,9 +3721,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
@@ -4541,10 +3745,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
   double bDerivative = 0.;
   a = std::fmax(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -4569,16 +3769,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
 
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
-
   /* Test derivative value for a = b. */
-  /* double *x1 = myalloc1(2);
-  double *xd1 = myalloc1(2);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1); */
   std::vector<double> x1(2);
   std::vector<double> xd1(2);
   std::vector<double> y1(1);
@@ -4593,11 +3784,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_1) {
 
   BOOST_TEST(y1[0] == 2.5, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == 3.7, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
@@ -4621,8 +3807,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
   double aDerivative = 1.;
   double bDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -4632,9 +3816,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
@@ -4651,8 +3832,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
   ad1 >>= out1;
   trace_off();
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(2); */
   std::vector<double> u1(1);
   std::vector<double> z1(2);
 
@@ -4662,9 +3841,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z1[0] == 0.5, tt::tolerance(tol));
   BOOST_TEST(z1[1] == 0.5, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
@@ -4687,8 +3863,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
 
   BOOST_TEST(bout == b, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -4697,9 +3871,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
@@ -4723,10 +3894,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   double bDerivative = 0.;
   b = std::fmax(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -4739,11 +3906,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -4761,10 +3923,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
   double b1Derivative = 0.;
   b1 = std::fmax(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -4785,11 +3943,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_2) {
 
   BOOST_TEST(y1[0] == b1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
@@ -4809,8 +3962,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   double bDerivative = 0.;
   b = std::fmax(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -4819,9 +3970,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -4839,8 +3987,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   double b1Derivative = 0.5;
   b1 = std::fmax(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -4849,9 +3995,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
@@ -4874,8 +4017,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -4884,9 +4025,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_ZOS_Forward_3) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
@@ -4910,10 +4048,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   double aDerivative = 1.;
   a = std::fmax(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -4926,11 +4060,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -4948,10 +4077,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
   double a1Derivative = 0.;
   a1 = std::fmax(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-  double *xd1 = myalloc1(1);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -4972,11 +4097,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Forward_3) {
 
   BOOST_TEST(y1[0] == a1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
@@ -4998,8 +4118,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   double aDerivative = 1.;
   a = std::fmax(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -5008,9 +4126,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -5028,8 +4143,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   double a1Derivative = 0.5;
   a1 = std::fmax(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -5038,9 +4151,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_1) {
@@ -5065,8 +4175,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_1) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -5076,9 +4184,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
@@ -5103,10 +4208,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
   double bDerivative = 0.;
   a = std::max(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -5131,16 +4232,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
 
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
-
   /* Test derivative value for a = b. */
-  /* double *x1 = myalloc1(2);
-  double *xd1 = myalloc1(2);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1); */
   std::vector<double> x1(2);
   std::vector<double> xd1(2);
   std::vector<double> y1(1);
@@ -5155,11 +4247,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_1) {
 
   BOOST_TEST(y1[0] == 2.5, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == 3.7, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
@@ -5183,8 +4270,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
   double aDerivative = 1.;
   double bDerivative = 0.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -5194,9 +4279,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
@@ -5213,8 +4295,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
   ad1 >>= out1;
   trace_off();
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(2); */
   std::vector<double> u1(1);
   std::vector<double> z1(2);
 
@@ -5224,9 +4304,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z1[0] == 0.5, tt::tolerance(tol));
   BOOST_TEST(z1[1] == 0.5, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_2) {
@@ -5249,8 +4326,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_2) {
 
   BOOST_TEST(bout == b, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -5259,9 +4334,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
@@ -5285,10 +4357,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
   double bDerivative = 0.;
   b = std::max(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -5301,11 +4369,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -5323,10 +4386,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
   double b1Derivative = 0.;
   b1 = std::max(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -5347,11 +4406,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_2) {
 
   BOOST_TEST(y1[0] == b1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
@@ -5371,8 +4425,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
   double bDerivative = 0.;
   b = std::max(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -5381,9 +4433,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -5401,8 +4450,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
   double b1Derivative = 0.5;
   b1 = std::max(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -5411,9 +4458,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_3) {
@@ -5436,8 +4480,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_3) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -5446,9 +4488,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_ZOS_Forward_3) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
@@ -5472,10 +4511,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
   double aDerivative = 1.;
   a = std::max(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -5488,11 +4523,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -5510,10 +4540,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
   double a1Derivative = 0.;
   a1 = std::max(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -5534,11 +4560,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Forward_3) {
 
   BOOST_TEST(y1[0] == a1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
@@ -5560,8 +4581,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
   double aDerivative = 1.;
   a = std::max(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -5570,9 +4589,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -5590,8 +4606,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
   double a1Derivative = 0.5;
   a1 = std::max(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -5600,9 +4614,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
@@ -5627,8 +4638,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -5638,9 +4647,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
@@ -5665,10 +4671,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
   double bDerivative = 1.;
   a = std::fmin(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -5693,16 +4695,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
 
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
-
   /* Test derivative value for a = b. */
-  /* double *x1 = myalloc1(2);
-  double *xd1 = myalloc1(2);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1); */
   std::vector<double> x1(2);
   std::vector<double> xd1(2);
   std::vector<double> y1(1);
@@ -5717,11 +4710,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_1) {
 
   BOOST_TEST(y1[0] == 2.5, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == 1.3, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
@@ -5745,8 +4733,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
   double aDerivative = 0.;
   double bDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -5756,9 +4742,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
@@ -5775,8 +4758,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
   ad1 >>= out1;
   trace_off();
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(2); */
   std::vector<double> u1(1);
   std::vector<double> z1(2);
 
@@ -5786,9 +4767,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z1[0] == 0.5, tt::tolerance(tol));
   BOOST_TEST(z1[1] == 0.5, tt::tolerance(tol));
-
-  /* myfree1(u1);
-   myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
@@ -5811,8 +4789,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
 
   BOOST_TEST(bout == b, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -5821,9 +4797,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
@@ -5847,10 +4820,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   double bDerivative = 1.;
   b = std::fmin(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -5863,11 +4832,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -5885,10 +4849,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
   double b1Derivative = -1.3;
   b1 = std::fmin(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -5909,11 +4869,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_2) {
 
   BOOST_TEST(y1[0] == b1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
@@ -5935,8 +4890,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   double bDerivative = 1.;
   b = std::fmin(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -5945,9 +4898,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -5965,8 +4915,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   double b1Derivative = 0.5;
   b1 = std::fmin(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -5975,9 +4923,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
@@ -6000,8 +4945,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6010,9 +4953,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_ZOS_Forward_3) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
@@ -6036,10 +4976,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   double aDerivative = 0.;
   a = std::fmin(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -6052,11 +4988,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -6074,10 +5005,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
   double a1Derivative = -1.3;
   a1 = std::fmin(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -6098,11 +5025,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Forward_3) {
 
   BOOST_TEST(y1[0] == a1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
@@ -6124,8 +5046,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   double aDerivative = 0.;
   a = std::fmin(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -6134,9 +5054,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -6154,8 +5071,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   double a1Derivative = 0.5;
   a1 = std::fmin(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -6164,9 +5079,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_1) {
@@ -6191,8 +5103,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_1) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -6202,9 +5112,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
@@ -6229,10 +5136,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
   double bDerivative = 1.;
   a = std::min(a, b);
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -6257,16 +5160,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
 
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
-
   /* Test derivative value for a = b. */
-  /* double *x1 = myalloc1(2);
-  double *xd1 = myalloc1(2);
-  double *y1 = myalloc1(1);
-  double *yd1 = myalloc1(1); */
   std::vector<double> x1(2);
   std::vector<double> xd1(2);
   std::vector<double> y1(1);
@@ -6281,11 +5175,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_1) {
 
   BOOST_TEST(y1[0] == 2.5, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == 1.3, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
@@ -6309,8 +5198,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
   double aDerivative = 0.;
   double bDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -6320,9 +5207,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test reverse derivative value for a = b. */
   double a1 = 2.5, b1 = 2.5, out1;
@@ -6339,8 +5223,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
   ad1 >>= out1;
   trace_off();
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(2); */
   std::vector<double> u1(1);
   std::vector<double> z1(2);
 
@@ -6350,9 +5232,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_1) {
 
   BOOST_TEST(z1[0] == 0.5, tt::tolerance(tol));
   BOOST_TEST(z1[1] == 0.5, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_2) {
@@ -6375,8 +5254,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_2) {
 
   BOOST_TEST(bout == b, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6385,9 +5262,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
@@ -6411,10 +5285,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
   double bDerivative = 1.;
   b = std::min(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -6427,11 +5297,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
 
   BOOST_TEST(y[0] == b, tt::tolerance(tol));
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -6449,10 +5314,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
   double b1Derivative = -1.3;
   b1 = std::min(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -6473,11 +5334,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_2) {
 
   BOOST_TEST(y1[0] == b1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
@@ -6499,8 +5355,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
   double bDerivative = 1.;
   b = std::min(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -6509,9 +5363,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, bout1;
@@ -6529,8 +5380,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
   double b1Derivative = 0.5;
   b1 = std::min(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -6539,9 +5388,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_2) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == b1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_3) {
@@ -6564,8 +5410,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_3) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6574,9 +5418,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_ZOS_Forward_3) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
@@ -6600,10 +5441,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
   double aDerivative = 0.;
   a = std::min(a, b);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -6616,11 +5453,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -6638,10 +5470,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
   double a1Derivative = -1.3;
   a1 = std::min(a1, b1);
 
-  /* double *x1 = myalloc1(1);
-   double *xd1 = myalloc1(1);
-   double *y1 = myalloc1(1);
-   double *yd1 = myalloc1(1); */
   std::vector<double> x1(1);
   std::vector<double> xd1(1);
   std::vector<double> y1(1);
@@ -6662,11 +5490,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Forward_3) {
 
   BOOST_TEST(y1[0] == a1, tt::tolerance(tol));
   BOOST_TEST(yd1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(x1);
-  myfree1(xd1);
-  myfree1(y1);
-  myfree1(yd1); */
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
@@ -6688,8 +5511,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
   double aDerivative = 0.;
   a = std::min(a, b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -6698,9 +5519,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 
   /* Test derivative calculation for a = b. */
   double a1 = 2.5, b1 = 2.5, aout1;
@@ -6718,8 +5536,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
   double a1Derivative = 0.5;
   a1 = std::min(a1, b1);
 
-  /* double *u1 = myalloc1(1);
-  double *z1 = myalloc1(1); */
   std::vector<double> u1(1);
   std::vector<double> z1(1);
 
@@ -6728,9 +5544,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOS_Reverse_3) {
   fos_reverse(tapeId, 1, 1, u1, z1);
 
   BOOST_TEST(z1[0] == a1Derivative, tt::tolerance(tol));
-
-  /* myfree1(u1);
-  myfree1(z1); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
@@ -6753,8 +5566,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6763,9 +5574,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
@@ -6787,10 +5595,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
   double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
   a = std::erf(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -6803,11 +5607,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
@@ -6828,8 +5627,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
 
   double aDerivative = 2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -6838,9 +5635,6 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
@@ -6863,8 +5657,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6873,9 +5665,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
@@ -6897,10 +5686,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
   double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
   a = std::erfc(a);
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -6913,11 +5698,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
@@ -6938,8 +5718,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
 
   double aDerivative = -2. / std::sqrt(std::acos(-1.)) * std::exp(-a * a);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -6948,9 +5726,6 @@ BOOST_AUTO_TEST_CASE(ErfcOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
@@ -6972,8 +5747,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -6982,9 +5755,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
@@ -7006,10 +5776,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
 
   double aDerivative = 1.;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -7022,11 +5788,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
@@ -7048,8 +5809,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
 
   double aDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -7058,9 +5817,6 @@ BOOST_AUTO_TEST_CASE(EqOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
@@ -7083,8 +5839,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -7093,9 +5847,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
@@ -7117,10 +5868,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
   a += 5.2;
   double aDerivative = 1.;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -7133,11 +5880,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
@@ -7159,8 +5901,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   a += 5.2;
   double aDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -7169,9 +5909,6 @@ BOOST_AUTO_TEST_CASE(EqPlusOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 // the case += c * d is handlad differently!
@@ -7225,8 +5962,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -7235,9 +5970,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
@@ -7259,10 +5991,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
   a -= 5.2;
   double aDerivative = 1.;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -7275,11 +6003,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 // the case -= c * d is handlad differently!
@@ -7332,8 +6055,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
   a -= 5.2;
   double aDerivative = 1.;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -7342,9 +6063,6 @@ BOOST_AUTO_TEST_CASE(EqMinusOperator_FOS_Reverse) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
@@ -7367,8 +6085,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -7377,9 +6093,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
@@ -7401,10 +6114,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
   a *= 5.2;
   double aDerivative = 5.2;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -7417,11 +6126,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_1) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
@@ -7443,8 +6147,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
   a *= 5.2;
   double aDerivative = 5.2;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -7453,9 +6155,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_1) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
@@ -7480,8 +6179,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -7491,9 +6188,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
@@ -7518,10 +6212,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
   double bDerivative = a;
   a *= b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -7545,11 +6235,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Forward_2) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
@@ -7573,8 +6258,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
   double aDerivative = b;
   double bDerivative = a;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -7584,9 +6267,6 @@ BOOST_AUTO_TEST_CASE(EqTimesOperator_FOS_Reverse_2) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
@@ -7609,8 +6289,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
 
   BOOST_TEST(aout == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(1);
-  double *y = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> y(1);
 
@@ -7619,9 +6297,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_1) {
   zos_forward(tapeId, 1, 1, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
@@ -7643,10 +6318,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
   a /= 5.2;
   double aDerivative = 1. / 5.2;
 
-  /* double *x = myalloc1(1);
-  double *xd = myalloc1(1);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(1);
   std::vector<double> xd(1);
   std::vector<double> y(1);
@@ -7659,11 +6330,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_1) {
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
   BOOST_TEST(yd[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
@@ -7685,8 +6351,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
   a /= 5.2;
   double aDerivative = 1. / 5.2;
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(1); */
   std::vector<double> u(1);
   std::vector<double> z(1);
 
@@ -7695,9 +6359,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_1) {
   fos_reverse(tapeId, 1, 1, u, z);
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
@@ -7722,8 +6383,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
 
   BOOST_TEST(out == a, tt::tolerance(tol));
 
-  /* double *x = myalloc1(2);
-  double *y = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> y(1);
 
@@ -7733,9 +6392,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_ZOS_Forward_2) {
   zos_forward(tapeId, 1, 2, 0, x, y);
 
   BOOST_TEST(y[0] == a, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
@@ -7760,10 +6416,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
   double bDerivative = -a / (b * b);
   a /= b;
 
-  /* double *x = myalloc1(2);
-  double *xd = myalloc1(2);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(2);
   std::vector<double> xd(2);
   std::vector<double> y(1);
@@ -7787,11 +6439,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Forward_2) {
   fos_forward(tapeId, 1, 2, 0, x, xd, y, yd);
 
   BOOST_TEST(yd[0] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 
 BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
@@ -7815,8 +6462,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
   double aDerivative = 1. / b;
   double bDerivative = -a / (b * b);
 
-  /* double *u = myalloc1(1);
-  double *z = myalloc1(2); */
   std::vector<double> u(1);
   std::vector<double> z(2);
 
@@ -7826,9 +6471,6 @@ BOOST_AUTO_TEST_CASE(EqDivOperator_FOS_Reverse_2) {
 
   BOOST_TEST(z[0] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[1] == bDerivative, tt::tolerance(tol));
-
-  /* myfree1(u);
-  myfree1(z); */
 }
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
@@ -7854,8 +6496,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
-  /* double *x = myalloc1(3);
-  double *y = myalloc1(1); */
   std::vector<double> x(3);
   std::vector<double> y(1);
 
@@ -7866,9 +6506,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_ZOS_Forward) {
   zos_forward(tapeId, 1, 3, 0, x, y);
 
   BOOST_TEST(y[0] == 3.5, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
@@ -7894,10 +6531,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
-  /* double *x = myalloc1(3);
-  double *xd = myalloc1(3);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(3);
   std::vector<double> xd(3);
   std::vector<double> y(1);
@@ -7914,11 +6547,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == 3.5, tt::tolerance(tol));
   BOOST_TEST(yd[0] == 0.1, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 /*
 BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
@@ -7940,8 +6568,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
   double aDerivative = 1.;
   double bDerivative = 0.;
 
-  // double *u = myalloc1(1);
-  // double *z = myalloc1(3);
   std::vector<double> u(1);
   std::vector<double> z(3);
 
@@ -7953,8 +6579,6 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOS_Reverse)
   BOOST_TEST(z[1] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[2] == bDerivative, tt::tolerance(tol));
 
-  // myfree1(u);
-  // myfree1(z);
 }
 */
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
@@ -7980,25 +6604,16 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_ZOS_Forward) {
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
-  /* double *x = myalloc1(3);
-  double *y = myalloc1(1); */
   std::array<double, 3> x;
   std::array<double, 1> y;
 
-  /* *x = 1.;
-   *(x + 1) = 3.5;
-   *(x + 2) = 5.3; */
   x[0] = 1.;
   x[1] = 3.5;
   x[2] = 5.3;
 
   zos_forward(tapeId, 1, 3, 0, x, y);
 
-  /* BOOST_TEST(*y == 3.5, tt::tolerance(tol)); */
   BOOST_TEST(y[0] == 3.5, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(y); */
 }
 
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
@@ -8024,10 +6639,6 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
 
   BOOST_TEST(out == 3.5, tt::tolerance(tol));
 
-  /* double *x = myalloc1(3);
-  double *xd = myalloc1(3);
-  double *y = myalloc1(1);
-  double *yd = myalloc1(1); */
   std::vector<double> x(3);
   std::vector<double> xd(3);
   std::vector<double> y(1);
@@ -8044,11 +6655,6 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Forward) {
 
   BOOST_TEST(y[0] == 3.5, tt::tolerance(tol));
   BOOST_TEST(yd[0] == 0.1, tt::tolerance(tol));
-
-  /* myfree1(x);
-  myfree1(xd);
-  myfree1(y);
-  myfree1(yd); */
 }
 /*
 BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
@@ -8070,8 +6676,6 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
   double aDerivative = 1.;
   double bDerivative = 0.;
 
-  // double *u = myalloc1(1);
-  // double *z = myalloc1(3);
   std::vector<double> u(1);
   std::vector<double> z(3);
 
@@ -8083,8 +6687,6 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOS_Reverse)
   BOOST_TEST(z[1] == aDerivative, tt::tolerance(tol));
   BOOST_TEST(z[2] == bDerivative, tt::tolerance(tol));
 
-  // myfree1(u);
-  // myfree1(z);
 }
 */
 

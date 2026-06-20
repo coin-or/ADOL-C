@@ -37,7 +37,6 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
   trace_off();
 
   const size_t dim = binomi(p + d, d);
-  /* double **S = myalloc2(n, p); */
   Matrix<double> S(n, p);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < p; ++j) {
@@ -45,8 +44,6 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
     }
   }
 
-  /* double **tensor1 = myalloc2(m, dim);
-  double **tensor2 = myalloc2(m, dim); */
   Matrix<double> tensor1(m, dim);
   Matrix<double> tensor2(m, dim);
 
@@ -69,7 +66,6 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
     BOOST_TEST(tensor1[i][0] == y0[i], tt::tolerance(tol));
   }
 
-  /* double **J = myalloc2(m, n); */
   Matrix<double> J(m, n);
   jacobian(tapeId, m, n, x0, J);
 
@@ -87,11 +83,6 @@ BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {
   for (int i = 0; i < m; ++i) {
     BOOST_TEST(dirDeriv[i] == J[i][1], tt::tolerance(tol));
   }
-
-  /* myfree2(J);
-  myfree2(tensor1);
-  myfree2(tensor2);
-  myfree2(S); */
 }
 
 BOOST_AUTO_TEST_SUITE_END()

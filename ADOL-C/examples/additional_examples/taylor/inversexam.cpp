@@ -43,7 +43,6 @@ int main() {
   double *yp = new double[n];
   double **S = new double *[n];
   double *test = new double[n];
-  /* double **tensoren; */
   adouble *x = new adouble[n];
   adouble *y = new adouble[n];
 
@@ -71,7 +70,6 @@ int main() {
   /*--------------------------------------------------------------------------*/
   d = d - 1; /* 1. inverse_tensor_eval */
   dim = binomi(p + d, d);
-  /* tensoren = myalloc2(n, dim); */
   Matrix<double> tensoren(n, dim);
   cout << "TASK 1:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
@@ -87,14 +85,11 @@ int main() {
     cout << "\n";
   }
 
-  /* myfree2(tensoren); */
-
   /*--------------------------------------------------------------------------*/
   d = d + 1; /* 2. inverse_tensor_eval */
   dim = binomi(p + d, d);
   cout << "TASK 2:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(n, dim); */
   tensoren = Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
@@ -126,14 +121,11 @@ int main() {
     cout << "\n";
   }
 
-  /* myfree2(tensoren); */
-
   /*--------------------------------------------------------------------------*/
   d = d - 1; /* 4. inverse_tensor_eval */
   dim = binomi(p + d, d);
   cout << "TASK 4:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(n, dim); */
   tensoren = Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
@@ -146,8 +138,6 @@ int main() {
       cout << " " << test[j] << " ";
     cout << "\n";
   }
-
-  /* myfree2(tensoren); */
 
   /*--------------------------------------------------------------------------*/
   d = d + 1; /* 5. inverse_tensor_eval */
@@ -156,7 +146,6 @@ int main() {
   cout << "TASK 5:\n";
   cout << " OLD independend values !!!\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  /* tensoren = myalloc2(n, dim); */
   tensoren = Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
@@ -169,8 +158,6 @@ int main() {
       cout << " " << test[j] << " ";
     cout << "\n";
   }
-
-  /* myfree2(tensoren); */
 
   return 1;
 }

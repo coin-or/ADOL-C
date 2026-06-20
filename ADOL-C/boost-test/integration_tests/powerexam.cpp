@@ -35,20 +35,14 @@ BOOST_AUTO_TEST_CASE(PowerExampTest) {
   int n = 4;
 
   /* allocations and initializations */
-  /* double **X;
-  double **Y;
-  X = myalloc2(1, n + 4);
-  Y = myalloc2(1, n + 4); */
   Matrix<double> X(1, n + 4);
   Matrix<double> Y(1, n + 4);
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
   for (auto i = 0; i < n + 2; i++)
-    X[0][i + 2] = 0;            /* further coefficients */
-  /* double **Z; */             /* used for checking consistency */
-  /* Z = myalloc2(1, n + 2); */ /* between forward and reverse */
-  Matrix<double> Z(1, n + 2);   /* used for checking consistency */
-                                /* between forward and reverse */
+    X[0][i + 2] = 0;          /* further coefficients */
+  Matrix<double> Z(1, n + 2); /* used for checking consistency */
+                              /* between forward and reverse */
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
@@ -72,9 +66,6 @@ BOOST_AUTO_TEST_CASE(PowerExampTest) {
     }
     reverse(tapeId, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
   } /* end for */
-  /* myfree2(X);
-  myfree2(Y);
-  myfree2(Z); */
 }
 
 BOOST_AUTO_TEST_SUITE_END()

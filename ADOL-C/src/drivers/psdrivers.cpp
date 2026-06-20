@@ -108,15 +108,11 @@ int directional_active_gradient(short tag,       /* trace identifier */
 
   const size_t s = get_num_switches(tag);
 
-  /* z = myalloc1(s); */
   std::vector<double> z(s);
 
-  /* grad = (double **)myalloc2(1, n);
-  gradu = (double **)myalloc2(s, n);
-  E = (double **)myalloc2(n, n); */
-  Matrix<double> grad{1, static_cast<size_t>(n)};
-  Matrix<double> gradu{static_cast<size_t>(s), static_cast<size_t>(n)};
-  Matrix<double> E{static_cast<size_t>(n)};
+  Matrix<double> grad{1, to_size_t(n)};
+  Matrix<double> gradu{to_size_t(s), to_size_t(n)};
+  Matrix<double> E{to_size_t(n)};
 
   max_dk = 0;
   max_entry = -1;
@@ -155,11 +151,6 @@ int directional_active_gradient(short tag,       /* trace identifier */
       k++;
     }
   }
-
-  /* myfree1(z);
-  myfree2(E);
-  myfree2(grad);
-  myfree2(gradu); */
 
   if (done == 0)
     ADOLCError::fail(ADOLCError::ErrorType::DIRGRAD_NOT_ENOUGH_DIRS,

@@ -37,8 +37,6 @@ BOOST_AUTO_TEST_CASE(LeftScalarAndOwnershipSmoke) {
   BOOST_TEST(adolc_num_independent(tape_id) == 2u);
   BOOST_TEST(adolc_num_dependent(tape_id) == 1u);
 
-  /* double *xv = myalloc1(2);
-  double *yv = myalloc1(1); */
   std::vector<double> xv(2);
   std::vector<double> yv(1);
   xv[0] = 1.0;
@@ -46,8 +44,6 @@ BOOST_AUTO_TEST_CASE(LeftScalarAndOwnershipSmoke) {
   zos_forward(tape_id, 1, 2, 0, xv, yv);
   BOOST_TEST(yv[0] == 10.0, tt::tolerance(tol));
 
-  /* double *xd = myalloc1(2);
-  double *yd = myalloc1(1); */
   std::vector<double> xd(2);
   std::vector<double> yd(2);
 
@@ -60,11 +56,6 @@ BOOST_AUTO_TEST_CASE(LeftScalarAndOwnershipSmoke) {
   xd[1] = 1.0;
   fos_forward(tape_id, 1, 2, 0, xv, xd, yv, yd);
   BOOST_TEST(yd[0] == 2.0, tt::tolerance(tol));
-
-  /* myfree1(xv);
-  myfree1(yv);
-  myfree1(xd);
-  myfree1(yd); */
 
   // Freeing locations is tape-context dependent.
   setCurrentTape(tape_id);

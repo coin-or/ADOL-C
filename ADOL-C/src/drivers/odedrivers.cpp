@@ -55,14 +55,6 @@ int forodec(short tag,  /* tape identifier */
   double taut;
   ValueTape &tape = findTape(tag);
   if (n > tape.forodec_nax() || deg > tape.forodec_dax()) {
-    /* if (tape.forodec_nax()) {
-      myfree1(tape.forodec_y());
-      myfree1(tape.forodec_z());
-      myfree2(tape.forodec_Z());
-    } */
-    /* tape.forodec_Z(myalloc2(n, deg));
-    tape.forodec_z(myalloc1(n));
-    tape.forodec_y(myalloc1(n)); */
     Matrix<double> Z{static_cast<size_t>(n), static_cast<size_t>(deg)};
     std::vector<double> z(n);
     std::vector<double> y(n);

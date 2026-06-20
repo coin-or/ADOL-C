@@ -236,7 +236,6 @@ int hos_reverse(short tnum,             /* tape id */
                 const double *lagrange, /* range weight vector       */
                 double **results)       /* matrix of coefficient vectors */
 {
-  /* double **L = myalloc2(depen, degre + 1); */
   Matrix<double> L{static_cast<size_t>(depen), static_cast<size_t>(degre + 1)};
   for (int i = 0; i < depen; ++i) {
     L[i][0] = lagrange[i];
@@ -244,7 +243,6 @@ int hos_reverse(short tnum,             /* tape id */
       L[i][j] = 0.0;
   }
   int rc = hos_ti_reverse(tnum, depen, indep, degre, L.data(), results);
-  /* myfree2(L); */
   return rc;
 }
 
@@ -281,7 +279,6 @@ int hov_reverse(short tnum, /* tape id */
                 double ***results, /* matrix of coefficient vectors */
                 short **nonzero)   /* structural sparsity  pattern  */
 {
-  /* double ***L = myalloc3(nrows, depen, degre + 1); */
   Tensor<double> L{static_cast<size_t>(nrows), static_cast<size_t>(depen),
                    static_cast<size_t>(degre + 1)};
   for (int k = 0; k < nrows; ++k)
@@ -292,7 +289,6 @@ int hov_reverse(short tnum, /* tape id */
     }
   int rc = hov_ti_reverse(tnum, depen, indep, degre, nrows, L.data(), results,
                           nonzero);
-  /* myfree3(L); */
   return rc;
 }
 
@@ -329,8 +325,10 @@ int hov_ti_reverse(
   size_t indexi = 0, indexd = 0;
 
   /* other necessary variables */
-  double *x = nullptr;
-  size_t *jj = nullptr;
+  /* double *x = nullptr;
+  size_t *jj = nullptr; */
+  std::vector<double> x;
+  std::vector<size_t> jj;
 
   /*----------------------------------------------------------------------*/
   /* Taylor stuff */
@@ -338,9 +336,12 @@ int hov_ti_reverse(
   double *Targ = nullptr;
   double *Targ1 = nullptr;
   double *Targ2 = nullptr;
-  double *rp_Ttemp = nullptr;
-  double *rp_Ttemp2 = nullptr;
-  double **rpp_T = nullptr;
+  /* double *rp_Ttemp = nullptr; */
+  std::vector<double> rp_Ttemp;
+  /* double *rp_Ttemp2 = nullptr; */
+  std::vector<double> rp_Ttemp2;
+  /* double **rpp_T = nullptr; */
+  Matrix<double> rpp_T{};
 
   /*----------------------------------------------------------------------*/
   /* Adjoint stuff */
@@ -348,9 +349,12 @@ int hov_ti_reverse(
   double *Aarg = nullptr;
   double *Aarg1 = nullptr;
   double *Aarg2 = nullptr;
-  double *rp_Atemp = nullptr;
-  double *rp_Atemp2 = nullptr;
-  double **rpp_A = nullptr;
+  /* double *rp_Atemp = nullptr;
+  double *rp_Atemp2 = nullptr; */
+  std::vector<double> rp_Atemp;
+  std::vector<double> rp_Atemp2;
+  /* double **rpp_A = nullptr; */
+  Matrix<double> rpp_A{};
   double *AP1 = nullptr;
   double *AP2 = nullptr;
 
@@ -435,74 +439,80 @@ int hov_ti_reverse(
 
   /*----------------------------------------------------------------------*/
 #ifdef _HOS_ /* HOS */
-  /* rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
-  rp_Atemp = myalloc1(k1);
-  rp_Atemp2 = myalloc1(k1);
-  rp_Ttemp2 = myalloc1(k); */
-  Matrix<double> rpp_A_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+  /* Matrix<double> rpp_A_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                             static_cast<size_t>(k1)};
   rpp_A = rpp_A_data.data();
   Matrix<double> rpp_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                             static_cast<size_t>(k)};
-  rpp_T = rpp_T_data.data();
-  std::vector<double> rp_Atemp_data(k1);
+  rpp_T = rpp_T_data.data(); */
+  rpp_A = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(k1));
+  rpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(k));
+  /* std::vector<double> rp_Atemp_data(k1);
   rp_Atemp = rp_Atemp_data.data();
   std::vector<double> rp_Atemp2_data(k1);
   rp_Atemp2 = rp_Atemp2_data.data();
   std::vector<double> rp_Ttemp2_data(k);
-  rp_Ttemp2 = rp_Ttemp2_data.data();
+  rp_Ttemp2 = rp_Ttemp2_data.data(); */
+  rp_Atemp = std::vector<double>(k1);
+  rp_Atemp2 = std::vector<double>(k1);
+  rp_Ttemp2 = std::vector<double>(k);
 
   int n, m;
   ext_diff_fct *edfct = nullptr;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
-  /* rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
-  rp_Atemp = myalloc1(pk1);
-  rp_Atemp2 = myalloc1(pk1);
-  rp_Ttemp2 = myalloc1(k); */
-  Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+  /* Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                            static_cast<size_t>(pk1)};
   rpp_A = rpp_A_mat.data();
   Matrix<double> rpp_T_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                            static_cast<size_t>(k)};
-  rpp_T = rpp_T_mat.data();
-  std::vector<double> rp_Atemp_data(pk1);
+  rpp_T = rpp_T_mat.data(); */
+  rpp_A = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(pk1));
+  rpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(k));
+  /* std::vector<double> rp_Atemp_data(pk1);
   rp_Atemp = rp_Atemp_data.data();
   std::vector<double> rp_Atemp2_data(pk1);
   rp_Atemp2 = rp_Atemp2_data.data();
   std::vector<double> rp_Ttemp2_data(k);
-  rp_Ttemp2 = rp_Ttemp2_data.data();
+  rp_Ttemp2 = rp_Ttemp2_data.data(); */
+  rp_Atemp = std::vector<double>(pk1);
+  rp_Atemp2 = std::vector<double>(pk1);
+  rp_Ttemp2 = std::vector<double>(k);
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
-  /* rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
-  rp_Atemp = myalloc1(pk1);
-  rp_Atemp2 = myalloc1(pk1);
-  rp_Ttemp2 = myalloc1(p * k); */
-  Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+  /* Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                            static_cast<size_t>(pk1)};
   rpp_A = rpp_A_mat.data();
   Matrix<double> rpp_T_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
                            static_cast<size_t>(p * k)};
-  rpp_T = rpp_T_mat.data();
-  std::vector<double> rp_Atemp_data(pk1);
+  rpp_T = rpp_T_mat.data(); */
+  rpp_A = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(pk1));
+  rpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(p * k));
+  /* std::vector<double> rp_Atemp_data(pk1);
   rp_Atemp = rp_Atemp_data.data();
   std::vector<double> rp_Atemp2_data(pk1);
   rp_Atemp2 = rp_Atemp2_data.data();
   std::vector<double> rp_Ttemp2_data(p * k);
-  rp_Ttemp2 = rp_Ttemp2_data.data();
+  rp_Ttemp2 = rp_Ttemp2_data.data(); */
+  rp_Atemp = std::vector<double>(pk1);
+  rp_Atemp2 = std::vector<double>(pk1);
+  rp_Ttemp2 = std::vector<double>(p * k);
 #endif
-  /* rp_Ttemp = myalloc1(k);
-  x = myalloc1(q);
-  jj = myalloc1_ulong(q); */
-  std::vector<double> rp_Ttemp_data(k);
+  /* std::vector<double> rp_Ttemp_data(k);
   rp_Ttemp = rp_Ttemp_data.data();
   std::vector<double> x_data(q);
   x = x_data.data();
   std::vector<size_t> jj_data(q);
-  jj = jj_data.data();
+  jj = jj_data.data(); */
+  rp_Ttemp = std::vector<double>(k);
+  x = std::vector<double>(q);
+  jj = std::vector<size_t>(q);
 
   /************************************************************************/
   /*                                                TAYLOR INITIALIZATION */
@@ -840,7 +850,7 @@ int hov_ti_reverse(
           MAXDEC(AARG, ARES);
           AARG_INC_O;
           ARES_INC_O;
-          conv(k, Ares, Targ, rp_Atemp);
+          conv(k, Ares, Targ, rp_Atemp.data());
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
@@ -1058,13 +1068,13 @@ int hov_ti_reverse(
 
           /* Copy to a temporary variables in case one of the
              arguments uses the same storage as the result. */
-          copyAndZeroset(k, Ares, rp_Atemp);
+          copyAndZeroset(k, Ares, rp_Atemp.data());
 
           // Aarg2 += convolution of rp_Atemp with Targ1
-          inconv(k, rp_Atemp, Targ1, Aarg2);
+          inconv(k, rp_Atemp.data(), Targ1, Aarg2);
 
           // Aarg1 += convolution of rp_Atemp with Targ2
-          inconv(k, rp_Atemp, Targ2, Aarg1);
+          inconv(k, rp_Atemp.data(), Targ2, Aarg1);
 
           /* Vector mode: update pointers for next loop iteration
              (see loop above) */
@@ -1231,7 +1241,7 @@ int hov_ti_reverse(
       /* olvo 980922 allows reflexive operation */
       if (arg2 == res) {
         FOR_0_LE_l_LT_pk rp_Ttemp2[l] = Tres[l];
-        Tres = rp_Ttemp2;
+        Tres = rp_Ttemp2.data();
         GET_TAYL(res, k, p)
       }
 
@@ -1252,12 +1262,12 @@ int hov_ti_reverse(
           AARG2_INC_O;
 
           VEC_COMPUTED_CHECK
-          recipr(k, 1.0, Targ2, rp_Ttemp);
-          conv0(k, rp_Ttemp, Tres, rp_Atemp2);
+          recipr(k, 1.0, Targ2, rp_Ttemp.data());
+          conv0(k, rp_Ttemp.data(), Tres, rp_Atemp2.data());
           VEC_COMPUTED_END
-          copyAndZeroset(k, Ares, rp_Atemp);
-          inconv(k, rp_Atemp, rp_Ttemp, Aarg1);
-          deconv(k, rp_Atemp, rp_Atemp2, Aarg2);
+          copyAndZeroset(k, Ares, rp_Atemp.data());
+          inconv(k, rp_Atemp.data(), rp_Ttemp.data(), Aarg1);
+          deconv(k, rp_Atemp.data(), rp_Atemp2.data(), Aarg2);
 
           HOV_INC(Ares, k)
           HOV_INC(Aarg1, k)
@@ -1288,7 +1298,7 @@ int hov_ti_reverse(
       /* olvo 980922 allows reflexive operation */
       if (arg == res) {
         FOR_0_LE_l_LT_pk rp_Ttemp2[l] = Tres[l];
-        Tres = rp_Ttemp2;
+        Tres = rp_Ttemp2.data();
         GET_TAYL(arg, k, p)
       }
 
@@ -1305,10 +1315,10 @@ int hov_ti_reverse(
           AARG_INC_O;
 
           VEC_COMPUTED_CHECK
-          recipr(k, 1.0, Targ, rp_Ttemp);
-          conv0(k, rp_Ttemp, Tres, rp_Atemp);
+          recipr(k, 1.0, Targ, rp_Ttemp.data());
+          conv0(k, rp_Ttemp.data(), Tres, rp_Atemp.data());
           VEC_COMPUTED_END
-          deconv0(k, Ares, rp_Atemp, Aarg);
+          deconv0(k, Ares, rp_Atemp.data(), Aarg);
 
           HOV_INC(Ares, k)
           HOV_INC(Aarg, k)
@@ -1564,9 +1574,9 @@ int hov_ti_reverse(
           AARG_INC_O;
 
           VEC_COMPUTED_CHECK
-          recipr(k, 1.0, Targ, rp_Ttemp);
+          recipr(k, 1.0, Targ, rp_Ttemp.data());
           VEC_COMPUTED_END
-          inconv0(k, Ares, rp_Ttemp, Aarg);
+          inconv0(k, Ares, rp_Ttemp.data(), Aarg);
 
           HOV_INC(Ares, k)
           HOV_INC(Aarg, k)
@@ -1592,7 +1602,7 @@ int hov_ti_reverse(
       /* olvo 980921 allows reflexive operation */
       if (arg == res) {
         FOR_0_LE_l_LT_pk rp_Ttemp2[l] = Tres[l];
-        Tres = rp_Ttemp2;
+        Tres = rp_Ttemp2.data();
         GET_TAYL(arg, k, p)
       }
 
@@ -1610,12 +1620,12 @@ int hov_ti_reverse(
 
           VEC_COMPUTED_CHECK
           if (fabs(Targ[0]) > ADOLC_EPS) {
-            divide(k, Tres, Targ, rp_Ttemp);
+            divide(k, Tres, Targ, rp_Ttemp.data());
             for (int i = 0; i < k; i++) {
               rp_Ttemp[i] *= coval;
               /*                 printf(" EPS i %d %f\n",i,rp_Ttemp[i]); */
             }
-            inconv0(k, Ares, rp_Ttemp, Aarg);
+            inconv0(k, Ares, rp_Ttemp.data(), Aarg);
           } else {
             if (coval <= 0.0) {
               for (int i = 0; i < k; i++) {
@@ -1650,11 +1660,11 @@ int hov_ti_reverse(
                   /* the following is not efficient but at least it works */
                   /* it reformulates x^n into x* ... *x n times */
 
-                  copyAndZeroset(k, Ares, rp_Atemp);
-                  inconv(k, rp_Atemp, Targ, Aarg);
-                  inconv(k, rp_Atemp, Targ, Aarg);
+                  copyAndZeroset(k, Ares, rp_Atemp.data());
+                  inconv(k, rp_Atemp.data(), Targ, Aarg);
+                  inconv(k, rp_Atemp.data(), Targ, Aarg);
                   if (coval == 3) {
-                    conv(k, Aarg, Targ, rp_Atemp);
+                    conv(k, Aarg, Targ, rp_Atemp.data());
                     for (int i = 0; i < k; i++)
                       Aarg[i] = 2.0 * rp_Atemp[i];
                   }
@@ -1698,9 +1708,9 @@ int hov_ti_reverse(
           AARG_INC_O;
 
           VEC_COMPUTED_CHECK
-          recipr(k, 0.5, Tres, rp_Ttemp);
+          recipr(k, 0.5, Tres, rp_Ttemp.data());
           VEC_COMPUTED_END
-          inconv0(k, Ares, rp_Ttemp, Aarg);
+          inconv0(k, Ares, rp_Ttemp.data(), Aarg);
 
           HOV_INC(Ares, k)
           HOV_INC(Aarg, k)
@@ -2628,7 +2638,7 @@ int hov_ti_reverse(
           MAXDEC(AARG, ARES);
           AARG_INC_O;
           ARES_INC_O;
-          conv(k, Ares, Targ, rp_Atemp);
+          conv(k, Ares, Targ, rp_Atemp.data());
           if (arg != res) {
             inconv(k, Ares, Tres, Aarg);
             for (int i = 0; i < k; i++)
@@ -2751,9 +2761,9 @@ int hov_ti_reverse(
           AARG_INC_O;
           AARG1_INC_O;
           AARG2_INC_O;
-          copyAndZeroset(k, Ares, rp_Atemp);
-          inconv(k, rp_Atemp, Targ1, Aarg);
-          inconv(k, rp_Atemp, Targ, Aarg1);
+          copyAndZeroset(k, Ares, rp_Atemp.data());
+          inconv(k, rp_Atemp.data(), Targ1, Aarg);
+          inconv(k, rp_Atemp.data(), Targ, Aarg1);
           for (int i = 0; i < k; i++)
             AARG2_INC += rp_Atemp[i];
 
@@ -3133,9 +3143,9 @@ int hov_ti_reverse(
         ++arg;
       }
       arg = edfct->firstIndLocation;
-      double **dpp_x = rpp_T + arg;
+      double **dpp_x = rpp_T.data() + arg;
       arg = edfct->firstDepLocation;
-      double **dpp_y = rpp_T + arg;
+      double **dpp_y = rpp_T.data() + arg;
       int ext_retc = edfct->ADOLC_EXT_FCT_COMPLETE;
       MINDEC(ret_c, ext_retc);
 
@@ -3212,17 +3222,6 @@ int hov_ti_reverse(
              (double)taylorPerOperation[v] / (double)countPerOperation[v]);
   printf("\n");
 #endif /* ADOLC_DEBUG */
-
-  /* clean up */
-  /* myfree2(rpp_T); */
-  /* myfree2(rpp_A); */
-  /* myfree1(rp_Ttemp);
-  myfree1(rp_Ttemp2);
-  myfree1(rp_Atemp);
-  myfree1(rp_Atemp2); */
-
-  /* myfree1_ulong(jj);
-  myfree1(x); */
 
   if (tape.isExclusiveNonLocking()) {
     tape.end_sweep(std::move(evalCtx));
