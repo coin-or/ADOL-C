@@ -90,7 +90,6 @@ int main() {
   /* Initialize the independent variables */
   double *indeps = new double[indepDim];
   double *deps = new double[depDim];
-  /* double **indeps2 = myalloc(indepDim, degree + 1); */
   Matrix<double> indeps2(indepDim, degree + 1);
   initIndependents(indeps);
   for (i = 0; i < indepDim; i++) {
@@ -101,9 +100,6 @@ int main() {
 
   /*------------------------------------------------------------------------*/
   /* Necessary variable */
-  /* double ***B = myalloc(indepDim, indepDim, degree);
-  double ***A = myalloc(indepDim, indepDim, degree);
-  double **w = myalloc(indepDim, degree + 1); */
   Tensor<double> B(indepDim, indepDim, degree);
   Tensor<double> A(indepDim, indepDim, degree);
   Matrix<double> w(indepDim, degree + 1);

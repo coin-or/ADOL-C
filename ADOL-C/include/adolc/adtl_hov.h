@@ -17,7 +17,7 @@
 #ifndef ADOLC_ADTL_HOV_H
 #define ADOLC_ADTL_HOV_H
 
-#include <adolc/adalloc.h> //for myalloc2/Matrix
+#include <adolc/adalloc.h> //for Matrix
 #include <adolc/adolcexport.h>
 #include <adolc/sparse/sparsematrix.h>
 #include <list>
@@ -392,7 +392,6 @@ inline adouble::adouble() : val(0), adval(NULL) {
   //    	std::cout << "constructing adtl:   degree: " << adouble::degree
   //    << "  numDir: " << adouble::numDir << std::endl;
   {
-    /* ho_deriv = myalloc2(adouble::degree, adouble::numDir); */
     ho_deriv_cont = Matrix<double>(adouble::degree, adouble::numDir);
     ho_deriv = ho_deriv_cont.data();
   }
@@ -416,7 +415,6 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    /* ho_deriv = myalloc2(adouble::degree, adouble::numDir); */
     ho_deriv_cont = Matrix<double>(adouble::degree, adouble::numDir);
     ho_deriv = ho_deriv_cont.data();
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
@@ -450,7 +448,6 @@ inline adouble::adouble(const double v, const double **hov)
     : val(v), ho_deriv(NULL) {
   if (do_hoval()) // ADTL_HOV
   {
-    /* ho_deriv = myalloc2(adouble::degree, adouble::numDir); */
     ho_deriv_cont = Matrix<double>(adouble::degree, adouble::numDir);
     ho_deriv = ho_deriv_cont.data();
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
@@ -475,7 +472,6 @@ inline adouble::adouble(const adouble &a) : val(a.val), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    /* ho_deriv = myalloc2(adouble::degree, adouble::numDir); */
     ho_deriv_cont = Matrix<double>(adouble::degree, adouble::numDir);
     ho_deriv = ho_deriv_cont.data();
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR

@@ -66,9 +66,6 @@ int main() {
   double ***Z;
   double ***B; */
 
-  /* X = myalloc2(n, deg + 1);
-  Z = myalloc3(n, n, deg);
-  B = myalloc3(n, n, deg); */
   Matrix<double> X(n, deg + 1);
   Tensor<double> Z(n, n, deg);
   Tensor<double> B(n, n, deg);

@@ -45,10 +45,7 @@ int main() { /*-----------------------------------------------------------------
   Matrix<adouble> AA;
   adouble Adet;
 
-  /* double *args = myalloc1(indep);                // arguments
-  double *grad = myalloc1(indep);                // the gradient
-  double **hess = myalloc2(indep, indep);        // the hessian */
-  std::vector<double> args(indep); // argument
+  std::vector<double> args(indep); // arguments
   std::vector<double> grad(indep); // gradient
   Matrix<double> hess(indep);      // hessian
 

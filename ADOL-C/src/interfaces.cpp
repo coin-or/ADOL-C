@@ -38,10 +38,6 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
   int rc = -1, i, k;
   maxn = n;
   maxm = m;
-  /* x = myalloc1(maxn = n);
-  xp = myalloc1(maxn);
-  y = myalloc1(maxm = m);
-  yp = myalloc1(maxm); */
   std::vector<double> x(maxn);
   std::vector<double> xp(maxn);
   std::vector<double> y(maxm);
@@ -85,11 +81,6 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
     Y[i][0] = y[i];
   }
 
-  /* myfree1(x);
-  myfree1(y);
-  myfree1(xp);
-  myfree1(yp); */
-
   return rc;
 }
 
@@ -99,7 +90,6 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double **Y)
 int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
 /* forward(tag, 1, n, d, keep, X[n][d+1], Y[d+1]), m=1                      */
 { /* olvo 980729 general ec */
-  /* static double *x, *xp; */
   static std::vector<double> x, xp;
   static int maxn;
   double y;
@@ -107,12 +97,6 @@ int forward(short tag, int m, int n, int d, int keep, double **X, double *Y)
 
   if (m == 1) {
     if (n > maxn) {
-      /* if (x)
-        myfree1(x);
-      if (xp)
-        myfree1(xp); */
-      /* x = myalloc1(maxn = n);
-      xp = myalloc1(maxn); */
       maxn = n;
       x = std::vector<double>(maxn);
       xp = std::vector<double>(maxn);
@@ -365,8 +349,6 @@ int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
   static Matrix<double> I;
   if (m adolc_compsize depax) {
     if (depax)
-      /*   myfreeI2(depax, I);
-      I = myallocI2(depax = m); */
       depax = m;
     I = unitMatrix<double>(depax);
   }

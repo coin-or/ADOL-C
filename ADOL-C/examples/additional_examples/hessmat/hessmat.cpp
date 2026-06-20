@@ -56,19 +56,10 @@ int main() {
   /*--------------------------------------------------------------------------*/
   /* allocations and inits */
 
-  // double *xp = new double[n]; /* passive indeps        */
-  // double *yp = new double[m]; /* passive depends       */
-  std::vector<double> xp(n);
-  std::vector<double> yp(m);
+  std::vector<double> xp(n); /* passive indeps        */
+  std::vector<double> yp(m); /* passive depends       */
 
   /* vector x Hessian x matrix = Upp x H x XPPP */
-
-  // double *Up = myalloc(m); /* vector on left-hand side                */
-  // double **Upp = myalloc(m, d + 1);  /* vector on left-hand side  */
-  // double ***Xppp = myalloc(n, q, d); /* matrix on right-hand side */ double
-  // ***Zppp = myalloc(q, n, d + 1); /* result of Up x H x XPPP */
-
-  // double ***Yppp = myalloc(m, q, d); /* results of needed hos_wk_forward */
 
   std::vector<double> Up(m);
   Matrix<double> Upp(m, d + 1);
@@ -77,13 +68,6 @@ int main() {
   Tensor<double> Yppp(m, q, d);
 
   /* check results with usual lagra-Hess-vec  */
-
-  // double **Xpp = myalloc(n, d);
-  // double **V = myalloc(n, q);
-  // double **W = myalloc(q, n);
-  // double **H = myalloc(n, n);
-  // double **Ypp = myalloc(m, d);
-  // double **Zpp = myalloc(n, d + 1);
 
   Matrix<double> Xpp(n, d);
   Matrix<double> V(n, q);
@@ -245,18 +229,6 @@ int main() {
     }
   }
 
-  /* myfree(Zpp);
-  myfree(Ypp);
-  myfree(H);
-  myfree(W);
-  myfree(V);
-  myfree(Xpp);
-  myfree(Zppp);
-  myfree(Yppp);
-  myfree(Xppp);
-  myfree(yp);
-  myfree(xp);
-  myfree(Up); */
   return 1;
 }
 
