@@ -118,7 +118,7 @@ int main(void) {
   /*--------------------------------------------------------------------------*/
   /*                    variables needed for the Jacobian pattern exploration */
 
-  unsigned int **jacpat = NULL; // compressed row storage
+  unsigned int **jacpat = nullptr; // compressed row storage
   double *base, *value;
   double basepoint;
   int ctrl[3];
@@ -237,9 +237,9 @@ int main(void) {
   nzref = nz;
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /*--------------------------------------------------------------------------*/
   /*                                 Jacobian pattern by index domains, tight */
@@ -288,9 +288,9 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /*--------------------------------------------------------------------------*/
   /*                          Jacobian pattern by bit pattern, forward, tight */
@@ -338,9 +338,9 @@ int main(void) {
     cout << "\n\n!!! This method found a different number of non-zeros !!!\n\n";
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /*--------------------------------------------------------------------------*/
   /*                           Jacobian pattern by bit pattern, forward, safe */
@@ -389,9 +389,9 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /*--------------------------------------------------------------------------*/
   /*                          Jacobian pattern by bit pattern, reverse, tight */
@@ -440,9 +440,9 @@ int main(void) {
     cout << "\n\n!!! This method found a different number of non-zeros !!!\n\n";
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /*--------------------------------------------------------------------------*/
   /*                           Jacobian pattern by bit pattern, reverse, safe */
@@ -492,9 +492,9 @@ int main(void) {
   cout << "\n\n\n";
 
   for (i = 0; i < depen; i++)
-    free((char *)jacpat[i]); // myfree1_uint(jacpat[i]);
+    free((char *)jacpat[i]);
   delete[] jacpat;
-  jacpat = NULL;
+  jacpat = nullptr;
 
   /* full Jacobian evaluation -----------------------------------------------*/
 

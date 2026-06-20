@@ -38,31 +38,6 @@ ADOLC_API char *populate_dppp(double ****const pointer, char *const memory,
                               size_t n, size_t m, size_t p);
 ADOLC_API char *populate_dppp_nodata(double ****const pointer,
                                      char *const memory, size_t n, size_t m);
-ADOLC_API double *myalloc1(size_t);
-ADOLC_API double **myalloc2(size_t, size_t);
-ADOLC_API double ***myalloc3(size_t, size_t, size_t);
-
-ADOLC_API void myfree1(double *);
-ADOLC_API void myfree2(double **);
-ADOLC_API void myfree3(double ***);
-
-/*--------------------------------------------------------------------------*/
-/*                                          SPECIAL IDENTITY REPRESENTATION */
-ADOLC_API double **myallocI2(size_t);
-ADOLC_API void myfreeI2(size_t, double **);
-
-ADOLC_API unsigned int *myalloc1_uint(size_t);
-
-ADOLC_API size_t *myalloc1_ulong(size_t);
-ADOLC_API size_t **myalloc2_ulong(size_t, size_t);
-
-/****************************************************************************/
-/*                              INTEGER VARIANT FOR BIT PATTERN PROPAGATION */
-
-ADOLC_API void myfree1_uint(unsigned int *);
-
-ADOLC_API void myfree1_ulong(size_t *);
-ADOLC_API void myfree2_ulong(size_t **);
 
 END_C_DECLS
 
@@ -72,15 +47,6 @@ END_C_DECLS
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
-ADOLC_API inline double *myalloc(size_t n) { return myalloc1(n); }
-ADOLC_API inline double **myalloc(size_t m, size_t n) { return myalloc2(m, n); }
-ADOLC_API inline double ***myalloc(size_t m, size_t n, size_t p) {
-  return myalloc3(m, n, p);
-}
-
-ADOLC_API inline void myfree(double *A) { myfree1(A); }
-ADOLC_API inline void myfree(double **A) { myfree2(A); }
-ADOLC_API inline void myfree(double ***A) { myfree3(A); }
 
 namespace {
 template <typename T> T fillIdentity(T identity) {
@@ -150,9 +116,9 @@ Cont<T *> MatrixView(Cont<T> &owner, size_t rows, size_t cols) {
  * @brief Adol-C's own Matrix-like containers.
  *
  *
+ * @tparam Data type. Defaults to double.
  * @tparam Rowsize. Defaults to zero.
  * @tparam Colsize. Defaults to Rowsize.
- * @tparam Data type. Defaults to double.
  */
 template <typename T = double, size_t dimY = std::dynamic_extent,
           size_t dimX = dimY>
@@ -247,7 +213,7 @@ public:
   /**
    * @brief Retrieves dimensions of Matrix-object.
    */
-  std::pair<const size_t, const size_t> shape() { return {dimY, dimX}; }
+  std::pair<const size_t, const size_t> shape() const { return {dimY, dimX}; }
   /**
    * @brief Fills entire Matrix Container with given value.
    *
@@ -388,7 +354,7 @@ public:
   /**
    * @brief Retrieves dimensions of Matrix-object.
    */
-  std::pair<const size_t, const size_t> shape() {
+  std::pair<const size_t, const size_t> shape() const {
     return {matrix_.size(), data_.size() / matrix_.size()};
   }
   /**
@@ -537,7 +503,7 @@ public:
   /**
    * @brief Retrieves dimensions of Tensor-object.
    */
-  std::array<const size_t, 3> shape() {
+  std::array<const size_t, 3> shape() const {
     return {tensor_.size(), slices_.size() / tensor_.size(),
             data_.size() / slices_.size()};
   }
@@ -587,7 +553,7 @@ std::array<T, dim> unitVector(size_t dir) {
  * @brief Square Identity Matrix (Stack)
  *
  * Returns a Matrix-Container object, which is allocated
- * (using std::vector) on the stack.
+ * (using std::array) on the stack.
  *
  * @tparam dim  Input/Output dimension.
  * @tparam T    data type.

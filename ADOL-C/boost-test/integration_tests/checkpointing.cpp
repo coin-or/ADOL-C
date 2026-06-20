@@ -241,14 +241,11 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
   trace_off();
 
   // weights
-  /* double **U = myalloc2(2, 1); */
   Matrix<double> U(2, 1);
   U[0][0] = 1.0;
   U[1][0] = -1.0;
 
   // outputs
-  /* double **Z_full = myalloc2(2, 2);
-  double **Z_part = myalloc2(2, 2); */
   Matrix<double> Z_full(2, 2);
   Matrix<double> Z_part(2, 2);
 
@@ -291,9 +288,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_fov_reverse) {
     for (size_t j = 0; j < 2; ++j)
       BOOST_TEST(Z_full[i][j] == Z_part[i][j], tt::tolerance(tol));
   }
-  /* myfree2(U);
-  myfree2(Z_full);
-  myfree2(Z_part); */
 }
 
 BOOST_AUTO_TEST_CASE(Checkpointing_ZOS_Forward_Keep0_Nonlinear) {
@@ -356,10 +350,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_FOV_Forward_Nonlinear) {
                            traceOutPart);
 
   const int p = 2;
-  /* double **XpFull = myalloc2(nonlinearDim, p);
-  double **XpPart = myalloc2(nonlinearDim, p);
-  double **YpFull = myalloc2(nonlinearDim, p);
-  double **YpPart = myalloc2(nonlinearDim, p); */
   Matrix<double> XpFull(nonlinearDim, p);
   Matrix<double> XpPart(nonlinearDim, p);
   Matrix<double> YpFull(nonlinearDim, p);
@@ -383,10 +373,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_FOV_Forward_Nonlinear) {
   BOOST_REQUIRE_EQUAL(rcFull, rcPart);
   compareVector(yFull, yPart);
   compareMatrix(YpFull.data(), YpPart.data(), nonlinearDim, p);
-  /* myfree2(XpFull);
-  myfree2(XpPart);
-  myfree2(YpFull);
-  myfree2(YpPart); */
 }
 
 BOOST_AUTO_TEST_CASE(Checkpointing_FOS_Reverse_OffsetLocations) {
@@ -437,10 +423,6 @@ BOOST_AUTO_TEST_CASE(Checkpointing_FOV_Reverse_OffsetLocations) {
   compareVector(yFull, yPart);
 
   const int q = 2;
-  /* double **UqFull = myalloc2(q, nonlinearDim);
-  double **UqPart = myalloc2(q, nonlinearDim);
-  double **ZqFull = myalloc2(q, nonlinearDim);
-  double **ZqPart = myalloc2(q, nonlinearDim); */
   Matrix<double> UqFull(q, nonlinearDim);
   Matrix<double> UqPart(q, nonlinearDim);
   Matrix<double> ZqFull(q, nonlinearDim);
@@ -455,9 +437,5 @@ BOOST_AUTO_TEST_CASE(Checkpointing_FOV_Reverse_OffsetLocations) {
   fov_reverse(tapeIdFull, nonlinearDim, nonlinearDim, q, UqFull, ZqFull);
   fov_reverse(tapeIdPart, nonlinearDim, nonlinearDim, q, UqPart, ZqPart);
   compareMatrix(ZqFull.data(), ZqPart.data(), q, nonlinearDim);
-  /* myfree2(UqFull);
-  myfree2(UqPart);
-  myfree2(ZqFull);
-  myfree2(ZqPart); */
 }
 BOOST_AUTO_TEST_SUITE_END()

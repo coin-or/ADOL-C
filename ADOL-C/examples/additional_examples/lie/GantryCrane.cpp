@@ -41,7 +41,6 @@ using namespace std;
 /*                                                             MAIN PROGRAM */
 int main() {
   const int n = 4, m_H = 2;
-  /* double *x0 = myalloc(n); */
   std::vector<double> x0(n);
   double vf[n], vg[n], vh[n];
   adouble aX[n], af[n], ag[n], ah[m_H];
@@ -117,7 +116,6 @@ int main() {
    * calculation of Lie derivatives of scalar fields *
    ***************************************************/
 
-  /* double **scalar = myalloc2(m_H, d + 1); */
   Matrix<double> scalar(m_H, d + 1);
 
   cout << "Lie derivatives:" << endl << endl;
@@ -132,13 +130,11 @@ int main() {
   }
 
   cout << endl;
-  /* myfree2(scalar); */
 
   /****************************************************************
    * calculation of gradients of Lie derivatives of scalar fields *
    ****************************************************************/
 
-  /* double ***gradient = myalloc3(m_H, n, d + 1); */
   Tensor<double> gradient(m_H, n, d + 1);
 
   cout << "gradients of Lie derivatives:" << endl << endl;
@@ -155,13 +151,11 @@ int main() {
   }
 
   cout << endl;
-  /* myfree3(gradient); */
 
   /*******************************
    * calculation of Lie brackets *
    *******************************/
 
-  /* double **bracket = myalloc2(n, d + 1); */
   Matrix<double> bracket(n, d + 1);
 
   cout << "Lie brackets:" << endl << endl;
@@ -174,9 +168,6 @@ int main() {
       cout << "adfg_" << i << "_" << j << " =\t" << bracket[j][i] << endl;
     cout << endl;
   }
-
-  /* myfree2(bracket);
-  myfree(x0); */
 
   cout << "Press RETURN to continue" << endl;
   cin.get();

@@ -14,7 +14,6 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/dvlparms.h>
 #include <adolc/internal/common.h>
@@ -252,9 +251,6 @@ void tape_doc(short tnum,     /* tape id */
   int indexi = 0, indexd = 0;
 #endif
 
-  /* Taylor stuff */
-  /* double *dp_T0; */
-
   /* interface temporaries */
   size_t loc_a[ValueTape::maxLocsPerOp()];
   double cst_d[2] = {0, 0};
@@ -291,9 +287,8 @@ void tape_doc(short tnum,     /* tape id */
   op_cnt = 0;
   rev_op_cnt = tape.tapestats(TapeInfos::NUM_OPERATIONS) + 1;
 
-  /* dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES)); */
+  /* Taylor stuff */
   std::vector<double> dp_T0(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
-  /* dp_T0 = dp_T0_cont.data(); */
 
   operation = evalCtx.loadNextForward<OpInfo>();
   ++op_cnt;
@@ -1590,10 +1585,6 @@ void tape_doc(short tnum,     /* tape id */
   if (operation == end_of_tape) {
     filewrite_end(operation);
   };
-
-  /*  if (dp_T0)
-     free(dp_T0);
-     dp_T0 = NULL; */
 
   tape.end_sweep(evalCtx);
 } /* end tape_doc */

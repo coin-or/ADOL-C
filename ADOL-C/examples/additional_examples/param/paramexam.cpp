@@ -110,9 +110,6 @@ int main() {
   double *px = new double[n];
   double *lpx = new double[2 * n];
   double *grad_a = new double[2 * n];
-  /* double **hess = myalloc2(n, n);
-  double **hess_p = myalloc2(n, n);
-  double **hess_a = myalloc2(2 * n, 2 * n); */
   Matrix<double> hess(n);
   Matrix<double> hess_p(n);
   Matrix<double> hess_a(2 * n);
@@ -240,9 +237,6 @@ int main() {
   fprintf(stdout, "\n Point change grad + Hess2 2: \t%E", tpxe - tpxs);
   fprintf(stdout, "\n Point change grad + Hess2 3: \t%E", tixe - tixs);
 
-  /* myfree2(hess);
-  myfree2(hess_p);
-  myfree2(hess_a); */
   delete[] bv;
   delete[] px;
   delete[] grad;

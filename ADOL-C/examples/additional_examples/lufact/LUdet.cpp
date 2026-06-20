@@ -34,8 +34,6 @@ int main() { /*-----------------------------------------------------------------
   const int indep = size * size; // # of indeps
   const int depen = 1;           // # of deps
 
-  // double A[size][size], a1[size], a2[size], det; // passive variables
-  // adouble **AA, *AAp, Adet;                      // active variables
   // passive variables
   Matrix<double> A(size);
   std::vector<double> a1(size);
@@ -45,10 +43,7 @@ int main() { /*-----------------------------------------------------------------
   Matrix<adouble> AA;
   adouble Adet;
 
-  /* double *args = myalloc1(indep);                // arguments
-  double *grad = myalloc1(indep);                // the gradient
-  double **hess = myalloc2(indep, indep);        // the hessian */
-  std::vector<double> args(indep); // argument
+  std::vector<double> args(indep); // arguments
   std::vector<double> grad(indep); // gradient
   Matrix<double> hess(indep);      // hessian
 
@@ -60,12 +55,6 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allcoation und initialization of the system matrix */
-  /* AA = new adouble *[size];
-  AAp = new adouble[size * size]; */
-  /* for (i = 0; i < size; i++) {
-    AA[i] = AAp;
-    AAp += size;
-  } */
   AA = Matrix<adouble>{size};
 
   for (i = 0; i < size; i++) {

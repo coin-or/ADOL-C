@@ -141,13 +141,9 @@ int ADOLC_get_sparse_jacobian(func_ad<::adtl::adouble> *const fun,
     sJInfos.initColoring(m, n);
     sJInfos.generateSeedJac("COLUMN_PARTIAL_DISTANCE_TWO");
     sJInfos.seedRows_ = m;
-    /* sJInfos.B_ = myalloc2(sJInfos.seedRows_, sJInfos.seedClms_);
-    sJInfos.y_ = myalloc1(m); */
-    Matrix<double> B_cont{static_cast<size_t>(sJInfos.seedRows_),
-                          static_cast<size_t>(sJInfos.seedClms_)};
-    sJInfos.B_ = B_cont.data();
-    std::vector<double> y_cont(m);
-    sJInfos.y_ = y_cont.data();
+    sJInfos.B_ = Matrix<double>{static_cast<size_t>(sJInfos.seedRows_),
+                                static_cast<size_t>(sJInfos.seedClms_)};
+    sJInfos.y_ = std::vector<double>(m);
   }
   //  ret_val = fov_forward(tag, depen, indep, sJInfos.seed_clms, basepoint,
   //  sJInfos.Seed, sJInfos.y, sJInfos.B);

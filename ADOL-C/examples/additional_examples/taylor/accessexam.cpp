@@ -45,7 +45,6 @@ int main() {
   double *yp = new double[m];
   double **S = new double *[n];
   double *test = new double[m];
-  /* double **tensorhelp; */
   double ******tensor;
 
   for (i = 0; i < n; i++) {
@@ -77,7 +76,6 @@ int main() {
 
   /*--------------------------------------------------------------------------*/
   dim = binomi(p + d, d); /* tensor_eval */
-  /* tensorhelp = myalloc2(n, dim); */
   Matrix<double> tensorhelp(n, dim);
   cout << " d = " << d << ", dim = " << dim << "\n";
   tensor_eval(1, m, n, d, p, xp, tensorhelp.data(), S);

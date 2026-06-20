@@ -34,23 +34,18 @@ int main() { /*-----------------------------------------------------------------
   const int indep = size * size + size; // # of indeps
   const int depen = size;               // # of deps
 
-  /* double A[size][size], a1[size], a2[size], // passive variables
-      b[size], x[size]; */
   // passive variables
   Matrix<double> A(size);
   std::vector<double> a1(size);
   std::vector<double> a2(size);
   std::vector<double> b(size);
   std::vector<double> x(size);
-  /* adouble **AA, *AAp, *Abx; */ // active variables
+  // active variables
   Matrix<adouble> AA;
   std::vector<adouble> Abx;
-  /* double *args = myalloc1(indep);        // arguments
-  double **jac = myalloc2(depen, indep); // the Jacobian
-  double *laghessvec = myalloc1(indep);  // Hessian-vector product */
-  std::vector<double> args(indep);
-  Matrix<double> jac(depen, indep);
-  std::vector<double> laghessvec(indep);
+  std::vector<double> args(indep);       // arguments
+  Matrix<double> jac(depen, indep);      // the Jacobian
+  std::vector<double> laghessvec(indep); // Hessian-vector-product
 
   int i, j;
 
@@ -61,14 +56,7 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allocation und initialization of the system matrix */
-  /* AA = new adouble *[size];
-  AAp = new adouble[size * size];
-  for (i = 0; i < size; i++) {
-    AA[i] = AAp;
-    AAp += size;
-  } */
   AA = Matrix<adouble>(size);
-  /* Abx = new adouble[size]; */
   Abx = std::vector<adouble>(size);
   for (i = 0; i < size; i++) {
     a1[i] = i * 0.25;
