@@ -17,6 +17,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 BEGIN_C_DECLS
 
@@ -74,6 +75,23 @@ ADOLC_API int jac_solv(unsigned short tag, int n, const double *x, double *b,
                        unsigned short mode);
 
 END_C_DECLS
+
+/* tensor_eval_wrapper(tag,m,n,d,p,x[n],tensor[m][dim],S[n][p])
+      with dim = ((p+d) over d) */
+ADOLC_API inline int tensor_eval(short tag, int m, int n, int d, int p,
+                                 std::span<double> x,
+                                 std::span<double *> tensor,
+                                 std::span<double *> S) {
+  return tensor_eval(tag, m, n, d, p, x.data(), tensor.data(), S.data());
+};
+
+/* tensor_value_wrapper(d,m,y[m],tensori[m][dim],multi[d])
+      with dim = ((p+d) over d) */
+ADOLC_API inline void tensor_value(int d, int m, std::span<double> y,
+                                   std::span<double *> tensor,
+                                   std::span<int> multi) {
+  return tensor_value(d, m, y.data(), tensor.data(), multi.data());
+};
 
 /****************************************************************************/
 #endif

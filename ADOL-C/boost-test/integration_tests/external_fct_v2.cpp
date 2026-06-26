@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(ExtDiffV2_GradientParity) {
   std::array<double, 2> grad_ext{};
 
   setup_full_taping_v2(conp);
-  gradient(tapeIdFullV2, 2, conp.data(), grad_full.data());
+  gradient(tapeIdFullV2, 2, conp, grad_full);
 
   setup_external_function_v2(conp);
   setup_external_taping_v2(conp);
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(ExtDiffV2_ChangingLocationsParity) {
     f >>= f_out;
   }
   trace_off();
-  gradient(tapeIdFull, 2, conp.data(), grad_full.data());
+  gradient(tapeIdFull, 2, conp, grad_full);
 
   ext_diff_fct_v2 *edf =
       reg_ext_fct(tapeIdPart, tapeIdExt, grouped_euler_step_v2);

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
 using namespace std;
 
 /****************************************************************************/
@@ -55,26 +56,26 @@ int main() {
   /*--------------------------------------------------------------------------*/
   /* allocations and inits */
 
-  double *xp = new double[n]; /* passive indeps        */
-  double *yp = new double[m]; /* passive depends       */
+  std::vector<double> xp(n); /* passive indeps        */
+  std::vector<double> yp(m); /* passive depends       */
 
   /* vector x Hessian x matrix = Upp x H x XPPP */
 
-  double *Up = myalloc(m); /* vector on left-hand side                */
-  double **Upp = myalloc(m, d + 1);  /* vector on left-hand side  */
-  double ***Xppp = myalloc(n, q, d); /* matrix on right-hand side             */
-  double ***Zppp = myalloc(q, n, d + 1); /* result of Up x H x XPPP */
-
-  double ***Yppp = myalloc(m, q, d); /* results of needed hos_wk_forward      */
+  std::vector<double> Up(m);
+  Matrix<double> Upp(m, d + 1);
+  Tensor<double> Xppp(n, q, d);
+  Tensor<double> Zppp(q, n, d + 1);
+  Tensor<double> Yppp(m, q, d);
 
   /* check results with usual lagra-Hess-vec  */
 
-  double **Xpp = myalloc(n, d);
-  double **V = myalloc(n, q);
-  double **W = myalloc(q, n);
-  double **H = myalloc(n, n);
-  double **Ypp = myalloc(m, d);
-  double **Zpp = myalloc(n, d + 1);
+  Matrix<double> Xpp(n, d);
+  Matrix<double> V(n, q);
+  Matrix<double> W(q, n);
+  Matrix<double> H(n, n);
+  Matrix<double> Ypp(m, d);
+  Matrix<double> Zpp(n, d + 1);
+
   /* inits */
 
   for (l = 0; l < d; l++) /* first everything is set to zero */
@@ -115,8 +116,10 @@ int main() {
   /*--------------------------------------------------------------------------*/
   trace_on(1); /* tracing the function */
 
-  adouble *x = new adouble[n]; /* active indeps         */
-  adouble *y = new adouble[m]; /* active depends        */
+  // adouble *x = new adouble[n]; /* active indeps         */
+  // adouble *y = new adouble[m]; /* active depends        */
+  std::vector<adouble> x(n); /* active indeps         */
+  std::vector<adouble> y(m); /* active depends        */
   for (i = 0; i < m; i++)
     y[i] = 1;
   for (i = 0; i < n; i++) {
@@ -166,7 +169,7 @@ int main() {
   /* seem to be faster than call of lagra_hess_vec(..) */
   /* at least in some of our test cases */
 
-  hos_forward(1, m, n, d, keep, xp, Xpp, yp, Ypp);
+  hos_forward(1, m, n, d, keep, xp.data(), Xpp.data(), yp.data(), Ypp.data());
   hos_reverse(1, m, n, keep - 1, Up, Zpp);
 
   printf("\n Results of hos_reverse:\n\n");
@@ -185,7 +188,8 @@ int main() {
      Now we have hov with keep (=wk) and the results needed on
      the way back are stored in a specific tape */
 
-  hov_wk_forward(1, m, n, d, keep, q, xp, Xppp, yp, Yppp);
+  hov_wk_forward(1, m, n, d, keep, q, xp.data(), Xppp.data(), yp.data(),
+                 Yppp.data());
 
   /* The corresponding reverse sweep
      So far we had only a higher-order-scalar (=hos, scalar because
@@ -210,14 +214,14 @@ int main() {
 
   if (m == 1) {
     printf("hess_mat:\n");
-    hess_mat(1, n, q, xp, V, W);
+    hess_mat(1, n, q, xp.data(), V.data(), W.data());
     for (i = 0; i < q; i++) {
       for (j = 0; j < n; j++)
         printf(" %6.3f ", W[i][j]);
       printf("\n");
     }
     printf("hessian2:\n");
-    hessian2(1, n, xp, H);
+    hessian2(1, n, xp.data(), H.data());
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++)
         printf(" %6.3f ", H[i][j]);
@@ -225,18 +229,6 @@ int main() {
     }
   }
 
-  myfree(Zpp);
-  myfree(Ypp);
-  myfree(H);
-  myfree(W);
-  myfree(V);
-  myfree(Xpp);
-  myfree(Zppp);
-  myfree(Yppp);
-  myfree(Xppp);
-  myfree(yp);
-  myfree(xp);
-  myfree(Up);
   return 1;
 }
 

@@ -21,6 +21,7 @@
 #include <adolc/internal/common.h>
 #include <adolc/tape_interface.h>
 #include <cmath>
+#include <span>
 #include <vector>
 
 BEGIN_C_DECLS
@@ -99,19 +100,19 @@ int directional_active_gradient(short tag,       /* trace identifier */
 ) {
   int max_dk, keep;
   double max_entry, y, by;
-  double *z;
-  double **E, **grad, **gradu;
+  /* double *z;
+  double **E, **grad, **gradu; */
 
   keep = 1;
   by = 1;
 
   const size_t s = get_num_switches(tag);
 
-  z = myalloc1(s);
+  std::vector<double> z(s);
 
-  grad = (double **)myalloc2(1, n);
-  gradu = (double **)myalloc2(s, n);
-  E = (double **)myalloc2(n, n);
+  Matrix<double> grad{1, static_cast<size_t>(n)};
+  Matrix<double> gradu{static_cast<size_t>(s), static_cast<size_t>(n)};
+  Matrix<double> E{static_cast<size_t>(n)};
 
   max_dk = 0;
   max_entry = -1;
@@ -128,7 +129,8 @@ int directional_active_gradient(short tag,       /* trace identifier */
   int j = 0;
 
   while ((k < 6) && (done == 0)) {
-    fov_pl_forward(tag, 1, n, k, x, E, &y, grad, z, gradu, sigma_g);
+    fov_pl_forward(tag, 1, n, k, x, E.data(), &y, grad.data(), z.data(),
+                   gradu.data(), sigma_g);
 
     size_t sum = 0;
     for (size_t i = 0; i < s; i++) {
@@ -136,7 +138,7 @@ int directional_active_gradient(short tag,       /* trace identifier */
     }
 
     if (sum == s) {
-      zos_pl_forward(tag, 1, n, keep, x, &y, z);
+      zos_pl_forward(tag, 1, n, keep, x, &y, z.data());
       // the cast is necessary since the type signature uses "int". Its now
       // explicit.
       fos_pl_sig_reverse(tag, 1, n, static_cast<int>(s), sigma_g, &by, g);
@@ -149,11 +151,6 @@ int directional_active_gradient(short tag,       /* trace identifier */
       k++;
     }
   }
-
-  myfree1(z);
-  myfree2(E);
-  myfree2(grad);
-  myfree2(gradu);
 
   if (done == 0)
     ADOLCError::fail(ADOLCError::ErrorType::DIRGRAD_NOT_ENOUGH_DIRS,

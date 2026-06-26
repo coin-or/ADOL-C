@@ -40,6 +40,7 @@ and _NTIGHT__
 #include <adolc/valuetape/valuetape.h>
 #include <math.h>
 #include <string.h>
+#include <vector>
 
 #if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
@@ -929,7 +930,7 @@ int hov_forward(
   double *dp_T;
 #define T_TEMP Ttemp;
 #else
-  double *dp_Ttemp = nullptr;
+  /* double *dp_Ttemp = nullptr; */
   double **dpp_T = nullptr;
 #endif
   double *Tres = nullptr;
@@ -1127,7 +1128,8 @@ int hov_forward(
 
   /*--------------------------------------------------------------------------*/
 #if !defined(_NTIGHT_)
-  dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  std::vector<double> dp_T0_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  dp_T0 = dp_T0_data.data();
 
   if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
     if (tape.signature()) {
@@ -1159,7 +1161,8 @@ int hov_forward(
     ADOLCError::fail(ADOLCError::ErrorType::FWD_FO_KEEP, CURRENT_LOCATION);
 
 #endif
-  dp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  std::vector<double> dp_T_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  dp_T = dp_T_data.data();
 #define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
   if (keep) {
@@ -1171,7 +1174,8 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* INT_FOR */
 #if defined(_INT_FOR_)
-  up_T = myalloc2_ulong(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
+  Matrix<size_t> up_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p)};
+  up_T = up_T_data.data();
 #define TAYLOR_BUFFER up_T
 
   /*--------------------------------------------------------------------------*/
@@ -1218,19 +1222,24 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* FOV */
 #if defined(_FOV_)
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
+  Matrix<double> dpp_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p)};
+  dpp_T = dpp_T_data.data();
 #define TAYLOR_BUFFER dpp_T
-  dp_Ttemp = myalloc1(p);
-#define T_TEMP dp_Ttemp;
+  /* std::vector<double> dp_Ttemp_data(p);
+  dp_Ttemp = dp_Ttemp_data.data(); */
+/* #define T_TEMP dp_Ttemp; */
 
   /*--------------------------------------------------------------------------*/
 #else /* HOS */
 #if defined(_HOS_)
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
+  Matrix<double> dpp_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(k)};
+  dpp_T = dpp_T_data.data();
 #define TAYLOR_BUFFER dpp_T
-  dp_z = myalloc1(k);
-  dp_Ttemp = myalloc1(k);
-#define T_TEMP dp_Ttemp;
+  std::vector<double> dp_z_data(k);
+  dp_z = dp_z_data.data();
+  /* std::vector<double> dp_Ttemp_data(k);
+  dp_Ttemp = dp_Ttemp_data.data(); */
+/* #define T_TEMP dp_Ttemp; */
 #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = tape.tapestats(TapeInfos::TAY_BUFFER_SIZE);
@@ -1240,11 +1249,14 @@ int hov_forward(
 
   /*--------------------------------------------------------------------------*/
 #else /* HOV and HOV_WK */
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
+  Matrix<double> dpp_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p * k)};
+  dpp_T = dpp_T_data.data();
 #define TAYLOR_BUFFER dpp_T
-  dp_z = myalloc1(k);
-  dp_Ttemp = myalloc1(p * k);
-#define T_TEMP dp_Ttemp;
+  std::vector<double> dp_z_data(k);
+  dp_z = dp_z_data.data();
+  /* std::vector<double> dp_Ttemp_data(p * k);
+  dp_Ttemp = dp_Ttemp_data.data(); */
+/* #define T_TEMP dp_Ttemp; */
 #if defined(_KEEP_)
   if (keep) {
     const size_t taylbuf = tape.tapestats(TapeInfos::TAY_BUFFER_SIZE);
@@ -5837,24 +5849,18 @@ int hov_forward(
 
   /* clean up */
 #if !defined(_NTIGHT_)
-  myfree1(dp_T0);
 #endif /* !_NTIGHT_ */
 #if !defined(_INDO_)
 #if !defined(_ZOS_)
 #if defined(_FOS_)
-  myfree1(dp_T);
 #else
 #if !defined(_INT_FOR_)
-  myfree2(dpp_T);
-  myfree1(dp_Ttemp);
 #else
-  myfree2_ulong(up_T);
 #endif /* !_NTIGHT_ */
 #endif
 #endif
 #endif
 #if defined(_HIGHER_ORDER_)
-  myfree1(dp_z);
 #endif
 
   tape.end_sweep();

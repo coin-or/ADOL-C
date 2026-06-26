@@ -384,29 +384,28 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
   std::vector<double> cz;
   std::vector<double> cy;
 
-  double **J, **Y;
-  double **Z, **L;
+  /* double **J, **Y;
+  double **Z, **L; */
+  Matrix<double> J;
+  Matrix<double> Y;
+  Matrix<double> Z;
+  Matrix<double> L;
 
   std::vector<double> d;
   std::vector<double> g;
-  double **gradz;
+  /* double **gradz; */
+  Matrix<double> gradz;
 
   std::vector<short> sigma_x;
   std::vector<short> sigma_g;
 
-  ANFProblem(ANFProblem &anfProblem) = delete;
-  ANFProblem(ANFProblem &&anfProblem) = delete;
+  ANFProblem(const ANFProblem &anfProblem) = default;
+  ANFProblem(ANFProblem &&anfProblem) = default;
 
-  ANFProblem operator=(ANFProblem &anfProblem) = delete;
-  ANFProblem operator=(ANFProblem &&anfProblem) = delete;
+  ANFProblem &operator=(ANFProblem &anfProblem) = default;
+  ANFProblem &operator=(ANFProblem &&anfProblem) = default;
 
-  ~ANFProblem() {
-    myfree2(Z);
-    myfree2(L);
-    myfree2(J);
-    myfree2(Y);
-    myfree2(gradz);
-  }
+  ~ANFProblem() = default;
   constexpr ANFProblem(short numSVars,
                        const ANFProblem<Version, UnAllocated> &base)
       : in(base.init), out(base.out) {
@@ -418,14 +417,15 @@ template <size_t Version> struct ANFProblem<Version, Allocated> {
 
     cz.resize(numSwitchingVars);
     cy.resize(dimOut);
-    Z = myalloc2(numSwitchingVars, dimIn);
-    L = myalloc2(numSwitchingVars, numSwitchingVars);
-    J = myalloc2(dimOut, numSwitchingVars);
-    Y = myalloc2(dimOut, dimIn);
+
+    Z = Matrix<double>(numSwitchingVars, dimIn);
+    L = Matrix<double>(numSwitchingVars, numSwitchingVars);
+    J = Matrix<double>(dimOut, numSwitchingVars);
+    Y = Matrix<double>(dimOut, dimIn);
 
     d.resize(dimIn);
     g.resize(dimIn);
-    gradz = myalloc2(numSwitchingVars, dimIn);
+    gradz = Matrix<double>(numSwitchingVars, dimIn);
   }
 };
 
@@ -433,14 +433,13 @@ template <size_t Version>
 void computeANF(ANFProblem<Version, Allocated> &anfProblemAlloc, short tapeId) {
 
   zos_pl_forward(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn, 1,
-                 anfProblemAlloc.in.data(), anfProblemAlloc.out.data(),
-                 anfProblemAlloc.z.data());
+                 anfProblemAlloc.in, anfProblemAlloc.out, anfProblemAlloc.z);
 
   abs_normal(tapeId, anfProblemAlloc.dimOut, anfProblemAlloc.dimIn,
              anfProblemAlloc.numSwitchingVars, anfProblemAlloc.in.data(),
              anfProblemAlloc.out.data(), anfProblemAlloc.z.data(),
-             anfProblemAlloc.Y, anfProblemAlloc.J, anfProblemAlloc.Z,
-             anfProblemAlloc.L);
+             anfProblemAlloc.Y.data(), anfProblemAlloc.J.data(),
+             anfProblemAlloc.Z.data(), anfProblemAlloc.L.data());
 }
 
 template <size_t Version>

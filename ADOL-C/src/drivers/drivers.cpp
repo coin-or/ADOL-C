@@ -16,6 +16,7 @@
 #include <adolc/adalloc.h>
 #include <adolc/drivers/drivers.h>
 #include <adolc/interfaces.h>
+#include <vector>
 
 #include <math.h>
 
@@ -55,17 +56,14 @@ int gradient(short tag, int n, const double *argument, double *result) {
 int vec_jac(short tag, int m, int n, int repeat, const double *argument,
             const double *lagrange, double *row) {
   int rc = -1;
-  double *y = NULL;
 
   if (!repeat) {
-    y = myalloc1(m);
-    rc = zos_forward(tag, m, n, 1, argument, y);
+    std::vector<double> y(m);
+    rc = zos_forward(tag, m, n, 1, argument, y.data());
     if (rc < 0)
       return rc;
   }
   MINDEC(rc, fos_reverse(tag, m, n, lagrange, row));
-  if (!repeat)
-    myfree1(y);
   return rc;
 }
 
@@ -76,24 +74,21 @@ int vec_jac(short tag, int m, int n, int repeat, const double *argument,
 int jacobian(short tag, int depen, int indep, const double *argument,
              double **jacobian) {
   int rc;
-  double *result, **I;
 
-  result = myalloc1(depen);
+  std::vector<double> result(depen);
+  Matrix<double> I;
 
   if (indep / 2 < depen) {
-    I = myallocI2(indep);
-    rc = fov_forward(tag, depen, indep, indep, argument, I, result, jacobian);
-    myfreeI2(indep, I);
+    I = unitMatrix<double>(indep);
+    rc = fov_forward(tag, depen, indep, indep, argument, I.data(),
+                     result.data(), jacobian);
   } else {
-    I = myallocI2(depen);
-    rc = zos_forward(tag, depen, indep, 1, argument, result);
+    I = unitMatrix<double>(depen);
+    rc = zos_forward(tag, depen, indep, 1, argument, result.data());
     if (rc < 0)
       return rc;
-    MINDEC(rc, fov_reverse(tag, depen, indep, depen, I, jacobian));
-    myfreeI2(depen, I);
+    MINDEC(rc, fov_reverse(tag, depen, indep, depen, I.data(), jacobian));
   }
-
-  myfree1(result);
 
   return rc;
 }
@@ -105,9 +100,9 @@ int jacobian(short tag, int depen, int indep, const double *argument,
 int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
                    double *result, double **jacobian) {
   int rc, dirs, i;
-  double **I;
 
-  I = myallocI2(indep);
+  auto I = unitMatrix<double>(indep);
+
   if (runns > indep)
     runns = indep;
   if (runns < 1)
@@ -116,13 +111,12 @@ int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
   if (indep % runns)
     ++dirs;
   for (i = 0; i < runns - 1; ++i) {
-    rc = fov_offset_forward(tag, depen, indep, dirs, i * dirs, argument, I,
-                            result, jacobian);
+    rc = fov_offset_forward(tag, depen, indep, dirs, i * dirs, argument,
+                            I.data(), result, jacobian);
   }
   dirs = indep - (runns - 1) * dirs;
-  rc = fov_offset_forward(tag, depen, indep, dirs, indep - dirs, argument, I,
-                          result, jacobian);
-  myfreeI2(indep, I);
+  rc = fov_offset_forward(tag, depen, indep, dirs, indep - dirs, argument,
+                          I.data(), result, jacobian);
   return rc;
 }
 
@@ -132,12 +126,10 @@ int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
 int jac_vec(short tag, int m, int n, const double *argument,
             const double *tangent, double *column) {
   int rc = -1;
-  double *y;
 
-  y = myalloc1(m);
+  std::vector<double> y(m);
 
-  rc = fos_forward(tag, m, n, 0, argument, tangent, y, column);
-  myfree1(y);
+  rc = fos_forward(tag, m, n, 0, argument, tangent, y.data(), column);
 
   return rc;
 }
@@ -159,15 +151,14 @@ int hess_mat(short tag, int n, int q, const double *argument,
   int rc;
   int i, j;
   double y;
-  double ***Xppp;
-  double ***Yppp;
-  double ***Zppp;
-  double **Upp;
 
-  Xppp = myalloc3(n, q, 1); /* matrix on right-hand side  */
-  Yppp = myalloc3(1, q, 1); /* results of hos_wk_forward  */
-  Zppp = myalloc3(q, n, 2); /* result of Up x H x XPPP */
-  Upp = myalloc2(1, 2);     /* vector on left-hand side */
+  Tensor<double> Xppp{static_cast<size_t>(n), static_cast<size_t>(q),
+                      1}; /* matrix on right-hand side  */
+  Tensor<double> Yppp{1, static_cast<size_t>(q),
+                      1}; /* results of hos_wk_forward  */
+  Tensor<double> Zppp{static_cast<size_t>(q), static_cast<size_t>(n),
+                      2};   /* result of Up x H x XPPP */
+  Matrix<double> Upp{1, 2}; /* vector on left-hand side */
 
   for (i = 0; i < n; ++i)
     for (j = 0; j < q; ++j)
@@ -176,17 +167,13 @@ int hess_mat(short tag, int n, int q, const double *argument,
   Upp[0][0] = 1;
   Upp[0][1] = 0;
 
-  rc = hov_wk_forward(tag, 1, n, 1, 2, q, argument, Xppp, &y, Yppp);
-  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, q, Upp, Zppp));
+  rc = hov_wk_forward(tag, 1, n, 1, 2, q, argument, Xppp.data(), &y,
+                      Yppp.data());
+  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, q, Upp.data(), Zppp.data()));
 
   for (i = 0; i < q; ++i)
     for (j = 0; j < n; ++j)
       result[j][i] = Zppp[i][j][1];
-
-  myfree2(Upp);
-  myfree3(Zppp);
-  myfree3(Yppp);
-  myfree3(Xppp);
 
   return rc;
 }
@@ -198,16 +185,16 @@ int hess_mat(short tag, int n, int q, const double *argument,
 int hessian(short tag, int n, const double *argument, double **hess) {
   int rc = 3;
   int i, j;
-  double *v = myalloc1(n);
-  double *w = myalloc1(n);
+  std::vector<double> v(n);
+  std::vector<double> w(n);
   for (i = 0; i < n; i++)
     v[i] = 0;
   for (i = 0; i < n; i++) {
     v[i] = 1;
-    MINDEC(rc, hess_vec(tag, n, argument, v, w));
+    MINDEC(rc, hess_vec(tag, n, argument, v.data(), w.data()));
     if (rc < 0) {
-      free((char *)v);
-      free((char *)w);
+      /* free((char *)v);
+      free((char *)w); */
       return rc;
     }
     for (j = 0; j <= i; j++)
@@ -215,8 +202,8 @@ int hessian(short tag, int n, const double *argument, double **hess) {
     v[i] = 0;
   }
 
-  free((char *)v);
-  free((char *)w);
+  /* free((char *)v);
+  free((char *)w); */
   return rc;
   /* Note that only the lower triangle of hess is filled */
 }
@@ -229,11 +216,14 @@ int hessian2(short tag, int n, double *argument, double **hess) {
   int rc;
   int i, j;
 
-  double ***Xppp = myalloc3(n, n, 1); /* matrix on right-hand side  */
-  double *y = myalloc1(1);            /* results of function evaluation */
-  double ***Yppp = myalloc3(1, n, 1); /* results of hov_wk_forward  */
-  double ***Zppp = myalloc3(n, n, 2); /* result of Up x H x XPPP */
-  double **Upp = myalloc2(1, 2);      /* vector on left-hand side */
+  Tensor<double> Xppp{static_cast<size_t>(n), static_cast<size_t>(n),
+                      1};   /* matrix on right-hand side  */
+  std::vector<double> y(1); /* results of function evaluation */
+  Tensor<double> Yppp{1, static_cast<size_t>(n),
+                      1}; /* results of hov_wk_forward  */
+  Tensor<double> Zppp{static_cast<size_t>(n), static_cast<size_t>(n),
+                      2};   /* result of Up x H x XPPP */
+  Matrix<double> Upp{1, 2}; /* vector on left-hand side */
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++)
@@ -244,18 +234,14 @@ int hessian2(short tag, int n, double *argument, double **hess) {
   Upp[0][0] = 1;
   Upp[0][1] = 0;
 
-  rc = hov_wk_forward(tag, 1, n, 1, 2, n, argument, Xppp, y, Yppp);
-  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, n, Upp, Zppp));
+  rc = hov_wk_forward(tag, 1, n, 1, 2, n, argument, Xppp.data(), y.data(),
+                      Yppp.data());
+  MINDEC(rc, hos_ov_reverse(tag, 1, n, 1, n, Upp.data(), Zppp.data()));
 
   for (i = 0; i < n; i++)
     for (j = 0; j <= i; j++)
       hess[i][j] = Zppp[i][j][1];
 
-  myfree2(Upp);
-  myfree3(Zppp);
-  myfree3(Yppp);
-  myfree1(y);
-  myfree3(Xppp);
   return rc;
   /* Note that only the lower triangle of hess is filled */
 }
@@ -270,25 +256,21 @@ int lagra_hess_vec(short tag, int m, int n, const double *argument,
   int i;
   int degree = 1;
   int keep = degree + 1;
-  double **X, *y, *y_tangent;
 
-  X = myalloc2(n, 2);
-  y = myalloc1(m);
-  y_tangent = myalloc1(m);
+  Matrix<double> X{static_cast<size_t>(n), 2};
+  std::vector<double> y(m);
+  std::vector<double> y_tangent(m);
 
-  rc = fos_forward(tag, m, n, keep, argument, tangent, y, y_tangent);
+  rc = fos_forward(tag, m, n, keep, argument, tangent, y.data(),
+                   y_tangent.data());
 
   if (rc < 0)
     return rc;
 
-  MINDEC(rc, hos_reverse(tag, m, n, degree, lagrange, X));
+  MINDEC(rc, hos_reverse(tag, m, n, degree, lagrange, X.data()));
 
   for (i = 0; i < n; ++i)
     result[i] = X[i][1];
-
-  myfree1(y_tangent);
-  myfree1(y);
-  myfree2(X);
 
   return rc;
 }

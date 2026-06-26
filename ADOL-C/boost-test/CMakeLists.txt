@@ -18,6 +18,7 @@ find_package(OpenMP)
 set(SOURCE_FILES
     adouble.cpp
     main.cpp
+    matrixView.cpp
     pdouble.cpp
     traceCompositeTests.cpp
     tracelessCompositeTests.cpp

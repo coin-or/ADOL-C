@@ -41,13 +41,13 @@ fint forodec_(fint *ftag,    /* tape identifier */
       deg = static_cast<int>(*fdeg);
   int i;
   double tau = *ftau;
-  double **Y = myalloc2(n, deg + 1);
-  for (i = 0; i < n; i++)
-    *Y[i] = fy[i];
-  rc = forodec(tag, n, tau, dol, deg, Y);
-  pack2(n, deg + 1, Y, fy);
-  free((char *)*Y);
-  free((char *)Y);
+  Matrix<double> Y{static_cast<size_t>(n), static_cast<size_t>(deg + 1)};
+  for (i = 0; i < n; i++) {
+    /* *Y[i] = fy[i]; */
+    Y[i][0] = fy[i];
+  }
+  rc = forodec(tag, n, tau, dol, deg, Y.data());
+  pack2(n, deg + 1, Y.data(), fy);
   return rc;
 }
 
@@ -63,17 +63,13 @@ fint accodec_(fint *fn,      /* space dimension */
   int rc = 1;
   int n = static_cast<int>(*fn), deg = static_cast<int>(*fdeg);
   double tau = *ftau;
-  double ***A = myalloc3(n, n, deg);
-  double ***B = myalloc3(n, n, deg);
-  spread3(n, n, deg, fa, A);
-  accodec(n, tau, deg, A, B, 0);
-  pack3(n, n, deg, B, fb);
-  free((char *)**A);
-  free((char *)*A);
-  free((char *)A);
-  free((char *)**B);
-  free((char *)*B);
-  free((char *)B);
+  Tensor<double> A{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(deg)};
+  Tensor<double> B{static_cast<size_t>(n), static_cast<size_t>(n),
+                   static_cast<size_t>(deg)};
+  spread3(n, n, deg, fa, A.data());
+  accodec(n, tau, deg, A.data(), B.data(), 0);
+  pack3(n, n, deg, B.data(), fb);
   return rc;
 }
 
