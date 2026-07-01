@@ -38,11 +38,7 @@ struct SparseJacInfos::Impl {
 };
 
 SparseJacInfos::~SparseJacInfos() {
-  if (y_)
-    myfree1(y_);
   y_ = nullptr;
-  if (B_)
-    myfree2(B_);
   B_ = nullptr;
 
   for (auto &j : JP_) {
@@ -70,8 +66,6 @@ SparseJacInfos &SparseJacInfos::operator=(SparseJacInfos &&other) noexcept {
   if (this != &other) {
     // Free existing resources
 
-    myfree1(y_);
-    myfree2(B_);
     for (auto &jp : JP_) {
       delete[] jp;
       jp = nullptr;
@@ -288,19 +282,14 @@ struct SparseHessInfos::Impl {
 };
 
 SparseHessInfos::~SparseHessInfos() {
-  myfree2(Hcomp_);
   Hcomp_ = nullptr;
 
-  myfree3(Xppp_);
   Xppp_ = nullptr;
 
-  myfree3(Yppp_);
   Yppp_ = nullptr;
 
-  myfree3(Zppp_);
   Zppp_ = nullptr;
 
-  myfree2(Upp_);
   Upp_ = nullptr;
 
   for (auto &h : HP_) {
@@ -313,10 +302,20 @@ SparseHessInfos::SparseHessInfos()
     : pimpl_(std::make_unique<SparseHessInfos::Impl>()) {};
 
 SparseHessInfos::SparseHessInfos(SparseHessInfos &&other) noexcept
-    : pimpl_(std::move(other.pimpl_)), Hcomp_(other.Hcomp_), Xppp_(other.Xppp_),
-      Yppp_(other.Yppp_), Zppp_(other.Zppp_), Upp_(other.Upp_),
-      HP_(std::move(other.HP_)), nnzIn_(other.nnzIn_), indep_(other.indep_),
-      p_(other.p_) {
+    : pimpl_(std::move(other.pimpl_)), Hcomp_(nullptr), Xppp_(nullptr),
+      Yppp_(nullptr), Zppp_(nullptr), Upp_(nullptr),
+      Hcomp_cont(std::move(other.Hcomp_cont)),
+      Xppp_cont(std::move(other.Xppp_cont)),
+      Yppp_cont(std::move(other.Yppp_cont)),
+      Zppp_cont(std::move(other.Zppp_cont)),
+      Upp_cont(std::move(other.Upp_cont)), HP_(std::move(other.HP_)),
+      nnzIn_(other.nnzIn_), indep_(other.indep_), p_(other.p_) {
+
+  Hcomp_ = Hcomp_cont.data();
+  Xppp_ = Xppp_cont.data();
+  Yppp_ = Yppp_cont.data();
+  Zppp_ = Zppp_cont.data();
+  Upp_ = Upp_cont.data();
 
   // Null out moved-from object's pointers
   other.Hcomp_ = nullptr;
@@ -329,11 +328,6 @@ SparseHessInfos::SparseHessInfos(SparseHessInfos &&other) noexcept
 SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
   if (this != &other) {
     // Free existing resources
-    myfree2(Hcomp_);
-    myfree3(Xppp_);
-    myfree3(Yppp_);
-    myfree3(Zppp_);
-    myfree2(Upp_);
 
     for (auto &hp : HP_) {
       delete[] hp;
@@ -342,11 +336,21 @@ SparseHessInfos &SparseHessInfos::operator=(SparseHessInfos &&other) noexcept {
 
     // Move resources
     pimpl_ = std::move(other.pimpl_);
-    Hcomp_ = other.Hcomp_;
+    /* Hcomp_ = other.Hcomp_;
     Xppp_ = other.Xppp_;
     Yppp_ = other.Yppp_;
     Zppp_ = other.Zppp_;
-    Upp_ = other.Upp_;
+    Upp_ = other.Upp_; */
+    Hcomp_cont = std::move(other.Hcomp_cont);
+    Xppp_cont = std::move(other.Xppp_cont);
+    Yppp_cont = std::move(other.Yppp_cont);
+    Zppp_cont = std::move(other.Zppp_cont);
+    Upp_cont = std::move(other.Upp_cont);
+    Hcomp_ = Hcomp_cont.data();
+    Xppp_ = Xppp_cont.data();
+    Yppp_ = Yppp_cont.data();
+    Zppp_ = Zppp_cont.data();
+    Upp_ = Upp_cont.data();
     HP_ = std::move(other.HP_);
     nnzIn_ = other.nnzIn_;
     indep_ = other.indep_;

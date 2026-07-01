@@ -40,8 +40,8 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[1][0][0] = 1.9;
@@ -68,8 +68,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   // max(x^2, y^3)
   double test_out = std::fmax(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 3 * std::pow(test_in[1], 2) * X[1][0][0],
@@ -99,8 +98,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::fmax(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 2 * test_in[0] * X[0][0][0], tt::tolerance(tol));
@@ -148,8 +146,7 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // A < B
@@ -173,9 +170,6 @@ BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_Forward) {
                  1.0 / 2.0 * 6.0 * test_in[1] * X[1][2][0] * X[1][2][0] +
                      3.0 * std::pow(test_in[1], 2.0) * X[1][2][1],
              tt::tolerance(tol));
-
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
@@ -200,8 +194,8 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[1][0][0] = 1.9;
@@ -228,8 +222,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   // max(x^2, y^3)
   double test_out = std::max(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 3 * std::pow(test_in[1], 2) * X[1][0][0],
@@ -259,8 +252,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::max(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == 2 * test_in[0] * X[0][0][0], tt::tolerance(tol));
@@ -308,8 +300,7 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // A < B
@@ -333,9 +324,6 @@ BOOST_AUTO_TEST_CASE(MaxOperator_HOV_Forward) {
                  1.0 / 2.0 * 6.0 * test_in[1] * X[1][2][0] * X[1][2][0] +
                      3.0 * std::pow(test_in[1], 2.0) * X[1][2][1],
              tt::tolerance(tol));
-
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
@@ -360,8 +348,8 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[1][0][0] = 1.9;
@@ -389,8 +377,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   double test_out =
       std::fmin(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == -3 * std::pow(test_in[1], 2) * X[1][0][0],
@@ -420,8 +407,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::fmin(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == -2 * test_in[0] * X[0][0][0], tt::tolerance(tol));
@@ -469,8 +455,7 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // A < B
@@ -494,9 +479,6 @@ BOOST_AUTO_TEST_CASE(FminOperator_HOV_Forward) {
                  -1.0 / 2.0 * 6.0 * test_in[1] * X[1][2][0] * X[1][2][0] -
                      3.0 * std::pow(test_in[1], 2.0) * X[1][2][1],
              tt::tolerance(tol));
-
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
@@ -521,8 +503,8 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[1][0][0] = 1.9;
@@ -550,8 +532,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   double test_out =
       std::min(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == -3 * std::pow(test_in[1], 2) * X[1][0][0],
@@ -581,8 +562,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   test_in[1] = 1.0;
   // max(x^2, y^3)
   test_out = std::min(-std::pow(test_in[0], 2), -std::pow(test_in[1], 3));
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
   BOOST_TEST(Y[0][0][0] == -2 * test_in[0] * X[0][0][0], tt::tolerance(tol));
@@ -630,8 +610,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
   X[0][2][1] = 1.0;
   X[1][2][1] = 2.0;
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
   // A < B
@@ -655,9 +634,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOV_Forward) {
                  -1.0 / 2.0 * 6.0 * test_in[1] * X[1][2][0] * X[1][2][0] -
                      3.0 * std::pow(test_in[1], 2.0) * X[1][2][1],
              tt::tolerance(tol));
-
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
@@ -678,8 +654,8 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -695,8 +671,7 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
   // exp(x1^2)
   double test_out = std::exp(std::pow(in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -751,8 +726,6 @@ BOOST_AUTO_TEST_CASE(ExpOperator_HOV_Forward) {
                    12 * std::exp(std::pow(test_in[0], 2)) * test_in[0]) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
@@ -774,8 +747,8 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -798,8 +771,7 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
   // x1^2 * x2^3
   double test_out = std::pow(test_in[0], 2) * std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -878,8 +850,6 @@ BOOST_AUTO_TEST_CASE(MultOperator_HOV_Forward) {
                           6.0 * std::pow(test_in[0], 2) * X[1][0][0] *
                               X[1][0][0] * X[1][0][0]),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
@@ -901,8 +871,8 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -925,8 +895,7 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
   // x1^2 + x2^3
   double test_out = std::pow(test_in[0], 2) + std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -967,8 +936,6 @@ BOOST_AUTO_TEST_CASE(AddOperator_HOV_Forward) {
                      6.0 * test_in[1] * X[1][1][0] * X[1][1][1] +
                      1.0 / 6.0 * 6.0 * X[1][1][0] * X[1][1][0] * X[1][1][0],
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
@@ -990,8 +957,8 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1014,8 +981,7 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
   // x1^2 - x2^3
   double test_out = std::pow(test_in[0], 2) - std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1056,8 +1022,6 @@ BOOST_AUTO_TEST_CASE(SubOperator_HOV_Forward) {
                      6.0 * test_in[1] * X[1][1][0] * X[1][1][1] -
                      1.0 / 6.0 * 6.0 * X[1][1][0] * X[1][1][0] * X[1][1][0],
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
@@ -1079,8 +1043,8 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1103,8 +1067,7 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
   // x1^2 - x2^3
   double test_out = std::pow(test_in[0], 2) / std::pow(test_in[1], 3);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1191,8 +1154,6 @@ BOOST_AUTO_TEST_CASE(DivOperator_HOV_Forward) {
                               std::pow(test_in[1], 6) * X[1][1][0] *
                               X[1][1][0] * X[1][1][0]),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
@@ -1213,8 +1174,8 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1229,8 +1190,7 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
   // tan(x1^2)
   double test_out = std::tan(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1323,8 +1283,6 @@ BOOST_AUTO_TEST_CASE(TanOperator_HOV_Forward) {
                                 4)) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
@@ -1345,8 +1303,8 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1361,8 +1319,7 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
   // sin(x1^2)
   double test_out = std::sin(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1419,8 +1376,6 @@ BOOST_AUTO_TEST_CASE(SinOperator_HOV_Forward) {
                        std::cos(std::pow(test_in[0], 2))) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
@@ -1441,8 +1396,8 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1457,8 +1412,7 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
   // cos(x1^2)
   double test_out = std::cos(std::pow(test_in[0], 2));
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1515,8 +1469,6 @@ BOOST_AUTO_TEST_CASE(CosOperator_HOV_Forward) {
                        std::sin(std::pow(test_in[0], 2))) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
@@ -1537,8 +1489,8 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1553,8 +1505,7 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
   // sqrt(x)
   double test_out = std::sqrt(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1595,8 +1546,6 @@ BOOST_AUTO_TEST_CASE(SqrtOperator_HOV_Forward) {
                          (3.0 / (8.0 * std::pow(test_in[0], 5.0 / 2.0)) *
                           std::pow(X[0][1][0], 3)),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
@@ -1617,8 +1566,8 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1633,8 +1582,7 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
   // log(x)
   double test_out = std::log(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1667,8 +1615,6 @@ BOOST_AUTO_TEST_CASE(LogOperator_HOV_Forward) {
                                1.0 / 6.0 * (2.0 / std::pow(test_in[0], 3.0)) *
                                    std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
@@ -1689,8 +1635,8 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1705,8 +1651,7 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
   // sinh(x)
   double test_out = std::sinh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1739,8 +1684,6 @@ BOOST_AUTO_TEST_CASE(SinhOperator_HOV_Forward) {
                                1.0 / 6.0 * std::cosh(test_in[0]) *
                                    std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
@@ -1761,8 +1704,8 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1777,8 +1720,7 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
   // cosh(x)
   double test_out = std::cosh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1811,8 +1753,6 @@ BOOST_AUTO_TEST_CASE(CoshOperator_HOV_Forward) {
                                1.0 / 6.0 * std::sinh(test_in[0]) *
                                    std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
@@ -1833,8 +1773,8 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1849,8 +1789,7 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
   // tanh(x)
   double test_out = std::tanh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1901,8 +1840,6 @@ BOOST_AUTO_TEST_CASE(TanhOperator_HOV_Forward) {
                           2.0 / std::pow(std::cosh(test_in[0]), 4)) *
                          std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   const auto tapeId = createNewTape();
@@ -1922,8 +1859,8 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -1938,8 +1875,7 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
   // asin(x)
   double test_out = std::asin(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -1986,8 +1922,6 @@ BOOST_AUTO_TEST_CASE(AsinOperator_HOV_Forward) {
                          std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
                          std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
@@ -2008,8 +1942,8 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2024,8 +1958,7 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
   // acos(x)
   double test_out = std::acos(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2072,8 +2005,6 @@ BOOST_AUTO_TEST_CASE(AcosOperator_HOV_Forward) {
                          std::pow(1.0 - std::pow(test_in[0], 2), 5.0 / 2.0) *
                          std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
@@ -2094,8 +2025,8 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2110,8 +2041,7 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
   // atan(x)
   double test_out = std::atan(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2154,8 +2084,6 @@ BOOST_AUTO_TEST_CASE(AtanOperator_HOV_Forward) {
                           std::pow(1.0 + std::pow(test_in[0], 2), 3)) *
                          std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
@@ -2176,8 +2104,8 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2192,8 +2120,7 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
   // log10(x)
   double test_out = std::log10(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2231,8 +2158,6 @@ BOOST_AUTO_TEST_CASE(Log10Operator_HOV_Forward) {
                      1.0 / 6.0 * (2.0 / (std::pow(test_in[0], 3) * log_2_10)) *
                          std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
@@ -2253,8 +2178,8 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2269,8 +2194,7 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
   // asinh(x)
   double test_out = std::asinh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2317,8 +2241,6 @@ BOOST_AUTO_TEST_CASE(AsinhOperator_HOV_Forward) {
                   (std::pow(std::pow(test_in[0], 2) + 1, 5.0 / 2.0)) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
@@ -2339,8 +2261,8 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2355,8 +2277,7 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
   // acosh(x)
   double test_out = std::acosh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2413,8 +2334,6 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_HOV_Forward) {
                   std::pow(std::pow(test_in[0], 2) - 1.0, 5.0 / 2.0) *
                   std::pow(X[0][1][0], 3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
@@ -2435,8 +2354,8 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2451,8 +2370,7 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
   // atanh(x)
   double test_out = std::atanh(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2493,8 +2411,6 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_HOV_Forward) {
                                    std::pow(1.0 - std::pow(test_in[0], 2), 3) *
                                    std::pow(X[0][1][0], 3),
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
@@ -2516,8 +2432,8 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2534,8 +2450,7 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
 
   // change the value back, since the operator increases test_in[0]
   test_in[0] = 0.2;
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2550,8 +2465,6 @@ BOOST_AUTO_TEST_CASE(InclOperator_HOV_Forward) {
   // third derivative
   BOOST_TEST(Y[0][0][2] == X[0][0][2], tt::tolerance(tol));
   BOOST_TEST(Y[0][1][2] == X[0][1][2], tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
@@ -2573,8 +2486,8 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2591,8 +2504,7 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
 
   // change the value back, since the operator increases test_in[0]
   test_in[0] = 0.2;
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2607,8 +2519,6 @@ BOOST_AUTO_TEST_CASE(DeclOperator_HOV_Forward) {
   // third derivative
   BOOST_TEST(Y[0][0][2] == X[0][0][2], tt::tolerance(tol));
   BOOST_TEST(Y[0][1][2] == X[0][1][2], tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
@@ -2630,8 +2540,8 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2646,8 +2556,7 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   // x
   double test_out = +test_in[0];
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2662,8 +2571,6 @@ BOOST_AUTO_TEST_CASE(SignPlusOperator_HOV_Forward) {
   // third derivative
   BOOST_TEST(Y[0][0][2] == X[0][0][2], tt::tolerance(tol));
   BOOST_TEST(Y[0][1][2] == X[0][1][2], tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
@@ -2685,8 +2592,8 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2701,8 +2608,7 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   // -x
   double test_out = -test_in[0];
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2717,8 +2623,6 @@ BOOST_AUTO_TEST_CASE(SignMinusOperator_HOV_Forward) {
   // third derivative
   BOOST_TEST(Y[0][0][2] == -X[0][0][2], tt::tolerance(tol));
   BOOST_TEST(Y[0][1][2] == -X[0][1][2], tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
@@ -2740,8 +2644,8 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2764,8 +2668,7 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
   // atan2(x, y)
   double test_out = std::atan2(test_in[0], test_in[1]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2918,8 +2821,6 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_HOV_Forward) {
                   std::pow(std::pow(test_in[0], 2) + std::pow(test_in[1], 2),
                            3),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
@@ -2940,8 +2841,8 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -2956,8 +2857,7 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
   // x^y
   double test_out = std::pow(test_in[0], 3.2);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -2990,8 +2890,6 @@ BOOST_AUTO_TEST_CASE(Pow_Operator_HOV_Forward_1) {
                                1.0 / 6.0 * std::pow(test_in[0], 0.2) * 8.448 *
                                    X[0][1][0] * X[0][1][0] * X[0][1][0],
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
@@ -3013,8 +2911,8 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -3037,8 +2935,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
   // x^y
   double test_out = std::pow(test_in[0], test_in[1]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -3141,8 +3038,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_2) {
                        std::pow(std::log(test_in[0]), 3) *
                        std::pow(X[1][1][0], 3)),
       tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 
 BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
@@ -3163,8 +3058,8 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+  Tensor<double> X(dim_in, num_dirs, degree);
+  Tensor<double> Y(dim_out, num_dirs, degree);
 
   X[0][0][0] = 1.0;
   X[0][0][1] = -1.0;
@@ -3179,8 +3074,7 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
   // x^y
   double test_out = std::pow(1.5, test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X, out, Y);
 
   BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
@@ -3216,8 +3110,6 @@ BOOST_AUTO_TEST_CASE(PowOperator_HOV_Forward_3) {
                                    log_x * log_x * X[0][1][0] * X[0][1][0] *
                                    X[0][1][0],
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
 }
 /*
 BOOST_AUTO_TEST_CASE(CbrtOperator_HOV_Forward) {
@@ -3237,73 +3129,72 @@ BOOST_AUTO_TEST_CASE(CbrtOperator_HOV_Forward) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree);
-  double ***Y = myalloc3(dim_out, num_dirs, degree);
+Tensor<double> X(dim_in, num_dirs, degree);
+Tensor<double> Y(dim_out, num_dirs, degree);
 
-  X[0][0][0] = 1.0;
-  X[0][0][1] = -1.0;
-  X[0][0][2] = 1.1;
+X[0][0][0] = 1.0;
+X[0][0][1] = -1.0;
+X[0][0][2] = 1.1;
 
-  X[0][1][0] = 2.0;
-  X[0][1][1] = -2.1;
-  X[0][1][2] = -2.0;
+X[0][1][0] = 2.0;
+X[0][1][1] = -2.1;
+X[0][1][2] = -2.0;
 
-  std::vector<double> test_in{0.5};
+std::vector<double> test_in{0.5};
 
-  // cbrt(x)
-  double test_out = std::cbrt(test_in[0]);
+// cbrt(x)
+double test_out = std::cbrt(test_in[0]);
 
-  hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in.data(), X,
-              out.data(), Y);
+hov_forward(tapeId, dim_out, dim_in, degree, num_dirs, test_in, X,
+            out, Y);
 
-  BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
+BOOST_TEST(out[0] == test_out, tt::tolerance(tol));
 
-  // first derivative
-  BOOST_TEST(Y[0][0][0] ==
-                 1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                     X[0][0][0],
-             tt::tolerance(tol));
-  BOOST_TEST(Y[0][1][0] ==
-                 1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                     X[0][1][0],
-             tt::tolerance(tol));
+// first derivative
+BOOST_TEST(Y[0][0][0] ==
+               1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                   X[0][0][0],
+           tt::tolerance(tol));
+BOOST_TEST(Y[0][1][0] ==
+               1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                   X[0][1][0],
+           tt::tolerance(tol));
 
-  // second derivative
-  BOOST_TEST(Y[0][0][1] ==
-                 1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                         X[0][0][1] +
-                     1.0 / 2.0 *
-                         (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
-                          X[0][0][0] * X[0][0][0]),
-             tt::tolerance(tol));
-  BOOST_TEST(Y[0][1][1] ==
-                 1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                         X[0][1][1] +
-                     1.0 / 2.0 *
-                         (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
-                          X[0][1][0] * X[0][1][0]),
-             tt::tolerance(tol));
+// second derivative
+BOOST_TEST(Y[0][0][1] ==
+               1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                       X[0][0][1] +
+                   1.0 / 2.0 *
+                       (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
+                        X[0][0][0] * X[0][0][0]),
+           tt::tolerance(tol));
+BOOST_TEST(Y[0][1][1] ==
+               1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                       X[0][1][1] +
+                   1.0 / 2.0 *
+                       (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
+                        X[0][1][0] * X[0][1][0]),
+           tt::tolerance(tol));
 
-  // third derivative
-  BOOST_TEST(Y[0][0][2] ==
-                 1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                         X[0][0][2] +
-                     (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
-                      X[0][0][0] * X[0][0][1]) +
-                     1.0 / 6.0 *
-                         (10.0 / (27.0 * std::pow(test_in[0], 8.0 / 3.0)) *
-                          std::pow(X[0][0][0], 3)),
-             tt::tolerance(tol));
-  BOOST_TEST(Y[0][1][2] ==
-                 1.0 / (2.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
-                         X[0][1][2] +
-                     (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
-                      X[0][1][0] * X[0][1][1]) +
-                     1.0 / 6.0 *
-                         (10.0 / (27.0 * std::pow(test_in[0], 8.0 / 3.0)) *
-                          std::pow(X[0][1][0], 3)),
-             tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
-}*/
+// third derivative
+BOOST_TEST(Y[0][0][2] ==
+               1.0 / (3.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                       X[0][0][2] +
+                   (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
+                    X[0][0][0] * X[0][0][1]) +
+                   1.0 / 6.0 *
+                       (10.0 / (27.0 * std::pow(test_in[0], 8.0 / 3.0)) *
+                        std::pow(X[0][0][0], 3)),
+           tt::tolerance(tol));
+BOOST_TEST(Y[0][1][2] ==
+               1.0 / (2.0 * std::cbrt(test_in[0]) * std::cbrt(test_in[0])) *
+                       X[0][1][2] +
+                   (-2.0 / (9.0 * std::pow(test_in[0], 5.0 / 3.0)) *
+                    X[0][1][0] * X[0][1][1]) +
+                   1.0 / 6.0 *
+                       (10.0 / (27.0 * std::pow(test_in[0], 8.0 / 3.0)) *
+                        std::pow(X[0][1][0], 3)),
+           tt::tolerance(tol));
+}
+*/
 BOOST_AUTO_TEST_SUITE_END()

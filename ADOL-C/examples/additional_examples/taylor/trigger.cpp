@@ -38,7 +38,7 @@ int main() {
   double *xp = new double[n]; /* allocations and inits */
   double *Fhp = new double[n];
   double **S = new double *[n];
-  double **tensors;
+  /* double **tensors; */
   int *multi = new int[d];
   int *add = new int[5];
 
@@ -93,9 +93,9 @@ int main() {
     printf(" %f", Fhp[i]);
   printf(" %15.10f )\n\n", Fhp[n - 1]);
   dim = binomi(p + d, d);
-  tensors = myalloc2(n, dim);
+  Matrix<double> tensors(n, dim);
 
-  inverse_tensor_eval(1, n, d, p, xp, tensors, S);
+  inverse_tensor_eval(1, n, d, p, xp, tensors.data(), S);
 
   for (i = 0; i < d; i++)
     multi[i] = 0;

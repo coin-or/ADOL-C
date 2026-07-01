@@ -19,6 +19,7 @@
 #include <adolc/valuetape/valuetape.h>
 
 #include <math.h>
+#include <vector>
 
 BEGIN_C_DECLS
 
@@ -411,10 +412,9 @@ int LUFactorization(double **J, int n, int *RI, int *CI) {
 
 /*--------------------------------------------------------------------------*/
 void GauszSolve(double **J, int n, int *RI, int *CI, double *b) {
-  double *tmpZ;
   int i, j;
 
-  tmpZ = myalloc1(n);
+  std::vector<double> tmpZ(n);
   for (i = 0; i < n; i++) {
     tmpZ[i] = b[RI[i]];
     for (j = 0; j < i; j++)
@@ -426,29 +426,27 @@ void GauszSolve(double **J, int n, int *RI, int *CI, double *b) {
       b[CI[i]] -= J[RI[i]][CI[j]] * b[CI[j]];
     b[CI[i]] /= J[RI[i]][CI[i]];
   }
-  myfree1(tmpZ);
 }
 
 /****************************************************************************/
 int jac_solv(unsigned short tag, int n, const double *x, double *b,
              unsigned short mode) {
-  double *y;
   int i, newX = 0;
   int rc = 3;
   ValueTape &tape = findTape(tag);
 
-  y = myalloc1(n);
+  std::vector<double> y(n);
   if (n != tape.jacSolv_nax()) {
     if (tape.jacSolv_nax()) {
       free(tape.jacSolv_ci());
       free(tape.jacSolv_ri());
-      myfree1(tape.jacSolv_xold());
-      myfreeI2(tape.jacSolv_nax(), tape.jacSolv_I());
-      myfree2(tape.jacSolv_J());
     }
-    tape.jacSolv_J(myalloc2(n, n));
-    tape.jacSolv_I(myallocI2(n));
-    tape.jacSolv_xold(myalloc1(n));
+    Matrix<double> J{static_cast<size_t>(n)};
+    auto I = unitMatrix<double>(n);
+    std::vector<double> xold(n);
+    tape.jacSolv_J(J.data());
+    tape.jacSolv_I(I.data());
+    tape.jacSolv_xold(xold.data());
     tape.jacSolv_ri((int *)malloc(n * sizeof(int)));
     tape.jacSolv_ci((int *)malloc(n * sizeof(int)));
 
@@ -462,11 +460,11 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
     }
   switch (mode) {
   case 0:
-    MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
+    MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
     MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
     break;
   case 1:
-    MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
+    MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
     MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
     if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
                         tape.jacSolv_ci()) < 0) {
@@ -477,7 +475,7 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
     break;
   case 2:
     if ((tape.jacSolv_modeold() < 1) || (newX == 1)) {
-      MINDEC(rc, zos_forward(tag, n, n, 1, x, y));
+      MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
       MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
       if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
                           tape.jacSolv_ci()) < 0) {
@@ -489,20 +487,25 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
     tape.jacSolv_modeold(2);
     break;
   }
-  myfree1(y);
   return rc;
 }
 
 /****************************************************************************/
 int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
   int i, j, l, q;
-  static double **I;
   double bi;
+  /* static double **I;
   static double **Xhelp;
   static double **W;
   static double *xold;
   static double ***A;
-  static double *w;
+  static double *w; */
+  static Matrix<double> I;
+  static Matrix<double> Xhelp;
+  static Matrix<double> W;
+  static std::vector<double> xold;
+  static Tensor<double> A;
+  static std::vector<double> w;
   static int *dd;
   static double *b;
   static int nax, dax, bd, cgd;
@@ -516,25 +519,21 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
   /* Re/Allocation Stuff */
   if ((n != nax) || (d != dax)) {
     if (nax) {
-      myfree3(A);
-      myfree2(I);
-      myfree2(W);
-      myfree2(Xhelp);
-      myfree1(w);
-      free(xold);
       free(*nonzero);
       free(nonzero);
       free(dd);
       free(b);
     }
-    A = myalloc3(n, n, d + 1);
-    I = myalloc2(n, n);
-    W = myalloc2(n, d);
-    Xhelp = myalloc2(n, d);
-    w = myalloc1(n);
+
+    A = Tensor<double>(n, n, d + 1);
+    I = Matrix<double>(n, n);
+    W = Matrix<double>(n, d);
+    Xhelp = Matrix<double>(n, d);
+    w = std::vector<double>(n);
+    xold = std::vector<double>(n);
     dd = (int *)malloc((d + 1) * sizeof(int));
     b = (double *)malloc(n * sizeof(double));
-    xold = (double *)malloc(n * sizeof(double));
+    /* xold = (double *)malloc(n * sizeof(double)); */
     nonzero = (short **)malloc(n * sizeof(short *));
     nz = (short *)malloc(n * n * sizeof(short));
     for (i = 0; i < n; i++) {
@@ -563,7 +562,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
     cgd = 0;
     for (i = 0; i < n; i++)
       xold[i] = X[i][0];
-    MINDEC(rc, jac_solv(tag, n, xold, b, 1));
+    MINDEC(rc, jac_solv(tag, n, xold.data(), b, 1));
     if (rc == -3)
       return -3;
   }
@@ -582,8 +581,9 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
   while (--ii > 0) {
     di = dd[ii - 1] - 1;
     Di = dd[ii - 1] - dd[ii] - 1;
-    MINDEC(rc, hos_forward(tag, n, n, di, Di + 1, xold, Xhelp, w, W));
-    MINDEC(rc, hov_reverse(tag, n, n, Di, n, I, A, nonzero));
+    MINDEC(rc, hos_forward(tag, n, n, di, Di + 1, xold.data(), Xhelp.data(),
+                           w.data(), W.data()));
+    MINDEC(rc, hov_reverse(tag, n, n, Di, n, I.data(), A.data(), nonzero));
     da = dd[ii];
     for (l = da; l < dd[ii - 1]; l++) {
       for (i = 0; i < n; i++) {
@@ -610,7 +610,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
           }
         b[i] = -bi;
       }
-      MINDEC(rc, jac_solv(tag, n, xold, b, 2));
+      MINDEC(rc, jac_solv(tag, n, xold.data(), b, 2));
       if (rc == -3)
         return -3;
       for (i = 0; i < n; i++) {
@@ -628,8 +628,10 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
   static int dold, pold;
   static struct item *coeff_list;
   int *it = (int *)malloc(d * sizeof(int));
-  double **X;
-  double **Y;
+  /* double **X;
+  double **Y; */
+  Matrix<double> X;
+  Matrix<double> Y;
   int *jm;
   double *y = (double *)malloc(n * sizeof(double));
   struct item *ptr;
@@ -655,8 +657,8 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
       pold = p;
     }
     jm = (int *)malloc(sizeof(int) * p);
-    X = myalloc2(n, d + 1);
-    Y = myalloc2(n, d + 1);
+    X = Matrix<double>(n, d + 1);
+    Y = Matrix<double>(n, d + 1);
     for (int i = 0; i < n; i++) {
       X[i][0] = x[i];
       Y[i][0] = y[i];
@@ -673,8 +675,8 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
         it[0] = it[0] + 1;
         convert(p, d, it, jm);
         ptr = &coeff_list[i];
-        multma2vec1(n, p, d, Y, S, jm);
-        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y, X));
+        multma2vec1(n, p, d, Y.data(), S, jm);
+        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y.data(), X.data()));
         if (rc == -3)
           return -3;
         do {
@@ -697,8 +699,8 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
           if (it[j] > p)
             it[j] = it[j - 1];
         convert(p, d, it, jm);
-        multma2vec1(n, p, d, Y, S, jm); /* Store S*jm in Y */
-        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y, X));
+        multma2vec1(n, p, d, Y.data(), S, jm); /* Store S*jm in Y */
+        MINDEC(rc, inverse_Taylor_prop(tag, n, d, Y.data(), X.data()));
         if (rc == -3)
           return -3;
         ptr = &coeff_list[i];
@@ -711,8 +713,6 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
       }
     }
     free((char *)jm);
-    myfree2(X);
-    myfree2(Y);
   }
   for (int i = 0; i < n; i++)
     tensor[i][0] = x[i];
@@ -729,8 +729,10 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
   int **jm;
   int *it = (int *)malloc(d * sizeof(int));
   double *y = (double *)malloc(m * sizeof(double));
-  double ***X;
-  double ***Y;
+  /* double ***X;
+  double ***Y; */
+  Tensor<double> X;
+  Tensor<double> Y;
   struct item *ptr[10];
   int rc = 3;
 
@@ -762,8 +764,8 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
     for (size_t i = 0; i < jmbd; i++)
       jm[i] = (int *)malloc(p * sizeof(int));
     if (d == 1) {
-      X = myalloc3(1, n, bd);
-      Y = myalloc3(1, m, bd);
+      X = Tensor(1, n, bd);
+      Y = Tensor(1, m, bd);
       size_t ctr = 0;
       it[0] = 0;
       for (size_t i = 0; i < dim;
@@ -792,8 +794,8 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
         }
       }
     } else {
-      X = myalloc3(n, bd, d);
-      Y = myalloc3(m, bd, d);
+      X = Tensor(n, bd, d);
+      Y = Tensor(m, bd, d);
       size_t ctr = 0;
       for (int i = 0; i < d - 1; i++)
         it[i] = 1;
@@ -812,9 +814,9 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
         if (ctr < bd - 1)
           ctr += 1;
         else {
-          multma3vec2(n, p, d, bd, X, S, jm);
-          MINDEC(rc,
-                 hov_forward(tag, m, n, d, static_cast<int>(bd), x, X, y, Y));
+          multma3vec2(n, p, d, bd, X.data(), S, jm);
+          MINDEC(rc, hov_forward(tag, m, n, d, static_cast<int>(bd), x,
+                                 X.data(), y, Y.data()));
           for (size_t k = 0; k < bd; k++)
             do {
               for (int j = 0; j < m; j++)
@@ -832,8 +834,6 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
     for (size_t i = 0; i < jmbd; i++)
       free((char *)*(jm + i));
     free((char *)jm);
-    myfree3(X);
-    myfree3(Y);
   }
   for (int i = 0; i < m; i++)
     tensor[i][0] = y[i];

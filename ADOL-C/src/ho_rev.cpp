@@ -230,14 +230,13 @@ int hos_reverse(short tnum,             /* tape id */
                 const double *lagrange, /* range weight vector       */
                 double **results)       /* matrix of coefficient vectors */
 {
-  double **L = myalloc2(depen, degre + 1);
+  Matrix<double> L{static_cast<size_t>(depen), static_cast<size_t>(degre + 1)};
   for (int i = 0; i < depen; ++i) {
     L[i][0] = lagrange[i];
     for (int j = 1; j <= degre; ++j)
       L[i][j] = 0.0;
   }
-  int rc = hos_ti_reverse(tnum, depen, indep, degre, L, results);
-  myfree2(L);
+  int rc = hos_ti_reverse(tnum, depen, indep, degre, L.data(), results);
   return rc;
 }
 
@@ -274,16 +273,16 @@ int hov_reverse(short tnum, /* tape id */
                 double ***results, /* matrix of coefficient vectors */
                 short **nonzero)   /* structural sparsity  pattern  */
 {
-  double ***L = myalloc3(nrows, depen, degre + 1);
+  Tensor<double> L{static_cast<size_t>(nrows), static_cast<size_t>(depen),
+                   static_cast<size_t>(degre + 1)};
   for (int k = 0; k < nrows; ++k)
     for (int i = 0; i < depen; ++i) {
       L[k][i][0] = lagrange[k][i];
       for (int j = 1; j <= degre; ++j)
         L[k][i][j] = 0.0;
     }
-  int rc =
-      hov_ti_reverse(tnum, depen, indep, degre, nrows, L, results, nonzero);
-  myfree3(L);
+  int rc = hov_ti_reverse(tnum, depen, indep, degre, nrows, L.data(), results,
+                          nonzero);
   return rc;
 }
 
@@ -423,32 +422,56 @@ int hov_ti_reverse(
 
   /*----------------------------------------------------------------------*/
 #ifdef _HOS_ /* HOS */
-  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
-  rp_Atemp = myalloc1(k1);
-  rp_Atemp2 = myalloc1(k1);
-  rp_Ttemp2 = myalloc1(k);
+  Matrix<double> rpp_A_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                            static_cast<size_t>(k1)};
+  rpp_A = rpp_A_data.data();
+  Matrix<double> rpp_T_data{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                            static_cast<size_t>(k)};
+  rpp_T = rpp_T_data.data();
+  std::vector<double> rp_Atemp_data(k1);
+  rp_Atemp = rp_Atemp_data.data();
+  std::vector<double> rp_Atemp2_data(k1);
+  rp_Atemp2 = rp_Atemp2_data.data();
+  std::vector<double> rp_Ttemp2_data(k);
+  rp_Ttemp2 = rp_Ttemp2_data.data();
 
   int n, m;
   ext_diff_fct *edfct = nullptr;
   /*----------------------------------------------------------------------*/
 #elif _HOV_    /* HOV */
-  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
-  rp_Atemp = myalloc1(pk1);
-  rp_Atemp2 = myalloc1(pk1);
-  rp_Ttemp2 = myalloc1(k);
+  Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                           static_cast<size_t>(pk1)};
+  rpp_A = rpp_A_mat.data();
+  Matrix<double> rpp_T_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                           static_cast<size_t>(k)};
+  rpp_T = rpp_T_mat.data();
+  std::vector<double> rp_Atemp_data(pk1);
+  rp_Atemp = rp_Atemp_data.data();
+  std::vector<double> rp_Atemp2_data(pk1);
+  rp_Atemp2 = rp_Atemp2_data.data();
+  std::vector<double> rp_Ttemp2_data(k);
+  rp_Ttemp2 = rp_Ttemp2_data.data();
   /*----------------------------------------------------------------------*/
 #elif _HOS_OV_ /* HOS_OV */
-  rpp_A = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), pk1);
-  rpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
-  rp_Atemp = myalloc1(pk1);
-  rp_Atemp2 = myalloc1(pk1);
-  rp_Ttemp2 = myalloc1(p * k);
+  Matrix<double> rpp_A_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                           static_cast<size_t>(pk1)};
+  rpp_A = rpp_A_mat.data();
+  Matrix<double> rpp_T_mat{tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                           static_cast<size_t>(p * k)};
+  rpp_T = rpp_T_mat.data();
+  std::vector<double> rp_Atemp_data(pk1);
+  rp_Atemp = rp_Atemp_data.data();
+  std::vector<double> rp_Atemp2_data(pk1);
+  rp_Atemp2 = rp_Atemp2_data.data();
+  std::vector<double> rp_Ttemp2_data(p * k);
+  rp_Ttemp2 = rp_Ttemp2_data.data();
 #endif
-  rp_Ttemp = myalloc1(k);
-  x = myalloc1(q);
-  jj = myalloc1_ulong(q);
+  std::vector<double> rp_Ttemp_data(k);
+  rp_Ttemp = rp_Ttemp_data.data();
+  std::vector<double> x_data(q);
+  x = x_data.data();
+  std::vector<size_t> jj_data(q);
+  jj = jj_data.data();
 
   /************************************************************************/
   /*                                                TAYLOR INITIALIZATION */
@@ -2966,17 +2989,6 @@ int hov_ti_reverse(
              (double)taylorPerOperation[v] / (double)countPerOperation[v]);
   printf("\n");
 #endif /* ADOLC_DEBUG */
-
-  /* clean up */
-  myfree2(rpp_T);
-  myfree2(rpp_A);
-  myfree1(rp_Ttemp);
-  myfree1(rp_Ttemp2);
-  myfree1(rp_Atemp);
-  myfree1(rp_Atemp2);
-
-  myfree1_ulong(jj);
-  myfree1(x);
 
   tape.end_sweep();
 

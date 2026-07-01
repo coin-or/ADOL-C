@@ -45,7 +45,7 @@ int main() {
   double *yp = new double[m];
   double **S = new double *[n];
   double *test = new double[m];
-  double **tensorhelp;
+  /* double **tensorhelp; */
   double ******tensor;
 
   for (i = 0; i < n; i++) {
@@ -77,17 +77,17 @@ int main() {
 
   /*--------------------------------------------------------------------------*/
   dim = binomi(p + d, d); /* tensor_eval */
-  tensorhelp = myalloc2(n, dim);
+  Matrix<double> tensorhelp(n, dim);
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensor_eval(1, m, n, d, p, xp, tensorhelp, S);
+  tensor_eval(1, m, n, d, p, xp, tensorhelp.data(), S);
 
   /*--------------------------------------------------------------------------*/
-  tensor = (double ******)tensorsetup(n, p, d, tensorhelp); /* access */
+  tensor = (double ******)tensorsetup(n, p, d, tensorhelp.data()); /* access */
   cout << "\nTASK 1: Check access to directional derivatives\n";
 
   for (i = 0; i < p; i++) {
     multi[0] = i + 1;
-    tensor_value(d, m, test, tensorhelp, multi);
+    tensor_value(d, m, test, tensorhelp.data(), multi);
     cout << i + 1 << ": ";
     for (j = 0; j < m; j++)
       cout << " " << test[j] << " ";
@@ -105,7 +105,7 @@ int main() {
   for (i = 0; i < d; i++)
     cout << "[" << multi[i] << "]";
   cout << "\n";
-  tensor_value(d, m, test, tensorhelp, multi);
+  tensor_value(d, m, test, tensorhelp.data(), multi);
   cout << " " << test[1] << " == ";
   cout << tensor[1][2][2][0][0][0] << "\n\n";
 
@@ -117,7 +117,7 @@ int main() {
   for (i = 0; i < d; i++)
     cout << "[" << multi[i] << "]";
   cout << "\n";
-  tensor_value(d, m, test, tensorhelp, multi);
+  tensor_value(d, m, test, tensorhelp.data(), multi);
   cout << " " << test[1] << " == ";
   cout << tensor[1][2][2][2][0][0] << "\n\n";
 
@@ -130,7 +130,7 @@ int main() {
   for (i = 0; i < d; i++)
     cout << "[" << multi[i] << "]";
   cout << "\n";
-  tensor_value(d, m, test, tensorhelp, multi);
+  tensor_value(d, m, test, tensorhelp.data(), multi);
   cout << " " << test[1] << " == ";
   cout << tensor[1][2][2][2][2][0] << "\n\n";
 
@@ -144,7 +144,7 @@ int main() {
   for (i = 0; i < d; i++)
     cout << "[" << multi[i] << "]";
   cout << "\n";
-  tensor_value(d, m, test, tensorhelp, multi);
+  tensor_value(d, m, test, tensorhelp.data(), multi);
   cout << " " << test[1] << " == ";
   cout << tensor[1][2][2][2][2][2] << "\n\n";
   freetensor(n, p, d, (double **)tensor);

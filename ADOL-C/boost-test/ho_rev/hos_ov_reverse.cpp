@@ -32,11 +32,12 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree_hov_forward);
-  double ***Y = myalloc3(dim_out, num_dirs, degree_hov_forward);
+  Tensor<double> X(dim_in, num_dirs, degree_hov_forward);
+  Tensor<double> Y(dim_out, num_dirs, degree_hov_forward);
 
-  double **U = myalloc2(dim_out, degree_hos_reverse + 1);
-  double ***Z = myalloc3(num_dirs, dim_in, degree_hos_reverse + 1);
+  std::array<double, 1 * (1 + 1)> UCont;
+  auto U = MatrixView<1, 2>(UCont);
+  Tensor<double> Z(num_dirs, dim_in, degree_hos_reverse + 1);
 
   X[0][0][0] = 1.2;
   X[1][0][0] = 1.9;
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   // x^2 + y^3)
   double test_out = std::pow(test_in[0], 2) + std::pow(test_in[1], 3);
   hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
-                 test_in.data(), X, out.data(), Y);
+                 test_in, X, out, Y);
 
   hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
@@ -102,10 +103,6 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   BOOST_TEST(Z[2][1][1] == U[0][1] * 3 * std::pow(test_in[1], 2) +
                                U[0][0] * 6 * test_in[1] * X[1][2][0],
              tt::tolerance(tol));
-  myfree3(X);
-  myfree3(Y);
-  myfree2(U);
-  myfree3(Z);
 }
 
 BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
@@ -131,11 +128,12 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   dep >>= out[0];
   trace_off();
 
-  double ***X = myalloc3(dim_in, num_dirs, degree_hov_forward);
-  double ***Y = myalloc3(dim_out, num_dirs, degree_hov_forward);
+  Tensor<double> X(dim_in, num_dirs, degree_hov_forward);
+  Tensor<double> Y(dim_out, num_dirs, degree_hov_forward);
 
-  double **U = myalloc2(dim_out, degree_hos_reverse + 1);
-  double ***Z = myalloc3(num_dirs, dim_in, degree_hos_reverse + 1);
+  std::vector<double> UCont(dim_out * (degree_hos_reverse + 1));
+  auto U = MatrixView(UCont, dim_out, (degree_hos_reverse + 1));
+  Tensor<double> Z(num_dirs, dim_in, degree_hov_forward + 1);
 
   X[0][0][0] = 1.2;
   X[1][0][0] = 1.9;
@@ -157,7 +155,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   double test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
 
   hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
-                 test_in.data(), X, out.data(), Y);
+                 test_in, X, out, Y);
 
   hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
@@ -199,7 +197,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   // min(x^2, y^3)
   test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
   hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
-                 test_in.data(), X, out.data(), Y);
+                 test_in, X, out, Y);
 
   hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U, Z);
 
@@ -247,7 +245,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   test_out = std::min(std::pow(test_in[0], 2), std::pow(test_in[1], 3));
   std::cout << "tie point" << std::endl;
   hov_wk_forward(tapeId, dim_out, dim_in, degree_hov_forward, keep, num_dirs,
-                 test_in.data(), X, out.data(), Y);
+                 test_in, X, out, Y);
 
   hos_ov_reverse(tapeId, dim_out, dim_in, degree_hos_reverse, num_dirs, U,
                  Z);
@@ -282,10 +280,6 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
              tt::tolerance(tol));
   BOOST_TEST(Z[2][1][1] == 0.0, tt::tolerance(tol));
     */
-  myfree3(X);
-  myfree3(Y);
-  myfree2(U);
-  myfree3(Z);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
