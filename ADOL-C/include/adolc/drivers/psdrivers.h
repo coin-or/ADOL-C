@@ -49,15 +49,18 @@ ADOLC_API enum class UpdateConsts {
  * @return Zero on success, nonzero on failure.
  */
 template <UpdateConsts uc = UpdateConsts::True>
-ADOLC_API int abs_normal(short tapeId, std::span<double> x, AbsNormalForm &anf);
+ADOLC_API int abs_normal(short tapeId, std::span<const double> x,
+                         AbsNormalForm &anf);
 
 /// @brief Specialization that updates `cy` and `cz` after evaluation.
 template <>
-ADOLC_API int abs_normal<UpdateConsts::True>(short tapeId, std::span<double> x,
+ADOLC_API int abs_normal<UpdateConsts::True>(short tapeId,
+                                             std::span<const double> x,
                                              AbsNormalForm &anf);
 /// @brief Specialization that leaves `cy` and `cz` unchanged.
 template <>
-ADOLC_API int abs_normal<UpdateConsts::False>(short tapeId, std::span<double> x,
+ADOLC_API int abs_normal<UpdateConsts::False>(short tapeId,
+                                              std::span<const double> x,
                                               AbsNormalForm &anf);
 
 } // namespace ADOLC

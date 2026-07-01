@@ -231,7 +231,7 @@ template driver from the \texttt{ADOLC} namespace:
 \>{\sf enum class UpdateConsts \{ True, False \};}\\
 \>{\sf int abs\_normal$<$UpdateConsts uc = UpdateConsts::True$>$(tapeId, x, anf);}\\
 \>{\sf short int tapeId;}         \> // tape identification \\
-\>{\sf std::span$<$double$>$ x;} \> // contiguous view of the point of evaluation \\
+\>{\sf std::span$<$const double$>$ x;} \> // contiguous view of the point of evaluation \\
 \>{\sf AbsNormalForm \&anf;}   \> // container for results
 \end{tabbing}
 

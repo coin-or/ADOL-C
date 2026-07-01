@@ -165,7 +165,7 @@ END_C_DECLS
 
 namespace ADOLC {
 template <>
-int abs_normal<UpdateConsts::True>(short tapeId, std::span<double> x,
+int abs_normal<UpdateConsts::True>(short tapeId, std::span<const double> x,
                                    AbsNormalForm &anf) {
 
   int rc = ::abs_normal(
@@ -178,7 +178,7 @@ int abs_normal<UpdateConsts::True>(short tapeId, std::span<double> x,
 }
 
 template <>
-int abs_normal<UpdateConsts::False>(short tapeId, std::span<double> x,
+int abs_normal<UpdateConsts::False>(short tapeId, std::span<const double> x,
                                     AbsNormalForm &anf) {
 
   int rc = ::abs_normal(
