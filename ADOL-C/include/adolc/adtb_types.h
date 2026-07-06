@@ -476,11 +476,12 @@ public:
   /** @brief Default destructor. */
   ~pdouble() = default;
 
-  /** @brief Deleted copy constructor. */
-  pdouble(const pdouble &) = delete;
-
   /** @brief Deleted default constructor. */
   pdouble() = delete;
+
+  /** @brief Deleted copy constructor and assignment. */
+  pdouble(const pdouble &) = delete;
+  pdouble &operator=(const pdouble &) = delete;
 
   /**
    * @brief Move constructor.
@@ -499,7 +500,7 @@ public:
    * @param other The `pdouble` to transfer.
    * @return Reference to `*this`
    */
-  pdouble &operator=(pdouble &&other) {
+  pdouble &operator=(pdouble &&other) noexcept {
     if (this == &other)
       return *this;
 

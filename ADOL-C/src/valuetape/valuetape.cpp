@@ -341,7 +341,7 @@ void ValueTape::save_params() {
   else {
     size_t np = tapestats(TapeInfos::NUM_PARAM);
     size_t ip = 0;
-    size_t remain = tapestats(TapeInfos::NUM_PARAM);
+    size_t remain = 0;
     while (tapestats(TapeInfos::NUM_PARAM) > ip) {
       remain = tapestats(TapeInfos::NUM_PARAM) - ip;
       const size_t avail = tapeInfos_.valBuffer_.remainingCapacity();
@@ -486,7 +486,7 @@ void ValueTape::read_params() {
   const size_t np = tapestats(TapeInfos::NUM_PARAM);
   size_t ip = np;
   while (ip > 0) {
-    size_t avail = currVal - valBuffer;
+    size_t avail = to_size_t(currVal - valBuffer);
     size_t rsize = (avail < ip) ? avail : ip;
     double *paramstore_view = paramstore();
     for (size_t i = 0; i < rsize; ++i)
@@ -565,12 +565,12 @@ void ValueTape::setParamVec(std::span<const double> paramvec) {
  */
 
 void ValueTape::compare_adolc_ids(const ADOLC_ID &id1, const ADOLC_ID &id2) {
-  constexpr size_t t1Version = 100 * ADOLC_NEW_TAPE_VERSION +
-                               10 * ADOLC_NEW_TAPE_SUBVERSION +
-                               1 * ADOLC_NEW_TAPE_PATCHLEVEL;
+  constexpr size_t t1Version =
+      to_size_t(100 * ADOLC_NEW_TAPE_VERSION + 10 * ADOLC_NEW_TAPE_SUBVERSION +
+                1 * ADOLC_NEW_TAPE_PATCHLEVEL);
 
   const size_t t2Version =
-      100 * id1.adolc_ver + 10 * id1.adolc_sub + 1 * id1.adolc_lvl;
+      to_size_t(100 * id1.adolc_ver + 10 * id1.adolc_sub + 1 * id1.adolc_lvl);
 
   if (t1Version > t2Version)
     ADOLCError::fail(ADOLCError::ErrorType::TAPE_TO_OLD, CURRENT_LOCATION,
@@ -748,7 +748,7 @@ std::array<std::string, 4> ValueTape::readConfigFile() {
           *pos2 = 0;
           *pos4 = 0;
           if (std::strcmp(pos1 + 1, "TAPE_DIR") == 0) {
-            struct stat st;
+            struct stat st{};
             int err;
             path = pos3 + 1;
             err = stat(path, &st);
