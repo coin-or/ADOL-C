@@ -532,8 +532,6 @@ int int_reverse_safe(
   tape.taylor_back();
 
   if (tape.deg_save() < 0) {
-    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
-                     ADOLCError::FailInfo{.info3 = 0, .info4 = 1});
 #ifdef _FOS_
     myfree1(rp_A);
     myfree1(rp_T);
@@ -548,6 +546,8 @@ int int_reverse_safe(
     myfree1(rp_T);
 #endif
 #endif
+    ADOLCError::fail(ADOLCError::ErrorType::REVERSE_NO_FOWARD, CURRENT_LOCATION,
+                     ADOLCError::FailInfo{.info3 = 0, .info4 = 1});
   }
 
   if ((tape.tay_numDeps() != to_size_t(depen)) ||
