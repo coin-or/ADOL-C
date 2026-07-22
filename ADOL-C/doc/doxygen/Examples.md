@@ -14,6 +14,7 @@ Each example is compiled and checked by the documentation build.
 | Work with piecewise-smooth functions | @ref tutorial_abs_normal "6. Build an abs-normal form" |
 | Reduce memory for repeated time steps | @ref tutorial_checkpointing "7. Add checkpointing" |
 | Differentiate code outside the tape interpreter | @ref tutorial_external_function "8. Add an external differentiated function" |
+| Use ADOL-C's own containers | @ref tutorial_contexam "9. ADOL-C's own containers (Matrix,...)" |
 
 @anchor tutorial_gradient
 ## 1. Record and evaluate a gradient
@@ -230,6 +231,56 @@ The executable compares full taping, nested ADOL-C, and manual callbacks with
 the same analytic time-step gradient:
 
 @include edf_object.out
+
+@anchor tutorial_contexam
+## 9. ADOL-C's own containers (Matrix,...)
+
+**Goal:** Explore adalloc.h.
+
+ADOL-C offers fundamentally two ways of creating a matrix, which can be used 
+with most computation routines of the package. The first one of these is 
+`MatrixView()`, which allows you to create a view of a self-own array or vector 
+in the shape you specify:
+
+@snippet contexam.cpp contexam-view
+
+To utilize the `std::array` version, simply put the dimensions as template 
+parameters such as for the second variant, which is a proper matrix container,
+that holds the data for you:
+
+@snippet contexam.cpp contexam-matrix
+
+By default the matrix will be zero-initialized. But you may also give a further 
+parameter to specify. For later changes, there is a `fill`-method:
+
+@snippet contexam.cpp contexam-matrix-fill
+
+Again, there is also a vector version.
+
+To demonstrate the use of these, consider the following tape:
+
+@snippet contexam.cpp contexam-recording
+
+Using matrices you can now for example easily compute higher-order derivatives:
+
+@snippet contexam.cpp contexam-hos_forward
+
+In addition to matrices, ADOL-C also provides a 3-axis `Tensor` container, though
+it currently only comes with a vector-layout, i.e. the axis dimensions need to be
+given as constructor parameters. `Tensor` follows row major order.
+
+Finally there is `unitVector()` and `unitMatrix()` providing easy access to a unit
+vector or an identity matrix respectively. Here is an example use of the former:
+
+@snippet contexam.cpp contexam-unitVector
+
+The above example can be found in `contexam.cpp`:
+
+@include contexam.out
+
+
+
+
 
 ## Build the examples
 
