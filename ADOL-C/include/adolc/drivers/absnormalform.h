@@ -11,7 +11,7 @@
 namespace ADOLC {
 
 /**
- * @brief Stores the principal dimensions of an (dense) abs-normal form.
+ * @brief Stores the principal dimensions of a dense abs-normal form.
  *
  * The three entries record the sizes of the abs-normal form blocks:
  * - `m`: number of dependent variables
@@ -30,7 +30,7 @@ struct DenseShape : ANFShape {
 DenseShape getShapeFromTape(short tapeId);
 
 /**
- * @brief Abs-normal form container backed by contiguous storage.
+ * @brief Dense abs-normal form container backed by contiguous storage.
  *
  * The flat `*_storage` vectors own the matrix entries, while `Y`, `J`, `Z`,
  * and `L` provide row-pointer views compatible with the existing driver
@@ -39,7 +39,7 @@ DenseShape getShapeFromTape(short tapeId);
 struct AbsNormalForm {
   using Shape = DenseShape;
 
-  /// Principal dimensions of the represented ABS-normal form.
+  /// Principal dimensions of the represented abs-normal form.
   Shape shape{};
 
   /// Row-pointer view of the `m x n` block `Y`.
@@ -73,7 +73,7 @@ struct AbsNormalForm {
   AbsNormalForm() = default;
 
   /**
-   * @brief Construct a dense ABS-normal form with the requested principal
+   * @brief Construct a dense abs-normal form with the requested principal
    * dimensions.
    *
    * Storage is allocated immediately using the same semantics as `resize()`.
@@ -87,7 +87,7 @@ struct AbsNormalForm {
   AbsNormalForm &operator=(const AbsNormalForm &) = delete;
 
   /**
-   * @brief Factory method that construct a Abs-normal form an existing tape.
+   * @brief Allocate an abs-normal form using the dimensions of a recorded tape.
    *
    * @param tapeId Tape identifier whose dependent, independent, and switching
    * counts determine the returned principal dimensions.
@@ -98,9 +98,7 @@ struct AbsNormalForm {
 
   /**
    * @brief Report whether all principal dimensions are zero.
-   *
-   * This returns `true` exactly when all three dimensions are zero.
-   */
+   *   */
   bool empty() const { return shape.m == 0 && shape.n == 0 && shape.s == 0; }
 
   /**
@@ -135,7 +133,7 @@ struct AbsNormalForm {
   }
 
   /**
-   * @brief Resize the dense abs-normal form to the given principal
+   * @brief Resize the abs-normal form to the given principal
    * dimensions.
    *
    * All owning buffers are resized with vector semantics, and the row-pointer

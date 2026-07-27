@@ -21,6 +21,7 @@
 #include <adolc/tape_interface.h>
 #include <adolc/valuetape/valuetape.h>
 #include <cstring>
+#include <utility>
 
 /****************************************************************************/
 /*                                    extern differentiated functions stuff */
@@ -40,7 +41,7 @@ ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
                           ADOLC_ext_fct_iArr ext_fct) {
   // this call sets  edf->index:
   ext_diff_fct *edf = findTape(tapeId).ext_diff_append();
-  edf->function_iArr = ext_fct;
+  edf->function_iArr = std::move(ext_fct);
   edf->tapeId = tapeId;
   edf->extTapeId = extTapeId;
   return edf;

@@ -58,6 +58,13 @@ using ADOLC_ext_fct_v2_hov_forward = int(short tapeId, size_t iArrLen,
                                          double ****Xp, size_t *outsz,
                                          double **y, double ****Yp, void *ctx);
 
+/**
+ * @brief Callback descriptor for a block-structured external function.
+ *
+ * Instances are created by `reg_ext_fct()` and then configured with the
+ * derivative callbacks required by the application. Fields documented as
+ * managed by ADOL-C must not be modified by callers.
+ */
 struct ADOLC_API ext_diff_fct_v2 {
   // This is the id of the outer tape that calls the external differentiated
   // function later

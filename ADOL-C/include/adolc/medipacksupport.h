@@ -25,6 +25,12 @@ void mediAddHandle(medi::HandleBase *h);
 void mediInitStatic();
 void mediFinalizeStatic();
 
+/**
+ * @brief MeDiPack adapter that connects taped ADOL-C values with AMPI.
+ *
+ * The adapter supplies active-type metadata, MPI datatypes, and callbacks used
+ * to record communication operations on an ADOL-C tape.
+ */
 struct AdolcTool final
     : public medi::ADToolImplCommon<AdolcTool, true, true, double, double,
                                     double, int> {

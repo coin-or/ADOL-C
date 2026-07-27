@@ -39,6 +39,7 @@ concept BufferStateType =
       buffer.closeFile();
     };
 
+/** @brief `fclose` deleter for tape files managed by `std::unique_ptr`. */
 struct FileDeleter {
   int operator()(FILE *file) { return fclose(file); }
 };

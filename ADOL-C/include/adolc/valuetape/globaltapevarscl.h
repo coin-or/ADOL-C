@@ -5,6 +5,13 @@
 #include <adolc/valuetape/tapeinfos.h>
 #include <limits>
 
+/**
+ * @brief Per-tape active-value stores and location allocators.
+ *
+ * Each `ValueTape` owns one non-copyable instance containing its primal value
+ * store, optional activity store, parameter store, and the allocators that
+ * manage their locations.
+ */
 struct GlobalTapeVarsCL {
   GlobalTapeVarsCL()
       : paramStoreMgrPtr(std::make_unique<StoreManagerLocintBlock>(

@@ -63,6 +63,12 @@ inline __device__ double makeInf() { return CUDART_INF; }
 #define CUDAHOST __host__ inline
 #define CUDAHOSTDEV __host__ __device__ inline
 
+/**
+ * @brief CUDA-compatible tapeless active scalar for forward derivatives.
+ *
+ * Each value stores its primal and either one derivative or a configured set
+ * of derivative directions.
+ */
 class adouble {
 public:
   // ctors

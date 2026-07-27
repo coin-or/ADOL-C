@@ -9,211 +9,120 @@ extern "C" {
 #endif
 
 /**
- * @brief High-level C-API to compute a sparse Jacobian (single call or repeat).
+ * @brief Compute and recover a sparse Jacobian using ColPack.
  *
- * This function coordinates sparsity detection, seed generation (via ColPack),
- * compressed AD evaluations, and recovery. When @p repeat == 0 the function
- * rebuilds and caches the sparsity/seed information (stored on the tape) and
- * then performs numeric recovery. Subsequent calls (repeat != 0) reuse the
- * cached sparsity/seed information and perform numeric recovery at the current
- * basepoint.
+ * @param tag Tape identifier.
+ * @param m Number of dependent variables (rows).
+ * @param n Number of independent variables (columns).
+ * @param repeat Zero builds and caches the pattern and seed; nonzero reuses
+ * them.
+ * @param x Evaluation point, with `n` entries. Required for numeric recovery.
+ * @param[in,out] nnz Recovered nonzero count. On entry, the count of any
+ * supplied buffers; they are reused only if all three are non-null and the
+ * count matches.
+ * @param[in,out] rind Zero-based row indices.
+ * @param[in,out] cind Zero-based column indices.
+ * @param[in,out] values Nonzero values.
+ * @param options Four entries: method (0 index domains, 1 bit patterns),
+ * control flow (0 safe, 1 tight), bit propagation (0 auto, 1 forward, 2
+ * reverse), and compression (0 column, 1 row).
+ * @return Nonnegative sweep status on success; negative on failure.
  *
- * @param tag        Tape identifier.
- * @param depen      Number of dependent variables (rows).
- * @param indep      Number of independent variables (columns).
- * @param repeat     If 0: rebuild sparsity/seed metadata and perform numeric
- *                   recovery. If >0: reuse cached metadata and perform
- *                   numeric recovery.
- * @param basepoint  Array of independent values (required if tight
- *                   control-flow).
- * @param[in,out] nnz
- *                   On entry: optional reuse hint for caller-provided buffers.
- *                   If `rind`, `cind`, and `values` are all non-null and
- *                   `*nnz` matches the recovered nonzero count, those buffers
- *                   are reused in place. On exit: overwritten with the actual
- *                   recovered nonzero count.
- * @param[out] rind  Pointer-to-pointer receiving row indices (coordinate
- *                   format).
- * @param[out] cind  Pointer-to-pointer receiving column indices (coordinate
- *                   format).
- * @param[out] values Pointer-to-pointer receiving numerical nonzero values.
- *
- * @param[in] options An array defining the sparse options.
- *
- * @return 0 or positive status on success, negative error code on failure.
- *
- * @note This wrapper always computes into the C++ `SparseMatrix` container and
- *       then adapts the result back to `rind`, `cind`, and `values`. If the
- *       caller provides non-null buffers and `*nnz` already matches the
- *       recovered nonzero count, those buffers are reused in place; otherwise
- *       the wrapper allocates fresh arrays with `new[]` and returns them to the
- *       caller.
- *
- * @note This function wraps the C++ API.
+ * @pre `nnz`, `rind`, `cind`, `values`, and `options` are non-null.
+ * @note Set the three buffer pointers to null for allocation. If supplied
+ * buffers cannot be reused, the wrapper deletes them and allocates replacements
+ * with `new[]`. Release returned buffers with `delete[]`.
  */
 int sparse_jac(short tag, int m, int n, int repeat, const double *x, int *nnz,
                unsigned int **rind, unsigned int **cind, double **values,
                int *options);
 
 /**
- * @brief High-level C-API to compute a sparse Hessian.
+ * @brief Compute and recover a sparse Hessian using ColPack.
  *
- * Coordinates Hessian sparsity pattern generation (when `repeat == 0`), seed
- * generation and caching, and the numeric recovery step. For `repeat == 0`
- * the function computes and caches pattern/seed info; for subsequent calls
- * it performs the numeric recovery using cached state.
+ * @param tag Tape identifier for a scalar function.
+ * @param n Number of independent variables.
+ * @param repeat Zero builds and caches the pattern and seed; nonzero reuses
+ * them.
+ * @param x Evaluation point, with `n` entries. Required for numeric recovery.
+ * @param[in,out] nnz Nonzero count set on the first call; must match on reuse.
+ * @param[in,out] rind Zero-based row indices.
+ * @param[in,out] cind Zero-based column indices.
+ * @param[in,out] values Nonzero values.
+ * @param options Two entries: control flow (0 safe, 1 tight, 2 old safe,
+ * 3 old tight) and recovery (0 indirect, 1 direct).
+ * @return Nonnegative sweep status on success; negative on failure.
  *
- * @param tag        ADOL-C tape identifier.
- * @param indep      Number of independent variables (Hessian dimension).
- * @param repeat     If 0: compute pattern and seed (cache them). If >0: perform
- * @param basepoint  Basepoint for tight control-flow (may be nullptr if not
- *                  required).
- * @param[in,out] nnz
- *                   On entry: expected number of nonzeros when repeat != 0.
- *                   On exit: set to the number of nonzeros when repeat == 0.
- * @param[out] rind  Pointer-to-pointer to receive row indices (coordinate
- * format).
- * @param[out] cind  Pointer-to-pointer to receive column indices.
- * @param[out] values Pointer-to-pointer to receive numerical values.
- * @param[in] options Array to set the sparse options.
-
- * @return
- *   - >= 0 : Success (driver-specific non-negative codes).
- *   - <  0 : Error code (forwarded from pattern/compute routines).
- *
- * @note Memory ownership semantics for rind/cind/values match the underlying
- * recovery calls: if user provided non-null pointers, user memory is used
- * (usermem variants), otherwise the unmanaged variant allocates memory and the
- * caller must free it.
- *
- * @note This function wraps the C++ API.
+ * @pre Pointer arguments other than the three buffer values are non-null.
+ * @note Supply all three buffers with capacity `*nnz` to reuse them. Otherwise,
+ * the routine deletes any supplied buffers and uses ColPack's unmanaged
+ * recovery. Release returned buffers with `delete[]`.
  */
 int sparse_hess(short tag, int n, int repeat, const double *x, int *nnz,
                 unsigned int **rind, unsigned int **cind, double **values,
                 int *options);
 
 /**
- * @brief C-API to compute Jacobian sparsity pattern using the selected sparse
- * method.
+ * @brief Compute a Jacobian sparsity pattern.
  *
- * Dispatches to either index-domain propagation or bit-vector propagation
- * depending on the template parameter @p SM and control-flow mode @p CFM.
- *
- * @param tag                   Tape identifier (as used by ADOL-C tracing).
- * @param depen                 Number of dependent (output) variables (rows).
- * @param indep                 Number of independent (input) variables (cols).
- * @param basepoint             Pointer to an array of length @p indep. Required
- *                              when @p CFM == ControlFlowMode::Tight; may be
- *                              nullptr in Safe mode.
- * @param[out] compressedRowStorage
- *                              Span of length @p depen where each element is a
- *                              pointer to a Compressed Row Storage (CRS) row:
- *                              - entry [i][0] holds the count of nonzeros in
- *                                row i
- *                              - entry [i][1..] holds the 0-based column
- *                                indices that represent the influencing
- *                                independs
- *
- * @param[in] options An array to set the sparse options.
- *
- * @return  Non-negative: number of nonzeros found; Negative: error code from
- * the underlying propagation routine.
- *
- * @note Ownership: allocated row buffers in compressedRowStorage are
- * transferred to the caller / tape infrastructure and must be freed
- * appropriately.
- *
- * @note This function wraps the C++ API.
+ * @param tag Tape identifier.
+ * @param m Number of dependent variables (rows).
+ * @param n Number of independent variables (columns).
+ * @param x Evaluation point, with `n` entries; may be null in safe mode.
+ * @param[out] JP Array of `m` row pointers. Each allocated row starts with its
+ * nonzero count, followed by zero-based column indices.
+ * @param options Three entries: method (0 index domains, 1 bit patterns),
+ * control flow (0 safe, 1 tight), and bit propagation (0 auto, 1 forward,
+ * 2 reverse).
+ * @return Nonnegative sweep status on success; negative on failure.
+ * @note Initialize row pointers to null. Release each allocated row with
+ * `delete[]` before reusing the pointer array; this call resets its entries.
  */
 int jac_pat(short tag, int m, int n, const double *x, unsigned int **JP,
             int *options);
 
 /**
- * @brief C-API to compute Hessian sparsity pattern (dispatch by control-flow
- * mode).
+ * @brief Compute a scalar function's Hessian sparsity pattern.
  *
- * This function computes the sparsity pattern of the Hessian by dispatching to
- * the appropriate internal non-linear independent-index propagation driver
- * based on the compile-time ControlFlowMode template parameter.
- *
- * @param tag                   ADOL-C tape identifier.
- * @param indep                 Number of independent variables (Hessian
- * dimension).
- * @param basepoint             Pointer to an array of length `indep` with the
- *                              evaluation point used when tight control-flow is
- * required.
- * @param[out] compressedRowStorage
- *                              Span of length `indep` where each element is a
- *                              pointer to a Compressed Row Storage (CRS) row
- * for the Hessian pattern. For row i:
- *                              - entry [i][0] is the count of indices stored,
- *                              - entry [i][1..] are the independents the output
- * i depend on.
- *
- * @param[in] options An array to set the sparse options.
- *
- * @return
- *    - >= 0 : Driver-specific non-negative code.
- *    - <  0 : Error code forwarded from the underlying driver.
- *
- * @note
- *  - The routine resets `compressedRowStorage` pointers before use.
- *  - Memory allocated for each row will be owned by the caller/tape.
- *
- * @note This function wraps the C++ API.
+ * @param tag Tape identifier.
+ * @param n Number of independent variables (rows and columns).
+ * @param x Evaluation point, with `n` entries; may be null in safe modes.
+ * @param[out] HP Array of `n` row pointers. Each allocated row starts with its
+ * nonzero count, followed by zero-based column indices.
+ * @param option One entry selecting control flow: 0 safe, 1 tight, 2 old safe,
+ * or 3 old tight.
+ * @return Nonnegative sweep status on success; negative on failure.
+ * @note Initialize row pointers to null. Release each allocated row with
+ * `delete[]` before reusing the pointer array; this call resets its entries.
  */
 int hess_pat(short tag, int n, const double *x, unsigned int **HP, int *option);
 
 /**
- * @brief C-API to generate a seed matrix (coloring) for compressed Jacobian
- * recovery.
+ * @brief Generate a ColPack seed matrix for compressed Jacobian recovery.
  *
- * Uses ColPack's Bipartite graph coloring to produce the seed matrix suitable
- * for recovering the full Jacobian from compressed directional evaluations.
- * This function uses ColPack's unmanaged API and returns pointers via @p Seed
- * and the compressed dimension via @p p.
- *
- * @param m     Number of dependent variables (rows of JP).
- * @param n     Number of independent variables (columns of JP).
- * @param JP    Compressed Row Storage, storing the dependencies on
- *              independents.
- * @param[out] Seed  Output pointer to a 2D array representing the seed matrix.
- *                   Memory is provided by ColPack (unmanaged) and returned to
- *                   caller.
- * @param[out] p     On return: compressed dimension (number of seed columns
- *                   when Row compression, or seed rows when Column
- *                   compression).
- * @param[in] options An array to set the sparse options.
- *
- *
- * @note The caller is responsible for managing the returned @p Seed memory
- *       according to ColPack's unmanaged API semantics.
- *
- * @note This functions wraps the C++ API.
+ * @param m Number of dependent variables.
+ * @param n Number of independent variables.
+ * @param JP Jacobian pattern: `m` rows, each with a count and column indices.
+ * @param[out] S Seed matrix: `n x p` for column compression or `p x m` for row
+ * compression.
+ * @param[out] p Compressed dimension.
+ * @param options One entry selecting compression: 0 column or 1 row.
+ * @note The caller owns the seed. Delete each row with `delete[]`, then delete
+ * the row-pointer array with `delete[]`.
  */
 void generate_seed_jac(int m, int n, unsigned int **JP, double ***S, int *p,
                        int *options);
 
 /**
- * @brief C-API to generate a seed matrix for compressed Hessian recovery.
+ * @brief Generate a ColPack seed matrix for compressed Hessian recovery.
  *
- * Produces a seed matrix for Hessian recovery using ColPack and
- * returns the unmanaged pointer to the seed via @p Seed and the compressed
- * dimension via @p p. The function uses ColPack's unmanaged API, so the
- * returned @p Seed memory is owned by ColPack and will be freed when the
- * ColPack graph object is destroyed (or as per ColPack's unmanaged semantics).
- *
- * @param n     Number of variables (dimension of Hessian).
- * @param HP    Span over CRS row pointers representing Hessian sparsity (HP).
- * @param[out] Seed  Pointer to the returned 2D seed matrix (ColPack-managed).
- * @param[out] p     Compressed dimension (number of seed columns/rows depending
- * on layout).
- * @param[in] options An array to set the sparse options.
- *
- * @note The caller must respect ColPack unmanaged memory semantics for the
- * returned Seed.
- *
- * @note This function wraps the C++ API.
+ * @param n Number of independent variables.
+ * @param HP Hessian pattern: `n` rows, each with a count and column indices.
+ * @param[out] S Seed matrix with `n` rows and `p` columns.
+ * @param[out] p Number of seed columns.
+ * @param options Two entries; entry 1 selects recovery: 0 indirect or 1 direct.
+ * @note The caller owns the seed. Delete each row with `delete[]`, then delete
+ * the row-pointer array with `delete[]`.
  */
 void generate_seed_hess(int n, unsigned int **HP, double ***S, int *p,
                         int *options);

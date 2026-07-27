@@ -33,6 +33,11 @@ using std::list;
 using std::logic_error;
 using std::ostream;
 
+/**
+ * @brief Abstract function interface used by index-domain sparsity drivers.
+ *
+ * @tparam T Scalar type used for one function evaluation.
+ */
 template <typename T> class func_ad {
 public:
   virtual int operator()(int n, T *x, int m, T *y) = 0;
@@ -52,6 +57,12 @@ int ADOLC_get_sparse_jacobian(func_ad<adtl::adouble> *const func,
 double makeNaN();
 double makeInf();
 
+/**
+ * @brief Index-domain active scalar used to propagate sparsity patterns.
+ *
+ * This type tracks dependencies between inputs and outputs rather than
+ * numerical derivative values.
+ */
 class adouble {
 public:
   inline adouble();

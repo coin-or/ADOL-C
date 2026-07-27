@@ -56,21 +56,26 @@ using EvalLocInfoT = LocInfo<TapeEvaluationContext, ErrorType>;
 using EvalValInfoT = ValInfo<TapeEvaluationContext, ErrorType>;
 
 /**
- * class ValueTape
+ * @brief Owns one recorded function and the state required to evaluate it.
  *
+ * A `ValueTape` is the central object behind a tape ID. During
+ * recording, active `adouble` operations register opcodes, locations,
+ * values, and optional Taylor values to the `TapeRecordingContext` of the tape.
+ * During a sweep, `init_sweep()` creates a `TapeEvaluationContext` whose
+ * cursors read the recorded data in forward or reverse order.
  *
- * Composition of
- * GlobalTapeVars
- * TapeInfos
- * PersistantTapeInfos
- * Buffers for Checkpointing and External Differentiated Functions
- * SparseJacInfos
- * SparseHessInfos
+ * Each tape owns value stores, location allocators, statistics, file names,
+ * driver scratch data, external-function descriptors, checkpointing state,
+ * and sparse recovery data.
  *
- * A lot of interface utilites that are used in various value tape handling
- * methods
+ * Use `createNewTape()` to allocate a tape, `findTape()` to look it up, and
+ * `currentTape()` to access the thread's selected tape.
+ *
+ * Exclusive mode is the default and reuses the tape's owned buffers for one
+ * evaluation at a time. `setSharedMode()` permits concurrent no-keep sweeps;
+ * each sweep initially views the immutable recorded buffers and allocates
+ * private storage lazily if it must load or modify a block.
  */
-
 class ADOLC_API ValueTape {
   TapeRecordingContext recordCtx_;
   GlobalTapeVarsCL globalTapeVars_;
@@ -83,6 +88,12 @@ class ADOLC_API ValueTape {
   std::optional<std::unique_lock<std::shared_mutex>> writeLock_;
   enum class DataAccess { Exclusive, Shared };
 
+  /**
+   * @brief Synchronizes changes between exclusive and shared evaluation mode.
+   *
+   * The mutex prevents the mode from changing while recording or evaluation
+   * code holds a corresponding access lock.
+   */
   struct DataAccessModeGuard {
     std::shared_mutex mutex_;
     DataAccess mode_{DataAccess::Exclusive};
@@ -598,8 +609,8 @@ public:
     return tapeInfos_.fileNames[Info::fileIndex];
   }
 
-  /// Simple type list used to run prepare_* for all tape types via
-  /// fold-expressions.
+  /** @brief Compile-time list used to prepare tape buffers for forward and
+   * reverse sweeps. */
   template <typename... Ts> struct AllTypes {};
   using AllInfoTypes = AllTypes<EvalOpInfoT, EvalLocInfoT, EvalValInfoT>;
 
@@ -720,9 +731,11 @@ public:
     (prepare_rev<Infos>(evalCtx), ...);
   }
 
-  /// Tag types selecting sweep direction for init_sweep().
+  /** @brief Base tag for the direction selected by `init_sweep()`. */
   struct Mode {};
+  /** @brief Selects forward-order tape traversal. */
   struct Forward : Mode {};
+  /** @brief Selects reverse-order tape traversal. */
   struct Reverse : Mode {};
 
 private:

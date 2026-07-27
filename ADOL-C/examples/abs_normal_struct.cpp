@@ -1,7 +1,9 @@
 #include <adolc/adolc.h>
 #include <adolc/drivers/psdrivers.h>
 #include <array>
+#include <cmath>
 #include <iostream>
+#include <string_view>
 #include <vector>
 
 struct ADProblem {
@@ -17,24 +19,27 @@ struct ADProblem {
   ADProblem() : tapeId(createNewTape()) {}
 };
 
+//! [abs-normal-recording]
 void taping(ADProblem &problem) {
-  currentTape().enableMinMaxUsingAbs();
+  findTape(problem.tapeId).enableMinMaxUsingAbs();
   trace_on(problem.tapeId);
 
-  std::vector<adouble> ax(ADProblem::dimIn);
-  std::vector<adouble> ay(ADProblem::dimOut);
+  {
+    std::vector<adouble> ax(ADProblem::dimIn);
+    std::vector<adouble> ay(ADProblem::dimOut);
 
-  for (int i = 0; i < ADProblem::dimIn; i++)
-    ax[i] <<= problem.x[i];
+    for (size_t i = 0; i < ADProblem::dimIn; ++i)
+      ax[i] <<= problem.x[i];
 
-  ay[0] = ax[0] + ax[1] - fabs(ax[0]) - fabs(ax[1]);
-
-  ay[0] >>= problem.y[0];
+    ay[0] = ax[0] + ax[1] - fabs(ax[0]) - fabs(ax[1]);
+    ay[0] >>= problem.y[0];
+  }
   trace_off();
 
   problem.numSwitches = get_num_switches(problem.tapeId);
   std::cout << "s = " << problem.numSwitches << "\n";
 }
+//! [abs-normal-recording]
 
 void printMatrix(std::string_view description, double *const *matrix,
                  size_t dimx, size_t dimy) {
@@ -47,24 +52,47 @@ void printMatrix(std::string_view description, double *const *matrix,
   }
 }
 
-void computeAbsNormal(ADProblem &problem) {
-  // Use the new struct-based API
-  ADOLC::DenseAbsNormalForm anf =
-      ADOLC::DenseAbsNormalForm::fromTape(problem.tapeId);
+bool almostEqual(double lhs, double rhs) {
+  return std::fabs(lhs - rhs) <= 1.0e-12;
+}
 
-  int rc = ADOLC::abs_normal(problem.tapeId, problem.x.data(), anf);
+bool computeAbsNormal(ADProblem &problem) {
+  //! [abs-normal-struct]
+  ADOLC::AbsNormalForm anf = ADOLC::AbsNormalForm::fromTape(problem.tapeId);
+
+  const int rc = ADOLC::abs_normal(problem.tapeId, problem.x, anf);
 
   std::cout << "rc = " << rc << "\n";
 
-  printMatrix("L (s x s):", anf.L.data(), anf.s, anf.s);
-  printMatrix("Z (s x n):", anf.Z.data(), anf.s, anf.n);
-  printMatrix("Y (m x n):", anf.Y.data(), anf.m, anf.n);
-  printMatrix("J (m x s):", anf.J.data(), anf.m, anf.s);
+  printMatrix("L (s x s):", anf.L.data(), anf.shape.s, anf.shape.s);
+  printMatrix("Z (s x n):", anf.Z.data(), anf.shape.s, anf.shape.n);
+  printMatrix("Y (m x n):", anf.Y.data(), anf.shape.m, anf.shape.n);
+  printMatrix("J (m x s):", anf.J.data(), anf.shape.m, anf.shape.s);
+  //! [abs-normal-struct]
+
+  const bool dimensionsAreCorrect =
+      anf.shape.m == 1 && anf.shape.n == 2 && anf.shape.s == 2;
+  if (rc != 0 || problem.numSwitches != 2 || !dimensionsAreCorrect)
+    return false;
+
+  const bool blocksAreCorrect =
+      almostEqual(anf.L[0][0], 0.0) && almostEqual(anf.L[0][1], 0.0) &&
+      almostEqual(anf.L[1][0], 0.0) && almostEqual(anf.L[1][1], 0.0) &&
+      almostEqual(anf.Z[0][0], 1.0) && almostEqual(anf.Z[0][1], 0.0) &&
+      almostEqual(anf.Z[1][0], 0.0) && almostEqual(anf.Z[1][1], 1.0) &&
+      almostEqual(anf.Y[0][0], 1.0) && almostEqual(anf.Y[0][1], 1.0) &&
+      almostEqual(anf.J[0][0], -1.0) && almostEqual(anf.J[0][1], -1.0);
+
+  return blocksAreCorrect;
 }
 
 int main() {
   ADProblem problem{};
   taping(problem);
-  computeAbsNormal(problem);
-  return 0;
+  if (!computeAbsNormal(problem)) {
+    std::cerr << "abs-normal form validation failed\n";
+    return 1;
+  }
+
+  std::cout << "validation passed\n";
 }
