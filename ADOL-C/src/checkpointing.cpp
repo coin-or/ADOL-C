@@ -12,7 +12,6 @@
 
 ---------------------------------------------------------------------------*/
 
-#include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/adtb_types.h>
 #include <adolc/checkpointing.h>

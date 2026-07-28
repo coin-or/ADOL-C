@@ -908,22 +908,23 @@ int computeSparseJac(short tag, int depen, int indep, const double *basepoint,
                      SparseMatrix &sparseJac) {
   ValueTape &tape = findTape(tag);
   int ret_val = 0;
-  myfree2(tape.sJInfos().B_);
-  myfree1(tape.sJInfos().y_);
   tape.sJInfos().B_ =
-      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
-  tape.sJInfos().y_ = myalloc1(depen);
+      Matrix<double>{static_cast<size_t>(tape.sJInfos().seedRows_),
+                     static_cast<size_t>(tape.sJInfos().seedClms_)};
+  tape.sJInfos().y_ = std::vector<double>(depen);
 
   if constexpr (CM == CompressionMode::Row) {
-    ret_val = zos_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_);
+    ret_val =
+        zos_forward(tag, depen, indep, 1, basepoint, tape.sJInfos().y_.data());
     if (ret_val < 0)
       return ret_val;
-    MINDEC(ret_val, fov_reverse(tag, depen, indep, tape.sJInfos().seedRows_,
-                                tape.sJInfos().Seed_, tape.sJInfos().B_));
+    MINDEC(ret_val,
+           fov_reverse(tag, depen, indep, tape.sJInfos().seedRows_,
+                       tape.sJInfos().Seed_, tape.sJInfos().B_.data()));
   } else if constexpr (CM == CompressionMode::Column)
-    ret_val =
-        fov_forward(tag, depen, indep, tape.sJInfos().seedClms_, basepoint,
-                    tape.sJInfos().Seed_, tape.sJInfos().y_, tape.sJInfos().B_);
+    ret_val = fov_forward(tag, depen, indep, tape.sJInfos().seedClms_,
+                          basepoint, tape.sJInfos().Seed_,
+                          tape.sJInfos().y_.data(), tape.sJInfos().B_.data());
   recover<CM, MH>(tape, sparseJac);
   return ret_val;
 }
@@ -945,9 +946,9 @@ int computeSparseJac(short tag, int depen, int indep, int numSwitches,
          "Row Compression must have a seed with column number equal to indep + "
          "numSwitches!");
   int ret_val = 0;
-  myfree2(tape.sJInfos().B_);
   tape.sJInfos().B_ =
-      myalloc2(tape.sJInfos().seedRows_, tape.sJInfos().seedClms_);
+      Matrix<double>{static_cast<size_t>(tape.sJInfos().seedRows_),
+                     static_cast<size_t>(tape.sJInfos().seedClms_)};
 
   std::vector<double *> results(tape.sJInfos().seedRows_);
   std::vector<double *> resultsSwitch(tape.sJInfos().seedRows_);
@@ -1262,22 +1263,20 @@ int buildHessPatternAndSeed(short tag, int indep, const double *basepoint,
     tape.sHInfos().generateSeedHess(&Seed, "STAR");
 
   // data might still be allocated, ensure that its not leaked
-  myfree2(tape.sHInfos().Hcomp_);
-  myfree3(tape.sHInfos().Xppp_);
-  myfree3(tape.sHInfos().Yppp_);
-  myfree3(tape.sHInfos().Zppp_);
-  myfree2(tape.sHInfos().Upp_);
-
-  tape.sHInfos().Hcomp_ = myalloc2(indep, tape.sHInfos().p_);
-  tape.sHInfos().Xppp_ = myalloc3(indep, tape.sHInfos().p_, 1);
+  tape.sHInfos().Hcomp_ = Matrix<double>{
+      static_cast<size_t>(indep), static_cast<size_t>(tape.sHInfos().p_)};
+  tape.sHInfos().Xppp_ = Tensor<double>{
+      static_cast<size_t>(indep), static_cast<size_t>(tape.sHInfos().p_), 1};
 
   for (int i = 0; i < indep; i++)
     for (int l = 0; l < tape.sHInfos().p_; l++)
       tape.sHInfos().Xppp_[i][l][0] = Seed[i][l];
 
-  tape.sHInfos().Yppp_ = myalloc3(1, tape.sHInfos().p_, 1);
-  tape.sHInfos().Zppp_ = myalloc3(tape.sHInfos().p_, indep, 2);
-  tape.sHInfos().Upp_ = myalloc2(1, 2);
+  tape.sHInfos().Yppp_ =
+      Tensor<double>{1, static_cast<size_t>(tape.sHInfos().p_), 1};
+  tape.sHInfos().Zppp_ = Tensor<double>{static_cast<size_t>(tape.sHInfos().p_),
+                                        static_cast<size_t>(indep), 2};
+  tape.sHInfos().Upp_ = Matrix<double>{1, 2};
   tape.sHInfos().Upp_[0][0] = 1;
   tape.sHInfos().Upp_[0][1] = 0;
   return ret_val;
@@ -1323,11 +1322,6 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
                       unsigned int **rind, unsigned int **cind,
                       double **values) {
   ValueTape &tape = findTape(tag);
-  if (tape.sHInfos().Upp_ == nullptr) {
-    printf(" ADOL-C error in sparse_hess():"
-           " First call with repeat = 0 \n");
-    return -3;
-  }
 
   if (tape.sHInfos().nnzIn_ != *nnz) {
     printf(" ADOL-C error in sparse_hess():"
@@ -1339,11 +1333,12 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
   //     this is the most efficient variant. However, there was somewhere a
   //     bug in hos_ov_reverse
   double y = 0.0;
-  int ret_val =
-      hov_wk_forward(tag, 1, indep, 1, 2, tape.sHInfos().p_, basepoint,
-                     tape.sHInfos().Xppp_, &y, tape.sHInfos().Yppp_);
+  int ret_val = hov_wk_forward(tag, 1, indep, 1, 2, tape.sHInfos().p_,
+                               basepoint, tape.sHInfos().Xppp_.data(), &y,
+                               tape.sHInfos().Yppp_.data());
   MINDEC(ret_val, hos_ov_reverse(tag, 1, indep, 1, tape.sHInfos().p_,
-                                 tape.sHInfos().Upp_, tape.sHInfos().Zppp_));
+                                 tape.sHInfos().Upp_.data(),
+                                 tape.sHInfos().Zppp_.data()));
 
   for (int i = 0; i < tape.sHInfos().p_; ++i)
     for (int l = 0; l < indep; ++l)

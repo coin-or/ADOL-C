@@ -17,7 +17,7 @@
 #ifndef ADOLC_ADTL_HOV_H
 #define ADOLC_ADTL_HOV_H
 
-#include <adolc/adalloc.h> //for myalloc2
+#include <adolc/adalloc.h> //for Matrix
 #include <adolc/adolcexport.h>
 #include <adolc/sparse/sparsematrix.h>
 #include <list>
@@ -214,7 +214,7 @@ public:
   inline double getADValue(const unsigned int p) const;
   inline void setADValue(const unsigned int p, const double v);
 
-  inline double *getOneADValue(int i) const;
+  inline const double *getOneADValue(int i) const;
 
   inline void setOneADValue(int i, double *v);
 
@@ -243,8 +243,8 @@ public:
 private:
   double val;
   double *adval;
-  double **ho_deriv;
   list<unsigned int> pattern;
+  Matrix<double> ho_deriv;
 #ifdef USE_ADTL_REFCOUNTING
   refcounter __rcnt;
 #endif
@@ -391,7 +391,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
   //    	std::cout << "constructing adtl:   degree: " << adouble::degree
   //    << "  numDir: " << adouble::numDir << std::endl;
   {
-    ho_deriv = myalloc2(adouble::degree, adouble::numDir);
+    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
   }
   /*
       for(int i=0;i< adouble::degree;i++)
@@ -413,7 +413,7 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = myalloc2(adouble::degree, adouble::numDir);
+    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = 0.0;
   }
@@ -441,11 +441,10 @@ inline adouble::adouble(const double v, const double *adv)
       pattern.clear();
   }
 }
-inline adouble::adouble(const double v, const double **hov)
-    : val(v), ho_deriv(NULL) {
+inline adouble::adouble(const double v, const double **hov) : val(v) {
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = myalloc2(adouble::degree, adouble::numDir);
+    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = hov[_j][_i];
   }
@@ -468,7 +467,7 @@ inline adouble::adouble(const adouble &a) : val(a.val), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = myalloc2(adouble::degree, adouble::numDir);
+    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = a.HO_DER_I_J;
   }
@@ -484,8 +483,6 @@ inline adouble::adouble(const adouble &a) : val(a.val), adval(NULL) {
 inline adouble::~adouble() {
   if (adval != NULL)
     delete[] adval;
-//    if(ho_deriv!=NULL)
-//    	delete[][]  ho_deriv;
 #if 0
     if ( !pattern.empty() )
 	pattern.clear();
@@ -2539,12 +2536,16 @@ inline void adouble::setADValue(const unsigned int p, const double v) {
   adval[p] = v;
 }
 
-inline double *adouble::getOneADValue(int i) const {
+inline const double *adouble::getOneADValue(int i) const {
   std::cout << " getOneADValue : i= " << i << std::endl;
   return ho_deriv[i];
 }
 
-inline void adouble::setOneADValue(int i, double *v) { ho_deriv[i] = v; }
+inline void adouble::setOneADValue(int i, double *v) {
+  for (size_t j = 0; j < ho_deriv.shape().second; i++) {
+    ho_deriv[i][j] = v[j];
+  }
+}
 
 inline const list<unsigned int> &adouble::get_pattern() const {
   if (no_do_indo()) {

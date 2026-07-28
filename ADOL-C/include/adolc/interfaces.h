@@ -48,6 +48,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 /****************************************************************************/
 /****************************************************************************/
@@ -94,7 +95,132 @@ ADOLC_API int forward(short, int, int, int, int, const double *,
 /* forward(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) : fov                */
 ADOLC_API int forward(short, int, int, int, const double *,
                       const double *const *, double *, double **);
+/*--------------------------------------------------------------------------*/
 
+/**
+ * @brief Wrapper for forward() for general scalar.
+ *
+ * hos || fos || zos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param keep     flag for reverse mode preparation.
+ * @param X        tangent matrix.
+ * @param Y        derivative matrix.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double *> X, std::span<double *> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    Y can be one dimensional if m=1. d=0 or d=1 done by specialized code  */
+/*                                                                          */
+/**
+ * @brief Wrapper for forward() for general scalar, in case of m=1.
+ *
+ * hos || fos || zos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param keep     flag for reverse mode preparation.
+ * @param X        tangent matrix.
+ * @param Y        derivative.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double *> X, std::span<double> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    X and Y can be one dimensional if d = 0; done by specialized code     */
+/*                                                                          */
+/**
+ * @brief Wrapper for forward() for general scalar.
+ *
+ * zos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param keep     flag for reverse mode preparation.
+ * @param X        tangent.
+ * @param Y        derivative.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
+                             std::span<double> X, std::span<double> Y) {
+  return forward(tnum, m, n, d, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*    X and Y can be one dimensional if d omitted; done by specialized code */
+/*                                                                          */
+/**
+ * @brief Wrapper for forward() for general scalar.
+ *
+ * zos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param keep     flag for reverse mode preparation.
+ * @param X        tangent matrix.
+ * @param Y        derivative.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int keep,
+                             std::span<double> X, std::span<double> Y) {
+  return forward(tnum, m, n, keep, X.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*  General vector call                                                     */
+/*                                                                          */
+/**
+ * @brief Wrapper for forward() for general vector-valued.
+ *
+ * hov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param p        number of directions.
+ * @param keep     flag for reverse mode preparation.
+ * @param x        independent vector.
+ * @param y        dependent vector.
+ * @param X        tangent matrix.
+ * @param Y        derivative matrix.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int d, int p,
+                             std::span<double> x, std::span<double **> X,
+                             std::span<double> y, std::span<double **> Y) {
+  return forward(tnum, m, n, d, p, x.data(), X.data(), y.data(), Y.data());
+};
+/*--------------------------------------------------------------------------*/
+/*  d = 1 may be omitted. General vector call, done by specialized code     */
+/*                                                                          */
+/* forward_wrapper(tag, m, n, p, x[n], X[n][p], y[m], Y[m][p]) : fov */
+/**
+ * @brief Wrapper for forward() for general vector-valued.
+ *
+ * fov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param p        number of directions.
+ * @param x        independent vector.
+ * @param y        dependent vector.
+ * @param X        tangent matrix.
+ * @param Y        derivative matrix.
+ */
+ADOLC_API inline int forward(short tnum, int m, int n, int p,
+                             std::span<double> x, std::span<double *> X,
+                             std::span<double> y, std::span<double *> Y) {
+  return forward(tnum, m, n, p, x.data(), X.data(), y.data(), Y.data());
+};
 /****************************************************************************/
 /*                                           REVERSE MODE, overloaded calls */
 
@@ -166,6 +292,209 @@ ADOLC_API int reverse(short, int, int, int, int, double *, double **);
 /* reverse(tag, m, n, d, Z[q][n][d+1], nz[q][n]) : hov                      */
 ADOLC_API int reverse(short, int, int, int, double ***, short ** = 0);
 
+/*--------------------------------------------------------------------------*/
+/*  General call                                                            */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() scalar valued
+ *
+ * hos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param u        weight vector.
+ * @param Z        resulting adjoint.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double> u, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, u.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    u can be a scalar if m=1                                              */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() scalar valued
+ *
+ * hos, m=1.
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param u        weight scalar.
+ * @param Z        resulting adjoint.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, double u,
+                             std::span<double *> Z) {
+  return reverse(tnum, m, n, d, u, Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    Z can be vector if d = 0; done by specialized code                    */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u[m], Z[n]) : fos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double> U, std::span<double> Z) {
+  return reverse(tnum, m, n, d, U.data(), Z.data());
+};
+/**
+ * @brief Wrapper for reverse() scalar valued
+ *
+ * fos
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param u        weight.
+ * @param Z        resulting adjoint.
+ */
+/*--------------------------------------------------------------------------*/
+/*    u can be a scalar if m=1 and d=0; done by specialized code            */
+/*                                                                          */
+/* reverse_wrapper(tag, m, n, d, u, Z[n]) : fos */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, double u,
+                             std::span<double> Z) {
+  return reverse(tnum, m, n, d, u, Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*  General vector call                                                     */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * hov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param q        number of weight vectors.
+ * @param U        weight matrix.
+ * @param Z        resulting adjoint.
+ * @param nz       nonzero pattern of Z.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double *> U, std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data(), nz.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*    U can be a vector if m=1                                              */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * hov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param q        number of weight vectors.
+ * @param U        weight vector.
+ * @param Z        resulting adjoint.
+ * @param nz       nonzero pattern of Z.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double> U, std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data(), nz.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If d=0 then Z may be a matrix, no nz; done by specialized code        */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * fov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param q        number of weight vectors.
+ * @param U        weight matrix.
+ * @param Z        resulting adjoint.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double *> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    d=0 may be omitted, Z is a matrix, no nz; done by specialized code    */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * fov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param q        number of weight vectors.
+ * @param U        weight matrix.
+ * @param Z        resulting adjoint.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int q,
+                             std::span<double *> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If m=1 and d=0 then U can be vector and Z a matrix but no nz.         */
+/*    Done by specialized code                                              */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * fov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param q        number of weight vectors.
+ * @param U        weight vector.
+ * @param Z        resulting adjoint.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
+                             std::span<double> U, std::span<double *> Z) {
+  return reverse(tnum, m, n, d, q, U.data(), Z.data());
+};
+
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*    If q and U are omitted they default to m and I so that as above       */
+/*                                                                          */
+/**
+ * @brief Wrapper for reverse() vector valued
+ *
+ * hov
+ *
+ * @param tnum     tape identification.
+ * @param m        number of dependent variables m.
+ * @param n        number of independent variables n.
+ * @param d        highest derivative degree d.
+ * @param Z        resulting adjoint.
+ * @param nz       nonzero pattern of Z.
+ */
+ADOLC_API inline int reverse(short tnum, int m, int n, int d,
+                             std::span<double **> Z,
+                             std::span<short *> nz = {}) {
+  return reverse(tnum, m, n, d, Z.data(), nz.data());
+};
+
 #endif
 
 /****************************************************************************/
@@ -174,16 +503,18 @@ ADOLC_API int reverse(short, int, int, int, double ***, short ** = 0);
 BEGIN_C_DECLS
 
 /****************************************************************************/
-/*                                                             FORWARD MODE */
+/*                                                             FORWARD MODE
+ */
 
 /*--------------------------------------------------------------------------*/
-/*                                                                      ZOS */
-/* zos_forward(tag, m, n, keep, x[n], y[m])                                 */
-/* (defined in uni5_for.cpp)                                                 */
+/*                                                                      ZOS
+ */
+/* zos_forward(tag, m, n, keep, x[n], y[m]) */
+/* (defined in uni5_for.cpp) */
 ADOLC_API int zos_forward(short, int, int, int, const double *, double *);
 
 /* zos_forward_nk(tag, m, n, x[n], y[m])                                    */
-/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)        */
+/* (no keep, defined in uni5_for.cpp, but not supported in ADOL-C 1.8)      */
 ADOLC_API int zos_forward_nk(short, int, int, const double *, double *);
 
 /* zos_forward_partx(tag, m, n, ndim[n], x[n][d], y[m])                     */
@@ -523,5 +854,238 @@ ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,
                                  const double *, double *);
 
 END_C_DECLS
+
+/**
+ * @brief Wrapper for zos_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param keep       flag for reverse preperation.
+ * @param argument   independent vector.
+ * @param result     dependent vector.
+ */
+ADOLC_API inline int zos_forward(short tnum, int depen, int indep, int keep,
+                                 std::span<const double> argument,
+                                 std::span<double> result) {
+  return zos_forward(tnum, depen, indep, keep, argument.data(), result.data());
+};
+
+/**
+ * @brief Wrapper for fos_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param keep       flag for reverse preperation.
+ * @param basepoint  independent vector.
+ * @param argument   tangent vector.
+ * @param valuepoint depndent vector.
+ * @param taylors    first derivative.
+ */
+ADOLC_API inline int fos_forward(short tnum, int depen, int indep, int keep,
+                                 std::span<const double> basepoint,
+                                 std::span<const double> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double> taylors) {
+  return fos_forward(tnum, depen, indep, keep, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/**
+ * @brief Wrapper for fov_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param p          number of directions.
+ * @param basepoint  independent vector.
+ * @param argument   tangent matrix.
+ * @param valuepoint dependent vector.
+ * @param taylors    first derivative matrix.
+ */
+ADOLC_API inline int fov_forward(short tnum, int depen, int indep, int p,
+                                 std::span<const double> basepoint,
+                                 std::span<double *const> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double *> taylors) {
+  return fov_forward(tnum, depen, indep, p, basepoint.data(), argument.data(),
+                     valuepoint.data(), taylors.data());
+};
+
+/**
+ * @brief Wrapper for fos_reverse().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param lagrange   weight vector.
+ * @param results    resulting adjoint.
+ */
+ADOLC_API inline int fos_reverse(short tnum, int depen, int indep,
+                                 std::span<const double> lagrange,
+                                 std::span<double> results) {
+  return fos_reverse(tnum, depen, indep, lagrange.data(), results.data());
+};
+
+/**
+ * @brief Wrapper for fos_reverse().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param nrwos      number of weight vectors.
+ * @param lagrange   weights.
+ * @param results    resulting adjoint.
+ */
+ADOLC_API inline int fov_reverse(short tnum, int depend, int indep, int nrows,
+                                 std::span<double *const> lagrange,
+                                 std::span<double *> results) {
+  return fov_reverse(tnum, depend, indep, nrows, lagrange.data(),
+                     results.data());
+};
+
+/**
+ * @brief Wrapper for hos_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param degree     highest derivative degree.
+ * @param keep       flag for reverse preperation.
+ * @param basepoint  independent vector.
+ * @param argument   tangent matrix.
+ * @param valuepoint dependent vector.
+ * @param taylors    derivative matrix.
+ */
+ADOLC_API inline int hos_forward(short tnum, int depen, int indep, int degree,
+                                 int keep, std::span<const double> basepoint,
+                                 std::span<double *const> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double *> taylors) {
+  return hos_forward(tnum, depen, indep, degree, keep, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/**
+ * @brief Wrapper for hov_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param degree     highest derivative degree.
+ * @param p          number of directions.
+ * @param basepoint  independent vector.
+ * @param argument   tangent matrix.
+ * @param valuepoint dependent vector.
+ * @param taylors    derivative matrix.
+ */
+ADOLC_API inline int hov_forward(short tnum, int depen, int indep, int degree,
+                                 int p, std::span<const double> basepoint,
+                                 std::span<double **const> argument,
+                                 std::span<double> valuepoint,
+                                 std::span<double **> taylors) {
+  return hov_forward(tnum, depen, indep, degree, p, basepoint.data(),
+                     argument.data(), valuepoint.data(), taylors.data());
+};
+
+/**
+ * @brief Wrapper for hov_wk_forward().
+ *
+ * @param tnum       tape identification.
+ * @param dim_out    number of dependent variables m.
+ * @param dim_in     number of independent variables n.
+ * @param degree     highest derivative degree.
+ * @param keep       flag for reverse preperation.
+ * @param num_dirs   number of directions.
+ * @param input      independent vector.
+ * @param X          tangent matrix.
+ * @param result     dependent vector.
+ * @param Y          derivative matrix.
+ */
+ADOLC_API inline int hov_wk_forward(short tnum, int dim_out, int dim_in,
+                                    int degree, int keep, int num_dirs,
+                                    std::span<const double> input,
+                                    std::span<double **const> X,
+                                    std::span<double> result,
+                                    std::span<double **> Y) {
+  return hov_wk_forward(tnum, dim_out, dim_in, degree, keep, num_dirs,
+                        input.data(), X.data(), result.data(), Y.data());
+};
+
+/**
+ * @brief Wrapper for hos_reverse().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param degree     highest derivative degree.
+ * @param lagrange   weights.
+ * @param results    resulting adjoint.
+ */
+ADOLC_API inline int hos_reverse(short tnum, int depen, int indep, int degree,
+                                 std::span<const double> lagrange,
+                                 std::span<double *> results) {
+  return hos_reverse(tnum, depen, indep, degree, lagrange.data(),
+                     results.data());
+};
+
+/**
+ * @brief Wrapper for hos_ov_reverse().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param degree     highest derivative degree.
+ * @param nrwos      number of weight vectors.
+ * @param lagrange   weights.
+ * @param results    resulting adjoint.
+ */
+ADOLC_API inline int hos_ov_reverse(short tnum, int depen, int indep,
+                                    int degree, int nrows,
+                                    std::span<double *const> lagrange,
+                                    std::span<double **> results) {
+  return hos_ov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),
+                        results.data());
+};
+
+/**
+ * @brief Wrapper for hov_reverse().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param degree     highest derivative degree
+ * @param nrwos      number of weight vectors.
+ * @param lagrange   weights.
+ * @param results    resulting adjoint.
+ * @param nonzero    nonzero pattern of resulting adjoint.
+ */
+ADOLC_API inline int hov_reverse(short tnum, int depen, int indep, int degree,
+                                 int nrows, std::span<double *const> lagrange,
+                                 std::span<double **> results,
+                                 std::span<short *> nonzero) {
+  return hov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),
+                     results.data(), nonzero.data());
+};
+
+/**
+ * @brief Wrapper for zos_pl_forward().
+ *
+ * @param tnum       tape identification.
+ * @param depen      number of dependent variables m.
+ * @param indep      number of independent variables n.
+ * @param keep       flag for reverse preparation.
+ * @param x          independent vector.
+ * @param y          dependent vector.
+ * @param z          argument of abs(z).
+ */
+ADOLC_API inline int zos_pl_forward(short tnum, int depen, int indep, int keep,
+                                    std::span<const double> x,
+                                    std::span<double> y,
+                                    std::span<double> switching_vec) {
+  return zos_pl_forward(tnum, depen, indep, keep, x.data(), y.data(),
+                        switching_vec.data());
+};
 
 #endif

@@ -52,16 +52,14 @@ int main() {
   cout << "monomial degree=5 \n"; /* input the desired degree */
   n = 5;
   /* allocations and initializations */
-  double **X;
-  double **Y;
-  X = myalloc2(1, n + 4);
-  Y = myalloc2(1, n + 4);
+  Matrix<double> X{1, n + 4};
+  Matrix<double> Y{1, n + 4};
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
   for (i = 0; i < n + 2; i++)
-    X[0][i + 2] = 0;      /* further coefficients */
-  double **Z;             /* used for checking consistency */
-  Z = myalloc2(1, n + 2); /* between forward and reverse */
+    X[0][i + 2] = 0;          /* further coefficients */
+  Matrix<double> Z{1, n + 2}; /* used for checking consistency */
+                              /* between forward and reverse */
 
   adouble y, x; /* declare active variables */
   /* beginning of active section */
@@ -76,7 +74,8 @@ int main() {
   u[0] = 1;                   /* for reverse call */
   for (i = 0; i < n + 2; i++) /* note that keep = i+1 in call */
   {
-    forward(tag, 1, 1, i, i + 1, X, Y); /* evaluate the i-the derivative */
+    forward(tag, 1, 1, i, i + 1, X.data(),
+            Y.data()); /* evaluate the i-the derivative */
     if (i == 0) {
       cout << Y[0][i] << " - " << y.value() << " = " << Y[0][i] - y.value()
            << " (should be 0)\n";
@@ -89,7 +88,7 @@ int main() {
       if (abs(Y[0][i] - Z[0][i]) > maxerr)
         maxerr = abs(Y[0][i] - y.value());
     }
-    reverse(tag, 1, 1, i, u, Z); /* evaluate the (i+1)-st deriv. */
+    reverse(tag, 1, 1, i, u, Z.data()); /* evaluate the (i+1)-st deriv. */
   } /* end for */
 
   if (maxerr < 10e-8)

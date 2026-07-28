@@ -353,14 +353,14 @@ while (norm(r) > EPSILON)              // terminate if small residuum
 \underline{Example:}
 \begin{verbatim}
 ...
-double x[n], y[m], **I, **J;
-I=myallocI2(m);                        // allocation of identity matrix
-J=myalloc2(m,n);                       // allocation of Jacobian matrix
+double x[n], y[m];
+auto I=unitMatrix(m);                   // allocation of identity matrix
+auto J=Matrix<double>(m,n);             // allocation of Jacobian matrix
 ...
-initialize(x);                         // setting up the argument x
+initialize(x);                              // setting up the argument x
 ...
-zos_forward(ftag,m,n,1,x,y);           // computing the Jacobian by
-fos_reverse(ftag,m,n,m,I,J);           // reverse mode of AD
+zos_forward(ftag,m,n,1,x,y);                // computing the Jacobian by
+fos_reverse(ftag,m,n,m,I.data(),J.data());  // reverse mode of AD
 ...
 \end{verbatim}
 \end{minipage}
@@ -481,16 +481,19 @@ fos_reverse(ftag,m,n,m,I,J);           // reverse mode of AD
 \underline{Example:}
 \begin{verbatim}
 ...
-double x[n], **I, **X, ***A, ***B;
-I=myallocI2(n);                        // allocation of identity matrix
-X=myalloc2(n,5);                       // allocation of matrix X
-A=myalloc3(n,n,4); B=myalloc3(n,n,4);  // allocation of tensors A and B
+double x[n];
+auto I=unitMatrix(n);                // allocation of identity matrix
+auto X=Matrix<double>(n,5);          // allocation of matrix X
+auto A=Tensor<double>(n,n,4);        // allocation of tensors A and B
+auto B=Tensor<double>(n,n,4);
 ...
-initialize(X);                         // setting up the argument x_0
+initialize(X);                       // setting up the argument x_0
 ...
-forodec(ftag,n,1.0,0,4,X);             // compute x_1,...,x_4
-hov_reverse(ftag,n,n,3,n,I,A,NULL);    // compute A_0,...,A_3
-accodec(ftag,n,1.0,3,A,B,NULL);        // accumulate B_0,...,B_3
+forodec(ftag,n,1.0,0,4,X.data());    // compute x_1,...,x_4
+hov_reverse(ftag,n,n,3,n,I.data(),
+            A.data(),NULL);          // compute A_0,...,A_3
+accodec(ftag,n,1.0,3,A.data(),
+        B.data(),NULL);              // accumulate B_0,...,B_3
 ...
 \end{verbatim}
 \end{minipage}

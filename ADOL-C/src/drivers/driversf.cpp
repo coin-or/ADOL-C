@@ -33,13 +33,11 @@ fint function_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
-  double *argument = myalloc1(n);
-  double *result = myalloc1(m);
-  spread1(n, fargument, argument);
+  std::vector<double> argument(n);
+  std::vector<double> result(m);
+  spread1(n, fargument, argument.data());
   rc = function(tag, m, n, argument, result);
-  pack1(m, result, fresult);
-  myfree1(argument);
-  myfree1(result);
+  pack1(m, result.data(), fresult);
   return rc;
 }
 
@@ -50,13 +48,11 @@ fint gradient_(fint *ftag, fint *fn, fdouble *fargument, fdouble *fresult) {
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int n = static_cast<int>(*fn);
-  double *argument = myalloc1(n);
-  double *result = myalloc1(n);
-  spread1(n, fargument, argument);
+  std::vector<double> argument(n);
+  std::vector<double> result(n);
+  spread1(n, fargument, argument.data());
   rc = gradient(tag, n, argument, result);
-  pack1(n, result, fresult);
-  myfree1(result);
-  myfree1(argument);
+  pack1(n, result.data(), fresult);
   return rc;
 }
 
@@ -69,16 +65,13 @@ fint vec_jac_(fint *ftag, fint *fm, fint *fn, fint *frepeat, fdouble *fargument,
   short tag = static_cast<short>(*ftag);
   int m = static_cast<int>(*fm), n = static_cast<int>(*fn),
       repeat = static_cast<int>(*frepeat);
-  double *argument = myalloc1(n);
-  double *lagrange = myalloc1(m);
-  double *row = myalloc1(n);
-  spread1(m, flagrange, lagrange);
-  spread1(n, fargument, argument);
+  std::vector<double> argument(n);
+  std::vector<double> lagrange(m);
+  std::vector<double> row(n);
+  spread1(m, flagrange, lagrange.data());
+  spread1(n, fargument, argument.data());
   rc = vec_jac(tag, m, n, repeat, argument, lagrange, row);
-  pack1(n, row, frow);
-  myfree1(argument);
-  myfree1(lagrange);
-  myfree1(row);
+  pack1(n, row.data(), frow);
   return rc;
 }
 
@@ -90,13 +83,11 @@ fint jacobian_(fint *ftag, fint *fdepen, fint *findep, fdouble *fargument,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int depen = static_cast<int>(*fdepen), indep = static_cast<int>(*findep);
-  double **Jac = myalloc2(depen, indep);
-  double *argument = myalloc1(indep);
-  spread1(indep, fargument, argument);
+  Matrix<double> Jac{static_cast<size_t>(depen), static_cast<size_t>(indep)};
+  std::vector<double> argument(indep);
+  spread1(indep, fargument, argument.data());
   rc = jacobian(tag, depen, indep, argument, Jac);
-  pack2(depen, indep, Jac, fjac);
-  myfree2(Jac);
-  myfree1(argument);
+  pack2(depen, indep, Jac.data(), fjac);
   return rc;
 }
 
@@ -108,16 +99,13 @@ fint jac_vec_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
-  double *argument = myalloc1(n);
-  double *tangent = myalloc1(n);
-  double *column = myalloc1(m);
-  spread1(n, ftangent, tangent);
-  spread1(n, fargument, argument);
-  rc = jac_vec(tag, m, n, argument, tangent, column);
-  pack1(m, column, fcolumn);
-  myfree1(argument);
-  myfree1(tangent);
-  myfree1(column);
+  std::vector<double> argument(n);
+  std::vector<double> tangent(n);
+  std::vector<double> column(m);
+  spread1(n, ftangent, tangent.data());
+  spread1(n, fargument, argument.data());
+  rc = jac_vec(tag, m, n, argument.data(), tangent.data(), column.data());
+  pack1(m, column.data(), fcolumn);
   return rc;
 }
 
@@ -129,16 +117,13 @@ fint hess_vec_(fint *ftag, fint *fn, fdouble *fargument, fdouble *ftangent,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int n = static_cast<int>(*fn);
-  double *argument = myalloc1(n);
-  double *tangent = myalloc1(n);
-  double *result = myalloc1(n);
-  spread1(n, fargument, argument);
-  spread1(n, ftangent, tangent);
+  std::vector<double> argument(n);
+  std::vector<double> tangent(n);
+  std::vector<double> result(n);
+  spread1(n, fargument, argument.data());
+  spread1(n, ftangent, tangent.data());
   rc = hess_vec(tag, n, argument, tangent, result);
-  pack1(n, result, fresult);
-  myfree1(argument);
-  myfree1(tangent);
-  myfree1(result);
+  pack1(n, result.data(), fresult);
   return rc;
 }
 
@@ -152,13 +137,11 @@ fint hessian_(fint *ftag, fint *fn, fdouble *fx,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int n = static_cast<int>(*fn);
-  double **H = myalloc2(n, n);
-  double *x = myalloc1(n);
-  spread1(n, fx, x);
+  Matrix<double> H{static_cast<size_t>(n)};
+  std::vector<double> x(n);
+  spread1(n, fx, x.data());
   rc = hessian(tag, n, x, H);
-  pack2(n, n, H, fh);
-  myfree2(H);
-  myfree1(x);
+  pack2(n, n, H.data(), fh);
   return rc;
 }
 
@@ -170,19 +153,16 @@ fint lagra_hess_vec_(fint *ftag, fint *fm, fint *fn, fdouble *fargument,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int m = static_cast<int>(*fm), n = static_cast<int>(*fn);
-  double *argument = myalloc1(n);
-  double *tangent = myalloc1(n);
-  double *lagrange = myalloc1(m);
-  double *result = myalloc1(n);
-  spread1(n, fargument, argument);
-  spread1(n, ftangent, tangent);
-  spread1(m, flagrange, lagrange);
-  rc = lagra_hess_vec(tag, m, n, argument, tangent, lagrange, result);
-  pack1(n, result, fresult);
-  myfree1(argument);
-  myfree1(tangent);
-  myfree1(lagrange);
-  myfree1(result);
+  std::vector<double> argument(n);
+  std::vector<double> tangent(n);
+  std::vector<double> lagrange(m);
+  std::vector<double> result(n);
+  spread1(n, fargument, argument.data());
+  spread1(n, ftangent, tangent.data());
+  spread1(m, flagrange, lagrange.data());
+  rc = lagra_hess_vec(tag, m, n, argument.data(), tangent.data(),
+                      lagrange.data(), result.data());
+  pack1(n, result.data(), fresult);
   return rc;
 }
 
