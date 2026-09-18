@@ -310,3 +310,149 @@ BOOST_AUTO_TEST_CASE(hos_reverse_) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(FixedPointCompositionTest)
+namespace {
+template <class T> int coupledIteration(T *x, T *u, T *y, int, int) {
+  y[0] = 0.5 * x[0] + 0.125 * x[1] + u[0] * u[0];
+  y[1] = 0.25 * x[1] + u[1];
+  return 0;
+}
+
+double coupledNorm(double *x, int n) {
+  double result = 0;
+  for (int i = 0; i < n; ++i)
+    result = std::max(result, std::abs(x[i]));
+  return result;
+}
+
+int activeIterationCalls = 0;
+short traceComposition(bool useFixedPoint, bool activeInitialGuess,
+                       bool recordBranch = false) {
+  const short tape = createNewTape();
+  const short sub = createNewTape();
+  const short internal = createNewTape();
+  setCurrentTape(tape);
+  currentTape().ensureContiguousLocations(6);
+  {
+    std::array<adouble, 2> u, x, y;
+    trace_on(tape);
+    u[0] <<= 0.7;
+    u[1] <<= 0.4;
+    x[0] = activeInitialGuess ? u[0] : adouble(0.0);
+    x[1] = activeInitialGuess ? u[1] : adouble(0.0);
+    if (useFixedPoint) {
+      ADOLC::FpIteration::FpProblem problem{tape,
+                                            sub,
+                                            internal,
+                                            [recordBranch](double *x, double *u,
+                                                           double *y, int n, int m) {
+                                              coupledIteration(x, u, y, n, m);
+                                              if (recordBranch && u[0] > 1.0)
+                                                y[0] += u[0];
+                                              return 0;
+                                            },
+                                            [recordBranch](adouble *x, adouble *u,
+                                                           adouble *y, int n, int m) {
+                                              ++activeIterationCalls;
+                                              coupledIteration(x, u, y, n, m);
+                                              if (recordBranch && u[0] > 1.0)
+                                                y[0] += u[0];
+                                              return 0;
+                                            },
+                                            coupledNorm,
+                                            coupledNorm,
+                                            1e-13,
+                                            1e-13,
+                                            200,
+                                            200,
+                                            x.data(),
+                                            u.data(),
+                                            y.data(),
+                                            2,
+                                            2};
+      BOOST_REQUIRE(ADOLC::FpIteration::fp_iteration<
+                        ADOLC::FpIteration::FpMode::secondOrder>(problem) > 0);
+    } else {
+      y[0] = 2.0 * u[0] * u[0] + u[1] / 3.0;
+      y[1] = 4.0 * u[1] / 3.0;
+    }
+    // Nonlinear postprocessing produces a nonzero first-order adjoint seed.
+    // The direct parameter dependence also exercises adjoint accumulation.
+    adouble result = y[0] * y[0] + y[0] * y[1] + u[0] * y[1] + u[1] * u[1];
+    double value;
+    result >>= value;
+    trace_off();
+  }
+  return tape;
+}
+
+void checkComposition(bool activeInitialGuess, bool replay) {
+  ADOLC::FpIteration::resetFpiStack();
+  const short actualTape = traceComposition(true, activeInitialGuess);
+  const short referenceTape = traceComposition(false, activeInitialGuess);
+  std::array<double, 2> u = replay ? std::array<double, 2>{1.1, -0.2}
+                                   : std::array<double, 2>{0.7, 0.4};
+  double **actual = myalloc2(2, 2), **reference = myalloc2(2, 2);
+  for (int direction = 0; direction < 2; ++direction) {
+    std::array<double, 2> tangent{};
+    tangent[direction] = 1.0;
+    double value, derivative, referenceValue, referenceDerivative;
+    fos_forward(actualTape, 1, 2, 2, u.data(), tangent.data(), &value,
+                &derivative);
+    fos_forward(referenceTape, 1, 2, 2, u.data(), tangent.data(),
+                &referenceValue, &referenceDerivative);
+    BOOST_TEST(value == referenceValue, tt::tolerance(1e-10));
+    BOOST_TEST(derivative == referenceDerivative, tt::tolerance(1e-10));
+    double weight = 1.0;
+    hos_reverse(actualTape, 1, 2, 1, &weight, actual);
+    hos_reverse(referenceTape, 1, 2, 1, &weight, reference);
+    for (int i = 0; i < 2; ++i)
+      for (int j = 0; j < 2; ++j)
+        BOOST_TEST(actual[i][j] == reference[i][j], tt::tolerance(1e-10));
+  }
+  // A zero-order forward establishes the subtape point for reverse.
+  // Use a different point from the preceding tangent sweeps to catch stale
+  // retained values; reverse itself must not change the evaluation point.
+  u = {0.8, 0.2};
+  double value, weight = 1.0;
+  std::array<double, 2> gradient{}, referenceGradient{};
+  zos_forward(actualTape, 1, 2, 1, u.data(), &value);
+  fos_reverse(actualTape, 1, 2, &weight, gradient.data());
+  zos_forward(referenceTape, 1, 2, 1, u.data(), &value);
+  fos_reverse(referenceTape, 1, 2, &weight, referenceGradient.data());
+  for (int i = 0; i < 2; ++i)
+    BOOST_TEST(gradient[i] == referenceGradient[i], tt::tolerance(1e-10));
+  myfree2(actual);
+  myfree2(reference);
+}
+} // namespace
+BOOST_AUTO_TEST_CASE(composed_vector_fixed_point) {
+  checkComposition(false, false);
+}
+BOOST_AUTO_TEST_CASE(active_initial_guess) { checkComposition(true, false); }
+BOOST_AUTO_TEST_CASE(replay_at_new_parameters) {
+  checkComposition(false, true);
+}
+BOOST_AUTO_TEST_CASE(replay_with_active_initial_guess) {
+  checkComposition(true, true);
+}
+BOOST_AUTO_TEST_CASE(branch_switch_requires_user_retaping) {
+  ADOLC::FpIteration::resetFpiStack();
+  activeIterationCalls = 0;
+  const short tape = traceComposition(true, false, true);
+  const int recordedCalls = activeIterationCalls;
+  std::array<double, 2> u{1.1, 0.4}, tangent{1.0, 0.0};
+  double value, derivative;
+  // The inner tape warns and returns -1. No active callback may be invoked
+  // to silently record a replacement tape, including on a repeated replay.
+  for (int replay = 0; replay < 2; ++replay) {
+    BOOST_TEST(fos_forward(tape, 1, 2, 2, u.data(), tangent.data(), &value,
+                           &derivative) == -1);
+    BOOST_TEST(activeIterationCalls == recordedCalls);
+  }
+  BOOST_TEST(zos_forward(tape, 1, 2, 1, u.data(), &value) == -1);
+  // Do not reverse after a failed forward sweep.
+  BOOST_TEST(activeIterationCalls == recordedCalls);
+}
+BOOST_AUTO_TEST_SUITE_END()

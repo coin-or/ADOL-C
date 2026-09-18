@@ -22,6 +22,7 @@
 #include <adolc/fixpoint.h>
 #include <adolc/valuetape/valuetape.h>
 #include <algorithm>
+#include <array>
 #include <vector>
 
 namespace ADOLC::FpIteration {
@@ -200,10 +201,28 @@ int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
   for (int i = 0; i < dim_x; ++i) {
     x_fix[i] = data.fp.x[i];
   }
+  // Retain the iteration values during forward evaluation. Reverse uses
+  // this established point without running another forward sweep.
+  const auto finishForward = [&](int iterations) {
+    std::vector<double> point(dim_xu), value(dim_x);
+    std::copy(x_fix, x_fix + dim_x, point.begin());
+    std::copy(xu + dim_x, xu + dim_xu, point.begin() + dim_x);
+    const int status = zos_forward(data.problem.subTapeId, dim_x, dim_xu, 1,
+                                   point.data(), value.data());
+    return status < 0 ? status : iterations;
+  };
+  // At the recording parameters, reuse the recorded converged state exactly.
+  // This reduces round-off errors, which might lead to branch switchings.
+  if (data.fp.lastIter > 0 && data.fp.lastIter <= data.problem.N_max &&
+      std::equal(data.fp.u.begin(), data.fp.u.end(), xu + dim_x)) {
+    return finishForward(static_cast<int>(data.fp.lastIter));
+  }
+
   for (size_t k = 1; k <= data.problem.N_max; ++k) {
     for (int i = 0; i < dim_x; ++i) {
       xu[i] = x_fix[i];
     }
+
     data.problem.double_func(xu, xu + dim_x, x_fix, dim_x, (dim_xu - dim_x));
 
     for (int i = 0; i < dim_x; ++i) {
@@ -214,7 +233,7 @@ int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
     if (err < data.problem.epsilon)
       // this is bad... but the return type of all functions is fixed to "int"
       // so it is converted implicitly anyway
-      return static_cast<int>(k);
+      return finishForward(static_cast<int>(k));
   }
   return -1;
 }
@@ -229,8 +248,9 @@ int fp_zos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
  *     \dot{x}_{k+1} = F'_x(x_*, u) \dot{x}_k + F'_u(x_*, u) \dot{u}
  *
  * It uses ADOL-C's `fos_forward` to evaluate the directional derivatives and
- * iterates until both primal and directional residuals fall below specified
- * tolerances or the maximal number of iterations is reached.
+ * first converges the primal state, then holds it fixed while iterating the
+ * directional derivative. This avoids roundoff-driven branch changes from
+ * unnecessary primal updates after convergence.
  *
  * @param tapeId         ID of the outer tape.
  * @param dim_xu         Dimension of total input vector [x; u].
@@ -249,24 +269,36 @@ int fp_fos_forward(short tapeId, int dim_x, int dim_xu, double *xu,
   const fpi_data &data =
       getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
   const size_t maxIter = std::max(data.problem.N_max_deriv, data.problem.N_max);
-  // initialize with the x fixed point
-  std::copy(data.fp.x.begin(), data.fp.x.end(), x_fix);
+  // Converge the primal first, then differentiate at that fixed point.
+  // Continuing primal updates during the tangent solve can change branches
+  // through roundoff even though the primal has already converged.
+  const int primalErr = fp_zos_forward(tapeId, dim_x, dim_xu, xu, x_fix);
+  if (primalErr < 0) {
+    return primalErr;
+  }
+  std::copy(x_fix, x_fix + dim_x, xu);
+  // The converged solution is independent of the initial iterate (and of
+  // any tangent previously stored at the output location).
+  std::fill(x_fix_dot, x_fix_dot + dim_x, 0.0);
   std::vector<double> residual(dim_x);
   std::vector<double> residualDeriv(dim_x);
+  std::vector<double> nextValue(dim_x);
   double err = 0;
   double err_deriv = 0;
   for (size_t k = 1; k < maxIter; ++k) {
     // copies x_*= f(x_*, u) and \dot{x}_{k+1} = F'(x_*, u)\dot{x_k}
-    std::copy(x_fix, x_fix + dim_x, xu);
     std::copy(x_fix_dot, x_fix_dot + dim_x, xu_dot);
 
     // Compute F(x_*,u) and F'(x_*, u)[\dot{x_k}; \dot{u}]
-    fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2, xu, xu_dot, x_fix,
-                x_fix_dot);
+    const int tangentErr = fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2,
+                                       xu, xu_dot, nextValue.data(), x_fix_dot);
+    if (tangentErr < 0) {
+      return tangentErr;
+    }
 
     // Compute residuals in primal and tangent values
     for (int i = 0; i < dim_x; ++i) {
-      residual[i] = x_fix[i] - xu[i];
+      residual[i] = nextValue[i] - xu[i];
       residualDeriv[i] = x_fix_dot[i] - xu_dot[i];
     }
     err = data.problem.norm_func(residual.data(), dim_x);
@@ -339,8 +371,9 @@ int fp_fos_reverse(short tapeId, int dim_x, int dim_xu, double *x_bar,
     assert(err >= 0 && "Error should not be negative");
     // check convergence
     if (err < data.problem.epsilon_deriv) {
-      // add up the resulting adjoints \bar{x} and \bar{u}
-      for (int i = 0; i < dim_xu; ++i) {
+      // Only internal solves need the state adjoint. The converged fixed
+      // point has zero derivative with respect to the initial guess.
+      for (int i = data.isInternal ? 0 : dim_x; i < dim_xu; ++i) {
         xi_u_bar[i] += xi_u[i];
       }
       // this is bad... but the return type of all functions is fixed to "int"
@@ -349,8 +382,8 @@ int fp_fos_reverse(short tapeId, int dim_x, int dim_xu, double *x_bar,
     }
   }
   // we hit the maximal iteration before converging
-  // add up the resulting adjoints \bar{x} and \bar{u}
-  for (int i = 0; i < dim_xu; ++i) {
+  // Preserve the same initial-guess semantics on nonconvergence.
+  for (int i = data.isInternal ? 0 : dim_x; i < dim_xu; ++i) {
     xi_u_bar[i] += xi_u[i];
   }
   return -1;
@@ -369,6 +402,18 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
 
   // reference because we set the "isInternal"
   fpi_data &data = getfpiData(tapeId, findTape(tapeId).ext_diff_fct_index());
+
+  // Both reverse solves must use the current evaluation point, not the
+  // values cached when the outer tape was recorded.
+  std::vector<double> point(dim_xu), value(dim_x);
+  for (int i = 0; i < dim_x; ++i)
+    point[i] = dpp_y[i][0];
+  for (int i = dim_x; i < dim_xu; ++i)
+    point[i] = dpp_x[i][0];
+  int status = zos_forward(data.problem.internalTapeId, dim_x, dim_xu, 1,
+                           point.data(), value.data());
+  if (status < 0)
+    return status;
 
   // 1. compute [\bar{xi_N}, \bar{u}] via fp_fos_reverse (line 8-10 in algo)
   std::vector<double> xi_u_bar(dim_xu, 0.0);
@@ -394,21 +439,32 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
   std::vector<double> x_fix_dot(dim_x);
   // store x fix and \dot
   for (int i = 0; i < dim_x; ++i) {
-    xu[i] = data.fp.x[i];
+    xu[i] = dpp_y[i][0];
     xu_dot[i] = dpp_y[i][1];
   }
   // store u and \dot{u}
   for (int i = 0; i < data.problem.dim_u; ++i) {
-    xu[dim_x + i] = data.fp.u[i];
+    xu[dim_x + i] = dpp_x[dim_x + i][0];
     xu_dot[dim_x + i] = dpp_x[dim_x + i][1];
   }
-  fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2, xu.data(),
-              xu_dot.data(), x_fix.data(), x_fix_dot.data());
+  const int tangentErr =
+      fos_forward(data.problem.subTapeId, dim_x, dim_xu, 2, xu.data(),
+                  xu_dot.data(), x_fix.data(), x_fix_dot.data());
+  if (tangentErr < 0) {
+    return tangentErr;
+  }
 
   std::vector<double> xi_bar(xi_u_bar.begin(), xi_u_bar.begin() + dim_x);
-  hos_reverse(data.problem.subTapeId, dim_x, dim_xu, 1, xi_bar.data(), xu_bar);
+  // Keep local partial derivatives separate from the outer tape's adjoints:
+  // the state entries are implicit variables, not derivatives w.r.t. x_0.
+  std::vector<std::array<double, 2>> partial(dim_xu);
+  std::vector<double *> partialRows(dim_xu);
+  for (int i = 0; i < dim_xu; ++i)
+    partialRows[i] = partial[i].data();
+  hos_reverse(data.problem.subTapeId, dim_x, dim_xu, 1, xi_bar.data(),
+              partialRows.data());
 
-  // We now have xu_bar[1] = [xi_k^T(Fxx \dot{x} + Fxu \dot{u}),
+  // We now have partial[][1] = [xi_k^T(Fxx \dot{x} + Fxu \dot{u}),
   // xi_k^T(Fux \dot{x} + Fuu \dot{u})]
 
   // 3. compute fp_fos_reverse with \bar{xi} and \bar{x} = \dot{\bar{r}} =
@@ -416,7 +472,9 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
   std::vector<double> xi_bar_dot(dim_xu);
   std::vector<double> r_bar_dot(dim_x);
   for (int i = 0; i < dim_x; ++i) {
-    r_bar_dot[i] = xu_bar[i][1];
+    // Include the derivative of the incoming adjoint for a nonlinear
+    // function composed with the fixed point.
+    r_bar_dot[i] = partial[i][1] + x_bar_ti[i][1];
   }
 
   data.isInternal = true;
@@ -428,7 +486,8 @@ int fp_hos_ti_reverse(short tapeId, int dim_x, int dim_xu, int d,
 
   // 4. return xi_k, u = u part of last fos_reverse + u part of hos_reverse
   for (int i = 0; i < data.problem.dim_u; ++i) {
-    xu_bar[dim_x + i][1] += xi_bar_dot[dim_x + i];
+    xu_bar[dim_x + i][0] += xi_u_bar[dim_x + i];
+    xu_bar[dim_x + i][1] += partial[dim_x + i][1] + xi_bar_dot[dim_x + i];
   }
 
   return 0;
@@ -486,13 +545,11 @@ int secondOrderFp(FpProblem &problem) {
 }
 } // namespace
 
-template <>
-int fp_iteration<FpMode::firstOrder>(FpProblem problem) {
+template <> int fp_iteration<FpMode::firstOrder>(FpProblem problem) {
   return firstOrderFp(problem);
 }
 
-template <>
-int fp_iteration<FpMode::secondOrder>(FpProblem problem) {
+template <> int fp_iteration<FpMode::secondOrder>(FpProblem problem) {
   return secondOrderFp(problem);
 }
 
