@@ -31,7 +31,7 @@ ext_diff_fct *reg_ext_fct(short tapeId, short extTapeId,
 
   // this call sets edf->index:
   ext_diff_fct *edf = findTape(tapeId).ext_diff_append();
-  edf->function = ext_fct;
+  edf->function = std::move(ext_fct);
   edf->tapeId = tapeId;
   edf->extTapeId = extTapeId;
   return edf;

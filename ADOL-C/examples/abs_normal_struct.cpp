@@ -31,7 +31,10 @@ void taping(ADProblem &problem) {
     for (size_t i = 0; i < ADProblem::dimIn; ++i)
       ax[i] <<= problem.x[i];
 
-    ay[0] = ax[0] + ax[1] - fabs(ax[0]) - fabs(ax[1]);
+    // Record the switches in a fixed order on every compiler.
+    adouble abs0 = fabs(ax[0]);
+    adouble abs1 = fabs(ax[1]);
+    ay[0] = ax[0] + ax[1] - abs0 - abs1;
     ay[0] >>= problem.y[0];
   }
   trace_off();

@@ -47,7 +47,7 @@ int main() {
 
     std::array<adouble, dim> con;
 
-    for (auto i = 0; i < dim; ++i) {
+    for (size_t i = 0; i < con.size(); ++i) {
       con[i] <<= conp[i];
       y[i] = con[i];
     }
@@ -74,7 +74,7 @@ int main() {
 
     std::array<adouble, dim> con;
 
-    for (auto i = 0; i < dim; ++i) {
+    for (size_t i = 0; i < con.size(); ++i) {
       con[i] <<= conp[i];
       y[i] = con[i];
     }
