@@ -2,6 +2,13 @@
 #ifndef ADOLC_PERSISTANT_TAPE_INFOS_H
 #define ADOLC_PERSISTANT_TAPE_INFOS_H
 
+/**
+ * @brief Reusable scratch storage retained by higher-level tape drivers.
+ *
+ * The buffers cache allocations used by ODE and Jacobian routines across
+ * repeated calls. The object owns the raw arrays and is movable but not
+ * copyable.
+ */
 struct PersistantTapeInfos {
 
   ~PersistantTapeInfos();

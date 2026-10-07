@@ -12,10 +12,12 @@
 
 ---------------------------------------------------------------------------*/
 #include <adolc/adolc.h>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdio>
 
-// time step function
 template <class data_type> int euler_step_act(size_t, data_type *y) {
-  // Euler step, adouble version
   y[0] = y[0] + 0.01 * y[0];
   y[1] = y[1] + 0.01 * 2 * y[1];
 
@@ -23,35 +25,29 @@ template <class data_type> int euler_step_act(size_t, data_type *y) {
 }
 
 int main() {
-  // two input and output variables for checkpointing function
   constexpr short dim = 2;
 
   const short tapeIdFull = createNewTape();
   const short tapeIdPart = createNewTape();
   const short tapeIdCheck = createNewTape();
 
-  // control
   std::array<double, dim> conp = {1.0, 1.0};
 
-  // variables for derivative calculation
-  std::array<double, dim> grad;
+  std::array<double, dim> gradFull{};
+  std::array<double, dim> gradCheckpoint{};
 
-  // time steps
   const size_t steps = 100;
 
-  // number of checkpoints
   const size_t num_cpts = 5;
 
-  // basis variant: full taping of time step loop
+  // Record the full loop as a reference.
   trace_on(tapeIdFull);
   {
-    // state, double and adouble version
     std::array<adouble, dim> y;
 
-    // control, double and adouble version
     std::array<adouble, dim> con;
 
-    for (auto i = 0; i < dim; ++i) {
+    for (size_t i = 0; i < con.size(); ++i) {
       con[i] <<= conp[i];
       y[i] = con[i];
     }
@@ -62,12 +58,14 @@ int main() {
     double f[] = {0.0};
     y[0] + y[1] >>= f[0];
   }
-  trace_off(1);
+  trace_off();
 
-  gradient(tapeIdFull, dim, conp.data(), grad.data());
+  const int fullStatus =
+      gradient(tapeIdFull, dim, conp.data(), gradFull.data());
 
-  printf(" full taping:\n gradient=( %f, %f)\n\n", grad[0], grad[1]);
+  printf("full taping gradient = [%.6f, %.6f]\n", gradFull[0], gradFull[1]);
 
+  //! [checkpointing-context]
   trace_on(tapeIdPart);
   {
     // ensure that the adoubles stored in y occupy consecutive locations
@@ -76,31 +74,25 @@ int main() {
 
     std::array<adouble, dim> con;
 
-    for (auto i = 0; i < dim; ++i) {
+    for (size_t i = 0; i < con.size(); ++i) {
       con[i] <<= conp[i];
       y[i] = con[i];
     }
 
-    // Now using checkpointing facilities
-    // generate checkpointing context => define active variante of the time step
+    // Define the active variant of the time-step function.
     ADOLC::CP::Context cpc(tapeIdPart, tapeIdCheck, euler_step_act<adouble>);
 
-    // double variante of the time step function
+    // Provide the passive variant of the time-step function.
     cpc.setDoubleFct(euler_step_act<double>);
 
-    // number of time steps to perform
     cpc.setNumberOfSteps(steps);
 
-    // number of checkpoint
     cpc.setNumberOfCheckpoints(num_cpts);
 
-    // dimension of input/output
     cpc.setDimensionXY(dim);
-    // input vector
     cpc.setInput(y.data());
-    // output vector
     cpc.setOutput(y.data());
-    // always retape or not ?
+    // Reuse the recorded time-step tape when possible.
     cpc.setAlwaysRetaping(false);
 
     cpc.checkpointing(tapeIdPart);
@@ -108,11 +100,34 @@ int main() {
     double f[] = {0.0};
     y[0] + y[1] >>= f[0];
   }
-  trace_off(1);
+  trace_off();
 
-  gradient(tapeIdPart, dim, conp.data(), grad.data());
+  const int checkpointStatus =
+      gradient(tapeIdPart, dim, conp.data(), gradCheckpoint.data());
+  //! [checkpointing-context]
 
-  printf(" taping with checkpointing facility:\n gradient=( %f, %f)\n\n",
-         grad[0], grad[1]);
-  return 0;
+  printf("checkpoint gradient = [%.6f, %.6f]\n", gradCheckpoint[0],
+         gradCheckpoint[1]);
+
+  const std::array<double, dim> expected{
+      std::pow(1.01, static_cast<double>(steps)),
+      std::pow(1.02, static_cast<double>(steps))};
+  const auto close = [](double actual, double reference) {
+    const double scale = std::max(1.0, std::fabs(reference));
+    return std::fabs(actual - reference) <= 1.0e-10 * scale;
+  };
+
+  if (fullStatus < 0 || checkpointStatus < 0)
+    return 1;
+
+  for (size_t i = 0; i < dim; ++i) {
+    if (!close(gradFull[i], expected[i]) ||
+        !close(gradCheckpoint[i], expected[i]) ||
+        !close(gradCheckpoint[i], gradFull[i])) {
+      std::fprintf(stderr, "checkpoint gradient validation failed at %zu\n", i);
+      return 1;
+    }
+  }
+
+  printf("validation passed\n");
 }

@@ -40,6 +40,12 @@ ADOLC_API double makeInf();
 #ifdef USE_ADTL_REFCOUNTING
 class adouble;
 
+/**
+ * @brief Tracks live tapeless values when reference counting is enabled.
+ *
+ * `setNumDir()` warns if active values still use the previous storage layout.
+ * It does not prevent the change.
+ */
 class refcounter {
 private:
   static size_t refcnt;
@@ -58,6 +64,16 @@ public:
 //     virtual int operator() (int n, adouble *x, int m, adouble *y) = 0;
 // };
 
+/**
+ * @brief Active scalar for tapeless first-order forward differentiation.
+ *
+ * `adtl::adouble` stores a primal value together with the directional
+ * derivatives configured by `adtl::setNumDir()`. Operations propagate those
+ * derivatives immediately; no tape is recorded and no later sweep is needed.
+ *
+ * Use the taped `::adouble` type instead when reverse mode, higher-order tape
+ * sweeps, or repeated evaluation of a recorded function is required.
+ */
 class adouble {
 public:
   inline adouble();

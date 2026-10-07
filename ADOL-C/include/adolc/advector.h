@@ -30,6 +30,12 @@
 class advector;
 class adubref;
 
+/**
+ * @brief Proxy for an active vector element selected by an active index.
+ *
+ * The proxy records indirect reads and writes and converts to an `adouble`
+ * when used as an rvalue.
+ */
 class ADOLC_API adubref {
   /* This class is supposed to be used only when an advector subscript
    * occurs as an lvalue somewhere. What we need to do is read the location
@@ -111,6 +117,12 @@ void ADOLC_API condeqassign(adubref &res, const adouble &cond,
 void ADOLC_API condeqassign(adubref &res, const adouble &cond,
                             const adouble &arg);
 
+/**
+ * @brief Contiguous vector of taped active values with active indexing.
+ *
+ * Passive indices return ordinary references; active indices record lookup or
+ * indirect-assignment operations and use `adubref` for writable elements.
+ */
 class ADOLC_API advector {
   std::vector<adouble> data_;
 

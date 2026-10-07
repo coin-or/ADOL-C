@@ -22,6 +22,7 @@ namespace ADOLC::Sparse {
 class CoordinateFormatTripled {
 public:
   using coordinate_type = unsigned int;
+  /** @brief Zero-based row and column coordinates of one sparse entry. */
   struct Coordinates {
     coordinate_type rowIndex_{0};
     coordinate_type colIndex_{0};
@@ -210,7 +211,12 @@ classifySparseANFBlock(CoordinateFormatTripled::Coordinates coords, int depen,
 }
 } // namespace detail
 
-/** @brief Struct for storing the number of non-zero elements for each block. */
+/**
+ * @brief Nonzero counts for the four blocks of a sparse abs-normal form.
+ *
+ * The members correspond to `[Y J; Z L]` and are used to size the associated
+ * coordinate-format matrices before recovery.
+ */
 struct SparseShape : ANFShape {
   size_t y{0};
   size_t j{0};
@@ -309,7 +315,7 @@ struct SparseANF {
   /**
    * @brief Resize sparse blocks according to the given block counts.
    *
-   * @param counts Number of entries in each block.
+   * @param dims Number of entries in each sparse block.
    */
   void resize(Shape dims) {
     shape = dims;

@@ -21,6 +21,13 @@
 #include <adolc/externfcts.h>
 #include <adolc/externfcts2.h>
 
+/**
+ * @brief C++ base class for an externally differentiated function.
+ *
+ * Derive from this class and implement the primal and derivative callbacks
+ * used by the ADOL-C sweep drivers. `call()` records an invocation on the
+ * outer tape while delegating its numerical evaluation to the callbacks.
+ */
 class ADOLC_API EDFobject {
 protected:
   ext_diff_fct *edf;
@@ -61,6 +68,12 @@ public:
   }
 };
 
+/**
+ * @brief External differentiated function with an additional integer array.
+ *
+ * This variant passes application-defined integer metadata to every primal and
+ * derivative callback.
+ */
 class ADOLC_API EDFobject_iArr {
 protected:
   ext_diff_fct *edf;
@@ -109,6 +122,12 @@ public:
   }
 };
 
+/**
+ * @brief Block-structured external differentiated function interface.
+ *
+ * Version 2 supports multiple input and output blocks with individual sizes
+ * and an opaque user context shared by the callback implementations.
+ */
 class ADOLC_API EDFobject_v2 {
 protected:
   ext_diff_fct_v2 *edf;

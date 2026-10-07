@@ -27,9 +27,16 @@ concept AllMemType = requires(T t) {
   { t.allmem } -> std::convertible_to<void *>;
 };
 
+/**
+ * @brief Block-based storage for registered external-function descriptors.
+ *
+ * @tparam T Descriptor type containing an `allmem` allocation.
+ * @tparam buff_size Number of descriptors stored in each linked block.
+ */
 template <AllMemType T, size_t buff_size> class Buffer {
   using InitFunctionPointer = void (*)(T *subBufferElement);
 
+  /** @brief One fixed-capacity node in the descriptor buffer's linked list. */
   struct SubBuffer {
     std::array<T, buff_size> elements;
     SubBuffer *nextSubBuffer{nullptr};
