@@ -1,5 +1,6 @@
 # ADOL-C
-
+## An Algorithmic Differentiation package based on Operator-Overloading in C++   
+[![Docs](https://github.com/coin-or/ADOL-C/actions/workflows/docs.yml/badge.svg)](https://coin-or.github.io/ADOL-C/)
 [![Build Status](https://github.com/coin-or/ADOL-C/actions/workflows/ci.yml/badge.svg)](https://github.com/coin-or/ADOL-C/actions?query=branch%3Amaster)
 [![codecov](https://codecov.io/github/coin-or/ADOL-C/graph/badge.svg?token=4FSN87ZXCZ)](https://codecov.io/github/coin-or/ADOL-C)
 
