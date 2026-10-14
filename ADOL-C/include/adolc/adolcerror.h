@@ -28,8 +28,11 @@
 
 namespace ADOLCError {
 
-// std::source_location is too new, implement own variant
-// used in combination with macro CURRENT_LOCATION
+/**
+ * @brief Lightweight source-location record used by ADOL-C exceptions.
+ *
+ * `CURRENT_LOCATION` supplies the file, function, and line at the call site.
+ */
 struct source_location {
 
   std::string_view file_;
@@ -45,33 +48,10 @@ struct source_location {
   constexpr int line() const { return line_; }
 };
 /**
- * @brief Exception class for ADOL-C errors with source location tracking.
+ * @class ADOLCError::ADOLCError
+ * @brief Run-time error with a message and source location.
  *
- * This exception captures the error message and the source location (file,
- * line, column) where it was thrown. Integrates with the C++ standard exception
- * hierarchy through std::runtime_error.
- *
- * @example
- * Throw example:
- * @code
- * throw ADOLCError("wrong number of independents");  // Auto-captures source
- * location
- * @endcode
- *
- * Handle example:
- * @code
- * try {
- *   // ADOL-C operations...
- * }
- * catch (ADOLCError& e) {
- *   std::cerr << e.what() << std::endl;         // Formatted message
- *   std::cerr << "Error occurred at: "
- *             << e.where().file() << ":"
- *             << e.where().func() << ":"
- *             << e.where().line() << std::endl; // Direct source location
- * access
- * }
- * @endcode
+ * `what()` returns the formatted message; `where()` returns the location.
  */
 class ADOLCError : public std::runtime_error {
 
@@ -241,7 +221,7 @@ enum class ErrorType : size_t {
   EXT_DIFF_SHARED_MODE
 };
 
-// wrapper for information of errors
+/** @brief Additional typed fields used when formatting an ADOL-C failure. */
 struct FailInfo {
   short info1{0}; // for tapeId
   size_t info2{0};

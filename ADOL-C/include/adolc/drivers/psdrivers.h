@@ -39,7 +39,7 @@ enum class UpdateConsts {
 /**
  * @brief Compute the abs-normal form of a taped function at a point.
  *
- * @param tag           Tape identifier.
+ * @param tapeId        Tape identifier.
  * @param x             Span view of the base point (input values).
  * @param anf           AbsNormalForm object to store results.
  *

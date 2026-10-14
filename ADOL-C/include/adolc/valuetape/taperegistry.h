@@ -9,7 +9,13 @@
 // forward declaration to use as pointer
 class ValueTape;
 
-/// @brief Used as container to store and restore tapes.
+/**
+ * @brief One entry in the thread-local stack of nested recordings.
+ *
+ * `trace_on()` stores the previously selected tape and the tape being recorded;
+ * `trace_off()` uses the frame to restore the earlier selection. The stack is
+ * thread-local, while the registry that owns the tapes is process-wide.
+ */
 struct RecordingFrame {
   ValueTape *prev{nullptr};
   ValueTape *current{nullptr};

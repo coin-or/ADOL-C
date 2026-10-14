@@ -17,6 +17,7 @@
 
 #include <adolc/internal/common.h>
 
+/** @brief Operation counters and state reported by the Revolve scheduler. */
 struct revolve_nums {
   int advances{0};
   int takeshots{0};

@@ -44,36 +44,31 @@ concept adouble_or_pdouble =
 
 /**
  * @class tape_location
- * @brief Represents a location on a tape.
+ * @brief RAII type for a location in the current tape's value store.
  *
- * This type should be leveraged by all type-based types, like `adouble` or
- * `pdouble`. `tape_location` stores a location `loc_` on a tape `tape_` and
- * handles the creation and deletion of the location. Thus, it is not
- * recommended to use calls of `free_loc` or `next_loc` outside of
- * `tape_location`. Getters of the `tape_` and `loc_` are provided.
+ * `adouble` and `pdouble` use this helper to allocate, transfer, borrow, and
+ * release locations. It stores only the location index, so construction,
+ * destruction, and use must occur while the corresponding `ValueTape` is
+ * current. User code should not call `next_loc()` or `free_loc()` directly.
  *
  * @tparam T Either `adouble` or `pdouble`.
- * @param loc_ Location on the tape
- * @param valid_ Specifies whether `tape_location` was moved. Used to decide if
- * `loc_` can be free'd or not.
  */
 
 template <adouble_or_pdouble T> class tape_location {
   size_t loc_{0}; ///< Location on the tape.
 
   /**
-   * @brief Indicates whether the `tape_location` is valid.
-   *
-   * All instances are constructed in a valid state (`valid_ = 1`). The validity
-   * changes only during move operations.
+   * @brief Ownership state: invalid, owning, or borrowed.
    */
   int valid_{1};
 
   /**
    * @brief Determines the next available location on the tape.
    *
-   * @param tape The tape to retrieve the next location from.
-   * @return The next location index.
+   * The active type selects either the ordinary active-value store or the
+   * parameter store of `currentTape()`.
+   *
+   * @return Newly allocated location index.
    */
   size_t next_loc() {
     if constexpr (std::is_same_v<T, adouble>)
@@ -83,10 +78,9 @@ template <adouble_or_pdouble T> class tape_location {
   }
 
   /**
-   * @brief Frees the allocated location on the tape.
+   * @brief Return an `adouble` location to the current tape's allocator.
    *
-   * Ensures that the location is properly deallocated. At the moment only
-   * `adouble` support `free_loc`.
+   * Parameter locations are released by the tape after recording.
    */
   void free_loc() {
     assert(currentTapePtr() != nullptr &&
@@ -117,10 +111,8 @@ public:
   };
 
   /**
-   * @brief Destructor. Releases the location from the tape.
-   *
-   * The destructor removes the location only if `tape_location` ownes `loc_`,
-   * i.e., if `valid_=1`.
+   * @brief Release an owned active-value location; leave borrowed locations
+   * alone.
    */
   ~tape_location() {
     if (owns_location()) {
@@ -150,7 +142,8 @@ public:
   tape_location &operator=(const tape_location &) = delete;
 
   /**
-   * @brief Move constructor. Transfers ownership of the location.
+   * @brief Transfer the location and its ownership state; invalidate the
+   * source.
    *
    * @param other The `tape_location` to move from.
    */
@@ -160,8 +153,7 @@ public:
   };
 
   /**
-   * @brief Move assignment operator. Transfers the location and frees the old
-   * location.
+   * @brief Release the old owned location and transfer the source state.
    *
    * @param other The `tape_location` to move from.
    * @return Reference to the updated `tape_location`.
@@ -196,13 +188,9 @@ public:
   bool is_valid() const { return valid_ != INVALID; }
 
   /**
-   * @brief Releases ownership token and returns the raw location.
+   * @brief Return the location index and invalidate this token.
    *
-   * Important semantic:
-   * the source object becomes INVALID, not BORROWED.
-   * This guarantees that
-   *   adouble a(...); auto loc = a.release_loc(); a + ...
-   * is treated as invalid object use in debug builds.
+   * The location remains allocated. The caller is responsible for its lifetime.
    */
   size_t release() {
     assert(is_valid());
@@ -212,13 +200,13 @@ public:
 };
 
 /**
- * @brief The `adouble` class is leveraged to compute tape-based derivatives. It
- * is represented by a location on the tape and the value that is stored on the
- * tape at the location
+ * @brief Taped active scalar for reusable forward and reverse differentiation.
  *
- * Its interface acts in principle as `double`. However, internally, whenever it
- * participates in an arithmetic operation, the `adouble` registers locations
- * and the type of the operation on the tape.
+ * Each `adouble` owns or borrows a location in the current `ValueTape`.
+ * Double-like overloads compute the primal result immediately and, while
+ * tracing, append the operation and its operand/result locations to the tape.
+ * The recorded function can later be evaluated by first- or higher-order
+ * forward and reverse sweeps.
  */
 class ADOLC_API adouble {
   /** @brief Stores the location of the `adouble` on the tape. */
@@ -230,17 +218,16 @@ public:
   /** @brief Default destructor. */
   ~adouble() = default;
 
-  /** @brief Default constructor.
+  /**
+   * @brief Allocate an active-value location on the current tape.
    *
-   * The location is constructed on the DefaultTape. If
-   * ADOLC_ADOUBLE_STDCZERO is set, 0 is written on the tape at the new
-   * location.
+   * If `ADOLC_ADOUBLE_STDCZERO` is defined, initialize its value to zero.
+   * Otherwise, assign a value before reading it.
    */
   adouble();
 
   /**
-   * @brief Constructor initializing an `adouble` with a new location on the
-   * DefaultTape and puts the given value `coval` on the tape.
+   * @brief Allocate a location on the current tape and initialize its value.
    *
    * @param coval Value that is stored on the tape at the new location.
    */
@@ -249,8 +236,8 @@ public:
   /**
    * @brief Copy constructor.
    *
-   * Creates a new `adouble` with a new location on the tape of the input
-   * `adouble` and registers assignment operation onto the tape
+   * Allocate a location on the current tape and copy the source value.
+   * Record the assignment while tracing. The source must belong to this tape.
    *
    * @param a The `adouble` to copy.
    */
@@ -288,17 +275,15 @@ public:
   // Assignment Operators
 
   /**
-   * @brief Records the assingment of a value to the `adouble` on the tape at
-   * the location of the `adouble`.
+   * @brief Assign a passive value and record the assignment while tracing.
    *
    * @param coval The value to assign.
-   * @return Reference to `this`.
+   * @return Reference to `*this`.
    */
   adouble &operator=(const double coval);
 
   /**
-   * @brief Registers an assignment of the input `adouble` to `*this` on the
-   * tape at the location of `*this`.
+   * @brief Copy an active value and record the assignment while tracing.
    *
    * @param a The `adouble` to assign.
    * @return Reference to `*this`.
@@ -311,7 +296,7 @@ public:
    * Transfers the location from the input `adouble`.
    *
    * @param other The `adouble` to transfer.
-   * @return Reference to `*this`
+   * @return Reference to `*this`.
    */
   adouble &operator=(adouble &&other) noexcept {
     if (this == &other) {
@@ -323,7 +308,7 @@ public:
   /**
    * @brief Registers the assignment of the `pdouble` to the `adouble`.
    * @param p The `pdouble` to assign.
-   * @return Reference to `this`.
+   * @return Reference to `*this`.
    */
   adouble &operator=(const pdouble &p);
 
@@ -406,7 +391,7 @@ public:
    * Use the span overload below to register several contiguous independent
    * variables in one call while preserving their order on the tape.
    *
-   * @param indep Value that is assigned to the `adouble`
+   * @param input Value that is assigned to the `adouble`.
    * @return A reference to the `adouble`.
    */
   adouble &operator<<=(const double input);
@@ -418,7 +403,7 @@ public:
    * Use the span overload below to register several contiguous dependent
    * variables in one call while preserving their order on the tape.
    *
-   * @param out Value that will get the value of `adouble`
+   * @param out Receives the dependent value.
    * @return A reference to the `adouble`.
    */
   adouble &operator>>=(double &out);
@@ -431,42 +416,17 @@ public:
 };
 
 /**
- * @brief The `pdouble` class represents a non-differentiable type, which acts
- * like a `double` on the tape. The main application of `pdouble` is the
- * modification of parameters on the tape without re-taping. For example:
-
-adouble f(const pdouble& p, const adouble& x){
-  return p * x;
-}
-
-int main() {
-const auto tapeId = createNewTape();
-adouble indep;
-pdouble p = 3.0;
-double out[1];
-
-trace_on(tapeId);
-indep <<= 2.0;
-adouble out = f(p, x);
-dep >> out[0];
-
-double grad[1]
-
-// compute d/dx p*x
-gradient(1, 1, 2.0, grad);
-std::cout << grad[0] << std::endl;
-
-// change what is stored at `p`s location on tape 1 to 1.0
-double params[1] = {1.0};
-currentTape().setParamVec(params);
-
-// compute d/dx p*x
-gradient(1, 1, 2.0, grad);
-std::cout << grad[0] << std::endl;
-}
-
-Changing parameters invalidates saved Taylor coefficients. Any reverse sweep
-after `setParamVec` must be preceded by a forward sweep with `keep >= 1`.
+ * @brief Mutable passive parameter stored on a recorded tape.
+ *
+ * A `pdouble` participates in taped expressions but is not an independent
+ * variable, so derivatives are never taken with respect to it. Unlike a
+ * literal `double`, its recorded value can be replaced with
+ * `ValueTape::setParamVec()` and the same operation tape can then be evaluated
+ * again without retaping.
+ *
+ * Updating parameters invalidates saved Taylor coefficients.
+ * Therefore, any subsequent reverse sweep must be preceded by a forward sweep
+ * with `keep >= 1`.
  */
 class ADOLC_API pdouble {
   /** @brief Stores the location of the `pdouble` on the tape. */
@@ -498,7 +458,7 @@ public:
    * Transfers the location from the input `pdouble`.
    *
    * @param other The `pdouble` to transfer.
-   * @return Reference to `*this`
+   * @return Reference to `*this`.
    */
   pdouble &operator=(pdouble &&other) noexcept {
     if (this == &other)
@@ -509,18 +469,16 @@ public:
   }
 
   /**
-   * @brief Constructor initializing a `pdouble` with a tape location at
-   * DefaultTape and puts the input `double` to this location.
+   * @brief Allocate a parameter location on the current tape and set its value.
    *
    * @param pval The initial value for the `pdouble` on the parameter tape.
    */
   explicit pdouble(const double pval);
 
   /**
-   * @brief Converts the `pdouble` to an `adouble` by creating a new location`
-   * for the `adouble` on the tape of the `pdouble`, storing the assignment of
-   * the `pdouble` to the `adouble` on the tape and storing the value of the
-   * `pdouble` at the location of the `adouble`.
+   * @brief Copy the parameter into a new active-value location.
+   *
+   * Record the parameter assignment while tracing.
    * @return An `adouble` with associated value of the `pdouble` on the tape.
    */
   explicit operator adouble() const;
@@ -553,9 +511,9 @@ public:
  * independents on the tape.
  *
  * @param indeps Active variables to register as independents.
- * @param input Passive values to assign to the corresponding active
+ * @param inputs Passive values to assign to the corresponding active
  * variables.
- * @pre `indeps.size() == input.size()`
+ * @pre `indeps.size() == inputs.size()`
  */
 ADOLC_API inline void operator<<=(std::span<adouble> indeps,
                                   std::span<const double> inputs) {
@@ -574,8 +532,8 @@ ADOLC_API inline void operator<<=(std::span<adouble> indeps,
  * on the tape.
  *
  * @param deps Active variables to register as dependents.
- * @param output Passive values that receive the corresponding active values.
- * @pre `deps.size() == output.size()`
+ * @param outputs Passive values that receive the corresponding active values.
+ * @pre `deps.size() == outputs.size()`
  */
 ADOLC_API inline void operator>>=(std::span<adouble> deps,
                                   std::span<double> outputs) {
@@ -1450,10 +1408,11 @@ ADOLC_API inline adouble atan2(const adouble &a, const pdouble &p) {
 /* User defined version of logarithm to test extend_quad macro */
 ADOLC_API double myquad(double x);
 
-/* numeric_limits<adouble> specialization
+/**
+ * @brief Numeric limits for taped active scalars.
  *
- * All methods return double instead of adouble, because these values
- * never depend on the independent variables.
+ * All methods return `double` because these constants never depend on the
+ * independent variables.
  */
 template <> struct ADOLC_API std::numeric_limits<adouble> {
   static constexpr bool is_specialized = true;

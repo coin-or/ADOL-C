@@ -48,6 +48,12 @@ class adouble;
 
 #ifdef USE_ADTL_REFCOUNTING
 
+/**
+ * @brief Counts live higher-order tapeless values for configuration warnings.
+ *
+ * The direction count, degree, and mode must remain fixed while active values
+ * exist. Reference counting warns about direction and mode changes.
+ */
 class refcounter {
 private:
   static size_t refcnt;
@@ -63,11 +69,25 @@ public:
 };
 #endif
 
+/**
+ * @brief Interface for functions evaluated with tapeless higher-order values.
+ *
+ * Implement this interface when using helper algorithms that need to evaluate
+ * the same function with `adtl_hov::adouble` inputs and outputs.
+ */
 class func_ad {
 public:
   virtual int operator()(int n, adouble *x, int m, adouble *y) = 0;
 };
 
+/**
+ * @brief Active scalar for tapeless higher-order vector forward mode.
+ *
+ * The object propagates Taylor coefficients for the degree and number of
+ * directions selected with `adtl_hov::setDegree()` and
+ * `adtl_hov::setNumDir()`. Unlike `::adouble`, this type does not record a
+ * reusable operation tape.
+ */
 class adouble {
 public:
   inline adouble();

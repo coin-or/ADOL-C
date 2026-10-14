@@ -10,6 +10,13 @@
 
 namespace ADOLC::detail {
 
+/**
+ * @brief Mutable buffers and bookkeeping used while recording a tape.
+ *
+ * The context owns the canonical tape buffers. Evaluation contexts may
+ * temporarily take ownership in exclusive mode or create non-owning views in
+ * shared mode.
+ */
 struct TapeRecordingContext {
   using StatEntries = TapeInfos::StatEntries;
   static constexpr StatEntries OP_BUFFER_SIZE = TapeInfos::OP_BUFFER_SIZE;

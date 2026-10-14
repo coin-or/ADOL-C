@@ -72,6 +72,13 @@ concept InfoType =
       T::prepareForwardPosition(context, blockSize);
     };
 
+/**
+ * @brief Common compile-time interface for operation, location, value, and
+ * Taylor tape buffers.
+ *
+ * Derived adapters provide the format-specific buffer, counters, and I/O
+ * policy while this base supplies the shared cursor operations.
+ */
 template <class Derived, class BufferContext, typename ValueType>
 struct InfoAdapter {
   using value_type = ValueType;

@@ -14,7 +14,9 @@
 #include <adolc/adolc.h>
 #include <adolc/edfclasses.h>
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <memory>
 
@@ -128,6 +130,7 @@ public:
     return eulerStep(tapeId, m, n, x, y);
   }
 
+  //! [edf-manual-forward]
   int fos_forward(short tapeId, int m, int n, int, double *x, double *X,
                   double *y, double *Y) override {
     const int rc = eulerStep(tapeId, m, n, x, y);
@@ -138,6 +141,7 @@ public:
     Y[1] = eulerScale1() * X[1];
     return 0;
   }
+  //! [edf-manual-forward]
 
   int fov_forward(short tapeId, int m, int n, int p, double *x, double **Xp,
                   double *y, double **Yp) override {
@@ -152,23 +156,25 @@ public:
     return 0;
   }
 
+  //! [edf-manual-reverse]
   int fos_reverse(short, int m, int n, double *u, double *z, double *,
                   double *) override {
     if (m != 2 || n != 2)
       return -1;
 
-    // important to add here. z could contain already computed results.
+    // Accumulate: z may already contain adjoints from later operations.
     z[0] += eulerScale0() * u[0];
     z[1] += eulerScale1() * u[1];
     return 0;
   }
+  //! [edf-manual-reverse]
 
   int fov_reverse(short, int m, int n, int q, double **Uq, double **Zq,
                   double *, double *) override {
     if (m != 2 || n != 2)
       return -1;
 
-    // important to add here. Z could contain already computed results.
+    // Accumulate: Z may already contain adjoints from later operations.
     for (int weight = 0; weight < q; ++weight) {
       Zq[weight][0] += eulerScale0() * Uq[weight][0];
       Zq[weight][1] += eulerScale1() * Uq[weight][1];
@@ -257,6 +263,7 @@ void printGradient(const char *label, const PassiveState &gradient) {
 
 } // namespace
 
+//! [edf-object]
 int main() {
   const PassiveState controls{1.0, 1.0};
   PassiveState gradFull{0.0, 0.0};
@@ -289,6 +296,27 @@ int main() {
   trace_off();
   gradient(manualOuterTapeId, 2, controls.data(), gradManual.data());
   printGradient("taping with EDFobject (manual callbacks)", gradManual);
+  //! [edf-object]
 
-  return 0;
+  const PassiveState expected{
+      std::pow(eulerScale0(), static_cast<double>(steps)),
+      std::pow(eulerScale1(), static_cast<double>(steps))};
+  const auto close = [](double actual, double reference) {
+    const double scale = std::max(1.0, std::fabs(reference));
+    return std::fabs(actual - reference) <= 1.0e-10 * scale;
+  };
+
+  for (size_t i = 0; i < controls.size(); ++i) {
+    if (!close(gradFull[i], expected[i]) ||
+        !close(gradNested[i], expected[i]) ||
+        !close(gradManual[i], expected[i])) {
+      std::fprintf(stderr,
+                   "external differentiated function validation failed at "
+                   "%zu\n",
+                   i);
+      return 1;
+    }
+  }
+
+  std::printf("validation passed\n");
 }

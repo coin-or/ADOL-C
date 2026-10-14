@@ -147,7 +147,8 @@ template <BitPatternPropagationDirection BPPD> struct BvpData {
  * @param basepoint Pointer to the independent variable values (may be null in
  * Safe mode).
  */
-template <ControlFlowMode CFM> void checkBVPInput(const double *) {};
+template <ControlFlowMode CFM>
+void checkBVPInput([[maybe_unused]] const double *basepoint) {};
 
 /**
  * @brief Resets all entries in the compressed row storage pointer array to
@@ -181,7 +182,6 @@ void resetOldSeed(BvpData<BPPD> &data, size_t dim2) {
  * @brief Builds a strip-mined partition of the seed matrix for a given batch.
  *
  * @tparam BPPD Bit pattern propagation direction.
- * @param indep   Number of independent variables.
  * @param stripIdx Current strip-mined batch index.
  * @param data     Bit-vector propagation state data.
  */
@@ -439,7 +439,7 @@ int bitVectorPropagation(short tapeId, int depen, int indep,
  * graph. It supports both forward and reverse propagation strategies, with
  * optional control-flow sensitivity.
  *
- * @param tag
+ * @param tapeId
  *        Tape identification number for the recorded function.
  * @param depen
  *        Number of dependent (output) variables.
@@ -448,8 +448,7 @@ int bitVectorPropagation(short tapeId, int depen, int indep,
  * @param basepoint
  *        Pointer to an array of length `indep` specifying the values of the
  *        independent variables at which the sparsity pattern is evaluated.
- *        Required if `options.cfmode_ == ControlFlowMode::Tight`, otherwise
- *        may be `nullptr`.
+ *        Required when `CFM == ControlFlowMode::Tight`; otherwise may be null.
  * @param compressedRowStorage
  *        Output: Compressed Row Storage (compressedRowStorage) representation
  * of the Jacobian sparsity pattern.
@@ -458,23 +457,10 @@ int bitVectorPropagation(short tapeId, int depen, int indep,
  *        - `compressedRowStorage[i][1..]` → column indices (0-based) of
  * nonzero entries in row `i`. Memory for `compressedRowStorage[i]` is
  * (re)allocated within this routine.
- * @param options
- *        DriverOptions controlling propagation and control-flow handling:
- *        - `options.bpdir_` (BitPatternPropagationDirection):
- *            - `Automatic` → heuristic selection (forward if `depen >=
- * indep/2`, else reverse)
- *            - `Forward`   → forward mode propagation
- *            - `Reverse`   → reverse mode propagation
- *        - `options.cfmode_` (ControlFlowMode):
- *            - `Safe`  → control flow branches may be ignored
- *            - `Tight` → control flow branches are tested at `basepoint`
- *
  * @return
  *        Return code from the underlying forward/reverse driver:
- *        - `0` → success, no warnings
- *        - `1` → warnings occurred
- *        - `2` → error occurred during propagation
- *        - `3` → default initialization value (no propagation done)
+ *        Nonnegative status on success; negative on failure. Lower nonnegative
+ *        values indicate reduced differentiability or changed control flow.
  *
  * @note
  *  - Uses "strip-mining" to split the bit pattern matrix into manageable
@@ -537,10 +523,9 @@ ADOLC_API int bit_vector_propagation(short tapeId, int depen, int indep,
  *                                row i
  *                              - entry [i][1..] holds the 0-based column
  *                                indices that represent the influencing
- *                                independs
+ *                                independent variables
  *
- * @return  Non-negative: number of nonzeros found; Negative: error code from
- * the underlying propagation routine.
+ * @return Nonnegative sweep status on success; negative on failure.
  *
  * @note Ownership: allocated row buffers in compressedRowStorage are
  * transferred to the caller / tape infrastructure and must be freed
@@ -618,8 +603,8 @@ ADOLC_API int jac_pat(short tag, int depen, int indep, int numsw,
  *                   when Row compression, or seed rows when Column
  *                   compression).
  *
- * @note The caller is responsible for managing the returned @p Seed memory
- *       according to ColPack's unmanaged API semantics.
+ * @note Delete each seed row with `delete[]`, then delete the row-pointer array
+ * with `delete[]`. Column compression has `n` rows; row compression has `p`.
  */
 template <CompressionMode CM>
 ADOLC_API void generate_seed_jac(int m, int n, const std::span<uint *> JP,
@@ -660,9 +645,6 @@ namespace detail {
  * @param basepoint  Pointer to an array of length `indep` with the basepoint
  *                   values. May be `nullptr` if control-flow mode does not
  *                   require a basepoint.
- * @param[out] nnz   Pointer to an integer where the computed number of
- *                   nonzeros in the Jacobian pattern will be stored.
- *
  * @return
  *   - >= 0 : Number of seed columns (when CM==Row) or seed rows (when
  * CM==Column) produced by ColPack (i.e., the compressed dimension).
@@ -675,7 +657,6 @@ namespace detail {
  * lifecycle).
  *  - After success, `tape.sJInfos().g_` and `tape.sJInfos().jr1d_` are created
  *    and kept in the tape for later use by `compute_sparse_jac`.
- *  - `*nnz` is set to the number of nonzero entries found in the Jacobian.
  */
 template <
     SparseMethod SM, CompressionMode CM, ControlFlowMode CFM,
@@ -1160,10 +1141,8 @@ ADOLC_API int hess_pat(short tag, int indep, const double *basepoint,
  * @brief Generate a seed matrix for compressed Hessian recovery.
  *
  * Produces a seed matrix for Hessian recovery using ColPack and
- * returns the unmanaged pointer to the seed via @p Seed and the compressed
- * dimension via @p p. The function uses ColPack's unmanaged API, so the
- * returned @p Seed memory is owned by ColPack and will be freed when the
- * ColPack graph object is destroyed (or as per ColPack's unmanaged semantics).
+ * returns the seed via @p Seed and the compressed dimension via @p p.
+ * The caller owns this unmanaged allocation; the graph does not free it.
  *
  * @tparam RCM RecoveryMethod selecting the recovery strategy:
  *             - RecoveryMethod::Indirect : indirect recovery (acyclic strategy)
@@ -1171,12 +1150,12 @@ ADOLC_API int hess_pat(short tag, int indep, const double *basepoint,
  *
  * @param n     Number of variables (dimension of Hessian).
  * @param HP    Span over CRS row pointers representing Hessian sparsity (HP).
- * @param[out] Seed  Pointer to the returned 2D seed matrix (ColPack-managed).
+ * @param[out] Seed Seed matrix with `n` rows and `p` columns.
  * @param[out] p     Compressed dimension (number of seed columns/rows depending
  * on layout).
  *
- * @note The caller must respect ColPack unmanaged memory semantics for the
- * returned Seed.
+ * @note Delete each seed row with `delete[]`, then delete the row-pointer array
+ * with `delete[]`.
  */
 template <RecoveryMethod RCM>
 ADOLC_API void generate_seed_hess(int n, std::span<uint *> HP, double ***Seed,

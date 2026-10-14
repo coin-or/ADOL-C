@@ -77,6 +77,12 @@
 #include <boost/pool/pool_alloc.hpp>
 #endif
 
+/**
+ * @brief Abstract allocator for locations in ADOL-C's active-value store.
+ *
+ * Implementations allocate, free, and grow contiguous ranges while updating
+ * the shared store size and live-location count.
+ */
 class StoreManager {
 
 protected:
@@ -112,6 +118,13 @@ public:
   virtual void grow(size_t mingrow = 0) = 0;
 };
 
+/**
+ * @brief Location allocator backed by a free-location index array.
+ *
+ * The index array links free locations. This allocator supports scalar
+ * allocations; `ensure_block()` throws because contiguous blocks are
+ * unsupported.
+ */
 class StoreManagerLocint : public StoreManager {
 protected:
   double *&storePtr;
@@ -152,6 +165,12 @@ public:
   virtual void grow(size_t mingrow = 0);
 };
 
+/**
+ * @brief Location allocator that tracks contiguous free blocks.
+ *
+ * This representation makes allocation of adjacent locations efficient for
+ * active vectors and other block operations.
+ */
 class StoreManagerLocintBlock : public StoreManager {
 protected:
   double *&storePtr;
@@ -160,6 +179,7 @@ protected:
   static char const *const nowhere{0};
   char *&actStorePtr;
 #endif
+  /** @brief Descriptor for one contiguous range of free locations. */
   struct FreeBlock {
     size_t next{0}; // next location
     size_t size{0}; // number of following free locations

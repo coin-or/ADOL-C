@@ -13,6 +13,14 @@
 #include <utility>
 
 using ADOLCError::ErrorType;
+/**
+ * @brief Identity, statistics, file names, and recording metadata of one tape.
+ *
+ * This movable metadata object records buffer sizes, independent/dependent
+ * counts, file-backed tape names, trace flags, and related configuration.
+ * Buffer ownership and evaluation synchronization live in `ValueTape` and its
+ * recording/evaluation contexts instead.
+ */
 struct TapeInfos {
 
   // named indices of to print out value tape stats

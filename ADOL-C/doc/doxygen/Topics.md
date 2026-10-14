@@ -1,9 +1,9 @@
-@defgroup TapeLess Tape-less forward mode
-@brief Interfaces for tape-less forward mode AD
+@defgroup TapeLess Tapeless forward mode
+@brief Interfaces for tapeless forward mode AD
 
 @defgroup TapeForward Tape-based forward mode
-@brief Interfaces for tape-base forward mode AD
+@brief Interfaces for tape-based forward mode AD
 
-@defgroup TapeBackward Tape-based backward mode
-@brief Interfaces for tape-base backward mode AD
+@defgroup TapeBackward Tape-based reverse mode
+@brief Interfaces for tape-based reverse mode AD
 

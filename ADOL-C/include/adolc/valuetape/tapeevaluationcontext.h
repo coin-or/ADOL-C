@@ -21,6 +21,14 @@ template <typename T>
 concept EvalOrRecordContextType = std::is_same_v<T, TapeEvaluationContext> ||
                                   std::is_same_v<T, TapeRecordingContext>;
 
+/**
+ * @brief Per-sweep state used while evaluating a recorded tape.
+ *
+ * In exclusive mode the context temporarily owns the recording buffers and
+ * returns them when the sweep ends. In shared mode it initially views those
+ * buffers and allocates private storage lazily when a sweep must overwrite
+ * data.
+ */
 struct TapeEvaluationContext {
   using StatEntries = TapeInfos::StatEntries;
   static constexpr StatEntries OP_BUFFER_SIZE = TapeInfos::OP_BUFFER_SIZE;
