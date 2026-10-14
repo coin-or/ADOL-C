@@ -45,6 +45,7 @@ and _NTIGHT__
 #include <string.h>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #if defined(ADOLC_DEBUG) || defined(_ZOS_)
 #include <string.h>
@@ -56,6 +57,7 @@ and _NTIGHT__
 #ifdef ADOLC_AMPI_SUPPORT
 #include "ampisupportAdolc.h"
 #endif
+
 
 /****************************************************************************/
 /*                                                                   MACROS */
@@ -910,7 +912,7 @@ int hov_forward(
 #endif /* _TIGHT_ */
 
   /* Taylor stuff */
-  size_t **up_T = nullptr;
+  Matrix<size_t> up_T;
 
   size_t *Tres = nullptr;
   size_t *Targ = nullptr;
@@ -935,11 +937,11 @@ int hov_forward(
   double *dp_T0 = nullptr;
 #if !defined(_ZOS_)
 #if defined(_FOS_)
-  double *dp_T;
+  /* double *dp_T; */
+  std::vector<double> dp_T;
 #define T_TEMP Ttemp;
 #else
-  double *dp_Ttemp = nullptr;
-  double **dpp_T = nullptr;
+  Matrix<double> dpp_T;
 #endif
   double *Tres = nullptr;
   double *Targ = nullptr;
@@ -1138,7 +1140,8 @@ int hov_forward(
 
   /*--------------------------------------------------------------------------*/
 #if !defined(_NTIGHT_)
-  dp_T0 = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  std::vector<double> dp_T0_data(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  dp_T0 = dp_T0_data.data();
 
   if (tape.tapestats(TapeInfos::NO_MIN_MAX)) {
     if (evalCtx.signature) {
@@ -1169,7 +1172,7 @@ int hov_forward(
     ADOLCError::fail(ADOLCError::ErrorType::FWD_FO_KEEP, CURRENT_LOCATION);
 
 #endif
-  dp_T = myalloc1(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
+  dp_T = std::vector<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES));
 #define TAYLOR_BUFFER dp_T
 #if defined(_KEEP_)
   if (keep) {
@@ -1181,7 +1184,7 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* INT_FOR */
 #if defined(_INT_FOR_)
-  up_T = myalloc2_ulong(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
+  up_T = Matrix<size_t>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p));
 #define TAYLOR_BUFFER up_T
 
   /*--------------------------------------------------------------------------*/
@@ -1228,19 +1231,16 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* FOV */
 #if defined(_FOV_)
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p);
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p));
 #define TAYLOR_BUFFER dpp_T
-  dp_Ttemp = myalloc1(p);
-#define T_TEMP dp_Ttemp;
 
   /*--------------------------------------------------------------------------*/
 #else /* HOS */
 #if defined(_HOS_)
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), k);
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(k));
 #define TAYLOR_BUFFER dpp_T
-  dp_z = myalloc1(k);
-  dp_Ttemp = myalloc1(k);
-#define T_TEMP dp_Ttemp;
+  std::vector<double> dp_z_data(k);
+  dp_z = dp_z_data.data();
 #if defined(_KEEP_)
   if (keep) {
     evalCtx.taylor_begin(keep - 1, tape.tapestats(TapeInfos::TAY_BUFFER_SIZE),
@@ -1250,11 +1250,10 @@ int hov_forward(
 
   /*--------------------------------------------------------------------------*/
 #else /* HOV and HOV_WK */
-  dpp_T = myalloc2(tape.tapestats(TapeInfos::NUM_MAX_LIVES), p * k);
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p * k));
 #define TAYLOR_BUFFER dpp_T
-  dp_z = myalloc1(k);
-  dp_Ttemp = myalloc1(p * k);
-#define T_TEMP dp_Ttemp;
+  std::vector<double> dp_z_data(k);
+  dp_z = dp_z_data.data();
 #if defined(_KEEP_)
   if (keep) {
     evalCtx.taylor_begin(keep - 1, tape.tapestats(TapeInfos::TAY_BUFFER_SIZE),
@@ -5520,11 +5519,11 @@ int hov_forward(
       ext_y = dp_T0 + edfct->firstDepLocation;
 #endif
 #if defined(_FOS_)
-      ext_X = dp_T + edfct->firstIndLocation;
-      ext_Y = dp_T + edfct->firstDepLocation;
+      ext_X = dp_T.data() + edfct->firstIndLocation;
+      ext_Y = dp_T.data() + edfct->firstDepLocation;
 #elif defined(_FOV_)
-      ext_Xp = dpp_T + edfct->firstIndLocation;
-      ext_Yp = dpp_T + edfct->firstDepLocation;
+      ext_Xp = dpp_T.data() + edfct->firstIndLocation;
+      ext_Yp = dpp_T.data() + edfct->firstDepLocation;
 #endif
 
       arg = edfct->firstIndLocation;
@@ -5566,11 +5565,11 @@ int hov_forward(
       ext_y = dp_T0 + edfct->firstDepLocation;
 #endif
 #if defined(_FOS_)
-      ext_X = dp_T + edfct->firstIndLocation;
-      ext_Y = dp_T + edfct->firstDepLocation;
+      ext_X = dp_T.data() + edfct->firstIndLocation;
+      ext_Y = dp_T.data() + edfct->firstDepLocation;
 #elif defined(_FOV_)
-      ext_Xp = dpp_T + edfct->firstIndLocation;
-      ext_Yp = dpp_T + edfct->firstDepLocation;
+      ext_Xp = dpp_T.data() + edfct->firstIndLocation;
+      ext_Yp = dpp_T.data() + edfct->firstDepLocation;
 #endif
 
       arg = edfct->firstIndLocation;
@@ -5720,9 +5719,9 @@ int hov_forward(
 #if defined(_ZOS_)
       mediCallHandlePrimal(tapeId, mediIndex, dp_T0);
 #elif defined(_FOS_)
-      mediCallHandleForward(tapeId, mediIndex, dp_T0, &TAYLOR_BUFFER, 1);
+      mediCallHandleForward(tapeId, mediIndex, dp_T0, TAYLOR_BUFFER.data(), 1);
 #elif defined(_FOV_)
-      mediCallHandleForward(tapeId, mediIndex, dp_T0, TAYLOR_BUFFER, p);
+      mediCallHandleForward(tapeId, mediIndex, dp_T0, TAYLOR_BUFFER.data(), p);
 #endif
       break;
     }
@@ -5838,26 +5837,6 @@ int hov_forward(
 #endif
 
   /* clean up */
-#if !defined(_NTIGHT_)
-  myfree1(dp_T0);
-#endif /* !_NTIGHT_ */
-#if !defined(_INDO_)
-#if !defined(_ZOS_)
-#if defined(_FOS_)
-  myfree1(dp_T);
-#else
-#if !defined(_INT_FOR_)
-  myfree2(dpp_T);
-  myfree1(dp_Ttemp);
-#else
-  myfree2_ulong(up_T);
-#endif /* !_NTIGHT_ */
-#endif
-#endif
-#endif
-#if defined(_HIGHER_ORDER_)
-  myfree1(dp_z);
-#endif
 
 #if defined(_KEEP_)
   if (keep || tape.isExclusiveNonLocking()) {
