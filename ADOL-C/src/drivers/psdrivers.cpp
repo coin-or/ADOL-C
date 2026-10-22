@@ -107,11 +107,10 @@ int directional_active_gradient(short tag,       /* trace identifier */
   by = 1;
 
   const size_t s = get_num_switches(tag);
-
   std::vector<double> z(s);
 
   Matrix<double> grad{1, to_size_t(n)};
-  Matrix<double> gradu{to_size_t(s), to_size_t(n)};
+  Matrix<double> gradu = s > 0 ? Matrix<double>(s, n) : Matrix<double>();
   Matrix<double> E{to_size_t(n)};
 
   max_dk = 0;

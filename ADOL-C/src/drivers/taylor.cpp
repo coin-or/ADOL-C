@@ -16,10 +16,20 @@
 #include <adolc/drivers/taylor.h>
 #include <adolc/interfaces.h>
 #include <adolc/tape_interface.h>
+#include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/valuetape.h>
 
 #include <math.h>
 #include <vector>
+
+namespace {
+PersistantTapeInfos::JacSolveData &updateJacSolveData(ValueTape &tape, int n) {
+  if (n != tape.jacSolvData().jacSolv_nax) {
+    tape.jacSolveData(n, 0);
+  }
+  return tape.jacSolvData();
+}
+}; // namespace
 
 BEGIN_C_DECLS
 
@@ -431,60 +441,48 @@ void GauszSolve(double **J, int n, int *RI, int *CI, double *b) {
 /****************************************************************************/
 int jac_solv(unsigned short tag, int n, const double *x, double *b,
              unsigned short mode) {
+  using JacSolvData = PersistantTapeInfos::JacSolveData;
+
   int i, newX = 0;
   int rc = 3;
   ValueTape &tape = findTape(tag);
 
   std::vector<double> y(n);
-  if (n != tape.jacSolv_nax()) {
-    if (tape.jacSolv_nax()) {
-      free(tape.jacSolv_ci());
-      free(tape.jacSolv_ri());
-    }
-    Matrix<double> J{static_cast<size_t>(n)};
-    auto I = unitMatrix<double>(n);
-    std::vector<double> xold(n);
-    tape.jacSolv_J(J.data());
-    tape.jacSolv_I(I.data());
-    tape.jacSolv_xold(xold.data());
-    tape.jacSolv_ri((int *)malloc(n * sizeof(int)));
-    tape.jacSolv_ci((int *)malloc(n * sizeof(int)));
+  JacSolvData &data = updateJacSolveData(tape, n);
 
-    tape.jacSolv_modeold(0);
-    tape.jacSolv_nax(n);
-  }
   for (i = 0; i < n; ++i)
-    if (x[i] != tape.jacSolv_xold()[i]) {
-      tape.jacSolv_xold()[i] = x[i];
+    if (x[i] != data.jacSolv_xold[i]) {
+      data.jacSolv_xold[i] = x[i];
       newX = 1;
     }
   switch (mode) {
   case 0:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
+    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
     break;
   case 1:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-    MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
-    if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
-                        tape.jacSolv_ci()) < 0) {
+    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
+    if (LUFactorization(data.jacSolv_J.data(), n, data.jacSolv_ri.data(),
+                        data.jacSolv_ci.data()) < 0) {
       rc = -3;
       break;
     }
-    tape.jacSolv_modeold(1);
+    data.jacSolv_modeold = 1;
     break;
   case 2:
-    if ((tape.jacSolv_modeold() < 1) || (newX == 1)) {
+    if ((data.jacSolv_modeold < 1) || (newX == 1)) {
       MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-      MINDEC(rc, fov_reverse(tag, n, n, n, tape.jacSolv_I(), tape.jacSolv_J()));
-      if (LUFactorization(tape.jacSolv_J(), n, tape.jacSolv_ri(),
-                          tape.jacSolv_ci()) < 0) {
+      MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
+      if (LUFactorization(data.jacSolv_J.data(), n, data.jacSolv_ri.data(),
+                          data.jacSolv_ci.data()) < 0) {
         rc = -3;
         break;
       }
     }
-    GauszSolve(tape.jacSolv_J(), n, tape.jacSolv_ri(), tape.jacSolv_ci(), b);
-    tape.jacSolv_modeold(2);
+    GauszSolve(data.jacSolv_J.data(), n, data.jacSolv_ri.data(),
+               data.jacSolv_ci.data(), b);
+    data.jacSolv_modeold = 2;
     break;
   }
   return rc;
