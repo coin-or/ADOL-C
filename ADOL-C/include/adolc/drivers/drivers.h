@@ -19,6 +19,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 BEGIN_C_DECLS
 
@@ -161,7 +162,7 @@ ADOLC_API inline int large_jacobian(short tnum, int m, int n, int k,
   return large_jacobian(tnum, m, n, k, x.data(), y.data(), J.data());
 };
 /**
- * @brief Wrapper for function().
+ * @brief Wrapper for vec_jac().
  *
  * @param tnum     tape identification
  * @param m        number of dependent variables m
@@ -169,7 +170,7 @@ ADOLC_API inline int large_jacobian(short tnum, int m, int n, int k,
  * @param repeat   indicate repeasted call at same argument
  * @param x        independent vector x
  * @param u        range weigth vector u
- * @param z        result z = u^TF'(x)
+ * @param v        result v = u^TF'(x)
  */
 ADOLC_API inline int vec_jac(short tnum, int m, int n, int repeat,
                              std::span<const double> x,
@@ -177,14 +178,14 @@ ADOLC_API inline int vec_jac(short tnum, int m, int n, int repeat,
   return vec_jac(tnum, m, n, repeat, x.data(), u.data(), v.data());
 };
 /**
- * @brief Wrapper for jav_vec().
+ * @brief Wrapper for jac_vec().
  *
  * @param tnum     tape identification
  * @param m        number of dependent variables m
  * @param n        number of independent variables n
  * @param x        independent vector x
  * @param v        tangent vector v
- * @param z        result z = F'(x)v
+ * @param u        result u = F'(x)v
  */
 ADOLC_API inline int jac_vec(short tnum, int m, int n,
                              std::span<const double> x,
@@ -219,11 +220,10 @@ ADOLC_API inline int hessian2(short tnum, int n, std::span<double> x,
  * @brief Wrapper for hess_vec().
  *
  * @param tnum     tape identification
- * @param m        number of dependent variables m
  * @param n        number of independent variables n
  * @param x        independent vector x
  * @param v        tangent vector v
- * @param z        result z = ∇^2F(x)v
+ * @param w        result w = ∇^2F(x)v
  */
 ADOLC_API inline int hess_vec(short tnum, int n, std::span<const double> x,
                               std::span<const double> v, std::span<double> w) {
@@ -237,11 +237,11 @@ ADOLC_API inline int hess_vec(short tnum, int n, std::span<const double> x,
  * @param q        number of columns in V
  * @param x        independent vector x
  * @param V        tangent matrix V
- * @param W        result W = ∇^2F(x)V
+ * @param W        result W = D^2F(x)V
  */
 ADOLC_API inline int hess_mat(short tnum, int n, int q,
                               std::span<const double> x,
-                              std::span<const double *> V,
+                              std::span<double *const> V,
                               std::span<double *> W) {
   return hess_mat(tnum, n, q, x.data(), V.data(), W.data());
 };

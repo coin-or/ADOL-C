@@ -45,10 +45,10 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Forward) {
 
   std::vector<double> x(1);
   std::vector<double> xdCont(2);
-  auto xd = MatrixView(xdCont, 1, 2);
+  auto xd = matrixView(xdCont, 1, 2);
   std::vector<double> y(1);
   std::vector<double> ydCont(2);
-  auto yd = MatrixView(ydCont, 1, 2);
+  auto yd = matrixView(ydCont, 1, 2);
 
   x[0] = 2.0;
 
@@ -82,9 +82,9 @@ BOOST_AUTO_TEST_CASE(ExpOperator_FOV_Reverse) {
   double aDerivative = std::exp(a);
 
   std::array<double, 2> uCont;
-  auto u = MatrixView<2, 1>(uCont);
+  auto u = matrixView<2, 1>(uCont);
   std::array<double, 2> zCont;
-  auto z = MatrixView<2, 1>(zCont);
+  auto z = matrixView<2, 1>(zCont);
 
   u[0][0] = 1.;
   u[1][0] = std::exp(3.);
@@ -119,10 +119,10 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Forward) {
 
   std::array<double, 2> x;
   std::array<double, 4> xdCont;
-  auto xd = MatrixView<2, 2>(xdCont);
+  auto xd = matrixView<2, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   /* Test partial derivative wrt a and b. */
   x[0] = 2.;
@@ -166,9 +166,9 @@ BOOST_AUTO_TEST_CASE(MultOperator_FOV_Reverse) {
   double bDerivative = a;
 
   std::vector<double> uCont(2);
-  auto u = MatrixView(uCont, 2, 1);
+  auto u = matrixView(uCont, 2, 1);
   std::vector<double> zCont(4);
-  auto z = MatrixView(zCont, 2, 2);
+  auto z = matrixView(zCont, 2, 2);
 
   u[0][0] = 1.;
   u[1][0] = 2.;
@@ -250,9 +250,9 @@ BOOST_AUTO_TEST_CASE(AddOperator_FOV_Reverse) {
   double bDerivative = 1.;
 
   std::vector<double> uCont(2);
-  auto u = MatrixView(uCont, 2, 1);
+  auto u = matrixView(uCont, 2, 1);
   std::vector<double> zCont(4);
-  auto z = MatrixView(zCont, 2, 2);
+  auto z = matrixView(zCont, 2, 2);
 
   u[0][0] = 1.;
   u[1][0] = 9.;
@@ -289,10 +289,10 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Forward) {
 
   std::vector<double> x(2);
   std::vector<double> xdCont(4);
-  auto xd = MatrixView(xdCont, 2, 2);
+  auto xd = matrixView(xdCont, 2, 2);
   std::vector<double> y(1);
   std::vector<double> ydCont(2);
-  auto yd = MatrixView(ydCont, 1, 2);
+  auto yd = matrixView(ydCont, 1, 2);
 
   /* Test partial derivative wrt a and b. */
   x[0] = 1.5;
@@ -336,9 +336,9 @@ BOOST_AUTO_TEST_CASE(SubOperator_FOV_Reverse) {
   double bDerivative = -1.;
 
   std::array<double, 2> uCont;
-  auto u = MatrixView<2, 1>(uCont);
+  auto u = matrixView<2, 1>(uCont);
   std::array<double, 4> zCont;
-  auto z = MatrixView<2, 2>(zCont);
+  auto z = matrixView<2, 2>(zCont);
 
   u[0][0] = 1.;
   u[1][0] = std::sqrt(2);
@@ -375,10 +375,10 @@ BOOST_AUTO_TEST_CASE(DivOperator_FOV_Forward) {
 
   std::array<double, 2> x;
   std::array<double, 4> xdCont;
-  auto xd = MatrixView<2, 2>(xdCont);
+  auto xd = matrixView<2, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   /* Test partial derivative wrt a and b. */
   x[0] = 0.5;
@@ -1405,10 +1405,10 @@ BOOST_AUTO_TEST_CASE(AcoshOperator_FOV_Forward) {
 
   std::array<double, 1> x;
   std::array<double, 2> xdCont;
-  auto xd = MatrixView<1, 2>(xdCont);
+  auto xd = matrixView<1, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 1.7;
 
@@ -1474,10 +1474,10 @@ BOOST_AUTO_TEST_CASE(AtanhOperator_FOV_Forward) {
 
   std::array<double, 1> x;
   std::array<double, 2> xdCont;
-  auto xd = MatrixView<1, 2>(xdCont);
+  auto xd = matrixView<1, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 0.6;
 
@@ -1859,9 +1859,9 @@ BOOST_AUTO_TEST_CASE(Atan2Operator_FOV_Reverse) {
   double bDerivative = -a / (a * a + b * b);
 
   std::vector<double> uCont(2);
-  auto u = MatrixView(uCont, 2, 1);
+  auto u = matrixView(uCont, 2, 1);
   std::vector<double> zCont(4);
-  auto z = MatrixView(zCont, 2, 2);
+  auto z = matrixView(zCont, 2, 2);
 
   u[0][0] = 1.;
   u[1][0] = std::exp(1.);
@@ -2010,9 +2010,9 @@ BOOST_AUTO_TEST_CASE(PowOperator_FOV_Reverse_2) {
   double bDerivative = std::pow(a, b) * std::log(a);
 
   std::array<double, 2> uCont;
-  auto u = MatrixView<2, 1>(uCont);
+  auto u = matrixView<2, 1>(uCont);
   std::array<double, 4> zCont;
-  auto z = MatrixView<2, 2>(zCont);
+  auto z = matrixView<2, 2>(zCont);
 
   u[0][0] = 1.;
   u[1][0] = 2.;
@@ -2652,10 +2652,10 @@ BOOST_AUTO_TEST_CASE(FloorOperator_FOV_Forward) {
 
   std::array<double, 1> x;
   std::array<double, 2> xdCont;
-  auto xd = MatrixView<1, 2>(xdCont);
+  auto xd = matrixView<1, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 4.483;
 
@@ -3915,10 +3915,10 @@ BOOST_AUTO_TEST_CASE(MinOperator_FOV_Forward_1) {
 
   std::array<double, 2> x;
   std::array<double, 4> xdCont;
-  auto xd = MatrixView<2, 2>(xdCont);
+  auto xd = matrixView<2, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   /* Test partial derivative wrt a and b. */
   x[0] = 4.;
@@ -4311,10 +4311,10 @@ BOOST_AUTO_TEST_CASE(ErfOperator_FOV_Forward) {
 
   std::array<double, 1> x;
   std::array<double, 2> xdCont;
-  auto xd = MatrixView<1, 2>(xdCont);
+  auto xd = matrixView<1, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 7.1;
 
@@ -4717,10 +4717,10 @@ BOOST_AUTO_TEST_CASE(CondassignOperator_FOV_Forward) {
 
   std::array<double, 3> x;
   std::array<double, 6> xdCont;
-  auto xd = MatrixView<3, 2>(xdCont);
+  auto xd = matrixView<3, 2>(xdCont);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 1.;
   x[1] = 3.5;
@@ -4766,10 +4766,10 @@ BOOST_AUTO_TEST_CASE(CondeqassignOperator_FOV_Forward) {
 
   std::vector<double> x(3);
   std::vector<double> xdCont(6);
-  auto xd = MatrixView(xdCont, 3, 2);
+  auto xd = matrixView(xdCont, 3, 2);
   std::array<double, 1> y;
   std::array<double, 2> ydCont;
-  auto yd = MatrixView<1, 2>(ydCont);
+  auto yd = matrixView<1, 2>(ydCont);
 
   x[0] = 1.;
   x[1] = 3.5;

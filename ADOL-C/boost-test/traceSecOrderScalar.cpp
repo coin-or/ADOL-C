@@ -2089,7 +2089,7 @@ BOOST_AUTO_TEST_CASE(customSimpleSum_HOS_Reverse) {
 
   std::array<double, 2> u;
   std::array<double, 6> ZCont;
-  auto Z = MatrixView<3, 2>(ZCont);
+  auto Z = matrixView<3, 2>(ZCont);
 
   u[0] = 1.;
   u[1] = 0.;
@@ -2277,7 +2277,7 @@ BOOST_AUTO_TEST_CASE(customTrigExp_HOS_Reverse) {
 
   std::vector<double> u(2);
   std::vector<double> ZCont(3 * 2);
-  auto Z = MatrixView(ZCont, 3, 2);
+  auto Z = matrixView(ZCont, 3, 2);
 
   u[0] = 1.;
   u[1] = 0.;

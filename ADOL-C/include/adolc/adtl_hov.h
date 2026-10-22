@@ -2562,7 +2562,7 @@ inline const double *adouble::getOneADValue(int i) const {
 }
 
 inline void adouble::setOneADValue(int i, double *v) {
-  for (size_t j = 0; j < ho_deriv.shape().second; i++) {
+  for (size_t j = 0; j < ho_deriv.shape().second; j++) {
     ho_deriv[i][j] = v[j];
   }
 }

@@ -239,7 +239,7 @@ the same analytic time-step gradient:
 
 ADOL-C offers fundamentally two ways of creating a matrix, which can be used 
 with most computation routines of the package. The first one of these is 
-`MatrixView()`, which allows you to create a view of a self-own array or vector 
+`matrixView()`, which allows you to create a view of a self-own array or vector 
 in the shape you specify:
 
 @snippet contexam.cpp contexam-view
