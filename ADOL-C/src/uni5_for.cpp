@@ -58,7 +58,6 @@ and _NTIGHT__
 #include "ampisupportAdolc.h"
 #endif
 
-
 /****************************************************************************/
 /*                                                                   MACROS */
 #undef _ADOLC_VECTOR_
@@ -1184,7 +1183,8 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* INT_FOR */
 #if defined(_INT_FOR_)
-  up_T = Matrix<size_t>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p));
+  up_T = Matrix<size_t>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                        static_cast<size_t>(p));
 #define TAYLOR_BUFFER up_T
 
   /*--------------------------------------------------------------------------*/
@@ -1231,13 +1231,15 @@ int hov_forward(
   /*--------------------------------------------------------------------------*/
 #else /* FOV */
 #if defined(_FOV_)
-  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p));
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(p));
 #define TAYLOR_BUFFER dpp_T
 
   /*--------------------------------------------------------------------------*/
 #else /* HOS */
 #if defined(_HOS_)
-  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(k));
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(k));
 #define TAYLOR_BUFFER dpp_T
   std::vector<double> dp_z_data(k);
   dp_z = dp_z_data.data();
@@ -1250,7 +1252,8 @@ int hov_forward(
 
   /*--------------------------------------------------------------------------*/
 #else /* HOV and HOV_WK */
-  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES), static_cast<size_t>(p * k));
+  dpp_T = Matrix<double>(tape.tapestats(TapeInfos::NUM_MAX_LIVES),
+                         static_cast<size_t>(p * k));
 #define TAYLOR_BUFFER dpp_T
   std::vector<double> dp_z_data(k);
   dp_z = dp_z_data.data();

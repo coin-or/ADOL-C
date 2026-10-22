@@ -111,8 +111,6 @@ ADOLC_API inline int tensor_eval(short tag, int m, int n, int d, int p,
  * @param y      Dependent vector y = F(x).
  * @param tensor Result in compressed form.
  * @param multi  Derivative adress.
- *
- * @return Zero on success, nonzero on failure.
  */
 ADOLC_API inline void tensor_value(int d, int m, std::span<double> y,
                                    std::span<double *> tensor,

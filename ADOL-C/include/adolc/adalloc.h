@@ -15,21 +15,11 @@
 #if !defined(ADOLC_ADALLOC_H)
 #define ADOLC_ADALLOC_H 1
 
-#include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
-#include <array>
-#include <concepts>
-#include <limits>
-#include <span>
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
 /****************************************************************************/
 /*                                                         Now the C THINGS */
 BEGIN_C_DECLS
-
+#include <stddef.h>
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
 ADOLC_API char *populate_dpp(double ***const pointer, char *const memory,
@@ -44,6 +34,13 @@ END_C_DECLS
 /****************************************************************************/
 /*                                                       Now the C++ THINGS */
 #if defined(__cplusplus)
+
+#include <adolc/adolcexport.h>
+#include <array>
+#include <span>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
@@ -66,20 +63,20 @@ template <typename T> T fillIdentity(T identity) {
  * ( 1 2 )
  * ( 3 4 )
  *
- * @tparam dimY Number of output dimension (rows).
- * @tparam dimX Number of input dimension (columns).
+ * @tparam rows_ Number of output dimension (rows).
+ * @tparam cols_ Number of input dimension (columns).
  * @tparam T    Datatype of the content.
  * @param owner     Reference to Container that holds the matrix's
  *                  content.
  * @return std::array, which holds pointers to the subsections of the
  *         input array, and splits it into rows.
  */
-template <size_t dimY, size_t dimX, typename T>
-std::array<T *, dimY> MatrixView(std::array<T, dimY * dimX> &owner) {
-  assert(dimY * dimX == owner.size());
-  std::array<T *, dimY> view;
-  for (size_t i = 0; i < dimY; i++) {
-    view[i] = owner.data() + i * dimX;
+template <size_t rows_, size_t cols_, typename T>
+std::array<T *, rows_> matrixView(std::array<T, rows_ * cols_> &owner) {
+  assert(rows_ * cols_ == owner.size());
+  std::array<T *, rows_> view;
+  for (size_t i = 0; i < rows_; i++) {
+    view[i] = owner.data() + i * cols_;
   }
   return view;
 }
@@ -93,6 +90,7 @@ std::array<T *, dimY> MatrixView(std::array<T, dimY * dimX> &owner) {
  * ( 3 4 )
  *
  * @tparam T Datatype of the content.
+ * @tparam VS Optional further template parameter
  * @tparam Cont Container type.
  * @param owner     Reference to Container that holds the matrix's
  *                  content.
@@ -101,11 +99,27 @@ std::array<T *, dimY> MatrixView(std::array<T, dimY * dimX> &owner) {
  * @return Container – of same type as the input –, which holds poin-
  *         ters to the subsections of the input container, and splits
  *         it into rows.
+ * @note VS is passed to the Container directly. If one of the parameter V of VS
+ * depends on the first argument T* problems can occur if V was deduced with T
  */
-template <typename T, template <typename, typename...> typename Cont>
-Cont<T *> MatrixView(Cont<T> &owner, size_t rows, size_t cols) {
+template <typename T, typename... VS,
+          template <typename, typename...> typename Cont>
+Cont<T *, VS...> matrixView(Cont<T, VS...> &owner, size_t rows, size_t cols) {
   assert(rows * cols == owner.size());
-  Cont<T *> view(rows);
+  Cont<T *, VS...> view(rows);
+  for (size_t i = 0; i < rows; i++) {
+    view[i] = owner.data() + i * cols;
+  }
+  return view;
+}
+
+/// @brief Specialized version of matrixView that handles the std::vector
+/// template properly
+template <typename T, template <typename> typename Allocator>
+std::vector<T *, Allocator<T *>> matrixView(std::vector<T, Allocator<T>> &owner,
+                                            size_t rows, size_t cols) {
+  assert(rows * cols == owner.size());
+  std::vector<T *, Allocator<T *>> view(rows);
   for (size_t i = 0; i < rows; i++) {
     view[i] = owner.data() + i * cols;
   }
@@ -120,15 +134,23 @@ Cont<T *> MatrixView(Cont<T> &owner, size_t rows, size_t cols) {
  * @tparam Rowsize. Defaults to zero.
  * @tparam Colsize. Defaults to Rowsize.
  */
-template <typename T = double, size_t dimY = std::dynamic_extent,
-          size_t dimX = dimY>
+template <typename T = double, size_t rows_ = std::dynamic_extent,
+          size_t cols_ = rows_>
 class Matrix {
-  std::array<T *, dimY> matrix_{};    /// Splits the data into row vectors.
-  std::array<T, dimY * dimX> data_{}; /// Holds the matrix's content.
+  static_assert(cols_ > 0 && rows_ > 0);
+  std::array<T *, rows_> matrix_{};     /// Splits the data into row vectors.
+  std::array<T, rows_ * cols_> data_{}; /// Holds the matrix's content.
+
+  constexpr void populate() {
+    for (size_t i = 0; i < matrix_.size(); i++) {
+      matrix_[i] = data_.data() + (i * cols_);
+    }
+  }
 
 public:
   using value_type = T;
   ~Matrix() = default;
+
   /**
    * @brief Constructor for Matrix-object
    *
@@ -137,40 +159,41 @@ public:
    * the data_ to split the content into a matrix format.
    *
    */
-  Matrix(value_type filler = 0.0) {
-    assert(dimY > 0 && dimX > 0);
+  constexpr Matrix() { populate(); }
+
+  /**
+   * @brief Constructor for Matrix-object
+   *
+   * Allocates the matrix content contiguously as a an std::array
+   * and allocates a second std::array with pointers to parts of
+   * the data_ to split the content into a matrix format.
+   *
+   * @param filler    Value to fill the matrix with
+   */
+  constexpr Matrix(value_type filler) {
     for (size_t i = 0; i < data_.size(); i++) {
       data_[i] = filler;
     }
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = data_.data() + (i * dimX);
-    }
+    populate();
   }
-  Matrix(const Matrix &other) : Matrix() {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = other.data_[i];
-    }
-  }
-  Matrix &operator=(const Matrix &other) {
-    assert(dimY == other.shape().first && dimX == other.shape().second);
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = other.matrix_[i];
-    }
+
+  constexpr Matrix(const Matrix &other) : Matrix() { data_ = other.data_; }
+  constexpr Matrix &operator=(const Matrix &other) {
+    data_ = other.data_;
     return *this;
   }
-  Matrix(Matrix &&other)
-      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)) {
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = data_.data() + (i * dimX);
-    }
-  }
-  Matrix &operator=(Matrix &&other) {
-    assert(dimY == other.shape().first && dimX == other.shape().second);
 
-    data_ = std::move(other.data_);
-    matrix_ = std::move(other.matrix_);
-    for (size_t i = 0; i < dimY; i++) {
-      matrix_[i] = data_.data() + i * dimX;
+  constexpr Matrix(Matrix &&other) noexcept(
+      std::is_nothrow_move_constructible_v<T>)
+      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)) {
+    populate();
+  }
+
+  constexpr Matrix &
+  operator=(Matrix &&other) noexcept(std::is_nothrow_move_assignable_v<T>) {
+    if (this != &other) {
+      data_ = std::move(other.data_);
+      populate();
     }
     return *this;
   }
@@ -180,10 +203,10 @@ public:
    * Useful for functions calls, e.g. fov_reverse().
    *
    */
-  operator std::span<value_type *>() {
+  constexpr operator std::span<value_type *>() {
     return std::span<value_type *>(matrix_);
   }
-  operator std::span<value_type *const>() {
+  constexpr operator std::span<value_type *const>() {
     return std::span<value_type *const>(matrix_);
   }
   /**
@@ -194,12 +217,12 @@ public:
    *
    * @param row       Row, that is supposed to be jumped to.
    */
-  value_type *operator[](size_t row) {
-    assert(row <= dimY - 1);
+  constexpr value_type *operator[](size_t row) {
+    assert(row < rows_);
     return matrix_[row];
   }
-  const value_type *operator[](size_t row) const {
-    assert(row <= matrix_.size() - 1);
+  constexpr const value_type *operator[](size_t row) const {
+    assert(row < rows_);
     return matrix_[row];
   }
   /**
@@ -208,18 +231,18 @@ public:
    * Here for symmetric functionality to iterables like
    * std::vector.
    */
-  value_type **data() { return matrix_.data(); }
-  const value_type *const *data() const { return matrix_.data(); }
+  constexpr value_type **data() { return matrix_.data(); }
+  constexpr const value_type *const *data() const { return matrix_.data(); }
   /**
    * @brief Retrieves dimensions of Matrix-object.
    */
-  std::pair<const size_t, const size_t> shape() const { return {dimY, dimX}; }
+  constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
   /**
    * @brief Fills entire Matrix Container with given value.
    *
    *@param filler     Value to fill the matrix with.
    */
-  void fill(value_type filler = 0.0) {
+  constexpr void fill(value_type filler) {
     for (size_t i = 0; i < data_.size(); i++) {
       data_[i] = filler;
     }
@@ -237,11 +260,20 @@ template <typename T>
 class Matrix<T, std::dynamic_extent, std::dynamic_extent> {
   std::vector<T *> matrix_{}; /// Splits the data into row vectors.
   std::vector<T> data_{};     /// Holds the matrix's content.
+  size_t rows_{0};
+  size_t cols_{0};
+
+  constexpr void populate() {
+    for (size_t i = 0; i < rows_; i++) {
+      matrix_[i] = data_.data() + (i * cols_);
+    }
+  }
 
 public:
   using value_type = T;
   ~Matrix() = default;
-  Matrix() = default;
+
+  constexpr Matrix() = default;
   /**
    * @brief Constructor for Matrix-object
    *
@@ -252,19 +284,19 @@ public:
    * @param rows      Number of rows of the matrix.
    * @param cols      Number of columns of the matrix.
    */
-  Matrix(size_t rows, size_t cols, value_type filler = 0.0)
-      : matrix_(rows), data_(rows * cols, filler) {
-    assert(rows > 0 && cols > 0);
-    for (size_t i = 0; i < rows; i++) {
-      matrix_[i] = data_.data() + (i * cols);
-    }
+  constexpr Matrix(size_t rows, size_t cols, value_type filler = 0.0)
+      : matrix_(rows), data_(rows * cols, filler), rows_(rows), cols_(cols) {
+    assert(rows_ > 0 && cols_ > 0 && "Zero dimension are not allowed!");
+    populate();
   }
+
   /**
    * @brief Creates a Square Matrix.
    *
    * @param rowsAndCols Number of rows and columns of the matrix.
    */
-  Matrix(size_t rowsAndCols) : Matrix(rowsAndCols, rowsAndCols) {}
+  constexpr explicit Matrix(size_t rowsAndCols)
+      : Matrix(rowsAndCols, rowsAndCols) {}
   /**
    * @brief Constructs from pre-existing objects outside of Matrix()
    *
@@ -275,43 +307,38 @@ public:
    * @param data      Matrix data.
    * @return Moved Matrix-object.
    */
-  Matrix(std::vector<T *> &&rows, std::vector<T> &&data)
-      : matrix_(std::move(rows)), data_(std::move(data)) {
-    auto cols = data_.size() / matrix_.size();
-    assert(cols * matrix_.size() == data_.size());
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = data_.data() + (i * cols);
-    }
+  constexpr Matrix(std::vector<T *> &&matrix, std::vector<T> &&data)
+      : matrix_(std::move(matrix)), data_(std::move(data)),
+        rows_(matrix_.size()),
+        cols_(matrix_.size() > 0 ? data_.size() / matrix_.size() : 0) {
+    assert(rows_ * cols_ == data_.size());
+    populate();
   }
-  Matrix(const Matrix &other)
-      : Matrix(other.matrix_.size(),
-               other.data_.size() / other.matrix_.size()) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = other.data_[i];
-    }
+
+  constexpr Matrix(const Matrix &other)
+      : matrix_(other.rows_), data_(other.data_), rows_(other.rows_),
+        cols_(other.cols_) {
+    populate();
   }
-  Matrix &operator=(const Matrix &other) {
-    assert(this->shape().first == other.shape().first &&
-           this->shape().first == other.shape().second);
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = other.matrix_[i];
-    }
+
+  constexpr Matrix &operator=(const Matrix &other) {
+    assert(rows_ == other.rows_ && cols_ == other.cols_);
+    data_ = other.data_;
     return *this;
   }
-  Matrix(Matrix &&other)
-      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)) {
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = data_.data() + (i * (data_.size() / matrix_.size()));
-    }
-  }
-  Matrix &operator=(Matrix &&other) {
-    size_t rows = other.shape().first;
-    size_t cols = other.shape().second;
 
-    data_ = std::move(other.data_);
-    matrix_ = std::move(other.matrix_);
-    for (size_t i = 0; i < rows; i++) {
-      matrix_[i] = data_.data() + i * cols;
+  constexpr Matrix(Matrix &&other) noexcept
+      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)),
+        rows_(std::exchange(other.rows_, 0)),
+        cols_(std::exchange(other.cols_, 0)) {}
+
+  constexpr Matrix &operator=(Matrix &&other) noexcept {
+    if (this != &other) {
+      data_ = std::move(other.data_);
+      matrix_ = std::move(other.matrix_);
+      rows_ = std::exchange(other.rows_, 0);
+      cols_ = std::exchange(other.cols_, 0);
+      populate();
     }
     return *this;
   }
@@ -321,10 +348,10 @@ public:
    * Useful for functions calls, e.g. fov_reverse().
    *
    */
-  operator std::span<value_type *>() {
+  constexpr operator std::span<value_type *>() {
     return std::span<value_type *>(matrix_);
   }
-  operator std::span<value_type *const>() {
+  constexpr operator std::span<value_type *const>() {
     return std::span<value_type *const>(matrix_);
   }
   /**
@@ -335,12 +362,12 @@ public:
    *
    * @param row       Row, that is supposed to be jumped to.
    */
-  value_type *operator[](size_t row) {
-    assert(row <= matrix_.size() - 1);
+  constexpr value_type *operator[](size_t row) {
+    assert(row < rows_);
     return matrix_[row];
   }
-  const value_type *operator[](size_t row) const {
-    assert(row <= matrix_.size() - 1);
+  constexpr const value_type *operator[](size_t row) const {
+    assert(row < rows_);
     return matrix_[row];
   }
   /**
@@ -349,20 +376,18 @@ public:
    * Here for symmetric functionality to iterables like
    * std::vector.
    */
-  value_type **data() { return matrix_.data(); }
-  const value_type *const *data() const { return matrix_.data(); }
+  constexpr value_type **data() { return matrix_.data(); }
+  constexpr const value_type *const *data() const { return matrix_.data(); }
   /**
    * @brief Retrieves dimensions of Matrix-object.
    */
-  std::pair<const size_t, const size_t> shape() const {
-    return {matrix_.size(), data_.size() / matrix_.size()};
-  }
+  constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
   /**
    * @brief Fills entire Matrix Container with given value.
    *
    *@param filler     Value to fill the matrix with.
    */
-  void fill(value_type filler = 0.0) {
+  constexpr void fill(value_type filler = 0.0) {
     for (size_t i = 0; i < data_.size(); i++) {
       data_[i] = filler;
     }
@@ -386,11 +411,23 @@ template <typename T = double> class Tensor {
   std::vector<T **> tensor_{};
   std::vector<T *> slices_{};
   std::vector<T> data_{};
+  size_t rows_{0};
+  size_t cols_{0};
+  size_t depths_{0};
+
+  constexpr void populate() {
+    for (size_t i = 0; i < rows_ * cols_; i++) {
+      slices_[i] = data_.data() + i * depths_;
+    }
+    for (size_t i = 0; i < rows_; i++) {
+      tensor_[i] = slices_.data() + i * cols_;
+    }
+  }
 
 public:
   using value_type = T;
   ~Tensor() = default;
-  Tensor() = default;
+  constexpr Tensor() = default;
   /**
    * @brief Constructor for Tensor-object
    *
@@ -402,59 +439,47 @@ public:
    * @param cols      Number of columns of the tensor.
    * @param dep       Size of the third axis (depth) of the tensor.
    */
-  Tensor(size_t rows, size_t cols, size_t dep, value_type filler = 0.0)
-      : tensor_(rows), slices_(rows * cols), data_(rows * cols * dep, filler) {
-    assert(rows > 0 && cols > 0 && dep > 0);
-    for (size_t i = 0; i < rows * cols; i++) {
-      slices_[i] = &data_[i * dep];
-    }
-    for (size_t i = 0; i < rows; i++) {
-      tensor_[i] = &slices_[i * cols];
-    }
+  constexpr Tensor(size_t rows, size_t cols, size_t depths,
+                   value_type filler = 0.0)
+      : tensor_(rows), slices_(rows * cols),
+        data_(rows * cols * depths, filler), rows_(rows), cols_(cols),
+        depths_(depths) {
+    assert(rows_ > 0 && cols_ > 0 && depths_ > 0 &&
+           "Zero dimension are not allowed!");
+    populate();
   }
-  Tensor(const Tensor &other)
-      : Tensor(other.tensor_.size(),
-               other.slices_.size() / other.tensor_.size(),
-               other.data_.size() / other.slices_.size()) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = other.data_[i];
-    }
+
+  constexpr Tensor(const Tensor &other)
+      : tensor_(other.rows_), slices_(other.rows_ * other.cols_),
+        data_(other.data_), rows_(other.rows_), cols_(other.cols_),
+        depths_(other.depths_) {
+    populate();
   }
-  Tensor &operator=(const Tensor &other) {
-    assert(this->shape()[0] == other.shape()[0] &&
-           this->shape()[1] == other.shape()[1] &&
-           this->shape()[2] == other.shape()[2]);
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = other.data_[i];
-    }
+
+  constexpr Tensor &operator=(const Tensor &other) {
+    assert(rows_ == other.rows_ && cols_ == other.cols_ &&
+           depths_ == other.depths_);
+    data_ = other.data_;
     return *this;
   }
-  Tensor(Tensor &&other)
-      : tensor_(std::move(other.tensor_)), slices_(std::move(other.slices_)),
-        data_(std::move(other.data_)) {
-    size_t rows = tensor_.size();
-    auto cols = slices_.size() / rows;
-    auto depth = data_.size() / (rows * cols);
-    for (size_t i = 0; i < rows * cols; i++) {
-      slices_[i] = &data_[i * depth];
-    }
-    for (size_t i = 0; i < rows; i++) {
-      tensor_[i] = &slices_[i * cols];
-    }
-  }
-  Tensor &operator=(Tensor &&other) {
-    size_t rows = other.shape()[0];
-    size_t cols = other.shape()[1];
-    size_t depth = other.shape()[2];
 
-    data_ = std::move(other.data_);
-    slices_ = std::move(other.slices_);
-    tensor_ = std::move(other.tensor_);
-    for (size_t i = 0; i < rows; i++) {
-      tensor_[i] = slices_.data() + i * cols;
-    }
-    for (size_t i = 0; i < rows * cols; i++) {
-      slices_[i] = data_.data() + i * depth;
+  constexpr Tensor(Tensor &&other) noexcept
+      : tensor_(std::move(other.tensor_)), slices_(std::move(other.slices_)),
+        data_(std::move(other.data_)), rows_(std::exchange(other.rows_, 0)),
+        cols_(std::exchange(other.cols_, 0)),
+        depths_(std::exchange(other.depths_, 0)) {
+    populate();
+  }
+
+  constexpr Tensor &operator=(Tensor &&other) noexcept {
+    if (this != &other) {
+      data_ = std::move(other.data_);
+      slices_ = std::move(other.slices_);
+      tensor_ = std::move(other.tensor_);
+      rows_ = std::exchange(other.rows_, 0);
+      cols_ = std::exchange(other.cols_, 0);
+      depths_ = std::exchange(other.depths_, 0);
+      populate();
     }
     return *this;
   }
@@ -465,10 +490,10 @@ public:
    *
    */
   /* operator value_type ***() { return tensor_.data(); } */
-  operator std::span<value_type **>() {
+  constexpr operator std::span<value_type **>() {
     return std::span<value_type **>(tensor_);
   }
-  operator std::span<value_type **const>() {
+  constexpr operator std::span<value_type **const>() {
     return std::span<value_type **const>(tensor_);
   }
   /**
@@ -479,12 +504,12 @@ public:
    *
    * @param row       Row, that is supposed to be jumped to.
    */
-  value_type **operator[](size_t row) {
-    assert(row <= tensor_.size() - 1);
+  constexpr value_type **operator[](size_t row) {
+    assert(row < rows_);
     return tensor_[row];
   }
-  const value_type **operator[](size_t row) const {
-    assert(row <= tensor_.size() - 1);
+  constexpr const value_type *const *operator[](size_t row) const {
+    assert(row < rows_);
     return tensor_[row];
   }
   /**
@@ -493,8 +518,10 @@ public:
    * Here for symmetric functionality to iterables like
    * std::vector.
    */
-  value_type ***data() { return tensor_.data(); }
-  const value_type *const *const *data() const { return tensor_.data(); }
+  constexpr value_type ***data() { return tensor_.data(); }
+  constexpr const value_type *const *const *data() const {
+    return tensor_.data();
+  }
   /**
    * @brief Fills entire Tensor Container with given value.
    *
@@ -503,11 +530,10 @@ public:
   /**
    * @brief Retrieves dimensions of Tensor-object.
    */
-  std::array<const size_t, 3> shape() const {
-    return {tensor_.size(), slices_.size() / tensor_.size(),
-            data_.size() / slices_.size()};
+  constexpr std::array<size_t, 3> shape() const {
+    return {rows_, cols_, depths_};
   }
-  void fill(value_type filler) {
+  constexpr void fill(value_type filler) {
     for (size_t i = 0; i < data_.size(); i++) {
       data_[i] = filler;
     }
@@ -527,9 +553,9 @@ public:
  */
 template <typename T = double,
           template <typename, typename...> typename Cont = std::vector>
-Cont<T> unitVector(size_t dim, size_t dir) {
+constexpr Cont<T> unitVector(size_t dim, size_t dir) {
   assert(dir <= dim);
-  Cont<T> unitVec(dim, 0.0);
+  Cont<T> unitVec(dim, T{});
   unitVec[dir - 1] = static_cast<T>(1.0);
   return unitVec;
 }
@@ -542,7 +568,7 @@ Cont<T> unitVector(size_t dim, size_t dir) {
  * @return Unit vector as std::array.
  */
 template <typename T = double, size_t dim>
-std::array<T, dim> unitVector(size_t dir) {
+constexpr std::array<T, dim> unitVector(size_t dir) {
   assert(dir <= dim);
   std::array<T, dim> unitVec{};
   unitVec[dir - 1] = static_cast<T>(1.0);
@@ -560,7 +586,7 @@ std::array<T, dim> unitVector(size_t dir) {
  * @return Matrix of size Dim x Dim.
  */
 template <typename T = double, size_t dim = 1>
-Matrix<T, dim, dim> unitMatrix() {
+constexpr Matrix<T, dim, dim> unitMatrix() {
   auto identity = Matrix<T, dim, dim>{};
   return fillIdentity(identity);
 }
@@ -574,7 +600,8 @@ Matrix<T, dim, dim> unitMatrix() {
  * @return Matrix of size Dim x Dim.
  */
 template <typename T = double>
-Matrix<T, std::dynamic_extent, std::dynamic_extent> unitMatrix(size_t dim) {
+constexpr Matrix<T, std::dynamic_extent, std::dynamic_extent>
+unitMatrix(size_t dim) {
   auto identity = Matrix<T, std::dynamic_extent, std::dynamic_extent>{dim};
   return fillIdentity(identity);
 }

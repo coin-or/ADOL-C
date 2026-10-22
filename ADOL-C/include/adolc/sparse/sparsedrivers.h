@@ -1301,6 +1301,11 @@ int computeSparseHess(short tag, int indep, const double *basepoint, int *nnz,
                       unsigned int **rind, unsigned int **cind,
                       double **values) {
   ValueTape &tape = findTape(tag);
+  if (tape.sHInfos().Upp_.shape().first == 0) {
+    printf(" ADOL-C error in sparse_hess():"
+           " First call with repeat = 0 \n");
+    return -3;
+  }
 
   if (tape.sHInfos().nnzIn_ != *nnz) {
     printf(" ADOL-C error in sparse_hess():"

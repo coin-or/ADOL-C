@@ -929,12 +929,12 @@ ADOLC_API inline int fos_reverse(short tnum, int depen, int indep,
 };
 
 /**
- * @brief Wrapper for fos_reverse().
+ * @brief Wrapper for fov_reverse().
  *
  * @param tnum       tape identification.
- * @param depen      number of dependent variables m.
+ * @param depend     number of dependent variables m.
  * @param indep      number of independent variables n.
- * @param nrwos      number of weight vectors.
+ * @param nrows      number of weight vectors.
  * @param lagrange   weights.
  * @param results    resulting adjoint.
  */
@@ -1037,7 +1037,7 @@ ADOLC_API inline int hos_reverse(short tnum, int depen, int indep, int degree,
  * @param depen      number of dependent variables m.
  * @param indep      number of independent variables n.
  * @param degree     highest derivative degree.
- * @param nrwos      number of weight vectors.
+ * @param nrows      number of weight vectors.
  * @param lagrange   weights.
  * @param results    resulting adjoint.
  */
@@ -1056,7 +1056,7 @@ ADOLC_API inline int hos_ov_reverse(short tnum, int depen, int indep,
  * @param depen      number of dependent variables m.
  * @param indep      number of independent variables n.
  * @param degree     highest derivative degree
- * @param nrwos      number of weight vectors.
+ * @param nrows      number of weight vectors.
  * @param lagrange   weights.
  * @param results    resulting adjoint.
  * @param nonzero    nonzero pattern of resulting adjoint.
@@ -1078,7 +1078,7 @@ ADOLC_API inline int hov_reverse(short tnum, int depen, int indep, int degree,
  * @param keep       flag for reverse preparation.
  * @param x          independent vector.
  * @param y          dependent vector.
- * @param z          argument of abs(z).
+ * @param switching_vec argument of abs(z).
  */
 ADOLC_API inline int zos_pl_forward(short tnum, int depen, int indep, int keep,
                                     std::span<const double> x,

@@ -1,5 +1,5 @@
 /*
-   File to explicitely test MatrixView from adalloc.cpp
+   File to explicitely test matrixView from adalloc.cpp
 */
 
 #define BOOST_TEST_DYN_LINK
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_2_1_double) {
     ( ( 1.0 ) )
     ( ( 2.0 ) )
   */
-  auto containerView = MatrixView(container, 2, 1);
+  auto containerView = matrixView(container, 2, 1);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[1][0], tt::tolerance(tol));
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_1_2_double) {
   /* View to check:
     ( ( 1.0 ) ( 2.0 ) )
   */
-  auto containerView = MatrixView(container, 1, 2);
+  auto containerView = matrixView(container, 1, 2);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_2_2_double) {
     ( ( 1.0 ) ( 2.0 ) )
     ( ( 3.0 ) ( 4.0 ) )
   */
-  auto containerView = MatrixView(container, 2, 2);
+  auto containerView = matrixView(container, 2, 2);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_1_3_double) {
   /* View to check:
     ( ( 1.0 ) ( 2.0 ) ( 3.0 ) )
   */
-  auto containerView = MatrixView(container, 1, 3);
+  auto containerView = matrixView(container, 1, 3);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_3_1_double) {
     ( ( 2.0 ) )
     ( ( 3.0 ) )
   */
-  auto containerView = MatrixView(container, 3, 1);
+  auto containerView = matrixView(container, 3, 1);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[1][0], tt::tolerance(tol));
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_3_2_double) {
     ( ( 3.0 ) ( 4.0 ) )
     ( ( 5.0 ) ( 6.0 ) )
   */
-  auto containerView = MatrixView(container, 3, 2);
+  auto containerView = matrixView(container, 3, 2);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_2_3_double) {
     ( ( 1.0 ) ( 2.0 ) ( 3.0 ) )
     ( ( 4.0 ) ( 5.0 ) ( 6.0 ) )
   */
-  auto containerView = MatrixView(container, 2, 3);
+  auto containerView = matrixView(container, 2, 3);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_3_3_double) {
     ( ( 4.0 ) ( 5.0 ) ( 6.0 ) )
     ( ( 7.0 ) ( 8.0 ) ( 9.0 ) )
   */
-  auto containerView = MatrixView(container, 3, 3);
+  auto containerView = matrixView(container, 3, 3);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_3_2_int) {
     ( ( 3 ) ( 4 ) )
     ( ( 5 ) ( 6 ) )
   */
-  auto containerView = MatrixView(container, 3, 2);
+  auto containerView = matrixView(container, 3, 2);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_2_3_int) {
     ( ( 1 ) ( 2 ) ( 3 ) )
     ( ( 4 ) ( 5 ) ( 6 ) )
   */
-  auto containerView = MatrixView(container, 2, 3);
+  auto containerView = matrixView(container, 2, 3);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Vector_3_3_int) {
     ( ( 4 ) ( 5 ) ( 6 ) )
     ( ( 7 ) ( 8 ) ( 9 ) )
   */
-  auto containerView = MatrixView(container, 3, 3);
+  auto containerView = matrixView(container, 3, 3);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_2_1_double) {
     ( ( 1.0 ) )
     ( ( 2.0 ) )
   */
-  auto containerView = MatrixView<2, 1>(container);
+  auto containerView = matrixView<2, 1>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[1][0], tt::tolerance(tol));
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_1_2_double) {
   /* View to check:
     ( ( 1.0 ) ( 2.0 ) )
   */
-  auto containerView = MatrixView<1, 2>(container);
+  auto containerView = matrixView<1, 2>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_2_2_double) {
     ( ( 1.0 ) ( 2.0 ) )
     ( ( 3.0 ) ( 4.0 ) )
   */
-  auto containerView = MatrixView<2, 2>(container);
+  auto containerView = matrixView<2, 2>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_1_3_double) {
   /* View to check:
     ( ( 1.0 ) ( 2.0 ) ( 3.0 ) )
   */
-  auto containerView = MatrixView<1, 3>(container);
+  auto containerView = matrixView<1, 3>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_3_1_double) {
     ( ( 2.0 ) )
     ( ( 3.0 ) )
   */
-  auto containerView = MatrixView<3, 1>(container);
+  auto containerView = matrixView<3, 1>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[1][0], tt::tolerance(tol));
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_3_2_double) {
     ( ( 3.0 ) ( 4.0 ) )
     ( ( 5.0 ) ( 6.0 ) )
   */
-  auto containerView = MatrixView<3, 2>(container);
+  auto containerView = matrixView<3, 2>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_2_3_double) {
     ( ( 1.0 ) ( 2.0 ) ( 3.0 ) )
     ( ( 4.0 ) ( 5.0 ) ( 6.0 ) )
   */
-  auto containerView = MatrixView<2, 3>(container);
+  auto containerView = matrixView<2, 3>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_3_3_double) {
     ( ( 4.0 ) ( 5.0 ) ( 6.0 ) )
     ( ( 7.0 ) ( 8.0 ) ( 9.0 ) )
   */
-  auto containerView = MatrixView<3, 3>(container);
+  auto containerView = matrixView<3, 3>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_3_2_int) {
     ( ( 3 ) ( 4 ) )
     ( ( 5 ) ( 6 ) )
   */
-  auto containerView = MatrixView<3, 2>(container);
+  auto containerView = matrixView<3, 2>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_2_3_int) {
     ( ( 1 ) ( 2 ) ( 3 ) )
     ( ( 4 ) ( 5 ) ( 6 ) )
   */
-  auto containerView = MatrixView<2, 3>(container);
+  auto containerView = matrixView<2, 3>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE(Matrix_View_of_Array_3_3_int) {
     ( ( 4 ) ( 5 ) ( 6 ) )
     ( ( 7 ) ( 8 ) ( 9 ) )
   */
-  auto containerView = MatrixView<3, 3>(container);
+  auto containerView = matrixView<3, 3>(container);
 
   BOOST_TEST(container[0] == containerView[0][0], tt::tolerance(tol));
   BOOST_TEST(container[1] == containerView[0][1], tt::tolerance(tol));

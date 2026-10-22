@@ -118,11 +118,11 @@ BOOST_AUTO_TEST_CASE(customCube_HOV_Reverse) {
   fos_forward(tapeId, 1, 1, 2, x, xd, y, yd);
 
   std::vector<double> UCont(2 * 1);
-  auto U = MatrixView(UCont, 2, 1);
+  auto U = matrixView(UCont, 2, 1);
   auto Z = Tensor(2, 1, 2);
 
   std::vector<short int> nzCont(2 * 2);
-  auto nz = MatrixView(nzCont, 2, 2);
+  auto nz = matrixView(nzCont, 2, 2);
 
   nz[0][0] = 1;
   nz[1][0] = 1;
@@ -253,11 +253,11 @@ BOOST_AUTO_TEST_CASE(customTrigProd_HOV_Reverse) {
   fos_forward(tapeId, 1, 2, 2, x, xd, y, yd);
 
   std::array<double, 2> UCont;
-  auto U = MatrixView<2, 1, double>(UCont);
+  auto U = matrixView<2, 1, double>(UCont);
   Tensor<double> Z(2, 2, 2);
 
   std::array<short int, 4> nzCont;
-  auto nz = MatrixView<2, 2, short int>(nzCont);
+  auto nz = matrixView<2, 2, short int>(nzCont);
 
   nz[0][0] = 4;
   nz[0][1] = 4;

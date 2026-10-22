@@ -122,7 +122,7 @@ void taping(ADProblem &problem) {
 
 /* @brief View example
  *
- * Demonstrates the use of MatrixView to create a matrix view of a std::vector.
+ * Demonstrates the use of matrixView to create a matrix view of a std::vector.
  */
 bool viewExample() {
   //! [contexam-view]
@@ -135,7 +135,7 @@ bool viewExample() {
     data[i] = static_cast<double>(i + 1);
   }
   // Create a view of the data vector in matrix shape
-  std::vector<double *> view = MatrixView(data, dimX, dimY);
+  std::vector<double *> view = matrixView(data, dimX, dimY);
   //! [contexam-view]
   printVector("Data vector", data);
   printMatrix("Matrix view of data vector", view, dimX, dimY);

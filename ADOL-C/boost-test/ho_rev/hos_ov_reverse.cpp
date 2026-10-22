@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(PlusOperator_HOS_OV_REVERSE) {
   Tensor<double> Y(dim_out, num_dirs, degree_hov_forward);
 
   std::array<double, 2> UCont;
-  auto U = MatrixView<1, 2>(UCont);
+  auto U = matrixView<1, 2>(UCont);
   Tensor<double> Z(num_dirs, dim_in, degree_hos_reverse + 1);
 
   X[0][0][0] = 1.2;
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(MinOperator_HOS_OV_REVERSE) {
   Tensor<double> Y(dim_out, num_dirs, degree_hov_forward);
 
   std::vector<double> UCont(dim_out * (degree_hos_reverse + 1));
-  auto U = MatrixView(UCont, dim_out, (degree_hos_reverse + 1));
+  auto U = matrixView(UCont, dim_out, (degree_hos_reverse + 1));
   Tensor<double> Z(num_dirs, dim_in, degree_hov_forward + 1);
 
   X[0][0][0] = 1.2;
