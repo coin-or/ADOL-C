@@ -2,6 +2,7 @@
 #ifndef ADOLC_VALUETAPE_H
 #define ADOLC_VALUETAPE_H
 
+#include <adolc/adalloc.h>
 #include <adolc/adolcerror.h>
 #include <adolc/adolcexport.h>
 #include <adolc/buffer_temp.h>
@@ -275,30 +276,42 @@ public:
   }
   int keepTape() const { return tapeInfos_.keepTape; }
   void keepTape(int flag) { tapeInfos_.keepTape = flag; }
-  int jacSolv_nax() const { return perTapeInfos_.jacSolv_nax; }
-  int *jacSolv_ci() const { return perTapeInfos_.jacSolv_ci; }
-  int *jacSolv_ri() const { return perTapeInfos_.jacSolv_ri; }
-  double *jacSolv_xold() const { return perTapeInfos_.jacSolv_xold; }
-  double **jacSolv_I() const { return perTapeInfos_.jacSolv_I; }
-  double **jacSolv_J() const { return perTapeInfos_.jacSolv_J; }
-  int jacSolv_modeold() const { return perTapeInfos_.jacSolv_modeold; }
-  void jacSolv_nax(int nax) { perTapeInfos_.jacSolv_nax = nax; }
-  void jacSolv_I(double **I) { perTapeInfos_.jacSolv_I = I; }
-  void jacSolv_J(double **J) { perTapeInfos_.jacSolv_J = J; }
-  void jacSolv_xold(double *xold) { perTapeInfos_.jacSolv_xold = xold; }
-  void jacSolv_modeold(int mode) { perTapeInfos_.jacSolv_modeold = mode; }
-  void jacSolv_ci(int *ci) { perTapeInfos_.jacSolv_ci = ci; }
-  void jacSolv_ri(int *ri) { perTapeInfos_.jacSolv_ri = ri; }
-  int forodec_nax() const { return perTapeInfos_.forodec_nax; }
-  int forodec_dax() const { return perTapeInfos_.forodec_dax; }
-  double *forodec_y() const { return perTapeInfos_.forodec_y; }
-  double *forodec_z() const { return perTapeInfos_.forodec_z; }
-  double **forodec_Z() const { return perTapeInfos_.forodec_Z; }
-  void forodec_nax(int nax) { perTapeInfos_.forodec_nax = nax; }
-  void forodec_dax(int dax) { perTapeInfos_.forodec_dax = dax; }
-  void forodec_y(double *y) { perTapeInfos_.forodec_y = y; }
-  void forodec_z(double *z) { perTapeInfos_.forodec_z = z; }
-  void forodec_Z(double **Z) { perTapeInfos_.forodec_Z = Z; }
+
+  void forwardODEData(int n, int deg) {
+    Matrix<double> Z{static_cast<size_t>(n), static_cast<size_t>(deg)};
+    perTapeInfos_.ODEData_ = PersistantTapeInfos::ForwardODEData{
+        .forodec_nax = n,
+        .forodec_dax = deg,
+        .forodec_y = std::vector<double>(n),
+        .forodec_z = std::vector<double>(n),
+        .forodec_Z =
+            Matrix<double>{static_cast<size_t>(n), static_cast<size_t>(deg)}};
+  }
+  const PersistantTapeInfos::ForwardODEData &forwardODEData() const {
+    return perTapeInfos_.ODEData_;
+  }
+  PersistantTapeInfos::ForwardODEData &forwardODEData() {
+    return perTapeInfos_.ODEData_;
+  }
+
+  void jacSolveData(int n, int modeOld) {
+    perTapeInfos_.jacData_ = PersistantTapeInfos::JacSolveData{
+        .jacSolv_nax = n,
+        .jacSolv_modeold = modeOld,
+        .jacSolv_J = Matrix<double>(n),
+        .jacSolv_I = unitMatrix(n),
+        .jacSolv_xold = std::vector<double>(n),
+        .jacSolv_ri = std::vector<int>(n),
+        .jacSolv_ci = std::vector<int>(n)};
+  }
+
+  const PersistantTapeInfos::JacSolveData &jacSolvData() const {
+    return perTapeInfos_.jacData_;
+  }
+
+  PersistantTapeInfos::JacSolveData &jacSolvData() {
+    return perTapeInfos_.jacData_;
+  }
 
   // Interface to TapeInfos
   void readParams(double *&targetStore);
