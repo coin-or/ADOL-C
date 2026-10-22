@@ -19,6 +19,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 BEGIN_C_DECLS
 
@@ -237,11 +238,11 @@ ADOLC_API inline int hess_vec(short tnum, int n, std::span<const double> x,
  * @param q        number of columns in V
  * @param x        independent vector x
  * @param V        tangent matrix V
- * @param W        result W = ∇^2F(x)V
+ * @param W        result W = D^2F(x)V
  */
 ADOLC_API inline int hess_mat(short tnum, int n, int q,
                               std::span<const double> x,
-                              std::span<const double *> V,
+                              std::span<double *const> V,
                               std::span<double *> W) {
   return hess_mat(tnum, n, q, x.data(), V.data(), W.data());
 };

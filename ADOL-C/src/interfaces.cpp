@@ -343,11 +343,10 @@ int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
 /* reverse(tag, m, n, d, Z[p][n][d+1], nz[p][n]),
            If p and U are omitted they default to m and I                   */
 {
-  static int depax;
+  static int depax{0};
   static Matrix<double> I;
-  if (m adolc_compsize depax) {
-    if (depax)
-      depax = m;
+  if (m > depax) {
+    depax = m;
     I = unitMatrix<double>(depax);
   }
   return hov_reverse(tag, m, n, d, m, I.data(), Z, nz);
