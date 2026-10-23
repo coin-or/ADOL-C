@@ -1,5 +1,6 @@
 #ifndef ADOLC_SPARSE_INFOS_H
 #define ADOLC_SPARSE_INFOS_H
+#include <adolc/adalloc.h>
 #include <adolc/internal/common.h>
 #include <adolc/sparse/sparse_options.h>
 #include <adolc/sparse/sparsematrix.h>
@@ -21,11 +22,11 @@ void generateSeedJac(int, int, const std::span<uint *>, double ***, int *) {};
 struct ADOLC_API SparseJacInfos {
   struct Impl;
   std::unique_ptr<Impl> pimpl_;
-  double *y_{nullptr};
+  std::vector<double> y_{};
 
   // Seed is memory managed by ColPack and will be deleted
   double **Seed_{nullptr};
-  double **B_{nullptr};
+  Matrix<double> B_{};
 
   // type is dictated by ColPack
   std::vector<uint *> JP_;
@@ -132,11 +133,11 @@ struct ADOLC_API SparseHessInfos {
   struct Impl;
   std::unique_ptr<Impl> pimpl_;
 
-  double **Hcomp_{nullptr};
-  double ***Xppp_{nullptr};
-  double ***Yppp_{nullptr};
-  double ***Zppp_{nullptr};
-  double **Upp_{nullptr};
+  Matrix<double> Hcomp_{};
+  Tensor<double> Xppp_{};
+  Tensor<double> Yppp_{};
+  Tensor<double> Zppp_{};
+  Matrix<double> Upp_{};
 
   // type is dictated by ColPack
   std::vector<uint *> HP_;

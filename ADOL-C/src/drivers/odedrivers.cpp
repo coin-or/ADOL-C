@@ -18,9 +18,22 @@
 #include <adolc/drivers/odedrivers.h>
 #include <adolc/interfaces.h>
 #include <adolc/tape_interface.h>
+#include <adolc/valuetape/persistanttapeinfos.h>
 #include <adolc/valuetape/valuetape.h>
 #include <math.h>
+#include <vector>
 
+namespace {
+
+PersistantTapeInfos::ForwardODEData &updateODEData(ValueTape &tape, int n,
+                                                   int deg) {
+  if (n > tape.forwardODEData().forodec_nax ||
+      deg > tape.forwardODEData().forodec_dax) {
+    tape.forwardODEData(n, deg);
+  }
+  return tape.forwardODEData();
+}
+} // namespace
 BEGIN_C_DECLS
 
 /****************************************************************************/
@@ -49,25 +62,16 @@ int forodec(short tag,  /* tape identifier */
     The scaling by tau is sometimes necessary to avoid overflow.
     **********************************************************************/
 
+  using ForwardODEData = PersistantTapeInfos::ForwardODEData;
   int rc = 3;
   int i, j, k;
   double taut;
   ValueTape &tape = findTape(tag);
-  if (n > tape.forodec_nax() || deg > tape.forodec_dax()) {
-    if (tape.forodec_nax()) {
-      myfree1(tape.forodec_y());
-      myfree1(tape.forodec_z());
-      myfree2(tape.forodec_Z());
-    }
-    tape.forodec_Z(myalloc2(n, deg));
-    tape.forodec_z(myalloc1(n));
-    tape.forodec_y(myalloc1(n));
-    tape.forodec_nax(n);
-    tape.forodec_dax(deg);
-  }
+
+  ForwardODEData &data = updateODEData(tape, n, deg);
 
   for (i = 0; i < n; ++i) {
-    tape.forodec_y()[i] = Y[i][0];
+    data.forodec_y[i] = Y[i][0];
     /*printf("y[%i] = %f\n",i,y[i]);*/
     for (k = 0; k < deg; ++k) {
       Y[i][k] = Y[i][k + 1];
@@ -79,25 +83,25 @@ int forodec(short tag,  /* tape identifier */
   if (dol == 0) {
     j = dol;                    /* j = 0 */
     k = (deg) * (j == deg - 1); /* keep death values in prepration */
-    MINDEC(rc, zos_forward(tag, n, n, k, tape.forodec_y(), tape.forodec_z()));
+    MINDEC(rc, zos_forward(tag, n, n, k, data.forodec_y, data.forodec_z));
     /* for  reverse called by jacode   */
     if (rc < 0)
       return rc;
     taut = tau / (1 + j); /* only the last time through.     */
     for (i = 0; i < n; ++i)
-      Y[i][j] = taut * tape.forodec_z()[i];
+      Y[i][j] = taut * data.forodec_z[i];
     dol++; /* !!! */
   }
   for (j = dol; j < deg; ++j) {
     k = (deg) * (j == deg - 1); /* keep death values in prepration */
-    MINDEC(rc, hos_forward(tag, n, n, j, k, tape.forodec_y(), Y,
-                           tape.forodec_z(), tape.forodec_Z()));
+    MINDEC(rc, hos_forward(tag, n, n, j, k, data.forodec_y.data(), Y,
+                           data.forodec_z.data(), data.forodec_Z.data()));
     /* for  reverse called by jacode   */
     if (rc < 0)
       return rc;
     taut = tau / (1 + j); /* only the last time through.     */
     for (i = 0; i < n; ++i)
-      Y[i][j] = taut * tape.forodec_Z()[i][j - 1];
+      Y[i][j] = taut * data.forodec_Z[i][j - 1];
   }
   /******  Done                  ********/
 
@@ -106,7 +110,7 @@ int forodec(short tag,  /* tape identifier */
       Y[i][k] = Y[i][k - 1];
       /*printf("Y[%i][%i] = %f\n",i,k,Y[i][k]);*/
     }
-    Y[i][0] = tape.forodec_y()[i];
+    Y[i][0] = data.forodec_y[i];
     /*printf("Y[%i][0] = %f\n",i,Y[i][0]);*/
   }
 

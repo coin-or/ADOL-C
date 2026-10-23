@@ -89,7 +89,7 @@ int main() {
   // set Taylor coefficients x_i
   z[0].setOneADValue(0, one);
 
-  double *ret;
+  const double *ret;
   if (d == 2) // analytical derivative only for d=2 available
   {
     // function evaluation for case 1
