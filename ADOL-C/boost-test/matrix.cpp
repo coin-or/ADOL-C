@@ -9,7 +9,19 @@ namespace tt = boost::test_tools;
 
 #include "const.h"
 #include <adolc/adolc.h>
+#include <stdexcept>
+#include <type_traits>
 #include <vector>
+
+namespace {
+struct ThrowingMoveElement {
+  ThrowingMoveElement() = default;
+  ThrowingMoveElement(ThrowingMoveElement &&) {
+    throw std::runtime_error("element move failed");
+  }
+  ThrowingMoveElement &operator=(ThrowingMoveElement &&) noexcept = default;
+};
+} // namespace
 
 BOOST_AUTO_TEST_SUITE(adalloc_cont)
 
@@ -420,6 +432,8 @@ BOOST_AUTO_TEST_CASE(Matrix_1_2_double_Copy_fill) {
 
   BOOST_TEST(2.0 == copy[0][0], tt::tolerance(tol));
   BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
+  copy[0][0] = 9.0;
+  BOOST_TEST(test[0][0] == 2.0);
 }
 
 BOOST_AUTO_TEST_CASE(Matrix_2_double_Copy_ass) {
@@ -431,6 +445,8 @@ BOOST_AUTO_TEST_CASE(Matrix_2_double_Copy_ass) {
   BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
   BOOST_TEST(2.0 == copy[1][0], tt::tolerance(tol));
   BOOST_TEST(2.0 == copy[1][1], tt::tolerance(tol));
+  copy[0][0] = 9.0;
+  BOOST_TEST(test[0][0] == 2.0);
 }
 
 BOOST_AUTO_TEST_CASE(Matrix_2_double_Move) {
@@ -637,6 +653,8 @@ BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Copy_ass) {
   BOOST_TEST(2.0 == copy[0][1], tt::tolerance(tol));
   BOOST_TEST(2.0 == copy[1][0], tt::tolerance(tol));
   BOOST_TEST(2.0 == copy[1][1], tt::tolerance(tol));
+  copy[0][0] = 9.0;
+  BOOST_TEST(test[0][0] == 2.0);
 }
 
 BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move) {
@@ -647,6 +665,8 @@ BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move) {
   BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
   BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
   BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
+  moved[0][0] = 9.0;
+  BOOST_TEST(test[0][0] == 2.0);
 }
 
 BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move_ass) {
@@ -658,6 +678,8 @@ BOOST_AUTO_TEST_CASE(ArrayMatrix_2_double_Move_ass) {
   BOOST_TEST(2.0 == moved[0][1], tt::tolerance(tol));
   BOOST_TEST(2.0 == moved[1][0], tt::tolerance(tol));
   BOOST_TEST(2.0 == moved[1][1], tt::tolerance(tol));
+  moved[0][0] = 9.0;
+  BOOST_TEST(test[0][0] == 2.0);
 }
 
 BOOST_AUTO_TEST_CASE(ArrayMatrix_2_2_int_man_fill) {
@@ -959,6 +981,8 @@ BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_copy_fill) {
   BOOST_TEST(6.0 == copy[1][0][1], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][0], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][1], tt::tolerance(tol));
+  copy[0][0][0] = 9.0;
+  BOOST_TEST(test[0][0][0] == 6.0);
 }
 
 BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_copy_ass) {
@@ -974,6 +998,8 @@ BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_copy_ass) {
   BOOST_TEST(6.0 == copy[1][0][1], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][0], tt::tolerance(tol));
   BOOST_TEST(6.0 == copy[1][1][1], tt::tolerance(tol));
+  copy[0][0][0] = 9.0;
+  BOOST_TEST(test[0][0][0] == 6.0);
 }
 
 BOOST_AUTO_TEST_CASE(Tensor_2_2_2_double_man_Move) {
@@ -1050,5 +1076,72 @@ BOOST_AUTO_TEST_CASE(Tensor_2_2_2_man_fill_int) {
 }
 
 /****************************************************************************/
+
+BOOST_AUTO_TEST_CASE(Matrix_Empty_And_Moved_From_States) {
+  Matrix<double> empty;
+  Matrix<double> copy(empty);
+  BOOST_TEST(copy.shape().first == 0u);
+  BOOST_TEST(copy.shape().second == 0u);
+
+  Matrix<double> source(2, 3, 7.0);
+  Matrix<double> moved(std::move(source));
+  BOOST_TEST(source.shape().first == 0u);
+  BOOST_TEST(source.shape().second == 0u);
+  std::span<double *> sourceRows = source;
+  BOOST_TEST(sourceRows.empty());
+
+  // Moving an already moved-from object must also produce an empty matrix.
+  copy = Matrix<double>(1, 1);
+  copy = std::move(source);
+  BOOST_TEST(copy.shape().first == 0u);
+  BOOST_TEST(copy.shape().second == 0u);
+
+  source = std::move(moved);
+  auto *self = &source;
+  source = std::move(*self);
+  const auto &view = source;
+  BOOST_TEST(view.shape().first == 2u);
+  BOOST_TEST(view.shape().second == 3u);
+  BOOST_TEST(view[1][2] == 7.0);
+  BOOST_TEST(view.data()[1] == view.data()[0] + 3);
+}
+
+BOOST_AUTO_TEST_CASE(Tensor_Empty_And_Moved_From_States) {
+  Tensor<double> empty;
+  Tensor<double> copy(empty);
+  for (auto extent : copy.shape())
+    BOOST_TEST(extent == 0u);
+
+  Tensor<double> source(2, 3, 4);
+  source[1][2][3] = 11.0;
+  Tensor<double> moved(std::move(source));
+  for (auto extent : source.shape())
+    BOOST_TEST(extent == 0u);
+  std::span<double **> sourceRows = source;
+  BOOST_TEST(sourceRows.empty());
+
+  copy = Tensor<double>(1, 1, 1);
+  copy = std::move(source);
+  for (auto extent : copy.shape())
+    BOOST_TEST(extent == 0u);
+
+  source = std::move(moved);
+  auto *self = &source;
+  source = std::move(*self);
+  const auto &view = source;
+  BOOST_TEST(view.shape()[0] == 2u);
+  BOOST_TEST(view.shape()[1] == 3u);
+  BOOST_TEST(view.shape()[2] == 4u);
+  BOOST_TEST(view[1][2][3] == 11.0);
+  BOOST_TEST(view.data()[1][2] == view.data()[0][0] + 20);
+}
+
+BOOST_AUTO_TEST_CASE(ArrayMatrix_Move_Propagates_Element_Exception) {
+  using ThrowingMatrix = Matrix<ThrowingMoveElement, 1, 1>;
+  static_assert(!std::is_nothrow_move_constructible_v<ThrowingMatrix>);
+  static_assert(std::is_nothrow_move_assignable_v<ThrowingMatrix>);
+  ThrowingMatrix source;
+  BOOST_CHECK_THROW(ThrowingMatrix(std::move(source)), std::runtime_error);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
