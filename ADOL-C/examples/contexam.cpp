@@ -229,7 +229,7 @@ bool computeHessianVectorProduct(ADProblem &problem, const size_t unitDir = 1) {
   //! [contexam-unitVector]
   std::vector<double> hessrow(ADProblem::dimIn);
   auto unit =
-      unitVector(ADProblem::dimIn, unitDir); // unitDir has to be in [1, dimIn]
+      unitVector(ADProblem::dimIn, unitDir); // unitDir has to be in [0, dimIn)
 
   hess_vec(problem.tapeId, ADProblem::dimIn, problem.inputs, unit, hessrow);
   //! [contexam-unitVector]

@@ -724,35 +724,35 @@ BOOST_AUTO_TEST_CASE(ArrayMatrix_3_3_int_man_fill) {
 
 // Tests for std::array unit vector
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_1_0) {
-  auto unit = unitVector<double, 2>(1);
+  auto unit = unitVector<double, 2>(0);
 
   BOOST_TEST(1.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_1) {
-  auto unit = unitVector<double, 2>(2);
+  auto unit = unitVector<double, 2>(1);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1.0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_1_0_int) {
-  auto unit = unitVector<int, 2>(1);
+  auto unit = unitVector<int, 2>(0);
 
   BOOST_TEST(1 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_1_int) {
-  auto unit = unitVector<int, 2>(2);
+  auto unit = unitVector<int, 2>(1);
 
   BOOST_TEST(0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_1_0_0) {
-  auto unit = unitVector<double, 3>(1);
+  auto unit = unitVector<double, 3>(0);
 
   BOOST_TEST(1.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
@@ -760,7 +760,7 @@ BOOST_AUTO_TEST_CASE(Array_Unit_Vector_1_0_0) {
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_1_0) {
-  auto unit = unitVector<double, 3>(2);
+  auto unit = unitVector<double, 3>(1);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1.0 == unit[1], tt::tolerance(tol));
@@ -768,7 +768,7 @@ BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_1_0) {
 }
 
 BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_0_1) {
-  auto unit = unitVector<double, 3>(3);
+  auto unit = unitVector<double, 3>(2);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
@@ -777,35 +777,35 @@ BOOST_AUTO_TEST_CASE(Array_Unit_Vector_0_0_1) {
 
 // Tests for std::vector unit vector
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_1_0) {
-  auto unit = unitVector(2, 1);
+  auto unit = unitVector(2, 0);
 
   BOOST_TEST(1.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_0_1) {
-  auto unit = unitVector(2, 2);
+  auto unit = unitVector(2, 1);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1.0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_1_0_int) {
-  auto unit = unitVector<int>(2, 1);
+  auto unit = unitVector<int>(2, 0);
 
   BOOST_TEST(1 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_0_1_int) {
-  auto unit = unitVector<int>(2, 2);
+  auto unit = unitVector<int>(2, 1);
 
   BOOST_TEST(0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1 == unit[1], tt::tolerance(tol));
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_1_0_0) {
-  auto unit = unitVector(3, 1);
+  auto unit = unitVector(3, 0);
 
   BOOST_TEST(1.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
@@ -813,7 +813,7 @@ BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_1_0_0) {
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_0_1_0) {
-  auto unit = unitVector(3, 2);
+  auto unit = unitVector(3, 1);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(1.0 == unit[1], tt::tolerance(tol));
@@ -821,7 +821,7 @@ BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_0_1_0) {
 }
 
 BOOST_AUTO_TEST_CASE(VectorLikeContainer_Unit_Vector_0_0_1) {
-  auto unit = unitVector(3, 3);
+  auto unit = unitVector(3, 2);
 
   BOOST_TEST(0.0 == unit[0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[1], tt::tolerance(tol));
@@ -863,6 +863,26 @@ BOOST_AUTO_TEST_CASE(Unit_Matrix_3) {
   BOOST_TEST(0.0 == unit[2][0], tt::tolerance(tol));
   BOOST_TEST(0.0 == unit[2][1], tt::tolerance(tol));
   BOOST_TEST(1.0 == unit[2][2], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Copy_Unit_Matrix) {
+  auto unit = unitMatrix(2);
+  auto copy = Matrix(unit);
+
+  BOOST_TEST(1.0 == copy[0][0], tt::tolerance(tol));
+  BOOST_TEST(0.0 == copy[0][1], tt::tolerance(tol));
+  BOOST_TEST(0.0 == copy[1][0], tt::tolerance(tol));
+  BOOST_TEST(1.0 == copy[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Move_Unit_Matrix) {
+  auto unit = unitMatrix(2);
+  auto movedMat = Matrix(std::move(unit));
+
+  BOOST_TEST(1.0 == movedMat[0][0], tt::tolerance(tol));
+  BOOST_TEST(0.0 == movedMat[0][1], tt::tolerance(tol));
+  BOOST_TEST(0.0 == movedMat[1][0], tt::tolerance(tol));
+  BOOST_TEST(1.0 == movedMat[1][1], tt::tolerance(tol));
 }
 
 // std::array version
