@@ -141,7 +141,7 @@ class Matrix {
   std::array<T *, rows_> matrix_{};     /// Splits the data into row vectors.
   std::array<T, rows_ * cols_> data_{}; /// Holds the matrix's content.
 
-  constexpr void populate(bool isIdentity = false) {
+  constexpr void populate() {
     for (size_t i = 0; i < matrix_.size(); i++) {
       matrix_[i] = data_.data() + (i * cols_);
     }
@@ -263,8 +263,8 @@ class Matrix<T, std::dynamic_extent, std::dynamic_extent> {
   size_t rows_{0};
   size_t cols_{0};
 
-  constexpr void populate(bool isIdentity = false) {
-    if (isIdentity) {
+  constexpr void populate() {
+    if (isIdentity()) {
       for (size_t i = 0; i < rows_; i++) {
         matrix_[i] = data_.data() + rows_ - 1 - i;
       }
@@ -319,18 +319,17 @@ public:
       : matrix_(std::move(matrix)), data_(std::move(data)),
         rows_(matrix_.size()),
         cols_(matrix_.size() > 0 ? data_.size() / matrix_.size() : 0) {
-    bool isIdentity{this->isIdentity()};
 
-    if (!isIdentity) {
+    if (!isIdentity()) {
       assert(rows_ * cols_ == data_.size());
     }
-    populate(isIdentity);
+    populate();
   }
 
   constexpr Matrix(const Matrix &other)
       : matrix_(other.rows_), data_(other.data_), rows_(other.rows_),
         cols_(other.cols_) {
-    populate(this->isIdentity());
+    populate();
   }
 
   constexpr Matrix &operator=(const Matrix &other) {
@@ -350,7 +349,7 @@ public:
       matrix_ = std::move(other.matrix_);
       rows_ = std::exchange(other.rows_, 0);
       cols_ = std::exchange(other.cols_, 0);
-      populate(isIdentity());
+      populate();
     }
     return *this;
   }
@@ -406,17 +405,6 @@ public:
   }
 
 private:
-  /* constexpr Matrix(size_t rowsAndCols, bool isIdentity) {
-    // Has Problems with uniqueness
-    // current implementations preferred
-    rows_ = rowsAndCols;
-    cols_ = 2 * rowsAndCols - 1;
-    data_ = std::vector<value_type>(cols_, 0.0);
-    data_[rowsAndCols - 1] = static_cast<value_type>(1.0);
-    matrix_ = std::vector<value_type *>(rows_);
-    populate(isIdentity);
-  } */
-
   template <typename value_type>
   friend constexpr Matrix<value_type, std::dynamic_extent, std::dynamic_extent>
   unitMatrix(size_t dim);
@@ -618,6 +606,7 @@ constexpr Matrix<T, dim, dim> unitMatrix() {
   auto identity = Matrix<T, dim, dim>{};
   return fillIdentity(identity);
 }
+
 /**
  * @brief Square Identity Matrix (Heap)
  *
@@ -630,9 +619,6 @@ constexpr Matrix<T, dim, dim> unitMatrix() {
 template <typename T = double>
 constexpr Matrix<T, std::dynamic_extent, std::dynamic_extent>
 unitMatrix(size_t dim) {
-  /* auto identity = Matrix<T, std::dynamic_extent, std::dynamic_extent>{dim};
-  return fillIdentity(identity); */
-  /* return Matrix<T, std::dynamic_extent, std::dynamic_extent>(dim, true); */
   std::vector<T *> matrix(dim);
   std::vector<T> data(2 * dim - 1, static_cast<T>(0.0));
   data[dim - 1] = static_cast<T>(1.0);

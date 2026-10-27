@@ -918,6 +918,26 @@ BOOST_AUTO_TEST_CASE(Unit_ArrayMatrix_3) {
   BOOST_TEST(1.0 == unit[2][2], tt::tolerance(tol));
 }
 
+BOOST_AUTO_TEST_CASE(Copy_Unit_ArrayMatrix) {
+  auto unit = unitMatrix<double, 2>();
+  auto copy = Matrix(unit);
+
+  BOOST_TEST(1.0 == copy[0][0], tt::tolerance(tol));
+  BOOST_TEST(0.0 == copy[0][1], tt::tolerance(tol));
+  BOOST_TEST(0.0 == copy[1][0], tt::tolerance(tol));
+  BOOST_TEST(1.0 == copy[1][1], tt::tolerance(tol));
+}
+
+BOOST_AUTO_TEST_CASE(Move_Unit_ArrayMatrix) {
+  auto unit = unitMatrix<double, 2>();
+  auto movedMat = Matrix(std::move(unit));
+
+  BOOST_TEST(1.0 == movedMat[0][0], tt::tolerance(tol));
+  BOOST_TEST(0.0 == movedMat[0][1], tt::tolerance(tol));
+  BOOST_TEST(0.0 == movedMat[1][0], tt::tolerance(tol));
+  BOOST_TEST(1.0 == movedMat[1][1], tt::tolerance(tol));
+}
+
 /****************************************************************************/
 
 /******************************** Tensor *********************************/
