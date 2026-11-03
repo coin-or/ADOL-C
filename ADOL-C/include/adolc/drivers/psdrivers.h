@@ -157,6 +157,34 @@ ADOLC_API int abs_normal(short tag, int m, int n, int swchk, const double *x,
                          double **Z, double **L);
 
 END_C_DECLS
+/**
+ * @brief Wrapper for abs_normal().
+ *
+ * Compute the ABS-normal form of a taped function.
+ *
+ * @param tag    Tape identifier.
+ * @param m      Number of dependent variables.
+ * @param n      Number of independent variables.
+ * @param swchk  Number of switching variables (as returned by
+ * get_num_switches()).
+ * @param x      Base point (input values), array of length \p n.
+ * @param y      Function values at \p x, array of length \p m.
+ * @param z      Switching variable values, array of length \p swchk.
+ * @param Y      Matrix of size \p m × \p n.
+ * @param J      Matrix of size \p m × \p swchk.
+ * @param Z      Matrix of size \p swchk × \p n.
+ * @param L      Lower-triangular matrix of size \p swchk × \p swchk.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API inline int abs_normal(short tag, int m, int n, int swchk,
+                                std::span<const double> x, std::span<double> y,
+                                std::span<double> z, std::span<double *> Y,
+                                std::span<double *> J, std::span<double *> Z,
+                                std::span<double *> L) {
+  return abs_normal(tag, m, n, swchk, x.data(), y.data(), z.data(), Y.data(),
+                    J.data(), Z.data(), L.data());
+};
 
 /****************************************************************************/
 

@@ -14,7 +14,6 @@
 
 ----------------------------------------------------------------------------*/
 
-#include <adolc/adalloc.h>
 #include <adolc/drivers/absnormalform.h>
 #include <adolc/drivers/psdrivers.h>
 #include <adolc/fortutils.h>

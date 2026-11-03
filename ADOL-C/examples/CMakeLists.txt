@@ -1,6 +1,9 @@
 add_executable(abs_normal_exam abs_normal.cpp)
 target_link_libraries(abs_normal_exam PRIVATE adolc)
 
+add_executable(contexam contexam.cpp)
+target_link_libraries(contexam PRIVATE adolc)
+
 add_executable(detexam detexam.cpp)
 target_link_libraries(detexam PRIVATE adolc)
 
