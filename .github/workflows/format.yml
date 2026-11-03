@@ -8,7 +8,7 @@ on:
 
 jobs:
   clang-format-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Install Python and clang-format to get newer version
         run: |
