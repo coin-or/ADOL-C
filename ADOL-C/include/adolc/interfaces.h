@@ -194,7 +194,8 @@ ADOLC_API inline int forward(short tnum, int m, int n, int keep,
  * @param Y        derivative matrix.
  */
 ADOLC_API inline int forward(short tnum, int m, int n, int d, int p,
-                             std::span<double> x, std::span<double **> X,
+                             std::span<const double> x,
+                             std::span<const double *const *const> X,
                              std::span<double> y, std::span<double **> Y) {
   return forward(tnum, m, n, d, p, x.data(), X.data(), y.data(), Y.data());
 };
@@ -217,7 +218,8 @@ ADOLC_API inline int forward(short tnum, int m, int n, int d, int p,
  * @param Y        derivative matrix.
  */
 ADOLC_API inline int forward(short tnum, int m, int n, int p,
-                             std::span<double> x, std::span<double *> X,
+                             std::span<const double> x,
+                             std::span<const double *const> X,
                              std::span<double> y, std::span<double *> Y) {
   return forward(tnum, m, n, p, x.data(), X.data(), y.data(), Y.data());
 };
@@ -379,7 +381,8 @@ ADOLC_API inline int reverse(short tnum, int m, int n, int d, double u,
  * @param nz       nonzero pattern of Z.
  */
 ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
-                             std::span<double *> U, std::span<double **> Z,
+                             std::span<const double *const> U,
+                             std::span<double **> Z,
                              std::span<short *> nz = {}) {
   return reverse(tnum, m, n, d, q, U.data(), Z.data(), nz.data());
 };
@@ -425,7 +428,8 @@ ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
  * @param Z        resulting adjoint.
  */
 ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
-                             std::span<double *> U, std::span<double *> Z) {
+                             std::span<const double *const> U,
+                             std::span<double *> Z) {
   return reverse(tnum, m, n, d, q, U.data(), Z.data());
 };
 
@@ -446,7 +450,8 @@ ADOLC_API inline int reverse(short tnum, int m, int n, int d, int q,
  * @param Z        resulting adjoint.
  */
 ADOLC_API inline int reverse(short tnum, int m, int n, int q,
-                             std::span<double *> U, std::span<double *> Z) {
+                             std::span<const double *const> U,
+                             std::span<double *> Z) {
   return reverse(tnum, m, n, q, U.data(), Z.data());
 };
 
@@ -855,6 +860,13 @@ ADOLC_API int fos_pl_sig_reverse(short, int, int, int, const short *,
 
 END_C_DECLS
 
+ADOLC_API inline int hos_ti_reverse(short tag, int depen, int indep, int degree,
+                                    std::span<const double *const> lagrange,
+                                    std::span<double *> results) {
+  return hos_ti_reverse(tag, depen, indep, degree, lagrange.data(),
+                        results.data());
+};
+
 /**
  * @brief Wrapper for zos_forward().
  *
@@ -906,7 +918,7 @@ ADOLC_API inline int fos_forward(short tnum, int depen, int indep, int keep,
  */
 ADOLC_API inline int fov_forward(short tnum, int depen, int indep, int p,
                                  std::span<const double> basepoint,
-                                 std::span<double *const> argument,
+                                 std::span<const double *const> argument,
                                  std::span<double> valuepoint,
                                  std::span<double *> taylors) {
   return fov_forward(tnum, depen, indep, p, basepoint.data(), argument.data(),
@@ -939,7 +951,7 @@ ADOLC_API inline int fos_reverse(short tnum, int depen, int indep,
  * @param results    resulting adjoint.
  */
 ADOLC_API inline int fov_reverse(short tnum, int depend, int indep, int nrows,
-                                 std::span<double *const> lagrange,
+                                 std::span<const double *const> lagrange,
                                  std::span<double *> results) {
   return fov_reverse(tnum, depend, indep, nrows, lagrange.data(),
                      results.data());
@@ -960,7 +972,7 @@ ADOLC_API inline int fov_reverse(short tnum, int depend, int indep, int nrows,
  */
 ADOLC_API inline int hos_forward(short tnum, int depen, int indep, int degree,
                                  int keep, std::span<const double> basepoint,
-                                 std::span<double *const> argument,
+                                 std::span<const double *const> argument,
                                  std::span<double> valuepoint,
                                  std::span<double *> taylors) {
   return hos_forward(tnum, depen, indep, degree, keep, basepoint.data(),
@@ -982,7 +994,7 @@ ADOLC_API inline int hos_forward(short tnum, int depen, int indep, int degree,
  */
 ADOLC_API inline int hov_forward(short tnum, int depen, int indep, int degree,
                                  int p, std::span<const double> basepoint,
-                                 std::span<double **const> argument,
+                                 std::span<const double *const *const> argument,
                                  std::span<double> valuepoint,
                                  std::span<double **> taylors) {
   return hov_forward(tnum, depen, indep, degree, p, basepoint.data(),
@@ -1006,7 +1018,7 @@ ADOLC_API inline int hov_forward(short tnum, int depen, int indep, int degree,
 ADOLC_API inline int hov_wk_forward(short tnum, int dim_out, int dim_in,
                                     int degree, int keep, int num_dirs,
                                     std::span<const double> input,
-                                    std::span<double **const> X,
+                                    std::span<const double *const *const> X,
                                     std::span<double> result,
                                     std::span<double **> Y) {
   return hov_wk_forward(tnum, dim_out, dim_in, degree, keep, num_dirs,
@@ -1043,7 +1055,7 @@ ADOLC_API inline int hos_reverse(short tnum, int depen, int indep, int degree,
  */
 ADOLC_API inline int hos_ov_reverse(short tnum, int depen, int indep,
                                     int degree, int nrows,
-                                    std::span<double *const> lagrange,
+                                    std::span<const double *const> lagrange,
                                     std::span<double **> results) {
   return hos_ov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),
                         results.data());
@@ -1062,7 +1074,8 @@ ADOLC_API inline int hos_ov_reverse(short tnum, int depen, int indep,
  * @param nonzero    nonzero pattern of resulting adjoint.
  */
 ADOLC_API inline int hov_reverse(short tnum, int depen, int indep, int degree,
-                                 int nrows, std::span<double *const> lagrange,
+                                 int nrows,
+                                 std::span<const double *const> lagrange,
                                  std::span<double **> results,
                                  std::span<short *> nonzero) {
   return hov_reverse(tnum, depen, indep, degree, nrows, lagrange.data(),

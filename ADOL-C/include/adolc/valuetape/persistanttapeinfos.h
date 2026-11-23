@@ -35,7 +35,7 @@ struct PersistantTapeInfos {
     int jacSolv_nax{0};
     int jacSolv_modeold{0};
     Matrix<double> jacSolv_J;
-    Matrix<double> jacSolv_I;
+    Identity<double> jacSolv_I{1};
     std::vector<double> jacSolv_xold;
     std::vector<int> jacSolv_ri;
     std::vector<int> jacSolv_ci;

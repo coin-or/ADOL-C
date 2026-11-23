@@ -198,7 +198,7 @@ bool exampleMatrix() {
  */
 bool computeHOS_FORWARD(ADProblem &problem) {
   //! [contexam-hos_forward]
-  auto output = Matrix<double>(ADProblem::dimOut, 3);
+  auto output = Matrix<double>(ADProblem::dimOut, 2);
   auto tangent = Matrix<double>(ADProblem::dimIn, 2);
   tangent[0][0] = 1.0;
   tangent[1][0] = 1.0;
@@ -210,42 +210,62 @@ bool computeHOS_FORWARD(ADProblem &problem) {
 
   printMatrix("hos_forward output", output);
 
-  if (output[0][0] != 6.0 || output[0][1] != 3.0 || output[0][2] != 0.0) {
+  if (output[0][0] != 6.0 || output[0][1] != 3.0) {
     return false;
   }
 
   return true;
 }
 
+bool computeHessian(ADProblem &problem) {
+  //! [contexam-identity]
+  constexpr auto n = ADProblem::dimIn;
+  const Identity<double> seed(n);
+  Matrix<double, n, n> hessian;
+  const int status =
+      hess_mat(problem.tapeId, n, n, problem.inputs, seed, hessian);
+  //! [contexam-identity]
+  if (status < 0)
+    return false;
+
+  printMatrix("Hessian of the sum of squares", hessian);
+  for (size_t i = 0; i < n; ++i)
+    for (size_t j = 0; j < n; ++j)
+      if (hessian[i][j] != (i == j ? 2.0 : 0.0))
+        return false;
+  return true;
+}
+
 /* @brief Compute Hessian-vector product
  *
  * Demonstrates the use of unitVector and hess_vec to compute
- * rows of the Hessian matrix for a given unit direction.
+ * a column of the Hessian matrix for a given unit direction.
  *
  * @param problem Reference to the ADProblem structure.
  * @param unitDir Direction of the unit vector.
  */
-bool computeHessianVectorProduct(ADProblem &problem, const size_t unitDir = 1) {
+bool computeHessianVectorProduct(ADProblem &problem, const size_t unitDir = 0) {
   //! [contexam-unitVector]
-  std::vector<double> hessrow(ADProblem::dimIn);
+  std::vector<double> hessianColumn(ADProblem::dimIn);
   auto unit =
       unitVector(ADProblem::dimIn, unitDir); // unitDir has to be in [0, dimIn)
 
-  hess_vec(problem.tapeId, ADProblem::dimIn, problem.inputs, unit, hessrow);
+  hess_vec(problem.tapeId, ADProblem::dimIn, problem.inputs, unit,
+           hessianColumn);
   //! [contexam-unitVector]
 
   std::string description =
-      "Hessian row vector from hess_vec() for unit direction " +
+      "Hessian column from hess_vec() for unit direction " +
       std::to_string(unitDir);
-  printVector(description, hessrow);
+  printVector(description, hessianColumn);
 
   for (size_t j = 0; j < ADProblem::dimIn; j++) {
-    if (unitDir - 1 != j && hessrow[j] != 0.0) {
-      std::cerr << "Error: Hessian row vector does not match expected values."
+    if (unitDir != j && hessianColumn[j] != 0.0) {
+      std::cerr << "Error: Hessian column does not match expected values."
                 << std::endl;
       return false;
-    } else if (unitDir - 1 == j && hessrow[j] != 2.0) {
-      std::cerr << "Error: Hessian row vector does not match expected values."
+    } else if (unitDir == j && hessianColumn[j] != 2.0) {
+      std::cerr << "Error: Hessian column does not match expected values."
                 << std::endl;
       return false;
     }
@@ -269,13 +289,13 @@ int main() {
   ADProblem problem; // Prepare ADProblem
   taping(problem);   // Perform taping of the function
 
-  if (!computeHOS_FORWARD(problem)) {
+  if (!computeHOS_FORWARD(problem) || !computeHessian(problem)) {
     return 1;
   }
 
-  if (!computeHessianVectorProduct(problem, 1) ||
-      !computeHessianVectorProduct(problem, 2) ||
-      !computeHessianVectorProduct(problem, 3)) {
+  if (!computeHessianVectorProduct(problem, 0) ||
+      !computeHessianVectorProduct(problem, 1) ||
+      !computeHessianVectorProduct(problem, 2)) {
     return 1;
   }
 

@@ -14,7 +14,7 @@ Each example is compiled and checked by the documentation build.
 | Work with piecewise-smooth functions | @ref tutorial_abs_normal "6. Build an abs-normal form" |
 | Reduce memory for repeated time steps | @ref tutorial_checkpointing "7. Add checkpointing" |
 | Differentiate code outside the tape interpreter | @ref tutorial_external_function "8. Add an external differentiated function" |
-| Use ADOL-C's own containers | @ref tutorial_contexam "9. ADOL-C's own containers (Matrix,...)" |
+| Choose matrix storage for a driver | @ref tutorial_contexam "9. Pass matrices to drivers" |
 
 @anchor tutorial_gradient
 ## 1. Record and evaluate a gradient
@@ -54,7 +54,8 @@ pattern as the scalar case. Use the array overloads of `<<=` and `>>=` to mark a
 `jacobian()` writes an \f$m\times n\f$ matrix: one row for each dependent and
 one column for each independent. Its C-compatible interface accepts `double**`,
 so this example stores the values in nested `std::array` objects and passes
-row pointers.
+row pointers. For an owning `Matrix` that supplies these pointers, see
+@ref tutorial_contexam "Pass matrices to drivers".
 
 @snippet taped_jacobian.cpp taped-jacobian
 
@@ -233,54 +234,70 @@ the same analytic time-step gradient:
 @include edf_object.out
 
 @anchor tutorial_contexam
-## 9. ADOL-C's own containers (Matrix,...)
+## 9. Pass matrices to drivers
 
-**Goal:** Explore adalloc.h.
+### Use an existing buffer
 
-ADOL-C offers fundamentally two ways of creating a matrix, which can be used 
-with most computation routines of the package. The first one of these is 
-`matrixView()`, which allows you to create a view of a self-own array or vector 
-in the shape you specify:
+If your values already occupy a flat `std::vector` in row-major order,
+`matrixView(values, rows, cols)` builds a table of row pointers. The vector
+must contain exactly `rows * cols` elements. Writing through `view[i][j]`
+updates `values[i * cols + j]`. Keep the buffer alive and rebuild the view
+if the vector reallocates. For a flat `std::array`, use
+`matrixView<rows, cols>(values)`.
 
 @snippet contexam.cpp contexam-view
 
-To utilize the `std::array` version, simply put the dimensions as template 
-parameters such as for the second variant, which is a proper matrix container,
-that holds the data for you:
+### Allocate a dense matrix
+
+`Matrix` from `<adolc/adalloc.h>` owns its entries in row-major order.
+Use `Matrix<double, rows, cols>` when both dimensions are known at compile
+time, or `Matrix<double> matrix(rows, cols)` when they are known at run
+time. In both cases `matrix[i][j]` accesses an entry and `shape()` returns
+the row count followed by the column count.
 
 @snippet contexam.cpp contexam-matrix
 
-By default the matrix will be zero-initialized. But you may also give a further 
-parameter to specify. For later changes, there is a `fill`-method:
+By default, a matrix of doubles starts with zeros. Use `fill(value)` to set
+every entry.
 
 @snippet contexam.cpp contexam-matrix-fill
 
-Again, there is also a vector version.
-
-To demonstrate the use of these, consider the following tape:
+The following tape records the sum of squares of three inputs.
 
 @snippet contexam.cpp contexam-recording
 
-Using matrices you can now for example easily compute higher-order derivatives:
+Pass a matrix directly to a C++ driver overload that accepts a span of rows.
+For an interface that takes raw row pointers, use `matrix.data()`. Here
+`hos_forward` takes two Taylor coefficients per input and writes two per
+output. It writes the function value separately to `problem.out`.
 
 @snippet contexam.cpp contexam-hos_forward
 
-In addition to matrices, ADOL-C also provides a 3-axis `Tensor` container, though
-it currently only comes with a vector-layout, i.e. the axis dimensions need to be
-given as constructor parameters. `Tensor` follows row major order.
+For drivers that take three-dimensional arrays, `Tensor<double>(rows, cols,
+depths)` owns row-major storage with all three dimensions set at run time.
 
-Finally there is `unitVector()` and `unitMatrix()` providing easy access to a unit
-vector or an identity matrix respectively. Here is an example use of the former:
+### Choose an identity seed
+
+`hess_mat` computes the product of the Hessian and a seed matrix. Passing the
+identity as the seed gives the full Hessian, which is twice the identity for
+this sum of squares.
+
+@snippet contexam.cpp contexam-identity
+
+Use `Identity<double>(n)` for a read-only identity seed. Its rows share
+`2*n - 1` values and use `n` row pointers. The driver still writes all
+`n*n` entries of the dense result. If you need to change a seed entry,
+start with `auto seed = unitMatrix<double>(n)`. It returns a regular dense
+`Matrix<double>` with independently writable entries.
+
+If you need just one Hessian column, pass the corresponding unit vector to
+`hess_vec`.
 
 @snippet contexam.cpp contexam-unitVector
 
-The above example can be found in `contexam.cpp`:
+The example prints the matrices and checks their entries.
 
 @include contexam.out
-
-
-
-
 
 ## Build the examples
 

@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(ODE_Cache_Reused_After_Degree_Growth) {
 
   // x' = x^2, x(0) = 2 has Taylor coefficients 2^(k+1).
   // Grow the retained buffers, then request a smaller degree again.
-  for (int degree : {2, 4, 2}) {
+  for (int degree : {0, 2, 4, 2, 0}) {
     Matrix<double> coefficients(1, degree + 1);
     coefficients[0][0] = 2.0;
     BOOST_REQUIRE(forodec(tag, 1, 1.0, 0, degree, coefficients.data()) >= 0);

@@ -49,9 +49,9 @@ SparseJacInfos::SparseJacInfos()
     : pimpl_(std::make_unique<SparseJacInfos::Impl>()) {}
 
 SparseJacInfos::SparseJacInfos(SparseJacInfos &&other) noexcept
-    : pimpl_(std::move(other.pimpl_)), y_(other.y_), Seed_(other.Seed_),
-      B_(other.B_), JP_(std::move(other.JP_)), depen_(other.depen_),
-      nnzIn_(other.nnzIn_), seedClms_(other.seedClms_),
+    : pimpl_(std::move(other.pimpl_)), y_(std::move(other.y_)),
+      Seed_(other.Seed_), B_(std::move(other.B_)), JP_(std::move(other.JP_)),
+      depen_(other.depen_), nnzIn_(other.nnzIn_), seedClms_(other.seedClms_),
       seedRows_(other.seedRows_) {
 
   // Null out source object's pointers to prevent double deletion

@@ -325,8 +325,8 @@ size_t tensor_address(int d, int *multi) {
 /*                                                           MORE UTILITIES */
 
 /*--------------------------------------------------------------------------*/
-void multma3vec2(int n, int p, int d, size_t bd, double ***X, double **S,
-                 int **jm) {
+void multma3vec2(int n, int p, int d, size_t bd, double ***X,
+                 const double *const *S, int **jm) {
   double sum = 0.0;
 
   for (int i = 0; i < n; i++)
@@ -341,7 +341,8 @@ void multma3vec2(int n, int p, int d, size_t bd, double ***X, double **S,
 }
 
 /*--------------------------------------------------------------------------*/
-void multma2vec2(int n, int p, size_t bd, double **X, double **S, int **jm) {
+void multma2vec2(int n, int p, size_t bd, double **X, const double *const *S,
+                 int **jm) {
   double sum = 0.0;
   for (int i = 0; i < n; i++)
     for (size_t k = 0; k < bd; k++) {
@@ -353,7 +354,8 @@ void multma2vec2(int n, int p, size_t bd, double **X, double **S, int **jm) {
 }
 
 /*--------------------------------------------------------------------------*/
-void multma2vec1(int n, int p, int d, double **X, double **S, int *jm) {
+void multma2vec1(int n, int p, int d, double **X, const double *const *S,
+                 int *jm) {
   int i, j;
   double sum;
 
@@ -458,11 +460,13 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
   switch (mode) {
   case 0:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
+    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I.data(),
+                           data.jacSolv_J.data()));
     break;
   case 1:
     MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
+    MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I.data(),
+                           data.jacSolv_J.data()));
     if (LUFactorization(data.jacSolv_J.data(), n, data.jacSolv_ri.data(),
                         data.jacSolv_ci.data()) < 0) {
       rc = -3;
@@ -473,7 +477,8 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
   case 2:
     if ((data.jacSolv_modeold < 1) || (newX == 1)) {
       MINDEC(rc, zos_forward(tag, n, n, 1, x, y.data()));
-      MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I, data.jacSolv_J));
+      MINDEC(rc, fov_reverse(tag, n, n, n, data.jacSolv_I.data(),
+                             data.jacSolv_J.data()));
       if (LUFactorization(data.jacSolv_J.data(), n, data.jacSolv_ri.data(),
                           data.jacSolv_ci.data()) < 0) {
         rc = -3;
@@ -489,7 +494,8 @@ int jac_solv(unsigned short tag, int n, const double *x, double *b,
 }
 
 /****************************************************************************/
-int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
+int inverse_Taylor_prop(short tag, int n, int d, const double *const *Y,
+                        double **X) {
   int i, j, l, q;
   double bi;
   static Matrix<double> I;
@@ -615,7 +621,7 @@ int inverse_Taylor_prop(short tag, int n, int d, double **Y, double **X) {
 
 /****************************************************************************/
 int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
-                        double **tensor, double **S) {
+                        double **tensor, const double *const *S) {
   static int dold, pold;
   static struct item *coeff_list;
   int *it = (int *)malloc(d * sizeof(int));
@@ -712,7 +718,7 @@ int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
 
 /****************************************************************************/
 int tensor_eval(short tag, int m, int n, int d, int p, double *x,
-                double **tensor, double **S) {
+                double **tensor, const double *const *S) {
   static int dold, pold;
   static struct item *coeff_list;
   int **jm;
@@ -830,7 +836,8 @@ int tensor_eval(short tag, int m, int n, int d, int p, double *x,
 }
 
 /****************************************************************************/
-void tensor_value(int d, int m, double *y, double **tensor, int *multi) {
+void tensor_value(int d, int m, double *y, const double *const *tensor,
+                  int *multi) {
   int *im = (int *)malloc(d * sizeof(int));
 
   int max = 0;

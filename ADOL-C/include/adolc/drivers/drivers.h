@@ -230,18 +230,19 @@ ADOLC_API inline int hess_vec(short tnum, int n, std::span<const double> x,
   return hess_vec(tnum, n, x.data(), v.data(), w.data());
 };
 /**
- * @brief Wrapper for hess_mat().
+ * @brief Compute the Hessian applied to each column of a seed matrix.
  *
  * @param tnum     tape identification
  * @param n        number of independent variables n
  * @param q        number of columns in V
  * @param x        independent vector x
- * @param V        tangent matrix V
- * @param W        result W = D^2F(x)V
+ * @param V        Read-only n-by-q seed. With q = n, pass `Identity<double>(n)`
+ *                 to compute all Hessian columns using linear storage for the seed.
+ * @param W        Writable n-by-q result W = D^2F(x)V.
  */
 ADOLC_API inline int hess_mat(short tnum, int n, int q,
                               std::span<const double> x,
-                              std::span<double *const> V,
+                              std::span<const double *const> V,
                               std::span<double *> W) {
   return hess_mat(tnum, n, q, x.data(), V.data(), W.data());
 };

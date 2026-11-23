@@ -76,14 +76,13 @@ int jacobian(short tag, int depen, int indep, const double *argument,
   int rc;
 
   std::vector<double> result(depen);
-  Matrix<double> I;
 
   if (indep / 2 < depen) {
-    I = unitMatrix<double>(indep);
+    Identity<double> I{to_size_t(indep)};
     rc = fov_forward(tag, depen, indep, indep, argument, I.data(),
                      result.data(), jacobian);
   } else {
-    I = unitMatrix<double>(depen);
+    Identity<double> I{to_size_t(depen)};
     rc = zos_forward(tag, depen, indep, 1, argument, result.data());
     if (rc < 0)
       return rc;
@@ -101,7 +100,7 @@ int large_jacobian(short tag, int depen, int indep, int runns, double *argument,
                    double *result, double **jacobian) {
   int rc, dirs, i;
 
-  auto I = unitMatrix<double>(indep);
+  Identity<double> I{to_size_t(indep)};
 
   if (runns > indep)
     runns = indep;

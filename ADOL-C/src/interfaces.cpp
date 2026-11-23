@@ -344,10 +344,10 @@ int reverse(short tag, int m, int n, int d, double ***Z, short **nz)
            If p and U are omitted they default to m and I                   */
 {
   static int depax{0};
-  static Matrix<double> I;
+  static Identity<double> I{to_size_t(m)};
   if (m > depax) {
     depax = m;
-    I = unitMatrix<double>(depax);
+    I = Identity<double>(depax);
   }
   return hov_reverse(tag, m, n, d, m, I.data(), Z, nz);
 }

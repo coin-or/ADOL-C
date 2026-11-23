@@ -37,7 +37,9 @@ END_C_DECLS
 
 #include <adolc/adolcexport.h>
 #include <array>
+#include <limits>
 #include <span>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -45,31 +47,10 @@ END_C_DECLS
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
 
-namespace {
-template <typename T> T fillIdentity(T identity) {
-  for (size_t i = 0; i < identity.shape().first; i++) {
-    identity[i][i] = static_cast<typename T::value_type>(1.0);
-  }
-  return identity;
-}
-} // namespace
-
 /**
- * @brief Creates a view in matrix shape of std::array
- *
- * Creates of view in matrix shape of an std::array, i.e.
- * for a vector ( 1 2 3 4 ) and given dimension (2, 2) it can
- * provide a view, that behaves like the following matrix:
- * ( 1 2 )
- * ( 3 4 )
- *
- * @tparam rows_ Number of output dimension (rows).
- * @tparam cols_ Number of input dimension (columns).
- * @tparam T    Datatype of the content.
- * @param owner     Reference to Container that holds the matrix's
- *                  content.
- * @return std::array, which holds pointers to the subsections of the
- *         input array, and splits it into rows.
+ * @brief View an array as rows of contiguous values.
+ * @pre The owner must outlive all accesses through the returned row pointers.
+ * @return Row pointers into the original array. Writes update the array.
  */
 template <size_t rows_, size_t cols_, typename T>
 std::array<T *, rows_> matrixView(std::array<T, rows_ * cols_> &owner) {
@@ -81,26 +62,13 @@ std::array<T *, rows_> matrixView(std::array<T, rows_ * cols_> &owner) {
   return view;
 }
 /**
- * @brief Creates a view in matrix shape of std::vector-like containers.
- *
- * Creates of view in matrix shape of an std::vector-like container, i.e.
- * for a vector ( 1 2 3 4 ) and given dimension (2, 2) it can
- * provide a view, that behaves like the following matrix:
- * ( 1 2 )
- * ( 3 4 )
- *
- * @tparam T Datatype of the content.
- * @tparam VS Optional further template parameter
- * @tparam Cont Container type.
- * @param owner     Reference to Container that holds the matrix's
- *                  content.
- * @param rows      Number of rows of the matrix.
- * @param cols      Number of columns of the matrix.
- * @return Container – of same type as the input –, which holds poin-
- *         ters to the subsections of the input container, and splits
- *         it into rows.
- * @note VS is passed to the Container directly. If one of the parameter V of VS
- * depends on the first argument T* problems can occur if V was deduced with T
+ * @brief View contiguous storage as a matrix with the given row and column
+ * counts.
+ * @pre The owner has exactly `rows * cols` entries in row-major order.
+ * @return Row pointers that borrow the owner's storage. Rebuild the view if
+ * the owner reallocates.
+ * @note This overload reuses the container's extra template arguments for the
+ * row table. They must also work with pointer elements.
  */
 template <typename T, typename... VS,
           template <typename, typename...> typename Cont>
@@ -113,8 +81,9 @@ Cont<T *, VS...> matrixView(Cont<T, VS...> &owner, size_t rows, size_t cols) {
   return view;
 }
 
-/// @brief Specialized version of matrixView that handles the std::vector
-/// template properly
+/// @brief Borrow rows from a vector of exactly `rows * cols` entries.
+/// Keep the vector's storage alive and at the same address while using the
+/// rows.
 template <typename T, template <typename> typename Allocator>
 std::vector<T *, Allocator<T *>> matrixView(std::vector<T, Allocator<T>> &owner,
                                             size_t rows, size_t cols) {
@@ -127,12 +96,16 @@ std::vector<T *, Allocator<T *>> matrixView(std::vector<T, Allocator<T>> &owner,
 }
 
 /**
- * @brief Adol-C's own Matrix-like containers.
+ * @brief Dense matrix that owns contiguous row-major values and a table of row
+ * pointers.
  *
+ * Omit both extents to construct `Matrix<T>(rows, cols)` at run time.
  *
- * @tparam Data type. Defaults to double.
- * @tparam Rowsize. Defaults to zero.
- * @tparam Colsize. Defaults to Rowsize.
+ * @tparam T Element type (default `double`).
+ * @tparam rows_ Positive fixed row count, or `std::dynamic_extent` for runtime
+ * dimensions.
+ * @tparam cols_ Fixed column count. Defaults to `rows_`, so `Matrix<T, N>` is
+ * square.
  */
 template <typename T = double, size_t rows_ = std::dynamic_extent,
           size_t cols_ = rows_>
@@ -142,491 +115,518 @@ class Matrix {
   std::array<T, rows_ * cols_> data_{}; /// Holds the matrix's content.
 
   constexpr void populate() {
-    for (size_t i = 0; i < matrix_.size(); i++) {
-      matrix_[i] = data_.data() + (i * cols_);
+    constexpr void populate() {
+      for (size_t i = 0; i < matrix_.size(); i++) {
+        matrix_[i] = data_.data() + (i * cols_);
+      }
     }
-  }
 
-public:
-  using value_type = T;
-  ~Matrix() = default;
+  public:
+    using value_type = T;
+    ~Matrix() = default;
 
-  /**
-   * @brief Constructor for Matrix-object
-   *
-   * Allocates the matrix content contiguously as a an std::array
-   * and allocates a second std::array with pointers to parts of
-   * the data_ to split the content into a matrix format.
-   *
-   */
-  constexpr Matrix() { populate(); }
+    /**
+     * @brief Value-initialize every entry of the fixed-size matrix.
+     */
+    constexpr Matrix() { populate(); }
 
-  /**
-   * @brief Constructor for Matrix-object
-   *
-   * Allocates the matrix content contiguously as a an std::array
-   * and allocates a second std::array with pointers to parts of
-   * the data_ to split the content into a matrix format.
-   *
-   * @param filler    Value to fill the matrix with
-   */
-  constexpr Matrix(value_type filler) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = filler;
-    }
-    populate();
-  }
-
-  constexpr Matrix(const Matrix &other) : Matrix() { data_ = other.data_; }
-  constexpr Matrix &operator=(const Matrix &other) {
-    data_ = other.data_;
-    return *this;
-  }
-
-  constexpr Matrix(Matrix &&other) noexcept(
-      std::is_nothrow_move_constructible_v<T>)
-      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)) {
-    populate();
-  }
-
-  constexpr Matrix &
-  operator=(Matrix &&other) noexcept(std::is_nothrow_move_assignable_v<T>) {
-    if (this != &other) {
-      data_ = std::move(other.data_);
+    /**
+     * @brief Initialize every entry to `filler`.
+     */
+    constexpr Matrix(value_type filler) {
+      for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] = filler;
+      }
       populate();
     }
-    return *this;
-  }
-  /**
-   * @brief std::span() conversion overload.
-   *
-   * Useful for functions calls, e.g. fov_reverse().
-   *
-   */
-  constexpr operator std::span<value_type *>() {
-    return std::span<value_type *>(matrix_);
-  }
-  constexpr operator std::span<value_type *const>() {
-    return std::span<value_type *const>(matrix_);
-  }
-  /**
-   * @brief Enable row-access of Matrix container.
-   * @overload []-operator
-   *
-   * Jump to virtual row of the Matrix.data_ vector.
-   *
-   * @param row       Row, that is supposed to be jumped to.
-   */
-  constexpr value_type *operator[](size_t row) {
-    assert(row < rows_);
-    return matrix_[row];
-  }
-  constexpr const value_type *operator[](size_t row) const {
-    assert(row < rows_);
-    return matrix_[row];
-  }
-  /**
-   * @brief Retrieving front of the matrix.
-   *
-   * Here for symmetric functionality to iterables like
-   * std::vector.
-   */
-  constexpr value_type **data() { return matrix_.data(); }
-  constexpr const value_type *const *data() const { return matrix_.data(); }
-  /**
-   * @brief Retrieves dimensions of Matrix-object.
-   */
-  constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
-  /**
-   * @brief Fills entire Matrix Container with given value.
-   *
-   *@param filler     Value to fill the matrix with.
-   */
-  constexpr void fill(value_type filler) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = filler;
+
+    constexpr Matrix(const Matrix &other) : Matrix() { data_ = other.data_; }
+    constexpr Matrix &operator=(const Matrix &other) {
+      data_ = other.data_;
+      return *this;
     }
-  }
-};
 
-/**
- * @brief Partial Specialization of Adol-C's own Matrix-like containers.
- *
- * This implementation uses std::vector as containers.
- *
- * @tparam Data type. Defaults to double.
- */
-template <typename T>
-class Matrix<T, std::dynamic_extent, std::dynamic_extent> {
-  std::vector<T *> matrix_{}; /// Splits the data into row vectors.
-  std::vector<T> data_{};     /// Holds the matrix's content.
-  size_t rows_{0};
-  size_t cols_{0};
+    constexpr Matrix(Matrix &&
+                     other) noexcept(std::is_nothrow_move_constructible_v<T>)
+        : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)) {
+      populate();
+    }
 
-  constexpr void populate() {
-    if (isIdentity()) {
-      for (size_t i = 0; i < rows_; i++) {
-        matrix_[i] = data_.data() + rows_ - 1 - i;
+    constexpr Matrix &operator=(Matrix &&other) noexcept(
+        std::is_nothrow_move_assignable_v<T>) {
+      if (this != &other) {
+        data_ = std::move(other.data_);
+        populate();
       }
-    } else {
+      return *this;
+    }
+    /**
+     * @brief std::span() conversion overload.
+     *
+     * Useful for functions calls, e.g. fov_reverse().
+     *
+     */
+    constexpr operator std::span<value_type *>() {
+      return std::span<value_type *>(matrix_);
+    }
+    constexpr operator std::span<value_type *const>() {
+      return std::span<value_type *const>(matrix_);
+    }
+    constexpr operator std::span<const value_type *const>() const {
+      return {matrix_.data(), matrix_.size()};
+    }
+    /// @brief Return the start of the zero-based row.
+    constexpr value_type *operator[](size_t row) {
+      assert(row < rows_);
+      return matrix_[row];
+    }
+    constexpr const value_type *operator[](size_t row) const {
+      assert(row < rows_);
+      return matrix_[row];
+    }
+    /// @brief Return the row-pointer table for drivers that accept raw
+    /// pointers.
+    constexpr value_type **data() { return matrix_.data(); }
+    constexpr const value_type *const *data() const { return matrix_.data(); }
+    /**
+     * @brief Return the row and column counts, in that order.
+     */
+    constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
+    /**
+     * @brief Fills entire Matrix Container with given value.
+     *
+     *@param filler     Value to fill the matrix with.
+     */
+    constexpr void fill(value_type filler) {
+      for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] = filler;
+      }
+    }
+  };
+
+  /**
+   * @brief Dense matrix with runtime dimensions and contiguous row-major
+   * values. A default-constructed matrix is empty.
+   * @tparam T Element type.
+   */
+  template <typename T>
+  class Matrix<T, std::dynamic_extent, std::dynamic_extent> {
+    std::vector<T *> matrix_{}; /// Splits the data into row vectors.
+    std::vector<T> data_{};     /// Holds the matrix's content.
+    size_t rows_{0};
+    size_t cols_{0};
+
+    static constexpr std::size_t checkedDimensions(std::size_t rows,
+                                                   std::size_t cols) {
+      if (rows == 0 || cols == 0) {
+        throw std::invalid_argument("Dimensions must be positive");
+      }
+      return rows;
+    }
+
+    constexpr void populate() {
+      assert(rows_ == matrix_.size());
+      assert(rows_ * cols_ == data_.size());
       for (size_t i = 0; i < rows_; i++) {
         matrix_[i] = data_.data() + (i * cols_);
       }
     }
-  }
 
-  constexpr bool isIdentity() const { return data_.size() == 2 * rows_ - 1; }
+  public:
+    using value_type = T;
+    ~Matrix() = default;
 
-public:
-  using value_type = T;
-  ~Matrix() = default;
-
-  constexpr Matrix() = default;
-  /**
-   * @brief Constructor for Matrix-object
-   *
-   * Allocates the matrix content contiguously as a an std::vector
-   * and allocates a second std::vector with pointers to parts of
-   * the data_ to split the content into a matrix format.
-   *
-   * @param rows      Number of rows of the matrix.
-   * @param cols      Number of columns of the matrix.
-   */
-  constexpr Matrix(size_t rows, size_t cols, value_type filler = 0.0)
-      : matrix_(rows), data_(rows * cols, filler), rows_(rows), cols_(cols) {
-    assert(rows_ > 0 && cols_ > 0 && "Zero dimension are not allowed!");
-    populate();
-  }
-
-  /**
-   * @brief Creates a Square Matrix.
-   *
-   * @param rowsAndCols Number of rows and columns of the matrix.
-   */
-  constexpr explicit Matrix(size_t rowsAndCols)
-      : Matrix(rowsAndCols, rowsAndCols) {}
-  /**
-   * @brief Constructs from pre-existing objects outside of Matrix()
-   *
-   * Moves a Matrix-like object specified independently
-   * outisde of the class into a Matrix object.
-   *
-   * @param rows      Data view.
-   * @param data      Matrix data.
-   * @return Moved Matrix-object.
-   */
-  constexpr Matrix(std::vector<T *> &&matrix, std::vector<T> &&data)
-      : matrix_(std::move(matrix)), data_(std::move(data)),
-        rows_(matrix_.size()),
-        cols_(matrix_.size() > 0 ? data_.size() / matrix_.size() : 0) {
-
-    if (!isIdentity()) {
-      assert(rows_ * cols_ == data_.size());
-    }
-    populate();
-  }
-
-  constexpr Matrix(const Matrix &other)
-      : matrix_(other.rows_), data_(other.data_), rows_(other.rows_),
-        cols_(other.cols_) {
-    populate();
-  }
-
-  constexpr Matrix &operator=(const Matrix &other) {
-    assert(rows_ == other.rows_ && cols_ == other.cols_);
-    data_ = other.data_;
-    return *this;
-  }
-
-  constexpr Matrix(Matrix &&other) noexcept
-      : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)),
-        rows_(std::exchange(other.rows_, 0)),
-        cols_(std::exchange(other.cols_, 0)) {}
-
-  constexpr Matrix &operator=(Matrix &&other) noexcept {
-    if (this != &other) {
-      data_ = std::move(other.data_);
-      matrix_ = std::move(other.matrix_);
-      rows_ = std::exchange(other.rows_, 0);
-      cols_ = std::exchange(other.cols_, 0);
+    constexpr Matrix() = default;
+    /**
+     * @brief Allocate a matrix with positive row and column counts.
+     * @param rows Number of rows.
+     * @param cols Number of columns.
+     * @param filler Initial value for every entry (defaults to zero).
+     */
+    constexpr Matrix(size_t rows, size_t cols, value_type filler = 0.0)
+        : matrix_(checkedDimensions(rows, cols)), data_(rows * cols, filler),
+          rows_(rows), cols_(cols) {
       populate();
     }
-    return *this;
-  }
-  /**
-   * @brief std::span() conversion overload.
-   *
-   * Useful for functions calls, e.g. fov_reverse().
-   *
-   */
-  constexpr operator std::span<value_type *>() {
-    return std::span<value_type *>(matrix_);
-  }
-  constexpr operator std::span<value_type *const>() {
-    return std::span<value_type *const>(matrix_);
-  }
-  /**
-   * @brief Enable row-access of Matrix container.
-   * @overload []-operator
-   *
-   * Jump to virtual row of the Matrix.data_ std::vector.
-   *
-   * @param row       Row, that is supposed to be jumped to.
-   */
-  constexpr value_type *operator[](size_t row) {
-    assert(row < rows_);
-    return matrix_[row];
-  }
-  constexpr const value_type *operator[](size_t row) const {
-    assert(row < rows_);
-    return matrix_[row];
-  }
-  /**
-   * @brief Retrieving front of the matrix.
-   *
-   * Here for symmetric functionality to iterables like
-   * std::vector.
-   */
-  constexpr value_type **data() { return matrix_.data(); }
-  constexpr const value_type *const *data() const { return matrix_.data(); }
-  /**
-   * @brief Retrieves dimensions of Matrix-object.
-   */
-  constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
-  /**
-   * @brief Fills entire Matrix Container with given value.
-   *
-   *@param filler     Value to fill the matrix with.
-   */
-  constexpr void fill(value_type filler = 0.0) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = filler;
-    }
-  }
 
-private:
-  template <typename value_type>
-  friend constexpr Matrix<value_type, std::dynamic_extent, std::dynamic_extent>
-  unitMatrix(size_t dim);
-};
-
-/**
- * @brief Adol-C's own 3D-Tensor-like containers.
- *
- * This implementation uses std::vector as containers.
- *
- * This class can be used to make containers that are structured like
- * three dimensional tensor and can be accessed as such.
- *
- * It does NOT come with perhaps expected arithmetic capabilites, e.g.
- * tensor-addition.
- *
- * @tparam Data type. Defaults to double.
- */
-template <typename T = double> class Tensor {
-  std::vector<T **> tensor_{};
-  std::vector<T *> slices_{};
-  std::vector<T> data_{};
-  size_t rows_{0};
-  size_t cols_{0};
-  size_t depths_{0};
-
-  constexpr void populate() {
-    for (size_t i = 0; i < rows_ * cols_; i++) {
-      slices_[i] = data_.data() + i * depths_;
-    }
-    for (size_t i = 0; i < rows_; i++) {
-      tensor_[i] = slices_.data() + i * cols_;
-    }
-  }
-
-public:
-  using value_type = T;
-  ~Tensor() = default;
-  constexpr Tensor() = default;
-  /**
-   * @brief Constructor for Tensor-object
-   *
-   * Allocates the tensor content contiguously as a an std::vector
-   * and allocates a additional std::vectors with pointers to parts of
-   * the data_ to split the content into a tensor.
-   *
-   * @param rows      Number of rows of the tensor.
-   * @param cols      Number of columns of the tensor.
-   * @param dep       Size of the third axis (depth) of the tensor.
-   */
-  constexpr Tensor(size_t rows, size_t cols, size_t depths,
-                   value_type filler = 0.0)
-      : tensor_(rows), slices_(rows * cols),
-        data_(rows * cols * depths, filler), rows_(rows), cols_(cols),
-        depths_(depths) {
-    assert(rows_ > 0 && cols_ > 0 && depths_ > 0 &&
-           "Zero dimension are not allowed!");
-    populate();
-  }
-
-  constexpr Tensor(const Tensor &other)
-      : tensor_(other.rows_), slices_(other.rows_ * other.cols_),
-        data_(other.data_), rows_(other.rows_), cols_(other.cols_),
-        depths_(other.depths_) {
-    populate();
-  }
-
-  constexpr Tensor &operator=(const Tensor &other) {
-    assert(rows_ == other.rows_ && cols_ == other.cols_ &&
-           depths_ == other.depths_);
-    data_ = other.data_;
-    return *this;
-  }
-
-  constexpr Tensor(Tensor &&other) noexcept
-      : tensor_(std::move(other.tensor_)), slices_(std::move(other.slices_)),
-        data_(std::move(other.data_)), rows_(std::exchange(other.rows_, 0)),
-        cols_(std::exchange(other.cols_, 0)),
-        depths_(std::exchange(other.depths_, 0)) {
-    populate();
-  }
-
-  constexpr Tensor &operator=(Tensor &&other) noexcept {
-    if (this != &other) {
-      data_ = std::move(other.data_);
-      slices_ = std::move(other.slices_);
-      tensor_ = std::move(other.tensor_);
-      rows_ = std::exchange(other.rows_, 0);
-      cols_ = std::exchange(other.cols_, 0);
-      depths_ = std::exchange(other.depths_, 0);
+    /**
+     * @brief Creates a Square Matrix.
+     *
+     * @param rowsAndCols Number of rows and columns of the matrix.
+     */
+    constexpr explicit Matrix(size_t rowsAndCols)
+        : Matrix(rowsAndCols, rowsAndCols) {}
+    /**
+     * @brief Take ownership of a row table and contiguous row-major values.
+     * @param matrix Row table whose size determines the row count. Row pointers
+     * are rebuilt.
+     * @param data Values divided evenly among the rows. An empty row table
+     * requires empty data.
+     */
+    constexpr Matrix(std::vector<T *> &&matrix, std::vector<T> &&data)
+        : matrix_(std::move(matrix)), data_(std::move(data)),
+          rows_(matrix_.size()),
+          cols_(matrix_.size() > 0 ? data_.size() / matrix_.size() : 0) {
       populate();
     }
-    return *this;
-  }
-  /**
-   * @brief std::span() conversion overload.
-   *
-   * Useful for functions calls, e.g. fov_reverse().
-   *
-   */
-  /* operator value_type ***() { return tensor_.data(); } */
-  constexpr operator std::span<value_type **>() {
-    return std::span<value_type **>(tensor_);
-  }
-  constexpr operator std::span<value_type **const>() {
-    return std::span<value_type **const>(tensor_);
-  }
-  /**
-   * @brief Enable row-access of Tensor container.
-   * @overload []-operator
-   *
-   * Jump to virtual row of the Tensor.data_ array.
-   *
-   * @param row       Row, that is supposed to be jumped to.
-   */
-  constexpr value_type **operator[](size_t row) {
-    assert(row < rows_);
-    return tensor_[row];
-  }
-  constexpr const value_type *const *operator[](size_t row) const {
-    assert(row < rows_);
-    return tensor_[row];
-  }
-  /**
-   * @brief Retrieving front of the Tensor.
-   *
-   * Here for symmetric functionality to iterables like
-   * std::vector.
-   */
-  constexpr value_type ***data() { return tensor_.data(); }
-  constexpr const value_type *const *const *data() const {
-    return tensor_.data();
-  }
-  /**
-   * @brief Fills entire Tensor Container with given value.
-   *
-   *@param filler     Value to fill the tensor with.
-   */
-  /**
-   * @brief Retrieves dimensions of Tensor-object.
-   */
-  constexpr std::array<size_t, 3> shape() const {
-    return {rows_, cols_, depths_};
-  }
-  constexpr void fill(value_type filler) {
-    for (size_t i = 0; i < data_.size(); i++) {
-      data_[i] = filler;
+
+    constexpr Matrix(const Matrix &other)
+        : matrix_(other.rows_), data_(other.data_), rows_(other.rows_),
+          cols_(other.cols_) {
+      populate();
     }
+
+    /// @pre Both matrices have the same shape.
+    constexpr Matrix &operator=(const Matrix &other) {
+      assert(rows_ == other.rows_ && cols_ == other.cols_);
+      data_ = other.data_;
+      return *this;
+    }
+
+    constexpr Matrix(Matrix &&other) noexcept
+        : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)),
+          rows_(std::exchange(other.rows_, 0)),
+          cols_(std::exchange(other.cols_, 0)) {}
+
+    constexpr Matrix &operator=(Matrix &&other) noexcept {
+      if (this != &other) {
+        data_ = std::move(other.data_);
+        matrix_ = std::move(other.matrix_);
+        rows_ = std::exchange(other.rows_, 0);
+        cols_ = std::exchange(other.cols_, 0);
+        populate();
+      }
+      return *this;
+    }
+    /**
+     * @brief std::span() conversion overload.
+     *
+     * Useful for functions calls, e.g. fov_reverse().
+     *
+     */
+    constexpr operator std::span<value_type *>() {
+      return std::span<value_type *>(matrix_);
+    }
+    constexpr operator std::span<value_type *const>() {
+      return std::span<value_type *const>(matrix_);
+    }
+    constexpr operator std::span<const value_type *const>() const {
+      return {matrix_.data(), matrix_.size()};
+    }
+    /// @brief Return the start of the zero-based row.
+    constexpr value_type *operator[](size_t row) {
+      assert(row < rows_);
+      return matrix_[row];
+    }
+    constexpr const value_type *operator[](size_t row) const {
+      assert(row < rows_);
+      return matrix_[row];
+    }
+    /// @brief Return the row-pointer table for drivers that accept raw
+    /// pointers.
+    constexpr value_type **data() { return matrix_.data(); }
+    constexpr const value_type *const *data() const { return matrix_.data(); }
+    /**
+     * @brief Return the row and column counts, in that order.
+     */
+    constexpr std::pair<size_t, size_t> shape() const { return {rows_, cols_}; }
+    /**
+     * @brief Fills entire Matrix Container with given value.
+     *
+     *@param filler     Value to fill the matrix with.
+     */
+    constexpr void fill(value_type filler = 0.0) {
+      for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] = filler;
+      }
+    }
+  };
+
+  /**
+   * @brief Adol-C's own 3D-Tensor-like containers.
+   *
+   * This implementation uses std::vector as containers.
+   *
+   * This class can be used to make containers that are structured like
+   * three dimensional tensor and can be accessed as such.
+   *
+   * It does NOT come with perhaps expected arithmetic capabilites, e.g.
+   * tensor-addition.
+   *
+   * @tparam Data type. Defaults to double.
+   */
+  template <typename T = double> class Tensor {
+    std::vector<T **> tensor_{};
+    std::vector<T *> slices_{};
+    std::vector<T> data_{};
+    size_t rows_{0};
+    size_t cols_{0};
+    size_t depths_{0};
+
+    static constexpr std::size_t
+    checkedDimensions(std::size_t rows, std::size_t cols, std::size_t depths) {
+      if (rows == 0 || cols == 0 || depths == 0) {
+        throw std::invalid_argument("Dimensions must be positive");
+      }
+      return rows;
+    }
+    constexpr void populate() {
+      for (size_t i = 0; i < rows_ * cols_; i++) {
+        slices_[i] = data_.data() + i * depths_;
+      }
+      for (size_t i = 0; i < rows_; i++) {
+        tensor_[i] = slices_.data() + i * cols_;
+      }
+    }
+
+  public:
+    using value_type = T;
+    ~Tensor() = default;
+    constexpr Tensor() = default;
+    /**
+     * @brief Constructor for Tensor-object
+     *
+     * Allocates the tensor content contiguously as a an std::vector
+     * and allocates a additional std::vectors with pointers to parts of
+     * the data_ to split the content into a tensor.
+     *
+     * @param rows      Number of rows of the tensor.
+     * @param cols      Number of columns of the tensor.
+     * @param dep       Size of the third axis (depth) of the tensor.
+     */
+    constexpr Tensor(size_t rows, size_t cols, size_t depths,
+                     value_type filler = 0.0)
+        : tensor_(checkedDimensions(rows, cols, depths)), slices_(rows * cols),
+          data_(rows * cols * depths, filler), rows_(rows), cols_(cols),
+          depths_(depths) {
+      populate();
+    }
+
+    constexpr Tensor(const Tensor &other)
+        : tensor_(other.rows_), slices_(other.rows_ * other.cols_),
+          data_(other.data_), rows_(other.rows_), cols_(other.cols_),
+          depths_(other.depths_) {
+      populate();
+    }
+
+    constexpr Tensor &operator=(const Tensor &other) {
+      assert(rows_ == other.rows_ && cols_ == other.cols_ &&
+             depths_ == other.depths_);
+      data_ = other.data_;
+      return *this;
+    }
+
+    constexpr Tensor(Tensor &&other) noexcept
+        : tensor_(std::move(other.tensor_)), slices_(std::move(other.slices_)),
+          data_(std::move(other.data_)), rows_(std::exchange(other.rows_, 0)),
+          cols_(std::exchange(other.cols_, 0)),
+          depths_(std::exchange(other.depths_, 0)) {
+      populate();
+    }
+
+    constexpr Tensor &operator=(Tensor &&other) noexcept {
+      if (this != &other) {
+        data_ = std::move(other.data_);
+        slices_ = std::move(other.slices_);
+        tensor_ = std::move(other.tensor_);
+        rows_ = std::exchange(other.rows_, 0);
+        cols_ = std::exchange(other.cols_, 0);
+        depths_ = std::exchange(other.depths_, 0);
+        populate();
+      }
+      return *this;
+    }
+    /**
+     * @brief std::span() conversion overload.
+     *
+     * Useful for functions calls, e.g. fov_reverse().
+     *
+     */
+    /* operator value_type ***() { return tensor_.data(); } */
+    constexpr operator std::span<value_type **>() {
+      return std::span<value_type **>(tensor_);
+    }
+    constexpr operator std::span<value_type **const>() {
+      return std::span<value_type **const>(tensor_);
+    }
+    constexpr operator std::span<const value_type *const *const>() const {
+      return {tensor_.data(), tensor_.size()};
+    }
+    /**
+     * @brief Enable row-access of Tensor container.
+     * @overload []-operator
+     *
+     * Jump to virtual row of the Tensor.data_ array.
+     *
+     * @param row       Row, that is supposed to be jumped to.
+     */
+    constexpr value_type **operator[](size_t row) {
+      assert(row < rows_);
+      return tensor_[row];
+    }
+    constexpr const value_type *const *operator[](size_t row) const {
+      assert(row < rows_);
+      return tensor_[row];
+    }
+    /**
+     * @brief Retrieving front of the Tensor.
+     *
+     * Here for symmetric functionality to iterables like
+     * std::vector.
+     */
+    constexpr value_type ***data() { return tensor_.data(); }
+    constexpr const value_type *const *const *data() const {
+      return tensor_.data();
+    }
+    /**
+     * @brief Fills entire Tensor Container with given value.
+     *
+     *@param filler     Value to fill the tensor with.
+     */
+    /**
+     * @brief Retrieves dimensions of Tensor-object.
+     */
+    constexpr std::array<size_t, 3> shape() const {
+      return {rows_, cols_, depths_};
+    }
+    constexpr void fill(value_type filler) {
+      for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] = filler;
+      }
+    }
+  };
+
+  /**
+   * @brief Unit Vectors for different containers.
+   *
+   * Used to make unit vectors for user-specified containers that are
+   * std::vector-like.
+   *
+   * @tparam T Container type.
+   * @param dim      Dimension of vector.
+   * @param dir      Unit  direction.
+   * @return Unit vector as specified output container.
+   */
+  template <typename T = double,
+            template <typename, typename...> typename Cont = std::vector>
+  constexpr Cont<T> unitVector(size_t dim, size_t dir) {
+    assert(dir < dim);
+    Cont<T> unitVec(dim, T{});
+    unitVec[dir] = static_cast<T>(1.0);
+    return unitVec;
   }
-};
+  /**
+   * @brief Unit Vector as std::array.
+   *
+   * @tparam T   Data type.
+   * @tparam dim Dimension of the vector.
+   * @param dir      Unit  direction.
+   * @return Unit vector as std::array.
+   */
+  template <typename T = double, size_t dim>
+  constexpr std::array<T, dim> unitVector(size_t dir) {
+    assert(dir < dim);
+    std::array<T, dim> unitVec{};
+    unitVec[dir] = static_cast<T>(1.0);
+    return unitVec;
+  }
 
-/**
- * @brief Unit Vectors for different containers.
- *
- * Used to make unit vectors for user-specified containers that are
- * std::vector-like.
- *
- * @tparam T Container type.
- * @param dim      Dimension of vector.
- * @param dir      Unit  direction.
- * @return Unit vector as specified output container.
- */
-template <typename T = double,
-          template <typename, typename...> typename Cont = std::vector>
-constexpr Cont<T> unitVector(size_t dim, size_t dir) {
-  assert(dir < dim);
-  Cont<T> unitVec(dim, T{});
-  unitVec[dir] = static_cast<T>(1.0);
-  return unitVec;
-}
-/**
- * @brief Unit Vector as std::array.
- *
- * @tparam T   Data type.
- * @tparam dim Dimension of the vector.
- * @param dir      Unit  direction.
- * @return Unit vector as std::array.
- */
-template <typename T = double, size_t dim>
-constexpr std::array<T, dim> unitVector(size_t dir) {
-  assert(dir < dim);
-  std::array<T, dim> unitVec{};
-  unitVec[dir] = static_cast<T>(1.0);
-  return unitVec;
-}
+  /**
+   * @brief Creates a mutable identity Matrix backed by std::array.
+   */
+  template <typename T = double, size_t dim = 1>
+  constexpr Matrix<T, dim, dim> unitMatrix() {
+    Matrix<T, dim, dim> identity{};
+    for (size_t i = 0; i < dim; ++i) {
+      identity[i][i] = T{1};
+    }
+    return identity;
+  }
 
-/**
- * @brief Square Identity Matrix (Stack)
- *
- * Returns a Matrix-Container object, which is allocated
- * (using std::array) on the stack.
- *
- * @tparam dim  Input/Output dimension.
- * @tparam T    data type.
- * @return Matrix of size Dim x Dim.
- */
-template <typename T = double, size_t dim = 1>
-constexpr Matrix<T, dim, dim> unitMatrix() {
-  auto identity = Matrix<T, dim, dim>{};
-  return fillIdentity(identity);
-}
+  /**
+   * @brief Creates a mutable, dense identity Matrix backed by std::vector.
+   *
+   * This allocates O(dim * dim) values. Use Identity<T> for a compact,
+   * read-only identity matrix passed to driver inputs.
+   */
+  template <typename T = double> Matrix<T> unitMatrix(size_t dim) {
+    Matrix<T> identity(dim, dim);
+    for (size_t i = 0; i < dim; ++i) {
+      identity[i][i] = T{1};
+    }
+    return identity;
+  }
 
-/**
- * @brief Square Identity Matrix (Heap)
- *
- * Returns a Matrix-Container object, which is generally allocated
- * (using std::vector) on the heap.
- *
- * @param dim  Input/Output dimension.
- * @return Matrix of size Dim x Dim.
- */
-template <typename T = double>
-constexpr Matrix<T, std::dynamic_extent, std::dynamic_extent>
-unitMatrix(size_t dim) {
-  std::vector<T *> matrix(dim);
-  std::vector<T> data(2 * dim - 1, static_cast<T>(0.0));
-  data[dim - 1] = static_cast<T>(1.0);
-  auto identity = Matrix<T>(std::move(matrix), std::move(data));
-  identity.cols_ = dim;
+  /**
+   * @brief Compact read-only identity matrix for driver inputs.
+   *
+   * For a positive dimension `n`, the rows overlap in a buffer of `2*n - 1`
+   * values, sharing a single one for all diagonal entries. The object owns
+   * the buffer and its `n` row pointers. Pass it directly as a read-only seed
+   * to drivers such as hess_mat(). Use unitMatrix() for a writable dense seed.
+   */
+  template <typename T> class Identity {
+    std::vector<T *> matrix_;
+    std::vector<T> data_;
+    std::size_t dims_{0};
 
-  return identity;
-}
+    static constexpr std::size_t checkedDimensions(std::size_t dims) {
+      if (dims == 0) {
+        throw std::invalid_argument("Identity dimensions must be positive");
+      }
+      if (dims > std::numeric_limits<std::size_t>::max() / 2 + 1) {
+        throw std::length_error("Identity dimensions are too large");
+      }
+      return dims;
+    }
+
+    constexpr void populate() {
+      for (size_t i = 0; i < dims_; i++) {
+        matrix_[i] = data_.data() + dims_ - 1 - i;
+      }
+    }
+
+  public:
+    using value_type = T;
+    ~Identity() = default;
+    Identity() = delete;
+    constexpr explicit Identity(std::size_t dims)
+        : matrix_(checkedDimensions(dims)), data_(2 * dims - 1), dims_(dims) {
+      data_[dims - 1] = T{1};
+      populate();
+    }
+    Identity(Identity const &other) = delete;
+    Identity &operator=(Identity const &other) = delete;
+
+    constexpr Identity(Identity &&other) noexcept
+        : matrix_(std::move(other.matrix_)), data_(std::move(other.data_)),
+          dims_(std::exchange(other.dims_, 0)) {
+      assert(dims_ == matrix_.size());
+      populate();
+    }
+
+    Identity &operator=(Identity &&other) noexcept {
+      if (this != &other) {
+        matrix_ = std::move(other.matrix_);
+        data_ = std::move(other.data_);
+        dims_ = std::exchange(other.dims_, 0);
+        assert(dims_ == matrix_.size());
+        populate();
+      }
+      return *this;
+    }
+
+    constexpr value_type const *operator[](std::size_t idx) const {
+      assert(idx < dims_);
+      return matrix_[idx];
+    }
+
+    constexpr operator std::span<value_type const *const>() const {
+      return {matrix_.data(), matrix_.size()};
+    }
+
+    value_type const *const *data() const { return matrix_.data(); }
+  };
 
 #endif // _cplusplus
 

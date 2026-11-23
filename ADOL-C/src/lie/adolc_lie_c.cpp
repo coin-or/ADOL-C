@@ -278,8 +278,8 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
   std::vector<double> yp(m);
 
   static int depax_m, depax_n;
-  static Matrix<double> In;
-  static Matrix<double> Im;
+  static Identity<double> In{1};
+  static Identity<double> Im{1};
 
   int i = 0, j = 0, l = 0, k = 0, rc = -1;
   double Fak = 1.0;
@@ -291,11 +291,11 @@ int lie_gradientcv(short Tape_F, short Tape_H, short n, short m, double *x0,
 
   if (n adolc_compsize depax_n) {
     depax_n = n;
-    In = unitMatrix<double>(n);
+    In = Identity<double>(to_size_t(n));
   }
   if (m adolc_compsize depax_m) {
     depax_m = m;
-    Im = unitMatrix<double>(depax_m);
+    Im = Identity<double>(to_size_t(depax_m));
   }
 
   hov_reverse(Tape_F, n, n, d - 1, n, In.data(), A.data(),
@@ -394,8 +394,8 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
   int i = 0, k = 0;
 
   static int depax_m, depax_n;
-  static Matrix<double> In;
-  static Matrix<double> Im;
+  static Identity<double> In{1};
+  static Identity<double> Im{1};
 
   for (i = 0; i < n; i++)
     X[i][0] = x0[i];
@@ -404,11 +404,11 @@ int lie_covector(short int Tape_F, short int Tape_W, short int n, double *x0,
 
   if (n adolc_compsize depax_n) {
     depax_n = n;
-    In = unitMatrix<double>(depax_n);
+    In = Identity<double>(to_size_t(depax_n));
   }
   if (m adolc_compsize depax_m) {
     depax_m = m;
-    Im = unitMatrix<double>(depax_m);
+    Im = Identity<double>(to_size_t(depax_m));
   }
 
   hov_reverse(Tape_F, n, n, d - 1, n, In.data(), A.data(),
@@ -472,7 +472,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
 
   /* static identity matrix for hov_reverse  */
   static int depax_n = 0;
-  static Matrix<double> In;
+  static Identity<double> In{1};
 
   for (i = 0; i < n; i++) {
     X[i][0] = x0[i];
@@ -482,7 +482,7 @@ int lie_bracket(short int Tape_F, short int Tape_G, short int n, double *x0,
   /* for hov_reverse  */
   if (n > depax_n) {
     depax_n = n;
-    In = unitMatrix<double>(depax_n);
+    In = Identity<double>(to_size_t(depax_n));
   }
   hov_reverse(Tape_F, n, n, d, n, In.data(), A.data(), 0);
 

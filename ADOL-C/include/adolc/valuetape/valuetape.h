@@ -278,14 +278,12 @@ public:
   void keepTape(int flag) { tapeInfos_.keepTape = flag; }
 
   void forwardODEData(int n, int deg) {
-    Matrix<double> Z{static_cast<size_t>(n), static_cast<size_t>(deg)};
     perTapeInfos_.ODEData_ = PersistantTapeInfos::ForwardODEData{
         .forodec_nax = n,
         .forodec_dax = deg,
         .forodec_y = std::vector<double>(n),
         .forodec_z = std::vector<double>(n),
-        .forodec_Z =
-            Matrix<double>{static_cast<size_t>(n), static_cast<size_t>(deg)}};
+        .forodec_Z = deg == 0 ? Matrix<double>{} : Matrix<double>(n, deg)};
   }
   const PersistantTapeInfos::ForwardODEData &forwardODEData() const {
     return perTapeInfos_.ODEData_;
@@ -299,7 +297,7 @@ public:
         .jacSolv_nax = n,
         .jacSolv_modeold = modeOld,
         .jacSolv_J = Matrix<double>(n),
-        .jacSolv_I = unitMatrix(n),
+        .jacSolv_I = Identity<double>{to_size_t(n)},
         .jacSolv_xold = std::vector<double>(n),
         .jacSolv_ri = std::vector<int>(n),
         .jacSolv_ci = std::vector<int>(n)};
