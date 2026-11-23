@@ -15,6 +15,29 @@ BOOST_AUTO_TEST_SUITE(test_sparse_hessian_c)
 using ADOLC::Sparse::ControlFlowMode;
 using ADOLC::Sparse::RecoveryMethod;
 
+BOOST_AUTO_TEST_CASE(Repeat_Requires_Initialized_Hessian_Cache) {
+  const short tag = createNewTape();
+  trace_on(tag);
+  {
+    adouble x, y;
+    x <<= 2.0;
+    y = x * x;
+    double value;
+    y >>= value;
+  }
+  trace_off();
+
+  double point = 2.0;
+  int nnz = 0, options[]{0, 0};
+  unsigned int *rows = nullptr, *cols = nullptr;
+  double *values = nullptr;
+  BOOST_TEST(sparse_hess(tag, 1, 1, &point, &nnz, &rows, &cols, &values,
+                         options) == -3);
+  BOOST_TEST(rows == nullptr);
+  BOOST_TEST(cols == nullptr);
+  BOOST_TEST(values == nullptr);
+}
+
 template <ControlFlowMode CFM, RecoveryMethod RCM> static int *makeOptions() {
   int *options = new int[2];
   switch (CFM) {

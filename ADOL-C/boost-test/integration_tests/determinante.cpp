@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(DeterminanteTest) {
   adouble ad = det(A, n, m - 1); // actual function call.
 
   ad >>= detout;
-  BOOST_TEST(detout == diag, tt ::tolerance(tol));
+  BOOST_TEST(detout == diag, tt::tolerance(tol));
   trace_off();
 
   std::array<double, 1> u;

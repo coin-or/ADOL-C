@@ -210,7 +210,7 @@ template <typename F> static void g_hess_vec(F f) {
     std::array<double, 3> dx{0.0, 0.0, 0.0};
     dx[i] = 1.0;
     std::array<double, 3> dy;
-    const int ret = hess_vec(g_tape, x.size(), x.data(), dx.data(), dy.data());
+    const int ret = hess_vec(g_tape, x.size(), x, dx, dy);
     BOOST_TEST(ret >= 0);
     BOOST_TEST(dy == hessian[i], tt::per_element());
   }

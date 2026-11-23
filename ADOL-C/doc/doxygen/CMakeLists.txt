@@ -60,6 +60,8 @@ add_tested_documentation_example(
 add_tested_documentation_example(
   edf_object
   "${ADOLC_ADDITIONAL_EXAMPLE_SOURCE_DIR}/ext_diff_func/edfootest.cpp")
+add_tested_documentation_example(
+  contexam "${ADOLC_EXAMPLE_SOURCE_DIR}/contexam.cpp")
 
 set(DOXYFILE_IN "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in")
 set(DOXYFILE_OUT "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")

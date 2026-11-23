@@ -17,6 +17,7 @@
 
 #include <adolc/adolcexport.h>
 #include <adolc/internal/common.h>
+#include <span>
 
 BEGIN_C_DECLS
 
@@ -27,18 +28,18 @@ BEGIN_C_DECLS
 /* tensor_eval(tag,m,n,d,p,x[n],tensor[m][dim],S[n][p])
       with dim = ((p+d) over d) */
 ADOLC_API int tensor_eval(short tag, int m, int n, int d, int p, double *x,
-                          double **tensor, double **S);
+                          double **tensor, const double *const *S);
 
 /*--------------------------------------------------------------------------*/
 /* inverse_tensor_eval(tag,n,d,p,x,tensor[n][dim],S[n][p])
       with dim = ((p+d) over d) */
 ADOLC_API int inverse_tensor_eval(short tag, int n, int d, int p, double *x,
-                                  double **tensor, double **S);
+                                  double **tensor, const double *const *S);
 
 /*--------------------------------------------------------------------------*/
 /*  inverse_Taylor_prop(tag,n,d,Y[n][d+1],X[n][d+1]) */
-ADOLC_API int inverse_Taylor_prop(short tag, int n, int d, double **Y,
-                                  double **X);
+ADOLC_API int inverse_Taylor_prop(short tag, int n, int d,
+                                  const double *const *Y, double **X);
 
 /****************************************************************************/
 /*                                                  ACCESS TO TENSOR VALUES */
@@ -46,8 +47,8 @@ ADOLC_API int inverse_Taylor_prop(short tag, int n, int d, double **Y,
 /*--------------------------------------------------------------------------*/
 /* tensor_value(d,m,y[m],tensori[m][dim],multi[d])
       with dim = ((p+d) over d) */
-ADOLC_API void tensor_value(int d, int m, double *y, double **tensor,
-                            int *multi);
+ADOLC_API void tensor_value(int d, int m, double *y,
+                            const double *const *tensor, int *multi);
 
 /*--------------------------------------------------------------------------*/
 /* void** tensorsetup(m,p,d,tensorig) */
@@ -74,6 +75,61 @@ ADOLC_API int jac_solv(unsigned short tag, int n, const double *x, double *b,
                        unsigned short mode);
 
 END_C_DECLS
+
+ADOLC_API inline int inverse_tensor_eval(short tag, int n, int d, int p,
+                                         std::span<double> x,
+                                         std::span<double *> tensor,
+                                         std::span<const double *const> S) {
+  return inverse_tensor_eval(tag, n, d, p, x.data(), tensor.data(), S.data());
+};
+
+ADOLC_API inline int inverse_Taylor_prop(short tag, int n, int d,
+                                         std::span<const double *const> Y,
+                                         std::span<double *> X) {
+  return inverse_Taylor_prop(tag, n, d, Y.data(), X.data());
+};
+
+/**
+ * @brief Wrapper for tensor_eval().
+ *
+ * Used for higher order derivative tensors with
+ * dim = ((p+d) over d).
+ *
+ * @param tag    Tape identifier.
+ * @param m      Number of dependent variables.
+ * @param n      Number of independent variables.
+ * @param d      Highest derivative degree d.
+ * @param p      Number of directions p.
+ * @param x      Base point (input value).
+ * @param tensor Result in compressed form.
+ * @param S      Seed matrix.
+ *
+ * @return Zero on success, nonzero on failure.
+ */
+ADOLC_API inline int tensor_eval(short tag, int m, int n, int d, int p,
+                                 std::span<double> x,
+                                 std::span<double *> tensor,
+                                 std::span<const double *const> S) {
+  return tensor_eval(tag, m, n, d, p, x.data(), tensor.data(), S.data());
+};
+
+/**
+ * @brief Wrapper for tensor_value().
+ *
+ * Used for higher order derivative tensors with
+ * dim = ((p+d) over d).
+ *
+ * @param d      Highest derivative degreee d.
+ * @param m      number of dependent variables.
+ * @param y      Dependent vector y = F(x).
+ * @param tensor Result in compressed form.
+ * @param multi  Derivative adress.
+ */
+ADOLC_API inline void tensor_value(int d, int m, std::span<double> y,
+                                   std::span<const double *const> tensor,
+                                   std::span<int> multi) {
+  return tensor_value(d, m, y.data(), tensor.data(), multi.data());
+};
 
 /****************************************************************************/
 #endif
