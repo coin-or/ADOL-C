@@ -22,6 +22,9 @@
 #include <math.h>
 #include <vector>
 
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+
 namespace {
 PersistantTapeInfos::JacSolveData &updateJacSolveData(ValueTape &tape, int n) {
   if (n != tape.jacSolvData().jacSolv_nax) {

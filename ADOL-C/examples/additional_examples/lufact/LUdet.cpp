@@ -35,17 +35,17 @@ int main() { /*-----------------------------------------------------------------
   const int depen = 1;           // # of deps
 
   // passive variables
-  Matrix<double> A(size);
+  ADOLC::Matrix<double> A(size);
   std::vector<double> a1(size);
   std::vector<double> a2(size);
   double det;
   // active variables
-  Matrix<adouble> AA;
+  ADOLC::Matrix<adouble> AA;
   adouble Adet;
 
   std::vector<double> args(indep); // arguments
   std::vector<double> grad(indep); // gradient
-  Matrix<double> hess(indep);      // hessian
+  ADOLC::Matrix<double> hess(indep); // hessian
 
   int i, j;
 
@@ -55,7 +55,7 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allcoation und initialization of the system matrix */
-  AA = Matrix<adouble>{size};
+  AA = ADOLC::Matrix<adouble>{size};
 
   for (i = 0; i < size; i++) {
     a1[i] = i * 0.25;

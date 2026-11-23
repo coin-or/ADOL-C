@@ -90,7 +90,7 @@ int main() {
   /* Initialize the independent variables */
   double *indeps = new double[indepDim];
   double *deps = new double[depDim];
-  Matrix<double> indeps2(indepDim, degree + 1);
+  ADOLC::Matrix<double> indeps2(indepDim, degree + 1);
   initIndependents(indeps);
   for (i = 0; i < indepDim; i++) {
     indeps2[i][0] = indeps[i];
@@ -100,9 +100,9 @@ int main() {
 
   /*------------------------------------------------------------------------*/
   /* Necessary variable */
-  Tensor<double> B(indepDim, indepDim, degree);
-  Tensor<double> A(indepDim, indepDim, degree);
-  Matrix<double> w(indepDim, degree + 1);
+  ADOLC::Tensor<double> B(indepDim, indepDim, degree);
+  ADOLC::Tensor<double> A(indepDim, indepDim, degree);
+  ADOLC::Matrix<double> w(indepDim, degree + 1);
   ;
   short **nonzero = new short *[indepDim];
   for (i = 0; i < indepDim; i++)

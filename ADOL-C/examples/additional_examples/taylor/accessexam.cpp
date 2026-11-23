@@ -76,7 +76,7 @@ int main() {
 
   /*--------------------------------------------------------------------------*/
   dim = binomi(p + d, d); /* tensor_eval */
-  Matrix<double> tensorhelp(n, dim);
+  ADOLC::Matrix<double> tensorhelp(n, dim);
   cout << " d = " << d << ", dim = " << dim << "\n";
   tensor_eval(1, m, n, d, p, xp, tensorhelp.data(), S);
 

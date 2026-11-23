@@ -110,9 +110,9 @@ int main() {
   double *px = new double[n];
   double *lpx = new double[2 * n];
   double *grad_a = new double[2 * n];
-  Matrix<double> hess(n);
-  Matrix<double> hess_p(n);
-  Matrix<double> hess_a(2 * n);
+  ADOLC::Matrix<double> hess(n);
+  ADOLC::Matrix<double> hess_p(n);
+  ADOLC::Matrix<double> hess_a(2 * n);
 
   adouble *x = new adouble[n];
   adouble *b = new adouble[n];

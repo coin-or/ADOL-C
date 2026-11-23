@@ -8,6 +8,11 @@
 #include <stdexcept>
 #include <type_traits>
 
+using ADOLC::Identity;
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+using ADOLC::matrixView;
+
 namespace tt = boost::test_tools;
 
 namespace {

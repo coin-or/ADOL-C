@@ -207,6 +207,8 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include "ampi/libCommon/modified.h"
 #endif
 
+using ADOLC::Matrix;
+
 BEGIN_C_DECLS
 
 /****************************************************************************/

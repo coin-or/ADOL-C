@@ -62,19 +62,19 @@ int main() {
   /* vector x Hessian x matrix = Upp x H x XPPP */
 
   std::vector<double> Up(m);
-  Matrix<double> Upp(m, d + 1);
-  Tensor<double> Xppp(n, q, d);
-  Tensor<double> Zppp(q, n, d + 1);
-  Tensor<double> Yppp(m, q, d);
+  ADOLC::Matrix<double> Upp(m, d + 1);
+  ADOLC::Tensor<double> Xppp(n, q, d);
+  ADOLC::Tensor<double> Zppp(q, n, d + 1);
+  ADOLC::Tensor<double> Yppp(m, q, d);
 
   /* check results with usual lagra-Hess-vec  */
 
-  Matrix<double> Xpp(n, d);
-  Matrix<double> V(n, q);
-  Matrix<double> W(q, n);
-  Matrix<double> H(n, n);
-  Matrix<double> Ypp(m, d);
-  Matrix<double> Zpp(n, d + 1);
+  ADOLC::Matrix<double> Xpp(n, d);
+  ADOLC::Matrix<double> V(n, q);
+  ADOLC::Matrix<double> W(q, n);
+  ADOLC::Matrix<double> H(n, n);
+  ADOLC::Matrix<double> Ypp(m, d);
+  ADOLC::Matrix<double> Zpp(n, d + 1);
 
   /* inits */
 

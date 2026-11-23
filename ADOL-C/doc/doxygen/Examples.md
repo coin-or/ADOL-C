@@ -54,7 +54,7 @@ pattern as the scalar case. Use the array overloads of `<<=` and `>>=` to mark a
 `jacobian()` writes an \f$m\times n\f$ matrix: one row for each dependent and
 one column for each independent. Its C-compatible interface accepts `double**`,
 so this example stores the values in nested `std::array` objects and passes
-row pointers. For an owning `Matrix` that supplies these pointers, see
+row pointers. For an owning `ADOLC::Matrix` that supplies these pointers, see
 @ref tutorial_contexam "Pass matrices to drivers".
 
 @snippet taped_jacobian.cpp taped-jacobian
@@ -239,19 +239,19 @@ the same analytic time-step gradient:
 ### Use an existing buffer
 
 If your values already occupy a flat `std::vector` in row-major order,
-`matrixView(values, rows, cols)` builds a table of row pointers. The vector
+`ADOLC::matrixView(values, rows, cols)` builds a table of row pointers. The vector
 must contain exactly `rows * cols` elements. Writing through `view[i][j]`
 updates `values[i * cols + j]`. Keep the buffer alive and rebuild the view
 if the vector reallocates. For a flat `std::array`, use
-`matrixView<rows, cols>(values)`.
+`ADOLC::matrixView<rows, cols>(values)`.
 
 @snippet contexam.cpp contexam-view
 
 ### Allocate a dense matrix
 
-`Matrix` from `<adolc/adalloc.h>` owns its entries in row-major order.
-Use `Matrix<double, rows, cols>` when both dimensions are known at compile
-time, or `Matrix<double> matrix(rows, cols)` when they are known at run
+`ADOLC::Matrix` from `<adolc/adalloc.h>` owns its entries in row-major order.
+Use `ADOLC::Matrix<double, rows, cols>` when both dimensions are known at compile
+time, or `ADOLC::Matrix<double> matrix(rows, cols)` when they are known at run
 time. In both cases `matrix[i][j]` accesses an entry and `shape()` returns
 the row count followed by the column count.
 
@@ -273,7 +273,7 @@ output. It writes the function value separately to `problem.out`.
 
 @snippet contexam.cpp contexam-hos_forward
 
-For drivers that take three-dimensional arrays, `Tensor<double>(rows, cols,
+For drivers that take three-dimensional arrays, `ADOLC::Tensor<double>(rows, cols,
 depths)` owns row-major storage with all three dimensions set at run time.
 
 ### Choose an identity seed
@@ -284,14 +284,14 @@ this sum of squares.
 
 @snippet contexam.cpp contexam-identity
 
-Use `Identity<double>(n)` for a read-only identity seed. Its rows share
+Use `ADOLC::Identity<double>(n)` for a read-only identity seed. Its rows share
 `2*n - 1` values and use `n` row pointers. The driver still writes all
 `n*n` entries of the dense result. If you need to change a seed entry,
-start with `auto seed = unitMatrix<double>(n)`. It returns a regular dense
-`Matrix<double>` with independently writable entries.
+start with `auto seed = ADOLC::unitMatrix<double>(n)`. It returns a regular dense
+`ADOLC::Matrix<double>` with independently writable entries.
 
-If you need just one Hessian column, pass the corresponding unit vector to
-`hess_vec`.
+If you need just one Hessian column, pass the corresponding unit vector from
+`ADOLC::unitVector` to `hess_vec`.
 
 @snippet contexam.cpp contexam-unitVector
 

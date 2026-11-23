@@ -63,9 +63,9 @@ int main() {
 
   short **nz = new short *[n];
 
-  Matrix<double> X(n, deg + 1);
-  Tensor<double> Z(n, n, deg);
-  Tensor<double> B(n, n, deg);
+  ADOLC::Matrix<double> X(n, deg + 1);
+  ADOLC::Tensor<double> Z(n, n, deg);
+  ADOLC::Tensor<double> B(n, n, deg);
 
   for (i = 0; i < n; i++) {
     py[i] = (i == 0) ? 1.0 : 0.0; // Initialize the base point

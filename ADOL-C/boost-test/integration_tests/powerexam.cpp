@@ -8,6 +8,8 @@ namespace tt = boost::test_tools;
 #include <array>
 #include <numeric>
 
+using ADOLC::Matrix;
+
 adouble power(adouble x, int n) {
   adouble z = 1;
 

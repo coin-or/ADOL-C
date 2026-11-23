@@ -7,6 +7,8 @@ namespace tt = boost::test_tools;
 #include <adolc/adolc.h>
 #include <array>
 
+using ADOLC::Matrix;
+
 BOOST_AUTO_TEST_SUITE(test_tensor_eval)
 
 BOOST_AUTO_TEST_CASE(TensorEval_Repeatable_And_JacobianConsistent) {

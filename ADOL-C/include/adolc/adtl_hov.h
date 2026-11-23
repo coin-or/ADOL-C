@@ -264,7 +264,7 @@ private:
   double val;
   double *adval;
   list<unsigned int> pattern;
-  Matrix<double> ho_deriv;
+  ADOLC::Matrix<double> ho_deriv;
 #ifdef USE_ADTL_REFCOUNTING
   refcounter __rcnt;
 #endif
@@ -411,7 +411,7 @@ inline adouble::adouble() : val(0), adval(NULL) {
   //    	std::cout << "constructing adtl:   degree: " << adouble::degree
   //    << "  numDir: " << adouble::numDir << std::endl;
   {
-    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
+    ho_deriv = ADOLC::Matrix<double>(adouble::degree, adouble::numDir);
   }
   /*
       for(int i=0;i< adouble::degree;i++)
@@ -433,7 +433,7 @@ inline adouble::adouble(const double v) : val(v), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
+    ho_deriv = ADOLC::Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = 0.0;
   }
@@ -464,7 +464,7 @@ inline adouble::adouble(const double v, const double *adv)
 inline adouble::adouble(const double v, const double **hov) : val(v) {
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
+    ho_deriv = ADOLC::Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = hov[_j][_i];
   }
@@ -487,7 +487,7 @@ inline adouble::adouble(const adouble &a) : val(a.val), adval(NULL) {
   }
   if (do_hoval()) // ADTL_HOV
   {
-    ho_deriv = Matrix<double>(adouble::degree, adouble::numDir);
+    ho_deriv = ADOLC::Matrix<double>(adouble::degree, adouble::numDir);
     FOR_J_EQ_0_LT_DEGREE_FOR_I_EQ_0_LT_NUMDIR
     HO_DER_I_J = a.HO_DER_I_J;
   }

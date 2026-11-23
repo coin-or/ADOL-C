@@ -15,7 +15,7 @@
 
 /****************************************************************************/
 /*                                                                 INCLUDES */
-#include <adolc/adalloc.h> // For Matrix
+#include <adolc/adalloc.h> // For ADOLC::Matrix
 #include <adolc/adolc.h>
 #include <array>
 #include <cstdlib>
@@ -39,7 +39,7 @@ struct ADProblem {
   std::array<double, dimIn> inputs;
   std::array<double, dimOut> out;
   std::array<double, dimIn> gradient;
-  Matrix<double, dimIn> hessian;
+  ADOLC::Matrix<double, dimIn> hessian;
 
   ADProblem() : tapeId(createNewTape()) {
     // Prepare input

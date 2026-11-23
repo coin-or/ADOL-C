@@ -20,6 +20,9 @@
 
 #include <math.h>
 
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+
 BEGIN_C_DECLS
 
 /****************************************************************************/

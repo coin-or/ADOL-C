@@ -35,16 +35,16 @@ int main() { /*-----------------------------------------------------------------
   const int depen = size;               // # of deps
 
   // passive variables
-  Matrix<double> A(size);
+  ADOLC::Matrix<double> A(size);
   std::vector<double> a1(size);
   std::vector<double> a2(size);
   std::vector<double> b(size);
   std::vector<double> x(size);
   // active variables
-  Matrix<adouble> AA;
+  ADOLC::Matrix<adouble> AA;
   std::vector<adouble> Abx;
   std::vector<double> args(indep);       // arguments
-  Matrix<double> jac(depen, indep);      // the Jacobian
+  ADOLC::Matrix<double> jac(depen, indep); // the Jacobian
   std::vector<double> laghessvec(indep); // Hessian-vector-product
 
   int i, j;
@@ -56,7 +56,7 @@ int main() { /*-----------------------------------------------------------------
 
   /*------------------------------------------------------------------------*/
   /* Allocation und initialization of the system matrix */
-  AA = Matrix<adouble>(size);
+  AA = ADOLC::Matrix<adouble>(size);
   Abx = std::vector<adouble>(size);
   for (i = 0; i < size; i++) {
     a1[i] = i * 0.25;

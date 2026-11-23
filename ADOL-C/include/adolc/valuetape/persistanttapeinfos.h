@@ -27,15 +27,15 @@ struct PersistantTapeInfos {
     int forodec_dax{0};
     std::vector<double> forodec_y;
     std::vector<double> forodec_z;
-    Matrix<double> forodec_Z;
+    ADOLC::Matrix<double> forodec_Z;
   };
   ForwardODEData ODEData_;
 
   struct JacSolveData {
     int jacSolv_nax{0};
     int jacSolv_modeold{0};
-    Matrix<double> jacSolv_J;
-    Identity<double> jacSolv_I{1};
+    ADOLC::Matrix<double> jacSolv_J;
+    ADOLC::Identity<double> jacSolv_I{1};
     std::vector<double> jacSolv_xold;
     std::vector<int> jacSolv_ri;
     std::vector<int> jacSolv_ci;

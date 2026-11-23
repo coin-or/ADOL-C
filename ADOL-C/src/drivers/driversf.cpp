@@ -83,7 +83,8 @@ fint jacobian_(fint *ftag, fint *fdepen, fint *findep, fdouble *fargument,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int depen = static_cast<int>(*fdepen), indep = static_cast<int>(*findep);
-  Matrix<double> Jac{static_cast<size_t>(depen), static_cast<size_t>(indep)};
+  ADOLC::Matrix<double> Jac{static_cast<size_t>(depen),
+                            static_cast<size_t>(indep)};
   std::vector<double> argument(indep);
   spread1(indep, fargument, argument.data());
   rc = jacobian(tag, depen, indep, argument, Jac);
@@ -137,7 +138,7 @@ fint hessian_(fint *ftag, fint *fn, fdouble *fx,
   int rc = -1;
   short tag = static_cast<short>(*ftag);
   int n = static_cast<int>(*fn);
-  Matrix<double> H{static_cast<size_t>(n)};
+  ADOLC::Matrix<double> H{static_cast<size_t>(n)};
   std::vector<double> x(n);
   spread1(n, fx, x.data());
   rc = hessian(tag, n, x, H);

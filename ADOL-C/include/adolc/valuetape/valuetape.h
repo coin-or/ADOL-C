@@ -283,7 +283,8 @@ public:
         .forodec_dax = deg,
         .forodec_y = std::vector<double>(n),
         .forodec_z = std::vector<double>(n),
-        .forodec_Z = deg == 0 ? Matrix<double>{} : Matrix<double>(n, deg)};
+        .forodec_Z =
+            deg == 0 ? ADOLC::Matrix<double>{} : ADOLC::Matrix<double>(n, deg)};
   }
   const PersistantTapeInfos::ForwardODEData &forwardODEData() const {
     return perTapeInfos_.ODEData_;
@@ -296,8 +297,8 @@ public:
     perTapeInfos_.jacData_ = PersistantTapeInfos::JacSolveData{
         .jacSolv_nax = n,
         .jacSolv_modeold = modeOld,
-        .jacSolv_J = Matrix<double>(n),
-        .jacSolv_I = Identity<double>{to_size_t(n)},
+        .jacSolv_J = ADOLC::Matrix<double>(n),
+        .jacSolv_I = ADOLC::Identity<double>{to_size_t(n)},
         .jacSolv_xold = std::vector<double>(n),
         .jacSolv_ri = std::vector<int>(n),
         .jacSolv_ci = std::vector<int>(n)};

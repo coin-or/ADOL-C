@@ -16,6 +16,8 @@ namespace tt = boost::test_tools;
 #include <numeric>
 #include <vector>
 
+using ADOLC::Tensor;
+
 BOOST_AUTO_TEST_SUITE(test_hov_wk_forward)
 
 BOOST_AUTO_TEST_CASE(FmaxOperator_HOV_WK_Forward) {

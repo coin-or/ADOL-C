@@ -55,7 +55,8 @@ void printMatrix(std::string_view description, std::vector<double *> matrix,
  */
 template <typename T = double, size_t dimY = std::dynamic_extent,
           size_t dimX = dimY>
-void printMatrix(std::string_view description, Matrix<T, dimY, dimX> &matrix) {
+void printMatrix(std::string_view description,
+                 ADOLC::Matrix<T, dimY, dimX> &matrix) {
   std::cout << description << " with dimensions (" << matrix.shape().first
             << ", " << matrix.shape().second << "):\n";
   for (int i = 0; i < matrix.shape().first; ++i) {
@@ -74,7 +75,7 @@ void printVector(std::string_view description, const std::vector<double> &vec) {
 }
 template <typename T = double, size_t dimY = std::dynamic_extent,
           size_t dimX = dimY>
-void setMatrix(Matrix<T, dimY, dimX> &matrix) {
+void setMatrix(ADOLC::Matrix<T, dimY, dimX> &matrix) {
   for (int i = 0; i < matrix.shape().first; ++i) {
     for (int j = 0; j < matrix.shape().second; ++j) {
       matrix[i][j] = i + j;
@@ -135,7 +136,7 @@ bool viewExample() {
     data[i] = static_cast<double>(i + 1);
   }
   // Create a view of the data vector in matrix shape
-  std::vector<double *> view = matrixView(data, dimX, dimY);
+  std::vector<double *> view = ADOLC::matrixView(data, dimX, dimY);
   //! [contexam-view]
   printVector("Data vector", data);
   printMatrix("Matrix view of data vector", view, dimX, dimY);
@@ -162,7 +163,7 @@ bool exampleMatrix() {
   constexpr size_t dimY = 3;
 
   // Create an ADOL-C Matrix container with default values
-  Matrix<double, dimY, dimX> matrix;
+  ADOLC::Matrix<double, dimY, dimX> matrix;
 
   // Show dimensions of the matrix
   std::cout << "Matrix dimensions: (" << matrix.shape().first << ", "
@@ -198,8 +199,8 @@ bool exampleMatrix() {
  */
 bool computeHOS_FORWARD(ADProblem &problem) {
   //! [contexam-hos_forward]
-  auto output = Matrix<double>(ADProblem::dimOut, 2);
-  auto tangent = Matrix<double>(ADProblem::dimIn, 2);
+  auto output = ADOLC::Matrix<double>(ADProblem::dimOut, 2);
+  auto tangent = ADOLC::Matrix<double>(ADProblem::dimIn, 2);
   tangent[0][0] = 1.0;
   tangent[1][0] = 1.0;
   tangent[2][0] = 1.0;
@@ -220,8 +221,8 @@ bool computeHOS_FORWARD(ADProblem &problem) {
 bool computeHessian(ADProblem &problem) {
   //! [contexam-identity]
   constexpr auto n = ADProblem::dimIn;
-  const Identity<double> seed(n);
-  Matrix<double, n, n> hessian;
+  const ADOLC::Identity<double> seed(n);
+  ADOLC::Matrix<double, n, n> hessian;
   const int status =
       hess_mat(problem.tapeId, n, n, problem.inputs, seed, hessian);
   //! [contexam-identity]
@@ -247,8 +248,8 @@ bool computeHessian(ADProblem &problem) {
 bool computeHessianVectorProduct(ADProblem &problem, const size_t unitDir = 0) {
   //! [contexam-unitVector]
   std::vector<double> hessianColumn(ADProblem::dimIn);
-  auto unit =
-      unitVector(ADProblem::dimIn, unitDir); // unitDir has to be in [0, dimIn)
+  auto unit = ADOLC::unitVector(ADProblem::dimIn,
+                                unitDir); // unitDir has to be in [0, dimIn)
 
   hess_vec(problem.tapeId, ADProblem::dimIn, problem.inputs, unit,
            hessianColumn);

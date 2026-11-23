@@ -43,7 +43,7 @@ int main() {
   std::vector<int> multi(d);
   std::vector<double> xp(n);
   std::vector<double> yp(m);
-  Matrix<double> S(n, p, 0.0);
+  ADOLC::Matrix<double> S(n, p, 0.0);
   std::vector<double> test(m);
   std::vector<adouble> x(n);
   std::vector<adouble> y(m);
@@ -77,7 +77,7 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 1:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  Matrix<double> tensoren(m, dim);
+  ADOLC::Matrix<double> tensoren(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
 
@@ -95,7 +95,7 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 2:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(m, dim);
+  tensoren = ADOLC::Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
 
@@ -132,7 +132,7 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 4:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(m, dim);
+  tensoren = ADOLC::Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
   for (i = 0; i < p; i++) {
@@ -151,7 +151,7 @@ int main() {
   cout << "TASK 5:\n";
   cout << " OLD independend values !!!\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(m, dim);
+  tensoren = ADOLC::Matrix<double>(m, dim);
 
   tensor_eval(1, m, n, d, p, xp.data(), tensoren.data(), S.data());
   for (i = 0; i < p; i++) {

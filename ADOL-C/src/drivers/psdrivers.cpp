@@ -24,6 +24,8 @@
 #include <span>
 #include <vector>
 
+using ADOLC::Matrix;
+
 BEGIN_C_DECLS
 
 /****************************************************************************/

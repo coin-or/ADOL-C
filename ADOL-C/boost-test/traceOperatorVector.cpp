@@ -9,6 +9,9 @@ namespace tt = boost::test_tools;
 #include <array>
 #include <vector>
 
+using ADOLC::Matrix;
+using ADOLC::matrixView;
+
 BOOST_AUTO_TEST_SUITE(trace_vector)
 
 /***********************************/

@@ -9,6 +9,8 @@ namespace tt = boost::test_tools;
 #include <numeric>
 #include <vector>
 
+using ADOLC::Matrix;
+
 // Euler step (double version)
 int euler_step(size_t, double *y) {
   y[0] = y[0] + 0.01 * y[0];

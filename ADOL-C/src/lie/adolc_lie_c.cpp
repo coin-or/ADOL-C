@@ -18,6 +18,10 @@
 #include <adolc/lie/drivers.h>
 #include <vector>
 
+using ADOLC::Identity;
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+
 /** Computes the total derivative of the output
  *
  *  @param p Number of rows of C (number of outputs)

@@ -70,7 +70,7 @@ int main() {
   /*--------------------------------------------------------------------------*/
   d = d - 1; /* 1. inverse_tensor_eval */
   dim = binomi(p + d, d);
-  Matrix<double> tensoren(n, dim);
+  ADOLC::Matrix<double> tensoren(n, dim);
   cout << "TASK 1:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
 
@@ -90,7 +90,7 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 2:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(n, dim);
+  tensoren = ADOLC::Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
 
@@ -126,7 +126,7 @@ int main() {
   dim = binomi(p + d, d);
   cout << "TASK 4:\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(n, dim);
+  tensoren = ADOLC::Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
 
@@ -146,7 +146,7 @@ int main() {
   cout << "TASK 5:\n";
   cout << " OLD independend values !!!\n";
   cout << " d = " << d << ", dim = " << dim << "\n";
-  tensoren = Matrix<double>(n, dim);
+  tensoren = ADOLC::Matrix<double>(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensoren.data(), S);
 

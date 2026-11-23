@@ -58,6 +58,8 @@ and _NTIGHT__
 #include "ampisupportAdolc.h"
 #endif
 
+using ADOLC::Matrix;
+
 /****************************************************************************/
 /*                                                                   MACROS */
 #undef _ADOLC_VECTOR_

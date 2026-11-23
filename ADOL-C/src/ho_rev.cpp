@@ -220,6 +220,9 @@ results   Taylor-Jacobians       ------------          Taylor Jacobians
 #include <string.h>
 #endif /* ADOLC_DEBUG */
 
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+
 BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/

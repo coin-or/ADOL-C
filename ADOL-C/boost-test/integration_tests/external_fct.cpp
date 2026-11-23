@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using ADOLC::Matrix;
+
 /**
  * Integration tests for the v1 external-function facility.
  *

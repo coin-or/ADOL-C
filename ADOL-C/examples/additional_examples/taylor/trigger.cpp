@@ -92,7 +92,7 @@ int main() {
     printf(" %f", Fhp[i]);
   printf(" %15.10f )\n\n", Fhp[n - 1]);
   dim = binomi(p + d, d);
-  Matrix<double> tensors(n, dim);
+  ADOLC::Matrix<double> tensors(n, dim);
 
   inverse_tensor_eval(1, n, d, p, xp, tensors.data(), S);
 

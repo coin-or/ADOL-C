@@ -116,7 +116,7 @@ int main() {
    * calculation of Lie derivatives of scalar fields *
    ***************************************************/
 
-  Matrix<double> scalar(m_H, d + 1);
+  ADOLC::Matrix<double> scalar(m_H, d + 1);
 
   cout << "Lie derivatives:" << endl << endl;
 
@@ -135,7 +135,7 @@ int main() {
    * calculation of gradients of Lie derivatives of scalar fields *
    ****************************************************************/
 
-  Tensor<double> gradient(m_H, n, d + 1);
+  ADOLC::Tensor<double> gradient(m_H, n, d + 1);
 
   cout << "gradients of Lie derivatives:" << endl << endl;
 
@@ -156,7 +156,7 @@ int main() {
    * calculation of Lie brackets *
    *******************************/
 
-  Matrix<double> bracket(n, d + 1);
+  ADOLC::Matrix<double> bracket(n, d + 1);
 
   cout << "Lie brackets:" << endl << endl;
 

@@ -19,6 +19,9 @@
 #include <adolc/interfaces.h>
 #include <vector>
 
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+
 BEGIN_C_DECLS
 
 /*--------------------------------------------------------------------------*/

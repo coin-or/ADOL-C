@@ -155,6 +155,8 @@ sparsity pattern (crs):
 #include <numeric>
 #include <vector>
 
+using ADOLC::Matrix;
+
 namespace tt = boost::test_tools;
 
 BOOST_AUTO_TEST_SUITE(test_sparse_abs_normal)

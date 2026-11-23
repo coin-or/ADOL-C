@@ -13,6 +13,12 @@ namespace tt = boost::test_tools;
 #include <type_traits>
 #include <vector>
 
+using ADOLC::Matrix;
+using ADOLC::Tensor;
+using ADOLC::matrixView;
+using ADOLC::unitMatrix;
+using ADOLC::unitVector;
+
 namespace {
 struct ThrowingMoveElement {
   ThrowingMoveElement() = default;

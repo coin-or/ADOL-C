@@ -38,16 +38,16 @@ int main() {
   if (n < 0)
     n = -n;
   // allocations and initializations
-  Matrix<double> X(1, n + 4);
-  Matrix<double> Y(1, n + 4);
+  ADOLC::Matrix<double> X(1, n + 4);
+  ADOLC::Matrix<double> Y(1, n + 4);
   cout << "value of x=? \n";
   cin >> X[0][0]; // function value = 0. coefficient
   X[0][1] = 1.0;  // first derivative = 1. coefficient
   X[0][2] = 0.0;  // second derivative = 2. coefficient
   for (i = 1; i < n + 2; i++)
     X[0][i + 2] = 0;          // further coefficients
-  Matrix<double> Z(1, n + 2); // used for checking consistency
-                              // between forward and reverse */
+  ADOLC::Matrix<double> Z(1, n + 2); // used for checking consistency
+                                     // between forward and reverse */
 
   adouble y, x; // declare active variables
   // beginning of active section

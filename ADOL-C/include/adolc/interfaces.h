@@ -165,7 +165,6 @@ ADOLC_API inline int forward(short tnum, int m, int n, int d, int keep,
  * @param tnum     tape identification.
  * @param m        number of dependent variables m.
  * @param n        number of independent variables n.
- * @param d        highest derivative degree d.
  * @param keep     flag for reverse mode preparation.
  * @param X        tangent matrix.
  * @param Y        derivative.
@@ -187,7 +186,6 @@ ADOLC_API inline int forward(short tnum, int m, int n, int keep,
  * @param n        number of independent variables n.
  * @param d        highest derivative degree d.
  * @param p        number of directions.
- * @param keep     flag for reverse mode preparation.
  * @param x        independent vector.
  * @param y        dependent vector.
  * @param X        tangent matrix.
