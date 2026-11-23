@@ -14,8 +14,8 @@ namespace tt = boost::test_tools;
 #include <vector>
 
 using ADOLC::Matrix;
-using ADOLC::Tensor;
 using ADOLC::matrixView;
+using ADOLC::Tensor;
 using ADOLC::unitMatrix;
 using ADOLC::unitVector;
 

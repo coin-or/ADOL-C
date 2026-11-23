@@ -43,8 +43,8 @@ int main() { /*-----------------------------------------------------------------
   ADOLC::Matrix<adouble> AA;
   adouble Adet;
 
-  std::vector<double> args(indep); // arguments
-  std::vector<double> grad(indep); // gradient
+  std::vector<double> args(indep);   // arguments
+  std::vector<double> grad(indep);   // gradient
   ADOLC::Matrix<double> hess(indep); // hessian
 
   int i, j;

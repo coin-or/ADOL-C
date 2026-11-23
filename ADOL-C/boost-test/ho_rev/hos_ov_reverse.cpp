@@ -7,8 +7,8 @@ namespace tt = boost::test_tools;
 #include <adolc/adolc.h>
 #include <vector>
 
-using ADOLC::Tensor;
 using ADOLC::matrixView;
+using ADOLC::Tensor;
 
 BOOST_AUTO_TEST_SUITE(test_hos_ov_forward)
 

@@ -43,9 +43,9 @@ int main() { /*-----------------------------------------------------------------
   // active variables
   ADOLC::Matrix<adouble> AA;
   std::vector<adouble> Abx;
-  std::vector<double> args(indep);       // arguments
+  std::vector<double> args(indep);         // arguments
   ADOLC::Matrix<double> jac(depen, indep); // the Jacobian
-  std::vector<double> laghessvec(indep); // Hessian-vector-product
+  std::vector<double> laghessvec(indep);   // Hessian-vector-product
 
   int i, j;
 

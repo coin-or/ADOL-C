@@ -58,7 +58,7 @@ int main() {
   X[0][0] = 0.5; /* function value = 0. coefficient */
   X[0][1] = 1.0; /* first derivative = 1. coefficient */
   for (i = 0; i < n + 2; i++)
-    X[0][i + 2] = 0;          /* further coefficients */
+    X[0][i + 2] = 0;                 /* further coefficients */
   ADOLC::Matrix<double> Z(1, n + 2); /* used for checking consistency */
                                      /* between forward and reverse */
 

@@ -10,8 +10,8 @@
 
 using ADOLC::Identity;
 using ADOLC::Matrix;
-using ADOLC::Tensor;
 using ADOLC::matrixView;
+using ADOLC::Tensor;
 
 namespace tt = boost::test_tools;
 
