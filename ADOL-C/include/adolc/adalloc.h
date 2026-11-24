@@ -15,11 +15,14 @@
 #if !defined(ADOLC_ADALLOC_H)
 #define ADOLC_ADALLOC_H 1
 
+#include <adolc/adolcexport.h>
+#include <stddef.h>
+#ifdef __cplusplus
 #include <adolc/internal/common.h>
+extern "C" {
+#endif
 /****************************************************************************/
 /*                                                         Now the C THINGS */
-BEGIN_C_DECLS
-#include <stddef.h>
 /*--------------------------------------------------------------------------*/
 /*                                              MEMORY MANAGEMENT UTILITIES */
 ADOLC_API char *populate_dpp(double ***const pointer, char *const memory,
@@ -29,13 +32,106 @@ ADOLC_API char *populate_dppp(double ****const pointer, char *const memory,
 ADOLC_API char *populate_dppp_nodata(double ****const pointer,
                                      char *const memory, size_t n, size_t m);
 
-END_C_DECLS
+// The raw-pointer API remains available to C and C++ callers migrating
+// from 2.x.
+#if defined(__cplusplus)
+#define ADOLC_DEPRECATED_ALLOC(message) [[deprecated(message)]]
+#elif defined(_MSC_VER)
+#define ADOLC_DEPRECATED_ALLOC(message)                                        \
+  __declspec(deprecated("Legacy ADOL-C allocation API"))
+#elif defined(__GNUC__)
+#define ADOLC_DEPRECATED_ALLOC(message)                                        \
+  __attribute__((deprecated("Legacy ADOL-C allocation API")))
+#else
+#define ADOLC_DEPRECATED_ALLOC(message)
+#endif
+
+ADOLC_DEPRECATED_ALLOC("Use std::vector<double> instead")
+ADOLC_API double *myalloc1(size_t n);
+ADOLC_DEPRECATED_ALLOC("Use ADOLC::Matrix<double> instead")
+ADOLC_API double **myalloc2(size_t rows, size_t cols);
+ADOLC_DEPRECATED_ALLOC("Use ADOLC::Tensor<double> instead")
+ADOLC_API double ***myalloc3(size_t rows, size_t cols, size_t depths);
+
+ADOLC_DEPRECATED_ALLOC("Omit myfree1 when using std::vector<double>")
+ADOLC_API void myfree1(double *a);
+ADOLC_DEPRECATED_ALLOC("Omit myfree2 when using ADOLC::Matrix<double>")
+ADOLC_API void myfree2(double **a);
+ADOLC_DEPRECATED_ALLOC("Omit myfree3 when using ADOLC::Tensor<double>")
+ADOLC_API void myfree3(double ***a);
+
+ADOLC_DEPRECATED_ALLOC(
+    "Use ADOLC::Identity<double> for a read-only identity seed")
+ADOLC_API double **myallocI2(int n);
+ADOLC_DEPRECATED_ALLOC("Omit myfreeI2 when using ADOLC::Identity<double>")
+ADOLC_API void myfreeI2(int n, double **a);
+
+ADOLC_DEPRECATED_ALLOC("Use std::vector<unsigned int> instead")
+ADOLC_API unsigned int *myalloc1_uint(int n);
+ADOLC_DEPRECATED_ALLOC("Omit myfree1_uint when using std::vector<unsigned int>")
+ADOLC_API void myfree1_uint(unsigned int *a);
+ADOLC_DEPRECATED_ALLOC("Use std::vector<unsigned long> instead")
+ADOLC_API unsigned long *myalloc1_ulong(int n);
+ADOLC_DEPRECATED_ALLOC(
+    "Omit myfree1_ulong when using std::vector<unsigned long>")
+ADOLC_API void myfree1_ulong(unsigned long *a);
+ADOLC_DEPRECATED_ALLOC("Use ADOLC::Matrix<unsigned long> instead")
+ADOLC_API unsigned long **myalloc2_ulong(int rows, int cols);
+ADOLC_DEPRECATED_ALLOC(
+    "Omit myfree2_ulong when using ADOLC::Matrix<unsigned long>")
+ADOLC_API void myfree2_ulong(unsigned long **a);
+
+#undef ADOLC_DEPRECATED_ALLOC
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 /****************************************************************************/
 /*                                                       Now the C++ THINGS */
 #if defined(__cplusplus)
 
-#include <adolc/adolcexport.h>
+// Warn at the caller of these deprecated overloads, including on compilers
+// that also diagnose calls between deprecated functions.
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+[[deprecated("Use std::vector<double> instead")]]
+inline double *myalloc(int n) {
+  return myalloc1(to_size_t(n));
+}
+[[deprecated("Use ADOLC::Matrix<double> instead")]]
+inline double **myalloc(int rows, int cols) {
+  return myalloc2(to_size_t(rows), to_size_t(cols));
+}
+[[deprecated("Use ADOLC::Tensor<double> instead")]]
+inline double ***myalloc(int rows, int cols, int depths) {
+  return myalloc3(to_size_t(rows), to_size_t(cols), to_size_t(depths));
+}
+
+[[deprecated("Omit myfree when using std::vector<double>")]]
+inline void myfree(double *a) {
+  myfree1(a);
+}
+[[deprecated("Omit myfree when using ADOLC::Matrix<double>")]]
+inline void myfree(double **a) {
+  myfree2(a);
+}
+[[deprecated("Omit myfree when using ADOLC::Tensor<double>")]]
+inline void myfree(double ***a) {
+  myfree3(a);
+}
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include <array>
 #include <limits>
 #include <span>
