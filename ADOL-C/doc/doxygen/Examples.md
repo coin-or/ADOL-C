@@ -276,6 +276,19 @@ output. It writes the function value separately to `problem.out`.
 For drivers that take three-dimensional arrays, `ADOLC::Tensor<double>(rows, cols,
 depths)` owns row-major storage with all three dimensions set at run time.
 
+### Migrate from `myalloc` in 2.x
+
+The deprecated 2.x allocators still return raw pointers. Keep the matching
+free call until you migrate that allocation. For example, code using
+`double **J = myalloc2(m, n)` must still call `myfree2(J)`. The C++ shorthand
+`myalloc(m, n)` and `myfree(J)` also remains available.
+
+To migrate, declare `ADOLC::Matrix<double> J(m, n)` and remove the free
+call. Indexing stays `J[i][j]`. A driver that requires `double **` can
+borrow `J.data()` while `J` is alive. For `myalloc1(n)`, use
+`std::vector<double> x(n)`. For `myalloc3(m, n, p)`, use
+`ADOLC::Tensor<double> t(m, n, p)`.
+
 ### Choose an identity seed
 
 `hess_mat` computes the product of the Hessian and a seed matrix. Passing the
